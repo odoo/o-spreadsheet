@@ -1,0 +1,13 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0px;
+}
+
+.o-spreadsheet {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 40px auto;
+}
