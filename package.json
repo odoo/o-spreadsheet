@@ -1,0 +1,24 @@
+{
+  "name": "@odoo/owl-spreadsheet",
+  "version": "0.0.1",
+  "description": "A spreadsheet component",
+  "main": "index.js",
+  "scripts": {
+    "serve": "live-server app"
+  },
+  "browserslist": [
+    "last 1 Chrome versions"
+  ],
+  "keywords": [
+    "owl",
+    "spreadsheet",
+    "odoo"
+  ],
+  "author": "Gery Debongnie",
+  "license": "LGPL-3.0-or-later",
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.8.0",
+    "live-server": "^1.2.1"
+  }
+}
