@@ -30,6 +30,7 @@ const TEMPLATE = xml /* xml */`
     <ToolBar/>
     <div class="o-spreadsheet-sheet">
       <canvas t-ref="canvas"
+        t-on-mousewheel="onMouseWheel"
         t-attf-style="width:{{props.width}}px;height:{{props.height - 40}}px" />
       <div class="o-scrollbar vertical" t-on-scroll="update('row')" t-ref="vscrollbar">
         <div t-attf-style="width:1px;height:{{state.height}}px"/>
@@ -205,7 +206,12 @@ export class Spreadsheet extends Component {
       }
     }
   }
-
+  onMouseWheel(ev) {
+    const vScrollbar = this.vScrollbar.el;
+    vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
+    const hScrollbar = this.hScrollbar.el;
+    hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
+  }
 }
 
 // -----------------------------------------------------------------------------

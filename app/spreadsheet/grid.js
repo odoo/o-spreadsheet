@@ -25,10 +25,10 @@ export function drawGrid(ctx, state, width, height) {
         ctx.fillStyle = '#585757';
         ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, ROW_HEADER_HEIGHT / 2);
         ctx.strokeStyle = '#999';
-        ctx.lineWidth = 0.4;
+        ctx.lineWidth = 0.35;
         ctx.beginPath();
-        ctx.moveTo(col.left - offsetX + 0.5, 0);
-        ctx.lineTo(col.left - offsetX + 0.5, height);
+        ctx.moveTo(col.left - offsetX, 0);
+        ctx.lineTo(col.left - offsetX, height);
         ctx.stroke();
         if (col.right - offsetX> width) {
             break;
@@ -45,10 +45,10 @@ export function drawGrid(ctx, state, width, height) {
         ctx.fillStyle = '#585757';
         ctx.fillText(row.name, COL_HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
         ctx.strokeStyle = '#999';
-        ctx.lineWidth = 0.4;
+        ctx.lineWidth = 0.35;
         ctx.beginPath();
-        ctx.moveTo(0, row.top - offsetY + 0.5);
-        ctx.lineTo(width, row.top - offsetY + 0.5);
+        ctx.moveTo(0, row.top - offsetY);
+        ctx.lineTo(width, row.top - offsetY);
         ctx.stroke();
         if (row.bottom - offsetY > height) {
             break;
