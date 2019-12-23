@@ -141,7 +141,7 @@ export class Spreadsheet extends Component {
     this.canvas.el.height = (this.props.height - 40) * dpr;
     this.context.scale(dpr, dpr);
 
-    drawGrid(this.context, this.state, this.props.width, this.props.height)
+    drawGrid(this.context, this.state, this.props.width, this.props.height - 40)
   }
   /**
    * Process the data to precompute some derived informations:
