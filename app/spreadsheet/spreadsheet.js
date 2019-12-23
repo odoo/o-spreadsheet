@@ -159,7 +159,7 @@ export class Spreadsheet extends Component {
         top: current,
         bottom: current + size,
         size: size,
-        name: String(i),
+        name: String(i+1),
       };
       state.rows.push(row);
       current = row.bottom;
