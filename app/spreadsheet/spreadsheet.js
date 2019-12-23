@@ -1,10 +1,11 @@
+import { drawGrid, ROW_HEADER_HEIGHT, COL_HEADER_WIDTH } from "./grid.js";
+
 const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useRef, useState } = owl.hooks;
 
-import { drawGrid, ROW_HEADER_HEIGHT, COL_HEADER_WIDTH } from "./grid.js";
 
-const DEFAULT_CELL_HEIGHT = 25;
+const DEFAULT_CELL_HEIGHT = 26;
 const DEFAULT_CELL_WIDTH = 100;
 
 const GRAY_COLOR = '#f5f5f5';
@@ -29,9 +30,7 @@ const TEMPLATE = xml /* xml */`
     <ToolBar/>
     <div class="o-spreadsheet-sheet">
       <canvas t-ref="canvas"
-        t-attf-style="width:{{props.width}}px;height:{{props.height - 40}}px"
-        t-att-width="props.width"
-        t-att-height="props.height - 40"/>
+        t-attf-style="width:{{props.width}}px;height:{{props.height - 40}}px" />
       <div class="o-scrollbar vertical" t-on-scroll="update('row')" t-ref="vscrollbar">
         <div t-attf-style="width:1px;height:{{state.height}}px"/>
       </div>
@@ -110,17 +109,44 @@ export class Spreadsheet extends Component {
   constructor() {
     super(...arguments);
     this.computeState();
-    console.log(this); // remove this...
   }
 
   mounted() {
-    this.context = this.canvas.el.getContext('2d');
-    drawGrid(this.context, this.state, this.props.width, this.props.height);
+    const canvas = this.canvas.el;
+    // Get the device pixel ratio, falling back to 1.
+    // const dpr = window.devicePixelRatio || 1;
+    // // Get the size of the canvas in CSS pixels.
+    // const rect = canvas.getBoundingClientRect();
+    // // Give the canvas pixel dimensions of their CSS
+    // // size * the device pixel ratio.
+    // canvas.width = rect.width * dpr;
+    // canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    // Scale all drawing operations by the dpr, so you
+    // don't have to worry about the difference.
+    // ctx.scale(this.dpr, this.dpr);
+    this.context = ctx; // this.canvas.el.getContext('2d');
+    this.drawGrid();
   }
   patched() {
-    drawGrid(this.context, this.state, this.props.width, this.props.height);
+    this.drawGrid();
   }
 
+  drawGrid() {
+    // whenever the dimensions are changed, we need to reset the width/height
+    // of the canvas manually, and reset its scaling.
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.el.width = this.props.width * dpr;
+    this.canvas.el.height = (this.props.height - 40) * dpr;
+    this.context.scale(dpr, dpr);
+
+    drawGrid(this.context, this.state, this.props.width, this.props.height)
+  }
+  /**
+   * Process the data to precompute some derived informations:
+   * - rows/cols dimensions
+   * - total grid dimension
+   */
   computeState() {
     const data = this.data;
     const state = this.state;
@@ -146,7 +172,7 @@ export class Spreadsheet extends Component {
         left: current,
         right: current + size,
         size: size,
-        name: String(i),
+        name: numberToLetter(i),
       };
       state.cols.push(col);
       current = col.right;
@@ -154,6 +180,11 @@ export class Spreadsheet extends Component {
     state.width = state.cols[state.cols.length - 1].right + 10;
   }
 
+  /**
+   * Compute and update currentrow/currentcol depending on scrolling state
+   *
+   * @param {'row'|'col'} type
+   */
   update(type) {
     if (type === 'row') {
       const y = this.vScrollbar.el.scrollTop;
@@ -169,7 +200,6 @@ export class Spreadsheet extends Component {
         const col = this.state.cols[i];
         if (x < ((col.right + col.left) / 2)) {
           this.state.currentCol = i;
-          // debugger;
           break;
         }
       }
@@ -178,3 +208,17 @@ export class Spreadsheet extends Component {
 
 }
 
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+/**
+ *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
+ */
+function numberToLetter(n) {
+  if (n < 26) {
+    return String.fromCharCode(65 + n);
+  } else {
+    return numberToLetter(Math.floor(n / 26) - 1) + numberToLetter(n % 26);
+  }
+}
