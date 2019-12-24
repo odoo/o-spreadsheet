@@ -56,10 +56,11 @@ function hLine(ctx, y, width) {
 function drawBackgroundGrid(ctx, state, width, height) {
     const { currentRow, currentCol, cols, rows } = state;
     ctx.strokeStyle = '#999';
-    ctx.lineWidth = 0.35;
 
     // vertical lines
+    ctx.lineWidth = 0.5;
     vLine(ctx, COL_HEADER_WIDTH, height)
+    ctx.lineWidth = 0.33;
     const offsetX = cols[currentCol].left - COL_HEADER_WIDTH;
     for (let i = currentCol; i < cols.length; i++) {
         const col = state.cols[i];
@@ -70,7 +71,9 @@ function drawBackgroundGrid(ctx, state, width, height) {
     }
 
     // horizontal lines
+    ctx.lineWidth = 0.5;
     hLine(ctx, ROW_HEADER_HEIGHT, width);
+    ctx.lineWidth = 0.33;
     const offsetY = rows[currentRow].top - ROW_HEADER_HEIGHT;
     for (let i = currentRow; i < rows.length; i++) {
         const row = rows[i];
@@ -82,9 +85,24 @@ function drawBackgroundGrid(ctx, state, width, height) {
 
 }
 
+function drawSelectedCell(ctx, state) {
+    const { cols, rows, currentCol, currentRow, selectedCol, selectedRow } = state;
+    // check if selected cell is visible
+    if (selectedRow < currentRow || selectedCol < currentCol) {
+        return;
+    }
+    const offsetX = cols[currentCol].left - COL_HEADER_WIDTH;
+    const offsetY = rows[currentRow].top - ROW_HEADER_HEIGHT;
+    ctx.fillStyle = 'red';
+    const row = rows[selectedRow];
+    const col = cols[selectedCol];
+    ctx.fillRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
+}
+
 export function drawGrid(ctx, state, width, height) {
     ctx.clearRect(0, 0, width, height);
 
     drawHeaderCells(ctx, state, width, height);
     drawBackgroundGrid(ctx, state, width, height);
+    drawSelectedCell(ctx, state);
 }

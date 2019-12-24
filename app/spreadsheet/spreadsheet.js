@@ -78,7 +78,8 @@ export class Spreadsheet extends Component {
     // cols: {},
     rows: {},
     cells: {
-      B3: { content: "43" }
+      B3: { content: "43" },
+      D4: { content: "=2*B3"}
     },
   };
 
