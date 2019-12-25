@@ -28,13 +28,11 @@ const HEADER_WIDTH = 60;
 
 
 const TEMPLATE = xml /* xml */`
-  <div class="o-spreadsheet"
-      t-attf-style="width:{{props.width}}px;height:{{props.height}}px">
+  <div class="o-spreadsheet">
     <ToolBar/>
     <div class="o-spreadsheet-sheet">
       <canvas t-ref="canvas"
-        t-on-mousewheel="onMouseWheel"
-        t-attf-style="width:{{props.width}}px;height:{{props.height - 40}}px" />
+        t-on-mousewheel="onMouseWheel" />
       <div class="o-scrollbar vertical" t-on-scroll="render" t-ref="vscrollbar">
         <div t-attf-style="width:1px;height:{{state.height}}px"/>
       </div>
@@ -121,6 +119,7 @@ export class Spreadsheet extends Component {
 
   constructor() {
     super(...arguments);
+    useExternalListener(window, 'resize', this.render )
     this.computeState();
   }
 
@@ -219,11 +218,15 @@ export class Spreadsheet extends Component {
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
     const dpr = window.devicePixelRatio || 1;
-    this.canvas.el.width = this.props.width * dpr;
-    this.canvas.el.height = (this.props.height - 40) * dpr;
+    const width = this.el.clientWidth;
+    const height = this.el.clientHeight - 40;
+    const canvas = this.canvas.el;
+    canvas.width = width * dpr;
+    canvas.height = height* dpr;
+    canvas.setAttribute('style', `width:${width}px;height:${height}px;`)
     this.context.scale(dpr, dpr);
     this.updateVisibleZone();
-    drawGrid(this.context, this.state, this.props.width, this.props.height - 40)
+    drawGrid(this.context, this.state, width, height)
   }
 
   onMouseWheel(ev) {
@@ -247,4 +250,11 @@ function numberToLetter(n) {
   } else {
     return numberToLetter(Math.floor(n / 26) - 1) + numberToLetter(n % 26);
   }
+}
+
+function useExternalListener(target, eventName, handler) {
+  const boundHandler = handler.bind(Component.current);
+
+  owl.hooks.onMounted(() => target.addEventListener(eventName, boundHandler));
+  owl.hooks.onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
 }
