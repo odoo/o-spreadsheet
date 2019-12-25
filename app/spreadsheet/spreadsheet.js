@@ -108,8 +108,8 @@ export class Spreadsheet extends Component {
 
 
     // coordinate of the selected cell
-    selectedRow: 0,
-    selectedCol: 0,
+    selectedCol: 2,
+    selectedRow: 3,
   };
 
   vScrollbar = useRef('vscrollbar');

@@ -46,11 +46,15 @@ function hLine(ctx, y, width) {
 
 function drawBackgroundGrid(ctx, state, width, height) {
     const { leftCol, rightCol, topRow, bottomRow, cols, rows, headerWidth, headerHeight } = state;
-    ctx.strokeStyle = '#999';
+
+    // header lines
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = '#555';
+    vLine(ctx, headerWidth, height)
+    hLine(ctx, headerHeight, width);
 
     // vertical lines
-    ctx.lineWidth = 0.5;
-    vLine(ctx, headerWidth, height)
+    ctx.strokeStyle = '#999';
     ctx.lineWidth = 0.33;
     const offsetX = state.offsetX - headerWidth;
     for (let i = leftCol; i <= rightCol; i++) {
@@ -59,9 +63,6 @@ function drawBackgroundGrid(ctx, state, width, height) {
     }
 
     // horizontal lines
-    ctx.lineWidth = 0.5;
-    hLine(ctx, headerHeight, width);
-    ctx.lineWidth = 0.33;
     const offsetY = state.offsetY - headerHeight;
     for (let i = topRow; i <= bottomRow; i++) {
         const row = rows[i];
@@ -71,13 +72,13 @@ function drawBackgroundGrid(ctx, state, width, height) {
 }
 
 function drawSelectedCell(ctx, state) {
-    const { cols, rows, currentCol, currentRow, selectedCol, selectedRow, headerWidth, headerHeight } = state;
+    const { cols, rows, leftCol, topRow, rightCol, bottomRow, selectedCol, selectedRow, headerWidth, headerHeight } = state;
     // check if selected cell is visible
-    if (selectedRow < currentRow || selectedCol < currentCol) {
+    if (selectedCol < leftCol || selectedCol > rightCol ||  selectedRow < topRow || selectedRow > bottomRow) {
         return;
     }
-    const offsetX = cols[currentCol].left - headerWidth;
-    const offsetY = rows[currentRow].top - headerHeight;
+    const offsetX = state.offsetX - headerWidth;
+    const offsetY = state.offsetY - headerHeight;
     ctx.fillStyle = 'red';
     const row = rows[selectedRow];
     const col = cols[selectedCol];
@@ -90,5 +91,5 @@ export function drawGrid(ctx, state, width, height) {
 
     drawHeaderCells(ctx, state);
     drawBackgroundGrid(ctx, state, width, height);
-    // drawSelectedCell(ctx, state);
+    drawSelectedCell(ctx, state);
 }
