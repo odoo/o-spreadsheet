@@ -3,10 +3,10 @@
 // Tokenizer
 // -----------------------------------------------------------------------------
 const OPERATORS = "+,-,*,/,:".split(",");
-const FUNCTION_NAMES = ["sum", "sum2"];
+const FUNCTION_NAMES = ["SUM"];
 
 function tokenize(str) {
-    const chars = str.replace(/ /g, "").toLowerCase().split("");
+    const chars = str.replace(/ /g, "").toUpperCase().split("");
     const result = [];
     while (chars.length) {
         let token =
@@ -153,6 +153,28 @@ export function parse(str) {
         throw new Error("invalid expression");
     }
     return result;
+}
+
+
+// -----------------------------------------------------------------------------
+// EVALUATOR
+// -----------------------------------------------------------------------------
+const OPERATOR_FNS = {
+    '*': (a,b) => a*b,
+    '+': (a,b) => a+b,
+    '-': (a,b) => a-b,
+    '/': (a,b) => a/b,
+}
+export function evaluate(ast, cells) {
+    let left, right;
+    switch (ast.type) {
+        case "NUMBER": return ast.value;
+        case "VARIABLE": return cells[ast.value].value;
+        case "OPERATION":
+            left = evaluate(ast.left, cells);
+            right = evaluate(ast.right, cells);
+            return OPERATOR_FNS[ast.value](left, right);
+    }
 }
 
 

@@ -26,6 +26,7 @@ class App extends Component {
         cols: { 3: { size: 200 }, 5: { size: 130 } },
         rows: { 6: { size: 60 } },
         cells: {
+            B2: { content: "coucou" },
             B3: { content: "43" },
             D4: { content: "=2*B3" }
         },

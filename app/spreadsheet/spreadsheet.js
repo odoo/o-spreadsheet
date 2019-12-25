@@ -1,5 +1,6 @@
 import { drawGrid, HEADER_WIDTH, HEADER_HEIGHT } from "./grid.js";
 import { numberToLetters, toCartesian } from "./helpers.js";
+import { parse, evaluate } from "./expression_parser.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -95,6 +96,8 @@ export class Spreadsheet extends Component {
     // coordinate of the selected cell
     selectedCol: 2,
     selectedRow: 3,
+
+    cells: this.props.data.cells,
   };
 
   vScrollbar = useRef('vscrollbar');
@@ -106,6 +109,7 @@ export class Spreadsheet extends Component {
     super(...arguments);
     useExternalListener(window, 'resize', this.render);
     this.computeState();
+    this.processCells();
   }
 
   mounted() {
@@ -167,6 +171,39 @@ export class Spreadsheet extends Component {
     state.width = state.cols[state.cols.length - 1].right + 10;
   }
 
+  processCells() {
+    const cells = this.state.cells;
+    // xc = "excel coordinate"
+    const numberRegexp =/^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
+    for (let xc in cells) {
+      const cell = cells[xc];
+      const [col, row] = toCartesian(xc);
+      cell.col = col;
+      cell.row = row;
+      const content = cell.content;
+      cell.type = content[0] === '=' ? 'formula' : content.match(numberRegexp) ? 'number' : 'text';
+      if (cell.type === "formula") {
+        cell.formula = parse(cell.content.slice(1)); // slice to remove the = sign
+      }
+    }
+    this.evaluateCells();
+  }
+
+  evaluateCells() {
+    const cells = this.state.cells;
+    for (let xc in cells) {
+      const cell = cells[xc];
+      if (cell.type === "number") {
+        cell.value = parseFloat(cell.content);
+      }
+      if (cell.type === "text") {
+        cell.value = cell.content;
+      }
+      if (cell.type === "formula") {
+        cell.value = evaluate(cell.formula, cells);
+      }
+    }
+  }
   updateVisibleZone() {
     const { rows, cols } = this.state;
 

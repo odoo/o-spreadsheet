@@ -17,7 +17,7 @@ function lettersToNumber(letters) {
     let result = 0;
     const l = letters.length;
     for (let i = 0; i < l; i++) {
-        let n = letters.charCodeAt(i) - 65 + (i < l - 1) ? 1 : 0;
+        let n = letters.charCodeAt(i) - 65 + ((i < l - 1) ? 1 : 0);
         result += (n * (26 ** (l - i - 1)));
     }
     return result;
