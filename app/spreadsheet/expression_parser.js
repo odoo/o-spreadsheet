@@ -169,7 +169,7 @@ export function evaluate(ast, cells) {
     let left, right;
     switch (ast.type) {
         case "NUMBER": return ast.value;
-        case "VARIABLE": return cells[ast.value].value;
+        case "VARIABLE": return cells[ast.value]._value;
         case "OPERATION":
             left = evaluate(ast.left, cells);
             right = evaluate(ast.right, cells);

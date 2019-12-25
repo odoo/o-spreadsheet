@@ -178,12 +178,12 @@ export class Spreadsheet extends Component {
     for (let xc in cells) {
       const cell = cells[xc];
       const [col, row] = toCartesian(xc);
-      cell.col = col;
-      cell.row = row;
+      cell._col = col;
+      cell._row = row;
       const content = cell.content;
-      cell.type = content[0] === '=' ? 'formula' : content.match(numberRegexp) ? 'number' : 'text';
-      if (cell.type === "formula") {
-        cell.formula = parse(cell.content.slice(1)); // slice to remove the = sign
+      cell._type = content[0] === '=' ? 'formula' : content.match(numberRegexp) ? 'number' : 'text';
+      if (cell._type === "formula") {
+        cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
       }
     }
     this.evaluateCells();
@@ -193,14 +193,14 @@ export class Spreadsheet extends Component {
     const cells = this.state.cells;
     for (let xc in cells) {
       const cell = cells[xc];
-      if (cell.type === "number") {
-        cell.value = parseFloat(cell.content);
+      if (cell._type === "number") {
+        cell._value = parseFloat(cell.content);
       }
-      if (cell.type === "text") {
-        cell.value = cell.content;
+      if (cell._type === "text") {
+        cell._value = cell.content;
       }
-      if (cell.type === "formula") {
-        cell.value = evaluate(cell.formula, cells);
+      if (cell._type === "formula") {
+        cell._value = evaluate(cell._formula, cells);
       }
     }
   }
