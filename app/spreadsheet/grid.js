@@ -10,7 +10,7 @@ function drawHeaderCells(ctx, state) {
     ctx.fillRect(0, 0, headerWidth, headerHeight);
 
     // column headers
-    const offsetX = state.offsetX - headerWidth;
+    const offsetX = state.offsetX;
     for (let i = leftCol; i <= rightCol; i++) {
         const col = cols[i];
         ctx.fillStyle = '#f4f5f8';
@@ -20,7 +20,7 @@ function drawHeaderCells(ctx, state) {
     }
 
     // row headers
-    const offsetY = state.offsetY - headerHeight;
+    const offsetY = state.offsetY;
     for (let i = topRow; i <= bottomRow; i++) {
         const row = rows[i];
         ctx.fillStyle = '#f4f5f8';
@@ -56,14 +56,14 @@ function drawBackgroundGrid(ctx, state, width, height) {
     // vertical lines
     ctx.strokeStyle = '#999';
     ctx.lineWidth = 0.33;
-    const offsetX = state.offsetX - headerWidth;
+    const offsetX = state.offsetX;
     for (let i = leftCol; i <= rightCol; i++) {
         const col = cols[i];
         vLine(ctx, col.right - offsetX, height);
     }
 
     // horizontal lines
-    const offsetY = state.offsetY - headerHeight;
+    const offsetY = state.offsetY;
     for (let i = topRow; i <= bottomRow; i++) {
         const row = rows[i];
         hLine(ctx, row.bottom - offsetY, width);
@@ -72,13 +72,13 @@ function drawBackgroundGrid(ctx, state, width, height) {
 }
 
 function drawSelectedCell(ctx, state) {
-    const { cols, rows, leftCol, topRow, rightCol, bottomRow, selectedCol, selectedRow, headerWidth, headerHeight } = state;
+    const { cols, rows, leftCol, topRow, rightCol, bottomRow, selectedCol, selectedRow } = state;
     // check if selected cell is visible
     if (selectedCol < leftCol || selectedCol > rightCol ||  selectedRow < topRow || selectedRow > bottomRow) {
         return;
     }
-    const offsetX = state.offsetX - headerWidth;
-    const offsetY = state.offsetY - headerHeight;
+    const offsetX = state.offsetX;
+    const offsetY = state.offsetY;
     ctx.fillStyle = 'red';
     const row = rows[selectedRow];
     const col = cols[selectedCol];

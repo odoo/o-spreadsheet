@@ -92,7 +92,8 @@ export class Spreadsheet extends Component {
     width: null,
     height: null,
 
-    // offset between the visible zone and the full zone
+    // offset between the visible zone and the full zone (take into account
+    // headers)
     offsetX: 0,
     offsetY: 0,
     // coordinates of the visible zone
@@ -184,7 +185,7 @@ export class Spreadsheet extends Component {
   }
 
   updateVisibleZone() {
-    const { rows, cols } = this.state;
+    const { rows, cols, headerWidth, headerHeight } = this.state;
 
     const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
     const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
@@ -209,8 +210,8 @@ export class Spreadsheet extends Component {
         break;
       }
     }
-    this.state.offsetX = cols[this.state.leftCol].left;
-    this.state.offsetY = rows[this.state.topRow].top;
+    this.state.offsetX = cols[this.state.leftCol].left - headerWidth;
+    this.state.offsetY = rows[this.state.topRow].top - headerHeight;
   }
 
 
