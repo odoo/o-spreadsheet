@@ -1,4 +1,5 @@
 import { drawGrid, HEADER_WIDTH, HEADER_HEIGHT } from "./grid.js";
+import { numberToLetters, toCartesian } from "./helpers.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -158,7 +159,7 @@ export class Spreadsheet extends Component {
         left: current,
         right: current + size,
         size: size,
-        name: numberToLetter(i),
+        name: numberToLetters(i),
       };
       state.cols.push(col);
       current = col.right;
@@ -221,19 +222,8 @@ export class Spreadsheet extends Component {
 }
 
 // -----------------------------------------------------------------------------
-// Helpers
+// Hooks
 // -----------------------------------------------------------------------------
-
-/**
- *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
- */
-function numberToLetter(n) {
-  if (n < 26) {
-    return String.fromCharCode(65 + n);
-  } else {
-    return numberToLetter(Math.floor(n / 26) - 1) + numberToLetter(n % 26);
-  }
-}
 
 function useExternalListener(target, eventName, handler) {
   const boundHandler = handler.bind(Component.current);
