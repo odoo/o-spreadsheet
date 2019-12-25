@@ -69,18 +69,6 @@ export class Spreadsheet extends Component {
   static style = CSS;
   static components = { ToolBar };
 
-  data = {
-    colNumber: 26,
-    rowNumber: 100,
-    cols: { 3: { size: 200 }, 5: { size: 130 } },
-    rows: { 6: { size: 60 } },
-    // cols: {},
-    cells: {
-      B3: { content: "43" },
-      D4: { content: "=2*B3" }
-    },
-  };
-
   state = {
     // width and height of the sheet zone (not just the visible part, and excluding
     // the row and col headers)
@@ -115,7 +103,7 @@ export class Spreadsheet extends Component {
 
   constructor() {
     super(...arguments);
-    useExternalListener(window, 'resize', this.render )
+    useExternalListener(window, 'resize', this.render);
     this.computeState();
   }
 
@@ -146,7 +134,7 @@ export class Spreadsheet extends Component {
    * - total grid dimension
    */
   computeState() {
-    const data = this.data;
+    const data = this.props.data;
     const state = this.state;
 
     let current = 0;
@@ -179,7 +167,7 @@ export class Spreadsheet extends Component {
   }
 
   updateVisibleZone() {
-    const { rows, cols} = this.state;
+    const { rows, cols } = this.state;
 
     const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
     const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
@@ -217,7 +205,7 @@ export class Spreadsheet extends Component {
     const height = this.el.clientHeight - 40;
     const canvas = this.canvas.el;
     canvas.width = width * dpr;
-    canvas.height = height* dpr;
+    canvas.height = height * dpr;
     canvas.setAttribute('style', `width:${width}px;height:${height}px;`)
     this.context.scale(dpr, dpr);
     this.updateVisibleZone();
