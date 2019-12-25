@@ -1,8 +1,8 @@
-import { drawGrid } from "./grid.js";
+import { drawGrid, HEADER_WIDTH, HEADER_HEIGHT } from "./grid.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef, useState } = owl.hooks;
+const { useRef } = owl.hooks;
 
 
 const GRAY_COLOR = '#f5f5f5';
@@ -23,9 +23,6 @@ class ToolBar extends Component {
 // -----------------------------------------------------------------------------
 const DEFAULT_CELL_WIDTH = 100;
 const DEFAULT_CELL_HEIGHT = 26;
-const HEADER_HEIGHT = 26;
-const HEADER_WIDTH = 60;
-
 
 const TEMPLATE = xml /* xml */`
   <div class="o-spreadsheet">
@@ -76,8 +73,8 @@ export class Spreadsheet extends Component {
     colNumber: 26,
     rowNumber: 100,
     cols: { 3: { size: 200 }, 5: { size: 130 } },
+    rows: { 6: { size: 60 } },
     // cols: {},
-    rows: {},
     cells: {
       B3: { content: "43" },
       D4: { content: "=2*B3" }
@@ -85,8 +82,6 @@ export class Spreadsheet extends Component {
   };
 
   state = {
-    headerWidth: HEADER_WIDTH,
-    headerHeight: HEADER_HEIGHT,
     // width and height of the sheet zone (not just the visible part, and excluding
     // the row and col headers)
     width: null,
@@ -125,7 +120,6 @@ export class Spreadsheet extends Component {
   }
 
   mounted() {
-    const canvas = this.canvas.el;
     // Get the device pixel ratio, falling back to 1.
     // const dpr = window.devicePixelRatio || 1;
     // // Get the size of the canvas in CSS pixels.
@@ -134,7 +128,7 @@ export class Spreadsheet extends Component {
     // // size * the device pixel ratio.
     // canvas.width = rect.width * dpr;
     // canvas.height = rect.height * dpr;
-    const ctx = canvas.getContext('2d');
+    const ctx = this.canvas.el.getContext('2d');
     // Scale all drawing operations by the dpr, so you
     // don't have to worry about the difference.
     // ctx.scale(this.dpr, this.dpr);
@@ -185,7 +179,7 @@ export class Spreadsheet extends Component {
   }
 
   updateVisibleZone() {
-    const { rows, cols, headerWidth, headerHeight } = this.state;
+    const { rows, cols} = this.state;
 
     const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
     const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
@@ -210,8 +204,8 @@ export class Spreadsheet extends Component {
         break;
       }
     }
-    this.state.offsetX = cols[this.state.leftCol].left - headerWidth;
-    this.state.offsetY = rows[this.state.topRow].top - headerHeight;
+    this.state.offsetX = cols[this.state.leftCol].left - HEADER_WIDTH;
+    this.state.offsetY = rows[this.state.topRow].top - HEADER_HEIGHT;
   }
 
 
