@@ -32,10 +32,10 @@ const TEMPLATE = xml /* xml */`
     <div class="o-spreadsheet-sheet">
       <canvas t-ref="canvas"
         t-on-mousewheel="onMouseWheel" />
-      <div class="o-scrollbar vertical" t-on-scroll="render" t-ref="vscrollbar">
+      <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
         <div t-attf-style="width:1px;height:{{state.height}}px"/>
       </div>
-      <div class="o-scrollbar horizontal" t-on-scroll="render" t-ref="hscrollbar">
+      <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
         <div t-attf-style="height:1px;width:{{state.width}}px"/>
       </div>
     </div>
@@ -126,10 +126,12 @@ export class Spreadsheet extends Component {
     // don't have to worry about the difference.
     // ctx.scale(this.dpr, this.dpr);
     this.context = ctx; // this.canvas.el.getContext('2d');
+    this.updateVisibleZone();
     this.drawGrid();
   }
 
   patched() {
+    this.updateVisibleZone();
     this.drawGrid();
   }
 
@@ -235,6 +237,13 @@ export class Spreadsheet extends Component {
   }
 
 
+  onScroll() {
+    const {offsetX, offsetY}  = this.state;
+    this.updateVisibleZone();
+    if (offsetX !== this.state.offsetX || offsetY !== this.state.offsetY) {
+      this.drawGrid();
+    }
+  }
   drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
@@ -246,7 +255,6 @@ export class Spreadsheet extends Component {
     canvas.height = height * dpr;
     canvas.setAttribute('style', `width:${width}px;height:${height}px;`)
     this.context.scale(dpr, dpr);
-    this.updateVisibleZone();
     drawGrid(this.context, this.state, width, height)
   }
 
