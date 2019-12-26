@@ -1,4 +1,4 @@
-import { numberToLetters, toCartesian } from "./helpers.js";
+import { numberToLetters, toCartesian, toXC } from "./helpers.js";
 import { parse, evaluate } from "./expression_parser.js";
 
 const DEFAULT_CELL_WIDTH = 100;
@@ -31,6 +31,9 @@ export class GridState extends owl.core.EventBus {
   // coordinates of the selected cell
   selectedCol = 0;
   selectedRow = 0;
+
+  // null if there is no "active" selected cell
+  selectedCell = null;
 
   cells = null;
 
@@ -118,7 +121,7 @@ export class GridState extends owl.core.EventBus {
       if (rows[i].top <= offsetY) {
         this.topRow = i;
       }
-      if (offsetY + height - 40 < rows[i].bottom) {
+      if (offsetY + height < rows[i].bottom) {
         this.bottomRow = i;
         break;
       }
@@ -140,14 +143,14 @@ export class GridState extends owl.core.EventBus {
   selectCell(col, row) {
     this.selectedCol = col;
     this.selectedRow = row;
+    this.selectedCell = this.cells[toXC(col, row)] || null;
     this.trigger("update");
   }
 
   moveSelection(deltaX, deltaY) {
     // todo: prevent selected zone to go off screen, and to go out of the
     //   bounds
-    this.selectedCol += deltaX;
-    this.selectedRow += deltaY;
+    this.selectCell(this.selectedCol + deltaX, this.selectedRow + deltaY);
     this.trigger("update");
   }
 }

@@ -11,14 +11,14 @@ const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet">
-    <ToolBar />
-    <Grid state="state"/>
+    <ToolBar state="state" />
+    <Grid state="state" />
   </div>`;
 
 const CSS = css/* scss */ `
   .o-spreadsheet {
     display: grid;
-    grid-template-rows: 40px auto;
+    grid-template-rows: 32px auto;
   }
 `;
 

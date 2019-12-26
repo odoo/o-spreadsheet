@@ -219,8 +219,8 @@ export class Grid extends Component {
   updateVisibleZone() {
     const width = this.el.clientWidth;
     const height = this.el.clientHeight;
-    const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
-    const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
+    const offsetY = this.vScrollbar.el.scrollTop;
+    const offsetX = this.hScrollbar.el.scrollLeft;
     this.props.state.updateVisibleZone(width, height, offsetX, offsetY);
   }
   drawGrid() {
@@ -246,7 +246,8 @@ export class Grid extends Component {
 
   onClick(ev) {
     const x = ev.clientX;
-    const y = ev.clientY - 40;
+    // 32 for toolbar height. could not find a better way to get actual y offset
+    const y = ev.clientY - 32;
     if (x <= HEADER_WIDTH || y <= HEADER_HEIGHT) {
       return;
     }

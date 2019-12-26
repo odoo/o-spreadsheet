@@ -37,3 +37,7 @@ export function toCartesian(cell) {
   const row = parseInt(numbers, 10) - 1;
   return [col, row];
 }
+
+export function toXC(col, row) {
+  return numberToLetters(col) + String(row + 1);
+}
