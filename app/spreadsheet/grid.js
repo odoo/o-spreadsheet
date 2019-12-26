@@ -1,9 +1,9 @@
+import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_state.js";
+
 const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useRef } = owl.hooks;
 
-const HEADER_HEIGHT = 26;
-const HEADER_WIDTH = 60;
 
 function drawHeaderCells(ctx, state) {
     const { topRow, leftCol, rightCol, bottomRow, cols, rows, selectedCol, selectedRow } = state;
@@ -89,9 +89,9 @@ function drawCells(ctx, state) {
     for (let xc in state.cells) {
         // to do: skip many rows
         let cell = state.cells[xc];
-        let col = cols[cell._col];
-        let row = rows[cell._row];
-        if (isCellVisible) {
+        if (isCellVisible(cell._col, cell._row, state)) {
+            let col = cols[cell._col];
+            let row = rows[cell._row];
             let x = (col.left + col.right) / 2 - offsetX;
             let y = (row.top + row.bottom) / 2 - offsetY;
             ctx.fillText(cell._value, x, y);
@@ -129,6 +129,7 @@ const TEMPLATE = xml /* xml */`
   <div class="o-spreadsheet-sheet">
     <canvas t-ref="canvas"
       t-on-click="onClick"
+      t-on-keydown="onKeydown" tabindex="-1"
       t-on-mousewheel="onMouseWheel" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{props.state.height}}px"/>
@@ -191,38 +192,6 @@ export class Grid extends Component {
         this.drawGrid();
     }
 
-    updateVisibleZone() {
-        const state = this.props.state;
-        const { rows, cols } = state;
-
-        const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
-        const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
-
-        state.bottomRow = rows.length - 1;
-        for (let i = 0; i < rows.length; i++) {
-            if (rows[i].top <= offsetY) {
-                state.topRow = i;
-            }
-            if (offsetY + this.props.height - 40 < rows[i].bottom) {
-                state.bottomRow = i;
-                break;
-            }
-        }
-        state.rightCol = cols.length - 1;
-        for (let i = 0; i < cols.length; i++) {
-            if (cols[i].left <= offsetX) {
-                state.leftCol = i;
-            }
-            if (offsetX + this.props.width < cols[i].right) {
-                state.rightCol = i;
-                break;
-            }
-        }
-        state.offsetX = cols[state.leftCol].left - HEADER_WIDTH;
-        state.offsetY = rows[state.topRow].top - HEADER_HEIGHT;
-    }
-
-
     onScroll() {
         const state = this.props.state;
         const { offsetX, offsetY } = state;
@@ -230,6 +199,14 @@ export class Grid extends Component {
         if (offsetX !== state.offsetX || offsetY !== state.offsetY) {
             this.drawGrid();
         }
+    }
+
+    updateVisibleZone() {
+        const width = this.el.clientWidth;
+        const height = this.el.clientHeight;
+        const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
+        const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
+        this.props.state.updateVisibleZone(width, height, offsetX, offsetY);
     }
     drawGrid() {
         // whenever the dimensions are changed, we need to reset the width/height
@@ -255,9 +232,12 @@ export class Grid extends Component {
     onClick(ev) {
         const x = ev.clientX;
         const y = ev.clientY - 40;
+        if (x <= HEADER_WIDTH || y <= HEADER_HEIGHT) {
+            return;
+        }
         let col, row;
         const state = this.props.state;
-        const {cols, rows, offsetX, offsetY} = state;
+        const { cols, rows, offsetX, offsetY } = state;
         for (let i = 0; i < cols.length; i++) {
             let c = cols[i];
             if (c.left - offsetX <= x && x <= c.right - offsetX) {
@@ -272,9 +252,23 @@ export class Grid extends Component {
                 break;
             }
         }
-      if (col !== undefined && row !== undefined) {
-          this.trigger('cell-selected', {col, row});
+        if (col !== undefined && row !== undefined) {
+            this.props.state.selectCell(col, row);
         }
+    }
+
+    onKeydown(ev) {
+        const deltaMap = {
+            ArrowDown: [0, 1],
+            ArrowLeft: [-1, 0],
+            ArrowRight: [1, 0],
+            ArrowUp: [0, -1]
+        }
+        const delta = deltaMap[ev.key];
+        if (!delta) {
+            return;
+        }
+        this.props.state.moveSelection(...delta);
     }
 }
 
