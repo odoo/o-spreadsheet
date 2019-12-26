@@ -6,7 +6,7 @@ const HEADER_HEIGHT = 26;
 const HEADER_WIDTH = 60;
 
 function drawHeaderCells(ctx, state) {
-    const { topRow, leftCol, rightCol, bottomRow, cols, rows } = state;
+    const { topRow, leftCol, rightCol, bottomRow, cols, rows, selectedCol, selectedRow } = state;
 
     ctx.fillStyle = '#f4f5f8';
     ctx.font = '500 12px Source Sans Pro';
@@ -19,7 +19,7 @@ function drawHeaderCells(ctx, state) {
     const offsetX = state.offsetX;
     for (let i = leftCol; i <= rightCol; i++) {
         const col = cols[i];
-        ctx.fillStyle = '#f4f5f8';
+        ctx.fillStyle = i === selectedCol ? '#e7edf9' : '#f4f5f8';
         ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
         ctx.fillStyle = '#585757';
         ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
@@ -29,7 +29,7 @@ function drawHeaderCells(ctx, state) {
     const offsetY = state.offsetY;
     for (let i = topRow; i <= bottomRow; i++) {
         const row = rows[i];
-        ctx.fillStyle = '#f4f5f8';
+        ctx.fillStyle = i === selectedRow ? '#e7edf9' : '#f4f5f8';
         ctx.fillRect(0, row.top - offsetY, HEADER_WIDTH, row.bottom - offsetY);
         ctx.fillStyle = '#585757';
         ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
@@ -83,7 +83,7 @@ function isCellVisible(col, row, state) {
 
 function drawCells(ctx, state) {
     const { offsetX, offsetY, rows, cols } = state;
-    ctx.font = "500 10px Arial";
+    ctx.font = "500 11px Arial";
     ctx.fillStyle = "#000";
 
     for (let xc in state.cells) {
@@ -107,10 +107,11 @@ function drawSelectedCell(ctx, state) {
     }
     const offsetX = state.offsetX;
     const offsetY = state.offsetY;
-    ctx.fillStyle = 'red';
     const row = rows[selectedRow];
     const col = cols[selectedCol];
-    ctx.fillRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#4b89ff";
+    ctx.strokeRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
 }
 
 function drawGrid(ctx, state, width, height) {
