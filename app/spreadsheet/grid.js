@@ -2,7 +2,7 @@ import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_state.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef } = owl.hooks;
+const { useRef, useState } = owl.hooks;
 
 function drawHeaderCells(ctx, state) {
   const {
@@ -141,6 +141,10 @@ function drawGrid(ctx, state, width, height) {
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet">
+    <t t-if="edition.active">
+        <input class="o-composer" t-model="edition.content" t-ref="composer"
+            t-attf-style="left:{{edition.left}}px;top:{{edition.top}}px;width:{{edition.width}}px;height:{{edition.height}}px;"/>
+    </t>
     <canvas t-ref="canvas"
       t-on-click="onClick"
       t-on-keydown="onKeydown" tabindex="-1"
@@ -158,6 +162,13 @@ const CSS = css/* scss */ `
     position: relative;
     overflow: hidden;
 
+    .o-composer {
+        position: absolute;
+        border:none;
+    }
+    .o-composer:focus {
+        outline: none;
+    }
     .o-scrollbar {
       position: absolute;
       overflow: auto;
@@ -183,6 +194,19 @@ export class Grid extends Component {
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
   context = null;
+
+  edition = useState({
+      active: false,
+      content: "",
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+  });
+  constructor() {
+      super(...arguments);
+      useAutofocus("composer");
+  }
 
   mounted() {
     // Get the device pixel ratio, falling back to 1.
@@ -281,9 +305,35 @@ export class Grid extends Component {
       ArrowUp: [0, -1]
     };
     const delta = deltaMap[ev.key];
-    if (!delta) {
+    if (delta) {
+        this.props.state.moveSelection(...delta);
       return;
     }
-    this.props.state.moveSelection(...delta);
+    this.edition.active = true;
+    this.edition.content = ev.key;
+    const state = this.props.state;
+    const {cols, selectedCol, rows, selectedRow, offsetX, offsetY} = state;
+    const col = cols[selectedCol];
+    const row = rows[selectedRow];
+    this.edition.left = col.left - offsetX + 2;
+    this.edition.width = col.size - 4;
+    this.edition.top = row.top - offsetY + 2;
+    this.edition.height = row.size - 4;
   }
 }
+
+
+function useAutofocus(name) {
+    let ref = useRef(name);
+    let isInDom = false;
+    function updateFocus() {
+      if (!isInDom && ref.el) {
+        isInDom = true;
+        ref.el.focus();
+      } else if (isInDom && !ref.el) {
+        isInDom = false;
+      }
+    }
+    owl.hooks.onPatched(updateFocus);
+    owl.hooks.onMounted(updateFocus);
+  }
