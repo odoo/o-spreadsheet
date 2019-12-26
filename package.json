@@ -4,7 +4,8 @@
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
-    "serve": "live-server app"
+    "serve": "live-server app",
+    "prettier": "prettier {app/*.js,app/**/*.js} --write"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
-    "live-server": "^1.2.1"
+    "live-server": "^1.2.1",
+    "prettier": "^1.19.1"
   }
 }

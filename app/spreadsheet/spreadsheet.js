@@ -9,17 +9,18 @@ const { xml, css } = owl.tags;
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-const TEMPLATE = xml /* xml */`
+const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet">
     <ToolBar />
     <Grid state="state"/>
   </div>`;
 
-const CSS = css /* scss */`
+const CSS = css/* scss */ `
   .o-spreadsheet {
     display: grid;
     grid-template-rows: 40px auto;
-  }`;
+  }
+`;
 
 export class Spreadsheet extends Component {
   static template = TEMPLATE;
@@ -30,17 +31,16 @@ export class Spreadsheet extends Component {
 
   constructor() {
     super(...arguments);
-    useExternalListener(window, 'resize', this.render);
+    useExternalListener(window, "resize", this.render);
   }
 
   mounted() {
-    this.state.on('update', this, this.render);
+    this.state.on("update", this, this.render);
   }
 
   willUnmount() {
     this.state.off("update", this);
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -51,5 +51,7 @@ function useExternalListener(target, eventName, handler) {
   const boundHandler = handler.bind(Component.current);
 
   owl.hooks.onMounted(() => target.addEventListener(eventName, boundHandler));
-  owl.hooks.onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
+  owl.hooks.onWillUnmount(() =>
+    target.removeEventListener(eventName, boundHandler)
+  );
 }
