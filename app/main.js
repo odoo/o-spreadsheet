@@ -28,7 +28,7 @@ class App extends Component {
         cells: {
             B2: { content: "coucou" },
             B3: { content: "43" },
-            D4: { content: "=2*B3" }
+            D4: { content: "=-2*B3" }
         },
     };
 }

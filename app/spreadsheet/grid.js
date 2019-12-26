@@ -70,13 +70,35 @@ function drawBackgroundGrid(ctx, state, width, height) {
         const row = rows[i];
         hLine(ctx, row.bottom - offsetY, width);
     }
+}
 
+function isCellVisible(col, row, state) {
+    const { leftCol, topRow, rightCol, bottomRow } = state;
+    return (col >= leftCol && col <= rightCol && row >= topRow && row <= bottomRow);
+}
+
+function drawCells(ctx, state) {
+    const {offsetX, offsetY, rows, cols} = state;
+    ctx.font = "500 10px Arial";
+    ctx.fillStyle = "#000";
+
+    for (let xc in state.cells) {
+        // to do: skip many rows
+        let cell = state.cells[xc];
+        let col = cols[cell._col];
+        let row = rows[cell._row];
+        if (isCellVisible) {
+            let x = (col.left + col.right) / 2 - offsetX;
+            let y = (row.top + row.bottom) / 2 - offsetY;
+            ctx.fillText(cell._value, x, y);
+        }
+    }
 }
 
 function drawSelectedCell(ctx, state) {
-    const { cols, rows, leftCol, topRow, rightCol, bottomRow, selectedCol, selectedRow } = state;
+    const { cols, rows, selectedCol, selectedRow } = state;
     // check if selected cell is visible
-    if (selectedCol < leftCol || selectedCol > rightCol ||  selectedRow < topRow || selectedRow > bottomRow) {
+    if (!isCellVisible(selectedCol, selectedRow, state)) {
         return;
     }
     const offsetX = state.offsetX;
@@ -93,5 +115,6 @@ export function drawGrid(ctx, state, width, height) {
 
     drawHeaderCells(ctx, state);
     drawBackgroundGrid(ctx, state, width, height);
+    drawCells(ctx, state)
     drawSelectedCell(ctx, state);
 }
