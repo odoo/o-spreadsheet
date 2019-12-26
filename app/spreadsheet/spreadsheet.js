@@ -25,7 +25,7 @@ const DEFAULT_CELL_WIDTH = 100;
 const DEFAULT_CELL_HEIGHT = 26;
 
 const TEMPLATE = xml /* xml */`
-  <div class="o-spreadsheet">
+  <div class="o-spreadsheet" t-on-keydown="onKeydown" tabindex="-1">
     <ToolBar />
     <Grid state="state"/>
   </div>`;
@@ -64,8 +64,8 @@ export class Spreadsheet extends Component {
 
 
     // coordinate of the selected cell
-    selectedCol: 2,
-    selectedRow: 3,
+    selectedCol: 0,
+    selectedRow: 0,
 
     cells: this.props.data.cells,
   };
@@ -77,7 +77,6 @@ export class Spreadsheet extends Component {
     this.computeState();
     this.processCells();
   }
-
 
   /**
    * Process the data to precompute some derived informations:
@@ -149,6 +148,25 @@ export class Spreadsheet extends Component {
         cell._value = evaluate(cell._formula, cells);
       }
     }
+  }
+
+  onKeydown(ev) {
+    const deltaMap = {
+      ArrowDown: [0,1],
+      ArrowLeft: [-1,0],
+      ArrowRight: [1,0],
+      ArrowUp: [0,-1]
+    }
+    const delta = deltaMap[ev.key];
+    if (!delta) {
+      return;
+    }
+    const [deltaX, deltaY] = delta;
+    this.state.selectedCol = (this.state.selectedCol || 0) + deltaX;
+    this.state.selectedRow = (this.state.selectedRow || 0) + deltaY;
+    // todo: prevent selected zone to go off screen, and to go out of the
+    //   bounds
+    this.render();
   }
 }
 

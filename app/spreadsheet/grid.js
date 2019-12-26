@@ -101,7 +101,6 @@ function drawCells(ctx, state) {
 
 function drawSelectedCell(ctx, state) {
     const { cols, rows, selectedCol, selectedRow } = state;
-    // check if selected cell is visible
     if (!isCellVisible(selectedCol, selectedRow, state)) {
         return;
     }
