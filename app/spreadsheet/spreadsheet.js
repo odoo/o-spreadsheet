@@ -1,11 +1,9 @@
-import { drawGrid, HEADER_WIDTH, HEADER_HEIGHT } from "./grid.js";
+import { Grid } from "./grid.js";
 import { numberToLetters, toCartesian } from "./helpers.js";
 import { parse, evaluate } from "./expression_parser.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef } = owl.hooks;
-
 
 const GRAY_COLOR = '#f5f5f5';
 // -----------------------------------------------------------------------------
@@ -28,48 +26,20 @@ const DEFAULT_CELL_HEIGHT = 26;
 
 const TEMPLATE = xml /* xml */`
   <div class="o-spreadsheet">
-    <ToolBar/>
-    <div class="o-spreadsheet-sheet">
-      <canvas t-ref="canvas"
-        t-on-mousewheel="onMouseWheel" />
-      <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-        <div t-attf-style="width:1px;height:{{state.height}}px"/>
-      </div>
-      <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-        <div t-attf-style="height:1px;width:{{state.width}}px"/>
-      </div>
-    </div>
+    <ToolBar />
+    <Grid state="state"/>
   </div>`;
 
 const CSS = css /* scss */`
   .o-spreadsheet {
     display: grid;
     grid-template-rows: 40px auto;
-    .o-spreadsheet-sheet {
-      position: relative;
-      overflow: hidden;
-
-      .o-scrollbar {
-        position: absolute;
-        overflow: auto;
-      }
-      .o-scrollbar.vertical {
-        right: 0;
-        top: ${HEADER_HEIGHT}px;
-        bottom: 15px;
-      }
-      .o-scrollbar.horizontal {
-        bottom: 0;
-        right: 15px;
-        left: ${HEADER_WIDTH}px;
-      }
-    }
   }`;
 
 export class Spreadsheet extends Component {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { ToolBar };
+  static components = { ToolBar, Grid };
 
   state = {
     // width and height of the sheet zone (not just the visible part, and excluding
@@ -100,10 +70,6 @@ export class Spreadsheet extends Component {
     cells: this.props.data.cells,
   };
 
-  vScrollbar = useRef('vscrollbar');
-  hScrollbar = useRef('hscrollbar');
-  canvas = useRef('canvas');
-  context = null;
 
   constructor() {
     super(...arguments);
@@ -112,28 +78,6 @@ export class Spreadsheet extends Component {
     this.processCells();
   }
 
-  mounted() {
-    // Get the device pixel ratio, falling back to 1.
-    // const dpr = window.devicePixelRatio || 1;
-    // // Get the size of the canvas in CSS pixels.
-    // const rect = canvas.getBoundingClientRect();
-    // // Give the canvas pixel dimensions of their CSS
-    // // size * the device pixel ratio.
-    // canvas.width = rect.width * dpr;
-    // canvas.height = rect.height * dpr;
-    const ctx = this.canvas.el.getContext('2d');
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    // ctx.scale(this.dpr, this.dpr);
-    this.context = ctx; // this.canvas.el.getContext('2d');
-    this.updateVisibleZone();
-    this.drawGrid();
-  }
-
-  patched() {
-    this.updateVisibleZone();
-    this.drawGrid();
-  }
 
   /**
    * Process the data to precompute some derived informations:
@@ -176,7 +120,7 @@ export class Spreadsheet extends Component {
   processCells() {
     const cells = this.state.cells;
     // xc = "excel coordinate"
-    const numberRegexp =/^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
+    const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
     for (let xc in cells) {
       const cell = cells[xc];
       const [col, row] = toCartesian(xc);
@@ -205,64 +149,6 @@ export class Spreadsheet extends Component {
         cell._value = evaluate(cell._formula, cells);
       }
     }
-  }
-  updateVisibleZone() {
-    const { rows, cols } = this.state;
-
-    const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
-    const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
-
-    this.state.bottomRow = rows.length - 1;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].top <= offsetY) {
-        this.state.topRow = i;
-      }
-      if (offsetY + this.props.height - 40 < rows[i].bottom) {
-        this.state.bottomRow = i;
-        break;
-      }
-    }
-    this.state.rightCol = cols.length - 1;
-    for (let i = 0; i < cols.length; i++) {
-      if (cols[i].left <= offsetX) {
-        this.state.leftCol = i;
-      }
-      if (offsetX + this.props.width < cols[i].right) {
-        this.state.rightCol = i;
-        break;
-      }
-    }
-    this.state.offsetX = cols[this.state.leftCol].left - HEADER_WIDTH;
-    this.state.offsetY = rows[this.state.topRow].top - HEADER_HEIGHT;
-  }
-
-
-  onScroll() {
-    const {offsetX, offsetY}  = this.state;
-    this.updateVisibleZone();
-    if (offsetX !== this.state.offsetX || offsetY !== this.state.offsetY) {
-      this.drawGrid();
-    }
-  }
-  drawGrid() {
-    // whenever the dimensions are changed, we need to reset the width/height
-    // of the canvas manually, and reset its scaling.
-    const dpr = window.devicePixelRatio || 1;
-    const width = this.el.clientWidth;
-    const height = this.el.clientHeight - 40;
-    const canvas = this.canvas.el;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute('style', `width:${width}px;height:${height}px;`)
-    this.context.scale(dpr, dpr);
-    drawGrid(this.context, this.state, width, height)
-  }
-
-  onMouseWheel(ev) {
-    const vScrollbar = this.vScrollbar.el;
-    vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
-    const hScrollbar = this.hScrollbar.el;
-    hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
   }
 }
 

@@ -1,5 +1,9 @@
-export const HEADER_HEIGHT = 26;
-export const HEADER_WIDTH = 60;
+const { Component } = owl;
+const { xml, css } = owl.tags;
+const { useRef } = owl.hooks;
+
+const HEADER_HEIGHT = 26;
+const HEADER_WIDTH = 60;
 
 function drawHeaderCells(ctx, state) {
     const { topRow, leftCol, rightCol, bottomRow, cols, rows } = state;
@@ -78,7 +82,7 @@ function isCellVisible(col, row, state) {
 }
 
 function drawCells(ctx, state) {
-    const {offsetX, offsetY, rows, cols} = state;
+    const { offsetX, offsetY, rows, cols } = state;
     ctx.font = "500 10px Arial";
     ctx.fillStyle = "#000";
 
@@ -109,7 +113,7 @@ function drawSelectedCell(ctx, state) {
     ctx.fillRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
 }
 
-export function drawGrid(ctx, state, width, height) {
+function drawGrid(ctx, state, width, height) {
     console.log('drawing', state);
     ctx.clearRect(0, 0, width, height);
 
@@ -118,3 +122,133 @@ export function drawGrid(ctx, state, width, height) {
     drawCells(ctx, state)
     drawSelectedCell(ctx, state);
 }
+
+
+
+const TEMPLATE = xml /* xml */`
+  <div class="o-spreadsheet-sheet">
+    <canvas t-ref="canvas"
+      t-on-mousewheel="onMouseWheel" />
+    <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
+      <div t-attf-style="width:1px;height:{{props.state.height}}px"/>
+    </div>
+    <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
+      <div t-attf-style="height:1px;width:{{props.state.width}}px"/>
+    </div>
+  </div>`;
+
+const CSS = css /* scss */`
+  .o-spreadsheet-sheet {
+    position: relative;
+    overflow: hidden;
+
+    .o-scrollbar {
+      position: absolute;
+      overflow: auto;
+    }
+    .o-scrollbar.vertical {
+      right: 0;
+      top: ${HEADER_HEIGHT}px;
+      bottom: 15px;
+    }
+    .o-scrollbar.horizontal {
+      bottom: 0;
+      right: 15px;
+      left: ${HEADER_WIDTH}px;
+    }
+  }`;
+
+export class Grid extends Component {
+    static template = TEMPLATE;
+    static style = CSS;
+
+    vScrollbar = useRef('vscrollbar');
+    hScrollbar = useRef('hscrollbar');
+    canvas = useRef('canvas');
+    context = null;
+
+    mounted() {
+        // Get the device pixel ratio, falling back to 1.
+        // const dpr = window.devicePixelRatio || 1;
+        // // Get the size of the canvas in CSS pixels.
+        // const rect = canvas.getBoundingClientRect();
+        // // Give the canvas pixel dimensions of their CSS
+        // // size * the device pixel ratio.
+        // canvas.width = rect.width * dpr;
+        // canvas.height = rect.height * dpr;
+        const ctx = this.canvas.el.getContext('2d');
+        // Scale all drawing operations by the dpr, so you
+        // don't have to worry about the difference.
+        // ctx.scale(this.dpr, this.dpr);
+        this.context = ctx; // this.canvas.el.getContext('2d');
+        this.updateVisibleZone();
+        this.drawGrid();
+    }
+
+    patched() {
+        this.updateVisibleZone();
+        this.drawGrid();
+    }
+
+    updateVisibleZone() {
+        const state = this.props.state;
+        const { rows, cols } = state;
+
+        const offsetY = this.vScrollbar.el ? this.vScrollbar.el.scrollTop : 0;
+        const offsetX = this.hScrollbar.el ? this.hScrollbar.el.scrollLeft : 0;
+
+        state.bottomRow = rows.length - 1;
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].top <= offsetY) {
+                state.topRow = i;
+            }
+            if (offsetY + this.props.height - 40 < rows[i].bottom) {
+                state.bottomRow = i;
+                break;
+            }
+        }
+        state.rightCol = cols.length - 1;
+        for (let i = 0; i < cols.length; i++) {
+            if (cols[i].left <= offsetX) {
+                state.leftCol = i;
+            }
+            if (offsetX + this.props.width < cols[i].right) {
+                state.rightCol = i;
+                break;
+            }
+        }
+        state.offsetX = cols[state.leftCol].left - HEADER_WIDTH;
+        state.offsetY = rows[state.topRow].top - HEADER_HEIGHT;
+    }
+
+
+    onScroll() {
+        const state = this.props.state;
+        const { offsetX, offsetY } = state;
+        this.updateVisibleZone();
+        if (offsetX !== state.offsetX || offsetY !== state.offsetY) {
+            this.drawGrid();
+        }
+    }
+    drawGrid() {
+        // whenever the dimensions are changed, we need to reset the width/height
+        // of the canvas manually, and reset its scaling.
+        const dpr = window.devicePixelRatio || 1;
+        const width = this.el.clientWidth;
+        const height = this.el.clientHeight;
+        const canvas = this.canvas.el;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.setAttribute('style', `width:${width}px;height:${height}px;`)
+        this.context.scale(dpr, dpr);
+        drawGrid(this.context, this.props.state, width, height)
+    }
+
+    onMouseWheel(ev) {
+        const vScrollbar = this.vScrollbar.el;
+        vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
+        const hScrollbar = this.hScrollbar.el;
+        hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
+    }
+}
+
