@@ -1,22 +1,10 @@
 import { Grid } from "./grid.js";
+import { ToolBar } from "./toolbar.js";
 import { numberToLetters, toCartesian } from "./helpers.js";
 import { parse, evaluate } from "./expression_parser.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-
-const GRAY_COLOR = '#f5f5f5';
-// -----------------------------------------------------------------------------
-// ToolBar
-// -----------------------------------------------------------------------------
-class ToolBar extends Component {
-  static template = xml /* xml */`<div class="o-spreadsheet-toolbar">toolbar</div>`;
-  static style = css /* css */`
-    .o-spreadsheet-toolbar {
-      background-color: ${GRAY_COLOR};
-      border-bottom: 1px solid #ccc;
-    }`;
-}
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
