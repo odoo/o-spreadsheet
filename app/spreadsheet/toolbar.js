@@ -8,21 +8,39 @@ const GRAY_COLOR = "#f5f5f5";
 export class ToolBar extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-toolbar">
-      <span class="o-cell-content">
+      <div class="o-cell-content">
          <t t-esc="props.state.selectedCell and props.state.selectedCell.content"/>
-      </span>
+      </div>
+      <div class="o-buttons">
+        <span class="o-button">Undo</span>
+        <span class="o-button">Redo</span>
+      </div>
     </div>`;
   static style = css/* css */ `
     .o-spreadsheet-toolbar {
       background-color: ${GRAY_COLOR};
       border-bottom: 1px solid #ccc;
+      display: flex;
+      height: 31px;
+      line-height: 31px;
 
       .o-cell-content {
-        font-family: Inconsolata,monospace,arial,sans,sans-serif;
+        font-family: Inconsolata, monospace, arial, sans, sans-serif;
         color: #222;
-        height: 32px;
-        line-height: 32px;
         padding: 0 8px;
+        flex: 0 0 200px;
+        margin: 3px;
+        border: 1px solid #ddd;
+        line-height: 25px;
+      }
+
+      .o-buttons {
+        flex: 1 1 auto;
+        font-size: 13px;
+
+        .o-button {
+          margin: 4px;
+        }
       }
     }
   `;

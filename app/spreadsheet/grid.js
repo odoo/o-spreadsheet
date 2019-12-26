@@ -76,7 +76,7 @@ function drawBackgroundGrid(ctx, state, width, height) {
   hLine(ctx, HEADER_HEIGHT, width);
 
   // vertical lines
-  ctx.strokeStyle = "#999";
+  ctx.strokeStyle = "#777";
   ctx.lineWidth = 0.33;
   const offsetX = state.offsetX;
   for (let i = leftCol; i <= rightCol; i++) {
