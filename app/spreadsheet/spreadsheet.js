@@ -27,7 +27,7 @@ const DEFAULT_CELL_HEIGHT = 26;
 const TEMPLATE = xml /* xml */`
   <div class="o-spreadsheet" t-on-keydown="onKeydown" tabindex="-1">
     <ToolBar />
-    <Grid state="state"/>
+    <Grid state="state" t-on-cell-selected="onCellSelected"/>
   </div>`;
 
 const CSS = css /* scss */`
@@ -166,6 +166,12 @@ export class Spreadsheet extends Component {
     this.state.selectedRow = (this.state.selectedRow || 0) + deltaY;
     // todo: prevent selected zone to go off screen, and to go out of the
     //   bounds
+    this.render();
+  }
+
+  onCellSelected(ev) {
+    this.state.selectedCol = ev.detail.col;
+    this.state.selectedRow = ev.detail.row;
     this.render();
   }
 }

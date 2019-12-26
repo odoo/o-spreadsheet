@@ -128,6 +128,7 @@ function drawGrid(ctx, state, width, height) {
 const TEMPLATE = xml /* xml */`
   <div class="o-spreadsheet-sheet">
     <canvas t-ref="canvas"
+      t-on-click="onClick"
       t-on-mousewheel="onMouseWheel" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{props.state.height}}px"/>
@@ -249,6 +250,31 @@ export class Grid extends Component {
         vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
         const hScrollbar = this.hScrollbar.el;
         hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
+    }
+
+    onClick(ev) {
+        const x = ev.clientX;
+        const y = ev.clientY - 40;
+        let col, row;
+        const state = this.props.state;
+        const {cols, rows, offsetX, offsetY} = state;
+        for (let i = 0; i < cols.length; i++) {
+            let c = cols[i];
+            if (c.left - offsetX <= x && x <= c.right - offsetX) {
+                col = i;
+                break;
+            }
+        }
+        for (let i = 0; i < rows.length; i++) {
+            let r = rows[i];
+            if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
+                row = i;
+                break;
+            }
+        }
+      if (col !== undefined && row !== undefined) {
+          this.trigger('cell-selected', {col, row});
+        }
     }
 }
 
