@@ -17,7 +17,7 @@ function drawHeaderCells(ctx, state) {
   } = state;
 
   ctx.fillStyle = "#f4f5f8";
-  ctx.font = "500 12px Source Sans Pro";
+  ctx.font = "400 12px Source Sans Pro";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   // top left empty case
@@ -29,7 +29,7 @@ function drawHeaderCells(ctx, state) {
     const col = cols[i];
     ctx.fillStyle = i === selectedCol ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
-    ctx.fillStyle = "#585757";
+    ctx.fillStyle = "#111";
     ctx.fillText(
       col.name,
       (col.left + col.right) / 2 - offsetX,
