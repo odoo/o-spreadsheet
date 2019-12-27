@@ -1,4 +1,5 @@
 import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_state.js";
+import { Composer } from "./composer.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -142,8 +143,7 @@ function drawGrid(ctx, state, width, height) {
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet">
     <t t-if="edition.active">
-        <input class="o-composer" t-model="edition.content" t-ref="composer"
-            t-attf-style="left:{{edition.left}}px;top:{{edition.top}}px;width:{{edition.width}}px;height:{{edition.height}}px;"/>
+      <Composer state="props.state" initialContent="edition.initialContent" />
     </t>
     <canvas t-ref="canvas"
       t-on-click="onClick"
@@ -163,11 +163,11 @@ const CSS = css/* scss */ `
     overflow: hidden;
 
     .o-composer {
-        position: absolute;
-        border:none;
+      position: absolute;
+      border: none;
     }
     .o-composer:focus {
-        outline: none;
+      outline: none;
     }
     .o-scrollbar {
       position: absolute;
@@ -189,6 +189,7 @@ const CSS = css/* scss */ `
 export class Grid extends Component {
   static template = TEMPLATE;
   static style = CSS;
+  static components = { Composer };
 
   vScrollbar = useRef("vscrollbar");
   hScrollbar = useRef("hscrollbar");
@@ -196,32 +197,18 @@ export class Grid extends Component {
   context = null;
 
   edition = useState({
-      active: false,
-      content: "",
-      left: 0,
-      top: 0,
-      width: 0,
-      height: 0,
+    active: false,
+    initialContent: ""
   });
-  constructor() {
-      super(...arguments);
-      useAutofocus("composer");
-  }
 
   mounted() {
-    // Get the device pixel ratio, falling back to 1.
-    // const dpr = window.devicePixelRatio || 1;
-    // // Get the size of the canvas in CSS pixels.
-    // const rect = canvas.getBoundingClientRect();
-    // // Give the canvas pixel dimensions of their CSS
-    // // size * the device pixel ratio.
-    // canvas.width = rect.width * dpr;
-    // canvas.height = rect.height * dpr;
-    const ctx = this.canvas.el.getContext("2d");
+    const canvas = this.canvas.el;
+    canvas.focus();
+    const ctx = canvas.getContext("2d");
     // Scale all drawing operations by the dpr, so you
     // don't have to worry about the difference.
     // ctx.scale(this.dpr, this.dpr);
-    this.context = ctx; // this.canvas.el.getContext('2d');
+    this.context = ctx;
     this.updateVisibleZone();
     this.drawGrid();
   }
@@ -236,7 +223,7 @@ export class Grid extends Component {
     const { offsetX, offsetY } = state;
     this.updateVisibleZone();
     if (offsetX !== state.offsetX || offsetY !== state.offsetY) {
-      this.drawGrid();
+      this.render();
     }
   }
 
@@ -306,34 +293,10 @@ export class Grid extends Component {
     };
     const delta = deltaMap[ev.key];
     if (delta) {
-        this.props.state.moveSelection(...delta);
+      this.props.state.moveSelection(...delta);
       return;
     }
     this.edition.active = true;
-    this.edition.content = ev.key;
-    const state = this.props.state;
-    const {cols, selectedCol, rows, selectedRow, offsetX, offsetY} = state;
-    const col = cols[selectedCol];
-    const row = rows[selectedRow];
-    this.edition.left = col.left - offsetX + 2;
-    this.edition.width = col.size - 4;
-    this.edition.top = row.top - offsetY + 2;
-    this.edition.height = row.size - 4;
+    this.edition.initialContent = ev.key;
   }
 }
-
-
-function useAutofocus(name) {
-    let ref = useRef(name);
-    let isInDom = false;
-    function updateFocus() {
-      if (!isInDom && ref.el) {
-        isInDom = true;
-        ref.el.focus();
-      } else if (isInDom && !ref.el) {
-        isInDom = false;
-      }
-    }
-    owl.hooks.onPatched(updateFocus);
-    owl.hooks.onMounted(updateFocus);
-  }

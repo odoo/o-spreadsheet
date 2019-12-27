@@ -25,7 +25,7 @@ class App extends Component {
     colNumber: 26,
     rowNumber: 100,
     cols: { 3: { size: 150 } },
-    rows: { },
+    rows: {},
     cells: {
       B2: { content: "coucou" },
       B3: { content: "43" },
