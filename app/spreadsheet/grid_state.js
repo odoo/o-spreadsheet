@@ -37,6 +37,9 @@ export class GridState extends owl.core.EventBus {
 
   cells = null;
 
+  isEditing = false;
+  currentContent = "";
+
   constructor(data) {
     super();
     this.cells = data.cells;
@@ -151,6 +154,12 @@ export class GridState extends owl.core.EventBus {
     // todo: prevent selected zone to go off screen, and to go out of the
     //   bounds
     this.selectCell(this.selectedCol + deltaX, this.selectedRow + deltaY);
+    this.trigger("update");
+  }
+
+  startEditing(str) {
+    this.isEditing = true;
+    this.currentContent = str;
     this.trigger("update");
   }
 }

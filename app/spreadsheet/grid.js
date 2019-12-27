@@ -142,8 +142,8 @@ function drawGrid(ctx, state, width, height) {
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet">
-    <t t-if="edition.active">
-      <Composer state="props.state" initialContent="edition.initialContent" />
+    <t t-if="props.state.isEditing">
+      <Composer state="props.state" />
     </t>
     <canvas t-ref="canvas"
       t-on-click="onClick"
@@ -195,11 +195,6 @@ export class Grid extends Component {
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
   context = null;
-
-  edition = useState({
-    active: false,
-    initialContent: ""
-  });
 
   mounted() {
     const canvas = this.canvas.el;
@@ -296,7 +291,6 @@ export class Grid extends Component {
       this.props.state.moveSelection(...delta);
       return;
     }
-    this.edition.active = true;
-    this.edition.initialContent = ev.key;
+    this.props.state.startEditing(ev.key);
   }
 }

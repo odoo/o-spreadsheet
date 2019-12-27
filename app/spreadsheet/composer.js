@@ -2,7 +2,7 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
-    <input class="o-composer" t-att-style="style" t-model="state.content"/>
+    <input class="o-composer" t-att-style="style" />
   `;
 
 const CSS = css/* scss */ `
@@ -19,9 +19,8 @@ export class Composer extends Component {
   static template = TEMPLATE;
   static style = CSS;
 
-  state = { content: this.props.initialContent };
-
   mounted() {
+    this.el.value = this.props.state.currentContent;
     this.el.focus();
   }
 
