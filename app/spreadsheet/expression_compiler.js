@@ -79,7 +79,7 @@ function bindingPower(token) {
     case "RIGHT_PAREN":
       return 5;
     case "OPERATOR":
-      return token.value === "*" ? 20 : 15;
+      return token.value === "*" || token.value === "/" ? 20 : 15;
   }
   throw new Error("?");
 }
@@ -159,22 +159,28 @@ export function parse(str) {
 // -----------------------------------------------------------------------------
 // EVALUATOR
 // -----------------------------------------------------------------------------
-const OPERATOR_FNS = {
-  "*": (a, b) => a * b,
-  "+": (a, b) => a + b,
-  "-": (a, b) => a - b,
-  "/": (a, b) => a / b
-};
-export function evaluate(ast, cells) {
-  let left, right;
-  switch (ast.type) {
-    case "NUMBER":
-      return ast.value;
-    case "VARIABLE":
-      return cells[ast.value]._value;
-    case "OPERATION":
-      left = evaluate(ast.left, cells);
-      right = evaluate(ast.right, cells);
-      return OPERATOR_FNS[ast.value](left, right);
+export function compileExpression(str) {
+  const ast = parse(str);
+  let nextId = 1;
+  const code = [`// ${str}`];
+
+  function compileAST(ast) {
+    let id, left, right;
+    switch (ast.type) {
+      case "NUMBER":
+        return ast.value;
+      case "VARIABLE":
+        return `getValue('${ast.value}')`;
+      case "OPERATION":
+        id = nextId++;
+        left = compileAST(ast.left);
+        right = compileAST(ast.right);
+        code.push(`let _${id} = ${left} ${ast.value} ${right};`);
+        break;
+    }
+    return `_${id}`;
   }
+  code.push(`return ${compileAST(ast)};`);
+  console.log(code.join("\n"));
+  return new Function("getValue", code.join("\n"));
 }

@@ -1,5 +1,5 @@
 import { numberToLetters, toCartesian, toXC } from "./helpers.js";
-import { parse, evaluate } from "./expression_parser.js";
+import { compileExpression } from "./expression_compiler.js";
 
 const DEFAULT_CELL_WIDTH = 100;
 const DEFAULT_CELL_HEIGHT = 26;
@@ -50,9 +50,9 @@ export class GridState extends owl.core.EventBus {
       align: "right"
     },
     number: {
-      align: "right",
-    },
-  }
+      align: "right"
+    }
+  };
 
   constructor(data) {
     super();
@@ -104,7 +104,8 @@ export class GridState extends owl.core.EventBus {
         ? "number"
         : "text";
     if (cell._type === "formula") {
-      cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
+      cell._formula = compileExpression(cell.content.slice(1));
+      // cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
     }
     cell._style = cell.style || cell._type;
     this.cells[xc] = cell;
@@ -112,17 +113,32 @@ export class GridState extends owl.core.EventBus {
 
   evaluateCells() {
     const cells = this.cells;
+    const vars = {};
+    function getValue(xc) {
+      if (xc in vars) {
+        if (vars[xc] === null) {
+          throw new Error("cycle...");
+        }
+        return vars[xc];
+      } else {
+        vars[xc] = null;
+        const cell = cells[xc];
+        if (cell._type === "number") {
+          vars[xc] = parseFloat(cell.content);
+        }
+        if (cell._type === "text") {
+          vars[xc] = cell.content;
+        }
+        if (cell._type === "formula") {
+          vars[xc] = cell._formula(getValue);
+        }
+        return vars[xc];
+      }
+    }
+
     for (let xc in cells) {
       const cell = cells[xc];
-      if (cell._type === "number") {
-        cell._value = parseFloat(cell.content);
-      }
-      if (cell._type === "text") {
-        cell._value = cell.content;
-      }
-      if (cell._type === "formula") {
-        cell._value = evaluate(cell._formula, cells);
-      }
+      cell._value = getValue(xc);
     }
   }
 
