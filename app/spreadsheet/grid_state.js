@@ -156,6 +156,9 @@ export class GridState extends owl.core.EventBus {
   }
 
   startEditing(str) {
+    if (!str) {
+      str = this.selectedCell ? this.selectedCell.content : "";
+    }
     this.isEditing = true;
     this.currentContent = str;
     this.trigger("update");

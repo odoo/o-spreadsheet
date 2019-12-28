@@ -2,13 +2,16 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
-    <input class="o-composer" t-att-style="style" t-on-input="onInput" />
+    <input class="o-composer" t-att-style="style"
+      t-on-input="onInput"
+      t-on-keydown="onKeydown" />
   `;
 
 const CSS = css/* scss */ `
   .o-composer {
     position: absolute;
     border: none;
+    font-family: Inconsolata, monospace, arial, sans, sans-serif;
   }
   .o-composer:focus {
     outline: none;
@@ -40,5 +43,11 @@ export class Composer extends Component {
     const state = this.props.state;
     // write in place? or go through a method probably
     state.currentContent = this.el.value;
+  }
+
+  onKeydown(ev) {
+    if (ev.key === "Enter") {
+      this.props.state.moveSelection(0, 1);
+    }
   }
 }

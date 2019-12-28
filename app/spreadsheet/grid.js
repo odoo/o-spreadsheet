@@ -195,6 +195,7 @@ export class Grid extends Component {
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
   context = null;
+  hasFocus = false;
 
   mounted() {
     const canvas = this.canvas.el;
@@ -208,9 +209,15 @@ export class Grid extends Component {
     this.drawGrid();
   }
 
+  willPatch() {
+    this.hasFocus = this.el.contains(document.activeElement);
+  }
   patched() {
     this.updateVisibleZone();
     this.drawGrid();
+    if (this.hasFocus && !this.el.contains(document.activeElement)) {
+      this.canvas.el.focus();
+    }
   }
 
   onScroll() {
@@ -289,6 +296,16 @@ export class Grid extends Component {
     const delta = deltaMap[ev.key];
     if (delta) {
       this.props.state.moveSelection(...delta);
+      return;
+    }
+    if (ev.key === "Tab") {
+      ev.preventDefault();
+      const deltaX = ev.shiftKey ? -1 : 1;
+      this.props.state.moveSelection(deltaX, 0);
+      return;
+    }
+    if (ev.key === "Enter") {
+      this.props.state.startEditing();
       return;
     }
     if (ev.key.length === 1) {
