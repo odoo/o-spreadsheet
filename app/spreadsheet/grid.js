@@ -100,7 +100,7 @@ function isCellVisible(col, row, state) {
 
 function drawCells(ctx, state) {
   const { offsetX, offsetY, rows, cols } = state;
-  ctx.font = "500 11px Arial";
+  ctx.font = "500 11px arial";
   ctx.fillStyle = "#000";
 
   for (let xc in state.cells) {

@@ -10,7 +10,7 @@ const { xml, css } = owl.tags;
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet">
+  <div class="o-spreadsheet hello FP">
     <ToolBar state="state" />
     <Grid state="state" />
   </div>`;

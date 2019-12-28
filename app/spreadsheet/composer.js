@@ -11,7 +11,7 @@ const CSS = css/* scss */ `
   .o-composer {
     position: absolute;
     border: none;
-    font-family: Inconsolata, monospace, arial, sans, sans-serif;
+    font-family: arial;
   }
   .o-composer:focus {
     outline: none;
