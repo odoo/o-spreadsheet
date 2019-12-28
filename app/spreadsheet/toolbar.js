@@ -26,6 +26,8 @@ export class ToolBar extends Component {
 
       .o-cell-content {
         font-family: arial;
+        font-size: 12px;
+        font-weight: 500;
         color: #222;
         padding: 0 8px;
         flex: 0 0 200px;

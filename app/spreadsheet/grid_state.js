@@ -42,6 +42,18 @@ export class GridState extends owl.core.EventBus {
   isEditing = false;
   currentContent = "";
 
+  styles = {
+    text: {
+      align: "left"
+    },
+    formula: {
+      align: "right"
+    },
+    number: {
+      align: "right",
+    },
+  }
+
   constructor(data) {
     super();
     this.computeDims(data);
@@ -94,6 +106,7 @@ export class GridState extends owl.core.EventBus {
     if (cell._type === "formula") {
       cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
     }
+    cell._style = cell.style || cell._type;
     this.cells[xc] = cell;
   }
 

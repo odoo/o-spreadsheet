@@ -3,7 +3,7 @@ import { Composer } from "./composer.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef, useState } = owl.hooks;
+const { useRef } = owl.hooks;
 
 function drawHeaderCells(ctx, state) {
   const {
@@ -100,8 +100,9 @@ function isCellVisible(col, row, state) {
 
 function drawCells(ctx, state) {
   const { offsetX, offsetY, rows, cols } = state;
-  ctx.font = "500 11px arial";
+  ctx.font = "500 12px arial";
   ctx.fillStyle = "#000";
+  const styles = state.styles;
 
   for (let xc in state.cells) {
     // to do: skip many rows
@@ -109,8 +110,17 @@ function drawCells(ctx, state) {
     if (isCellVisible(cell._col, cell._row, state)) {
       let col = cols[cell._col];
       let row = rows[cell._row];
-      let x = (col.left + col.right) / 2 - offsetX;
+      const align = styles[cell._style].align;
+      let x;
       let y = (row.top + row.bottom) / 2 - offsetY;
+      if (align === "left") {
+        x = col.left - offsetX + 4;
+      } else if (align === "right") {
+        x = col.right - offsetX - 4;
+      } else {
+        x = (col.left + col.right) / 2 - offsetX;
+      }
+      ctx.textAlign = align;
       ctx.fillText(cell._value, x, y);
     }
   }
