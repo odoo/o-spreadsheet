@@ -291,6 +291,8 @@ export class Grid extends Component {
       this.props.state.moveSelection(...delta);
       return;
     }
-    this.props.state.startEditing(ev.key);
+    if (ev.key.length === 1) {
+      this.props.state.startEditing(ev.key);
+    }
   }
 }

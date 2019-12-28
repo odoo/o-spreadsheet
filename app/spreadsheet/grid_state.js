@@ -6,6 +6,8 @@ const DEFAULT_CELL_HEIGHT = 26;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
 
+const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
+
 export class GridState extends owl.core.EventBus {
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
@@ -35,16 +37,18 @@ export class GridState extends owl.core.EventBus {
   // null if there is no "active" selected cell
   selectedCell = null;
 
-  cells = null;
+  cells = {};
 
   isEditing = false;
   currentContent = "";
 
   constructor(data) {
     super();
-    this.cells = data.cells;
     this.computeDims(data);
-    this.processCells();
+    for (let xc in data.cells) {
+      this.processCell(xc, data.cells[xc]);
+    }
+    this.evaluateCells();
   }
 
   computeDims(data) {
@@ -77,27 +81,20 @@ export class GridState extends owl.core.EventBus {
     this.width = this.cols[this.cols.length - 1].right + 10;
   }
 
-  processCells() {
-    const cells = this.cells;
-    // xc = "excel coordinate"
-    const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
-    for (let xc in cells) {
-      const cell = cells[xc];
-      const [col, row] = toCartesian(xc);
-      cell._col = col;
-      cell._row = row;
-      const content = cell.content;
-      cell._type =
-        content[0] === "="
-          ? "formula"
-          : content.match(numberRegexp)
-          ? "number"
-          : "text";
-      if (cell._type === "formula") {
-        cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
-      }
+  processCell(xc, cell) {
+    const [col, row] = toCartesian(xc);
+    cell = Object.assign({ _col: col, _row: row }, cell);
+    const content = cell.content;
+    cell._type =
+      content[0] === "="
+        ? "formula"
+        : content.match(numberRegexp)
+        ? "number"
+        : "text";
+    if (cell._type === "formula") {
+      cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
     }
-    this.evaluateCells();
+    this.cells[xc] = cell;
   }
 
   evaluateCells() {
@@ -144,6 +141,7 @@ export class GridState extends owl.core.EventBus {
   }
 
   selectCell(col, row) {
+    this.stopEditing();
     this.selectedCol = col;
     this.selectedRow = row;
     this.selectedCell = this.cells[toXC(col, row)] || null;
@@ -161,5 +159,15 @@ export class GridState extends owl.core.EventBus {
     this.isEditing = true;
     this.currentContent = str;
     this.trigger("update");
+  }
+
+  stopEditing() {
+    if (this.currentContent) {
+      const xc = toXC(this.selectedCol, this.selectedRow);
+      this.processCell(xc, { content: this.currentContent });
+      this.evaluateCells();
+      this.currentContent = "";
+    }
+    this.isEditing = false;
   }
 }

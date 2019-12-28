@@ -2,7 +2,7 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
-    <input class="o-composer" t-att-style="style" />
+    <input class="o-composer" t-att-style="style" t-on-input="onInput" />
   `;
 
 const CSS = css/* scss */ `
@@ -34,5 +34,11 @@ export class Composer extends Component {
     const top = row.top - offsetY + 2;
     const height = row.size - 4;
     return `left:${left}px;top:${top}px;width:${width};height:${height}`;
+  }
+
+  onInput() {
+    const state = this.props.state;
+    // write in place? or go through a method probably
+    state.currentContent = this.el.value;
   }
 }
