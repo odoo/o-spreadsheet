@@ -157,6 +157,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <canvas t-ref="canvas"
       t-on-click="onClick"
+      t-on-dblclick="onDoubleClick"
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-mousewheel="onMouseWheel" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
@@ -294,6 +295,10 @@ export class Grid extends Component {
     if (col !== undefined && row !== undefined) {
       this.props.state.selectCell(col, row);
     }
+  }
+
+  onDoubleClick() {
+    this.props.state.startEditing();
   }
 
   onKeydown(ev) {
