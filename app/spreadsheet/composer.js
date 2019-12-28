@@ -49,5 +49,10 @@ export class Composer extends Component {
     if (ev.key === "Enter") {
       this.props.state.moveSelection(0, 1);
     }
+    if (ev.key === "Tab") {
+        ev.preventDefault();
+        const deltaX = ev.shiftKey ? -1 : 1;
+        this.props.state.moveSelection(deltaX, 0);
+    }
   }
 }
