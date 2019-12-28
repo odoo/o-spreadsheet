@@ -29,8 +29,9 @@ export class ToolBar extends Component {
         color: #222;
         padding: 0 8px;
         flex: 0 0 200px;
-        margin: 3px;
-        border: 1px solid #ddd;
+        margin: 0;
+        background-color: #fdfdfd;
+        border-right: 1px solid #ddd;
         line-height: 25px;
       }
 
