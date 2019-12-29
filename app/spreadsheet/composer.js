@@ -12,6 +12,7 @@ const CSS = css/* scss */ `
     position: absolute;
     border: none;
     font-family: arial;
+    font-size: 12px;
   }
   .o-composer:focus {
     outline: none;

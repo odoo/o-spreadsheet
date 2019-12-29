@@ -114,9 +114,9 @@ function drawCells(ctx, model) {
       let x;
       let y = (row.top + row.bottom) / 2 - offsetY;
       if (align === "left") {
-        x = col.left - offsetX + 4;
+        x = col.left - offsetX + 3;
       } else if (align === "right") {
-        x = col.right - offsetX - 4;
+        x = col.right - offsetX - 3;
       } else {
         x = (col.left + col.right) / 2 - offsetX;
       }
