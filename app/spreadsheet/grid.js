@@ -126,7 +126,7 @@ function drawCells(ctx, model) {
   }
 }
 
-function drawSelectedCell(ctx, model) {
+function drawSelection(ctx, model) {
   const { cols, rows, selectedCol, selectedRow } = model;
   if (!isCellVisible(selectedCol, selectedRow, model)) {
     return;
@@ -136,6 +136,8 @@ function drawSelectedCell(ctx, model) {
   const row = rows[selectedRow];
   const col = cols[selectedCol];
   ctx.lineWidth = 1.5;
+  ctx.fillStyle = "#f2f6fe";
+  ctx.fillRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
   ctx.strokeStyle = "#4b89ff";
   ctx.strokeRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
 }
@@ -146,8 +148,8 @@ function drawGrid(ctx, model, width, height) {
 
   drawHeaderCells(ctx, model);
   drawBackgroundGrid(ctx, model, width, height);
+  drawSelection(ctx, model);
   drawCells(ctx, model);
-  drawSelectedCell(ctx, model);
 }
 
 const TEMPLATE = xml/* xml */ `
