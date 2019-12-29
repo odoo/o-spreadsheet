@@ -178,6 +178,12 @@ export class GridModel extends owl.core.EventBus {
   }
 
   moveSelection(deltaX, deltaY) {
+    if (
+      (deltaY < 0 && this.selectedRow === 0) ||
+      (deltaX < 0 && this.selectedCol === 0)
+    ) {
+      return;
+    }
     // todo: prevent selected zone to go off screen, and to go out of the
     //   bounds
     this.selectCell(this.selectedCol + deltaX, this.selectedRow + deltaY);
