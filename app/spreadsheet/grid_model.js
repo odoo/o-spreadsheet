@@ -1,7 +1,7 @@
 import { numberToLetters, toCartesian, toXC } from "./helpers.js";
 import { compileExpression } from "./expression_compiler.js";
 
-const DEFAULT_CELL_WIDTH = 100;
+const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 26;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
