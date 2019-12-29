@@ -21,15 +21,15 @@ const CSS = css/* scss */ `
 export class Composer extends Component {
   static template = TEMPLATE;
   static style = CSS;
+  model = this.props.model;
 
   mounted() {
-    this.el.value = this.props.state.currentContent;
+    this.el.value = this.model.currentContent;
     this.el.focus();
   }
 
   get style() {
-    const state = this.props.state;
-    const { cols, selectedCol, rows, selectedRow, offsetX, offsetY } = state;
+    const { cols, selectedCol, rows, selectedRow, offsetX, offsetY } = this.model;
     const col = cols[selectedCol];
     const row = rows[selectedRow];
     const left = col.left - offsetX + 2;
@@ -40,19 +40,18 @@ export class Composer extends Component {
   }
 
   onInput() {
-    const state = this.props.state;
     // write in place? or go through a method probably
-    state.currentContent = this.el.value;
+    this.model.currentContent = this.el.value;
   }
 
   onKeydown(ev) {
     if (ev.key === "Enter") {
-      this.props.state.moveSelection(0, 1);
+      this.model.moveSelection(0, 1);
     }
     if (ev.key === "Tab") {
       ev.preventDefault();
       const deltaX = ev.shiftKey ? -1 : 1;
-      this.props.state.moveSelection(deltaX, 0);
+      this.model.moveSelection(deltaX, 0);
     }
   }
 }

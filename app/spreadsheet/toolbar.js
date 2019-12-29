@@ -50,7 +50,7 @@ export class ToolBar extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-toolbar">
       <div class="o-cell-content">
-         <t t-esc="props.state.selectedCell and props.state.selectedCell.content"/>
+         <t t-esc="model.selectedCell and model.selectedCell.content"/>
       </div>
       <div class="o-tools">
         <UndoTool />
@@ -128,4 +128,6 @@ export class ToolBar extends Component {
       }
     }`;
   static components = { UndoTool, RedoTool };
+
+  model = this.props.model;
 }

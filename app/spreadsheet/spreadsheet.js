@@ -1,5 +1,5 @@
 import { Grid } from "./grid.js";
-import { GridState } from "./grid_state.js";
+import { GridModel } from "./grid_model.js";
 import { ToolBar } from "./toolbar.js";
 
 const { Component } = owl;
@@ -11,8 +11,8 @@ const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet hello FP">
-    <ToolBar state="state" />
-    <Grid state="state" />
+    <ToolBar model="model" />
+    <Grid model="model" />
   </div>`;
 
 const CSS = css/* scss */ `
@@ -27,7 +27,7 @@ export class Spreadsheet extends Component {
   static style = CSS;
   static components = { ToolBar, Grid };
 
-  state = new GridState(this.props.data);
+  model = new GridModel(this.props.data);
 
   constructor() {
     super(...arguments);
@@ -35,11 +35,11 @@ export class Spreadsheet extends Component {
   }
 
   mounted() {
-    this.state.on("update", this, this.render);
+    this.model.on("update", this, this.render);
   }
 
   willUnmount() {
-    this.state.off("update", this);
+    this.model.off("update", this);
   }
 }
 

@@ -8,7 +8,7 @@ export const HEADER_WIDTH = 60;
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
 
-export class GridState extends owl.core.EventBus {
+export class GridModel extends owl.core.EventBus {
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
   width = null;

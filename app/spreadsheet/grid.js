@@ -1,11 +1,11 @@
-import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_state.js";
+import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_model.js";
 import { Composer } from "./composer.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useRef } = owl.hooks;
 
-function drawHeaderCells(ctx, state) {
+function drawHeaderCells(ctx, model) {
   const {
     topRow,
     leftCol,
@@ -15,7 +15,7 @@ function drawHeaderCells(ctx, state) {
     rows,
     selectedCol,
     selectedRow
-  } = state;
+  } = model;
 
   ctx.fillStyle = "#f4f5f8";
   ctx.font = "400 12px Source Sans Pro";
@@ -25,7 +25,7 @@ function drawHeaderCells(ctx, state) {
   ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
 
   // column headers
-  const offsetX = state.offsetX;
+  const offsetX = model.offsetX;
   for (let i = leftCol; i <= rightCol; i++) {
     const col = cols[i];
     ctx.fillStyle = i === selectedCol ? "#e7edf9" : "#f4f5f8";
@@ -39,7 +39,7 @@ function drawHeaderCells(ctx, state) {
   }
 
   // row headers
-  const offsetY = state.offsetY;
+  const offsetY = model.offsetY;
   for (let i = topRow; i <= bottomRow; i++) {
     const row = rows[i];
     ctx.fillStyle = i === selectedRow ? "#e7edf9" : "#f4f5f8";
@@ -67,8 +67,8 @@ function hLine(ctx, y, width) {
   ctx.stroke();
 }
 
-function drawBackgroundGrid(ctx, state, width, height) {
-  const { leftCol, rightCol, topRow, bottomRow, cols, rows } = state;
+function drawBackgroundGrid(ctx, model, width, height) {
+  const { leftCol, rightCol, topRow, bottomRow, cols, rows } = model;
 
   // header lines
   ctx.lineWidth = 0.5;
@@ -79,35 +79,35 @@ function drawBackgroundGrid(ctx, state, width, height) {
   // vertical lines
   ctx.strokeStyle = "#777";
   ctx.lineWidth = 0.33;
-  const offsetX = state.offsetX;
+  const offsetX = model.offsetX;
   for (let i = leftCol; i <= rightCol; i++) {
     const col = cols[i];
     vLine(ctx, col.right - offsetX, height);
   }
 
   // horizontal lines
-  const offsetY = state.offsetY;
+  const offsetY = model.offsetY;
   for (let i = topRow; i <= bottomRow; i++) {
     const row = rows[i];
     hLine(ctx, row.bottom - offsetY, width);
   }
 }
 
-function isCellVisible(col, row, state) {
-  const { leftCol, topRow, rightCol, bottomRow } = state;
+function isCellVisible(col, row, model) {
+  const { leftCol, topRow, rightCol, bottomRow } = model;
   return col >= leftCol && col <= rightCol && row >= topRow && row <= bottomRow;
 }
 
-function drawCells(ctx, state) {
-  const { offsetX, offsetY, rows, cols } = state;
+function drawCells(ctx, model) {
+  const { offsetX, offsetY, rows, cols } = model;
   ctx.font = "500 12px arial";
   ctx.fillStyle = "#000";
-  const styles = state.styles;
+  const styles = model.styles;
 
-  for (let xc in state.cells) {
+  for (let xc in model.cells) {
     // to do: skip many rows
-    let cell = state.cells[xc];
-    if (isCellVisible(cell._col, cell._row, state)) {
+    let cell = model.cells[xc];
+    if (isCellVisible(cell._col, cell._row, model)) {
       let col = cols[cell._col];
       let row = rows[cell._row];
       const align = styles[cell._style].align;
@@ -126,13 +126,13 @@ function drawCells(ctx, state) {
   }
 }
 
-function drawSelectedCell(ctx, state) {
-  const { cols, rows, selectedCol, selectedRow } = state;
-  if (!isCellVisible(selectedCol, selectedRow, state)) {
+function drawSelectedCell(ctx, model) {
+  const { cols, rows, selectedCol, selectedRow } = model;
+  if (!isCellVisible(selectedCol, selectedRow, model)) {
     return;
   }
-  const offsetX = state.offsetX;
-  const offsetY = state.offsetY;
+  const offsetX = model.offsetX;
+  const offsetY = model.offsetY;
   const row = rows[selectedRow];
   const col = cols[selectedCol];
   ctx.lineWidth = 1.5;
@@ -140,20 +140,20 @@ function drawSelectedCell(ctx, state) {
   ctx.strokeRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
 }
 
-function drawGrid(ctx, state, width, height) {
-  console.log("drawing", state);
+function drawGrid(ctx, model, width, height) {
+  console.log("drawing", model);
   ctx.clearRect(0, 0, width, height);
 
-  drawHeaderCells(ctx, state);
-  drawBackgroundGrid(ctx, state, width, height);
-  drawCells(ctx, state);
-  drawSelectedCell(ctx, state);
+  drawHeaderCells(ctx, model);
+  drawBackgroundGrid(ctx, model, width, height);
+  drawCells(ctx, model);
+  drawSelectedCell(ctx, model);
 }
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet">
-    <t t-if="props.state.isEditing">
-      <Composer state="props.state" />
+    <t t-if="model.isEditing">
+      <Composer model="model" />
     </t>
     <canvas t-ref="canvas"
       t-on-click="onClick"
@@ -161,10 +161,10 @@ const TEMPLATE = xml/* xml */ `
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-mousewheel="onMouseWheel" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{props.state.height}}px"/>
+      <div t-attf-style="width:1px;height:{{model.height}}px"/>
     </div>
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{props.state.width}}px"/>
+      <div t-attf-style="height:1px;width:{{model.width}}px"/>
     </div>
   </div>`;
 
@@ -207,6 +207,7 @@ export class Grid extends Component {
   canvas = useRef("canvas");
   context = null;
   hasFocus = false;
+  model = this.props.model;
 
   mounted() {
     const canvas = this.canvas.el;
@@ -232,10 +233,10 @@ export class Grid extends Component {
   }
 
   onScroll() {
-    const state = this.props.state;
-    const { offsetX, offsetY } = state;
+    const model = this.model;
+    const { offsetX, offsetY } = model;
     this.updateVisibleZone();
-    if (offsetX !== state.offsetX || offsetY !== state.offsetY) {
+    if (offsetX !== model.offsetX || offsetY !== model.offsetY) {
       this.render();
     }
   }
@@ -245,7 +246,7 @@ export class Grid extends Component {
     const height = this.el.clientHeight;
     const offsetY = this.vScrollbar.el.scrollTop;
     const offsetX = this.hScrollbar.el.scrollLeft;
-    this.props.state.updateVisibleZone(width, height, offsetX, offsetY);
+    this.model.updateVisibleZone(width, height, offsetX, offsetY);
   }
   drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
@@ -258,7 +259,7 @@ export class Grid extends Component {
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
     this.context.scale(dpr, dpr);
-    drawGrid(this.context, this.props.state, width, height);
+    drawGrid(this.context, this.model, width, height);
   }
 
   onMouseWheel(ev) {
@@ -276,8 +277,8 @@ export class Grid extends Component {
       return;
     }
     let col, row;
-    const state = this.props.state;
-    const { cols, rows, offsetX, offsetY } = state;
+    const model = this.model;
+    const { cols, rows, offsetX, offsetY } = model;
     for (let i = 0; i < cols.length; i++) {
       let c = cols[i];
       if (c.left - offsetX <= x && x <= c.right - offsetX) {
@@ -293,12 +294,12 @@ export class Grid extends Component {
       }
     }
     if (col !== undefined && row !== undefined) {
-      this.props.state.selectCell(col, row);
+      this.model.selectCell(col, row);
     }
   }
 
   onDoubleClick() {
-    this.props.state.startEditing();
+    this.model.startEditing();
   }
 
   onKeydown(ev) {
@@ -310,21 +311,21 @@ export class Grid extends Component {
     };
     const delta = deltaMap[ev.key];
     if (delta) {
-      this.props.state.moveSelection(...delta);
+      this.model.moveSelection(...delta);
       return;
     }
     if (ev.key === "Tab") {
       ev.preventDefault();
       const deltaX = ev.shiftKey ? -1 : 1;
-      this.props.state.moveSelection(deltaX, 0);
+      this.model.moveSelection(deltaX, 0);
       return;
     }
     if (ev.key === "Enter") {
-      this.props.state.startEditing();
+      this.model.startEditing();
       return;
     }
     if (ev.key.length === 1) {
-      this.props.state.startEditing(ev.key);
+      this.model.startEditing(ev.key);
     }
   }
 }
