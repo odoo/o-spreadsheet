@@ -9,38 +9,12 @@ export const HEADER_WIDTH = 60;
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
 
 export class GridModel extends owl.core.EventBus {
-  // width and height of the sheet zone (not just the visible part, and excluding
-  // the row and col headers)
-  width = null;
-  height = null;
-
-  // offset between the visible zone and the full zone (take into account
-  // headers)
-  offsetX = 0;
-  offsetY = 0;
-
-  // coordinates of the visible zone
-  topRow = null;
-  leftCol = null;
-  rightCol = null;
-  bottomRow = null;
-
   // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
   rows = [];
   // each col is described by: { left: ..., right: ..., name: 'B', size: ... }
   cols = [];
 
-  // coordinates of the selected cell
-  selectedCol = 0;
-  selectedRow = 0;
-
-  // null if there is no "active" selected cell
-  selectedCell = null;
-
   cells = {};
-
-  isEditing = false;
-  currentContent = "";
 
   styles = {
     text: {
@@ -53,6 +27,40 @@ export class GridModel extends owl.core.EventBus {
       align: "right"
     }
   };
+
+  // width and height of the sheet zone (not just the visible part, and excluding
+  // the row and col headers)
+  width = null;
+  height = null;
+
+  // offset between the visible zone and the full zone (take into account
+  // headers)
+  offsetX = 0;
+  offsetY = 0;
+
+  // coordinates of the visible and selected zone
+  current = {
+    top: null,
+    left: null,
+    bottom: null,
+    right: null
+  };
+  selection = {
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0
+  };
+
+  // coordinates of the selected cell
+  selectedCol = 0;
+  selectedRow = 0;
+
+  // null if there is no "active" selected cell
+  selectedCell = null;
+
+  isEditing = false;
+  currentContent = "";
 
   constructor(data) {
     super();
@@ -143,30 +151,30 @@ export class GridModel extends owl.core.EventBus {
   }
 
   updateVisibleZone(width, height, offsetX, offsetY) {
-    const { rows, cols } = this;
+    const { rows, cols, current } = this;
 
-    this.bottomRow = rows.length - 1;
+    current.bottom = rows.length - 1;
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].top <= offsetY) {
-        this.topRow = i;
+        current.top = i;
       }
       if (offsetY + height < rows[i].bottom) {
-        this.bottomRow = i;
+        current.bottom = i;
         break;
       }
     }
-    this.rightCol = cols.length - 1;
+    current.right = cols.length - 1;
     for (let i = 0; i < cols.length; i++) {
       if (cols[i].left <= offsetX) {
-        this.leftCol = i;
+        current.left = i;
       }
       if (offsetX + width < cols[i].right) {
-        this.rightCol = i;
+        current.right = i;
         break;
       }
     }
-    this.offsetX = cols[this.leftCol].left - HEADER_WIDTH;
-    this.offsetY = rows[this.topRow].top - HEADER_HEIGHT;
+    this.offsetX = cols[current.left].left - HEADER_WIDTH;
+    this.offsetY = rows[current.top].top - HEADER_HEIGHT;
   }
 
   selectCell(col, row) {

@@ -6,16 +6,8 @@ const { xml, css } = owl.tags;
 const { useRef } = owl.hooks;
 
 function drawHeaderCells(ctx, model) {
-  const {
-    topRow,
-    leftCol,
-    rightCol,
-    bottomRow,
-    cols,
-    rows,
-    selectedCol,
-    selectedRow
-  } = model;
+  const { current, cols, rows, selectedCol, selectedRow } = model;
+  const { top, left, bottom, right } = current;
 
   ctx.fillStyle = "#f4f5f8";
   ctx.font = "400 12px Source Sans Pro";
@@ -26,7 +18,7 @@ function drawHeaderCells(ctx, model) {
 
   // column headers
   const offsetX = model.offsetX;
-  for (let i = leftCol; i <= rightCol; i++) {
+  for (let i = left; i <= right; i++) {
     const col = cols[i];
     ctx.fillStyle = i === selectedCol ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
@@ -40,7 +32,7 @@ function drawHeaderCells(ctx, model) {
 
   // row headers
   const offsetY = model.offsetY;
-  for (let i = topRow; i <= bottomRow; i++) {
+  for (let i = top; i <= bottom; i++) {
     const row = rows[i];
     ctx.fillStyle = i === selectedRow ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(0, row.top - offsetY, HEADER_WIDTH, row.bottom - offsetY);
@@ -68,7 +60,8 @@ function hLine(ctx, y, width) {
 }
 
 function drawBackgroundGrid(ctx, model, width, height) {
-  const { leftCol, rightCol, topRow, bottomRow, cols, rows } = model;
+  const { current, cols, rows } = model;
+  const { top, left, bottom, right } = current;
 
   // header lines
   ctx.lineWidth = 0.5;
@@ -80,22 +73,22 @@ function drawBackgroundGrid(ctx, model, width, height) {
   ctx.strokeStyle = "#777";
   ctx.lineWidth = 0.33;
   const offsetX = model.offsetX;
-  for (let i = leftCol; i <= rightCol; i++) {
+  for (let i = left; i <= right; i++) {
     const col = cols[i];
     vLine(ctx, col.right - offsetX, height);
   }
 
   // horizontal lines
   const offsetY = model.offsetY;
-  for (let i = topRow; i <= bottomRow; i++) {
+  for (let i = top; i <= bottom; i++) {
     const row = rows[i];
     hLine(ctx, row.bottom - offsetY, width);
   }
 }
 
 function isCellVisible(col, row, model) {
-  const { leftCol, topRow, rightCol, bottomRow } = model;
-  return col >= leftCol && col <= rightCol && row >= topRow && row <= bottomRow;
+  const { top, left, bottom, right } = model.current;
+  return col >= left && col <= right && row >= top && row <= bottom;
 }
 
 function drawCells(ctx, model) {
