@@ -214,4 +214,17 @@ export class GridModel extends owl.core.EventBus {
     }
     this.isEditing = false;
   }
+
+  deleteSelection() {
+    for (let i = this.selection.left; i <= this.selection.right; i++) {
+      for (let j = this.selection.top; j <= this.selection.bottom; j++) {
+        const xc = toXC(i, j);
+        if (xc in this.cells) {
+          this.cells[xc].content = "";
+          this.cells[xc]._value = "";
+        }
+      }
+    }
+    this.trigger("update");
+  }
 }

@@ -319,6 +319,9 @@ export class Grid extends Component {
       this.model.startEditing();
       return;
     }
+    if (ev.key === "Delete") {
+      this.model.deleteSelection();
+    }
     if (ev.key.length === 1) {
       this.model.startEditing(ev.key);
     }
