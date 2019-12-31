@@ -227,4 +227,13 @@ export class GridModel extends owl.core.EventBus {
     }
     this.trigger("update");
   }
+
+  setSelection(left, top, right, bottom) {
+    debugger;
+    this.selection.left = left;
+    this.selection.right = right;
+    this.selection.top = top;
+    this.selection.bottom = bottom;
+    this.trigger("update");
+  }
 }

@@ -30,13 +30,7 @@ export class Composer extends Component {
   }
 
   get style() {
-    const {
-      cols,
-      selection,
-      rows,
-      offsetX,
-      offsetY
-    } = this.model;
+    const { cols, selection, rows, offsetX, offsetY } = this.model;
     const col = cols[selection.left];
     const row = rows[selection.top];
     const left = col.left - offsetX + 2;

@@ -20,7 +20,8 @@ function drawHeaderCells(ctx, model) {
   const offsetX = model.offsetX;
   for (let i = left; i <= right; i++) {
     const col = cols[i];
-    ctx.fillStyle = i === selection.left ? "#e7edf9" : "#f4f5f8";
+    ctx.fillStyle =
+      i >= selection.left && i <= selection.right ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
     ctx.fillStyle = "#111";
     ctx.fillText(
@@ -34,7 +35,8 @@ function drawHeaderCells(ctx, model) {
   const offsetY = model.offsetY;
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
-    ctx.fillStyle = i === selection.top ? "#e7edf9" : "#f4f5f8";
+    ctx.fillStyle =
+      i >= selection.top && i <= selection.bottom ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(0, row.top - offsetY, HEADER_WIDTH, row.bottom - offsetY);
     ctx.fillStyle = "#585757";
     ctx.fillText(
@@ -119,20 +121,35 @@ function drawCells(ctx, model) {
   }
 }
 
-function drawSelection(ctx, model) {
+function drawSelectionBackground(ctx, model) {
   const { cols, rows, selection } = model;
-  if (!isCellVisible(selection.left, selection.top, model)) {
-    return;
-  }
+  const { left, top, right, bottom } = selection;
   const offsetX = model.offsetX;
   const offsetY = model.offsetY;
-  const col = cols[selection.left];
-  const row = rows[selection.top];
-  ctx.lineWidth = 1.5;
   ctx.fillStyle = "#f2f6fe";
-  ctx.fillRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
+  const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
+  const width = cols[right].right - offsetX - x;
+  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
+  const height = rows[bottom].bottom - offsetY - y;
+  if (width > 0 && height > 0) {
+    ctx.fillRect(x, y, width, height);
+  }
+}
+
+function drawSelectionOutline(ctx, model) {
+  const { cols, rows, selection } = model;
+  const { left, top, right, bottom } = selection;
+  const offsetX = model.offsetX;
+  const offsetY = model.offsetY;
+  ctx.lineWidth = 1.5;
   ctx.strokeStyle = "#4b89ff";
-  ctx.strokeRect(col.left - offsetX, row.top - offsetY, col.size, row.size);
+  const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
+  const width = cols[right].right - offsetX - x;
+  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
+  const height = rows[bottom].bottom - offsetY - y;
+  if (width > 0 && height > 0) {
+    ctx.strokeRect(x, y, width, height);
+  }
 }
 
 function drawGrid(ctx, model, width, height) {
@@ -140,8 +157,9 @@ function drawGrid(ctx, model, width, height) {
   ctx.clearRect(0, 0, width, height);
 
   drawHeaderCells(ctx, model);
+  drawSelectionBackground(ctx, model);
   drawBackgroundGrid(ctx, model, width, height);
-  drawSelection(ctx, model);
+  drawSelectionOutline(ctx, model);
   drawCells(ctx, model);
 }
 
@@ -151,7 +169,7 @@ const TEMPLATE = xml/* xml */ `
       <Composer model="model" />
     </t>
     <canvas t-ref="canvas"
-      t-on-click="onClick"
+      t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-mousewheel="onMouseWheel" />
@@ -264,12 +282,9 @@ export class Grid extends Component {
     hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
   }
 
-  onClick(ev) {
-    const x = ev.clientX;
-    // 32 for toolbar height. could not find a better way to get actual y offset
-    const y = ev.clientY - 32;
+  getColRowFromXY(x, y) {
     if (x <= HEADER_WIDTH || y <= HEADER_HEIGHT) {
-      return;
+      return [];
     }
     let col, row;
     const model = this.model;
@@ -288,8 +303,38 @@ export class Grid extends Component {
         break;
       }
     }
+    return [col, row];
+  }
+  onMouseDown(ev) {
+    // 32 for toolbar height. could not find a better way to get actual y offset
+    const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
     if (col !== undefined && row !== undefined) {
       this.model.selectCell(col, row);
+      let startCol = col;
+      let startRow = row;
+      let prevCol = col;
+      let prevRow = row;
+      const onMouseMove = ev => {
+        const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
+        if (col === undefined || row === undefined) {
+          return;
+        }
+        if (col !== prevCol || row !== prevRow) {
+          prevCol = col;
+          prevRow = row;
+          const left = Math.min(startCol, col);
+          const top = Math.min(startRow, row);
+          const right = Math.max(startCol, col);
+          const bottom = Math.max(startRow, row);
+          this.model.setSelection(left, top, right, bottom);
+        }
+      };
+      const onMouseUp = () => {
+        this.canvas.el.removeEventListener("mousemove", onMouseMove);
+        this.canvas.el.removeEventListener("mousemove", onMouseMove);
+      };
+      this.canvas.el.addEventListener("mousemove", onMouseMove);
+      this.canvas.el.addEventListener("mouseup", onMouseUp);
     }
   }
 
