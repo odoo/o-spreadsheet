@@ -6,7 +6,7 @@ const { xml, css } = owl.tags;
 const { useRef } = owl.hooks;
 
 function drawHeaderCells(ctx, model) {
-  const { current, cols, rows, selectedCol, selectedRow } = model;
+  const { current, cols, rows, selection } = model;
   const { top, left, bottom, right } = current;
 
   ctx.fillStyle = "#f4f5f8";
@@ -20,7 +20,7 @@ function drawHeaderCells(ctx, model) {
   const offsetX = model.offsetX;
   for (let i = left; i <= right; i++) {
     const col = cols[i];
-    ctx.fillStyle = i === selectedCol ? "#e7edf9" : "#f4f5f8";
+    ctx.fillStyle = i === selection.left ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
     ctx.fillStyle = "#111";
     ctx.fillText(
@@ -34,7 +34,7 @@ function drawHeaderCells(ctx, model) {
   const offsetY = model.offsetY;
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
-    ctx.fillStyle = i === selectedRow ? "#e7edf9" : "#f4f5f8";
+    ctx.fillStyle = i === selection.top ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(0, row.top - offsetY, HEADER_WIDTH, row.bottom - offsetY);
     ctx.fillStyle = "#585757";
     ctx.fillText(
@@ -120,14 +120,14 @@ function drawCells(ctx, model) {
 }
 
 function drawSelection(ctx, model) {
-  const { cols, rows, selectedCol, selectedRow } = model;
-  if (!isCellVisible(selectedCol, selectedRow, model)) {
+  const { cols, rows, selection } = model;
+  if (!isCellVisible(selection.left, selection.top, model)) {
     return;
   }
   const offsetX = model.offsetX;
   const offsetY = model.offsetY;
-  const row = rows[selectedRow];
-  const col = cols[selectedCol];
+  const col = cols[selection.left];
+  const row = rows[selection.top];
   ctx.lineWidth = 1.5;
   ctx.fillStyle = "#f2f6fe";
   ctx.fillRect(col.left - offsetX, row.top - offsetY, col.size, row.size);

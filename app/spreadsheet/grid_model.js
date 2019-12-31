@@ -52,10 +52,6 @@ export class GridModel extends owl.core.EventBus {
     right: 0
   };
 
-  // coordinates of the selected cell
-  selectedCol = 0;
-  selectedRow = 0;
-
   // null if there is no "active" selected cell
   selectedCell = null;
 
@@ -179,22 +175,24 @@ export class GridModel extends owl.core.EventBus {
 
   selectCell(col, row) {
     this.stopEditing();
-    this.selectedCol = col;
-    this.selectedRow = row;
+    this.selection.left = col;
+    this.selection.right = col;
+    this.selection.top = row;
+    this.selection.bottom = row;
     this.selectedCell = this.cells[toXC(col, row)] || null;
     this.trigger("update");
   }
 
   moveSelection(deltaX, deltaY) {
     if (
-      (deltaY < 0 && this.selectedRow === 0) ||
-      (deltaX < 0 && this.selectedCol === 0)
+      (deltaY < 0 && this.selection.top === 0) ||
+      (deltaX < 0 && this.selection.left === 0)
     ) {
       return;
     }
     // todo: prevent selected zone to go off screen, and to go out of the
     //   bounds
-    this.selectCell(this.selectedCol + deltaX, this.selectedRow + deltaY);
+    this.selectCell(this.selection.left + deltaX, this.selection.top + deltaY);
     this.trigger("update");
   }
 
@@ -209,7 +207,7 @@ export class GridModel extends owl.core.EventBus {
 
   stopEditing() {
     if (this.currentContent) {
-      const xc = toXC(this.selectedCol, this.selectedRow);
+      const xc = toXC(this.selection.left, this.selection.top);
       this.processCell(xc, { content: this.currentContent });
       this.evaluateCells();
       this.currentContent = "";
