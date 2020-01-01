@@ -367,6 +367,15 @@ export class Grid extends Component {
     if (ev.key === "Delete") {
       this.model.deleteSelection();
     }
+    if (ev.key === "c" && ev.ctrlKey) {
+      this.model.copySelection();
+      return;
+    }
+    if (ev.key === "v" && ev.ctrlKey) {
+      this.model.pasteSelection();
+      return;
+    }
+
     if (ev.key.length === 1) {
       this.model.startEditing(ev.key);
     }

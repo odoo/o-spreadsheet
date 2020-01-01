@@ -58,6 +58,10 @@ export class GridModel extends owl.core.EventBus {
   isEditing = false;
   currentContent = "";
 
+  clipBoard = {
+    type: "empty"
+  };
+
   constructor(data) {
     super();
     this.computeDims(data);
@@ -220,20 +224,63 @@ export class GridModel extends owl.core.EventBus {
       for (let j = this.selection.top; j <= this.selection.bottom; j++) {
         const xc = toXC(i, j);
         if (xc in this.cells) {
-          this.cells[xc].content = "";
-          this.cells[xc]._value = "";
+          this.processCell(xc, { content: "" });
         }
       }
     }
+    this.evaluateCells();
     this.trigger("update");
   }
 
   setSelection(left, top, right, bottom) {
-    debugger;
     this.selection.left = left;
     this.selection.right = right;
     this.selection.top = top;
     this.selection.bottom = bottom;
+    this.trigger("update");
+  }
+
+  copySelection() {
+    let { left, right, top, bottom } = this.selection;
+    this.clipBoard = {
+      type: "copy",
+      left,
+      right,
+      top,
+      bottom,
+      cells: []
+    };
+    for (let i = left; i <= right; i++) {
+      const vals = [];
+      this.clipBoard.cells.push(vals);
+      for (let j = top; j <= bottom; j++) {
+        const cell = this.cells[toXC(i, j)];
+        vals.push(cell ? Object.assign({}, cell) : null);
+      }
+    }
+  }
+  pasteSelection() {
+    if (this.clipBoard.type === "empty") {
+      return;
+    }
+    let col = this.selection.left;
+    let row = this.selection.top;
+    let { left, right, top, bottom } = this.clipBoard;
+    for (let i = 0; i <= right - left; i++) {
+      for (let j = 0; j <= bottom - top; j++) {
+        const xc = toXC(col + i, row + j);
+        const originCell = this.clipBoard.cells[i][j];
+        const targetCell = this.cells[xc];
+        if (originCell) {
+          this.processCell(xc, { content: originCell.content });
+        }
+        if (!originCell && targetCell) {
+          this.processCell(xc, { content: "" });
+        }
+      }
+    }
+
+    this.evaluateCells();
     this.trigger("update");
   }
 }
