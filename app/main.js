@@ -28,8 +28,13 @@ class App extends Component {
     rows: {},
     cells: {
       B2: { content: "coucou" },
-      B3: { content: "43" },
-      D4: { content: "=-2*B3" }
+      B4: { content: "1" },
+      B5: { content: "2" },
+      B6: { content: "3" },
+      B7: { content: "4" },
+      B8: { content: "=SUM(B4:B7)" },
+      B9: { content: "=SUM(B4:B8) + 100" },
+      D4: { content: "=-2*B9" }
     }
   };
 }
