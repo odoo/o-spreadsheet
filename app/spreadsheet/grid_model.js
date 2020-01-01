@@ -1,5 +1,6 @@
 import { numberToLetters, toCartesian, toXC } from "./helpers.js";
 import { compileExpression } from "./expression_compiler.js";
+import { functions } from "./functions.js";
 
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 26;
@@ -7,6 +8,11 @@ export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
+
+const fns = {};
+for (let f in functions) {
+  fns[f] = functions[f].compute;
+}
 
 export class GridModel extends owl.core.EventBus {
   // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
@@ -122,6 +128,7 @@ export class GridModel extends owl.core.EventBus {
   evaluateCells() {
     const cells = this.cells;
     const vars = {};
+    const functions = Object.assign({ range }, fns);
     function getValue(xc) {
       if (xc in vars) {
         if (vars[xc] === null) {
@@ -141,10 +148,22 @@ export class GridModel extends owl.core.EventBus {
           vars[xc] = cell.content;
         }
         if (cell._type === "formula") {
-          vars[xc] = cell._formula(getValue);
+          vars[xc] = cell._formula(getValue, functions);
         }
         return vars[xc];
       }
+    }
+
+    function range(v1, v2) {
+      const [c1, r1] = toCartesian(v1);
+      const [c2, r2] = toCartesian(v2);
+      const result = [];
+      for (let c = c1; c <= c2; c++) {
+        for (let r = r1; r <= r2; r++) {
+          result.push(getValue(toXC(c, r)));
+        }
+      }
+      return result;
     }
 
     for (let xc in cells) {

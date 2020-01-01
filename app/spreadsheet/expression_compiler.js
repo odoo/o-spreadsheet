@@ -1,8 +1,10 @@
+import { functions } from "./functions.js";
+
 // -----------------------------------------------------------------------------
 // Tokenizer
 // -----------------------------------------------------------------------------
 const OPERATORS = "+,-,*,/,:".split(",");
-const FUNCTION_NAMES = ["SUM"];
+const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
 function tokenize(str) {
   const chars = str
@@ -163,24 +165,31 @@ export function compileExpression(str) {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
-
   function compileAST(ast) {
-    let id, left, right;
+    let id, left, right, args;
     switch (ast.type) {
       case "NUMBER":
         return ast.value;
       case "VARIABLE":
         return `getValue('${ast.value}')`;
+      case "FUNCALL":
+        args = ast.args.map(compileAST);
+        return `fns['${ast.value}'](${args})`;
       case "OPERATION":
         id = nextId++;
         left = compileAST(ast.left);
         right = compileAST(ast.right);
-        code.push(`let _${id} = ${left} ${ast.value} ${right};`);
+        if (ast.value === ":") {
+          code.push(
+            `let _${id} = fns.range('${ast.left.value}', '${ast.right.value}');`
+          );
+        } else {
+          code.push(`let _${id} = ${left} ${ast.value} ${right};`);
+        }
         break;
     }
     return `_${id}`;
   }
   code.push(`return ${compileAST(ast)};`);
-  console.log(code.join("\n"));
-  return new Function("getValue", code.join("\n"));
+  return new Function("getValue", "fns", code.join("\n"));
 }
