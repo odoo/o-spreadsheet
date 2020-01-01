@@ -131,6 +131,9 @@ export class GridModel extends owl.core.EventBus {
       } else {
         vars[xc] = null;
         const cell = cells[xc];
+        if (!cell) {
+          return 0;
+        }
         if (cell._type === "number") {
           vars[xc] = parseFloat(cell.content);
         }
