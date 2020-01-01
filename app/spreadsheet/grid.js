@@ -20,30 +20,20 @@ function drawHeaderCells(ctx, model) {
   const offsetX = model.offsetX;
   for (let i = left; i <= right; i++) {
     const col = cols[i];
-    ctx.fillStyle =
-      i >= selection.left && i <= selection.right ? "#e7edf9" : "#f4f5f8";
+    ctx.fillStyle = i >= selection.left && i <= selection.right ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
     ctx.fillStyle = "#111";
-    ctx.fillText(
-      col.name,
-      (col.left + col.right) / 2 - offsetX,
-      HEADER_HEIGHT / 2
-    );
+    ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
   }
 
   // row headers
   const offsetY = model.offsetY;
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
-    ctx.fillStyle =
-      i >= selection.top && i <= selection.bottom ? "#e7edf9" : "#f4f5f8";
+    ctx.fillStyle = i >= selection.top && i <= selection.bottom ? "#e7edf9" : "#f4f5f8";
     ctx.fillRect(0, row.top - offsetY, HEADER_WIDTH, row.bottom - offsetY);
     ctx.fillStyle = "#585757";
-    ctx.fillText(
-      row.name,
-      HEADER_WIDTH / 2,
-      (row.top + row.bottom) / 2 - offsetY
-    );
+    ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
   }
 }
 

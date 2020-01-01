@@ -9,10 +9,7 @@ export const HEADER_WIDTH = 60;
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
 
-const fns = {};
-for (let f in functions) {
-  fns[f] = functions[f].compute;
-}
+const fns = Object.fromEntries(Object.entries(functions).map(([k, v]) => [k, v.compute]));
 
 export class GridModel extends owl.core.EventBus {
   // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
@@ -111,15 +108,9 @@ export class GridModel extends owl.core.EventBus {
     const [col, row] = toCartesian(xc);
     cell = Object.assign({ _col: col, _row: row }, cell);
     const content = cell.content;
-    cell._type =
-      content[0] === "="
-        ? "formula"
-        : content.match(numberRegexp)
-        ? "number"
-        : "text";
+    cell._type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
     if (cell._type === "formula") {
       cell._formula = compileExpression(cell.content.slice(1));
-      // cell._formula = parse(cell.content.slice(1)); // slice to remove the = sign
     }
     cell._style = cell.style || cell._type;
     this.cells[xc] = cell;
@@ -210,10 +201,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   moveSelection(deltaX, deltaY) {
-    if (
-      (deltaY < 0 && this.selection.top === 0) ||
-      (deltaX < 0 && this.selection.left === 0)
-    ) {
+    if ((deltaY < 0 && this.selection.top === 0) || (deltaX < 0 && this.selection.left === 0)) {
       return;
     }
     // todo: prevent selected zone to go off screen, and to go out of the

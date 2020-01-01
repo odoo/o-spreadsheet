@@ -84,8 +84,7 @@ export class ToolBar extends Component {
         margin-left: 20px;
         color: #333;
         font-size: 13px;
-        font-family: "Lato", "Source Sans Pro", Roboto, Helvetica, Arial,
-          sans-serif;
+        font-family: "Lato", "Source Sans Pro", Roboto, Helvetica, Arial, sans-serif;
         cursor: default;
         display: flex;
 

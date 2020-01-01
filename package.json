@@ -22,5 +22,8 @@
     "eslint": "^6.8.0",
     "live-server": "^1.2.1",
     "prettier": "^1.19.1"
+  },
+  "prettier": {
+    "printWidth": 100
   }
 }

@@ -51,7 +51,5 @@ function useExternalListener(target, eventName, handler) {
   const boundHandler = handler.bind(Component.current);
 
   owl.hooks.onMounted(() => target.addEventListener(eventName, boundHandler));
-  owl.hooks.onWillUnmount(() =>
-    target.removeEventListener(eventName, boundHandler)
-  );
+  owl.hooks.onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
 }

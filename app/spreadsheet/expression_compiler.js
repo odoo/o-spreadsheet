@@ -180,9 +180,7 @@ export function compileExpression(str) {
         left = compileAST(ast.left);
         right = compileAST(ast.right);
         if (ast.value === ":") {
-          code.push(
-            `let _${id} = fns.range('${ast.left.value}', '${ast.right.value}');`
-          );
+          code.push(`let _${id} = fns.range('${ast.left.value}', '${ast.right.value}');`);
         } else {
           code.push(`let _${id} = ${left} ${ast.value} ${right};`);
         }
