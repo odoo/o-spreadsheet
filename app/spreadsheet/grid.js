@@ -335,7 +335,7 @@ export class Grid extends Component {
     };
     const delta = deltaMap[ev.key];
     if (delta) {
-      this.model.moveSelection(...delta);
+      this.model.moveSelection(...delta, ev.shiftKey);
       return;
     }
     if (ev.key === "Tab") {

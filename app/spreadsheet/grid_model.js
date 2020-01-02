@@ -12,6 +12,10 @@ const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
 const fns = Object.fromEntries(Object.entries(functions).map(([k, v]) => [k, v.compute]));
 
 export class GridModel extends owl.core.EventBus {
+  // ---------------------------------------------------------------------------
+  // Grid State
+  // ---------------------------------------------------------------------------
+
   // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
   rows = [];
   // each col is described by: { left: ..., right: ..., name: 'B', size: ... }
@@ -67,6 +71,9 @@ export class GridModel extends owl.core.EventBus {
     type: "empty"
   };
 
+  // ---------------------------------------------------------------------------
+  // Constructor and private methods
+  // ---------------------------------------------------------------------------
   constructor(data) {
     super();
     this.computeDims(data);
@@ -165,6 +172,10 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Mutations
+  // ---------------------------------------------------------------------------
+
   updateVisibleZone(width, height, offsetX, offsetY) {
     const { rows, cols, current } = this;
 
@@ -204,13 +215,24 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  moveSelection(deltaX, deltaY) {
-    if ((deltaY < 0 && this.activeRow === 0) || (deltaX < 0 && this.activeCol === 0)) {
+  moveSelection(deltaX, deltaY, withShift = false) {
+    const { activeCol, activeRow, selection } = this;
+    if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
       return;
     }
-    // todo: prevent selected zone to go off screen, and to go out of the
-    //   bounds
-    this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
+    if (withShift) {
+      const { left, right, top, bottom } = selection;
+      this.selection.left =
+        left < activeCol || (left === right && deltaX < 0) ? left + deltaX : activeCol;
+      this.selection.right =
+        right > activeCol || (left === right && deltaX > 0) ? right + deltaX : activeCol;
+      this.selection.top =
+        top < activeRow || (top === bottom && deltaY < 0) ? top + deltaY : activeRow;
+      this.selection.bottom =
+        bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
+    } else {
+      this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
+    }
     this.trigger("update");
   }
 
