@@ -300,8 +300,6 @@ export class Grid extends Component {
     const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
     if (col !== undefined && row !== undefined) {
       this.model.selectCell(col, row);
-      let startCol = col;
-      let startRow = row;
       let prevCol = col;
       let prevRow = row;
       const onMouseMove = ev => {
@@ -312,11 +310,7 @@ export class Grid extends Component {
         if (col !== prevCol || row !== prevRow) {
           prevCol = col;
           prevRow = row;
-          const left = Math.min(startCol, col);
-          const top = Math.min(startRow, row);
-          const right = Math.max(startCol, col);
-          const bottom = Math.max(startRow, row);
-          this.model.setSelection(left, top, right, bottom);
+          this.model.updateSelection(col, row);
         }
       };
       const onMouseUp = () => {

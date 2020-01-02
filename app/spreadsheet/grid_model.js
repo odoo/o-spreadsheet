@@ -54,6 +54,8 @@ export class GridModel extends owl.core.EventBus {
     bottom: 0,
     right: 0
   };
+  activeCol = 0;
+  activeRow = 0;
 
   // null if there is no "active" selected cell
   selectedCell = null;
@@ -197,16 +199,18 @@ export class GridModel extends owl.core.EventBus {
     this.selection.top = row;
     this.selection.bottom = row;
     this.selectedCell = this.cells[toXC(col, row)] || null;
+    this.activeCol = col;
+    this.activeRow = row;
     this.trigger("update");
   }
 
   moveSelection(deltaX, deltaY) {
-    if ((deltaY < 0 && this.selection.top === 0) || (deltaX < 0 && this.selection.left === 0)) {
+    if ((deltaY < 0 && this.activeRow === 0) || (deltaX < 0 && this.activeCol === 0)) {
       return;
     }
     // todo: prevent selected zone to go off screen, and to go out of the
     //   bounds
-    this.selectCell(this.selection.left + deltaX, this.selection.top + deltaY);
+    this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
     this.trigger("update");
   }
 
@@ -242,11 +246,12 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  setSelection(left, top, right, bottom) {
-    this.selection.left = left;
-    this.selection.right = right;
-    this.selection.top = top;
-    this.selection.bottom = bottom;
+  updateSelection(col, row) {
+    const { activeCol, activeRow } = this;
+    this.selection.left = Math.min(activeCol, col);
+    this.selection.top = Math.min(activeRow, row);
+    this.selection.right = Math.max(activeCol, col);
+    this.selection.bottom = Math.max(activeRow, row);
     this.trigger("update");
   }
 
