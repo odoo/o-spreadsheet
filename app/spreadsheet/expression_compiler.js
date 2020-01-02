@@ -159,7 +159,7 @@ export function parse(str) {
 }
 
 // -----------------------------------------------------------------------------
-// EVALUATOR
+// COMPILER
 // -----------------------------------------------------------------------------
 export function compileExpression(str) {
   const ast = parse(str);
@@ -189,5 +189,6 @@ export function compileExpression(str) {
     return `_${id}`;
   }
   code.push(`return ${compileAST(ast)};`);
+  console.log(code.join("\n"));
   return new Function("getValue", "fns", code.join("\n"));
 }

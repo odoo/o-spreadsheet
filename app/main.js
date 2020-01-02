@@ -27,14 +27,22 @@ class App extends Component {
     cols: { 3: { size: 120 } },
     rows: {},
     cells: {
-      B2: { content: "coucou" },
-      B4: { content: "1" },
-      B5: { content: "2" },
-      B6: { content: "3" },
-      B7: { content: "4" },
-      B8: { content: "=SUM(B4:B7)" },
-      B9: { content: "=SUM(B4:B8) + 100" },
-      D4: { content: "=-2*B9" }
+      B2: { content: "Owl is awesome" },
+      B4: { content: "Numbers" },
+      C4: { content: "12.4" },
+      C5: { content: "42" },
+      C7: { content: "3" },
+      B9: { content: "Formulas" },
+      C9: { content: "=SUM(C4:C5)" },
+      C10: { content: "=SUM(C4:C7)" },
+      D10: { content: "note that C7 is empty" },
+      C11: { content: "=-(3 + C7 *SUM(C4:C7))" },
+      C12: { content: "=SUM(C9:C11)" },
+      D12: { content: "this is a sum of sums" },
+      B14: { content: "Errors" },
+      C14: { content: "=C14" },
+      C15: { content: "=(+" },
+      C16: { content: "=C15" }
     }
   };
 }

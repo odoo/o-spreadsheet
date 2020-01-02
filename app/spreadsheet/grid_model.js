@@ -118,8 +118,14 @@ export class GridModel extends owl.core.EventBus {
     cell = Object.assign({ _col: col, _row: row }, cell);
     const content = cell.content;
     cell._type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
+    cell._error = false;
     if (cell._type === "formula") {
-      cell._formula = compileExpression(cell.content.slice(1));
+      try {
+        cell._formula = compileExpression(cell.content.slice(1));
+      } catch (e) {
+        cell._value = "#BAD_EXPR";
+        cell._error = true;
+      }
     }
     cell._style = cell.style || cell._type;
     this.cells[xc] = cell;
@@ -127,31 +133,46 @@ export class GridModel extends owl.core.EventBus {
 
   evaluateCells() {
     const cells = this.cells;
-    const vars = {};
+    const visited = {};
     const functions = Object.assign({ range }, fns);
-    function getValue(xc) {
-      if (xc in vars) {
-        if (vars[xc] === null) {
-          throw new Error("cycle...");
+
+    function computeValue(xc, cell) {
+      if (xc in visited) {
+        if (visited[xc] === null) {
+          cell._value = "#CYCLE";
+          cell._error = true;
         }
-        return vars[xc];
-      } else {
-        vars[xc] = null;
-        const cell = cells[xc];
-        if (!cell) {
-          return 0;
-        }
-        if (cell._type === "number") {
-          vars[xc] = parseFloat(cell.content);
-        }
-        if (cell._type === "text") {
-          vars[xc] = cell.content;
-        }
-        if (cell._type === "formula") {
-          vars[xc] = cell._formula(getValue, functions);
-        }
-        return vars[xc];
+        return;
       }
+      visited[xc] = null;
+      if (cell._type === "number") {
+        cell._value = parseFloat(cell.content);
+      }
+      if (cell._type === "text") {
+        cell._value = cell.content;
+      }
+      if (cell._type === "formula" && cell._formula) {
+        try {
+          cell._value = cell._formula(getValue, functions);
+          cell._error = false;
+        } catch (e) {
+          cell._value = cell._value || "#ERROR";
+          cell._error = true;
+        }
+      }
+      visited[xc] = true;
+    }
+
+    function getValue(xc) {
+      const cell = cells[xc];
+      if (!cell) {
+        return 0;
+      }
+      computeValue(xc, cell);
+      if (cell._error) {
+        throw new Error("boom");
+      }
+      return cells[xc]._value;
     }
 
     function range(v1, v2) {
@@ -167,8 +188,7 @@ export class GridModel extends owl.core.EventBus {
     }
 
     for (let xc in cells) {
-      const cell = cells[xc];
-      cell._value = getValue(xc);
+      computeValue(xc, cells[xc]);
     }
   }
 
