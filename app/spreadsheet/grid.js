@@ -96,6 +96,10 @@ function drawCells(ctx, model) {
       let col = cols[cell._col];
       let row = rows[cell._row];
       const align = styles[cell._style].align;
+      ctx.save();
+      ctx.rect(col.left - offsetX, row.top - offsetY, col.size, row.size);
+      ctx.clip();
+
       let x;
       let y = (row.top + row.bottom) / 2 - offsetY;
       if (align === "left") {
@@ -107,6 +111,7 @@ function drawCells(ctx, model) {
       }
       ctx.textAlign = align;
       ctx.fillText(cell._value, x, y);
+      ctx.restore();
     }
   }
 }
