@@ -162,9 +162,16 @@ export function parse(str) {
 // COMPILER
 // -----------------------------------------------------------------------------
 export function compileExpression(str) {
+  const isDebug = str[0] === "?";
+  if (isDebug) {
+    str = str.slice(1);
+  }
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
+  if (isDebug) {
+    code.push("debugger;");
+  }
   function compileAST(ast) {
     let id, left, right, args;
     switch (ast.type) {
