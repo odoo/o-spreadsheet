@@ -303,6 +303,8 @@ export class Grid extends Component {
   onMouseDown(ev) {
     // 32 for toolbar height. could not find a better way to get actual y offset
     const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
+    this.clickedCol = col;
+    this.clickedRow = row;
     if (col !== undefined && row !== undefined) {
       this.model.selectCell(col, row);
       let prevCol = col;
@@ -320,15 +322,18 @@ export class Grid extends Component {
       };
       const onMouseUp = () => {
         this.canvas.el.removeEventListener("mousemove", onMouseMove);
-        this.canvas.el.removeEventListener("mousemove", onMouseMove);
+        this.canvas.el.removeEventListener("mouseup", onMouseUp);
       };
       this.canvas.el.addEventListener("mousemove", onMouseMove);
       this.canvas.el.addEventListener("mouseup", onMouseUp);
     }
   }
 
-  onDoubleClick() {
-    this.model.startEditing();
+  onDoubleClick(ev) {
+    const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
+    if (this.clickedCol === col && this.clickedRow === row) {
+      this.model.startEditing();
+    }
   }
 
   onKeydown(ev) {
