@@ -61,9 +61,6 @@ export class GridModel extends owl.core.EventBus {
   activeCol = 0;
   activeRow = 0;
 
-  // null if there is no "active" selected cell
-  selectedCell = null;
-
   isEditing = false;
   currentContent = "";
 
@@ -225,13 +222,16 @@ export class GridModel extends owl.core.EventBus {
     this.offsetY = rows[current.top].top - HEADER_HEIGHT;
   }
 
+  get selectedCell() {
+    return this.cells[toXC(this.activeCol, this.activeRow)] || null;
+  }
+
   selectCell(col, row) {
     this.stopEditing();
     this.selection.left = col;
     this.selection.right = col;
     this.selection.top = row;
     this.selection.bottom = row;
-    this.selectedCell = this.cells[toXC(col, row)] || null;
     this.activeCol = col;
     this.activeRow = row;
     this.trigger("update");
