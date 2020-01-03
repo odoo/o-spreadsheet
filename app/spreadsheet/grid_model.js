@@ -267,14 +267,19 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
+  cancelEdition() {
+    this.isEditing = false;
+    this.trigger("update");
+  }
+
   stopEditing() {
-    if (this.currentContent) {
+    if (this.isEditing) {
       const xc = toXC(this.selection.left, this.selection.top);
       this.processCell(xc, { content: this.currentContent });
       this.evaluateCells();
       this.currentContent = "";
+      this.isEditing = false;
     }
-    this.isEditing = false;
   }
 
   deleteSelection() {
