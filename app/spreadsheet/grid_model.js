@@ -146,14 +146,16 @@ export class GridModel extends owl.core.EventBus {
       }
       visited[xc] = null;
       if (cell._type === "number") {
-        cell._value = parseFloat(cell.content);
+        // todo: move formatting in grid and formatters.js
+        cell._value = +parseFloat(cell.content).toFixed(4);
       }
       if (cell._type === "text") {
         cell._value = cell.content;
       }
       if (cell._type === "formula" && cell._formula) {
         try {
-          cell._value = cell._formula(getValue, functions);
+          // todo: move formatting in grid and formatters.js
+          cell._value = +cell._formula(getValue, functions).toFixed(4);
           cell._error = false;
         } catch (e) {
           cell._value = cell._value || "#ERROR";
