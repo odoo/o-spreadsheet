@@ -85,7 +85,6 @@ function isCellVisible(col, row, model) {
 
 function drawCells(ctx, model) {
   const { offsetX, offsetY, rows, cols } = model;
-  ctx.font = "500 12px arial";
   ctx.fillStyle = "#000";
   const styles = model.styles;
 
@@ -95,7 +94,9 @@ function drawCells(ctx, model) {
     if (isCellVisible(cell._col, cell._row, model)) {
       let col = cols[cell._col];
       let row = rows[cell._row];
-      const align = styles[cell._style].align;
+      const style = styles[cell.style] || {};
+      const align = style.align || (cell._type === "text" ? "left" : "right");
+      ctx.font = style.bold ? "bold 12px arial" : "500 12px arial";
       ctx.save();
       ctx.rect(col.left - offsetX, row.top - offsetY, col.size, row.size);
       ctx.clip();

@@ -196,6 +196,5 @@ export function compileExpression(str) {
     return `_${id}`;
   }
   code.push(`return ${compileAST(ast)};`);
-  console.log(code.join("\n"));
   return new Function("getValue", "fns", code.join("\n"));
 }

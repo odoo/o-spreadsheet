@@ -44,7 +44,7 @@ export class ToolBar extends Component {
         <div class="o-tool" title="Font"><span>Arial</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-tool" title="Font Size"><span>10</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>
-        <div class="o-tool" title="Bold">${BOLD_ICON}</div>
+        <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="useTool('bold')">${BOLD_ICON}</div>
         <div class="o-tool" title="Italic">${ITALIC_ICON}</div>
         <div class="o-tool" title="Strikethrough">${STRIKE_ICON}</div>
         <div class="o-tool" title="Text Color"><span>${TEXT_COLOR_ICON}</span> ${TRIANGLE_DOWN_ICON}</div>
@@ -94,7 +94,8 @@ export class ToolBar extends Component {
           margin: 2px;
           padding: 0 3px;
         }
-        .o-tool:not(.o-disabled):hover {
+
+        .o-tool.active, .o-tool:not(.o-disabled):hover {
           background-color: rgba(0, 0, 0, 0.08);
         }
 
@@ -105,7 +106,7 @@ export class ToolBar extends Component {
         }
       }
       .o-cell-content {
-        font-family: arial;
+        font-family: monospace, arial, sans, sans-serif;;
         font-size: 12px;
         font-weight: 500;
         padding: 0 12px;
@@ -116,4 +117,17 @@ export class ToolBar extends Component {
   `;
 
   model = this.props.model;
+  style = {};
+
+  willStart() {
+    this.style = this.model.getStyle();
+  }
+  willUpdateProps() {
+    this.style = this.model.getStyle();
+  }
+
+  useTool(tool) {
+    this.model.setStyle({[tool]: !this.style[tool]});
+  }
+
 }

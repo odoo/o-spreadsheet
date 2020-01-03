@@ -23,17 +23,7 @@ export class GridModel extends owl.core.EventBus {
 
   cells = {};
 
-  styles = {
-    text: {
-      align: "left"
-    },
-    formula: {
-      align: "right"
-    },
-    number: {
-      align: "right"
-    }
-  };
+  styles = {};
 
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
@@ -67,7 +57,16 @@ export class GridModel extends owl.core.EventBus {
   clipBoard = {
     type: "empty"
   };
+  nextStyleId = 0;
 
+  get selectedCell() {
+    return this.cells[toXC(this.activeCol, this.activeRow)] || null;
+  }
+
+  getStyle() {
+    const cell = this.selectedCell;
+    return (cell && cell.style) ? this.styles[cell.style]  : {};
+  }
   // ---------------------------------------------------------------------------
   // Constructor and private methods
   // ---------------------------------------------------------------------------
@@ -78,6 +77,11 @@ export class GridModel extends owl.core.EventBus {
       this.processCell(xc, data.cells[xc]);
     }
     this.evaluateCells();
+    this.styles = data.styles;
+    for (let k in this.styles) {
+      this.nextStyleId = Math.max(k, this.nextStyleId)
+    }
+    this.nextStyleId++;
   }
 
   computeDims(data) {
@@ -112,19 +116,25 @@ export class GridModel extends owl.core.EventBus {
 
   processCell(xc, cell) {
     const [col, row] = toCartesian(xc);
-    cell = Object.assign({ _col: col, _row: row }, cell);
+    const currentCell = this.cells[xc] || {}
+    cell = Object.assign(currentCell, { _col: col, _row: row, content: "" }, cell);
     const content = cell.content;
     cell._type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
     cell._error = false;
     if (cell._type === "formula") {
       try {
         cell._formula = compileExpression(cell.content.slice(1));
+        cell._value = null;
       } catch (e) {
         cell._value = "#BAD_EXPR";
         cell._error = true;
       }
+    } else if (cell._type === "text") {
+      cell._value = cell.content;
+    } else if (cell._type === "number") {
+        // todo: move formatting in grid and formatters.js
+        cell._value = +parseFloat(cell.content).toFixed(4);
     }
-    cell._style = cell.style || cell._type;
     this.cells[xc] = cell;
   }
 
@@ -141,15 +151,8 @@ export class GridModel extends owl.core.EventBus {
         }
         return;
       }
-      visited[xc] = null;
-      if (cell._type === "number") {
-        // todo: move formatting in grid and formatters.js
-        cell._value = +parseFloat(cell.content).toFixed(4);
-      }
-      if (cell._type === "text") {
-        cell._value = cell.content;
-      }
       if (cell._type === "formula" && cell._formula) {
+        visited[xc] = null;
         try {
           // todo: move formatting in grid and formatters.js
           cell._value = +cell._formula(getValue, functions).toFixed(4);
@@ -220,10 +223,6 @@ export class GridModel extends owl.core.EventBus {
     }
     this.offsetX = cols[current.left].left - HEADER_WIDTH;
     this.offsetY = rows[current.top].top - HEADER_HEIGHT;
-  }
-
-  get selectedCell() {
-    return this.cells[toXC(this.activeCol, this.activeRow)] || null;
   }
 
   selectCell(col, row) {
@@ -351,6 +350,29 @@ export class GridModel extends owl.core.EventBus {
     }
 
     this.evaluateCells();
+    this.trigger("update");
+  }
+
+  setStyle(style) {
+    for (let col = this.selection.left; col <= this.selection.right; col++) {
+      for (let row = this.selection.top; row <= this.selection.bottom; row++) {
+        this.setStyleToCell(col, row, style);
+      }
+    }
+    this.trigger("update");
+  }
+  setStyleToCell(col, row, style) {
+    const xc = toXC(col, row);
+    const cell = this.cells[xc];
+    const currentStyle = (cell && cell.style) ? this.styles[cell.style] : {};
+    const nextStyle = Object.assign({}, currentStyle, style);
+    const id = this.nextStyleId++;
+    this.styles[id] = nextStyle;
+    if (cell) {
+      cell.style = id;
+    } else {
+      this.processCell(xc, {style: id});
+    }
     this.trigger("update");
   }
 }
