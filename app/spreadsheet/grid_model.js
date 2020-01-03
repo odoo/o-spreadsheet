@@ -1,5 +1,5 @@
 import { numberToLetters, toCartesian, toXC } from "./helpers.js";
-import { compileExpression } from "./expression_compiler.js";
+import { compileExpression, tokenize } from "./expression_compiler.js";
 import { functions } from "./functions.js";
 
 const DEFAULT_CELL_WIDTH = 96;
@@ -325,13 +325,19 @@ export class GridModel extends owl.core.EventBus {
     let col = this.selection.left;
     let row = this.selection.top;
     let { left, right, top, bottom } = this.clipBoard;
+    const offsetX = col - left;
+    const offsetY = row - top;
     for (let i = 0; i <= right - left; i++) {
       for (let j = 0; j <= bottom - top; j++) {
         const xc = toXC(col + i, row + j);
         const originCell = this.clipBoard.cells[i][j];
         const targetCell = this.cells[xc];
         if (originCell) {
-          this.processCell(xc, { content: originCell.content });
+          let content = originCell.content;
+          if (originCell._type === "formula") {
+            content = applyOffset(content, offsetX, offsetY);
+          }
+          this.processCell(xc, { content });
         }
         if (!originCell && targetCell) {
           this.processCell(xc, { content: "" });
@@ -342,4 +348,17 @@ export class GridModel extends owl.core.EventBus {
     this.evaluateCells();
     this.trigger("update");
   }
+}
+
+export function applyOffset(formula, offsetX, offsetY) {
+  const prefix = formula.startsWith("=") ? "=" : "=?";
+  let tokens = tokenize(formula.slice(prefix.length));
+  tokens = tokens.map(t => {
+    if (t.type === "VARIABLE") {
+      const [x, y] = toCartesian(t.value);
+      t.value = toXC(x + offsetX, y + offsetY);
+    }
+    return t.value;
+  });
+  return prefix + tokens.join("");
 }

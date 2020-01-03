@@ -6,7 +6,7 @@ import { functions } from "./functions.js";
 const OPERATORS = "+,-,*,/,:".split(",");
 const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
-function tokenize(str) {
+export function tokenize(str) {
   const chars = str
     .replace(/ /g, "")
     .toUpperCase()
