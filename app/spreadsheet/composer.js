@@ -37,7 +37,10 @@ export class Composer extends Component {
     const width = col.size - 4;
     const top = row.top - offsetY + 2;
     const height = row.size - 4;
-    return `left:${left}px;top:${top}px;width:${width};height:${height}`;
+    const style = this.model.getStyle();
+    const weight = `font-weight:${style.bold ? "bold" : 500};`;
+    const italic = style.italic ? `font-style: italic;` : ``;
+    return `left:${left}px;top:${top}px;width:${width};height:${height};${weight}${italic}`;
   }
 
   onInput() {
