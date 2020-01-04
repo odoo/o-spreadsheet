@@ -114,6 +114,13 @@ function drawCells(ctx, model) {
       }
       ctx.textAlign = align;
       ctx.fillText(cell._value, x, y);
+      if (style.strikethrough) {
+        const width = ctx.measureText(cell._value).width;
+        if (align === "right") {
+          x = x - width;
+        }
+        ctx.fillRect(x, y, width, 0.5);
+      }
       ctx.restore();
     }
   }

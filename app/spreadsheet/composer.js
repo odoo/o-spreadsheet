@@ -40,7 +40,8 @@ export class Composer extends Component {
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
-    return `left:${left}px;top:${top}px;width:${width};height:${height};${weight}${italic}`;
+    const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
+    return `left:${left}px;top:${top}px;width:${width};height:${height};${weight}${italic}${strikethrough}`;
   }
 
   onInput() {

@@ -43,11 +43,13 @@ class App extends Component {
       C14: { content: "=C14" },
       C15: { content: "=(+" },
       C16: { content: "=C15" },
-      F2: { content: "italic blablah", style: 2 }
+      F2: { content: "italic blablah", style: 2 },
+      F3: { content: "strikethrough", style: 3 }
     },
     styles: {
       1: { bold: true },
-      2: { italic: true }
+      2: { italic: true },
+      3: { strikethrough: true }
     }
   };
 }
