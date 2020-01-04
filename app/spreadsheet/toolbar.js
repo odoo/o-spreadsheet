@@ -45,7 +45,7 @@ export class ToolBar extends Component {
         <div class="o-tool" title="Font Size"><span>10</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="useTool('bold')">${BOLD_ICON}</div>
-        <div class="o-tool" title="Italic">${ITALIC_ICON}</div>
+        <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="useTool('italic')">${ITALIC_ICON}</div>
         <div class="o-tool" title="Strikethrough">${STRIKE_ICON}</div>
         <div class="o-tool" title="Text Color"><span>${TEXT_COLOR_ICON}</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>

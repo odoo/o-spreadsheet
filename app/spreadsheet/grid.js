@@ -96,7 +96,9 @@ function drawCells(ctx, model) {
       let row = rows[cell._row];
       const style = styles[cell.style] || {};
       const align = style.align || (cell._type === "text" ? "left" : "right");
-      ctx.font = style.bold ? "bold 12px arial" : "500 12px arial";
+      const italic = style.italic ? "italic " : "";
+      const weight = style.bold ? "bold" : "500";
+      ctx.font = `${italic}${weight} 12px arial`;
       ctx.save();
       ctx.rect(col.left - offsetX, row.top - offsetY, col.size, row.size);
       ctx.clip();

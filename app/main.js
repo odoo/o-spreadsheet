@@ -24,7 +24,7 @@ class App extends Component {
   data = {
     colNumber: 26,
     rowNumber: 100,
-    cols: { 1: {size: 120}, 3: { size: 120 } },
+    cols: { 1: {size: 120}, 3: { size: 150 } },
     rows: {},
     cells: {
       B2: { content: "Owl is awesome", style: 1 },
@@ -42,10 +42,12 @@ class App extends Component {
       B14: { content: "Errors" },
       C14: { content: "=C14" },
       C15: { content: "=(+" },
-      C16: { content: "=C15" }
+      C16: { content: "=C15" },
+      F2: { content: "italic blablah", style: 2},
     },
     styles: {
-      1: { bold: true }
+      1: { bold: true },
+      2: { italic: true }
     }
   };
 }
