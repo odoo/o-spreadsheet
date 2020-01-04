@@ -24,7 +24,7 @@ class App extends Component {
   data = {
     colNumber: 26,
     rowNumber: 100,
-    cols: { 1: { size: 120 }, 3: { size: 150 } },
+    cols: { 1: { size: 120 }, 3: { size: 150 }, 5: { size: 250 } },
     rows: {},
     cells: {
       B2: { content: "Owl is awesome", style: 1 },
@@ -44,7 +44,21 @@ class App extends Component {
       C15: { content: "=(+" },
       C16: { content: "=C15" },
       F2: { content: "italic blablah", style: 2 },
-      F3: { content: "strikethrough", style: 3 }
+      F3: { content: "strikethrough", style: 3 },
+      F6: { content: "o-spreadsheet has:", style: 1 },
+      F7: { content: "- a real tokenizer and parser" },
+      F8: { content: "- an expression compiler" },
+      F9: { content: "- evaluate dependent formulas correctly" },
+      F10: { content: "- properly rewrite formulas on copy/paste" },
+      F11: { content: "- a canvas renderer" },
+      F12: { content: "- rendering are applied once very RAF" },
+      F13: { content: "- basic support for styles" },
+      F14: { content: "... in 1100 loc" },
+      F16: { content: "Still missing:", style: 1 },
+      F17: { content: "- resizing columns" },
+      F18: { content: "- context menus" },
+      F19: { content: "- some editing tools (fonts, color, ...)" },
+      F20: { content: "- merging cells" }
     },
     styles: {
       1: { bold: true },
