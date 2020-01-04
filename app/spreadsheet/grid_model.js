@@ -366,8 +366,7 @@ export class GridModel extends owl.core.EventBus {
     const cell = this.cells[xc];
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
-    const id = this.nextStyleId++;
-    this.styles[id] = nextStyle;
+    const id = this.registerStyle(nextStyle);
     if (cell) {
       cell.style = id;
     } else {
@@ -375,9 +374,25 @@ export class GridModel extends owl.core.EventBus {
     }
     this.trigger("update");
   }
+
+  registerStyle(style) {
+    const strStyle = stringify(style);
+    for (let k in this.styles) {
+      if (stringify(this.styles[k]) === strStyle) {
+        return parseInt(k, 10);
+      }
+    }
+    const id = this.nextStyleId++;
+    this.styles[id] = style;
+    return id;
+  }
 }
 
-export function applyOffset(formula, offsetX, offsetY) {
+function stringify(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+
+function applyOffset(formula, offsetX, offsetY) {
   const prefix = formula.startsWith("=") ? "=" : "=?";
   let tokens = tokenize(formula.slice(prefix.length));
   tokens = tokens.map(t => {
