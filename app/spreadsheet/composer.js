@@ -37,11 +37,13 @@ export class Composer extends Component {
     const width = col.size - 4;
     const top = row.top - offsetY + 2;
     const height = row.size - 4;
+    const cell = this.model.selectedCell || { _type: "text" };
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    return `left:${left}px;top:${top}px;width:${width};height:${height};${weight}${italic}${strikethrough}`;
+    const align = "align" in style ? style.align : cell._type === "number" ? "right" : "left";
+    return `left:${left}px;top:${top}px;width:${width};height:${height};text-align:${align};${weight}${italic}${strikethrough}`;
   }
 
   onInput() {
