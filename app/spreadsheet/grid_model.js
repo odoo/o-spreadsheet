@@ -65,7 +65,7 @@ export class GridModel extends owl.core.EventBus {
 
   getStyle() {
     const cell = this.selectedCell;
-    return (cell && cell.style) ? this.styles[cell.style]  : {};
+    return cell && cell.style ? this.styles[cell.style] : {};
   }
   // ---------------------------------------------------------------------------
   // Constructor and private methods
@@ -79,7 +79,7 @@ export class GridModel extends owl.core.EventBus {
     this.evaluateCells();
     this.styles = data.styles;
     for (let k in this.styles) {
-      this.nextStyleId = Math.max(k, this.nextStyleId)
+      this.nextStyleId = Math.max(k, this.nextStyleId);
     }
     this.nextStyleId++;
   }
@@ -116,7 +116,7 @@ export class GridModel extends owl.core.EventBus {
 
   processCell(xc, cell) {
     const [col, row] = toCartesian(xc);
-    const currentCell = this.cells[xc] || {}
+    const currentCell = this.cells[xc] || {};
     cell = Object.assign(currentCell, { _col: col, _row: row, content: "" }, cell);
     const content = cell.content;
     cell._type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
@@ -132,8 +132,8 @@ export class GridModel extends owl.core.EventBus {
     } else if (cell._type === "text") {
       cell._value = cell.content;
     } else if (cell._type === "number") {
-        // todo: move formatting in grid and formatters.js
-        cell._value = +parseFloat(cell.content).toFixed(4);
+      // todo: move formatting in grid and formatters.js
+      cell._value = +parseFloat(cell.content).toFixed(4);
     }
     this.cells[xc] = cell;
   }
@@ -364,14 +364,14 @@ export class GridModel extends owl.core.EventBus {
   setStyleToCell(col, row, style) {
     const xc = toXC(col, row);
     const cell = this.cells[xc];
-    const currentStyle = (cell && cell.style) ? this.styles[cell.style] : {};
+    const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.nextStyleId++;
     this.styles[id] = nextStyle;
     if (cell) {
       cell.style = id;
     } else {
-      this.processCell(xc, {style: id});
+      this.processCell(xc, { style: id });
     }
     this.trigger("update");
   }

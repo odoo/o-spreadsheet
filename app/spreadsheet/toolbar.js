@@ -95,7 +95,8 @@ export class ToolBar extends Component {
           padding: 0 3px;
         }
 
-        .o-tool.active, .o-tool:not(.o-disabled):hover {
+        .o-tool.active,
+        .o-tool:not(.o-disabled):hover {
           background-color: rgba(0, 0, 0, 0.08);
         }
 
@@ -106,7 +107,7 @@ export class ToolBar extends Component {
         }
       }
       .o-cell-content {
-        font-family: monospace, arial, sans, sans-serif;;
+        font-family: monospace, arial, sans, sans-serif;
         font-size: 12px;
         font-weight: 500;
         padding: 0 12px;
@@ -127,7 +128,6 @@ export class ToolBar extends Component {
   }
 
   useTool(tool) {
-    this.model.setStyle({[tool]: !this.style[tool]});
+    this.model.setStyle({ [tool]: !this.style[tool] });
   }
-
 }
