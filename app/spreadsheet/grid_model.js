@@ -288,7 +288,7 @@ export class GridModel extends owl.core.EventBus {
       for (let j = this.selection.top; j <= this.selection.bottom; j++) {
         const xc = toXC(i, j);
         if (xc in this.cells) {
-          this.processCell(xc, { content: "" });
+          delete this.cells[xc];
         }
       }
     }
