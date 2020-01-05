@@ -1,6 +1,7 @@
 import { Grid } from "./grid.js";
 import { GridModel } from "./grid_model.js";
 import { ToolBar } from "./toolbar.js";
+import { useExternalListener } from "./helpers.js";
 
 const { Component } = owl;
 const { useRef } = owl.hooks;
@@ -47,15 +48,4 @@ export class Spreadsheet extends Component {
   focusGrid() {
     this.grid.comp.focus();
   }
-}
-
-// -----------------------------------------------------------------------------
-// Hooks
-// -----------------------------------------------------------------------------
-
-function useExternalListener(target, eventName, handler) {
-  const boundHandler = handler.bind(Component.current);
-
-  owl.hooks.onMounted(() => target.addEventListener(eventName, boundHandler));
-  owl.hooks.onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
 }

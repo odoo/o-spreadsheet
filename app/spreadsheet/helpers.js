@@ -41,3 +41,15 @@ export function toCartesian(cell) {
 export function toXC(col, row) {
   return numberToLetters(col) + String(row + 1);
 }
+
+// -----------------------------------------------------------------------------
+// Hooks
+// -----------------------------------------------------------------------------
+const { Component } = owl;
+
+export function useExternalListener(target, eventName, handler) {
+  const boundHandler = handler.bind(Component.current);
+
+  owl.hooks.onMounted(() => target.addEventListener(eventName, boundHandler));
+  owl.hooks.onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
+}

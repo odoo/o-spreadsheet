@@ -1,4 +1,6 @@
-const { Component } = owl;
+import { useExternalListener } from "./helpers.js";
+
+const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
 const GRAY_COLOR = "#f5f5f5";
@@ -20,7 +22,7 @@ const FILL_COLOR_ICON = `<svg><g fill="none" fill-rule="evenodd"><path fill="#00
 const MERGE_CELL_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M3,6 L1,6 L1,2 L8,2 L8,4 L3,4 L3,6 Z M10,4 L10,2 L17,2 L17,6 L15,6 L15,4 L10,4 Z M10,14 L15,14 L15,12 L17,12 L17,16 L10,16 L10,14 Z M1,12 L3,12 L3,14 L8,14 L8,16 L1,16 L1,12 Z M1,8 L5,8 L5,6 L8,9 L5,12 L5,10 L1,10 L1,8 Z M10,9 L13,6 L13,8 L17,8 L17,10 L13,10 L13,12 L10,9 Z"/></svg>`;
 const ALIGN_LEFT_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M0,14 L10,14 L10,12 L0,12 L0,14 Z M10,4 L0,4 L0,6 L10,6 L10,4 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z" transform="translate(2 2)"/></svg>`;
 // const ALIGN_CENTER_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M2,12 L2,14 L12,14 L12,12 L2,12 Z M2,4 L2,6 L12,6 L12,4 L2,4 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z" transform="translate(2 2)"/></svg>`;
-// const ALIGN_RIGHT_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M4,14 L14,14 L14,12 L4,12 L4,14 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M4,6 L14,6 L14,4 L4,4 L4,6 Z" transform="translate(2 2)"/></svg>`;
+const ALIGN_RIGHT_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M4,14 L14,14 L14,12 L4,12 L4,14 Z M0,10 L14,10 L14,8 L0,8 L0,10 Z M0,0 L0,2 L14,2 L14,0 L0,0 Z M4,6 L14,6 L14,4 L4,4 L4,6 Z" transform="translate(2 2)"/></svg>`;
 // const ALIGN_TOP_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M0,0 L0,2 L12,2 L12,0 L0,0 L0,0 Z M2.5,7 L5,7 L5,14 L7,14 L7,7 L9.5,7 L6,3.5 L2.5,7 L2.5,7 Z" transform="translate(3 2)"/></svg>`;
 const ALIGN_MIDDLE_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M9.5,3 L7,3 L7,0 L5,0 L5,3 L2.5,3 L6,6.5 L9.5,3 L9.5,3 Z M0,8 L0,10 L12,10 L12,8 L0,8 L0,8 Z M2.5,15 L5,15 L5,18 L7,18 L7,15 L9.5,15 L6,11.5 L2.5,15 L2.5,15 Z" transform="translate(3)"/></svg>`;
 // const ALIGN_BOTTOM_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M9.5,7 L7,7 L7,0 L5,0 L5,7 L2.5,7 L6,10.5 L9.5,7 L9.5,7 Z M0,12 L0,14 L12,14 L12,12 L0,12 L0,12 Z" transform="translate(3 2)"/></svg>`;
@@ -53,7 +55,17 @@ export class ToolBar extends Component {
         <div class="o-tool" title="Borders">${BORDERS_ICON}</div>
         <div class="o-tool o-disabled" title="Merge Cells">${MERGE_CELL_ICON}</div>
         <div class="o-divider"/>
-        <div class="o-tool" title="Horizontal align"><span>${ALIGN_LEFT_ICON}</span> ${TRIANGLE_DOWN_ICON}</div>
+        <div class="o-tool o-dropdown" title="Horizontal align">
+          <span t-on-click.stop="state.alignTool=!state.alignTool">
+            <t t-if="style.align === 'right'">${ALIGN_RIGHT_ICON}</t>
+            <t t-else="">${ALIGN_LEFT_ICON}</t>
+            ${TRIANGLE_DOWN_ICON}
+          </span>
+          <div t-if="state.alignTool" class="o-dropdown-content">
+            <div class="o-dropdown-item" t-on-click="useTool('align', 'left')">${ALIGN_LEFT_ICON}</div>
+            <div class="o-dropdown-item" t-on-click="useTool('align', 'right')">${ALIGN_RIGHT_ICON}</div>
+          </div>
+        </div>
         <div class="o-tool" title="Vertical align"><span>${ALIGN_MIDDLE_ICON}</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-tool" title="Text Wrapping">${TEXT_WRAPPING_ICON}</div>
         <div class="o-divider"/>
@@ -78,6 +90,26 @@ export class ToolBar extends Component {
       .o-disabled {
         opacity: 0.6;
         cursor: not-allowed;
+      }
+
+      .o-dropdown {
+        position: relative;
+
+        .o-dropdown-content {
+          position: absolute;
+          top: calc(100% + 5px);
+          left: 0;
+          z-index: 10;
+          box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+          background-color: #f6f6f6;
+
+          .o-dropdown-item {
+            padding: 7px 10px;
+          }
+          .o-dropdown-item:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+        }
       }
 
       .o-tools {
@@ -119,6 +151,14 @@ export class ToolBar extends Component {
 
   model = this.props.model;
   style = {};
+  state = useState({
+    alignTool: false
+  });
+
+  constructor() {
+    super(...arguments);
+    useExternalListener(window, "click", this.closeMenus);
+  }
 
   willStart() {
     this.style = this.model.getStyle();
@@ -127,7 +167,14 @@ export class ToolBar extends Component {
     this.style = this.model.getStyle();
   }
 
-  useTool(tool) {
-    this.model.setStyle({ [tool]: !this.style[tool] });
+  useTool(tool, value) {
+    if (value === undefined) {
+      value = !this.style[tool];
+    }
+    this.model.setStyle({ [tool]: value });
+  }
+
+  closeMenus() {
+    this.state.alignTool = false;
   }
 }
