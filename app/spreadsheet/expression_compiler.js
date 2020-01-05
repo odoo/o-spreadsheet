@@ -33,7 +33,8 @@ function tokenizeMisc(chars) {
     ")": "RIGHT_PAREN"
   };
   if (chars[0] in misc) {
-    return { type: misc[chars.shift()] };
+    const value = chars[0];
+    return { type: misc[chars.shift()], value };
   }
 }
 
