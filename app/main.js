@@ -53,12 +53,13 @@ class App extends Component {
       F11: { content: "- a canvas renderer" },
       F12: { content: "- rendering are applied once very RAF" },
       F13: { content: "- basic support for styles" },
-      F14: { content: "... in 1100 loc" },
+      F14: { content: "... in 1100 loc, including css/templates/icons" },
       F16: { content: "Still missing:", style: 1 },
       F17: { content: "- resizing columns" },
       F18: { content: "- context menus" },
       F19: { content: "- some editing tools (fonts, color, ...)" },
-      F20: { content: "- merging cells" }
+      F20: { content: "- merging cells" },
+      F21: { content: "- borders" }
     },
     styles: {
       1: { bold: true },

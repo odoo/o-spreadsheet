@@ -3,6 +3,7 @@ import { GridModel } from "./grid_model.js";
 import { ToolBar } from "./toolbar.js";
 
 const { Component } = owl;
+const { useRef } = owl.hooks;
 const { xml, css } = owl.tags;
 
 // -----------------------------------------------------------------------------
@@ -11,8 +12,8 @@ const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet hello FP">
-    <ToolBar model="model" />
-    <Grid model="model" />
+    <ToolBar model="model" t-on-click="focusGrid"/>
+    <Grid model="model" t-ref="grid"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -28,6 +29,7 @@ export class Spreadsheet extends Component {
   static components = { ToolBar, Grid };
 
   model = new GridModel(this.props.data);
+  grid = useRef("grid");
 
   constructor() {
     super(...arguments);
@@ -40,6 +42,10 @@ export class Spreadsheet extends Component {
 
   willUnmount() {
     this.model.off("update", this);
+  }
+
+  focusGrid() {
+    this.grid.comp.focus();
   }
 }
 

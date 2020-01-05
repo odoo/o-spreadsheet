@@ -95,7 +95,7 @@ function drawCells(ctx, model) {
       let col = cols[cell._col];
       let row = rows[cell._row];
       const style = styles[cell.style] || {};
-      const align = "align" in style ? style.align : cell._type === "number" ? "right" : "left";
+      const align = "align" in style ? style.align : cell._type === "text" ? "left" : "right";
       const italic = style.italic ? "italic " : "";
       const weight = style.bold ? "bold" : "500";
       ctx.font = `${italic}${weight} 12px arial`;
@@ -229,7 +229,7 @@ export class Grid extends Component {
 
   mounted() {
     const canvas = this.canvas.el;
-    canvas.focus();
+    this.focus();
     const ctx = canvas.getContext("2d");
     // Scale all drawing operations by the dpr, so you
     // don't have to worry about the difference.
@@ -248,6 +248,10 @@ export class Grid extends Component {
     if (this.hasFocus && !this.el.contains(document.activeElement)) {
       this.canvas.el.focus();
     }
+  }
+
+  focus() {
+    this.canvas.el.focus();
   }
 
   onScroll() {
