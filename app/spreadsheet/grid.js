@@ -1,5 +1,6 @@
 import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_model.js";
 import { Composer } from "./composer.js";
+import { toXC } from "./helpers.js";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -84,7 +85,8 @@ function isCellVisible(col, row, model) {
 }
 
 function drawCells(ctx, model) {
-  const { offsetX, offsetY, rows, cols } = model;
+  const { offsetX, offsetY, rows, cols, current, cells } = model;
+  const { right, left } = current;
   ctx.fillStyle = "#000";
   const styles = model.styles;
 
@@ -100,7 +102,23 @@ function drawCells(ctx, model) {
       const weight = style.bold ? "bold" : "500";
       ctx.font = `${italic}${weight} 12px arial`;
       ctx.save();
-      ctx.rect(col.left - offsetX, row.top - offsetY, col.size, row.size);
+
+      // Compute clip zone
+      if (align === "left") {
+        let c = cell._col;
+        while (c < right && !(toXC(c + 1, cell._row) in cells)) {
+          c++;
+        }
+        const width = cols[c].right - col.left;
+        ctx.rect(col.left - offsetX, row.top - offsetY, width, row.size);
+      } else {
+        let c = cell._col;
+        while (c > left && !(toXC(c - 1, cell._row) in cells)) {
+          c--;
+        }
+        const width = col.right - cols[c].left;
+        ctx.rect(cols[c].left - offsetX, row.top - offsetY, width, row.size);
+      }
       ctx.clip();
 
       let x;
@@ -191,13 +209,6 @@ const CSS = css/* scss */ `
     position: relative;
     overflow: hidden;
 
-    .o-composer {
-      position: absolute;
-      border: none;
-    }
-    .o-composer:focus {
-      outline: none;
-    }
     .o-scrollbar {
       position: absolute;
       overflow: auto;

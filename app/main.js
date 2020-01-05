@@ -24,7 +24,7 @@ class App extends Component {
   data = {
     colNumber: 26,
     rowNumber: 100,
-    cols: { 1: { size: 120 }, 3: { size: 150 }, 5: { size: 250 } },
+    cols: { 1: { size: 120 }, 3: { size: 150 } },
     rows: {},
     cells: {
       B2: { content: "Owl is awesome", style: 1 },

@@ -29,6 +29,7 @@ export class GridModel extends owl.core.EventBus {
   // the row and col headers)
   width = null;
   height = null;
+  clientWidth = 0;
 
   // offset between the visible zone and the full zone (take into account
   // headers)
@@ -200,6 +201,7 @@ export class GridModel extends owl.core.EventBus {
 
   updateVisibleZone(width, height, offsetX, offsetY) {
     const { rows, cols, current } = this;
+    this.clientWidth = width;
 
     current.bottom = rows.length - 1;
     for (let i = 0; i < rows.length; i++) {

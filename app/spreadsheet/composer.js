@@ -10,9 +10,11 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-composer {
     position: absolute;
-    border: none;
+    border: 1.2px solid #4b89ff;
     font-family: arial;
     font-size: 12px;
+    padding: 2px;
+    padding-left: 3px;
   }
   .o-composer:focus {
     outline: none;
@@ -26,6 +28,10 @@ export class Composer extends Component {
 
   mounted() {
     this.el.value = this.model.currentContent;
+    const { cols, selection } = this.model;
+    const col = cols[selection.left];
+    this.el.style.width = col.size + 1.5;
+    this.el.style.width = Math.max(this.el.scrollWidth + 2, col.size + 1.5);
     this.el.focus();
   }
 
@@ -33,22 +39,27 @@ export class Composer extends Component {
     const { cols, selection, rows, offsetX, offsetY } = this.model;
     const col = cols[selection.left];
     const row = rows[selection.top];
-    const left = col.left - offsetX + 2;
-    const width = col.size - 4;
-    const top = row.top - offsetY + 2;
-    const height = row.size - 4;
+    const top = row.top - offsetY - 1;
+    const height = row.size + 2;
     const cell = this.model.selectedCell || { _type: "text" };
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
     const align = "align" in style ? style.align : cell._type === "number" ? "right" : "left";
-    return `left:${left}px;top:${top}px;width:${width};height:${height};text-align:${align};${weight}${italic}${strikethrough}`;
+    const position =
+      align === "left"
+        ? `left: ${col.left - offsetX - 1}px;`
+        : `right: ${this.model.clientWidth - (col.right - offsetX) - 1}px;`;
+    return `${position}top:${top}px;height:${height};text-align:${align};${weight}${italic}${strikethrough}`;
   }
 
   onInput() {
     // write in place? or go through a method probably
     this.model.currentContent = this.el.value;
+    if (this.el.clientWidth !== this.el.scrollWidth) {
+      this.el.style.width = this.el.scrollWidth + 2;
+    }
   }
 
   onKeydown(ev) {
