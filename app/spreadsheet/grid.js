@@ -14,36 +14,47 @@ function thinLineWidth() {
   return 0.5/(dpr());
 }
 
-function drawHeaderCells(ctx, model) {
-  const { current, cols, rows, selection } = model;
+function drawHeader(ctx, model, width, height) {
+  const { current, cols, rows, selection, offsetX, offsetY } = model;
   const { top, left, bottom, right } = current;
 
   ctx.fillStyle = "#f4f5f8";
   ctx.font = "400 12px Source Sans Pro";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  // top left empty case
-  ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
+  ctx.lineWidth = thinLineWidth();
+  ctx.strokeStyle = "#666";
 
-  // column headers
-  const offsetX = model.offsetX;
+  // background
+  ctx.fillRect(0, 0, width, HEADER_HEIGHT);
+  ctx.fillRect(0, 0, HEADER_WIDTH, height);
+  // selection background
+  ctx.fillStyle = "#dddddd";
+  const x1 = Math.max(HEADER_WIDTH, cols[selection.left].left - offsetX);
+  const x2 = Math.max(HEADER_WIDTH, cols[selection.right].right - offsetX);
+  const y1 = Math.max(HEADER_HEIGHT, rows[selection.top].top - offsetY);
+  const y2 = Math.max(HEADER_HEIGHT, rows[selection.bottom].bottom - offsetY);
+  ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+  ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+
+  // 2 main lines
+  vLine(ctx, HEADER_WIDTH, height);
+  hLine(ctx, HEADER_HEIGHT, width);
+
+  ctx.fillStyle = "#111";
+  // column text + separator
   for (let i = left; i <= right; i++) {
     const col = cols[i];
-    ctx.fillStyle = i >= selection.left && i <= selection.right ? "#e7edf9" : "#f4f5f8";
-    ctx.fillRect(col.left - offsetX, 0, col.right - offsetX, HEADER_HEIGHT);
-    ctx.fillStyle = "#111";
     ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
+    vLine(ctx, col.right - offsetX, HEADER_HEIGHT);
   }
 
-  // row headers
-  const offsetY = model.offsetY;
+  // row text + separator
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
-    ctx.fillStyle = i >= selection.top && i <= selection.bottom ? "#e7edf9" : "#f4f5f8";
-    ctx.fillRect(0, row.top - offsetY, HEADER_WIDTH, row.bottom - offsetY);
-    ctx.fillStyle = "#585757";
     ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
-  }
+    hLine(ctx, row.bottom - offsetY, HEADER_WIDTH);
+}
 }
 
 function vLine(ctx, x, height) {
@@ -64,14 +75,9 @@ function drawBackgroundGrid(ctx, model, width, height) {
   const { current, cols, rows } = model;
   const { top, left, bottom, right } = current;
 
-  // header lines
   ctx.lineWidth = thinLineWidth();
-  ctx.strokeStyle = "#555";
-  vLine(ctx, HEADER_WIDTH, height);
-  hLine(ctx, HEADER_HEIGHT, width);
-
-  // vertical lines
   ctx.strokeStyle = "#AAA";
+  // vertical lines
   const offsetX = model.offsetX;
   for (let i = left; i <= right; i++) {
     const col = cols[i];
@@ -129,7 +135,7 @@ function drawCells(ctx, model) {
       ctx.clip();
 
       let x;
-      let y = (row.top + row.bottom) / 2 - offsetY;
+      let y = (row.top + row.bottom) / 2 - offsetY + 3;
       if (align === "left") {
         x = col.left - offsetX + 3;
       } else if (align === "right") {
@@ -153,9 +159,9 @@ function drawCells(ctx, model) {
 
 function drawMerges(ctx, model) {
   const {merges, cols, rows, offsetX, offsetY} = model;
+  const hl = 0.8*thinLineWidth();
   ctx.strokeStyle = "#777";
   ctx.fillStyle = "white"
-  const hl = 0.8*thinLineWidth();
   for (let mid in merges) {
     let merge = merges[mid];
     let x1 = cols[merge.left].left - offsetX + hl;
@@ -186,12 +192,13 @@ function drawSelectionOutline(ctx, model) {
   const { left, top, right, bottom } = selection;
   const offsetX = model.offsetX;
   const offsetY = model.offsetY;
-  ctx.lineWidth = 1.8*thinLineWidth();
-  ctx.strokeStyle = "#4b89ff";
-  const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
-  const width = cols[right].right - offsetX - x;
-  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
-  const height = rows[bottom].bottom - offsetY - y;
+  const lw = thinLineWidth();
+  ctx.lineWidth = 3*lw;
+  ctx.strokeStyle = "#3266ca";
+  const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH + lw);
+  const width = cols[right].right - offsetX - x ;
+  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT+ lw);
+  const height = rows[bottom].bottom - offsetY - y ;
   if (width > 0 && height > 0) {
     ctx.strokeRect(x, y, width, height);
   }
@@ -201,12 +208,12 @@ function drawGrid(ctx, model, width, height) {
   console.log("drawing", model);
   ctx.clearRect(0, 0, width, height);
 
-  drawHeaderCells(ctx, model);
   drawSelectionBackground(ctx, model);
   drawBackgroundGrid(ctx, model, width, height);
   drawCells(ctx, model);
   drawMerges(ctx, model);
   drawSelectionOutline(ctx, model);
+  drawHeader(ctx, model, width, height);
 }
 
 const TEMPLATE = xml/* xml */ `

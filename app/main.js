@@ -66,7 +66,7 @@ class App extends Component {
       2: { italic: true },
       3: { strikethrough: true }
     },
-    merges: [ "H2:I3"]
+    merges: [ "H2:I5"]
   };
 }
 
