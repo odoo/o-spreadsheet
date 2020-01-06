@@ -25,6 +25,8 @@ export class GridModel extends owl.core.EventBus {
 
   styles = {};
 
+  merges = {};
+
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
   width = null;
@@ -59,6 +61,7 @@ export class GridModel extends owl.core.EventBus {
     type: "empty"
   };
   nextStyleId = 0;
+  nextMergeId = 1;
 
   get selectedCell() {
     return this.cells[toXC(this.activeCol, this.activeRow)] || null;
@@ -77,6 +80,8 @@ export class GridModel extends owl.core.EventBus {
     for (let xc in data.cells) {
       this.processCell(xc, data.cells[xc]);
     }
+    this.processMerges(data.merges);
+
     this.evaluateCells();
     this.styles = data.styles;
     for (let k in this.styles) {
@@ -192,6 +197,23 @@ export class GridModel extends owl.core.EventBus {
 
     for (let xc in cells) {
       computeValue(xc, cells[xc]);
+    }
+  }
+
+  processMerges(mergeList) {
+    for (let m of mergeList) {
+      let id = this.nextMergeId++;
+      const [tl, br] = m.split(':');
+      const [left, top] = toCartesian(tl);
+      const [right, bottom] = toCartesian(br);
+      this.merges[id] = {
+        id,
+        left,
+        top,
+        right,
+        bottom,
+        topLeft: tl
+      };
     }
   }
 

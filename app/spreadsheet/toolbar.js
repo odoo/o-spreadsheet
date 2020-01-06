@@ -46,9 +46,9 @@ export class ToolBar extends Component {
         <div class="o-tool" title="Font"><span>Arial</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-tool" title="Font Size"><span>10</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>
-        <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="useTool('bold')">${BOLD_ICON}</div>
-        <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="useTool('italic')">${ITALIC_ICON}</div>
-        <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="useTool('strikethrough')">${STRIKE_ICON}</div>
+        <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toggleTool('bold')">${BOLD_ICON}</div>
+        <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleTool('italic')">${ITALIC_ICON}</div>
+        <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleTool('strikethrough')">${STRIKE_ICON}</div>
         <div class="o-tool" title="Text Color"><span>${TEXT_COLOR_ICON}</span> ${TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool" title="Fill Color">${FILL_COLOR_ICON}</div>
@@ -167,10 +167,11 @@ export class ToolBar extends Component {
     this.style = this.model.getStyle();
   }
 
+  toggleTool(tool) {
+    const value = !this.style[tool];
+    this.useTool(tool, value);
+  }
   useTool(tool, value) {
-    if (value === undefined) {
-      value = !this.style[tool];
-    }
     this.model.setStyle({ [tool]: value });
   }
 

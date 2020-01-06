@@ -144,6 +144,22 @@ function drawCells(ctx, model) {
   }
 }
 
+function drawMerges(ctx, model) {
+  const {merges, cols, rows, offsetX, offsetY} = model;
+  ctx.strokeStyle = "#777";
+  ctx.fillStyle = "white"
+  ctx.lineWidth = 0.33;
+  for (let mid in merges) {
+    let merge = merges[mid];
+    let x1 = cols[merge.left].left - offsetX;
+    let x2 = cols[merge.right].right - offsetX;
+    let y1 = rows[merge.top].top - offsetY;
+    let y2 = rows[merge.bottom].bottom - offsetY;
+    ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+  }
+}
+
 function drawSelectionBackground(ctx, model) {
   const { cols, rows, selection } = model;
   const { left, top, right, bottom } = selection;
@@ -182,8 +198,9 @@ function drawGrid(ctx, model, width, height) {
   drawHeaderCells(ctx, model);
   drawSelectionBackground(ctx, model);
   drawBackgroundGrid(ctx, model, width, height);
-  drawSelectionOutline(ctx, model);
   drawCells(ctx, model);
+  drawMerges(ctx, model);
+  drawSelectionOutline(ctx, model);
 }
 
 const TEMPLATE = xml/* xml */ `
