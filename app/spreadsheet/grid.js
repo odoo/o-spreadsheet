@@ -6,6 +6,14 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useRef } = owl.hooks;
 
+function dpr() {
+  return window.devicePixelRatio || 1;
+}
+
+function thinLineWidth() {
+  return 0.5/(dpr());
+}
+
 function drawHeaderCells(ctx, model) {
   const { current, cols, rows, selection } = model;
   const { top, left, bottom, right } = current;
@@ -57,14 +65,13 @@ function drawBackgroundGrid(ctx, model, width, height) {
   const { top, left, bottom, right } = current;
 
   // header lines
-  ctx.lineWidth = 0.5;
+  ctx.lineWidth = thinLineWidth();
   ctx.strokeStyle = "#555";
   vLine(ctx, HEADER_WIDTH, height);
   hLine(ctx, HEADER_HEIGHT, width);
 
   // vertical lines
-  ctx.strokeStyle = "#777";
-  ctx.lineWidth = 0.33;
+  ctx.strokeStyle = "#AAA";
   const offsetX = model.offsetX;
   for (let i = left; i <= right; i++) {
     const col = cols[i];
@@ -148,15 +155,14 @@ function drawMerges(ctx, model) {
   const {merges, cols, rows, offsetX, offsetY} = model;
   ctx.strokeStyle = "#777";
   ctx.fillStyle = "white"
-  ctx.lineWidth = 0.33;
+  const hl = 0.8*thinLineWidth();
   for (let mid in merges) {
     let merge = merges[mid];
-    let x1 = cols[merge.left].left - offsetX;
-    let x2 = cols[merge.right].right - offsetX;
-    let y1 = rows[merge.top].top - offsetY;
-    let y2 = rows[merge.bottom].bottom - offsetY;
+    let x1 = cols[merge.left].left - offsetX + hl;
+    let x2 = cols[merge.right].right - offsetX - hl;
+    let y1 = rows[merge.top].top - offsetY + hl;
+    let y2 = rows[merge.bottom].bottom - offsetY - hl;
     ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
-    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
   }
 }
 
@@ -180,7 +186,7 @@ function drawSelectionOutline(ctx, model) {
   const { left, top, right, bottom } = selection;
   const offsetX = model.offsetX;
   const offsetY = model.offsetY;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1.8*thinLineWidth();
   ctx.strokeStyle = "#4b89ff";
   const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
   const width = cols[right].right - offsetX - x;
@@ -305,9 +311,13 @@ export class Grid extends Component {
     const width = this.el.clientWidth;
     const height = this.el.clientHeight;
     const canvas = this.canvas.el;
+    canvas.style.width =  `${width}px`;
+    canvas.style.height =  `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    this.context = canvas.getContext('2d');
+    this.context.translate(0.5,0.5);
     this.context.scale(dpr, dpr);
     drawGrid(this.context, this.model, width, height);
   }

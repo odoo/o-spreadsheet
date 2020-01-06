@@ -74,7 +74,7 @@ export class ToolBar extends Component {
          <t t-esc="model.selectedCell and model.selectedCell.content"/>
       </div>
     </div>`;
-  static style = css/* css */ `
+  static style = css/* scss */ `
     .o-spreadsheet-toolbar {
       background-color: ${GRAY_COLOR};
       border-bottom: 1px solid #ccc;
