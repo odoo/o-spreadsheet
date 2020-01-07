@@ -60,8 +60,7 @@ export class GridModel extends owl.core.EventBus {
   clipBoard = {
     type: "empty"
   };
-  nextStyleId = 0;
-  nextMergeId = 1;
+  nextId = 1;
 
   get selectedCell() {
     return this.getCell(this.activeCol, this.activeRow);
@@ -79,17 +78,25 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   constructor(data) {
     super();
+
+    // setting up rows and columns
     this.addRowsCols(data);
+
+    // styles
+    this.styles = data.styles;
+    for (let k in this.styles) {
+      this.nextId = Math.max(k, this.nextId);
+    }
+    this.nextId++;
+
+    // merges
+    this.processMerges(data.merges);
+
+    // cells
     for (let xc in data.cells) {
       this.addCell(xc, data.cells[xc]);
     }
-    this.processMerges(data.merges);
     this.evaluateCells();
-    this.styles = data.styles;
-    for (let k in this.styles) {
-      this.nextStyleId = Math.max(k, this.nextStyleId);
-    }
-    this.nextStyleId++;
   }
 
   addRowsCols(data) {
@@ -207,7 +214,7 @@ export class GridModel extends owl.core.EventBus {
 
   processMerges(mergeList) {
     for (let m of mergeList) {
-      let id = this.nextMergeId++;
+      let id = this.nextId++;
       const [tl, br] = m.split(":");
       const [left, top] = toCartesian(tl);
       const [right, bottom] = toCartesian(br);
@@ -412,7 +419,7 @@ export class GridModel extends owl.core.EventBus {
         return parseInt(k, 10);
       }
     }
-    const id = this.nextStyleId++;
+    const id = this.nextId++;
     this.styles[id] = style;
     return id;
   }
