@@ -11,7 +11,7 @@ function dpr() {
 }
 
 function thinLineWidth() {
-  return 0.5/(dpr());
+  return 0.5 / dpr();
 }
 
 function drawHeader(ctx, model, width, height) {
@@ -54,7 +54,7 @@ function drawHeader(ctx, model, width, height) {
     const row = rows[i];
     ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
     hLine(ctx, row.bottom - offsetY, HEADER_WIDTH);
-}
+  }
 }
 
 function vLine(ctx, x, height) {
@@ -158,10 +158,10 @@ function drawCells(ctx, model) {
 }
 
 function drawMerges(ctx, model) {
-  const {merges, cols, rows, offsetX, offsetY} = model;
-  const hl = 0.8*thinLineWidth();
+  const { merges, cols, rows, offsetX, offsetY } = model;
+  const hl = 0.8 * thinLineWidth();
   ctx.strokeStyle = "#777";
-  ctx.fillStyle = "white"
+  ctx.fillStyle = "white";
   for (let mid in merges) {
     let merge = merges[mid];
     let x1 = cols[merge.left].left - offsetX + hl;
@@ -193,12 +193,12 @@ function drawSelectionOutline(ctx, model) {
   const offsetX = model.offsetX;
   const offsetY = model.offsetY;
   const lw = thinLineWidth();
-  ctx.lineWidth = 3*lw;
+  ctx.lineWidth = 3 * lw;
   ctx.strokeStyle = "#3266ca";
   const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH + lw);
-  const width = cols[right].right - offsetX - x ;
-  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT+ lw);
-  const height = rows[bottom].bottom - offsetY - y ;
+  const width = cols[right].right - offsetX - x;
+  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT + lw);
+  const height = rows[bottom].bottom - offsetY - y;
   if (width > 0 && height > 0) {
     ctx.strokeRect(x, y, width, height);
   }
@@ -318,13 +318,13 @@ export class Grid extends Component {
     const width = this.el.clientWidth;
     const height = this.el.clientHeight;
     const canvas = this.canvas.el;
-    canvas.style.width =  `${width}px`;
-    canvas.style.height =  `${height}px`;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    this.context = canvas.getContext('2d');
-    this.context.translate(0.5,0.5);
+    this.context = canvas.getContext("2d");
+    this.context.translate(0.5, 0.5);
     this.context.scale(dpr, dpr);
     drawGrid(this.context, this.model, width, height);
   }

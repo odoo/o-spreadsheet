@@ -203,7 +203,7 @@ export class GridModel extends owl.core.EventBus {
   processMerges(mergeList) {
     for (let m of mergeList) {
       let id = this.nextMergeId++;
-      const [tl, br] = m.split(':');
+      const [tl, br] = m.split(":");
       const [left, top] = toCartesian(tl);
       const [right, bottom] = toCartesian(br);
       this.merges[id] = {
