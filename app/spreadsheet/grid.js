@@ -15,8 +15,8 @@ function thinLineWidth() {
 }
 
 function drawHeader(ctx, model, width, height) {
-  const { current, cols, rows, selection, offsetX, offsetY } = model;
-  const { top, left, bottom, right } = current;
+  const { viewport, cols, rows, selection, offsetX, offsetY } = model;
+  const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
   ctx.font = "400 12px Source Sans Pro";
@@ -72,8 +72,8 @@ function hLine(ctx, y, width) {
 }
 
 function drawBackgroundGrid(ctx, model, width, height) {
-  const { current, cols, rows } = model;
-  const { top, left, bottom, right } = current;
+  const { viewport, cols, rows } = model;
+  const { top, left, bottom, right } = viewport;
 
   ctx.lineWidth = thinLineWidth();
   ctx.strokeStyle = "#AAA";
@@ -93,8 +93,8 @@ function drawBackgroundGrid(ctx, model, width, height) {
 }
 
 function drawCells(ctx, model) {
-  const { offsetX, offsetY, rows, cols, current, cells } = model;
-  const { right, left, top, bottom } = current;
+  const { offsetX, offsetY, rows, cols, viewport, cells } = model;
+  const { right, left, top, bottom } = viewport;
   ctx.fillStyle = "#000";
   const styles = model.styles;
 

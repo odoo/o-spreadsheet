@@ -39,7 +39,7 @@ export class GridModel extends owl.core.EventBus {
   offsetY = 0;
 
   // coordinates of the visible and selected zone
-  current = {
+  viewport = {
     top: null,
     left: null,
     bottom: null,
@@ -227,7 +227,7 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
 
   updateVisibleZone(width, height, offsetX, offsetY) {
-    const { rows, cols, current } = this;
+    const { rows, cols, viewport: current } = this;
     this.clientWidth = width;
 
     current.bottom = rows.length - 1;
