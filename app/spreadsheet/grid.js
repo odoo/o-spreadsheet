@@ -156,13 +156,28 @@ function drawCells(ctx, model) {
   }
 }
 
+function overlap(r1, r2) {
+  if (r1.bottom < r2.top || r2.bottom < r2.top) {
+    return false;
+  }
+  if (r1.right < r2.left || r2.right < r1.left) {
+    return false;
+  }
+  return true;
+}
+
 function drawMerges(ctx, model) {
-  const { merges, cols, rows, offsetX, offsetY } = model;
+  const { merges, cols, rows, offsetX, offsetY, viewport } = model;
   const hl = 0.8 * thinLineWidth();
   ctx.strokeStyle = "#777";
   ctx.fillStyle = "white";
-  for (let mid in merges) {
-    let merge = merges[mid];
+  for (let id in merges) {
+    let merge = merges[id];
+    if (overlap(merge, viewport) ) {
+      drawMerge(merge);
+    }
+  }
+  function drawMerge(merge) {
     let x1 = cols[merge.left].left - offsetX + hl;
     let x2 = cols[merge.right].right - offsetX - hl;
     let y1 = rows[merge.top].top - offsetY + hl;
