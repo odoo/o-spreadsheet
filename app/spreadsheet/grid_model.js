@@ -84,7 +84,6 @@ export class GridModel extends owl.core.EventBus {
       this.addCell(xc, data.cells[xc]);
     }
     this.processMerges(data.merges);
-
     this.evaluateCells();
     this.styles = data.styles;
     for (let k in this.styles) {
@@ -155,6 +154,9 @@ export class GridModel extends owl.core.EventBus {
     const functions = Object.assign({ range }, fns);
 
     function computeValue(xc, cell) {
+      if (cell._type !== "formula" || !cell._formula) {
+        return;
+      }
       if (xc in visited) {
         if (visited[xc] === null) {
           cell._value = "#CYCLE";
@@ -162,16 +164,14 @@ export class GridModel extends owl.core.EventBus {
         }
         return;
       }
-      if (cell._type === "formula" && cell._formula) {
-        visited[xc] = null;
-        try {
-          // todo: move formatting in grid and formatters.js
-          cell._value = +cell._formula(getValue, functions).toFixed(4);
-          cell._error = false;
-        } catch (e) {
-          cell._value = cell._value || "#ERROR";
-          cell._error = true;
-        }
+      visited[xc] = null;
+      try {
+        // todo: move formatting in grid and formatters.js
+        cell._value = +cell._formula(getValue, functions).toFixed(4);
+        cell._error = false;
+      } catch (e) {
+        cell._value = cell._value || "#ERROR";
+        cell._error = true;
       }
       visited[xc] = true;
     }
