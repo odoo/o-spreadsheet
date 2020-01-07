@@ -64,7 +64,10 @@ export class GridModel extends owl.core.EventBus {
   nextMergeId = 1;
 
   get selectedCell() {
-    return this.cells[toXC(this.activeCol, this.activeRow)] || null;
+    return this.getCell(this.activeCol, this.activeRow);
+  }
+  getCell(col, row) {
+    return this.rows[row].cells[col] || null;
   }
 
   getStyle() {
@@ -76,9 +79,9 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   constructor(data) {
     super();
-    this.computeDims(data);
+    this.addRowsCols(data);
     for (let xc in data.cells) {
-      this.processCell(xc, data.cells[xc]);
+      this.addCell(xc, data.cells[xc]);
     }
     this.processMerges(data.merges);
 
@@ -90,7 +93,7 @@ export class GridModel extends owl.core.EventBus {
     this.nextStyleId++;
   }
 
-  computeDims(data) {
+  addRowsCols(data) {
     let current = 0;
     for (let i = 0; i < data.rowNumber; i++) {
       const size = data.rows[i] ? data.rows[i].size : DEFAULT_CELL_HEIGHT;
@@ -98,7 +101,8 @@ export class GridModel extends owl.core.EventBus {
         top: current,
         bottom: current + size,
         size: size,
-        name: String(i + 1)
+        name: String(i + 1),
+        cells: {}
       };
       this.rows.push(row);
       current = row.bottom;
@@ -120,7 +124,7 @@ export class GridModel extends owl.core.EventBus {
     this.width = this.cols[this.cols.length - 1].right + 10;
   }
 
-  processCell(xc, cell) {
+  addCell(xc, cell) {
     const [col, row] = toCartesian(xc);
     const currentCell = this.cells[xc] || {};
     cell = Object.assign(currentCell, { _col: col, _row: row, content: "" }, cell);
@@ -142,6 +146,7 @@ export class GridModel extends owl.core.EventBus {
       cell._value = +parseFloat(cell.content).toFixed(4);
     }
     this.cells[xc] = cell;
+    this.rows[row].cells[col] = cell;
   }
 
   evaluateCells() {
@@ -298,7 +303,7 @@ export class GridModel extends owl.core.EventBus {
   stopEditing() {
     if (this.isEditing) {
       const xc = toXC(this.selection.left, this.selection.top);
-      this.processCell(xc, { content: this.currentContent });
+      this.addCell(xc, { content: this.currentContent });
       this.evaluateCells();
       this.currentContent = "";
       this.isEditing = false;
@@ -311,6 +316,7 @@ export class GridModel extends owl.core.EventBus {
         const xc = toXC(i, j);
         if (xc in this.cells) {
           delete this.cells[xc];
+          delete this.rows[j].cells[i];
         }
       }
     }
@@ -341,7 +347,7 @@ export class GridModel extends owl.core.EventBus {
       const vals = [];
       this.clipBoard.cells.push(vals);
       for (let j = top; j <= bottom; j++) {
-        const cell = this.cells[toXC(i, j)];
+        const cell = this.getCell(i, j);
         vals.push(cell ? Object.assign({}, cell) : null);
       }
     }
@@ -359,16 +365,16 @@ export class GridModel extends owl.core.EventBus {
       for (let j = 0; j <= bottom - top; j++) {
         const xc = toXC(col + i, row + j);
         const originCell = this.clipBoard.cells[i][j];
-        const targetCell = this.cells[xc];
+        const targetCell = this.getCell(col + i, row + j);
         if (originCell) {
           let content = originCell.content;
           if (originCell._type === "formula") {
             content = applyOffset(content, offsetX, offsetY);
           }
-          this.processCell(xc, { content });
+          this.addCell(xc, { content });
         }
         if (!originCell && targetCell) {
-          this.processCell(xc, { content: "" });
+          this.addCell(xc, { content: "" });
         }
       }
     }
@@ -387,14 +393,14 @@ export class GridModel extends owl.core.EventBus {
   }
   setStyleToCell(col, row, style) {
     const xc = toXC(col, row);
-    const cell = this.cells[xc];
+    const cell = this.getCell(col, row);
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
     if (cell) {
       cell.style = id;
     } else {
-      this.processCell(xc, { style: id });
+      this.addCell(xc, { style: id });
     }
     this.trigger("update");
   }
