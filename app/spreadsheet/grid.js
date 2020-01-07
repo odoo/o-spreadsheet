@@ -92,68 +92,67 @@ function drawBackgroundGrid(ctx, model, width, height) {
   }
 }
 
-function isCellVisible(col, row, model) {
-  const { top, left, bottom, right } = model.current;
-  return col >= left && col <= right && row >= top && row <= bottom;
-}
-
 function drawCells(ctx, model) {
   const { offsetX, offsetY, rows, cols, current, cells } = model;
-  const { right, left } = current;
+  const { right, left, top, bottom } = current;
   ctx.fillStyle = "#000";
   const styles = model.styles;
 
-  for (let xc in model.cells) {
-    // to do: skip many rows
-    let cell = model.cells[xc];
-    if (isCellVisible(cell._col, cell._row, model)) {
-      let col = cols[cell._col];
-      let row = rows[cell._row];
-      const style = styles[cell.style] || {};
-      const align = "align" in style ? style.align : cell._type === "text" ? "left" : "right";
-      const italic = style.italic ? "italic " : "";
-      const weight = style.bold ? "bold" : "500";
-      ctx.font = `${italic}${weight} 12px arial`;
-      ctx.save();
-
-      // Compute clip zone
-      if (align === "left") {
-        let c = cell._col;
-        while (c < right && !(toXC(c + 1, cell._row) in cells)) {
-          c++;
-        }
-        const width = cols[c].right - col.left;
-        ctx.rect(col.left - offsetX, row.top - offsetY, width, row.size);
-      } else {
-        let c = cell._col;
-        while (c > left && !(toXC(c - 1, cell._row) in cells)) {
-          c--;
-        }
-        const width = col.right - cols[c].left;
-        ctx.rect(cols[c].left - offsetX, row.top - offsetY, width, row.size);
+  for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
+    let row = rows[rowNumber];
+    for (let colNumber = left; colNumber <= right; colNumber++) {
+      let cell = row.cells[colNumber];
+      if (cell) {
+        drawCell(cols[colNumber], row, cell);
       }
-      ctx.clip();
-
-      let x;
-      let y = (row.top + row.bottom) / 2 - offsetY + 3;
-      if (align === "left") {
-        x = col.left - offsetX + 3;
-      } else if (align === "right") {
-        x = col.right - offsetX - 3;
-      } else {
-        x = (col.left + col.right) / 2 - offsetX;
-      }
-      ctx.textAlign = align;
-      ctx.fillText(cell._value, x, y);
-      if (style.strikethrough) {
-        const width = ctx.measureText(cell._value).width;
-        if (align === "right") {
-          x = x - width;
-        }
-        ctx.fillRect(x, y, width, 0.5);
-      }
-      ctx.restore();
     }
+  }
+
+  function drawCell(col, row, cell) {
+    const style = styles[cell.style] || {};
+    const align = "align" in style ? style.align : cell._type === "text" ? "left" : "right";
+    const italic = style.italic ? "italic " : "";
+    const weight = style.bold ? "bold" : "500";
+    ctx.font = `${italic}${weight} 12px arial`;
+    ctx.save();
+
+    // Compute clip zone
+    if (align === "left") {
+      let c = cell._col;
+      while (c < right && !(toXC(c + 1, cell._row) in cells)) {
+        c++;
+      }
+      const width = cols[c].right - col.left;
+      ctx.rect(col.left - offsetX, row.top - offsetY, width, row.size);
+    } else {
+      let c = cell._col;
+      while (c > left && !(toXC(c - 1, cell._row) in cells)) {
+        c--;
+      }
+      const width = col.right - cols[c].left;
+      ctx.rect(cols[c].left - offsetX, row.top - offsetY, width, row.size);
+    }
+    ctx.clip();
+
+    let x;
+    let y = (row.top + row.bottom) / 2 - offsetY + 3;
+    if (align === "left") {
+      x = col.left - offsetX + 3;
+    } else if (align === "right") {
+      x = col.right - offsetX - 3;
+    } else {
+      x = (col.left + col.right) / 2 - offsetX;
+    }
+    ctx.textAlign = align;
+    ctx.fillText(cell._value, x, y);
+    if (style.strikethrough) {
+      const width = ctx.measureText(cell._value).width;
+      if (align === "right") {
+        x = x - width;
+      }
+      ctx.fillRect(x, y, width, 0.5);
+    }
+    ctx.restore();
   }
 }
 
