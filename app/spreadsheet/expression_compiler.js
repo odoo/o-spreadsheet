@@ -7,13 +7,12 @@ const OPERATORS = "+,-,*,/,:".split(",");
 const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
 export function tokenize(str) {
-  const chars = str
-    .replace(/ /g, "")
-    .toUpperCase()
-    .split("");
+  const chars = str.toUpperCase().split("");
   const result = [];
+  let i = 0;
   while (chars.length) {
     let token =
+      tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
@@ -21,6 +20,9 @@ export function tokenize(str) {
     if (!token) {
       throw new Error("Tokenizer error");
     }
+    token.start = i;
+    token.end = i + token.length;
+    i += token.length;
     result.push(token);
   }
   return result;
@@ -34,13 +36,13 @@ function tokenizeMisc(chars) {
   };
   if (chars[0] in misc) {
     const value = chars[0];
-    return { type: misc[chars.shift()], value };
+    return { type: misc[chars.shift()], value, length: 1 };
   }
 }
 
 function tokenizeOperator(chars) {
   if (OPERATORS.includes(chars[0])) {
-    return { type: "OPERATOR", value: chars.shift() };
+    return { type: "OPERATOR", value: chars.shift(), length: 1 };
   }
 }
 
@@ -50,7 +52,7 @@ function tokenizeNumber(chars) {
     digits.push(chars.shift());
   }
   if (digits.length) {
-    return { type: "NUMBER", value: parseFloat(digits.join("")) };
+    return { type: "NUMBER", value: parseFloat(digits.join("")), length: digits.length };
   }
 }
 
@@ -63,7 +65,19 @@ function tokenizeSymbol(chars) {
     const value = result.join("");
     const isFunction = FUNCTION_NAMES.includes(value);
     const type = isFunction ? "FUNCTION" : "VARIABLE";
-    return { type, value };
+    return { type, value, length: result.length };
+  }
+}
+
+function tokenizeSpace(chars) {
+  let length = 0;
+  while (chars[0] && chars[0].match(/\s/)) {
+    length++;
+    chars.shift();
+  }
+
+  if (length) {
+    return { type: "MEANINGLESS_SPACE", value: undefined, length: length };
   }
 }
 
@@ -151,7 +165,7 @@ function parseExpression(tokens, bp) {
 }
 
 export function parse(str) {
-  const tokens = tokenize(str);
+  const tokens = tokenize(str).filter(x => x.type !== "MEANINGLESS_SPACE");
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
     throw new Error("invalid expression");

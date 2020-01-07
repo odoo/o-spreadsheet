@@ -33,7 +33,7 @@ class App extends Component {
       C5: { content: "42" },
       C7: { content: "3" },
       B9: { content: "Formulas" },
-      C9: { content: "=SUM(C4:C5)" },
+      C9: { content: "= SUM ( C4 : C5 )" },
       C10: { content: "=SUM(C4:C7)" },
       D10: { content: "note that C7 is empty" },
       C11: { content: "=-(3 + C7 *SUM(C4:C7))" },
@@ -66,7 +66,7 @@ class App extends Component {
       2: { italic: true },
       3: { strikethrough: true }
     },
-    merges: [ "H2:I5"]
+    merges: ["H2:I5"]
   };
 }
 
