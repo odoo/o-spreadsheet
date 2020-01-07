@@ -77,7 +77,7 @@ function tokenizeSpace(chars) {
   }
 
   if (length) {
-    return { type: "MEANINGLESS_SPACE", value: undefined, length: length };
+    return { type: "SPACE", value: undefined, length: length };
   }
 }
 
@@ -165,7 +165,7 @@ function parseExpression(tokens, bp) {
 }
 
 export function parse(str) {
-  const tokens = tokenize(str).filter(x => x.type !== "MEANINGLESS_SPACE");
+  const tokens = tokenize(str).filter(x => x.type !== "SPACE");
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
     throw new Error("invalid expression");
