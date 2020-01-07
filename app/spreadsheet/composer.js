@@ -41,12 +41,12 @@ export class Composer extends Component {
     const row = rows[selection.top];
     const top = row.top - offsetY - 1;
     const height = row.size + 2;
-    const cell = this.model.selectedCell || { _type: "text" };
+    const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    const align = "align" in style ? style.align : cell._type === "number" ? "right" : "left";
+    const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     const position =
       align === "left"
         ? `left: ${col.left - offsetX - 1}px;`

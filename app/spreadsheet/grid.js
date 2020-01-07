@@ -110,7 +110,7 @@ function drawCells(ctx, model) {
 
   function drawCell(col, row, cell) {
     const style = styles[cell.style] || {};
-    const align = "align" in style ? style.align : cell._type === "text" ? "left" : "right";
+    const align = "align" in style ? style.align : cell.type === "text" ? "left" : "right";
     const italic = style.italic ? "italic " : "";
     const weight = style.bold ? "bold" : "500";
     ctx.font = `${italic}${weight} 12px arial`;
@@ -118,15 +118,15 @@ function drawCells(ctx, model) {
 
     // Compute clip zone
     if (align === "left") {
-      let c = cell._col;
-      while (c < right && !(toXC(c + 1, cell._row) in cells)) {
+      let c = cell.col;
+      while (c < right && !(toXC(c + 1, cell.row) in cells)) {
         c++;
       }
       const width = cols[c].right - col.left;
       ctx.rect(col.left - offsetX, row.top - offsetY, width, row.size);
     } else {
-      let c = cell._col;
-      while (c > left && !(toXC(c - 1, cell._row) in cells)) {
+      let c = cell.col;
+      while (c > left && !(toXC(c - 1, cell.row) in cells)) {
         c--;
       }
       const width = col.right - cols[c].left;
@@ -144,9 +144,9 @@ function drawCells(ctx, model) {
       x = (col.left + col.right) / 2 - offsetX;
     }
     ctx.textAlign = align;
-    ctx.fillText(cell._value, x, y);
+    ctx.fillText(cell.value, x, y);
     if (style.strikethrough) {
-      const width = ctx.measureText(cell._value).width;
+      const width = ctx.measureText(cell.value).width;
       if (align === "right") {
         x = x - width;
       }
@@ -173,7 +173,7 @@ function drawMerges(ctx, model) {
   ctx.fillStyle = "white";
   for (let id in merges) {
     let merge = merges[id];
-    if (overlap(merge, viewport) ) {
+    if (overlap(merge, viewport)) {
       drawMerge(merge);
     }
   }

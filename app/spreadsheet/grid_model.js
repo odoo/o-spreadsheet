@@ -133,23 +133,23 @@ export class GridModel extends owl.core.EventBus {
   addCell(xc, cell) {
     const [col, row] = toCartesian(xc);
     const currentCell = this.cells[xc] || {};
-    cell = Object.assign(currentCell, { _col: col, _row: row, content: "" }, cell);
+    cell = Object.assign(currentCell, { col: col, row: row, content: "" }, cell);
     const content = cell.content;
-    cell._type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
-    cell._error = false;
-    if (cell._type === "formula") {
+    cell.type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
+    cell.error = false;
+    if (cell.type === "formula") {
       try {
         cell._formula = compileExpression(cell.content.slice(1));
-        cell._value = null;
+        cell.value = null;
       } catch (e) {
-        cell._value = "#BAD_EXPR";
-        cell._error = true;
+        cell.value = "#BAD_EXPR";
+        cell.error = true;
       }
-    } else if (cell._type === "text") {
-      cell._value = cell.content;
-    } else if (cell._type === "number") {
+    } else if (cell.type === "text") {
+      cell.value = cell.content;
+    } else if (cell.type === "number") {
       // todo: move formatting in grid and formatters.js
-      cell._value = +parseFloat(cell.content).toFixed(4);
+      cell.value = +parseFloat(cell.content).toFixed(4);
     }
     this.cells[xc] = cell;
     this.rows[row].cells[col] = cell;
@@ -161,24 +161,24 @@ export class GridModel extends owl.core.EventBus {
     const functions = Object.assign({ range }, fns);
 
     function computeValue(xc, cell) {
-      if (cell._type !== "formula" || !cell._formula) {
+      if (cell.type !== "formula" || !cell._formula) {
         return;
       }
       if (xc in visited) {
         if (visited[xc] === null) {
-          cell._value = "#CYCLE";
-          cell._error = true;
+          cell.value = "#CYCLE";
+          cell.error = true;
         }
         return;
       }
       visited[xc] = null;
       try {
         // todo: move formatting in grid and formatters.js
-        cell._value = +cell._formula(getValue, functions).toFixed(4);
-        cell._error = false;
+        cell.value = +cell._formula(getValue, functions).toFixed(4);
+        cell.error = false;
       } catch (e) {
-        cell._value = cell._value || "#ERROR";
-        cell._error = true;
+        cell.value = cell.value || "#ERROR";
+        cell.error = true;
       }
       visited[xc] = true;
     }
@@ -189,10 +189,10 @@ export class GridModel extends owl.core.EventBus {
         return 0;
       }
       computeValue(xc, cell);
-      if (cell._error) {
+      if (cell.error) {
         throw new Error("boom");
       }
-      return cells[xc]._value;
+      return cells[xc].value;
     }
 
     function range(v1, v2) {
@@ -375,7 +375,7 @@ export class GridModel extends owl.core.EventBus {
         const targetCell = this.getCell(col + i, row + j);
         if (originCell) {
           let content = originCell.content;
-          if (originCell._type === "formula") {
+          if (originCell.type === "formula") {
             content = applyOffset(content, offsetX, offsetY);
           }
           this.addCell(xc, { content });

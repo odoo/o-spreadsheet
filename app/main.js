@@ -60,7 +60,7 @@ class App extends Component {
       F19: { content: "- some editing tools (fonts, color, ...)" },
       F20: { content: "- merging cells" },
       F21: { content: "- borders" },
-      H2: { content: "merged content"}
+      H2: { content: "merged content" }
     },
     styles: {
       1: { bold: true },
