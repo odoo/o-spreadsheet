@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "live-server dist --open=demo",
-    "predev": "cp -r demo dist/",
+    "predev": "cpr demo dist/",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
     "build:js": "tsc --target esnext --module es6 --outDir dist/js --incremental",
     "build:bundle": "rollup -c",
@@ -29,6 +29,7 @@
     "@babel/preset-env": "^7.7.7",
     "@types/jest": "^24.0.25",
     "babel-eslint": "^10.0.3",
+    "cpr": "^3.0.1",
     "babel-jest": "^24.9.0",
     "eslint": "^6.8.0",
     "git-rev-sync": "^2.0.0",
