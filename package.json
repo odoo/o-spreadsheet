@@ -25,12 +25,8 @@
   "author": "Gery Debongnie",
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/preset-env": "^7.7.7",
     "@types/jest": "^24.0.25",
-    "babel-eslint": "^10.0.3",
     "cpr": "^3.0.1",
-    "babel-jest": "^24.9.0",
     "eslint": "^6.8.0",
     "git-rev-sync": "^2.0.0",
     "jest": "^24.9.0",
@@ -66,8 +62,8 @@
       "json",
       "node"
     ],
-    "transformIgnorePatterns": [
-      "/node_modules/(?!@odoo).+\\.js$"
-    ]
+    "moduleNameMapper": {
+      "owl": "<rootDir>/demo/owl.js"
+    }
   }
 }
