@@ -1,5 +1,5 @@
 {
-  "name": "@odoo/owl-spreadsheet",
+  "name": "@odoo/o-spreadsheet",
   "version": "0.0.1",
   "description": "A spreadsheet component",
   "main": "index.js",
@@ -25,9 +25,13 @@
   "author": "Gery Debongnie",
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
     "@types/jest": "^24.0.25",
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
     "eslint": "^6.8.0",
+    "git-rev-sync": "^2.0.0",
     "jest": "^24.9.0",
     "jest-environment-jsdom": "^24.9.0",
     "live-server": "^1.2.1",
@@ -35,7 +39,6 @@
     "prettier": "^1.19.1",
     "rollup": "^1.28.0",
     "ts-jest": "^24.3.0",
-    "git-rev-sync": "^2.0.0",
     "typescript": "^3.7.4"
   },
   "prettier": {
@@ -52,7 +55,7 @@
     "transform": {
       "^.+\\.ts?$": "ts-jest"
     },
-    "verbose": false,
+    "verbose": true,
     "testRegex": "(/tests/.*(test|spec))\\.ts?$",
     "moduleFileExtensions": [
       "ts",
@@ -61,6 +64,9 @@
       "jsx",
       "json",
       "node"
+    ],
+    "transformIgnorePatterns": [
+        "/node_modules/(?!@odoo).+\\.js$"
     ]
   }
 }
