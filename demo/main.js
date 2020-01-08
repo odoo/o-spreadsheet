@@ -3,7 +3,7 @@ const { whenReady } = owl.utils;
 const { Component } = owl;
 const { xml, css } = owl.tags;
 
-const Spreadsheet = owl_spreadsheet.Spreadsheet;
+const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
   static template = xml`<Spreadsheet data="data"/>`;
   static style = css`

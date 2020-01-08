@@ -1,14 +1,13 @@
 import { version } from "./package.json";
 import git from "git-rev-sync";
 
-// rollup.config.js
 export default {
   input: "dist/js/index.js",
   external: ["@odoo/owl"],
   output: {
-    file: "dist/owl_spreadsheet.js",
+    file: "dist/o_spreadsheet.js",
     format: "iife",
-    name: "owl_spreadsheet",
+    name: "o_spreadsheet",
     extend: true,
     globals: {"@odoo/owl": "owl"},
 

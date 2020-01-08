@@ -5,9 +5,8 @@
     },
     "extends": "eslint:recommended",
     "globals": {
-        "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly",
-        "owl": "readonly"
+        "owl": "readonly",
+        "o_spreadsheet": "readonly"
     },
     "parser": "babel-eslint",
     "parserOptions": {
