@@ -1,5 +1,5 @@
 import { numberToLetters, toCartesian, toXC } from "./helpers";
-import { compileExpression, tokenize } from "./expression_compiler";
+import { compileExpression, applyOffset } from "./expressions";
 import { functions } from "./functions";
 import * as owl from "@odoo/owl";
 
@@ -430,15 +430,3 @@ function stringify(obj) {
   return JSON.stringify(obj, Object.keys(obj).sort());
 }
 
-function applyOffset(formula, offsetX, offsetY) {
-  const prefix = formula.startsWith("=") ? "=" : "=?";
-  let tokens = tokenize(formula.slice(prefix.length));
-  tokens = tokens.map(t => {
-    if (t.type === "VARIABLE") {
-      const [x, y] = toCartesian(t.value);
-      t.value = toXC(x + offsetX, y + offsetY);
-    }
-    return t.value;
-  });
-  return prefix + tokens.join("");
-}

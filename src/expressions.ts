@@ -1,4 +1,5 @@
 import { functions } from "./functions";
+import { toCartesian, toXC } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // Tokenizer
@@ -213,3 +214,21 @@ export function compileExpression(str) {
   code.push(`return ${compileAST(ast)};`);
   return new Function("getValue", "fns", code.join("\n"));
 }
+
+
+// -----------------------------------------------------------------------------
+// COMPILER
+// -----------------------------------------------------------------------------
+export function applyOffset(formula, offsetX, offsetY) {
+  const prefix = formula.startsWith("=") ? "=" : "=?";
+  let tokens = tokenize(formula.slice(prefix.length));
+  tokens = tokens.map(t => {
+    if (t.type === "VARIABLE") {
+      const [x, y] = toCartesian(t.value);
+      t.value = toXC(x + offsetX, y + offsetY);
+    }
+    return t.value;
+  });
+  return prefix + tokens.join("");
+}
+ 

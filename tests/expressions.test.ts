@@ -1,4 +1,4 @@
-import { tokenize } from "../src/expression_compiler";
+import { tokenize } from "../src/expressions";
 
 describe("tokenizer", () => {
   test("simple token", () => {
