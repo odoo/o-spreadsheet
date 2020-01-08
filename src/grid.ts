@@ -1,3 +1,5 @@
+import * as owl from "@odoo/owl";
+
 import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_model.js";
 import { Composer } from "./composer.js";
 import { toXC } from "./helpers.js";
@@ -270,7 +272,7 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class Grid extends Component {
+export class Grid extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Composer };
@@ -281,9 +283,11 @@ export class Grid extends Component {
   context = null;
   hasFocus = false;
   model = this.props.model;
+  clickedCol = 0;
+  clickedRow = 0;
 
   mounted() {
-    const canvas = this.canvas.el;
+    const canvas = this.canvas.el as any;
     this.focus();
     const ctx = canvas.getContext("2d");
     // Scale all drawing operations by the dpr, so you
@@ -295,18 +299,18 @@ export class Grid extends Component {
   }
 
   willPatch() {
-    this.hasFocus = this.el.contains(document.activeElement);
+    this.hasFocus = this.el!.contains(document.activeElement);
   }
   patched() {
     this.updateVisibleZone();
     this.drawGrid();
-    if (this.hasFocus && !this.el.contains(document.activeElement)) {
-      this.canvas.el.focus();
+    if (this.hasFocus && !this.el!.contains(document.activeElement)) {
+      this.canvas.el!.focus();
     }
   }
 
   focus() {
-    this.canvas.el.focus();
+    this.canvas.el!.focus();
   }
 
   onScroll() {
@@ -319,34 +323,34 @@ export class Grid extends Component {
   }
 
   updateVisibleZone() {
-    const width = this.el.clientWidth;
-    const height = this.el.clientHeight;
-    const offsetY = this.vScrollbar.el.scrollTop;
-    const offsetX = this.hScrollbar.el.scrollLeft;
+    const width = this.el!.clientWidth;
+    const height = this.el!.clientHeight;
+    const offsetY = this.vScrollbar.el!.scrollTop;
+    const offsetX = this.hScrollbar.el!.scrollLeft;
     this.model.updateVisibleZone(width, height, offsetX, offsetY);
   }
   drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
     const dpr = window.devicePixelRatio || 1;
-    const width = this.el.clientWidth;
-    const height = this.el.clientHeight;
-    const canvas = this.canvas.el;
+    const width = this.el!.clientWidth;
+    const height = this.el!.clientHeight;
+    const canvas = this.canvas.el as any;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
     this.context = canvas.getContext("2d");
-    this.context.translate(0.5, 0.5);
-    this.context.scale(dpr, dpr);
+    (<any>this.context).translate(0.5, 0.5);
+    (<any>this.context).scale(dpr, dpr);
     drawGrid(this.context, this.model, width, height);
   }
 
   onMouseWheel(ev) {
-    const vScrollbar = this.vScrollbar.el;
+    const vScrollbar = this.vScrollbar.el!;
     vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
-    const hScrollbar = this.hScrollbar.el;
+    const hScrollbar = this.hScrollbar.el!;
     hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
   }
 
@@ -394,11 +398,11 @@ export class Grid extends Component {
         }
       };
       const onMouseUp = () => {
-        this.canvas.el.removeEventListener("mousemove", onMouseMove);
-        this.canvas.el.removeEventListener("mouseup", onMouseUp);
+        this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+        this.canvas.el!.removeEventListener("mouseup", onMouseUp);
       };
-      this.canvas.el.addEventListener("mousemove", onMouseMove);
-      this.canvas.el.addEventListener("mouseup", onMouseUp);
+      this.canvas.el!.addEventListener("mousemove", onMouseMove);
+      this.canvas.el!.addEventListener("mouseup", onMouseUp);
     }
   }
 

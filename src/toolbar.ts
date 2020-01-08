@@ -1,4 +1,6 @@
-import { useExternalListener } from "./helpers.js";
+import * as owl from "@odoo/owl";
+
+import { useExternalListener } from "./helpers";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
@@ -32,7 +34,7 @@ const BORDERS_ICON = `<svg><path fill="#000000" fill-rule="evenodd" d="M0,0 L0,1
 // -----------------------------------------------------------------------------
 // ToolBar
 // -----------------------------------------------------------------------------
-export class ToolBar extends Component {
+export class ToolBar extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-toolbar">
       <div class="o-tools">
@@ -160,10 +162,10 @@ export class ToolBar extends Component {
     useExternalListener(window, "click", this.closeMenus);
   }
 
-  willStart() {
+  async willStart() {
     this.style = this.model.getStyle();
   }
-  willUpdateProps() {
+  async willUpdateProps() {
     this.style = this.model.getStyle();
   }
 

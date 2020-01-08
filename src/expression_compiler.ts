@@ -1,4 +1,4 @@
-import { functions } from "./functions.js";
+import { functions } from "./functions";
 
 // -----------------------------------------------------------------------------
 // Tokenizer
@@ -8,7 +8,7 @@ const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
 export function tokenize(str) {
   const chars = str.toUpperCase().split("");
-  const result = [];
+  const result: any[] = [];
   let i = 0;
   while (chars.length) {
     let token =
@@ -16,7 +16,7 @@ export function tokenize(str) {
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
-      tokenizeSymbol(chars);
+      (tokenizeSymbol(chars) as any);
     if (!token) {
       throw new Error("Tokenizer error");
     }
@@ -28,7 +28,7 @@ export function tokenize(str) {
   return result;
 }
 
-function tokenizeMisc(chars) {
+function tokenizeMisc(chars): any {
   const misc = {
     ",": "COMMA",
     "(": "LEFT_PAREN",
@@ -40,14 +40,14 @@ function tokenizeMisc(chars) {
   }
 }
 
-function tokenizeOperator(chars) {
+function tokenizeOperator(chars): any {
   if (OPERATORS.includes(chars[0])) {
     return { type: "OPERATOR", value: chars.shift(), length: 1 };
   }
 }
 
-function tokenizeNumber(chars) {
-  const digits = [];
+function tokenizeNumber(chars): any {
+  const digits: any[] = [];
   while (chars[0] && chars[0].match(/\d|\./)) {
     digits.push(chars.shift());
   }
@@ -56,8 +56,8 @@ function tokenizeNumber(chars) {
   }
 }
 
-function tokenizeSymbol(chars) {
-  const result = [];
+function tokenizeSymbol(chars): any {
+  const result: any[] = [];
   while (chars[0] && chars[0].match(/\w/)) {
     result.push(chars.shift());
   }
@@ -69,7 +69,7 @@ function tokenizeSymbol(chars) {
   }
 }
 
-function tokenizeSpace(chars) {
+function tokenizeSpace(chars): any {
   let length = 0;
   while (chars[0] && chars[0].match(/\s/)) {
     length++;

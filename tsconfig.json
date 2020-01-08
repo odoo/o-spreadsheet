@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "preserveConstEnums": true,
+      "noImplicitThis": true,
+      "moduleResolution": "node",
+      "removeComments": false,
+      "target": "esnext",
+      "outDir": "dist",
+      "alwaysStrict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": false,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "strictPropertyInitialization": true,
+      "strictNullChecks": true
+    },
+    "include": ["src/**/*.ts","src/*.ts"]
+  }

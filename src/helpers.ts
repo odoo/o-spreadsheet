@@ -1,3 +1,4 @@
+import * as owl from "@odoo/owl";
 /**
  *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
  */

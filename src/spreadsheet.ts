@@ -1,7 +1,9 @@
-import { Grid } from "./grid.js";
-import { GridModel } from "./grid_model.js";
-import { ToolBar } from "./toolbar.js";
-import { useExternalListener } from "./helpers.js";
+import * as owl from "@odoo/owl";
+
+import { Grid } from "./grid";
+import { GridModel } from "./grid_model";
+import { ToolBar } from "./toolbar";
+import { useExternalListener } from "./helpers";
 
 const { Component } = owl;
 const { useRef } = owl.hooks;
@@ -24,7 +26,7 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class Spreadsheet extends Component {
+export class Spreadsheet extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { ToolBar, Grid };
@@ -46,6 +48,6 @@ export class Spreadsheet extends Component {
   }
 
   focusGrid() {
-    this.grid.comp.focus();
+    (<any>this.grid.comp).focus();
   }
 }

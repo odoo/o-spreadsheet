@@ -1,3 +1,5 @@
+import * as owl from "@odoo/owl";
+
 const { Component } = owl;
 const { xml, css } = owl.tags;
 
@@ -21,18 +23,19 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class Composer extends Component {
+export class Composer extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
   model = this.props.model;
 
   mounted() {
-    this.el.value = this.model.currentContent;
+    const el = this.el as HTMLInputElement;
+    el.value = this.model.currentContent;
     const { cols, selection } = this.model;
     const col = cols[selection.left];
-    this.el.style.width = col.size + 1.5;
-    this.el.style.width = Math.max(this.el.scrollWidth + 2, col.size + 1.5);
-    this.el.focus();
+    el.style.width = col.size + 1.5;
+    el.style.width = Math.max(el.scrollWidth + 2, col.size + 1.5) as any;
+    el.focus();
   }
 
   get style() {
@@ -56,9 +59,10 @@ export class Composer extends Component {
 
   onInput() {
     // write in place? or go through a method probably
-    this.model.currentContent = this.el.value;
-    if (this.el.clientWidth !== this.el.scrollWidth) {
-      this.el.style.width = this.el.scrollWidth + 2;
+    const el = this.el as HTMLInputElement;
+    this.model.currentContent = el.value;
+    if (el.clientWidth !== el.scrollWidth) {
+      el.style.width = (el.scrollWidth + 2) as any;
     }
   }
 

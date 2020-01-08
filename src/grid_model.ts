@@ -1,6 +1,7 @@
-import { numberToLetters, toCartesian, toXC } from "./helpers.js";
-import { compileExpression, tokenize } from "./expression_compiler.js";
-import { functions } from "./functions.js";
+import { numberToLetters, toCartesian, toXC } from "./helpers";
+import { compileExpression, tokenize } from "./expression_compiler";
+import { functions } from "./functions";
+import * as owl from "@odoo/owl";
 
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 26;
@@ -17,15 +18,15 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
 
   // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
-  rows = [];
+  rows: any[] = [];
   // each col is described by: { left: ..., right: ..., name: 'B', size: ... }
-  cols = [];
+  cols: any[] = [];
 
-  cells = {};
+  cells: any = {};
 
-  styles = {};
+  styles: any = {};
 
-  merges = {};
+  merges: any = {};
 
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
@@ -39,7 +40,7 @@ export class GridModel extends owl.core.EventBus {
   offsetY = 0;
 
   // coordinates of the visible and selected zone
-  viewport = {
+  viewport: any = {
     top: null,
     left: null,
     bottom: null,
@@ -57,7 +58,7 @@ export class GridModel extends owl.core.EventBus {
   isEditing = false;
   currentContent = "";
 
-  clipBoard = {
+  clipBoard: any = {
     type: "empty"
   };
   nextId = 1;
@@ -85,7 +86,7 @@ export class GridModel extends owl.core.EventBus {
     // styles
     this.styles = data.styles;
     for (let k in this.styles) {
-      this.nextId = Math.max(k, this.nextId);
+      this.nextId = Math.max(k as any, this.nextId);
     }
     this.nextId++;
 
@@ -198,7 +199,7 @@ export class GridModel extends owl.core.EventBus {
     function range(v1, v2) {
       const [c1, r1] = toCartesian(v1);
       const [c2, r2] = toCartesian(v2);
-      const result = [];
+      const result: any[] = [];
       for (let c = c1; c <= c2; c++) {
         for (let r = r1; r <= r2; r++) {
           result.push(getValue(toXC(c, r)));
@@ -234,31 +235,31 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
 
   updateVisibleZone(width, height, offsetX, offsetY) {
-    const { rows, cols, viewport: current } = this;
+    const { rows, cols, viewport } = this;
     this.clientWidth = width;
 
-    current.bottom = rows.length - 1;
+    viewport.bottom = rows.length - 1;
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].top <= offsetY) {
-        current.top = i;
+        viewport.top = i;
       }
       if (offsetY + height < rows[i].bottom) {
-        current.bottom = i;
+        viewport.bottom = i;
         break;
       }
     }
-    current.right = cols.length - 1;
+    viewport.right = cols.length - 1;
     for (let i = 0; i < cols.length; i++) {
       if (cols[i].left <= offsetX) {
-        current.left = i;
+        viewport.left = i;
       }
       if (offsetX + width < cols[i].right) {
-        current.right = i;
+        viewport.right = i;
         break;
       }
     }
-    this.offsetX = cols[current.left].left - HEADER_WIDTH;
-    this.offsetY = rows[current.top].top - HEADER_HEIGHT;
+    this.offsetX = cols[viewport.left].left - HEADER_WIDTH;
+    this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
 
   selectCell(col, row) {
@@ -351,7 +352,7 @@ export class GridModel extends owl.core.EventBus {
       cells: []
     };
     for (let i = left; i <= right; i++) {
-      const vals = [];
+      const vals: any[] = [];
       this.clipBoard.cells.push(vals);
       for (let j = top; j <= bottom; j++) {
         const cell = this.getCell(i, j);

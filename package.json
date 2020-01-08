@@ -4,8 +4,12 @@
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
-    "serve": "live-server app",
-    "prettier": "prettier {app/*.js,app/**/*.js} --write"
+    "serve": "live-server dist --open=demo",
+    "build:js": "tsc --target esnext --module es6 --outDir dist/js",
+    "build:bundle": "rollup -c",
+    "build:cp": "cp -r demo dist/",
+    "build": "npm run build:js && npm run build:bundle && npm run build:cp",
+    "prettier": "prettier {src/*.ts,src/**/*.ts} --write"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -21,9 +25,15 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
     "live-server": "^1.2.1",
+    "typescript": "^3.7.4",
+    "rollup": "^1.28.0",
     "prettier": "^1.19.1"
   },
   "prettier": {
     "printWidth": 100
+  },
+  "dependencies": {
+    "@odoo/owl": "^1.0.0-beta5",
+    "git-rev-sync": "^2.0.0"
   }
 }
