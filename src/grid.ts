@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 
-import { HEADER_WIDTH, HEADER_HEIGHT } from "./grid_model.js";
+import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell } from "./grid_model.js";
 import { Composer } from "./composer.js";
 import { toXC } from "./helpers.js";
 
@@ -16,7 +16,7 @@ function thinLineWidth() {
   return 0.5 / dpr();
 }
 
-function drawHeader(ctx, model, width, height) {
+function drawHeader(ctx, model: GridModel, width, height) {
   const { viewport, cols, rows, selection, offsetX, offsetY } = model;
   const { top, left, bottom, right } = viewport;
 
@@ -73,7 +73,12 @@ function hLine(ctx, y, width) {
   ctx.stroke();
 }
 
-function drawBackgroundGrid(ctx, model, width, height) {
+function drawBackgroundGrid(
+  ctx: CanvasRenderingContext2D,
+  model: GridModel,
+  width: number,
+  height: number
+) {
   const { viewport, cols, rows } = model;
   const { top, left, bottom, right } = viewport;
 
@@ -94,7 +99,7 @@ function drawBackgroundGrid(ctx, model, width, height) {
   }
 }
 
-function drawCells(ctx, model) {
+function drawCells(ctx: CanvasRenderingContext2D, model: GridModel) {
   const { offsetX, offsetY, rows, cols, viewport, cells } = model;
   const { right, left, top, bottom } = viewport;
   ctx.fillStyle = "#000";
@@ -110,9 +115,9 @@ function drawCells(ctx, model) {
     }
   }
 
-  function drawCell(col, row, cell) {
-    const style = styles[cell.style] || {};
-    const align = "align" in style ? style.align : cell.type === "text" ? "left" : "right";
+  function drawCell(col: Col, row: Row, cell: Cell) {
+    const style = cell.style ? styles[cell.style] : {};
+    const align = style.align || (cell.type === "text" ? "left" : "right");
     const italic = style.italic ? "italic " : "";
     const weight = style.bold ? "bold" : "500";
     ctx.font = `${italic}${weight} 12px arial`;
@@ -168,7 +173,7 @@ function overlap(r1, r2) {
   return true;
 }
 
-function drawMerges(ctx, model) {
+function drawMerges(ctx: CanvasRenderingContext2D, model: GridModel) {
   const { merges, cols, rows, offsetX, offsetY, viewport } = model;
   const hl = 0.8 * thinLineWidth();
   ctx.strokeStyle = "#777";
@@ -188,7 +193,7 @@ function drawMerges(ctx, model) {
   }
 }
 
-function drawSelectionBackground(ctx, model) {
+function drawSelectionBackground(ctx: CanvasRenderingContext2D, model: GridModel) {
   const { cols, rows, selection } = model;
   const { left, top, right, bottom } = selection;
   const offsetX = model.offsetX;
@@ -203,7 +208,7 @@ function drawSelectionBackground(ctx, model) {
   }
 }
 
-function drawSelectionOutline(ctx, model) {
+function drawSelectionOutline(ctx: CanvasRenderingContext2D, model: GridModel) {
   const { cols, rows, selection } = model;
   const { left, top, right, bottom } = selection;
   const offsetX = model.offsetX;
@@ -220,7 +225,7 @@ function drawSelectionOutline(ctx, model) {
   }
 }
 
-function drawGrid(ctx, model, width, height) {
+function drawGrid(ctx: CanvasRenderingContext2D, model: GridModel, width, height) {
   console.log("drawing", model);
   ctx.clearRect(0, 0, width, height);
 
@@ -280,9 +285,9 @@ export class Grid extends Component<any, any> {
   vScrollbar = useRef("vscrollbar");
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
-  context = null;
+  context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
-  model = this.props.model;
+  model: GridModel = this.props.model;
   clickedCol = 0;
   clickedRow = 0;
 
@@ -336,15 +341,16 @@ export class Grid extends Component<any, any> {
     const width = this.el!.clientWidth;
     const height = this.el!.clientHeight;
     const canvas = this.canvas.el as any;
+    const context = canvas.getContext("2d");
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    this.context = canvas.getContext("2d");
-    (<any>this.context).translate(0.5, 0.5);
-    (<any>this.context).scale(dpr, dpr);
-    drawGrid(this.context, this.model, width, height);
+    this.context = context;
+    context.translate(0.5, 0.5);
+    context.scale(dpr, dpr);
+    drawGrid(context, this.model, width, height);
   }
 
   onMouseWheel(ev) {
@@ -422,7 +428,7 @@ export class Grid extends Component<any, any> {
     };
     const delta = deltaMap[ev.key];
     if (delta) {
-      this.model.moveSelection(...delta, ev.shiftKey);
+      this.model.moveSelection(delta[0], delta[1], ev.shiftKey);
       return;
     }
     if (ev.key === "Tab") {

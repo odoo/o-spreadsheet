@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 /**
  *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
  */
-export function numberToLetters(n) {
+export function numberToLetters(n: number): string {
   if (n < 26) {
     return String.fromCharCode(65 + n);
   } else {
@@ -13,7 +13,7 @@ export function numberToLetters(n) {
 /**
  * 'A' => 0, 'Z' => 25, 'AA' => 26, ...
  */
-function lettersToNumber(letters) {
+function lettersToNumber(letters: string): number {
   let result = 0;
   const l = letters.length;
   for (let i = 0; i < l; i++) {
@@ -28,9 +28,9 @@ function lettersToNumber(letters) {
  *
  * Note: also accepts lowercase coordinates
  */
-export function toCartesian(cell) {
+export function toCartesian(cell: string): [number, number] {
   cell = cell.toUpperCase();
-  const [m, letters, numbers] = cell.match(/([A-Z]*)([0-9]*)/);
+  const [m, letters, numbers] = cell.match(/([A-Z]*)([0-9]*)/)!;
   if (m !== cell) {
     throw new Error("Invalid cell description");
   }
@@ -39,7 +39,7 @@ export function toCartesian(cell) {
   return [col, row];
 }
 
-export function toXC(col, row) {
+export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);
 }
 

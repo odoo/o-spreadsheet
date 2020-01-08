@@ -225,7 +225,7 @@ export function applyOffset(formula: string, offsetX: number, offsetY: number): 
     if (t.type === "VARIABLE") {
       const [x, y] = toCartesian(t.value);
       if (x + offsetX < 0 || y + offsetY < 0) {
-        return '#REF';
+        return "#REF";
       }
       t.value = toXC(x + offsetX, y + offsetY);
     }

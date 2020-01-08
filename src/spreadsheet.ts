@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { Grid } from "./grid";
-import { GridModel } from "./grid_model";
+import { GridModel, GridData } from "./grid_model";
 import { ToolBar } from "./toolbar";
 import { useExternalListener } from "./helpers";
 
@@ -26,7 +26,10 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class Spreadsheet extends Component<any, any> {
+interface Props {
+  data: GridData;
+}
+export class Spreadsheet extends Component<any, Props> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { ToolBar, Grid };

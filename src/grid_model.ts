@@ -12,27 +12,92 @@ const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
 
 const fns = Object.fromEntries(Object.entries(functions).map(([k, v]) => [k, v.compute]));
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface Zone {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export interface Style {
+  bold?: boolean;
+  italic?: boolean;
+  strikethrough?: boolean;
+  align?: "left" | "right";
+}
+
+interface CellData {
+  content: string;
+  style?: number;
+}
+
+interface HeaderData {
+  size?: number;
+}
+
+export interface GridData {
+  colNumber: number;
+  rowNumber: number;
+  cells?: { [key: string]: CellData };
+  styles?: { [key: number]: Style };
+  merges?: string[];
+  cols?: { [key: number]: HeaderData };
+  rows?: { [key: number]: HeaderData };
+}
+
+export interface Cell extends CellData {
+  col: number;
+  row: number;
+  error?: boolean;
+  value: any;
+  formula?: any;
+  type: "formula" | "text" | "number";
+}
+
+export interface Row {
+  cells: { [col: number]: Cell };
+  bottom: number;
+  top: number;
+  name: string;
+  size: number;
+}
+
+export interface Col {
+  left: number;
+  right: number;
+  name: string;
+  size: number;
+}
+
+export interface Merge extends Zone {
+  id: number;
+  topLeft: string;
+}
+
+// ---------------------------------------------------------------------------
+// GridModel
+// ---------------------------------------------------------------------------
 export class GridModel extends owl.core.EventBus {
-  // ---------------------------------------------------------------------------
-  // Grid State
-  // ---------------------------------------------------------------------------
-
   // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
-  rows: any[] = [];
+  rows: Row[] = [];
   // each col is described by: { left: ..., right: ..., name: 'B', size: ... }
-  cols: any[] = [];
+  cols: Col[] = [];
 
-  cells: any = {};
+  cells: { [key: string]: Cell } = {};
 
-  styles: any = {};
+  styles: { [key: number]: Style } = {};
 
-  merges: any = {};
+  merges: { [key: number]: Merge } = {};
 
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
-  width = null;
-  height = null;
-  clientWidth = 0;
+  width: number = 0;
+  height: number = 0;
+  clientWidth: number = 0;
 
   // offset between the visible zone and the full zone (take into account
   // headers)
@@ -40,13 +105,13 @@ export class GridModel extends owl.core.EventBus {
   offsetY = 0;
 
   // coordinates of the visible and selected zone
-  viewport: any = {
-    top: null,
-    left: null,
-    bottom: null,
-    right: null
+  viewport: Zone = {
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0
   };
-  selection = {
+  selection: Zone = {
     top: 0,
     left: 0,
     bottom: 0,
@@ -63,35 +128,35 @@ export class GridModel extends owl.core.EventBus {
   };
   nextId = 1;
 
-  get selectedCell() {
+  get selectedCell(): Cell {
     return this.getCell(this.activeCol, this.activeRow);
   }
-  getCell(col, row) {
+  getCell(col: number, row: number): Cell {
     return this.rows[row].cells[col] || null;
   }
 
-  getStyle() {
+  getStyle(): Style {
     const cell = this.selectedCell;
     return cell && cell.style ? this.styles[cell.style] : {};
   }
   // ---------------------------------------------------------------------------
   // Constructor and private methods
   // ---------------------------------------------------------------------------
-  constructor(data) {
+  constructor(data: GridData) {
     super();
 
     // setting up rows and columns
     this.addRowsCols(data);
 
     // styles
-    this.styles = data.styles;
+    this.styles = data.styles || {};
     for (let k in this.styles) {
       this.nextId = Math.max(k as any, this.nextId);
     }
     this.nextId++;
 
     // merges
-    this.processMerges(data.merges);
+    this.processMerges(data.merges || []);
 
     // cells
     for (let xc in data.cells) {
@@ -100,10 +165,12 @@ export class GridModel extends owl.core.EventBus {
     this.evaluateCells();
   }
 
-  addRowsCols(data) {
+  addRowsCols(data: GridData) {
     let current = 0;
+    const rows = data.rows || {};
+    const cols = data.cols || {};
     for (let i = 0; i < data.rowNumber; i++) {
-      const size = data.rows[i] ? data.rows[i].size : DEFAULT_CELL_HEIGHT;
+      const size = rows[i] ? rows[i].size || 0 : DEFAULT_CELL_HEIGHT;
       const row = {
         top: current,
         bottom: current + size,
@@ -118,7 +185,7 @@ export class GridModel extends owl.core.EventBus {
 
     current = 0;
     for (let i = 0; i < data.colNumber; i++) {
-      const size = data.cols[i] ? data.cols[i].size : DEFAULT_CELL_WIDTH;
+      const size = cols[i] ? cols[i].size || 0 : DEFAULT_CELL_WIDTH;
       const col = {
         left: current,
         right: current + size,
@@ -131,7 +198,7 @@ export class GridModel extends owl.core.EventBus {
     this.width = this.cols[this.cols.length - 1].right + 10;
   }
 
-  addCell(xc, cell) {
+  addCell(xc: string, cell) {
     const [col, row] = toCartesian(xc);
     const currentCell = this.cells[xc] || {};
     cell = Object.assign(currentCell, { col: col, row: row, content: "" }, cell);
@@ -140,7 +207,7 @@ export class GridModel extends owl.core.EventBus {
     cell.error = false;
     if (cell.type === "formula") {
       try {
-        cell._formula = compileExpression(cell.content.slice(1));
+        cell.formula = compileExpression(cell.content.slice(1));
         cell.value = null;
       } catch (e) {
         cell.value = "#BAD_EXPR";
@@ -161,8 +228,8 @@ export class GridModel extends owl.core.EventBus {
     const visited = {};
     const functions = Object.assign({ range }, fns);
 
-    function computeValue(xc, cell) {
-      if (cell.type !== "formula" || !cell._formula) {
+    function computeValue(xc, cell: Cell) {
+      if (cell.type !== "formula" || !cell.formula) {
         return;
       }
       if (xc in visited) {
@@ -175,7 +242,7 @@ export class GridModel extends owl.core.EventBus {
       visited[xc] = null;
       try {
         // todo: move formatting in grid and formatters.js
-        cell.value = +cell._formula(getValue, functions).toFixed(4);
+        cell.value = +cell.formula(getValue, functions).toFixed(4);
         cell.error = false;
       } catch (e) {
         cell.value = cell.value || "#ERROR";
@@ -184,7 +251,7 @@ export class GridModel extends owl.core.EventBus {
       visited[xc] = true;
     }
 
-    function getValue(xc) {
+    function getValue(xc: string): any {
       const cell = cells[xc];
       if (!cell) {
         return 0;
@@ -196,7 +263,7 @@ export class GridModel extends owl.core.EventBus {
       return cells[xc].value;
     }
 
-    function range(v1, v2) {
+    function range(v1: string, v2: string): any[] {
       const [c1, r1] = toCartesian(v1);
       const [c2, r2] = toCartesian(v2);
       const result: any[] = [];
@@ -213,7 +280,7 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  processMerges(mergeList) {
+  processMerges(mergeList: string[]) {
     for (let m of mergeList) {
       let id = this.nextId++;
       const [tl, br] = m.split(":");
@@ -234,7 +301,7 @@ export class GridModel extends owl.core.EventBus {
   // Mutations
   // ---------------------------------------------------------------------------
 
-  updateVisibleZone(width, height, offsetX, offsetY) {
+  updateVisibleZone(width: number, height: number, offsetX: number, offsetY: number) {
     const { rows, cols, viewport } = this;
     this.clientWidth = width;
 
@@ -262,7 +329,7 @@ export class GridModel extends owl.core.EventBus {
     this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
 
-  selectCell(col, row) {
+  selectCell(col: number, row: number) {
     this.stopEditing();
     this.selection.left = col;
     this.selection.right = col;
@@ -294,7 +361,7 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  startEditing(str) {
+  startEditing(str?: string) {
     if (!str) {
       str = this.selectedCell ? this.selectedCell.content : "";
     }
@@ -426,6 +493,6 @@ export class GridModel extends owl.core.EventBus {
   }
 }
 
-function stringify(obj) {
+function stringify(obj): string {
   return JSON.stringify(obj, Object.keys(obj).sort());
 }

@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { GridModel } from "./grid_model";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -26,14 +27,14 @@ const CSS = css/* scss */ `
 export class Composer extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
-  model = this.props.model;
+  model: GridModel = this.props.model;
 
   mounted() {
     const el = this.el as HTMLInputElement;
     el.value = this.model.currentContent;
     const { cols, selection } = this.model;
     const col = cols[selection.left];
-    el.style.width = col.size + 1.5;
+    el.style.width = (col.size + 1.5) as any;
     el.style.width = Math.max(el.scrollWidth + 2, col.size + 1.5) as any;
     el.focus();
   }

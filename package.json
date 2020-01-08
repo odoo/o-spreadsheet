@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "live-server dist --open=demo",
-    "predev": "cpr demo dist/ -o",
+    "predev": "cpr demo dist/demo -o",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
     "build:js": "tsc --target esnext --module es6 --outDir dist/js --incremental",
     "build:bundle": "rollup -c",

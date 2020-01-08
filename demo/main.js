@@ -1,3 +1,4 @@
+owl.config.mode = "dev";
 
 const { whenReady } = owl.utils;
 const { Component } = owl;
