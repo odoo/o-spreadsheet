@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "live-server dist --open=demo",
-    "predev": "cpr demo dist/",
+    "predev": "cpr demo dist/ -o",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
     "build:js": "tsc --target esnext --module es6 --outDir dist/js --incremental",
     "build:bundle": "rollup -c",
@@ -67,7 +67,7 @@
       "node"
     ],
     "transformIgnorePatterns": [
-        "/node_modules/(?!@odoo).+\\.js$"
+      "/node_modules/(?!@odoo).+\\.js$"
     ]
   }
 }
