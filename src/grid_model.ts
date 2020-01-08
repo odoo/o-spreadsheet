@@ -429,4 +429,3 @@ export class GridModel extends owl.core.EventBus {
 function stringify(obj) {
   return JSON.stringify(obj, Object.keys(obj).sort());
 }
-

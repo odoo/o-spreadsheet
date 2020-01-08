@@ -78,7 +78,7 @@ function tokenizeSpace(chars): any {
   }
 
   if (length) {
-    return { type: "SPACE", value: undefined, length: length };
+    return { type: "SPACE", value: " ".repeat(length), length: length };
   }
 }
 
@@ -215,20 +215,21 @@ export function compileExpression(str) {
   return new Function("getValue", "fns", code.join("\n"));
 }
 
-
 // -----------------------------------------------------------------------------
-// COMPILER
+// Misc
 // -----------------------------------------------------------------------------
-export function applyOffset(formula, offsetX, offsetY) {
+export function applyOffset(formula: string, offsetX: number, offsetY: number): string {
   const prefix = formula.startsWith("=") ? "=" : "=?";
   let tokens = tokenize(formula.slice(prefix.length));
   tokens = tokens.map(t => {
     if (t.type === "VARIABLE") {
       const [x, y] = toCartesian(t.value);
+      if (x + offsetX < 0 || y + offsetY < 0) {
+        return '#REF';
+      }
       t.value = toXC(x + offsetX, y + offsetY);
     }
     return t.value;
   });
   return prefix + tokens.join("");
 }
- 
