@@ -10,6 +10,8 @@
     "build:js": "tsc --target esnext --module es6 --outDir dist/js --incremental",
     "build:bundle": "rollup -c",
     "build": "npm run build:js && npm run build:bundle",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts} --write"
   },
   "browserslist": [
@@ -23,19 +25,42 @@
   "author": "Gery Debongnie",
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
+    "@types/jest": "^24.0.25",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
+    "jest": "^24.9.0",
+    "jest-environment-jsdom": "^24.9.0",
     "live-server": "^1.2.1",
-    "typescript": "^3.7.4",
-    "rollup": "^1.28.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
-    "npm-run-all": "^4.1.5"
+    "rollup": "^1.28.0",
+    "ts-jest": "^24.3.0",
+    "git-rev-sync": "^2.0.0",
+    "typescript": "^3.7.4"
   },
   "prettier": {
     "printWidth": 100
   },
   "dependencies": {
-    "@odoo/owl": "^1.0.0-beta5",
-    "git-rev-sync": "^2.0.0"
+    "@odoo/owl": "^1.0.0-beta5"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "verbose": false,
+    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
