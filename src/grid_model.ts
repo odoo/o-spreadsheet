@@ -103,6 +103,8 @@ export class GridModel extends owl.core.EventBus {
   // headers)
   offsetX = 0;
   offsetY = 0;
+  scrollTop = 0;
+  scrollLeft = 0;
 
   // coordinates of the visible and selected zone
   viewport: Zone = {
@@ -301,30 +303,32 @@ export class GridModel extends owl.core.EventBus {
   // Mutations
   // ---------------------------------------------------------------------------
 
-  updateVisibleZone(width: number, height: number, offsetX: number, offsetY: number) {
+  updateVisibleZone(width: number, height: number, scrollLeft: number, scrollTop: number) {
     const { rows, cols, viewport } = this;
     this.clientWidth = width;
 
     viewport.bottom = rows.length - 1;
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i].top <= offsetY) {
+      if (rows[i].top <= scrollTop) {
         viewport.top = i;
       }
-      if (offsetY + height < rows[i].bottom) {
+      if (scrollTop + height < rows[i].bottom) {
         viewport.bottom = i;
         break;
       }
     }
     viewport.right = cols.length - 1;
     for (let i = 0; i < cols.length; i++) {
-      if (cols[i].left <= offsetX) {
+      if (cols[i].left <= scrollLeft) {
         viewport.left = i;
       }
-      if (offsetX + width < cols[i].right) {
+      if (scrollLeft + width < cols[i].right) {
         viewport.right = i;
         break;
       }
     }
+    this.scrollLeft = scrollLeft;
+    this.scrollTop = scrollTop;
     this.offsetX = cols[viewport.left].left - HEADER_WIDTH;
     this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }

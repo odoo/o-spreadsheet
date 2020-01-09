@@ -330,9 +330,9 @@ export class Grid extends Component<any, any> {
   updateVisibleZone() {
     const width = this.el!.clientWidth;
     const height = this.el!.clientHeight;
-    const offsetY = this.vScrollbar.el!.scrollTop;
-    const offsetX = this.hScrollbar.el!.scrollLeft;
-    this.model.updateVisibleZone(width, height, offsetX, offsetY);
+    const scrollTop = this.vScrollbar.el!.scrollTop;
+    const scrollLeft = this.hScrollbar.el!.scrollLeft;
+    this.model.updateVisibleZone(width, height, scrollLeft, scrollTop);
   }
   drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
