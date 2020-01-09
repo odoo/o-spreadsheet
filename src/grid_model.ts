@@ -301,6 +301,11 @@ export class GridModel extends owl.core.EventBus {
         bottom,
         topLeft: tl
       };
+      for (let row = top; row <= bottom; row++) {
+        for (let col = left; col <= right; col++) {
+          this.mergeCellMap[toXC(col, row)] = id;
+        }
+      }
     }
   }
 
@@ -340,10 +345,21 @@ export class GridModel extends owl.core.EventBus {
 
   selectCell(col: number, row: number) {
     this.stopEditing();
-    this.selection.left = col;
-    this.selection.right = col;
-    this.selection.top = row;
-    this.selection.bottom = row;
+    const xc = toXC(col, row);
+    if (xc in this.mergeCellMap) {
+      const merge = this.merges[this.mergeCellMap[xc]];
+      this.selection = {
+        left: merge.left,
+        right: merge.right,
+        top: merge.top,
+        bottom: merge.bottom
+      };
+    } else {
+      this.selection.left = col;
+      this.selection.right = col;
+      this.selection.top = row;
+      this.selection.bottom = row;
+    }
     this.activeCol = col;
     this.activeRow = row;
     this.trigger("update");
