@@ -5,6 +5,9 @@ Spreadsheet component.
 ## Scripts
 
 ```bash
+# install dependencies
+npm install
+
 # build o_spreadsheet.js in dist/
 npm run build
 
