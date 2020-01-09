@@ -199,7 +199,9 @@ function drawSelectionBackground() {
   const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
   const height = rows[bottom].bottom - offsetY - y;
   if (width > 0 && height > 0) {
+    ctx.globalCompositeOperation = "multiply";
     ctx.fillRect(x, y, width, height);
+    ctx.globalCompositeOperation = "source-over";
   }
 }
 
