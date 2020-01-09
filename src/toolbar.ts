@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { useExternalListener } from "./helpers";
+import { GridModel } from "./grid_model";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
@@ -55,7 +56,7 @@ export class ToolBar extends Component<any, any> {
         <div class="o-divider"/>
         <div class="o-tool" title="Fill Color">${FILL_COLOR_ICON}</div>
         <div class="o-tool" title="Borders">${BORDERS_ICON}</div>
-        <div class="o-tool o-disabled" title="Merge Cells">${MERGE_CELL_ICON}</div>
+        <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${MERGE_CELL_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool o-dropdown" title="Horizontal align">
           <span t-on-click.stop="state.alignTool=!state.alignTool">
@@ -151,11 +152,13 @@ export class ToolBar extends Component<any, any> {
     }
   `;
 
-  model = this.props.model;
+  model: GridModel = this.props.model;
   style = {};
   state = useState({
     alignTool: false
   });
+  inMerge = false;
+  cannotMerge = false;
 
   constructor() {
     super(...arguments);
@@ -163,10 +166,10 @@ export class ToolBar extends Component<any, any> {
   }
 
   async willStart() {
-    this.style = this.model.getStyle();
+    this.updateCellState();
   }
   async willUpdateProps() {
-    this.style = this.model.getStyle();
+    this.updateCellState();
   }
 
   toggleTool(tool) {
@@ -179,5 +182,20 @@ export class ToolBar extends Component<any, any> {
 
   closeMenus() {
     this.state.alignTool = false;
+  }
+
+  updateCellState() {
+    this.style = this.model.getStyle();
+    this.inMerge = !!this.model.mergeCellMap[this.model.activeXc];
+    const {top, left, right, bottom} = this.model.selection;
+    this.cannotMerge = (top === bottom) && (left === right);
+  }
+
+  toggleMerge() {
+    if (this.inMerge) {
+      this.model.unmergeSelection();
+    } else {
+      this.model.mergeSelection();
+    }
   }
 }

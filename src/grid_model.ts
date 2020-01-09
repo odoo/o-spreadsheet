@@ -133,6 +133,7 @@ export class GridModel extends owl.core.EventBus {
   };
   activeCol = 0;
   activeRow = 0;
+  activeXc = "A1";
 
   isEditing = false;
   currentContent = "";
@@ -172,7 +173,11 @@ export class GridModel extends owl.core.EventBus {
     this.nextId++;
 
     // merges
-    this.processMerges(data.merges || []);
+    if (data.merges) {
+      for (let m of data.merges) {
+        this.addMerge(m);
+      }
+    }
 
     // cells
     for (let xc in data.cells) {
@@ -296,36 +301,42 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  processMerges(mergeList: string[]) {
-    for (let m of mergeList) {
-      let id = this.nextId++;
-      const [tl, br] = m.split(":");
-      const [left, top] = toCartesian(tl);
-      const [right, bottom] = toCartesian(br);
-      this.merges[id] = {
-        id,
-        left,
-        top,
-        right,
-        bottom,
-        topLeft: tl
-      };
-      for (let row = top; row <= bottom; row++) {
-        for (let col = left; col <= right; col++) {
-          this.mergeCellMap[toXC(col, row)] = id;
+  addMerge(m: string) {
+    let id = this.nextId++;
+    const [tl, br] = m.split(":");
+    const [left, top] = toCartesian(tl);
+    const [right, bottom] = toCartesian(br);
+    this.merges[id] = {
+      id,
+      left,
+      top,
+      right,
+      bottom,
+      topLeft: tl
+    };
+    for (let row = top; row <= bottom; row++) {
+      for (let col = left; col <= right; col++) {
+        const xc = toXC(col, row);
+        if (col !== left || row !== top) {
+          this.deleteCell(xc);
         }
+        this.mergeCellMap[xc] = id;
       }
     }
   }
-
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
 
+  /**
+   * Delete a cell.  This method does not trigger an update!
+   */
   deleteCell(xc: string) {
     const cell = this.cells[xc];
-    delete this.cells[xc];
-    delete this.rows[cell.row].cells[cell.col];
+    if (cell) {
+      delete this.cells[xc];
+      delete this.rows[cell.row].cells[cell.col];
+    }
   }
 
   updateVisibleZone(width: number, height: number, scrollLeft: number, scrollTop: number) {
@@ -377,6 +388,7 @@ export class GridModel extends owl.core.EventBus {
     }
     this.activeCol = col;
     this.activeRow = row;
+    this.activeXc = xc;
     this.trigger("update");
   }
 
@@ -546,6 +558,18 @@ export class GridModel extends owl.core.EventBus {
     this.styles[id] = style;
     return id;
   }
+
+  mergeSelection() {
+    const { left, right, top, bottom } = this.selection;
+    let tl = toXC(left, top);
+    let br = toXC(right, bottom);
+    if (tl !== br) {
+      this.addMerge(`${tl}:${br}`);
+      this.trigger("update");
+    }
+  }
+
+  unmergeSelection() {}
 }
 
 function stringify(obj): string {
