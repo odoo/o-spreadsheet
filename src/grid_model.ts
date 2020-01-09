@@ -274,7 +274,7 @@ export class GridModel extends owl.core.EventBus {
 
     function getValue(xc: string): any {
       const cell = cells[xc];
-      if (!cell) {
+      if (!cell || cell.content === "") {
         return 0;
       }
       computeValue(xc, cell);
