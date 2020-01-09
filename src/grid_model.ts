@@ -313,6 +313,12 @@ export class GridModel extends owl.core.EventBus {
   // Mutations
   // ---------------------------------------------------------------------------
 
+  deleteCell(xc: string) {
+    const cell = this.cells[xc];
+    delete this.cells[xc];
+    delete this.rows[cell.row].cells[cell.col];
+  }
+
   updateVisibleZone(width: number, height: number, scrollLeft: number, scrollTop: number) {
     const { rows, cols, viewport } = this;
     this.clientWidth = width;
@@ -415,8 +421,7 @@ export class GridModel extends owl.core.EventBus {
       for (let j = this.selection.top; j <= this.selection.bottom; j++) {
         const xc = toXC(i, j);
         if (xc in this.cells) {
-          delete this.cells[xc];
-          delete this.rows[j].cells[i];
+          this.deleteCell(xc);
         }
       }
     }
@@ -433,7 +438,7 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  copySelection() {
+  copySelection(cut: boolean = false) {
     let { left, right, top, bottom } = this.selection;
     const cells: (Cell | null)[][] = [];
     for (let i = left; i <= right; i++) {
@@ -442,12 +447,18 @@ export class GridModel extends owl.core.EventBus {
       for (let j = top; j <= bottom; j++) {
         const cell = this.getCell(i, j);
         vals.push(cell ? Object.assign({}, cell) : null);
+        if (cut) {
+          this.deleteCell(toXC(i, j));
+        }
       }
     }
     this.clipBoard = {
       zone: { left, right, top, bottom },
       cells
     };
+    if (cut) {
+      this.trigger("update");
+    }
   }
   pasteSelection() {
     const { zone, cells } = this.clipBoard;
