@@ -1,5 +1,5 @@
-import {HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone} from "./grid_model.js";
-import {toXC} from "./helpers.js";
+import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone } from "./grid_model.js";
+import { toXC } from "./helpers.js";
 
 // Global variables
 
@@ -20,8 +20,8 @@ function thinLineWidth() {
 }
 
 function drawHeader() {
-  const {cols, rows, selection} = model;
-  const {top, left, bottom, right} = viewport;
+  const { cols, rows, selection } = model;
+  const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
   ctx.font = "400 12px Source Sans Pro";
@@ -77,8 +77,8 @@ function hLine(ctx, y, width) {
 }
 
 function drawBackgroundGrid() {
-  const {cols, rows} = model;
-  const {top, left, bottom, right} = viewport;
+  const { cols, rows } = model;
+  const { top, left, bottom, right } = viewport;
 
   ctx.lineWidth = thinLineWidth();
   ctx.strokeStyle = "#AAA";
@@ -96,8 +96,8 @@ function drawBackgroundGrid() {
 }
 
 function drawCells() {
-  const {rows, cols, cells} = model;
-  const {right, left, top, bottom} = viewport;
+  const { rows, cols, cells } = model;
+  const { right, left, top, bottom } = viewport;
   ctx.fillStyle = "#000";
   const styles = model.styles;
 
@@ -170,7 +170,7 @@ function overlap(r1, r2) {
 }
 
 function drawMerges() {
-  const {merges, cols, rows} = model;
+  const { merges, cols, rows } = model;
   const hl = 0.8 * thinLineWidth();
   ctx.strokeStyle = "#777";
   ctx.fillStyle = "white";
@@ -191,8 +191,8 @@ function drawMerges() {
 }
 
 function drawSelectionBackground() {
-  const {cols, rows, selection} = model;
-  const {left, top, right, bottom} = selection;
+  const { cols, rows, selection } = model;
+  const { left, top, right, bottom } = selection;
   ctx.fillStyle = "#f2f6fe";
   const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
   const width = cols[right].right - offsetX - x;
@@ -206,12 +206,12 @@ function drawSelectionBackground() {
 }
 
 function drawSelectionOutline() {
-  drawOutline(model.selection)
+  drawOutline(model.selection);
 }
 
 function drawOutline(zone: Zone, color: string = "#3266ca") {
-  const {cols, rows} = model;
-  const {left, top, right, bottom} = zone;
+  const { cols, rows } = model;
+  const { left, top, right, bottom } = zone;
   const lw = thinLineWidth();
   ctx.lineWidth = 3 * lw;
   ctx.strokeStyle = color;
@@ -248,5 +248,4 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   drawSelectionOutline();
   drawHeader();
   drawHighlights();
-
 }

@@ -1,19 +1,19 @@
 import * as owl from "@odoo/owl";
-import {GridModel, Highlight} from "./grid_model";
-import {tokenize} from "./expressions";
-import {toCartesian} from "./helpers";
+import { GridModel, Highlight } from "./grid_model";
+import { tokenize } from "./expressions";
+import { toCartesian } from "./helpers";
 
-const {Component} = owl;
-const {xml, css} = owl.tags;
+const { Component } = owl;
+const { xml, css } = owl.tags;
 
-const TEMPLATE = xml/* xml */`
+const TEMPLATE = xml/* xml */ `
     <input class="o-composer" t-att-style="style"
       t-on-input="onInput"
       t-on-keydown="onKeydown" 
       t-on-click="onClick"/>
   `;
 
-const CSS = css/* scss */`
+const CSS = css/* scss */ `
   .o-composer {
     position: absolute;
     border: 1.2px solid #4b89ff;
@@ -35,11 +35,10 @@ export class Composer extends Component<any, any> {
   mounted() {
     const el = this.el as HTMLInputElement;
     el.value = this.model.currentContent;
-    const {cols, selection} = this.model;
+    const { cols, selection } = this.model;
     const col = cols[selection.left];
     el.style.width = (col.size + 1.5) as any;
     el.style.width = Math.max(el.scrollWidth + 2, col.size + 1.5) as any;
-
 
     this.addHighlights();
 
@@ -51,12 +50,12 @@ export class Composer extends Component<any, any> {
   }
 
   get style() {
-    const {cols, selection, rows, offsetX, offsetY} = this.model;
+    const { cols, selection, rows, offsetX, offsetY } = this.model;
     const col = cols[selection.left];
     const row = rows[selection.top];
     const top = row.top - offsetY - 1;
     const height = row.size + 2;
-    const cell = this.model.selectedCell || {type: "text"};
+    const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
@@ -94,13 +93,14 @@ export class Composer extends Component<any, any> {
 
   onClick(ev: MouseEvent) {
     const el = this.el as HTMLInputElement;
-    if (el.value.startsWith('=')) {
+    if (el.value.startsWith("=")) {
       const tokens = tokenize(el.value.substr(1));
 
-      if (el.selectionStart && el.selectionStart === el.selectionEnd) { // there is no selection
-        let found = tokens.find((t) => t.type === "VARIABLE" &&
-          t.start <= el.selectionStart!
-          && t.end >= el.selectionEnd!);
+      if (el.selectionStart && el.selectionStart === el.selectionEnd) {
+        // there is no selection
+        let found = tokens.find(
+          t => t.type === "VARIABLE" && t.start <= el.selectionStart! && t.end >= el.selectionEnd!
+        );
         if (found) {
           el.setSelectionRange(found.start, found.end, "forward");
         }
@@ -111,14 +111,15 @@ export class Composer extends Component<any, any> {
   addHighlights() {
     const el = this.el as HTMLInputElement;
 
-    if (el.value.startsWith('=')) {
+    if (el.value.startsWith("=")) {
       const tokens = tokenize(el.value.substr(1));
 
-      if (el.selectionStart && el.selectionStart === el.selectionEnd) { // there is no selection
-        let variables = tokens.filter((t) => t.type === "VARIABLE");
+      if (el.selectionStart && el.selectionStart === el.selectionEnd) {
+        // there is no selection
+        let variables = tokens.filter(t => t.type === "VARIABLE");
         if (variables) {
           let hightlights = variables.map(v => {
-            const ranges = v.value.split(':');
+            const ranges = v.value.split(":");
             let top, bottom, left, right;
             if (ranges.length === 1) {
               let c = toCartesian(v.value);
@@ -127,9 +128,9 @@ export class Composer extends Component<any, any> {
             }
 
             return {
-              zone: {top, bottom, left, right},
+              zone: { top, bottom, left, right },
               color: "pink"
-            }
+            };
           });
 
           this.model.addHighlights(hightlights);

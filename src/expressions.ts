@@ -8,14 +8,14 @@ const OPERATORS = "+,-,*,/,:".split(",");
 const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
 interface token {
-  start:number,
-  end: number,
-  length: number,
-  type: "OPERATOR" | "NUMBER" |  "FUNCTION" | "VARIABLE" | "SPACE",
-  value: any
+  start: number;
+  end: number;
+  length: number;
+  type: "OPERATOR" | "NUMBER" | "FUNCTION" | "VARIABLE" | "SPACE";
+  value: any;
 }
 
-export function tokenize(str: string) : token[] {
+export function tokenize(str: string): token[] {
   const chars = str.toUpperCase().split("");
   const result: any[] = [];
   let i = 1;
