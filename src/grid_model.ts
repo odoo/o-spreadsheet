@@ -380,7 +380,7 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  moveSelection(deltaX, deltaY, withShift = false) {
+  moveSelection(deltaX: number, deltaY: number, withShift = false) {
     const { activeCol, activeRow, selection } = this;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
       return;
@@ -448,7 +448,7 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  updateSelection(col, row) {
+  updateSelection(col: number, row: number) {
     const { activeCol, activeRow } = this;
     this.selection.left = Math.min(activeCol, col);
     this.selection.top = Math.min(activeRow, row);
@@ -521,7 +521,7 @@ export class GridModel extends owl.core.EventBus {
     this.trigger("update");
   }
 
-  setStyleToCell(col, row, style) {
+  setStyleToCell(col: number, row: number, style) {
     const xc = toXC(col, row);
     const cell = this.getCell(col, row);
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};

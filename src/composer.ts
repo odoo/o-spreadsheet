@@ -118,7 +118,7 @@ export class Composer extends Component<any, any> {
         // there is no selection
         let variables = tokens.filter(t => t.type === "VARIABLE");
         if (variables) {
-          let hightlights = variables.map(v => {
+          let hightlights: Highlight[] = variables.map(v => {
             const ranges = v.value.split(":");
             let top, bottom, left, right;
             if (ranges.length === 1) {

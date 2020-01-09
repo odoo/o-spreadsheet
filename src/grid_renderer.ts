@@ -225,9 +225,9 @@ function drawOutline(zone: Zone, color: string = "#3266ca") {
 }
 
 function drawHighlights() {
-  model.highlights.forEach(h => {
-    drawOutline(h.zone, h.color);
-  });
+  for (let h of model.highlights) {
+    drawOutline(h.zone, h.color!);
+  }
 }
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
