@@ -42,7 +42,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@odoo/owl": "^1.0.0-beta5"
+    "@odoo/owl": "^1.0.2"
   },
   "jest": {
     "roots": [
@@ -61,9 +61,6 @@
       "jsx",
       "json",
       "node"
-    ],
-    "moduleNameMapper": {
-      "owl": "<rootDir>/demo/owl.js"
-    }
+    ]
   }
 }
