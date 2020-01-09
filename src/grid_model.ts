@@ -52,6 +52,7 @@ export interface GridData {
 export interface Cell extends CellData {
   col: number;
   row: number;
+  xc: string;
   error?: boolean;
   value: any;
   formula?: any;
@@ -92,6 +93,7 @@ export class GridModel extends owl.core.EventBus {
   styles: { [key: number]: Style } = {};
 
   merges: { [key: number]: Merge } = {};
+  mergeCellMap: { [key: string]: number } = {};
 
   // width and height of the sheet zone (not just the visible part, and excluding
   // the row and col headers)
@@ -200,26 +202,26 @@ export class GridModel extends owl.core.EventBus {
     this.width = this.cols[this.cols.length - 1].right + 10;
   }
 
-  addCell(xc: string, cell) {
+  addCell(xc: string, data: CellData) {
     const [col, row] = toCartesian(xc);
-    const currentCell = this.cells[xc] || {};
-    cell = Object.assign(currentCell, { col: col, row: row, content: "" }, cell);
-    const content = cell.content;
-    cell.type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
-    cell.error = false;
+    const currentCell = this.cells[xc];
+    const content = data.content;
+    const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
+    const value =
+      type === "text" ? content : type === "number" ? +parseFloat(data.content).toFixed(4) : null;
+    const cell: Cell = { col, row, xc, content, value, type };
+    const style = data.style || (currentCell && currentCell.style);
+    if (style) {
+      cell.style = style;
+    }
     if (cell.type === "formula") {
+      cell.error = false;
       try {
-        cell.formula = compileExpression(cell.content.slice(1));
-        cell.value = null;
+        cell.formula = compileExpression(content.slice(1));
       } catch (e) {
         cell.value = "#BAD_EXPR";
         cell.error = true;
       }
-    } else if (cell.type === "text") {
-      cell.value = cell.content;
-    } else if (cell.type === "number") {
-      // todo: move formatting in grid and formatters.js
-      cell.value = +parseFloat(cell.content).toFixed(4);
     }
     this.cells[xc] = cell;
     this.rows[row].cells[col] = cell;
@@ -479,7 +481,7 @@ export class GridModel extends owl.core.EventBus {
     if (cell) {
       cell.style = id;
     } else {
-      this.addCell(xc, { style: id });
+      this.addCell(xc, { style: id, content: "" });
     }
     this.trigger("update");
   }
