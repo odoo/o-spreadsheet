@@ -79,6 +79,11 @@ export interface Merge extends Zone {
   topLeft: string;
 }
 
+export interface ClipBoard {
+  zone?: Zone;
+  cells?: (Cell | null)[][];
+}
+
 // ---------------------------------------------------------------------------
 // GridModel
 // ---------------------------------------------------------------------------
@@ -127,9 +132,7 @@ export class GridModel extends owl.core.EventBus {
   isEditing = false;
   currentContent = "";
 
-  clipBoard: any = {
-    type: "empty"
-  };
+  clipBoard: ClipBoard = {};
   nextId = 1;
 
   get selectedCell(): Cell {
@@ -416,43 +419,41 @@ export class GridModel extends owl.core.EventBus {
 
   copySelection() {
     let { left, right, top, bottom } = this.selection;
-    this.clipBoard = {
-      type: "copy",
-      left,
-      right,
-      top,
-      bottom,
-      cells: []
-    };
+    const cells: (Cell | null)[][] = [];
     for (let i = left; i <= right; i++) {
-      const vals: any[] = [];
-      this.clipBoard.cells.push(vals);
+      const vals: (Cell | null)[] = [];
+      cells.push(vals);
       for (let j = top; j <= bottom; j++) {
         const cell = this.getCell(i, j);
         vals.push(cell ? Object.assign({}, cell) : null);
       }
     }
+    this.clipBoard = {
+      zone: { left, right, top, bottom },
+      cells
+    };
   }
   pasteSelection() {
-    if (this.clipBoard.type === "empty") {
+    const { zone, cells } = this.clipBoard;
+    if (!zone || !cells) {
       return;
     }
     let col = this.selection.left;
     let row = this.selection.top;
-    let { left, right, top, bottom } = this.clipBoard;
+    let { left, right, top, bottom } = zone;
     const offsetX = col - left;
     const offsetY = row - top;
     for (let i = 0; i <= right - left; i++) {
       for (let j = 0; j <= bottom - top; j++) {
         const xc = toXC(col + i, row + j);
-        const originCell = this.clipBoard.cells[i][j];
+        const originCell = cells[i][j];
         const targetCell = this.getCell(col + i, row + j);
         if (originCell) {
           let content = originCell.content;
           if (originCell.type === "formula") {
             content = applyOffset(content, offsetX, offsetY);
           }
-          this.addCell(xc, { content });
+          this.addCell(xc, { content, style: originCell.style });
         }
         if (!originCell && targetCell) {
           this.addCell(xc, { content: "" });

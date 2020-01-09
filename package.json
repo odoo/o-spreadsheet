@@ -12,7 +12,7 @@
     "build": "npm run build:js && npm run build:bundle",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier {src/*.ts,src/**/*.ts} --write"
+    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts} --write"
   },
   "browserslist": [
     "last 1 Chrome versions"

@@ -1,19 +1,18 @@
 import { tokenize, applyOffset } from "../src/expressions";
 
-
 describe("tokenizer", () => {
   test("simple token", () => {
-    expect(tokenize("1")).toEqual([{
+    expect(tokenize("1")).toEqual([
+      {
         start: 0,
         end: 1,
         length: 1,
         type: "NUMBER",
         value: 1
-    }]);
+      }
+    ]);
   });
-
 });
-
 
 describe("applyOffset", () => {
   test("simple changes", () => {
@@ -24,6 +23,4 @@ describe("applyOffset", () => {
   test("can handle negative/invalid offsets", () => {
     expect(applyOffset("=B2", 0, -4)).toEqual("=#REF");
   });
-
 });
-
