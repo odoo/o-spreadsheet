@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 
-import { HEADER_WIDTH, HEADER_HEIGHT, GridModel } from "./grid_model.js";
-import { Composer } from "./composer.js";
+import { HEADER_WIDTH, HEADER_HEIGHT, GridModel } from "./grid_model";
+import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 
 const { Component } = owl;

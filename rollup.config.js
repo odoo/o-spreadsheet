@@ -11,6 +11,5 @@ export default {
     extend: true,
     globals: {"@odoo/owl": "owl"},
 
-    outro: `exports.__info__.version = '${version}';\nexports.__info__.date = '${new Date().toISOString()}';\nexports.__info__.hash = '${git.short()}';\nexports.__info__.url = 'https://github.com/odoo/owl';`
   }
 };

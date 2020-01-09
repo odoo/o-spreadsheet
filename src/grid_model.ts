@@ -1,6 +1,6 @@
-import { numberToLetters, toCartesian, toXC } from "./helpers";
-import { compileExpression, applyOffset } from "./expressions";
-import { functions } from "./functions";
+import {numberToLetters, toCartesian, toXC} from "./helpers";
+import {compileExpression, applyOffset} from "./expressions";
+import {functions} from "./functions";
 import * as owl from "@odoo/owl";
 
 const DEFAULT_CELL_WIDTH = 96;
@@ -84,6 +84,11 @@ export interface ClipBoard {
   cells?: (Cell | null)[][];
 }
 
+export interface Highlight {
+  zone: Zone;
+  color: string | null;
+}
+
 // ---------------------------------------------------------------------------
 // GridModel
 // ---------------------------------------------------------------------------
@@ -135,9 +140,12 @@ export class GridModel extends owl.core.EventBus {
   clipBoard: ClipBoard = {};
   nextId = 1;
 
+  highlights: Highlight [] = [];
+
   get selectedCell(): Cell {
     return this.getCell(this.activeCol, this.activeRow);
   }
+
   getCell(col: number, row: number): Cell {
     return this.rows[row].cells[col] || null;
   }
@@ -146,6 +154,7 @@ export class GridModel extends owl.core.EventBus {
     const cell = this.selectedCell;
     return cell && cell.style ? this.styles[cell.style] : {};
   }
+
   // ---------------------------------------------------------------------------
   // Constructor and private methods
   // ---------------------------------------------------------------------------
@@ -212,7 +221,7 @@ export class GridModel extends owl.core.EventBus {
     const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
     const value =
       type === "text" ? content : type === "number" ? +parseFloat(data.content).toFixed(4) : null;
-    const cell: Cell = { col, row, xc, content, value, type };
+    const cell: Cell = {col, row, xc, content, value, type};
     const style = data.style || (currentCell && currentCell.style);
     if (style) {
       cell.style = style;
@@ -233,7 +242,7 @@ export class GridModel extends owl.core.EventBus {
   evaluateCells() {
     const cells = this.cells;
     const visited = {};
-    const functions = Object.assign({ range }, fns);
+    const functions = Object.assign({range}, fns);
 
     function computeValue(xc, cell: Cell) {
       if (cell.type !== "formula" || !cell.formula) {
@@ -320,7 +329,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   updateVisibleZone(width: number, height: number, scrollLeft: number, scrollTop: number) {
-    const { rows, cols, viewport } = this;
+    const {rows, cols, viewport} = this;
     this.clientWidth = width;
 
     viewport.bottom = rows.length - 1;
@@ -372,12 +381,12 @@ export class GridModel extends owl.core.EventBus {
   }
 
   moveSelection(deltaX, deltaY, withShift = false) {
-    const { activeCol, activeRow, selection } = this;
+    const {activeCol, activeRow, selection} = this;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
       return;
     }
     if (withShift) {
-      const { left, right, top, bottom } = selection;
+      const {left, right, top, bottom} = selection;
       this.selection.left =
         left < activeCol || (left === right && deltaX < 0) ? left + deltaX : activeCol;
       this.selection.right =
@@ -398,9 +407,20 @@ export class GridModel extends owl.core.EventBus {
     }
     this.isEditing = true;
     this.currentContent = str;
+    this.highlights = [];
     this.trigger("update");
   }
 
+  addHighlights(highlights: Highlight[]) {
+    this.highlights = this.highlights.concat(highlights);
+    this.trigger("update");
+  }
+
+  removeAllHighlights() {
+    this.highlights = [];
+    this.trigger("update");
+
+  }
   cancelEdition() {
     this.isEditing = false;
     this.trigger("update");
@@ -409,7 +429,7 @@ export class GridModel extends owl.core.EventBus {
   stopEditing() {
     if (this.isEditing) {
       const xc = toXC(this.selection.left, this.selection.top);
-      this.addCell(xc, { content: this.currentContent });
+      this.addCell(xc, {content: this.currentContent});
       this.evaluateCells();
       this.currentContent = "";
       this.isEditing = false;
@@ -430,7 +450,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   updateSelection(col, row) {
-    const { activeCol, activeRow } = this;
+    const {activeCol, activeRow} = this;
     this.selection.left = Math.min(activeCol, col);
     this.selection.top = Math.min(activeRow, row);
     this.selection.right = Math.max(activeCol, col);
@@ -453,21 +473,22 @@ export class GridModel extends owl.core.EventBus {
       }
     }
     this.clipBoard = {
-      zone: { left, right, top, bottom },
+      zone: {left, right, top, bottom},
       cells
     };
     if (cut) {
       this.trigger("update");
     }
   }
+
   pasteSelection() {
-    const { zone, cells } = this.clipBoard;
+    const {zone, cells} = this.clipBoard;
     if (!zone || !cells) {
       return;
     }
     let col = this.selection.left;
     let row = this.selection.top;
-    let { left, right, top, bottom } = zone;
+    let {left, right, top, bottom} = zone;
     const offsetX = col - left;
     const offsetY = row - top;
     for (let i = 0; i <= right - left; i++) {
@@ -480,10 +501,10 @@ export class GridModel extends owl.core.EventBus {
           if (originCell.type === "formula") {
             content = applyOffset(content, offsetX, offsetY);
           }
-          this.addCell(xc, { content, style: originCell.style });
+          this.addCell(xc, {content, style: originCell.style});
         }
         if (!originCell && targetCell) {
-          this.addCell(xc, { content: "" });
+          this.addCell(xc, {content: ""});
         }
       }
     }
@@ -500,6 +521,7 @@ export class GridModel extends owl.core.EventBus {
     }
     this.trigger("update");
   }
+
   setStyleToCell(col, row, style) {
     const xc = toXC(col, row);
     const cell = this.getCell(col, row);
@@ -509,7 +531,7 @@ export class GridModel extends owl.core.EventBus {
     if (cell) {
       cell.style = id;
     } else {
-      this.addCell(xc, { style: id, content: "" });
+      this.addCell(xc, {style: id, content: ""});
     }
     this.trigger("update");
   }

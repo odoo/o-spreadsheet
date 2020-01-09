@@ -7,10 +7,18 @@ import { toCartesian, toXC } from "./helpers";
 const OPERATORS = "+,-,*,/,:".split(",");
 const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
-export function tokenize(str) {
+interface token {
+  start:number,
+  end: number,
+  length: number,
+  type: "OPERATOR" | "NUMBER" |  "FUNCTION" | "VARIABLE" | "SPACE",
+  value: any
+}
+
+export function tokenize(str: string) : token[] {
   const chars = str.toUpperCase().split("");
   const result: any[] = [];
-  let i = 0;
+  let i = 1;
   while (chars.length) {
     let token =
       tokenizeSpace(chars) ||
