@@ -193,7 +193,7 @@ function drawMerges() {
 function drawSelectionBackground() {
   const { cols, rows, selection } = model;
   const { left, top, right, bottom } = selection;
-  ctx.fillStyle = "#f2f6fe";
+  ctx.fillStyle = "#f3f7fe";
   const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
   const width = cols[right].right - offsetX - x;
   const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
