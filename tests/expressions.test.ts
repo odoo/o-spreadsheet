@@ -31,7 +31,7 @@ describe("tokenizer", () => {
     ]);
   });
   test("debug formula token", () => {
-    expect(tokenize("=1")).toEqual([
+    expect(tokenize("=?1")).toEqual([
       {
         start: 0,
         end: 1,
@@ -42,6 +42,13 @@ describe("tokenizer", () => {
       {
         start: 1,
         end: 2,
+        length: 1,
+        type: "DEBUGGER",
+        value: "?"
+      },
+      {
+        start: 2,
+        end: 3,
         length: 1,
         type: "NUMBER",
         value: 1
