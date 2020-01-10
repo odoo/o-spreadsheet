@@ -143,6 +143,8 @@ export class GridModel extends owl.core.EventBus {
 
   highlights: Highlight[] = [];
 
+  isSilent: boolean = true;
+
   get selectedCell(): Cell {
     return this.getCell(this.activeCol, this.activeRow);
   }
@@ -184,6 +186,8 @@ export class GridModel extends owl.core.EventBus {
       this.addCell(xc, data.cells[xc]);
     }
     this.evaluateCells();
+    this.selectCell(0, 0);
+    this.isSilent = false;
   }
 
   addRowsCols(data: GridData) {
@@ -324,6 +328,12 @@ export class GridModel extends owl.core.EventBus {
       }
     }
   }
+
+  notify() {
+    if (!this.isSilent) {
+      this.trigger("update");
+    }
+  }
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
@@ -389,7 +399,7 @@ export class GridModel extends owl.core.EventBus {
     this.activeCol = col;
     this.activeRow = row;
     this.activeXc = xc;
-    this.trigger("update");
+    this.notify();
   }
 
   moveSelection(deltaX: number, deltaY: number, withShift = false) {
@@ -407,7 +417,7 @@ export class GridModel extends owl.core.EventBus {
         top < activeRow || (top === bottom && deltaY < 0) ? top + deltaY : activeRow;
       this.selection.bottom =
         bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
-      this.trigger("update");
+      this.notify();
     } else {
       let mergeId = this.mergeCellMap[this.activeXc];
       if (mergeId) {
@@ -433,21 +443,21 @@ export class GridModel extends owl.core.EventBus {
     this.isEditing = true;
     this.currentContent = str;
     this.highlights = [];
-    this.trigger("update");
+    this.notify();
   }
 
   addHighlights(highlights: Highlight[]) {
     this.highlights = this.highlights.concat(highlights);
-    this.trigger("update");
+    this.notify();
   }
 
   removeAllHighlights() {
     this.highlights = [];
-    this.trigger("update");
+    this.notify();
   }
   cancelEdition() {
     this.isEditing = false;
-    this.trigger("update");
+    this.notify();
   }
 
   stopEditing() {
@@ -470,7 +480,7 @@ export class GridModel extends owl.core.EventBus {
       }
     }
     this.evaluateCells();
-    this.trigger("update");
+    this.notify();
   }
 
   updateSelection(col: number, row: number) {
@@ -479,7 +489,7 @@ export class GridModel extends owl.core.EventBus {
     this.selection.top = Math.min(activeRow, row);
     this.selection.right = Math.max(activeCol, col);
     this.selection.bottom = Math.max(activeRow, row);
-    this.trigger("update");
+    this.notify();
   }
 
   copySelection(cut: boolean = false) {
@@ -501,7 +511,7 @@ export class GridModel extends owl.core.EventBus {
       cells
     };
     if (cut) {
-      this.trigger("update");
+      this.notify();
     }
   }
 
@@ -534,7 +544,7 @@ export class GridModel extends owl.core.EventBus {
     }
 
     this.evaluateCells();
-    this.trigger("update");
+    this.notify();
   }
 
   setStyle(style) {
@@ -543,7 +553,7 @@ export class GridModel extends owl.core.EventBus {
         this.setStyleToCell(col, row, style);
       }
     }
-    this.trigger("update");
+    this.notify();
   }
 
   setStyleToCell(col: number, row: number, style) {
@@ -557,7 +567,7 @@ export class GridModel extends owl.core.EventBus {
     } else {
       this.addCell(xc, { style: id, content: "" });
     }
-    this.trigger("update");
+    this.notify();
   }
 
   registerStyle(style) {
@@ -578,7 +588,7 @@ export class GridModel extends owl.core.EventBus {
     let br = toXC(right, bottom);
     if (tl !== br) {
       this.addMerge(`${tl}:${br}`);
-      this.trigger("update");
+      this.notify();
     }
   }
 
@@ -592,7 +602,7 @@ export class GridModel extends owl.core.EventBus {
         delete this.mergeCellMap[xc];
       }
     }
-    this.trigger("update");
+    this.notify();
   }
 }
 

@@ -75,4 +75,13 @@ describe("merges", () => {
     expect(Object.keys(model.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.merges)).toEqual([]);
   });
+
+  test("if A1 is in a merge, it is initially properly selected", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10,
+      merges: ["A1:B3"]
+    });
+    expect(model.selection).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
+  });
 });
