@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
-import { GridModel } from "./grid_model";
+import { GridModel, Highlight } from "./grid_model";
 import { tokenize } from "./expressions";
+import { toCartesian } from "./helpers";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -57,10 +58,9 @@ export class Composer extends Component<any, any> {
     sel.addRange(range); //make
 
     this.addHighlights();
-    // el.focus();
   }
 
-  onWillUnmount() {
+  willUnmount() {
     this.model.removeAllHighlights();
   }
 
@@ -142,29 +142,27 @@ export class Composer extends Component<any, any> {
     const el = this.el as HTMLElement;
     let value = el.innerText;
     if (value.startsWith("=")) {
-      // const tokens = tokenize(value);
-      // if (el.selectionStart && el.selectionStart === el.selectionEnd) {
-      //   // there is no selection
-      //   let variables = tokens.filter(t => t.type === "VARIABLE");
-      //   if (variables) {
-      //     let highlights: Highlight[] = variables.map(v => {
-      //       const ranges = v.value.split(":");
-      //       let top, bottom, left, right;
-      //       if (ranges.length === 1) {
-      //         let c = toCartesian(v.value);
-      //         left = right = c[0];
-      //         top = bottom = c[1];
-      //       }
-      //
-      //       return {
-      //         zone: { top, bottom, left, right },
-      //         color: "pink"
-      //       };
-      //     });
-      //
-      //     this.model.addHighlights(highlights);
-      //   }
-      // }
+      const tokens = tokenize(value);
+      // there is no selection
+      let variables = tokens.filter(t => t.type === "VARIABLE");
+      if (variables) {
+        let highlights: Highlight[] = variables.map(v => {
+          const ranges = v.value.split(":");
+          let top, bottom, left, right;
+          if (ranges.length === 1) {
+            let c = toCartesian(v.value);
+            left = right = c[0];
+            top = bottom = c[1];
+          }
+
+          return {
+            zone: { top, bottom, left, right },
+            color: "pink"
+          };
+        });
+
+        this.model.addHighlights(highlights);
+      }
     }
   }
 }
