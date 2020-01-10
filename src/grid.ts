@@ -199,13 +199,13 @@ export class Grid extends Component<any, any> {
     };
     const delta = deltaMap[ev.key];
     if (delta) {
-      this.model.moveSelection(delta[0], delta[1], ev.shiftKey);
+      this.model.movePosition(delta[0], delta[1], ev.shiftKey);
       return;
     }
     if (ev.key === "Tab") {
       ev.preventDefault();
       const deltaX = ev.shiftKey ? -1 : 1;
-      this.model.moveSelection(deltaX, 0);
+      this.model.movePosition(deltaX, 0);
       return;
     }
     if (ev.key === "Enter") {

@@ -329,6 +329,11 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
+  /**
+   * This method is the correct way to notify the rest of the system that
+   * some interesting internal state has changed, and that the UI should be
+   * rerendered
+   */
   notify() {
     if (!this.isSilent) {
       this.trigger("update");
@@ -402,7 +407,7 @@ export class GridModel extends owl.core.EventBus {
     this.notify();
   }
 
-  moveSelection(deltaX: number, deltaY: number, withShift = false) {
+  movePosition(deltaX: number, deltaY: number, withShift = false) {
     const { activeCol, activeRow, selection } = this;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
       return;

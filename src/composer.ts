@@ -79,7 +79,7 @@ export class Composer extends Component<any, any> {
 
   onKeydown(ev: KeyboardEvent) {
     if (ev.key === "Enter") {
-      this.model.moveSelection(0, 1);
+      this.model.movePosition(0, 1);
     }
     if (ev.key === "Escape") {
       this.model.cancelEdition();
@@ -87,7 +87,7 @@ export class Composer extends Component<any, any> {
     if (ev.key === "Tab") {
       ev.preventDefault();
       const deltaX = ev.shiftKey ? -1 : 1;
-      this.model.moveSelection(deltaX, 0);
+      this.model.movePosition(deltaX, 0);
     }
   }
 
