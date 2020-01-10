@@ -193,11 +193,16 @@ function parseExpression(tokens, bp) {
 }
 
 export function parse(str) {
-  const tokens = tokenize(str).filter(x => x.type !== "SPACE" && x.type !== "FORMULA");
+  const allTokens = tokenize(str);
+  const debug = allTokens.some(t => t.type === "DEBUGGER");
+  const tokens = allTokens.filter(
+    x => x.type !== "SPACE" && x.type !== "FORMULA" && x.type !== "DEBUGGER"
+  );
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
     throw new Error("invalid expression");
   }
+  result.debug = debug;
   return result;
 }
 
@@ -211,10 +216,10 @@ export function compileExpression(str) {
 
   function compileAST(ast) {
     let id, left, right, args;
+    if (ast.debug) {
+      code.push("debugger;");
+    }
     switch (ast.type) {
-      case "DEBUGGER":
-        code.push("debugger;");
-        break;
       case "NUMBER":
         return ast.value;
       case "VARIABLE":
