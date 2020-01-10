@@ -187,8 +187,8 @@ export class ToolBar extends Component<any, any> {
   updateCellState() {
     this.style = this.model.getStyle();
     this.inMerge = !!this.model.mergeCellMap[this.model.activeXc];
-    const {top, left, right, bottom} = this.model.selection;
-    this.cannotMerge = (top === bottom) && (left === right);
+    const { top, left, right, bottom } = this.model.selection;
+    this.cannotMerge = top === bottom && left === right;
   }
 
   toggleMerge() {

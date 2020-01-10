@@ -569,7 +569,18 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  unmergeSelection() {}
+  unmergeSelection() {
+    const mergeId = this.mergeCellMap[this.activeXc];
+    const { left, top, right, bottom } = this.merges[mergeId];
+    delete this.merges[mergeId];
+    for (let r = top; r <= bottom; r++) {
+      for (let c = left; c <= right; c++) {
+        const xc = toXC(c, r);
+        delete this.mergeCellMap[xc];
+      }
+    }
+    this.trigger("update");
+  }
 }
 
 function stringify(obj): string {
