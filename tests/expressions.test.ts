@@ -12,6 +12,42 @@ describe("tokenizer", () => {
       }
     ]);
   });
+  test("formula token", () => {
+    expect(tokenize("=1")).toEqual([
+      {
+        start: 0,
+        end: 1,
+        length: 1,
+        type: "FORMULA",
+        value: "="
+      },
+      {
+        start: 1,
+        end: 2,
+        length: 1,
+        type: "NUMBER",
+        value: 1
+      }
+    ]);
+  });
+  test("debug formula token", () => {
+    expect(tokenize("=1")).toEqual([
+      {
+        start: 0,
+        end: 1,
+        length: 1,
+        type: "FORMULA",
+        value: "="
+      },
+      {
+        start: 1,
+        end: 2,
+        length: 1,
+        type: "NUMBER",
+        value: 1
+      }
+    ]);
+  });
 });
 
 describe("applyOffset", () => {

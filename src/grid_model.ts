@@ -238,7 +238,7 @@ export class GridModel extends owl.core.EventBus {
     if (cell.type === "formula") {
       cell.error = false;
       try {
-        cell.formula = compileExpression(content.slice(1));
+        cell.formula = compileExpression(content);
       } catch (e) {
         cell.value = "#BAD_EXPR";
         cell.error = true;

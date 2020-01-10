@@ -11,16 +11,19 @@ interface Token {
   start: number;
   end: number;
   length: number;
-  type: "OPERATOR" | "NUMBER" | "FUNCTION" | "VARIABLE" | "SPACE";
+  type: "OPERATOR" | "NUMBER" | "FUNCTION" | "VARIABLE" | "SPACE" | "FORMULA" | "DEBUGGER";
   value: any;
 }
 
 export function tokenize(str: string): Token[] {
   const chars = str.toUpperCase().split("");
   const result: any[] = [];
-  let i = 1;
+  let i = 0;
+
   while (chars.length) {
     let token =
+      tokenizeFormula(chars) ||
+      tokenizeDebugger(chars) ||
       tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
@@ -35,6 +38,22 @@ export function tokenize(str: string): Token[] {
     result.push(token);
   }
   return result;
+}
+
+function tokenizeFormula(chars: string[]) {
+  if (chars[0] === "=") {
+    chars.shift();
+    return { start: 0, end: 1, length: 1, type: "FORMULA", value: "=" };
+  }
+  return;
+}
+
+function tokenizeDebugger(chars: string[]) {
+  if (chars[0] === "?") {
+    chars.shift();
+    return { start: 1, end: 2, length: 1, type: "DEBUGGER", value: "?" };
+  }
+  return;
 }
 
 function tokenizeMisc(chars): any {
@@ -174,7 +193,7 @@ function parseExpression(tokens, bp) {
 }
 
 export function parse(str) {
-  const tokens = tokenize(str).filter(x => x.type !== "SPACE");
+  const tokens = tokenize(str).filter(x => x.type !== "SPACE" && x.type !== "FORMULA");
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
     throw new Error("invalid expression");
@@ -186,19 +205,16 @@ export function parse(str) {
 // COMPILER
 // -----------------------------------------------------------------------------
 export function compileExpression(str) {
-  const isDebug = str[0] === "?";
-  if (isDebug) {
-    str = str.slice(1);
-  }
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
-  if (isDebug) {
-    code.push("debugger;");
-  }
+
   function compileAST(ast) {
     let id, left, right, args;
     switch (ast.type) {
+      case "DEBUGGER":
+        code.push("debugger;");
+        break;
       case "NUMBER":
         return ast.value;
       case "VARIABLE":
@@ -219,6 +235,7 @@ export function compileExpression(str) {
     }
     return `_${id}`;
   }
+
   code.push(`return ${compileAST(ast)};`);
   return new Function("getValue", "fns", code.join("\n"));
 }
@@ -227,8 +244,7 @@ export function compileExpression(str) {
 // Misc
 // -----------------------------------------------------------------------------
 export function applyOffset(formula: string, offsetX: number, offsetY: number): string {
-  const prefix = formula.startsWith("=") ? "=" : "=?";
-  let tokens = tokenize(formula.slice(prefix.length));
+  let tokens = tokenize(formula);
   tokens = tokens.map(t => {
     if (t.type === "VARIABLE") {
       const [x, y] = toCartesian(t.value);
@@ -239,5 +255,5 @@ export function applyOffset(formula: string, offsetX: number, offsetY: number): 
     }
     return t.value;
   });
-  return prefix + tokens.join("");
+  return tokens.join("");
 }

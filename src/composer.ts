@@ -94,7 +94,7 @@ export class Composer extends Component<any, any> {
   onClick(ev: MouseEvent) {
     const el = this.el as HTMLInputElement;
     if (el.value.startsWith("=")) {
-      const tokens = tokenize(el.value.substr(1));
+      const tokens = tokenize(el.value);
 
       if (el.selectionStart && el.selectionStart === el.selectionEnd) {
         // there is no selection
@@ -112,13 +112,13 @@ export class Composer extends Component<any, any> {
     const el = this.el as HTMLInputElement;
 
     if (el.value.startsWith("=")) {
-      const tokens = tokenize(el.value.substr(1));
+      const tokens = tokenize(el.value);
 
       if (el.selectionStart && el.selectionStart === el.selectionEnd) {
         // there is no selection
         let variables = tokens.filter(t => t.type === "VARIABLE");
         if (variables) {
-          let hightlights: Highlight[] = variables.map(v => {
+          let highlights: Highlight[] = variables.map(v => {
             const ranges = v.value.split(":");
             let top, bottom, left, right;
             if (ranges.length === 1) {
@@ -133,7 +133,7 @@ export class Composer extends Component<any, any> {
             };
           });
 
-          this.model.addHighlights(hightlights);
+          this.model.addHighlights(highlights);
         }
       }
     }
