@@ -1,5 +1,5 @@
-import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone } from "./grid_model.js";
-import { toXC } from "./helpers.js";
+import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone } from "./grid_model";
+import { toXC } from "./helpers";
 
 // Global variables
 
@@ -231,7 +231,7 @@ function drawHighlights() {
 }
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
-  console.log("drawing", _model);
+  // console.log("drawing", _model);
   viewport = _model.viewport;
   ctx = context;
   offsetX = _model.offsetX;
