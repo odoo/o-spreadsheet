@@ -84,4 +84,32 @@ describe("merges", () => {
     });
     expect(model.selection).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
   });
+
+  test("can select selection with shift-arrow", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10,
+      merges: ["B1:C2"]
+    });
+    observeModel(model);
+    expect(model.selection).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    expect(n).toBe(0);
+    model.moveSelection(1, 0);
+    expect(n).toBe(1);
+    expect(model.selection).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
+  });
+
+  test("can expand selection with mouse", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10,
+      merges: ["B1:C2"]
+    });
+    observeModel(model);
+    expect(model.selection).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    expect(n).toBe(0);
+    model.updateSelection(1, 0);
+    expect(n).toBe(1);
+    expect(model.selection).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
+  });
 });

@@ -339,6 +339,28 @@ export class GridModel extends owl.core.EventBus {
       this.trigger("update");
     }
   }
+
+  /**
+   * Add all necessary merge to the current selection to make it valid
+   */
+  private expandSelection() {
+    let { left, right, top, bottom } = this.selection;
+    let result: Zone = { left, right, top, bottom };
+    for (let i = left; i <= right; i++) {
+      for (let j = top; j <= bottom; j++) {
+        let mergeId = this.mergeCellMap[toXC(i, j)];
+        if (mergeId) {
+          let merge = this.merges[mergeId];
+          result.left = Math.min(merge.left, result.left);
+          result.right = Math.max(merge.right, result.right);
+          result.top = Math.min(merge.top, result.top);
+          result.bottom = Math.max(merge.bottom, result.bottom);
+        }
+      }
+    }
+    this.selection = result;
+  }
+
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
@@ -407,38 +429,43 @@ export class GridModel extends owl.core.EventBus {
     this.notify();
   }
 
-  movePosition(deltaX: number, deltaY: number, withShift = false) {
+  movePosition(deltaX: number, deltaY: number) {
+    const { activeCol, activeRow } = this;
+    if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
+      return;
+    }
+    let mergeId = this.mergeCellMap[this.activeXc];
+    if (mergeId) {
+      let targetCol = this.activeCol;
+      let targetRow = this.activeRow;
+      while (this.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
+        targetCol += deltaX;
+        targetRow += deltaY;
+      }
+      if (targetCol >= 0 && targetRow >= 0) {
+        this.selectCell(targetCol, targetRow);
+      }
+    } else {
+      this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
+    }
+  }
+
+  moveSelection(deltaX: number, deltaY: number) {
     const { activeCol, activeRow, selection } = this;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
       return;
     }
-    if (withShift) {
-      const { left, right, top, bottom } = selection;
-      this.selection.left =
-        left < activeCol || (left === right && deltaX < 0) ? left + deltaX : activeCol;
-      this.selection.right =
-        right > activeCol || (left === right && deltaX > 0) ? right + deltaX : activeCol;
-      this.selection.top =
-        top < activeRow || (top === bottom && deltaY < 0) ? top + deltaY : activeRow;
-      this.selection.bottom =
-        bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
-      this.notify();
-    } else {
-      let mergeId = this.mergeCellMap[this.activeXc];
-      if (mergeId) {
-        let targetCol = this.activeCol;
-        let targetRow = this.activeRow;
-        while (this.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
-          targetCol += deltaX;
-          targetRow += deltaY;
-        }
-        if (targetCol >= 0 && targetRow >= 0) {
-          this.selectCell(targetCol, targetRow);
-        }
-      } else {
-        this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
-      }
-    }
+    const { left, right, top, bottom } = selection;
+    this.selection.left =
+      left < activeCol || (left === right && deltaX < 0) ? left + deltaX : activeCol;
+    this.selection.right =
+      right > activeCol || (left === right && deltaX > 0) ? right + deltaX : activeCol;
+    this.selection.top =
+      top < activeRow || (top === bottom && deltaY < 0) ? top + deltaY : activeRow;
+    this.selection.bottom =
+      bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
+    this.expandSelection();
+    this.notify();
   }
 
   startEditing(str?: string) {
@@ -494,6 +521,7 @@ export class GridModel extends owl.core.EventBus {
     this.selection.top = Math.min(activeRow, row);
     this.selection.right = Math.max(activeCol, col);
     this.selection.bottom = Math.max(activeRow, row);
+    this.expandSelection();
     this.notify();
   }
 

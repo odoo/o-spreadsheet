@@ -207,7 +207,11 @@ export class Grid extends Component<any, any> {
     };
     const delta = deltaMap[ev.key];
     if (delta) {
-      this.model.movePosition(delta[0], delta[1], ev.shiftKey);
+      if (ev.shiftKey) {
+        this.model.moveSelection(delta[0], delta[1]);
+      } else {
+        this.model.movePosition(delta[0], delta[1]);
+      }
       return;
     }
     if (ev.key === "Tab") {
