@@ -409,7 +409,20 @@ export class GridModel extends owl.core.EventBus {
         bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
       this.trigger("update");
     } else {
-      this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
+      let mergeId = this.mergeCellMap[this.activeXc];
+      if (mergeId) {
+        let targetCol = this.activeCol;
+        let targetRow = this.activeRow;
+        while (this.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
+          targetCol += deltaX;
+          targetRow += deltaY;
+        }
+        if (targetCol >= 0 && targetRow >= 0) {
+          this.selectCell(targetCol, targetRow);
+        }
+      } else {
+        this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
+      }
     }
   }
 
