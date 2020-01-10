@@ -407,10 +407,10 @@ export class GridModel extends owl.core.EventBus {
         top < activeRow || (top === bottom && deltaY < 0) ? top + deltaY : activeRow;
       this.selection.bottom =
         bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
+      this.trigger("update");
     } else {
       this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
     }
-    this.trigger("update");
   }
 
   startEditing(str?: string) {
