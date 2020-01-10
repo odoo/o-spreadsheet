@@ -343,22 +343,18 @@ export class GridModel extends owl.core.EventBus {
   /**
    * Add all necessary merge to the current selection to make it valid
    */
-  private expandSelection() {
-    let { left, right, top, bottom } = this.selection;
+  private expandZone(zone: Zone): Zone {
+    let { left, right, top, bottom } = zone;
     let result: Zone = { left, right, top, bottom };
     for (let i = left; i <= right; i++) {
       for (let j = top; j <= bottom; j++) {
         let mergeId = this.mergeCellMap[toXC(i, j)];
         if (mergeId) {
-          let merge = this.merges[mergeId];
-          result.left = Math.min(merge.left, result.left);
-          result.right = Math.max(merge.right, result.right);
-          result.top = Math.min(merge.top, result.top);
-          result.bottom = Math.max(merge.bottom, result.bottom);
+          result = union(this.merges[mergeId], result);
         }
       }
     }
-    this.selection = result;
+    return result;
   }
 
   // ---------------------------------------------------------------------------
@@ -452,20 +448,48 @@ export class GridModel extends owl.core.EventBus {
 
   moveSelection(deltaX: number, deltaY: number) {
     const { activeCol, activeRow, selection } = this;
-    if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
+    const { left, right, top, bottom } = selection;
+    if (top + deltaY < 0 || left + deltaX < 0) {
       return;
     }
-    const { left, right, top, bottom } = selection;
-    this.selection.left =
-      left < activeCol || (left === right && deltaX < 0) ? left + deltaX : activeCol;
-    this.selection.right =
-      right > activeCol || (left === right && deltaX > 0) ? right + deltaX : activeCol;
-    this.selection.top =
-      top < activeRow || (top === bottom && deltaY < 0) ? top + deltaY : activeRow;
-    this.selection.bottom =
-      bottom > activeRow || (top === bottom && deltaY > 0) ? bottom + deltaY : activeRow;
-    this.expandSelection();
-    this.notify();
+    let result: Zone | null = selection;
+    // check if we can shrink selection
+    let expand = z => this.expandZone(z);
+
+    let n = 0;
+    while (result !== null) {
+      n++;
+      if (deltaX < 0) {
+        result = activeCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
+      }
+      if (deltaX > 0) {
+        result = left + n <= activeCol ? expand({ top, left: left + n, bottom, right }) : null;
+      }
+      if (deltaY < 0) {
+        result = activeRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
+      }
+      if (deltaY > 0) {
+        result = top + n <= activeRow ? expand({ top: top + n, left, bottom, right }) : null;
+      }
+      if (result && !isEqual(result, selection)) {
+        this.selection = result;
+        this.notify();
+        return;
+      }
+    }
+    const currentZone = { top: activeRow, bottom: activeRow, left: activeCol, right: activeCol };
+    const zoneWithDelta = {
+      top: top + deltaY,
+      left: left + deltaX,
+      bottom: bottom + deltaY,
+      right: right + deltaX
+    };
+    result = expand(union(currentZone, zoneWithDelta));
+    if (!isEqual(result, selection)) {
+      this.selection = result;
+      this.notify();
+      return;
+    }
   }
 
   startEditing(str?: string) {
@@ -521,7 +545,7 @@ export class GridModel extends owl.core.EventBus {
     this.selection.top = Math.min(activeRow, row);
     this.selection.right = Math.max(activeCol, col);
     this.selection.bottom = Math.max(activeRow, row);
-    this.expandSelection();
+    this.selection = this.expandZone(this.selection);
     this.notify();
   }
 
@@ -641,4 +665,19 @@ export class GridModel extends owl.core.EventBus {
 
 function stringify(obj): string {
   return JSON.stringify(obj, Object.keys(obj).sort());
+}
+
+function union(z1: Zone, z2: Zone): Zone {
+  return {
+    top: Math.min(z1.top, z2.top),
+    left: Math.min(z1.left, z2.left),
+    bottom: Math.max(z1.bottom, z2.bottom),
+    right: Math.max(z1.right, z2.right)
+  };
+}
+
+function isEqual(z1: Zone, z2: Zone): boolean {
+  return (
+    z1.left === z2.left && z1.right === z2.right && z1.top === z2.top && z1.bottom === z2.bottom
+  );
 }
