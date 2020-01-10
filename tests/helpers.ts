@@ -38,10 +38,11 @@ export function makeTestFixture() {
   return fixture;
 }
 
-export function triggerMouseEvent(type, x, y) {
+export function triggerMouseEvent(type, x, y, extra = {}) {
   const ev = new MouseEvent(type, {
     clientX: x,
-    clientY: y
+    clientY: y,
+    ...extra
   });
   document.querySelector("canvas")!.dispatchEvent(ev);
 }

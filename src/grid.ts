@@ -31,6 +31,10 @@ const CSS = css/* scss */ `
     position: relative;
     overflow: hidden;
 
+    > canvas:focus {
+      outline: none;
+    }
+
     .o-scrollbar {
       position: absolute;
       overflow: auto;
@@ -160,7 +164,11 @@ export class Grid extends Component<any, any> {
     this.clickedCol = col;
     this.clickedRow = row;
     if (col !== undefined && row !== undefined) {
-      this.model.selectCell(col, row);
+      if (ev.shiftKey) {
+        this.model.updateSelection(col, row);
+      } else {
+        this.model.selectCell(col, row);
+      }
       let prevCol = col;
       let prevRow = row;
       const onMouseMove = ev => {
