@@ -11,13 +11,23 @@ interface Token {
   start: number;
   end: number;
   length: number;
-  type: "OPERATOR" | "NUMBER" | "FUNCTION" | "VARIABLE" | "SPACE" | "FORMULA" | "DEBUGGER";
+  type:
+    | "OPERATOR"
+    | "NUMBER"
+    | "FUNCTION"
+    | "VARIABLE"
+    | "SPACE"
+    | "FORMULA"
+    | "DEBUGGER"
+    | "COMMA"
+    | "LEFT_PAREN"
+    | "RIGHT_PAREN";
   value: any;
 }
 
 export function tokenize(str: string): Token[] {
   const chars = str.toUpperCase().split("");
-  const result: any[] = [];
+  const result: Token[] = [];
   let i = 0;
 
   while (chars.length) {
@@ -28,7 +38,7 @@ export function tokenize(str: string): Token[] {
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
-      (tokenizeSymbol(chars) as any);
+      tokenizeSymbol(chars);
     if (!token) {
       throw new Error("Tokenizer error");
     }
@@ -40,51 +50,61 @@ export function tokenize(str: string): Token[] {
   return result;
 }
 
-function tokenizeFormula(chars: string[]) {
+function tokenizeFormula(chars: string[]): Token | null {
   if (chars[0] === "=") {
     chars.shift();
     return { start: 0, end: 1, length: 1, type: "FORMULA", value: "=" };
   }
-  return;
+  return null;
 }
 
-function tokenizeDebugger(chars: string[]) {
+function tokenizeDebugger(chars: string[]): Token | null {
   if (chars[0] === "?") {
     chars.shift();
     return { start: 1, end: 2, length: 1, type: "DEBUGGER", value: "?" };
   }
-  return;
+  return null;
 }
 
-function tokenizeMisc(chars): any {
+function tokenizeMisc(chars): Token | null {
   const misc = {
     ",": "COMMA",
     "(": "LEFT_PAREN",
     ")": "RIGHT_PAREN"
-  };
+  } as const;
   if (chars[0] in misc) {
     const value = chars[0];
-    return { type: misc[chars.shift()], value, length: 1 };
+    const type = misc[chars.shift()] as "COMMA" | "LEFT_PAREN" | "RIGHT_PAREN";
+    return { type, value, length: 1, start: 0, end: 0 };
   }
+  return null;
 }
 
-function tokenizeOperator(chars): any {
+function tokenizeOperator(chars): Token | null {
   if (OPERATORS.includes(chars[0])) {
-    return { type: "OPERATOR", value: chars.shift(), length: 1 };
+    return { type: "OPERATOR", value: chars.shift(), length: 1, start: 0, end: 0 };
   }
+  return null;
 }
 
-function tokenizeNumber(chars): any {
+function tokenizeNumber(chars): Token | null {
   const digits: any[] = [];
   while (chars[0] && chars[0].match(/\d|\./)) {
     digits.push(chars.shift());
   }
   if (digits.length) {
-    return { type: "NUMBER", value: parseFloat(digits.join("")), length: digits.length };
+    return {
+      type: "NUMBER",
+      value: parseFloat(digits.join("")),
+      length: digits.length,
+      start: 0,
+      end: 0
+    };
   }
+  return null;
 }
 
-function tokenizeSymbol(chars): any {
+function tokenizeSymbol(chars): Token | null {
   const result: any[] = [];
   while (chars[0] && chars[0].match(/\w/)) {
     result.push(chars.shift());
@@ -93,11 +113,12 @@ function tokenizeSymbol(chars): any {
     const value = result.join("");
     const isFunction = FUNCTION_NAMES.includes(value);
     const type = isFunction ? "FUNCTION" : "VARIABLE";
-    return { type, value, length: result.length };
+    return { type, value, length: result.length, start: 0, end: 0 };
   }
+  return null;
 }
 
-function tokenizeSpace(chars): any {
+function tokenizeSpace(chars): Token | null {
   let length = 0;
   while (chars[0] && chars[0].match(/\s/)) {
     length++;
@@ -105,14 +126,42 @@ function tokenizeSpace(chars): any {
   }
 
   if (length) {
-    return { type: "SPACE", value: " ".repeat(length), length: length };
+    return { type: "SPACE", value: " ".repeat(length), length, start: 0, end: 0 };
   }
+  return null;
 }
 
 // -----------------------------------------------------------------------------
 // PARSER
 // -----------------------------------------------------------------------------
-function bindingPower(token) {
+interface ASTBase {
+  debug?: boolean;
+}
+
+interface ASTNumber extends ASTBase {
+  type: "NUMBER";
+  value: number;
+}
+interface ASTVariable extends ASTBase {
+  type: "VARIABLE";
+  value: string;
+}
+interface ASTOperation extends ASTBase {
+  type: "OPERATION";
+  value: any;
+  left: AST;
+  right: AST;
+}
+
+interface ASTFuncall extends ASTBase {
+  type: "FUNCALL";
+  value: string;
+  args: AST[];
+}
+
+type AST = ASTOperation | ASTFuncall | ASTNumber | ASTVariable;
+
+function bindingPower(token: Token): number {
   switch (token.type) {
     case "NUMBER":
     case "VARIABLE":
@@ -129,12 +178,9 @@ function bindingPower(token) {
   throw new Error("?");
 }
 
-function parsePrefix(current, tokens) {
+function parsePrefix(current: Token, tokens: Token[]): AST {
   if (current.type === "NUMBER" || current.type === "VARIABLE") {
     return { type: current.type, value: current.value };
-  }
-  if (current.type === "NUMBER") {
-    return { type: "NUMBER", value: current.value };
   }
   if (current.type === "LEFT_PAREN") {
     const result = parseExpression(tokens, 5);
@@ -153,7 +199,7 @@ function parsePrefix(current, tokens) {
     };
   }
   if (current.type === "FUNCTION") {
-    if (tokens.shift().type !== "LEFT_PAREN") {
+    if (tokens.shift()!.type !== "LEFT_PAREN") {
       throw new Error("wrong function call");
     }
     const args = [parseExpression(tokens, 10)];
@@ -161,7 +207,7 @@ function parsePrefix(current, tokens) {
       tokens.shift();
       args.push(parseExpression(tokens, 10));
     }
-    if (tokens.shift().type !== "RIGHT_PAREN") {
+    if (tokens.shift()!.type !== "RIGHT_PAREN") {
       throw new Error("wrong function call");
     }
     return { type: "FUNCALL", value: current.value, args };
@@ -169,7 +215,7 @@ function parsePrefix(current, tokens) {
   throw new Error("nope");
 }
 
-function parseInfix(left, current, tokens) {
+function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
   if (current.type === "OPERATOR") {
     const bp = bindingPower(current);
     const right = parseExpression(tokens, bp);
@@ -183,16 +229,16 @@ function parseInfix(left, current, tokens) {
   throw new Error("nope");
 }
 
-function parseExpression(tokens, bp) {
-  const token = tokens.shift();
+function parseExpression(tokens: Token[], bp: number): AST {
+  const token = tokens.shift()!;
   let expr = parsePrefix(token, tokens);
   while (tokens[0] && bindingPower(tokens[0]) > bp) {
-    expr = parseInfix(expr, tokens.shift(), tokens);
+    expr = parseInfix(expr, tokens.shift()!, tokens);
   }
   return expr;
 }
 
-export function parse(str) {
+export function parse(str: string): AST {
   const allTokens = tokenize(str);
   const debug = allTokens.some(t => t.type === "DEBUGGER");
   const tokens = allTokens.filter(
@@ -209,12 +255,13 @@ export function parse(str) {
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
-export function compileExpression(str) {
+
+export function compileExpression(str: string): Function {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
 
-  function compileAST(ast) {
+  function compileAST(ast: AST) {
     let id, left, right, args;
     if (ast.debug) {
       code.push("debugger;");
