@@ -75,4 +75,21 @@ describe("merges", () => {
     expect(Object.keys(model.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.merges)).toEqual([]);
   });
+
+  test("editing a merge cell actually edits the top left", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10,
+      cells: { B2: { content: "b2" } },
+      merges: ["B2:C3"]
+    });
+    observeModel(model);
+
+    model.selectCell(2, 2);
+    expect(model.activeXc).toBe("C3");
+    expect(n).toBe(1);
+    model.startEditing();
+    expect(n).toBe(2);
+    expect(model.currentContent).toBe("b2");
+  });
 });

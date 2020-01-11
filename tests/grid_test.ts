@@ -1,9 +1,5 @@
 import { GridModel } from "../src/grid_model";
-import { Grid } from "../src/grid";
-import { Component, tags } from "@odoo/owl";
-import { makeTestFixture, triggerMouseEvent } from "./helpers";
-
-const { xml } = tags;
+import { makeTestFixture, triggerMouseEvent, GridParent } from "./helpers";
 
 let fixture: HTMLElement;
 
@@ -15,21 +11,6 @@ afterEach(() => {
   fixture.remove();
 });
 
-class Parent extends Component<any, any> {
-  static template = xml`
-        <div class="parent">
-        <Grid model="model"/>
-        </div>
-    `;
-
-  static components = { Grid };
-  model: GridModel;
-  constructor(model: GridModel) {
-    super();
-    this.model = model;
-  }
-}
-
 describe("Grid component", () => {
   test("can click on a cell to select it", async () => {
     const model = new GridModel({
@@ -37,7 +18,7 @@ describe("Grid component", () => {
       rowNumber: 10,
       cells: { B2: { content: "b2" }, B3: { content: "b3" } }
     });
-    const parent = new Parent(model);
+    const parent = new GridParent(model);
     await parent.mount(fixture);
     expect(model.activeXc).toBe("A1");
     triggerMouseEvent("mousedown", 300, 300);
@@ -50,7 +31,7 @@ describe("Grid component", () => {
       rowNumber: 10,
       cells: { B2: { content: "b2" }, B3: { content: "b3" } }
     });
-    const parent = new Parent(model);
+    const parent = new GridParent(model);
     await parent.mount(fixture);
     expect(model.activeXc).toBe("A1");
     triggerMouseEvent("mousedown", 300, 300, { shiftKey: true });

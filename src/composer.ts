@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { GridModel, Highlight } from "./grid_model";
+import { GridModel, Highlight, Zone } from "./grid_model";
 import { tokenize } from "./expressions";
 import { toCartesian } from "./helpers";
 
@@ -37,18 +37,29 @@ export class Composer extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
   model: GridModel = this.props.model;
+  zone: Zone;
 
+  constructor() {
+    super(...arguments);
+    const model = this.model;
+    if (model.activeXc in model.mergeCellMap) {
+      this.zone = model.merges[model.mergeCellMap[model.activeXc]];
+    } else {
+      const { activeCol, activeRow } = model;
+      this.zone = { left: activeCol, top: activeRow, right: activeCol, bottom: activeRow };
+    }
+  }
   mounted() {
     const el = this.el as HTMLInputElement;
     el.innerHTML = this.model.currentContent;
-    const { cols, selection } = this.model;
-    const col = cols[selection.left];
-    el.style.width = (col.size + 1.5) as any;
-    el.style.width = Math.max(el.scrollWidth + 2, col.size + 1.5) as any;
+    const { cols } = this.model;
+    const width = cols[this.zone.right].right - cols[this.zone.left].left;
+    el.style.width = (width + 1.5) as any;
+    el.style.width = Math.max(el.scrollWidth + 2, width + 1.5) as any;
 
     el.focus();
-    el.style.width = (col.size + 1) as any;
-    el.style.width = Math.max(el.scrollWidth + 3, col.size + 1) as any;
+    el.style.width = (width + 1) as any;
+    el.style.width = Math.max(el.scrollWidth + 3, width + 1) as any;
 
     const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
     range.selectNodeContents(el); //Select the entire contents of the element with the range
@@ -65,11 +76,11 @@ export class Composer extends Component<any, any> {
   }
 
   get style() {
-    const { cols, selection, rows, offsetX, offsetY } = this.model;
-    const col = cols[selection.left];
-    const row = rows[selection.top];
+    const { cols, rows, offsetX, offsetY } = this.model;
+    const col = cols[this.zone.left];
+    const row = rows[this.zone.top];
+    const height = rows[this.zone.bottom].bottom - row.top + 2;
     const top = row.top - offsetY - 1;
-    const height = row.size + 2;
     const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
@@ -79,7 +90,7 @@ export class Composer extends Component<any, any> {
     const position =
       align === "left"
         ? `left: ${col.left - offsetX}px;`
-        : `right: ${this.model.clientWidth - (col.right - offsetX)}px;`;
+        : `right: ${this.model.clientWidth - (cols[this.zone.right].right - offsetX)}px;`;
     return `${position}top:${top}px;height:${height};text-align:${align};${weight}${italic}${strikethrough}`;
   }
 

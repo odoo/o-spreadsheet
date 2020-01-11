@@ -1,4 +1,8 @@
-import { Component } from "@odoo/owl";
+import { Component, tags } from "@odoo/owl";
+import { Grid } from "../src/grid";
+import { GridModel } from "../src/grid_model";
+
+const { xml } = tags;
 
 HTMLCanvasElement.prototype.getContext = jest.fn(function() {
   return {
@@ -45,4 +49,19 @@ export function triggerMouseEvent(type, x, y, extra = {}) {
     ...extra
   });
   document.querySelector("canvas")!.dispatchEvent(ev);
+}
+
+export class GridParent extends Component<any, any> {
+  static template = xml`
+        <div class="parent">
+        <Grid model="model"/>
+        </div>
+    `;
+
+  static components = { Grid };
+  model: GridModel;
+  constructor(model: GridModel) {
+    super();
+    this.model = model;
+  }
 }

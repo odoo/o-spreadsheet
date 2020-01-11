@@ -494,7 +494,12 @@ export class GridModel extends owl.core.EventBus {
 
   startEditing(str?: string) {
     if (!str) {
-      str = this.selectedCell ? this.selectedCell.content : "";
+      let mergeId = this.mergeCellMap[this.activeXc];
+      if (mergeId) {
+        str = this.cells[this.merges[mergeId].topLeft].content;
+      } else {
+        str = this.selectedCell ? this.selectedCell.content : "";
+      }
     }
     this.isEditing = true;
     this.currentContent = str;

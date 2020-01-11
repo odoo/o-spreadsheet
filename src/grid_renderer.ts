@@ -231,7 +231,7 @@ function drawHighlights() {
 }
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
-  // console.log("drawing", _model);
+  (window as any).gridmodel = _model; // to debug. remove this someday
   viewport = _model.viewport;
   ctx = context;
   offsetX = _model.offsetX;
