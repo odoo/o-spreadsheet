@@ -38,16 +38,16 @@ const CSS = css/* scss */ `
     .o-scrollbar {
       position: absolute;
       overflow: auto;
-    }
-    .o-scrollbar.vertical {
-      right: 0;
-      top: ${HEADER_HEIGHT}px;
-      bottom: 15px;
-    }
-    .o-scrollbar.horizontal {
-      bottom: 0;
-      right: 15px;
-      left: ${HEADER_WIDTH}px;
+      &.vertical {
+        right: 0;
+        top: ${HEADER_HEIGHT}px;
+        bottom: 15px;
+      }
+      &.horizontal {
+        bottom: 0;
+        right: 15px;
+        left: ${HEADER_WIDTH}px;
+      }
     }
   }
 `;

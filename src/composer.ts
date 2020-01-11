@@ -27,9 +27,9 @@ const CSS = css/* scss */ `
     padding-right: 4px;
     background-color: white;
     white-space: nowrap;
-  }
-  .o-composer:focus {
-    outline: none;
+    &:focus {
+      outline: none;
+    }
   }
 `;
 
