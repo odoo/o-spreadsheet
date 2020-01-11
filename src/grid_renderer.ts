@@ -116,7 +116,7 @@ function drawTextBox(text, style, type, left: Col, top: Row, right: Col, bottom:
     if (align === "right") {
       x = x - width;
     }
-    ctx.fillRect(x, y, width, 0.5);
+    ctx.fillRect(x, y - 3, width, 2.5*thinLineWidth());
   }
 }
 
