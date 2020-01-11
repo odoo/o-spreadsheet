@@ -95,6 +95,31 @@ function drawBackgroundGrid() {
   }
 }
 
+function drawTextBox(text, style, type, left: Col, top: Row, right: Col, bottom: Row) {
+  const align = style.align || (type === "text" ? "left" : "right");
+  const italic = style.italic ? "italic " : "";
+  const weight = style.bold ? "bold" : "500";
+  ctx.font = `${italic}${weight} 12px arial`;
+  let x;
+  let y = (top.top + bottom.bottom) / 2 - offsetY + 3;
+  if (align === "left") {
+    x = left.left - offsetX + 3;
+  } else if (align === "right") {
+    x = right.right - offsetX - 3;
+  } else {
+    x = (left.left + right.right) / 2 - offsetX;
+  }
+  ctx.textAlign = align;
+  ctx.fillText(text, x, y);
+  if (style.strikethrough) {
+    const width = ctx.measureText(text).width;
+    if (align === "right") {
+      x = x - width;
+    }
+    ctx.fillRect(x, y, width, 0.5);
+  }
+}
+
 function drawCells() {
   const { rows, cols, cells } = model;
   const { right, left, top, bottom } = viewport;
@@ -114,11 +139,18 @@ function drawCells() {
   function drawCell(col: Col, row: Row, cell: Cell) {
     const style = cell.style ? styles[cell.style] : {};
     const align = style.align || (cell.type === "text" ? "left" : "right");
-    const italic = style.italic ? "italic " : "";
-    const weight = style.bold ? "bold" : "500";
-    ctx.font = `${italic}${weight} 12px arial`;
     ctx.save();
 
+    if (cell.xc in model.mergeCellMap) {
+      // this should be a topleft cell for a merge
+      const merge = model.merges[model.mergeCellMap[cell.xc]];
+      const left = cols[merge.left];
+      const right = cols[merge.right];
+      const top = rows[merge.top];
+      const bottom = rows[merge.bottom];
+      drawTextBox(cell.value, style, cell.type, left, top, right, bottom);
+      return;
+    }
     // Compute clip zone
     if (align === "left") {
       let c = cell.col;
@@ -137,24 +169,7 @@ function drawCells() {
     }
     ctx.clip();
 
-    let x;
-    let y = (row.top + row.bottom) / 2 - offsetY + 3;
-    if (align === "left") {
-      x = col.left - offsetX + 3;
-    } else if (align === "right") {
-      x = col.right - offsetX - 3;
-    } else {
-      x = (col.left + col.right) / 2 - offsetX;
-    }
-    ctx.textAlign = align;
-    ctx.fillText(cell.value, x, y);
-    if (style.strikethrough) {
-      const width = ctx.measureText(cell.value).width;
-      if (align === "right") {
-        x = x - width;
-      }
-      ctx.fillRect(x, y, width, 0.5);
-    }
+    drawTextBox(cell.value, style, cell.type, col, row, col, row);
     ctx.restore();
   }
 }
