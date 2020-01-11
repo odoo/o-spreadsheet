@@ -86,9 +86,9 @@ export class Composer extends Component<any, any> {
   onInput() {
     // write in place? or go through a method probably
     const el = this.el as HTMLInputElement;
-    this.model.currentContent = el.innerHTML;
+    this.model.currentContent = el.innerText;
     if (el.clientWidth !== el.scrollWidth) {
-      el.style.width = (el.scrollWidth + 2) as any;
+      el.style.width = (el.scrollWidth + 20) as any;
     }
   }
 
