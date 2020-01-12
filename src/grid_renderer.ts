@@ -148,7 +148,12 @@ function drawCells() {
       const right = cols[merge.right];
       const top = rows[merge.top];
       const bottom = rows[merge.bottom];
+      const width = right.right - left.left;
+      const height = bottom.bottom - top.top;
+      ctx.rect(left.left - offsetX, top.top - offsetY, width, height);
+      ctx.clip();
       drawTextBox(cell.value, style, cell.type, left, top, right, bottom);
+      ctx.restore();
       return;
     }
     // Compute clip zone
