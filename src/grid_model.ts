@@ -394,7 +394,7 @@ export class GridModel extends owl.core.EventBus {
         }
       }
     }
-    return result;
+    return isEqual(result, zone) ? result : this.expandZone(result);
   }
 
   // ---------------------------------------------------------------------------

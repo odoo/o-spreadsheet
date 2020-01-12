@@ -107,6 +107,22 @@ describe("selection", () => {
     model.moveSelection(-1, 0);
     expect(n).toBe(2);
     expect(model.selection).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
-    // expect(model.activeXc).toBe("B1");
   });
+
+  test("expand selection when encountering a merge", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10,
+      merges: ["B2:B3", "C2:D2"]
+    });
+    // move sell to B4
+    model.selectCell(1, 2);
+    expect(model.activeXc).toBe("B3");
+
+    // select right cell C3
+    model.updateSelection(2, 2);
+
+    expect(model.selection).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
+  });
+
 });
