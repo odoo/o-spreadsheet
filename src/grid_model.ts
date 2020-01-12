@@ -235,7 +235,7 @@ export class GridModel extends owl.core.EventBus {
     const rows = data.rows || {};
     const cols = data.cols || {};
     for (let i = 0; i < data.rowNumber; i++) {
-      const size = rows[i] ? rows[i].size || 0 : DEFAULT_CELL_HEIGHT;
+      const size = rows[i] ? (rows[i].size || DEFAULT_CELL_HEIGHT) : DEFAULT_CELL_HEIGHT;
       const row = {
         top: current,
         bottom: current + size,
@@ -250,7 +250,7 @@ export class GridModel extends owl.core.EventBus {
 
     current = 0;
     for (let i = 0; i < data.colNumber; i++) {
-      const size = cols[i] ? cols[i].size || 0 : DEFAULT_CELL_WIDTH;
+      const size = cols[i] ? (cols[i].size || DEFAULT_CELL_WIDTH) : DEFAULT_CELL_WIDTH;
       const col = {
         left: current,
         right: current + size,
