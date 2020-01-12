@@ -24,7 +24,7 @@ describe("Grid component", () => {
     model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     expect(model.activeXc).toBe("A1");
-    triggerMouseEvent("mousedown", 300, 300);
+    triggerMouseEvent("canvas", "mousedown", 300, 300);
     expect(model.activeXc).toBe("C10");
   });
 
@@ -40,12 +40,28 @@ describe("Grid component", () => {
     model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     expect(model.activeXc).toBe("A1");
-    triggerMouseEvent("mousedown", 300, 300, { shiftKey: true });
+    triggerMouseEvent("canvas", "mousedown", 300, 300, { shiftKey: true });
     expect(model.selection).toEqual({
       top: 0,
       left: 0,
       bottom: 9,
       right: 2
     });
+  });
+
+  test("can click on a header to select a column", async () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.activeXc).toBe("A1");
+    triggerMouseEvent(".o-resizer.horizontal", "mousedown", 300, 10);
+    expect(model.selection).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
+    expect(model.activeXc).toBe("C1");
   });
 });

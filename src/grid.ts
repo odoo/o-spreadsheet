@@ -24,7 +24,7 @@ const { useRef, useState } = owl.hooks;
 // -----------------------------------------------------------------------------
 class Resizer extends Component<any, any> {
   static template = xml/* xml */ `
-    <div class="o-resizer horizontal" t-on-mousemove="onMouseMove"  t-on-mouseleave="onMouseLeave">
+    <div class="o-resizer horizontal" t-on-mousemove="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="selectCol">
       <t t-if="state.active">
         <div class="o-handle" t-att-class="{dragging:state.dragging}" t-on-mousedown="onMouseDown"
         t-attf-style="left:{{state.left}}px;"/>
@@ -108,6 +108,11 @@ class Resizer extends Component<any, any> {
     };
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp, { once: true });
+  }
+
+  selectCol(ev: MouseEvent) {
+    const col = this.model.getCol(ev.clientX);
+    this.model.selectColumn(col);
   }
 }
 

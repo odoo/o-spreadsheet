@@ -125,4 +125,14 @@ describe("selection", () => {
     expect(model.selection).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
   });
 
+  test("can select a whole column", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10
+    });
+    model.selectColumn(4);
+    expect(model.activeXc).toBe("E1");
+
+    expect(model.selection).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
+  });
 });

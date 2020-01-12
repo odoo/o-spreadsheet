@@ -235,7 +235,7 @@ export class GridModel extends owl.core.EventBus {
     const rows = data.rows || {};
     const cols = data.cols || {};
     for (let i = 0; i < data.rowNumber; i++) {
-      const size = rows[i] ? (rows[i].size || DEFAULT_CELL_HEIGHT) : DEFAULT_CELL_HEIGHT;
+      const size = rows[i] ? rows[i].size || DEFAULT_CELL_HEIGHT : DEFAULT_CELL_HEIGHT;
       const row = {
         top: current,
         bottom: current + size,
@@ -250,7 +250,7 @@ export class GridModel extends owl.core.EventBus {
 
     current = 0;
     for (let i = 0; i < data.colNumber; i++) {
-      const size = cols[i] ? (cols[i].size || DEFAULT_CELL_WIDTH) : DEFAULT_CELL_WIDTH;
+      const size = cols[i] ? cols[i].size || DEFAULT_CELL_WIDTH : DEFAULT_CELL_WIDTH;
       const col = {
         left: current,
         right: current + size,
@@ -592,6 +592,19 @@ export class GridModel extends owl.core.EventBus {
     this.notify();
   }
 
+  selectColumn(col: number) {
+    this.stopEditing();
+    this.activeCol = col;
+    this.activeRow = 0;
+    this.activeXc = toXC(col, 0);
+    this.selection = {
+      top: 0,
+      left: col,
+      right: col,
+      bottom: this.rows.length - 1
+    };
+    this.notify();
+  }
   updateSelection(col: number, row: number) {
     const { activeCol, activeRow } = this;
     this.selection.left = Math.min(activeCol, col);

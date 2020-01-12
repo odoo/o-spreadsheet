@@ -42,13 +42,19 @@ export function makeTestFixture() {
   return fixture;
 }
 
-export function triggerMouseEvent(type, x, y, extra = {}) {
+export function triggerMouseEvent(
+  selector: string,
+  type: string,
+  x: number,
+  y: number,
+  extra = {}
+) {
   const ev = new MouseEvent(type, {
     clientX: x,
     clientY: y,
     ...extra
   });
-  document.querySelector("canvas")!.dispatchEvent(ev);
+  document.querySelector(selector)!.dispatchEvent(ev);
 }
 
 export class GridParent extends Component<any, any> {

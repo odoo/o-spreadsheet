@@ -5,7 +5,7 @@ describe("data", () => {
     const model = new GridModel({
       colNumber: 10,
       rowNumber: 10,
-      cols: { 1: {}},
+      cols: { 1: {} },
       cells: { B2: { content: "b2" } }
     });
 

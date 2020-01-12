@@ -48,6 +48,7 @@ export function toXC(col: number, row: number): string {
 // -----------------------------------------------------------------------------
 const { Component } = owl;
 
+// to do: remove this, use owl hook
 export function useExternalListener(target, eventName, handler) {
   const boundHandler = handler.bind(Component.current);
 
