@@ -145,11 +145,21 @@ export class GridModel extends owl.core.EventBus {
 
   isSilent: boolean = true;
 
-  get selectedCell(): Cell {
-    return this.getCell(this.activeCol, this.activeRow);
+  /**
+   * The selectedcell property is slightly different from the active col/row.
+   * It is the reference cell for the current ui state. So, if the position is
+   * inside a merge, then it will be the top left cell.
+   */
+  get selectedCell(): Cell | null {
+    let mergeId = this.mergeCellMap[this.activeXc];
+    if (mergeId) {
+      return this.cells[this.merges[mergeId].topLeft];
+    } else {
+      return this.getCell(this.activeCol, this.activeRow);
+    }
   }
 
-  getCell(col: number, row: number): Cell {
+  getCell(col: number, row: number): Cell | null {
     return this.rows[row].cells[col] || null;
   }
 
@@ -494,12 +504,8 @@ export class GridModel extends owl.core.EventBus {
 
   startEditing(str?: string) {
     if (!str) {
-      let mergeId = this.mergeCellMap[this.activeXc];
-      if (mergeId) {
-        str = this.cells[this.merges[mergeId].topLeft].content;
-      } else {
-        str = this.selectedCell ? this.selectedCell.content : "";
-      }
+      const cell = this.selectedCell;
+      str = cell ? cell.content : "";
     }
     this.isEditing = true;
     this.currentContent = str;

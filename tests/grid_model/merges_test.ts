@@ -92,4 +92,21 @@ describe("merges", () => {
     expect(n).toBe(2);
     expect(model.currentContent).toBe("b2");
   });
+
+  test("when moving in a merge, selected cell is topleft", () => {
+    const model = new GridModel({
+      colNumber: 10,
+      rowNumber: 10,
+      cells: { B2: { content: "b2" } },
+      merges: ["B2:C3"]
+    });
+    observeModel(model);
+
+    model.selectCell(2, 3);
+    expect(model.activeXc).toBe("C4");
+    expect(model.selectedCell).toBeNull(); // no active cell in C4
+    model.movePosition(0, -1);
+    expect(model.activeXc).toBe("C3");
+    expect(model.selectedCell!.xc).toBe("B2");
+  });
 });
