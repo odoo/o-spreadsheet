@@ -168,6 +168,36 @@ export class GridModel extends owl.core.EventBus {
     return cell && cell.style ? this.styles[cell.style] : {};
   }
 
+  getCol(x: number): number {
+    if (x <= HEADER_WIDTH) {
+      return -1;
+    }
+    const { cols, offsetX, viewport } = this;
+    const { left, right } = viewport;
+    for (let i = left; i <= right; i++) {
+      let c = cols[i];
+      if (c.left - offsetX <= x && x <= c.right - offsetX) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  getRow(y: number): number {
+    if (y <= HEADER_HEIGHT) {
+      return -1;
+    }
+    const { rows, offsetY, viewport } = this;
+    const { top, bottom } = viewport;
+    for (let i = top; i <= bottom; i++) {
+      let r = rows[i];
+      if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   // ---------------------------------------------------------------------------
   // Constructor and private methods
   // ---------------------------------------------------------------------------
@@ -371,6 +401,18 @@ export class GridModel extends owl.core.EventBus {
   // Mutations
   // ---------------------------------------------------------------------------
 
+  setColSize(index: number, delta: number) {
+    const { cols } = this;
+    const col = cols[index];
+    col.size += delta;
+    col.right += delta;
+    for (let i = index + 1; i < this.cols.length; i++) {
+      const col = cols[i];
+      col.left += delta;
+      col.right += delta;
+    }
+    this.notify();
+  }
   /**
    * Delete a cell.  This method does not trigger an update!
    */

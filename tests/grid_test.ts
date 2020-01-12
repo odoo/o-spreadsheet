@@ -20,6 +20,9 @@ describe("Grid component", () => {
     });
     const parent = new GridParent(model);
     await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
     expect(model.activeXc).toBe("A1");
     triggerMouseEvent("mousedown", 300, 300);
     expect(model.activeXc).toBe("C10");
@@ -33,6 +36,9 @@ describe("Grid component", () => {
     });
     const parent = new GridParent(model);
     await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
     expect(model.activeXc).toBe("A1");
     triggerMouseEvent("mousedown", 300, 300, { shiftKey: true });
     expect(model.selection).toEqual({

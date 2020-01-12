@@ -4,12 +4,118 @@ import { HEADER_WIDTH, HEADER_HEIGHT, GridModel } from "./grid_model";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 
+/**
+ * The Grid component is the main part of the spreadsheet UI. It is responsible
+ * for displaying the actual grid, rendering it, managing events, ...
+ *
+ * The grid is rendered on a canvas. 3 sub components are (sometimes) displayed
+ * on top of the canvas:
+ * - a composer (to edit the cell content)
+ * - a horizontal resizer (to resize columns)
+ * - a vertical resizer (same, for rows)
+ */
+
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef } = owl.hooks;
+const { useRef, useState } = owl.hooks;
 
+// -----------------------------------------------------------------------------
+// Resizer component
+// -----------------------------------------------------------------------------
+class Resizer extends Component<any, any> {
+  static template = xml/* xml */ `
+    <div class="o-resizer horizontal" t-on-mousemove="onMouseMove"  t-on-mouseleave="onMouseLeave">
+      <t t-if="state.active">
+        <div class="o-handle" t-att-class="{dragging:state.dragging}" t-on-mousedown="onMouseDown"
+        t-attf-style="left:{{state.left}}px;"/>
+      </t>
+    </div>`;
+
+  static style = css/* scss */ `
+    .o-resizer {
+      position: absolute;
+      &.horizontal {
+        top: 0;
+        left: ${HEADER_WIDTH}px;
+        right: 0;
+        height: ${HEADER_HEIGHT}px;
+      }
+
+      .o-handle {
+        position: absolute;
+        height: ${HEADER_HEIGHT}px;
+        width: 4px;
+        cursor: ew-resize;
+        background-color: #3266ca;
+        &.dragging {
+          margin-right: -2px;
+          width: 1px;
+          height: 10000px;
+        }
+      }
+    }
+  `;
+
+  model: GridModel = this.props.model;
+  state = useState({
+    active: false,
+    left: 0,
+    dragging: false,
+    activeCol: 0,
+    delta: 0
+  });
+  onMouseMove(ev: MouseEvent) {
+    if (this.state.dragging) {
+      return;
+    }
+    const x = ev.clientX;
+    const c = this.model.getCol(x);
+    if (c < 0) {
+      return;
+    }
+    const col = this.model.cols[c];
+    const offsetX = this.model.offsetX;
+    if (x - (col.left - offsetX) < 15 && c !== this.model.viewport.left) {
+      this.state.active = true;
+      this.state.left = col.left - offsetX - HEADER_WIDTH - 2;
+      this.state.activeCol = c - 1;
+    } else if (col.right - offsetX - x < 15) {
+      this.state.active = true;
+      this.state.left = col.right - offsetX - HEADER_WIDTH - 2;
+      this.state.activeCol = c;
+    } else {
+      this.state.active = false;
+    }
+  }
+
+  onMouseLeave() {
+    this.state.active = this.state.dragging;
+  }
+  onMouseDown(ev: MouseEvent) {
+    this.state.dragging = true;
+    this.state.delta = 0;
+    const initialX = ev.clientX;
+    const left = this.state.left;
+    const onMouseUp = ev => {
+      this.state.dragging = false;
+      this.state.active = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      this.model.setColSize(this.state.activeCol, this.state.delta);
+    };
+    const onMouseMove = ev => {
+      this.state.delta = ev.clientX - initialX;
+      this.state.left = left + this.state.delta;
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp, { once: true });
+  }
+}
+
+// -----------------------------------------------------------------------------
+// TEMPLATE
+// -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet-sheet">
+  <div class="o-spreadsheet-sheet" t-on-click="focus">
     <t t-if="model.isEditing">
       <Composer model="model" />
     </t>
@@ -18,6 +124,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-dblclick="onDoubleClick"
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-mousewheel="onMouseWheel" />
+    <Resizer model="model"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{model.height}}px"/>
     </div>
@@ -26,6 +133,9 @@ const TEMPLATE = xml/* xml */ `
     </div>
   </div>`;
 
+// -----------------------------------------------------------------------------
+// STYLE
+// -----------------------------------------------------------------------------
 const CSS = css/* scss */ `
   .o-spreadsheet-sheet {
     position: relative;
@@ -52,10 +162,13 @@ const CSS = css/* scss */ `
   }
 `;
 
+// -----------------------------------------------------------------------------
+// JS
+// -----------------------------------------------------------------------------
 export class Grid extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer };
+  static components = { Composer, Resizer };
 
   vScrollbar = useRef("vscrollbar");
   hScrollbar = useRef("hscrollbar");
@@ -135,68 +248,57 @@ export class Grid extends Component<any, any> {
     hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
   }
 
-  getColRowFromXY(x, y) {
-    if (x <= HEADER_WIDTH || y <= HEADER_HEIGHT) {
-      return [];
-    }
-    let col, row;
-    const model = this.model;
-    const { cols, rows, offsetX, offsetY } = model;
-    for (let i = 0; i < cols.length; i++) {
-      let c = cols[i];
-      if (c.left - offsetX <= x && x <= c.right - offsetX) {
-        col = i;
-        break;
-      }
-    }
-    for (let i = 0; i < rows.length; i++) {
-      let r = rows[i];
-      if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
-        row = i;
-        break;
-      }
-    }
-    return [col, row];
-  }
+  // ---------------------------------------------------------------------------
+  // Zone selection with mouse
+  // ---------------------------------------------------------------------------
+
   onMouseDown(ev) {
     // 32 for toolbar height. could not find a better way to get actual y offset
-    const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
+    const col = this.model.getCol(ev.clientX);
+    const row = this.model.getRow(ev.clientY - 32);
     this.clickedCol = col;
     this.clickedRow = row;
-    if (col !== undefined && row !== undefined) {
-      if (ev.shiftKey) {
-        this.model.updateSelection(col, row);
-      } else {
-        this.model.selectCell(col, row);
-      }
-      let prevCol = col;
-      let prevRow = row;
-      const onMouseMove = ev => {
-        const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
-        if (col === undefined || row === undefined) {
-          return;
-        }
-        if (col !== prevCol || row !== prevRow) {
-          prevCol = col;
-          prevRow = row;
-          this.model.updateSelection(col, row);
-        }
-      };
-      const onMouseUp = () => {
-        this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-        this.canvas.el!.removeEventListener("mouseup", onMouseUp);
-      };
-      this.canvas.el!.addEventListener("mousemove", onMouseMove);
-      this.canvas.el!.addEventListener("mouseup", onMouseUp);
+    if (col < 0 && row < 0) {
+      return;
     }
+
+    if (ev.shiftKey) {
+      this.model.updateSelection(col, row);
+    } else {
+      this.model.selectCell(col, row);
+    }
+    let prevCol = col;
+    let prevRow = row;
+    const onMouseMove = ev => {
+      const col = this.model.getCol(ev.clientX);
+      const row = this.model.getRow(ev.clientY - 32);
+      if (col < 0 && row < 0) {
+        return;
+      }
+      if (col !== prevCol || row !== prevRow) {
+        prevCol = col;
+        prevRow = row;
+        this.model.updateSelection(col, row);
+      }
+    };
+    const onMouseUp = () => {
+      this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+    };
+    this.canvas.el!.addEventListener("mousemove", onMouseMove);
+    document.body.addEventListener("mouseup", onMouseUp, { once: true });
   }
 
   onDoubleClick(ev) {
-    const [col, row] = this.getColRowFromXY(ev.clientX, ev.clientY - 32);
+    const col = this.model.getCol(ev.clientX);
+    const row = this.model.getRow(ev.clientY - 32);
     if (this.clickedCol === col && this.clickedRow === row) {
       this.model.startEditing();
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Keyboard interactions
+  // ---------------------------------------------------------------------------
 
   onKeydown(ev) {
     const deltaMap = {
