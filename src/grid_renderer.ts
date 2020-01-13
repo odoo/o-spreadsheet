@@ -112,7 +112,7 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
     const lw = thinLineWidth();
     ctx.fillRect(left.left - offsetX + lw, top.top - offsetY + lw, right.right - left.left - 2*lw, bottom.bottom - top.top - 2*lw);
   }
-  ctx.fillStyle = "#000"
+  ctx.fillStyle = style.textColor || "#000";
   let x;
   let y = (top.top + bottom.bottom) / 2 - offsetY + 3;
   if (align === "left") {

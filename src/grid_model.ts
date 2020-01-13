@@ -29,6 +29,7 @@ export interface Style {
   strikethrough?: boolean;
   align?: "left" | "right";
   fillColor?: string;
+  textColor?: string;
 }
 
 interface CellData {
