@@ -47,7 +47,6 @@ export interface Sheet {
   colNumber: number;
   rowNumber: number;
   cells?: { [key: string]: CellData };
-  styles?: { [key: number]: Style };
   merges?: string[];
   cols?: { [key: number]: HeaderData };
   rows?: { [key: number]: HeaderData };
@@ -55,6 +54,7 @@ export interface Sheet {
 
 export interface GridData {
   sheets: Sheet[];
+  styles?: { [key: number]: Style };
 }
 
 export interface Cell extends CellData {
@@ -215,6 +215,13 @@ export class GridModel extends owl.core.EventBus {
     if (data.sheets.length === 0) {
       throw new Error("No sheet defined in data");
     }
+    // styles
+    this.styles = data.styles || {};
+    for (let k in this.styles) {
+      this.nextId = Math.max(k as any, this.nextId);
+    }
+    this.nextId++;
+
     const sheet = data.sheets[0];
     this.activateSheet(sheet);
   }
@@ -225,13 +232,6 @@ export class GridModel extends owl.core.EventBus {
 
     // setting up rows and columns
     this.addRowsCols(sheet);
-
-    // styles
-    this.styles = sheet.styles || {};
-    for (let k in this.styles) {
-      this.nextId = Math.max(k as any, this.nextId);
-    }
-    this.nextId++;
 
     // merges
     if (sheet.merges) {
