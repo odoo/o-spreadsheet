@@ -21,7 +21,7 @@ function thinLineWidth() {
 }
 
 function drawHeader() {
-  const { cols, rows, selection } = model;
+  const { cols, rows, selections } = model;
   const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
@@ -36,13 +36,14 @@ function drawHeader() {
   ctx.fillRect(0, 0, HEADER_WIDTH, height);
   // selection background
   ctx.fillStyle = "#dddddd";
-  const x1 = Math.max(HEADER_WIDTH, cols[selection.left].left - offsetX);
-  const x2 = Math.max(HEADER_WIDTH, cols[selection.right].right - offsetX);
-  const y1 = Math.max(HEADER_HEIGHT, rows[selection.top].top - offsetY);
-  const y2 = Math.max(HEADER_HEIGHT, rows[selection.bottom].bottom - offsetY);
-  ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-  ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
-
+  for (let zone of selections.zones) {
+    const x1 = Math.max(HEADER_WIDTH, cols[zone.left].left - offsetX);
+    const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
+    const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
+    const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].bottom - offsetY);
+    ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+    ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+  }
   // 2 main lines
   vLine(ctx, HEADER_WIDTH, height);
   hLine(ctx, HEADER_HEIGHT, width);
@@ -233,22 +234,26 @@ function drawMerges() {
 }
 
 function drawSelectionBackground() {
-  const { cols, rows, selection } = model;
-  const { left, top, right, bottom } = selection;
-  ctx.fillStyle = "#f3f7fe";
-  const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
-  const width = cols[right].right - offsetX - x;
-  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
-  const height = rows[bottom].bottom - offsetY - y;
-  if (width > 0 && height > 0) {
-    ctx.globalCompositeOperation = "multiply";
-    ctx.fillRect(x, y, width, height);
-    ctx.globalCompositeOperation = "source-over";
+  const { cols, rows, selections } = model;
+  for (const selection of selections.zones) {
+    const { left, top, right, bottom } = selection;
+    ctx.fillStyle = "#f3f7fe";
+    const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
+    const width = cols[right].right - offsetX - x;
+    const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
+    const height = rows[bottom].bottom - offsetY - y;
+    if (width > 0 && height > 0) {
+      ctx.globalCompositeOperation = "multiply";
+      ctx.fillRect(x, y, width, height);
+      ctx.globalCompositeOperation = "source-over";
+    }
   }
 }
 
 function drawSelectionOutline() {
-  drawOutline(model.selection);
+  for (const zone of model.selections.zones) {
+    drawOutline(zone);
+  }
 }
 
 function drawOutline(zone: Zone, color: string = "#3266ca") {

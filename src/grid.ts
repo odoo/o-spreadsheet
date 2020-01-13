@@ -288,6 +288,7 @@ export class Grid extends Component<any, any> {
     const onMouseUp = () => {
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
     };
+
     this.canvas.el!.addEventListener("mousemove", onMouseMove);
     document.body.addEventListener("mouseup", onMouseUp, { once: true });
   }
@@ -304,7 +305,7 @@ export class Grid extends Component<any, any> {
   // Keyboard interactions
   // ---------------------------------------------------------------------------
 
-  onKeydown(ev) {
+  onKeydown(ev: KeyboardEvent) {
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
@@ -320,6 +321,7 @@ export class Grid extends Component<any, any> {
       }
       return;
     }
+
     if (ev.key === "Tab") {
       ev.preventDefault();
       const deltaX = ev.shiftKey ? -1 : 1;

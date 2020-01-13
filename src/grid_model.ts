@@ -29,6 +29,14 @@ export interface Zone {
   bottom: number;
 }
 
+export interface Selections {
+  anchor: {
+    col: number;
+    row: number;
+  };
+  zones: Zone[];
+}
+
 export interface Style {
   bold?: boolean;
   italic?: boolean;
@@ -139,11 +147,19 @@ export class GridModel extends owl.core.EventBus {
     bottom: 0,
     right: 0
   };
-  selection: Zone = {
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0
+  selections: Selections = {
+    zones: [
+      {
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+      }
+    ],
+    anchor: {
+      col: 0,
+      row: 0
+    }
   };
   activeCol = 0;
   activeRow = 0;
@@ -493,18 +509,20 @@ export class GridModel extends owl.core.EventBus {
     const xc = toXC(col, row);
     if (xc in this.mergeCellMap) {
       const merge = this.merges[this.mergeCellMap[xc]];
-      this.selection = {
+      this.selections.zones[0] = {
         left: merge.left,
         right: merge.right,
         top: merge.top,
         bottom: merge.bottom
       };
     } else {
-      this.selection.left = col;
-      this.selection.right = col;
-      this.selection.top = row;
-      this.selection.bottom = row;
+      this.selections.zones[0].left = col;
+      this.selections.zones[0].right = col;
+      this.selections.zones[0].top = row;
+      this.selections.zones[0].bottom = row;
     }
+    this.selections.anchor.col = col;
+    this.selections.anchor.row = row;
     this.activeCol = col;
     this.activeRow = row;
     this.activeXc = xc;
@@ -533,7 +551,9 @@ export class GridModel extends owl.core.EventBus {
   }
 
   moveSelection(deltaX: number, deltaY: number) {
-    const { activeCol, activeRow, selection } = this;
+    const selection = this.selections.zones[this.selections.zones.length - 1];
+    const activeCol = this.selections.anchor.col;
+    const activeRow = this.selections.anchor.row;
     const { left, right, top, bottom } = selection;
     if (top + deltaY < 0 || left + deltaX < 0) {
       return;
@@ -558,7 +578,7 @@ export class GridModel extends owl.core.EventBus {
         result = top + n <= activeRow ? expand({ top: top + n, left, bottom, right }) : null;
       }
       if (result && !isEqual(result, selection)) {
-        this.selection = result;
+        this.selections.zones[this.selections.zones.length - 1] = result;
         this.notify();
         return;
       }
@@ -572,7 +592,7 @@ export class GridModel extends owl.core.EventBus {
     };
     result = expand(union(currentZone, zoneWithDelta));
     if (!isEqual(result, selection)) {
-      this.selection = result;
+      this.selections.zones[this.selections.zones.length - 1] = result;
       this.notify();
       return;
     }
@@ -598,6 +618,7 @@ export class GridModel extends owl.core.EventBus {
     this.highlights = [];
     this.notify();
   }
+
   cancelEdition() {
     this.isEditing = false;
     this.notify();
@@ -605,7 +626,7 @@ export class GridModel extends owl.core.EventBus {
 
   stopEditing() {
     if (this.isEditing) {
-      const xc = toXC(this.selection.left, this.selection.top);
+      const xc = toXC(this.activeCol, this.activeRow);
       if (this.currentContent) {
         this.addCell(xc, { content: this.currentContent });
       } else {
@@ -619,14 +640,16 @@ export class GridModel extends owl.core.EventBus {
   }
 
   deleteSelection() {
-    for (let i = this.selection.left; i <= this.selection.right; i++) {
-      for (let j = this.selection.top; j <= this.selection.bottom; j++) {
-        const xc = toXC(i, j);
-        if (xc in this.cells) {
-          this.deleteCell(xc);
+    this.selections.zones.forEach(zone => {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const xc = toXC(col, row);
+          if (xc in this.cells) {
+            this.deleteCell(xc);
+          }
         }
       }
-    }
+    });
     this.evaluateCells();
     this.notify();
   }
@@ -636,26 +659,32 @@ export class GridModel extends owl.core.EventBus {
     this.activeCol = col;
     this.activeRow = 0;
     this.activeXc = toXC(col, 0);
-    this.selection = {
+    const selection = {
       top: 0,
       left: col,
       right: col,
       bottom: this.rows.length - 1
     };
+    this.selections.anchor = { col: this.activeCol, row: this.activeRow };
+    this.selections.zones = [selection];
+
     this.notify();
   }
   updateSelection(col: number, row: number) {
     const { activeCol, activeRow } = this;
-    this.selection.left = Math.min(activeCol, col);
-    this.selection.top = Math.min(activeRow, row);
-    this.selection.right = Math.max(activeCol, col);
-    this.selection.bottom = Math.max(activeRow, row);
-    this.selection = this.expandZone(this.selection);
+    const zone: Zone = {
+      left: Math.min(activeCol, col),
+      top: Math.min(activeRow, row),
+      right: Math.max(activeCol, col),
+      bottom: Math.max(activeRow, row)
+    };
+    this.selections.zones[this.selections.zones.length - 1] = this.expandZone(zone);
     this.notify();
   }
 
   copySelection(cut: boolean = false) {
-    let { left, right, top, bottom } = this.selection;
+    console.warn("implement copySelection for multi selection");
+    let { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
     const cells: (Cell | null)[][] = [];
     for (let i = left; i <= right; i++) {
       const vals: (Cell | null)[] = [];
@@ -678,12 +707,15 @@ export class GridModel extends owl.core.EventBus {
   }
 
   pasteSelection() {
+    console.warn("implement pasteSelection for multi selection");
+
     const { zone, cells } = this.clipBoard;
     if (!zone || !cells) {
       return;
     }
-    let col = this.selection.left;
-    let row = this.selection.top;
+    const selection = this.selections.zones[this.selections.zones.length - 1];
+    let col = selection.left;
+    let row = selection.top;
     let { left, right, top, bottom } = zone;
     const offsetX = col - left;
     const offsetY = row - top;
@@ -710,11 +742,13 @@ export class GridModel extends owl.core.EventBus {
   }
 
   setStyle(style) {
-    for (let col = this.selection.left; col <= this.selection.right; col++) {
-      for (let row = this.selection.top; row <= this.selection.bottom; row++) {
-        this.setStyleToCell(col, row, style);
+    this.selections.zones.forEach(selection => {
+      for (let col = selection.left; col <= selection.right; col++) {
+        for (let row = selection.top; row <= selection.bottom; row++) {
+          this.setStyleToCell(col, row, style);
+        }
       }
-    }
+    });
     this.notify();
   }
 
@@ -745,7 +779,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   mergeSelection() {
-    const { left, right, top, bottom } = this.selection;
+    const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
     let tl = toXC(left, top);
     let br = toXC(right, bottom);
     if (tl !== br) {
@@ -768,7 +802,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   isMergeDestructive(): boolean {
-    const { left, right, top, bottom } = this.selection;
+    const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
     for (let row = top; row <= bottom; row++) {
       const actualRow = this.rows[row];
       for (let col = left; col <= right; col++) {

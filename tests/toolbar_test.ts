@@ -43,12 +43,14 @@ describe("Toolbar component", () => {
         confirm = ev.detail.confirm;
       }
     }
-    model.selection = {
-      top: 0,
-      left: 0,
-      right: 5,
-      bottom: 5
-    };
+    model.selections.zones = [
+      {
+        top: 0,
+        left: 0,
+        right: 5,
+        bottom: 5
+      }
+    ];
     const parent = new TestParent(model);
     await parent.mount(fixture);
 
