@@ -10,8 +10,9 @@ const { xml, css } = owl.tags;
 const TEMPLATE = xml/* xml */ `
     <div class="o-composer" t-att-style="style"
       contenteditable="true"
+      spellcheck="false"
       t-on-input="onInput"
-      t-on-keydown="onKeydown" 
+      t-on-keydown="onKeydown"
       t-on-click="onClick"/>
   `;
 
