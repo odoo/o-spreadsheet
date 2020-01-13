@@ -595,7 +595,12 @@ export class GridModel extends owl.core.EventBus {
   stopEditing() {
     if (this.isEditing) {
       const xc = toXC(this.selection.left, this.selection.top);
-      this.addCell(xc, { content: this.currentContent });
+      if (this.currentContent) {
+        this.addCell(xc, { content: this.currentContent });
+      } else {
+        this.deleteCell(xc);
+      }
+
       this.evaluateCells();
       this.currentContent = "";
       this.isEditing = false;
