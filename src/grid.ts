@@ -276,7 +276,7 @@ export class Grid extends Component<any, any> {
     const onMouseMove = ev => {
       const col = this.model.getCol(ev.offsetX);
       const row = this.model.getRow(ev.offsetY);
-      if (col < 0 && row < 0) {
+      if (col < 0 || row < 0) {
         return;
       }
       if (col !== prevCol || row !== prevRow) {
