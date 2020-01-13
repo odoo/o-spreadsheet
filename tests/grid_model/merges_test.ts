@@ -129,4 +129,33 @@ describe("merges", () => {
     expect(model.activeXc).toBe("C3");
     expect(model.selectedCell!.xc).toBe("B2");
   });
+
+  test("properly compute if a merge is destructive or not", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } }
+        }
+      ]
+    });
+    model.selection = {
+      left: 0,
+      top: 0,
+      right: 2,
+      bottom: 2
+    };
+    // B2 is not top left, so it is destructive
+    expect(model.isMergeDestructive()).toBeTruthy();
+
+    model.selection = {
+      left: 1,
+      top: 1,
+      right: 2,
+      bottom: 2
+    };
+    // B2 is top left, so it is not destructive
+    expect(model.isMergeDestructive()).toBeFalsy();
+  });
 });

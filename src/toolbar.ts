@@ -195,7 +195,14 @@ export class ToolBar extends Component<any, any> {
     if (this.inMerge) {
       this.model.unmergeSelection();
     } else {
-      this.model.mergeSelection();
+      if (this.model.isMergeDestructive()) {
+        this.trigger("ask-confirmation", {
+          content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
+          confirm: () => this.model.mergeSelection()
+        });
+      } else {
+        this.model.mergeSelection();
+      }
     }
   }
 }

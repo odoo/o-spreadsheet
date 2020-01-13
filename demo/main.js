@@ -6,7 +6,7 @@ const { xml, css } = owl.tags;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
-  static template = xml`<Spreadsheet data="data"/>`;
+  static template = xml`<Spreadsheet data="data" t-on-ask-confirmation="askConfirmation"/>`;
   static style = css`
     html {
       height: 100%;
@@ -60,6 +60,12 @@ class App extends Component {
       }
     ]
   };
+
+  askConfirmation(ev) {
+    if (window.confirm(ev.detail.content)) {
+      ev.detail.confirm();
+    }
+  }
 }
 
 // Setup code

@@ -747,4 +747,19 @@ export class GridModel extends owl.core.EventBus {
     }
     this.notify();
   }
+
+  isMergeDestructive(): boolean {
+    const { left, right, top, bottom } = this.selection;
+    for (let row = top; row <= bottom; row++) {
+      const actualRow = this.rows[row];
+      for (let col = left; col <= right; col++) {
+        if (col !== left || row !== top) {
+          if (actualRow.cells[col]) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
 }

@@ -59,10 +59,9 @@ export function triggerMouseEvent(
 
 export class GridParent extends Component<any, any> {
   static template = xml`
-        <div class="parent">
-        <Grid model="model"/>
-        </div>
-    `;
+    <div class="parent">
+      <Grid model="model"/>
+    </div>`;
 
   static components = { Grid };
   model: GridModel;
