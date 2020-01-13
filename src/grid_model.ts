@@ -4,7 +4,7 @@ import { functions } from "./functions";
 import * as owl from "@odoo/owl";
 
 const DEFAULT_CELL_WIDTH = 96;
-const DEFAULT_CELL_HEIGHT = 26;
+const DEFAULT_CELL_HEIGHT = 23;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
 
@@ -30,6 +30,7 @@ export interface Style {
   align?: "left" | "right";
   fillColor?: string;
   textColor?: string;
+  fontSize?: number; // in pt, not in px!
 }
 
 interface CellData {

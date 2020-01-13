@@ -2,6 +2,7 @@ import * as owl from "@odoo/owl";
 import { GridModel, Highlight, Zone } from "./grid_model";
 import { tokenize } from "./expressions";
 import { toCartesian } from "./helpers";
+import { fontSizeMap } from "./fonts";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -20,9 +21,8 @@ const CSS = css/* scss */ `
     position: absolute;
     border: 1.4px solid #3266ca;
     font-family: arial;
-    font-size: 12px;
     padding: 2px;
-    padding-top: 6px;
+    padding-top: 3px;
     padding-left: 2px;
     padding-right: 4px;
     background-color: white;
@@ -84,6 +84,8 @@ export class Composer extends Component<any, any> {
     const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.getStyle();
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
+    const sizeInPt = style.fontSize || 10;
+    const size = fontSizeMap[sizeInPt];
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
@@ -91,7 +93,7 @@ export class Composer extends Component<any, any> {
       align === "left"
         ? `left: ${col.left - offsetX}px;`
         : `right: ${this.model.clientWidth - (cols[this.zone.right].right - offsetX)}px;`;
-    return `${position}top:${top}px;height:${height};text-align:${align};${weight}${italic}${strikethrough}`;
+    return `${position}top:${top}px;height:${height};text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
 
   onInput() {

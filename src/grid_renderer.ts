@@ -1,5 +1,6 @@
 import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone, Style } from "./grid_model";
 import { toXC } from "./helpers";
+import { fontSizeMap } from "./fonts";
 
 // Global variables
 
@@ -106,11 +107,18 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
   const align = style.align || (type === "text" ? "left" : "right");
   const italic = style.italic ? "italic " : "";
   const weight = style.bold ? "bold" : "500";
-  ctx.font = `${italic}${weight} 12px arial`;
+  const sizeInPt = style.fontSize || 10;
+  const size = fontSizeMap[sizeInPt];
+  ctx.font = `${italic}${weight} ${size}px arial`;
   if (style.fillColor) {
     ctx.fillStyle = style.fillColor;
     const lw = thinLineWidth();
-    ctx.fillRect(left.left - offsetX + lw, top.top - offsetY + lw, right.right - left.left - 2*lw, bottom.bottom - top.top - 2*lw);
+    ctx.fillRect(
+      left.left - offsetX + lw,
+      top.top - offsetY + lw,
+      right.right - left.left - 2 * lw,
+      bottom.bottom - top.top - 2 * lw
+    );
   }
   ctx.fillStyle = style.textColor || "#000";
   let x;

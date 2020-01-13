@@ -52,7 +52,7 @@ class App extends Component {
           H2: { content: "merged content" }
         },
         styles: {
-          1: { bold: true, textColor: "#3A3791" },
+          1: { bold: true, textColor: "#3A3791", fontSize: 12 },
           2: { italic: true },
           3: { strikethrough: true },
           4: { fillColor: "#93d051"},
