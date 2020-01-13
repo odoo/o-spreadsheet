@@ -21,7 +21,7 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-spreadsheet {
     display: grid;
-    grid-template-rows: 32px auto;
+    grid-template-rows: 36px auto;
   }
 `;
 

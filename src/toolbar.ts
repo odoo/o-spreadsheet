@@ -128,6 +128,7 @@ export class ToolBar extends Component<any, any> {
           align-items: center;
           margin: 2px;
           padding: 0 3px;
+          border-radius: 2px;
         }
 
         .o-tool.active,
@@ -137,7 +138,7 @@ export class ToolBar extends Component<any, any> {
 
         .o-tool svg {
           height: 18px;
-          width: 18px;
+          width: 19px;
           opacity: 0.6;
         }
         .o-with-color > span {
