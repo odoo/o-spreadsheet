@@ -28,8 +28,8 @@ describe("Grid component", () => {
     model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     expect(model.activeXc).toBe("A1");
-    triggerMouseEvent("canvas", "mousedown", 300, 300);
-    expect(model.activeXc).toBe("C10");
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    expect(model.activeXc).toBe("C8");
   });
 
   test("can shift-click on a cell to update selection", async () => {
@@ -48,11 +48,11 @@ describe("Grid component", () => {
     model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     expect(model.activeXc).toBe("A1");
-    triggerMouseEvent("canvas", "mousedown", 300, 300, { shiftKey: true });
+    triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
     expect(model.selection).toEqual({
       top: 0,
       left: 0,
-      bottom: 9,
+      bottom: 7,
       right: 2
     });
   });

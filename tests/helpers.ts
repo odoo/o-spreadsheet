@@ -54,6 +54,8 @@ export function triggerMouseEvent(
     clientY: y,
     ...extra
   });
+  (ev as any).offsetX = x;
+  (ev as any).offsetY = y;
   document.querySelector(selector)!.dispatchEvent(ev);
 }
 
