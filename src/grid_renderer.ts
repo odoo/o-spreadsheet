@@ -211,10 +211,10 @@ function overlap(r1, r2) {
 }
 
 function drawMerges() {
-  const { merges, cols, rows } = model;
+  const { merges, cols, rows, styles } = model;
   const hl = 0.8 * thinLineWidth();
   ctx.strokeStyle = "#777";
-  ctx.fillStyle = "white";
+  ctx.fillStyle = styles[0].fillColor || "white";
   for (let id in merges) {
     let merge = merges[id];
     if (overlap(merge, viewport)) {
@@ -281,7 +281,8 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   width = _width;
   height = _height;
 
-  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = _model.styles[0].fillColor || "white";
+  ctx.fillRect(0, 0, width, height);
 
   drawBackgroundGrid();
   drawMerges();
