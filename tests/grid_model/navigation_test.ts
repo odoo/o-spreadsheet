@@ -10,8 +10,12 @@ function observeModel(model: GridModel) {
 describe("navigation", () => {
   test("normal move to the right", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
     });
     observeModel(model);
     expect(model.selection).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
@@ -29,8 +33,12 @@ describe("navigation", () => {
 
   test("move up from top row", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
     });
     observeModel(model);
     expect(model.selection).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
@@ -48,9 +56,13 @@ describe("navigation", () => {
 
   test("move in and out of a merge", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      merges: ["B1:C2"]
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["B1:C2"]
+        }
+      ]
     });
     observeModel(model);
     expect(model.activeCol).toBe(0);
@@ -76,9 +88,13 @@ describe("navigation", () => {
 
   test("do nothing if moving out of merge is out of grid", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      merges: ["B1:C2"]
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["B1:C2"]
+        }
+      ]
     });
     observeModel(model);
     expect(model.activeCol).toBe(0);

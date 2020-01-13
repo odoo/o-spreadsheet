@@ -10,9 +10,13 @@ function observeModel(model: GridModel) {
 describe("merges", () => {
   test("can merge two cells", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+        }
+      ]
     });
     observeModel(model);
     expect(Object.keys(model.cells)).toEqual(["B2", "B3"]);
@@ -36,10 +40,14 @@ describe("merges", () => {
 
   test("can unmerge two cells", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" } },
-      merges: ["B2:B3"]
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } },
+          merges: ["B2:B3"]
+        }
+      ]
     });
     observeModel(model);
 
@@ -59,9 +67,13 @@ describe("merges", () => {
 
   test("a single cell is not merged", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" } }
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } }
+        }
+      ]
     });
     observeModel(model);
 
@@ -78,10 +90,14 @@ describe("merges", () => {
 
   test("editing a merge cell actually edits the top left", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" } },
-      merges: ["B2:C3"]
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } },
+          merges: ["B2:C3"]
+        }
+      ]
     });
     observeModel(model);
 
@@ -95,10 +111,14 @@ describe("merges", () => {
 
   test("when moving in a merge, selected cell is topleft", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" } },
-      merges: ["B2:C3"]
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } },
+          merges: ["B2:C3"]
+        }
+      ]
     });
     observeModel(model);
 

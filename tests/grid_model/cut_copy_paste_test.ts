@@ -3,9 +3,13 @@ import { GridModel } from "../../src/grid_model";
 describe("copy/cut/paste", () => {
   test("can copy a cell", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" } }
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } }
+        }
+      ]
     });
     expect(model.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
@@ -23,9 +27,13 @@ describe("copy/cut/paste", () => {
 
   test("can cut/paste a cell", () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" } }
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } }
+        }
+      ]
     });
     expect(model.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }

@@ -14,9 +14,13 @@ afterEach(() => {
 describe("Grid component", () => {
   test("can click on a cell to select it", async () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+        }
+      ]
     });
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -30,9 +34,13 @@ describe("Grid component", () => {
 
   test("can shift-click on a cell to update selection", async () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10,
-      cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+        }
+      ]
     });
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -51,8 +59,12 @@ describe("Grid component", () => {
 
   test("can click on a header to select a column", async () => {
     const model = new GridModel({
-      colNumber: 10,
-      rowNumber: 10
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
     });
     const parent = new GridParent(model);
     await parent.mount(fixture);

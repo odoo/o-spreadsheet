@@ -39,7 +39,8 @@ interface HeaderData {
   size?: number;
 }
 
-export interface GridData {
+export interface Sheet {
+  name?: string;
   colNumber: number;
   rowNumber: number;
   cells?: { [key: string]: CellData };
@@ -47,6 +48,10 @@ export interface GridData {
   merges?: string[];
   cols?: { [key: number]: HeaderData };
   rows?: { [key: number]: HeaderData };
+}
+
+export interface GridData {
+  sheets: Sheet[];
 }
 
 export interface Cell extends CellData {
@@ -134,6 +139,7 @@ export class GridModel extends owl.core.EventBus {
   activeCol = 0;
   activeRow = 0;
   activeXc = "A1";
+  activeSheet: string = "Sheet1";
 
   isEditing = false;
   currentContent = "";
@@ -203,38 +209,48 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   constructor(data: GridData) {
     super();
+    if (data.sheets.length === 0) {
+      throw new Error("No sheet defined in data");
+    }
+    const sheet = data.sheets[0];
+    this.activateSheet(sheet);
+  }
+
+  activateSheet(sheet: Sheet) {
+    this.isSilent = true;
+    this.activeSheet = sheet.name || "Sheet1";
 
     // setting up rows and columns
-    this.addRowsCols(data);
+    this.addRowsCols(sheet);
 
     // styles
-    this.styles = data.styles || {};
+    this.styles = sheet.styles || {};
     for (let k in this.styles) {
       this.nextId = Math.max(k as any, this.nextId);
     }
     this.nextId++;
 
     // merges
-    if (data.merges) {
-      for (let m of data.merges) {
+    if (sheet.merges) {
+      for (let m of sheet.merges) {
         this.addMerge(m);
       }
     }
 
     // cells
-    for (let xc in data.cells) {
-      this.addCell(xc, data.cells[xc]);
+    for (let xc in sheet.cells) {
+      this.addCell(xc, sheet.cells[xc]);
     }
     this.evaluateCells();
     this.selectCell(0, 0);
     this.isSilent = false;
   }
 
-  addRowsCols(data: GridData) {
+  addRowsCols(sheet: Sheet) {
     let current = 0;
-    const rows = data.rows || {};
-    const cols = data.cols || {};
-    for (let i = 0; i < data.rowNumber; i++) {
+    const rows = sheet.rows || {};
+    const cols = sheet.cols || {};
+    for (let i = 0; i < sheet.rowNumber; i++) {
       const size = rows[i] ? rows[i].size || DEFAULT_CELL_HEIGHT : DEFAULT_CELL_HEIGHT;
       const row = {
         top: current,
@@ -249,7 +265,7 @@ export class GridModel extends owl.core.EventBus {
     this.height = this.rows[this.rows.length - 1].bottom + 20; // 10 to have some space at the end
 
     current = 0;
-    for (let i = 0; i < data.colNumber; i++) {
+    for (let i = 0; i < sheet.colNumber; i++) {
       const size = cols[i] ? cols[i].size || DEFAULT_CELL_WIDTH : DEFAULT_CELL_WIDTH;
       const col = {
         left: current,
@@ -345,6 +361,10 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
+  /**
+   * This method is silent, does not notify the user interface.  Also, it
+   * does not ask for confirmation if we delete a cell content.
+   */
   addMerge(m: string) {
     let id = this.nextId++;
     const [tl, br] = m.split(":");
