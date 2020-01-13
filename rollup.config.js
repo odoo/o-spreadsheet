@@ -10,6 +10,6 @@ export default {
     name: "o_spreadsheet",
     extend: true,
     globals: {"@odoo/owl": "owl"},
-
+    outro: `exports.__info__.version = '${version}';\nexports.__info__.date = '${new Date().toISOString()}';\nexports.__info__.hash = '${git.short()}';`
   }
 };
