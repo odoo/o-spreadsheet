@@ -1,4 +1,4 @@
-import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone } from "./grid_model";
+import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone, Style } from "./grid_model";
 import { toXC } from "./helpers";
 
 // Global variables
@@ -95,11 +95,24 @@ function drawBackgroundGrid() {
   }
 }
 
-function drawTextBox(text, style, type, left: Col, top: Row, right: Col, bottom: Row) {
+/**
+ * Main entry point for drawing a box content (either a cell or a merge).
+ * It draws the background, the text, and align it properly.
+ *
+ * Note that it does not clip the text to the box area.  Clipping (if necessary)
+ * should be done by the caller.
+ */
+function drawBox(text: string, style: Style, type, left: Col, top: Row, right: Col, bottom: Row) {
   const align = style.align || (type === "text" ? "left" : "right");
   const italic = style.italic ? "italic " : "";
   const weight = style.bold ? "bold" : "500";
   ctx.font = `${italic}${weight} 12px arial`;
+  if (style.fillColor) {
+    ctx.fillStyle = style.fillColor;
+    const lw = thinLineWidth();
+    ctx.fillRect(left.left - offsetX + lw, top.top - offsetY + lw, right.right - left.left - 2*lw, bottom.bottom - top.top - 2*lw);
+  }
+  ctx.fillStyle = "#000"
   let x;
   let y = (top.top + bottom.bottom) / 2 - offsetY + 3;
   if (align === "left") {
@@ -152,7 +165,7 @@ function drawCells() {
       const height = bottom.bottom - top.top;
       ctx.rect(left.left - offsetX, top.top - offsetY, width, height);
       ctx.clip();
-      drawTextBox(cell.value, style, cell.type, left, top, right, bottom);
+      drawBox(cell.value, style, cell.type, left, top, right, bottom);
       ctx.restore();
       return;
     }
@@ -174,7 +187,7 @@ function drawCells() {
     }
     ctx.clip();
 
-    drawTextBox(cell.value, style, cell.type, col, row, col, row);
+    drawBox(cell.value, style, cell.type, col, row, col, row);
     ctx.restore();
   }
 }
@@ -264,8 +277,8 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
 
   drawBackgroundGrid();
   drawMerges();
-  drawSelectionBackground();
   drawCells();
+  drawSelectionBackground();
   drawSelectionOutline();
   drawHeader();
   drawHighlights();

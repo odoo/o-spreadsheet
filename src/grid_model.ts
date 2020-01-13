@@ -28,6 +28,7 @@ export interface Style {
   italic?: boolean;
   strikethrough?: boolean;
   align?: "left" | "right";
+  fillColor?: string;
 }
 
 interface CellData {

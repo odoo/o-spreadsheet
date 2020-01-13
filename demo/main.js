@@ -32,18 +32,18 @@ class App extends Component {
         rows: {},
         cells: {
           B2: { content: "Owl is awesome", style: 1 },
-          B4: { content: "Numbers" },
+          B4: { content: "Numbers", style: 4 },
           C4: { content: "12.4" },
           C5: { content: "42" },
           C7: { content: "3" },
-          B9: { content: "Formulas" },
+          B9: { content: "Formulas", style: 4 },
           C9: { content: "= SUM ( C4 : C5 )" },
           C10: { content: "=SUM(C4:C7)" },
           D10: { content: "note that C7 is empty" },
           C11: { content: "=-(3 + C7 *SUM(C4:C7))" },
           C12: { content: "=SUM(C9:C11)" },
           D12: { content: "this is a sum of sums" },
-          B14: { content: "Errors" },
+          B14: { content: "Errors", style: 4 },
           C14: { content: "=C14" },
           C15: { content: "=(+" },
           C16: { content: "=C15" },
@@ -54,7 +54,8 @@ class App extends Component {
         styles: {
           1: { bold: true },
           2: { italic: true },
-          3: { strikethrough: true }
+          3: { strikethrough: true },
+          4: { fillColor: "#93d051"},
         },
         merges: ["H2:I5"]
       }
