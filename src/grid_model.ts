@@ -15,7 +15,7 @@ const fns = Object.fromEntries(Object.entries(functions).map(([k, v]) => [k, v.c
 export const DEFAULT_STYLE: Style = {
   fillColor: "white",
   textColor: "black",
-  fontSize: 10,
+  fontSize: 10
 };
 
 // ---------------------------------------------------------------------------
@@ -227,7 +227,7 @@ export class GridModel extends owl.core.EventBus {
       this.nextId = Math.max(k as any, this.nextId);
     }
     this.nextId++;
-    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0])
+    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
 
     const sheet = data.sheets[0];
     this.activateSheet(sheet);

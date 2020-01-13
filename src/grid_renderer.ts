@@ -120,9 +120,10 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
       bottom.bottom - top.top - 2 * lw
     );
   }
+  ctx.textBaseline = "middle";
   ctx.fillStyle = style.textColor || "#000";
   let x;
-  let y = (top.top + bottom.bottom) / 2 - offsetY + 3;
+  let y = (top.top + bottom.bottom) / 2 - offsetY + 1;
   if (align === "left") {
     x = left.left - offsetX + 3;
   } else if (align === "right") {
@@ -137,7 +138,7 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
     if (align === "right") {
       x = x - width;
     }
-    ctx.fillRect(x, y - 3, width, 2.5 * thinLineWidth());
+    ctx.fillRect(x, y, width, 2.6 * thinLineWidth());
   }
 }
 

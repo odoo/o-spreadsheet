@@ -23,7 +23,7 @@ describe("data", () => {
       sheets: [
         {
           colNumber: 10,
-          rowNumber: 10,
+          rowNumber: 10
         }
       ]
     });

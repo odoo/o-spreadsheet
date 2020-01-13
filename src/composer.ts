@@ -19,10 +19,8 @@ const CSS = css/* scss */ `
   .o-composer {
     box-sizing: border-box;
     position: absolute;
-    border: 1.4px solid #3266ca;
+    border: 1.5px solid #3266ca;
     font-family: arial;
-    padding: 2px;
-    padding-top: 3px;
     padding-left: 2px;
     padding-right: 4px;
     background-color: white;
@@ -58,9 +56,8 @@ export class Composer extends Component<any, any> {
     el.style.width = Math.max(el.scrollWidth + 2, width + 1.5) as any;
 
     el.focus();
-    el.style.width = (width + 1) as any;
-    el.style.width = Math.max(el.scrollWidth + 3, width + 1) as any;
-
+    el.style.width = (width + 1.5) as any;
+    el.style.width = Math.max(el.scrollWidth + 3, width + 1.5) as any;
     const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
     range.selectNodeContents(el); //Select the entire contents of the element with the range
     range.collapse(false); //collapse the range to the end point. false means collapse to end rather than the start
@@ -92,8 +89,9 @@ export class Composer extends Component<any, any> {
     const position =
       align === "left"
         ? `left: ${col.left - offsetX}px;`
-        : `right: ${this.model.clientWidth - (cols[this.zone.right].right - offsetX)}px;`;
-    return `${position}top:${top}px;height:${height};text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
+        : `right: ${this.model.clientWidth - (cols[this.zone.right].right - offsetX) - 2}px;`;
+    return `${position}top:${top}px;height:${height};line-height:${height -
+      1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
 
   onInput() {
