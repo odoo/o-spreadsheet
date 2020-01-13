@@ -40,7 +40,7 @@ export interface Style {
 }
 
 interface CellData {
-  content: string;
+  content?: string;
   style?: number;
 }
 
@@ -292,10 +292,10 @@ export class GridModel extends owl.core.EventBus {
   addCell(xc: string, data: CellData) {
     const [col, row] = toCartesian(xc);
     const currentCell = this.cells[xc];
-    const content = data.content;
+    const content = data.content || "";
     const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
     const value =
-      type === "text" ? content : type === "number" ? +parseFloat(data.content).toFixed(4) : null;
+      type === "text" ? content : type === "number" ? +parseFloat(content).toFixed(4) : null;
     const cell: Cell = { col, row, xc, content, value, type };
     const style = data.style || (currentCell && currentCell.style);
     if (style) {
@@ -449,8 +449,12 @@ export class GridModel extends owl.core.EventBus {
   deleteCell(xc: string) {
     const cell = this.cells[xc];
     if (cell) {
-      delete this.cells[xc];
-      delete this.rows[cell.row].cells[cell.col];
+      if ("style" in cell) {
+        this.addCell(xc, { content: "", style: cell.style });
+      } else {
+        delete this.cells[xc];
+        delete this.rows[cell.row].cells[cell.col];
+      }
     }
   }
 
@@ -577,7 +581,7 @@ export class GridModel extends owl.core.EventBus {
   startEditing(str?: string) {
     if (!str) {
       const cell = this.selectedCell;
-      str = cell ? cell.content : "";
+      str = cell ? cell.content || "" : "";
     }
     this.isEditing = true;
     this.currentContent = str;
@@ -689,7 +693,7 @@ export class GridModel extends owl.core.EventBus {
         const originCell = cells[i][j];
         const targetCell = this.getCell(col + i, row + j);
         if (originCell) {
-          let content = originCell.content;
+          let content = originCell.content || "";
           if (originCell.type === "formula") {
             content = applyOffset(content, offsetX, offsetY);
           }
