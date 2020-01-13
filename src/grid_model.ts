@@ -1,4 +1,4 @@
-import { numberToLetters, toCartesian, toXC } from "./helpers";
+import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "./helpers";
 import { compileExpression, applyOffset } from "./expressions";
 import { functions } from "./functions";
 import * as owl from "@odoo/owl";
@@ -747,23 +747,4 @@ export class GridModel extends owl.core.EventBus {
     }
     this.notify();
   }
-}
-
-function stringify(obj): string {
-  return JSON.stringify(obj, Object.keys(obj).sort());
-}
-
-function union(z1: Zone, z2: Zone): Zone {
-  return {
-    top: Math.min(z1.top, z2.top),
-    left: Math.min(z1.left, z2.left),
-    bottom: Math.max(z1.bottom, z2.bottom),
-    right: Math.max(z1.right, z2.right)
-  };
-}
-
-function isEqual(z1: Zone, z2: Zone): boolean {
-  return (
-    z1.left === z2.left && z1.right === z2.right && z1.top === z2.top && z1.bottom === z2.bottom
-  );
 }

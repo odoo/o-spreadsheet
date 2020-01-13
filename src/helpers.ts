@@ -1,3 +1,7 @@
+// Be aware that this is just a type import! This file should not depend on
+// other files, to avoid circular dependencies.
+import { Zone } from "./grid_model";
+
 /**
  *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
  */
@@ -38,6 +42,40 @@ export function toCartesian(cell: string): [number, number] {
   return [col, row];
 }
 
+/**
+ * Convert from cartesian coordinate to xc coordinate system.
+ */
 export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);
+}
+
+/**
+ * Stringify an object, like JSON.stringify, except that the first level of keys
+ * is ordered.
+ */
+export function stringify(obj): string {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+
+/**
+ * Compute the union of two zones. It is the smallest zone which contains the
+ * two arguments.
+ */
+export function union(z1: Zone, z2: Zone): Zone {
+  return {
+    top: Math.min(z1.top, z2.top),
+    left: Math.min(z1.left, z2.left),
+    bottom: Math.max(z1.bottom, z2.bottom),
+    right: Math.max(z1.right, z2.right)
+  };
+}
+
+/**
+ * Two zones are equal if they represent the same area, so we clearly cannot use
+ * reference equality.
+ */
+export function isEqual(z1: Zone, z2: Zone): boolean {
+  return (
+    z1.left === z2.left && z1.right === z2.right && z1.top === z2.top && z1.bottom === z2.bottom
+  );
 }
