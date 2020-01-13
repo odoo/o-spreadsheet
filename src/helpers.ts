@@ -1,4 +1,3 @@
-import * as owl from "@odoo/owl";
 /**
  *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
  */
@@ -41,17 +40,4 @@ export function toCartesian(cell: string): [number, number] {
 
 export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);
-}
-
-// -----------------------------------------------------------------------------
-// Hooks
-// -----------------------------------------------------------------------------
-const { Component } = owl;
-
-// to do: remove this, use owl hook
-export function useExternalListener(target, eventName, handler) {
-  const boundHandler = handler.bind(Component.current);
-
-  owl.hooks.onMounted(() => target.addEventListener(eventName, boundHandler));
-  owl.hooks.onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
 }

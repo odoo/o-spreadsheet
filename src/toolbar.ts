@@ -1,10 +1,10 @@
 import * as owl from "@odoo/owl";
 
-import { useExternalListener } from "./helpers";
 import { GridModel } from "./grid_model";
 
-const { Component, useState } = owl;
+const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
+const { useExternalListener } = hooks;
 
 const GRAY_COLOR = "#f5f5f5";
 
@@ -162,7 +162,7 @@ export class ToolBar extends Component<any, any> {
 
   constructor() {
     super(...arguments);
-    useExternalListener(window, "click", this.closeMenus);
+    useExternalListener(window as any, "click", this.closeMenus);
   }
 
   async willStart() {

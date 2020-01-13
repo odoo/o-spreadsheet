@@ -5058,9 +5058,9 @@
     exports.useState = useState$1;
     exports.utils = utils;
 
-    exports.__info__.version = '1.0.0-beta7';
-    exports.__info__.date = '2020-01-09T13:31:58.108Z';
-    exports.__info__.hash = '961ac5e';
+    exports.__info__.version = '1.0.3';
+    exports.__info__.date = '2020-01-13T10:08:17.228Z';
+    exports.__info__.hash = '3fcbb9a';
     exports.__info__.url = 'https://github.com/odoo/owl';
 
 }(this.owl = this.owl || {}));

@@ -3,10 +3,9 @@ import * as owl from "@odoo/owl";
 import { Grid } from "./grid";
 import { GridModel, GridData } from "./grid_model";
 import { ToolBar } from "./toolbar";
-import { useExternalListener } from "./helpers";
 
 const { Component } = owl;
-const { useRef } = owl.hooks;
+const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 
 // -----------------------------------------------------------------------------
@@ -39,7 +38,7 @@ export class Spreadsheet extends Component<any, Props> {
 
   constructor() {
     super(...arguments);
-    useExternalListener(window, "resize", this.render);
+    useExternalListener(window as any, "resize", this.render);
   }
 
   mounted() {

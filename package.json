@@ -42,7 +42,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@odoo/owl": "^1.0.2"
+    "@odoo/owl": "^1.0.3"
   },
   "jest": {
     "roots": [
