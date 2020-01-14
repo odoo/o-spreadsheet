@@ -112,6 +112,29 @@ describe("merges", () => {
     expect(model.cells["B2"].content).toBe("new value");
   });
 
+  test("setting a style to a merge actually edits the top left", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } },
+          merges: ["B2:C3"]
+        }
+      ]
+    });
+    observeModel(model);
+
+    model.selectCell(2, 2);
+    expect(model.activeXc).toBe("C3");
+    expect(Object.keys(model.cells)).toEqual(['B2']);
+    expect(model.cells['B2'].style).not.toBeDefined();
+
+    model.setStyle({fillColor: "#333"});
+    expect(Object.keys(model.cells)).toEqual(['B2']);
+    expect(model.cells['B2'].style).toBeDefined();
+  });
+
   test("when moving in a merge, selected cell is topleft", () => {
     const model = new GridModel({
       sheets: [

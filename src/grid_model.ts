@@ -772,7 +772,7 @@ export class GridModel extends owl.core.EventBus {
     this.notify();
   }
 
-  setStyle(style) {
+  setStyle(style: Style) {
     this.selections.zones.forEach(selection => {
       for (let col = selection.left; col <= selection.right; col++) {
         for (let row = selection.top; row <= selection.bottom; row++) {
@@ -785,6 +785,12 @@ export class GridModel extends owl.core.EventBus {
 
   setStyleToCell(col: number, row: number, style) {
     const xc = toXC(col, row);
+    if (xc in this.mergeCellMap) {
+      const merge = this.merges[this.mergeCellMap[xc]];
+      if (xc !== merge.topLeft) {
+        return;
+      }
+    }
     const cell = this.getCell(col, row);
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
