@@ -30,7 +30,7 @@ function dpr() {
 }
 
 function thinLineWidth() {
-  return 0.5 / dpr();
+  return 0.4 * dpr();
 }
 
 function drawHeader() {
@@ -94,8 +94,8 @@ function hLine(ctx, y, width) {
 function drawBackgroundGrid() {
   const { top, left, bottom, right } = viewport;
 
-  ctx.lineWidth = 0.3 * thinLineWidth();
-  ctx.strokeStyle = "black";
+  ctx.lineWidth = thinLineWidth();
+  ctx.strokeStyle = "#AAA";
   // vertical lines
   for (let i = left; i <= right; i++) {
     const col = cols[i];
@@ -155,7 +155,7 @@ function drawTextBox(
 
 function drawBackgroundBox(style: Style, left: Col, top: Row, right: Col, bottom: Row) {
   if (style.fillColor) {
-    const lw = 0.3 * thinLineWidth();
+    const lw = 0.5 * thinLineWidth();
     ctx.fillStyle = style.fillColor;
     ctx.fillRect(
       left.left - offsetX + lw,
