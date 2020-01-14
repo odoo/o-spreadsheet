@@ -98,6 +98,7 @@ Object.defineProperty(HTMLDivElement.prototype, "innerText", {
   }
 });
 
+let el;
 window.document.createRange = () =>
   ({
     setStart: () => {},
@@ -106,10 +107,11 @@ window.document.createRange = () =>
       nodeName: "BODY",
       ownerDocument: document
     },
-    selectNodeContents: () => {},
-    collapse: () => {}
+    selectNodeContents: (_el) => {el = _el},
+    collapse: () => {},
+
   } as any);
 
 window.getSelection = (() => {
-  return { removeAllRanges: () => {}, addRange: () => {} };
+  return { removeAllRanges: () => {}, addRange: () => {el.focus()} };
 }) as any;
