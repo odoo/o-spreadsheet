@@ -90,3 +90,13 @@ export function isEqual(z1: Zone, z2: Zone): boolean {
     z1.left === z2.left && z1.right === z2.right && z1.top === z2.top && z1.bottom === z2.bottom
   );
 }
+
+export function overlap(r1: Zone, r2: Zone) {
+  if (r1.bottom < r2.top || r2.bottom < r2.top) {
+    return false;
+  }
+  if (r1.right < r2.left || r2.right < r1.left) {
+    return false;
+  }
+  return true;
+}

@@ -9,7 +9,7 @@ import {
   Style,
   Merge
 } from "./grid_model";
-import { toXC } from "./helpers";
+import { toXC, overlap } from "./helpers";
 import { fontSizeMap } from "./fonts";
 
 // Global variables
@@ -153,15 +153,22 @@ function drawTextBox(
   }
 }
 
-function drawBackgroundBox(style: Style, left: Col, top: Row, right: Col, bottom: Row) {
+function drawBackgroundBox(
+  style: Style,
+  left: Col,
+  top: Row,
+  right: Col,
+  bottom: Row,
+  inset: number
+) {
   if (style.fillColor) {
-    const lw = 0.5 * thinLineWidth();
+    // const lw = 0.5 * thinLineWidth();
     ctx.fillStyle = style.fillColor;
     ctx.fillRect(
-      left.left - offsetX + lw,
-      top.top - offsetY + lw,
-      right.right - left.left - 2 * lw,
-      bottom.bottom - top.top - 2 * lw
+      left.left - offsetX + inset,
+      top.top - offsetY + inset,
+      right.right - left.left - 2 * inset,
+      bottom.bottom - top.top - 3 * inset
     );
   }
 }
@@ -212,20 +219,13 @@ function drawCells() {
     }
     ctx.clip();
 
-    drawBackgroundBox(style, col, row, col, row);
+    ctx.globalCompositeOperation = "multiply";
+    const lw = -0.3 * thinLineWidth();
+    drawBackgroundBox(style, col, row, col, row, lw);
+    ctx.globalCompositeOperation = "source-over";
     drawTextBox(cell.value, style, cell.type, col, row, col, row);
     ctx.restore();
   }
-}
-
-function overlap(r1, r2) {
-  if (r1.bottom < r2.top || r2.bottom < r2.top) {
-    return false;
-  }
-  if (r1.right < r2.left || r2.right < r1.left) {
-    return false;
-  }
-  return true;
 }
 
 function drawMerges() {
@@ -245,7 +245,8 @@ function drawMerges() {
     const right = cols[merge.right];
     const top = rows[merge.top];
     const bottom = rows[merge.bottom];
-    drawBackgroundBox(style, left, top, right, bottom);
+    const lw = 0.3 * thinLineWidth();
+    drawBackgroundBox(style, left, top, right, bottom, lw);
     if (refCell) {
       drawTextBox(refCell.value, style, refCell.type, left, top, right, bottom);
     }
