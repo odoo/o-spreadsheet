@@ -26,6 +26,7 @@
   "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@types/jest": "^24.0.25",
+    "babel-eslint": "^10.0.3",
     "cpr": "^3.0.1",
     "eslint": "^6.8.0",
     "git-rev-sync": "^2.0.0",
@@ -42,7 +43,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@odoo/owl": "^1.0.3"
+    "@odoo/owl": "^1.0.2"
   },
   "jest": {
     "roots": [
