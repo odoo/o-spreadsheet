@@ -122,7 +122,7 @@ class Resizer extends Component<any, any> {
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet" t-on-click="focus">
     <t t-if="model.isEditing">
-      <Composer model="model" />
+      <Composer model="model" t-ref="composer" />
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -169,11 +169,14 @@ const CSS = css/* scss */ `
 
 // -----------------------------------------------------------------------------
 // JS
+
 // -----------------------------------------------------------------------------
 export class Grid extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Composer, Resizer };
+
+  composer = useRef("composer");
 
   vScrollbar = useRef("vscrollbar");
   hScrollbar = useRef("hscrollbar");
@@ -202,13 +205,12 @@ export class Grid extends Component<any, any> {
   patched() {
     this.updateVisibleZone();
     this.drawGrid();
-    if (this.hasFocus && !this.el!.contains(document.activeElement)) {
-      this.canvas.el!.focus();
-    }
   }
 
   focus() {
-    this.canvas.el!.focus();
+    if (!this.model.isSelectingRange) {
+      this.canvas.el!.focus();
+    }
   }
 
   onScroll() {
@@ -285,7 +287,12 @@ export class Grid extends Component<any, any> {
         this.model.updateSelection(col, row);
       }
     };
-    const onMouseUp = () => {
+    const onMouseUp = ev => {
+      if (this.model.isSelectingRange) {
+        if (this.composer.comp) {
+          (this.composer.comp as Composer).addTextFromSelection();
+        }
+      }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
     };
 
@@ -321,6 +328,21 @@ export class Grid extends Component<any, any> {
       }
       return;
     }
+    if (this.model.isSelectingRange) {
+      switch (ev.key) {
+        case "Enter":
+          if (this.composer.comp) {
+            (this.composer.comp as Composer).addTextFromSelection();
+            this.model.isSelectingRange = false;
+          }
+          return;
+
+        case "Escape":
+          this.model.isSelectingRange = false;
+          ev.stopPropagation();
+          return;
+      }
+    }
 
     if (ev.key === "Tab") {
       ev.preventDefault();
@@ -328,7 +350,7 @@ export class Grid extends Component<any, any> {
       this.model.movePosition(deltaX, 0);
       return;
     }
-    if (ev.key === "Enter") {
+    if (ev.key === "F2" || ev.key === "Enter") {
       this.model.startEditing();
       return;
     }

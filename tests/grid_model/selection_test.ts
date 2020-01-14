@@ -167,4 +167,49 @@ describe("selection", () => {
 
     expect(model.selections.zones[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
   });
+
+  test("can select part of a formula", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    model.selectCell(2, 2);
+    expect(model.activeXc).toBe("C3");
+    model.isSelectingRange = true;
+    model.selectCell(3, 3);
+    expect(model.activeXc).toBe("C3"); // active cell is not modified but the selection is
+
+    expect(model.selections).toEqual({
+      anchor: { col: 3, row: 3 },
+      zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
+    });
+  });
+
+  test("extend selection works based on selection anchor, not active cell", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    model.selectCell(2, 2); // select C3
+
+    model.isSelectingRange = true;
+    model.selectCell(3, 3);
+    model.updateSelection(4, 4);
+
+    expect(model.activeXc).toBe("C3"); // active cell is not modified but the selection is
+    expect(model.activeCol).toBe(2);
+    expect(model.activeRow).toBe(2);
+    expect(model.selections).toEqual({
+      anchor: { col: 3, row: 3 },
+      zones: [{ left: 3, top: 3, right: 4, bottom: 4 }]
+    });
+  });
 });
