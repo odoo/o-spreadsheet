@@ -263,6 +263,7 @@ export class ToolBar extends Component<any, any> {
             &:hover {
               outline: 1px solid gray;
             }
+          }
         }
       }
       .o-cell-content {

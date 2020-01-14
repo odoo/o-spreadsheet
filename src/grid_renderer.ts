@@ -83,7 +83,7 @@ function drawBackgroundGrid() {
   const { top, left, bottom, right } = viewport;
 
   ctx.lineWidth = thinLineWidth();
-  ctx.strokeStyle = "#AAA";
+  ctx.strokeStyle = "#999";
   // vertical lines
   for (let i = left; i <= right; i++) {
     const col = cols[i];
@@ -113,13 +113,14 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
   ctx.font = `${italic}${weight} ${size}px arial`;
   if (style.fillColor) {
     ctx.fillStyle = style.fillColor;
-    const lw = thinLineWidth();
+    ctx.globalCompositeOperation = "multiply";
     ctx.fillRect(
-      left.left - offsetX + lw,
-      top.top - offsetY + lw,
-      right.right - left.left - 2 * lw,
-      bottom.bottom - top.top - 2 * lw
+      left.left - offsetX + 1.2,
+      top.top - offsetY + 1.2,
+      right.right - left.left - 2.4,
+      bottom.bottom - top.top - 2.4
     );
+    ctx.globalCompositeOperation = "source-over";
   }
   ctx.textBaseline = "middle";
   ctx.fillStyle = style.textColor || "#000";
