@@ -232,10 +232,13 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     if (tokens.shift()!.type !== "LEFT_PAREN") {
       throw new Error("wrong function call");
     }
-    const args = [parseExpression(tokens, 10)];
-    while (tokens[0].type === "COMMA") {
-      tokens.shift();
+    const args: AST[] = [];
+    if (tokens[0].type !== "RIGHT_PAREN") {
       args.push(parseExpression(tokens, 10));
+      while (tokens[0].type === "COMMA") {
+        tokens.shift();
+        args.push(parseExpression(tokens, 10));
+      }
     }
     if (tokens.shift()!.type !== "RIGHT_PAREN") {
       throw new Error("wrong function call");

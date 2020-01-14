@@ -107,11 +107,17 @@ window.document.createRange = () =>
       nodeName: "BODY",
       ownerDocument: document
     },
-    selectNodeContents: (_el) => {el = _el},
-    collapse: () => {},
-
+    selectNodeContents: _el => {
+      el = _el;
+    },
+    collapse: () => {}
   } as any);
 
 window.getSelection = (() => {
-  return { removeAllRanges: () => {}, addRange: () => {el.focus()} };
+  return {
+    removeAllRanges: () => {},
+    addRange: () => {
+      el.focus();
+    }
+  };
 }) as any;

@@ -1,4 +1,4 @@
-import { tokenize, applyOffset } from "../src/expressions";
+import { tokenize, applyOffset, parse } from "../src/expressions";
 
 describe("tokenizer", () => {
   test("simple token", () => {
@@ -99,6 +99,33 @@ describe("tokenizer", () => {
         value: "test"
       }
     ]);
+  });
+
+  test("Function token", () => {
+    expect(tokenize("SUM")).toEqual([
+      {
+        start: 0,
+        end: 3,
+        length: 3,
+        type: "FUNCTION",
+        value: "SUM"
+      }
+    ]);
+    expect(tokenize("RAND")).toEqual([
+      {
+        start: 0,
+        end: 4,
+        length: 4,
+        type: "FUNCTION",
+        value: "RAND"
+      }
+    ]);
+  });
+});
+
+describe("parser", () => {
+  test("can parse a function call with no argument", () => {
+    expect(parse("RAND()")).toEqual({ debug: false, type: "FUNCALL", value: "RAND", args: [] });
   });
 });
 
