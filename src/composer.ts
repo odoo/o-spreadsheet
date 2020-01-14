@@ -40,6 +40,9 @@ export class Composer extends Component<any, any> {
   zone: Zone;
   selectionEnd: number = 0;
   selectionStart: number = 0;
+  // a composer edits a single cell. After that, it is done and should not
+  // modify the model anymore.
+  isDone: boolean = false;
 
   constructor() {
     super(...arguments);
@@ -134,6 +137,9 @@ export class Composer extends Component<any, any> {
   }
 
   onInput() {
+    if (this.isDone) {
+      return;
+    }
     // write in place? or go through a method probably
     const el = this.el as HTMLInputElement;
     if (el.clientWidth !== el.scrollWidth) {
@@ -151,13 +157,16 @@ export class Composer extends Component<any, any> {
       case "Enter":
         this.model.stopEditing();
         this.model.movePosition(0, ev.shiftKey ? -1 : 1);
+        this.isDone = true;
         break;
       case "Escape":
         this.model.cancelEdition();
+        this.isDone = true;
         break;
       case "Tab":
         ev.preventDefault();
         const deltaX = ev.shiftKey ? -1 : 1;
+        this.isDone = true;
         this.model.movePosition(deltaX, 0);
         break;
     }
