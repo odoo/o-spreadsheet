@@ -1,4 +1,14 @@
-import { HEADER_WIDTH, HEADER_HEIGHT, GridModel, Col, Row, Cell, Zone, Style } from "./grid_model";
+import {
+  HEADER_WIDTH,
+  HEADER_HEIGHT,
+  GridModel,
+  Col,
+  Row,
+  Cell,
+  Zone,
+  Style,
+  Merge
+} from "./grid_model";
 import { toXC } from "./helpers";
 import { fontSizeMap } from "./fonts";
 
@@ -84,8 +94,8 @@ function hLine(ctx, y, width) {
 function drawBackgroundGrid() {
   const { top, left, bottom, right } = viewport;
 
-  ctx.lineWidth = thinLineWidth();
-  ctx.strokeStyle = "#999";
+  ctx.lineWidth = 0.3 * thinLineWidth();
+  ctx.strokeStyle = "black";
   // vertical lines
   for (let i = left; i <= right; i++) {
     const col = cols[i];
@@ -100,30 +110,27 @@ function drawBackgroundGrid() {
 }
 
 /**
- * Main entry point for drawing a box content (either a cell or a merge).
- * It draws the background, the text, and align it properly.
+ * Main entry point for drawing a text box content (either a cell or a merge).
+ * It draws everything related to the text.
  *
  * Note that it does not clip the text to the box area.  Clipping (if necessary)
  * should be done by the caller.
  */
-function drawBox(text: string, style: Style, type, left: Col, top: Row, right: Col, bottom: Row) {
+function drawTextBox(
+  text: string,
+  style: Style,
+  type,
+  left: Col,
+  top: Row,
+  right: Col,
+  bottom: Row
+) {
   const align = style.align || (type === "text" ? "left" : "right");
   const italic = style.italic ? "italic " : "";
   const weight = style.bold ? "bold" : "500";
   const sizeInPt = style.fontSize || 10;
   const size = fontSizeMap[sizeInPt];
   ctx.font = `${italic}${weight} ${size}px arial`;
-  if (style.fillColor) {
-    ctx.fillStyle = style.fillColor;
-    ctx.globalCompositeOperation = "multiply";
-    ctx.fillRect(
-      left.left - offsetX,
-      top.top - offsetY,
-      right.right - left.left,
-      bottom.bottom - top.top
-    );
-    ctx.globalCompositeOperation = "source-over";
-  }
   ctx.textBaseline = "middle";
   ctx.fillStyle = style.textColor || "#000";
   let x;
@@ -143,6 +150,19 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
       x = x - width;
     }
     ctx.fillRect(x, y, width, 2.6 * thinLineWidth());
+  }
+}
+
+function drawBackgroundBox(style: Style, left: Col, top: Row, right: Col, bottom: Row) {
+  if (style.fillColor) {
+    const lw = 0.3 * thinLineWidth();
+    ctx.fillStyle = style.fillColor;
+    ctx.fillRect(
+      left.left - offsetX + lw,
+      top.top - offsetY + lw,
+      right.right - left.left - 2 * lw,
+      bottom.bottom - top.top - 2 * lw
+    );
   }
 }
 
@@ -169,23 +189,11 @@ function drawCells() {
   function drawCell(col: Col, row: Row, cell: Cell) {
     const style = cell.style ? styles[cell.style] : {};
     const align = style.align || (cell.type === "text" ? "left" : "right");
-    ctx.save();
 
     if (cell.xc in model.mergeCellMap) {
-      // this should be a topleft cell for a merge
-      const merge = model.merges[model.mergeCellMap[cell.xc]];
-      const left = cols[merge.left];
-      const right = cols[merge.right];
-      const top = rows[merge.top];
-      const bottom = rows[merge.bottom];
-      const width = right.right - left.left;
-      const height = bottom.bottom - top.top;
-      ctx.rect(left.left - offsetX, top.top - offsetY, width, height);
-      ctx.clip();
-      drawBox(cell.value, style, cell.type, left, top, right, bottom);
-      ctx.restore();
       return;
     }
+    ctx.save();
     // Compute clip zone
     if (align === "left") {
       let c = cell.col;
@@ -204,7 +212,8 @@ function drawCells() {
     }
     ctx.clip();
 
-    drawBox(cell.value, style, cell.type, col, row, col, row);
+    drawBackgroundBox(style, col, row, col, row);
+    drawTextBox(cell.value, style, cell.type, col, row, col, row);
     ctx.restore();
   }
 }
@@ -221,8 +230,6 @@ function overlap(r1, r2) {
 
 function drawMerges() {
   const { merges, styles } = model;
-  const hl = 0.8 * thinLineWidth();
-  ctx.strokeStyle = "#777";
   ctx.fillStyle = styles[0].fillColor || "white";
   for (let id in merges) {
     let merge = merges[id];
@@ -231,12 +238,17 @@ function drawMerges() {
     }
   }
 
-  function drawMerge(merge) {
-    let x1 = cols[merge.left].left - offsetX + hl;
-    let x2 = cols[merge.right].right - offsetX - hl;
-    let y1 = rows[merge.top].top - offsetY + hl;
-    let y2 = rows[merge.bottom].bottom - offsetY - hl;
-    ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+  function drawMerge(merge: Merge) {
+    const refCell = cells[merge.topLeft];
+    const style = styles[refCell ? refCell.style || 0 : 0];
+    const left = cols[merge.left];
+    const right = cols[merge.right];
+    const top = rows[merge.top];
+    const bottom = rows[merge.bottom];
+    drawBackgroundBox(style, left, top, right, bottom);
+    if (refCell) {
+      drawTextBox(refCell.value, style, refCell.type, left, top, right, bottom);
+    }
   }
 }
 
