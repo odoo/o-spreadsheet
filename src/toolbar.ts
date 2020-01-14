@@ -32,6 +32,102 @@ const ALIGN_MIDDLE_ICON = `<svg><path fill="#000000" d="M9.5,3 L7,3 L7,0 L5,0 L5
 const TEXT_WRAPPING_ICON = `<svg><path fill="#000000" d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z" transform="translate(2 3)"/></svg>`;
 const BORDERS_ICON = `<svg><path fill="#000000" d="M0,0 L0,14 L14,14 L14,0 L0,0 L0,0 Z M6,12 L2,12 L2,8 L6,8 L6,12 L6,12 Z M6,6 L2,6 L2,2 L6,2 L6,6 L6,6 Z M12,12 L8,12 L8,8 L12,8 L12,12 L12,12 Z M12,6 L8,6 L8,2 L12,2 L12,6 L12,6 Z" transform="translate(2 2)"/></svg>`;
 
+const COLORS = [
+  [
+    "#ffffff",
+    "#000100",
+    "#e7e5e6",
+    "#445569",
+    "#5b9cd6",
+    "#ed7d31",
+    "#a5a5a5",
+    "#ffc001",
+    "#4371c6",
+    "#71ae47"
+  ],
+  [
+    "#f2f2f2",
+    "#7f7f7f",
+    "#d0cecf",
+    "#d5dce4",
+    "#deeaf6",
+    "#fce5d5",
+    "#ededed",
+    "#fff2cd",
+    "#d9e2f3",
+    "#e3efd9"
+  ],
+  [
+    "#d8d8d8",
+    "#595959",
+    "#afabac",
+    "#adb8ca",
+    "#bdd7ee",
+    "#f7ccac",
+    "#dbdbdb",
+    "#ffe59a",
+    "#b3c6e7",
+    "#c5e0b3"
+  ],
+  [
+    "#bfbfbf",
+    "#3f3f3f",
+    "#756f6f",
+    "#8596b0",
+    "#9cc2e6",
+    "#f4b184",
+    "#c9c9c9",
+    "#fed964",
+    "#8eaada",
+    "#a7d08c"
+  ],
+  [
+    "#a5a5a5",
+    "#262626",
+    "#3a3839",
+    "#333f4f",
+    "#2e75b5",
+    "#c45a10",
+    "#7b7b7b",
+    "#bf8e01",
+    "#2f5596",
+    "#538136"
+  ],
+  [
+    "#7f7f7f",
+    "#0c0c0c",
+    "#171516",
+    "#222a35",
+    "#1f4e7a",
+    "#843c0a",
+    "#525252",
+    "#7e6000",
+    "#203864",
+    "#365624"
+  ],
+  [
+    "#c00000",
+    "#fe0000",
+    "#fdc101",
+    "#ffff01",
+    "#93d051",
+    "#00b04e",
+    "#01b0f1",
+    "#0170c1",
+    "#012060",
+    "#7030a0"
+  ]
+];
+
+const COLOR_PICKER = xml/* xml */ `
+    <t t-foreach="COLORS" t-as="colors">
+      <div class="o-color-line">
+        <t t-foreach="colors" t-as="color">
+          <div class="o-color" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
+        </t>
+      </div>
+    </t>`;
+
 // -----------------------------------------------------------------------------
 // ToolBar
 // -----------------------------------------------------------------------------
@@ -52,9 +148,19 @@ export class ToolBar extends Component<any, any> {
         <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toggleTool('bold')">${BOLD_ICON}</div>
         <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleTool('italic')">${ITALIC_ICON}</div>
         <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleTool('strikethrough')">${STRIKE_ICON}</div>
-        <div class="o-tool o-with-color" title="Text Color"><span t-attf-style="border-color:{{textColor}}">${TEXT_COLOR_ICON}</span></div>
+        <div class="o-tool o-dropdown o-with-color">
+          <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="state.textColorTool=!state.textColorTool">${TEXT_COLOR_ICON}</span>
+          <div class="o-dropdown-content" t-if="state.textColorTool" t-on-click="setColor('textColor')">
+            <t t-call="${COLOR_PICKER}"/>
+          </div>
+        </div>
         <div class="o-divider"/>
-        <div class="o-tool o-with-color" title="Fill Color"><span t-attf-style="border-color:{{fillColor}}">${FILL_COLOR_ICON}</span></div>
+        <div class="o-tool  o-dropdown o-with-color">
+          <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="state.fillColorTool=!state.fillColorTool">${FILL_COLOR_ICON}</span>
+          <div class="o-dropdown-content" t-if="state.fillColorTool" t-on-click="setColor('fillColor')">
+            <t t-call="${COLOR_PICKER}"/>
+          </div>
+        </div>
         <div class="o-tool" title="Borders">${BORDERS_ICON}</div>
         <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${MERGE_CELL_ICON}</div>
         <div class="o-divider"/>
@@ -146,6 +252,18 @@ export class ToolBar extends Component<any, any> {
           height: 16px;
           margin-top: 2px;
         }
+
+        .o-color-line {
+          display: flex;
+          padding: 3px 6px;
+          .o-color {
+            width: 16px;
+            height: 16px;
+            margin: 1px 3px;
+            &:hover {
+              outline: 1px solid gray;
+            }
+        }
       }
       .o-cell-content {
         font-family: monospace, arial, sans, sans-serif;
@@ -157,11 +275,13 @@ export class ToolBar extends Component<any, any> {
       }
     }
   `;
-
+  COLORS = COLORS;
   model: GridModel = this.props.model;
   style: Style = {};
   state = useState({
-    alignTool: false
+    alignTool: false,
+    textColorTool: false,
+    fillColorTool: false
   });
   inMerge = false;
   cannotMerge = false;
@@ -190,6 +310,8 @@ export class ToolBar extends Component<any, any> {
 
   closeMenus() {
     this.state.alignTool = false;
+    this.state.fillColorTool = false;
+    this.state.textColorTool = false;
   }
 
   updateCellState() {
@@ -213,6 +335,13 @@ export class ToolBar extends Component<any, any> {
       } else {
         this.model.mergeSelection();
       }
+    }
+  }
+  setColor(target, ev) {
+    const color = ev.target.dataset.color;
+    if (color) {
+      this.model.setStyle({ [target]: color });
+      this.closeMenus();
     }
   }
 }
