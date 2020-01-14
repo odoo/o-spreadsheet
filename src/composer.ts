@@ -72,6 +72,10 @@ export class Composer extends Component<any, any> {
     this.addHighlights();
   }
 
+  willUnmount(): void {
+    this.trigger("composer-unmounted");
+  }
+
   willUpdateProps(nextProps: any): Promise<void> {
     if (nextProps.model.currentContent !== this.model.currentContent) {
       console.warn(
@@ -143,20 +147,19 @@ export class Composer extends Component<any, any> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    if (ev.key === "Enter") {
-      this.model.stopEditing();
-      this.model.movePosition(0, ev.shiftKey ? -1 : 1);
-      return;
-    }
-    if (ev.key === "Escape") {
-      this.model.cancelEdition();
-      return;
-    }
-    if (ev.key === "Tab") {
-      ev.preventDefault();
-      const deltaX = ev.shiftKey ? -1 : 1;
-      this.model.movePosition(deltaX, 0);
-      return;
+    switch (ev.key) {
+      case "Enter":
+        this.model.stopEditing();
+        this.model.movePosition(0, ev.shiftKey ? -1 : 1);
+        break;
+      case "Escape":
+        this.model.cancelEdition();
+        break;
+      case "Tab":
+        ev.preventDefault();
+        const deltaX = ev.shiftKey ? -1 : 1;
+        this.model.movePosition(deltaX, 0);
+        break;
     }
   }
 

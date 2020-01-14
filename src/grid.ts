@@ -122,7 +122,7 @@ class Resizer extends Component<any, any> {
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet" t-on-click="focus">
     <t t-if="model.isEditing">
-      <Composer model="model" t-ref="composer" />
+      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -313,6 +313,7 @@ export class Grid extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   onKeydown(ev: KeyboardEvent) {
+    console.log(ev.key);
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
