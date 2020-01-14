@@ -508,34 +508,38 @@ export class GridModel extends owl.core.EventBus {
     this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
 
-  selectCell(col: number, row: number) {
+  selectCell(col: number, row: number, newRange: boolean = false) {
     if (!this.isSelectingRange) {
       this.stopEditing();
     }
 
     const xc = toXC(col, row);
+    let zone: Zone;
     if (xc in this.mergeCellMap) {
       const merge = this.merges[this.mergeCellMap[xc]];
-      this.selections.zones = [
-        {
-          left: merge.left,
-          right: merge.right,
-          top: merge.top,
-          bottom: merge.bottom
-        }
-      ];
+      zone = {
+        left: merge.left,
+        right: merge.right,
+        top: merge.top,
+        bottom: merge.bottom
+      };
     } else {
-      this.selections.zones = [
-        {
-          left: col,
-          right: col,
-          top: row,
-          bottom: row
-        }
-      ];
+      zone = {
+        left: col,
+        right: col,
+        top: row,
+        bottom: row
+      };
+    }
+
+    if (newRange) {
+      this.selections.zones.push(zone);
+    } else {
+      this.selections.zones = [zone];
     }
     this.selections.anchor.col = col;
     this.selections.anchor.row = row;
+
     if (!this.isSelectingRange) {
       this.activeCol = col;
       this.activeRow = row;

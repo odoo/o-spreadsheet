@@ -259,7 +259,7 @@ export class Grid extends Component<any, any> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  onMouseDown(ev) {
+  onMouseDown(ev: MouseEvent) {
     const col = this.model.getCol(ev.offsetX);
     const row = this.model.getRow(ev.offsetY);
     this.clickedCol = col;
@@ -271,7 +271,7 @@ export class Grid extends Component<any, any> {
     if (ev.shiftKey) {
       this.model.updateSelection(col, row);
     } else {
-      this.model.selectCell(col, row);
+      this.model.selectCell(col, row, ev.ctrlKey);
     }
     let prevCol = col;
     let prevRow = row;
