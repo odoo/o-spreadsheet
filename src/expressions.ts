@@ -7,26 +7,29 @@ import { toCartesian, toXC } from "./helpers";
 const OPERATORS = "+,-,*,/,:".split(",");
 const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
+type TokenType =
+  | "OPERATOR"
+  | "NUMBER"
+  | "STRING"
+  | "FUNCTION"
+  | "VARIABLE"
+  | "SPACE"
+  | "FORMULA"
+  | "DEBUGGER"
+  | "COMMA"
+  | "LEFT_PAREN"
+  | "RIGHT_PAREN";
+
 interface Token {
   start: number;
   end: number;
   length: number;
-  type:
-    | "OPERATOR"
-    | "NUMBER"
-    | "FUNCTION"
-    | "VARIABLE"
-    | "SPACE"
-    | "FORMULA"
-    | "DEBUGGER"
-    | "COMMA"
-    | "LEFT_PAREN"
-    | "RIGHT_PAREN";
+  type: TokenType;
   value: any;
 }
 
 export function tokenize(str: string): Token[] {
-  const chars = str.toUpperCase().split("");
+  const chars = str.split("");
   const result: Token[] = [];
   let i = 0;
 
@@ -38,6 +41,7 @@ export function tokenize(str: string): Token[] {
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
+      tokenizeString(chars) ||
       tokenizeSymbol(chars);
     if (!token) {
       throw new Error("Tokenizer error");
@@ -104,13 +108,33 @@ function tokenizeNumber(chars): Token | null {
   return null;
 }
 
+function tokenizeString(chars): Token | null {
+  const quotes = ["'", '"'];
+  if (quotes.includes(chars[0])) {
+    const startChar = chars.shift();
+    const letters: any[] = [];
+    while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === '\\')) {
+      letters.push(chars.shift());
+    }
+    chars.shift();
+    return {
+      type: "STRING",
+      value: letters.join(""),
+      length: letters.length + 2, //Takes the quotes
+      start: 0,
+      end: 0
+    };
+  }
+  return null;
+}
+
 function tokenizeSymbol(chars): Token | null {
   const result: any[] = [];
   while (chars[0] && chars[0].match(/\w/)) {
     result.push(chars.shift());
   }
   if (result.length) {
-    const value = result.join("");
+    const value = result.join("").toUpperCase();
     const isFunction = FUNCTION_NAMES.includes(value);
     const type = isFunction ? "FUNCTION" : "VARIABLE";
     return { type, value, length: result.length, start: 0, end: 0 };
@@ -142,6 +166,12 @@ interface ASTNumber extends ASTBase {
   type: "NUMBER";
   value: number;
 }
+
+interface ASTString extends ASTBase {
+  type: "STRING";
+  value: string;
+}
+
 interface ASTVariable extends ASTBase {
   type: "VARIABLE";
   value: string;
@@ -159,7 +189,7 @@ interface ASTFuncall extends ASTBase {
   args: AST[];
 }
 
-type AST = ASTOperation | ASTFuncall | ASTNumber | ASTVariable;
+type AST = ASTOperation | ASTFuncall | ASTNumber | ASTString | ASTVariable;
 
 function bindingPower(token: Token): number {
   switch (token.type) {
@@ -179,7 +209,7 @@ function bindingPower(token: Token): number {
 }
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
-  if (current.type === "NUMBER" || current.type === "VARIABLE") {
+  if (current.type === "NUMBER" || current.type === "VARIABLE" || current.type === "STRING") {
     return { type: current.type, value: current.value };
   }
   if (current.type === "LEFT_PAREN") {
@@ -269,6 +299,8 @@ export function compileExpression(str: string): Function {
     switch (ast.type) {
       case "NUMBER":
         return ast.value;
+      case "STRING":
+        return `'${ast.value}'`;
       case "VARIABLE":
         return `getValue('${ast.value}')`;
       case "FUNCALL":

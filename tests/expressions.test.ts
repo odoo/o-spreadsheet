@@ -55,6 +55,51 @@ describe("tokenizer", () => {
       }
     ]);
   });
+  test("String", () => {
+    expect(tokenize("'hello'")).toEqual([
+      {
+        start: 0,
+        end: 7,
+        length: 7,
+        type: "STRING",
+        value: "hello"
+      }
+    ]);
+    expect(tokenize("'he\\\'l\\\'lo'")).toEqual([
+      {
+        start: 0,
+        end: 11,
+        length: 11,
+        type: "STRING",
+        value: "he\\\'l\\\'lo"
+      }
+    ]);
+    expect(tokenize("'hel\"l\"o'")).toEqual([
+      {
+        start: 0,
+        end: 9,
+        length: 9,
+        type: "STRING",
+        value: 'hel"l"o'
+      }
+    ]);
+    expect(tokenize("'hello''test'")).toEqual([
+      {
+        start: 0,
+        end: 7,
+        length: 7,
+        type: "STRING",
+        value: "hello"
+      },
+      {
+        start: 7,
+        end: 13,
+        length: 6,
+        type: "STRING",
+        value: "test"
+      }
+    ]);
+  });
 });
 
 describe("applyOffset", () => {
