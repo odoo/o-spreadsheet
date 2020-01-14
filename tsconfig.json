@@ -15,7 +15,8 @@
       "strictPropertyInitialization": true,
       "strictNullChecks": true,
       "esModuleInterop": true,
-      "allowJs": true
+      "allowJs": true,
+      "sourceMap": true
     },
     "include": ["src/**/*.ts","src/*.ts"]
   }

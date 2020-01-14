@@ -283,6 +283,16 @@ function drawHighlights() {
   }
 }
 
+function drawActiveCell() {
+  const zone: Zone = {
+    top: model.activeRow,
+    bottom: model.activeRow,
+    left: model.activeCol,
+    right: model.activeCol
+  };
+  drawOutline(zone, "#3266ca");
+}
+
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
   (window as any).gridmodel = _model; // to debug. remove this someday
   viewport = _model.viewport;
@@ -306,4 +316,6 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   drawSelectionOutline();
   drawHeader();
   drawHighlights();
+
+  drawActiveCell();
 }

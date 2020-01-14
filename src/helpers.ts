@@ -49,6 +49,17 @@ export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);
 }
 
+export function zoneToXC(zone: Zone): string {
+  const topLeft = toXC(zone.left, zone.top);
+  const botRight = toXC(zone.right, zone.bottom);
+
+  if (topLeft != botRight) {
+    return topLeft + ":" + botRight;
+  }
+
+  return topLeft;
+}
+
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.

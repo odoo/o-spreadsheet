@@ -7,7 +7,7 @@ import { toCartesian, toXC } from "./helpers";
 const OPERATORS = "+,-,*,/,:".split(",");
 const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
-type TokenType =
+export type TokenType =
   | "OPERATOR"
   | "NUMBER"
   | "STRING"
@@ -20,7 +20,7 @@ type TokenType =
   | "LEFT_PAREN"
   | "RIGHT_PAREN";
 
-interface Token {
+export interface Token {
   start: number;
   end: number;
   length: number;
@@ -113,7 +113,7 @@ function tokenizeString(chars): Token | null {
   if (quotes.includes(chars[0])) {
     const startChar = chars.shift();
     const letters: any[] = [];
-    while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === '\\')) {
+    while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === "\\")) {
       letters.push(chars.shift());
     }
     chars.shift();

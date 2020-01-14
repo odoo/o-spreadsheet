@@ -1,18 +1,19 @@
 import * as owl from "@odoo/owl";
 import { GridModel, Highlight, Zone } from "./grid_model";
-import { tokenize } from "./expressions";
-import { toCartesian } from "./helpers";
+import { tokenize, Token } from "./expressions";
+import { toCartesian, zoneToXC } from "./helpers";
 import { fontSizeMap } from "./fonts";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
-    <div class="o-composer" t-att-style="style"
+    <div class="o-composer" t-att-style="style" tabindex="1"
       contenteditable="true"
       spellcheck="false"
       t-on-input="onInput"
       t-on-keydown="onKeydown"
+      t-on-blur="onBlur" 
       t-on-click="onClick"/>
   `;
 
@@ -37,6 +38,8 @@ export class Composer extends Component<any, any> {
   static style = CSS;
   model: GridModel = this.props.model;
   zone: Zone;
+  selectionEnd: number = 0;
+  selectionStart: number = 0;
 
   constructor() {
     super(...arguments);
@@ -48,6 +51,7 @@ export class Composer extends Component<any, any> {
       this.zone = { left: activeCol, top: activeRow, right: activeCol, bottom: activeRow };
     }
   }
+
   mounted() {
     const el = this.el as HTMLInputElement;
     el.innerHTML = this.model.currentContent;
@@ -56,7 +60,6 @@ export class Composer extends Component<any, any> {
     el.style.width = (width + 1.5) as any;
     el.style.width = Math.max(el.scrollWidth + 2, width + 1.5) as any;
 
-    el.focus();
     el.style.width = (width + 1.5) as any;
     el.style.width = Math.max(el.scrollWidth + 3, width + 1.5) as any;
     const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
@@ -69,8 +72,39 @@ export class Composer extends Component<any, any> {
     this.addHighlights();
   }
 
-  willUnmount() {
-    this.model.removeAllHighlights();
+  willUpdateProps(nextProps: any): Promise<void> {
+    if (nextProps.model.currentContent !== this.model.currentContent) {
+      console.warn(
+        `current content updated from ${this.model.currentContent} to ${nextProps.model.currentContent} `
+      );
+    }
+    return super.willUpdateProps(nextProps);
+  }
+
+  addTextFromSelection() {
+    let selection = window.getSelection()!;
+    selection.removeAllRanges();
+    let range = document.createRange();
+    range.setStart(this.el!.childNodes[0] as Node, this.selectionStart);
+    range.setEnd(this.el!.childNodes[0] as Node, this.selectionEnd);
+    selection.addRange(range);
+    let newValue = zoneToXC(this.model.selections.zones[0]);
+    document.execCommand("insertText", false, newValue);
+  }
+
+  findTokenUnderCursor(): Token | void {
+    const el = this.el as HTMLElement;
+    let value = el.innerText;
+    if (value.startsWith("=")) {
+      const tokens = tokenize(value);
+      let selection = window.getSelection();
+
+      if (selection) {
+        const start = selection.anchorOffset;
+        const end = selection.focusOffset;
+        return tokens.find(t => t.start <= start! && t.end >= end!);
+      }
+    }
   }
 
   get style() {
@@ -98,56 +132,56 @@ export class Composer extends Component<any, any> {
   onInput() {
     // write in place? or go through a method probably
     const el = this.el as HTMLInputElement;
-    this.model.currentContent = el.innerText;
     if (el.clientWidth !== el.scrollWidth) {
       el.style.width = (el.scrollWidth + 20) as any;
+    }
+    this.model.currentContent = (this.el!.childNodes[0] as Node).textContent!;
+
+    if (this.model.currentContent.startsWith("=")) {
+      this.model.isSelectingRange = true;
     }
   }
 
   onKeydown(ev: KeyboardEvent) {
     if (ev.key === "Enter") {
+      this.model.stopEditing();
       this.model.movePosition(0, ev.shiftKey ? -1 : 1);
+      return;
     }
     if (ev.key === "Escape") {
       this.model.cancelEdition();
+      return;
     }
     if (ev.key === "Tab") {
       ev.preventDefault();
       const deltaX = ev.shiftKey ? -1 : 1;
       this.model.movePosition(deltaX, 0);
+      return;
     }
   }
 
   onClick(ev: MouseEvent) {
-    const el = this.el as HTMLElement;
-    let value = el.innerText;
-
-    if (value.startsWith("=")) {
-      const tokens = tokenize(value);
-      let selection = window.getSelection();
-
-      if (selection) {
-        const start = selection.anchorOffset;
-        const end = selection.focusOffset;
-        if (start === end) {
-          // there is no selection
-          let found = tokens.find(
-            t =>
-              t.type === "VARIABLE" &&
-              t.start <= selection!.anchorOffset! &&
-              t.end >= selection!.focusOffset!
-          );
-          if (found) {
-            //el.setSelectionRange(found.start, found.end, "forward");
-            selection.removeAllRanges();
-            let range = document.createRange();
-            range.setStart(this.el!.childNodes[0] as Node, found.start);
-            range.setEnd(this.el!.childNodes[0] as Node, found.end);
-            selection.addRange(range);
-          }
-        }
+    this.model.isSelectingRange = false;
+    let selection = window.getSelection()!;
+    const start = selection.anchorOffset;
+    const end = selection.focusOffset;
+    if (start === end) {
+      let found = this.findTokenUnderCursor();
+      if (found && found.type === "VARIABLE") {
+        selection.removeAllRanges();
+        let range = document.createRange();
+        range.setStart(this.el!.childNodes[0] as Node, found.start);
+        range.setEnd(this.el!.childNodes[0] as Node, found.end);
+        selection.addRange(range);
+        this.model.isSelectingRange = false;
       }
     }
+  }
+
+  onBlur(ev: FocusEvent) {
+    let selection = window.getSelection()!;
+    this.selectionStart = selection.anchorOffset;
+    this.selectionEnd = selection.focusOffset;
   }
 
   addHighlights() {

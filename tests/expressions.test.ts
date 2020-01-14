@@ -65,13 +65,13 @@ describe("tokenizer", () => {
         value: "hello"
       }
     ]);
-    expect(tokenize("'he\\\'l\\\'lo'")).toEqual([
+    expect(tokenize("'he\\'l\\'lo'")).toEqual([
       {
         start: 0,
         end: 11,
         length: 11,
         type: "STRING",
-        value: "he\\\'l\\\'lo"
+        value: "he\\'l\\'lo"
       }
     ]);
     expect(tokenize("'hel\"l\"o'")).toEqual([
