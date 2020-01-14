@@ -24,7 +24,7 @@ let height: number;
 let cols: Col[];
 let rows: Row[];
 let cells: { [key: string]: Cell };
-let mergeCellMap: {[key: string]: number};
+let mergeCellMap: { [key: string]: number };
 
 function dpr() {
   return window.devicePixelRatio || 1;
@@ -175,9 +175,9 @@ function drawBackgroundBox(
 }
 
 function hasContent(col: number, row: number): boolean {
-  const xc = toXC(col, row)
+  const xc = toXC(col, row);
   const cell = cells[xc];
-  return (cell && cell.content) || (xc in mergeCellMap) as any;
+  return (cell && cell.content) || ((xc in mergeCellMap) as any);
 }
 
 function drawCells() {
@@ -298,13 +298,18 @@ function drawHighlights() {
   }
 }
 
-function drawActiveCell() {
-  const zone: Zone = {
-    top: model.activeRow,
-    bottom: model.activeRow,
-    left: model.activeCol,
-    right: model.activeCol
-  };
+function drawActiveZone() {
+  let zone: Zone;
+  if (model.activeXc in mergeCellMap) {
+    zone = model.merges[mergeCellMap[model.activeXc]];
+  } else {
+    zone = {
+      top: model.activeRow,
+      bottom: model.activeRow,
+      left: model.activeCol,
+      right: model.activeCol
+    };
+  }
   drawOutline(zone, "#3266ca");
 }
 
@@ -333,5 +338,5 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   drawHeader();
   drawHighlights();
 
-  drawActiveCell();
+  drawActiveZone();
 }
