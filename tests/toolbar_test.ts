@@ -1,5 +1,5 @@
 import { GridModel } from "../src/grid_model";
-import { makeTestFixture } from "./helpers";
+import { makeTestFixture, nextTick } from "./helpers";
 import { ToolBar } from "../src/toolbar";
 import { Component, tags } from "@odoo/owl";
 
@@ -16,6 +16,13 @@ class Parent extends Component<any, any> {
     this.model = model;
   }
   askConfirmation(ev) {}
+  mounted() {
+    this.model.on("update", this, this.render);
+  }
+
+  willUnmount() {
+    this.model.off("update", this);
+  }
 }
 
 beforeEach(() => {
@@ -54,10 +61,36 @@ describe("Toolbar component", () => {
     const parent = new TestParent(model);
     await parent.mount(fixture);
 
-    fixture.querySelector('.o-tool[title="Merge Cells"')!.dispatchEvent(new Event("click"));
+    fixture.querySelector('.o-tool[title="Merge Cells"]')!.dispatchEvent(new Event("click"));
 
     expect(model.merges).toEqual({});
     confirm();
     expect(model.merges).not.toEqual({});
+  });
+
+  test("opening a second menu closes the first one", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } }
+        }
+      ]
+    });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    fixture.querySelector('span[title="Text Color"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    expect(fixture.querySelectorAll(".o-color-line").length).not.toBe(0);
+    fixture
+      .querySelector('.o-tool[title="Horizontal align"] span')!
+      .dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
   });
 });

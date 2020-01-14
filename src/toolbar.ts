@@ -120,13 +120,11 @@ const COLORS = [
 ];
 
 const COLOR_PICKER = xml/* xml */ `
-    <t t-foreach="COLORS" t-as="colors">
-      <div class="o-color-line">
-        <t t-foreach="colors" t-as="color">
-          <div class="o-color" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
-        </t>
-      </div>
-    </t>`;
+  <div class="o-color-line" t-foreach="COLORS" t-as="colors" t-key="colors">
+    <t t-foreach="colors" t-as="color" t-key="color">
+      <div class="o-color" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
+    </t>
+  </div>`;
 
 // -----------------------------------------------------------------------------
 // ToolBar
@@ -149,14 +147,14 @@ export class ToolBar extends Component<any, any> {
         <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleTool('italic')">${ITALIC_ICON}</div>
         <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleTool('strikethrough')">${STRIKE_ICON}</div>
         <div class="o-tool o-dropdown o-with-color">
-          <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="state.textColorTool=!state.textColorTool">${TEXT_COLOR_ICON}</span>
+          <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="openMenu('textColorTool')">${TEXT_COLOR_ICON}</span>
           <div class="o-dropdown-content" t-if="state.textColorTool" t-on-click="setColor('textColor')">
             <t t-call="${COLOR_PICKER}"/>
           </div>
         </div>
         <div class="o-divider"/>
         <div class="o-tool  o-dropdown o-with-color">
-          <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="state.fillColorTool=!state.fillColorTool">${FILL_COLOR_ICON}</span>
+          <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="openMenu('fillColorTool')">${FILL_COLOR_ICON}</span>
           <div class="o-dropdown-content" t-if="state.fillColorTool" t-on-click="setColor('fillColor')">
             <t t-call="${COLOR_PICKER}"/>
           </div>
@@ -165,7 +163,7 @@ export class ToolBar extends Component<any, any> {
         <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${MERGE_CELL_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool o-dropdown" title="Horizontal align">
-          <span t-on-click.stop="state.alignTool=!state.alignTool">
+          <span t-on-click.stop="openMenu('alignTool')">
             <t t-if="style.align === 'right'">${ALIGN_RIGHT_ICON}</t>
             <t t-else="">${ALIGN_LEFT_ICON}</t>
             ${TRIANGLE_DOWN_ICON}
@@ -309,6 +307,10 @@ export class ToolBar extends Component<any, any> {
     this.model.setStyle({ [tool]: value });
   }
 
+  openMenu(tool) {
+    this.closeMenus();
+    this.state[tool] = true;
+  }
   closeMenus() {
     this.state.alignTool = false;
     this.state.fillColorTool = false;
