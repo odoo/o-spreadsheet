@@ -4,28 +4,10 @@ import { GridModel } from "../src/grid_model";
 
 const { xml } = tags;
 
-HTMLCanvasElement.prototype.getContext = jest.fn(function() {
-  return {
-    translate() {},
-    scale() {},
-    clearRect() {},
-    beginPath() {},
-    moveTo() {},
-    lineTo() {},
-    stroke() {},
-    fillRect() {},
-    strokeRect() {},
-    fillText() {}
-  };
-}) as any;
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
 
-// modifies scheduler to make it faster to test components
-Component.scheduler.requestAnimationFrame = function(callback: FrameRequestCallback) {
-  setTimeout(callback, 1);
-  return 1;
-};
-
-// helpers
 export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
 }
@@ -71,4 +53,63 @@ export class GridParent extends Component<any, any> {
     super();
     this.model = model;
   }
+
+  mounted() {
+    this.model.on("update", this, this.render);
+  }
+
+  willUnmount() {
+    this.model.off("update", this);
+  }
 }
+
+//------------------------------------------------------------------------------
+// DOM/Misc Mocks
+//------------------------------------------------------------------------------
+
+// modifies scheduler to make it faster to test components
+Component.scheduler.requestAnimationFrame = function(callback: FrameRequestCallback) {
+  setTimeout(callback, 1);
+  return 1;
+};
+
+HTMLCanvasElement.prototype.getContext = jest.fn(function() {
+  return {
+    translate() {},
+    scale() {},
+    clearRect() {},
+    beginPath() {},
+    moveTo() {},
+    lineTo() {},
+    stroke() {},
+    fillRect() {},
+    strokeRect() {},
+    fillText() {},
+    save() {},
+    rect() {},
+    clip() {},
+    restore() {}
+  };
+}) as any;
+
+Object.defineProperty(HTMLDivElement.prototype, "innerText", {
+  get() {
+    return this.textContent;
+  }
+});
+
+window.document.createRange = () =>
+  ({
+    setStart: () => {},
+    setEnd: () => {},
+    commonAncestorContainer: {
+      nodeName: "BODY",
+      ownerDocument: document
+    },
+    selectNodeContents: () => {},
+    collapse: () => {}
+  } as any);
+
+window.getSelection = (() => {
+  return { removeAllRanges: () => {}, addRange: () => {} };
+}) as any;

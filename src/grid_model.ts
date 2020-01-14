@@ -532,6 +532,10 @@ export class GridModel extends owl.core.EventBus {
   movePosition(deltaX: number, deltaY: number) {
     const { activeCol, activeRow } = this;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
+      if (this.isEditing) {
+        this.stopEditing();
+        this.notify();
+      }
       return;
     }
     let mergeId = this.mergeCellMap[this.activeXc];

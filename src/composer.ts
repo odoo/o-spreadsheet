@@ -106,7 +106,7 @@ export class Composer extends Component<any, any> {
 
   onKeydown(ev: KeyboardEvent) {
     if (ev.key === "Enter") {
-      this.model.movePosition(0, 1);
+      this.model.movePosition(0, ev.shiftKey ? -1 : 1);
     }
     if (ev.key === "Escape") {
       this.model.cancelEdition();
