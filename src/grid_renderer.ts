@@ -11,6 +11,9 @@ let offsetY: number;
 let model: GridModel;
 let width: number;
 let height: number;
+let cols: Col[];
+let rows: Row[];
+let cells: { [key: string]: Cell };
 
 function dpr() {
   return window.devicePixelRatio || 1;
@@ -21,7 +24,7 @@ function thinLineWidth() {
 }
 
 function drawHeader() {
-  const { cols, rows, selections } = model;
+  const { selections } = model;
   const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
@@ -79,7 +82,6 @@ function hLine(ctx, y, width) {
 }
 
 function drawBackgroundGrid() {
-  const { cols, rows } = model;
   const { top, left, bottom, right } = viewport;
 
   ctx.lineWidth = thinLineWidth();
@@ -115,10 +117,10 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
     ctx.fillStyle = style.fillColor;
     ctx.globalCompositeOperation = "multiply";
     ctx.fillRect(
-      left.left - offsetX + 1.2,
-      top.top - offsetY + 1.2,
-      right.right - left.left - 2.4,
-      bottom.bottom - top.top - 2.4
+      left.left - offsetX,
+      top.top - offsetY,
+      right.right - left.left,
+      bottom.bottom - top.top
     );
     ctx.globalCompositeOperation = "source-over";
   }
@@ -144,8 +146,12 @@ function drawBox(text: string, style: Style, type, left: Col, top: Row, right: C
   }
 }
 
+function hasContent(col: number, row: number): boolean {
+  const cell = cells[toXC(col, row)];
+  return cell && (cell.content as any);
+}
+
 function drawCells() {
-  const { rows, cols, cells } = model;
   const { right, left, top, bottom } = viewport;
   ctx.fillStyle = "#000";
   const styles = model.styles;
@@ -183,14 +189,14 @@ function drawCells() {
     // Compute clip zone
     if (align === "left") {
       let c = cell.col;
-      while (c < right && !(toXC(c + 1, cell.row) in cells)) {
+      while (c < right && !hasContent(c + 1, cell.row)) {
         c++;
       }
       const width = cols[c].right - col.left;
       ctx.rect(col.left - offsetX, row.top - offsetY, width, row.size);
     } else {
       let c = cell.col;
-      while (c > left && !(toXC(c - 1, cell.row) in cells)) {
+      while (c > left && !hasContent(c - 1, cell.row)) {
         c--;
       }
       const width = col.right - cols[c].left;
@@ -214,7 +220,7 @@ function overlap(r1, r2) {
 }
 
 function drawMerges() {
-  const { merges, cols, rows, styles } = model;
+  const { merges, styles } = model;
   const hl = 0.8 * thinLineWidth();
   ctx.strokeStyle = "#777";
   ctx.fillStyle = styles[0].fillColor || "white";
@@ -235,7 +241,7 @@ function drawMerges() {
 }
 
 function drawSelectionBackground() {
-  const { cols, rows, selections } = model;
+  const { selections } = model;
   for (const selection of selections.zones) {
     const { left, top, right, bottom } = selection;
     ctx.fillStyle = "#f3f7fe";
@@ -258,7 +264,6 @@ function drawSelectionOutline() {
 }
 
 function drawOutline(zone: Zone, color: string = "#3266ca") {
-  const { cols, rows } = model;
   const { left, top, right, bottom } = zone;
   const lw = thinLineWidth();
   ctx.lineWidth = 3 * lw;
@@ -287,6 +292,9 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   model = _model;
   width = _width;
   height = _height;
+  rows = _model.rows;
+  cols = _model.cols;
+  cells = _model.cells;
 
   ctx.fillStyle = _model.styles[0].fillColor || "white";
   ctx.fillRect(0, 0, width, height);
