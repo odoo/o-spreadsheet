@@ -650,7 +650,11 @@ export class GridModel extends owl.core.EventBus {
 
   stopEditing() {
     if (this.isEditing) {
-      const xc = toXC(this.activeCol, this.activeRow);
+      let xc = toXC(this.activeCol, this.activeRow);
+      if (xc in this.mergeCellMap) {
+        const mergeId = this.mergeCellMap[xc];
+        xc = this.merges[mergeId].topLeft;
+      }
       if (this.currentContent) {
         this.addCell(xc, { content: this.currentContent });
       } else {

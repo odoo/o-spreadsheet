@@ -107,6 +107,9 @@ describe("merges", () => {
     model.startEditing();
     expect(n).toBe(2);
     expect(model.currentContent).toBe("b2");
+    model.currentContent = "new value";
+    model.stopEditing();
+    expect(model.cells["B2"].content).toBe("new value");
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
