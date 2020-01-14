@@ -32,6 +32,27 @@ describe("Grid component", () => {
     expect(model.activeXc).toBe("C8");
   });
 
+  test("can click on resizer, then move selection with keyboard", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.activeXc).toBe("A1");
+    triggerMouseEvent(".o-resizer", "click", 300, 20);
+    document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
+    expect(model.activeXc).toBe("A2");
+  });
+
   test("can shift-click on a cell to update selection", async () => {
     const model = new GridModel({
       sheets: [
