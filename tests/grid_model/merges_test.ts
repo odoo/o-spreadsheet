@@ -127,12 +127,12 @@ describe("merges", () => {
 
     model.selectCell(2, 2);
     expect(model.activeXc).toBe("C3");
-    expect(Object.keys(model.cells)).toEqual(['B2']);
-    expect(model.cells['B2'].style).not.toBeDefined();
+    expect(Object.keys(model.cells)).toEqual(["B2"]);
+    expect(model.cells["B2"].style).not.toBeDefined();
 
-    model.setStyle({fillColor: "#333"});
-    expect(Object.keys(model.cells)).toEqual(['B2']);
-    expect(model.cells['B2'].style).toBeDefined();
+    model.setStyle({ fillColor: "#333" });
+    expect(Object.keys(model.cells)).toEqual(["B2"]);
+    expect(model.cells["B2"].style).toBeDefined();
   });
 
   test("when moving in a merge, selected cell is topleft", () => {

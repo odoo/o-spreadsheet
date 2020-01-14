@@ -160,11 +160,13 @@ function drawBackgroundBox(
   top: Row,
   right: Col,
   bottom: Row,
-  inset: number
+  inset: number,
+  defaultBgCol?: string
 ) {
-  if (style.fillColor) {
+  const bgCol = style.fillColor || defaultBgCol;
+  if (bgCol) {
     // const lw = 0.5 * thinLineWidth();
-    ctx.fillStyle = style.fillColor;
+    ctx.fillStyle = bgCol;
     ctx.fillRect(
       left.left - offsetX + inset,
       top.top - offsetY + inset,
@@ -248,7 +250,7 @@ function drawMerges() {
     const top = rows[merge.top];
     const bottom = rows[merge.bottom];
     const lw = 0.3 * thinLineWidth();
-    drawBackgroundBox(style, left, top, right, bottom, lw);
+    drawBackgroundBox(style, left, top, right, bottom, lw, styles[0].fillColor);
     if (refCell) {
       drawTextBox(refCell.value, style, refCell.type, left, top, right, bottom);
     }
