@@ -162,4 +162,26 @@ describe("merges", () => {
     // B2 is top left, so it is not destructive
     expect(model.isMergeDestructive()).toBeFalsy();
   });
+
+  test("a merge with only style should not be considered destructive", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { style: 1 } }
+        }
+      ],
+      styles: { 1: {} }
+    });
+    model.selections.zones = [
+      {
+        left: 0,
+        top: 0,
+        right: 2,
+        bottom: 2
+      }
+    ];
+    expect(model.isMergeDestructive()).toBeFalsy();
+  });
 });

@@ -811,7 +811,8 @@ export class GridModel extends owl.core.EventBus {
       const actualRow = this.rows[row];
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
-          if (actualRow.cells[col]) {
+          const cell = actualRow.cells[col];
+          if (cell && cell.content) {
             return true;
           }
         }

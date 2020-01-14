@@ -270,7 +270,7 @@ export class ToolBar extends Component<any, any> {
         font-weight: 500;
         padding: 0 12px;
         margin: 0;
-        line-height: 31px;
+        line-height: 35px;
       }
     }
   `;
