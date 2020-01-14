@@ -24,6 +24,7 @@ let height: number;
 let cols: Col[];
 let rows: Row[];
 let cells: { [key: string]: Cell };
+let mergeCellMap: {[key: string]: number};
 
 function dpr() {
   return window.devicePixelRatio || 1;
@@ -174,8 +175,9 @@ function drawBackgroundBox(
 }
 
 function hasContent(col: number, row: number): boolean {
-  const cell = cells[toXC(col, row)];
-  return cell && (cell.content as any);
+  const xc = toXC(col, row)
+  const cell = cells[xc];
+  return (cell && cell.content) || (xc in mergeCellMap) as any;
 }
 
 function drawCells() {
@@ -318,6 +320,7 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   rows = _model.rows;
   cols = _model.cols;
   cells = _model.cells;
+  mergeCellMap = _model.mergeCellMap;
 
   ctx.fillStyle = _model.styles[0].fillColor || "white";
   ctx.fillRect(0, 0, width, height);
