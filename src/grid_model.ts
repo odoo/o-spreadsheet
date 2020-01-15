@@ -1,5 +1,5 @@
 import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "./helpers";
-import { compileExpression, applyOffset } from "./expressions";
+import { compileExpression, applyOffset } from "./expressions/index";
 import { functionMap } from "./functions/index";
 import * as owl from "@odoo/owl";
 

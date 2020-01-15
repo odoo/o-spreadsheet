@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { GridModel, Highlight, Zone } from "../grid_model";
-import { tokenize, Token } from "../expressions";
+import { tokenize, Token } from "../expressions/index";
 import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
 
