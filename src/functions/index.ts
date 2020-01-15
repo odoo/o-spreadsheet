@@ -6,6 +6,7 @@ export interface FunctionDescription {
 export type FunctionMap = { [key: string]: FunctionDescription };
 
 import { functions as math } from "./math";
+import { functions as logical } from "./logical";
 
 export const functions: FunctionMap = {};
 export const functionMap: { [name: string]: Function } = {};
@@ -23,3 +24,4 @@ function importFunctions(mapping: FunctionMap) {
 }
 
 importFunctions(math);
+importFunctions(logical);
