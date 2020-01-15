@@ -7,7 +7,9 @@ import {
   Cell,
   Zone,
   Style,
-  Merge
+  Merge,
+  Border,
+  BorderDescr
 } from "./grid_model";
 import { toXC, overlap } from "./helpers";
 import { fontSizeMap } from "./fonts";
@@ -25,6 +27,7 @@ let cols: Col[];
 let rows: Row[];
 let cells: { [key: string]: Cell };
 let mergeCellMap: { [key: string]: number };
+let borders: { [key: number]: Border };
 
 function dpr() {
   return window.devicePixelRatio || 1;
@@ -154,6 +157,16 @@ function drawTextBox(
   }
 }
 
+function drawBorder(x1: number, y1: number, x2: number, y2: number, descr: BorderDescr) {
+  const [style, color] = descr;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = (style === "thin" ? 3 : 4.5) * thinLineWidth();
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
 function drawBackgroundBox(
   style: Style,
   left: Col,
@@ -161,18 +174,36 @@ function drawBackgroundBox(
   right: Col,
   bottom: Row,
   inset: number,
+  border?: number,
   defaultBgCol?: string
 ) {
   const bgCol = style.fillColor || defaultBgCol;
+  if (!border && !bgCol) {
+    return;
+  }
+  const l = left.left - offsetX;
+  const t = top.top - offsetY;
+  const r = right.right - offsetX;
+  const b = bottom.bottom - offsetY;
+
   if (bgCol) {
-    // const lw = 0.5 * thinLineWidth();
     ctx.fillStyle = bgCol;
-    ctx.fillRect(
-      left.left - offsetX + inset,
-      top.top - offsetY + inset,
-      right.right - left.left - 2 * inset,
-      bottom.bottom - top.top - 3 * inset
-    );
+    ctx.fillRect(l + inset, t + inset, r - l - 2 * inset, b - t - 3 * inset);
+  }
+  if (border) {
+    const descr = borders[border];
+    if (descr.left) {
+      drawBorder(l, t, l, b, descr.left);
+    }
+    if (descr.top) {
+      drawBorder(l, t, r, t, descr.top);
+    }
+    if (descr.right) {
+      drawBorder(r, t, r, b, descr.right);
+    }
+    if (descr.bottom) {
+      drawBorder(l, b, r, b, descr.bottom);
+    }
   }
 }
 
@@ -225,7 +256,7 @@ function drawCells() {
 
     ctx.globalCompositeOperation = "multiply";
     const lw = -0.3 * thinLineWidth();
-    drawBackgroundBox(style, col, row, col, row, lw);
+    drawBackgroundBox(style, col, row, col, row, lw, cell.border);
     ctx.globalCompositeOperation = "source-over";
     drawTextBox(cell.value, style, cell.type, col, row, col, row);
     ctx.restore();
@@ -245,12 +276,13 @@ function drawMerges() {
   function drawMerge(merge: Merge) {
     const refCell = cells[merge.topLeft];
     const style = styles[refCell ? refCell.style || 0 : 0];
+    const border = refCell && refCell.border;
     const left = cols[merge.left];
     const right = cols[merge.right];
     const top = rows[merge.top];
     const bottom = rows[merge.bottom];
     const lw = 0.3 * thinLineWidth();
-    drawBackgroundBox(style, left, top, right, bottom, lw, styles[0].fillColor);
+    drawBackgroundBox(style, left, top, right, bottom, lw, border, styles[0].fillColor);
     if (refCell) {
       drawTextBox(refCell.value, style, refCell.type, left, top, right, bottom);
     }
@@ -328,6 +360,7 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   cols = _model.cols;
   cells = _model.cells;
   mergeCellMap = _model.mergeCellMap;
+  borders = _model.borders;
 
   ctx.fillStyle = _model.styles[0].fillColor || "white";
   ctx.fillRect(0, 0, width, height);

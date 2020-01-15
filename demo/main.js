@@ -49,9 +49,13 @@ class App extends Component {
           C16: { content: "=C15" },
           F2: { content: "italic blablah", style: 2 },
           F3: { content: "strikethrough", style: 3 },
-          H2: { content: "merged content" }
+          H2: { content: "merged content" },
+          C20: { content: "left", border: 1},
+          E20: { content: "top", border: 2},
+          G20: { content: "all", border: 3},
+          K3: { border: 3}
         },
-        merges: ["H2:I5"]
+        merges: ["H2:I5", 'K3:K8'],
       }
     ],
     styles: {
@@ -62,6 +66,16 @@ class App extends Component {
       5: { fillColor: "#c5e0b3"},
       6: { fillColor: "#a7d08c"},
     },
+    borders: {
+      1: { left: ["thin", "#000"]},
+      2: { top: ["thin", "#000"]},
+      3: {
+        top: ["thin", "#000"],
+        left: ["thin", "#000"],
+        bottom: ["thin", "#000"],
+        right: ["thin", "#000"]
+      },
+    }
   };
 
   askConfirmation(ev) {

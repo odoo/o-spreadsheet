@@ -50,6 +50,7 @@ export interface Style {
 interface CellData {
   content?: string;
   style?: number;
+  border?: number;
 }
 
 interface HeaderData {
@@ -66,9 +67,21 @@ export interface Sheet {
   rows?: { [key: number]: HeaderData };
 }
 
+// A border description is a pair [style, ]
+export type BorderStyle = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double";
+export type BorderDescr = [BorderStyle, string];
+
+export interface Border {
+  top?: BorderDescr;
+  left?: BorderDescr;
+  bottom?: BorderDescr;
+  right?: BorderDescr;
+}
+
 export interface GridData {
   sheets: Sheet[];
-  styles?: { [key: number]: Style };
+  styles: { [key: number]: Style };
+  borders: { [key: number]: Border };
 }
 
 export interface Cell extends CellData {
@@ -123,6 +136,8 @@ export class GridModel extends owl.core.EventBus {
   cells: { [key: string]: Cell } = {};
 
   styles: { [key: number]: Style } = {};
+
+  borders: { [key: number]: Border } = {};
 
   merges: { [key: number]: Merge } = {};
   mergeCellMap: { [key: string]: number } = {};
@@ -234,21 +249,31 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   // Constructor and private methods
   // ---------------------------------------------------------------------------
-  constructor(data?: GridData) {
+  constructor(data: Partial<GridData> = {}) {
     super();
-    data = data || { sheets: [] };
-    if (data.sheets.length === 0) {
-      data.sheets.push({ name: "Sheet1", colNumber: 10, rowNumber: 10 });
+    const sheets = data.sheets || [
+      {
+        name: "Sheet1",
+        colNumber: 10,
+        rowNumber: 10
+      }
+    ];
+    if (sheets.length === 0) {
+      sheets.push({ name: "Sheet1", colNumber: 10, rowNumber: 10 });
     }
+    this.borders = data.borders || {};
     // styles
     this.styles = data.styles || {};
     for (let k in this.styles) {
       this.nextId = Math.max(k as any, this.nextId);
     }
+    for (let k in this.borders) {
+      this.nextId = Math.max(k as any, this.nextId);
+    }
     this.nextId++;
     this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
 
-    const sheet = data.sheets[0];
+    const sheet = sheets[0];
     this.activateSheet(sheet);
   }
 
@@ -317,6 +342,10 @@ export class GridModel extends owl.core.EventBus {
       type === "text" ? content : type === "number" ? +parseFloat(content).toFixed(4) : null;
     const cell: Cell = { col, row, xc, content, value, type };
     const style = data.style || (currentCell && currentCell.style);
+    const border = data.border;
+    if (border) {
+      cell.border = border;
+    }
     if (style) {
       cell.style = style;
     }
