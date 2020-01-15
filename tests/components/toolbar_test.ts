@@ -85,7 +85,7 @@ describe("Toolbar component", () => {
     fixture.querySelector('span[title="Text Color"]')!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
-    expect(fixture.querySelectorAll(".o-color-line").length).not.toBe(0);
+    expect(fixture.querySelectorAll(".o-line-item").length).not.toBe(0);
     fixture
       .querySelector('.o-tool[title="Horizontal align"] span')!
       .dispatchEvent(new Event("click"));

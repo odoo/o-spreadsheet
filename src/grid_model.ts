@@ -601,53 +601,9 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  moveSelection(deltaX: number, deltaY: number) {
-    const selection = this.selections.zones[this.selections.zones.length - 1];
-    const anchorCol = this.selections.anchor.col;
-    const anchorRow = this.selections.anchor.row;
-    const { left, right, top, bottom } = selection;
-    if (top + deltaY < 0 || left + deltaX < 0) {
-      return;
-    }
-    let result: Zone | null = selection;
-    // check if we can shrink selection
-    let expand = z => this.expandZone(z);
-
-    let n = 0;
-    while (result !== null) {
-      n++;
-      if (deltaX < 0) {
-        result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
-      }
-      if (deltaX > 0) {
-        result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
-      }
-      if (deltaY < 0) {
-        result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
-      }
-      if (deltaY > 0) {
-        result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
-      }
-      if (result && !isEqual(result, selection)) {
-        this.selections.zones[this.selections.zones.length - 1] = result;
-        this.notify();
-        return;
-      }
-    }
-    const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
-    const zoneWithDelta = {
-      top: top + deltaY,
-      left: left + deltaX,
-      bottom: bottom + deltaY,
-      right: right + deltaX
-    };
-    result = expand(union(currentZone, zoneWithDelta));
-    if (!isEqual(result, selection)) {
-      this.selections.zones[this.selections.zones.length - 1] = result;
-      this.notify();
-      return;
-    }
-  }
+  // ---------------------------------------------------------------------------
+  // Edition
+  // ---------------------------------------------------------------------------
 
   startEditing(str?: string) {
     if (!str) {
@@ -693,6 +649,58 @@ export class GridModel extends owl.core.EventBus {
       this.currentContent = "";
       this.resetEditing();
       this.notify();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Selection
+  // ---------------------------------------------------------------------------
+
+  moveSelection(deltaX: number, deltaY: number) {
+    const selection = this.selections.zones[this.selections.zones.length - 1];
+    const anchorCol = this.selections.anchor.col;
+    const anchorRow = this.selections.anchor.row;
+    const { left, right, top, bottom } = selection;
+    if (top + deltaY < 0 || left + deltaX < 0) {
+      return;
+    }
+    let result: Zone | null = selection;
+    // check if we can shrink selection
+    let expand = z => this.expandZone(z);
+
+    let n = 0;
+    while (result !== null) {
+      n++;
+      if (deltaX < 0) {
+        result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
+      }
+      if (deltaX > 0) {
+        result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
+      }
+      if (deltaY < 0) {
+        result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
+      }
+      if (deltaY > 0) {
+        result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
+      }
+      if (result && !isEqual(result, selection)) {
+        this.selections.zones[this.selections.zones.length - 1] = result;
+        this.notify();
+        return;
+      }
+    }
+    const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
+    const zoneWithDelta = {
+      top: top + deltaY,
+      left: left + deltaX,
+      bottom: bottom + deltaY,
+      right: right + deltaX
+    };
+    result = expand(union(currentZone, zoneWithDelta));
+    if (!isEqual(result, selection)) {
+      this.selections.zones[this.selections.zones.length - 1] = result;
+      this.notify();
+      return;
     }
   }
 
@@ -800,6 +808,10 @@ export class GridModel extends owl.core.EventBus {
     this.notify();
   }
 
+  // ---------------------------------------------------------------------------
+  // Styles
+  // ---------------------------------------------------------------------------
+
   setStyle(style: Style) {
     this.selections.zones.forEach(selection => {
       for (let col = selection.left; col <= selection.right; col++) {
@@ -843,6 +855,10 @@ export class GridModel extends owl.core.EventBus {
     return id;
   }
 
+  // ---------------------------------------------------------------------------
+  // Merges
+  // ---------------------------------------------------------------------------
+
   mergeSelection() {
     const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
     let tl = toXC(left, top);
@@ -880,5 +896,12 @@ export class GridModel extends owl.core.EventBus {
       }
     }
     return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Borders
+  // ---------------------------------------------------------------------------
+  setBorder(command: string) {
+    console.log("setting border", command);
   }
 }
