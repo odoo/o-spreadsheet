@@ -1,4 +1,6 @@
-export const functions = {
+import { FunctionMap } from "./index";
+
+export const functions: FunctionMap = {
   SUM: {
     description: "Returns the sum of all values in a range",
     compute: function(...args) {

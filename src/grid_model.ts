@@ -1,6 +1,6 @@
 import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "./helpers";
 import { compileExpression, applyOffset } from "./expressions";
-import { functions } from "./functions";
+import { functions } from "./functions/index";
 import * as owl from "@odoo/owl";
 
 const DEFAULT_CELL_WIDTH = 96;

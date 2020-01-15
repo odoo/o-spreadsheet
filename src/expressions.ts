@@ -1,4 +1,4 @@
-import { functions } from "./functions";
+import { functions } from "./functions/index";
 import { toCartesian, toXC } from "./helpers";
 
 // -----------------------------------------------------------------------------
