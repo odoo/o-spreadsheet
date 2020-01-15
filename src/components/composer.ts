@@ -163,7 +163,6 @@ export class Composer extends Component<any, any> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    console.log("composer", ev.key);
     switch (ev.key) {
       case "Enter":
         this.model.stopEditing();
@@ -203,7 +202,6 @@ export class Composer extends Component<any, any> {
   }
 
   onBlur(ev: FocusEvent) {
-    console.trace("composer blurred");
     let selection = window.getSelection()!;
     this.selectionStart = selection.anchorOffset;
     this.selectionEnd = selection.focusOffset;

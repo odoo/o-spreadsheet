@@ -313,7 +313,6 @@ export class Grid extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   onKeydown(ev: KeyboardEvent) {
-    console.log("grid", ev.key);
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
