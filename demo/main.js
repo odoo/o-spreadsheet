@@ -53,7 +53,8 @@ class App extends Component {
           C20: { content: "left", border: 1},
           E20: { content: "top", border: 2},
           G20: { content: "all", border: 3},
-          K3: { border: 3}
+          K3: { border: 3},
+          G13: {content: "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16+A17+A18"}
         },
         merges: ["H2:I5", 'K3:K8'],
       }

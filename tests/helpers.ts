@@ -113,7 +113,13 @@ window.document.createRange = () =>
     },
     collapse: () => {}
   } as any);
-
+window.document.execCommand = (
+  commandId: string,
+  showUI?: boolean | undefined,
+  value?: string | undefined
+) => {
+  return true;
+};
 window.getSelection = (() => {
   return {
     removeAllRanges: () => {},

@@ -1,11 +1,30 @@
 import * as owl from "@odoo/owl";
-import { GridModel, Highlight, Zone } from "../grid_model";
+import { GridModel, Zone } from "../grid_model";
 import { tokenize, Token } from "../expressions/index";
 import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
+
+export const colors = [
+  "#0074d9",
+  "#7fdbff",
+  "#39cccc",
+  "#3d9970",
+  "#0ecc40",
+  "#01ff70",
+  "#ffdc00",
+  "#ff851b",
+  "#ff4136",
+  "#85144b",
+  "#f012be",
+  "#b10dc9",
+  "#111111",
+  "#aaaaaa",
+  "#dddddd",
+  "#001f3f"
+];
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-composer" t-att-style="style" tabindex="1"
@@ -57,14 +76,8 @@ export class Composer extends Component<any, any> {
 
   mounted() {
     const el = this.el as HTMLInputElement;
-    el.innerHTML = this.model.currentContent;
     const { cols } = this.model;
-    const width = cols[this.zone.right].right - cols[this.zone.left].left;
-    el.style.width = (width + 1.5) as any;
-    el.style.width = Math.max(el.scrollWidth + 2, width + 1.5) as any;
 
-    el.style.width = (width + 1.5) as any;
-    el.style.width = Math.max(el.scrollWidth + 3, width + 1.5) as any;
     const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
     range.selectNodeContents(el); //Select the entire contents of the element with the range
     range.collapse(false); //collapse the range to the end point. false means collapse to end rather than the start
@@ -72,7 +85,14 @@ export class Composer extends Component<any, any> {
     sel.removeAllRanges(); //remove any selections already made
     sel.addRange(range); //make
 
-    this.addHighlights();
+    this.processContent();
+
+    const width = cols[this.zone.right].right - cols[this.zone.left].left;
+    el.style.width = (width + 1.5) as any;
+    el.style.width = Math.max(el.scrollWidth + 2, width + 1.5) as any;
+
+    el.style.width = (width + 1.5) as any;
+    el.style.width = Math.max(el.scrollWidth + 3, width + 1.5) as any;
   }
 
   willUnmount(): void {
@@ -207,31 +227,51 @@ export class Composer extends Component<any, any> {
     this.selectionEnd = selection.focusOffset;
   }
 
-  addHighlights() {
+  processContent() {
     const el = this.el as HTMLElement;
-    let value = el.innerText;
+    let value = this.model.currentContent;
     if (value.startsWith("=")) {
+      let lastUsedColorIndex = 0;
       const tokens = tokenize(value);
-      // there is no selection
-      let variables = tokens.filter(t => t.type === "VARIABLE");
-      if (variables) {
-        let highlights: Highlight[] = variables.map(v => {
-          const ranges = v.value.split(":");
-          let top, bottom, left, right;
-          if (ranges.length === 1) {
-            let c = toCartesian(v.value);
-            left = right = c[0];
-            top = bottom = c[1];
-          }
+      const rangesUsed = {};
+      for (let token of tokens) {
+        // there is no selection
+        switch (token.type) {
+          case "FUNCTION":
+            document.execCommand("insertText", false, token.value);
+            break;
+          case "VARIABLE":
+            let value = token.value;
 
-          return {
-            zone: { top, bottom, left, right },
-            color: "pink"
-          };
-        });
+            if (!rangesUsed[value]) {
+              rangesUsed[value] = colors[lastUsedColorIndex];
+              lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
+            }
+            document.execCommand("foreColor", false, rangesUsed[value]);
+            document.execCommand("insertText", false, token.value);
+            document.execCommand("foreColor", false, "#000");
+            break;
 
-        this.model.addHighlights(highlights);
+          default:
+            document.execCommand("insertText", false, token.value);
+            break;
+        }
       }
+
+      let highlights = Object.keys(rangesUsed).map(a1c1 => {
+        const ranges = a1c1.split(":");
+        let top, bottom, left, right;
+        if (ranges.length === 1) {
+          let c = toCartesian(a1c1);
+          left = right = c[0];
+          top = bottom = c[1];
+        }
+        return { zone: { top, bottom, left, right }, color: rangesUsed[a1c1] };
+      });
+
+      this.model.addHighlights(highlights);
+    } else {
+      el.innerHTML = this.model.currentContent;
     }
   }
 }
