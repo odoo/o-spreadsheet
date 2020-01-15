@@ -1,9 +1,26 @@
-// Be aware that this is just a type import! This file should not depend on
-// other files, to avoid circular dependencies.
 import { Zone } from "./grid_model";
 
 /**
- *  0 => 'A', 25 => 'Z', 26 => 'AA', 27 => 'AB', ...
+ * This files contains a small collection of useful helpers. They are mostly
+ * concerned with the following topics:
+ *
+ * - coordinate conversions
+ * - zone manipulation
+ * - miscellaneous
+ */
+
+//------------------------------------------------------------------------------
+// Coordinate
+//------------------------------------------------------------------------------
+
+/**
+ * Convert a (col) number to the corresponding letter.
+ *
+ * Examples:
+ *     0 => 'A'
+ *     25 => 'Z'
+ *     26 => 'AA'
+ *     27 => 'AB'
  */
 export function numberToLetters(n: number): string {
   if (n < 26) {
@@ -14,7 +31,12 @@ export function numberToLetters(n: number): string {
 }
 
 /**
- * 'A' => 0, 'Z' => 25, 'AA' => 26, ...
+ * Convert a string (describing a column) to its number value.
+ *
+ * Examples:
+ *     'A' => 0
+ *     'Z' => 25
+ *     'AA' => 26
  */
 function lettersToNumber(letters: string): number {
   let result = 0;
@@ -27,14 +49,18 @@ function lettersToNumber(letters: string): number {
 }
 
 /**
- *  A1 => [0,0], B3 => [1,2], ...
+ * Convert a "XC" coordinate to cartesian coordinates.
  *
- * Note: also accepts lowercase coordinates
+ * Examples:
+ *   A1 => [0,0]
+ *   B3 => [1,2]
+ *
+ * Note: it also accepts lowercase coordinates
  */
-export function toCartesian(cell: string): [number, number] {
-  cell = cell.toUpperCase();
-  const [m, letters, numbers] = cell.match(/([A-Z]*)([0-9]*)/)!;
-  if (m !== cell) {
+export function toCartesian(xc: string): [number, number] {
+  xc = xc.toUpperCase();
+  const [m, letters, numbers] = xc.match(/([A-Z]*)([0-9]*)/)!;
+  if (m !== xc) {
     throw new Error("Invalid cell description");
   }
   const col = lettersToNumber(letters);
@@ -43,7 +69,11 @@ export function toCartesian(cell: string): [number, number] {
 }
 
 /**
- * Convert from cartesian coordinate to xc coordinate system.
+ * Convert from cartesian coordinate to the "XC" coordinate system.
+ *
+ * Examples:
+ *   [0,0] => A1
+ *   [1,2] => B3
  */
 export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);
@@ -60,13 +90,9 @@ export function zoneToXC(zone: Zone): string {
   return topLeft;
 }
 
-/**
- * Stringify an object, like JSON.stringify, except that the first level of keys
- * is ordered.
- */
-export function stringify(obj): string {
-  return JSON.stringify(obj, Object.keys(obj).sort());
-}
+//------------------------------------------------------------------------------
+// Zones
+//------------------------------------------------------------------------------
 
 /**
  * Compute the union of two zones. It is the smallest zone which contains the
@@ -91,12 +117,27 @@ export function isEqual(z1: Zone, z2: Zone): boolean {
   );
 }
 
-export function overlap(r1: Zone, r2: Zone) {
-  if (r1.bottom < r2.top || r2.bottom < r2.top) {
+/**
+ * Return true if two zones overlap, false otherwise.
+ */
+export function overlap(z1: Zone, z2: Zone): boolean {
+  if (z1.bottom < z2.top || z2.bottom < z2.top) {
     return false;
   }
-  if (r1.right < r2.left || r2.right < r1.left) {
+  if (z1.right < z2.left || z2.right < z1.left) {
     return false;
   }
   return true;
+}
+
+//------------------------------------------------------------------------------
+// Miscellaneous
+//------------------------------------------------------------------------------
+
+/**
+ * Stringify an object, like JSON.stringify, except that the first level of keys
+ * is ordered.
+ */
+export function stringify(obj: any): string {
+  return JSON.stringify(obj, Object.keys(obj).sort());
 }

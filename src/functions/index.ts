@@ -1,3 +1,9 @@
+import { functions as math } from "./math";
+import { functions as logical } from "./logical";
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
 export interface FunctionDescription {
   description: string;
   compute: Function;
@@ -5,12 +11,23 @@ export interface FunctionDescription {
 
 export type FunctionMap = { [key: string]: FunctionDescription };
 
-import { functions as math } from "./math";
-import { functions as logical } from "./logical";
+//------------------------------------------------------------------------------
+// Functions
+//------------------------------------------------------------------------------
 
 export const functions: FunctionMap = {};
 export const functionMap: { [name: string]: Function } = {};
 
+importFunctions(math);
+importFunctions(logical);
+
+//------------------------------------------------------------------------------
+// Others
+//------------------------------------------------------------------------------
+
+/**
+ * Add a function to the internal function list.
+ */
 export function addFunction(name: string, descr: FunctionDescription) {
   name = name.toUpperCase();
   functionMap[name] = descr.compute;
@@ -22,6 +39,3 @@ function importFunctions(mapping: FunctionMap) {
     addFunction(name, mapping[name]);
   }
 }
-
-importFunctions(math);
-importFunctions(logical);
