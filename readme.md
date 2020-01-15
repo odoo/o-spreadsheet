@@ -1,6 +1,6 @@
 # o_spreadsheet
 
-Spreadsheet component.
+Spreadsheet component, written in Owl.
 
 ## Scripts
 
@@ -18,3 +18,7 @@ npm run dev
 npm run test
 npm run test -- --watch
 ```
+
+## Documentation
+
+See [documentation](doc/readme.md).
