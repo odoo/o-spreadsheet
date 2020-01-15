@@ -234,10 +234,11 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   // Constructor and private methods
   // ---------------------------------------------------------------------------
-  constructor(data: GridData) {
+  constructor(data?: GridData) {
     super();
+    data = data || { sheets: [] };
     if (data.sheets.length === 0) {
-      throw new Error("No sheet defined in data");
+      data.sheets.push({ name: "Sheet1", colNumber: 10, rowNumber: 10 });
     }
     // styles
     this.styles = data.styles || {};
