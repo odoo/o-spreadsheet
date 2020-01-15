@@ -1,6 +1,6 @@
-import { functions } from "../src/functions";
+import { functions } from "../../src/functions";
 
-describe("functions", () => {
+describe("math", () => {
   test("SUM: add some numbers", () => {
     expect(functions.SUM.compute(1, 2)).toBe(3);
     expect(functions.SUM.compute(1, 2, 3)).toBe(6);

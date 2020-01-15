@@ -1,8 +1,8 @@
 import * as owl from "@odoo/owl";
-import { GridModel, Highlight, Zone } from "./grid_model";
-import { tokenize, Token } from "./expressions";
-import { toCartesian, zoneToXC } from "./helpers";
-import { fontSizeMap } from "./fonts";
+import { GridModel, Highlight, Zone } from "../grid_model";
+import { tokenize, Token } from "../expressions";
+import { toCartesian, zoneToXC } from "../helpers";
+import { fontSizeMap } from "../fonts";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;

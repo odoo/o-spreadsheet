@@ -10,9 +10,9 @@ import {
   Merge,
   Border,
   BorderDescr
-} from "./grid_model";
-import { toXC, overlap } from "./helpers";
-import { fontSizeMap } from "./fonts";
+} from "../grid_model";
+import { toXC, overlap } from "../helpers";
+import { fontSizeMap } from "../fonts";
 
 // Global variables
 

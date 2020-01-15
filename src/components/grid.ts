@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 
-import { HEADER_WIDTH, HEADER_HEIGHT, GridModel } from "./grid_model";
+import { HEADER_WIDTH, HEADER_HEIGHT, GridModel } from "../grid_model";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 

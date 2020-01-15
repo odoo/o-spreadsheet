@@ -1,5 +1,5 @@
-import { GridModel } from "../src/grid_model";
-import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "./helpers";
+import { GridModel } from "../../src/grid_model";
+import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
 
 let fixture: HTMLElement;
 

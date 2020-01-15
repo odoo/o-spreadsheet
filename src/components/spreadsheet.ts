@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { Grid } from "./grid";
-import { GridModel, GridData } from "./grid_model";
+import { GridModel, GridData } from "../grid_model";
 import { ToolBar } from "./toolbar";
 
 const { Component } = owl;
