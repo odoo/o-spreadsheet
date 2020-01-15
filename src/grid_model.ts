@@ -1,6 +1,6 @@
 import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "./helpers";
 import { compileExpression, applyOffset } from "./expressions";
-import { functions } from "./functions/index";
+import { functionMap } from "./functions/index";
 import * as owl from "@odoo/owl";
 
 const DEFAULT_CELL_WIDTH = 96;
@@ -9,8 +9,6 @@ export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
-
-const fns = Object.fromEntries(Object.entries(functions).map(([k, v]) => [k, v.compute]));
 
 export const DEFAULT_STYLE: Style = {
   fillColor: "white",
@@ -365,7 +363,7 @@ export class GridModel extends owl.core.EventBus {
   evaluateCells() {
     const cells = this.cells;
     const visited = {};
-    const functions = Object.assign({ range }, fns);
+    const functions = Object.assign({ range }, functionMap);
 
     function computeValue(xc, cell: Cell) {
       if (cell.type !== "formula" || !cell.formula) {

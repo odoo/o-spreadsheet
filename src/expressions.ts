@@ -5,12 +5,12 @@ import { toCartesian, toXC } from "./helpers";
 // Tokenizer
 // -----------------------------------------------------------------------------
 const OPERATORS = "+,-,*,/,:".split(",");
-const FUNCTION_NAMES = Object.keys(functions).map(n => n.toUpperCase());
 
 export type TokenType =
   | "OPERATOR"
   | "NUMBER"
   | "STRING"
+  | "BOOLEAN"
   | "FUNCTION"
   | "VARIABLE"
   | "SPACE"
@@ -42,6 +42,7 @@ export function tokenize(str: string): Token[] {
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
       tokenizeString(chars) ||
+      tokenizeBoolean(chars) ||
       tokenizeSymbol(chars);
     if (!token) {
       throw new Error("Tokenizer error");
@@ -108,6 +109,29 @@ function tokenizeNumber(chars): Token | null {
   return null;
 }
 
+function tokenizeBoolean(chars): Token | null {
+  if (["T", "F"].includes(chars[0].toUpperCase())) {
+    for (let value of ["TRUE", "FALSE"]) {
+      if (
+        chars
+          .slice(0, value.length)
+          .join("")
+          .toUpperCase() === value
+      ) {
+        chars.splice(0, value.length);
+        return {
+          type: "BOOLEAN",
+          value: value === "TRUE",
+          length: value.length,
+          start: 0,
+          end: 0
+        };
+      }
+    }
+  }
+  return null;
+}
+
 function tokenizeString(chars): Token | null {
   const quotes = ["'", '"'];
   if (quotes.includes(chars[0])) {
@@ -135,7 +159,7 @@ function tokenizeSymbol(chars): Token | null {
   }
   if (result.length) {
     const value = result.join("").toUpperCase();
-    const isFunction = FUNCTION_NAMES.includes(value);
+    const isFunction = value in functions;
     const type = isFunction ? "FUNCTION" : "VARIABLE";
     return { type, value, length: result.length, start: 0, end: 0 };
   }
@@ -172,6 +196,11 @@ interface ASTString extends ASTBase {
   value: string;
 }
 
+interface ASTBoolean extends ASTBase {
+  type: "BOOLEAN";
+  value: boolean;
+}
+
 interface ASTVariable extends ASTBase {
   type: "VARIABLE";
   value: string;
@@ -189,7 +218,7 @@ interface ASTFuncall extends ASTBase {
   args: AST[];
 }
 
-type AST = ASTOperation | ASTFuncall | ASTNumber | ASTString | ASTVariable;
+type AST = ASTOperation | ASTFuncall | ASTNumber | ASTBoolean | ASTString | ASTVariable;
 
 function bindingPower(token: Token): number {
   switch (token.type) {
@@ -208,9 +237,10 @@ function bindingPower(token: Token): number {
   throw new Error("?");
 }
 
+const simpleTokens: TokenType[] = ["NUMBER", "VARIABLE", "STRING", "BOOLEAN"];
 function parsePrefix(current: Token, tokens: Token[]): AST {
-  if (current.type === "NUMBER" || current.type === "VARIABLE" || current.type === "STRING") {
-    return { type: current.type, value: current.value };
+  if (simpleTokens.includes(current.type)) {
+    return { type: current.type, value: current.value } as AST;
   }
   if (current.type === "LEFT_PAREN") {
     const result = parseExpression(tokens, 5);
@@ -300,6 +330,7 @@ export function compileExpression(str: string): Function {
       code.push("debugger;");
     }
     switch (ast.type) {
+      case "BOOLEAN":
       case "NUMBER":
         return ast.value;
       case "STRING":
