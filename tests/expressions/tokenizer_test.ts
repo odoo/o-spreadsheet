@@ -1,4 +1,4 @@
-import { tokenize, applyOffset, parse } from "../src/expressions";
+import { tokenize } from "../../src/expressions";
 
 describe("tokenizer", () => {
   test("simple token", () => {
@@ -191,42 +191,5 @@ describe("tokenizer", () => {
         value: ")"
       }
     ]);
-  });
-});
-
-describe("parser", () => {
-  test("can parse a function call with no argument", () => {
-    expect(parse("RAND()")).toEqual({ debug: false, type: "FUNCALL", value: "RAND", args: [] });
-  });
-  test("AND", () => {
-    expect(parse("=AND(true, false)")).toEqual({
-      debug: false,
-      type: "FUNCALL",
-      value: "AND",
-      args: [
-        { type: "BOOLEAN", value: true },
-        { type: "BOOLEAN", value: false }
-      ]
-    });
-    expect(parse("=AND(0, tRuE)")).toEqual({
-      debug: false,
-      type: "FUNCALL",
-      value: "AND",
-      args: [
-        { type: "NUMBER", value: 0 },
-        { type: "BOOLEAN", value: true }
-      ]
-    });
-  });
-});
-
-describe("applyOffset", () => {
-  test("simple changes", () => {
-    expect(applyOffset("=A1", 1, 1)).toEqual("=B2");
-    expect(applyOffset("=A1 + B3", 1, 1)).toEqual("=B2 + C4");
-  });
-
-  test("can handle negative/invalid offsets", () => {
-    expect(applyOffset("=B2", 0, -4)).toEqual("=#REF");
   });
 });
