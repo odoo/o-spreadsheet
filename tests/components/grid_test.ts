@@ -244,3 +244,29 @@ describe("Grid component", () => {
     });
   });
 });
+
+describe("composer", () => {
+  test("starting the edition of the cell, the composer should have the focus", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.activeXc).toBe("A1");
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    await nextTick();
+    expect(model.isEditing).toBe(true);
+    expect(model.activeRow).toBe(0);
+    expect(model.activeCol).toBe(0);
+    expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
+  });
+});

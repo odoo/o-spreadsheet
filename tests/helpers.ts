@@ -92,12 +92,13 @@ HTMLCanvasElement.prototype.getContext = jest.fn(function() {
   };
 }) as any;
 
-Object.defineProperty(HTMLDivElement.prototype, "innerText", {
-  get() {
-    return this.textContent;
-  }
-});
-
+if (!HTMLDivElement.prototype.hasOwnProperty("innerText")) {
+  Object.defineProperty(HTMLDivElement.prototype, "innerText", {
+    get() {
+      return this.textContent;
+    }
+  });
+}
 let el;
 window.document.createRange = () =>
   ({

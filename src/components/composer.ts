@@ -97,6 +97,12 @@ export class Composer extends Component<any, any> {
     selection.addRange(range);
     let newValue = zoneToXC(this.model.selections.zones[0]);
     document.execCommand("insertText", false, newValue);
+
+    selection.removeAllRanges();
+    let range1 = document.createRange();
+    range1.setStart(this.el!.childNodes[0] as Node, this.selectionStart);
+    range1.setEnd(this.el!.childNodes[0] as Node, this.selectionStart + newValue.length);
+    selection.addRange(range1);
   }
 
   findTokenUnderCursor(): Token | void {
@@ -145,7 +151,11 @@ export class Composer extends Component<any, any> {
     if (el.clientWidth !== el.scrollWidth) {
       el.style.width = (el.scrollWidth + 20) as any;
     }
-    this.model.currentContent = (this.el!.childNodes[0] as Node).textContent!;
+    if (this.el!.childNodes.length) {
+      this.model.currentContent = (this.el!.childNodes[0] as Node).textContent!;
+    } else {
+      this.model.currentContent = "";
+    }
 
     if (this.model.currentContent.startsWith("=")) {
       this.model.isSelectingRange = true;
@@ -153,6 +163,7 @@ export class Composer extends Component<any, any> {
   }
 
   onKeydown(ev: KeyboardEvent) {
+    console.log("composer", ev.key);
     switch (ev.key) {
       case "Enter":
         this.model.stopEditing();
@@ -173,6 +184,7 @@ export class Composer extends Component<any, any> {
   }
 
   onClick(ev: MouseEvent) {
+    ev.stopPropagation();
     this.model.isSelectingRange = false;
     let selection = window.getSelection()!;
     const start = selection.anchorOffset;
@@ -185,12 +197,13 @@ export class Composer extends Component<any, any> {
         range.setStart(this.el!.childNodes[0] as Node, found.start);
         range.setEnd(this.el!.childNodes[0] as Node, found.end);
         selection.addRange(range);
-        this.model.isSelectingRange = false;
+        this.model.isSelectingRange = true;
       }
     }
   }
 
   onBlur(ev: FocusEvent) {
+    console.trace("composer blurred");
     let selection = window.getSelection()!;
     this.selectionStart = selection.anchorOffset;
     this.selectionEnd = selection.focusOffset;

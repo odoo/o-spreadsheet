@@ -344,7 +344,7 @@ function drawActiveZone() {
       right: model.activeCol
     };
   }
-  drawOutline(zone, "#3266ca");
+  drawOutline(zone, "#ffee46");
 }
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
