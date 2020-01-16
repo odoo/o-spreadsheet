@@ -1,4 +1,4 @@
-import { parse } from "../../src/expressions";
+import { parse } from "../../src/formulas";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {

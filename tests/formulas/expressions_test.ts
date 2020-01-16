@@ -1,4 +1,4 @@
-import { compile } from "../../src/expressions";
+import { compile } from "../../src/formulas";
 
 function evaluate(str: string, vars = {}, fns = {}): any {
   const fn = compile(str);

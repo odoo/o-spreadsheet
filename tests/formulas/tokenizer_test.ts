@@ -1,4 +1,4 @@
-import { tokenize } from "../../src/expressions";
+import { tokenize } from "../../src/formulas";
 
 describe("tokenizer", () => {
   test("simple token", () => {

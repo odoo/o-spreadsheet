@@ -1,5 +1,5 @@
 import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "./helpers";
-import { compile, applyOffset } from "./expressions/index";
+import { compile, applyOffset } from "./formulas/index";
 import { functionMap } from "./functions/index";
 import * as owl from "@odoo/owl";
 
@@ -121,6 +121,18 @@ export interface Highlight {
   zone: Zone;
   color: string | null;
 }
+
+type BorderCommand =
+  | "all"
+  | "hv"
+  | "h"
+  | "v"
+  | "external"
+  | "left"
+  | "top"
+  | "right"
+  | "bottom"
+  | "clear";
 
 // ---------------------------------------------------------------------------
 // GridModel
@@ -901,7 +913,7 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   // Borders
   // ---------------------------------------------------------------------------
-  setBorder(command: string) {
+  setBorder(command: BorderCommand) {
     console.log("setting border", command);
   }
 }

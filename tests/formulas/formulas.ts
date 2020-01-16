@@ -1,4 +1,4 @@
-import { applyOffset } from "../../src/expressions";
+import { applyOffset } from "../../src/formulas";
 
 describe("applyOffset", () => {
   test("simple changes", () => {

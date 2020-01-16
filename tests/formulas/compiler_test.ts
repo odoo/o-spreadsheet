@@ -1,4 +1,4 @@
-import { compile } from "../../src/expressions";
+import { compile } from "../../src/formulas";
 
 describe("expression compiler", () => {
   test("simple values", () => {
