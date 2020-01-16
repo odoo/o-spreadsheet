@@ -424,7 +424,6 @@ export class GridModel extends owl.core.EventBus {
           cell.ready = true;
         }
         cell.error = false;
-
         // cell.value = cell.formula(getValue, functions);
         //cell.value = +cell.formula(getValue, functions).toFixed(4);
         // cell.error = false;
