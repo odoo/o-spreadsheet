@@ -4,7 +4,7 @@ import { Cell } from "./types";
 import { toCartesian, toXC } from "../helpers";
 
 export function evaluateCells(this: GridModel) {
-  const cells = this.cells;
+  const cells = this.state.cells;
   const visited = {};
   const functions = Object.assign({ range }, functionMap);
 

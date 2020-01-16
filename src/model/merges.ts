@@ -10,11 +10,11 @@ import { toXC, toCartesian } from "../helpers";
  * does not ask for confirmation if we delete a cell content.
  */
 export function addMerge(this: GridModel, m: string) {
-  let id = this.nextId++;
+  let id = this.state.nextId++;
   const [tl, br] = m.split(":");
   const [left, top] = toCartesian(tl);
   const [right, bottom] = toCartesian(br);
-  this.merges[id] = {
+  this.state.merges[id] = {
     id,
     left,
     top,
@@ -28,13 +28,15 @@ export function addMerge(this: GridModel, m: string) {
       if (col !== left || row !== top) {
         this.deleteCell(xc);
       }
-      this.mergeCellMap[xc] = id;
+      this.state.mergeCellMap[xc] = id;
     }
   }
 }
 
 export function mergeSelection(this: GridModel) {
-  const { left, right, top, bottom } = this.selection.zones[this.selection.zones.length - 1];
+  const { left, right, top, bottom } = this.state.selection.zones[
+    this.state.selection.zones.length - 1
+  ];
   let tl = toXC(left, top);
   let br = toXC(right, bottom);
   if (tl !== br) {
@@ -44,22 +46,24 @@ export function mergeSelection(this: GridModel) {
 }
 
 export function unmergeSelection(this: GridModel) {
-  const mergeId = this.mergeCellMap[this.activeXc];
-  const { left, top, right, bottom } = this.merges[mergeId];
-  delete this.merges[mergeId];
+  const mergeId = this.state.mergeCellMap[this.state.activeXc];
+  const { left, top, right, bottom } = this.state.merges[mergeId];
+  delete this.state.merges[mergeId];
   for (let r = top; r <= bottom; r++) {
     for (let c = left; c <= right; c++) {
       const xc = toXC(c, r);
-      delete this.mergeCellMap[xc];
+      delete this.state.mergeCellMap[xc];
     }
   }
   this.notify();
 }
 
 export function isMergeDestructive(this: GridModel): boolean {
-  const { left, right, top, bottom } = this.selection.zones[this.selection.zones.length - 1];
+  const { left, right, top, bottom } = this.state.selection.zones[
+    this.state.selection.zones.length - 1
+  ];
   for (let row = top; row <= bottom; row++) {
-    const actualRow = this.rows[row];
+    const actualRow = this.state.rows[row];
     for (let col = left; col <= right; col++) {
       if (col !== left || row !== top) {
         const cell = actualRow.cells[col];

@@ -50,7 +50,7 @@ describe("Toolbar component", () => {
         confirm = ev.detail.confirm;
       }
     }
-    model.selection.zones = [
+    model.state.selection.zones = [
       {
         top: 0,
         left: 0,
@@ -63,9 +63,9 @@ describe("Toolbar component", () => {
 
     fixture.querySelector('.o-tool[title="Merge Cells"]')!.dispatchEvent(new Event("click"));
 
-    expect(model.merges).toEqual({});
+    expect(model.state.merges).toEqual({});
     confirm();
-    expect(model.merges).not.toEqual({});
+    expect(model.state.merges).not.toEqual({});
   });
 
   test("opening a second menu closes the first one", async () => {

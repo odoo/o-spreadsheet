@@ -3,14 +3,14 @@ import { isEqual, toXC, union } from "../helpers";
 import { Zone } from "./types";
 
 export function selectCell(this: GridModel, col: number, row: number, newRange: boolean = false) {
-  if (!this.isSelectingRange) {
+  if (!this.state.isSelectingRange) {
     this.stopEditing();
   }
 
   const xc = toXC(col, row);
   let zone: Zone;
-  if (xc in this.mergeCellMap) {
-    const merge = this.merges[this.mergeCellMap[xc]];
+  if (xc in this.state.mergeCellMap) {
+    const merge = this.state.merges[this.state.mergeCellMap[xc]];
     zone = {
       left: merge.left,
       right: merge.right,
@@ -27,17 +27,17 @@ export function selectCell(this: GridModel, col: number, row: number, newRange: 
   }
 
   if (newRange) {
-    this.selection.zones.push(zone);
+    this.state.selection.zones.push(zone);
   } else {
-    this.selection.zones = [zone];
+    this.state.selection.zones = [zone];
   }
-  this.selection.anchor.col = col;
-  this.selection.anchor.row = row;
+  this.state.selection.anchor.col = col;
+  this.state.selection.anchor.row = row;
 
-  if (!this.isSelectingRange) {
-    this.activeCol = col;
-    this.activeRow = row;
-    this.activeXc = xc;
+  if (!this.state.isSelectingRange) {
+    this.state.activeCol = col;
+    this.state.activeRow = row;
+    this.state.activeXc = xc;
   }
   this.notify();
 }
@@ -50,9 +50,9 @@ function expandZone(model: GridModel, zone: Zone): Zone {
   let result: Zone = { left, right, top, bottom };
   for (let i = left; i <= right; i++) {
     for (let j = top; j <= bottom; j++) {
-      let mergeId = model.mergeCellMap[toXC(i, j)];
+      let mergeId = model.state.mergeCellMap[toXC(i, j)];
       if (mergeId) {
-        result = union(model.merges[mergeId], result);
+        result = union(model.state.merges[mergeId], result);
       }
     }
   }
@@ -60,9 +60,9 @@ function expandZone(model: GridModel, zone: Zone): Zone {
 }
 
 export function moveSelection(this: GridModel, deltaX: number, deltaY: number) {
-  const selection = this.selection.zones[this.selection.zones.length - 1];
-  const anchorCol = this.selection.anchor.col;
-  const anchorRow = this.selection.anchor.row;
+  const selection = this.state.selection.zones[this.state.selection.zones.length - 1];
+  const anchorCol = this.state.selection.anchor.col;
+  const anchorRow = this.state.selection.anchor.row;
   const { left, right, top, bottom } = selection;
   if (top + deltaY < 0 || left + deltaX < 0) {
     return;
@@ -87,7 +87,7 @@ export function moveSelection(this: GridModel, deltaX: number, deltaY: number) {
       result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
     }
     if (result && !isEqual(result, selection)) {
-      this.selection.zones[this.selection.zones.length - 1] = result;
+      this.state.selection.zones[this.state.selection.zones.length - 1] = result;
       this.notify();
       return;
     }
@@ -101,7 +101,7 @@ export function moveSelection(this: GridModel, deltaX: number, deltaY: number) {
   };
   result = expand(union(currentZone, zoneWithDelta));
   if (!isEqual(result, selection)) {
-    this.selection.zones[this.selection.zones.length - 1] = result;
+    this.state.selection.zones[this.state.selection.zones.length - 1] = result;
     this.notify();
     return;
   }
@@ -109,30 +109,30 @@ export function moveSelection(this: GridModel, deltaX: number, deltaY: number) {
 
 export function selectColumn(this: GridModel, col: number) {
   this.stopEditing();
-  this.activeCol = col;
-  this.activeRow = 0;
-  this.activeXc = toXC(col, 0);
+  this.state.activeCol = col;
+  this.state.activeRow = 0;
+  this.state.activeXc = toXC(col, 0);
   const selection = {
     top: 0,
     left: col,
     right: col,
-    bottom: this.rows.length - 1
+    bottom: this.state.rows.length - 1
   };
-  this.selection.anchor = { col: this.activeCol, row: this.activeRow };
-  this.selection.zones = [selection];
+  this.state.selection.anchor = { col: this.state.activeCol, row: this.state.activeRow };
+  this.state.selection.zones = [selection];
 
   this.notify();
 }
 
 export function updateSelection(this: GridModel, col: number, row: number) {
-  const anchorCol = this.selection.anchor.col;
-  const anchorRow = this.selection.anchor.row;
+  const anchorCol = this.state.selection.anchor.col;
+  const anchorRow = this.state.selection.anchor.row;
   const zone: Zone = {
     left: Math.min(anchorCol, col),
     top: Math.min(anchorRow, row),
     right: Math.max(anchorCol, col),
     bottom: Math.max(anchorRow, row)
   };
-  this.selection.zones[this.selection.zones.length - 1] = expandZone(this, zone);
+  this.state.selection.zones[this.state.selection.zones.length - 1] = expandZone(this, zone);
   this.notify();
 }

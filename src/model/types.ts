@@ -1,3 +1,43 @@
+export interface GridState {
+  rows: Row[];
+  cols: Col[];
+  cells: { [key: string]: Cell };
+  styles: { [key: number]: Style };
+  borders: { [key: number]: Border };
+  merges: { [key: number]: Merge };
+  mergeCellMap: { [key: string]: number };
+
+  // width and height of the sheet zone (not just the visible part, and excluding
+  // the row and col headers)
+  width: number;
+  height: number;
+  clientWidth: number;
+
+  // offset between the visible zone and the full zone (take into account
+  // headers)
+  offsetX: number;
+  offsetY: number;
+  scrollTop: number;
+  scrollLeft: number;
+
+  viewport: Zone;
+  selection: Selection;
+
+  activeCol: number;
+  activeRow: number;
+  activeXc: string;
+  activeSheet: string;
+
+  isEditing: boolean;
+  currentContent: string;
+
+  clipboard: ClipBoard;
+  nextId: number;
+  highlights: Highlight[];
+  isSilent: boolean; // rename into isDirty
+  isSelectingRange: boolean;
+}
+
 export interface Zone {
   left: number;
   right: number;

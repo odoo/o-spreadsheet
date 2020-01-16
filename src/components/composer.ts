@@ -66,10 +66,10 @@ export class Composer extends Component<any, any> {
   constructor() {
     super(...arguments);
     const model = this.model;
-    if (model.activeXc in model.mergeCellMap) {
-      this.zone = model.merges[model.mergeCellMap[model.activeXc]];
+    if (model.state.activeXc in model.state.mergeCellMap) {
+      this.zone = model.state.merges[model.state.mergeCellMap[model.state.activeXc]];
     } else {
-      const { activeCol, activeRow } = model;
+      const { activeCol, activeRow } = model.state;
       this.zone = { left: activeCol, top: activeRow, right: activeCol, bottom: activeRow };
     }
   }
@@ -79,7 +79,7 @@ export class Composer extends Component<any, any> {
     // @ts-ignore
     //TODO VSC: remove this debug code
     window.composer = el;
-    const { cols } = this.model;
+    const { cols } = this.model.state;
 
     const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
     range.selectNodeContents(el); //Select the entire contents of the element with the range
@@ -103,9 +103,9 @@ export class Composer extends Component<any, any> {
   }
 
   willUpdateProps(nextProps: any): Promise<void> {
-    if (nextProps.model.currentContent !== this.model.currentContent) {
+    if (nextProps.model.currentContent !== this.model.state.currentContent) {
       console.warn(
-        `current content updated from ${this.model.currentContent} to ${nextProps.model.currentContent} `
+        `current content updated from ${this.model.state.currentContent} to ${nextProps.model.currentContent} `
       );
     }
     return super.willUpdateProps(nextProps);
@@ -118,7 +118,7 @@ export class Composer extends Component<any, any> {
     range.setStart(this.el!.childNodes[0] as Node, this.selectionStart);
     range.setEnd(this.el!.childNodes[0] as Node, this.selectionEnd);
     selection.addRange(range);
-    let newValue = zoneToXC(this.model.selection.zones[0]);
+    let newValue = zoneToXC(this.model.state.selection.zones[0]);
     document.execCommand("insertText", false, newValue);
 
     selection.removeAllRanges();
@@ -144,7 +144,7 @@ export class Composer extends Component<any, any> {
   }
 
   get style() {
-    const { cols, rows, offsetX, offsetY } = this.model;
+    const { cols, rows, offsetX, offsetY } = this.model.state;
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 2;
@@ -160,7 +160,7 @@ export class Composer extends Component<any, any> {
     const position =
       align === "left"
         ? `left: ${col.left - offsetX}px;`
-        : `right: ${this.model.clientWidth - (cols[this.zone.right].right - offsetX) - 2}px;`;
+        : `right: ${this.model.state.clientWidth - (cols[this.zone.right].right - offsetX) - 2}px;`;
     return `${position}top:${top}px;height:${height};line-height:${height -
       1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
@@ -175,13 +175,13 @@ export class Composer extends Component<any, any> {
       el.style.width = (el.scrollWidth + 20) as any;
     }
     if (this.el!.childNodes.length) {
-      this.model.currentContent = (this.el! as Node).textContent!;
+      this.model.state.currentContent = (this.el! as Node).textContent!;
     } else {
-      this.model.currentContent = "";
+      this.model.state.currentContent = "";
     }
 
-    if (this.model.currentContent.startsWith("=")) {
-      this.model.isSelectingRange = true;
+    if (this.model.state.currentContent.startsWith("=")) {
+      this.model.state.isSelectingRange = true;
     }
   }
 
@@ -207,7 +207,7 @@ export class Composer extends Component<any, any> {
 
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
-    this.model.isSelectingRange = false;
+    this.model.state.isSelectingRange = false;
     let selection = window.getSelection()!;
     const start = selection.anchorOffset;
     const end = selection.focusOffset;
@@ -219,7 +219,7 @@ export class Composer extends Component<any, any> {
         range.setStart(this.el!.childNodes[0] as Node, found.start);
         range.setEnd(this.el!.childNodes[0] as Node, found.end);
         selection.addRange(range);
-        this.model.isSelectingRange = true;
+        this.model.state.isSelectingRange = true;
       }
     }
   }
@@ -232,7 +232,7 @@ export class Composer extends Component<any, any> {
 
   processContent() {
     const el = this.el as HTMLElement;
-    let value = this.model.currentContent;
+    let value = this.model.state.currentContent;
     if (value.startsWith("=")) {
       let lastUsedColorIndex = 0;
       const tokens = tokenize(value);
@@ -274,7 +274,7 @@ export class Composer extends Component<any, any> {
 
       this.model.addHighlights(highlights);
     } else {
-      el.innerHTML = this.model.currentContent;
+      el.innerHTML = this.model.state.currentContent;
     }
   }
 }

@@ -5,7 +5,9 @@ import { Cell } from "./types";
 
 export function copySelection(this: GridModel, cut: boolean = false) {
   console.warn("implement copySelection for multi selection");
-  let { left, right, top, bottom } = this.selection.zones[this.selection.zones.length - 1];
+  let { left, right, top, bottom } = this.state.selection.zones[
+    this.state.selection.zones.length - 1
+  ];
   const cells: (Cell | null)[][] = [];
   for (let i = left; i <= right; i++) {
     const vals: (Cell | null)[] = [];
@@ -18,7 +20,7 @@ export function copySelection(this: GridModel, cut: boolean = false) {
       }
     }
   }
-  this.clipBoard = {
+  this.state.clipboard = {
     zone: { left, right, top, bottom },
     cells
   };
@@ -30,11 +32,11 @@ export function copySelection(this: GridModel, cut: boolean = false) {
 export function pasteSelection(this: GridModel) {
   console.warn("implement pasteSelection for multi selection");
 
-  const { zone, cells } = this.clipBoard;
+  const { zone, cells } = this.state.clipboard;
   if (!zone || !cells) {
     return;
   }
-  const selection = this.selection.zones[this.selection.zones.length - 1];
+  const selection = this.state.selection.zones[this.state.selection.zones.length - 1];
   let col = selection.left;
   let row = selection.top;
   let { left, right, top, bottom } = zone;

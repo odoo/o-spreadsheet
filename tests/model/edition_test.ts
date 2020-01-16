@@ -14,14 +14,14 @@ describe("edition", () => {
     // adding
     model.startEditing("a");
     model.stopEditing();
-    expect(Object.keys(model.cells)).toEqual(["A1"]);
-    expect(model.cells["A1"].content).toBe("a");
+    expect(Object.keys(model.state.cells)).toEqual(["A1"]);
+    expect(model.state.cells["A1"].content).toBe("a");
 
     // removing
     model.startEditing();
-    model.currentContent = "";
+    model.state.currentContent = "";
     model.stopEditing();
-    expect(model.cells).toEqual({});
+    expect(model.state.cells).toEqual({});
   });
 
   test("deleting a cell with style does not remove it", () => {
@@ -39,9 +39,9 @@ describe("edition", () => {
     });
 
     // removing
-    expect(model.cells["A2"].content).toBe("a2");
+    expect(model.state.cells["A2"].content).toBe("a2");
     model.deleteCell("A2");
-    expect("A2" in model.cells).toBeTruthy();
-    expect(model.cells["A2"].content).toBe("");
+    expect("A2" in model.state.cells).toBeTruthy();
+    expect(model.state.cells["A2"].content).toBe("");
   });
 });

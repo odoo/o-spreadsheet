@@ -73,9 +73,9 @@ class Resizer extends Component<any, any> {
     if (c < 0) {
       return;
     }
-    const col = this.model.cols[c];
-    const offsetX = this.model.offsetX;
-    if (x - (col.left - offsetX) < 15 && c !== this.model.viewport.left) {
+    const col = this.model.state.cols[c];
+    const offsetX = this.model.state.offsetX;
+    if (x - (col.left - offsetX) < 15 && c !== this.model.state.viewport.left) {
       this.state.active = true;
       this.state.left = col.left - offsetX - HEADER_WIDTH - 2;
       this.state.activeCol = c - 1;
@@ -121,7 +121,7 @@ class Resizer extends Component<any, any> {
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet" t-on-click="focus">
-    <t t-if="model.isEditing">
+    <t t-if="model.state.isEditing">
       <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
     </t>
     <canvas t-ref="canvas"
@@ -131,10 +131,10 @@ const TEMPLATE = xml/* xml */ `
       t-on-mousewheel="onMouseWheel" />
     <Resizer model="model"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{model.height}}px"/>
+      <div t-attf-style="width:1px;height:{{model.state.height}}px"/>
     </div>
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{model.width}}px"/>
+      <div t-attf-style="height:1px;width:{{model.state.width}}px"/>
     </div>
   </div>`;
 
@@ -208,16 +208,16 @@ export class Grid extends Component<any, any> {
   }
 
   focus() {
-    if (!this.model.isSelectingRange) {
+    if (!this.model.state.isSelectingRange) {
       this.canvas.el!.focus();
     }
   }
 
   onScroll() {
     const model = this.model;
-    const { offsetX, offsetY } = model;
+    const { offsetX, offsetY } = model.state;
     this.updateVisibleZone();
-    if (offsetX !== model.offsetX || offsetY !== model.offsetY) {
+    if (offsetX !== model.state.offsetX || offsetY !== model.state.offsetY) {
       this.render();
     }
   }
@@ -288,7 +288,7 @@ export class Grid extends Component<any, any> {
       }
     };
     const onMouseUp = ev => {
-      if (this.model.isSelectingRange) {
+      if (this.model.state.isSelectingRange) {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
         }
@@ -328,17 +328,17 @@ export class Grid extends Component<any, any> {
       }
       return;
     }
-    if (this.model.isSelectingRange) {
+    if (this.model.state.isSelectingRange) {
       switch (ev.key) {
         case "Enter":
           if (this.composer.comp) {
             (this.composer.comp as Composer).addTextFromSelection();
-            this.model.isSelectingRange = false;
+            this.model.state.isSelectingRange = false;
           }
           return;
 
         case "Escape":
-          this.model.isSelectingRange = false;
+          this.model.state.isSelectingRange = false;
           ev.stopPropagation();
           return;
       }

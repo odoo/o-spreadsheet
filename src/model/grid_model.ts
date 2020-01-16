@@ -3,26 +3,12 @@ import { compile } from "../formulas/index";
 import { numberToLetters, toCartesian, toXC } from "../helpers";
 import * as borders from "./borders";
 import * as clipboard from "./clipboard";
+import * as edition from "./edition";
 import * as evaluation from "./evaluation";
 import * as merges from "./merges";
 import * as selection from "./selection";
 import * as styles from "./styles";
-import * as edition from "./edition";
-import {
-  Border,
-  Cell,
-  CellData,
-  ClipBoard,
-  Col,
-  GridData,
-  Highlight,
-  Merge,
-  Row,
-  Selection,
-  Sheet,
-  Style,
-  Zone
-} from "./types";
+import { Cell, CellData, GridData, GridState, Sheet, Style } from "./types";
 
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 23;
@@ -41,70 +27,35 @@ export const DEFAULT_STYLE: Style = {
 // GridModel
 // ---------------------------------------------------------------------------
 export class GridModel extends owl.core.EventBus {
-  // each row is described by: { top: ..., bottom: ..., name: '5', size: ... }
-  rows: Row[] = [];
-  // each col is described by: { left: ..., right: ..., name: 'B', size: ... }
-  cols: Col[] = [];
-
-  cells: { [key: string]: Cell } = {};
-
-  styles: { [key: number]: Style } = {};
-
-  borders: { [key: number]: Border } = {};
-
-  merges: { [key: number]: Merge } = {};
-  mergeCellMap: { [key: string]: number } = {};
-
-  // width and height of the sheet zone (not just the visible part, and excluding
-  // the row and col headers)
-  width: number = 0;
-  height: number = 0;
-  clientWidth: number = 0;
-
-  // offset between the visible zone and the full zone (take into account
-  // headers)
-  offsetX = 0;
-  offsetY = 0;
-  scrollTop = 0;
-  scrollLeft = 0;
-
-  // coordinates of the visible and selected zone
-  viewport: Zone = {
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0
+  state: GridState = {
+    rows: [],
+    cols: [],
+    cells: {},
+    styles: {},
+    borders,
+    merges: {},
+    mergeCellMap: {},
+    width: 0,
+    height: 0,
+    clientWidth: 0,
+    offsetX: 0,
+    offsetY: 0,
+    scrollTop: 0,
+    scrollLeft: 0,
+    viewport: { top: 0, left: 0, bottom: 0, right: 0 },
+    selection: { zones: [{ top: 0, left: 0, bottom: 0, right: 0 }], anchor: { col: 0, row: 0 } },
+    activeCol: 0,
+    activeRow: 0,
+    activeXc: "A1",
+    activeSheet: "Sheet1",
+    isEditing: false,
+    currentContent: "",
+    clipboard: {},
+    nextId: 1,
+    highlights: [],
+    isSilent: true,
+    isSelectingRange: false
   };
-  selection: Selection = {
-    zones: [
-      {
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0
-      }
-    ],
-    anchor: {
-      col: 0,
-      row: 0
-    }
-  };
-  activeCol = 0;
-  activeRow = 0;
-  activeXc = "A1";
-  activeSheet: string = "Sheet1";
-
-  isEditing = false;
-  currentContent = "";
-
-  clipBoard: ClipBoard = {};
-  nextId = 1;
-
-  highlights: Highlight[] = [];
-
-  isSilent: boolean = true;
-
-  isSelectingRange: boolean = false; // true if the user is editing a formula and he should input a range or a cell
 
   // ---------------------------------------------------------------------------
   // Constructor and private methods
@@ -121,25 +72,25 @@ export class GridModel extends owl.core.EventBus {
     if (sheets.length === 0) {
       sheets.push({ name: "Sheet1", colNumber: 10, rowNumber: 10 });
     }
-    this.borders = data.borders || {};
+    this.state.borders = data.borders || {};
     // styles
-    this.styles = data.styles || {};
-    for (let k in this.styles) {
-      this.nextId = Math.max(k as any, this.nextId);
+    this.state.styles = data.styles || {};
+    for (let k in this.state.styles) {
+      this.state.nextId = Math.max(k as any, this.state.nextId);
     }
-    for (let k in this.borders) {
-      this.nextId = Math.max(k as any, this.nextId);
+    for (let k in this.state.borders) {
+      this.state.nextId = Math.max(k as any, this.state.nextId);
     }
-    this.nextId++;
-    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
+    this.state.nextId++;
+    this.state.styles[0] = Object.assign({}, DEFAULT_STYLE, this.state.styles[0]);
 
     const sheet = sheets[0];
     this.activateSheet(sheet);
   }
 
   activateSheet(sheet: Sheet) {
-    this.isSilent = true;
-    this.activeSheet = sheet.name || "Sheet1";
+    this.state.isSilent = true;
+    this.state.activeSheet = sheet.name || "Sheet1";
 
     // setting up rows and columns
     this.addRowsCols(sheet);
@@ -157,7 +108,7 @@ export class GridModel extends owl.core.EventBus {
     }
     this.evaluateCells();
     this.selectCell(0, 0);
-    this.isSilent = false;
+    this.state.isSilent = false;
   }
 
   addRowsCols(sheet: Sheet) {
@@ -173,10 +124,10 @@ export class GridModel extends owl.core.EventBus {
         name: String(i + 1),
         cells: {}
       };
-      this.rows.push(row);
+      this.state.rows.push(row);
       current = row.bottom;
     }
-    this.height = this.rows[this.rows.length - 1].bottom + 20; // 10 to have some space at the end
+    this.state.height = this.state.rows[this.state.rows.length - 1].bottom + 20; // 10 to have some space at the end
 
     current = 0;
     for (let i = 0; i < sheet.colNumber; i++) {
@@ -187,15 +138,15 @@ export class GridModel extends owl.core.EventBus {
         size: size,
         name: numberToLetters(i)
       };
-      this.cols.push(col);
+      this.state.cols.push(col);
       current = col.right;
     }
-    this.width = this.cols[this.cols.length - 1].right + 10;
+    this.state.width = this.state.cols[this.state.cols.length - 1].right + 10;
   }
 
   addCell(xc: string, data: CellData) {
     const [col, row] = toCartesian(xc);
-    const currentCell = this.cells[xc];
+    const currentCell = this.state.cells[xc];
     const content = data.content || "";
     const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
     const value =
@@ -218,8 +169,8 @@ export class GridModel extends owl.core.EventBus {
         cell.error = true;
       }
     }
-    this.cells[xc] = cell;
-    this.rows[row].cells[col] = cell;
+    this.state.cells[xc] = cell;
+    this.state.rows[row].cells[col] = cell;
   }
 
   /**
@@ -228,7 +179,7 @@ export class GridModel extends owl.core.EventBus {
    * rerendered
    */
   notify() {
-    if (!this.isSilent) {
+    if (!this.state.isSilent) {
       this.trigger("update");
     }
   }
@@ -239,28 +190,28 @@ export class GridModel extends owl.core.EventBus {
    * inside a merge, then it will be the top left cell.
    */
   get selectedCell(): Cell | null {
-    let mergeId = this.mergeCellMap[this.activeXc];
+    let mergeId = this.state.mergeCellMap[this.state.activeXc];
     if (mergeId) {
-      return this.cells[this.merges[mergeId].topLeft];
+      return this.state.cells[this.state.merges[mergeId].topLeft];
     } else {
-      return this.getCell(this.activeCol, this.activeRow);
+      return this.getCell(this.state.activeCol, this.state.activeRow);
     }
   }
 
   getCell(col: number, row: number): Cell | null {
-    return this.rows[row].cells[col] || null;
+    return this.state.rows[row].cells[col] || null;
   }
 
   getStyle(): Style {
     const cell = this.selectedCell;
-    return cell && cell.style ? this.styles[cell.style] : {};
+    return cell && cell.style ? this.state.styles[cell.style] : {};
   }
 
   getCol(x: number): number {
     if (x <= HEADER_WIDTH) {
       return -1;
     }
-    const { cols, offsetX, viewport } = this;
+    const { cols, offsetX, viewport } = this.state;
     const { left, right } = viewport;
     for (let i = left; i <= right; i++) {
       let c = cols[i];
@@ -275,7 +226,7 @@ export class GridModel extends owl.core.EventBus {
     if (y <= HEADER_HEIGHT) {
       return -1;
     }
-    const { rows, offsetY, viewport } = this;
+    const { rows, offsetY, viewport } = this.state;
     const { top, bottom } = viewport;
     for (let i = top; i <= bottom; i++) {
       let r = rows[i];
@@ -291,11 +242,11 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
 
   setColSize(index: number, delta: number) {
-    const { cols } = this;
+    const { cols } = this.state;
     const col = cols[index];
     col.size += delta;
     col.right += delta;
-    for (let i = index + 1; i < this.cols.length; i++) {
+    for (let i = index + 1; i < this.state.cols.length; i++) {
       const col = cols[i];
       col.left += delta;
       col.right += delta;
@@ -307,20 +258,20 @@ export class GridModel extends owl.core.EventBus {
    * Delete a cell.  This method does not trigger an update!
    */
   deleteCell(xc: string) {
-    const cell = this.cells[xc];
+    const cell = this.state.cells[xc];
     if (cell) {
       if ("style" in cell) {
         this.addCell(xc, { content: "", style: cell.style });
       } else {
-        delete this.cells[xc];
-        delete this.rows[cell.row].cells[cell.col];
+        delete this.state.cells[xc];
+        delete this.state.rows[cell.row].cells[cell.col];
       }
     }
   }
 
   updateVisibleZone(width: number, height: number, scrollLeft: number, scrollTop: number) {
-    const { rows, cols, viewport } = this;
-    this.clientWidth = width;
+    const { rows, cols, viewport } = this.state;
+    this.state.clientWidth = width;
 
     viewport.bottom = rows.length - 1;
     for (let i = 0; i < rows.length; i++) {
@@ -342,26 +293,26 @@ export class GridModel extends owl.core.EventBus {
         break;
       }
     }
-    this.scrollLeft = scrollLeft;
-    this.scrollTop = scrollTop;
-    this.offsetX = cols[viewport.left].left - HEADER_WIDTH;
-    this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
+    this.state.scrollLeft = scrollLeft;
+    this.state.scrollTop = scrollTop;
+    this.state.offsetX = cols[viewport.left].left - HEADER_WIDTH;
+    this.state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
 
   movePosition(deltaX: number, deltaY: number) {
-    const { activeCol, activeRow } = this;
+    const { activeCol, activeRow } = this.state;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
-      if (this.isEditing) {
+      if (this.state.isEditing) {
         this.stopEditing();
         this.notify();
       }
       return;
     }
-    let mergeId = this.mergeCellMap[this.activeXc];
+    let mergeId = this.state.mergeCellMap[this.state.activeXc];
     if (mergeId) {
-      let targetCol = this.activeCol;
-      let targetRow = this.activeRow;
-      while (this.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
+      let targetCol = this.state.activeCol;
+      let targetRow = this.state.activeRow;
+      while (this.state.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
@@ -369,16 +320,16 @@ export class GridModel extends owl.core.EventBus {
         this.selectCell(targetCol, targetRow);
       }
     } else {
-      this.selectCell(this.activeCol + deltaX, this.activeRow + deltaY);
+      this.selectCell(this.state.activeCol + deltaX, this.state.activeRow + deltaY);
     }
   }
 
   deleteSelection() {
-    this.selection.zones.forEach(zone => {
+    this.state.selection.zones.forEach(zone => {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);
-          if (xc in this.cells) {
+          if (xc in this.state.cells) {
             this.deleteCell(xc);
           }
         }

@@ -14,8 +14,8 @@ describe("data", () => {
     });
 
     // 96 is default cell width
-    expect(model.cols[0].size).toEqual(96);
-    expect(model.cols[1].size).toEqual(96);
+    expect(model.state.cols[0].size).toEqual(96);
+    expect(model.state.cols[1].size).toEqual(96);
   });
 
   test("get default values in style 0", () => {
@@ -29,6 +29,6 @@ describe("data", () => {
     });
 
     // 96 is default cell width
-    expect(model.styles[0].fillColor).toEqual("white");
+    expect(model.state.styles[0].fillColor).toEqual("white");
   });
 });

@@ -19,9 +19,9 @@ describe("merges", () => {
       ]
     });
     observeModel(model);
-    expect(Object.keys(model.cells)).toEqual(["B2", "B3"]);
-    expect(Object.keys(model.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.merges)).toEqual([]);
+    expect(Object.keys(model.state.cells)).toEqual(["B2", "B3"]);
+    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.state.merges)).toEqual([]);
 
     model.selectCell(1, 1);
     expect(n).toBe(1);
@@ -30,10 +30,10 @@ describe("merges", () => {
     model.mergeSelection();
     expect(n).toBe(3);
 
-    expect(Object.keys(model.cells)).toEqual(["B2"]);
-    expect(model.cells.B2.content).toBe("b2");
-    expect(Object.keys(model.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.merges).toEqual({
+    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
+    expect(model.state.cells.B2.content).toBe("b2");
+    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.state.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
@@ -51,8 +51,8 @@ describe("merges", () => {
     });
     observeModel(model);
 
-    expect(Object.keys(model.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.merges).toEqual({
+    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.state.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
@@ -60,9 +60,9 @@ describe("merges", () => {
     expect(n).toBe(1);
     model.unmergeSelection();
     expect(n).toBe(2);
-    expect(Object.keys(model.cells)).toEqual(["B2"]);
-    expect(Object.keys(model.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.merges)).toEqual([]);
+    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
+    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.state.merges)).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
@@ -77,15 +77,15 @@ describe("merges", () => {
     });
     observeModel(model);
 
-    expect(Object.keys(model.merges)).toEqual([]);
+    expect(Object.keys(model.state.merges)).toEqual([]);
 
     model.selectCell(1, 1);
     expect(n).toBe(1);
     model.mergeSelection();
     expect(n).toBe(1);
 
-    expect(Object.keys(model.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.merges)).toEqual([]);
+    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.state.merges)).toEqual([]);
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -102,14 +102,14 @@ describe("merges", () => {
     observeModel(model);
 
     model.selectCell(2, 2);
-    expect(model.activeXc).toBe("C3");
+    expect(model.state.activeXc).toBe("C3");
     expect(n).toBe(1);
     model.startEditing();
     expect(n).toBe(2);
-    expect(model.currentContent).toBe("b2");
-    model.currentContent = "new value";
+    expect(model.state.currentContent).toBe("b2");
+    model.state.currentContent = "new value";
     model.stopEditing();
-    expect(model.cells["B2"].content).toBe("new value");
+    expect(model.state.cells["B2"].content).toBe("new value");
   });
 
   test("setting a style to a merge actually edits the top left", () => {
@@ -126,13 +126,13 @@ describe("merges", () => {
     observeModel(model);
 
     model.selectCell(2, 2);
-    expect(model.activeXc).toBe("C3");
-    expect(Object.keys(model.cells)).toEqual(["B2"]);
-    expect(model.cells["B2"].style).not.toBeDefined();
+    expect(model.state.activeXc).toBe("C3");
+    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
+    expect(model.state.cells["B2"].style).not.toBeDefined();
 
     model.setStyle({ fillColor: "#333" });
-    expect(Object.keys(model.cells)).toEqual(["B2"]);
-    expect(model.cells["B2"].style).toBeDefined();
+    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
+    expect(model.state.cells["B2"].style).toBeDefined();
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
@@ -149,10 +149,10 @@ describe("merges", () => {
     observeModel(model);
 
     model.selectCell(2, 3);
-    expect(model.activeXc).toBe("C4");
+    expect(model.state.activeXc).toBe("C4");
     expect(model.selectedCell).toBeNull(); // no active cell in C4
     model.movePosition(0, -1);
-    expect(model.activeXc).toBe("C3");
+    expect(model.state.activeXc).toBe("C3");
     expect(model.selectedCell!.xc).toBe("B2");
   });
 
@@ -166,7 +166,7 @@ describe("merges", () => {
         }
       ]
     });
-    model.selection.zones = [
+    model.state.selection.zones = [
       {
         left: 0,
         top: 0,
@@ -177,7 +177,7 @@ describe("merges", () => {
     // B2 is not top left, so it is destructive
     expect(model.isMergeDestructive()).toBeTruthy();
 
-    model.selection.zones = [
+    model.state.selection.zones = [
       {
         left: 1,
         top: 1,
@@ -200,7 +200,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} }
     });
-    model.selection.zones = [
+    model.state.selection.zones = [
       {
         left: 0,
         top: 0,

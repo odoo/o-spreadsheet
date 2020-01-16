@@ -38,7 +38,7 @@ function thinLineWidth() {
 }
 
 function drawHeader() {
-  const { selection } = model;
+  const { selection } = model.state;
   const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
@@ -216,7 +216,7 @@ function hasContent(col: number, row: number): boolean {
 function drawCells() {
   const { right, left, top, bottom } = viewport;
   ctx.fillStyle = "#000";
-  const styles = model.styles;
+  const styles = model.state.styles;
 
   for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
     let row = rows[rowNumber];
@@ -232,7 +232,7 @@ function drawCells() {
     const style = cell.style ? styles[cell.style] : {};
     const align = style.align || (cell.type === "text" ? "left" : "right");
 
-    if (cell.xc in model.mergeCellMap) {
+    if (cell.xc in model.state.mergeCellMap) {
       return;
     }
     ctx.save();
@@ -264,7 +264,7 @@ function drawCells() {
 }
 
 function drawMerges() {
-  const { merges, styles } = model;
+  const { merges, styles } = model.state;
   ctx.fillStyle = styles[0].fillColor || "white";
   for (let id in merges) {
     let merge = merges[id];
@@ -290,7 +290,7 @@ function drawMerges() {
 }
 
 function drawSelectionBackground() {
-  const { selection } = model;
+  const { selection } = model.state;
   for (const zone of selection.zones) {
     const { left, top, right, bottom } = zone;
     ctx.fillStyle = "#f3f7fe";
@@ -307,7 +307,7 @@ function drawSelectionBackground() {
 }
 
 function drawSelectionOutline() {
-  for (const zone of model.selection.zones) {
+  for (const zone of model.state.selection.zones) {
     drawOutline(zone);
   }
 }
@@ -327,21 +327,21 @@ function drawOutline(zone: Zone, color: string = "#3266ca") {
 }
 
 function drawHighlights() {
-  for (let h of model.highlights) {
+  for (let h of model.state.highlights) {
     drawOutline(h.zone, h.color!);
   }
 }
 
 function drawActiveZone() {
   let zone: Zone;
-  if (model.activeXc in mergeCellMap) {
-    zone = model.merges[mergeCellMap[model.activeXc]];
+  if (model.state.activeXc in mergeCellMap) {
+    zone = model.state.merges[mergeCellMap[model.state.activeXc]];
   } else {
     zone = {
-      top: model.activeRow,
-      bottom: model.activeRow,
-      left: model.activeCol,
-      right: model.activeCol
+      top: model.state.activeRow,
+      bottom: model.state.activeRow,
+      left: model.state.activeCol,
+      right: model.state.activeCol
     };
   }
   drawOutline(zone, "#ffee46");
@@ -349,20 +349,20 @@ function drawActiveZone() {
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
   (window as any).gridmodel = _model; // to debug. remove this someday
-  viewport = _model.viewport;
+  viewport = _model.state.viewport;
   ctx = context;
-  offsetX = _model.offsetX;
-  offsetY = _model.offsetY;
+  offsetX = _model.state.offsetX;
+  offsetY = _model.state.offsetY;
   model = _model;
   width = _width;
   height = _height;
-  rows = _model.rows;
-  cols = _model.cols;
-  cells = _model.cells;
-  mergeCellMap = _model.mergeCellMap;
-  borders = _model.borders;
+  rows = _model.state.rows;
+  cols = _model.state.cols;
+  cells = _model.state.cells;
+  mergeCellMap = _model.state.mergeCellMap;
+  borders = _model.state.borders;
 
-  ctx.fillStyle = _model.styles[0].fillColor || "white";
+  ctx.fillStyle = _model.state.styles[0].fillColor || "white";
   ctx.fillRect(0, 0, width, height);
 
   drawBackgroundGrid();

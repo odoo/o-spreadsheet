@@ -16,7 +16,7 @@ describe("evaluateCells", () => {
       ]
     };
     const grid = new GridModel(data);
-    expect(grid.cells["C1"].value).toEqual(3);
+    expect(grid.state.cells["C1"].value).toEqual(3);
   });
 
   test("With empty content", () => {
@@ -34,7 +34,7 @@ describe("evaluateCells", () => {
       ]
     };
     const grid = new GridModel(data);
-    expect(grid.cells["C1"].value).toEqual(1);
+    expect(grid.state.cells["C1"].value).toEqual(1);
   });
 
   test("With empty cell", () => {
@@ -51,6 +51,6 @@ describe("evaluateCells", () => {
       ]
     };
     const grid = new GridModel(data);
-    expect(grid.cells["C1"].value).toEqual(1);
+    expect(grid.state.cells["C1"].value).toEqual(1);
   });
 });

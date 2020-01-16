@@ -25,15 +25,15 @@ describe("composer", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
-    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
-    expect(model.activeXc).toBe("A1");
+    expect(model.state.activeXc).toBe("A1");
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     await nextTick();
-    expect(model.isEditing).toBe(true);
-    expect(model.activeRow).toBe(0);
-    expect(model.activeCol).toBe(0);
+    expect(model.state.isEditing).toBe(true);
+    expect(model.state.activeRow).toBe(0);
+    expect(model.state.activeCol).toBe(0);
     expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
   });
 });
@@ -54,14 +54,14 @@ describe("composer highlights color", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
-    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     await nextTick();
-    expect(model.highlights.length).toBe(2);
-    expect(model.highlights[0].color).toBe(colors[0]);
-    expect(model.highlights[1].color).toBe(colors[1]);
+    expect(model.state.highlights.length).toBe(2);
+    expect(model.state.highlights[0].color).toBe(colors[0]);
+    expect(model.state.highlights[1].color).toBe(colors[1]);
   });
 
   test("colors always start with first color", async () => {
@@ -80,14 +80,14 @@ describe("composer highlights color", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
-    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     await nextTick();
-    expect(model.highlights.length).toBe(2);
-    expect(model.highlights[0].color).toBe(colors[0]);
-    expect(model.highlights[1].color).toBe(colors[1]);
+    expect(model.state.highlights.length).toBe(2);
+    expect(model.state.highlights[0].color).toBe(colors[0]);
+    expect(model.state.highlights[1].color).toBe(colors[1]);
 
     document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
@@ -95,9 +95,9 @@ describe("composer highlights color", () => {
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     await nextTick();
-    expect(model.highlights.length).toBe(2);
-    expect(model.highlights[0].color).toBe(colors[0]);
-    expect(model.highlights[1].color).toBe(colors[1]);
+    expect(model.state.highlights.length).toBe(2);
+    expect(model.state.highlights[0].color).toBe(colors[0]);
+    expect(model.state.highlights[1].color).toBe(colors[1]);
   });
   test("highlight do not duplicate", async () => {
     const model = new GridModel({
@@ -114,12 +114,12 @@ describe("composer highlights color", () => {
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
-    model.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     await nextTick();
-    expect(model.highlights.length).toBe(1);
-    expect(model.highlights[0].color).toBe(colors[0]);
+    expect(model.state.highlights.length).toBe(1);
+    expect(model.state.highlights[0].color).toBe(colors[0]);
   });
 });

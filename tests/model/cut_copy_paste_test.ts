@@ -11,7 +11,7 @@ describe("copy/cut/paste", () => {
         }
       ]
     });
-    expect(model.cells).toEqual({
+    expect(model.state.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
     });
 
@@ -19,7 +19,7 @@ describe("copy/cut/paste", () => {
     model.copySelection();
     model.selectCell(3, 1);
     model.pasteSelection();
-    expect(model.cells).toEqual({
+    expect(model.state.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
     });
@@ -35,16 +35,16 @@ describe("copy/cut/paste", () => {
         }
       ]
     });
-    expect(model.cells).toEqual({
+    expect(model.state.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
     });
 
     model.selectCell(1, 1);
     model.copySelection(true);
-    expect(model.cells).toEqual({});
+    expect(model.state.cells).toEqual({});
     model.selectCell(3, 1);
     model.pasteSelection();
-    expect(model.cells).toEqual({
+    expect(model.state.cells).toEqual({
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
     });
   });

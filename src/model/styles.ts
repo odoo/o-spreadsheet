@@ -7,7 +7,7 @@ import { Style } from "./types";
 // ---------------------------------------------------------------------------
 
 export function setStyle(this: GridModel, style: Style) {
-  this.selection.zones.forEach(selection => {
+  this.state.selection.zones.forEach(selection => {
     for (let col = selection.left; col <= selection.right; col++) {
       for (let row = selection.top; row <= selection.bottom; row++) {
         setStyleToCell(this, col, row, style);
@@ -19,14 +19,14 @@ export function setStyle(this: GridModel, style: Style) {
 
 function setStyleToCell(model: GridModel, col: number, row: number, style) {
   const xc = toXC(col, row);
-  if (xc in model.mergeCellMap) {
-    const merge = model.merges[model.mergeCellMap[xc]];
+  if (xc in model.state.mergeCellMap) {
+    const merge = model.state.merges[model.state.mergeCellMap[xc]];
     if (xc !== merge.topLeft) {
       return;
     }
   }
   const cell = model.getCell(col, row);
-  const currentStyle = cell && cell.style ? model.styles[cell.style] : {};
+  const currentStyle = cell && cell.style ? model.state.styles[cell.style] : {};
   const nextStyle = Object.assign({}, currentStyle, style);
   const id = registerStyle(model, nextStyle);
   if (cell) {
@@ -39,12 +39,12 @@ function setStyleToCell(model: GridModel, col: number, row: number, style) {
 
 function registerStyle(model: GridModel, style) {
   const strStyle = stringify(style);
-  for (let k in model.styles) {
-    if (stringify(model.styles[k]) === strStyle) {
+  for (let k in model.state.styles) {
+    if (stringify(model.state.styles[k]) === strStyle) {
       return parseInt(k, 10);
     }
   }
-  const id = model.nextId++;
-  model.styles[id] = style;
+  const id = model.state.nextId++;
+  model.state.styles[id] = style;
   return id;
 }
