@@ -5,7 +5,7 @@ export interface Zone {
   bottom: number;
 }
 
-export interface Selections {
+export interface Selection {
   anchor: {
     col: number;
     row: number;

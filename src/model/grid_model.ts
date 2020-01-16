@@ -1,23 +1,29 @@
-import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "../helpers";
-import { compile, applyOffset } from "../formulas/index";
-import { functionMap } from "../functions/index";
 import * as owl from "@odoo/owl";
+import { compile } from "../formulas/index";
+import { numberToLetters, toCartesian, toXC } from "../helpers";
+import * as borders from "./borders";
+import * as clipboard from "./clipboard";
+import * as evaluation from "./evaluation";
+import * as merges from "./merges";
+import * as selection from "./selection";
+import * as styles from "./styles";
+import * as edition from "./edition";
 import {
-  Zone,
-  Style,
-  Row,
-  Col,
+  Border,
   Cell,
   CellData,
-  BorderCommand,
-  Border,
-  GridData,
-  Sheet,
-  Merge,
-  Selections,
   ClipBoard,
-  Highlight
+  Col,
+  GridData,
+  Highlight,
+  Merge,
+  Row,
+  Selection,
+  Sheet,
+  Style,
+  Zone
 } from "./types";
+
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 23;
 export const HEADER_HEIGHT = 26;
@@ -30,10 +36,6 @@ export const DEFAULT_STYLE: Style = {
   textColor: "black",
   fontSize: 10
 };
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // GridModel
@@ -73,7 +75,7 @@ export class GridModel extends owl.core.EventBus {
     bottom: 0,
     right: 0
   };
-  selections: Selections = {
+  selections: Selection = {
     zones: [
       {
         top: 0,
@@ -103,59 +105,6 @@ export class GridModel extends owl.core.EventBus {
   isSilent: boolean = true;
 
   isSelectingRange: boolean = false; // true if the user is editing a formula and he should input a range or a cell
-
-  /**
-   * The selectedCell property is slightly different from the active col/row.
-   * It is the reference cell for the current ui state. So, if the position is
-   * inside a merge, then it will be the top left cell.
-   */
-  get selectedCell(): Cell | null {
-    let mergeId = this.mergeCellMap[this.activeXc];
-    if (mergeId) {
-      return this.cells[this.merges[mergeId].topLeft];
-    } else {
-      return this.getCell(this.activeCol, this.activeRow);
-    }
-  }
-
-  getCell(col: number, row: number): Cell | null {
-    return this.rows[row].cells[col] || null;
-  }
-
-  getStyle(): Style {
-    const cell = this.selectedCell;
-    return cell && cell.style ? this.styles[cell.style] : {};
-  }
-
-  getCol(x: number): number {
-    if (x <= HEADER_WIDTH) {
-      return -1;
-    }
-    const { cols, offsetX, viewport } = this;
-    const { left, right } = viewport;
-    for (let i = left; i <= right; i++) {
-      let c = cols[i];
-      if (c.left - offsetX <= x && x <= c.right - offsetX) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  getRow(y: number): number {
-    if (y <= HEADER_HEIGHT) {
-      return -1;
-    }
-    const { rows, offsetY, viewport } = this;
-    const { top, bottom } = viewport;
-    for (let i = top; i <= bottom; i++) {
-      let r = rows[i];
-      if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
-        return i;
-      }
-    }
-    return -1;
-  }
 
   // ---------------------------------------------------------------------------
   // Constructor and private methods
@@ -273,92 +222,6 @@ export class GridModel extends owl.core.EventBus {
     this.rows[row].cells[col] = cell;
   }
 
-  evaluateCells() {
-    const cells = this.cells;
-    const visited = {};
-    const functions = Object.assign({ range }, functionMap);
-
-    function computeValue(xc, cell: Cell) {
-      if (cell.type !== "formula" || !cell.formula) {
-        return;
-      }
-      if (xc in visited) {
-        if (visited[xc] === null) {
-          cell.value = "#CYCLE";
-          cell.error = true;
-        }
-        return;
-      }
-      visited[xc] = null;
-      try {
-        // todo: move formatting in grid and formatters.js
-        cell.value = cell.formula(getValue, functions);
-        //cell.value = +cell.formula(getValue, functions).toFixed(4);
-        cell.error = false;
-      } catch (e) {
-        cell.value = cell.value || "#ERROR";
-        cell.error = true;
-      }
-      visited[xc] = true;
-    }
-
-    function getValue(xc: string): any {
-      const cell = cells[xc];
-      if (!cell || cell.content === "") {
-        return 0;
-      }
-      computeValue(xc, cell);
-      if (cell.error) {
-        throw new Error("boom");
-      }
-      return cells[xc].value;
-    }
-
-    function range(v1: string, v2: string): any[] {
-      const [c1, r1] = toCartesian(v1);
-      const [c2, r2] = toCartesian(v2);
-      const result: any[] = [];
-      for (let c = c1; c <= c2; c++) {
-        for (let r = r1; r <= r2; r++) {
-          result.push(getValue(toXC(c, r)));
-        }
-      }
-      return result;
-    }
-
-    for (let xc in cells) {
-      computeValue(xc, cells[xc]);
-    }
-  }
-
-  /**
-   * This method is silent, does not notify the user interface.  Also, it
-   * does not ask for confirmation if we delete a cell content.
-   */
-  addMerge(m: string) {
-    let id = this.nextId++;
-    const [tl, br] = m.split(":");
-    const [left, top] = toCartesian(tl);
-    const [right, bottom] = toCartesian(br);
-    this.merges[id] = {
-      id,
-      left,
-      top,
-      right,
-      bottom,
-      topLeft: tl
-    };
-    for (let row = top; row <= bottom; row++) {
-      for (let col = left; col <= right; col++) {
-        const xc = toXC(col, row);
-        if (col !== left || row !== top) {
-          this.deleteCell(xc);
-        }
-        this.mergeCellMap[xc] = id;
-      }
-    }
-  }
-
   /**
    * This method is the correct way to notify the rest of the system that
    * some interesting internal state has changed, and that the UI should be
@@ -371,20 +234,56 @@ export class GridModel extends owl.core.EventBus {
   }
 
   /**
-   * Add all necessary merge to the current selection to make it valid
+   * The selectedCell property is slightly different from the active col/row.
+   * It is the reference cell for the current ui state. So, if the position is
+   * inside a merge, then it will be the top left cell.
    */
-  private expandZone(zone: Zone): Zone {
-    let { left, right, top, bottom } = zone;
-    let result: Zone = { left, right, top, bottom };
+  get selectedCell(): Cell | null {
+    let mergeId = this.mergeCellMap[this.activeXc];
+    if (mergeId) {
+      return this.cells[this.merges[mergeId].topLeft];
+    } else {
+      return this.getCell(this.activeCol, this.activeRow);
+    }
+  }
+
+  getCell(col: number, row: number): Cell | null {
+    return this.rows[row].cells[col] || null;
+  }
+
+  getStyle(): Style {
+    const cell = this.selectedCell;
+    return cell && cell.style ? this.styles[cell.style] : {};
+  }
+
+  getCol(x: number): number {
+    if (x <= HEADER_WIDTH) {
+      return -1;
+    }
+    const { cols, offsetX, viewport } = this;
+    const { left, right } = viewport;
     for (let i = left; i <= right; i++) {
-      for (let j = top; j <= bottom; j++) {
-        let mergeId = this.mergeCellMap[toXC(i, j)];
-        if (mergeId) {
-          result = union(this.merges[mergeId], result);
-        }
+      let c = cols[i];
+      if (c.left - offsetX <= x && x <= c.right - offsetX) {
+        return i;
       }
     }
-    return isEqual(result, zone) ? result : this.expandZone(result);
+    return -1;
+  }
+
+  getRow(y: number): number {
+    if (y <= HEADER_HEIGHT) {
+      return -1;
+    }
+    const { rows, offsetY, viewport } = this;
+    const { top, bottom } = viewport;
+    for (let i = top; i <= bottom; i++) {
+      let r = rows[i];
+      if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   // ---------------------------------------------------------------------------
@@ -449,46 +348,6 @@ export class GridModel extends owl.core.EventBus {
     this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
 
-  selectCell(col: number, row: number, newRange: boolean = false) {
-    if (!this.isSelectingRange) {
-      this.stopEditing();
-    }
-
-    const xc = toXC(col, row);
-    let zone: Zone;
-    if (xc in this.mergeCellMap) {
-      const merge = this.merges[this.mergeCellMap[xc]];
-      zone = {
-        left: merge.left,
-        right: merge.right,
-        top: merge.top,
-        bottom: merge.bottom
-      };
-    } else {
-      zone = {
-        left: col,
-        right: col,
-        top: row,
-        bottom: row
-      };
-    }
-
-    if (newRange) {
-      this.selections.zones.push(zone);
-    } else {
-      this.selections.zones = [zone];
-    }
-    this.selections.anchor.col = col;
-    this.selections.anchor.row = row;
-
-    if (!this.isSelectingRange) {
-      this.activeCol = col;
-      this.activeRow = row;
-      this.activeXc = xc;
-    }
-    this.notify();
-  }
-
   movePosition(deltaX: number, deltaY: number) {
     const { activeCol, activeRow } = this;
     if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
@@ -514,109 +373,6 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Edition
-  // ---------------------------------------------------------------------------
-
-  startEditing(str?: string) {
-    if (!str) {
-      const cell = this.selectedCell;
-      str = cell ? cell.content || "" : "";
-    }
-    this.isEditing = true;
-    this.currentContent = str;
-    this.highlights = [];
-    this.notify();
-  }
-
-  addHighlights(highlights: Highlight[]) {
-    this.highlights = this.highlights.concat(highlights);
-    this.notify();
-  }
-
-  cancelEdition() {
-    this.resetEditing();
-    this.notify();
-  }
-
-  resetEditing() {
-    this.isEditing = false;
-    this.isSelectingRange = false;
-    this.highlights = [];
-  }
-
-  stopEditing() {
-    if (this.isEditing) {
-      let xc = toXC(this.activeCol, this.activeRow);
-      if (xc in this.mergeCellMap) {
-        const mergeId = this.mergeCellMap[xc];
-        xc = this.merges[mergeId].topLeft;
-      }
-      if (this.currentContent) {
-        this.addCell(xc, { content: this.currentContent });
-      } else {
-        this.deleteCell(xc);
-      }
-
-      this.evaluateCells();
-      this.currentContent = "";
-      this.resetEditing();
-      this.notify();
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Selection
-  // ---------------------------------------------------------------------------
-
-  moveSelection(deltaX: number, deltaY: number) {
-    const selection = this.selections.zones[this.selections.zones.length - 1];
-    const anchorCol = this.selections.anchor.col;
-    const anchorRow = this.selections.anchor.row;
-    const { left, right, top, bottom } = selection;
-    if (top + deltaY < 0 || left + deltaX < 0) {
-      return;
-    }
-    let result: Zone | null = selection;
-    // check if we can shrink selection
-    let expand = z => this.expandZone(z);
-
-    let n = 0;
-    while (result !== null) {
-      n++;
-      if (deltaX < 0) {
-        result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
-      }
-      if (deltaX > 0) {
-        result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
-      }
-      if (deltaY < 0) {
-        result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
-      }
-      if (deltaY > 0) {
-        result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
-      }
-      if (result && !isEqual(result, selection)) {
-        this.selections.zones[this.selections.zones.length - 1] = result;
-        this.notify();
-        return;
-      }
-    }
-    const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
-    const zoneWithDelta = {
-      top: top + deltaY,
-      left: left + deltaX,
-      bottom: bottom + deltaY,
-      right: right + deltaX
-    };
-    result = expand(union(currentZone, zoneWithDelta));
-    if (!isEqual(result, selection)) {
-      this.selections.zones[this.selections.zones.length - 1] = result;
-      this.notify();
-      return;
-    }
-  }
-
   deleteSelection() {
     this.selections.zones.forEach(zone => {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -632,189 +388,34 @@ export class GridModel extends owl.core.EventBus {
     this.notify();
   }
 
-  selectColumn(col: number) {
-    this.stopEditing();
-    this.activeCol = col;
-    this.activeRow = 0;
-    this.activeXc = toXC(col, 0);
-    const selection = {
-      top: 0,
-      left: col,
-      right: col,
-      bottom: this.rows.length - 1
-    };
-    this.selections.anchor = { col: this.activeCol, row: this.activeRow };
-    this.selections.zones = [selection];
+  // Edition
+  startEditing = edition.startEditing;
+  stopEditing = edition.stopEditing;
+  addHighlights = edition.addHighlights;
+  cancelEdition = edition.cancelEdition;
 
-    this.notify();
-  }
+  // Evaluation
+  evaluateCells = evaluation.evaluateCells;
 
-  updateSelection(col: number, row: number) {
-    const anchorCol = this.selections.anchor.col;
-    const anchorRow = this.selections.anchor.row;
-    const zone: Zone = {
-      left: Math.min(anchorCol, col),
-      top: Math.min(anchorRow, row),
-      right: Math.max(anchorCol, col),
-      bottom: Math.max(anchorRow, row)
-    };
-    this.selections.zones[this.selections.zones.length - 1] = this.expandZone(zone);
-    this.notify();
-  }
-
-  copySelection(cut: boolean = false) {
-    console.warn("implement copySelection for multi selection");
-    let { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
-    const cells: (Cell | null)[][] = [];
-    for (let i = left; i <= right; i++) {
-      const vals: (Cell | null)[] = [];
-      cells.push(vals);
-      for (let j = top; j <= bottom; j++) {
-        const cell = this.getCell(i, j);
-        vals.push(cell ? Object.assign({}, cell) : null);
-        if (cut) {
-          this.deleteCell(toXC(i, j));
-        }
-      }
-    }
-    this.clipBoard = {
-      zone: { left, right, top, bottom },
-      cells
-    };
-    if (cut) {
-      this.notify();
-    }
-  }
-
-  pasteSelection() {
-    console.warn("implement pasteSelection for multi selection");
-
-    const { zone, cells } = this.clipBoard;
-    if (!zone || !cells) {
-      return;
-    }
-    const selection = this.selections.zones[this.selections.zones.length - 1];
-    let col = selection.left;
-    let row = selection.top;
-    let { left, right, top, bottom } = zone;
-    const offsetX = col - left;
-    const offsetY = row - top;
-    for (let i = 0; i <= right - left; i++) {
-      for (let j = 0; j <= bottom - top; j++) {
-        const xc = toXC(col + i, row + j);
-        const originCell = cells[i][j];
-        const targetCell = this.getCell(col + i, row + j);
-        if (originCell) {
-          let content = originCell.content || "";
-          if (originCell.type === "formula") {
-            content = applyOffset(content, offsetX, offsetY);
-          }
-          this.addCell(xc, { content, style: originCell.style });
-        }
-        if (!originCell && targetCell) {
-          this.addCell(xc, { content: "" });
-        }
-      }
-    }
-
-    this.evaluateCells();
-    this.notify();
-  }
-
-  // ---------------------------------------------------------------------------
-  // Styles
-  // ---------------------------------------------------------------------------
-
-  setStyle(style: Style) {
-    this.selections.zones.forEach(selection => {
-      for (let col = selection.left; col <= selection.right; col++) {
-        for (let row = selection.top; row <= selection.bottom; row++) {
-          this.setStyleToCell(col, row, style);
-        }
-      }
-    });
-    this.notify();
-  }
-
-  setStyleToCell(col: number, row: number, style) {
-    const xc = toXC(col, row);
-    if (xc in this.mergeCellMap) {
-      const merge = this.merges[this.mergeCellMap[xc]];
-      if (xc !== merge.topLeft) {
-        return;
-      }
-    }
-    const cell = this.getCell(col, row);
-    const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
-    const nextStyle = Object.assign({}, currentStyle, style);
-    const id = this.registerStyle(nextStyle);
-    if (cell) {
-      cell.style = id;
-    } else {
-      this.addCell(xc, { style: id, content: "" });
-    }
-    this.notify();
-  }
-
-  registerStyle(style) {
-    const strStyle = stringify(style);
-    for (let k in this.styles) {
-      if (stringify(this.styles[k]) === strStyle) {
-        return parseInt(k, 10);
-      }
-    }
-    const id = this.nextId++;
-    this.styles[id] = style;
-    return id;
-  }
-
-  // ---------------------------------------------------------------------------
   // Merges
-  // ---------------------------------------------------------------------------
+  addMerge = merges.addMerge;
+  mergeSelection = merges.mergeSelection;
+  unmergeSelection = merges.unmergeSelection;
+  isMergeDestructive = merges.isMergeDestructive;
 
-  mergeSelection() {
-    const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
-    let tl = toXC(left, top);
-    let br = toXC(right, bottom);
-    if (tl !== br) {
-      this.addMerge(`${tl}:${br}`);
-      this.notify();
-    }
-  }
+  // Clipboard
+  copySelection = clipboard.copySelection;
+  pasteSelection = clipboard.pasteSelection;
 
-  unmergeSelection() {
-    const mergeId = this.mergeCellMap[this.activeXc];
-    const { left, top, right, bottom } = this.merges[mergeId];
-    delete this.merges[mergeId];
-    for (let r = top; r <= bottom; r++) {
-      for (let c = left; c <= right; c++) {
-        const xc = toXC(c, r);
-        delete this.mergeCellMap[xc];
-      }
-    }
-    this.notify();
-  }
+  // Styles
+  setStyle = styles.setStyle;
 
-  isMergeDestructive(): boolean {
-    const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
-    for (let row = top; row <= bottom; row++) {
-      const actualRow = this.rows[row];
-      for (let col = left; col <= right; col++) {
-        if (col !== left || row !== top) {
-          const cell = actualRow.cells[col];
-          if (cell && cell.content) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
+  // Selection
+  selectCell = selection.selectCell;
+  moveSelection = selection.moveSelection;
+  selectColumn = selection.selectColumn;
+  updateSelection = selection.updateSelection;
 
-  // ---------------------------------------------------------------------------
   // Borders
-  // ---------------------------------------------------------------------------
-  setBorder(command: BorderCommand) {
-    console.log("setting border", command);
-  }
+  setBorder = borders.setBorder;
 }
