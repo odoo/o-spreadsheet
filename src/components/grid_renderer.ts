@@ -10,7 +10,7 @@ import {
   Merge,
   Border,
   BorderDescr
-} from "../grid_model";
+} from "../model/index";
 import { toXC, overlap } from "../helpers";
 import { fontSizeMap } from "../fonts";
 

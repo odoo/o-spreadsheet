@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/grid_model";
+import { GridModel } from "../../src/model/index";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {

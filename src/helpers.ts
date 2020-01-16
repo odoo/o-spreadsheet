@@ -1,4 +1,4 @@
-import { Zone } from "./grid_model";
+import { Zone } from "./model/types";
 
 /**
  * This files contains a small collection of useful helpers. They are mostly

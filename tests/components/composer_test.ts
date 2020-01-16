@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/grid_model";
+import { GridModel } from "../../src/model/index";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { colors } from "../../src/components/composer";
 

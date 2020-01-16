@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/grid_model";
+import { GridModel } from "../../src/model/index";
 import { makeTestFixture, nextTick } from "../helpers";
 import { ToolBar } from "../../src/components/toolbar";
 import { Component, tags } from "@odoo/owl";

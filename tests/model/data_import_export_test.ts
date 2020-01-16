@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/grid_model";
+import { GridModel } from "../../src/model/index";
 
 describe("data", () => {
   test("give default col size if not specified", () => {

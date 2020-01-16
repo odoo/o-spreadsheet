@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 
-import { GridModel, Style } from "../grid_model";
+import { GridModel, Style } from "../model/index";
 
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;

@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/grid_model";
+import { GridModel } from "../../src/model/index";
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
