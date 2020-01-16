@@ -10,7 +10,6 @@ export const functions: FunctionMap = {
         }, args[0] * 1000);
       });
     },
-    async: true
   },
   AND: {
     description: "Returns true if all the arguments are true, false otherwise.",
