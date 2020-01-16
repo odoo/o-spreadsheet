@@ -6,21 +6,6 @@ const { xml, css } = owl.tags;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
-  static template = xml`<Spreadsheet data="data" t-on-ask-confirmation="askConfirmation"/>`;
-  static style = css`
-    html {
-      height: 100%;
-      body {
-        height: 100%;
-        margin: 0px;
-      }
-      .o-spreadsheet {
-        width: 100%;
-        height: 100%;
-      }
-    }
-  `;
-  static components = { Spreadsheet };
 
   data = {
     sheets: [
@@ -85,6 +70,22 @@ class App extends Component {
     }
   }
 }
+
+App.template = xml`<Spreadsheet data="data" t-on-ask-confirmation="askConfirmation"/>`;
+App.style = css`
+  html {
+    height: 100%;
+    body {
+      height: 100%;
+      margin: 0px;
+    }
+    .o-spreadsheet {
+      width: 100%;
+      height: 100%;
+    }
+  }
+`;
+App.components = { Spreadsheet };
 
 // Setup code
 function setup() {
