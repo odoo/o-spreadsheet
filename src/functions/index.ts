@@ -7,6 +7,7 @@ import { functions as logical } from "./logical";
 export interface FunctionDescription {
   description: string;
   compute: Function;
+  async?: boolean;
 }
 
 export type FunctionMap = { [key: string]: FunctionDescription };

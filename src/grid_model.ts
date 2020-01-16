@@ -87,6 +87,7 @@ export interface Cell extends CellData {
   row: number;
   xc: string;
   error?: boolean;
+  ready?: boolean;
   value: any;
   formula?: any;
   type: "formula" | "text" | "number";
@@ -351,6 +352,7 @@ export class GridModel extends owl.core.EventBus {
     const value =
       type === "text" ? content : type === "number" ? +parseFloat(content).toFixed(4) : null;
     const cell: Cell = { col, row, xc, content, value, type };
+    cell.ready = true;
     const style = data.style || (currentCell && currentCell.style);
     const border = data.border;
     if (border) {
@@ -372,10 +374,27 @@ export class GridModel extends owl.core.EventBus {
     this.rows[row].cells[col] = cell;
   }
 
-  evaluateCells() {
+  addAsyncValue(xc, value) {
+    console.log(xc);
+    if (!this.cells[xc].ready) {
+      this.cells[xc].value = value;
+      this.cells[xc].ready = true;
+      this.evaluateCells(true);
+      this.notify();
+    }
+  }
+
+  evaluateCells(onlyNotReady = false) {
+    if (!onlyNotReady) {
+      for (let xc in this.cells) {
+        this.cells[xc].ready = true;
+      }
+    }
     const cells = this.cells;
     const visited = {};
     const functions = Object.assign({ range }, functionMap);
+
+    const addAsyncValue = this.addAsyncValue.bind(this);
 
     function computeValue(xc, cell: Cell) {
       if (cell.type !== "formula" || !cell.formula) {
@@ -385,18 +404,40 @@ export class GridModel extends owl.core.EventBus {
         if (visited[xc] === null) {
           cell.value = "#CYCLE";
           cell.error = true;
+          cell.ready = true;
         }
+        return;
+      }
+      if (onlyNotReady && cell.ready) {
         return;
       }
       visited[xc] = null;
       try {
         // todo: move formatting in grid and formatters.js
-        cell.value = cell.formula(getValue, functions);
-        //cell.value = +cell.formula(getValue, functions).toFixed(4);
+        const returnValue = cell.formula(getValue, functions);
+        if (returnValue instanceof Promise) {
+          cell.ready = false;
+          cell.value = "#NOT_READY";
+          returnValue.then((result: any) => addAsyncValue(xc, result));
+        } else {
+          cell.value = returnValue;
+          cell.ready = true;    
+        }
         cell.error = false;
+        
+        // cell.value = cell.formula(getValue, functions);
+        //cell.value = +cell.formula(getValue, functions).toFixed(4);
+        // cell.error = false;
+        // cell.ready = cell.value !== "#NOT_READY";
       } catch (e) {
-        cell.value = cell.value || "#ERROR";
-        cell.error = true;
+        if (e.name === "NOT_READY") {
+          cell.value = "#NOT_READY";
+          cell.ready = false;
+        } else {
+          cell.value = cell.value || "#ERROR";
+          cell.error = true;
+          cell.ready = true;
+        }
       }
       visited[xc] = true;
     }
@@ -409,6 +450,11 @@ export class GridModel extends owl.core.EventBus {
       computeValue(xc, cell);
       if (cell.error) {
         throw new Error("boom");
+      }
+      if (!cell.ready) {
+        const e = new Error();
+        e.name = "NOT_READY";
+        throw e;
       }
       return cells[xc].value;
     }
@@ -426,7 +472,9 @@ export class GridModel extends owl.core.EventBus {
     }
 
     for (let xc in cells) {
-      computeValue(xc, cells[xc]);
+      if (!onlyNotReady || !cells[xc].ready) {
+        computeValue(xc, cells[xc]);
+      }
     }
   }
 

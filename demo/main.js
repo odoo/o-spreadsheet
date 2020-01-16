@@ -31,6 +31,8 @@ class App extends Component {
         cols: { 1: { }, 3: {  } },
         rows: {},
         cells: {
+          A1: { content: "=WAIT(5)"},
+          A2: { content: "=A1*2"},
           B2: { content: "Owl is awesome", style: 1 },
           B4: { content: "Numbers", style: 4 },
           C4: { content: "12.4" },

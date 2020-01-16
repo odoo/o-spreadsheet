@@ -1,6 +1,17 @@
 import { FunctionMap } from "./index";
 
 export const functions: FunctionMap = {
+  WAIT: {
+    description: "Wait",
+    compute: function(...args) {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          resolve(args[0]);
+        }, args[0] * 1000);
+      });
+    },
+    async: true
+  },
   AND: {
     description: "Returns true if all the arguments are true, false otherwise.",
     compute: function(...args) {
