@@ -1,10 +1,9 @@
-import { GridModel } from "./grid_model";
 import { functionMap } from "../functions/index";
-import { Cell } from "./types";
+import { Cell, GridState } from "./state";
 import { toCartesian, toXC } from "../helpers";
 
-export function evaluateCells(this: GridModel) {
-  const cells = this.state.cells;
+export function evaluateCells(state: GridState) {
+  const cells = state.cells;
   const visited = {};
   const functions = Object.assign({ range }, functionMap);
 

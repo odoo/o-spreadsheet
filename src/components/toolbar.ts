@@ -357,7 +357,7 @@ export class ToolBar extends Component<any, any> {
   }
 
   updateCellState() {
-    this.style = this.model.getStyle();
+    this.style = this.model.style;
     this.inMerge = !!this.model.state.mergeCellMap[this.model.state.activeXc];
     const { top, left, right, bottom } = this.model.state.selection.zones[0];
     this.cannotMerge = top === bottom && left === right;
@@ -369,7 +369,7 @@ export class ToolBar extends Component<any, any> {
     if (this.inMerge) {
       this.model.unmergeSelection();
     } else {
-      if (this.model.isMergeDestructive()) {
+      if (this.model.isMergeDestructive) {
         this.trigger("ask-confirmation", {
           content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
           confirm: () => this.model.mergeSelection()

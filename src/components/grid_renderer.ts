@@ -308,13 +308,13 @@ function drawSelectionBackground() {
 
 function drawSelectionOutline() {
   for (const zone of model.state.selection.zones) {
-    drawOutline(zone);
+    drawOutline(zone, "#3266ca", 0.5 * thinLineWidth());
   }
 }
 
-function drawOutline(zone: Zone, color: string = "#3266ca") {
+function drawOutline(zone: Zone, color: string = "#3266ca", lw = thinLineWidth()) {
   const { left, top, right, bottom } = zone;
-  const lw = thinLineWidth();
+  // const lw = thinLineWidth();
   ctx.lineWidth = 3 * lw;
   ctx.strokeStyle = color;
   const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH + lw);
@@ -344,7 +344,7 @@ function drawActiveZone() {
       right: model.state.activeCol
     };
   }
-  drawOutline(zone, "#ffee46");
+  drawOutline(zone, "#3266ca");
 }
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {

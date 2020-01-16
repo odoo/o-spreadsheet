@@ -166,27 +166,14 @@ describe("merges", () => {
         }
       ]
     });
-    model.state.selection.zones = [
-      {
-        left: 0,
-        top: 0,
-        right: 2,
-        bottom: 2
-      }
-    ];
+    model.updateSelection(2, 2);
     // B2 is not top left, so it is destructive
-    expect(model.isMergeDestructive()).toBeTruthy();
+    expect(model.isMergeDestructive).toBeTruthy();
 
-    model.state.selection.zones = [
-      {
-        left: 1,
-        top: 1,
-        right: 2,
-        bottom: 2
-      }
-    ];
+    model.selectCell(1, 1);
+    model.updateSelection(2, 2);
     // B2 is top left, so it is not destructive
-    expect(model.isMergeDestructive()).toBeFalsy();
+    expect(model.isMergeDestructive).toBeFalsy();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -208,6 +195,6 @@ describe("merges", () => {
         bottom: 2
       }
     ];
-    expect(model.isMergeDestructive()).toBeFalsy();
+    expect(model.isMergeDestructive).toBeFalsy();
   });
 });

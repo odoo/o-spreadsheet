@@ -1,9 +1,8 @@
-import { GridModel } from "./grid_model";
-import { BorderCommand } from "./types";
+import { BorderCommand, GridState } from "./state";
 
 // ---------------------------------------------------------------------------
 // Borders
 // ---------------------------------------------------------------------------
-export function setBorder(this: GridModel, command: BorderCommand) {
-  console.log("setting border", command);
+export function setBorder(state: GridState, command: BorderCommand) {
+  console.log("setting border", command, state);
 }

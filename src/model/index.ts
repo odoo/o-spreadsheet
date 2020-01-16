@@ -1,3 +1,89 @@
-export { GridModel, HEADER_HEIGHT, HEADER_WIDTH } from "./grid_model";
+import * as owl from "@odoo/owl";
+import { setBorder } from "./borders";
+import * as clipboard from "./clipboard";
+import * as selection from "./selection";
+import * as merges from "./merges";
+import * as styles from "./styles";
+import { importData,  Cell, GridState, GridData, Style } from "./state";
+import * as core from "./core";
 
-export * from "./types";
+
+export { HEADER_HEIGHT, HEADER_WIDTH } from "./core";
+export * from "./state";
+
+// https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
+type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
+  ? (...args: P) => R
+  : never;
+
+export class GridModel extends owl.core.EventBus {
+  state: GridState;
+
+  // derived state
+  selectedCell: Cell | null = null;
+  style: Style = {};
+  isMergeDestructive: boolean = false;
+
+  constructor(data: Partial<GridData>) {
+    super();
+    this.state = importData(data);
+    this.computeDerivedState();
+  }
+
+  private makeMutation<T>(f: T): OmitFirstArg<T> {
+    return ((...args) => {
+      this.state.isDirty = false;
+      const result = (f as any).call(null, this.state, ...args);
+      this.computeDerivedState();
+
+      if (this.state.isDirty) {
+        this.state.isDirty = false;
+        this.trigger("update");
+      }
+      return result;
+    }) as any;
+  }
+
+  private computeDerivedState() {
+    this.selectedCell = core.selectedCell(this.state);
+    this.style = styles.getStyle(this.state);
+    this.isMergeDestructive = merges.isMergeDestructive(this.state);
+  }
+
+  private makeGetter<T>(f: T): OmitFirstArg<T> {
+    return ((...args) => (f as any).call(null, this.state, ...args)) as any;
+  }
+
+  // core
+  deleteCell = this.makeMutation(core.deleteCell);
+  movePosition = this.makeMutation(core.movePosition);
+  setColSize = this.makeMutation(core.setColSize);
+  updateVisibleZone = this.makeMutation(core.updateVisibleZone);
+  deleteSelection = this.makeMutation(core.deleteSelection);
+  cancelEdition = this.makeMutation(core.cancelEdition);
+  startEditing = this.makeMutation(core.startEditing);
+  stopEditing = this.makeMutation(core.stopEditing);
+  addHighlights = this.makeMutation(core.addHighlights);
+  selectCell = this.makeMutation(core.selectCell);
+  getCol = this.makeGetter(core.getCol);
+  getRow = this.makeGetter(core.getRow);
+
+  // borders
+  setBorder = this.makeMutation(setBorder);
+
+  // styles
+  setStyle = this.makeMutation(styles.setStyle);
+
+  // selection
+  updateSelection = this.makeMutation(selection.updateSelection);
+  moveSelection = this.makeMutation(selection.moveSelection);
+  selectColumn = this.makeMutation(selection.selectColumn);
+
+  // merges
+  mergeSelection = this.makeMutation(merges.mergeSelection);
+  unmergeSelection = this.makeMutation(merges.unmergeSelection);
+
+  // clipboard
+  copySelection = this.makeMutation(clipboard.copySelection);
+  pasteSelection = this.makeMutation(clipboard.pasteSelection);
+}

@@ -150,7 +150,7 @@ export class Composer extends Component<any, any> {
     const height = rows[this.zone.bottom].bottom - row.top + 2;
     const top = row.top - offsetY - 1;
     const cell = this.model.selectedCell || { type: "text" };
-    const style = this.model.getStyle();
+    const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const sizeInPt = style.fontSize || 10;
     const size = fontSizeMap[sizeInPt];

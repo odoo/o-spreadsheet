@@ -1,42 +1,40 @@
-import { GridModel } from "./grid_model";
 import { applyOffset } from "../formulas/index";
 import { toXC } from "../helpers";
-import { Cell } from "./types";
+import { Cell, GridState } from "./state";
+import { getCell, deleteCell, addCell } from "./core";
+import { evaluateCells } from "./evaluation";
 
-export function copySelection(this: GridModel, cut: boolean = false) {
+export function copySelection(state: GridState, cut: boolean = false) {
   console.warn("implement copySelection for multi selection");
-  let { left, right, top, bottom } = this.state.selection.zones[
-    this.state.selection.zones.length - 1
-  ];
+  let { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   const cells: (Cell | null)[][] = [];
   for (let i = left; i <= right; i++) {
     const vals: (Cell | null)[] = [];
     cells.push(vals);
     for (let j = top; j <= bottom; j++) {
-      const cell = this.getCell(i, j);
+      const cell = getCell(state, i, j);
       vals.push(cell ? Object.assign({}, cell) : null);
       if (cut) {
-        this.deleteCell(toXC(i, j));
+        deleteCell(state, toXC(i, j));
       }
     }
   }
-  this.state.clipboard = {
+  state.clipboard = {
     zone: { left, right, top, bottom },
     cells
   };
   if (cut) {
-    this.notify();
+    state.isDirty = true;
   }
 }
 
-export function pasteSelection(this: GridModel) {
+export function pasteSelection(state: GridState) {
   console.warn("implement pasteSelection for multi selection");
-
-  const { zone, cells } = this.state.clipboard;
+  const { zone, cells } = state.clipboard;
   if (!zone || !cells) {
     return;
   }
-  const selection = this.state.selection.zones[this.state.selection.zones.length - 1];
+  const selection = state.selection.zones[state.selection.zones.length - 1];
   let col = selection.left;
   let row = selection.top;
   let { left, right, top, bottom } = zone;
@@ -46,20 +44,20 @@ export function pasteSelection(this: GridModel) {
     for (let j = 0; j <= bottom - top; j++) {
       const xc = toXC(col + i, row + j);
       const originCell = cells[i][j];
-      const targetCell = this.getCell(col + i, row + j);
+      const targetCell = getCell(state, col + i, row + j);
       if (originCell) {
         let content = originCell.content || "";
         if (originCell.type === "formula") {
           content = applyOffset(content, offsetX, offsetY);
         }
-        this.addCell(xc, { content, style: originCell.style });
+        addCell(state, xc, { content, style: originCell.style });
       }
       if (!originCell && targetCell) {
-        this.addCell(xc, { content: "" });
+        addCell(state, xc, { content: "" });
       }
     }
   }
 
-  this.evaluateCells();
-  this.notify();
+  evaluateCells(state);
+  state.isDirty = true;
 }
