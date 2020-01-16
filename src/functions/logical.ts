@@ -9,7 +9,7 @@ export const functions: FunctionMap = {
           resolve(args[0]);
         }, args[0] * 1000);
       });
-    },
+    }
   },
   AND: {
     description: "Returns true if all the arguments are true, false otherwise.",

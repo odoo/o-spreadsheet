@@ -421,10 +421,10 @@ export class GridModel extends owl.core.EventBus {
           returnValue.then((result: any) => addAsyncValue(xc, result));
         } else {
           cell.value = returnValue;
-          cell.ready = true;    
+          cell.ready = true;
         }
         cell.error = false;
-        
+
         // cell.value = cell.formula(getValue, functions);
         //cell.value = +cell.formula(getValue, functions).toFixed(4);
         // cell.error = false;
