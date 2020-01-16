@@ -18,7 +18,7 @@ describe("tokenizer", () => {
         start: 0,
         end: 1,
         length: 1,
-        type: "FORMULA",
+        type: "OPERATOR",
         value: "="
       },
       {
@@ -30,13 +30,67 @@ describe("tokenizer", () => {
       }
     ]);
   });
+  test("longer operators >=", () => {
+    expect(tokenize("= >= <= <")).toEqual([
+      {
+        start: 0,
+        end: 1,
+        length: 1,
+        type: "OPERATOR",
+        value: "="
+      },
+      {
+        start: 1,
+        end: 2,
+        length: 1,
+        type: "SPACE",
+        value: " "
+      },
+      {
+        start: 2,
+        end: 4,
+        length: 2,
+        type: "OPERATOR",
+        value: ">="
+      },
+      {
+        start: 4,
+        end: 5,
+        length: 1,
+        type: "SPACE",
+        value: " "
+      },
+      {
+        start: 5,
+        end: 7,
+        length: 2,
+        type: "OPERATOR",
+        value: "<="
+      },
+      {
+        start: 7,
+        end: 8,
+        length: 1,
+        type: "SPACE",
+        value: " "
+      },
+      {
+        start: 8,
+        end: 9,
+        length: 1,
+        type: "OPERATOR",
+        value: "<"
+      }
+    ]);
+  });
+
   test("debug formula token", () => {
     expect(tokenize("=?1")).toEqual([
       {
         start: 0,
         end: 1,
         length: 1,
-        type: "FORMULA",
+        type: "OPERATOR",
         value: "="
       },
       {
@@ -145,7 +199,7 @@ describe("tokenizer", () => {
         start: 0,
         end: 1,
         length: 1,
-        type: "FORMULA",
+        type: "OPERATOR",
         value: "="
       },
       {

@@ -3,7 +3,7 @@ import { functions } from "../functions/index";
 // -----------------------------------------------------------------------------
 // Tokenizer
 // -----------------------------------------------------------------------------
-const OPERATORS = "+,-,*,/,:".split(",");
+const OPERATORS = "+,-,*,/,:,=,>=,>,<=,<".split(",");
 
 export type TokenType =
   | "OPERATOR"
@@ -13,7 +13,6 @@ export type TokenType =
   | "FUNCTION"
   | "VARIABLE"
   | "SPACE"
-  | "FORMULA"
   | "DEBUGGER"
   | "COMMA"
   | "LEFT_PAREN"
@@ -31,10 +30,13 @@ export function tokenize(str: string): Token[] {
   const chars = str.split("");
   const result: Token[] = [];
   let i = 0;
-
+  let j = 0;
   while (chars.length) {
+    j++;
+    if (j > 100) {
+      throw new Error("fuck");
+    }
     let token =
-      tokenizeFormula(chars) ||
       tokenizeDebugger(chars) ||
       tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
@@ -54,14 +56,6 @@ export function tokenize(str: string): Token[] {
   return result;
 }
 
-function tokenizeFormula(chars: string[]): Token | null {
-  if (chars[0] === "=") {
-    chars.shift();
-    return { start: 0, end: 1, length: 1, type: "FORMULA", value: "=" };
-  }
-  return null;
-}
-
 function tokenizeDebugger(chars: string[]): Token | null {
   if (chars[0] === "?") {
     chars.shift();
@@ -70,7 +64,7 @@ function tokenizeDebugger(chars: string[]): Token | null {
   return null;
 }
 
-function tokenizeMisc(chars): Token | null {
+function tokenizeMisc(chars: string[]): Token | null {
   const misc = {
     ",": "COMMA",
     "(": "LEFT_PAREN",
@@ -78,20 +72,31 @@ function tokenizeMisc(chars): Token | null {
   } as const;
   if (chars[0] in misc) {
     const value = chars[0];
-    const type = misc[chars.shift()] as "COMMA" | "LEFT_PAREN" | "RIGHT_PAREN";
+    const type = misc[chars.shift() as string] as "COMMA" | "LEFT_PAREN" | "RIGHT_PAREN";
     return { type, value, length: 1, start: 0, end: 0 };
   }
   return null;
 }
 
-function tokenizeOperator(chars): Token | null {
-  if (OPERATORS.includes(chars[0])) {
-    return { type: "OPERATOR", value: chars.shift(), length: 1, start: 0, end: 0 };
+function startsWith(chars: string[], op: string): boolean {
+  for (let i = 0; i < op.length; i++) {
+    if (op[i] !== chars[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+function tokenizeOperator(chars: string[]): Token | null {
+  for (let op of OPERATORS) {
+    if (startsWith(chars, op)) {
+      chars.splice(0, op.length);
+      return { type: "OPERATOR", value: op, length: op.length, start: 0, end: 0 };
+    }
   }
   return null;
 }
 
-function tokenizeNumber(chars): Token | null {
+function tokenizeNumber(chars: string[]): Token | null {
   const digits: any[] = [];
   while (chars[0] && chars[0].match(/\d|\./)) {
     digits.push(chars.shift());
@@ -108,7 +113,7 @@ function tokenizeNumber(chars): Token | null {
   return null;
 }
 
-function tokenizeBoolean(chars): Token | null {
+function tokenizeBoolean(chars: string[]): Token | null {
   if (["T", "F"].includes(chars[0].toUpperCase())) {
     for (let value of ["TRUE", "FALSE"]) {
       if (
@@ -131,7 +136,7 @@ function tokenizeBoolean(chars): Token | null {
   return null;
 }
 
-function tokenizeString(chars): Token | null {
+function tokenizeString(chars: string[]): Token | null {
   const quotes = ["'", '"'];
   if (quotes.includes(chars[0])) {
     const startChar = chars.shift();
@@ -151,7 +156,7 @@ function tokenizeString(chars): Token | null {
   return null;
 }
 
-function tokenizeSymbol(chars): Token | null {
+function tokenizeSymbol(chars: string[]): Token | null {
   const result: any[] = [];
   while (chars[0] && chars[0].match(/\w/)) {
     result.push(chars.shift());
@@ -165,7 +170,7 @@ function tokenizeSymbol(chars): Token | null {
   return null;
 }
 
-function tokenizeSpace(chars): Token | null {
+function tokenizeSpace(chars: string[]): Token | null {
   let length = 0;
   while (chars[0] && chars[0].match(/\s/)) {
     length++;

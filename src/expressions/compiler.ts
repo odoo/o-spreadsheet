@@ -4,7 +4,7 @@ import { parse, AST } from "./parser";
 // COMPILER
 // -----------------------------------------------------------------------------
 
-export function compileExpression(str: string): Function {
+export function compile(str: string): Function {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];

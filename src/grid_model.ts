@@ -1,5 +1,5 @@
 import { numberToLetters, toCartesian, toXC, stringify, union, isEqual } from "./helpers";
-import { compileExpression, applyOffset } from "./expressions/index";
+import { compile, applyOffset } from "./expressions/index";
 import { functionMap } from "./functions/index";
 import * as owl from "@odoo/owl";
 
@@ -350,7 +350,7 @@ export class GridModel extends owl.core.EventBus {
     if (cell.type === "formula") {
       cell.error = false;
       try {
-        cell.formula = compileExpression(content);
+        cell.formula = compile(content);
       } catch (e) {
         cell.value = "#BAD_EXPR";
         cell.error = true;

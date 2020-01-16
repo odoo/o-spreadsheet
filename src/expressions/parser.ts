@@ -59,7 +59,13 @@ function bindingPower(token: Token): number {
 }
 
 const simpleTokens: TokenType[] = ["NUMBER", "VARIABLE", "STRING", "BOOLEAN"];
+
 function parsePrefix(current: Token, tokens: Token[]): AST {
+  if (current.type === "DEBUGGER") {
+    const next = parseExpression(tokens, 1000);
+    next.debug = true;
+    return next;
+  }
   if (simpleTokens.includes(current.type)) {
     return { type: current.type, value: current.value } as AST;
   }
@@ -122,16 +128,17 @@ function parseExpression(tokens: Token[], bp: number): AST {
   return expr;
 }
 
+/**
+ * Parse an expression (as a string) into an AST.
+ */
 export function parse(str: string): AST {
-  const allTokens = tokenize(str);
-  const debug = allTokens.some(t => t.type === "DEBUGGER");
-  const tokens = allTokens.filter(
-    x => x.type !== "SPACE" && x.type !== "FORMULA" && x.type !== "DEBUGGER"
-  );
+  const tokens = tokenize(str).filter(x => x.type !== "SPACE");
+  if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
+    tokens.splice(0, 1);
+  }
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
     throw new Error("invalid expression");
   }
-  result.debug = debug;
   return result;
 }
