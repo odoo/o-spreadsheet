@@ -75,7 +75,7 @@ export class GridModel extends owl.core.EventBus {
     bottom: 0,
     right: 0
   };
-  selections: Selection = {
+  selection: Selection = {
     zones: [
       {
         top: 0,
@@ -374,7 +374,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   deleteSelection() {
-    this.selections.zones.forEach(zone => {
+    this.selection.zones.forEach(zone => {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);

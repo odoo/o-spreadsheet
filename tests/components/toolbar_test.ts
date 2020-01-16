@@ -50,7 +50,7 @@ describe("Toolbar component", () => {
         confirm = ev.detail.confirm;
       }
     }
-    model.selections.zones = [
+    model.selection.zones = [
       {
         top: 0,
         left: 0,

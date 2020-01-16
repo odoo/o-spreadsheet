@@ -7,7 +7,7 @@ import { Style } from "./types";
 // ---------------------------------------------------------------------------
 
 export function setStyle(this: GridModel, style: Style) {
-  this.selections.zones.forEach(selection => {
+  this.selection.zones.forEach(selection => {
     for (let col = selection.left; col <= selection.right; col++) {
       for (let row = selection.top; row <= selection.bottom; row++) {
         setStyleToCell(this, col, row, style);

@@ -34,7 +34,7 @@ export function addMerge(this: GridModel, m: string) {
 }
 
 export function mergeSelection(this: GridModel) {
-  const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
+  const { left, right, top, bottom } = this.selection.zones[this.selection.zones.length - 1];
   let tl = toXC(left, top);
   let br = toXC(right, bottom);
   if (tl !== br) {
@@ -57,7 +57,7 @@ export function unmergeSelection(this: GridModel) {
 }
 
 export function isMergeDestructive(this: GridModel): boolean {
-  const { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
+  const { left, right, top, bottom } = this.selection.zones[this.selection.zones.length - 1];
   for (let row = top; row <= bottom; row++) {
     const actualRow = this.rows[row];
     for (let col = left; col <= right; col++) {

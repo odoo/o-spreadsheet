@@ -5,7 +5,7 @@ import { Cell } from "./types";
 
 export function copySelection(this: GridModel, cut: boolean = false) {
   console.warn("implement copySelection for multi selection");
-  let { left, right, top, bottom } = this.selections.zones[this.selections.zones.length - 1];
+  let { left, right, top, bottom } = this.selection.zones[this.selection.zones.length - 1];
   const cells: (Cell | null)[][] = [];
   for (let i = left; i <= right; i++) {
     const vals: (Cell | null)[] = [];
@@ -34,7 +34,7 @@ export function pasteSelection(this: GridModel) {
   if (!zone || !cells) {
     return;
   }
-  const selection = this.selections.zones[this.selections.zones.length - 1];
+  const selection = this.selection.zones[this.selection.zones.length - 1];
   let col = selection.left;
   let row = selection.top;
   let { left, right, top, bottom } = zone;

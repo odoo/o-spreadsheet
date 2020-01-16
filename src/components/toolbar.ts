@@ -359,7 +359,7 @@ export class ToolBar extends Component<any, any> {
   updateCellState() {
     this.style = this.model.getStyle();
     this.inMerge = !!this.model.mergeCellMap[this.model.activeXc];
-    const { top, left, right, bottom } = this.model.selections.zones[0];
+    const { top, left, right, bottom } = this.model.selection.zones[0];
     this.cannotMerge = top === bottom && left === right;
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";

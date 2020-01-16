@@ -38,7 +38,7 @@ function thinLineWidth() {
 }
 
 function drawHeader() {
-  const { selections } = model;
+  const { selection } = model;
   const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
@@ -53,7 +53,7 @@ function drawHeader() {
   ctx.fillRect(0, 0, HEADER_WIDTH, height);
   // selection background
   ctx.fillStyle = "#dddddd";
-  for (let zone of selections.zones) {
+  for (let zone of selection.zones) {
     const x1 = Math.max(HEADER_WIDTH, cols[zone.left].left - offsetX);
     const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
     const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
@@ -290,9 +290,9 @@ function drawMerges() {
 }
 
 function drawSelectionBackground() {
-  const { selections } = model;
-  for (const selection of selections.zones) {
-    const { left, top, right, bottom } = selection;
+  const { selection } = model;
+  for (const zone of selection.zones) {
+    const { left, top, right, bottom } = zone;
     ctx.fillStyle = "#f3f7fe";
     const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
     const width = cols[right].right - offsetX - x;
@@ -307,7 +307,7 @@ function drawSelectionBackground() {
 }
 
 function drawSelectionOutline() {
-  for (const zone of model.selections.zones) {
+  for (const zone of model.selection.zones) {
     drawOutline(zone);
   }
 }

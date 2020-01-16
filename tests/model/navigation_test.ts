@@ -18,20 +18,20 @@ describe("navigation", () => {
       ]
     });
     observeModel(model);
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.activeCol).toBe(0);
     expect(model.activeRow).toBe(0);
-    expect(model.selections.anchor.col).toBe(0);
-    expect(model.selections.anchor.row).toBe(0);
+    expect(model.selection.anchor.col).toBe(0);
+    expect(model.selection.anchor.row).toBe(0);
 
     expect(n).toBe(0);
 
     model.movePosition(1, 0);
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
     expect(model.activeCol).toBe(1);
     expect(model.activeRow).toBe(0);
-    expect(model.selections.anchor.col).toBe(1);
-    expect(model.selections.anchor.row).toBe(0);
+    expect(model.selection.anchor.col).toBe(1);
+    expect(model.selection.anchor.row).toBe(0);
     expect(n).toBe(1);
   });
 
@@ -45,14 +45,14 @@ describe("navigation", () => {
       ]
     });
     observeModel(model);
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.activeCol).toBe(0);
     expect(model.activeRow).toBe(0);
 
     expect(n).toBe(0);
 
     model.movePosition(0, -1);
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.activeCol).toBe(0);
     expect(model.activeRow).toBe(0);
     expect(n).toBe(0);
@@ -77,14 +77,14 @@ describe("navigation", () => {
     model.movePosition(1, 0);
     expect(n).toBe(1);
 
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.activeCol).toBe(1);
     expect(model.activeRow).toBe(0);
 
     // move to the right, outside the merge
     model.movePosition(1, 0);
     expect(n).toBe(2);
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
     expect(model.activeCol).toBe(3);
     expect(model.activeRow).toBe(0);
     expect(model.activeXc).toBe("D1");
@@ -114,14 +114,14 @@ describe("navigation", () => {
     expect(model.activeXc).toBe("B2");
     expect(n).toBe(2);
 
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.activeCol).toBe(1);
     expect(model.activeRow).toBe(1);
 
     // move to the top, outside the merge
     model.movePosition(0, -1);
     expect(n).toBe(2);
-    expect(model.selections.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
+    expect(model.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.activeCol).toBe(1);
     expect(model.activeRow).toBe(1);
   });

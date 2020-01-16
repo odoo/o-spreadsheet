@@ -118,7 +118,7 @@ export class Composer extends Component<any, any> {
     range.setStart(this.el!.childNodes[0] as Node, this.selectionStart);
     range.setEnd(this.el!.childNodes[0] as Node, this.selectionEnd);
     selection.addRange(range);
-    let newValue = zoneToXC(this.model.selections.zones[0]);
+    let newValue = zoneToXC(this.model.selection.zones[0]);
     document.execCommand("insertText", false, newValue);
 
     selection.removeAllRanges();

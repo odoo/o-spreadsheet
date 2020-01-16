@@ -166,7 +166,7 @@ describe("merges", () => {
         }
       ]
     });
-    model.selections.zones = [
+    model.selection.zones = [
       {
         left: 0,
         top: 0,
@@ -177,7 +177,7 @@ describe("merges", () => {
     // B2 is not top left, so it is destructive
     expect(model.isMergeDestructive()).toBeTruthy();
 
-    model.selections.zones = [
+    model.selection.zones = [
       {
         left: 1,
         top: 1,
@@ -200,7 +200,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} }
     });
-    model.selections.zones = [
+    model.selection.zones = [
       {
         left: 0,
         top: 0,

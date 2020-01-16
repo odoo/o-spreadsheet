@@ -70,7 +70,7 @@ describe("Grid component", () => {
 
     expect(model.activeXc).toBe("A1");
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
-    expect(model.selections.zones[0]).toEqual({
+    expect(model.selection.zones[0]).toEqual({
       top: 0,
       left: 0,
       bottom: 7,
@@ -94,7 +94,7 @@ describe("Grid component", () => {
 
     expect(model.activeXc).toBe("A1");
     triggerMouseEvent(".o-resizer.horizontal", "mousedown", 300, 10);
-    expect(model.selections.zones[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
+    expect(model.selection.zones[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(model.activeXc).toBe("C1");
   });
 
