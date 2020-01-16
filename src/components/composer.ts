@@ -76,6 +76,9 @@ export class Composer extends Component<any, any> {
 
   mounted() {
     const el = this.el as HTMLInputElement;
+    // @ts-ignore
+    //TODO VSC: remove this debug code
+    window.composer = el;
     const { cols } = this.model;
 
     const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
@@ -172,7 +175,7 @@ export class Composer extends Component<any, any> {
       el.style.width = (el.scrollWidth + 20) as any;
     }
     if (this.el!.childNodes.length) {
-      this.model.currentContent = (this.el!.childNodes[0] as Node).textContent!;
+      this.model.currentContent = (this.el! as Node).textContent!;
     } else {
       this.model.currentContent = "";
     }
