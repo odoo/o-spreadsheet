@@ -39,7 +39,6 @@ export interface GridState {
   clipboard: ClipBoard;
   nextId: number;
   highlights: Highlight[];
-  isDirty: boolean; // rename into isDirty
   isSelectingRange: boolean;
 }
 
@@ -157,7 +156,6 @@ export type BorderCommand =
   | "bottom"
   | "clear";
 
-
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 23;
 
@@ -209,7 +207,6 @@ export function importData(data: Partial<GridData> = {}): GridState {
     clipboard: {},
     nextId,
     highlights: [],
-    isDirty: false,
     isSelectingRange: false
   };
 

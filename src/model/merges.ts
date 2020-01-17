@@ -40,7 +40,6 @@ export function mergeSelection(state: GridState) {
   let br = toXC(right, bottom);
   if (tl !== br) {
     addMerge(state, `${tl}:${br}`);
-    state.isDirty = true;
   }
 }
 
@@ -54,7 +53,6 @@ export function unmergeSelection(state: GridState) {
       delete state.mergeCellMap[xc];
     }
   }
-  state.isDirty = true;
 }
 
 export function isMergeDestructive(state: GridState): boolean {

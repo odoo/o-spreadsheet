@@ -3,7 +3,6 @@ import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { Cell, CellData, GridState, Highlight, Zone } from "./state";
 
-
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
 
@@ -71,7 +70,6 @@ export function movePosition(state: GridState, deltaX: number, deltaY: number) {
   if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
     if (state.isEditing) {
       stopEditing(state);
-      state.isDirty = true;
     }
     return;
   }
@@ -131,7 +129,6 @@ export function setColSize(state: GridState, index: number, delta: number) {
     col.left += delta;
     col.right += delta;
   }
-  state.isDirty = true;
 }
 
 export function updateVisibleZone(
@@ -182,7 +179,6 @@ export function deleteSelection(state: GridState) {
     }
   });
   evaluateCells(state);
-  state.isDirty = true;
 }
 
 export function startEditing(state: GridState, str?: string) {
@@ -193,20 +189,13 @@ export function startEditing(state: GridState, str?: string) {
   state.isEditing = true;
   state.currentContent = str;
   state.highlights = [];
-  state.isDirty = true;
 }
 
 export function addHighlights(state: GridState, highlights: Highlight[]) {
   state.highlights = state.highlights.concat(highlights);
-  state.isDirty = true;
 }
 
 export function cancelEdition(state: GridState) {
-  resetEditing(state);
-  state.isDirty = true;
-}
-
-function resetEditing(state: GridState) {
   state.isEditing = false;
   state.isSelectingRange = false;
   state.highlights = [];
@@ -227,8 +216,7 @@ export function stopEditing(state: GridState) {
 
     evaluateCells(state);
     state.currentContent = "";
-    resetEditing(state);
-    state.isDirty = true;
+    cancelEdition(state);
   }
 }
 
@@ -269,5 +257,4 @@ export function selectCell(state: GridState, col: number, row: number, newRange:
     state.activeRow = row;
     state.activeXc = xc;
   }
-  state.isDirty = true;
 }

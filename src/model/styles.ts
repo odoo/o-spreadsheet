@@ -14,7 +14,6 @@ export function setStyle(state: GridState, style: Style) {
       }
     }
   });
-  state.isDirty = true;
 }
 
 export function getStyle(state: GridState): Style {
@@ -39,7 +38,6 @@ function setStyleToCell(state: GridState, col: number, row: number, style) {
   } else {
     addCell(state, xc, { style: id, content: "" });
   }
-  state.isDirty = true;
 }
 
 function registerStyle(state: GridState, style) {

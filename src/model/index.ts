@@ -4,17 +4,14 @@ import * as clipboard from "./clipboard";
 import * as selection from "./selection";
 import * as merges from "./merges";
 import * as styles from "./styles";
-import { importData,  Cell, GridState, GridData, Style } from "./state";
+import { importData, Cell, GridState, GridData, Style } from "./state";
 import * as core from "./core";
-
 
 export { HEADER_HEIGHT, HEADER_WIDTH } from "./core";
 export * from "./state";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
-type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
-  ? (...args: P) => R
-  : never;
+type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
 
 export class GridModel extends owl.core.EventBus {
   state: GridState;
@@ -32,14 +29,9 @@ export class GridModel extends owl.core.EventBus {
 
   private makeMutation<T>(f: T): OmitFirstArg<T> {
     return ((...args) => {
-      this.state.isDirty = false;
       const result = (f as any).call(null, this.state, ...args);
       this.computeDerivedState();
-
-      if (this.state.isDirty) {
-        this.state.isDirty = false;
-        this.trigger("update");
-      }
+      this.trigger("update");
       return result;
     }) as any;
   }
@@ -50,7 +42,7 @@ export class GridModel extends owl.core.EventBus {
     this.isMergeDestructive = merges.isMergeDestructive(this.state);
   }
 
-  private makeGetter<T>(f: T): OmitFirstArg<T> {
+  private makeFn<T>(f: T): OmitFirstArg<T> {
     return ((...args) => (f as any).call(null, this.state, ...args)) as any;
   }
 
@@ -58,15 +50,15 @@ export class GridModel extends owl.core.EventBus {
   deleteCell = this.makeMutation(core.deleteCell);
   movePosition = this.makeMutation(core.movePosition);
   setColSize = this.makeMutation(core.setColSize);
-  updateVisibleZone = this.makeMutation(core.updateVisibleZone);
   deleteSelection = this.makeMutation(core.deleteSelection);
   cancelEdition = this.makeMutation(core.cancelEdition);
   startEditing = this.makeMutation(core.startEditing);
   stopEditing = this.makeMutation(core.stopEditing);
   addHighlights = this.makeMutation(core.addHighlights);
   selectCell = this.makeMutation(core.selectCell);
-  getCol = this.makeGetter(core.getCol);
-  getRow = this.makeGetter(core.getRow);
+  updateVisibleZone = this.makeFn(core.updateVisibleZone);
+  getCol = this.makeFn(core.getCol);
+  getRow = this.makeFn(core.getRow);
 
   // borders
   setBorder = this.makeMutation(setBorder);

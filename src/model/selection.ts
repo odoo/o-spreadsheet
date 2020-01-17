@@ -48,7 +48,6 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
     }
     if (result && !isEqual(result, selection)) {
       state.selection.zones[state.selection.zones.length - 1] = result;
-      state.isDirty = true;
       return;
     }
   }
@@ -62,8 +61,6 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   result = expand(union(currentZone, zoneWithDelta));
   if (!isEqual(result, selection)) {
     state.selection.zones[state.selection.zones.length - 1] = result;
-    state.isDirty = true;
-    return;
   }
 }
 
@@ -80,7 +77,6 @@ export function selectColumn(state: GridState, col: number) {
   };
   state.selection.anchor = { col: state.activeCol, row: state.activeRow };
   state.selection.zones = [selection];
-  state.isDirty = true;
 }
 
 export function updateSelection(state: GridState, col: number, row: number) {
@@ -93,5 +89,4 @@ export function updateSelection(state: GridState, col: number, row: number) {
     bottom: Math.max(anchorRow, row)
   };
   state.selection.zones[state.selection.zones.length - 1] = expandZone(state, zone);
-  state.isDirty = true;
 }

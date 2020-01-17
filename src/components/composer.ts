@@ -102,15 +102,6 @@ export class Composer extends Component<any, any> {
     this.trigger("composer-unmounted");
   }
 
-  willUpdateProps(nextProps: any): Promise<void> {
-    if (nextProps.model.currentContent !== this.model.state.currentContent) {
-      console.warn(
-        `current content updated from ${this.model.state.currentContent} to ${nextProps.model.currentContent} `
-      );
-    }
-    return super.willUpdateProps(nextProps);
-  }
-
   addTextFromSelection() {
     let selection = window.getSelection()!;
     selection.removeAllRanges();

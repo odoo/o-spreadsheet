@@ -49,13 +49,10 @@ describe("navigation", () => {
     expect(model.state.activeCol).toBe(0);
     expect(model.state.activeRow).toBe(0);
 
-    expect(n).toBe(0);
-
     model.movePosition(0, -1);
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.state.activeCol).toBe(0);
     expect(model.state.activeRow).toBe(0);
-    expect(n).toBe(0);
   });
 
   test("move in and out of a merge", () => {
@@ -106,13 +103,11 @@ describe("navigation", () => {
 
     // put selection below merge
     model.selectCell(1, 2);
-    expect(n).toBe(1);
 
     // enter merge from below
     expect(model.state.activeXc).toBe("B3");
     model.movePosition(0, -1);
     expect(model.state.activeXc).toBe("B2");
-    expect(n).toBe(2);
 
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.state.activeCol).toBe(1);
@@ -120,7 +115,6 @@ describe("navigation", () => {
 
     // move to the top, outside the merge
     model.movePosition(0, -1);
-    expect(n).toBe(2);
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.state.activeCol).toBe(1);
     expect(model.state.activeRow).toBe(1);

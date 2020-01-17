@@ -23,9 +23,6 @@ export function copySelection(state: GridState, cut: boolean = false) {
     zone: { left, right, top, bottom },
     cells
   };
-  if (cut) {
-    state.isDirty = true;
-  }
 }
 
 export function pasteSelection(state: GridState) {
@@ -59,5 +56,4 @@ export function pasteSelection(state: GridState) {
   }
 
   evaluateCells(state);
-  state.isDirty = true;
 }

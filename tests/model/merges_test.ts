@@ -75,14 +75,11 @@ describe("merges", () => {
         }
       ]
     });
-    observeModel(model);
 
     expect(Object.keys(model.state.merges)).toEqual([]);
 
     model.selectCell(1, 1);
-    expect(n).toBe(1);
     model.mergeSelection();
-    expect(n).toBe(1);
 
     expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.state.merges)).toEqual([]);
