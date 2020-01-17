@@ -76,6 +76,7 @@ export class GridModel extends owl.core.EventBus {
   unmergeSelection = this.makeMutation(merges.unmergeSelection);
 
   // clipboard
-  copySelection = this.makeMutation(clipboard.copySelection);
-  pasteSelection = this.makeMutation(clipboard.pasteSelection);
+  cut = this.makeMutation(clipboard.cut);
+  copy = this.makeMutation(clipboard.copy);
+  paste = this.makeMutation(clipboard.paste);
 }

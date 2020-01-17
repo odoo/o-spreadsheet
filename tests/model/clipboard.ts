@@ -16,9 +16,9 @@ describe("copy/cut/paste", () => {
     });
 
     model.selectCell(1, 1);
-    model.copySelection();
+    model.copy();
     model.selectCell(3, 1);
-    model.pasteSelection();
+    model.paste();
     expect(model.state.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
@@ -40,10 +40,10 @@ describe("copy/cut/paste", () => {
     });
 
     model.selectCell(1, 1);
-    model.copySelection(true);
+    model.cut();
     expect(model.state.cells).toEqual({});
     model.selectCell(3, 1);
-    model.pasteSelection();
+    model.paste();
     expect(model.state.cells).toEqual({
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
     });

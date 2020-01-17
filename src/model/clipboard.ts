@@ -4,8 +4,17 @@ import { Cell, GridState } from "./state";
 import { getCell, deleteCell, addCell } from "./core";
 import { evaluateCells } from "./evaluation";
 
-export function copySelection(state: GridState, cut: boolean = false) {
+export function cut(state: GridState) {
   console.warn("implement copySelection for multi selection");
+  cutOrCopy(state, true);
+}
+
+export function copy(state: GridState) {
+  console.warn("implement copySelection for multi selection");
+  cutOrCopy(state, false);
+}
+
+function cutOrCopy(state: GridState, cut: boolean) {
   let { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   const cells: (Cell | null)[][] = [];
   for (let i = left; i <= right; i++) {
@@ -25,7 +34,7 @@ export function copySelection(state: GridState, cut: boolean = false) {
   };
 }
 
-export function pasteSelection(state: GridState) {
+export function paste(state: GridState) {
   console.warn("implement pasteSelection for multi selection");
   const { zone, cells } = state.clipboard;
   if (!zone || !cells) {

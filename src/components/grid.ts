@@ -360,13 +360,13 @@ export class Grid extends Component<any, any> {
     if (ev.ctrlKey) {
       switch (ev.key) {
         case "x":
-          this.model.copySelection(true);
+          this.model.cut();
           break;
         case "c":
-          this.model.copySelection();
+          this.model.copy();
           break;
         case "v":
-          this.model.pasteSelection();
+          this.model.paste();
           break;
       }
       return;
