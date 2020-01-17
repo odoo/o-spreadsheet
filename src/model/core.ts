@@ -220,11 +220,17 @@ export function stopEditing(state: GridState) {
   }
 }
 
+/**
+ * Change the active cell.
+ *
+ * This is a non trivial task. We need to stop the editing process and update
+ * properly the current selection.  Also, this method can optionally create a new
+ * range in the selection.
+ */
 export function selectCell(state: GridState, col: number, row: number, newRange: boolean = false) {
   if (!state.isSelectingRange) {
     stopEditing(state);
   }
-
   const xc = toXC(col, row);
   let zone: Zone;
   if (xc in state.mergeCellMap) {

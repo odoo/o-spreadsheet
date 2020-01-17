@@ -79,6 +79,9 @@ export function selectColumn(state: GridState, col: number) {
   state.selection.zones = [selection];
 }
 
+/**
+ * Update the current selection to include the cell col/row.
+ */
 export function updateSelection(state: GridState, col: number, row: number) {
   const anchorCol = state.selection.anchor.col;
   const anchorRow = state.selection.anchor.row;

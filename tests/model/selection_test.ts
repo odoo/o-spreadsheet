@@ -209,3 +209,28 @@ describe("selection", () => {
     });
   });
 });
+
+describe("multiple selections", () => {
+  test("can select a new range", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    model.selectCell(2, 2); // select C3
+    const state = model.state;
+    expect(state.selection.zones.length).toBe(1);
+    expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
+    model.updateSelection(2, 3);
+    expect(state.selection.zones.length).toBe(1);
+    expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
+
+    // create new range
+    model.selectCell(5, 2, true);
+    expect(state.selection.zones.length).toBe(2);
+    expect(state.selection.anchor).toEqual({ col: 5, row: 2 });
+  });
+});
