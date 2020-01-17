@@ -19,11 +19,25 @@ const PENDING: Set<Cell> = new Set();
  */
 const WAITING: Set<Cell> = new Set();
 
+/**
+ * For all cells that have been async computed.
+ *
+ * For example:
+ *  A1: =Wait(3)
+ *  A2: =A1
+ *
+ * When A1 is computed, A1 is moved in COMPUTED
+ */
+const COMPUTED: Set<Cell> = new Set();
+
 export function evaluateCells(state: GridState) {
   _evaluateCells(state, false);
 }
 
 function _evaluateCells(state: GridState, onlyWaiting: boolean) {
+  if (!onlyWaiting) {
+    COMPUTED.clear();
+  }
   const cells = state.cells;
   const visited = {};
   const functions = Object.assign({ range }, functionMap);
@@ -39,6 +53,9 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       }
       return;
     }
+    if (COMPUTED.has(cell)) {
+      return;
+    }
     visited[xc] = null;
     try {
       // todo: move formatting in grid and formatters.js
@@ -48,6 +65,8 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
         const prom = cell.formula(getValue, functions).then(val => {
           cell.value = val;
           PENDING.delete(cell);
+          COMPUTED.add(cell);
+          _evaluateCells(state, true);
         });
         state.asyncComputations.push(prom);
       } else {
@@ -58,6 +77,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     } catch (e) {
       if (e.message === "not ready") {
         WAITING.add(cell);
+        cell.value = "#LOADING";
       } else {
         cell.value = cell.value || "#ERROR";
         cell.error = true;
@@ -99,8 +119,9 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     for (let cell of clone) {
       computeValue(cell.xc, cell);
     }
-  }
-  for (let xc in cells) {
-    computeValue(xc, cells[xc]);
+  } else {
+    for (let xc in cells) {
+      computeValue(xc, cells[xc]);
+    }
   }
 }
