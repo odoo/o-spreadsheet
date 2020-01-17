@@ -1,6 +1,6 @@
 import { GridModel } from "../../src/model/index";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
-import { colors } from "../../src/components/composer";
+import { colors } from "../../src/ui/composer";
 
 let fixture: HTMLElement;
 

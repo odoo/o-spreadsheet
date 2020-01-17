@@ -1,5 +1,5 @@
 import { Component, tags } from "@odoo/owl";
-import { Grid } from "../src/components/grid";
+import { Grid } from "../src/ui/grid";
 import { GridModel } from "../src/model/index";
 
 const { xml } = tags;

@@ -6,5 +6,5 @@
  */
 
 export const __info__ = {};
-export { Spreadsheet } from "./components/spreadsheet";
+export { Spreadsheet } from "./ui/spreadsheet";
 export { addFunction } from "./functions/index";

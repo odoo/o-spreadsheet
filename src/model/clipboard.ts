@@ -44,7 +44,7 @@ export function paste(state: GridState) {
   let col = selection.left;
   let row = selection.top;
   let { left, right, top, bottom } = zone;
-  const offsetX = col - left;
+  const offsetX = col - left; 
   const offsetY = row - top;
   for (let i = 0; i <= right - left; i++) {
     for (let j = 0; j <= bottom - top; j++) {
