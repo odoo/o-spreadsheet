@@ -27,7 +27,7 @@ describe("merges", () => {
     expect(n).toBe(1);
     model.updateSelection(1, 2);
     expect(n).toBe(2);
-    model.mergeSelection();
+    model.merge();
     expect(n).toBe(3);
 
     expect(Object.keys(model.state.cells)).toEqual(["B2"]);
@@ -58,7 +58,7 @@ describe("merges", () => {
 
     model.selectCell(1, 1);
     expect(n).toBe(1);
-    model.unmergeSelection();
+    model.unmerge();
     expect(n).toBe(2);
     expect(Object.keys(model.state.cells)).toEqual(["B2"]);
     expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
@@ -79,7 +79,7 @@ describe("merges", () => {
     expect(Object.keys(model.state.merges)).toEqual([]);
 
     model.selectCell(1, 1);
-    model.mergeSelection();
+    model.merge();
 
     expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.state.merges)).toEqual([]);

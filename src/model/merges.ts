@@ -34,7 +34,7 @@ export function addMerge(state: GridState, m: string) {
   }
 }
 
-export function mergeSelection(state: GridState) {
+export function merge(state: GridState) {
   const { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   let tl = toXC(left, top);
   let br = toXC(right, bottom);
@@ -43,7 +43,7 @@ export function mergeSelection(state: GridState) {
   }
 }
 
-export function unmergeSelection(state: GridState) {
+export function unmerge(state: GridState) {
   const mergeId = state.mergeCellMap[state.activeXc];
   const { left, top, right, bottom } = state.merges[mergeId];
   delete state.merges[mergeId];
