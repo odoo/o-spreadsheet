@@ -1,4 +1,5 @@
 import { TokenType, Token, tokenize } from "./tokenizer";
+import { functions } from "../functions/index";
 
 // -----------------------------------------------------------------------------
 // PARSER
@@ -26,6 +27,7 @@ interface ASTVariable extends ASTBase {
   type: "VARIABLE";
   value: string;
 }
+
 interface ASTOperation extends ASTBase {
   type: "OPERATION";
   value: any;
@@ -39,7 +41,20 @@ interface ASTFuncall extends ASTBase {
   args: AST[];
 }
 
-export type AST = ASTOperation | ASTFuncall | ASTNumber | ASTBoolean | ASTString | ASTVariable;
+interface ASTAsyncFuncall extends ASTBase {
+  type: "ASYNC_FUNCALL";
+  value: string;
+  args: AST[];
+}
+
+export type AST =
+  | ASTOperation
+  | ASTFuncall
+  | ASTAsyncFuncall
+  | ASTNumber
+  | ASTBoolean
+  | ASTString
+  | ASTVariable;
 
 function bindingPower(token: Token): number {
   switch (token.type) {
@@ -100,7 +115,9 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     if (tokens.shift()!.type !== "RIGHT_PAREN") {
       throw new Error("wrong function call");
     }
-    return { type: "FUNCALL", value: current.value, args };
+    const isAsync = functions[current.value].async;
+    const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
+    return { type, value: current.value, args };
   }
   throw new Error("nope");
 }

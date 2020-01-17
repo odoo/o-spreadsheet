@@ -1,5 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`expression compiler async functions 1`] = `
+"async function anonymous(getValue,fns
+) {
+// =WAIT(5)
+let _1 = await fns['WAIT'](5)
+return _1;
+}"
+`;
+
 exports[`expression compiler expressions with a debugger 1`] = `
 "function anonymous(getValue,fns
 ) {

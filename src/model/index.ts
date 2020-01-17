@@ -24,22 +24,31 @@ export class GridModel extends owl.core.EventBus {
   constructor(data: Partial<GridData>) {
     super();
     this.state = importData(data);
-    this.computeDerivedState();
+    this.prepareModel();
   }
 
   private makeMutation<T>(f: T): OmitFirstArg<T> {
     return ((...args) => {
       const result = (f as any).call(null, this.state, ...args);
-      this.computeDerivedState();
+      this.prepareModel();
       this.trigger("update");
       return result;
     }) as any;
   }
 
-  private computeDerivedState() {
+  /**
+   * 1. Compute derived state
+   * 2. make sure async formulas trigger an update
+   */
+  private prepareModel() {
     this.selectedCell = core.selectedCell(this.state);
     this.style = styles.getStyle(this.state);
     this.isMergeDestructive = merges.isMergeDestructive(this.state);
+    const computations = this.state.asyncComputations;
+    for (let cmp of computations) {
+      cmp.then(() => this.trigger("update"));
+    }
+    this.state.asyncComputations = [];
   }
 
   private makeFn<T>(f: T): OmitFirstArg<T> {
@@ -51,6 +60,7 @@ export class GridModel extends owl.core.EventBus {
   movePosition = this.makeMutation(core.movePosition);
   setColSize = this.makeMutation(core.setColSize);
   deleteSelection = this.makeMutation(core.deleteSelection);
+  setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
   startEditing = this.makeMutation(core.startEditing);
   stopEditing = this.makeMutation(core.stopEditing);

@@ -2,6 +2,7 @@ import { compile } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { Cell, CellData, GridState, Highlight, Zone } from "./state";
+import { AsyncFunction } from "../formulas/compiler";
 
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 60;
@@ -21,6 +22,23 @@ export function selectedCell(state: GridState): Cell | null {
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
 
+/**
+ * Set the text value for a given cell.
+ *
+ * Todo: maybe the composer should use this and we could remove the startEditing
+ * stopediting/current string logic...
+ */
+export function setValue(state: GridState, xc: string, text: string) {
+  addCell(state, xc, { content: text });
+  evaluateCells(state);
+}
+
+/**
+ * Add a cell (it recreates a new cell from scratch).
+ *
+ * Note that this does not reevaluate the values of the cells. This should be
+ * done at some point by the caller.
+ */
 export function addCell(state: GridState, xc: string, data: CellData) {
   const [col, row] = toCartesian(xc);
   const currentCell = state.cells[xc];
@@ -41,6 +59,9 @@ export function addCell(state: GridState, xc: string, data: CellData) {
     cell.error = false;
     try {
       cell.formula = compile(content);
+      if (cell.formula instanceof AsyncFunction) {
+        cell.async = true;
+      }
     } catch (e) {
       cell.value = "#BAD_EXPR";
       cell.error = true;

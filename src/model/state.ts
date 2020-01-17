@@ -57,6 +57,8 @@ export interface GridState {
   nextId: number;
   highlights: Highlight[];
   isSelectingRange: boolean;
+
+  asyncComputations: Promise<any>[];
 }
 
 export interface Zone {
@@ -128,6 +130,7 @@ export interface Cell extends CellData {
   error?: boolean;
   value: any;
   formula?: any;
+  async?: boolean;
   type: "formula" | "text" | "number";
 }
 
@@ -228,7 +231,8 @@ export function importData(data: Partial<GridData> = {}): GridState {
     clipboard: {},
     nextId,
     highlights: [],
-    isSelectingRange: false
+    isSelectingRange: false,
+    asyncComputations: []
   };
 
   const sheets = data.sheets || [

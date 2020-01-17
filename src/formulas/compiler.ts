@@ -3,11 +3,13 @@ import { parse, AST } from "./parser";
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
+export const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
 
 export function compile(str: string): Function {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
+  let isAsync = false;
 
   function compileAST(ast: AST) {
     let id, left, right, args;
@@ -25,6 +27,12 @@ export function compile(str: string): Function {
       case "FUNCALL":
         args = ast.args.map(compileAST);
         return `fns['${ast.value}'](${args})`;
+      case "ASYNC_FUNCALL":
+        args = ast.args.map(compileAST);
+        id = nextId++;
+        isAsync = true;
+        code.push(`let _${id} = await fns['${ast.value}'](${args})`);
+        break;
       case "OPERATION":
         id = nextId++;
         left = compileAST(ast.left);
@@ -40,5 +48,6 @@ export function compile(str: string): Function {
   }
 
   code.push(`return ${compileAST(ast)};`);
-  return new Function("getValue", "fns", code.join("\n"));
+  const Constructor = isAsync ? AsyncFunction : Function;
+  return new Constructor("getValue", "fns", code.join("\n"));
 }

@@ -19,4 +19,8 @@ describe("expression compiler", () => {
   test("expressions with a debugger", () => {
     expect(compile("=? A1 / 2").toString()).toMatchSnapshot();
   });
+
+  test("async functions", () => {
+    expect(compile("=WAIT(5)").toString()).toMatchSnapshot();
+  });
 });
