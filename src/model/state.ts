@@ -3,6 +3,23 @@ import { addCell, selectCell } from "./core";
 import { evaluateCells } from "./evaluation";
 import { numberToLetters } from "../helpers";
 
+/**
+ * State
+ *
+ * This file defines the basic types involved in maintaining the state of a
+ * o-spreadsheet. It also defines how to import and export data.
+ *
+ * The most important exported values are:
+ * - interface GridData: the type of that data that is given to the spreadsheet
+ * - interface GridState: the internal type of the state managed by the model
+ * - function importData: convert from GridData -> GridState
+ * - funtion exportData: convert from GridState -> GridData
+ */
+
+// -----------------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------------
+
 export interface GridState {
   rows: Row[];
   cols: Col[];
@@ -156,6 +173,10 @@ export type BorderCommand =
   | "bottom"
   | "clear";
 
+// -----------------------------------------------------------------------------
+// import
+// -----------------------------------------------------------------------------
+
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 23;
 
@@ -279,6 +300,10 @@ function addRowsCols(state: GridState, sheet: Sheet) {
   }
   state.width = state.cols[state.cols.length - 1].right + 10;
 }
+
+// -----------------------------------------------------------------------------
+// Export
+// -----------------------------------------------------------------------------
 
 export function exportData(state: GridState): GridData {
   throw new Error("not implemented yet");

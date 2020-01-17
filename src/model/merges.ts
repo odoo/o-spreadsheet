@@ -6,10 +6,6 @@ import { deleteCell } from "./core";
 // Merges
 // ---------------------------------------------------------------------------
 
-/**
- * This method is silent, does not notify the user interface.  Also, it
- * does not ask for confirmation if we delete a cell content.
- */
 export function addMerge(state: GridState, m: string) {
   let id = state.nextId++;
   const [tl, br] = m.split(":");
@@ -34,6 +30,12 @@ export function addMerge(state: GridState, m: string) {
   }
 }
 
+/**
+ * Merge the current selection. Note that:
+ * - it assumes that we have a valid selection (no intersection with other
+ *   merges)
+ * - it does nothing if the merge is trivial: A1:A1
+ */
 export function merge(state: GridState) {
   const { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   let tl = toXC(left, top);
@@ -55,6 +57,11 @@ export function unmerge(state: GridState) {
   }
 }
 
+/**
+ * Return true if the current selection requires losing state if it is merged.
+ * This happens when there is some textual content in other cells than the
+ * top left.
+ */
 export function isMergeDestructive(state: GridState): boolean {
   const { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   for (let row = top; row <= bottom; row++) {
