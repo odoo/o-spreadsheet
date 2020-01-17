@@ -1,7 +1,7 @@
 import { GridModel } from "../../src/model/index";
 
-describe("copy/cut/paste", () => {
-  test("can copy a cell", () => {
+describe("clipboard", () => {
+  test("can copy and paste a cell", () => {
     const model = new GridModel({
       sheets: [
         {
@@ -25,7 +25,7 @@ describe("copy/cut/paste", () => {
     });
   });
 
-  test("can cut/paste a cell", () => {
+  test("can cut and paste a cell", () => {
     const model = new GridModel({
       sheets: [
         {
