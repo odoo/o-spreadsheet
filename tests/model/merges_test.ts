@@ -194,4 +194,28 @@ describe("merges", () => {
     ];
     expect(model.isMergeDestructive).toBeFalsy();
   });
+
+  test("a merge with only style should not be considered destructive", () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: { content: "1" },
+            A2: { content: "2" },
+            A3: { content: "3" },
+            A4: { content: "=sum(A1:A3)" }
+          }
+        }
+      ]
+    });
+    expect(model.state.cells["A4"].value).toBe(6);
+    model.updateSelection(0, 2);
+    model.merge();
+    expect(model.state.cells["A1"].value).toBe(1);
+    expect(model.state.cells["A2"]).toBeUndefined();
+    expect(model.state.cells["A3"]).toBeUndefined();
+    expect(model.state.cells["A4"].value).toBe(1);
+  });
 });

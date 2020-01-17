@@ -1,6 +1,7 @@
 import { toXC, toCartesian } from "../helpers";
 import { GridState } from "./state";
 import { deleteCell } from "./core";
+import { evaluateCells } from "./evaluation";
 
 // ---------------------------------------------------------------------------
 // Merges
@@ -19,14 +20,19 @@ export function addMerge(state: GridState, m: string) {
     bottom,
     topLeft: tl
   };
+  let isDestructive = false;
   for (let row = top; row <= bottom; row++) {
     for (let col = left; col <= right; col++) {
       const xc = toXC(col, row);
       if (col !== left || row !== top) {
+        isDestructive = true;
         deleteCell(state, xc);
       }
       state.mergeCellMap[xc] = id;
     }
+  }
+  if (isDestructive) {
+    evaluateCells(state);
   }
 }
 
