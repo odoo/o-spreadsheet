@@ -234,4 +234,37 @@ describe("evaluateCells", () => {
     expect(model.state.cells["A3"].value).toEqual(4);
     expect(patch.calls.length).toBe(0);
   });
+
+  test("async formula, another configuration", async () => {
+    const data = {
+      sheets: [
+        {
+          colNumber: 3,
+          rowNumber: 5,
+          cells: {
+            A1: { content: "=1" },
+            A2: { content: "=WAIT(A1 + 3)" },
+            A3: { content: "=2 + Wait(3 + Wait(A2))" }
+          }
+        }
+      ]
+    };
+    const model = new GridModel(data);
+    expect(model.state.cells["A1"].value).toEqual(1);
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+    expect(model.state.cells["A3"].value).toEqual("#LOADING");
+
+    patch.resolveAll();
+    await nextTick();
+    expect(model.state.cells["A2"].value).toEqual(4);
+    expect(model.state.cells["A3"].value).toEqual("#LOADING");
+    // We need two resolveAll, one for Wait(A2) and the second for (Wait(3 + 4))
+    patch.resolveAll();
+    await nextTick();
+    patch.resolveAll();
+    await nextTick();
+
+    expect(model.state.cells["A2"].value).toEqual(4);
+    expect(model.state.cells["A3"].value).toEqual(9);
+  });
 });

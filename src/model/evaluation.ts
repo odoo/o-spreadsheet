@@ -42,6 +42,17 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   const visited = {};
   const functions = Object.assign({ range }, functionMap);
 
+  function handleError(e: Error, cell: Cell) {
+    PENDING.delete(cell);
+    if (e.message === "not ready") {
+      WAITING.add(cell);
+      cell.value = "#LOADING";
+    } else {
+      cell.value = cell.value || "#ERROR";
+      cell.error = true;
+    }
+  }
+
   function computeValue(xc, cell: Cell) {
     if (cell.type !== "formula" || !cell.formula) {
       return;
@@ -67,7 +78,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           PENDING.delete(cell);
           COMPUTED.add(cell);
           _evaluateCells(state, true);
-        });
+        }).catch((e: Error) => handleError(e, cell));
         state.asyncComputations.push(prom);
       } else {
         cell.value = cell.formula(getValue, functions);
@@ -75,13 +86,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       //cell.value = +cell.formula(getValue, functions).toFixed(4);
       cell.error = false;
     } catch (e) {
-      if (e.message === "not ready") {
-        WAITING.add(cell);
-        cell.value = "#LOADING";
-      } else {
-        cell.value = cell.value || "#ERROR";
-        cell.error = true;
-      }
+      handleError(e, cell);
     }
     visited[xc] = true;
   }
