@@ -21,6 +21,7 @@ export function addMerge(state: GridState, m: string) {
     topLeft: tl
   };
   let isDestructive = false;
+  let previousMerges: Set<number> = new Set();
   for (let row = top; row <= bottom; row++) {
     for (let col = left; col <= right; col++) {
       const xc = toXC(col, row);
@@ -28,8 +29,14 @@ export function addMerge(state: GridState, m: string) {
         isDestructive = true;
         deleteCell(state, xc);
       }
+      if (state.mergeCellMap[xc]) {
+        previousMerges.add(state.mergeCellMap[xc]);
+      }
       state.mergeCellMap[xc] = id;
     }
+  }
+  for (let m of previousMerges) {
+    delete state.merges[m];
   }
   if (isDestructive) {
     evaluateCells(state);

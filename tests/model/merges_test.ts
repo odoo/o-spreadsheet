@@ -234,6 +234,24 @@ describe("merges", () => {
     expect(getStyle(model.state, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model.state, "B1")).toEqual({ fillColor: "red" });
   });
+
+  test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
+    const model = new GridModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
+    // selecting A3 and expanding selection one row up
+    model.selectCell(0, 2);
+    model.updateSelection(0, 1);
+
+    //merging
+    model.merge();
+    const mergeId = model.state.mergeCellMap.A1;
+    expect(mergeId).toBeGreaterThan(0);
+    expect(model.state.mergeCellMap.A2).toBe(mergeId);
+
+    // unmerge. there should not be any merge left
+    model.unmerge();
+    expect(model.state.mergeCellMap).toEqual({});
+    expect(model.state.merges).toEqual({});
+  });
 });
 
 function getStyle(state: GridState, xc: string) {

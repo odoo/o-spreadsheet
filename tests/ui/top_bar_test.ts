@@ -86,4 +86,55 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
   });
+
+  test("merging cell button state is correct", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } },
+          merges: ["A1:B1"]
+        }
+      ]
+    });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const mergeTool = fixture.querySelector('.o-tool[title="Merge Cells"]')!;
+    expect(mergeTool.classList.contains("active")).toBeTruthy();
+
+    // increase the selection to A2 (so, it is now A1:B2) => merge tool
+    // shoul not be active
+    model.updateSelection(0, 1);
+    await nextTick();
+    expect(mergeTool.classList.contains("active")).toBeFalsy();
+  });
+
+  test("multiple selection zones => merge tools is disabled", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "b2" } }
+        }
+      ]
+    });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const mergeTool = fixture.querySelector('.o-tool[title="Merge Cells"]')!;
+
+    // should be disabled, because the selection is just one cell
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+
+    model.updateSelection(1, 0);
+    await nextTick();
+    // should be enabled, because two cells are selected
+    expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
+
+    model.selectCell(3, 3, true);
+    await nextTick();
+    // should be disabled, because multiple zones are selected
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+  });
 });

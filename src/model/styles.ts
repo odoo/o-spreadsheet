@@ -22,7 +22,6 @@ export function getStyle(state: GridState): Style {
 }
 
 function setStyleToCell(state: GridState, col: number, row: number, style) {
-  const xc = toXC(col, row);
   const cell = getCell(state, col, row);
   const currentStyle = cell && cell.style ? state.styles[cell.style] : {};
   const nextStyle = Object.assign({}, currentStyle, style);
@@ -30,6 +29,7 @@ function setStyleToCell(state: GridState, col: number, row: number, style) {
   if (cell) {
     cell.style = id;
   } else {
+    const xc = toXC(col, row);
     addCell(state, xc, { style: id, content: "" });
   }
 }

@@ -74,7 +74,8 @@ export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sh
 }
 
 /**
- * Delete a cell
+ * Delete a cell. This method tolerates the case where xc does not map to an
+ * existing cell
  */
 export function deleteCell(state: GridState, xc: string) {
   const cell = state.cells[xc];

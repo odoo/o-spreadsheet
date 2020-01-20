@@ -3,6 +3,7 @@ import * as owl from "@odoo/owl";
 import { GridModel, Style } from "../model/index";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
 import * as icons from "./icons";
+import { isEqual } from "../helpers";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
@@ -318,12 +319,18 @@ export class TopBar extends Component<any, any> {
   }
 
   updateCellState() {
+    const state = this.model.state;
     this.style = this.model.style;
-    this.inMerge = !!this.model.state.mergeCellMap[this.model.state.activeXc];
-    const { top, left, right, bottom } = this.model.state.selection.zones[0];
-    this.cannotMerge = top === bottom && left === right;
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
+    const selection = state.selection;
+    const { top, left, right, bottom } = selection.zones[0];
+    this.cannotMerge = selection.zones.length > 1 || (top === bottom && left === right);
+    this.inMerge = false;
+    if (!this.cannotMerge) {
+      const mergeId = state.mergeCellMap[state.activeXc];
+      this.inMerge = mergeId ? isEqual(selection.zones[0], state.merges[mergeId]) : false;
+    }
   }
 
   toggleMerge() {
