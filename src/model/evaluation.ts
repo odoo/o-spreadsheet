@@ -53,7 +53,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       }
       return;
     }
-    if (COMPUTED.has(cell)) {
+    if (COMPUTED.has(cell) || PENDING.has(cell)) {
       return;
     }
     visited[xc] = null;

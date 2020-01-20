@@ -203,4 +203,35 @@ describe("evaluateCells", () => {
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(patch.calls.length).toBe(0);
   });
+
+  test("async formula, and multiple values depending on it", async () => {
+    const data = {
+      sheets: [
+        {
+          colNumber: 3,
+          rowNumber: 5,
+          cells: {
+            A1: { content: "=WAIT(3)" },
+            A2: { content: "=WAIT(1)" },
+            A3: { content: "=A1 + A2"}
+          }
+        }
+      ]
+    };
+    const model = new GridModel(data);
+    observeModel(model);
+    expect(model.state.cells["A3"].async).toBeUndefined();
+    expect(model.state.cells["A1"].value).toEqual("#LOADING");
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+    expect(model.state.cells["A3"].value).toEqual("#LOADING");
+    expect(patch.calls.length).toBe(2);
+    expect(n).toBe(0);
+    patch.resolveAll();
+    await nextTick();
+    expect(n).toBe(2);
+    expect(model.state.cells["A1"].value).toEqual(3);
+    expect(model.state.cells["A2"].value).toEqual(1);
+    expect(model.state.cells["A3"].value).toEqual(4);
+    expect(patch.calls.length).toBe(0);
+  });
 });
