@@ -287,3 +287,23 @@ export function selectCell(state: GridState, col: number, row: number, newRange:
     state.activeXc = xc;
   }
 }
+
+export function computeAggregate(state: GridState): number | null {
+  let aggregate = 0;
+  let n = 0;
+  for (let zone of state.selection.zones) {
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      const r = state.rows[row];
+      for (let col = zone.left; col <= zone.right; col++) {
+        const cell = r.cells[col];
+        if (cell && cell.type !== "text") {
+          n++;
+          if (!cell.error) {
+            aggregate += cell.value;
+          }
+        }
+      }
+    }
+  }
+  return n < 2 ? null : aggregate;
+}

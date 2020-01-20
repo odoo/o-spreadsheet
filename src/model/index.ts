@@ -19,6 +19,7 @@ export class GridModel extends owl.core.EventBus {
   selectedCell: Cell | null = null;
   style: Style = {};
   isMergeDestructive: boolean = false;
+  aggregate: number | null = null;
 
   constructor(data: Partial<GridData>) {
     super();
@@ -43,6 +44,8 @@ export class GridModel extends owl.core.EventBus {
     this.selectedCell = core.selectedCell(this.state);
     this.style = styles.getStyle(this.state);
     this.isMergeDestructive = merges.isMergeDestructive(this.state);
+    this.aggregate = core.computeAggregate(this.state);
+
     const computations = this.state.asyncComputations;
     for (let cmp of computations) {
       cmp.then(() => this.trigger("update"));

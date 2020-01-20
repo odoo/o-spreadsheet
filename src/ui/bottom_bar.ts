@@ -15,6 +15,10 @@ const TEMPLATE = xml/* xml */ `
     <t t-foreach="model.state.sheets" t-as="sheet" t-key="sheet_index">
       <span class="o-sheet" t-on-click="activateSheet(sheet_index)" t-att-class="{active: sheet_index === model.state.activeSheet}"><t t-esc="sheet.name"/></span>
     </t>
+    <t t-if="model.aggregate !== null">
+      <span class="o-space"/>
+      <span class="o-aggregate">Sum: <t t-esc="model.aggregate"/></span>
+    </t>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -23,6 +27,11 @@ const CSS = css/* scss */ `
     padding-left: ${HEADER_WIDTH}px;
     display: flex;
     align-items: center;
+    font-size: 15px;
+
+    .o-space {
+      flex-grow: 1;
+    }
 
     .o-add-sheet,
     .o-sheet {
@@ -48,6 +57,16 @@ const CSS = css/* scss */ `
         background-color: white;
         box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
       }
+    }
+
+    .o-aggregate {
+      background-color: white;
+      font-size: 14px;
+      margin-right: 20px;
+      padding: 4px 8px;
+      color: #333;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
     }
   }
 `;
