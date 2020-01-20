@@ -102,11 +102,11 @@ const COLOR_PICKER = xml/* xml */ `
   </div>`;
 
 // -----------------------------------------------------------------------------
-// ToolBar
+// TopBar
 // -----------------------------------------------------------------------------
-export class ToolBar extends Component<any, any> {
+export class TopBar extends Component<any, any> {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet-toolbar">
+    <div class="o-spreadsheet-topbar">
       <div class="o-tools">
         <div class="o-tool o-disabled" title="Undo">${icons.UNDO_ICON}</div>
         <div class="o-tool o-disabled" title="Redo">${icons.REDO_ICON}</div>
@@ -175,7 +175,7 @@ export class ToolBar extends Component<any, any> {
       </div>
     </div>`;
   static style = css/* scss */ `
-    .o-spreadsheet-toolbar {
+    .o-spreadsheet-topbar {
       background-color: ${BACKGROUND_GRAY_COLOR};
       border-bottom: 1px solid #ccc;
       display: flex;

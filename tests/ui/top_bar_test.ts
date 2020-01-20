@@ -1,6 +1,6 @@
 import { GridModel } from "../../src/model/index";
 import { makeTestFixture, nextTick } from "../helpers";
-import { ToolBar } from "../../src/ui/tool_bar";
+import { TopBar } from "../../src/ui/top_bar";
 import { Component, tags } from "@odoo/owl";
 
 const { xml } = tags;
@@ -8,8 +8,8 @@ const { xml } = tags;
 let fixture: HTMLElement;
 
 class Parent extends Component<any, any> {
-  static template = xml`<ToolBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
-  static components = { ToolBar };
+  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
+  static components = { TopBar };
   model: GridModel;
   constructor(model: GridModel) {
     super();
@@ -33,7 +33,7 @@ afterEach(() => {
   fixture.remove();
 });
 
-describe("Toolbar component", () => {
+describe("TopBar component", () => {
   test("merging destructively a selection ask for confirmation", async () => {
     const model = new GridModel({
       sheets: [
