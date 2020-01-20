@@ -44,5 +44,4 @@ describe("core", () => {
 
     expect(model.aggregate).toBe(3);
   });
-
 });

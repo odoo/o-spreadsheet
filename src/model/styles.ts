@@ -23,12 +23,6 @@ export function getStyle(state: GridState): Style {
 
 function setStyleToCell(state: GridState, col: number, row: number, style) {
   const xc = toXC(col, row);
-  if (xc in state.mergeCellMap) {
-    const merge = state.merges[state.mergeCellMap[xc]];
-    if (xc !== merge.topLeft) {
-      return;
-    }
-  }
   const cell = getCell(state, col, row);
   const currentStyle = cell && cell.style ? state.styles[cell.style] : {};
   const nextStyle = Object.assign({}, currentStyle, style);

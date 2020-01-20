@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel, GridState } from "../../src/model/index";
 
 let n = 0;
 
@@ -109,7 +109,7 @@ describe("merges", () => {
     expect(model.state.cells["B2"].content).toBe("new value");
   });
 
-  test("setting a style to a merge actually edits the top left", () => {
+  test("setting a style to a merge edit all the cells", () => {
     const model = new GridModel({
       sheets: [
         {
@@ -128,7 +128,7 @@ describe("merges", () => {
     expect(model.state.cells["B2"].style).not.toBeDefined();
 
     model.setStyle({ fillColor: "#333" });
-    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
+    expect(Object.keys(model.state.cells)).toEqual(["B2", "B3", "C2", "C3"]);
     expect(model.state.cells["B2"].style).toBeDefined();
   });
 
@@ -218,4 +218,25 @@ describe("merges", () => {
     expect(model.state.cells["A3"]).toBeUndefined();
     expect(model.state.cells["A4"].value).toBe(1);
   });
+
+  test("merging => setting background color => unmerging", () => {
+    const model = new GridModel({});
+    model.updateSelection(1, 0);
+
+    expect(model.state.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
+
+    model.merge();
+    model.setStyle({ fillColor: "red" });
+    expect(getStyle(model.state, "A1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model.state, "B1")).toEqual({ fillColor: "red" });
+
+    model.unmerge();
+    expect(getStyle(model.state, "A1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model.state, "B1")).toEqual({ fillColor: "red" });
+  });
 });
+
+function getStyle(state: GridState, xc: string) {
+  const cell = state.cells[xc];
+  return cell && cell.style && state.styles[cell.style];
+}
