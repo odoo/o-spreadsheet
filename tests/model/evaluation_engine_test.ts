@@ -213,7 +213,7 @@ describe("evaluateCells", () => {
           cells: {
             A1: { content: "=WAIT(3)" },
             A2: { content: "=WAIT(1)" },
-            A3: { content: "=A1 + A2"}
+            A3: { content: "=A1 + A2" }
           }
         }
       ]

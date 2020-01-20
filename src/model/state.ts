@@ -48,7 +48,6 @@ export interface GridState {
   activeCol: number;
   activeRow: number;
   activeXc: string;
-  activeSheet: string;
 
   isEditing: boolean;
   currentContent: string;
@@ -59,6 +58,11 @@ export interface GridState {
   isSelectingRange: boolean;
 
   asyncComputations: Promise<any>[];
+
+  // sheets
+  sheets: Sheet[];
+  activeSheet: number; // index
+  activeSheetName: string;
 }
 
 export interface Zone {
@@ -96,7 +100,7 @@ interface HeaderData {
   size?: number;
 }
 
-export interface Sheet {
+export interface SheetData {
   name?: string;
   colNumber: number;
   rowNumber: number;
@@ -104,6 +108,16 @@ export interface Sheet {
   merges?: string[];
   cols?: { [key: number]: HeaderData };
   rows?: { [key: number]: HeaderData };
+}
+
+export interface Sheet {
+  name: string;
+  cells: { [key: string]: Cell };
+  colNumber: number;
+  rowNumber: number;
+  merges: string[];
+  cols: { [key: number]: HeaderData };
+  rows: { [key: number]: HeaderData };
 }
 
 // A border description is a pair [style, ]
@@ -118,9 +132,9 @@ export interface Border {
 }
 
 export interface GridData {
-  sheets: Sheet[];
-  styles: { [key: number]: Style };
-  borders: { [key: number]: Border };
+  sheets?: SheetData[];
+  styles?: { [key: number]: Style };
+  borders?: { [key: number]: Border };
 }
 
 export interface Cell extends CellData {
@@ -225,39 +239,72 @@ export function importData(data: Partial<GridData> = {}): GridState {
     activeCol: 0,
     activeRow: 0,
     activeXc: "A1",
-    activeSheet: "Sheet1",
     isEditing: false,
     currentContent: "",
     clipboard: {},
     nextId,
     highlights: [],
     isSelectingRange: false,
-    asyncComputations: []
+    asyncComputations: [],
+    activeSheet: 0,
+    activeSheetName: "Sheet1",
+    sheets: []
   };
 
-  const sheets = data.sheets || [
-    {
-      name: "Sheet1",
-      colNumber: 10,
-      rowNumber: 10
-    }
-  ];
+  // sheets
+  const sheets = data.sheets || [];
   if (sheets.length === 0) {
     sheets.push({ name: "Sheet1", colNumber: 10, rowNumber: 10 });
   }
+  for (let sheet of sheets) {
+    importSheet(state, sheet);
+  }
 
-  activateSheet(state, sheets[0]);
+  activateSheet(state, 0);
 
   return state;
 }
 
-function activateSheet(state: GridState, sheet: Sheet) {
-  state.activeSheet = sheet.name || "Sheet1";
+function importSheet(state: GridState, data: SheetData): number {
+  const sheet: Sheet = {
+    name: data.name || `Sheet${state.sheets.length + 1}`,
+    cells: {},
+    colNumber: data.colNumber,
+    rowNumber: data.rowNumber,
+    cols: data.cols || {},
+    rows: data.rows || {},
+    merges: data.merges || []
+  };
+  const index = state.sheets.push(sheet) - 1;
+  // cells
+  for (let xc in data.cells) {
+    addCell(state, xc, data.cells[xc], sheet);
+  }
+  return index;
+}
+
+export function addSheet(state: GridState) {
+  const sheet: SheetData = {
+    name: `Sheet${state.sheets.length + 1}`,
+    colNumber: 26,
+    rowNumber: 100
+  };
+
+  const index = importSheet(state, sheet);
+  activateSheet(state, index);
+}
+
+export function activateSheet(state: GridState, index: number) {
+  const sheet = state.sheets[index];
+  state.activeSheet = index;
+  state.activeSheetName = sheet.name;
 
   // setting up rows and columns
   addRowsCols(state, sheet);
 
   // merges
+  state.merges = {};
+  state.mergeCellMap = {};
   if (sheet.merges) {
     for (let m of sheet.merges) {
       addMerge(state, m);
@@ -265,6 +312,7 @@ function activateSheet(state: GridState, sheet: Sheet) {
   }
 
   // cells
+  state.cells = sheet.cells;
   for (let xc in sheet.cells) {
     addCell(state, xc, sheet.cells[xc]);
   }
@@ -274,6 +322,8 @@ function activateSheet(state: GridState, sheet: Sheet) {
 
 function addRowsCols(state: GridState, sheet: Sheet) {
   let current = 0;
+  state.rows = [];
+  state.cols = [];
   const rows = sheet.rows || {};
   const cols = sheet.cols || {};
   for (let i = 0; i < sheet.rowNumber; i++) {

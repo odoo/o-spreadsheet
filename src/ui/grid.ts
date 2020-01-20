@@ -1,8 +1,9 @@
 import * as owl from "@odoo/owl";
 
-import { HEADER_WIDTH, HEADER_HEIGHT, GridModel } from "../model/index";
+import { GridModel } from "../model/index";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
+import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible

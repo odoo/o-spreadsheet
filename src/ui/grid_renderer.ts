@@ -1,18 +1,7 @@
-import {
-  HEADER_WIDTH,
-  HEADER_HEIGHT,
-  GridModel,
-  Col,
-  Row,
-  Cell,
-  Zone,
-  Style,
-  Merge,
-  Border,
-  BorderDescr
-} from "../model/index";
+import { GridModel, Col, Row, Cell, Zone, Style, Merge, Border, BorderDescr } from "../model/index";
 import { toXC, overlap } from "../helpers";
 import { fontSizeMap } from "../fonts";
+import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 // Global variables
 

@@ -4,10 +4,9 @@ import * as clipboard from "./clipboard";
 import * as selection from "./selection";
 import * as merges from "./merges";
 import * as styles from "./styles";
-import { importData, Cell, GridState, GridData, Style } from "./state";
+import { importData, Cell, GridState, GridData, Style, addSheet, activateSheet } from "./state";
 import * as core from "./core";
 
-export { HEADER_HEIGHT, HEADER_WIDTH } from "./core";
 export * from "./state";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
@@ -69,6 +68,10 @@ export class GridModel extends owl.core.EventBus {
   updateVisibleZone = this.makeFn(core.updateVisibleZone);
   getCol = this.makeFn(core.getCol);
   getRow = this.makeFn(core.getRow);
+
+  // sheets
+  addSheet = this.makeMutation(addSheet);
+  activateSheet = this.makeMutation(activateSheet);
 
   // borders
   setBorder = this.makeMutation(setBorder);

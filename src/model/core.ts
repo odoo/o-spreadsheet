@@ -1,11 +1,9 @@
 import { compile } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
-import { Cell, CellData, GridState, Highlight, Zone } from "./state";
+import { Cell, CellData, GridState, Highlight, Zone, Sheet } from "./state";
 import { AsyncFunction } from "../formulas/compiler";
-
-export const HEADER_HEIGHT = 26;
-export const HEADER_WIDTH = 60;
+import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -39,9 +37,9 @@ export function setValue(state: GridState, xc: string, text: string) {
  * Note that this does not reevaluate the values of the cells. This should be
  * done at some point by the caller.
  */
-export function addCell(state: GridState, xc: string, data: CellData) {
+export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sheet) {
   const [col, row] = toCartesian(xc);
-  const currentCell = state.cells[xc];
+  const currentCell = sheet ? sheet.cells[xc] : state.cells[xc];
   const content = data.content || "";
   const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
   const value =
@@ -67,8 +65,12 @@ export function addCell(state: GridState, xc: string, data: CellData) {
       cell.error = true;
     }
   }
-  state.cells[xc] = cell;
-  state.rows[row].cells[col] = cell;
+  if (sheet) {
+    sheet.cells[xc] = cell;
+  } else {
+    state.cells[xc] = cell;
+    state.rows[row].cells[col] = cell;
+  }
 }
 
 /**

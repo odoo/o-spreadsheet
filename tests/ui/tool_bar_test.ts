@@ -1,6 +1,6 @@
 import { GridModel } from "../../src/model/index";
 import { makeTestFixture, nextTick } from "../helpers";
-import { ToolBar } from "../../src/ui/toolbar";
+import { ToolBar } from "../../src/ui/tool_bar";
 import { Component, tags } from "@odoo/owl";
 
 const { xml } = tags;

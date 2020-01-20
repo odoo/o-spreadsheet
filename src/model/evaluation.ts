@@ -73,12 +73,15 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       if (cell.async) {
         cell.value = "#LOADING";
         PENDING.add(cell);
-        const prom = cell.formula(getValue, functions).then(val => {
-          cell.value = val;
-          PENDING.delete(cell);
-          COMPUTED.add(cell);
-          _evaluateCells(state, true);
-        }).catch((e: Error) => handleError(e, cell));
+        const prom = cell
+          .formula(getValue, functions)
+          .then(val => {
+            cell.value = val;
+            PENDING.delete(cell);
+            COMPUTED.add(cell);
+            _evaluateCells(state, true);
+          })
+          .catch((e: Error) => handleError(e, cell));
         state.asyncComputations.push(prom);
       } else {
         cell.value = cell.formula(getValue, functions);
