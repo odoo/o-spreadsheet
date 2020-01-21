@@ -11,6 +11,10 @@ describe("math", () => {
     expect(functions.SUM.compute(1, [2, 3])).toBe(6);
   });
 
+  test("SUM: add a number and a string", () => {
+    expect(functions.SUM.compute([11, "str"])).toBe(11);
+  });
+
   test("RAND: return a number", () => {
     expect(typeof functions.RAND.compute()).toBe("number");
   });

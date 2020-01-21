@@ -1,10 +1,14 @@
 import { FunctionMap } from "./index";
 
+function toNumber(n: any): number {
+  return typeof n === "number" ? n : 0;
+}
+
 export const functions: FunctionMap = {
   SUM: {
     description: "Returns the sum of all values in a range.",
     compute: function(...args) {
-      return args.flat().reduce((a, b) => a + b, 0);
+      return args.flat().reduce((a, b) => a + toNumber(b), 0);
     }
   },
   RAND: {
