@@ -1,4 +1,6 @@
-# o_spreadsheet
+# o-spreadsheet
+
+a.k.a. "Owly Sheet"
 
 Spreadsheet component, written in Owl.
 
@@ -23,17 +25,10 @@ npm run test -- --watch
 
 Most of the code is contained in the following four modules:
 
-- `components`
 - `formulas`
 - `functions`
 - `model`
-
-Among these modules, we have the following dependencies:
-
-- `function` has no dependency
-- `formulas` depends on `functions`
-- `model` depends on `formulas`
-- `components` depends on `model` and `formulas`
+- `ui`
 
 ## Documentation
 

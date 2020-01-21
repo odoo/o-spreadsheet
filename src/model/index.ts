@@ -58,6 +58,7 @@ export class GridModel extends owl.core.EventBus {
   }
 
   // core
+  // ---------------------------------------------------------------------------
   deleteCell = this.makeMutation(core.deleteCell);
   movePosition = this.makeMutation(core.movePosition);
   setColSize = this.makeMutation(core.setColSize);
@@ -68,30 +69,37 @@ export class GridModel extends owl.core.EventBus {
   stopEditing = this.makeMutation(core.stopEditing);
   addHighlights = this.makeMutation(core.addHighlights);
   selectCell = this.makeMutation(core.selectCell);
+  // updateVisibleZone should not be a mutation
   updateVisibleZone = this.makeFn(core.updateVisibleZone);
   getCol = this.makeFn(core.getCol);
   getRow = this.makeFn(core.getRow);
 
   // sheets
+  // ---------------------------------------------------------------------------
   addSheet = this.makeMutation(addSheet);
   activateSheet = this.makeMutation(activateSheet);
 
   // borders
+  // ---------------------------------------------------------------------------
   setBorder = this.makeMutation(setBorder);
 
   // styles
+  // ---------------------------------------------------------------------------
   setStyle = this.makeMutation(styles.setStyle);
 
   // selection
+  // ---------------------------------------------------------------------------
   updateSelection = this.makeMutation(selection.updateSelection);
   moveSelection = this.makeMutation(selection.moveSelection);
   selectColumn = this.makeMutation(selection.selectColumn);
 
   // merges
+  // ---------------------------------------------------------------------------
   merge = this.makeMutation(merges.merge);
   unmerge = this.makeMutation(merges.unmerge);
 
   // clipboard
+  // ---------------------------------------------------------------------------
   cut = this.makeMutation(clipboard.cut);
   copy = this.makeMutation(clipboard.copy);
   paste = this.makeMutation(clipboard.paste);
