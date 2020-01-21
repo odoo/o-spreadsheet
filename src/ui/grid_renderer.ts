@@ -341,10 +341,12 @@ function drawClipBoard() {
   if (clipboard.status !== "visible") {
     return;
   }
-  ctx.setLineDash([10, 5]);
+  ctx.save();
+  ctx.setLineDash([8, 5]);
   for (const zone of clipboard.zones) {
-    drawOutline(zone, "#3266ca", 1.2 * thinLineWidth());
+    drawOutline(zone, "#3266ca", 1.1 * thinLineWidth());
   }
+  ctx.restore();
 }
 
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
