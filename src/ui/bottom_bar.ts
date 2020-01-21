@@ -17,7 +17,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <t t-if="model.aggregate !== null">
       <span class="o-space"/>
-      <span class="o-aggregate">Sum: <t t-esc="model.aggregate"/></span>
+      <span class="o-aggregate" t-transition="fade">Sum: <t t-esc="model.aggregate"/></span>
     </t>
   </div>`;
 
@@ -67,6 +67,13 @@ const CSS = css/* scss */ `
       color: #333;
       border-radius: 3px;
       box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    }
+    .fade-enter-active {
+      transition: opacity 0.5s;
+    }
+
+    .fade-enter {
+      opacity: 0;
     }
   }
 `;
