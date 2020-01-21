@@ -1,9 +1,10 @@
 import { compile } from "../../src/formulas";
+import { functionMap } from "../../src/functions/index";
 
-function evaluate(str: string, vars = {}, fns = {}): any {
+export function evaluate(str: string, vars = {}): any {
   const fn = compile(str);
   const getValue = v => vars[v];
-  return fn(getValue, fns);
+  return fn(getValue, functionMap);
 }
 describe("expression evaluation", () => {
   test("arithmetic expressions", () => {
