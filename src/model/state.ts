@@ -169,7 +169,9 @@ export interface Merge extends Zone {
 }
 
 export interface ClipBoard {
-  zone?: Zone;
+  status: "empty" | "visible" | "invisible";
+  shouldCut?: boolean;
+  zones: Zone[];
   cells?: (Cell | null)[][];
 }
 
@@ -241,7 +243,10 @@ export function importData(data: Partial<GridData> = {}): GridState {
     activeXc: "A1",
     isEditing: false,
     currentContent: "",
-    clipboard: {},
+    clipboard: {
+      status: "empty",
+      zones: []
+    },
     nextId,
     highlights: [],
     isSelectingRange: false,

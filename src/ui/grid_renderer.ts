@@ -336,6 +336,17 @@ function drawActiveZone() {
   drawOutline(zone, "#3266ca");
 }
 
+function drawClipBoard() {
+  const { clipboard } = model.state;
+  if (clipboard.status !== "visible") {
+    return;
+  }
+  ctx.setLineDash([10, 5]);
+  for (const zone of clipboard.zones) {
+    drawOutline(zone, "#3266ca", 1.2 * thinLineWidth());
+  }
+}
+
 export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
   (window as any).gridmodel = _model; // to debug. remove this someday
   viewport = _model.state.viewport;
@@ -361,6 +372,7 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   drawSelectionOutline();
   drawHeader();
   drawHighlights();
+  drawClipBoard();
 
   drawActiveZone();
 }

@@ -74,13 +74,17 @@ export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sh
 }
 
 /**
- * Delete a cell. This method tolerates the case where xc does not map to an
- * existing cell
+ * Delete the content of a cell.
+ *
+ * This method tolerates the case where xc does not map to an existing cell.
+ *
+ * The `force` parameter force deletion, even if there is some style applied to
+ * the cell.
  */
-export function deleteCell(state: GridState, xc: string) {
+export function deleteCell(state: GridState, xc: string, force: boolean = false) {
   const cell = state.cells[xc];
   if (cell) {
-    if ("style" in cell) {
+    if (!force && "style" in cell) {
       addCell(state, xc, { content: "", style: cell.style });
     } else {
       delete state.cells[xc];

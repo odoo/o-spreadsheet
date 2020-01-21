@@ -23,27 +23,28 @@ function cutOrCopy(state: GridState, cut: boolean) {
     for (let j = top; j <= bottom; j++) {
       const cell = getCell(state, i, j);
       vals.push(cell ? Object.assign({}, cell) : null);
-      if (cut) {
-        deleteCell(state, toXC(i, j));
-      }
     }
   }
-  state.clipboard = {
-    zone: { left, right, top, bottom },
-    cells
-  };
+  state.clipboard.status = "visible";
+  state.clipboard.shouldCut = cut;
+  state.clipboard.zones = [{ left, right, top, bottom }];
+  state.clipboard.cells = cells;
 }
 
 export function paste(state: GridState) {
   console.warn("implement pasteSelection for multi selection");
-  const { zone, cells } = state.clipboard;
-  if (!zone || !cells) {
+  const { zones, cells, shouldCut, status } = state.clipboard;
+  if (!zones || !cells) {
     return;
   }
+  if (status === "empty") {
+    return;
+  }
+  state.clipboard.status = shouldCut ? "empty" : "invisible";
   const selection = state.selection.zones[state.selection.zones.length - 1];
   let col = selection.left;
   let row = selection.top;
-  let { left, right, top, bottom } = zone;
+  let { left, right, top, bottom } = zones[0];
   const offsetX = col - left;
   const offsetY = row - top;
   for (let i = 0; i <= right - left; i++) {
@@ -57,6 +58,9 @@ export function paste(state: GridState) {
           content = applyOffset(content, offsetX, offsetY);
         }
         addCell(state, xc, { content, style: originCell.style });
+        if (shouldCut) {
+          deleteCell(state, originCell.xc, true);
+        }
       }
       if (!originCell && targetCell) {
         addCell(state, xc, { content: "" });
