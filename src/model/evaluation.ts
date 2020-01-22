@@ -1,6 +1,10 @@
+import * as decimal from "../decimal";
+import { N } from "../decimal";
 import { functionMap } from "../functions/index";
-import { Cell, GridState } from "./state";
 import { toCartesian, toXC } from "../helpers";
+import { Cell, GridState } from "./state";
+
+export const EVAL_CONTEXT = Object.assign({}, decimal);
 
 /**
  * For all cells that are being currently computed (asynchronously).
@@ -73,8 +77,8 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       if (cell.async) {
         cell.value = "#LOADING";
         PENDING.add(cell);
-        const prom = cell
-          .formula(getValue, functions)
+        const prom = cell.formula
+          .call(EVAL_CONTEXT, getValue, functions)
           .then(val => {
             cell.value = val;
             PENDING.delete(cell);
@@ -84,9 +88,8 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           .catch((e: Error) => handleError(e, cell));
         state.asyncComputations.push(prom);
       } else {
-        cell.value = cell.formula(getValue, functions);
+        cell.value = cell.formula.call(EVAL_CONTEXT, getValue, functions);
       }
-      //cell.value = +cell.formula(getValue, functions).toFixed(4);
       cell.error = false;
     } catch (e) {
       handleError(e, cell);
@@ -97,7 +100,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   function getValue(xc: string): any {
     const cell = cells[xc];
     if (!cell || cell.content === "") {
-      return 0;
+      return new N(0, 0);
     }
     computeValue(xc, cell);
     if (cell.error) {

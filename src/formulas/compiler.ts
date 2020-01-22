@@ -5,6 +5,18 @@ import { parse, AST } from "./parser";
 // -----------------------------------------------------------------------------
 export const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
 
+const operatorMapping = {
+  "+": "add",
+  "*": "mul",
+  "-": "sub",
+  "=": "eq",
+  ">": "gt",
+  ">=": "gte",
+  "<": "lt",
+  "<=": "lte",
+  "/": "div"
+};
+
 export function compile(str: string): Function {
   const ast = parse(str);
   let nextId = 1;
@@ -18,8 +30,9 @@ export function compile(str: string): Function {
     }
     switch (ast.type) {
       case "BOOLEAN":
-      case "NUMBER":
         return ast.value;
+      case "NUMBER":
+        return "this.fromNumber(" + ast.value + ")";
       case "STRING":
         return `'${ast.value}'`;
       case "VARIABLE":
@@ -40,7 +53,8 @@ export function compile(str: string): Function {
         if (ast.value === ":") {
           code.push(`let _${id} = fns.range('${ast.left.value}', '${ast.right.value}');`);
         } else {
-          code.push(`let _${id} = ${left} ${ast.value} ${right};`);
+          const fn = operatorMapping[ast.value];
+          code.push(`let _${id} = this.${fn}(${left}, ${right});`);
         }
         break;
     }

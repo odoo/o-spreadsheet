@@ -1,5 +1,6 @@
 import { GridModel } from "../../src/model/index";
 import { patchWaitFunction, nextTick } from "../helpers";
+import { fromNumber } from "../../src/decimal";
 
 const patch = patchWaitFunction();
 
@@ -25,7 +26,7 @@ describe("evaluateCells", () => {
       ]
     };
     const grid = new GridModel(data);
-    expect(grid.state.cells["C1"].value).toEqual(3);
+    expect(grid.state.cells["C1"].value).toEqual(fromNumber(3));
   });
 
   test("With empty content", () => {
@@ -43,7 +44,7 @@ describe("evaluateCells", () => {
       ]
     };
     const grid = new GridModel(data);
-    expect(grid.state.cells["C1"].value).toEqual(1);
+    expect(grid.state.cells["C1"].value).toEqual(fromNumber(1));
   });
 
   test("With empty cell", () => {
@@ -60,7 +61,7 @@ describe("evaluateCells", () => {
       ]
     };
     const grid = new GridModel(data);
-    expect(grid.state.cells["C1"].value).toEqual(1);
+    expect(grid.state.cells["C1"].value).toEqual(fromNumber(1));
   });
 
   test("handling some errors", () => {
@@ -110,8 +111,8 @@ describe("evaluateCells", () => {
     patch.resolveAll();
     expect(n).toBe(0);
     await nextTick();
-    expect(model.state.cells["A2"].value).toEqual(3);
-    expect(model.state.cells["A3"].value).toEqual(2);
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(3));
+    expect(model.state.cells["A3"].value).toEqual(fromNumber(2));
     expect(n).toBe(2);
   });
 
@@ -138,7 +139,7 @@ describe("evaluateCells", () => {
     patch.resolveAll();
     expect(n).toBe(1);
     await nextTick();
-    expect(model.state.cells["A2"].value).toEqual(33);
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(33));
     expect(n).toBe(2);
   });
 
@@ -172,7 +173,7 @@ describe("evaluateCells", () => {
     await nextTick();
     expect(n).toBe(1);
 
-    expect(model.state.cells["A2"].value).toEqual(3);
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(3));
   });
 
   test("async formula, and value depending on it", async () => {
@@ -199,8 +200,8 @@ describe("evaluateCells", () => {
     patch.resolveAll();
     await nextTick();
     expect(n).toBe(1);
-    expect(model.state.cells["A1"].value).toEqual(3);
-    expect(model.state.cells["A2"].value).toEqual(4);
+    expect(model.state.cells["A1"].value).toEqual(fromNumber(3));
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(4));
     expect(patch.calls.length).toBe(0);
   });
 
@@ -229,9 +230,9 @@ describe("evaluateCells", () => {
     patch.resolveAll();
     await nextTick();
     expect(n).toBe(2);
-    expect(model.state.cells["A1"].value).toEqual(3);
-    expect(model.state.cells["A2"].value).toEqual(1);
-    expect(model.state.cells["A3"].value).toEqual(4);
+    expect(model.state.cells["A1"].value).toEqual(fromNumber(3));
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(1));
+    expect(model.state.cells["A3"].value).toEqual(fromNumber(4));
     expect(patch.calls.length).toBe(0);
   });
 
@@ -250,13 +251,13 @@ describe("evaluateCells", () => {
       ]
     };
     const model = new GridModel(data);
-    expect(model.state.cells["A1"].value).toEqual(1);
+    expect(model.state.cells["A1"].value).toEqual(fromNumber(1));
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
 
     patch.resolveAll();
     await nextTick();
-    expect(model.state.cells["A2"].value).toEqual(4);
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(4));
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
     // We need two resolveAll, one for Wait(A2) and the second for (Wait(3 + 4))
     patch.resolveAll();
@@ -264,7 +265,7 @@ describe("evaluateCells", () => {
     patch.resolveAll();
     await nextTick();
 
-    expect(model.state.cells["A2"].value).toEqual(4);
-    expect(model.state.cells["A3"].value).toEqual(9);
+    expect(model.state.cells["A2"].value).toEqual(fromNumber(4));
+    expect(model.state.cells["A3"].value).toEqual(fromNumber(9));
   });
 });

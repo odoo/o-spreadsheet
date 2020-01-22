@@ -4,6 +4,7 @@ import { evaluateCells } from "./evaluation";
 import { Cell, CellData, GridState, Highlight, Zone, Sheet } from "./state";
 import { AsyncFunction } from "../formulas/compiler";
 import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import { fromString, add, N } from "../decimal";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -42,8 +43,7 @@ export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sh
   const currentCell = sheet ? sheet.cells[xc] : state.cells[xc];
   const content = data.content || "";
   const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
-  const value =
-    type === "text" ? content : type === "number" ? +parseFloat(content).toFixed(4) : null;
+  const value = type === "text" ? content : type === "number" ? fromString(content) : null;
   const cell: Cell = { col, row, xc, content, value, type };
   const style = data.style || (currentCell && currentCell.style);
   const border = data.border;
@@ -302,21 +302,19 @@ export function selectCell(state: GridState, col: number, row: number, newRange:
 }
 
 export function computeAggregate(state: GridState): number | null {
-  let aggregate = 0;
+  let aggregate = new N(0, 0);
   let n = 0;
   for (let zone of state.selection.zones) {
     for (let row = zone.top; row <= zone.bottom; row++) {
       const r = state.rows[row];
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = r.cells[col];
-        if (cell && cell.type !== "text") {
+        if (cell && cell.value instanceof N) {
           n++;
-          if (!cell.error) {
-            aggregate += cell.value;
-          }
+          aggregate = add(aggregate, cell.value);
         }
       }
     }
   }
-  return n < 2 ? null : aggregate;
+  return n < 2 ? null : aggregate.toNumber();
 }

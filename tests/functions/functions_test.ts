@@ -1,5 +1,5 @@
 import { addFunction } from "../../src/functions/index";
-import { evaluate } from "../formulas/expressions_test";
+import { evaluate } from "../helpers";
 
 describe("addFunction", () => {
   test("can add a function, once, but not twice", () => {

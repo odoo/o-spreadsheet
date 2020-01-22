@@ -33,6 +33,7 @@ export interface GridState {
   // the row and col headers)
   width: number;
   height: number;
+  // actual size of the visible grid, in pixel
   clientWidth: number;
 
   // offset between the visible zone and the full zone (take into account

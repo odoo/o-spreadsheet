@@ -31,17 +31,24 @@ describe("core", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: {
-            A2: { content: "3" },
-            A3: { content: "=A3" }
+            A1: { content: "2" },
+            A2: { content: "=A2" },
+            A3: { content: "3" }
           }
         }
       ]
     });
 
-    model.selectCell(0, 1);
+    // select A1
+    model.selectCell(0, 0);
     expect(model.aggregate).toBe(null);
-    model.updateSelection(0, 2);
 
-    expect(model.aggregate).toBe(3);
+    // select A1:A2
+    model.updateSelection(0, 1);
+    expect(model.aggregate).toBe(null);
+
+    // select A1:A3
+    model.updateSelection(0, 2);
+    expect(model.aggregate).toBe(5);
   });
 });

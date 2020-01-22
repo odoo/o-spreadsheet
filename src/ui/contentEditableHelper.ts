@@ -22,8 +22,6 @@ export class ContentEditableHelper {
     } else {
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
-      console.log("select range start", startNode.node.textContent, startNode.offset);
-      console.log("select range end", endNode.node.textContent, endNode.offset);
       range.setStart(startNode.node, startNode.offset);
       range.setEnd(endNode.node, endNode.offset);
     }

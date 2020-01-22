@@ -202,7 +202,6 @@ export class Composer extends Component<any, any> {
 
   onBlur(ev: FocusEvent) {
     const selection = this.contentHelper.getCurrentSelection();
-    console.log("getCurrentSelection: ", selection);
     this.selectionStart = selection.start;
     this.selectionEnd = selection.end;
   }

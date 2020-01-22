@@ -1,13 +1,51 @@
 import { Component, tags } from "@odoo/owl";
-import { Grid } from "../src/ui/grid";
+import { fromNumber } from "../src/decimal";
+import { compile } from "../src/formulas";
+import { EVAL_CONTEXT } from "../src/model/evaluation";
 import { functionMap } from "../src/functions/index";
 import { GridModel } from "../src/model";
+import { Grid } from "../src/ui/grid";
+import { toCartesian, toXC } from "../src/helpers";
 
 const { xml } = tags;
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+
+/**
+ * Evaluate a formula (as a string).
+ *
+ * This method mocks the evaluation process to make it easier to test the
+ * functions/compiler/parser/... This method does not instantiate a GridModel
+ * nor evaluate other cells. It only evaluates a single formula, and give it
+ * values from its vars parameter, if needed.
+ */
+export function evaluate(str: string, vars = {}): any {
+  const fn = compile(str);
+  function getValue(v) {
+    let value = vars[v];
+    if (typeof value === "number") {
+      value = fromNumber(value);
+    }
+    return value;
+  }
+
+  function range(v1: string, v2: string): any[] {
+    const [c1, r1] = toCartesian(v1);
+    const [c2, r2] = toCartesian(v2);
+    const result: any[] = [];
+    for (let c = c1; c <= c2; c++) {
+      for (let r = r1; r <= r2; r++) {
+        result.push(getValue(toXC(c, r)));
+      }
+    }
+    return result;
+  }
+  const functions = Object.assign({ range }, functionMap);
+
+  return fn.call(EVAL_CONTEXT, getValue, functions);
+}
 
 export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
