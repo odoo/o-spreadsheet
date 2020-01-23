@@ -29,7 +29,7 @@ interface ASTVariable extends ASTBase {
 }
 
 interface ASTOperation extends ASTBase {
-  type: "OPERATION";
+  type: "BIN_OPERATION";
   value: any;
   left: AST;
   right: AST;
@@ -47,6 +47,11 @@ interface ASTAsyncFuncall extends ASTBase {
   args: AST[];
 }
 
+interface ASTUnknown extends ASTBase {
+  type: "UNKNOWN";
+  value: string;
+}
+
 export type AST =
   | ASTOperation
   | ASTFuncall
@@ -54,7 +59,8 @@ export type AST =
   | ASTNumber
   | ASTBoolean
   | ASTString
-  | ASTVariable;
+  | ASTVariable
+  | ASTUnknown;
 
 function bindingPower(token: Token): number {
   switch (token.type) {
@@ -73,7 +79,8 @@ function bindingPower(token: Token): number {
   throw new Error("?");
 }
 
-const simpleTokens: TokenType[] = ["NUMBER", "VARIABLE", "STRING", "BOOLEAN"];
+const simpleTokens: TokenType[] = ["NUMBER", "STRING"];
+const cellReference = new RegExp(/[A-Z]+[0-9]+/, "i");
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
   if (current.type === "DEBUGGER") {
@@ -83,6 +90,17 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
   }
   if (simpleTokens.includes(current.type)) {
     return { type: current.type, value: current.value } as AST;
+  }
+  if (current.type === "VARIABLE") {
+    if (cellReference.test(current.value)) {
+      return { type: current.type, value: current.value.toUpperCase() } as AST;
+    } else {
+      if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
+        return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
+      } else {
+        return { type: "UNKNOWN", value: current.value } as AST;
+      }
+    }
   }
   if (current.type === "LEFT_PAREN") {
     const result = parseExpression(tokens, 5);
@@ -94,7 +112,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
   }
   if (current.type === "OPERATOR" && current.value === "-") {
     return {
-      type: "OPERATION",
+      type: "BIN_OPERATION",
       value: current.value,
       left: { type: "NUMBER", value: 0 },
       right: parseExpression(tokens, 15)
@@ -127,7 +145,7 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
     const bp = bindingPower(current);
     const right = parseExpression(tokens, bp);
     return {
-      type: "OPERATION",
+      type: "BIN_OPERATION",
       value: current.value,
       left,
       right

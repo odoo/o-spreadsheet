@@ -181,8 +181,8 @@ describe("tokenizer", () => {
         start: 0,
         end: 4,
         length: 4,
-        type: "BOOLEAN",
-        value: true
+        type: "VARIABLE",
+        value: "TRUE"
       }
     ]);
     expect(tokenize("false")).toEqual([
@@ -190,8 +190,8 @@ describe("tokenizer", () => {
         start: 0,
         end: 5,
         length: 5,
-        type: "BOOLEAN",
-        value: false
+        type: "VARIABLE",
+        value: "FALSE"
       }
     ]);
     expect(tokenize("=AND(true,false)")).toEqual([
@@ -220,8 +220,8 @@ describe("tokenizer", () => {
         start: 5,
         end: 9,
         length: 4,
-        type: "BOOLEAN",
-        value: true
+        type: "VARIABLE",
+        value: "TRUE"
       },
       {
         start: 9,
@@ -234,8 +234,8 @@ describe("tokenizer", () => {
         start: 10,
         end: 15,
         length: 5,
-        type: "BOOLEAN",
-        value: false
+        type: "VARIABLE",
+        value: "FALSE"
       },
       {
         start: 15,
@@ -243,6 +243,22 @@ describe("tokenizer", () => {
         length: 1,
         type: "RIGHT_PAREN",
         value: ")"
+      }
+    ]);
+    expect(tokenize("=trueee")).toEqual([
+      {
+        start: 0,
+        end: 1,
+        length: 1,
+        type: "OPERATOR",
+        value: "="
+      },
+      {
+        start: 1,
+        end: 7,
+        length: 6,
+        type: "VARIABLE",
+        value: "TRUEEE"
       }
     ]);
   });

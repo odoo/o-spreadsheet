@@ -32,3 +32,81 @@ describe("parser", () => {
     });
   });
 });
+
+describe("knows what's a variable and what's not", () => {
+  test("lowercase cell reference", () => {
+    expect(parse("=a1")).toEqual({
+      type: "VARIABLE",
+      value: "A1"
+    });
+  });
+  test("single cell reference", () => {
+    expect(parse("=AA1")).toEqual({
+      type: "VARIABLE",
+      value: "AA1"
+    });
+  });
+  test("large single cell reference", () => {
+    expect(parse("=AA100")).toEqual({
+      type: "VARIABLE",
+      value: "AA100"
+    });
+  });
+  test.skip("fixed cell", () => {
+    expect(parse("=$a$1")).toEqual({
+      type: "VARIABLE",
+      value: "A1"
+    });
+  });
+  test.skip("fixed row", () => {
+    expect(parse("=a$1")).toEqual({
+      type: "VARIABLE",
+      value: "A1"
+    });
+  });
+  test.skip("fixed column", () => {
+    expect(parse("=$a1")).toEqual({
+      type: "VARIABLE",
+      value: "A1"
+    });
+  });
+});
+
+describe("parsing ranges", () => {
+  test.skip("column", () => {
+    expect(parse("=A:A")).toEqual({
+      type: "BIN_OPERATION",
+      value: ":",
+      left: {
+        type: "VARIABLE",
+        value: "A"
+      },
+      right: {
+        type: "VARIABLE",
+        value: "A"
+      }
+    });
+  });
+  test.skip("row", () => {
+    expect(parse("=1:1")).toEqual({
+      type: "BIN_OPERATION",
+      value: ":",
+      left: {
+        type: "VARIABLE",
+        value: "1"
+      },
+      right: {
+        type: "VARIABLE",
+        value: "1"
+      }
+    });
+  });
+});
+describe("parsing other stuff", () => {
+  test("arbitrary text", () => {
+    expect(parse("=undefined")).toEqual({
+      type: "UNKNOWN",
+      value: "UNDEFINED"
+    });
+  });
+});
