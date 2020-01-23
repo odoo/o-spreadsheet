@@ -1,7 +1,7 @@
 import { GridModel } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { colors } from "../../src/ui/composer";
-jest.mock("../../src/ui/contentEditableHelper");
+jest.mock("../../src/ui/contentEditableHelper", () => require("./__mocks__/contentEditableHelper"));
 
 let fixture: HTMLElement;
 beforeEach(() => {
