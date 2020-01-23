@@ -34,7 +34,7 @@ export function tokenize(str: string): Token[] {
   while (chars.length) {
     j++;
     if (j > 100) {
-      throw new Error("fuck");
+      throw new Error("Wow that's big... (that's what she said)");
     }
     let token =
       tokenizeDebugger(chars) ||
@@ -43,10 +43,10 @@ export function tokenize(str: string): Token[] {
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
       tokenizeString(chars) ||
-      tokenizeBoolean(chars) ||
+      // tokenizeBoolean(chars) ||
       tokenizeSymbol(chars);
     if (!token) {
-      throw new Error("Tokenizer error");
+      throw new Error(`Tokenizer error reading [${chars.join("")}] at position ${i}`);
     }
     token.start = i;
     token.end = i + token.length;
@@ -113,7 +113,7 @@ function tokenizeNumber(chars: string[]): Token | null {
   return null;
 }
 
-function tokenizeBoolean(chars: string[]): Token | null {
+/*function tokenizeBoolean(chars: string[]): Token | null {
   if (["T", "F"].includes(chars[0].toUpperCase())) {
     for (let value of ["TRUE", "FALSE"]) {
       if (
@@ -134,7 +134,7 @@ function tokenizeBoolean(chars: string[]): Token | null {
     }
   }
   return null;
-}
+}*/
 
 function tokenizeString(chars: string[]): Token | null {
   const quotes = ["'", '"'];

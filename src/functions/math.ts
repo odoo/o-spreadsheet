@@ -1,5 +1,17 @@
 import { FunctionMap } from "./index";
 import { add, N, fromNumber, lt, zero } from "../decimal";
+import { Arg } from "./function_validation";
+
+let anyNumberArgs: Arg[] = [
+  { name: "number", description: "", type: ["NUMBER", "CELL", "RANGE"] },
+  {
+    name: "numbers",
+    description: "",
+    type: ["NUMBER", "CELL", "RANGE"],
+    optional: true,
+    repeating: true
+  }
+];
 
 export const functions: FunctionMap = {
   SUM: {
@@ -8,13 +20,17 @@ export const functions: FunctionMap = {
       return args.flat().reduce(function(a, b) {
         return b instanceof N ? add(a, b) : a;
       }, zero);
-    }
+    },
+    args: anyNumberArgs,
+    returns: ["NUMBER"]
   },
   RAND: {
     description: "Returns a random number between 0 and 1",
     compute: function() {
       return fromNumber(Math.random());
-    }
+    },
+    args: [],
+    returns: ["NUMBER"]
   },
   MIN: {
     description: "Returns the minimum value.",
@@ -27,7 +43,9 @@ export const functions: FunctionMap = {
         }
       }
       return min;
-    }
+    },
+    args: anyNumberArgs,
+    returns: ["NUMBER"]
   },
   MAX: {
     description: "Returns the maximum value.",
@@ -40,6 +58,8 @@ export const functions: FunctionMap = {
         }
       }
       return max;
-    }
+    },
+    args: anyNumberArgs,
+    returns: ["NUMBER"]
   }
 };

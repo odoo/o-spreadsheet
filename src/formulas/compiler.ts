@@ -46,7 +46,7 @@ export function compile(str: string): Function {
         isAsync = true;
         code.push(`let _${id} = await fns['${ast.value}'](${args})`);
         break;
-      case "OPERATION":
+      case "BIN_OPERATION":
         id = nextId++;
         left = compileAST(ast.left);
         right = compileAST(ast.right);

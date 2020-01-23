@@ -12,7 +12,8 @@ describe("addFunction", () => {
     expect(error).toBeDefined();
     addFunction("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: arg => 2 * arg
+      compute: arg => 2 * arg,
+      args: []
     });
     expect(evaluate("=DOUBLEDOUBLE(3)")).toBe(6);
 
@@ -20,7 +21,8 @@ describe("addFunction", () => {
     try {
       addFunction("DOUBLEDOUBLE", {
         description: "Double the first argument",
-        compute: arg => 2 * arg
+        compute: arg => 2 * arg,
+        args: []
       });
     } catch (e) {
       error = e;
