@@ -240,6 +240,10 @@ export class Composer extends Component<any, any> {
 
             break;
 
+          case "STRING":
+            document.execCommand("insertText", false, `\"${token.value}\"`);
+            break;
+
           default:
             this.contentHelper.insertText(token.value);
             break;
