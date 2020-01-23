@@ -1,5 +1,8 @@
 import { GridModel } from "../../src/model";
 import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
+//@ts-ignore
+import { ContentEditableHelper } from "../../src/ui/contentEditableHelper";
+jest.mock("../../src/ui/contentEditableHelper");
 
 let fixture: HTMLElement;
 

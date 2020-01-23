@@ -1,8 +1,9 @@
 import * as owl from "@odoo/owl";
-import { GridModel, Zone } from "../model/index";
+import { GridModel, Zone } from "../model";
 import { tokenize, Token } from "../formulas/index";
 import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
+import { ContentEditableHelper } from "./contentEditableHelper";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -33,7 +34,8 @@ const TEMPLATE = xml/* xml */ `
       t-on-input="onInput"
       t-on-keydown="onKeydown"
       t-on-blur="onBlur" 
-      t-on-click="onClick"/>
+      t-on-click="onClick"
+      />
   `;
 
 const CSS = css/* scss */ `
@@ -62,10 +64,12 @@ export class Composer extends Component<any, any> {
   // a composer edits a single cell. After that, it is done and should not
   // modify the model anymore.
   isDone: boolean = false;
+  contentHelper: ContentEditableHelper;
 
   constructor() {
     super(...arguments);
     const model = this.model;
+    this.contentHelper = new ContentEditableHelper(this.el);
     if (model.state.activeXc in model.state.mergeCellMap) {
       this.zone = model.state.merges[model.state.mergeCellMap[model.state.activeXc]];
     } else {
@@ -75,20 +79,22 @@ export class Composer extends Component<any, any> {
   }
 
   mounted() {
-    const el = this.el as HTMLInputElement;
+    const el = this.el! as HTMLElement;
+    this.contentHelper.updateEl(el);
+
     // @ts-ignore
     //TODO VSC: remove this debug code
     window.composer = el;
     const { cols } = this.model.state;
 
-    const range = document.createRange(); //Create a range (a range is a like the selection but invisible)
-    range.selectNodeContents(el); //Select the entire contents of the element with the range
-    range.collapse(false); //collapse the range to the end point. false means collapse to end rather than the start
-    const sel = window.getSelection()!; //get the selection object (allows you to change selection)
-    sel.removeAllRanges(); //remove any selections already made
-    sel.addRange(range); //make
-
     this.processContent();
+
+    if (this.model.state.currentContent) {
+      this.contentHelper.selectRange(
+        this.model.state.currentContent.length,
+        this.model.state.currentContent.length
+      );
+    }
 
     const width = cols[this.zone.right].right - cols[this.zone.left].left;
     el.style.width = (width + 1.5) as any;
@@ -103,34 +109,19 @@ export class Composer extends Component<any, any> {
   }
 
   addTextFromSelection() {
-    let selection = window.getSelection()!;
-    selection.removeAllRanges();
-    let range = document.createRange();
-    range.setStart(this.el!.childNodes[0] as Node, this.selectionStart);
-    range.setEnd(this.el!.childNodes[0] as Node, this.selectionEnd);
-    selection.addRange(range);
+    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
     let newValue = zoneToXC(this.model.state.selection.zones[0]);
-    document.execCommand("insertText", false, newValue);
-
-    selection.removeAllRanges();
-    let range1 = document.createRange();
-    range1.setStart(this.el!.childNodes[0] as Node, this.selectionStart);
-    range1.setEnd(this.el!.childNodes[0] as Node, this.selectionStart + newValue.length);
-    selection.addRange(range1);
+    this.contentHelper.insertText(newValue);
+    this.contentHelper.selectRange(this.selectionStart, this.selectionStart + newValue.length);
+    this.selectionEnd = this.selectionStart + newValue.length - 1;
   }
 
-  findTokenUnderCursor(): Token | void {
+  findTokenAtPosition(start: number, end: number): Token | void {
     const el = this.el as HTMLElement;
     let value = el.innerText;
     if (value.startsWith("=")) {
       const tokens = tokenize(value);
-      let selection = window.getSelection();
-
-      if (selection) {
-        const start = selection.anchorOffset;
-        const end = selection.focusOffset;
-        return tokens.find(t => t.start <= start! && t.end >= end!);
-      }
+      return tokens.find(t => t.start <= start! && t.end >= end!);
     }
   }
 
@@ -199,73 +190,80 @@ export class Composer extends Component<any, any> {
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
     this.model.state.isSelectingRange = false;
-    let selection = window.getSelection()!;
-    const start = selection.anchorOffset;
-    const end = selection.focusOffset;
-    if (start === end) {
-      let found = this.findTokenUnderCursor();
-      if (found && found.type === "VARIABLE") {
-        selection.removeAllRanges();
-        let range = document.createRange();
-        range.setStart(this.el!.childNodes[0] as Node, found.start);
-        range.setEnd(this.el!.childNodes[0] as Node, found.end);
-        selection.addRange(range);
-        this.model.state.isSelectingRange = true;
-      }
-    }
+    // const selection = this.contentHelper.getCurrentSelection();
+    // if (selection.start === selection.end) {
+    //   let found = this.findTokenAtPosition(selection.start, selection.end);
+    //   if (found && found.type === "VARIABLE") {
+    //     this.contentHelper.selectRange(found.start, found.end);
+    //     this.model.state.isSelectingRange = true;
+    //   }
+    // }
   }
 
   onBlur(ev: FocusEvent) {
-    let selection = window.getSelection()!;
-    this.selectionStart = selection.anchorOffset;
-    this.selectionEnd = selection.focusOffset;
+    const selection = this.contentHelper.getCurrentSelection();
+    console.log("getCurrentSelection: ", selection);
+    this.selectionStart = selection.start;
+    this.selectionEnd = selection.end;
   }
 
   processContent() {
-    const el = this.el as HTMLElement;
     let value = this.model.state.currentContent;
     if (value.startsWith("=")) {
       let lastUsedColorIndex = 0;
       const tokens = tokenize(value);
       const rangesUsed = {};
-      for (let token of tokens) {
+      for (let i = 0; i < tokens.length; i++) {
+        let token = tokens[i];
+
         // there is no selection
         switch (token.type) {
           case "FUNCTION":
-            document.execCommand("insertText", false, token.value);
+            this.contentHelper.insertText(token.value);
             break;
           case "VARIABLE":
-            let value = token.value;
+            let value = token.value.trim();
+            if (
+              tokens.length >= i + 2 && // there is at least an operator and another token
+              tokens[i + 1].type === "OPERATOR" &&
+              tokens[i + 1].value === ":" &&
+              tokens[i + 2].type === "VARIABLE"
+            ) {
+              value += ":" + tokens[i + 2].value;
+              i += 2;
+            }
 
             if (!rangesUsed[value]) {
               rangesUsed[value] = colors[lastUsedColorIndex];
               lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
             }
-            document.execCommand("foreColor", false, rangesUsed[value]);
-            document.execCommand("insertText", false, token.value);
-            document.execCommand("foreColor", false, "#000");
+            this.contentHelper.insertText(value, rangesUsed[value]);
+
             break;
 
           default:
-            document.execCommand("insertText", false, token.value);
+            this.contentHelper.insertText(token.value);
             break;
         }
       }
 
-      let highlights = Object.keys(rangesUsed).map(a1c1 => {
-        const ranges = a1c1.split(":");
+      let highlights = Object.keys(rangesUsed).map(r1c1 => {
+        const ranges = r1c1.split(":");
         let top, bottom, left, right;
-        if (ranges.length === 1) {
-          let c = toCartesian(a1c1);
-          left = right = c[0];
-          top = bottom = c[1];
+        let c = toCartesian(ranges[0]);
+        left = right = c[0];
+        top = bottom = c[1];
+        if (ranges.length === 2) {
+          let d = toCartesian(ranges[1]);
+          right = d[0];
+          bottom = d[1];
         }
-        return { zone: { top, bottom, left, right }, color: rangesUsed[a1c1] };
+        return { zone: { top, bottom, left, right }, color: rangesUsed[r1c1] };
       });
 
       this.model.addHighlights(highlights);
     } else {
-      el.innerHTML = this.model.state.currentContent;
+      this.contentHelper.insertText(this.model.state.currentContent);
     }
   }
 }

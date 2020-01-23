@@ -1,9 +1,9 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { colors } from "../../src/ui/composer";
+jest.mock("../../src/ui/contentEditableHelper");
 
 let fixture: HTMLElement;
-
 beforeEach(() => {
   fixture = makeTestFixture();
 });
@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 describe("composer", () => {
-  test("starting the edition of the cell, the composer should have the focus", async () => {
+  test("starting the edition with enter, the composer should have the focus", async () => {
     const model = new GridModel({
       sheets: [
         {
@@ -35,6 +35,48 @@ describe("composer", () => {
     expect(model.state.activeRow).toBe(0);
     expect(model.state.activeCol).toBe(0);
     expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
+  });
+  test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.state.activeXc).toBe("A1");
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "=" }));
+    await nextTick();
+    await nextTick();
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.innerText).toBe("=");
+  });
+  test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.state.activeXc).toBe("A1");
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "b" }));
+    await nextTick();
+    await nextTick();
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.innerText).toBe("b");
   });
 });
 
@@ -121,5 +163,31 @@ describe("composer highlights color", () => {
     await nextTick();
     expect(model.state.highlights.length).toBe(1);
     expect(model.state.highlights[0].color).toBe(colors[0]);
+  });
+
+  test("highlight range", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: { content: "=sum(a1:a10)" }
+          }
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    await nextTick();
+    expect(model.state.highlights.length).toBe(1);
+    expect(model.state.highlights[0].color).toBe(colors[0]);
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.innerText).toBe("=SUM(A1:A10)");
   });
 });
