@@ -226,6 +226,14 @@ export function addHighlights(state: GridState, highlights: Highlight[]) {
 export function cancelEdition(state: GridState) {
   state.isEditing = false;
   state.isSelectingRange = false;
+  state.selection.zones = [
+    {
+      top: state.activeRow,
+      bottom: state.activeRow,
+      left: state.activeCol,
+      right: state.activeCol
+    }
+  ];
   state.highlights = [];
 }
 

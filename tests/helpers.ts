@@ -1,7 +1,7 @@
 import { Component, tags } from "@odoo/owl";
 import { Grid } from "../src/ui/grid";
-import { GridModel } from "../src/model/index";
 import { functionMap } from "../src/functions/index";
+import { GridModel } from "../src/model";
 
 const { xml } = tags;
 
@@ -92,44 +92,6 @@ HTMLCanvasElement.prototype.getContext = jest.fn(function() {
     restore() {}
   };
 }) as any;
-
-if (!HTMLDivElement.prototype.hasOwnProperty("innerText")) {
-  Object.defineProperty(HTMLDivElement.prototype, "innerText", {
-    get() {
-      return this.textContent;
-    }
-  });
-}
-let el;
-window.document.createRange = () =>
-  ({
-    setStart: () => {},
-    setEnd: () => {},
-    commonAncestorContainer: {
-      nodeName: "BODY",
-      ownerDocument: document
-    },
-    selectNodeContents: _el => {
-      el = _el;
-    },
-    collapse: () => {}
-  } as any);
-window.document.execCommand = (
-  commandId: string,
-  showUI?: boolean | undefined,
-  value?: string | undefined
-) => {
-  return true;
-};
-window.getSelection = (() => {
-  return {
-    removeAllRanges: () => {},
-    addRange: () => {
-      el.focus();
-    }
-  };
-}) as any;
-
 interface Deferred extends Promise<any> {
   resolve(val?: any): void;
   reject(): void;
