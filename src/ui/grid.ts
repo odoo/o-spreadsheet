@@ -4,6 +4,7 @@ import { GridModel } from "../model/index";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import { Resizer } from "./resizer";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -18,104 +19,7 @@ import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef, useState, useExternalListener } = owl.hooks;
-
-// -----------------------------------------------------------------------------
-// Resizer component
-// -----------------------------------------------------------------------------
-class Resizer extends Component<any, any> {
-  static template = xml/* xml */ `
-    <div class="o-resizer horizontal" t-on-mousemove="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="selectCol">
-      <t t-if="state.active">
-        <div class="o-handle" t-att-class="{dragging:state.dragging}" t-on-mousedown="onMouseDown"
-        t-attf-style="left:{{state.left}}px;"/>
-      </t>
-    </div>`;
-
-  static style = css/* scss */ `
-    .o-resizer {
-      position: absolute;
-      &.horizontal {
-        top: 0;
-        left: ${HEADER_WIDTH}px;
-        right: 0;
-        height: ${HEADER_HEIGHT}px;
-      }
-
-      .o-handle {
-        position: absolute;
-        height: ${HEADER_HEIGHT}px;
-        width: 4px;
-        cursor: ew-resize;
-        background-color: #3266ca;
-        &.dragging {
-          margin-right: -2px;
-          width: 1px;
-          height: 10000px;
-        }
-      }
-    }
-  `;
-
-  model: GridModel = this.props.model;
-  state = useState({
-    active: false,
-    left: 0,
-    dragging: false,
-    activeCol: 0,
-    delta: 0
-  });
-  onMouseMove(ev: MouseEvent) {
-    if (this.state.dragging) {
-      return;
-    }
-    const x = ev.clientX;
-    const c = this.model.getCol(x);
-    if (c < 0) {
-      return;
-    }
-    const col = this.model.state.cols[c];
-    const offsetX = this.model.state.offsetX;
-    if (x - (col.left - offsetX) < 15 && c !== this.model.state.viewport.left) {
-      this.state.active = true;
-      this.state.left = col.left - offsetX - HEADER_WIDTH - 2;
-      this.state.activeCol = c - 1;
-    } else if (col.right - offsetX - x < 15) {
-      this.state.active = true;
-      this.state.left = col.right - offsetX - HEADER_WIDTH - 2;
-      this.state.activeCol = c;
-    } else {
-      this.state.active = false;
-    }
-  }
-
-  onMouseLeave() {
-    this.state.active = this.state.dragging;
-  }
-  onMouseDown(ev: MouseEvent) {
-    this.state.dragging = true;
-    this.state.delta = 0;
-    const initialX = ev.clientX;
-    const left = this.state.left;
-    const onMouseUp = ev => {
-      this.state.dragging = false;
-      this.state.active = false;
-      window.removeEventListener("mousemove", onMouseMove);
-      this.model.setColSize(this.state.activeCol, this.state.delta);
-    };
-    const onMouseMove = ev => {
-      this.state.delta = ev.clientX - initialX;
-      this.state.left = left + this.state.delta;
-    };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp, { once: true });
-  }
-
-  selectCol(ev: MouseEvent) {
-    const col = this.model.getCol(ev.clientX);
-    this.model.selectColumn(col);
-  }
-}
+const { useRef, useExternalListener } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // TEMPLATE

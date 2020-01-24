@@ -145,10 +145,42 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectColumn(4);
+    model.selectColumn(4, false);
     expect(model.state.activeXc).toBe("E1");
 
     expect(model.state.selection.zones[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
+  });
+
+  test("can select a whole row", () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    model.selectRow(4, false);
+    expect(model.state.activeXc).toBe("A5");
+
+    expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
+  });
+
+  test("can select the whole sheet", () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10
+        }
+      ]
+    });
+    model.selectAll();
+    expect(model.state.activeXc).toBe("A1");
+
+    expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
   });
 
   test("can select part of a formula", () => {

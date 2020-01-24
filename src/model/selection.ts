@@ -64,13 +64,44 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   }
 }
 
-export function selectColumn(state: GridState, col: number) {
+function selectColumnRow(
+  state: GridState,
+  type: string,
+  col: number,
+  row: number,
+  addToCurrent: boolean
+) {
   stopEditing(state);
-  activateCell(state, col, 0);
+  activateCell(state, col, row);
+  const selection = {
+    top: row,
+    left: col,
+    right: type === "col" ? col : state.cols.length - 1,
+    bottom: type === "col" ? state.rows.length - 1 : row
+  };
+  state.selection.anchor = { col: state.activeCol, row: state.activeRow };
+  if (addToCurrent) {
+    state.selection.zones.push(selection);
+  } else {
+    state.selection.zones = [selection];
+  }
+}
+
+export function selectColumn(state: GridState, col: number, addToCurrent: boolean) {
+  selectColumnRow(state, "col", col, 0, addToCurrent);
+}
+
+export function selectRow(state: GridState, row: number, addToCurrent: boolean) {
+  selectColumnRow(state, "row", 0, row, addToCurrent);
+}
+
+export function selectAll(state: GridState) {
+  stopEditing(state);
+  activateCell(state, 0, 0);
   const selection = {
     top: 0,
-    left: col,
-    right: col,
+    left: 0,
+    right: state.cols.length - 1,
     bottom: state.rows.length - 1
   };
   state.selection.anchor = { col: state.activeCol, row: state.activeRow };

@@ -35,6 +35,7 @@ export interface GridState {
   height: number;
   // actual size of the visible grid, in pixel
   clientWidth: number;
+  clientHeight: number;
 
   // offset between the visible zone and the full zone (take into account
   // headers)
@@ -258,6 +259,7 @@ export function importData(
     width: 0,
     height: 0,
     clientWidth: 0,
+    clientHeight: 0,
     offsetX: 0,
     offsetY: 0,
     scrollTop: 0,
