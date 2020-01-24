@@ -86,6 +86,21 @@ describe("evaluateCells", () => {
     expect(grid.state.cells["A4"].value).toEqual("#ERROR");
   });
 
+  test("error in an addition", () => {
+    const model = new GridModel();
+    model.setValue("A1", "1");
+    model.setValue("A2", "2");
+    model.setValue("A3", "=A1+A2");
+
+    expect(model.state.cells.A3.value.toNumber()).toBe(3);
+    model.setValue("A2", "asdf");
+    expect(model.state.cells.A3.value).toBe("#ERROR");
+    model.setValue("A1", "33");
+    expect(model.state.cells.A3.value).toBe("#ERROR");
+    model.setValue("A2", "10");
+    expect(model.state.cells.A3.value.toNumber()).toBe(43);
+  });
+
   test("async formula", async () => {
     const data = {
       sheets: [

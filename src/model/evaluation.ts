@@ -51,8 +51,8 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     if (e.message === "not ready") {
       WAITING.add(cell);
       cell.value = "#LOADING";
-    } else {
-      cell.value = cell.value || "#ERROR";
+    } else if (!cell.error) {
+      cell.value = "#ERROR";
       cell.error = true;
     }
   }

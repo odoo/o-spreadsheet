@@ -21,7 +21,7 @@ export class GridModel extends owl.core.EventBus {
   isMergeDestructive: boolean = false;
   aggregate: number | null = null;
 
-  constructor(data: Partial<GridData>) {
+  constructor(data: Partial<GridData> = {}) {
     super();
     this.state = importData(data);
     this.prepareModel();
