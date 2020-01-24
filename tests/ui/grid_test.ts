@@ -64,20 +64,6 @@ describe("Grid component", () => {
     });
   });
 
-  test("can click on a header to select a column", async () => {
-    const model = new GridModel();
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-    expect(model.state.activeXc).toBe("A1");
-    triggerMouseEvent(".o-resizer.horizontal", "mousedown", 300, 10);
-    expect(model.state.selection.zones[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
-    expect(model.state.activeXc).toBe("C1");
-  });
-
   describe("keybindings", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behavious is not like excel. Maybe someone will want to

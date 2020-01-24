@@ -4,6 +4,7 @@ import * as clipboard from "./clipboard";
 import * as core from "./core";
 import * as merges from "./merges";
 import * as selection from "./selection";
+import * as expand from "./resize";
 import {
   activateSheet,
   addSheet,
@@ -69,7 +70,8 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   deleteCell = this.makeMutation(core.deleteCell);
   movePosition = this.makeMutation(core.movePosition);
-  setColSize = this.makeMutation(core.setColSize);
+  getColSize = this.makeFn(core.getColSize);
+  getRowSize = this.makeFn(core.getRowSize);
   deleteSelection = this.makeMutation(core.deleteSelection);
   setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
@@ -101,6 +103,8 @@ export class GridModel extends owl.core.EventBus {
   updateSelection = this.makeMutation(selection.updateSelection);
   moveSelection = this.makeMutation(selection.moveSelection);
   selectColumn = this.makeMutation(selection.selectColumn);
+  selectRow = this.makeMutation(selection.selectRow);
+  selectAll = this.makeMutation(selection.selectAll);
 
   // merges
   // ---------------------------------------------------------------------------
@@ -113,4 +117,11 @@ export class GridModel extends owl.core.EventBus {
   copy = this.makeMutation(clipboard.copy);
   paste = this.makeMutation(clipboard.paste);
   getClipboardContent = this.makeFn(clipboard.getClipboardContent);
+
+  // resizer
+  // ---------------------------------------------------------------------------
+  updateColSize = this.makeMutation(expand.updateColSize);
+  updateColsSize = this.makeMutation(expand.updateColsSize);
+  updateRowSize = this.makeMutation(expand.updateRowSize);
+  updateRowsSize = this.makeMutation(expand.updateRowsSize);
 }

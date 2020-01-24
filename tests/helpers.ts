@@ -64,7 +64,7 @@ export function makeTestFixture() {
 }
 
 export function triggerMouseEvent(
-  selector: string,
+  selector: string | any,
   type: string,
   x: number,
   y: number,
@@ -77,7 +77,38 @@ export function triggerMouseEvent(
   });
   (ev as any).offsetX = x;
   (ev as any).offsetY = y;
-  document.querySelector(selector)!.dispatchEvent(ev);
+  if (typeof selector === "string") {
+    document.querySelector(selector)!.dispatchEvent(ev);
+  } else {
+    selector!.dispatchEvent(ev);
+  }
+}
+
+export async function triggerColResizer(x: number, delta: number, model: GridModel, width: number) {
+  triggerMouseEvent(".o-resizer .o-col-resizer", "mousemove", x, 10);
+  await nextTick();
+  model.state.clientWidth = width;
+  triggerMouseEvent(".o-resizer .o-col-resizer .o-handle", "mousedown", x, 10);
+  triggerMouseEvent(window, "mousemove", x + delta, 10);
+  triggerMouseEvent(window, "mouseup", x + delta, 10);
+  await nextTick();
+  model.state.clientWidth = width;
+}
+
+export async function triggerRowResizer(
+  y: number,
+  delta: number,
+  model: GridModel,
+  height: number
+) {
+  triggerMouseEvent(".o-resizer .o-row-resizer", "mousemove", 10, y);
+  await nextTick();
+  model.state.clientHeight = height;
+  triggerMouseEvent(".o-resizer .o-row-resizer .o-handle", "mousedown", 10, y);
+  triggerMouseEvent(window, "mousemove", 10, y + delta);
+  triggerMouseEvent(window, "mouseup", 10, y + delta);
+  await nextTick();
+  model.state.clientHeight = height;
 }
 
 export class GridParent extends Component<any, any> {
