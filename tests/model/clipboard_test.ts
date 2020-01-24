@@ -53,6 +53,34 @@ describe("clipboard", () => {
     expect(model.state.cells.D3).not.toBeDefined();
   });
 
+  test("can copy a cell with style", () => {
+    const model = new GridModel({});
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    model.copy();
+    model.selectCell(2, 1); // C2
+    model.paste();
+    expect(model.state.cells.B2.style).toBe(2);
+    expect(model.state.cells.C2.style).toBe(2);
+  });
+
+  test("can copy a cell with borders", () => {
+    const model = new GridModel({});
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setBorder("bottom");
+    expect(model.state.cells.B2.border).toBe(2);
+
+    model.copy();
+    model.selectCell(2, 1); // C2
+    model.paste();
+    expect(model.state.cells.B2.border).toBe(2);
+    expect(model.state.cells.C2.border).toBe(2);
+  });
+
   test("cutting a cell with style remove the cell", () => {
     const model = new GridModel({});
     model.setValue("B2", "b2");

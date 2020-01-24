@@ -57,7 +57,8 @@ export function paste(state: GridState) {
         if (originCell.type === "formula") {
           content = applyOffset(content, offsetX, offsetY);
         }
-        addCell(state, xc, { content, style: originCell.style });
+        let { style, border } = originCell;
+        addCell(state, xc, { content, style, border });
         if (shouldCut) {
           deleteCell(state, originCell.xc, true);
         }
