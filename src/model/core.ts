@@ -147,6 +147,11 @@ export function getRow(state: GridState, y: number): number {
   return -1;
 }
 
+export function getColSize(state: GridState, index: number) {
+  const { cols } = state;
+  return cols[index].size;
+}
+
 export function setColSize(state: GridState, index: number, delta: number) {
   const { cols } = state;
   const col = cols[index];
@@ -159,6 +164,23 @@ export function setColSize(state: GridState, index: number, delta: number) {
   }
 }
 
+export function getRowSize(state: GridState, index: number) {
+  const { rows } = state;
+  return rows[index].size;
+}
+
+export function setRowSize(state: GridState, index: number, delta: number) {
+  const { rows } = state;
+  const row = rows[index];
+  row.size += delta;
+  row.bottom += delta;
+  for (let i = index + 1; i < state.rows.length; i++) {
+    const row = rows[i];
+    row.top += delta;
+    row.bottom += delta;
+  }
+}
+
 export function updateVisibleZone(
   state: GridState,
   width: number,
@@ -168,6 +190,7 @@ export function updateVisibleZone(
 ) {
   const { rows, cols, viewport } = state;
   state.clientWidth = width;
+  state.clientHeigth = height;
 
   viewport.bottom = rows.length - 1;
   for (let i = 0; i < rows.length; i++) {

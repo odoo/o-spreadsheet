@@ -61,7 +61,10 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   deleteCell = this.makeMutation(core.deleteCell);
   movePosition = this.makeMutation(core.movePosition);
+  getColSize = this.makeFn(core.getColSize);
   setColSize = this.makeMutation(core.setColSize);
+  getRowSize = this.makeFn(core.getRowSize);
+  setRowSize = this.makeMutation(core.setRowSize);
   deleteSelection = this.makeMutation(core.deleteSelection);
   setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
@@ -90,8 +93,11 @@ export class GridModel extends owl.core.EventBus {
   // selection
   // ---------------------------------------------------------------------------
   updateSelection = this.makeMutation(selection.updateSelection);
+  addColumnToCurrentSelection = this.makeMutation(selection.addColumnToCurrentSelection);
   moveSelection = this.makeMutation(selection.moveSelection);
   selectColumn = this.makeMutation(selection.selectColumn);
+  selectRow = this.makeMutation(selection.selectRow);
+  selectAll = this.makeMutation(selection.selectAll);
 
   // merges
   // ---------------------------------------------------------------------------

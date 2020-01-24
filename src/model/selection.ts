@@ -64,7 +64,19 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   }
 }
 
-export function selectColumn(state: GridState, col: number) {
+export function removeSelectedColumn(state: GridState, col: number) {
+  if (state.activeRow === col) {
+    return;
+  }
+  for (let zone of state.selection.zones) {
+    
+  }
+}
+
+export function selectColumn(state: GridState, col: number, addToCurrent: boolean, merge: boolean) {
+  if (merge) {
+    addColumnToCurrentSelection(state, col);
+  }
   stopEditing(state);
   state.activeCol = col;
   state.activeRow = 0;
@@ -73,9 +85,47 @@ export function selectColumn(state: GridState, col: number) {
     top: 0,
     left: col,
     right: col,
-    bottom: state.rows.length - 1
+    bottom: state.rows.length -1
+  }
+  state.selection.anchor = { col: state.activeCol, row: state.activeRow};
+  if (addToCurrent) {
+    state.selection.zones.push(selection);
+  } else {
+    state.selection.zones = [selection];
+  }
+}
+
+export function selectRow(state: GridState, row: number, addToCurrent: boolean) {
+  stopEditing(state);
+  state.activeCol = 0;
+  state.activeRow = row;
+  state.activeXc = toXC(0, row);
+  const selection = {
+    top: row,
+    left: 0,
+    right: state.cols.length -1,
+    bottom: row
   };
-  state.selection.anchor = { col: state.activeCol, row: state.activeRow };
+  state.selection.anchor = { col: state.activeCol, row: state.activeRow};
+  if (addToCurrent) {
+    state.selection.zones.push(selection);
+  } else {
+    state.selection.zones = [selection];
+  }
+}
+
+export function selectAll(state: GridState) {
+  stopEditing(state);
+  state.activeCol = 0;
+  state.activeRow = 0;
+  state.activeXc = toXC(0, 0);
+  const selection = {
+    top: 0,
+    left: 0,
+    right: state.cols.length - 1,
+    bottom: state.rows.length - 1,
+  };
+  state.selection.anchor = { col: state.activeCol, row: state.activeRow};
   state.selection.zones = [selection];
 }
 
@@ -83,6 +133,7 @@ export function selectColumn(state: GridState, col: number) {
  * Update the current selection to include the cell col/row.
  */
 export function updateSelection(state: GridState, col: number, row: number) {
+  console.log("Passe");
   const anchorCol = state.selection.anchor.col;
   const anchorRow = state.selection.anchor.row;
   const zone: Zone = {
@@ -92,4 +143,15 @@ export function updateSelection(state: GridState, col: number, row: number) {
     bottom: Math.max(anchorRow, row)
   };
   state.selection.zones[state.selection.zones.length - 1] = expandZone(state, zone);
+}
+
+export function addColumnToCurrentSelection(state: GridState, col: number) {
+  const anchorCol = state.selection.anchor.col;
+  const zone: Zone = {
+    left: Math.min(anchorCol, col),
+    top: 0,
+    right: Math.max(anchorCol, col),
+    bottom: state.rows.length - 1
+  }
+  state.selection.zones[state.selection.zones.length - 1] = zone; 
 }

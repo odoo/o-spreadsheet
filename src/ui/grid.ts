@@ -20,100 +20,231 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useRef, useState } = owl.hooks;
 
+type ResizerType = "row" | "col" | false; 
+
 // -----------------------------------------------------------------------------
 // Resizer component
 // -----------------------------------------------------------------------------
 class Resizer extends Component<any, any> {
   static template = xml/* xml */ `
-    <div class="o-resizer horizontal" t-on-mousemove="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="selectCol">
-      <t t-if="state.active">
-        <div class="o-handle" t-att-class="{dragging:state.dragging}" t-on-mousedown="onMouseDown"
-        t-attf-style="left:{{state.left}}px;"/>
-      </t>
+    <div class="o-resizer">
+      <div class="horizontal" t-on-mousemove.self="onMouseMove('col')"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="selectCol">
+        <t t-if="state.active === 'col'">
+          <div class="o-handle" t-att-class="{dragging:state.dragging}" t-on-mousedown="onMouseDown('col')"
+          t-attf-style="left:{{state.left}}px;"/>
+        </t>
+      </div>
+      <div class="vertical" t-on-mousemove.self="onMouseMove('row')"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="selectRow">
+        <t t-if="state.active === 'row'">
+          <div class="o-handle" t-att-class="{dragging:state.dragging}" t-on-mousedown="onMouseDown('row')"
+          t-attf-style="top:{{state.top}}px;"/>
+        </t>
+      </div>
+      <div class="all" t-on-mousedown.self="selectAll"/>
     </div>`;
 
   static style = css/* scss */ `
     .o-resizer {
-      position: absolute;
-      &.horizontal {
+      .horizontal {
+        position: absolute;
         top: 0;
         left: ${HEADER_WIDTH}px;
         right: 0;
         height: ${HEADER_HEIGHT}px;
-      }
-
-      .o-handle {
-        position: absolute;
-        height: ${HEADER_HEIGHT}px;
-        width: 4px;
-        cursor: ew-resize;
-        background-color: #3266ca;
-        &.dragging {
-          margin-right: -2px;
-          width: 1px;
-          height: 10000px;
+        .o-handle {
+          position: absolute;
+          height: ${HEADER_HEIGHT}px;
+          width: 4px;
+          cursor: ew-resize;
+          background-color: #3266ca;
+          &.dragging {
+            margin-right: -2px;
+            width: 1px;
+            height: 10000px;
+          }
         }
+      }
+      .vertical {
+        position: absolute;
+        top: ${HEADER_HEIGHT}px;
+        left: 0;
+        right: 0;
+        width: ${HEADER_WIDTH}px;
+        height: 100%;
+        .o-handle {
+          position: absolute;
+          height: 4px;
+          width: ${HEADER_WIDTH}px;
+          cursor: ns-resize;
+          background-color: #3266ca;
+          &.dragging {
+            margin-top: -2px;
+            width: 10000px;
+            height: 1px;
+          }
+        }
+      }
+      .all {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: ${HEADER_WIDTH}px;
+        height: ${HEADER_HEIGHT}px;
       }
     }
   `;
-
+  
   model: GridModel = this.props.model;
+
   state = useState({
-    active: false,
+    active: <ResizerType> false,
     left: 0,
-    dragging: false,
-    activeCol: 0,
+    top: 0,
+    dragging: <ResizerType> false,
+    activeElt: 0,
     delta: 0
   });
-  onMouseMove(ev: MouseEvent) {
+  onMouseMove(type: ResizerType ,ev: MouseEvent) {
     if (this.state.dragging) {
       return;
     }
-    const x = ev.clientX;
-    const c = this.model.getCol(x);
-    if (c < 0) {
-      return;
-    }
-    const col = this.model.state.cols[c];
-    const offsetX = this.model.state.offsetX;
-    if (x - (col.left - offsetX) < 15 && c !== this.model.state.viewport.left) {
-      this.state.active = true;
-      this.state.left = col.left - offsetX - HEADER_WIDTH - 2;
-      this.state.activeCol = c - 1;
-    } else if (col.right - offsetX - x < 15) {
-      this.state.active = true;
-      this.state.left = col.right - offsetX - HEADER_WIDTH - 2;
-      this.state.activeCol = c;
+    if (type === 'col') {
+      const x = ev.offsetX + HEADER_WIDTH;
+      const c = this.model.getCol(x);
+      if (c < 0) {
+        return;
+      }
+      const col = this.model.state.cols[c];
+      const offsetX = this.model.state.offsetX;
+      if (x - (col.left - offsetX) < 15 && c !== this.model.state.viewport.left) {
+        console.log("FIRST");
+        this.state.active = "col";
+        this.state.left = col.left - offsetX - HEADER_WIDTH - 2;
+        this.state.activeElt = c - 1;
+      } else if (col.right - offsetX - x < 15) {
+        console.log("SECOND");
+        this.state.active = "col";
+        this.state.left = col.right - offsetX - HEADER_WIDTH - 2;
+        this.state.activeElt = c;
+      } else {
+        this.state.active = false;
+      }
     } else {
-      this.state.active = false;
+      const y = ev.offsetY + HEADER_HEIGHT;
+      const r = this.model.getRow(y);
+      if (r < 0) {
+        return;
+      }
+      const row = this.model.state.rows[r];
+      const offsetY = this.model.state.offsetY;
+      if (y - (row.top - offsetY) < 5 && r !== this.model.state.viewport.top) {
+        this.state.active = "row";
+        this.state.top = row.top - offsetY - HEADER_HEIGHT - 2;
+        this.state.activeElt = r - 1;
+      } else if (row.bottom - offsetY - y < 5) {
+        this.state.active = "row";
+        this.state.top = row.bottom - offsetY - HEADER_HEIGHT - 2;
+        this.state.activeElt = r;
+      } else {
+        this.state.active = false;
+      }
     }
+    
   }
 
   onMouseLeave() {
     this.state.active = this.state.dragging;
   }
-  onMouseDown(ev: MouseEvent) {
-    this.state.dragging = true;
+
+  onMouseDown(type: ResizerType, ev: MouseEvent) {
+    this.state.dragging = type;
     this.state.delta = 0;
-    const initialX = ev.clientX;
-    const left = this.state.left;
+
+    if (type === 'col') {
+      const initialX = ev.clientX;
+      const left = this.state.left;
+      const onMouseUp = ev => {
+        this.state.dragging = false;
+        this.state.active = false;
+        window.removeEventListener("mousemove", onMouseMove);
+        this.model.setColSize(this.state.activeElt, this.state.delta);
+      };
+      const onMouseMove = ev => {
+        this.state.delta = ev.clientX - initialX;
+        this.state.left = left + this.state.delta;
+        const size = this.model.getColSize(this.state.activeElt);
+        if (this.state.left < left - size + 5) {
+          this.state.left = left - size + 5;
+          this.state.delta = 5 - size;
+        }
+        if (this.state.left > this.model.state.clientWidth - 90) {
+          this.state.left = this.model.state.clientWidth - 90;
+          this.state.delta = this.model.state.clientWidth - 90 - left;
+        }
+      };
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp, { once: true });
+    } else {
+      const initialY = ev.clientY;
+      const top = this.state.top;
+      const onMouseUp = ev => {
+        this.state.dragging = false;
+        this.state.active = false;
+        window.removeEventListener("mousemove", onMouseMove);
+        this.model.setRowSize(this.state.activeElt, this.state.delta);
+      };
+      const onMouseMove = ev => {
+        this.state.delta = ev.clientY - initialY;
+        this.state.top = top + this.state.delta;
+        const size = this.model.getRowSize(this.state.activeElt);
+        if (this.state.top < top - size + 10) {
+          this.state.top = top - size + 10;
+          this.state.delta = 10 - size;
+        }
+        if (this.state.top > this.model.state.clientHeigth - 60) {
+          this.state.top = this.model.state.clientHeigth - 60;
+          this.state.delta = this.model.state.clientHeigth - 60 - top;
+        }
+      };
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp, { once: true });
+    }
+  }
+
+  selectCol(ev: MouseEvent) {
+    const col = this.model.getCol(ev.offsetX + HEADER_WIDTH);
+    this.model.selectColumn(col, ev.ctrlKey);
+  }
+
+  selectRow(ev: MouseEvent) {
     const onMouseUp = ev => {
-      this.state.dragging = false;
-      this.state.active = false;
       window.removeEventListener("mousemove", onMouseMove);
-      this.model.setColSize(this.state.activeCol, this.state.delta);
+      this.model.setColSize(this.state.activeElt, this.state.delta);
     };
     const onMouseMove = ev => {
       this.state.delta = ev.clientX - initialX;
       this.state.left = left + this.state.delta;
+      const size = this.model.getColSize(this.state.activeElt);
+      if (this.state.left < left - size + 5) {
+        this.state.left = left - size + 5;
+        this.state.delta = 5 - size;
+      }
+      if (this.state.left > this.model.state.clientWidth - 90) {
+        this.state.left = this.model.state.clientWidth - 90;
+        this.state.delta = this.model.state.clientWidth - 90 - left;
+      }
     };
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp, { once: true });
+
+
+    const row = this.model.getRow(ev.offsetY + HEADER_HEIGHT);
+    this.model.selectRow(row, ev.ctrlKey);
   }
 
-  selectCol(ev: MouseEvent) {
-    const col = this.model.getCol(ev.clientX);
-    this.model.selectColumn(col);
+  selectAll(ev: MouseEvent) {
+    this.model.selectAll();
   }
 }
 
