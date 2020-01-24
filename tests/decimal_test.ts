@@ -44,6 +44,8 @@ describe("N", () => {
       expect(new N(1, 1).format(2)).toBe("0.10");
       expect(new N(12, 2).format(2)).toBe("0.12");
       expect(new N(123, 3).format(2)).toBe("0.12");
+      expect(new N(125, 3).format(2)).toBe("0.13");
+      expect(new N(127, 3).format(2)).toBe("0.13");
       expect(new N(12, 1).format(2)).toBe("1.20");
       expect(new N(12345, 2).format(3)).toBe("123.450");
     });
