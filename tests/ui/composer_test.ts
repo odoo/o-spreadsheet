@@ -190,4 +190,84 @@ describe("composer highlights color", () => {
     let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
     expect(composer.innerText).toBe("=SUM(A1:A10)");
   });
+
+  test("highlight variable after editing the cell", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { }
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.state.highlights.length).toBe(0);
+
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    composer.textContent = "=A2";
+    composer.dispatchEvent(new Event("input"));
+    await nextTick();
+    composer.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    model.movePosition(0, -1);
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.sheets[0].cells["A1"].content).toBe("=A2");
+    expect(model.state.highlights.length).toBe(1);
+    expect(model.state.highlights[0].color).toBe(colors[0]);
+
+    composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.innerText).toBe("=A2");
+  });
+
+  test("Test Range Selections", async () => {
+    const model = new GridModel({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { }
+        }
+      ]
+    });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    expect(model.state.highlights.length).toBe(0);
+
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    // Composer opened
+    expect(fixture.getElementsByClassName("o-composer").length).toBe(1);
+
+    model.selectCell(1, 0);
+    await nextTick();
+    // Composer closed
+    expect(fixture.getElementsByClassName("o-composer").length).toBe(0);
+
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    composer.textContent = "=";
+    composer.dispatchEvent(new Event("input"));
+    await nextTick();
+
+    model.selectCell(1, 1);
+    await nextTick();
+
+    expect(composer.textContent).toBe("=B2");
+
+
+  });
 });
