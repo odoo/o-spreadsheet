@@ -60,6 +60,16 @@ export class N {
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+function roundDecimalStr(str: string, next: string): string {
+  if ("56789".includes(next)) {
+    let digits = Number(str) + 1;
+    while (digits % 10 === 0) {
+      digits = digits / 10;
+    }
+    return String(digits);
+  }
+  return str;
+}
 
 function toStr(d: number, p: number): string {
   const digitStr = String(d);
@@ -67,7 +77,19 @@ function toStr(d: number, p: number): string {
     return digitStr;
   }
   const index = digitStr.length - p;
-  return (digitStr.slice(0, index) || "0") + SEPARATOR + digitStr.slice(index);
+  if (index < 0) {
+    return (
+      "0.".padEnd(2 - index, "0") +
+      roundDecimalStr(digitStr.slice(0, 10 + index), digitStr[10 + index])
+    );
+  }
+  const decimals = digitStr.slice(index, index + 10);
+  if (decimals === "9999999999") {
+    return String(Number(digitStr.slice(0, index)) + 1);
+  }
+  return (
+    (digitStr.slice(0, index) || "0") + SEPARATOR + roundDecimalStr(decimals, digitStr[index + 10])
+  );
 }
 
 //------------------------------------------------------------------------------
@@ -90,7 +112,7 @@ export function fromNumber(n: number): N {
       return new N(d, p);
     }
   }
-  return new N(d, p);
+  return new N(Math.round(d), p);
 }
 
 export function fromString(s: string): N {

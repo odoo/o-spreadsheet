@@ -33,10 +33,34 @@ describe("N", () => {
     test("toString", () => {
       expect(new N(1, 0).toString()).toBe("1");
       expect(new N(1, 1).toString()).toBe("0.1");
+      expect(new N(1, 3).toString()).toBe("0.001");
       expect(new N(20, 0).toString()).toBe("20");
       expect(new N(20, 1).toString()).toBe("2");
       expect(new N(203, 1).toString()).toBe("20.3");
       expect(new N(-123, 2).toString()).toBe("-1.23");
+    });
+
+    test("fromString, fromNumber, toString and many decimals", () => {
+      // by default, we only display the first 10 decimals
+      expect(fromString("0.123451234512345").toString()).toBe("0.1234512345");
+      expect(fromNumber(0.123451234512345).toString()).toBe("0.1234512345");
+
+      expect(fromString("0.01809576734").toString()).toBe("0.0180957673");
+      expect(fromNumber(0.01809576734).toString()).toBe("0.0180957673");
+
+      // note the rounding in this number
+      expect(fromString("0.12817735996144108").toString()).toBe("0.12817736");
+      expect(fromNumber(0.12817735996144108).toString()).toBe("0.12817736");
+
+      expect(fromString("0.09140422939128223").toString()).toBe("0.0914042294");
+      expect(fromNumber(0.09140422939128223).toString()).toBe("0.0914042294");
+
+      // also rounding here
+      expect(fromString("0.09140422939828223").toString()).toBe("0.0914042294");
+      expect(fromNumber(0.09140422939828223).toString()).toBe("0.0914042294");
+
+      expect(fromString("0.999999999999").toString()).toBe("1");
+      expect(fromNumber(0.999999999999).toString()).toBe("1");
     });
 
     test("format", () => {
