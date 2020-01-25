@@ -1,5 +1,5 @@
 import { FunctionMap } from "./index";
-import { add, N, fromNumber, lt } from "../decimal";
+import { add, N, fromNumber, lt, zero } from "../decimal";
 
 export const functions: FunctionMap = {
   SUM: {
@@ -7,7 +7,7 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return args.flat().reduce(function(a, b) {
         return b instanceof N ? add(a, b) : a;
-      }, new N(0, 0));
+      }, zero);
     }
   },
   RAND: {

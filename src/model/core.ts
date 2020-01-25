@@ -4,7 +4,7 @@ import { evaluateCells } from "./evaluation";
 import { Cell, CellData, GridState, Highlight, Zone, Sheet } from "./state";
 import { AsyncFunction } from "../formulas/compiler";
 import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
-import { fromString, add, N } from "../decimal";
+import { fromString, add, N, zero } from "../decimal";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -302,7 +302,7 @@ export function selectCell(state: GridState, col: number, row: number, newRange:
 }
 
 export function computeAggregate(state: GridState): number | null {
-  let aggregate = new N(0, 0);
+  let aggregate = zero;
   let n = 0;
   for (let zone of state.selection.zones) {
     for (let row = zone.top; row <= zone.bottom; row++) {

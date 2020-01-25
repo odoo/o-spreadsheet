@@ -1,5 +1,5 @@
 import * as decimal from "../decimal";
-import { N } from "../decimal";
+import { zero } from "../decimal";
 import { functionMap } from "../functions/index";
 import { toCartesian, toXC } from "../helpers";
 import { Cell, GridState } from "./state";
@@ -100,7 +100,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   function getValue(xc: string): any {
     const cell = cells[xc];
     if (!cell || cell.content === "") {
-      return new N(0, 0);
+      return zero;
     }
     computeValue(xc, cell);
     if (cell.error) {

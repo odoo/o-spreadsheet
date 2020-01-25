@@ -3,6 +3,9 @@
  *
  * Seriously, we just need numbers that kind of works like expected,
  * like 0.1 + 0.2 === 0.3
+ *
+ * Surprisingly, decimal numbers do not work that well natively, so we need to
+ * make a custom implementation.
  */
 
 const SEPARATOR = ".";
@@ -57,6 +60,8 @@ export class N {
   }
 }
 
+export const zero = new N(0, 0);
+export const one = new N(1, 0);
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
