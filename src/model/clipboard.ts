@@ -1,16 +1,16 @@
 import { applyOffset } from "../formulas/index";
 import { toXC } from "../helpers";
 import { Cell, GridState } from "./state";
-import { getCell, deleteCell, addCell } from "./core";
+import { getCell, deleteCell, addCell, selectedCell, formatCell, setValue } from "./core";
 import { evaluateCells } from "./evaluation";
 
 export function cut(state: GridState) {
-  console.warn("implement copySelection for multi selection");
+  // todo: implement copySelection for multi selection
   cutOrCopy(state, true);
 }
 
 export function copy(state: GridState) {
-  console.warn("implement copySelection for multi selection");
+  // todo: implement copySelection for multi selection
   cutOrCopy(state, false);
 }
 
@@ -31,8 +31,30 @@ function cutOrCopy(state: GridState, cut: boolean) {
   state.clipboard.cells = cells;
 }
 
-export function paste(state: GridState) {
-  console.warn("implement pasteSelection for multi selection");
+/**
+ * Paste some content at the active location
+ *
+ * The paste operation has two possible types of sources:
+ * - either the os clipboard (the paste comes from outside)
+ * - or internal clipboard: paste come from the spreadsheet itself
+ */
+export function paste(state: GridState, clipboardContent?: string) {
+  if (clipboardContent === undefined) {
+    pasteFromModel(state);
+  } else {
+    pasteFromClipboard(state, clipboardContent);
+  }
+}
+
+function pasteFromClipboard(state: GridState, content: string) {
+  // todo: manage multicell pastes.
+  // This means: tab/newline to base a rectangular array of content
+  state.clipboard.status = "invisible";
+  setValue(state, state.activeXc, content);
+}
+
+function pasteFromModel(state: GridState) {
+  // todo: implement pasteSelection for multi selection
   const { zones, cells, shouldCut, status } = state.clipboard;
   if (!zones || !cells) {
     return;
@@ -70,4 +92,11 @@ export function paste(state: GridState) {
   }
 
   evaluateCells(state);
+}
+
+export function getClipboardContent(state: GridState): string {
+  // todo: manage multicells cut/copy
+  // This should be a rectangular array of content, with tab/newlines
+  const cell = selectedCell(state);
+  return cell ? formatCell(state, cell) : "";
 }

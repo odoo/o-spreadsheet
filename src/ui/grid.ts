@@ -18,7 +18,7 @@ import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useRef, useState } = owl.hooks;
+const { useRef, useState, useExternalListener } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -187,6 +187,17 @@ export class Grid extends Component<any, any> {
   model: GridModel = this.props.model;
   clickedCol = 0;
   clickedRow = 0;
+  // last string that was cut or copied. It is necessary so we can make the
+  // difference between a paste coming from the sheet itself, or from the
+  // os clipboard
+  clipBoardString: string = "";
+
+  constructor() {
+    super(...arguments);
+    useExternalListener(document.body, "cut", this.copy.bind(this, true));
+    useExternalListener(document.body, "copy", this.copy.bind(this, false));
+    useExternalListener(document.body, "paste", this.paste);
+  }
 
   mounted() {
     const canvas = this.canvas.el as any;
@@ -359,22 +370,41 @@ export class Grid extends Component<any, any> {
       this.model.deleteSelection();
     }
     if (ev.ctrlKey) {
-      switch (ev.key) {
-        case "x":
-          this.model.cut();
-          break;
-        case "c":
-          this.model.copy();
-          break;
-        case "v":
-          this.model.paste();
-          break;
-      }
       return;
     }
 
     if (ev.key.length === 1) {
       this.model.startEditing(ev.key);
+    }
+  }
+  copy(cut: boolean, ev: ClipboardEvent) {
+    if (document.activeElement !== this.canvas.el) {
+      return;
+    }
+    this.model.cut();
+    const content = this.model.getClipboardContent();
+    this.clipBoardString = content;
+    ev.clipboardData!.setData("text/plain", content);
+    ev.preventDefault();
+    if (cut) {
+      this.model.cut();
+    } else {
+      this.model.copy();
+    }
+  }
+  paste(ev: ClipboardEvent) {
+    if (document.activeElement !== this.canvas.el) {
+      return;
+    }
+    const clipboardData = ev.clipboardData!;
+    if (clipboardData.types.indexOf("text/plain") > -1) {
+      const content = clipboardData.getData("text/plain");
+      if (this.clipBoardString === content) {
+        // the paste actually comes from o-spreadsheet itself
+        this.model.paste();
+      } else {
+        this.model.paste(content);
+      }
     }
   }
 }

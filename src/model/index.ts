@@ -73,6 +73,7 @@ export class GridModel extends owl.core.EventBus {
   updateVisibleZone = this.makeFn(core.updateVisibleZone);
   getCol = this.makeFn(core.getCol);
   getRow = this.makeFn(core.getRow);
+  formatCell = this.makeFn(core.formatCell);
 
   // sheets
   // ---------------------------------------------------------------------------
@@ -103,4 +104,5 @@ export class GridModel extends owl.core.EventBus {
   cut = this.makeMutation(clipboard.cut);
   copy = this.makeMutation(clipboard.copy);
   paste = this.makeMutation(clipboard.paste);
+  getClipboardContent = this.makeFn(clipboard.getClipboardContent);
 }

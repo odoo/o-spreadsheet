@@ -102,11 +102,6 @@ function drawBackgroundGrid() {
   }
 }
 
-function formatText(cell: Cell): string {
-  // todo: apply formatters if needed
-  return cell.value;
-}
-
 /**
  * Main entry point for drawing a text box content (either a cell or a merge).
  * It draws everything related to the text.
@@ -252,7 +247,7 @@ function drawCells() {
     const lw = -0.3 * thinLineWidth();
     drawBackgroundBox(style, col, row, col, row, lw, cell.border);
     ctx.globalCompositeOperation = "source-over";
-    drawTextBox(formatText(cell), style, cell.type, col, row, col, row);
+    drawTextBox(model.formatCell(cell), style, cell.type, col, row, col, row);
     ctx.restore();
   }
 }
@@ -278,7 +273,7 @@ function drawMerges() {
     const lw = 0.3 * thinLineWidth();
     drawBackgroundBox(style, left, top, right, bottom, lw, border, styles[0].fillColor);
     if (refCell) {
-      drawTextBox(formatText(refCell), style, refCell.type, left, top, right, bottom);
+      drawTextBox(model.formatCell(refCell), style, refCell.type, left, top, right, bottom);
     }
   }
 }
