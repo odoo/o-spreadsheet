@@ -13,7 +13,8 @@ describe("addFunction", () => {
     addFunction("DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: arg => 2 * arg,
-      args: []
+      args: [],
+      returns: ["NUMBER"]
     });
     expect(evaluate("=DOUBLEDOUBLE(3)")).toBe(6);
 
@@ -22,7 +23,8 @@ describe("addFunction", () => {
       addFunction("DOUBLEDOUBLE", {
         description: "Double the first argument",
         compute: arg => 2 * arg,
-        args: []
+        args: [],
+        returns: ["NUMBER"]
       });
     } catch (e) {
       error = e;
