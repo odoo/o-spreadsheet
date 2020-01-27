@@ -381,16 +381,15 @@ export class Grid extends Component<any, any> {
     if (document.activeElement !== this.canvas.el) {
       return;
     }
-    this.model.cut();
-    const content = this.model.getClipboardContent();
-    this.clipBoardString = content;
-    ev.clipboardData!.setData("text/plain", content);
-    ev.preventDefault();
     if (cut) {
       this.model.cut();
     } else {
       this.model.copy();
     }
+    const content = this.model.getClipboardContent();
+    this.clipBoardString = content;
+    ev.clipboardData!.setData("text/plain", content);
+    ev.preventDefault();
   }
   paste(ev: ClipboardEvent) {
     if (document.activeElement !== this.canvas.el) {

@@ -1,8 +1,8 @@
 import { applyOffset } from "../formulas/index";
 import { toXC } from "../helpers";
-import { Cell, GridState } from "./state";
-import { getCell, deleteCell, addCell, selectedCell, formatCell, setValue } from "./core";
+import { addCell, deleteCell, formatCell, getCell, setValue } from "./core";
 import { evaluateCells } from "./evaluation";
+import { Cell, GridState } from "./state";
 
 export function cut(state: GridState) {
   // todo: implement copySelection for multi selection
@@ -17,10 +17,10 @@ export function copy(state: GridState) {
 function cutOrCopy(state: GridState, cut: boolean) {
   let { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   const cells: (Cell | null)[][] = [];
-  for (let i = left; i <= right; i++) {
+  for (let j = top; j <= bottom; j++) {
     const vals: (Cell | null)[] = [];
     cells.push(vals);
-    for (let j = top; j <= bottom; j++) {
+    for (let i = left; i <= right; i++) {
       const cell = getCell(state, i, j);
       vals.push(cell ? Object.assign({}, cell) : null);
     }
@@ -47,10 +47,15 @@ export function paste(state: GridState, clipboardContent?: string) {
 }
 
 function pasteFromClipboard(state: GridState, content: string) {
-  // todo: manage multicell pastes.
-  // This means: tab/newline to base a rectangular array of content
   state.clipboard.status = "invisible";
-  setValue(state, state.activeXc, content);
+  const values = content.replace(/\r/g, "").split("\n").map(vals => vals.split("\t"));
+  const { activeCol, activeRow } = state;
+  for (let i = 0; i < values.length; i++) {
+    for (let j = 0; j < values[i].length; j++) {
+      const xc = toXC(activeCol + j, activeRow + i);
+      setValue(state, xc, values[i][j]);
+    }
+  }
 }
 
 function pasteFromModel(state: GridState) {
@@ -72,7 +77,7 @@ function pasteFromModel(state: GridState) {
   for (let i = 0; i <= right - left; i++) {
     for (let j = 0; j <= bottom - top; j++) {
       const xc = toXC(col + i, row + j);
-      const originCell = cells[i][j];
+      const originCell = cells[j][i];
       const targetCell = getCell(state, col + i, row + j);
       if (originCell) {
         let content = originCell.content || "";
@@ -94,9 +99,20 @@ function pasteFromModel(state: GridState) {
   evaluateCells(state);
 }
 
+/**
+ * Format the current clipboard to a string suitable for being pasted in other
+ * programs.
+ *
+ * - add a tab character between each concecutive cells
+ * - add a newline character between each line
+ */
 export function getClipboardContent(state: GridState): string {
-  // todo: manage multicells cut/copy
-  // This should be a rectangular array of content, with tab/newlines
-  const cell = selectedCell(state);
-  return cell ? formatCell(state, cell) : "";
+  if (!state.clipboard.cells) {
+    return "";
+  }
+  return state.clipboard.cells
+    .map(cells => {
+      return cells.map(c => (c ? formatCell(state, c) : "")).join("\t");
+    })
+    .join("\n");
 }
