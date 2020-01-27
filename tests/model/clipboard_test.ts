@@ -167,4 +167,48 @@ describe("clipboard", () => {
     expect(model.state.cells.C3.content).toBe("3");
     expect(model.state.cells.C3.type).toBe("number");
   });
+
+  test("incompatible multiple selections: only last one is actually copied", () => {
+    const model = new GridModel();
+    model.setValue("A1", "a1");
+    model.setValue("A2", "a2");
+    model.setValue("C1", "c1");
+    model.selectCell(0, 0); // A1
+    model.updateSelection(0, 1); // A1:A2
+    model.selectCell(2, 0, true); // A1:A2 and C1
+    model.copy();
+
+    const clipboard = model.state.clipboard;
+    expect(clipboard.zones.length).toBe(1);
+    expect(clipboard.cells!.length).toBe(1);
+
+    model.selectCell(4, 0); // E1
+    model.paste();
+    expect(model.state.cells.E1.content).toBe("c1");
+    expect(model.state.cells.E2).not.toBeDefined();
+  });
+
+  test("compatible multiple selections: each column is copied", () => {
+    const model = new GridModel();
+    model.setValue("A1", "a1");
+    model.setValue("A2", "a2");
+    model.setValue("C1", "c1");
+    model.setValue("C2", "c2");
+    model.selectCell(0, 0); // A1
+    model.updateSelection(0, 1); // A1:A2
+    model.selectCell(2, 0, true); // A1:A2 and C1
+    model.updateSelection(2, 1); // A1:A2 and C1:C2;
+    model.copy();
+
+    const clipboard = model.state.clipboard;
+    expect(clipboard.zones.length).toBe(2);
+    expect(clipboard.cells!.length).toBe(2);
+
+    model.selectCell(4, 0); // E1
+    model.paste();
+    expect(model.state.cells.E1.content).toBe("a1");
+    expect(model.state.cells.E2.content).toBe("a2");
+    expect(model.state.cells.F1.content).toBe("c1");
+    expect(model.state.cells.F2.content).toBe("c2");
+  });
 });

@@ -5,29 +5,39 @@ import { evaluateCells } from "./evaluation";
 import { Cell, GridState } from "./state";
 
 export function cut(state: GridState) {
-  // todo: implement copySelection for multi selection
   cutOrCopy(state, true);
 }
 
 export function copy(state: GridState) {
-  // todo: implement copySelection for multi selection
   cutOrCopy(state, false);
 }
 
 function cutOrCopy(state: GridState, cut: boolean) {
-  let { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
+  const zones = state.selection.zones;
+  const tops = new Set(zones.map(z => z.top));
+  const bottoms = new Set(zones.map(z => z.bottom));
+  const areZonesCompatible = tops.size === 1 && bottoms.size === 1;
+  let clippedZones = areZonesCompatible ? zones : [zones[zones.length - 1]];
+
+  clippedZones = clippedZones.map(z => Object.assign({}, z));
+
   const cells: (Cell | null)[][] = [];
-  for (let j = top; j <= bottom; j++) {
-    const vals: (Cell | null)[] = [];
-    cells.push(vals);
-    for (let i = left; i <= right; i++) {
-      const cell = getCell(state, i, j);
-      vals.push(cell ? Object.assign({}, cell) : null);
+  let { top, bottom } = clippedZones[0];
+  for (let r = top; r <= bottom; r++) {
+    const row: (Cell | null)[] = [];
+    cells.push(row);
+    for (let zone of clippedZones) {
+      let { left, right } = zone;
+      for (let c = left; c <= right; c++) {
+        const cell = getCell(state, c, r);
+        row.push(cell ? Object.assign({}, cell) : null);
+      }
     }
   }
+
   state.clipboard.status = "visible";
   state.clipboard.shouldCut = cut;
-  state.clipboard.zones = [{ left, right, top, bottom }];
+  state.clipboard.zones = clippedZones;
   state.clipboard.cells = cells;
 }
 
@@ -48,7 +58,10 @@ export function paste(state: GridState, clipboardContent?: string) {
 
 function pasteFromClipboard(state: GridState, content: string) {
   state.clipboard.status = "invisible";
-  const values = content.replace(/\r/g, "").split("\n").map(vals => vals.split("\t"));
+  const values = content
+    .replace(/\r/g, "")
+    .split("\n")
+    .map(vals => vals.split("\t"));
   const { activeCol, activeRow } = state;
   for (let i = 0; i < values.length; i++) {
     for (let j = 0; j < values[i].length; j++) {
@@ -59,7 +72,6 @@ function pasteFromClipboard(state: GridState, content: string) {
 }
 
 function pasteFromModel(state: GridState) {
-  // todo: implement pasteSelection for multi selection
   const { zones, cells, shouldCut, status } = state.clipboard;
   if (!zones || !cells) {
     return;
@@ -68,20 +80,22 @@ function pasteFromModel(state: GridState) {
     return;
   }
   state.clipboard.status = shouldCut ? "empty" : "invisible";
+
   const selection = state.selection.zones[state.selection.zones.length - 1];
   let col = selection.left;
   let row = selection.top;
-  let { left, right, top, bottom } = zones[0];
-  const offsetX = col - left;
-  const offsetY = row - top;
-  for (let i = 0; i <= right - left; i++) {
-    for (let j = 0; j <= bottom - top; j++) {
-      const xc = toXC(col + i, row + j);
-      const originCell = cells[j][i];
-      const targetCell = getCell(state, col + i, row + j);
+
+  for (let r = 0; r < cells.length; r++) {
+    const rowCells = cells[r];
+    for (let c = 0; c < rowCells.length; c++) {
+      const xc = toXC(col + c, row + r);
+      const originCell = rowCells[c];
+      const targetCell = getCell(state, col + c, row + r);
       if (originCell) {
         let content = originCell.content || "";
         if (originCell.type === "formula") {
+          const offsetX = col + c - originCell.col;
+          const offsetY = row + r - originCell.row;
           content = applyOffset(content, offsetX, offsetY);
         }
         let { style, border } = originCell;
