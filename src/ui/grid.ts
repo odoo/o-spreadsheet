@@ -400,7 +400,12 @@ export class Grid extends Component<any, any> {
       const content = clipboardData.getData("text/plain");
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        this.model.paste();
+        const didPaste = this.model.paste();
+        if (!didPaste) {
+          this.trigger("notify-user", {
+            content: "This operation is not allowed with multiple selections."
+          });
+        }
       } else {
         this.model.paste(content);
       }

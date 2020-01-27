@@ -1,7 +1,8 @@
 import { applyOffset } from "../formulas/index";
 import { toXC } from "../helpers";
-import { addCell, deleteCell, formatCell, getCell, setValue } from "./core";
+import { addCell, deleteCell, formatCell, getCell, selectCell, setValue } from "./core";
 import { evaluateCells } from "./evaluation";
+import { updateSelection } from "./selection";
 import { Cell, GridState } from "./state";
 
 export function cut(state: GridState) {
@@ -47,12 +48,15 @@ function cutOrCopy(state: GridState, cut: boolean) {
  * The paste operation has two possible types of sources:
  * - either the os clipboard (the paste comes from outside)
  * - or internal clipboard: paste come from the spreadsheet itself
+ *
+ * Return false if the paste operation was not allowed.
  */
-export function paste(state: GridState, clipboardContent?: string) {
+export function paste(state: GridState, clipboardContent?: string): boolean {
   if (clipboardContent === undefined) {
-    pasteFromModel(state);
+    return pasteFromModel(state);
   } else {
     pasteFromClipboard(state, clipboardContent);
+    return true;
   }
 }
 
@@ -71,48 +75,80 @@ function pasteFromClipboard(state: GridState, content: string) {
   }
 }
 
-function pasteFromModel(state: GridState) {
+/**
+ * Return false if the paste operation was not allowed
+ */
+function pasteFromModel(state: GridState): boolean {
   const { zones, cells, shouldCut, status } = state.clipboard;
   if (!zones || !cells) {
-    return;
+    return true;
   }
   if (status === "empty") {
-    return;
+    return true;
   }
   state.clipboard.status = shouldCut ? "empty" : "invisible";
 
   const selection = state.selection.zones[state.selection.zones.length - 1];
+  const clippedHeight = cells.length;
+  const clippedWidth = cells[0].length;
+  if ((clippedWidth > 1 || clippedHeight > 1) && state.selection.zones.length > 1) {
+    // cannot paste if we have a clipped zone larger than a cell and multiple
+    // zones selected
+    return false;
+  }
   let col = selection.left;
   let row = selection.top;
-
-  for (let r = 0; r < cells.length; r++) {
-    const rowCells = cells[r];
-    for (let c = 0; c < rowCells.length; c++) {
-      const xc = toXC(col + c, row + r);
-      const originCell = rowCells[c];
-      const targetCell = getCell(state, col + c, row + r);
-      if (originCell) {
-        let content = originCell.content || "";
-        if (originCell.type === "formula") {
-          const offsetX = col + c - originCell.col;
-          const offsetY = row + r - originCell.row;
-          content = applyOffset(content, offsetX, offsetY);
+  const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / clippedWidth));
+  const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / clippedHeight));
+  for (let x = 0; x < repX; x++) {
+    for (let y = 0; y < repY; y++) {
+      pasteZone(col + x * clippedWidth, row + y * clippedHeight);
+    }
+  }
+  function pasteZone(col: number, row: number) {
+    for (let r = 0; r < clippedHeight; r++) {
+      const rowCells = cells![r];
+      for (let c = 0; c < clippedWidth; c++) {
+        const xc = toXC(col + c, row + r);
+        const originCell = rowCells[c];
+        const targetCell = getCell(state, col + c, row + r);
+        if (originCell) {
+          let content = originCell.content || "";
+          if (originCell.type === "formula") {
+            const offsetX = col + c - originCell.col;
+            const offsetY = row + r - originCell.row;
+            content = applyOffset(content, offsetX, offsetY);
+          }
+          let { style, border } = originCell;
+          addCell(state, xc, { content, style, border });
+          if (shouldCut) {
+            deleteCell(state, originCell.xc, true);
+          }
         }
-        let { style, border } = originCell;
-        addCell(state, xc, { content, style, border });
-        if (shouldCut) {
-          deleteCell(state, originCell.xc, true);
+        if (!originCell && targetCell) {
+          addCell(state, xc, { content: "" });
         }
-      }
-      if (!originCell && targetCell) {
-        addCell(state, xc, { content: "" });
       }
     }
   }
 
   evaluateCells(state);
+
+  if (clippedHeight > 1 || clippedWidth > 1) {
+    const anchor = Object.assign({}, state.selection.anchor);
+    selectCell(state, col, row);
+    updateSelection(state, col + repX * clippedWidth - 1, row + repY * clippedHeight - 1);
+    state.selection.anchor.col = clip(anchor.col, col, col + repX * clippedWidth - 1);
+    state.selection.anchor.row = clip(anchor.row, row, row + repY * clippedHeight - 1);
+    state.activeCol = state.selection.anchor.col;
+    state.activeRow = state.selection.anchor.row;
+  }
+  return true;
 }
 
+function clip(val: number, min: number, max: number): number {
+  return val < min ? min : val > max ? max : val;
+}
 /**
  * Format the current clipboard to a string suitable for being pasted in other
  * programs.

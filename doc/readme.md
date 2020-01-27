@@ -40,3 +40,7 @@ class App extends Component {
     }
   }
 ```
+
+3. Notification dialog: sometimes, `o-spreadsheet` needs to notify the user that
+   some operation is not supported, or some other message. In that case, it will
+   trigger a `notify-user` event, with a `content` key with a message.

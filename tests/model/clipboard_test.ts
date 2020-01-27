@@ -211,4 +211,67 @@ describe("clipboard", () => {
     expect(model.state.cells.F1.content).toBe("c1");
     expect(model.state.cells.F2.content).toBe("c2");
   });
+
+  test("pasting a value in a larger selection", () => {
+    const model = new GridModel();
+    model.setValue("A1", "1");
+    model.selectCell(0, 0); // A1
+    model.copy();
+
+    model.selectCell(2, 1); // C2
+    model.updateSelection(4, 2); // select C2:E3
+    model.paste();
+    expect(model.state.cells.C2.content).toBe("1");
+    expect(model.state.cells.C3.content).toBe("1");
+    expect(model.state.cells.D2.content).toBe("1");
+    expect(model.state.cells.D3.content).toBe("1");
+    expect(model.state.cells.E2.content).toBe("1");
+    expect(model.state.cells.E3.content).toBe("1");
+  });
+
+  test("selection is updated to contain exactly the new pasted zone", () => {
+    const model = new GridModel();
+    model.setValue("A1", "1");
+    model.setValue("A2", "2");
+    model.selectCell(0, 0); // A1
+    model.updateSelection(0, 1); // A1:A2
+    model.copy();
+
+    model.selectCell(2, 0); // C1
+    model.updateSelection(2, 2); // select C1:C3
+    expect(model.state.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
+    model.paste();
+    expect(model.state.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });
+    expect(model.state.cells.C1.content).toBe("1");
+    expect(model.state.cells.C2.content).toBe("2");
+    expect(model.state.cells.C3).not.toBeDefined();
+  });
+
+  test("selection is not changed if pasting a single value into two zones", () => {
+    const model = new GridModel();
+    model.setValue("A1", "1");
+    model.selectCell(0, 0); // A1
+    model.copy();
+
+    model.selectCell(2, 0); // C1
+    model.selectCell(4, 0, true); // select C1,E1
+
+    model.paste();
+    expect(model.state.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
+    expect(model.state.selection.zones[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
+  });
+
+  test("pasting is not allowed if multiple selection and more than one value", () => {
+    const model = new GridModel();
+    model.setValue("A1", "1");
+    model.setValue("A2", "2");
+    model.selectCell(0, 0); // A1
+    model.updateSelection(0, 1); // select A1:A2
+    model.copy();
+
+    model.selectCell(2, 0); // C1
+    model.selectCell(4, 0, true); // select C1,E1
+
+    expect(model.paste()).toBe(false);
+  });
 });

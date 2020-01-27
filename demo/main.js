@@ -72,9 +72,16 @@ class App extends Component {
       ev.detail.confirm();
     }
   }
+
+  notifyUser(ev) {
+    window.alert(ev.detail.content);
+  }
 }
 
-App.template = xml`<Spreadsheet data="data" t-on-ask-confirmation="askConfirmation"/>`;
+App.template = xml`
+  <Spreadsheet data="data"
+    t-on-ask-confirmation="askConfirmation"
+    t-on-notify-user="notifyUser"/>`;
 App.style = css`
   html {
     height: 100%;
