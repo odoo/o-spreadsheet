@@ -234,4 +234,17 @@ describe("borders", () => {
     model.deleteSelection();
     expect(model.state.cells.B2.border).toBeDefined();
   });
+
+  test("can undo and redo a setBorder operation on an non empty cell", () => {
+    const model = new GridModel();
+    model.setValue("B2", "some content");
+    model.selectCell(1, 1);
+    model.setBorder("all");
+
+    expect(model.state.cells.B2.content).toBe("some content");
+    expect(model.state.cells.B2.border).toBeDefined();
+    model.undo();
+    expect(model.state.cells.B2.content).toBe("some content");
+    expect(model.state.cells.B2.border).not.toBeDefined();
+  });
 });

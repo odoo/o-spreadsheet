@@ -1,6 +1,6 @@
 import { GridModel } from "../../src/model";
 
-import { GridParent, makeTestFixture } from "../helpers";
+import { makeTestFixture } from "../helpers";
 
 let fixture: HTMLElement;
 
@@ -13,40 +13,44 @@ afterEach(() => {
 });
 
 describe("Model resizer", () => {
-  test("Can resize one column", async () => {
+  test("Can resize one column, undo, then redo", async () => {
     const model = new GridModel();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     const initialSize = model.state.cols[1].size;
     const initialTop = model.state.cols[2].left;
 
     model.updateColSize(1, 100);
+    expect(model.state.cols[1].size).toBe(initialSize + 100);
+    expect(model.state.cols[2].left).toBe(initialTop + 100);
 
+    model.undo();
+    expect(model.state.cols[1].size).toBe(initialSize);
+    expect(model.state.cols[2].left).toBe(initialTop);
+
+    model.redo();
     expect(model.state.cols[1].size).toBe(initialSize + 100);
     expect(model.state.cols[2].left).toBe(initialTop + 100);
   });
 
-  test("Can resize one row", async () => {
+  test("Can resize one row, then undo", async () => {
     const model = new GridModel();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     const initialSize = model.state.rows[1].size;
     const initialTop = model.state.rows[2].top;
 
     model.updateRowSize(1, 100);
-
     expect(model.state.rows[1].size).toBe(initialSize + 100);
     expect(model.state.rows[2].top).toBe(initialTop + 100);
+
+    model.undo();
+    expect(model.state.rows[1].size).toBe(initialSize);
+    expect(model.state.rows[2].top).toBe(initialTop);
   });
 
   test("Can resize multiple columns", async () => {
     const model = new GridModel();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     const size = model.state.cols[0].size;
@@ -61,8 +65,6 @@ describe("Model resizer", () => {
 
   test("Can resize multiple rows", async () => {
     const model = new GridModel();
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     const size = model.state.rows[0].size;

@@ -1,4 +1,5 @@
 import { GridState } from "./state";
+import { updateState } from "./history";
 
 /**
  * Update the size of the given column, by adding a delta (can be negative)
@@ -9,12 +10,12 @@ import { GridState } from "./state";
 export function updateColSize(state: GridState, index: number, delta: number) {
   const { cols } = state;
   const col = cols[index];
-  col.size += delta;
-  col.right += delta;
+  updateState(state, ["cols", index, "size"], col.size + delta);
+  updateState(state, ["cols", index, "right"], col.right + delta);
   for (let i = index + 1; i < state.cols.length; i++) {
     const col = cols[i];
-    col.left += delta;
-    col.right += delta;
+    updateState(state, ["cols", i, "left"], col.left + delta);
+    updateState(state, ["cols", i, "right"], col.right + delta);
   }
 }
 /**
@@ -26,12 +27,12 @@ export function updateColSize(state: GridState, index: number, delta: number) {
 export function updateRowSize(state: GridState, index: number, delta: number) {
   const { rows } = state;
   const row = rows[index];
-  row.size += delta;
-  row.bottom += delta;
+  updateState(state, ["rows", index, "size"], row.size + delta);
+  updateState(state, ["rows", index, "bottom"], row.bottom + delta);
   for (let i = index + 1; i < state.rows.length; i++) {
     const row = rows[i];
-    row.top += delta;
-    row.bottom += delta;
+    updateState(state, ["rows", i, "top"], row.top + delta);
+    updateState(state, ["rows", i, "bottom"], row.bottom + delta);
   }
 }
 

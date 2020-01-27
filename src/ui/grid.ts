@@ -274,6 +274,12 @@ export class Grid extends Component<any, any> {
       this.model.deleteSelection();
     }
     if (ev.ctrlKey) {
+      if (ev.key.toLowerCase() === "z") {
+        this.model.undo();
+      }
+      if (ev.key.toLowerCase() === "y") {
+        this.model.redo();
+      }
       return;
     }
 

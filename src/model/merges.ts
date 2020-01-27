@@ -2,6 +2,7 @@ import { toXC, toCartesian } from "../helpers";
 import { GridState } from "./state";
 import { deleteCell } from "./core";
 import { evaluateCells } from "./evaluation";
+import { updateState } from "./history";
 
 // ---------------------------------------------------------------------------
 // Merges
@@ -12,14 +13,14 @@ export function addMerge(state: GridState, m: string) {
   const [tl, br] = m.split(":");
   const [left, top] = toCartesian(tl);
   const [right, bottom] = toCartesian(br);
-  state.merges[id] = {
+  updateState(state, ["merges", id], {
     id,
     left,
     top,
     right,
     bottom,
     topLeft: tl
-  };
+  });
   let isDestructive = false;
   let previousMerges: Set<number> = new Set();
   for (let row = top; row <= bottom; row++) {
@@ -32,11 +33,11 @@ export function addMerge(state: GridState, m: string) {
       if (state.mergeCellMap[xc]) {
         previousMerges.add(state.mergeCellMap[xc]);
       }
-      state.mergeCellMap[xc] = id;
+      updateState(state, ["mergeCellMap", xc], id);
     }
   }
   for (let m of previousMerges) {
-    delete state.merges[m];
+    updateState(state, ["merges", m], undefined);
   }
   if (isDestructive) {
     evaluateCells(state);
@@ -61,11 +62,11 @@ export function merge(state: GridState) {
 export function unmerge(state: GridState) {
   const mergeId = state.mergeCellMap[state.activeXc];
   const { left, top, right, bottom } = state.merges[mergeId];
-  delete state.merges[mergeId];
+  updateState(state, ["merges", mergeId], undefined);
   for (let r = top; r <= bottom; r++) {
     for (let c = left; c <= right; c++) {
       const xc = toXC(c, r);
-      delete state.mergeCellMap[xc];
+      updateState(state, ["mergeCellMap", xc], undefined);
     }
   }
 }

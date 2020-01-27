@@ -2,6 +2,7 @@ import { addMerge } from "./merges";
 import { addCell, selectCell } from "./core";
 import { evaluateCells } from "./evaluation";
 import { numberToLetters } from "../helpers";
+import { updateState } from "./history";
 
 /**
  * State
@@ -55,6 +56,9 @@ export interface GridState {
   currentContent: string;
 
   clipboard: ClipBoard;
+  trackChanges: boolean;
+  undoStack: HistoryStep[];
+  redoStack: HistoryStep[];
   nextId: number;
   highlights: Highlight[];
   isSelectingRange: boolean;
@@ -65,6 +69,17 @@ export interface GridState {
   sheets: Sheet[];
   activeSheet: number; // index
   activeSheetName: string;
+}
+
+export interface HistoryChange {
+  root: any;
+  path: (string | number)[];
+  before: any;
+  after: any;
+}
+
+export interface HistoryStep {
+  batch: HistoryChange[];
 }
 
 export interface Zone {
@@ -275,6 +290,9 @@ export function importData(
       status: "empty",
       zones: []
     },
+    trackChanges: false,
+    undoStack: [],
+    redoStack: [],
     nextId,
     highlights: [],
     isSelectingRange: false,
@@ -308,7 +326,9 @@ function importSheet(state: GridState, data: SheetData): number {
     rows: data.rows || {},
     merges: data.merges || []
   };
-  const index = state.sheets.push(sheet) - 1;
+  const sheets = state.sheets.slice();
+  const index = sheets.push(sheet) - 1;
+  updateState(state, ["sheets"], sheets);
   // cells
   for (let xc in data.cells) {
     addCell(state, xc, data.cells[xc], sheet);
@@ -329,15 +349,15 @@ export function addSheet(state: GridState) {
 
 export function activateSheet(state: GridState, index: number) {
   const sheet = state.sheets[index];
-  state.activeSheet = index;
-  state.activeSheetName = sheet.name;
+  updateState(state, ["activeSheet"], index);
+  updateState(state, ["activeSheetName"], sheet.name);
 
   // setting up rows and columns
   addRowsCols(state, sheet);
 
   // merges
-  state.merges = {};
-  state.mergeCellMap = {};
+  updateState(state, ["merges"], {});
+  updateState(state, ["mergeCellMap"], {});
   if (sheet.merges) {
     for (let m of sheet.merges) {
       addMerge(state, m);
@@ -345,10 +365,11 @@ export function activateSheet(state: GridState, index: number) {
   }
 
   // cells
+  updateState(state, ["cells"], sheet.cells);
   state.cells = sheet.cells;
   for (let xc in state.cells) {
     const cell = state.cells[xc];
-    state.rows[cell.row].cells[cell.col] = cell;
+    updateState(state, ["rows", cell.row, "cells", cell.col], cell);
   }
   evaluateCells(state);
   selectCell(state, 0, 0);
@@ -356,8 +377,8 @@ export function activateSheet(state: GridState, index: number) {
 
 function addRowsCols(state: GridState, sheet: Sheet) {
   let current = 0;
-  state.rows = [];
-  state.cols = [];
+  updateState(state, ["rows"], []);
+  updateState(state, ["cols"], []);
   const rows = sheet.rows || {};
   const cols = sheet.cols || {};
   for (let i = 0; i < sheet.rowNumber; i++) {
@@ -372,7 +393,7 @@ function addRowsCols(state: GridState, sheet: Sheet) {
     state.rows.push(row);
     current = row.bottom;
   }
-  state.height = state.rows[state.rows.length - 1].bottom + 20; // 10 to have some space at the end
+  updateState(state, ["height"], state.rows[state.rows.length - 1].bottom + 20);
 
   current = 0;
   for (let i = 0; i < sheet.colNumber; i++) {
@@ -386,7 +407,7 @@ function addRowsCols(state: GridState, sheet: Sheet) {
     state.cols.push(col);
     current = col.right;
   }
-  state.width = state.cols[state.cols.length - 1].right + 10;
+  updateState(state, ["width"], state.cols[state.cols.length - 1].right + 10);
 }
 
 // -----------------------------------------------------------------------------

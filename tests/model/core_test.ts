@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 
 describe("core", () => {
   test("properly compute sum of current cells", () => {
@@ -32,5 +32,74 @@ describe("core", () => {
     // select A1:A3
     model.updateSelection(0, 2);
     expect(model.aggregate).toBe("5");
+  });
+});
+
+describe("history", () => {
+  test("can undo and redo a add cell operation", () => {
+    const model = new GridModel();
+
+    expect(model.state.undoStack.length).toBe(0);
+    expect(model.state.redoStack.length).toBe(0);
+
+    model.startEditing("abc");
+    model.stopEditing();
+
+    expect(model.state.cells.A1.content).toBe("abc");
+    expect(model.state.undoStack.length).toBe(1);
+    expect(model.state.redoStack.length).toBe(0);
+
+    model.undo();
+    expect(model.state.cells.A1).not.toBeDefined();
+    expect(model.state.undoStack.length).toBe(0);
+    expect(model.state.redoStack.length).toBe(1);
+
+    model.redo();
+    expect(model.state.cells.A1.content).toBe("abc");
+    expect(model.state.undoStack.length).toBe(1);
+    expect(model.state.redoStack.length).toBe(0);
+  });
+
+  test("can undo and redo a cell update", () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }]
+    });
+
+    expect(model.state.undoStack.length).toBe(0);
+    expect(model.state.redoStack.length).toBe(0);
+
+    model.startEditing("abc");
+    model.stopEditing();
+
+    expect(model.state.cells.A1.content).toBe("abc");
+    expect(model.state.undoStack.length).toBe(1);
+    expect(model.state.redoStack.length).toBe(0);
+
+    model.undo();
+    expect(model.state.cells.A1.content).toBe("1");
+    expect(model.state.undoStack.length).toBe(0);
+    expect(model.state.redoStack.length).toBe(1);
+
+    model.redo();
+    expect(model.state.cells.A1.content).toBe("abc");
+    expect(model.state.undoStack.length).toBe(1);
+    expect(model.state.redoStack.length).toBe(0);
+  });
+
+  test("can undo and redo a delete cell operation", () => {
+    const model = new GridModel();
+    model.setValue("A2", "3");
+
+    expect(model.state.cells.A2.content).toBe("3");
+    model.selectCell(0, 1);
+    model.deleteSelection();
+    expect(model.state.cells.A2).not.toBeDefined();
+
+    model.undo();
+    expect(model.state.cells.A2.content).toBe("3");
+
+    model.redo();
+    expect(model.state.cells.A2).not.toBeDefined();
   });
 });

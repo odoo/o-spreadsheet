@@ -230,6 +230,32 @@ describe("merges", () => {
     expect(model.state.mergeCellMap).toEqual({});
     expect(model.state.merges).toEqual({});
   });
+
+  test("can undo and redo a merge", () => {
+    const model = new GridModel();
+
+    // select B2:B3 and merge
+    model.selectCell(1, 1);
+    model.updateSelection(1, 2);
+    model.merge();
+
+    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.state.merges).toEqual({
+      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
+    });
+
+    // undo
+    model.undo();
+    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.state.merges)).toEqual([]);
+
+    // redo
+    model.redo();
+    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.state.merges).toEqual({
+      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
+    });
+  });
 });
 
 function getStyle(state: GridState, xc: string) {

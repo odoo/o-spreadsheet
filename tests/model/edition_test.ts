@@ -33,7 +33,8 @@ describe("edition", () => {
 
     // removing
     expect(model.state.cells["A2"].content).toBe("a2");
-    model.deleteCell("A2");
+    model.selectCell(0, 1);
+    model.deleteSelection();
     expect("A2" in model.state.cells).toBeTruthy();
     expect(model.state.cells["A2"].content).toBe("");
   });

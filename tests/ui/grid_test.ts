@@ -166,5 +166,47 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(model.state.activeXc).toBe("A1");
     });
+
+    test("can undo/redo with keyboard", async () => {
+      const model = new GridModel();
+      model.setStyle({ fillColor: "red" });
+      const parent = new GridParent(model);
+      await parent.mount(fixture);
+      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+      expect(model.state.cells.A1.style).toBeDefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "z", ctrlKey: true })
+      );
+
+      expect(model.state.cells.A1).not.toBeDefined();
+
+      await nextTick();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "y", ctrlKey: true })
+      );
+      expect(model.state.cells.A1.style).toBeDefined();
+    });
+
+    test("can undo/redo with keyboard (uppercase version)", async () => {
+      const model = new GridModel();
+      model.setStyle({ fillColor: "red" });
+      const parent = new GridParent(model);
+      await parent.mount(fixture);
+      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+      expect(model.state.cells.A1.style).toBeDefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Z", ctrlKey: true })
+      );
+
+      expect(model.state.cells.A1).not.toBeDefined();
+
+      await nextTick();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Y", ctrlKey: true })
+      );
+      expect(model.state.cells.A1.style).toBeDefined();
+    });
   });
 });

@@ -109,8 +109,8 @@ export class TopBar extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar">
       <div class="o-tools">
-        <div class="o-tool o-disabled" title="Undo">${icons.UNDO_ICON}</div>
-        <div class="o-tool o-disabled" title="Redo">${icons.REDO_ICON}</div>
+        <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
+        <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
         <div class="o-tool" title="Paint Format">${icons.PAINT_FORMAT_ICON}</div>
         <div class="o-tool" title="Clear Format">${icons.CLEAR_FORMAT_ICON}</div>
         <div class="o-divider"/>
@@ -284,6 +284,8 @@ export class TopBar extends Component<any, any> {
   });
   inMerge = false;
   cannotMerge = false;
+  undoTool = false;
+  redoTool = false;
   fillColor: string = "white";
   textColor: string = "black";
 
@@ -331,6 +333,8 @@ export class TopBar extends Component<any, any> {
       const mergeId = state.mergeCellMap[state.activeXc];
       this.inMerge = mergeId ? isEqual(selection.zones[0], state.merges[mergeId]) : false;
     }
+    this.undoTool = state.undoStack.length > 0;
+    this.redoTool = state.redoStack.length > 0;
   }
 
   toggleMerge() {

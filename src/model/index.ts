@@ -3,6 +3,7 @@ import { setBorder } from "./borders";
 import * as clipboard from "./clipboard";
 import * as core from "./core";
 import * as merges from "./merges";
+import * as history from "./history";
 import * as selection from "./selection";
 import * as expand from "./resize";
 import {
@@ -38,7 +39,9 @@ export class GridModel extends owl.core.EventBus {
 
   private makeMutation<T>(f: T): OmitFirstArg<T> {
     return ((...args) => {
-      const result = (f as any).call(null, this.state, ...args);
+      history.start(this.state);
+      let result = (f as any).call(null, this.state, ...args);
+      history.stop(this.state);
       this.prepareModel();
       this.trigger("update");
       return result;
@@ -66,9 +69,13 @@ export class GridModel extends owl.core.EventBus {
     return ((...args) => (f as any).call(null, this.state, ...args)) as any;
   }
 
+  // history
+  // ---------------------------------------------------------------------------
+  undo = this.makeMutation(history.undo);
+  redo = this.makeMutation(history.redo);
+
   // core
   // ---------------------------------------------------------------------------
-  deleteCell = this.makeMutation(core.deleteCell);
   movePosition = this.makeMutation(core.movePosition);
   getColSize = this.makeFn(core.getColSize);
   getRowSize = this.makeFn(core.getRowSize);

@@ -1,6 +1,7 @@
 import { toXC, stringify } from "../helpers";
 import { Style, GridState } from "./state";
 import { getCell, addCell, selectedCell } from "./core";
+import { updateCell } from "./history";
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -26,10 +27,10 @@ function setStyleToCell(state: GridState, col: number, row: number, style) {
   const currentStyle = cell && cell.style ? state.styles[cell.style] : {};
   const nextStyle = Object.assign({}, currentStyle, style);
   const id = registerStyle(state, nextStyle);
+  const xc = toXC(col, row);
   if (cell) {
-    cell.style = id;
+    updateCell(state, cell, "style", id);
   } else {
-    const xc = toXC(col, row);
     addCell(state, xc, { style: id, content: "" });
   }
 }

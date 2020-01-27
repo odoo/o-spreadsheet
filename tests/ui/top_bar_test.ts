@@ -119,4 +119,29 @@ describe("TopBar component", () => {
     // should be disabled, because multiple zones are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
   });
+
+  test("undo/redo tools", async () => {
+    const model = new GridModel();
+
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const undoTool = fixture.querySelector('.o-tool[title="Undo"]')!;
+    const redoTool = fixture.querySelector('.o-tool[title="Redo"]')!;
+
+    expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
+    expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
+
+    model.setStyle({ bold: true });
+    await nextTick();
+
+    expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
+    expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
+    expect(model.state.cells.A1.style).toBeDefined();
+
+    undoTool.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
+    expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
+    expect(model.state.cells.A1).not.toBeDefined();
+  });
 });

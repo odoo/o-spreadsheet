@@ -1,10 +1,11 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { formatNumber } from "../formatters";
+import { AsyncFunction } from "../formulas/compiler";
 import { compile } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
-import { Cell, CellData, GridState, Highlight, Zone, Sheet } from "./state";
-import { AsyncFunction } from "../formulas/compiler";
-import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
-import { formatNumber } from "../formatters";
+import { updateState } from "./history";
+import { Cell, CellData, GridState, Highlight, Sheet, Zone } from "./state";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -76,8 +77,8 @@ export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sh
   if (sheet) {
     sheet.cells[xc] = cell;
   } else {
-    state.cells[xc] = cell;
-    state.rows[row].cells[col] = cell;
+    updateState(state, ["cells", xc], cell);
+    updateState(state, ["rows", cell.row, "cells", cell.col], cell);
   }
 }
 
@@ -102,8 +103,8 @@ export function deleteCell(state: GridState, xc: string, force: boolean = false)
       }
       addCell(state, xc, newCell);
     } else {
-      delete state.cells[xc];
-      delete state.rows[cell.row].cells[cell.col];
+      updateState(state, ["cells", xc], undefined);
+      updateState(state, ["rows", cell.row, "cells", cell.col], undefined);
     }
   }
 }

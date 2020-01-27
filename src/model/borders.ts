@@ -1,6 +1,7 @@
-import { BorderCommand, GridState, Border, Zone } from "./state";
-import { toXC, stringify } from "../helpers";
-import { getCell, addCell, deleteCell } from "./core";
+import { stringify, toXC } from "../helpers";
+import { addCell, deleteCell, getCell } from "./core";
+import { updateCell } from "./history";
+import { Border, BorderCommand, GridState, Zone } from "./state";
 
 // ---------------------------------------------------------------------------
 // Borders
@@ -87,7 +88,7 @@ function clearBorder(state: GridState, col: number, row: number) {
     if (!cell.content && !cell.style) {
       deleteCell(state, cell.xc, true);
     } else {
-      delete cell.border;
+      updateCell(state, cell, "border", undefined);
     }
   }
   if (col > 0) {
@@ -111,7 +112,7 @@ function clearSide(state: GridState, col: number, row: number, side: string) {
         deleteCell(state, cell.xc, true);
       } else {
         const id = registerBorder(state, newBorder);
-        cell.border = id;
+        updateCell(state, cell, "border", id);
       }
     }
   }
@@ -123,7 +124,7 @@ function setBorderToCell(state: GridState, col: number, row: number, border: Bor
   const nextBorder = Object.assign({}, currentBorder, border);
   const id = registerBorder(state, nextBorder);
   if (cell) {
-    cell.border = id;
+    updateCell(state, cell, "border", id);
   } else {
     const xc = toXC(col, row);
     addCell(state, xc, { border: id });

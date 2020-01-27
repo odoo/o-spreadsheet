@@ -306,4 +306,17 @@ describe("clipboard", () => {
     expect(model.state.cells["D2"].value).toEqual("test");
     expect(model.state.clipboard.status).toBe("invisible");
   });
+
+  test("can undo a paste operation", () => {
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+
+    model.selectCell(1, 1);
+    model.copy();
+    model.selectCell(3, 1); //D2
+    model.paste();
+    expect(model.state.cells.D2).toBeDefined();
+    model.undo();
+    expect(model.state.cells.D2).not.toBeDefined();
+  });
 });
