@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 import { makeTestFixture, nextTick } from "../helpers";
 import { TopBar } from "../../src/ui/top_bar";
 import { Component, tags } from "@odoo/owl";
@@ -35,15 +35,9 @@ afterEach(() => {
 
 describe("TopBar component", () => {
   test("merging destructively a selection ask for confirmation", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+
     let confirm;
     class TestParent extends Parent {
       askConfirmation(ev) {
@@ -62,15 +56,8 @@ describe("TopBar component", () => {
   });
 
   test("opening a second menu closes the first one", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -89,6 +76,7 @@ describe("TopBar component", () => {
 
   test("merging cell button state is correct", async () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -111,15 +99,9 @@ describe("TopBar component", () => {
   });
 
   test("multiple selection zones => merge tools is disabled", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+
     const parent = new Parent(model);
     await parent.mount(fixture);
     const mergeTool = fixture.querySelector('.o-tool[title="Merge Cells"]')!;

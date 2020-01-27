@@ -5,6 +5,7 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 
 const data = {
+  version: 1,
   sheets: [
     {
       name: "Sheet1",

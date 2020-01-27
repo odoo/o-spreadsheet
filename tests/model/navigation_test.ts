@@ -1,30 +1,13 @@
-import { GridModel } from "../../src/model/index";
-
-let n = 0;
-
-function observeModel(model: GridModel) {
-  n = 0;
-  model.on("update", null, () => n++);
-}
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 
 describe("navigation", () => {
   test("normal move to the right", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10
-        }
-      ]
-    });
-    observeModel(model);
+    const model = new GridModel();
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.state.activeCol).toBe(0);
     expect(model.state.activeRow).toBe(0);
     expect(model.state.selection.anchor.col).toBe(0);
     expect(model.state.selection.anchor.row).toBe(0);
-
-    expect(n).toBe(0);
 
     model.movePosition(1, 0);
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
@@ -32,19 +15,10 @@ describe("navigation", () => {
     expect(model.state.activeRow).toBe(0);
     expect(model.state.selection.anchor.col).toBe(1);
     expect(model.state.selection.anchor.row).toBe(0);
-    expect(n).toBe(1);
   });
 
   test("move up from top row", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10
-        }
-      ]
-    });
-    observeModel(model);
+    const model = new GridModel();
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.state.activeCol).toBe(0);
     expect(model.state.activeRow).toBe(0);
@@ -57,6 +31,7 @@ describe("navigation", () => {
 
   test("move in and out of a merge", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -65,14 +40,11 @@ describe("navigation", () => {
         }
       ]
     });
-    observeModel(model);
     expect(model.state.activeCol).toBe(0);
     expect(model.state.activeRow).toBe(0);
 
     // move to the right, inside the merge
-    expect(n).toBe(0);
     model.movePosition(1, 0);
-    expect(n).toBe(1);
 
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.state.activeCol).toBe(1);
@@ -80,7 +52,6 @@ describe("navigation", () => {
 
     // move to the right, outside the merge
     model.movePosition(1, 0);
-    expect(n).toBe(2);
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
     expect(model.state.activeCol).toBe(3);
     expect(model.state.activeRow).toBe(0);
@@ -89,6 +60,7 @@ describe("navigation", () => {
 
   test("do nothing if moving out of merge is out of grid", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -97,7 +69,6 @@ describe("navigation", () => {
         }
       ]
     });
-    observeModel(model);
     expect(model.state.activeCol).toBe(0);
     expect(model.state.activeRow).toBe(0);
 

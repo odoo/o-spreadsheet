@@ -2,18 +2,9 @@ import { GridModel } from "../../src/model/index";
 
 describe("core", () => {
   test("properly compute sum of current cells", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: {
-            A2: { content: "3" },
-            A3: { content: "54" }
-          }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("A2", "3");
+    model.setValue("A3", "54");
 
     expect(model.aggregate).toBe(null);
 
@@ -25,19 +16,10 @@ describe("core", () => {
   });
 
   test("ignore cells with an error", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: {
-            A1: { content: "2" },
-            A2: { content: "=A2" },
-            A3: { content: "3" }
-          }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("A1", "2");
+    model.setValue("A2", "=A2");
+    model.setValue("A3", "3");
 
     // select A1
     model.selectCell(0, 0);

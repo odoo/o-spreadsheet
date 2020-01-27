@@ -133,9 +133,14 @@ export interface Border {
 }
 
 export interface GridData {
+  version: number;
   sheets?: SheetData[];
   styles?: { [key: number]: Style };
   borders?: { [key: number]: Border };
+}
+
+export interface PartialGridDataWithVersion extends Partial<GridData> {
+  version: GridData["version"];
 }
 
 export interface Cell extends CellData {
@@ -197,6 +202,21 @@ export type BorderCommand =
 // import
 // -----------------------------------------------------------------------------
 
+/**
+ * This is the current state version number. It should be incremented each time
+ * a breaking change is made in the way the state is handled, and an upgrade
+ * function should be defined
+ */
+export const CURRENT_VERSION = 1;
+
+// TODO: use this code in importData function
+// const UPGRADES = {
+//   1: function (state) {
+//     // return here a state upgraded to version 2
+//     return state;
+//   }
+// };
+
 const DEFAULT_CELL_WIDTH = 96;
 const DEFAULT_CELL_HEIGHT = 23;
 
@@ -206,7 +226,12 @@ export const DEFAULT_STYLE: Style = {
   fontSize: 10
 };
 
-export function importData(data: Partial<GridData> = {}): GridState {
+export function importData(
+  data: PartialGridDataWithVersion = { version: CURRENT_VERSION }
+): GridState {
+  if (!data.version) {
+    throw new Error("Missing version number");
+  }
   // styles and borders
   const styles: GridState["styles"] = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);

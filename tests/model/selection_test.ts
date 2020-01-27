@@ -1,15 +1,9 @@
-import { GridModel } from "../../src/model/index";
-
-let n = 0;
-
-function observeModel(model: GridModel) {
-  n = 0;
-  model.on("update", null, () => n++);
-}
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -23,6 +17,7 @@ describe("selection", () => {
 
   test("can select selection with shift-arrow", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -31,16 +26,14 @@ describe("selection", () => {
         }
       ]
     });
-    observeModel(model);
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    expect(n).toBe(0);
     model.moveSelection(1, 0);
-    expect(n).toBe(1);
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -57,6 +50,7 @@ describe("selection", () => {
 
   test("can expand selection with mouse", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -65,16 +59,14 @@ describe("selection", () => {
         }
       ]
     });
-    observeModel(model);
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    expect(n).toBe(0);
     model.updateSelection(1, 0);
-    expect(n).toBe(1);
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("move selection in and out of a merge (in opposite direction)", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -84,25 +76,22 @@ describe("selection", () => {
       ]
     });
     model.selectCell(1, 0);
-    observeModel(model);
 
     // move to the right, inside the merge
-    expect(n).toBe(0);
     model.moveSelection(1, 0);
-    expect(n).toBe(1);
 
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(model.state.activeXc).toBe("B1");
 
     // move to the left, outside the merge
     model.moveSelection(-1, 0);
-    expect(n).toBe(2);
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(model.state.activeXc).toBe("B1");
   });
 
   test("update selection in some different directions", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -114,23 +103,20 @@ describe("selection", () => {
     // move sell to B4
     model.selectCell(1, 3);
     expect(model.state.activeXc).toBe("B4");
-    observeModel(model);
 
     // move up, inside the merge
-    expect(n).toBe(0);
     model.moveSelection(0, -1);
-    expect(n).toBe(1);
 
     expect(model.state.selection.zones[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
     model.moveSelection(-1, 0);
-    expect(n).toBe(2);
     expect(model.state.selection.zones[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
   test("expand selection when encountering a merge", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -151,6 +137,7 @@ describe("selection", () => {
 
   test("can select a whole column", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -166,6 +153,7 @@ describe("selection", () => {
 
   test("can select part of a formula", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -187,6 +175,7 @@ describe("selection", () => {
 
   test("extend selection works based on selection anchor, not active cell", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -213,6 +202,7 @@ describe("selection", () => {
 describe("multiple selections", () => {
   test("can select a new range", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,

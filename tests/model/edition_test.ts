@@ -1,16 +1,8 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: {}
-        }
-      ]
-    });
+    const model = new GridModel();
     // adding
     model.startEditing("a");
     model.stopEditing();
@@ -26,6 +18,7 @@ describe("edition", () => {
 
   test("deleting a cell with style does not remove it", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
