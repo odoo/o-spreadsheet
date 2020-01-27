@@ -1,6 +1,5 @@
 import { functions as math } from "./math";
 import { functions as logical } from "./logical";
-import { Arg, ArgType } from "./function_validation";
 
 //------------------------------------------------------------------------------
 // Types
@@ -15,7 +14,18 @@ export interface FunctionDescription {
 }
 
 export type FunctionMap = { [key: string]: FunctionDescription };
+export type ArgType = "BOOLEAN" | "ANY" | "RANGE" | "CELL" | "NUMBER" | "STRING";
 
+export interface Arg {
+  repeating?: boolean;
+  optional?: boolean;
+  description: string;
+  name: string;
+  type: ArgType[];
+  default?: any;
+  valueProvider?: Function;
+  isValueProviderRestrictive?: boolean;
+}
 //------------------------------------------------------------------------------
 // Functions
 //------------------------------------------------------------------------------

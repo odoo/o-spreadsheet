@@ -1,4 +1,4 @@
-import { validate } from "../../src/functions/function_validation";
+import { validate } from "../../src/formulas/validation";
 import { addFunction } from "../../src/functions";
 
 describe("constants", () => {

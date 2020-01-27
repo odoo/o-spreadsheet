@@ -1,6 +1,5 @@
-import { FunctionMap } from "./index";
+import { Arg, FunctionMap } from "./index";
 import { add, N, fromNumber, lt, zero } from "../decimal";
-import { Arg } from "./function_validation";
 
 let anyNumberArgs: Arg[] = [
   { name: "number", description: "", type: ["NUMBER", "CELL", "RANGE"] },

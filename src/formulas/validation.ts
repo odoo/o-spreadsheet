@@ -1,19 +1,6 @@
-import { parse } from "../formulas";
-import { functions } from "./index";
-import { AST } from "../formulas/parser";
-
-export type ArgType = "BOOLEAN" | "ANY" | "RANGE" | "CELL" | "NUMBER" | "STRING";
-
-export interface Arg {
-  repeating?: boolean;
-  optional?: boolean;
-  description: string;
-  name: string;
-  type: ArgType[];
-  default?: any;
-  valueProvider?: Function;
-  isValueProviderRestrictive?: boolean;
-}
+import { parse } from "./index";
+import { ArgType, functions } from "../functions";
+import { AST } from "./parser";
 
 export function validate(formula: string): boolean {
   if (!formula) return true;
