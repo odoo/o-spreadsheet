@@ -1,34 +1,18 @@
-import { GridModel, GridState } from "../../src/model/index";
-
-let n = 0;
-
-function observeModel(model: GridModel) {
-  n = 0;
-  model.on("update", null, () => n++);
-}
+import { GridModel, GridState, CURRENT_VERSION } from "../../src/model/index";
 
 describe("merges", () => {
   test("can merge two cells", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
-        }
-      ]
-    });
-    observeModel(model);
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.setValue("B3", "b3");
+
     expect(Object.keys(model.state.cells)).toEqual(["B2", "B3"]);
     expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.state.merges)).toEqual([]);
 
     model.selectCell(1, 1);
-    expect(n).toBe(1);
     model.updateSelection(1, 2);
-    expect(n).toBe(2);
     model.merge();
-    expect(n).toBe(3);
 
     expect(Object.keys(model.state.cells)).toEqual(["B2"]);
     expect(model.state.cells.B2.content).toBe("b2");
@@ -40,6 +24,7 @@ describe("merges", () => {
 
   test("can unmerge two cells", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -49,32 +34,21 @@ describe("merges", () => {
         }
       ]
     });
-    observeModel(model);
-
     expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.state.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     model.selectCell(1, 1);
-    expect(n).toBe(1);
     model.unmerge();
-    expect(n).toBe(2);
     expect(Object.keys(model.state.cells)).toEqual(["B2"]);
     expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.state.merges)).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
 
     expect(Object.keys(model.state.merges)).toEqual([]);
 
@@ -87,6 +61,7 @@ describe("merges", () => {
 
   test("editing a merge cell actually edits the top left", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -96,13 +71,10 @@ describe("merges", () => {
         }
       ]
     });
-    observeModel(model);
 
     model.selectCell(2, 2);
     expect(model.state.activeXc).toBe("C3");
-    expect(n).toBe(1);
     model.startEditing();
-    expect(n).toBe(2);
     expect(model.state.currentContent).toBe("b2");
     model.state.currentContent = "new value";
     model.stopEditing();
@@ -111,6 +83,7 @@ describe("merges", () => {
 
   test("setting a style to a merge edit all the cells", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -120,7 +93,6 @@ describe("merges", () => {
         }
       ]
     });
-    observeModel(model);
 
     model.selectCell(2, 2);
     expect(model.state.activeXc).toBe("C3");
@@ -134,6 +106,7 @@ describe("merges", () => {
 
   test("when moving in a merge, selected cell is topleft", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -143,7 +116,6 @@ describe("merges", () => {
         }
       ]
     });
-    observeModel(model);
 
     model.selectCell(2, 3);
     expect(model.state.activeXc).toBe("C4");
@@ -155,6 +127,7 @@ describe("merges", () => {
 
   test("properly compute if a merge is destructive or not", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -175,6 +148,7 @@ describe("merges", () => {
 
   test("a merge with only style should not be considered destructive", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -197,6 +171,7 @@ describe("merges", () => {
 
   test("a merge with only style should not be considered destructive", () => {
     const model = new GridModel({
+      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -220,7 +195,7 @@ describe("merges", () => {
   });
 
   test("merging => setting background color => unmerging", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
     model.updateSelection(1, 0);
 
     expect(model.state.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
@@ -236,7 +211,10 @@ describe("merges", () => {
   });
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
-    const model = new GridModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }]
+    });
     // selecting A3 and expanding selection one row up
     model.selectCell(0, 2);
     model.updateSelection(0, 1);

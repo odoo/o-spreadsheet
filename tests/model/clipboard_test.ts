@@ -2,15 +2,9 @@ import { GridModel } from "../../src/model/index";
 
 describe("clipboard", () => {
   test("can copy and paste a cell", () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+
     expect(model.state.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
     });
@@ -27,7 +21,7 @@ describe("clipboard", () => {
   });
 
   test("can cut and paste a cell", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
     model.setValue("B2", "b2");
     expect(model.state.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
@@ -54,7 +48,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with style", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
     model.setValue("B2", "b2");
     model.selectCell(1, 1);
     model.setStyle({ bold: true });
@@ -68,7 +62,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with borders", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
     model.setValue("B2", "b2");
     model.selectCell(1, 1);
     model.setBorder("bottom");
@@ -82,7 +76,7 @@ describe("clipboard", () => {
   });
 
   test("cutting a cell with style remove the cell", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
     model.setValue("B2", "b2");
     model.selectCell(1, 1);
     model.setStyle({ bold: true });

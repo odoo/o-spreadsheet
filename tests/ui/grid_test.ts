@@ -16,15 +16,10 @@ afterEach(() => {
 
 describe("Grid component", () => {
   test("can click on a cell to select it", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.setValue("B3", "b3");
+
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
@@ -36,15 +31,9 @@ describe("Grid component", () => {
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.setValue("B3", "b3");
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
@@ -57,15 +46,9 @@ describe("Grid component", () => {
   });
 
   test("can shift-click on a cell to update selection", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: { content: "b2" }, B3: { content: "b3" } }
-        }
-      ]
-    });
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.setValue("B3", "b3");
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
@@ -82,14 +65,8 @@ describe("Grid component", () => {
   });
 
   test("can click on a header to select a column", async () => {
-    const model = new GridModel({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10
-        }
-      ]
-    });
+    const model = new GridModel();
+
     const parent = new GridParent(model);
     await parent.mount(fixture);
     // todo: find a way to have actual width/height instead of this
@@ -105,14 +82,7 @@ describe("Grid component", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behavious is not like excel. Maybe someone will want to
       // change this
-      const model = new GridModel({
-        sheets: [
-          {
-            colNumber: 10,
-            rowNumber: 10
-          }
-        ]
-      });
+      const model = new GridModel();
       const parent = new GridParent(model);
       await parent.mount(fixture);
       // todo: find a way to have actual width/height instead of this
@@ -127,14 +97,7 @@ describe("Grid component", () => {
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
-      const model = new GridModel({
-        sheets: [
-          {
-            colNumber: 10,
-            rowNumber: 10
-          }
-        ]
-      });
+      const model = new GridModel();
       const parent = new GridParent(model);
       await parent.mount(fixture);
       // todo: find a way to have actual width/height instead of this
@@ -153,14 +116,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
-      const model = new GridModel({
-        sheets: [
-          {
-            colNumber: 10,
-            rowNumber: 10
-          }
-        ]
-      });
+      const model = new GridModel();
       const parent = new GridParent(model);
       await parent.mount(fixture);
       // todo: find a way to have actual width/height instead of this
@@ -180,14 +136,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
-      const model = new GridModel({
-        sheets: [
-          {
-            colNumber: 10,
-            rowNumber: 10
-          }
-        ]
-      });
+      const model = new GridModel();
       const parent = new GridParent(model);
       await parent.mount(fixture);
       // todo: find a way to have actual width/height instead of this
@@ -206,14 +155,7 @@ describe("Grid component", () => {
     });
 
     test("pressing TAB move to next cell", async () => {
-      const model = new GridModel({
-        sheets: [
-          {
-            colNumber: 10,
-            rowNumber: 10
-          }
-        ]
-      });
+      const model = new GridModel();
       const parent = new GridParent(model);
       await parent.mount(fixture);
       // todo: find a way to have actual width/height instead of this
@@ -225,14 +167,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
-      const model = new GridModel({
-        sheets: [
-          {
-            colNumber: 10,
-            rowNumber: 10
-          }
-        ]
-      });
+      const model = new GridModel();
       const parent = new GridParent(model);
       await parent.mount(fixture);
       // todo: find a way to have actual width/height instead of this

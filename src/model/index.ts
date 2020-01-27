@@ -1,11 +1,19 @@
 import * as owl from "@odoo/owl";
 import { setBorder } from "./borders";
 import * as clipboard from "./clipboard";
-import * as selection from "./selection";
-import * as merges from "./merges";
-import * as styles from "./styles";
-import { importData, Cell, GridState, GridData, Style, addSheet, activateSheet } from "./state";
 import * as core from "./core";
+import * as merges from "./merges";
+import * as selection from "./selection";
+import {
+  activateSheet,
+  addSheet,
+  Cell,
+  GridState,
+  importData,
+  PartialGridDataWithVersion,
+  Style
+} from "./state";
+import * as styles from "./styles";
 
 export * from "./state";
 
@@ -21,7 +29,7 @@ export class GridModel extends owl.core.EventBus {
   isMergeDestructive: boolean = false;
   aggregate: number | null = null;
 
-  constructor(data: Partial<GridData> = {}) {
+  constructor(data?: PartialGridDataWithVersion) {
     super();
     this.state = importData(data);
     this.prepareModel();

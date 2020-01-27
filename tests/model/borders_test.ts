@@ -7,7 +7,7 @@ function getBorder(state: GridState, xc: string) {
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, set its top border, then clear it
     model.selectCell(1, 1);
@@ -43,7 +43,7 @@ describe("borders", () => {
   });
 
   test("can add and remove a top border, on existing cell", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2
     model.setValue("B2", "content");
@@ -61,7 +61,7 @@ describe("borders", () => {
   });
 
   test("can add and remove a top border, on a selection", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2:C2
     model.selectCell(1, 1);
@@ -77,7 +77,7 @@ describe("borders", () => {
   });
 
   test("can clear a zone", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select C3 and add a border
     model.selectCell(2, 2);
@@ -95,7 +95,7 @@ describe("borders", () => {
   });
 
   test("can set all borders in a zone", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then expand selection to B2:C3
     model.selectCell(1, 1);
@@ -116,7 +116,7 @@ describe("borders", () => {
   });
 
   test("setting top border in a zone only set top row", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then expand selection to B2:C3
     model.selectCell(1, 1);
@@ -134,7 +134,7 @@ describe("borders", () => {
   });
 
   test("clearing a common border in a neighbour cell", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then set its right border
     model.selectCell(1, 1);
@@ -148,7 +148,7 @@ describe("borders", () => {
   });
 
   test("setting external border in a zone works", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then expand selection to B2:D4
     model.selectCell(1, 1);
@@ -169,7 +169,7 @@ describe("borders", () => {
   });
 
   test("setting internal horizontal borders in a zone works", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then expand selection to B2:C4
     model.selectCell(1, 1);
@@ -187,7 +187,7 @@ describe("borders", () => {
   });
 
   test("setting internal vertical borders in a zone works", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then expand selection to B2:C4
     model.selectCell(1, 1);
@@ -205,7 +205,7 @@ describe("borders", () => {
   });
 
   test("setting internal  borders in a zone works", () => {
-    const model = new GridModel({});
+    const model = new GridModel();
 
     // select B2, then expand selection to B2:C4
     model.selectCell(1, 1);
