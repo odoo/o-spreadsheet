@@ -85,7 +85,7 @@ function clearBorder(state: GridState, col: number, row: number) {
   const cell = getCell(state, col, row);
   if (cell) {
     if (!cell.content && !cell.style) {
-      deleteCell(state, cell.xc);
+      deleteCell(state, cell.xc, true);
     } else {
       delete cell.border;
     }
@@ -108,7 +108,7 @@ function clearSide(state: GridState, col: number, row: number, side: string) {
       const newBorder = Object.assign({}, border);
       delete newBorder[side];
       if (!cell.content && !cell.style && Object.keys(newBorder).length === 0) {
-        deleteCell(state, cell.xc);
+        deleteCell(state, cell.xc, true);
       } else {
         const id = registerBorder(state, newBorder);
         cell.border = id;

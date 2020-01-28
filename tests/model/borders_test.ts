@@ -221,4 +221,17 @@ describe("borders", () => {
     expect(getBorder(model.state, "B4")).toEqual({ top: s });
     expect(getBorder(model.state, "C4")).toEqual({ top: s, left: s });
   });
+
+  test("deleting a cell with a border does not remove the border", () => {
+    const model = new GridModel();
+
+    // select B2 and set its top border
+    model.setValue("B2", "content");
+    model.selectCell(1, 1);
+    model.setBorder("top");
+
+    expect(model.state.cells.B2.border).toBeDefined();
+    model.deleteSelection();
+    expect(model.state.cells.B2.border).toBeDefined();
+  });
 });

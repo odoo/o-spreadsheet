@@ -89,8 +89,15 @@ export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sh
 export function deleteCell(state: GridState, xc: string, force: boolean = false) {
   const cell = state.cells[xc];
   if (cell) {
-    if (!force && "style" in cell) {
-      addCell(state, xc, { content: "", style: cell.style });
+    if (!force && ("style" in cell || "border" in cell)) {
+      const newCell: CellData = { content: "" };
+      if ("style" in cell) {
+        newCell.style = cell.style;
+      }
+      if ("border" in cell) {
+        newCell.border = cell.border;
+      }
+      addCell(state, xc, newCell);
     } else {
       delete state.cells[xc];
       delete state.rows[cell.row].cells[cell.col];
