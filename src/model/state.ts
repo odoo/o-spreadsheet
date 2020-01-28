@@ -346,8 +346,9 @@ export function activateSheet(state: GridState, index: number) {
 
   // cells
   state.cells = sheet.cells;
-  for (let xc in sheet.cells) {
-    addCell(state, xc, sheet.cells[xc]);
+  for (let xc in state.cells) {
+    const cell = state.cells[xc];
+    state.rows[cell.row].cells[cell.col] = cell;
   }
   evaluateCells(state);
   selectCell(state, 0, 0);
