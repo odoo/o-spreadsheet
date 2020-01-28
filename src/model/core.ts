@@ -300,9 +300,7 @@ export function selectCell(state: GridState, col: number, row: number, newRange:
   state.selection.anchor.row = row;
 
   if (!state.isSelectingRange) {
-    state.activeCol = col;
-    state.activeRow = row;
-    state.activeXc = xc;
+    activateCell(state, col, row);
   }
 }
 
@@ -322,4 +320,14 @@ export function computeAggregate(state: GridState): number | null {
     }
   }
   return n < 2 ? null : aggregate.toNumber();
+}
+
+/**
+ * Set the active cell to col/row. Basically, it makes sure that activeXC is
+ * properly set as well.
+ */
+export function activateCell(state: GridState, col: number, row: number) {
+  state.activeCol = col;
+  state.activeRow = row;
+  state.activeXc = toXC(col, row);
 }

@@ -1,6 +1,14 @@
 import { applyOffset } from "../formulas/index";
 import { toXC } from "../helpers";
-import { addCell, deleteCell, formatCell, getCell, selectCell, setValue } from "./core";
+import {
+  addCell,
+  deleteCell,
+  formatCell,
+  getCell,
+  selectCell,
+  setValue,
+  activateCell
+} from "./core";
 import { evaluateCells } from "./evaluation";
 import { updateSelection } from "./selection";
 import { Cell, GridState } from "./state";
@@ -148,10 +156,11 @@ function pasteFromModel(state: GridState): boolean {
     const anchor = Object.assign({}, state.selection.anchor);
     selectCell(state, col, row);
     updateSelection(state, col + repX * clippedWidth - 1, row + repY * clippedHeight - 1);
-    state.selection.anchor.col = clip(anchor.col, col, col + repX * clippedWidth - 1);
-    state.selection.anchor.row = clip(anchor.row, row, row + repY * clippedHeight - 1);
-    state.activeCol = state.selection.anchor.col;
-    state.activeRow = state.selection.anchor.row;
+    const newCol = clip(anchor.col, col, col + repX * clippedWidth - 1);
+    const newRow = clip(anchor.row, row, row + repY * clippedHeight - 1);
+    state.selection.anchor.col = newCol;
+    state.selection.anchor.row = newRow;
+    activateCell(state, newCol, newRow);
   }
   return true;
 }

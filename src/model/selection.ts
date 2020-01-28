@@ -1,6 +1,6 @@
 import { isEqual, toXC, union } from "../helpers";
 import { Zone, GridState } from "./state";
-import { stopEditing } from "./core";
+import { stopEditing, activateCell } from "./core";
 
 /**
  * Add all necessary merge to the current selection to make it valid
@@ -66,9 +66,7 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
 
 export function selectColumn(state: GridState, col: number) {
   stopEditing(state);
-  state.activeCol = col;
-  state.activeRow = 0;
-  state.activeXc = toXC(col, 0);
+  activateCell(state, col, 0);
   const selection = {
     top: 0,
     left: col,
