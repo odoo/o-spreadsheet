@@ -261,6 +261,20 @@ describe("clipboard", () => {
     expect(model.state.selection.zones[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
   });
 
+  test("pasting a value in multiple zones", () => {
+    const model = new GridModel();
+    model.setValue("A1", "33");
+    model.selectCell(0, 0); // A1
+    model.copy();
+
+    model.selectCell(2, 0); // C1
+    model.selectCell(4, 0, true); // select C1,E1
+    model.paste();
+
+    expect(model.state.cells.C1.content).toBe("33");
+    expect(model.state.cells.E1.content).toBe("33");
+  });
+
   test("pasting is not allowed if multiple selection and more than one value", () => {
     const model = new GridModel();
     model.setValue("A1", "1");

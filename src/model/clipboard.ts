@@ -88,14 +88,24 @@ function pasteFromModel(state: GridState): boolean {
   }
   state.clipboard.status = shouldCut ? "empty" : "invisible";
 
-  const selection = state.selection.zones[state.selection.zones.length - 1];
   const clippedHeight = cells.length;
   const clippedWidth = cells[0].length;
-  if ((clippedWidth > 1 || clippedHeight > 1) && state.selection.zones.length > 1) {
-    // cannot paste if we have a clipped zone larger than a cell and multiple
-    // zones selected
-    return false;
+  if (state.selection.zones.length > 1) {
+    if (clippedWidth > 1 || clippedHeight > 1) {
+      // cannot paste if we have a clipped zone larger than a cell and multiple
+      // zones selected
+      return false;
+    }
+    for (let zone of state.selection.zones) {
+      for (let i = zone.left; i <= zone.right; i++) {
+        for (let j = zone.top; j <= zone.bottom; j++) {
+          pasteZone(i, j);
+        }
+      }
+    }
+    return true;
   }
+  const selection = state.selection.zones[state.selection.zones.length - 1];
   let col = selection.left;
   let row = selection.top;
   const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / clippedWidth));
