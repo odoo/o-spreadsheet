@@ -1,12 +1,16 @@
 import * as owl from "@odoo/owl";
+
 import { GridModel, Zone } from "../model";
-import { tokenize, Token } from "../formulas/index";
 import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
-import { ContentEditableHelper } from "./contentEditableHelper";
 import { SCROLLBAR_WIDTH } from "../constants";
+import { ComposerToken, composerTokenize } from "../formulas/composer_tokenizer";
+import { rangeReference } from "../formulas/parser";
+import { ContentEditableHelper } from "./content_editable_helper";
+import { getFunctionsProvider, TextValueProvider } from "./autocomplete_provider";
 
 const { Component } = owl;
+const { useRef, useState } = owl.hooks;
 const { xml, css } = owl.tags;
 
 export const colors = [
@@ -24,33 +28,67 @@ export const colors = [
   "#b10dc9",
   "#111111",
   "#aaaaaa",
-  "#dddddd",
   "#001f3f"
 ];
 
+export const FunctionColor = "#4a4e4d";
+export const OperatorColor = "#3da4ab";
+export const StringColor = "#f6cd61";
+export const NumberColor = "#02c39a";
+export const MatchingParenColor = "pink";
+
+const tokenColor = {
+  OPERATOR: OperatorColor,
+  NUMBER: NumberColor,
+  STRING: StringColor,
+  BOOLEAN: NumberColor,
+  FUNCTION: FunctionColor,
+  DEBUGGER: OperatorColor,
+  LEFT_PAREN: OperatorColor,
+  RIGHT_PAREN: OperatorColor
+};
+
 const TEMPLATE = xml/* xml */ `
-    <div class="o-composer" t-att-style="style" tabindex="1"
+<div class="o-composer-container" t-att-style="style">
+    <div class="o-composer"  
+      t-ref="o_composer"
+      tabindex="1"
       contenteditable="true"
       spellcheck="false"
-      t-on-input="onInput"
+      
       t-on-keydown="onKeydown"
-      t-on-blur="onBlur" 
+      t-on-input="onInput"
+      t-on-keyup="onKeyup"
+      
+      t-on-blur="saveSelection" 
       t-on-click="onClick"
-      />
+    />
+    <TextValueProvider 
+        t-if="autoCompleteState.showProvider" 
+        t-ref="o_autocomplete_provider" 
+        search="autoCompleteState.search"
+        getValues="autoCompleteState.getValues"
+    />
+    
+</div>
   `;
-
 const CSS = css/* scss */ `
-  .o-composer {
+  .o-composer-container {
     box-sizing: border-box;
     position: absolute;
-    border: 1.5px solid #3266ca;
-    font-family: arial;
-    padding-left: 2px;
-    padding-right: 4px;
-    background-color: white;
-    white-space: nowrap;
-    &:focus {
-      outline: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    .o-composer {
+      background-color: white;
+      padding-left: 2px;
+      padding-right: 4px;
+      border: 1.5px solid #3266ca;
+      font-family: arial;
+      white-space: nowrap;
+      &:focus {
+        outline: none;
+      }
     }
   }
 `;
@@ -58,19 +96,36 @@ const CSS = css/* scss */ `
 export class Composer extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
+  static components = { TextValueProvider };
+
+  composerRef = useRef("o_composer");
+  autoCompleteRef = useRef("o_autocomplete_provider");
+
   model: GridModel = this.props.model;
   zone: Zone;
   selectionEnd: number = 0;
   selectionStart: number = 0;
+  contentHelper: ContentEditableHelper;
+
+  autoCompleteState = useState({
+    showProvider: false,
+    getValues: getFunctionsProvider,
+    search: ""
+  });
+  debug: boolean = false;
+  tokenAtCursor: ComposerToken | void = undefined;
+
+  // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
+  shouldProcessInputEvents: boolean = false;
   // a composer edits a single cell. After that, it is done and should not
   // modify the model anymore.
   isDone: boolean = false;
-  contentHelper: ContentEditableHelper;
+  refSelectionStart: number = 0;
 
   constructor() {
     super(...arguments);
     const model = this.model;
-    this.contentHelper = new ContentEditableHelper(this.el);
+    this.contentHelper = new ContentEditableHelper(this.composerRef.el!);
     if (model.state.activeXc in model.state.mergeCellMap) {
       this.zone = model.state.merges[model.state.mergeCellMap[model.state.activeXc]];
     } else {
@@ -80,15 +135,15 @@ export class Composer extends Component<any, any> {
   }
 
   mounted() {
-    const el = this.el! as HTMLElement;
-    this.contentHelper.updateEl(el);
-
     // @ts-ignore
     //TODO VSC: remove this debug code
-    window.composer = el;
-    const { cols } = this.model.state;
+    window.composer = this;
 
-    this.processContent();
+    const { cols } = this.model.state;
+    const el = this.composerRef.el!;
+
+    this.contentHelper.updateEl(el);
+    this.processContent(undefined);
 
     if (this.model.state.currentContent) {
       this.contentHelper.selectRange(
@@ -107,23 +162,6 @@ export class Composer extends Component<any, any> {
 
   willUnmount(): void {
     this.trigger("composer-unmounted");
-  }
-
-  addTextFromSelection() {
-    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
-    let newValue = zoneToXC(this.model.state.selection.zones[0]);
-    this.contentHelper.insertText(newValue);
-    this.contentHelper.selectRange(this.selectionStart, this.selectionStart + newValue.length);
-    this.selectionEnd = this.selectionStart + newValue.length - 1;
-  }
-
-  findTokenAtPosition(start: number, end: number): Token | void {
-    const el = this.el as HTMLElement;
-    let value = el.innerText;
-    if (value.startsWith("=")) {
-      const tokens = tokenize(value);
-      return tokens.find(t => t.start <= start! && t.end >= end!);
-    }
   }
 
   get style() {
@@ -151,29 +189,27 @@ export class Composer extends Component<any, any> {
       1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
 
-  onInput() {
-    if (this.isDone) {
-      return;
-    }
-    // write in place? or go through a method probably
-    const el = this.el as HTMLInputElement;
-    if (el.clientWidth !== el.scrollWidth) {
-      el.style.width = (el.scrollWidth + 20) as any;
-    }
-    if (this.el!.childNodes.length) {
-      this.model.state.currentContent = (this.el! as Node).textContent!;
-    } else {
-      this.model.state.currentContent = "";
-    }
-
-    if (this.model.state.currentContent.startsWith("=")) {
-      this.model.state.isSelectingRange = true;
-    }
-  }
+  // ---------------------------------------------------------------------------
+  // Handlers
+  // ---------------------------------------------------------------------------
 
   onKeydown(ev: KeyboardEvent) {
+    if (this.debug) {
+      console.log("keydown", ev.key, this.model.state.currentContent);
+    }
+    const autoComplete = this.autoCompleteRef.comp as TextValueProvider;
     switch (ev.key) {
       case "Enter":
+        ev.preventDefault();
+        if (this.autoCompleteState.showProvider) {
+          const autoCompleteValue = autoComplete.getValueToFill();
+          if (autoCompleteValue) {
+            this.saveSelection();
+            this.autoComplete(autoCompleteValue);
+            ev.stopPropagation();
+            return;
+          }
+        }
         this.model.stopEditing();
         this.model.movePosition(0, ev.shiftKey ? -1 : 1);
         this.isDone = true;
@@ -184,93 +220,253 @@ export class Composer extends Component<any, any> {
         break;
       case "Tab":
         ev.preventDefault();
+        ev.stopPropagation();
+        if (this.autoCompleteState.showProvider) {
+          const autoCompleteValue = autoComplete.getValueToFill();
+          if (autoCompleteValue) {
+            this.saveSelection();
+            this.autoComplete(autoCompleteValue);
+            return;
+          }
+        } else {
+          // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
+          // we can't let the model think that it is for a ref selection.
+          this.model.setSelectingRange(false);
+        }
+
         const deltaX = ev.shiftKey ? -1 : 1;
         this.isDone = true;
         this.model.movePosition(deltaX, 0);
         break;
+      case "ArrowDown":
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (this.autoCompleteState.showProvider) {
+          autoComplete.moveDown();
+        }
+        break;
+      case "ArrowUp":
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (this.autoCompleteState.showProvider) {
+          autoComplete.moveUp();
+        }
+        break;
+    }
+  }
+
+  /*
+   * Triggered automatically by the content-editable between the keydown and key up
+   * */
+  onInput(ev: KeyboardEvent) {
+    if (this.isDone || !this.shouldProcessInputEvents) {
+      return;
+    }
+    const el = this.composerRef.el! as HTMLInputElement;
+    if (el.clientWidth !== el.scrollWidth) {
+      el.style.width = (el.scrollWidth + 20) as any;
+    }
+    if (el.childNodes.length) {
+      this.model.setCurrentContent(el.textContent!);
+    } else {
+      this.model.setCurrentContent("");
+    }
+
+    if (this.debug) {
+      console.log("input key ", ev.key);
+      console.log("input state ", this.model.state.currentContent);
+    }
+  }
+
+  onKeyup(ev: KeyboardEvent) {
+    if (this.debug) {
+      console.log("keyup", ev.key);
+    }
+    if (["Control", "ArrowUp", "ArrowDown", "Tab", "Enter"].includes(ev.key)) {
+      // already processed in keydown
+      return;
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    // reset the state of the ref selector and autocomplete for safety.
+    // They will be set correctly if needed in `processTokenAtCursor`
+    this.autoCompleteState.showProvider = false;
+    this.autoCompleteState.search = "";
+    this.model.setSelectingRange(false);
+    if (ev.ctrlKey && ev.key === " ") {
+      this.autoCompleteState.showProvider = true;
+    } else {
+      this.processContent(ev);
+      this.processTokenAtCursor();
     }
   }
 
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
-    this.model.state.isSelectingRange = false;
-    // const selection = this.contentHelper.getCurrentSelection();
-    // if (selection.start === selection.end) {
-    //   let found = this.findTokenAtPosition(selection.start, selection.end);
-    //   if (found && found.type === "REFERENCE") {
-    //     this.contentHelper.selectRange(found.start, found.end);
-    //     this.model.state.isSelectingRange = true;
-    //   }
-    // }
+    this.processContent();
+    this.processTokenAtCursor();
+    this.model.setSelectingRange(false);
   }
 
-  onBlur(ev: FocusEvent) {
-    const selection = this.contentHelper.getCurrentSelection();
-    this.selectionStart = selection.start;
-    this.selectionEnd = selection.end;
-  }
+  // ---------------------------------------------------------------------------
+  // Private
+  // ---------------------------------------------------------------------------
 
-  processContent() {
+  processContent(ev: KeyboardEvent | undefined = undefined) {
+    this.shouldProcessInputEvents = false;
     let value = this.model.state.currentContent;
+    this.tokenAtCursor = undefined;
     if (value.startsWith("=")) {
+      this.saveSelection();
+      this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
+      this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
+      this.model.removeHighlights(); //cleanup highlights for references
+
+      const refUsed = {};
       let lastUsedColorIndex = 0;
-      const tokens = tokenize(value);
-      const rangesUsed = {};
+
+      const tokens = composerTokenize(value);
+      this.tokenAtCursor = tokens.find(
+        t => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
+      );
+
       for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
 
-        // there is no selection
         switch (token.type) {
+          case "OPERATOR":
+          case "NUMBER":
           case "FUNCTION":
-            this.contentHelper.insertText(token.value);
+          case "COMMA":
+          case "BOOLEAN":
+            this.contentHelper.insertText(token.value, tokenColor[token.type]);
             break;
           case "SYMBOL":
-            let value = token.value.trim();
+            let value = token.value;
+            if (rangeReference.test(value)) {
+              if (!refUsed[value]) {
+                refUsed[value] = colors[lastUsedColorIndex];
+                lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
+              }
+              this.contentHelper.insertText(value, refUsed[value]);
+            } else {
+              this.contentHelper.insertText(value);
+            }
+            break;
+          case "LEFT_PAREN":
+          case "RIGHT_PAREN":
+            // Compute the matching parenthesis
             if (
-              tokens.length >= i + 2 && // there is at least an operator and another token
-              tokens[i + 1].type === "OPERATOR" &&
-              tokens[i + 1].value === ":" &&
-              tokens[i + 2].type === "SYMBOL"
+              this.tokenAtCursor &&
+              ["LEFT_PAREN", "RIGHT_PAREN"].includes(this.tokenAtCursor.type) &&
+              this.tokenAtCursor.parenIndex &&
+              this.tokenAtCursor.parenIndex === token.parenIndex
             ) {
-              value += ":" + tokens[i + 2].value;
-              i += 2;
+              this.contentHelper.insertText(token.value, MatchingParenColor);
+            } else {
+              this.contentHelper.insertText(token.value);
             }
-
-            if (!rangesUsed[value]) {
-              rangesUsed[value] = colors[lastUsedColorIndex];
-              lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
-            }
-            this.contentHelper.insertText(value, rangesUsed[value]);
-
             break;
-
-          case "STRING":
-            document.execCommand("insertText", false, `\"${token.value}\"`);
-            break;
-
           default:
             this.contentHelper.insertText(token.value);
             break;
         }
       }
 
-      let highlights = Object.keys(rangesUsed).map(r1c1 => {
-        const ranges = r1c1.split(":");
-        let top, bottom, left, right;
-        let c = toCartesian(ranges[0]);
-        left = right = c[0];
-        top = bottom = c[1];
-        if (ranges.length === 2) {
-          let d = toCartesian(ranges[1]);
-          right = d[0];
-          bottom = d[1];
-        }
-        return { zone: { top, bottom, left, right }, color: rangesUsed[r1c1] };
-      });
-
-      this.model.addHighlights(highlights);
+      // Put the cursor back where it was
+      this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
+      this.addHighlights(refUsed);
     } else {
-      this.contentHelper.insertText(this.model.state.currentContent);
+      if (!ev) {
+        // We are coming from the mounted function, not from keydown/keypress
+        this.contentHelper.insertText(value);
+      }
     }
+    this.shouldProcessInputEvents = true;
+  }
+
+  /**
+   * Compute the state of the composer from the tokenAtCursor.
+   * If the token is a bool, function or symbol we have to initialize the autocomplete engine.
+   * If it's a comma, left_paren or operator we have to initialize the range selection.
+   */
+  processTokenAtCursor() {
+    if (!this.tokenAtCursor) {
+      return;
+    }
+    if (["BOOLEAN", "FUNCTION", "SYMBOL"].includes(this.tokenAtCursor.type)) {
+      if (this.tokenAtCursor.value.length > 0) {
+        this.autoCompleteState.search = this.tokenAtCursor.value;
+        this.autoCompleteState.showProvider = true;
+      }
+    } else if (["COMMA", "LEFT_PAREN", "OPERATOR"].includes(this.tokenAtCursor.type)) {
+      this.model.setSelectingRange(true);
+      // We set this variable to store the start of the selection, to allow
+      // to replace selections (ex: select twice a cell should only be added
+      // once)
+      this.refSelectionStart = this.selectionStart;
+    }
+  }
+
+  addHighlights(rangesUsed: {}) {
+    let highlights = Object.keys(rangesUsed).map(r1c1 => {
+      const ranges = r1c1.split(":");
+      let top: number, bottom: number, left: number, right: number;
+
+      let c = toCartesian(ranges[0].trim());
+      left = right = c[0];
+      top = bottom = c[1];
+      if (ranges.length === 2) {
+        let d = toCartesian(ranges[1].trim());
+        right = d[0];
+        bottom = d[1];
+      }
+      return { zone: { top, bottom, left, right }, color: rangesUsed[r1c1] };
+    });
+    this.model.addHighlights(
+      highlights.filter(
+        x =>
+          x.zone.bottom < this.model.state.rows.length &&
+          x.zone.right < this.model.state.cols.length
+      )
+    );
+  }
+
+  addText(text: string) {
+    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
+    this.contentHelper.insertText(text);
+    this.selectionStart = this.selectionEnd = this.selectionStart + text.length;
+    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
+  }
+
+  addTextFromSelection() {
+    let newValue = zoneToXC(this.model.state.selection.zones[0]);
+    if (this.refSelectionStart) {
+      this.selectionStart = this.refSelectionStart;
+    }
+    this.addText(newValue);
+    this.processContent();
+  }
+
+  autoComplete(value: string) {
+    if (value) {
+      if (this.tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(this.tokenAtCursor.type)) {
+        this.selectionStart = this.tokenAtCursor.start;
+        this.selectionEnd = this.tokenAtCursor.end;
+      }
+      this.addText(value);
+    }
+    this.autoCompleteState.search = "";
+    this.autoCompleteState.showProvider = false;
+  }
+
+  /**
+   * Save the current selection
+   */
+  saveSelection() {
+    const selection = this.contentHelper.getCurrentSelection();
+    this.selectionStart = selection.start;
+    this.selectionEnd = selection.end;
   }
 }

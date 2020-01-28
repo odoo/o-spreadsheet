@@ -20,6 +20,15 @@ export class ContentEditableHelper {
       range.setStart(this.el, 0);
       range.setEnd(this.el, 0);
     } else {
+      if (start < 0 || end > this.el!.textContent!.length) {
+        console.warn(
+          `wrong selection asked start ${start}, end ${end}, text content length ${
+            this.el!.textContent!.length
+          }`
+        );
+        if (start < 0) start = 0;
+        if (end > this.el!.textContent!.length) end = this.el!.textContent!.length;
+      }
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
       range.setStart(startNode.node, startNode.offset);
@@ -80,6 +89,14 @@ export class ContentEditableHelper {
   removeSelection() {
     let selection = window.getSelection()!;
     selection.removeAllRanges();
+  }
+
+  removeAll() {
+    if (this.el) {
+      while (this.el.firstChild) {
+        this.el.removeChild(this.el.firstChild);
+      }
+    }
   }
 
   /**

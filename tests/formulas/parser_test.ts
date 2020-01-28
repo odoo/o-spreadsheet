@@ -122,7 +122,7 @@ describe("parsing other stuff", () => {
   test("arbitrary text", () => {
     expect(parse("=undefined")).toEqual({
       type: "UNKNOWN",
-      value: "UNDEFINED"
+      value: "undefined"
     });
   });
 });

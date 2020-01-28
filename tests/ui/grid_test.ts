@@ -1,8 +1,6 @@
 import { GridModel } from "../../src/model";
 import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
-//@ts-ignore
-import { ContentEditableHelper } from "../../src/ui/contentEditableHelper";
-jest.mock("../../src/ui/contentEditableHelper");
+jest.mock("../../src/ui/content_editable_helper");
 
 let fixture: HTMLElement;
 
@@ -92,7 +90,6 @@ describe("Grid component", () => {
       expect(model.state.activeXc).toBe("A1");
       model.startEditing("a");
       await nextTick();
-      await nextTick();
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
@@ -112,7 +109,6 @@ describe("Grid component", () => {
       expect(model.state.activeXc).toBe("A2");
       model.startEditing("a");
       await nextTick();
-      await nextTick();
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
@@ -130,7 +126,6 @@ describe("Grid component", () => {
 
       expect(model.state.activeXc).toBe("A1");
       model.startEditing("a");
-      await nextTick();
       await nextTick();
       fixture
         .querySelector("div.o-composer")!

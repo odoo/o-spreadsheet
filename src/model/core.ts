@@ -286,6 +286,10 @@ export function addHighlights(state: GridState, highlights: Highlight[]) {
   state.highlights = state.highlights.concat(highlights);
 }
 
+export function removeHighlights(state: GridState) {
+  state.highlights = [];
+}
+
 export function cancelEdition(state: GridState) {
   state.isEditing = false;
   state.isSelectingRange = false;
@@ -317,6 +321,13 @@ export function stopEditing(state: GridState) {
     state.currentContent = "";
     cancelEdition(state);
   }
+}
+
+/**
+ * set the current content
+ * */
+export function setCurrentContent(state: GridState, content: string) {
+  state.currentContent = content;
 }
 
 /**

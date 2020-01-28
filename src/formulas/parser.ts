@@ -100,6 +100,7 @@ function bindingPower(token: Token): number {
 
 const simpleTokens: TokenType[] = ["NUMBER", "STRING"];
 export const cellReference = new RegExp(/[A-Z]+[0-9]+/, "i");
+export const rangeReference = new RegExp(/^\s*[A-Z]+[0-9]+\s*(\s*:\s*[A-Z]+[0-9]+\s*)?$/, "i");
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
   if (current.type === "DEBUGGER") {
@@ -151,7 +152,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     if (tokens.shift()!.type !== "RIGHT_PAREN") {
       throw new Error("wrong function call");
     }
-    const isAsync = functions[current.value].async;
+    const isAsync = functions[current.value.toUpperCase()].async;
     const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
     return { type, value: current.value, args };
   }
