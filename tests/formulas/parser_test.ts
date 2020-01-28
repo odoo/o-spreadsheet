@@ -33,40 +33,40 @@ describe("parser", () => {
   });
 });
 
-describe("knows what's a variable and what's not", () => {
+describe("knows what's a reference and what's not", () => {
   test("lowercase cell reference", () => {
     expect(parse("=a1")).toEqual({
-      type: "VARIABLE",
+      type: "REFERENCE",
       value: "A1"
     });
   });
   test("single cell reference", () => {
     expect(parse("=AA1")).toEqual({
-      type: "VARIABLE",
+      type: "REFERENCE",
       value: "AA1"
     });
   });
   test("large single cell reference", () => {
     expect(parse("=AA100")).toEqual({
-      type: "VARIABLE",
+      type: "REFERENCE",
       value: "AA100"
     });
   });
   test.skip("fixed cell", () => {
     expect(parse("=$a$1")).toEqual({
-      type: "VARIABLE",
+      type: "REFERENCE",
       value: "A1"
     });
   });
   test.skip("fixed row", () => {
     expect(parse("=a$1")).toEqual({
-      type: "VARIABLE",
+      type: "REFERENCE",
       value: "A1"
     });
   });
   test.skip("fixed column", () => {
     expect(parse("=$a1")).toEqual({
-      type: "VARIABLE",
+      type: "REFERENCE",
       value: "A1"
     });
   });
@@ -78,11 +78,11 @@ describe("parsing ranges", () => {
       type: "BIN_OPERATION",
       value: ":",
       left: {
-        type: "VARIABLE",
+        type: "REFERENCE",
         value: "A"
       },
       right: {
-        type: "VARIABLE",
+        type: "REFERENCE",
         value: "A"
       }
     });
@@ -92,11 +92,11 @@ describe("parsing ranges", () => {
       type: "BIN_OPERATION",
       value: ":",
       left: {
-        type: "VARIABLE",
+        type: "REFERENCE",
         value: "1"
       },
       right: {
-        type: "VARIABLE",
+        type: "REFERENCE",
         value: "1"
       }
     });

@@ -23,8 +23,8 @@ interface ASTBoolean extends ASTBase {
   value: boolean;
 }
 
-interface ASTVariable extends ASTBase {
-  type: "VARIABLE";
+interface ASTReference extends ASTBase {
+  type: "REFERENCE";
   value: string;
 }
 
@@ -59,13 +59,13 @@ export type AST =
   | ASTNumber
   | ASTBoolean
   | ASTString
-  | ASTVariable
+  | ASTReference
   | ASTUnknown;
 
 function bindingPower(token: Token): number {
   switch (token.type) {
     case "NUMBER":
-    case "VARIABLE":
+    case "SYMBOL":
       return 0;
     case "COMMA":
       return 3;
@@ -80,7 +80,7 @@ function bindingPower(token: Token): number {
 }
 
 const simpleTokens: TokenType[] = ["NUMBER", "STRING"];
-const cellReference = new RegExp(/[A-Z]+[0-9]+/, "i");
+export const cellReference = new RegExp(/[A-Z]+[0-9]+/, "i");
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
   if (current.type === "DEBUGGER") {
@@ -91,9 +91,9 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
   if (simpleTokens.includes(current.type)) {
     return { type: current.type, value: current.value } as AST;
   }
-  if (current.type === "VARIABLE") {
+  if (current.type === "SYMBOL") {
     if (cellReference.test(current.value)) {
-      return { type: current.type, value: current.value.toUpperCase() } as AST;
+      return { type: "REFERENCE", value: current.value.toUpperCase() } as AST;
     } else {
       if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;

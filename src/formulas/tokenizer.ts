@@ -11,7 +11,7 @@ export type TokenType =
   | "STRING"
   | "BOOLEAN"
   | "FUNCTION"
-  | "VARIABLE"
+  | "SYMBOL"
   | "SPACE"
   | "DEBUGGER"
   | "COMMA"
@@ -164,7 +164,7 @@ function tokenizeSymbol(chars: string[]): Token | null {
   if (result.length) {
     const value = result.join("").toUpperCase();
     const isFunction = value in functions;
-    const type = isFunction ? "FUNCTION" : "VARIABLE";
+    const type = isFunction ? "FUNCTION" : "SYMBOL";
     return { type, value, length: result.length, start: 0, end: 0 };
   }
   return null;

@@ -76,7 +76,7 @@ function validateAST(ast: AST, expectation: ArgType[]): boolean {
       );
     case "STRING":
       return expectation.includes("STRING") || expectation.includes("ANY");
-    case "VARIABLE":
+    case "REFERENCE":
       return true;
   }
   return true;

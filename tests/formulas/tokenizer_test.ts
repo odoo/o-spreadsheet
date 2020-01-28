@@ -181,7 +181,7 @@ describe("tokenizer", () => {
         start: 0,
         end: 4,
         length: 4,
-        type: "VARIABLE",
+        type: "SYMBOL",
         value: "TRUE"
       }
     ]);
@@ -190,7 +190,7 @@ describe("tokenizer", () => {
         start: 0,
         end: 5,
         length: 5,
-        type: "VARIABLE",
+        type: "SYMBOL",
         value: "FALSE"
       }
     ]);
@@ -220,7 +220,7 @@ describe("tokenizer", () => {
         start: 5,
         end: 9,
         length: 4,
-        type: "VARIABLE",
+        type: "SYMBOL",
         value: "TRUE"
       },
       {
@@ -234,7 +234,7 @@ describe("tokenizer", () => {
         start: 10,
         end: 15,
         length: 5,
-        type: "VARIABLE",
+        type: "SYMBOL",
         value: "FALSE"
       },
       {
@@ -257,7 +257,7 @@ describe("tokenizer", () => {
         start: 1,
         end: 7,
         length: 6,
-        type: "VARIABLE",
+        type: "SYMBOL",
         value: "TRUEEE"
       }
     ]);

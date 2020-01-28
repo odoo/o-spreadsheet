@@ -9,4 +9,8 @@ describe("applyOffset", () => {
   test("can handle negative/invalid offsets", () => {
     expect(applyOffset("=B2", 0, -4)).toEqual("=#REF");
   });
+
+  test("can handle other formulas", () => {
+    expect(applyOffset("=AND(true, B2)", 0, 1)).toEqual("=AND(TRUE, B3)");
+  });
 });

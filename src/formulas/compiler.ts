@@ -35,7 +35,7 @@ export function compile(str: string): Function {
         return "this.fromNumber(" + ast.value + ")";
       case "STRING":
         return `'${ast.value}'`;
-      case "VARIABLE":
+      case "REFERENCE":
         return `getValue('${ast.value}')`;
       case "FUNCALL":
         args = ast.args.map(compileAST);

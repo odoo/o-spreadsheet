@@ -193,7 +193,7 @@ export class Composer extends Component<any, any> {
     // const selection = this.contentHelper.getCurrentSelection();
     // if (selection.start === selection.end) {
     //   let found = this.findTokenAtPosition(selection.start, selection.end);
-    //   if (found && found.type === "VARIABLE") {
+    //   if (found && found.type === "REFERENCE") {
     //     this.contentHelper.selectRange(found.start, found.end);
     //     this.model.state.isSelectingRange = true;
     //   }
@@ -220,13 +220,13 @@ export class Composer extends Component<any, any> {
           case "FUNCTION":
             this.contentHelper.insertText(token.value);
             break;
-          case "VARIABLE":
+          case "SYMBOL":
             let value = token.value.trim();
             if (
               tokens.length >= i + 2 && // there is at least an operator and another token
               tokens[i + 1].type === "OPERATOR" &&
               tokens[i + 1].value === ":" &&
-              tokens[i + 2].type === "VARIABLE"
+              tokens[i + 2].type === "SYMBOL"
             ) {
               value += ":" + tokens[i + 2].value;
               i += 2;
