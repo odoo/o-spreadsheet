@@ -1,7 +1,10 @@
 import { GridModel } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, triggerMouseEvent } from "../helpers";
 import { colors } from "../../src/ui/composer";
-jest.mock("../../src/ui/contentEditableHelper", () => require("./__mocks__/contentEditableHelper"));
+import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
+jest.mock("../../src/ui/content_editable_helper", () =>
+  require("./__mocks__/content_editable_helper")
+);
 
 let fixture: HTMLElement;
 beforeEach(() => {
@@ -23,7 +26,6 @@ describe("composer", () => {
     expect(model.state.activeXc).toBe("A1");
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    await nextTick();
     expect(model.state.isEditing).toBe(true);
     expect(model.state.activeRow).toBe(0);
     expect(model.state.activeCol).toBe(0);
@@ -40,9 +42,8 @@ describe("composer", () => {
     expect(model.state.activeXc).toBe("A1");
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "=" }));
     await nextTick();
-    await nextTick();
     let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
-    expect(composer.innerText).toBe("=");
+    expect(composer.textContent).toBe("=");
   });
 
   test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
@@ -55,9 +56,47 @@ describe("composer", () => {
     expect(model.state.activeXc).toBe("A1");
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "b" }));
     await nextTick();
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.textContent).toBe("b");
+  });
+  test("type '=', backspace and select a cell should not add it", async () => {
+    const model = new GridModel();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "=" }));
     await nextTick();
     let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
-    expect(composer.innerText).toBe("b");
+    model.state.currentContent = "";
+    const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
+    cehMock.removeAll();
+    composer.dispatchEvent(new Event("keyup"));
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    await nextTick();
+    expect(model.state.activeXc).toBe("C8");
+    expect(fixture.getElementsByClassName("o-composer")).toHaveLength(0);
+  });
+  test("type '=', select twice a cell", async () => {
+    const model = new GridModel();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "=" }));
+    await nextTick();
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.textContent).toBe("=");
+    composer.dispatchEvent(new KeyboardEvent("keyup"));
+    expect(model.state.isSelectingRange).toBeTruthy();
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(model.state.isSelectingRange).toBeTruthy();
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composer.textContent).toBe("=C8");
   });
 });
 
@@ -72,7 +111,6 @@ describe("composer highlights color", () => {
     model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
     await nextTick();
     expect(model.state.highlights.length).toBe(2);
     expect(model.state.highlights[0].color).toBe(colors[0]);
@@ -89,16 +127,13 @@ describe("composer highlights color", () => {
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    await nextTick();
     expect(model.state.highlights.length).toBe(2);
     expect(model.state.highlights[0].color).toBe(colors[0]);
     expect(model.state.highlights[1].color).toBe(colors[1]);
 
     document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    await nextTick();
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    await nextTick();
     await nextTick();
     expect(model.state.highlights.length).toBe(2);
     expect(model.state.highlights[0].color).toBe(colors[0]);
@@ -115,7 +150,6 @@ describe("composer highlights color", () => {
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    await nextTick();
     expect(model.state.highlights.length).toBe(1);
     expect(model.state.highlights[0].color).toBe(colors[0]);
   });
@@ -131,10 +165,66 @@ describe("composer highlights color", () => {
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    await nextTick();
     expect(model.state.highlights.length).toBe(1);
     expect(model.state.highlights[0].color).toBe(colors[0]);
     let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
-    expect(composer.innerText).toBe("=SUM(A1:A10)");
+    expect(composer.textContent).toBe("=sum(a1:a10)");
+  });
+});
+
+describe("ranges and highlights", () => {
+  let model: GridModel;
+  let composerEl: Element;
+  let canvasEl: Element;
+  let fixture: HTMLElement;
+  let parent;
+  async function typeInComposer(text: string) {
+    composerEl.append(text);
+    composerEl.dispatchEvent(new Event("input"));
+    composerEl.dispatchEvent(new Event("keyup"));
+    await nextTick();
+  }
+
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    model = new GridModel();
+    parent = new GridParent(model);
+    await parent.mount(fixture);
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    canvasEl = fixture.querySelector("canvas")!;
+
+    // start composition
+    canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    composerEl = fixture.querySelector("div.o-composer")!;
+  });
+
+  afterEach(() => {
+    fixture.remove();
+  });
+
+  test("=+Click Cell, the cell ref should be colored", async () => {
+    await typeInComposer("=");
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(model.state.currentContent).toBe("=C8");
+    expect(
+      (parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper).colors["C8"]
+    ).toBe(colors[0]);
+  });
+
+  test("=+Click range, the range ref should be colored", async () => {
+    await typeInComposer("=");
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    triggerMouseEvent("canvas", "mousemove", 200, 200);
+    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
+    await nextTick();
+    expect(model.state.currentContent).toBe("=B8:C8");
+    expect(
+      (parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper).colors["B8:C8"]
+    ).toBe(colors[0]);
   });
 });

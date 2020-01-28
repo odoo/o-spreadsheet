@@ -122,3 +122,11 @@ export function updateSelection(state: GridState, col: number, row: number) {
   };
   state.selection.zones[state.selection.zones.length - 1] = expandZone(state, zone);
 }
+
+/**
+ * set the flag that allow the user to make a selection using the mouse and keyboard, this selection will be
+ * reflected in the composer
+ */
+export function setSelectionRange(state: GridState, isSelecting: boolean) {
+  state.isSelectingRange = isSelecting;
+}

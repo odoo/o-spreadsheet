@@ -11,6 +11,6 @@ describe("applyOffset", () => {
   });
 
   test("can handle other formulas", () => {
-    expect(applyOffset("=AND(true, B2)", 0, 1)).toEqual("=AND(TRUE, B3)");
+    expect(applyOffset("=AND(true, B2)", 0, 1)).toEqual("=AND(true, B3)");
   });
 });

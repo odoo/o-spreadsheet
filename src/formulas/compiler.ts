@@ -41,9 +41,8 @@ export function compile(str: string): Function {
     switch (ast.type) {
       case "BOOLEAN":
       case "NUMBER":
-        return ast.value;
       case "STRING":
-        return `'${ast.value}'`;
+        return ast.value;
       case "REFERENCE":
         id = nextId++;
         code.push(`let _${id} = getValue('${ast.value}')`);
@@ -51,13 +50,13 @@ export function compile(str: string): Function {
       case "FUNCALL":
         id = nextId++;
         args = ast.args.map(compileAST);
-        code.push(`let _${id} = fns['${ast.value}'](${args})`);
+        code.push(`let _${id} = fns['${ast.value.toUpperCase()}'](${args})`);
         break;
       case "ASYNC_FUNCALL":
         args = ast.args.map(compileAST);
         id = nextId++;
         isAsync = true;
-        code.push(`let _${id} = await fns['${ast.value}'](${args})`);
+        code.push(`let _${id} = await fns['${ast.value.toUpperCase()}'](${args})`);
         break;
       case "UNARY_OPERATION":
         id = nextId++;

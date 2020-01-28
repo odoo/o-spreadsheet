@@ -19,9 +19,6 @@ export type TokenType =
   | "RIGHT_PAREN";
 
 export interface Token {
-  start: number;
-  end: number;
-  length: number;
   type: TokenType;
   value: any;
 }
@@ -29,11 +26,10 @@ export interface Token {
 export function tokenize(str: string): Token[] {
   const chars = str.split("");
   const result: Token[] = [];
-  let i = 0;
-  let j = 0;
+  let tokenCount = 0;
   while (chars.length) {
-    j++;
-    if (j > 100) {
+    tokenCount++;
+    if (tokenCount > 100) {
       throw new Error("Wow that's big... (that's what she said)");
     }
     let token =
@@ -43,14 +39,12 @@ export function tokenize(str: string): Token[] {
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
       tokenizeString(chars) ||
-      // tokenizeBoolean(chars) ||
       tokenizeSymbol(chars);
+
     if (!token) {
-      throw new Error(`Tokenizer error reading [${chars.join("")}] at position ${i}`);
+      throw new Error(`Tokenizer error reading [${chars.join("")}]`);
     }
-    token.start = i;
-    token.end = i + token.length;
-    i += token.length;
+
     result.push(token);
   }
   return result;
@@ -59,7 +53,7 @@ export function tokenize(str: string): Token[] {
 function tokenizeDebugger(chars: string[]): Token | null {
   if (chars[0] === "?") {
     chars.shift();
-    return { start: 1, end: 2, length: 1, type: "DEBUGGER", value: "?" };
+    return { type: "DEBUGGER", value: "?" };
   }
   return null;
 }
@@ -73,7 +67,7 @@ function tokenizeMisc(chars: string[]): Token | null {
   if (chars[0] in misc) {
     const value = chars[0];
     const type = misc[chars.shift() as string] as "COMMA" | "LEFT_PAREN" | "RIGHT_PAREN";
-    return { type, value, length: 1, start: 0, end: 0 };
+    return { type, value };
   }
   return null;
 }
@@ -90,7 +84,7 @@ function tokenizeOperator(chars: string[]): Token | null {
   for (let op of OPERATORS) {
     if (startsWith(chars, op)) {
       chars.splice(0, op.length);
-      return { type: "OPERATOR", value: op, length: op.length, start: 0, end: 0 };
+      return { type: "OPERATOR", value: op };
     }
   }
   return null;
@@ -104,53 +98,27 @@ function tokenizeNumber(chars: string[]): Token | null {
   if (digits.length) {
     return {
       type: "NUMBER",
-      value: parseFloat(digits.join("")),
-      length: digits.length,
-      start: 0,
-      end: 0
+      value: parseFloat(digits.join(""))
     };
   }
   return null;
 }
-
-/*function tokenizeBoolean(chars: string[]): Token | null {
-  if (["T", "F"].includes(chars[0].toUpperCase())) {
-    for (let value of ["TRUE", "FALSE"]) {
-      if (
-        chars
-          .slice(0, value.length)
-          .join("")
-          .toUpperCase() === value
-      ) {
-        chars.splice(0, value.length);
-        return {
-          type: "BOOLEAN",
-          value: value === "TRUE",
-          length: value.length,
-          start: 0,
-          end: 0
-        };
-      }
-    }
-  }
-  return null;
-}*/
 
 function tokenizeString(chars: string[]): Token | null {
   const quotes = ["'", '"'];
   if (quotes.includes(chars[0])) {
     const startChar = chars.shift();
     const letters: any[] = [];
+    letters.push(startChar);
     while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === "\\")) {
       letters.push(chars.shift());
     }
-    chars.shift();
+    if (chars[0] === startChar) {
+      letters.push(chars.shift());
+    }
     return {
       type: "STRING",
-      value: letters.join(""),
-      length: letters.length + 2, //Takes the quotes
-      start: 0,
-      end: 0
+      value: letters.join("")
     };
   }
   return null;
@@ -162,10 +130,10 @@ function tokenizeSymbol(chars: string[]): Token | null {
     result.push(chars.shift());
   }
   if (result.length) {
-    const value = result.join("").toUpperCase();
-    const isFunction = value in functions;
+    const value = result.join("");
+    const isFunction = value.toUpperCase() in functions;
     const type = isFunction ? "FUNCTION" : "SYMBOL";
-    return { type, value, length: result.length, start: 0, end: 0 };
+    return { type, value };
   }
   return null;
 }
@@ -178,7 +146,7 @@ function tokenizeSpace(chars: string[]): Token | null {
   }
 
   if (length) {
-    return { type: "SPACE", value: " ".repeat(length), length, start: 0, end: 0 };
+    return { type: "SPACE", value: " ".repeat(length) };
   }
   return null;
 }

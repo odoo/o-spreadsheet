@@ -1,11 +1,12 @@
-import { Component, tags } from "@odoo/owl";
+import { Component, tags, hooks } from "@odoo/owl";
 import { compile } from "../src/formulas";
-import { functionMap } from "../src/functions/index";
+import { functionMap, functions } from "../src/functions/index";
 import { GridModel } from "../src/model";
 import { Grid } from "../src/ui/grid";
 import { toCartesian, toXC } from "../src/helpers";
 
 const { xml } = tags;
+const { useRef } = hooks;
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -116,13 +117,15 @@ export async function triggerRowResizer(
 export class GridParent extends Component<any, any> {
   static template = xml`
     <div class="parent">
-      <Grid model="model"/>
+      <Grid model="model" t-ref="grid"/>
     </div>`;
 
   static components = { Grid };
   model: GridModel;
+  grid: any = useRef("grid");
   constructor(model: GridModel) {
     super();
+
     const uvz = model.updateVisibleZone;
     model.updateVisibleZone = function(width?: number, height?: number) {
       // we simulate here a vizible zone of 1000x1000px
@@ -208,4 +211,17 @@ export function patchWaitFunction(): PatchResult {
     return def;
   };
   return result;
+}
+
+/*
+ * Remove all functions from the internal function list.
+ */
+export function resetFunctions() {
+  Object.keys(functionMap).forEach(k => {
+    delete functionMap[k];
+  });
+
+  Object.keys(functions).forEach(k => {
+    delete functions[k];
+  });
 }

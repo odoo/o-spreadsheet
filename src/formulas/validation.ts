@@ -25,7 +25,7 @@ export function validateAST(ast: AST, expectation: ArgType[]): boolean {
           return validateAST(ast.left, expectation) && validateAST(ast.right, expectation);
       }
     case "FUNCALL":
-      const argsDefinition = functions[ast.value].args;
+      const argsDefinition = functions[ast.value.toUpperCase()].args;
       if (argsDefinition.length === 0) {
         return ast.args.length === 0;
       }
