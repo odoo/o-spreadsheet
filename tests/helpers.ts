@@ -1,6 +1,5 @@
 import { Component, tags } from "@odoo/owl";
 import { compile } from "../src/formulas";
-import { EVAL_CONTEXT } from "../src/model/evaluation";
 import { functionMap } from "../src/functions/index";
 import { GridModel } from "../src/model";
 import { Grid } from "../src/ui/grid";
@@ -39,7 +38,7 @@ export function evaluate(str: string, vars = {}): any {
   }
   const functions = Object.assign({ range }, functionMap);
 
-  return fn.call(EVAL_CONTEXT, getValue, functions);
+  return fn(getValue, functions);
 }
 
 export function nextMicroTick(): Promise<void> {

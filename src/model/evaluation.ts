@@ -2,8 +2,6 @@ import { functionMap } from "../functions/index";
 import { toCartesian, toXC } from "../helpers";
 import { Cell, GridState } from "./state";
 
-export const EVAL_CONTEXT = {};
-
 /**
  * For all cells that are being currently computed (asynchronously).
  *
@@ -75,8 +73,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       if (cell.async) {
         cell.value = "#LOADING";
         PENDING.add(cell);
-        const prom = cell.formula
-          .call(EVAL_CONTEXT, getValue, functions)
+        const prom = cell.formula(getValue, functions)
           .then(val => {
             cell.value = val;
             PENDING.delete(cell);
@@ -86,7 +83,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           .catch((e: Error) => handleError(e, cell));
         state.asyncComputations.push(prom);
       } else {
-        cell.value = cell.formula.call(EVAL_CONTEXT, getValue, functions);
+        cell.value = cell.formula(getValue, functions);
       }
       cell.error = false;
     } catch (e) {
