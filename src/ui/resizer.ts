@@ -1,7 +1,13 @@
 import * as owl from "@odoo/owl";
 
 import { GridModel, Col, Row } from "../model/index";
-import { MIN_ROW_HEIGHT, MIN_COL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import {
+  MIN_ROW_HEIGHT,
+  MIN_COL_WIDTH,
+  HEADER_WIDTH,
+  HEADER_HEIGHT,
+  BACKGROUND_GRAY_COLOR
+} from "../constants";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -316,6 +322,7 @@ export class Resizer extends Component<any, any> {
       <ColResizer model="props.model"/>
       <RowResizer model="props.model"/>
       <div class="all" t-on-mousedown.self="selectAll"/>
+      <div class="o-missing-square"/>
     </div>`;
 
   static style = css/* scss */ `
@@ -327,6 +334,14 @@ export class Resizer extends Component<any, any> {
         right: 0;
         width: ${HEADER_WIDTH}px;
         height: ${HEADER_HEIGHT}px;
+      }
+      .o-missing-square {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 15px;
+        height: 15px;
+        background-color: ${BACKGROUND_GRAY_COLOR};
       }
     }
   `;
