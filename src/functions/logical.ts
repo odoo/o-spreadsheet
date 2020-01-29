@@ -1,4 +1,4 @@
-import { FunctionMap } from "./index";
+import { FunctionMap } from "./functions";
 
 export const functions: FunctionMap = {
   WAIT: {

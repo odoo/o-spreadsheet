@@ -1,4 +1,4 @@
-import { Arg, FunctionMap } from "./index";
+import { Arg, FunctionMap } from "./functions";
 
 let anyNumberArgs: Arg[] = [
   { name: "number", description: "", type: ["NUMBER", "CELL", "RANGE"] },

@@ -1,4 +1,4 @@
-import { addFunction, Arg } from "../../src/functions/index";
+import { addFunction, Arg } from "../../src/functions/functions";
 import { evaluate } from "../helpers";
 
 const ONE_NUMBER: Arg = {
