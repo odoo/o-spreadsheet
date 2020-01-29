@@ -205,4 +205,21 @@ describe("evaluateCells", () => {
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(model.state.cells["A3"].value).toEqual(9);
   });
+
+  test("async formula, multi levels", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=WAIT(1)");
+    model.setValue("A2", "=SUM(A1)");
+    model.setValue("A3", "=SUM(A2)");
+
+    expect(model.state.cells["A1"].value).toEqual("#LOADING");
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+    expect(model.state.cells["A3"].value).toEqual("#LOADING");
+
+    patch.resolveAll();
+    await nextTick();
+    expect(model.state.cells["A1"].value).toEqual(1);
+    expect(model.state.cells["A2"].value).toEqual(1);
+    expect(model.state.cells["A3"].value).toEqual(1);
+  });
 });

@@ -102,7 +102,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     if (cell.error) {
       throw new Error("boom");
     }
-    if (PENDING.has(cell)) {
+    if (cell.value === "#LOADING") {
       throw new Error("not ready");
     }
     return cells[xc].value;
