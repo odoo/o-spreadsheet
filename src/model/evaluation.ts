@@ -73,7 +73,8 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       if (cell.async) {
         cell.value = "#LOADING";
         PENDING.add(cell);
-        const prom = cell.formula(getValue, functions)
+        const prom = cell
+          .formula(getValue, functions)
           .then(val => {
             cell.value = val;
             PENDING.delete(cell);

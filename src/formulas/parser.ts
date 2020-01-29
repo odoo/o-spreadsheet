@@ -71,6 +71,16 @@ export type AST =
   | ASTReference
   | ASTUnknown;
 
+const OP_PRIORITY = {
+  "*": 20,
+  "/": 20,
+  ">": 10,
+  ">=": 10,
+  "<": 10,
+  "<=": 10,
+  "=": 10
+};
+
 function bindingPower(token: Token): number {
   switch (token.type) {
     case "NUMBER":
@@ -83,7 +93,7 @@ function bindingPower(token: Token): number {
     case "RIGHT_PAREN":
       return 5;
     case "OPERATOR":
-      return token.value === "*" || token.value === "/" ? 20 : 15;
+      return OP_PRIORITY[token.value] || 15;
   }
   throw new Error("?");
 }

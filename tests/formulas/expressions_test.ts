@@ -1,6 +1,5 @@
 import { evaluate } from "../helpers";
 
-
 /**
  * Tests in this file are supposed to test mostly the compiler/functions parts,
  * not the semantic of the recursive evaluation of formulas.
@@ -33,6 +32,14 @@ describe("expression evaluation", () => {
     expect(evaluate("=1 <= 2")).toBe(true);
     expect(evaluate("=2 <= 2")).toBe(true);
     expect(evaluate("=3 <= 2")).toBe(false);
+  });
+
+  test("priority of operations", () => {
+    expect(evaluate("=4 > 1 + 2")).toBe(true);
+    expect(evaluate("=4 < 1 + 2")).toBe(false);
+    expect(evaluate("=4 >= 1 + 2")).toBe(true);
+    expect(evaluate("=4 <= 1 + 2")).toBe(false);
+    expect(evaluate("=2 = 1 + 1")).toBe(true);
   });
 
   test("miscellaneous formulas", () => {

@@ -26,6 +26,7 @@ export interface Arg {
   valueProvider?: Function;
   isValueProviderRestrictive?: boolean;
 }
+
 //------------------------------------------------------------------------------
 // Functions
 //------------------------------------------------------------------------------
