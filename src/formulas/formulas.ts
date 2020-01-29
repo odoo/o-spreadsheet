@@ -15,6 +15,9 @@ export function applyOffset(formula: string, offsetX: number, offsetY: number): 
       }
       t.value = toXC(x + offsetX, y + offsetY);
     }
+    if (t.type === "STRING") {
+      t.value = `"${t.value}"`;
+    }
     return t.value;
   });
   return tokens.join("");

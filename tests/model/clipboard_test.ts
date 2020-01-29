@@ -288,4 +288,22 @@ describe("clipboard", () => {
 
     expect(model.paste()).toBe(false);
   });
+
+  test("can copy and paste a cell with STRING content", () => {
+    const model = new GridModel();
+    model.setValue("B2", '="test"');
+
+    expect(model.state.cells["B2"].content).toEqual('="test"');
+    expect(model.state.cells["B2"].value).toEqual('test');
+
+    model.selectCell(1, 1);
+    model.copy();
+    model.selectCell(3, 1);
+    model.paste();
+    expect(model.state.cells["B2"].content).toEqual('="test"');
+    expect(model.state.cells["B2"].value).toEqual('test');
+    expect(model.state.cells["D2"].content).toEqual('="test"');
+    expect(model.state.cells["D2"].value).toEqual('test');
+    expect(model.state.clipboard.status).toBe("invisible");
+  });
 });
