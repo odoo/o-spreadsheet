@@ -7,8 +7,8 @@ import { evaluate } from "../helpers";
 
 describe("expression evaluation", () => {
   test("arithmetic expressions", () => {
-    expect(evaluate("=1").toNumber()).toBe(1);
-    expect(evaluate("=2 + 3 * 4").toNumber()).toBe(14);
+    expect(evaluate("=1")).toBe(1);
+    expect(evaluate("=2 + 3 * 4")).toBe(14);
   });
 
   test("comparisons", () => {
@@ -36,8 +36,8 @@ describe("expression evaluation", () => {
 
   test("miscellaneous formulas", () => {
     const r1 = evaluate("=SUM(A1,B1)", { A1: 1, B1: 2 });
-    expect(r1.toNumber()).toBe(3);
+    expect(r1).toBe(3);
     const r2 = evaluate("=SUM(A1:B1)", { A1: 1, B1: 2 });
-    expect(r2.toNumber()).toBe(3);
+    expect(r2).toBe(3);
   });
 });

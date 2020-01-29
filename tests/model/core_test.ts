@@ -12,7 +12,7 @@ describe("core", () => {
     expect(model.aggregate).toBe(null);
 
     model.updateSelection(0, 2);
-    expect(model.aggregate).toBe(57);
+    expect(model.aggregate).toBe("57");
   });
 
   test("ignore cells with an error", () => {
@@ -31,6 +31,6 @@ describe("core", () => {
 
     // select A1:A3
     model.updateSelection(0, 2);
-    expect(model.aggregate).toBe(5);
+    expect(model.aggregate).toBe("5");
   });
 });

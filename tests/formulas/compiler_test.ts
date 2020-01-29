@@ -8,7 +8,10 @@ describe("expression compiler", () => {
   });
 
   test("some arithmetic expressions", () => {
-    expect(compile("=1 + 3 * 4").toString()).toMatchSnapshot();
+    expect(compile("=1 + 3").toString()).toMatchSnapshot();
+    expect(compile("=2 * 3").toString()).toMatchSnapshot();
+    expect(compile("=2 - 3").toString()).toMatchSnapshot();
+    expect(compile("=2 / 3").toString()).toMatchSnapshot();
     expect(compile("=(3 + 1) * (-1 + 4)").toString()).toMatchSnapshot();
   });
 

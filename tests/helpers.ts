@@ -1,5 +1,4 @@
 import { Component, tags } from "@odoo/owl";
-import { fromNumber } from "../src/decimal";
 import { compile } from "../src/formulas";
 import { EVAL_CONTEXT } from "../src/model/evaluation";
 import { functionMap } from "../src/functions/index";
@@ -24,11 +23,7 @@ const { xml } = tags;
 export function evaluate(str: string, vars = {}): any {
   const fn = compile(str);
   function getValue(v) {
-    let value = vars[v];
-    if (typeof value === "number") {
-      value = fromNumber(value);
-    }
-    return value;
+    return vars[v];
   }
 
   function range(v1: string, v2: string): any[] {

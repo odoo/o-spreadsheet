@@ -185,13 +185,13 @@ describe("merges", () => {
         }
       ]
     });
-    expect(model.state.cells["A4"].value.toNumber()).toBe(6);
+    expect(model.state.cells["A4"].value).toBe(6);
     model.updateSelection(0, 2);
     model.merge();
-    expect(model.state.cells["A1"].value.toNumber()).toBe(1);
+    expect(model.state.cells["A1"].value).toBe(1);
     expect(model.state.cells["A2"]).toBeUndefined();
     expect(model.state.cells["A3"]).toBeUndefined();
-    expect(model.state.cells["A4"].value.toNumber()).toBe(1);
+    expect(model.state.cells["A4"].value).toBe(1);
   });
 
   test("merging => setting background color => unmerging", () => {

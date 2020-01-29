@@ -28,7 +28,7 @@ export class GridModel extends owl.core.EventBus {
   selectedCell: Cell | null = null;
   style: Style = {};
   isMergeDestructive: boolean = false;
-  aggregate: number | null = null;
+  aggregate: string | null = null;
 
   constructor(data?: PartialGridDataWithVersion) {
     super();

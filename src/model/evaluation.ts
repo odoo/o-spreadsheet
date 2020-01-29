@@ -1,10 +1,8 @@
-import * as decimal from "../decimal";
-import { zero } from "../decimal";
 import { functionMap } from "../functions/index";
 import { toCartesian, toXC } from "../helpers";
 import { Cell, GridState } from "./state";
 
-export const EVAL_CONTEXT = Object.assign({}, decimal);
+export const EVAL_CONTEXT = {};
 
 /**
  * For all cells that are being currently computed (asynchronously).
@@ -100,7 +98,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   function getValue(xc: string): any {
     const cell = cells[xc];
     if (!cell || cell.content === "") {
-      return zero;
+      return 0;
     }
     computeValue(xc, cell);
     if (cell.error) {

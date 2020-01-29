@@ -1,5 +1,4 @@
 import { Arg, FunctionMap } from "./index";
-import { add, N, fromNumber, lt, zero } from "../decimal";
 
 let anyNumberArgs: Arg[] = [
   { name: "number", description: "", type: ["NUMBER", "CELL", "RANGE"] },
@@ -12,13 +11,15 @@ let anyNumberArgs: Arg[] = [
   }
 ];
 
+function toNumber(n: any) {
+  return typeof n === "number" ? n : 0;
+}
+
 export const functions: FunctionMap = {
   SUM: {
     description: "Returns the sum of all values in a range.",
     compute: function(...args) {
-      return args.flat().reduce(function(a, b) {
-        return b instanceof N ? add(a, b) : a;
-      }, zero);
+      return args.flat().reduce((a, b) => a + toNumber(b), 0);
     },
     args: anyNumberArgs,
     returns: ["NUMBER"]
@@ -26,7 +27,7 @@ export const functions: FunctionMap = {
   RAND: {
     description: "Returns a random number between 0 and 1",
     compute: function() {
-      return fromNumber(Math.random());
+      return Math.random();
     },
     args: [],
     returns: ["NUMBER"]
@@ -34,14 +35,7 @@ export const functions: FunctionMap = {
   MIN: {
     description: "Returns the minimum value.",
     compute: function(...args) {
-      const vals = args.flat();
-      let min;
-      for (let val of vals) {
-        if (val instanceof N) {
-          min = min ? (lt(min, val) ? min : val) : val;
-        }
-      }
-      return min;
+      return Math.min(...args);
     },
     args: anyNumberArgs,
     returns: ["NUMBER"]
@@ -49,14 +43,7 @@ export const functions: FunctionMap = {
   MAX: {
     description: "Returns the maximum value.",
     compute: function(...args) {
-      const vals = args.flat();
-      let max;
-      for (let val of vals) {
-        if (val instanceof N) {
-          max = max ? (lt(max, val) ? val : max) : val;
-        }
-      }
-      return max;
+      return Math.max(...args);
     },
     args: anyNumberArgs,
     returns: ["NUMBER"]
