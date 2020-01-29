@@ -1,6 +1,5 @@
-import { parse } from "./index";
-import { ArgType, functions } from "../functions";
-import { AST } from "./parser";
+import { ArgType, functions } from "../functions/index";
+import { AST, parse } from "./parser";
 
 export function validate(formula: string): boolean {
   if (!formula) return true;
@@ -14,7 +13,7 @@ export function validate(formula: string): boolean {
  *  take a piece of AST and validates it
  *  @returns {boolean} true if the AST is valid, else false
  *  */
-function validateAST(ast: AST, expectation: ArgType[]): boolean {
+export function validateAST(ast: AST, expectation: ArgType[]): boolean {
   switch (ast.type) {
     case "UNKNOWN":
       return false;

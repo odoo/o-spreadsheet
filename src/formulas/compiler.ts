@@ -1,4 +1,5 @@
 import { parse, AST } from "./parser";
+import { validateAST } from "./validation";
 
 const OPERATOR_MAP = {
   "=": "==="
@@ -29,6 +30,10 @@ export const AsyncFunction = Object.getPrototypeOf(async function() {}).construc
 
 export function compile(str: string): Function {
   const ast = parse(str);
+  const isValid = validateAST(ast, ["ANY"]);
+  if (!isValid) {
+    throw new Error("Invalid formula");
+  }
   let nextId = 1;
   const code = [`// ${str}`];
   let isAsync = false;

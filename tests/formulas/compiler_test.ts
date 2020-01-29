@@ -27,4 +27,9 @@ describe("expression compiler", () => {
   test("async functions", () => {
     expect(compile("=WAIT(5)").toString()).toMatchSnapshot();
   });
+
+  test("throw if it can determine at compile time that formula is invalid", () => {
+    expect(() => compile(`=SUM(5, A2)`)).not.toThrow();
+    expect(() => compile(`=SUM(5, "abc")`)).toThrow();
+  });
 });

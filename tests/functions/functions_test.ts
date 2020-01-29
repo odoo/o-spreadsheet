@@ -1,5 +1,11 @@
-import { addFunction } from "../../src/functions/index";
+import { addFunction, Arg } from "../../src/functions/index";
 import { evaluate } from "../helpers";
+
+const ONE_NUMBER: Arg = {
+  type: ["NUMBER"],
+  description: "My number",
+  name: "number"
+};
 
 describe("addFunction", () => {
   test("can add a function, once, but not twice", () => {
@@ -13,7 +19,7 @@ describe("addFunction", () => {
     addFunction("DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: arg => 2 * arg,
-      args: [],
+      args: [ONE_NUMBER],
       returns: ["NUMBER"]
     });
     expect(evaluate("=DOUBLEDOUBLE(3)")).toBe(6);
