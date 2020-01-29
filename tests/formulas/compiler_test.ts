@@ -12,6 +12,7 @@ describe("expression compiler", () => {
     expect(compile("=2 * 3").toString()).toMatchSnapshot();
     expect(compile("=2 - 3").toString()).toMatchSnapshot();
     expect(compile("=2 / 3").toString()).toMatchSnapshot();
+    expect(compile("=-3").toString()).toMatchSnapshot();
     expect(compile("=(3 + 1) * (-1 + 4)").toString()).toMatchSnapshot();
   });
 

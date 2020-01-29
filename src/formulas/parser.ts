@@ -1,6 +1,8 @@
 import { TokenType, Token, tokenize } from "./tokenizer";
 import { functions } from "../functions/index";
 
+const UNARY_OPERATORS = ["-"];
+
 // -----------------------------------------------------------------------------
 // PARSER
 // -----------------------------------------------------------------------------
@@ -26,6 +28,12 @@ interface ASTBoolean extends ASTBase {
 interface ASTReference extends ASTBase {
   type: "REFERENCE";
   value: string;
+}
+
+interface ASTUnaryOperation extends ASTBase {
+  type: "UNARY_OPERATION";
+  value: any;
+  right: AST;
 }
 
 interface ASTOperation extends ASTBase {
@@ -54,6 +62,7 @@ interface ASTUnknown extends ASTBase {
 
 export type AST =
   | ASTOperation
+  | ASTUnaryOperation
   | ASTFuncall
   | ASTAsyncFuncall
   | ASTNumber
@@ -110,11 +119,10 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     tokens.shift();
     return result;
   }
-  if (current.type === "OPERATOR" && current.value === "-") {
+  if (current.type === "OPERATOR" && UNARY_OPERATORS.includes(current.value)) {
     return {
-      type: "BIN_OPERATION",
+      type: "UNARY_OPERATION",
       value: current.value,
-      left: { type: "NUMBER", value: 0 },
       right: parseExpression(tokens, 15)
     };
   }

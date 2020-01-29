@@ -5,6 +5,22 @@ describe("parser", () => {
     expect(parse("RAND()")).toEqual({ type: "FUNCALL", value: "RAND", args: [] });
   });
 
+  test("can parse unary operations", () => {
+    expect(parse("-1")).toEqual({
+      type: "UNARY_OPERATION",
+      value: "-",
+      right: { type: "NUMBER", value: 1 }
+    });
+  });
+  test("can parse binary operations", () => {
+    expect(parse("2-3")).toEqual({
+      type: "BIN_OPERATION",
+      value: "-",
+      left: { type: "NUMBER", value: 2 },
+      right: { type: "NUMBER", value: 3 }
+    });
+  });
+
   test("AND", () => {
     expect(parse("=AND(true, false)")).toEqual({
       type: "FUNCALL",

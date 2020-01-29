@@ -103,11 +103,21 @@ return _1;
 exports[`expression compiler some arithmetic expressions 5`] = `
 "function anonymous(getValue,fns
 ) {
+// =-3
+if (typeof 3 !== 'number') { throw new Error('Invalid type');}
+let _1 = - 3;
+return _1;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions 6`] = `
+"function anonymous(getValue,fns
+) {
 // =(3 + 1) * (-1 + 4)
 if (typeof 3 !== 'number' || typeof 1 !== 'number') { throw new Error('Invalid type');}
 let _2 = 3 + 1;
-if (typeof 0 !== 'number' || typeof 1 !== 'number') { throw new Error('Invalid type');}
-let _4 = 0 - 1;
+if (typeof 1 !== 'number') { throw new Error('Invalid type');}
+let _4 = - 1;
 if (typeof _4 !== 'number' || typeof 4 !== 'number') { throw new Error('Invalid type');}
 let _3 = _4 + 4;
 if (typeof _2 !== 'number' || typeof _3 !== 'number') { throw new Error('Invalid type');}

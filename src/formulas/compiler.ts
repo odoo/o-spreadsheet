@@ -4,9 +4,16 @@ const OPERATOR_MAP = {
   "=": "==="
 };
 
+function IS_NUMBER(r: any): string {
+  return `if (typeof ${r} !== 'number') { throw new Error('Invalid type');}`;
+}
 function BOTH_NUMBER(l: any, r: any): string {
   return `if (typeof ${l} !== 'number' || typeof ${r} !== 'number') { throw new Error('Invalid type');}`;
 }
+
+const UNARY_OPERATOR_TYPEGUARDS = {
+  "-": IS_NUMBER
+};
 
 const OPERATOR_TYPEGUARDS = {
   "+": BOTH_NUMBER,
@@ -51,6 +58,14 @@ export function compile(str: string): Function {
         id = nextId++;
         isAsync = true;
         code.push(`let _${id} = await fns['${ast.value}'](${args})`);
+        break;
+      case "UNARY_OPERATION":
+        id = nextId++;
+        right = compileAST(ast.right);
+        if (ast.value in UNARY_OPERATOR_TYPEGUARDS) {
+          code.push(UNARY_OPERATOR_TYPEGUARDS[ast.value](right));
+        }
+        code.push(`let _${id} = ${ast.value} ${right};`);
         break;
       case "BIN_OPERATION":
         id = nextId++;
