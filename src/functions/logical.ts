@@ -1,4 +1,4 @@
-import { FunctionMap } from "./functions";
+import { FunctionMap, args } from "./functions";
 
 export const functions: FunctionMap = {
   WAIT: {
@@ -11,7 +11,7 @@ export const functions: FunctionMap = {
       });
     },
     async: true,
-    args: [{ name: "ms", description: "wait time in milliseconds", type: ["NUMBER", "CELL"] }],
+    args: args`ms (number,cell) wait time in milliseconds`,
     returns: ["ANY"]
   },
   AND: {
@@ -19,14 +19,7 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return Boolean(args.flat().reduce((a, b) => a && b, true));
     },
-    args: [
-      {
-        repeating: true,
-        name: "logicalPart",
-        description: "logical part",
-        type: ["BOOLEAN", "CELL"]
-      }
-    ],
+    args: args`logicalPart (boolean,cell,repeating) logical part`,
     returns: ["BOOLEAN"]
   },
   OR: {
@@ -34,14 +27,7 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return Boolean(args.flat().reduce((a, b) => a || b, false));
     },
-    args: [
-      {
-        repeating: true,
-        name: "logicalPart",
-        description: "logical part",
-        type: ["BOOLEAN", "CELL"]
-      }
-    ],
+    args: args`logicalPart (boolean,cell,repeating) logical part`,
     returns: ["BOOLEAN"]
   },
   XOR: {
@@ -50,14 +36,7 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return Boolean(args.flat().filter(a => a).length % 2 !== 0);
     },
-    args: [
-      {
-        repeating: true,
-        name: "logicalPart",
-        description: "logical part",
-        type: ["BOOLEAN", "CELL"]
-      }
-    ],
+    args: args`logicalPart (boolean,cell,repeating) logical part`,
     returns: ["BOOLEAN"]
   },
   NOT: {
@@ -65,7 +44,7 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return Boolean(!args[0]);
     },
-    args: [{ name: "XXX", description: "logical part", type: ["BOOLEAN", "CELL"] }],
+    args: args`XXX (boolean,cell) logical part`,
     returns: ["BOOLEAN"]
   },
   IF: {
@@ -73,19 +52,11 @@ export const functions: FunctionMap = {
     compute: function(condition, valueTrue, valueFalse) {
       return condition ? valueTrue : valueFalse;
     },
-    args: [
-      { name: "condition", description: "logical part", type: ["BOOLEAN", "CELL"] },
-      {
-        name: "valueTrue",
-        description: "the value of the cell if the condition is true",
-        type: ["ANY"]
-      },
-      {
-        name: "valueFalse",
-        description: "the value of the cell if the condition is true",
-        type: ["ANY"]
-      }
-    ],
+    args: args`
+      condition (boolean,cell) logical part
+      valueTrue (any) the value of the cell if the condition is true
+      valueFalse (any) the value of the cell if the condition is false
+    `,
     returns: ["ANY"]
   }
 };

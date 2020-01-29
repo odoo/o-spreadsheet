@@ -1,15 +1,4 @@
-import { Arg, FunctionMap } from "./functions";
-
-let anyNumberArgs: Arg[] = [
-  { name: "number", description: "", type: ["NUMBER", "CELL", "RANGE"] },
-  {
-    name: "numbers",
-    description: "",
-    type: ["NUMBER", "CELL", "RANGE"],
-    optional: true,
-    repeating: true
-  }
-];
+import { FunctionMap, args } from "./functions";
 
 function toNumber(n: any) {
   return typeof n === "number" ? n : 0;
@@ -21,7 +10,10 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return args.flat().reduce((a, b) => a + toNumber(b), 0);
     },
-    args: anyNumberArgs,
+    args: args`
+        number (number,cell,range)
+        numbers (number,cell,range,optional,repeating)
+    `,
     returns: ["NUMBER"]
   },
   RAND: {
@@ -37,7 +29,10 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return Math.min(...args);
     },
-    args: anyNumberArgs,
+    args: args`
+        number (number,cell,range)
+        numbers (number,cell,range,optional,repeating)
+    `,
     returns: ["NUMBER"]
   },
   MAX: {
@@ -45,7 +40,10 @@ export const functions: FunctionMap = {
     compute: function(...args) {
       return Math.max(...args);
     },
-    args: anyNumberArgs,
+    args: args`
+        number (number,cell,range)
+        numbers (number,cell,range,optional,repeating)
+    `,
     returns: ["NUMBER"]
   }
 };
