@@ -4,9 +4,13 @@ import {
   triggerMouseEvent,
   GridParent,
   triggerColResizer,
-  triggerRowResizer
+  triggerRowResizer,
+  nextTick
 } from "../helpers";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../src/constants";
+
+jest.mock("../../src/ui/grid_renderer");
+const { getMaxSize } = require("../../src/ui/grid_renderer");
 
 let fixture: HTMLElement;
 
@@ -219,5 +223,35 @@ describe("Resizer component", () => {
     const x = model.state.rows[2].top;
     await triggerRowResizer(x, 10000000, model, model.state.rows[8].bottom);
     expect(model.state.rows[1].size).toBe(model.state.clientHeight - 60 - model.state.rows[0].size);
+  });
+
+  test("Double click: Modify the size of a column", async () => {
+    const model = new GridModel();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.setValue("B2", "b2");
+
+    const x = model.state.cols[2].left;
+    getMaxSize.mockImplementation(() => 1000);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+    await nextTick();
+    triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "dblclick", x, 10);
+    expect(model.state.cols[1].size).toBe(1000);
+  });
+
+  test("Double click: Modify the size of a row", async () => {
+    const model = new GridModel();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.setValue("B2", "b2");
+
+    const y = model.state.rows[2].top;
+    getMaxSize.mockImplementation(() => 1000);
+    triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
+    await nextTick();
+    triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "dblclick", 10, y);
+    expect(model.state.rows[1].size).toBe(1000);
   });
 });

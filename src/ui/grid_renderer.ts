@@ -1,7 +1,8 @@
 import { GridModel, Col, Row, Cell, Zone, Style, Merge, Border, BorderDescr } from "../model/index";
 import { toXC, overlap } from "../helpers";
 import { fontSizeMap } from "../fonts";
-import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import { HEADER_WIDTH, HEADER_HEIGHT, DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../constants";
+import { getCell } from "../model/core";
 
 // Global variables
 
@@ -105,6 +106,24 @@ function drawBackgroundGrid() {
 }
 
 /**
+ * Get the content size of a cell
+ *
+ * @param cell Cell
+ * @param width True for the width, false otherwise
+ *
+ * @returns Size of the content (width or height)
+ */
+function getTextSize(cell: Cell, width: boolean): number {
+  const style = model.state.styles[cell ? cell.style || 0 : 0];
+  const italic = style.italic ? "italic " : "";
+  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+  const size = fontSizeMap[sizeInPt];
+  ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+  return width ? ctx.measureText(model.formatCell(cell)).width : size;
+}
+
+/**
  * Main entry point for drawing a text box content (either a cell or a merge).
  * It draws everything related to the text.
  *
@@ -122,10 +141,10 @@ function drawTextBox(
 ) {
   const align = style.align || (type === "text" ? "left" : "right");
   const italic = style.italic ? "italic " : "";
-  const weight = style.bold ? "bold" : "500";
-  const sizeInPt = style.fontSize || 10;
+  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
   const size = fontSizeMap[sizeInPt];
-  ctx.font = `${italic}${weight} ${size}px arial`;
+  ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
   ctx.textBaseline = "middle";
   ctx.fillStyle = style.textColor || "#000";
   let x;
@@ -351,20 +370,30 @@ function drawClipBoard() {
   ctx.restore();
 }
 
-export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
-  (window as any).gridmodel = _model; // to debug. remove this someday
+/**
+ * Initialize the variables of the renderer
+ *
+ * @param context Canvas context
+ * @param _model GridModel
+ */
+function init(context: CanvasRenderingContext2D, _model: GridModel) {
   viewport = _model.state.viewport;
   ctx = context;
   offsetX = _model.state.offsetX;
   offsetY = _model.state.offsetY;
   model = _model;
-  width = _width;
-  height = _height;
   rows = _model.state.rows;
   cols = _model.state.cols;
   cells = _model.state.cells;
   mergeCellMap = _model.state.mergeCellMap;
   borders = _model.state.borders;
+}
+
+export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _width, _height) {
+  (window as any).gridmodel = _model; // to debug. remove this someday
+  init(context, _model);
+  width = _width;
+  height = _height;
 
   ctx.fillStyle = _model.state.styles[0].fillColor || "white";
   ctx.fillRect(0, 0, width, height);
@@ -379,4 +408,30 @@ export function drawGrid(context: CanvasRenderingContext2D, _model: GridModel, _
   drawClipBoard();
 
   drawActiveZone();
+}
+
+/**
+ * Return the max size of the text in a row/col
+ * @param context Canvas context
+ * @param _model Model
+ * @param col True if the size it's a column, false otherwise
+ * @param index Index of the row/col
+ *
+ * @returns Max size of the row/col
+ */
+export function getMaxSize(
+  context: CanvasRenderingContext2D,
+  _model: GridModel,
+  col: boolean,
+  index: number
+): number {
+  init(context, model);
+  let size = 0;
+  for (let i = 0; i < model.state[col ? "rows" : "cols"].length; i++) {
+    const cell = getCell(model.state, col ? index : i, col ? i : index);
+    if (cell) {
+      size = Math.max(size, getTextSize(cell, col));
+    }
+  }
+  return size ? size + 6 : 0;
 }

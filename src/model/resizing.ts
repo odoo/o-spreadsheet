@@ -77,3 +77,11 @@ export function updateRowsSize(state: GridState, base: number, all: Array<number
     updateRowSize(state, row, size - rows[row].size);
   }
 }
+
+export function setColSize(state: GridState, col: number, size: number) {
+  updateColSize(state, col, size - state.cols[col].size);
+}
+
+export function setRowSize(state: GridState, row: number, size: number) {
+  updateRowSize(state, row, size - state.rows[row].size);
+}

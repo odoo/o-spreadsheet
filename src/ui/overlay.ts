@@ -23,7 +23,7 @@ abstract class AbstractResizer extends Component<any, any> {
     activeElt: <number>0,
     activeElts: <Array<number>>[],
     styleValue: <number>0,
-    delta: <number>0
+    delta: <number>0,
   });
 
   abstract _getEvOffset(ev: MouseEvent): number;
@@ -51,6 +51,8 @@ abstract class AbstractResizer extends Component<any, any> {
   abstract _updateSize(): void;
 
   abstract _selectElement(index: number, ctrlKey: boolean): void;
+
+  abstract _fitElementSize(index: number): void;
 
   onMouseMove(ev: MouseEvent) {
     if (this.state.isResizing) {
@@ -83,6 +85,11 @@ abstract class AbstractResizer extends Component<any, any> {
     this.state.isActive = this.state.isResizing;
   }
 
+  onDblClick() {
+    this._fitElementSize(this.state.activeElt);
+    this.state.isResizing = false;
+  }
+
   onMouseDown(ev: MouseEvent) {
     this.state.isResizing = true;
     this.state.delta = 0;
@@ -94,7 +101,6 @@ abstract class AbstractResizer extends Component<any, any> {
     const maxSize = this._getMaxSize();
     const onMouseUp = ev => {
       this.state.isResizing = false;
-      this.state.isActive = false;
       window.removeEventListener("mousemove", onMouseMove);
       this._updateSize();
     };
@@ -129,8 +135,10 @@ class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select">
       <t t-if="state.isActive">
-        <div class="o-handle" t-att-class="{dragging:state.isResizing}" t-on-mousedown="onMouseDown"
-        t-attf-style="left:{{state.styleValue - 2}}px;"/>
+        <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick"
+          t-attf-style="left:{{state.styleValue - 2}}px;">
+          <div class="dragging" t-if="state.isResizing"/>
+        </div>
       </t>
     </div>`;
 
@@ -145,13 +153,16 @@ class ColResizer extends AbstractResizer {
         position: absolute;
         height: ${HEADER_HEIGHT}px;
         width: 4px;
-        cursor: ew-resize;
+        cursor: e-resize;
         background-color: #3266ca;
-        &.dragging {
-          margin-left: 2px;
-          width: 1px;
-          height: 10000px;
-        }
+      }
+      .dragging {
+        top: ${HEADER_HEIGHT}px;
+        position: absolute;
+        margin-left: 2px;
+        width: 1px;
+        height: 10000px;
+        background-color: #3266ca;
       }
     }
   `;
@@ -215,14 +226,20 @@ class ColResizer extends AbstractResizer {
   _selectElement(index: number, ctrlKey: boolean): void {
     this.model.selectColumn(index, ctrlKey);
   }
+
+  _fitElementSize(index: number): void {
+    this.trigger("autoresize", { index, type: "col" });
+  }
 }
 
 class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select">
       <t t-if="state.isActive">
-        <div class="o-handle" t-att-class="{dragging:state.isResizing}" t-on-mousedown="onMouseDown"
-        t-attf-style="top:{{state.styleValue - 2}}px;"/>
+        <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick"
+          t-attf-style="top:{{state.styleValue - 2}}px;">
+          <div class="dragging" t-if="state.isResizing"/>
+        </div>
       </t>
     </div>`;
 
@@ -238,13 +255,16 @@ class RowResizer extends AbstractResizer {
         position: absolute;
         height: 4px;
         width: ${HEADER_WIDTH}px;
-        cursor: ns-resize;
+        cursor: n-resize;
         background-color: #3266ca;
-        &.dragging {
-          margin-top: 2px;
-          width: 10000px;
-          height: 1px;
-        }
+      }
+      .dragging {
+        left: ${HEADER_WIDTH}px;
+        position: absolute;
+        margin-top: 2px;
+        width: 10000px;
+        height: 1px;
+        background-color: #3266ca;
       }
     }
   `;
@@ -307,6 +327,10 @@ class RowResizer extends AbstractResizer {
 
   _selectElement(index: number, ctrlKey: boolean): void {
     this.model.selectRow(index, ctrlKey);
+  }
+
+  _fitElementSize(index: number): void {
+    this.trigger("autoresize", { index, type: "row" });
   }
 }
 

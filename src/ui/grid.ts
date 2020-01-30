@@ -2,10 +2,10 @@ import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../constants";
 import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
-import { drawGrid } from "./grid_renderer";
 import { Overlay } from "./overlay";
 import { ContextMenu } from "./context_menu";
 import { isInside } from "../helpers";
+import { drawGrid, getMaxSize } from "./grid_renderer";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -36,7 +36,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-contextmenu="toggleContextMenu"
       t-on-mousewheel="onMouseWheel" />
-    <Overlay model="model"/>
+    <Overlay model="model" t-on-autoresize="onAutoresize"/>
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
       position="contextMenu.position"
@@ -186,6 +186,15 @@ export class Grid extends Component<any, any> {
     vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
     const hScrollbar = this.hScrollbar.el!;
     hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
+  }
+
+  onAutoresize(ev: CustomEvent) {
+    const index = ev.detail.index;
+    const col = ev.detail.type === "col";
+    const size = getMaxSize(this.context!, this.model, col, index);
+    if (size !== 0) {
+      col ? this.model.setColSize(index, size) : this.model.setRowSize(index, size);
+    }
   }
 
   // ---------------------------------------------------------------------------

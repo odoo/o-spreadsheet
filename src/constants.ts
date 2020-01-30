@@ -13,3 +13,7 @@ export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;
 
 export const SCROLLBAR_WIDTH = 15;
+
+export const DEFAULT_FONT_WEIGHT = "500";
+export const DEFAULT_FONT_SIZE = 10;
+export const DEFAULT_FONT = "arial";

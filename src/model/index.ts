@@ -132,4 +132,6 @@ export class GridModel extends owl.core.EventBus {
   updateColsSize = this.makeMutation(resizing.updateColsSize);
   updateRowSize = this.makeMutation(resizing.updateRowSize);
   updateRowsSize = this.makeMutation(resizing.updateRowsSize);
+  setColSize = this.makeMutation(resizing.setColSize);
+  setRowSize = this.makeMutation(resizing.setRowSize);
 }
