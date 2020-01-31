@@ -4,7 +4,7 @@ import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
-import { Resizer } from "./resizer";
+import { Overlay } from "./overlay";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -34,7 +34,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-dblclick="onDoubleClick"
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-mousewheel="onMouseWheel" />
-    <Resizer model="model"/>
+    <Overlay model="model"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{state.height}}px"/>
     </div>
@@ -79,7 +79,7 @@ const CSS = css/* scss */ `
 export class Grid extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Resizer };
+  static components = { Composer, Overlay };
 
   composer = useRef("composer");
 

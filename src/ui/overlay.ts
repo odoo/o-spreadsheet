@@ -316,9 +316,9 @@ class RowResizer extends AbstractResizer {
   }
 }
 
-export class Resizer extends Component<any, any> {
+export class Overlay extends Component<any, any> {
   static template = xml/* xml */ `
-    <div class="o-resizer">
+    <div class="o-overlay">
       <ColResizer model="props.model"/>
       <RowResizer model="props.model"/>
       <div class="all" t-on-mousedown.self="selectAll"/>
@@ -326,7 +326,7 @@ export class Resizer extends Component<any, any> {
     </div>`;
 
   static style = css/* scss */ `
-    .o-resizer {
+    .o-overlay {
       .all {
         position: absolute;
         top: 0;

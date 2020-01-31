@@ -40,7 +40,7 @@ describe("Grid component", () => {
     model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     expect(model.state.activeXc).toBe("A1");
-    triggerMouseEvent(".o-resizer", "click", 300, 20);
+    triggerMouseEvent(".o-overlay", "click", 300, 20);
     document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
     expect(model.state.activeXc).toBe("A2");
   });
