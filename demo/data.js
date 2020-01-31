@@ -10,8 +10,8 @@ export const demoData = {
   sheets: [
     {
       name: "Sheet1",
-      colNumber: 50,
-      rowNumber: 200,
+      colNumber: 26,
+      rowNumber: 120,
       cols: { 1: {}, 3: {} },
       rows: {},
       cells: {

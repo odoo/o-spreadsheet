@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 
-import { GridModel } from "../model/index";
+import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
@@ -26,7 +26,7 @@ const { useRef, useExternalListener } = owl.hooks;
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet" t-on-click="focus">
-    <t t-if="model.state.isEditing">
+    <t t-if="state.isEditing">
       <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
     </t>
     <canvas t-ref="canvas"
@@ -36,10 +36,10 @@ const TEMPLATE = xml/* xml */ `
       t-on-mousewheel="onMouseWheel" />
     <Resizer model="model"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{model.state.height}}px"/>
+      <div t-attf-style="width:1px;height:{{state.height}}px"/>
     </div>
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{model.state.width}}px"/>
+      <div t-attf-style="height:1px;width:{{state.width}}px"/>
     </div>
   </div>`;
 
@@ -89,6 +89,7 @@ export class Grid extends Component<any, any> {
   context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
   model: GridModel = this.props.model;
+  state: GridState = this.model.state;
   clickedCol = 0;
   clickedRow = 0;
   // last string that was cut or copied. It is necessary so we can make the
@@ -120,20 +121,24 @@ export class Grid extends Component<any, any> {
   }
   patched() {
     this.updateVisibleZone();
+    this.vScrollbar.el!.scrollTop = this.state.scrollTop;
+    this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
     this.drawGrid();
   }
 
   focus() {
-    if (!this.model.state.isSelectingRange) {
+    if (!this.state.isSelectingRange) {
       this.canvas.el!.focus();
     }
   }
 
   onScroll() {
-    const model = this.model;
-    const { offsetX, offsetY } = model.state;
+    const { offsetX, offsetY } = this.state;
+    this.state.scrollTop = this.vScrollbar.el!.scrollTop;
+    this.state.scrollLeft = this.hScrollbar.el!.scrollLeft;
+
     this.updateVisibleZone();
-    if (offsetX !== model.state.offsetX || offsetY !== model.state.offsetY) {
+    if (offsetX !== this.state.offsetX || offsetY !== this.state.offsetY) {
       this.render();
     }
   }
@@ -141,9 +146,7 @@ export class Grid extends Component<any, any> {
   updateVisibleZone() {
     const width = this.el!.clientWidth;
     const height = this.el!.clientHeight;
-    const scrollTop = this.vScrollbar.el!.scrollTop;
-    const scrollLeft = this.hScrollbar.el!.scrollLeft;
-    this.model.updateVisibleZone(width, height, scrollLeft, scrollTop);
+    this.model.updateVisibleZone(width, height);
   }
   drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
@@ -244,17 +247,17 @@ export class Grid extends Component<any, any> {
       }
       return;
     }
-    if (this.model.state.isSelectingRange) {
+    if (this.state.isSelectingRange) {
       switch (ev.key) {
         case "Enter":
           if (this.composer.comp) {
             (this.composer.comp as Composer).addTextFromSelection();
-            this.model.state.isSelectingRange = false;
+            this.state.isSelectingRange = false;
           }
           return;
 
         case "Escape":
-          this.model.state.isSelectingRange = false;
+          this.state.isSelectingRange = false;
           ev.stopPropagation();
           return;
       }

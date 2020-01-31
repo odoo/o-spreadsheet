@@ -3,6 +3,7 @@ import { addCell, selectCell } from "./core";
 import { evaluateCells } from "./evaluation";
 import { numberToLetters } from "../helpers";
 import { updateState } from "./history";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 /**
  * State
@@ -233,9 +234,6 @@ export const CURRENT_VERSION = 1;
 //   }
 // };
 
-const DEFAULT_CELL_WIDTH = 96;
-const DEFAULT_CELL_HEIGHT = 23;
-
 export const DEFAULT_STYLE: Style = {
   fillColor: "white",
   textColor: "black",
@@ -273,8 +271,8 @@ export function importData(
     mergeCellMap: {},
     width: 0,
     height: 0,
-    clientWidth: 0,
-    clientHeight: 0,
+    clientWidth: DEFAULT_CELL_WIDTH + HEADER_WIDTH,
+    clientHeight: DEFAULT_CELL_HEIGHT + HEADER_HEIGHT,
     offsetX: 0,
     offsetY: 0,
     scrollTop: 0,

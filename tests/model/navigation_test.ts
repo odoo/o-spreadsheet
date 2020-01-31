@@ -1,4 +1,5 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
+import { CURRENT_VERSION, GridModel } from "../../src/model/index";
 
 describe("navigation", () => {
   test("normal move to the right", () => {
@@ -107,5 +108,65 @@ describe("navigation", () => {
     expect(model.state.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.state.activeCol).toBe(1);
     expect(model.state.activeRow).toBe(1);
+  });
+
+  test("move right from right row (of the viewport)", () => {
+    const model = new GridModel();
+    model.updateVisibleZone(600, 300);
+
+    model.selectCell(4, 0);
+    expect(model.state.activeCol).toBe(4);
+    expect(model.state.viewport.left).toBe(0);
+    expect(model.state.viewport.right).toBe(5);
+    model.movePosition(1, 0);
+    expect(model.state.activeCol).toBe(5);
+    expect(model.state.viewport.left).toBe(1);
+    expect(model.state.viewport.right).toBe(6);
+    expect(model.state.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
+  });
+
+  test("move left from left row (of the viewport)", () => {
+    const model = new GridModel();
+    model.state.scrollLeft = 100;
+    model.updateVisibleZone(600, 300);
+
+    model.selectCell(1, 0);
+    expect(model.state.activeCol).toBe(1);
+    expect(model.state.viewport.left).toBe(1);
+    expect(model.state.viewport.right).toBe(6);
+    model.movePosition(-1, 0);
+    expect(model.state.activeCol).toBe(0);
+    expect(model.state.viewport.left).toBe(0);
+    expect(model.state.viewport.right).toBe(5);
+    expect(model.state.scrollLeft).toBe(0);
+  });
+
+  test("move bottom from bottom row (of the viewport)", () => {
+    const model = new GridModel();
+    model.updateVisibleZone(600, 200);
+    model.selectCell(0, 5);
+    expect(model.state.activeRow).toBe(5);
+    expect(model.state.viewport.top).toBe(0);
+    expect(model.state.viewport.bottom).toBe(6);
+    model.movePosition(0, 1);
+    expect(model.state.activeRow).toBe(6);
+    expect(model.state.viewport.top).toBe(1);
+    expect(model.state.viewport.bottom).toBe(7);
+    expect(model.state.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
+  });
+
+  test("move top from top row (of the viewport)", () => {
+    const model = new GridModel();
+    model.state.scrollTop = 40;
+    model.updateVisibleZone(600, 200);
+    model.selectCell(0, 1);
+    expect(model.state.activeRow).toBe(1);
+    expect(model.state.viewport.top).toBe(1);
+    expect(model.state.viewport.bottom).toBe(7);
+    model.movePosition(0, -1);
+    expect(model.state.activeRow).toBe(0);
+    expect(model.state.viewport.top).toBe(0);
+    expect(model.state.viewport.bottom).toBe(6);
+    expect(model.state.scrollTop).toBe(0);
   });
 });

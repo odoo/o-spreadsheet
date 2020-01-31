@@ -110,7 +110,7 @@ export function deleteCell(state: GridState, xc: string, force: boolean = false)
 }
 
 export function movePosition(state: GridState, deltaX: number, deltaY: number) {
-  const { activeCol, activeRow, cols, rows } = state;
+  const { activeCol, activeRow, cols, rows, viewport } = state;
   const invalidMove =
     (deltaY < 0 && activeRow === 0) ||
     (deltaY > 0 && activeRow === rows.length - 1) ||
@@ -135,6 +135,23 @@ export function movePosition(state: GridState, deltaX: number, deltaY: number) {
     }
   } else {
     selectCell(state, state.activeCol + deltaX, state.activeRow + deltaY);
+  }
+  // keep current cell in the viewport, if possible
+  while (state.activeCol >= viewport.right && state.activeCol !== cols.length - 1) {
+    state.scrollLeft = cols[viewport.left].right;
+    updateVisibleZone(state);
+  }
+  while (state.activeCol < viewport.left) {
+    state.scrollLeft = cols[viewport.left - 1].left;
+    updateVisibleZone(state);
+  }
+  while (state.activeRow >= viewport.bottom && state.activeRow !== rows.length - 1) {
+    state.scrollTop = rows[viewport.top].bottom;
+    updateVisibleZone(state);
+  }
+  while (state.activeRow < viewport.top) {
+    state.scrollTop = rows[viewport.top - 1].top;
+    updateVisibleZone(state);
   }
 }
 
@@ -178,39 +195,44 @@ export function getRowSize(state: GridState, index: number) {
   return rows[index].size;
 }
 
-export function updateVisibleZone(
-  state: GridState,
-  width: number,
-  height: number,
-  scrollLeft: number,
-  scrollTop: number
-) {
-  const { rows, cols, viewport } = state;
-  state.clientWidth = width;
-  state.clientHeight = height;
+/**
+ * Here:
+ * - width is the clientWidth, the actual width of the visible zone
+ * - height is the clientHeight, the actual height of the visible zone
+ */
+export function updateVisibleZone(state: GridState, width?: number, height?: number) {
+  const { rows, cols, viewport, scrollLeft, scrollTop } = state;
+  state.clientWidth = width || state.clientWidth;
+  state.clientHeight = height || state.clientHeight;
 
   viewport.bottom = rows.length - 1;
+  let effectiveTop = scrollTop;
   for (let i = 0; i < rows.length; i++) {
-    if (rows[i].top <= scrollTop) {
+    if (rows[i].top <= effectiveTop) {
+      if (rows[i].bottom > effectiveTop) {
+        effectiveTop = rows[i].top;
+      }
       viewport.top = i;
     }
-    if (scrollTop + height < rows[i].bottom) {
+    if (effectiveTop + state.clientHeight < rows[i].bottom + HEADER_HEIGHT + 15) {
       viewport.bottom = i;
       break;
     }
   }
   viewport.right = cols.length - 1;
+  let effectiveLeft = scrollLeft;
   for (let i = 0; i < cols.length; i++) {
-    if (cols[i].left <= scrollLeft) {
+    if (cols[i].left <= effectiveLeft) {
+      if (cols[i].right > effectiveLeft) {
+        effectiveLeft = cols[i].left;
+      }
       viewport.left = i;
     }
-    if (scrollLeft + width < cols[i].right) {
+    if (effectiveLeft + state.clientWidth < cols[i].right + HEADER_WIDTH) {
       viewport.right = i;
       break;
     }
   }
-  state.scrollLeft = scrollLeft;
-  state.scrollTop = scrollTop;
   state.offsetX = cols[viewport.left].left - HEADER_WIDTH;
   state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
 }

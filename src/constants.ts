@@ -8,3 +8,6 @@ export const HEADER_WIDTH = 60;
 
 export const TOPBAR_HEIGHT = 36;
 export const BOTTOMBAR_HEIGHT = 36;
+
+export const DEFAULT_CELL_WIDTH = 96;
+export const DEFAULT_CELL_HEIGHT = 23;

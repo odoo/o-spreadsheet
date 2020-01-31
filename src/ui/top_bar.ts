@@ -180,6 +180,7 @@ export class TopBar extends Component<any, any> {
       background-color: ${BACKGROUND_GRAY_COLOR};
       border-bottom: 1px solid #ccc;
       display: flex;
+      overflow: hidden;
 
       .o-divider {
         display: inline-block;

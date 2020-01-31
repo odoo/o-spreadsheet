@@ -86,8 +86,6 @@ describe("composer highlights color", () => {
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
