@@ -110,8 +110,13 @@ export function deleteCell(state: GridState, xc: string, force: boolean = false)
 }
 
 export function movePosition(state: GridState, deltaX: number, deltaY: number) {
-  const { activeCol, activeRow } = state;
-  if ((deltaY < 0 && activeRow === 0) || (deltaX < 0 && activeCol === 0)) {
+  const { activeCol, activeRow, cols, rows } = state;
+  const invalidMove =
+    (deltaY < 0 && activeRow === 0) ||
+    (deltaY > 0 && activeRow === rows.length - 1) ||
+    (deltaX < 0 && activeCol === 0) ||
+    (deltaX > 0 && activeCol === cols.length - 1);
+  if (invalidMove) {
     if (state.isEditing) {
       stopEditing(state);
     }

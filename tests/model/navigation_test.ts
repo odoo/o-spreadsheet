@@ -29,6 +29,24 @@ describe("navigation", () => {
     expect(model.state.activeRow).toBe(0);
   });
 
+  test("move right from right row", () => {
+    const model = new GridModel();
+    const colNumber = model.state.cols.length;
+    model.selectCell(colNumber - 1, 0);
+    expect(model.state.activeCol).toBe(colNumber - 1);
+    model.movePosition(1, 0);
+    expect(model.state.activeCol).toBe(colNumber - 1);
+  });
+
+  test("move bottom from bottom row", () => {
+    const model = new GridModel();
+    const rowNumber = model.state.rows.length;
+    model.selectCell(0, rowNumber - 1);
+    expect(model.state.activeRow).toBe(rowNumber - 1);
+    model.movePosition(0, 1);
+    expect(model.state.activeRow).toBe(rowNumber - 1);
+  });
+
   test("move in and out of a merge", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
