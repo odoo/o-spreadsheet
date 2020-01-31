@@ -1,9 +1,8 @@
 import * as owl from "@odoo/owl";
-
+import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../constants";
 import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
-import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 import { Overlay } from "./overlay";
 
 /**
@@ -50,9 +49,15 @@ const CSS = css/* scss */ `
   .o-spreadsheet-sheet {
     position: relative;
     overflow: hidden;
+    background-color: ${BACKGROUND_GRAY_COLOR};
 
-    > canvas:focus {
-      outline: none;
+    > canvas {
+      border-top: 1px solid #aaa;
+      border-bottom: 1px solid #aaa;
+
+      &:focus {
+        outline: none;
+      }
     }
 
     .o-scrollbar {
@@ -60,12 +65,12 @@ const CSS = css/* scss */ `
       overflow: auto;
       &.vertical {
         right: 0;
-        top: ${HEADER_HEIGHT}px;
+        top: ${SCROLLBAR_WIDTH + 1}px;
         bottom: 15px;
       }
       &.horizontal {
         bottom: 0;
-        right: 15px;
+        right: ${SCROLLBAR_WIDTH + 1}px;
         left: ${HEADER_WIDTH}px;
       }
     }
@@ -133,27 +138,24 @@ export class Grid extends Component<any, any> {
   }
 
   onScroll() {
-    const { offsetX, offsetY } = this.state;
-    this.state.scrollTop = this.vScrollbar.el!.scrollTop;
-    this.state.scrollLeft = this.hScrollbar.el!.scrollLeft;
-
-    this.updateVisibleZone();
-    if (offsetX !== this.state.offsetX || offsetY !== this.state.offsetY) {
+    const scrollTop = this.vScrollbar.el!.scrollTop;
+    const scrollLeft = this.hScrollbar.el!.scrollLeft;
+    if (this.model.updateScroll(scrollTop, scrollLeft)) {
       this.render();
     }
   }
 
   updateVisibleZone() {
-    const width = this.el!.clientWidth;
-    const height = this.el!.clientHeight;
+    const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
+    const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     this.model.updateVisibleZone(width, height);
   }
   drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
     const dpr = window.devicePixelRatio || 1;
-    const width = this.el!.clientWidth;
-    const height = this.el!.clientHeight;
+    const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
+    const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     const canvas = this.canvas.el as any;
     const context = canvas.getContext("2d");
     canvas.style.width = `${width}px`;
@@ -181,11 +183,11 @@ export class Grid extends Component<any, any> {
   onMouseDown(ev: MouseEvent) {
     const col = this.model.getCol(ev.offsetX);
     const row = this.model.getRow(ev.offsetY);
-    this.clickedCol = col;
-    this.clickedRow = row;
-    if (col < 0 && row < 0) {
+    if (col < 0 || row < 0) {
       return;
     }
+    this.clickedCol = col;
+    this.clickedRow = row;
 
     if (ev.shiftKey) {
       this.model.updateSelection(col, row);

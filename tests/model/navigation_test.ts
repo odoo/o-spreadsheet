@@ -144,14 +144,14 @@ describe("navigation", () => {
   test("move bottom from bottom row (of the viewport)", () => {
     const model = new GridModel();
     model.updateVisibleZone(600, 200);
-    model.selectCell(0, 5);
-    expect(model.state.activeRow).toBe(5);
-    expect(model.state.viewport.top).toBe(0);
-    expect(model.state.viewport.bottom).toBe(6);
-    model.movePosition(0, 1);
+    model.selectCell(0, 6);
     expect(model.state.activeRow).toBe(6);
-    expect(model.state.viewport.top).toBe(1);
+    expect(model.state.viewport.top).toBe(0);
     expect(model.state.viewport.bottom).toBe(7);
+    model.movePosition(0, 1);
+    expect(model.state.activeRow).toBe(7);
+    expect(model.state.viewport.top).toBe(1);
+    expect(model.state.viewport.bottom).toBe(8);
     expect(model.state.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
   });
 
@@ -162,11 +162,11 @@ describe("navigation", () => {
     model.selectCell(0, 1);
     expect(model.state.activeRow).toBe(1);
     expect(model.state.viewport.top).toBe(1);
-    expect(model.state.viewport.bottom).toBe(7);
+    expect(model.state.viewport.bottom).toBe(8);
     model.movePosition(0, -1);
     expect(model.state.activeRow).toBe(0);
     expect(model.state.viewport.top).toBe(0);
-    expect(model.state.viewport.bottom).toBe(6);
+    expect(model.state.viewport.bottom).toBe(7);
     expect(model.state.scrollTop).toBe(0);
   });
 });

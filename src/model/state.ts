@@ -391,7 +391,11 @@ function addRowsCols(state: GridState, sheet: Sheet) {
     state.rows.push(row);
     current = row.bottom;
   }
-  updateState(state, ["height"], state.rows[state.rows.length - 1].bottom + 20);
+  updateState(
+    state,
+    ["height"],
+    state.rows[state.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5
+  );
 
   current = 0;
   for (let i = 0; i < sheet.colNumber; i++) {
@@ -405,7 +409,7 @@ function addRowsCols(state: GridState, sheet: Sheet) {
     state.cols.push(col);
     current = col.right;
   }
-  updateState(state, ["width"], state.cols[state.cols.length - 1].right + 10);
+  updateState(state, ["width"], state.cols[state.cols.length - 1].right + DEFAULT_CELL_WIDTH);
 }
 
 // -----------------------------------------------------------------------------

@@ -11,3 +11,5 @@ export const BOTTOMBAR_HEIGHT = 36;
 
 export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;
+
+export const SCROLLBAR_WIDTH = 15;

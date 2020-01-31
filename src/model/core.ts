@@ -138,20 +138,16 @@ export function movePosition(state: GridState, deltaX: number, deltaY: number) {
   }
   // keep current cell in the viewport, if possible
   while (state.activeCol >= viewport.right && state.activeCol !== cols.length - 1) {
-    state.scrollLeft = cols[viewport.left].right;
-    updateVisibleZone(state);
+    updateScroll(state, state.scrollTop, cols[viewport.left].right);
   }
   while (state.activeCol < viewport.left) {
-    state.scrollLeft = cols[viewport.left - 1].left;
-    updateVisibleZone(state);
+    updateScroll(state, state.scrollTop, cols[viewport.left - 1].left);
   }
   while (state.activeRow >= viewport.bottom && state.activeRow !== rows.length - 1) {
-    state.scrollTop = rows[viewport.top].bottom;
-    updateVisibleZone(state);
+    updateScroll(state, rows[viewport.top].bottom, state.scrollLeft);
   }
   while (state.activeRow < viewport.top) {
-    state.scrollTop = rows[viewport.top - 1].top;
-    updateVisibleZone(state);
+    updateScroll(state, rows[viewport.top - 1].top, state.scrollLeft);
   }
 }
 
@@ -195,6 +191,19 @@ export function getRowSize(state: GridState, index: number) {
   return rows[index].size;
 }
 
+export function updateScroll(state: GridState, scrollTop: number, scrollLeft: number): boolean {
+  scrollTop = Math.round(scrollTop);
+  scrollLeft = Math.round(scrollLeft);
+  if (state.scrollTop === scrollTop && state.scrollLeft === scrollLeft) {
+    return false;
+  }
+  state.scrollTop = scrollTop;
+  state.scrollLeft = scrollLeft;
+  const { offsetX, offsetY } = state;
+  updateVisibleZone(state);
+  return offsetX !== state.offsetX || offsetY !== state.offsetY;
+}
+
 /**
  * Here:
  * - width is the clientWidth, the actual width of the visible zone
@@ -214,7 +223,7 @@ export function updateVisibleZone(state: GridState, width?: number, height?: num
       }
       viewport.top = i;
     }
-    if (effectiveTop + state.clientHeight < rows[i].bottom + HEADER_HEIGHT + 15) {
+    if (effectiveTop + state.clientHeight < rows[i].bottom + HEADER_HEIGHT) {
       viewport.bottom = i;
       break;
     }

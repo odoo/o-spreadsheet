@@ -90,15 +90,17 @@ function drawBackgroundGrid() {
   ctx.lineWidth = thinLineWidth();
   ctx.strokeStyle = "#AAA";
   // vertical lines
+  const lineHeight = Math.min(height, rows[bottom].bottom - offsetY);
   for (let i = left; i <= right; i++) {
     const col = cols[i];
-    vLine(ctx, col.right - offsetX, height);
+    vLine(ctx, col.right - offsetX, lineHeight);
   }
 
   // horizontal lines
+  const lineWidth = Math.min(width, cols[right].right - offsetX);
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
-    hLine(ctx, row.bottom - offsetY, width);
+    hLine(ctx, row.bottom - offsetY, lineWidth);
   }
 }
 

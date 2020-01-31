@@ -115,6 +115,15 @@ export class GridParent extends Component<any, any> {
   model: GridModel;
   constructor(model: GridModel) {
     super();
+    const uvz = model.updateVisibleZone;
+    model.updateVisibleZone = function(width?: number, height?: number) {
+      // we simulate here a vizible zone of 1000x1000px
+      if (width !== undefined) {
+        uvz.call(this, 1000, 1000);
+      } else {
+        uvz.call(this);
+      }
+    };
     this.model = model;
   }
 
