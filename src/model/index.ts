@@ -5,7 +5,7 @@ import * as core from "./core";
 import * as merges from "./merges";
 import * as history from "./history";
 import * as selection from "./selection";
-import * as expand from "./resize";
+import * as expand from "./resizing";
 import {
   activateSheet,
   addSheet,
