@@ -76,4 +76,19 @@ describe("Model resizer", () => {
     expect(model.state.rows[4].size).toBe(size + 100);
     expect(model.state.rows[5].top).toBe(size * 5 + 100 * 3);
   });
+
+  test("resizing cols/rows update the total width/height", async () => {
+    const model = new GridModel();
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    const initialWidth = model.state.width;
+    const initialHeight = model.state.height;
+
+    model.updateColSize(1, 100);
+    expect(model.state.width).toBe(initialWidth + 100);
+
+    model.updateRowSize(1, 42);
+    expect(model.state.height).toBe(initialHeight + 42);
+  });
+
 });

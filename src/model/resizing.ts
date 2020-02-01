@@ -17,6 +17,7 @@ export function updateColSize(state: GridState, index: number, delta: number) {
     updateState(state, ["cols", i, "left"], col.left + delta);
     updateState(state, ["cols", i, "right"], col.right + delta);
   }
+  state.width += delta;
 }
 /**
  * Update the size of the given row, by adding a delta (can be negative)
@@ -34,6 +35,7 @@ export function updateRowSize(state: GridState, index: number, delta: number) {
     updateState(state, ["rows", i, "top"], row.top + delta);
     updateState(state, ["rows", i, "bottom"], row.bottom + delta);
   }
+  state.height += delta;
 }
 
 /**
