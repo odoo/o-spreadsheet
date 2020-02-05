@@ -130,6 +130,11 @@ export function overlap(z1: Zone, z2: Zone): boolean {
   return true;
 }
 
+export function isInside(col: number, row: number, zone: Zone): boolean {
+  const { left, right, top, bottom } = zone;
+  return col >= left && col <= right && row >= top && row <= bottom;
+}
+
 //------------------------------------------------------------------------------
 // Miscellaneous
 //------------------------------------------------------------------------------

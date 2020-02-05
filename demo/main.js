@@ -5,7 +5,7 @@ const { whenReady } = owl.utils;
 const { Component } = owl;
 const { xml, css } = owl.tags;
 
-const start = Date.now();
+let start;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
@@ -48,7 +48,9 @@ App.components = { Spreadsheet };
 
 // Setup code
 function setup() {
+  start = Date.now();
   const app = new App();
+
   app.mount(document.body);
 }
 whenReady(setup);

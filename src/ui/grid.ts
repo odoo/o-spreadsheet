@@ -4,6 +4,8 @@ import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { drawGrid } from "./grid_renderer";
 import { Overlay } from "./overlay";
+import { ContextMenu } from "./context_menu";
+import { isInside } from "../helpers";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -16,7 +18,7 @@ import { Overlay } from "./overlay";
  * - a vertical resizer (same, for rows)
  */
 
-const { Component } = owl;
+const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 const { useRef, useExternalListener } = owl.hooks;
 
@@ -32,8 +34,13 @@ const TEMPLATE = xml/* xml */ `
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
       t-on-keydown="onKeydown" tabindex="-1"
+      t-on-contextmenu="toggleContextMenu"
       t-on-mousewheel="onMouseWheel" />
     <Overlay model="model"/>
+    <ContextMenu t-if="contextMenu.isOpen"
+      model="model"
+      position="contextMenu.position"
+      t-on-close.stop="contextMenu.isOpen=false"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{state.height}}px"/>
     </div>
@@ -84,7 +91,12 @@ const CSS = css/* scss */ `
 export class Grid extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Overlay };
+  static components = { Composer, Overlay, ContextMenu };
+
+  contextMenu = useState({ isOpen: false, position: null } as {
+    isOpen: boolean;
+    position: null | { x: number; y: number };
+  });
 
   composer = useRef("composer");
 
@@ -181,6 +193,10 @@ export class Grid extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   onMouseDown(ev: MouseEvent) {
+    if (ev.button > 0) {
+      // not main button, probably a context menu
+      return;
+    }
     const col = this.model.getCol(ev.offsetX);
     const row = this.model.getRow(ev.offsetY);
     if (col < 0 || row < 0) {
@@ -331,5 +347,20 @@ export class Grid extends Component<any, any> {
         this.model.paste({ clipboardContent: content });
       }
     }
+  }
+  toggleContextMenu(ev) {
+    const col = this.model.getCol(ev.offsetX);
+    const row = this.model.getRow(ev.offsetY);
+    if (col < 0 || row < 0) {
+      return;
+    }
+    const zones = this.model.state.selection.zones;
+    const lastZone = zones[zones.length - 1];
+    if (!isInside(col, row, lastZone)) {
+      this.model.selectCell(col, row);
+    }
+    ev.preventDefault();
+    this.contextMenu.isOpen = true;
+    this.contextMenu.position = { x: ev.offsetX, y: ev.offsetY };
   }
 }

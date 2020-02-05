@@ -57,6 +57,14 @@ export function makeTestFixture() {
   return fixture;
 }
 
+export function simulateClick(selector: string, x: number = 10, y: number = 10) {
+  const target = document.querySelector(selector)! as HTMLElement;
+  triggerMouseEvent(selector, "mousedown", x, y);
+  target.focus();
+  triggerMouseEvent(selector, "mouseup", x, y);
+  triggerMouseEvent(selector, "click", x, y);
+}
+
 export function triggerMouseEvent(
   selector: string | any,
   type: string,
