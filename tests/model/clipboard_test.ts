@@ -147,7 +147,7 @@ describe("clipboard", () => {
   test("can paste multiple cells from os clipboard", () => {
     const model = new GridModel();
     model.selectCell(2, 0); // C1
-    model.paste("a\t1\nb\t2");
+    model.paste({ clipboardContent: "a\t1\nb\t2" });
 
     expect(model.state.cells.C1.content).toBe("a");
     expect(model.state.cells.C2.content).toBe("b");
@@ -158,7 +158,7 @@ describe("clipboard", () => {
   test("pasting numbers from windows clipboard => interpreted as number", () => {
     const model = new GridModel();
     model.selectCell(2, 0); // C1
-    model.paste("1\r\n2\r\n3");
+    model.paste({ clipboardContent: "1\r\n2\r\n3" });
 
     expect(model.state.cells.C1.content).toBe("1");
     expect(model.state.cells.C1.type).toBe("number");
@@ -318,5 +318,50 @@ describe("clipboard", () => {
     expect(model.state.cells.D2).toBeDefined();
     model.undo();
     expect(model.state.cells.D2).not.toBeDefined();
+  });
+
+  test("can paste-format a cell with style", () => {
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    model.copy();
+    model.selectCell(2, 1); // C2
+    model.paste({ onlyFormat: true });
+    expect(model.state.cells.C2.content).toBe("");
+    expect(model.state.cells.C2.style).toBe(2);
+  });
+
+  test("can copy and paste format", () => {
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    model.copy({ onlyFormat: true });
+    expect(model.state.isCopyingFormat).toBeTruthy();
+    model.selectCell(2, 1); // C2
+    model.paste({ onlyFormat: true });
+    expect(model.state.isCopyingFormat).toBeFalsy();
+    expect(model.state.cells.C2.content).toBe("");
+    expect(model.state.cells.C2.style).toBe(2);
+  });
+
+  test("paste format does not remove content", () => {
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.setValue("C2", "c2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    model.copy();
+    model.selectCell(2, 1); // C2
+    model.paste({ onlyFormat: true });
+    expect(model.state.cells.C2.content).toBe("c2");
+    expect(model.state.cells.C2.style).toBe(2);
   });
 });

@@ -144,4 +144,19 @@ describe("TopBar component", () => {
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(model.state.cells.A1).not.toBeDefined();
   });
+
+  test("paint format tools", async () => {
+    const model = new GridModel();
+
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const paintFormatTool = fixture.querySelector('.o-tool[title="Paint Format"]')!;
+
+    expect(paintFormatTool.classList.contains("active")).toBeFalsy();
+
+    paintFormatTool.dispatchEvent(new Event("click"));
+    await nextTick();
+
+    expect(paintFormatTool.classList.contains("active")).toBeTruthy();
+  });
 });

@@ -161,7 +161,8 @@ HTMLCanvasElement.prototype.getContext = jest.fn(function() {
     save() {},
     rect() {},
     clip() {},
-    restore() {}
+    restore() {},
+    setLineDash() {}
   };
 }) as any;
 interface Deferred extends Promise<any> {

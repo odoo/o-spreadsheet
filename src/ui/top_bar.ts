@@ -111,7 +111,7 @@ export class TopBar extends Component<any, any> {
       <div class="o-tools">
         <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
         <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
-        <div class="o-tool" title="Paint Format">${icons.PAINT_FORMAT_ICON}</div>
+        <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
         <div class="o-tool" title="Clear Format">${icons.CLEAR_FORMAT_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool" title="Format">Format ${icons.TRIANGLE_DOWN_ICON}</div>
@@ -287,6 +287,7 @@ export class TopBar extends Component<any, any> {
   cannotMerge = false;
   undoTool = false;
   redoTool = false;
+  paintFormatTool = false;
   fillColor: string = "white";
   textColor: string = "black";
 
@@ -336,6 +337,7 @@ export class TopBar extends Component<any, any> {
     }
     this.undoTool = state.undoStack.length > 0;
     this.redoTool = state.redoStack.length > 0;
+    this.paintFormatTool = state.isCopyingFormat;
   }
 
   toggleMerge() {
@@ -361,5 +363,8 @@ export class TopBar extends Component<any, any> {
   }
   setBorder(command) {
     this.model.setBorder(command);
+  }
+  paintFormat() {
+    this.model.copy({ onlyFormat: true });
   }
 }

@@ -90,5 +90,4 @@ describe("Model resizer", () => {
     model.updateRowSize(1, 42);
     expect(model.state.height).toBe(initialHeight + 42);
   });
-
 });

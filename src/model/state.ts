@@ -63,6 +63,7 @@ export interface GridState {
   nextId: number;
   highlights: Highlight[];
   isSelectingRange: boolean;
+  isCopyingFormat: boolean;
 
   asyncComputations: Promise<any>[];
 
@@ -294,6 +295,7 @@ export function importData(
     nextId,
     highlights: [],
     isSelectingRange: false,
+    isCopyingFormat: false,
     asyncComputations: [],
     activeSheet: 0,
     activeSheetName: "Sheet1",

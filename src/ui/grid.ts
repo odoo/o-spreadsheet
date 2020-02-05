@@ -215,6 +215,9 @@ export class Grid extends Component<any, any> {
         }
       }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+      if (this.model.state.isCopyingFormat) {
+        this.model.paste({ onlyFormat: true });
+      }
     };
 
     this.canvas.el!.addEventListener("mousemove", onMouseMove);
@@ -246,6 +249,9 @@ export class Grid extends Component<any, any> {
         this.model.moveSelection(delta[0], delta[1]);
       } else {
         this.model.movePosition(delta[0], delta[1]);
+      }
+      if (this.model.state.isCopyingFormat) {
+        this.model.paste({ onlyFormat: true });
       }
       return;
     }
@@ -322,7 +328,7 @@ export class Grid extends Component<any, any> {
           });
         }
       } else {
-        this.model.paste(content);
+        this.model.paste({ clipboardContent: content });
       }
     }
   }

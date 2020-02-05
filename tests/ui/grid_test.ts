@@ -209,4 +209,40 @@ describe("Grid component", () => {
       expect(model.state.cells.A1.style).toBeDefined();
     });
   });
+
+  describe("paint format tool with grid selection", () => {
+    test("can paste format with mouse", async () => {
+      const model = new GridModel();
+      model.setValue("B2", "b2");
+      model.selectCell(1, 1);
+      model.setStyle({ bold: true });
+      model.copy({ onlyFormat: true });
+
+      const parent = new GridParent(model);
+      await parent.mount(fixture);
+      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+      triggerMouseEvent("canvas", "mousedown", 300, 200);
+      expect(model.state.cells.C8).not.toBeDefined();
+      triggerMouseEvent("body", "mouseup", 300, 200);
+      expect(model.state.cells.C8.style).toBe(2);
+    });
+
+    test("can paste format with key", async () => {
+      const model = new GridModel();
+      model.setValue("B2", "b2");
+      model.selectCell(1, 1);
+      model.setStyle({ bold: true });
+      model.copy({ onlyFormat: true });
+
+      const parent = new GridParent(model);
+      await parent.mount(fixture);
+      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+      expect(model.state.cells.C2).not.toBeDefined();
+      document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
+
+      expect(model.state.cells.C2.style).toBe(2);
+    });
+  });
 });

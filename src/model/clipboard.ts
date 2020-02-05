@@ -11,13 +11,20 @@ import {
 } from "./core";
 import { evaluateCells } from "./evaluation";
 import { updateSelection } from "./selection";
-import { Cell, GridState } from "./state";
+import { Cell, GridState, CellData } from "./state";
 
 export function cut(state: GridState) {
   cutOrCopy(state, true);
 }
 
-export function copy(state: GridState) {
+interface CopyOptions {
+  onlyFormat?: boolean;
+}
+
+export function copy(state: GridState, options: CopyOptions = {}) {
+  if (options.onlyFormat) {
+    state.isCopyingFormat = true;
+  }
   cutOrCopy(state, false);
 }
 
@@ -50,20 +57,28 @@ function cutOrCopy(state: GridState, cut: boolean) {
   state.clipboard.cells = cells;
 }
 
+interface PasteOptions {
+  clipboardContent?: string;
+  onlyFormat?: boolean;
+}
+
 /**
  * Paste some content at the active location
  *
  * The paste operation has two possible types of sources:
  * - either the os clipboard (the paste comes from outside)
- * - or internal clipboard: paste come from the spreadsheet itself
+ * - or internal clipboard: paste come from the spreadsheet itself. In that
+ *   case, the paste operation should be called with the content of the
+ *   clipboard in the clipboardContent option
  *
  * Return false if the paste operation was not allowed.
  */
-export function paste(state: GridState, clipboardContent?: string): boolean {
-  if (clipboardContent === undefined) {
-    return pasteFromModel(state);
+export function paste(state: GridState, options: PasteOptions = {}): boolean {
+  state.isCopyingFormat = false;
+  if (options.clipboardContent === undefined) {
+    return pasteFromModel(state, options);
   } else {
-    pasteFromClipboard(state, clipboardContent);
+    pasteFromClipboard(state, options.clipboardContent);
     return true;
   }
 }
@@ -86,7 +101,7 @@ function pasteFromClipboard(state: GridState, content: string) {
 /**
  * Return false if the paste operation was not allowed
  */
-function pasteFromModel(state: GridState): boolean {
+function pasteFromModel(state: GridState, options: PasteOptions): boolean {
   const { zones, cells, shouldCut, status } = state.clipboard;
   if (!zones || !cells) {
     return true;
@@ -137,8 +152,14 @@ function pasteFromModel(state: GridState): boolean {
             const offsetY = row + r - originCell.row;
             content = applyOffset(content, offsetX, offsetY);
           }
-          let { style, border } = originCell;
-          addCell(state, xc, { content, style, border });
+          let newCell: CellData = { style: originCell.style, border: originCell.border };
+          if (options.onlyFormat) {
+            newCell.content = targetCell ? targetCell.content : "";
+          } else {
+            newCell.content = originCell.content;
+          }
+
+          addCell(state, xc, newCell);
           if (shouldCut) {
             deleteCell(state, originCell.xc, true);
           }
