@@ -4,6 +4,7 @@ import { tokenize, Token } from "../formulas/index";
 import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
 import { ContentEditableHelper } from "./contentEditableHelper";
+import { SCROLLBAR_WIDTH } from "../constants";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -130,7 +131,7 @@ export class Composer extends Component<any, any> {
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 2;
-    const top = row.top - offsetY - 1;
+    const top = row.top - offsetY;
     const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
@@ -142,7 +143,10 @@ export class Composer extends Component<any, any> {
     const position =
       align === "left"
         ? `left: ${col.left - offsetX}px;`
-        : `right: ${this.model.state.clientWidth - (cols[this.zone.right].right - offsetX) - 2}px;`;
+        : `right: ${this.model.state.clientWidth -
+            (cols[this.zone.right].right - offsetX) -
+            2 +
+            SCROLLBAR_WIDTH}px;`;
     return `${position}top:${top}px;height:${height};line-height:${height -
       1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
