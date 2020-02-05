@@ -172,4 +172,22 @@ describe("TopBar component", () => {
     clearFormatTool.dispatchEvent(new Event("click"));
     expect(model.state.cells.B1).not.toBeDefined();
   });
+
+  test("can set font size", async () => {
+    const model = new GridModel();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
+    expect(fontSizeTool.textContent!.trim()).toBe("10");
+    fontSizeTool.querySelector(".o-text-icon")!.dispatchEvent(new Event("click"));
+    await nextTick();
+    fontSizeTool
+      .querySelector('[data-size="8"]')!
+      .dispatchEvent(new Event("click", { bubbles: true }));
+    await nextTick();
+    expect(fontSizeTool.textContent!.trim()).toBe("8");
+    const styleId = model.state.cells.A1.style!;
+    const style = model.state.styles[styleId];
+    expect(style.fontSize).toBe(8);
+  });
 });

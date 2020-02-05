@@ -2,6 +2,7 @@ import * as owl from "@odoo/owl";
 
 import { GridModel, Style } from "../model/index";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
+import { fontSizes } from "../fonts";
 import * as icons from "./icons";
 import { isEqual } from "../helpers";
 const { Component, useState, hooks } = owl;
@@ -117,7 +118,14 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Format">Format ${icons.TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool" title="Font"><span>Arial</span> ${icons.TRIANGLE_DOWN_ICON}</div>
-        <div class="o-tool" title="Font Size"><span>10</span> ${icons.TRIANGLE_DOWN_ICON}</div>
+        <div class="o-tool o-dropdown" title="Font Size">
+          <div class="o-text-icon"  t-on-click.stop="openMenu('fontSizeTool')"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-dropdown-content o-text-options "  t-if="state.fontSizeTool" t-on-click="setSize">
+            <t t-foreach="fontSizes" t-as="font" t-key="font_index">
+              <div t-esc="font.pt" t-att-data-size="font.pt"/>
+            </t>
+          </div>
+        </div>
         <div class="o-divider"/>
         <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toggleTool('bold')">${icons.BOLD_ICON}</div>
         <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleTool('italic')">${icons.ITALIC_ICON}</div>
@@ -195,6 +203,21 @@ export class TopBar extends Component<any, any> {
 
       .o-dropdown {
         position: relative;
+
+        .o-text-icon {
+          height: 100%;
+          line-height: 30px;
+          > svg {
+            margin-bottom: -5px;
+          }
+        }
+        .o-text-options > div {
+          line-height: 26px;
+          padding: 3 12px;
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+        }
 
         .o-dropdown-content {
           position: absolute;
@@ -274,13 +297,15 @@ export class TopBar extends Component<any, any> {
     }
   `;
   COLORS = COLORS;
+  fontSizes = fontSizes;
   model: GridModel = this.props.model;
   style: Style = {};
   state = useState({
     alignTool: false,
     textColorTool: false,
     fillColorTool: false,
-    borderTool: false
+    borderTool: false,
+    fontSizeTool: false
   });
   inMerge = false;
   cannotMerge = false;
@@ -319,6 +344,7 @@ export class TopBar extends Component<any, any> {
     this.state.fillColorTool = false;
     this.state.textColorTool = false;
     this.state.borderTool = false;
+    this.state.fontSizeTool = false;
   }
 
   updateCellState() {
@@ -365,5 +391,9 @@ export class TopBar extends Component<any, any> {
   }
   paintFormat() {
     this.model.copy({ onlyFormat: true });
+  }
+  setSize(ev) {
+    const fontSize = parseFloat(ev.target.dataset.size);
+    this.model.setStyle({ fontSize });
   }
 }

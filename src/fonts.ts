@@ -31,8 +31,7 @@ export const fontSizes: FontSize[] = [
   { pt: 22, px: 29.3 },
   { pt: 24, px: 32 },
   { pt: 26, px: 34.7 },
-  { pt: 36, px: 48 },
-  { pt: 42, px: 56 }
+  { pt: 36, px: 48 }
 ];
 
 export const fontSizeMap: { [pt: number]: number } = {};
