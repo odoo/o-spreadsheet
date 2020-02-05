@@ -1,7 +1,72 @@
 import { stringify, toXC } from "../helpers";
-import { addCell, deleteCell, getCell } from "./core";
+import { addCell, deleteCell, getCell, selectedCell } from "./core";
 import { updateCell } from "./history";
-import { Border, BorderCommand, GridState, Zone } from "./state";
+import { Border, BorderCommand, GridState, Style, Zone } from "./state";
+
+// ---------------------------------------------------------------------------
+// Styles
+// ---------------------------------------------------------------------------
+
+export function setStyle(state: GridState, style: Style) {
+  for (let zone of state.selection.zones) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        setStyleToCell(state, col, row, style);
+      }
+    }
+  }
+}
+
+export function clearFormat(state: GridState) {
+  for (let zone of state.selection.zones) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        removeFormat(state, col, row);
+      }
+    }
+  }
+}
+
+function removeFormat(state: GridState, col: number, row: number) {
+  const cell = getCell(state, col, row);
+  if (cell) {
+    if (cell.content) {
+      addCell(state, cell.xc, { content: cell.content }, { preserveFormatting: false });
+    } else {
+      deleteCell(state, cell.xc, true);
+    }
+  }
+}
+
+export function getStyle(state: GridState): Style {
+  const cell = selectedCell(state);
+  return cell && cell.style ? state.styles[cell.style] : {};
+}
+
+function setStyleToCell(state: GridState, col: number, row: number, style) {
+  const cell = getCell(state, col, row);
+  const currentStyle = cell && cell.style ? state.styles[cell.style] : {};
+  const nextStyle = Object.assign({}, currentStyle, style);
+  const id = registerStyle(state, nextStyle);
+  const xc = toXC(col, row);
+  if (cell) {
+    updateCell(state, cell, "style", id);
+  } else {
+    addCell(state, xc, { style: id, content: "" });
+  }
+}
+
+function registerStyle(state: GridState, style) {
+  const strStyle = stringify(style);
+  for (let k in state.styles) {
+    if (stringify(state.styles[k]) === strStyle) {
+      return parseInt(k, 10);
+    }
+  }
+  const id = state.nextId++;
+  state.styles[id] = style;
+  return id;
+}
 
 // ---------------------------------------------------------------------------
 // Borders

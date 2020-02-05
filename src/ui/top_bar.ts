@@ -112,7 +112,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
         <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
         <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
-        <div class="o-tool" title="Clear Format">${icons.CLEAR_FORMAT_ICON}</div>
+        <div class="o-tool" title="Clear Format" t-on-click="model.clearFormat()">${icons.CLEAR_FORMAT_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool" title="Format">Format ${icons.TRIANGLE_DOWN_ICON}</div>
         <div class="o-divider"/>

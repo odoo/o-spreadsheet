@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { setBorder } from "./borders";
+import * as formatting from "./formatting";
 import * as clipboard from "./clipboard";
 import * as core from "./core";
 import * as merges from "./merges";
@@ -15,7 +15,6 @@ import {
   PartialGridDataWithVersion,
   Style
 } from "./state";
-import * as styles from "./styles";
 
 export * from "./state";
 
@@ -54,7 +53,7 @@ export class GridModel extends owl.core.EventBus {
    */
   private prepareModel() {
     this.selectedCell = core.selectedCell(this.state);
-    this.style = styles.getStyle(this.state);
+    this.style = formatting.getStyle(this.state);
     this.isMergeDestructive = merges.isMergeDestructive(this.state);
     this.aggregate = core.computeAggregate(this.state);
 
@@ -98,13 +97,11 @@ export class GridModel extends owl.core.EventBus {
   addSheet = this.makeMutation(addSheet);
   activateSheet = this.makeMutation(activateSheet);
 
-  // borders
+  // formatting
   // ---------------------------------------------------------------------------
-  setBorder = this.makeMutation(setBorder);
-
-  // styles
-  // ---------------------------------------------------------------------------
-  setStyle = this.makeMutation(styles.setStyle);
+  setBorder = this.makeMutation(formatting.setBorder);
+  setStyle = this.makeMutation(formatting.setStyle);
+  clearFormat = this.makeMutation(formatting.clearFormat);
 
   // selection
   // ---------------------------------------------------------------------------

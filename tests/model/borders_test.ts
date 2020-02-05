@@ -247,4 +247,15 @@ describe("borders", () => {
     expect(model.state.cells.B2.content).toBe("some content");
     expect(model.state.cells.B2.border).not.toBeDefined();
   });
+
+  test("can clear formatting (border)", () => {
+    const model = new GridModel();
+    model.setValue("B1", "b1");
+    model.selectCell(1, 0);
+    model.setBorder("all");
+
+    expect(model.state.cells.B1.border).toBeDefined();
+    model.clearFormat();
+    expect(model.state.cells.B1.border).not.toBeDefined();
+  });
 });

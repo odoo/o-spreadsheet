@@ -159,4 +159,17 @@ describe("TopBar component", () => {
 
     expect(paintFormatTool.classList.contains("active")).toBeTruthy();
   });
+
+  test("can clear formatting", async () => {
+    const model = new GridModel();
+    model.selectCell(1, 0);
+    model.setBorder("all");
+
+    expect(model.state.cells.B1.border).toBeDefined();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
+    clearFormatTool.dispatchEvent(new Event("click"));
+    expect(model.state.cells.B1).not.toBeDefined();
+  });
 });

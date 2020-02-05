@@ -41,26 +41,38 @@ export function setValue(state: GridState, xc: string, text: string) {
   evaluateCells(state);
 }
 
+interface AddCellOptions {
+  sheet?: Sheet;
+  preserveFormatting?: boolean;
+}
+
 /**
  * Add a cell (it recreates a new cell from scratch).
  *
  * Note that this does not reevaluate the values of the cells. This should be
  * done at some point by the caller.
  */
-export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sheet) {
+export function addCell(
+  state: GridState,
+  xc: string,
+  data: CellData,
+  options: AddCellOptions = { preserveFormatting: true }
+) {
   const [col, row] = toCartesian(xc);
-  const currentCell = sheet ? sheet.cells[xc] : state.cells[xc];
+  const currentCell = options.sheet ? options.sheet.cells[xc] : state.cells[xc];
   const content = data.content || "";
   const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
   const value = type === "text" ? content : type === "number" ? parseFloat(content) : null;
   const cell: Cell = { col, row, xc, content, value, type };
   const style = data.style || (currentCell && currentCell.style);
   const border = data.border;
-  if (border) {
-    cell.border = border;
-  }
-  if (style) {
-    cell.style = style;
+  if (options.preserveFormatting || options.sheet) {
+    if (border) {
+      cell.border = border;
+    }
+    if (style) {
+      cell.style = style;
+    }
   }
   if (cell.type === "formula") {
     cell.error = false;
@@ -74,8 +86,8 @@ export function addCell(state: GridState, xc: string, data: CellData, sheet?: Sh
       cell.error = true;
     }
   }
-  if (sheet) {
-    sheet.cells[xc] = cell;
+  if (options.sheet) {
+    options.sheet.cells[xc] = cell;
   } else {
     updateState(state, ["cells", xc], cell);
     updateState(state, ["rows", cell.row, "cells", cell.col], cell);

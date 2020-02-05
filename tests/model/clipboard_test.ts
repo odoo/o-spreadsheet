@@ -364,4 +364,19 @@ describe("clipboard", () => {
     expect(model.state.cells.C2.content).toBe("c2");
     expect(model.state.cells.C2.style).toBe(2);
   });
+
+  test("can undo a paste format", () => {
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    model.copy();
+    model.selectCell(2, 1); // C2
+    model.paste({ onlyFormat: true });
+    expect(model.state.cells.C2.content).toBe("");
+    expect(model.state.cells.C2.style).toBe(2);
+
+    model.undo();
+    expect(model.state.cells.C2).not.toBeDefined();
+  });
 });

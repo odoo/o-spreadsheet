@@ -331,7 +331,7 @@ function importSheet(state: GridState, data: SheetData): number {
   updateState(state, ["sheets"], sheets);
   // cells
   for (let xc in data.cells) {
-    addCell(state, xc, data.cells[xc], sheet);
+    addCell(state, xc, data.cells[xc], { sheet });
   }
   return index;
 }
