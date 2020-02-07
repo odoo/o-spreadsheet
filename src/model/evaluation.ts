@@ -108,13 +108,20 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     return cells[xc].value;
   }
 
+  /**
+   * todo: this could be optimized a lot...
+   *   - do not allocate if no value in state (new Array(...))
+   *   - do not compute all the time coords
+   */
   function range(v1: string, v2: string): any[] {
     const [c1, r1] = toCartesian(v1);
     const [c2, r2] = toCartesian(v2);
     const result: any[] = [];
     for (let c = c1; c <= c2; c++) {
+      let col: any[] = [];
+      result.push(col);
       for (let r = r1; r <= r2; r++) {
-        result.push(getValue(toXC(c, r)));
+        col.push(getValue(toXC(c, r)));
       }
     }
     return result;

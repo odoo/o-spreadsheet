@@ -1,4 +1,5 @@
-import { FunctionMap, args } from "./functions";
+import { args } from "./arguments";
+import { FunctionMap } from "./index";
 
 export const functions: FunctionMap = {
   WAIT: {

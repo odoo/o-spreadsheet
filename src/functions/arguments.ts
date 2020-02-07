@@ -1,17 +1,4 @@
-//------------------------------------------------------------------------------
-// Types
-//------------------------------------------------------------------------------
-export interface FunctionDescription {
-  description: string;
-  compute: Function;
-  async?: boolean;
-  category?: string;
-  args: Arg[];
-  returns: [ArgType];
-}
-
-export type FunctionMap = { [key: string]: FunctionDescription };
-export type ArgType = "BOOLEAN" | "ANY" | "RANGE" | "CELL" | "NUMBER" | "STRING";
+export type ArgType = "BOOLEAN" | "ANY" | "RANGE" | "NUMBER" | "STRING";
 
 export interface Arg {
   repeating?: boolean;
@@ -25,26 +12,10 @@ export interface Arg {
 }
 
 //------------------------------------------------------------------------------
-// Functions
+// Argument validation
 //------------------------------------------------------------------------------
 
-// todo: make name more descriptive, and add some docstring
-
-/**
- * Mapping from function names to descriptions
- */
-export const functions: FunctionMap = {};
-
-/**
- * Mapping from function name to the corresponding compute method
- */
-export const functionMap: { [name: string]: Function } = {};
-
-//------------------------------------------------------------------------------
-// Others
-//------------------------------------------------------------------------------
-
-function validateArguments(args: Arg[]) {
+export function validateArguments(args: Arg[]) {
   let previousArgRepeating: boolean | undefined = false;
   let previousArgOptional: boolean | undefined = false;
   for (let current of args) {
@@ -64,19 +35,48 @@ function validateArguments(args: Arg[]) {
   }
 }
 
-/**
- * Add a function to the internal function list.
- */
-export function addFunction(name: string, descr: FunctionDescription) {
-  name = name.toUpperCase();
-  if (name in functionMap) {
-    throw new Error(`Function ${name} already registered...`);
+//------------------------------------------------------------------------------
+// Wrapping functions for arguments sanitization
+//------------------------------------------------------------------------------
+
+export function sanitizeArguments(fn: Function, argList: Arg[]): Function {
+  if (argList.length === 0) {
+    return fn;
   }
-
-  validateArguments(descr.args);
-
-  functionMap[name] = descr.compute;
-  functions[name] = descr;
+  return function(this: any, ...args) {
+    for (let i = 0; i < argList.length; i++) {
+      const descr = argList[i];
+      const arg = args[i];
+      if (arg === undefined) {
+        if (descr.optional) {
+          args = args.slice(0, i);
+          break;
+        }
+        if (descr.type.includes("NUMBER")) {
+          args[i] = 0;
+        }
+      } else if (typeof arg === "boolean" && !descr.type.includes("BOOLEAN")) {
+        if (descr.type.includes("NUMBER")) {
+          args[i] = arg ? 1 : 0;
+        }
+      } else if (typeof arg === "string") {
+        if (descr.type.includes("NUMBER")) {
+          if (arg) {
+            const n = Number(arg);
+            if (isNaN(n)) {
+              throw new Error(
+                `Argument "${descr.name}" should be a number, but "${arg}" is a text, and cannot be coerced to a number.`
+              );
+            }
+          } else {
+            args[i] = 0;
+          }
+          args[i] = arg ? parseFloat(arg) : 0;
+        }
+      }
+    }
+    return fn.call(this, ...args);
+  };
 }
 
 //------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ export function addFunction(name: string, descr: FunctionDescription) {
 //------------------------------------------------------------------------------
 
 const ARG_REGEXP = /(.*)\((.*)\)(.*)/;
-const ARG_TYPES: ArgType[] = ["BOOLEAN", "NUMBER", "ANY", "RANGE", "CELL", "NUMBER", "STRING"];
+const ARG_TYPES: ArgType[] = ["BOOLEAN", "NUMBER", "STRING", "ANY", "RANGE"];
 
 /**
  * This function is meant to be used as a tag for a template strings.
