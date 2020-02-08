@@ -58,6 +58,27 @@ describe("sanitizeArgs", () => {
     expect(sanitizeArgs(argList, [1, false])).toEqual([1, 0]);
     expect(sanitizeArgs(argList, [1, undefined])).toEqual([1]);
   });
+
+  test("a single boolean argument", () => {
+    const argList = args`b (boolean) some boolean value`;
+
+    expect(sanitizeArg(argList, 1)).toBe(true);
+    expect(sanitizeArg(argList, 0)).toBe(false);
+    expect(sanitizeArg(argList, true)).toBe(true);
+    expect(sanitizeArg(argList, false)).toBe(false);
+    expect(sanitizeArg(argList, undefined)).toBe(false);
+    expect(sanitizeArg(argList, "")).toBe(false);
+    expect(sanitizeArg(argList, "false")).toBe(false);
+    expect(sanitizeArg(argList, "true")).toBe(true);
+    expect(sanitizeArg(argList, "TRUE")).toBe(true);
+    expect(() => sanitizeArg(argList, "abc")).toThrow(
+      'Argument "b" should be a boolean, but "abc" is a text, and cannot be coerced to a boolean.'
+    );
+    expect(() => sanitizeArg(argList, "1")).toThrow(
+      'Argument "b" should be a boolean, but "1" is a text, and cannot be coerced to a boolean.'
+    );
+  });
+
 });
 
 describe("args", () => {

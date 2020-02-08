@@ -9,8 +9,7 @@ export const functions: FunctionMap = {
   SUM: {
     description: "Returns the sum of all values in a range.",
     args: args`
-        number (number,range)
-        numbers (number,cell,range,optional,repeating)
+        number (number,range, repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args) {
@@ -28,8 +27,7 @@ export const functions: FunctionMap = {
   MIN: {
     description: "Returns the minimum value.",
     args: args`
-        number (number,cell,range)
-        numbers (number,cell,range,optional,repeating)
+        number (number,range, repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args) {
@@ -39,8 +37,7 @@ export const functions: FunctionMap = {
   MAX: {
     description: "Returns the maximum value.",
     args: args`
-        number (number,cell,range)
-        numbers (number,cell,range,optional,repeating)
+        number (number,range,repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args) {

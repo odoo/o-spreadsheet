@@ -39,6 +39,11 @@ export function validateArguments(args: Arg[]) {
 // Wrapping functions for arguments sanitization
 //------------------------------------------------------------------------------
 
+/**
+ * If you read this, and are horrified by the code, worry not, dear friend.
+ * This code is here only for a while, to solidify the test suite and prepare
+ * the future. It will be replaced by a shiny argument sanitizer compiler soon.
+ */
 export function sanitizeArguments(fn: Function, argList: Arg[]): Function {
   if (argList.length === 0) {
     return fn;
@@ -54,6 +59,9 @@ export function sanitizeArguments(fn: Function, argList: Arg[]): Function {
         }
         if (descr.type.includes("NUMBER")) {
           args[i] = 0;
+        }
+        if (descr.type.includes("BOOLEAN")) {
+          args[i] = false;
         }
       } else if (typeof arg === "boolean" && !descr.type.includes("BOOLEAN")) {
         if (descr.type.includes("NUMBER")) {
@@ -72,6 +80,22 @@ export function sanitizeArguments(fn: Function, argList: Arg[]): Function {
             args[i] = 0;
           }
           args[i] = arg ? parseFloat(arg) : 0;
+        } else if (descr.type.includes("BOOLEAN")) {
+          if (arg === "") {
+            args[i] = false;
+          } else if (arg.toUpperCase() === "TRUE") {
+            args[i] = true;
+          } else if (arg.toUpperCase() === "FALSE") {
+            args[i] = false;
+          } else {
+            throw new Error(
+              `Argument "${descr.name}" should be a boolean, but "${arg}" is a text, and cannot be coerced to a boolean.`
+            );
+          }
+        }
+      } else if (typeof arg === "number") {
+        if (descr.type.includes("BOOLEAN")) {
+          args[i] = arg ? true : false;
         }
       }
     }

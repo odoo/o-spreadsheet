@@ -4,7 +4,7 @@ import { FunctionMap } from "./index";
 export const functions: FunctionMap = {
   WAIT: {
     description: "Wait",
-    args: args`ms (number,cell) wait time in milliseconds`,
+    args: args`ms (number) wait time in milliseconds`,
     returns: ["ANY"],
     async: true,
     compute: function(...args) {
@@ -17,7 +17,7 @@ export const functions: FunctionMap = {
   },
   AND: {
     description: "Returns true if all the arguments are true, false otherwise.",
-    args: args`logicalPart (boolean,cell,repeating) logical part`,
+    args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
       return Boolean(args.flat().reduce((a, b) => a && b, true));
@@ -25,7 +25,7 @@ export const functions: FunctionMap = {
   },
   OR: {
     description: "Returns true if at least one of the arguments are true, false otherwise.",
-    args: args`logicalPart (boolean,cell,repeating) logical part`,
+    args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
       return Boolean(args.flat().reduce((a, b) => a || b, false));
@@ -34,7 +34,7 @@ export const functions: FunctionMap = {
   XOR: {
     description:
       "Returns true if an odd number of the provided arguments are true, false otherwise.",
-    args: args`logicalPart (boolean,cell,repeating) logical part`,
+    args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
       return Boolean(args.flat().filter(a => a).length % 2 !== 0);
@@ -42,7 +42,7 @@ export const functions: FunctionMap = {
   },
   NOT: {
     description: "Returns true if the argument is false, false otherwise.",
-    args: args`XXX (boolean,cell) logical part`,
+    args: args`XXX (boolean) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
       return Boolean(!args[0]);
@@ -51,7 +51,7 @@ export const functions: FunctionMap = {
   IF: {
     description: "Returns the second argument if the first one is true, the third otherwise.",
     args: args`
-      condition (boolean,cell) logical part
+      condition (boolean) logical part
       valueTrue (any) the value of the cell if the condition is true
       valueFalse (any) the value of the cell if the condition is false
     `,
