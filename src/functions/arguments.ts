@@ -51,58 +51,70 @@ export function sanitizeArguments(fn: Function, argList: Arg[]): Function {
   return function(this: any, ...args) {
     for (let i = 0; i < argList.length; i++) {
       const descr = argList[i];
-      const arg = args[i];
-      if (arg === undefined) {
-        if (descr.optional) {
-          args = args.slice(0, i);
-          break;
-        }
-        if (descr.type.includes("NUMBER")) {
-          args[i] = 0;
-        }
-        if (descr.type.includes("BOOLEAN")) {
-          args[i] = false;
-        }
-      } else if (typeof arg === "boolean" && !descr.type.includes("BOOLEAN")) {
-        if (descr.type.includes("NUMBER")) {
-          args[i] = arg ? 1 : 0;
-        }
-      } else if (typeof arg === "string") {
-        if (descr.type.includes("NUMBER")) {
-          if (arg) {
-            const n = Number(arg);
-            if (isNaN(n)) {
-              throw new Error(
-                `Argument "${descr.name}" should be a number, but "${arg}" is a text, and cannot be coerced to a number.`
-              );
-            }
-          } else {
-            args[i] = 0;
-          }
-          args[i] = arg ? parseFloat(arg) : 0;
-        } else if (descr.type.includes("BOOLEAN")) {
-          if (arg === "") {
-            args[i] = false;
-          } else if (arg.toUpperCase() === "TRUE") {
-            args[i] = true;
-          } else if (arg.toUpperCase() === "FALSE") {
-            args[i] = false;
-          } else {
-            throw new Error(
-              `Argument "${descr.name}" should be a boolean, but "${arg}" is a text, and cannot be coerced to a boolean.`
-            );
-          }
-        }
-      } else if (typeof arg === "number") {
-        if (descr.type.includes("BOOLEAN")) {
-          args[i] = arg ? true : false;
-        }
+      if (!(i in args) && !descr.optional) {
+        throw new Error("Wrong number of arguments. Expected 1, but got 0 argument instead.");
       }
+      const arg = args[i];
+      if (arg === undefined && descr.optional) {
+        args = args.slice(0, i);
+        break;
+      }
+      if (descr.repeating) {
+        for (let j = i; j < args.length; j++) {
+          sanitizeArg(args, j, args[j], descr);
+        }
+        break;
+      }
+      sanitizeArg(args, i, arg, descr);
     }
     return fn.call(this, ...args);
   };
 }
 
+function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
+  if (arg === undefined) {
+    if (descr.type.includes("NUMBER")) {
+      args[i] = 0;
+    }
+    if (descr.type.includes("BOOLEAN")) {
+      args[i] = false;
+    }
+  } else if (typeof arg === "boolean" && !descr.type.includes("BOOLEAN")) {
+    if (descr.type.includes("NUMBER")) {
+      args[i] = arg ? 1 : 0;
+    }
+  } else if (typeof arg === "string") {
+    if (descr.type.includes("NUMBER")) {
+      if (arg) {
+        const n = Number(arg);
+        if (isNaN(n)) {
+          throw new Error(
+            `Argument "${descr.name}" should be a number, but "${arg}" is a text, and cannot be coerced to a number.`
+          );
+        }
+      } else {
+        args[i] = 0;
+      }
+      args[i] = arg ? parseFloat(arg) : 0;
+    } else if (descr.type.includes("BOOLEAN")) {
+      if (arg === "") {
+        args[i] = false;
+      } else if (arg.toUpperCase() === "TRUE") {
+        args[i] = true;
+      } else if (arg.toUpperCase() === "FALSE") {
+        args[i] = false;
+      } else {
+        throw new Error(
+          `Argument "${descr.name}" should be a boolean, but "${arg}" is a text, and cannot be coerced to a boolean.`
+        );
+      }
+    }
+  } else if (typeof arg === "number") {
+    if (descr.type.includes("BOOLEAN")) {
+      args[i] = arg ? true : false;
+    }
+  }
+}
 //------------------------------------------------------------------------------
 // Arg description DSL
 //------------------------------------------------------------------------------

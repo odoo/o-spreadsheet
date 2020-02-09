@@ -38,6 +38,9 @@ describe("sanitizeArgs", () => {
     expect(() => sanitizeArg(argList, "ab")).toThrow(
       'Argument "n" should be a number, but "ab" is a text, and cannot be coerced to a number.'
     );
+    expect(() => sanitizeArgs(argList, [])).toThrow(
+      "Wrong number of arguments. Expected 1, but got 0 argument instead."
+    );
   });
 
   test("an optional number argument", () => {
@@ -47,6 +50,20 @@ describe("sanitizeArgs", () => {
     expect(sanitizeArgs(argList, [false])).toEqual([0]);
     expect(sanitizeArgs(argList, [true])).toEqual([1]);
     expect(sanitizeArgs(argList, [undefined])).toEqual([]);
+    expect(sanitizeArgs(argList, [])).toEqual([]);
+  });
+
+  test("repeating, non optional, number argument", () => {
+    const argList = args`n (number,repeating) some number`;
+
+    expect(() => sanitizeArgs(argList, [])).toThrow(
+      "Wrong number of arguments. Expected 1, but got 0 argument instead."
+    );
+
+    expect(sanitizeArgs(argList, [1])).toEqual([1]);
+    expect(sanitizeArgs(argList, [1, false])).toEqual([1, 0]);
+    expect(sanitizeArgs(argList, ["-1", 2, true])).toEqual([-1, 2, 1]);
+    expect(sanitizeArgs(argList, ["-1", 2, undefined, true])).toEqual([-1, 2, 0, 1]);
   });
 
   test("an optional number argument after another argument", () => {
@@ -78,7 +95,6 @@ describe("sanitizeArgs", () => {
       'Argument "b" should be a boolean, but "1" is a text, and cannot be coerced to a boolean.'
     );
   });
-
 });
 
 describe("args", () => {
