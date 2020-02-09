@@ -38,37 +38,48 @@ export function validateArguments(args: Arg[]) {
 //------------------------------------------------------------------------------
 // Wrapping functions for arguments sanitization
 //------------------------------------------------------------------------------
+export function protectFunction(fn: Function, argList: Arg[]): Function {
+  if (argList.length === 0) {
+    return fn;
+  }
+  return function(this: any, ...args: any[]) {
+    args = sanitizeArgs(args, argList);
+    return fn.call(this, ...args);
+  };
+}
 
 /**
  * If you read this, and are horrified by the code, worry not, dear friend.
  * This code is here only for a while, to solidify the test suite and prepare
  * the future. It will be replaced by a shiny argument sanitizer compiler soon.
+ *
+ * Note: this function modifies args in place!
  */
-export function sanitizeArguments(fn: Function, argList: Arg[]): Function {
-  if (argList.length === 0) {
-    return fn;
-  }
-  return function(this: any, ...args) {
-    for (let i = 0; i < argList.length; i++) {
-      const descr = argList[i];
-      if (!(i in args) && !descr.optional) {
-        throw new Error("Wrong number of arguments. Expected 1, but got 0 argument instead.");
-      }
-      const arg = args[i];
-      if (arg === undefined && descr.optional) {
-        args = args.slice(0, i);
-        break;
-      }
-      if (descr.repeating) {
-        for (let j = i; j < args.length; j++) {
-          sanitizeArg(args, j, args[j], descr);
-        }
-        break;
-      }
-      sanitizeArg(args, i, arg, descr);
+export function sanitizeArgs(args: any[], argList: Arg[]): any[] {
+  for (let i = 0; i < argList.length; i++) {
+    const descr = argList[i];
+    if (!(i in args) && !descr.optional) {
+      throw new Error("Wrong number of arguments. Expected 1, but got 0 argument instead.");
     }
-    return fn.call(this, ...args);
-  };
+    const arg = args[i];
+    if (arg === undefined && descr.optional) {
+      args = args.slice(0, i);
+      break;
+    }
+    if (descr.repeating) {
+      for (let j = i; j < args.length; j++) {
+        sanitizeArg(args, j, args[j], descr);
+      }
+      return args;
+    }
+    sanitizeArg(args, i, arg, descr);
+  }
+  if (args.length > argList.length) {
+    throw new Error(
+      `Wrong number of arguments. Expected ${argList.length}, but got ${args.length} arguments instead.`
+    );
+  }
+  return args;
 }
 
 function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {

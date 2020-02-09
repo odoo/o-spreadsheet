@@ -1,4 +1,4 @@
-import { validateArguments, Arg, ArgType, sanitizeArguments } from "./arguments";
+import { Arg, ArgType, protectFunction, validateArguments } from "./arguments";
 import { functions as logical } from "./module_logical";
 import { functions as math } from "./module_math";
 
@@ -56,6 +56,6 @@ export function addFunction(name: string, descr: FunctionDescription) {
 
   validateArguments(descr.args);
 
-  functionMap[name] = sanitizeArguments(descr.compute, descr.args);
+  functionMap[name] = protectFunction(descr.compute, descr.args);
   functions[name] = descr;
 }

@@ -15,7 +15,7 @@ describe("math", () => {
     expect(SUM.compute([[1], [2]], 3)).toEqual(6);
   });
 
-  test("SUM: add a number and a string", () => {
+  test.only("SUM: add a number and a string", () => {
     expect(SUM.compute([11, "str"])).toEqual(11);
   });
 

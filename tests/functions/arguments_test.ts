@@ -1,69 +1,57 @@
-import { args, sanitizeArguments } from "../../src/functions/arguments";
+import { args, protectFunction, sanitizeArgs } from "../../src/functions/arguments";
 
-function sanitizeArg(argList, value) {
-  let result;
-  function fn(arg) {
-    result = arg;
-  }
-  sanitizeArguments(fn, argList)(value);
-  return result;
-}
-
-function sanitizeArgs(argList, values) {
-  let result;
-  function fn(...args) {
-    result = args;
-  }
-  sanitizeArguments(fn, argList)(...values);
-  return result;
-}
-
-describe("sanitizeArgs", () => {
+describe("protectFunction", () => {
   test("function with no args is not modified", () => {
     function fn() {}
-    expect(sanitizeArguments(fn, [])).toBe(fn);
+    expect(protectFunction(fn, [])).toBe(fn);
   });
+});
 
+describe("sanitizeArgs", () => {
   test("a single number argument", () => {
     const argList = args`n (number) some number`;
 
-    expect(sanitizeArg(argList, 1)).toBe(1);
-    expect(sanitizeArg(argList, false)).toBe(0);
-    expect(sanitizeArg(argList, true)).toBe(1);
-    expect(sanitizeArg(argList, undefined)).toBe(0);
-    expect(sanitizeArg(argList, "")).toBe(0);
-    expect(sanitizeArg(argList, "1")).toBe(1);
-    expect(sanitizeArg(argList, "-1")).toBe(-1);
-    expect(sanitizeArg(argList, "1.1")).toBe(1.1);
-    expect(() => sanitizeArg(argList, "ab")).toThrow(
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs([false], argList)).toEqual([0]);
+    expect(sanitizeArgs([true], argList)).toEqual([1]);
+    expect(sanitizeArgs([undefined], argList)).toEqual([0]);
+    expect(sanitizeArgs([""], argList)).toEqual([0]);
+    expect(sanitizeArgs(["1"], argList)).toEqual([1]);
+    expect(sanitizeArgs(["-1"], argList)).toEqual([-1]);
+    expect(sanitizeArgs(["1.1"], argList)).toEqual([1.1]);
+    expect(() => sanitizeArgs(["ab"], argList)).toThrow(
       'Argument "n" should be a number, but "ab" is a text, and cannot be coerced to a number.'
     );
-    expect(() => sanitizeArgs(argList, [])).toThrow(
+    expect(() => sanitizeArgs([], argList)).toThrow(
       "Wrong number of arguments. Expected 1, but got 0 argument instead."
+    );
+    expect(() => sanitizeArgs([1, 2], argList)).toThrow(
+      "Wrong number of arguments. Expected 1, but got 2 arguments instead."
     );
   });
 
   test("an optional number argument", () => {
     const argList = args`n (number,optional) some number`;
 
-    expect(sanitizeArgs(argList, [1])).toEqual([1]);
-    expect(sanitizeArgs(argList, [false])).toEqual([0]);
-    expect(sanitizeArgs(argList, [true])).toEqual([1]);
-    expect(sanitizeArgs(argList, [undefined])).toEqual([]);
-    expect(sanitizeArgs(argList, [])).toEqual([]);
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs([false], argList)).toEqual([0]);
+    expect(sanitizeArgs([true], argList)).toEqual([1]);
+    expect(sanitizeArgs([undefined], argList)).toEqual([]);
+    expect(sanitizeArgs([], argList)).toEqual([]);
   });
 
   test("repeating, non optional, number argument", () => {
     const argList = args`n (number,repeating) some number`;
 
-    expect(() => sanitizeArgs(argList, [])).toThrow(
+    expect(() => sanitizeArgs([], argList)).toThrow(
       "Wrong number of arguments. Expected 1, but got 0 argument instead."
     );
 
-    expect(sanitizeArgs(argList, [1])).toEqual([1]);
-    expect(sanitizeArgs(argList, [1, false])).toEqual([1, 0]);
-    expect(sanitizeArgs(argList, ["-1", 2, true])).toEqual([-1, 2, 1]);
-    expect(sanitizeArgs(argList, ["-1", 2, undefined, true])).toEqual([-1, 2, 0, 1]);
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs([1, false], argList)).toEqual([1, 0]);
+    expect(sanitizeArgs(["-1", 2, true], argList)).toEqual([-1, 2, 1]);
+    expect(sanitizeArgs(["-1", 2, undefined, true], argList)).toEqual([-1, 2, 0, 1]);
+    expect(sanitizeArgs(["-1", 2, true, undefined], argList)).toEqual([-1, 2, 1, 0]);
   });
 
   test("an optional number argument after another argument", () => {
@@ -71,27 +59,27 @@ describe("sanitizeArgs", () => {
       m (number) a number
       n (number,optional) another number`;
 
-    expect(sanitizeArgs(argList, [1])).toEqual([1]);
-    expect(sanitizeArgs(argList, [1, false])).toEqual([1, 0]);
-    expect(sanitizeArgs(argList, [1, undefined])).toEqual([1]);
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs([1, false], argList)).toEqual([1, 0]);
+    expect(sanitizeArgs([1, undefined], argList)).toEqual([1]);
   });
 
   test("a single boolean argument", () => {
     const argList = args`b (boolean) some boolean value`;
 
-    expect(sanitizeArg(argList, 1)).toBe(true);
-    expect(sanitizeArg(argList, 0)).toBe(false);
-    expect(sanitizeArg(argList, true)).toBe(true);
-    expect(sanitizeArg(argList, false)).toBe(false);
-    expect(sanitizeArg(argList, undefined)).toBe(false);
-    expect(sanitizeArg(argList, "")).toBe(false);
-    expect(sanitizeArg(argList, "false")).toBe(false);
-    expect(sanitizeArg(argList, "true")).toBe(true);
-    expect(sanitizeArg(argList, "TRUE")).toBe(true);
-    expect(() => sanitizeArg(argList, "abc")).toThrow(
+    expect(sanitizeArgs([1], argList)).toEqual([true]);
+    expect(sanitizeArgs([0], argList)).toEqual([false]);
+    expect(sanitizeArgs([true], argList)).toEqual([true]);
+    expect(sanitizeArgs([false], argList)).toEqual([false]);
+    expect(sanitizeArgs([undefined], argList)).toEqual([false]);
+    expect(sanitizeArgs([""], argList)).toEqual([false]);
+    expect(sanitizeArgs(["false"], argList)).toEqual([false]);
+    expect(sanitizeArgs(["true"], argList)).toEqual([true]);
+    expect(sanitizeArgs(["TRUE"], argList)).toEqual([true]);
+    expect(() => sanitizeArgs(["abc"], argList)).toThrow(
       'Argument "b" should be a boolean, but "abc" is a text, and cannot be coerced to a boolean.'
     );
-    expect(() => sanitizeArg(argList, "1")).toThrow(
+    expect(() => sanitizeArgs(["1"], argList)).toThrow(
       'Argument "b" should be a boolean, but "1" is a text, and cannot be coerced to a boolean.'
     );
   });
