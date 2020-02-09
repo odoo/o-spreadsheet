@@ -1,5 +1,5 @@
 import { functionMap } from "../functions/index";
-import { toCartesian, toXC } from "../helpers";
+import { toCartesian } from "../helpers";
 import { Cell, GridState } from "./state";
 
 /**
@@ -98,30 +98,38 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     if (!cell || cell.content === "") {
       return 0;
     }
-    computeValue(xc, cell);
+    return getCellValue(cell);
+  }
+
+  function getCellValue(cell: Cell): any {
+    computeValue(cell.xc, cell);
     if (cell.error) {
       throw new Error("boom");
     }
     if (cell.value === "#LOADING") {
       throw new Error("not ready");
     }
-    return cells[xc].value;
+    return cell.value;
   }
 
   /**
-   * todo: this could be optimized a lot...
-   *   - do not allocate if no value in state (new Array(...))
-   *   - do not compute all the time coords
+   * Return a range of values. It is a list of col values.
+   *
+   * Note that each col is possibly sparse: it only contain the values of cells
+   * that are actually present in the grid.
    */
   function range(v1: string, v2: string): any[] {
     const [c1, r1] = toCartesian(v1);
     const [c2, r2] = toCartesian(v2);
-    const result: any[] = [];
+    const result: any[] = new Array(c2 - c1);
     for (let c = c1; c <= c2; c++) {
-      let col: any[] = [];
-      result.push(col);
+      let col: any[] = new Array(r2 - r1);
+      result[c - c1] = col;
       for (let r = r1; r <= r2; r++) {
-        col.push(getValue(toXC(c, r)));
+        let cell = state.rows[r].cells[c];
+        if (cell) {
+          col[r - r1] = getCellValue(cell);
+        }
       }
     }
     return result;
