@@ -20,7 +20,7 @@ export const functions: FunctionMap = {
     args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
-      return Boolean(args.flat().reduce((a, b) => a && b, true));
+      return args.reduce((a, b) => a && b, true);
     }
   },
   OR: {
@@ -28,7 +28,7 @@ export const functions: FunctionMap = {
     args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
-      return Boolean(args.flat().reduce((a, b) => a || b, false));
+      return args.reduce((a, b) => a || b, false);
     }
   },
   XOR: {
@@ -37,15 +37,15 @@ export const functions: FunctionMap = {
     args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
     compute: function(...args) {
-      return Boolean(args.flat().filter(a => a).length % 2 !== 0);
+      return args.filter(a => a).length % 2 !== 0;
     }
   },
   NOT: {
     description: "Returns true if the argument is false, false otherwise.",
     args: args`XXX (boolean) logical part`,
     returns: ["BOOLEAN"],
-    compute: function(...args) {
-      return Boolean(!args[0]);
+    compute: function(value) {
+      return !value;
     }
   },
   IF: {
