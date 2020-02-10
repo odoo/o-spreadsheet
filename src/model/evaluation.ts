@@ -1,6 +1,7 @@
 import { functionMap } from "../functions/index";
 import { toCartesian } from "../helpers";
 import { Cell, GridState } from "./state";
+import * as object from "./object";
 
 /**
  * For all cells that are being currently computed (asynchronously).
@@ -40,7 +41,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   }
   const cells = state.cells;
   const visited = {};
-  const functions = Object.assign({ range }, functionMap);
+  const functions = Object.assign({ range, getObject, getObjects }, functionMap);
 
   function handleError(e: Error, cell: Cell) {
     PENDING.delete(cell);
@@ -133,6 +134,14 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       }
     }
     return result;
+  }
+
+  function getObject(type: string, key: string): Object {
+    return object.getObject(state, type, key);
+  }
+
+  function getObjects(type: string): { [key: string]: Object } {
+    return object.getObjects(state, type);
   }
 
   if (onlyWaiting) {

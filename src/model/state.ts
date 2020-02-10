@@ -28,6 +28,7 @@ export interface GridState {
   cells: { [key: string]: Cell };
   styles: { [key: number]: Style };
   borders: { [key: number]: Border };
+  objects: { [key: string]: { [key: string]: Object } };
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
 
@@ -155,6 +156,7 @@ export interface GridData {
   sheets?: SheetData[];
   styles?: { [key: number]: Style };
   borders?: { [key: number]: Border };
+  objects?: { [key: string]: { [key: string]: Object } };
 }
 
 export interface PartialGridDataWithVersion extends Partial<GridData> {
@@ -251,6 +253,7 @@ export function importData(
   const styles: GridState["styles"] = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
   const borders: GridState["borders"] = data.borders || {};
+  const objects: GridState["objects"] = data.objects || {};
 
   // compute next id
   let nextId = 1;
@@ -268,6 +271,7 @@ export function importData(
     cells: {},
     styles,
     borders,
+    objects,
     merges: {},
     mergeCellMap: {},
     width: 0,

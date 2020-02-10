@@ -6,6 +6,7 @@ import * as merges from "./merges";
 import * as history from "./history";
 import * as selection from "./selection";
 import * as resizing from "./resizing";
+import * as object from "./object";
 import {
   activateSheet,
   addSheet,
@@ -134,4 +135,11 @@ export class GridModel extends owl.core.EventBus {
   updateRowsSize = this.makeMutation(resizing.updateRowsSize);
   setColSize = this.makeMutation(resizing.setColSize);
   setRowSize = this.makeMutation(resizing.setRowSize);
+
+  // object
+  // ---------------------------------------------------------------------------
+  addObject = this.makeFn(object.addObject);
+  removeObject = this.makeFn(object.removeObject);
+  getObject = this.makeFn(object.getObject);
+  getObjects = this.makeFn(object.getObjects);
 }
