@@ -19,7 +19,7 @@ export interface Arg {
   isValueProviderRestrictive?: boolean;
 }
 
-export type Range<T> = (T|undefined)[][];
+export type Range<T> = (T | undefined)[][];
 
 export type NumberOrRange = number | Range<number>;
 

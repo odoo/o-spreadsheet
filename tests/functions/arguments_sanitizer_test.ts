@@ -1,5 +1,5 @@
 import { protectFunction, sanitizeArgs } from "../../src/functions/arguments_sanitizer";
-import { args } from "../../src/functions/arguments";
+import { args, Range } from "../../src/functions/arguments";
 
 describe("protectFunction", () => {
   test("function with no args is not modified", () => {
@@ -106,7 +106,7 @@ describe("sanitizeArgs", () => {
   test("a simple untyped range argument", () => {
     const argList = args`r (range) some values`;
 
-    const m1 = [[1, 2]]; // one column with 1 2
+    const m1: Range<number> = [[1, 2]]; // one column with 1 2
     expect(sanitizeArgs([m1], argList)).toEqual([m1]);
 
     const m2 = [
@@ -118,7 +118,7 @@ describe("sanitizeArgs", () => {
     expect(() => sanitizeArgs([1], argList)).toThrow('Argument "r" has the wrong type');
   });
 
-  test("a simple range of number argument", () => {
+  test("a simple range of numbers", () => {
     const argList = args`r (range<number>) some numeric values`;
 
     const m1 = [[1, 2]]; // one column with 1 2
@@ -131,6 +131,44 @@ describe("sanitizeArgs", () => {
     const m2_number = [
       [undefined, 3],
       [undefined, 1]
+    ];
+    expect(sanitizeArgs([m2], argList)).toEqual([m2_number]);
+
+    expect(() => sanitizeArgs([1], argList)).toThrow('Argument "r" has the wrong type');
+  });
+
+  test("a simple range of booleans", () => {
+    const argList = args`r (range<boolean>) some boolean values`;
+
+    const m1: Range<boolean> = [[true, false]];
+    expect(sanitizeArgs([m1], argList)).toEqual([m1]);
+
+    const m2 = [
+      [undefined, 3],
+      [true, "true"]
+    ];
+    const m2_number = [
+      [undefined, undefined],
+      [true, undefined]
+    ];
+    expect(sanitizeArgs([m2], argList)).toEqual([m2_number]);
+
+    expect(() => sanitizeArgs([1], argList)).toThrow('Argument "r" has the wrong type');
+  });
+
+  test("a simple range of strings", () => {
+    const argList = args`r (range<string>) some string values`;
+
+    const m1 = [["a", "b"]]; // one column with 1 2
+    expect(sanitizeArgs([m1], argList)).toEqual([m1]);
+
+    const m2 = [
+      [undefined, 3],
+      ["abc", 1]
+    ];
+    const m2_number = [
+      [undefined, undefined],
+      ["abc", undefined]
     ];
     expect(sanitizeArgs([m2], argList)).toEqual([m2_number]);
 

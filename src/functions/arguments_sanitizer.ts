@@ -120,5 +120,25 @@ function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
         }
       }
     }
+    if (descr.type.includes("RANGE<BOOLEAN>")) {
+      for (let col of arg) {
+        for (let i = 0; i < col.length; i++) {
+          const val = col[i];
+          if (typeof val !== "boolean") {
+            col[i] = undefined;
+          }
+        }
+      }
+    }
+    if (descr.type.includes("RANGE<STRING>")) {
+      for (let col of arg) {
+        for (let i = 0; i < col.length; i++) {
+          const val = col[i];
+          if (typeof val !== "string") {
+            col[i] = undefined;
+          }
+        }
+      }
+    }
   }
 }
