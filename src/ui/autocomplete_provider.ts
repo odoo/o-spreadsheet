@@ -19,15 +19,16 @@ const TEMPLATE = xml/* xml */ `<div class="o-autocomplete-provider">
 </div>`;
 const CSS = css/* scss */ `
   .o-autocomplete-provider {
-    width: 220px;
+    width: 260px;
     margin: 4px;
     background-color: #fff;
+    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
 
     & > div:hover {
       background-color: #f2f2f2;
     }
     .o-autocomplete-value-focus {
-      outline: darkorange dashed 1.5px;
+      background-color:  rgba(0, 0, 0, 0.08);
     }
 
     & > div {
@@ -35,6 +36,9 @@ const CSS = css/* scss */ `
       flex-direction: column;
       .o-autocomplete-description {
         font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
