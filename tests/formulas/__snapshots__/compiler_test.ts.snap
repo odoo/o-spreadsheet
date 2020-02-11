@@ -26,8 +26,6 @@ exports[`expression compiler read some values and functions 1`] = `
 ) {
 // =A1 + sum(A2:C3)
 let _2 = getValue('A1')
-let _5 = getValue('A2')
-let _6 = getValue('C3')
 let _4 = fns.range('A2', 'C3');
 let _3 = fns['SUM'](_4)
 if (typeof _2 !== 'number' || typeof _3 !== 'number') { throw new Error('Invalid type');}

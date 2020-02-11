@@ -69,11 +69,11 @@ export function compile(str: string): Function {
         break;
       case "BIN_OPERATION":
         id = nextId++;
-        left = compileAST(ast.left);
-        right = compileAST(ast.right);
         if (ast.value === ":") {
           code.push(`let _${id} = fns.range('${ast.left.value}', '${ast.right.value}');`);
         } else {
+          left = compileAST(ast.left);
+          right = compileAST(ast.right);
           if (ast.value in OPERATOR_TYPEGUARDS) {
             code.push(OPERATOR_TYPEGUARDS[ast.value](left, right));
           }
