@@ -1,4 +1,5 @@
-import { Arg, ArgType, protectFunction, validateArguments } from "./arguments";
+import { Arg, ArgType, validateArguments } from "./arguments";
+import { protectFunction } from "./arguments_sanitizer";
 import { functions as logical } from "./module_logical";
 import { functions as math } from "./module_math";
 
