@@ -109,6 +109,15 @@ function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
       args[i] = arg ? parseFloat(arg) : 0;
     } else if (descr.type.includes("BOOLEAN")) {
       if (arg === "") {
+        /**
+         * @compatibility Note: this is not the way Google Sheets behave:
+         *
+         * =if("", 1, 2) is evaluated to 2
+         * =or("", 1) throws an error
+         *
+         * It is not clear (to me) why in the first expression it looks like it
+         * is accepted, but not in the second.
+         */
         args[i] = false;
       } else if (arg.toUpperCase() === "TRUE") {
         args[i] = true;
