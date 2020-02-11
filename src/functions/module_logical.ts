@@ -7,11 +7,11 @@ export const functions: FunctionMap = {
     args: args`ms (number) wait time in milliseconds`,
     returns: ["ANY"],
     async: true,
-    compute: function(...args) {
+    compute: function(delay) {
       return new Promise(function(resolve, reject) {
-        setTimeout(function() {
-          resolve(args[0]);
-        }, 2000);
+        setTimeout(function(value) {
+          resolve(value);
+        }, delay);
       });
     }
   },
@@ -19,7 +19,7 @@ export const functions: FunctionMap = {
     description: "Returns true if all the arguments are true, false otherwise.",
     args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
-    compute: function(...args) {
+    compute: function(...args: boolean[]): boolean {
       return args.reduce((a, b) => a && b, true);
     }
   },
@@ -27,7 +27,7 @@ export const functions: FunctionMap = {
     description: "Returns true if at least one of the arguments are true, false otherwise.",
     args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
-    compute: function(...args) {
+    compute: function(...args: boolean[]): boolean {
       return args.reduce((a, b) => a || b, false);
     }
   },
@@ -36,7 +36,7 @@ export const functions: FunctionMap = {
       "Returns true if an odd number of the provided arguments are true, false otherwise.",
     args: args`logicalPart (boolean,repeating) logical part`,
     returns: ["BOOLEAN"],
-    compute: function(...args) {
+    compute: function(...args: boolean[]): boolean {
       return args.filter(a => a).length % 2 !== 0;
     }
   },
@@ -44,7 +44,7 @@ export const functions: FunctionMap = {
     description: "Returns true if the argument is false, false otherwise.",
     args: args`XXX (boolean) logical part`,
     returns: ["BOOLEAN"],
-    compute: function(value) {
+    compute: function(value: boolean): boolean {
       return !value;
     }
   },
@@ -56,7 +56,7 @@ export const functions: FunctionMap = {
       valueFalse (any) the value of the cell if the condition is false
     `,
     returns: ["ANY"],
-    compute: function(condition, valueTrue, valueFalse) {
+    compute: function(condition: boolean, valueTrue: any, valueFalse: any): any {
       return condition ? valueTrue : valueFalse;
     }
   }

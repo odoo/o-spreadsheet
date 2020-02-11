@@ -5,3 +5,5 @@ package-lock.json
 dist/
 .npmrc
 /coverage/
+
+debug.log
