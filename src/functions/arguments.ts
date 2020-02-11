@@ -1,4 +1,12 @@
-export type ArgType = "BOOLEAN" | "ANY" | "RANGE" | "NUMBER" | "STRING";
+export type ArgType =
+  | "ANY"
+  | "BOOLEAN"
+  | "NUMBER"
+  | "STRING"
+  | "RANGE"
+  | "RANGE<BOOLEAN>"
+  | "RANGE<NUMBER>"
+  | "RANGE<STRING>";
 
 export interface Arg {
   repeating?: boolean;
@@ -16,7 +24,16 @@ export interface Arg {
 //------------------------------------------------------------------------------
 
 const ARG_REGEXP = /(.*)\((.*)\)(.*)/;
-const ARG_TYPES: ArgType[] = ["BOOLEAN", "NUMBER", "STRING", "ANY", "RANGE"];
+const ARG_TYPES: ArgType[] = [
+  "ANY",
+  "BOOLEAN",
+  "NUMBER",
+  "STRING",
+  "RANGE",
+  "RANGE<BOOLEAN>",
+  "RANGE<NUMBER>",
+  "RANGE<STRING>"
+];
 
 /**
  * This function is meant to be used as a tag for a template strings.
@@ -47,6 +64,8 @@ function makeArg(str: string): Arg {
     let type = ARG_TYPES.find(t => param === t);
     if (type) {
       types.push(type);
+    } else if (param === "RANGE<ANY>") {
+      types.push("RANGE");
     } else if (param === "OPTIONAL") {
       isOptional = true;
     } else if (param === "REPEATING") {

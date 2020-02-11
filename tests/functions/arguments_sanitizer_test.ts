@@ -84,4 +84,56 @@ describe("sanitizeArgs", () => {
       'Argument "b" should be a boolean, but "1" is a text, and cannot be coerced to a boolean.'
     );
   });
+
+  test("number or string", () => {
+    const argList = args`v (number, string) some value`;
+
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs(["ab"], argList)).toEqual(["ab"]);
+    expect(sanitizeArgs([false], argList)).toEqual([0]);
+    expect(sanitizeArgs([true], argList)).toEqual([1]);
+  });
+
+  test("string or number", () => {
+    const argList = args`v (string, number) some value`;
+
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs(["ab"], argList)).toEqual(["ab"]);
+    expect(sanitizeArgs([false], argList)).toEqual(["FALSE"]);
+    expect(sanitizeArgs([true], argList)).toEqual(["TRUE"]);
+  });
+
+  test("a simple untyped range argument", () => {
+    const argList = args`r (range) some values`;
+
+    const m1 = [[1, 2]]; // one column with 1 2
+    expect(sanitizeArgs([m1], argList)).toEqual([m1]);
+
+    const m2 = [
+      [undefined, undefined],
+      ["abc", true]
+    ];
+    expect(sanitizeArgs([m2], argList)).toEqual([m2]);
+
+    expect(() => sanitizeArgs([1], argList)).toThrow('Argument "r" has the wrong type');
+  });
+
+  test("a simple range of number argument", () => {
+    const argList = args`r (range<number>) some numeric values`;
+
+    const m1 = [[1, 2]]; // one column with 1 2
+    expect(sanitizeArgs([m1], argList)).toEqual([m1]);
+
+    const m2 = [
+      [undefined, 3],
+      ["abc", 1]
+    ];
+    const m2_number = [
+      [undefined, 3],
+      [undefined, 1]
+    ];
+    expect(sanitizeArgs([m2], argList)).toEqual([m2_number]);
+
+    expect(() => sanitizeArgs([1], argList)).toThrow('Argument "r" has the wrong type');
+  });
 });

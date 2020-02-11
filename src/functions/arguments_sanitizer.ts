@@ -56,11 +56,20 @@ function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
       args[i] = false;
     }
   } else if (typeof arg === "boolean" && !descr.type.includes("BOOLEAN")) {
-    if (descr.type.includes("NUMBER")) {
+    const nIndex = descr.type.indexOf("NUMBER");
+    const sIndex = descr.type.indexOf("STRING");
+    if (nIndex > -1 && sIndex < 0) {
       args[i] = arg ? 1 : 0;
     }
+    if (nIndex > -1 && sIndex > -1) {
+      if (nIndex < sIndex) {
+        args[i] = arg ? 1 : 0;
+      } else {
+        args[i] = arg ? "TRUE" : "FALSE";
+      }
+    }
   } else if (typeof arg === "string") {
-    if (descr.type.includes("NUMBER")) {
+    if (descr.type.includes("NUMBER") && !descr.type.includes("STRING")) {
       if (arg) {
         const n = Number(arg);
         if (isNaN(n)) {
@@ -97,6 +106,19 @@ function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
   } else if (typeof arg === "number") {
     if (descr.type.includes("BOOLEAN")) {
       args[i] = arg ? true : false;
+    } else if (!descr.type.includes("NUMBER") && !descr.type.includes("ANY")) {
+      throw new Error(`Argument "${descr.name}" has the wrong type`);
+    }
+  } else if (arg instanceof Array) {
+    if (descr.type.includes("RANGE<NUMBER>")) {
+      for (let col of arg) {
+        for (let i = 0; i < col.length; i++) {
+          const val = col[i];
+          if (typeof val !== "number") {
+            col[i] = undefined;
+          }
+        }
+      }
     }
   }
 }

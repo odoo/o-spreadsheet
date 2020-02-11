@@ -1,19 +1,15 @@
 import { args } from "./arguments";
 import { FunctionMap } from "./index";
 
-function toNumber(n: any) {
-  return typeof n === "number" ? n : 0;
-}
-
 export const functions: FunctionMap = {
   SUM: {
     description: "Returns the sum of all values in a range.",
     args: args`
-        number (number,range, repeating)
+        number (number,range<number>, repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args) {
-      return args.flat(2).reduce((a, b) => a + toNumber(b), 0);
+      return args.flat(2).reduce((a, b) => a + (b || 0), 0);
     }
   },
   RAND: {
@@ -27,21 +23,25 @@ export const functions: FunctionMap = {
   MIN: {
     description: "Returns the minimum value.",
     args: args`
-        number (number,range, repeating)
+        number (number,range<number>, repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args) {
-      return Math.min(...args);
+      const numbers = args.flat(2);
+      const min = numbers.reduce((a, b) => (b === undefined ? a : Math.min(a, b)), Infinity);
+      return min === Infinity ? 0 : min;
     }
   },
   MAX: {
     description: "Returns the maximum value.",
     args: args`
-        number (number,range,repeating)
+        number (number,range<number>,repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args) {
-      return Math.max(...args);
+      const numbers = args.flat(2);
+      const max = numbers.reduce((a, b) => (b === undefined ? a : Math.max(a, b)), -Infinity);
+      return max === -Infinity ? 0 : max;
     }
   }
 };

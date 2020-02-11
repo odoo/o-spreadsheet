@@ -48,12 +48,19 @@ describe("args", () => {
     ]);
   });
 
-  test("accept all types", () => {
+  test("accept all basic types", () => {
     expect(args`test (boolean)`[0].type).toEqual(["BOOLEAN"]);
     expect(args`test (any)`[0].type).toEqual(["ANY"]);
-    expect(args`test (range)`[0].type).toEqual(["RANGE"]);
     expect(args`test (NumBer)`[0].type).toEqual(["NUMBER"]);
     expect(args`test (string)`[0].type).toEqual(["STRING"]);
+  });
+
+  test("accept all range types", () => {
+    expect(args`test (range)`[0].type).toEqual(["RANGE"]);
+    expect(args`test (range<any>)`[0].type).toEqual(["RANGE"]);
+    expect(args`test (range<boolean>)`[0].type).toEqual(["RANGE<BOOLEAN>"]);
+    expect(args`test (range<number>)`[0].type).toEqual(["RANGE<NUMBER>"]);
+    expect(args`test (range<string>)`[0].type).toEqual(["RANGE<STRING>"]);
   });
 
   test("accept multiple types", () => {

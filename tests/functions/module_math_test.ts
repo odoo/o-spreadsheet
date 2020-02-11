@@ -9,14 +9,15 @@ describe("math", () => {
   });
 
   test("SUM: add some ranges", () => {
-    expect(SUM([1, 2])).toEqual(3);
-    expect(SUM(1, [2, 3])).toEqual(6);
+    expect(SUM([[1, 2]])).toEqual(3);
+    expect(SUM(1, [[2, 3]])).toEqual(6);
     expect(SUM([[1], [2], [3]])).toEqual(6);
     expect(SUM([[1], [2]], 3)).toEqual(6);
   });
 
   test("SUM: add a number and a string", () => {
-    expect(SUM([11, "str"])).toEqual(11);
+    expect(SUM([[11, "str"]])).toEqual(11);
+    expect(SUM([[11], ["str"]])).toEqual(11);
     expect(() => SUM(11, "str")).toThrow(
       `Argument "number" should be a number, but "str" is a text, and cannot be coerced to a number.`
     );
@@ -35,7 +36,13 @@ describe("math", () => {
     expect(MIN(1, 2)).toEqual(1);
     expect(MIN(true, 2)).toEqual(1);
     expect(MIN(undefined, true)).toEqual(0);
+    expect(MIN(undefined, undefined)).toEqual(0);
     expect(MIN(-5)).toEqual(-5);
+    expect(MIN([[1, 2, undefined, -1]])).toEqual(-1);
+    expect(MIN([[undefined, undefined, undefined]])).toEqual(0);
+    expect(MIN([[undefined, undefined, -1]])).toEqual(-1);
+    expect(MIN([[undefined, 2, undefined]])).toEqual(2);
+    expect(MIN([["one", 22, false]])).toEqual(22);
   });
 
   test("MAX", () => {
@@ -46,5 +53,11 @@ describe("math", () => {
     expect(MAX(true, 2)).toEqual(2);
     expect(MAX(true, 0)).toEqual(1);
     expect(MAX(undefined, true)).toEqual(1);
+    expect(MAX(undefined, undefined)).toEqual(0);
+    expect(MAX([[1, 2, undefined, -1]])).toEqual(2);
+    expect(MAX([[undefined, undefined, undefined]])).toEqual(0);
+    expect(MAX([[undefined, undefined, -1]])).toEqual(-1);
+    expect(MAX([[undefined, 2, undefined]])).toEqual(2);
+    expect(MAX([["onasdfe", -2, true]])).toEqual(-2);
   });
 });
