@@ -41,6 +41,16 @@ describe("sanitizeArgs", () => {
     expect(sanitizeArgs([], argList)).toEqual([]);
   });
 
+  test("an optional number argument with a default value", () => {
+    const argList = args`n (number,optional,default=42) some number`;
+
+    expect(sanitizeArgs([1], argList)).toEqual([1]);
+    expect(sanitizeArgs([false], argList)).toEqual([0]);
+    expect(sanitizeArgs([true], argList)).toEqual([1]);
+    expect(sanitizeArgs([undefined], argList)).toEqual([42]);
+    expect(sanitizeArgs([], argList)).toEqual([42]);
+  });
+
   test("repeating, non optional, number argument", () => {
     const argList = args`n (number,repeating) some number`;
 

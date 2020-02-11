@@ -38,6 +38,28 @@ describe("args", () => {
     ]);
   });
 
+  test("default number value", () => {
+    expect(args`test (number,default=10) descr`).toEqual([
+      {
+        type: ["NUMBER"],
+        name: "test",
+        description: "descr",
+        default: 10
+      }
+    ]);
+  });
+
+  test("default string value", () => {
+    expect(args`test (number,default="asdf") descr`).toEqual([
+      {
+        type: ["NUMBER"],
+        name: "test",
+        description: "descr",
+        default: "asdf"
+      }
+    ]);
+  });
+
   test("does not care if lower or uppercase", () => {
     expect(args`test (NUMBER)`).toEqual([
       {

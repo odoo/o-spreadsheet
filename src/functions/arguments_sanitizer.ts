@@ -26,10 +26,15 @@ export function sanitizeArgs(args: any[], argList: Arg[]): any[] {
     if (!(i in args) && !descr.optional) {
       throw new Error("Wrong number of arguments. Expected 1, but got 0 argument instead.");
     }
-    const arg = args[i];
+    let arg = args[i];
     if (arg === undefined && descr.optional) {
-      args = args.slice(0, i);
-      break;
+      if (descr.default !== undefined) {
+        arg = descr.default;
+        args[i] = arg;
+      } else {
+        args = args.slice(0, i);
+        break;
+      }
     }
     if (descr.repeating) {
       for (let j = i; j < args.length; j++) {

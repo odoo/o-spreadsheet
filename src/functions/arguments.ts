@@ -63,17 +63,22 @@ function makeArg(str: string): Arg {
   let types: ArgType[] = [];
   let isOptional = false;
   let isRepeating = false;
+  let defaultVal;
+
   for (let param of parts[2].split(",")) {
-    param = param.trim().toUpperCase();
-    let type = ARG_TYPES.find(t => param === t);
+    const key = param.trim().toUpperCase();
+    let type = ARG_TYPES.find(t => key === t);
     if (type) {
       types.push(type);
-    } else if (param === "RANGE<ANY>") {
+    } else if (key === "RANGE<ANY>") {
       types.push("RANGE");
-    } else if (param === "OPTIONAL") {
+    } else if (key === "OPTIONAL") {
       isOptional = true;
-    } else if (param === "REPEATING") {
+    } else if (key === "REPEATING") {
       isRepeating = true;
+    } else if (key.startsWith("DEFAULT=")) {
+      const value = param.trim().slice(8);
+      defaultVal = value[0] === '"' ? value.slice(1, -1) : parseFloat(value);
     }
   }
   let description = parts[3].trim();
@@ -87,6 +92,9 @@ function makeArg(str: string): Arg {
   }
   if (isRepeating) {
     result.repeating = true;
+  }
+  if (defaultVal !== undefined) {
+    result.default = defaultVal;
   }
   return result;
 }
