@@ -18,7 +18,7 @@ describe("numbers", () => {
     expect(formatNumber(0.00000000001)).toBe("0");
     expect(formatNumber(0.000000000001)).toBe("0");
 
-    // note: in Google Sheets, the next three tests result in 1234512345
+    // @compatibility note: in Google Sheets, the next three tests result in 1234512345
     expect(formatNumber(1234512345.1)).toBe("1234512345.1");
     expect(formatNumber(1234512345.12)).toBe("1234512345.12");
     expect(formatNumber(1234512345.123)).toBe("1234512345.123");

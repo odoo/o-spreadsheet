@@ -54,14 +54,14 @@ describe("bool", () => {
 
   test("NOT", () => {
     expect(() => NOT()).toThrow(
-      `Wrong number of arguments. Expected 1, but got 0 argument instead.`
+      `Wrong number of arguments. Expected 1, but got 0 argument(s) instead.`
     );
     expect(NOT(false)).toBe(true);
     expect(NOT(true)).toBe(false);
     expect(NOT(0)).toBe(true);
     expect(NOT(1)).toBe(false);
     expect(() => NOT(true, false)).toThrow(
-      "Wrong number of arguments. Expected 1, but got 2 arguments instead."
+      "Wrong number of arguments. Expected 1, but got 2 argument(s) instead."
     );
     expect(() => NOT("bla")).toThrow(
       `Argument "XXX" should be a boolean, but "bla" is a text, and cannot be coerced to a boolean.`

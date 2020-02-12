@@ -1,5 +1,174 @@
 import { Arg } from "./arguments";
 
+const PRIMITIVE_TYPES = ["NUMBER", "STRING", "BOOLEAN"];
+const RANGE_TYPES = ["RANGE<NUMBER>", "RANGE<STRING>", "RANGE<BOOLEAN>"];
+
+export function makeSanitizer(args: Arg[]): Function {
+  const code: string[] = [];
+  const hasRepeatingArg = args.length && args[args.length - 1].repeating;
+
+  const min = args.filter(a => !a.optional).length;
+  const max = args.length;
+  if (min === max && !hasRepeatingArg) {
+    code.push(`if (arguments.length !== ${args.length}) {`);
+    code.push(
+      `  throw new Error(\`Wrong number of arguments. Expected ${args.length}, but got \$\{arguments.length\} argument(s) instead.\`);`
+    );
+    code.push(`}`);
+  } else {
+    const conditions: string[] = [];
+    if (min > 0) {
+      conditions.push(`arguments.length < ${min}`);
+    }
+    if (!hasRepeatingArg) {
+      conditions.push(`arguments.length > ${args.length}`);
+    }
+    if (conditions.length) {
+      code.push(`if (${conditions.join(" || ")}) {`);
+      code.push(
+        `  throw new Error(\`Wrong number of arguments. Expected ${args.length}, but got \$\{arguments.length\} argument(s) instead.\`);`
+      );
+      code.push(`}`);
+    }
+  }
+  const argNames: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    let name = `arg${i}`;
+    argNames.push(args[i].repeating ? `...${name}` : `${name}`);
+    sanitizeArg(code, args[i], name);
+  }
+  code.push(`return this.fn(${argNames.join(",")});`);
+  const sanitizer = new Function(...argNames, code.join("\n"));
+  return sanitizer;
+}
+
+function sanitizeArg(code: string[], arg: Arg, name: string) {
+  if (arg.type.filter(t => PRIMITIVE_TYPES.includes(t)).length > 1) {
+    throw new Error("Unsupported type definition. Please go talk to GED about this");
+  }
+  if (arg.repeating) {
+    code.push(`for (let i = 0; i < ${name}.length; i++) {`);
+    const basicArg = Object.assign({}, arg, { repeating: false, optional: false });
+    code.push(`let ${name}_value = ${name}[i];`);
+    sanitizeArg(code, basicArg, name + "_value");
+    code.push(`${name}[i] = ${name}_value;`);
+    code.push(`}`);
+    return;
+  }
+  const rangeType = arg.type.find(t => RANGE_TYPES.includes(t));
+  const type = rangeType ? rangeType.slice(6, -1).toLowerCase() : "";
+
+  if (arg.type.includes("NUMBER")) {
+    code.push(`let t_${name} = typeof ${name};`);
+    code.push(`switch (t_${name}) {`);
+    if (!arg.optional || (arg.optional && arg.default)) {
+      code.push(` case "undefined":`);
+      code.push(`   ${name} = ${arg.default || 0};`);
+      code.push(`   break;`);
+    }
+    code.push(` case "boolean":`);
+    code.push(`   ${name} = ${name} ? 1 : 0;`);
+    code.push(`   break;`);
+    code.push(` case "string":`);
+    code.push(`   if (${name}) {`);
+    code.push(`     let n = Number(${name});`);
+    code.push(`     if (isNaN(n)) {`);
+    code.push(
+      `       throw new Error(\`Argument "${arg.name}" should be a number, but "\$\{${name}\}" is a text, and cannot be coerced to a number.\`);`
+    );
+    code.push(`     } else {`);
+    code.push(`       ${name} = n;`);
+    code.push(`     }`);
+    code.push(`   } else {`);
+    code.push(`     ${name} = 0;`);
+    code.push(`   }`);
+    code.push(`   break;`);
+
+    if (rangeType) {
+      code.push(`  case "object":`);
+      sanitizeRange(code, name, arg, type);
+      code.push(`    break;`);
+    }
+    code.push(`}`);
+    return;
+  }
+
+  if (arg.type.includes("BOOLEAN")) {
+    code.push(`let t_${name} = typeof ${name};`);
+    code.push(`switch (t_${name}) {`);
+    code.push(` case "undefined":`);
+    code.push(`   ${name} = false;`);
+    code.push(`   break;`);
+    code.push(` case "number":`);
+    code.push(`   ${name} = ${name} ? true : false;`);
+    code.push(`   break;`);
+    code.push(` case "string":`);
+    code.push(`   if (${name}) {`);
+    code.push(`     let uppercaseVal = ${name}.toUpperCase();`);
+    code.push(`     if (uppercaseVal === "TRUE") {`);
+    code.push(`       ${name} = true;`);
+    code.push(`     } else if (uppercaseVal === "FALSE") {`);
+    code.push(`       ${name} = false;`);
+    code.push(`     } else {`);
+    code.push(
+      `       throw new Error(\`Argument "${arg.name}" should be a boolean, but "\$\{${name}\}" is a text, and cannot be coerced to a boolean.\`);`
+    );
+    code.push(`     }`);
+    code.push(`   } else {`);
+    /**
+     * @compatibility Note: this is not the way Google Sheets behave:
+     *
+     * =if("", 1, 2) is evaluated to 2
+     * =or("", 1) throws an error
+     *
+     * It is not clear (to me) why in the first expression it looks like it
+     * is accepted, but not in the second.
+     */
+    code.push(`     ${name} = false;`);
+    code.push(`   }`);
+    code.push(`   break;`);
+    code.push(`}`);
+  }
+
+  if (arg.type.includes("STRING")) {
+    code.push(`let t_${name} = typeof ${name};`);
+    code.push(`switch (t_${name}) {`);
+    code.push(` case "undefined":`);
+    code.push(`   ${name} = "";`);
+    code.push(`   break;`);
+    code.push(` case "number":`);
+    code.push(`   ${name} = ${name}.toString();`);
+    code.push(`   break;`);
+    code.push(` case "boolean":`);
+    code.push(`   ${name} = ${name} ? "TRUE" : "FALSE";`);
+    code.push(`   break;`);
+    code.push(`}`);
+  }
+
+  if (arg.type.includes("RANGE")) {
+    code.push(`if (!(${name} instanceof Array)) {`);
+    code.push(`   throw new Error(\`Argument "${arg.name}" has the wrong type\`);`);
+    code.push(`}`);
+  }
+
+  if (rangeType) {
+    sanitizeRange(code, name, arg, type);
+  }
+}
+
+function sanitizeRange(code: string[], name: string, arg: Arg, type: string) {
+  code.push(`if (!(${name} instanceof Array)) {`);
+  code.push(`   throw new Error(\`Argument "${arg.name}" has the wrong type\`);`);
+  code.push(`}`);
+  code.push(`for (let i = 0; i < ${name}.length; i++) {`);
+  code.push(`  let col = ${name}[i];`);
+  code.push(`  for (let j = 0; j < col.length; j++) {`);
+  code.push(`    if (typeof col[j] !== "${type}") {`);
+  code.push(`      col[j] = undefined;`);
+  code.push(`    }`);
+  code.push(`  }`);
+  code.push(`}`);
+}
 //------------------------------------------------------------------------------
 // Wrapping functions for arguments sanitization
 //------------------------------------------------------------------------------
@@ -7,148 +176,6 @@ export function protectFunction(fn: Function, argList: Arg[]): Function {
   if (argList.length === 0) {
     return fn;
   }
-  return function(this: any, ...args: any[]) {
-    args = sanitizeArgs(args, argList);
-    return fn.call(this, ...args);
-  };
-}
-
-/**
- * If you read this, and are horrified by the code, worry not, dear friend.
- * This code is here only for a while, to solidify the test suite and prepare
- * the future. It will be replaced by a shiny argument sanitizer compiler soon.
- *
- * Note: this function modifies args in place!
- */
-export function sanitizeArgs(args: any[], argList: Arg[]): any[] {
-  for (let i = 0; i < argList.length; i++) {
-    const descr = argList[i];
-    if (!(i in args) && !descr.optional) {
-      throw new Error("Wrong number of arguments. Expected 1, but got 0 argument instead.");
-    }
-    let arg = args[i];
-    if (arg === undefined && descr.optional) {
-      if (descr.default !== undefined) {
-        arg = descr.default;
-        args[i] = arg;
-      } else {
-        args = args.slice(0, i);
-        break;
-      }
-    }
-    if (descr.repeating) {
-      for (let j = i; j < args.length; j++) {
-        sanitizeArg(args, j, args[j], descr);
-      }
-      return args;
-    }
-    sanitizeArg(args, i, arg, descr);
-  }
-  if (args.length > argList.length) {
-    throw new Error(
-      `Wrong number of arguments. Expected ${argList.length}, but got ${args.length} arguments instead.`
-    );
-  }
-  return args;
-}
-
-function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
-  if (arg === undefined) {
-    if (descr.type.includes("NUMBER")) {
-      args[i] = 0;
-    }
-    if (descr.type.includes("BOOLEAN")) {
-      args[i] = false;
-    }
-  } else if (typeof arg === "boolean" && !descr.type.includes("BOOLEAN")) {
-    const nIndex = descr.type.indexOf("NUMBER");
-    const sIndex = descr.type.indexOf("STRING");
-    if (nIndex > -1 && sIndex < 0) {
-      args[i] = arg ? 1 : 0;
-    }
-    if (nIndex < 0 && sIndex > -1) {
-      args[i] = arg ? "TRUE" : "FALSE";
-    }
-    if (nIndex > -1 && sIndex > -1) {
-      if (nIndex < sIndex) {
-        args[i] = arg ? 1 : 0;
-      } else {
-        args[i] = arg ? "TRUE" : "FALSE";
-      }
-    }
-  } else if (typeof arg === "string") {
-    if (descr.type.includes("NUMBER") && !descr.type.includes("STRING")) {
-      if (arg) {
-        const n = Number(arg);
-        if (isNaN(n)) {
-          throw new Error(
-            `Argument "${descr.name}" should be a number, but "${arg}" is a text, and cannot be coerced to a number.`
-          );
-        }
-      } else {
-        args[i] = 0;
-      }
-      args[i] = arg ? parseFloat(arg) : 0;
-    } else if (descr.type.includes("BOOLEAN")) {
-      if (arg === "") {
-        /**
-         * @compatibility Note: this is not the way Google Sheets behave:
-         *
-         * =if("", 1, 2) is evaluated to 2
-         * =or("", 1) throws an error
-         *
-         * It is not clear (to me) why in the first expression it looks like it
-         * is accepted, but not in the second.
-         */
-        args[i] = false;
-      } else if (arg.toUpperCase() === "TRUE") {
-        args[i] = true;
-      } else if (arg.toUpperCase() === "FALSE") {
-        args[i] = false;
-      } else {
-        throw new Error(
-          `Argument "${descr.name}" should be a boolean, but "${arg}" is a text, and cannot be coerced to a boolean.`
-        );
-      }
-    }
-  } else if (typeof arg === "number") {
-    if (descr.type.includes("BOOLEAN")) {
-      args[i] = arg ? true : false;
-    } else if (descr.type.includes("STRING") && !descr.type.includes("NUMBER")) {
-      args[i] = arg.toString();
-    } else if (!descr.type.includes("NUMBER") && !descr.type.includes("ANY")) {
-      throw new Error(`Argument "${descr.name}" has the wrong type`);
-    }
-  } else if (arg instanceof Array) {
-    if (descr.type.includes("RANGE<NUMBER>")) {
-      for (let col of arg) {
-        for (let i = 0; i < col.length; i++) {
-          const val = col[i];
-          if (typeof val !== "number") {
-            col[i] = undefined;
-          }
-        }
-      }
-    }
-    if (descr.type.includes("RANGE<BOOLEAN>")) {
-      for (let col of arg) {
-        for (let i = 0; i < col.length; i++) {
-          const val = col[i];
-          if (typeof val !== "boolean") {
-            col[i] = undefined;
-          }
-        }
-      }
-    }
-    if (descr.type.includes("RANGE<STRING>")) {
-      for (let col of arg) {
-        for (let i = 0; i < col.length; i++) {
-          const val = col[i];
-          if (typeof val !== "string") {
-            col[i] = undefined;
-          }
-        }
-      }
-    }
-  }
+  const sanitizer = makeSanitizer(argList);
+  return sanitizer.bind({ fn });
 }
