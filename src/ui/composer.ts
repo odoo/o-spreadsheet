@@ -7,7 +7,7 @@ import { SCROLLBAR_WIDTH } from "../constants";
 import { ComposerToken, composerTokenize } from "../formulas/composer_tokenizer";
 import { rangeReference } from "../formulas/parser";
 import { ContentEditableHelper } from "./content_editable_helper";
-import { getFunctionsProvider, TextValueProvider } from "./autocomplete_provider";
+import { TextValueProvider } from "./autocomplete_dropdown";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -50,26 +50,25 @@ const tokenColor = {
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-composer-container" t-att-style="style">
-    <div class="o-composer"  
+    <div class="o-composer"
       t-ref="o_composer"
       tabindex="1"
       contenteditable="true"
       spellcheck="false"
-      
+
       t-on-keydown="onKeydown"
       t-on-input="onInput"
       t-on-keyup="onKeyup"
-      
-      t-on-blur="saveSelection" 
+
+      t-on-blur="saveSelection"
       t-on-click="onClick"
     />
-    <TextValueProvider 
-        t-if="autoCompleteState.showProvider" 
-        t-ref="o_autocomplete_provider" 
+    <TextValueProvider
+        t-if="autoCompleteState.showProvider"
+        t-ref="o_autocomplete_provider"
         search="autoCompleteState.search"
-        getValues="autoCompleteState.getValues"
+        provider="autoCompleteState.provider"
     />
-    
 </div>
   `;
 const CSS = css/* scss */ `
@@ -109,7 +108,7 @@ export class Composer extends Component<any, any> {
 
   autoCompleteState = useState({
     showProvider: false,
-    getValues: getFunctionsProvider,
+    provider: 'functions',
     search: ""
   });
   debug: boolean = false;
@@ -194,9 +193,6 @@ export class Composer extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   onKeydown(ev: KeyboardEvent) {
-    if (this.debug) {
-      console.log("keydown", ev.key, this.model.state.currentContent);
-    }
     const autoComplete = this.autoCompleteRef.comp as TextValueProvider;
     switch (ev.key) {
       case "Enter":
@@ -271,17 +267,9 @@ export class Composer extends Component<any, any> {
     } else {
       this.model.setCurrentContent("");
     }
-
-    if (this.debug) {
-      console.log("input key ", ev.key);
-      console.log("input state ", this.model.state.currentContent);
-    }
   }
 
   onKeyup(ev: KeyboardEvent) {
-    if (this.debug) {
-      console.log("keyup", ev.key);
-    }
     if (["Control", "ArrowUp", "ArrowDown", "Tab", "Enter"].includes(ev.key)) {
       // already processed in keydown
       return;

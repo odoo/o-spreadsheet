@@ -4,21 +4,44 @@ import { functions } from "../functions/index";
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
+// -----------------------------------------------------------------------------
+// Autocomplete Value Providers
+// -----------------------------------------------------------------------------
+
 interface AutocompleteValue {
   text: string;
   description: string;
 }
 
-const TEMPLATE = xml/* xml */ `<div class="o-autocomplete-provider">
-    <t t-foreach="state.filtered" t-as="v" t-key="v.text">
+type AutocompleteProvider = () => Promise<AutocompleteValue[]>;
+
+export const providers: {[name: string]: AutocompleteProvider} = {
+  functions: async function () {
+    return Object.keys(functions).map(key => {
+      return {
+        text: key,
+        description: functions[key].description
+      };
+    });
+  }
+};
+
+// -----------------------------------------------------------------------------
+// Autocomplete DropDown component
+// -----------------------------------------------------------------------------
+
+const TEMPLATE = xml/* xml */ `
+  <div t-att-class="{'o-autocomplete-dropdown':state.values.length}">
+    <t t-foreach="state.values" t-as="v" t-key="v.text">
         <div t-att-class="{'o-autocomplete-value-focus': state.selectedIndex === v_index}">
              <div class="o-autocomplete-value" t-esc="v.text"/>
              <div class="o-autocomplete-description" t-esc="v.description" t-if="state.selectedIndex === v_index"/>
         </div>
     </t>
-</div>`;
+  </div>`;
+
 const CSS = css/* scss */ `
-  .o-autocomplete-provider {
+  .o-autocomplete-dropdown {
     width: 260px;
     margin: 4px;
     background-color: #fff;
@@ -45,9 +68,9 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  getValues: () => Promise<AutocompleteValue[]>;
-  filter?: (searchTerm: String) => AutocompleteValue[];
-  search: String;
+  provider: string;
+  filter?: (searchTerm: string, vals: AutocompleteValue[]) => AutocompleteValue[];
+  search: string;
 }
 
 export abstract class TextValueProvider extends Component<any, Props> {
@@ -56,12 +79,10 @@ export abstract class TextValueProvider extends Component<any, Props> {
 
   state = useState({
     values: <AutocompleteValue[]>[],
-    selectedIndex: <number>0,
-    filtered: <AutocompleteValue[]>[]
+    selectedIndex: 0,
   });
 
-  async mounted(): Promise<void> {
-    this.state.values = await this.props.getValues();
+  mounted() {
     this.filter(this.props.search);
   }
 
@@ -72,41 +93,35 @@ export abstract class TextValueProvider extends Component<any, Props> {
     return super.willUpdateProps(nextProps);
   }
 
-  filter(searchTerm: String) {
+  async filter(searchTerm: string) {
+    const provider = providers[this.props.provider];
+    let values = await provider();
     if (this.props.filter) {
-      this.state.filtered = this.props.filter(searchTerm);
+      values = this.props.filter(searchTerm, values);
     } else {
-      this.state.filtered = this.state.values
+      values = values
         .filter(t => t.text.toUpperCase().startsWith(searchTerm.toUpperCase()))
         .sort((l, r) => (l.text < r.text ? -1 : l.text > r.text ? 1 : 0));
     }
+    this.state.values = values;
     this.state.selectedIndex = 0;
   }
 
   moveDown() {
-    this.state.selectedIndex = (this.state.selectedIndex + 1) % this.state.filtered.length;
+    this.state.selectedIndex = (this.state.selectedIndex + 1) % this.state.values.length;
   }
 
   moveUp() {
     this.state.selectedIndex--;
     if (this.state.selectedIndex < 0) {
-      this.state.selectedIndex = this.state.filtered.length - 1;
+      this.state.selectedIndex = this.state.values.length - 1;
     }
   }
 
   getValueToFill(): string | void {
-    if (this.state.filtered.length) {
-      return this.state.filtered[this.state.selectedIndex].text;
+    if (this.state.values.length) {
+      return this.state.values[this.state.selectedIndex].text;
     }
-    return;
   }
 }
 
-export async function getFunctionsProvider(): Promise<AutocompleteValue[]> {
-  return Object.keys(functions).map(key => {
-    return {
-      text: key,
-      description: functions[key].description
-    };
-  });
-}
