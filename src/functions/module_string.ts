@@ -3,14 +3,14 @@ import { FunctionMap } from "./index";
 
 export const functions: FunctionMap = {
   CONCAT: {
-    description: "",
+    description: "Concatenation of two values",
     args: args`
-        number (string)
-        numbers (string,optional,repeating)
+        value1 (string)
+        value2 (string)
     `,
     returns: ["STRING"],
-    compute: function(...args) {
-      return args.map(x => x.toString()).join("");
+    compute: function(value1: string, value2: string): string {
+      return value1 + value2;
     }
   }
 };

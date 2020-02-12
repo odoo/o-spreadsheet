@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`string functions CONCAT 1`] = `"Wrong number of arguments. Expected 2, but got 0 argument(s) instead."`;
+
+exports[`string functions CONCAT 2`] = `"Wrong number of arguments. Expected 2, but got 1 argument(s) instead."`;
+
+exports[`string functions CONCAT 3`] = `"Wrong number of arguments. Expected 2, but got 3 argument(s) instead."`;
