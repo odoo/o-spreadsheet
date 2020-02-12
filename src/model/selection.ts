@@ -127,6 +127,6 @@ export function updateSelection(state: GridState, col: number, row: number) {
  * set the flag that allow the user to make a selection using the mouse and keyboard, this selection will be
  * reflected in the composer
  */
-export function setSelectionRange(state: GridState, isSelecting: boolean) {
+export function setSelectingRange(state: GridState, isSelecting: boolean) {
   state.isSelectingRange = isSelecting;
 }

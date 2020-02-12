@@ -112,7 +112,7 @@ export class GridModel extends owl.core.EventBus {
   selectColumn = this.makeMutation(selection.selectColumn);
   selectRow = this.makeMutation(selection.selectRow);
   selectAll = this.makeMutation(selection.selectAll);
-  setSelectingRange = this.makeFn(selection.setSelectionRange);
+  setSelectingRange = this.makeFn(selection.setSelectingRange);
 
   // merges
   // ---------------------------------------------------------------------------
