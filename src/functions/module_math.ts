@@ -9,7 +9,7 @@ export const functions: FunctionMap = {
       factor (number, optional, default=1) The number to whose multiples value will be rounded.
     `,
     returns: ["NUMBER"],
-    compute: function(value: number, factor: number): number {
+    compute: function(value: number, factor: number = 1): number {
       if (value > 0 && factor < 0) {
         throw new Error(`
           Function CEILING expects the parameter '${functions.CEILING.args[1].name}' 
@@ -91,6 +91,88 @@ export const functions: FunctionMap = {
         throw new Error(error_parameter_2);
       }
       return deci;
+    }
+  },
+
+  DEGREES: {
+    description: `Converts an angle value in radians to degrees.`,
+    args: args`
+      angle (number) The angle to convert from radians to degrees.
+    `,
+    returns: ["NUMBER"],
+    compute: function(angle: number): number {
+      return (angle * 180) / Math.PI;
+    }
+  },
+
+  ISEVEN: {
+    description: `Whether the provided value is even.`,
+    args: args`
+      value (number) The value to be verified as even.
+    `,
+    returns: ["BOOLEAN"],
+    compute: function(value: number): boolean {
+      return Math.floor(Math.abs(value)) & 1 ? false : true;
+    }
+  },
+
+  "ISO.CEILING": {
+    description: `Rounds number up to nearest multiple of factor.`,
+    args: args`
+      number (number) The value to round up to the nearest integer multiple of significance.
+      significance (number, optional, default=1) The number to whose multiples number will be rounded.
+    `,
+    returns: ["NUMBER"],
+    compute: function(number: number, significance: number = 1): number {
+      return functions["CEILING.PRECISE"].compute(number, significance);
+    }
+  },
+
+  ISODD: {
+    description: `Whether the provided value is even.`,
+    args: args`
+      value (number) The value to be verified as even.
+    `,
+    returns: ["BOOLEAN"],
+    compute: function(value: number): boolean {
+      return Math.floor(Math.abs(value)) & 1 ? true : false;
+    }
+  },
+
+  MOD: {
+    description: `Modulo (remainder) operator.`,
+    args: args`
+    dividend (number) The number to be divided to find the remainder.
+    divisor (number) The number to divide by.
+    `,
+    returns: ["NUMBER"],
+    compute: function(dividend: number, divisor: number): number {
+      if (divisor === 0) {
+        throw new Error(`
+          Function MOD expects the parameter '${functions.DECIMAL.args[1].name}'
+          to be different from 0. Change '${functions.DECIMAL.args[1].name}' to 
+          a value other than 0.`);
+      }
+      const modulus = dividend % divisor;
+      // -42 % 10 = -2 but we want 8, so need the code below
+      if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {
+        return modulus + divisor;
+      } else {
+        return modulus;
+      }
+    }
+  },
+
+  ODD: {
+    description: `Rounds a number up to the nearest odd integer.`,
+    args: args`
+    value (number) The value to round to the next greatest odd number.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number): number {
+      let temp = Math.ceil(Math.abs(value));
+      temp = temp & 1 ? temp : temp + 1;
+      return value < 0 ? -temp : temp;
     }
   },
 

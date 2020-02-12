@@ -1,6 +1,6 @@
 import { functionMap } from "../../src/functions/index";
 
-const { CEILING, DECIMAL, SUM, RAND, MIN, MAX } = functionMap;
+const { CEILING, DECIMAL, DEGREES, ISEVEN, ISODD, MOD, ODD, SUM, RAND, MIN, MAX } = functionMap;
 
 describe("math", () => {
   //----------------------------------------------------------------------------
@@ -20,6 +20,14 @@ describe("math", () => {
     [-6.7, -6],
     [-6.78, -6]
   ])("CEILING(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(CEILING(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [undefined, 0]
+  ])("MATH(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
     expect(CEILING(a)).toEqual(expected);
   });
 
@@ -69,6 +77,20 @@ describe("math", () => {
     }).toThrowErrorMatchingSnapshot();
   });
 
+  test.each([
+    [true, 4.2, 4.2],
+    [false, 4.2, 0],
+    [undefined, 4.2, 0],
+    [4.2, true, 5],
+    [4.2, false, 0],
+    [4.2, undefined, 0]
+  ])(
+    "CEILING(%s, %s) - %s: cating test take 2 parameter(s), return a number",
+    (a, b, expected) => {
+      expect(CEILING(a, b)).toBeCloseTo(expected, 9);
+    }
+  );
+
   //----------------------------------------------------------------------------
   // CEILING.MATH
   //----------------------------------------------------------------------------
@@ -87,6 +109,14 @@ describe("math", () => {
     [-6.7, -6],
     [-6.78, -6]
   ])("CEILING.MATH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(functionMap["CEILING.MATH"](a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [undefined, 0]
+  ])("CEILING.MATH(%s) - %s: casting test take 1 parameter(s), return a number", (a, expected) => {
     expect(functionMap["CEILING.MATH"](a)).toEqual(expected);
   });
 
@@ -129,6 +159,20 @@ describe("math", () => {
   ])("CEILING.MATH(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(functionMap["CEILING.MATH"](a, b)).toBeCloseTo(expected, 9);
   });
+
+  test.each([
+    [true, 4.2, 4.2],
+    [false, 4.2, 0],
+    [undefined, 4.2, 0],
+    [4.2, true, 5],
+    [4.2, false, 0],
+    [4.2, undefined, 0]
+  ])(
+    "CEILING.MATH(%s, %s) - %s: cating test, take 2 parameter(s), return a number",
+    (a, b, expected) => {
+      expect(functionMap["CEILING.MATH"](a, b)).toBeCloseTo(expected, 9);
+    }
+  );
 
   test.each([
     [0, 0, 0, 0],
@@ -306,9 +350,29 @@ describe("math", () => {
     [-6.78, -0.2, 2, -6.8],
     [-6.78, -0.2, -1, -6.8],
     [-6.78, -0.2, -2, -6.8]
-  ])("CEILING.MATH(%s, %s, %s) - %s: take 3 parameter(s), return a number", (a, b, c, expected) => {
-    expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
-  });
+  ])(
+    "CEILING.MATH(%s, %s, %s) - %s: take 3 parameter(s), return a number",
+    (a, b, c, expected) => {
+      expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
+    }
+  );
+
+  test.each([
+    [true, 4.2, 0, 4.2],
+    [false, 4.2, 0, 0],
+    [undefined, 4.2, 0, 0],
+    [4.2, true, 0, 5],
+    [4.2, false, 0, 0],
+    [4.2, undefined, 0, 0],
+    [4.2, 4.2, true, 4.2],
+    [4.2, 4.2, false, 4.2],
+    [4.2, 4.2, undefined, 4.2]
+  ])(
+    "CEILING.MATH(%s, %s, %s) - %s: take 3 parameters, return a number, casting test",
+    (a, b, c, expected) => {
+      expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
+    }
+  );
 
   //----------------------------------------------------------------------------
   // CEILING.PRECISE
@@ -329,6 +393,17 @@ describe("math", () => {
   ])("CEILING.PRECISE(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(functionMap["CEILING.PRECISE"](a)).toEqual(expected);
   });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [undefined, 0]
+  ])(
+    "CEILING.PRECISE(%s) - %s: take 1 parameter(s), return a number, casting test",
+    (a, expected) => {
+      expect(functionMap["CEILING.PRECISE"](a)).toEqual(expected);
+    }
+  );
 
   test.each([
     [0, 0, 0],
@@ -369,6 +444,20 @@ describe("math", () => {
   ])("CEILING.PRECISE(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(functionMap["CEILING.PRECISE"](a, b)).toBeCloseTo(expected, 9);
   });
+
+  test.each([
+    [true, 4.2, 4.2],
+    [false, 4.2, 0],
+    [undefined, 4.2, 0],
+    [4.2, true, 5],
+    [4.2, false, 0],
+    [4.2, undefined, 0]
+  ])(
+    "CEILING.PRECISE(%s, %s) - %s: cating test, take 2 parameter(s), return a number",
+    (a, b, expected) => {
+      expect(functionMap["CEILING.PRECISE"](a, b)).toBeCloseTo(expected, 9);
+    }
+  );
 
   //----------------------------------------------------------------------------
   // DECIMAL
@@ -631,6 +720,7 @@ describe("math", () => {
   test.each([
     [-1010, 2, -10], // @compatibility: return error on parameter 1 on google sheets
     ["-1010", 2, -10], // @compatibility: return error on parameter 1 on google sheets
+    [undefined, 2, 0],
     [0, 2, 0],
     ["0", 2, 0],
     [1010, 2, 10],
@@ -641,6 +731,326 @@ describe("math", () => {
       expect(DECIMAL(a, b)).toEqual(expected);
     }
   );
+
+  test.each([
+    [true, 0],
+    [false, 0],
+    [undefined, 0],
+    [0, true],
+    [2, true],
+    [0, false],
+    [2, false],
+    [0, undefined],
+    [2, undefined],
+    [undefined, true],
+    [undefined, false],
+    [true, undefined],
+    [false, undefined]
+  ])("DECIMAL(%s, %s) - error casting test: take 2 parameter(s), return error on parameter 2", (a, b) => {
+    expect(() => {
+      DECIMAL(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test.each([
+    [true, 2],
+    [false, 2]
+  ])("DECIMAL(%s, %s) - error casting test: take 2 parameter(s), return error on parameter 1", (a, b) => {
+    expect(() => {
+      DECIMAL(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  //----------------------------------------------------------------------------
+  // DEGREES
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // a = [-5, -3.4, 0, 3.14, 5, -PI, PI, PI*3, 3.141592653589793, 3.14159265358979]
+
+  test.each([
+    [-5, -286.4788975654116], // @compatibility: on google sheets return -286.47889756541(2) and not (16)
+    [-3.14, -179.90874767107852], // @compatibility: on google sheets return -179.90874767107(9) and not (852)
+    [0, 0],
+    [3.14, 179.90874767107852], // @compatibility: on google sheets return 179.90874767107(9) and not (852)
+    [5, 286.4788975654116], // @compatibility: on google sheets return 286.47889756541(2) and not (16)
+    [-Math.PI, -180],
+    [Math.PI, 180],
+    [Math.PI * 3, 540],
+    [3.141592653589793, 180],
+    [3.14159265358979, 179.99999999999983], // @compatibility: on google sheets return 180
+    [3.1415926535897, 179.99999999999466] // @compatibility: on google sheets return 179.99999999999(5) and not (466)
+  ])("DEGREES(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(DEGREES(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 57.29577951308232], // @compatibility: on google sheets return 57.2957795130823() and not (2)
+    [false, 0],
+    [undefined, 0]
+  ])("DEGREES(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    expect(DEGREES(a)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // ISEVEN
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // a = [-3, -2.3, -2, 0, 2, 2.3, 3]
+
+  test.each([
+    [-3, false],
+    [-2.3, true],
+    [-2, true],
+    [0, true],
+    [2, true],
+    [2.3, true],
+    [3, false]
+  ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
+    expect(ISEVEN(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, false],
+    [false, true],
+    [undefined, true]
+  ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
+    expect(ISEVEN(a)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // ISO.CEILING
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // a = [0, 6, 6.7, 6.78, -6, -6.7, -6.78]
+  // b = [0, 0.1, 0.2, -0.1, -0.2]
+
+  test.each([
+    [0, 0],
+    [6, 6],
+    [6.7, 7],
+    [6.78, 7],
+    [-6, -6],
+    [-6.7, -6],
+    [-6.78, -6]
+  ])("ISO.CEILING(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(functionMap["ISO.CEILING"](a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [undefined, 0]
+  ])("ISO.CEILING(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    expect(functionMap["ISO.CEILING"](a)).toEqual(expected);
+  });
+
+  test.each([
+    [0, 0, 0],
+    [0, 0.1, 0],
+    [0, 0.2, 0],
+    [0, -0.1, 0],
+    [0, -0.2, 0],
+    [6, 0, 0],
+    [6, 0.1, 6],
+    [6, 0.2, 6],
+    [6, -0.1, 6],
+    [6, -0.2, 6],
+    [6.7, 0, 0],
+    [6.7, 0.1, 6.7],
+    [6.7, 0.2, 6.8],
+    [6.7, -0.1, 6.7],
+    [6.7, -0.2, 6.8],
+    [6.78, 0, 0],
+    [6.78, 0.1, 6.8],
+    [6.78, 0.2, 6.8],
+    [6.78, -0.1, 6.8],
+    [6.78, -0.2, 6.8],
+    [-6, 0, 0],
+    [-6, 0.1, -6],
+    [-6, 0.2, -6],
+    [-6, -0.1, -6],
+    [-6, -0.2, -6],
+    [-6.7, 0, 0],
+    [-6.7, 0.1, -6.7],
+    [-6.7, 0.2, -6.6],
+    [-6.7, -0.1, -6.7],
+    [-6.7, -0.2, -6.6],
+    [-6.78, 0, 0],
+    [-6.78, 0.1, -6.7],
+    [-6.78, 0.2, -6.6],
+    [-6.78, -0.1, -6.7],
+    [-6.78, -0.2, -6.6]
+  ])("ISO.CEILING(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(functionMap["ISO.CEILING"](a, b)).toBeCloseTo(expected, 9);
+  });
+
+  test.each([
+    [true, 4.2, 4.2],
+    [false, 4.2, 0],
+    [undefined, 4.2, 0],
+    [4.2, true, 5],
+    [4.2, false, 0],
+    [4.2, undefined, 0]
+  ])(
+    "ISO.CEILING(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+    (a, b, expected) => {
+      expect(functionMap["ISO.CEILING"](a, b)).toEqual(expected);
+    }
+  );
+
+  //----------------------------------------------------------------------------
+  // ISODD
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // a = [-3.3, -3, -2.2, -2, 0, 2, 2.2, 3, 3.3, 5, 6]
+
+  test.each([
+    [-3.3, true],
+    [-3, true],
+    [-2.2, false],
+    [-2, false],
+    [0, false],
+    [2, false],
+    [2.2, false],
+    [3, true],
+    [3.3, true],
+    [5, true],
+    [6, false]
+  ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
+    expect(ISODD(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, true],
+    [false, false],
+    [undefined, false]
+  ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
+    expect(ISODD(a)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // MOD
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // a = [-42, -2.2, -2, 0, 2, 2.2, 42]
+  // b = [-10, -2.2, -2, 0, 2, 2.2, 10]
+
+  test.each([
+    [-42, -10, -2],
+    [-42, -2.2, -0.2],
+    [-42, -2, 0],
+    [-42, 2, 0],
+    [-42, 2.2, 2],
+    [-42, 10, 8],
+    [-2.2, -10, -2.2],
+    [-2.2, -2.2, 0],
+    [-2.2, -2, -0.2],
+    [-2.2, 2, 1.8],
+    [-2.2, 2.2, 0],
+    [-2.2, 10, 7.8],
+    [-2, -10, -2],
+    [-2, -2.2, -2],
+    [-2, -2, 0],
+    [-2, 2, 0],
+    [-2, 2.2, 0.2],
+    [-2, 10, 8],
+    [0, -10, 0],
+    [0, -2.2, 0],
+    [0, -2, 0],
+    [0, 2, 0],
+    [0, 2.2, 0],
+    [0, 10, 0],
+    [2, -10, -8],
+    [2, -2.2, -0.2],
+    [2, -2, 0],
+    [2, 2, 0],
+    [2, 2.2, 2],
+    [2, 10, 2],
+    [2.2, -10, -7.8],
+    [2.2, -2.2, 0],
+    [2.2, -2, -1.8],
+    [2.2, 2, 0.2],
+    [2.2, 2.2, 0],
+    [2.2, 10, 2.2],
+    [42, -10, -8],
+    [42, -2.2, -2],
+    [42, -2, 0],
+    [42, 2, 0],
+    [42, 2.2, 0.2],
+    [42, 10, 2]
+  ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(MOD(a, b)).toBeCloseTo(expected, 14);
+  });
+
+  test.each([
+    [-42, 0],
+    [-2.2, 0],
+    [-2, 0],
+    [0, 0],
+    [2, 0],
+    [2.2, 0],
+    [42, 0]
+  ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
+    expect(() => {
+      MOD(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test.each([
+    [true, 42, 1],
+    [false, 42, 0],
+    [undefined, 42, 0],
+    [42, true, 0]
+  ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+    expect(MOD(a, b)).toBeCloseTo(expected, 14);
+  });
+
+  test.each([
+    [42, false],
+    [42, undefined]
+  ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2, casting test ", (a, b) => {
+    expect(() => {
+      MOD(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  //----------------------------------------------------------------------------
+  // ODD
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // a = [-3.9, -3.1, -3, -2.9, -2.1, -2, 0, 2, 2.1, 2.9, 3, 3.1, 3.9]
+
+  test.each([
+    [-3.9, -5],
+    [-3.1, -5],
+    [-3, -3],
+    [-2.9, -3],
+    [-2.1, -3],
+    [-2, -3],
+    [0, 1],
+    [2, 3],
+    [2.1, 3],
+    [2.9, 3],
+    [3, 3],
+    [3.1, 5],
+    [3.9, 5]
+  ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+    expect(ODD(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 1],
+    [undefined, 1]
+  ])("ODD(%s) - %s: casting test take 1 parameter(s), return a number", (a, expected) => {
+    expect(ODD(a)).toEqual(expected);
+  });
 
   test("SUM: add some numbers", () => {
     expect(SUM(1, 2)).toEqual(3);
