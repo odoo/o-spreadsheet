@@ -42,6 +42,12 @@ describe("tokenizer", () => {
   test("Function token", () => {
     expect(tokenize("SUM")).toEqual([{ type: "FUNCTION", value: "SUM" }]);
     expect(tokenize("RAND")).toEqual([{ type: "FUNCTION", value: "RAND" }]);
+    expect(tokenize("rand")).toEqual([{ type: "FUNCTION", value: "rand" }]);
+  });
+
+  test("Function token with point", () => {
+    expect(tokenize("CEILING.MATH")).toEqual([{ type: "FUNCTION", value: "CEILING.MATH" }]);
+    expect(tokenize("ceiling.math")).toEqual([{ type: "FUNCTION", value: "ceiling.math" }]);
   });
   test("Boolean", () => {
     expect(tokenize("true")).toEqual([{ type: "SYMBOL", value: "true" }]);

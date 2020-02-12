@@ -126,7 +126,7 @@ function tokenizeString(chars: string[]): Token | null {
 
 function tokenizeSymbol(chars: string[]): Token | null {
   const result: any[] = [];
-  while (chars[0] && chars[0].match(/\w/)) {
+  while (chars[0] && chars[0].match(/\w|\./)) {
     result.push(chars.shift());
   }
   if (result.length) {
