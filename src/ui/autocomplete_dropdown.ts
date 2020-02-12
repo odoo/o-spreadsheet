@@ -15,8 +15,8 @@ interface AutocompleteValue {
 
 type AutocompleteProvider = () => Promise<AutocompleteValue[]>;
 
-export const providers: {[name: string]: AutocompleteProvider} = {
-  functions: async function () {
+export const providers: { [name: string]: AutocompleteProvider } = {
+  functions: async function() {
     return Object.keys(functions).map(key => {
       return {
         text: key,
@@ -31,9 +31,9 @@ export const providers: {[name: string]: AutocompleteProvider} = {
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div t-att-class="{'o-autocomplete-dropdown':state.values.length}">
+  <div t-att-class="{'o-autocomplete-dropdown':state.values.length}" >
     <t t-foreach="state.values" t-as="v" t-key="v.text">
-        <div t-att-class="{'o-autocomplete-value-focus': state.selectedIndex === v_index}">
+        <div t-att-class="{'o-autocomplete-value-focus': state.selectedIndex === v_index}" t-on-click.stop.prevent="fillValue(v_index)">
              <div class="o-autocomplete-value" t-esc="v.text"/>
              <div class="o-autocomplete-description" t-esc="v.description" t-if="state.selectedIndex === v_index"/>
         </div>
@@ -51,7 +51,7 @@ const CSS = css/* scss */ `
       background-color: #f2f2f2;
     }
     .o-autocomplete-value-focus {
-      background-color:  rgba(0, 0, 0, 0.08);
+      background-color: rgba(0, 0, 0, 0.08);
     }
 
     & > div {
@@ -79,7 +79,7 @@ export abstract class TextValueProvider extends Component<any, Props> {
 
   state = useState({
     values: <AutocompleteValue[]>[],
-    selectedIndex: 0,
+    selectedIndex: 0
   });
 
   mounted() {
@@ -107,6 +107,11 @@ export abstract class TextValueProvider extends Component<any, Props> {
     this.state.selectedIndex = 0;
   }
 
+  fillValue(index) {
+    this.state.selectedIndex = index;
+    this.trigger("completed", { text: this.getValueToFill() });
+  }
+
   moveDown() {
     this.state.selectedIndex = (this.state.selectedIndex + 1) % this.state.values.length;
   }
@@ -124,4 +129,3 @@ export abstract class TextValueProvider extends Component<any, Props> {
     }
   }
 }
-

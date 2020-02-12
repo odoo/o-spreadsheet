@@ -134,6 +134,16 @@ describe("Functions autocomplete", () => {
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
     });
+    test("click on a autocomplete does the autocomplete", async () => {
+      await typeInComposer("=S");
+      fixture
+        .querySelector(".o-autocomplete-dropdown")!
+        .children[1].dispatchEvent(new MouseEvent("click"));
+      await nextTick();
+      expect(composerEl.textContent).toBe("=SZZ");
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+    });
   });
 
   describe("autocomplete functions SUM IF", () => {

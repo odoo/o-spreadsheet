@@ -68,6 +68,7 @@ const TEMPLATE = xml/* xml */ `
         t-ref="o_autocomplete_provider"
         search="autoCompleteState.search"
         provider="autoCompleteState.provider"
+        t-on-completed="onCompleted"
     />
 </div>
   `;
@@ -108,7 +109,7 @@ export class Composer extends Component<any, any> {
 
   autoCompleteState = useState({
     showProvider: false,
-    provider: 'functions',
+    provider: "functions",
     search: ""
   });
   debug: boolean = false;
@@ -295,6 +296,10 @@ export class Composer extends Component<any, any> {
     this.processContent();
     this.processTokenAtCursor();
     this.model.setSelectingRange(false);
+  }
+  onCompleted(ev: CustomEvent) {
+    this.saveSelection();
+    this.autoComplete(ev.detail.text);
   }
 
   // ---------------------------------------------------------------------------
