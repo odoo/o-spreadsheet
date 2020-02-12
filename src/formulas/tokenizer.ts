@@ -29,7 +29,7 @@ export function tokenize(str: string): Token[] {
   let tokenCount = 0;
   while (chars.length) {
     tokenCount++;
-    if (tokenCount > 100) {
+    if (tokenCount > 300) {
       throw new Error("Wow that's big... (that's what she said)");
     }
     let token =

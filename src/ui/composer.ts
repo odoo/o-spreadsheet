@@ -310,12 +310,11 @@ export class Composer extends Component<any, any> {
     this.shouldProcessInputEvents = false;
     let value = this.model.state.currentContent;
     this.tokenAtCursor = undefined;
+    this.saveSelection();
+    this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
+    this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
+    this.model.removeHighlights(); //cleanup highlights for references
     if (value.startsWith("=")) {
-      this.saveSelection();
-      this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
-      this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.model.removeHighlights(); //cleanup highlights for references
-
       const refUsed = {};
       let lastUsedColorIndex = 0;
 
@@ -368,14 +367,11 @@ export class Composer extends Component<any, any> {
       }
 
       // Put the cursor back where it was
-      this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
       this.addHighlights(refUsed);
     } else {
-      if (!ev) {
-        // We are coming from the mounted function, not from keydown/keypress
-        this.contentHelper.insertText(value);
-      }
+      this.contentHelper.insertText(value);
     }
+    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
     this.shouldProcessInputEvents = true;
   }
 
