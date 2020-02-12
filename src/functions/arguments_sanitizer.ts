@@ -59,8 +59,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string) {
   const type = rangeType ? rangeType.slice(6, -1).toLowerCase() : "";
 
   if (arg.type.includes("NUMBER")) {
-    code.push(`let t_${name} = typeof ${name};`);
-    code.push(`switch (t_${name}) {`);
+    code.push(`switch (typeof ${name}) {`);
     if (!arg.optional || (arg.optional && arg.default)) {
       code.push(` case "undefined":`);
       code.push(`   ${name} = ${arg.default || 0};`);
@@ -94,8 +93,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string) {
   }
 
   if (arg.type.includes("BOOLEAN")) {
-    code.push(`let t_${name} = typeof ${name};`);
-    code.push(`switch (t_${name}) {`);
+    code.push(`switch (typeof ${name}) {`);
     code.push(` case "undefined":`);
     code.push(`   ${name} = false;`);
     code.push(`   break;`);
@@ -131,8 +129,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string) {
   }
 
   if (arg.type.includes("STRING")) {
-    code.push(`let t_${name} = typeof ${name};`);
-    code.push(`switch (t_${name}) {`);
+    code.push(`switch (typeof ${name}) {`);
     code.push(` case "undefined":`);
     code.push(`   ${name} = "";`);
     code.push(`   break;`);

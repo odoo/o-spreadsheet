@@ -82,8 +82,7 @@ exports[`makeSanitizer a single boolean argument 1`] = `
 if (arguments.length !== 1) {
   throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"undefined\\":
    arg0 = false;
    break;
@@ -115,8 +114,7 @@ exports[`makeSanitizer a single number argument 1`] = `
 if (arguments.length !== 1) {
   throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"undefined\\":
    arg0 = 0;
    break;
@@ -146,8 +144,7 @@ exports[`makeSanitizer a single string argument 1`] = `
 if (arguments.length !== 1) {
   throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"undefined\\":
    arg0 = \\"\\";
    break;
@@ -168,8 +165,7 @@ exports[`makeSanitizer an optional number argument 1`] = `
 if (arguments.length > 1) {
   throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"boolean\\":
    arg0 = arg0 ? 1 : 0;
    break;
@@ -196,8 +192,7 @@ exports[`makeSanitizer an optional number argument after another argument 1`] = 
 if (arguments.length < 1 || arguments.length > 2) {
   throw new Error(\`Wrong number of arguments. Expected 2, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"undefined\\":
    arg0 = 0;
    break;
@@ -217,8 +212,7 @@ switch (t_arg0) {
    }
    break;
 }
-let t_arg1 = typeof arg1;
-switch (t_arg1) {
+switch (typeof arg1) {
  case \\"boolean\\":
    arg1 = arg1 ? 1 : 0;
    break;
@@ -245,8 +239,7 @@ exports[`makeSanitizer an optional number argument with a default value 1`] = `
 if (arguments.length > 1) {
   throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"undefined\\":
    arg0 = 42;
    break;
@@ -276,8 +269,7 @@ exports[`makeSanitizer number or range of numbers 1`] = `
 if (arguments.length !== 1) {
   throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
 }
-let t_arg0 = typeof arg0;
-switch (t_arg0) {
+switch (typeof arg0) {
  case \\"undefined\\":
    arg0 = 0;
    break;
@@ -322,8 +314,7 @@ if (arguments.length < 1) {
 }
 for (let i = 0; i < arg0.length; i++) {
 let arg0_value = arg0[i];
-let t_arg0_value = typeof arg0_value;
-switch (t_arg0_value) {
+switch (typeof arg0_value) {
  case \\"undefined\\":
    arg0_value = 0;
    break;
@@ -354,8 +345,7 @@ exports[`makeSanitizer repeating, optional, number argument 1`] = `
 ) {
 for (let i = 0; i < arg0.length; i++) {
 let arg0_value = arg0[i];
-let t_arg0_value = typeof arg0_value;
-switch (t_arg0_value) {
+switch (typeof arg0_value) {
  case \\"undefined\\":
    arg0_value = 0;
    break;
