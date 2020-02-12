@@ -23,7 +23,7 @@ abstract class AbstractResizer extends Component<any, any> {
     activeElt: <number>0,
     activeElts: <Array<number>>[],
     styleValue: <number>0,
-    delta: <number>0,
+    delta: <number>0
   });
 
   abstract _getEvOffset(ev: MouseEvent): number;

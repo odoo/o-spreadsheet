@@ -1,7 +1,13 @@
 import { GridModel, Col, Row, Cell, Zone, Style, Merge, Border, BorderDescr } from "../model/index";
 import { toXC, overlap } from "../helpers";
 import { fontSizeMap } from "../fonts";
-import { HEADER_WIDTH, HEADER_HEIGHT, DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../constants";
+import {
+  HEADER_WIDTH,
+  HEADER_HEIGHT,
+  DEFAULT_FONT_WEIGHT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT
+} from "../constants";
 import { getCell } from "../model/core";
 
 // Global variables

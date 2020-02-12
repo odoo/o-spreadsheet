@@ -66,6 +66,9 @@ function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
     if (nIndex > -1 && sIndex < 0) {
       args[i] = arg ? 1 : 0;
     }
+    if (nIndex < 0 && sIndex > -1) {
+      args[i] = arg ? "TRUE" : "FALSE";
+    }
     if (nIndex > -1 && sIndex > -1) {
       if (nIndex < sIndex) {
         args[i] = arg ? 1 : 0;
@@ -111,6 +114,8 @@ function sanitizeArg(args: any[], i: number, arg: any, descr: Arg) {
   } else if (typeof arg === "number") {
     if (descr.type.includes("BOOLEAN")) {
       args[i] = arg ? true : false;
+    } else if (descr.type.includes("STRING") && !descr.type.includes("NUMBER")) {
+      args[i] = arg.toString();
     } else if (!descr.type.includes("NUMBER") && !descr.type.includes("ANY")) {
       throw new Error(`Argument "${descr.name}" has the wrong type`);
     }

@@ -95,6 +95,15 @@ describe("sanitizeArgs", () => {
     );
   });
 
+  test("a single string argument", () => {
+    const argList = args`s (string) some string`;
+
+    expect(sanitizeArgs(["abc"], argList)).toEqual(["abc"]);
+    expect(sanitizeArgs([1], argList)).toEqual(["1"]);
+    expect(sanitizeArgs([false], argList)).toEqual(["FALSE"]);
+    expect(sanitizeArgs([true], argList)).toEqual(["TRUE"]);
+  });
+
   test("number or string", () => {
     const argList = args`v (number, string) some value`;
 
