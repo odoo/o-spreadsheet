@@ -1,5 +1,5 @@
 import { GridModel } from "../../src/model/index";
-import { patchWaitFunction, nextTick } from "../helpers";
+import { nextTick, patchWaitFunction } from "../helpers";
 
 const patch = patchWaitFunction();
 
@@ -137,5 +137,24 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A1"].value).toEqual(1);
     expect(model.state.cells["A2"].value).toEqual(1);
     expect(model.state.cells["A3"].value).toEqual(1);
+  });
+
+  test("async formula, with another cell in sync error", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=A1");
+    model.setValue("A2", "=WAIT(3)");
+    let updateNbr = 0;
+    model.on("update", null, () => updateNbr++);
+
+    expect(model.state.cells["A2"].async).toBe(true);
+    expect(model.state.cells["A1"].value).toEqual("#CYCLE");
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+    expect(patch.calls.length).toBe(1);
+    updateNbr = 0;
+    await waitForRecompute();
+    // next assertion checks that the interface has properly been
+    // notified that the state did change
+    expect(updateNbr).toBe(1);
+    expect(model.state.cells["A2"].value).toEqual(3);
   });
 });

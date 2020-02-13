@@ -43,8 +43,10 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   const functions = Object.assign({ range }, functionMap);
 
   function handleError(e: Error, cell: Cell) {
-    PENDING.delete(cell);
-    state.loadingCells--;
+    if (PENDING.has(cell)) {
+      PENDING.delete(cell);
+      state.loadingCells--;
+    }
     if (e.message === "not ready") {
       WAITING.add(cell);
       cell.value = "#LOADING";
@@ -79,8 +81,10 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           .then(val => {
             cell.value = val;
             state.loadingCells--;
-            PENDING.delete(cell);
-            COMPUTED.add(cell);
+            if (PENDING.has(cell)) {
+              PENDING.delete(cell);
+              COMPUTED.add(cell);
+            }
           })
           .catch((e: Error) => handleError(e, cell));
         state.loadingCells++;
