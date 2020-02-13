@@ -110,6 +110,8 @@ export class TopBar extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar">
       <div class="o-tools">
+        <div class="o-tool" title="Save" t-on-click="onSave" >SAVE</div>
+        <div class="o-tool" title="Load" t-on-click="onLoad">LOAD</div>
         <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
         <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
         <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
@@ -395,5 +397,15 @@ export class TopBar extends Component<any, any> {
   setSize(ev) {
     const fontSize = parseFloat(ev.target.dataset.size);
     this.model.setStyle({ fontSize });
+  }
+  onSave() {
+    this.trigger("save-content", {
+      data: this.model.exportData()
+    });
+  }
+  onLoad() {
+    this.trigger("load-content", {
+      loadData: data => this.model.load(data)
+    });
   }
 }

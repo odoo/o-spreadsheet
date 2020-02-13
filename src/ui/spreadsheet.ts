@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { Grid } from "./grid";
+import { GridModel } from "../model/index";
 import { PartialGridDataWithVersion } from "../model/import_export";
 import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
