@@ -12,7 +12,6 @@ import * as selection from "./selection";
 import * as sheet from "./sheet";
 import { Cell, CURRENT_VERSION, GridState, Style } from "./state";
 
-
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
 

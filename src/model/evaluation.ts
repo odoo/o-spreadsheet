@@ -72,6 +72,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       return;
     }
     visited[xc] = null;
+    cell.error = false;
     try {
       // todo: move formatting in grid and formatters.js
       if (cell.async) {
