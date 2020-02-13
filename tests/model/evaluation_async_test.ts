@@ -3,6 +3,25 @@ import { patchWaitFunction, nextTick } from "../helpers";
 
 const patch = patchWaitFunction();
 
+let timeHandlers: Function[] = [];
+GridModel.setTimeout = cb => {
+  timeHandlers.push(cb);
+};
+
+function clearTimers() {
+  let handlers = timeHandlers.slice();
+  timeHandlers = [];
+  for (let cb of handlers) {
+    cb();
+  }
+}
+
+async function waitForRecompute() {
+  patch.resolveAll();
+  await nextTick();
+  clearTimers();
+}
+
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {
     const model = new GridModel();
@@ -15,8 +34,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A3"].async).toBe(true);
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(2);
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(3);
     expect(model.state.cells["A3"].value).toEqual(2);
   });
@@ -29,8 +47,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(33);
   });
 
@@ -41,14 +58,12 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
     // Inner wait is resolved
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
 
     // outer wait is resolved
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
 
     expect(model.state.cells["A2"].value).toEqual(3);
   });
@@ -62,8 +77,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A1"].value).toEqual(3);
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(patch.calls.length).toBe(0);
@@ -80,8 +94,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(2);
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A1"].value).toEqual(3);
     expect(model.state.cells["A2"].value).toEqual(1);
     expect(model.state.cells["A3"].value).toEqual(4);
@@ -98,15 +111,12 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
     // We need two resolveAll, one for Wait(A2) and the second for (Wait(3 + 4))
-    patch.resolveAll();
-    await nextTick();
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
+    await waitForRecompute();
 
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(model.state.cells["A3"].value).toEqual(9);
@@ -122,8 +132,8 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
+
     expect(model.state.cells["A1"].value).toEqual(1);
     expect(model.state.cells["A2"].value).toEqual(1);
     expect(model.state.cells["A3"].value).toEqual(1);

@@ -1,15 +1,16 @@
 import * as owl from "@odoo/owl";
-import * as formatting from "./formatting";
 import * as clipboard from "./clipboard";
 import * as core from "./core";
-import * as merges from "./merges";
+import { _evaluateCells } from "./evaluation";
+import * as formatting from "./formatting";
 import * as history from "./history";
-import * as selection from "./selection";
-import * as resizing from "./resizing";
+import { exportData, importData, PartialGridDataWithVersion } from "./import_export";
+import * as merges from "./merges";
 import * as object from "./object";
+import * as resizing from "./resizing";
+import * as selection from "./selection";
 import * as sheet from "./sheet";
-import { Cell, GridState, Style, CURRENT_VERSION } from "./state";
-import { PartialGridDataWithVersion, importData, exportData } from "./import_export";
+import { Cell, CURRENT_VERSION, GridState, Style } from "./state";
 
 export * from "./state";
 
@@ -18,6 +19,10 @@ type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...arg
 
 export class GridModel extends owl.core.EventBus {
   state: GridState;
+
+  // scheduling
+  static setTimeout = window.setTimeout.bind(window);
+  isStarted: boolean = false;
 
   // derived state
   selectedCell: Cell | null = null;
@@ -28,12 +33,12 @@ export class GridModel extends owl.core.EventBus {
   constructor(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
     super();
     this.state = importData(data);
-    this.prepareModel();
+    this.computeDerivedState();
   }
 
   load(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
     this.state = importData(data);
-    this.prepareModel();
+    this.computeDerivedState();
     this.trigger("update");
   }
 
@@ -42,31 +47,45 @@ export class GridModel extends owl.core.EventBus {
       history.start(this.state);
       let result = (f as any).call(null, this.state, ...args);
       history.stop(this.state);
-      this.prepareModel();
+      this.computeDerivedState();
       this.trigger("update");
+      if (this.state.loadingCells > 0) {
+        this.startScheduler();
+      }
       return result;
     }) as any;
   }
 
-  /**
-   * 1. Compute derived state
-   * 2. make sure async formulas trigger an update
-   */
-  private prepareModel() {
+  private computeDerivedState() {
     this.selectedCell = core.selectedCell(this.state);
     this.style = formatting.getStyle(this.state);
     this.isMergeDestructive = merges.isMergeDestructive(this.state);
     this.aggregate = core.computeAggregate(this.state);
-
-    const computations = this.state.asyncComputations;
-    for (let cmp of computations) {
-      cmp.then(() => this.trigger("update"));
-    }
-    this.state.asyncComputations = [];
   }
 
   private makeFn<T>(f: T): OmitFirstArg<T> {
     return ((...args) => (f as any).call(null, this.state, ...args)) as any;
+  }
+
+  private startScheduler() {
+    if (!this.isStarted) {
+      this.isStarted = true;
+      let current = this.state.loadingCells;
+      const recomputeCells = () => {
+        if (this.state.loadingCells !== current) {
+          _evaluateCells(this.state, true);
+          current = this.state.loadingCells;
+          if (current === 0) {
+            this.isStarted = false;
+          }
+          this.trigger("update");
+        }
+        if (current > 0) {
+          GridModel.setTimeout(recomputeCells, 15);
+        }
+      };
+      GridModel.setTimeout(recomputeCells, 15);
+    }
   }
 
   // history

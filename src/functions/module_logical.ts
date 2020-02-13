@@ -9,8 +9,8 @@ export const functions: FunctionMap = {
     async: true,
     compute: function(delay) {
       return new Promise(function(resolve, reject) {
-        setTimeout(function(value) {
-          resolve(value);
+        setTimeout(function() {
+          resolve(delay);
         }, delay);
       });
     }

@@ -63,7 +63,7 @@ export interface GridState {
   isSelectingRange: boolean;
   isCopyingFormat: boolean;
 
-  asyncComputations: Promise<any>[];
+  loadingCells: number;
 
   // sheets
   sheets: Sheet[];

@@ -35,7 +35,7 @@ export function evaluateCells(state: GridState) {
   _evaluateCells(state, false);
 }
 
-function _evaluateCells(state: GridState, onlyWaiting: boolean) {
+export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   if (!onlyWaiting) {
     COMPUTED.clear();
   }
@@ -45,6 +45,7 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
 
   function handleError(e: Error, cell: Cell) {
     PENDING.delete(cell);
+    state.loadingCells--;
     if (e.message === "not ready") {
       WAITING.add(cell);
       cell.value = "#LOADING";
@@ -74,16 +75,16 @@ function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       if (cell.async) {
         cell.value = "#LOADING";
         PENDING.add(cell);
-        const prom = cell
+        cell
           .formula(getValue, functions)
           .then(val => {
             cell.value = val;
+            state.loadingCells--;
             PENDING.delete(cell);
             COMPUTED.add(cell);
-            _evaluateCells(state, true);
           })
           .catch((e: Error) => handleError(e, cell));
-        state.asyncComputations.push(prom);
+        state.loadingCells++;
       } else {
         cell.value = cell.formula(getValue, functions);
       }

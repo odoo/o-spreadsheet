@@ -121,7 +121,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
     highlights: [],
     isSelectingRange: false,
     isCopyingFormat: false,
-    asyncComputations: [],
+    loadingCells: 0,
     activeSheet: 0,
     activeSheetName: "Sheet1",
     sheets: []
