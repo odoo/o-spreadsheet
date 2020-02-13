@@ -157,4 +157,25 @@ describe("evaluateCells, async formulas", () => {
     expect(updateNbr).toBe(1);
     expect(model.state.cells["A2"].value).toEqual(3);
   });
+
+  test("async formula and errors, scenario 1", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=WAIT(3)");
+    model.setValue("A2", "=A1 + CEILING(1,2,3,4,5)");
+
+    expect(model.state.cells["A2"].async).toBe(undefined);
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+
+    await waitForRecompute();
+
+    expect(model.state.cells["A2"].value).toEqual("#ERROR");
+
+    model.setValue("A1", "=WAIT(4)");
+
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+
+    await waitForRecompute();
+
+    expect(model.state.cells["A2"].value).toEqual("#ERROR");
+  });
 });
