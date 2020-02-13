@@ -7,7 +7,7 @@ describe("sheets", () => {
     model.state.activeSheet = 0;
     model.state.activeSheetName = "Sheet1";
 
-    model.addSheet();
+    model.createSheet();
     expect(model.state.sheets.length).toBe(2);
     model.state.activeSheet = 1;
     model.state.activeSheetName = "Sheet2";

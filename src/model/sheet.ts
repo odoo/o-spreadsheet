@@ -1,0 +1,88 @@
+import { GridState, Sheet, Col, Row } from ".";
+import { updateState } from "./history";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
+import { evaluateCells } from "./evaluation";
+import { selectCell } from "./core";
+import { numberToLetters } from "../helpers";
+
+function createDefaultCols(colNumber: number): Col[] {
+  const cols: Col[] = [];
+  let current = 0;
+  for (let i = 0; i < colNumber; i++) {
+    const size = DEFAULT_CELL_WIDTH;
+    const col = {
+      left: current,
+      right: current + size,
+      size: size,
+      name: numberToLetters(i)
+    };
+    cols.push(col);
+    current = col.right;
+  }
+  return cols;
+}
+
+function createDefaultRows(rowNumber: number): Row[] {
+  const rows: Row[] = [];
+  let current = 0;
+  for (let i = 0; i < rowNumber; i++) {
+    const size = DEFAULT_CELL_HEIGHT;
+    const row = {
+      top: current,
+      bottom: current + size,
+      size: size,
+      name: String(i + 1),
+      cells: {}
+    };
+    rows.push(row);
+    current = row.bottom;
+  }
+  return rows;
+}
+
+export function createSheet(state: GridState) {
+  const sheet: Sheet = {
+    name: `Sheet${state.sheets.length + 1}`,
+    cells: {},
+    colNumber: 26,
+    rowNumber: 100,
+    cols: createDefaultCols(26),
+    rows: createDefaultRows(100),
+    merges: {},
+    mergeCellMap: {}
+  };
+  const index = addSheet(state, sheet);
+  activateSheet(state, index);
+}
+
+export function addSheet(state: GridState, sheet: Sheet) {
+  const sheets = state.sheets.slice();
+  const index = sheets.push(sheet) - 1;
+  updateState(state, ["sheets"], sheets);
+  return index;
+}
+
+export function activateSheet(state: GridState, index: number) {
+  const sheet = state.sheets[index];
+  updateState(state, ["activeSheet"], index);
+  updateState(state, ["activeSheetName"], sheet.name);
+
+  // setting up rows and columns
+  updateState(state, ["rows"], sheet.rows);
+  updateState(
+    state,
+    ["height"],
+    state.rows[state.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5
+  );
+  updateState(state, ["cols"], sheet.cols);
+  updateState(state, ["width"], state.cols[state.cols.length - 1].right + DEFAULT_CELL_WIDTH);
+
+  // merges
+  updateState(state, ["merges"], sheet.merges);
+  updateState(state, ["mergeCellMap"], sheet.mergeCellMap);
+
+  // cells
+  updateState(state, ["cells"], sheet.cells);
+  evaluateCells(state);
+  selectCell(state, 0, 0);
+}

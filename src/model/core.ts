@@ -5,7 +5,7 @@ import { compile } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
-import { Cell, CellData, GridState, Highlight, Sheet, Zone } from "./state";
+import { Cell, GridState, Highlight, Sheet, Zone, NewCell } from "./state";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -55,7 +55,7 @@ interface AddCellOptions {
 export function addCell(
   state: GridState,
   xc: string,
-  data: CellData,
+  data: NewCell,
   options: AddCellOptions = { preserveFormatting: true }
 ) {
   const [col, row] = toCartesian(xc);
@@ -106,7 +106,7 @@ export function deleteCell(state: GridState, xc: string, force: boolean = false)
   const cell = state.cells[xc];
   if (cell) {
     if (!force && ("style" in cell || "border" in cell)) {
-      const newCell: CellData = { content: "" };
+      const newCell: NewCell = { content: "" };
       if ("style" in cell) {
         newCell.style = cell.style;
       }

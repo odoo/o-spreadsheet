@@ -7,15 +7,9 @@ import * as history from "./history";
 import * as selection from "./selection";
 import * as resizing from "./resizing";
 import * as object from "./object";
-import {
-  activateSheet,
-  addSheet,
-  Cell,
-  GridState,
-  importData,
-  PartialGridDataWithVersion,
-  Style
-} from "./state";
+import * as sheet from "./sheet";
+import { Cell, GridState, Style, CURRENT_VERSION } from "./state";
+import { PartialGridDataWithVersion, importData, exportData } from "./import_export";
 
 export * from "./state";
 
@@ -31,10 +25,16 @@ export class GridModel extends owl.core.EventBus {
   isMergeDestructive: boolean = false;
   aggregate: string | null = null;
 
-  constructor(data?: PartialGridDataWithVersion) {
+  constructor(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
     super();
     this.state = importData(data);
     this.prepareModel();
+  }
+
+  load(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
+    this.state = importData(data);
+    this.prepareModel();
+    this.trigger("update");
   }
 
   private makeMutation<T>(f: T): OmitFirstArg<T> {
@@ -97,8 +97,8 @@ export class GridModel extends owl.core.EventBus {
 
   // sheets
   // ---------------------------------------------------------------------------
-  addSheet = this.makeMutation(addSheet);
-  activateSheet = this.makeMutation(activateSheet);
+  createSheet = this.makeMutation(sheet.createSheet);
+  activateSheet = this.makeMutation(sheet.activateSheet);
 
   // formatting
   // ---------------------------------------------------------------------------
@@ -142,4 +142,8 @@ export class GridModel extends owl.core.EventBus {
   removeObject = this.makeFn(object.removeObject);
   getObject = this.makeFn(object.getObject);
   getObjects = this.makeFn(object.getObjects);
+
+  // export
+  // ---------------------------------------------------------------------------
+  exportData = this.makeFn(exportData);
 }
