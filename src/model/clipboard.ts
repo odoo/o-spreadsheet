@@ -11,7 +11,7 @@ import {
 } from "./core";
 import { evaluateCells } from "./evaluation";
 import { updateSelection } from "./selection";
-import { Cell, GridState, CellData } from "./state";
+import { Cell, GridState, NewCell } from "./state";
 
 export function cut(state: GridState) {
   cutOrCopy(state, true);
@@ -152,7 +152,7 @@ function pasteFromModel(state: GridState, options: PasteOptions): boolean {
             const offsetY = row + r - originCell.row;
             content = applyOffset(content, offsetX, offsetY);
           }
-          let newCell: CellData = { style: originCell.style, border: originCell.border };
+          let newCell: NewCell = { style: originCell.style, border: originCell.border };
           if (options.onlyFormat) {
             newCell.content = targetCell ? targetCell.content : "";
           } else {

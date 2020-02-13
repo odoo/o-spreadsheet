@@ -85,7 +85,7 @@ export class BottomBar extends Component<any, any> {
   model: GridModel = this.props.model;
 
   addSheet() {
-    this.model.addSheet();
+    this.model.createSheet();
   }
 
   activateSheet(index: number) {
