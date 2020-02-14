@@ -1,6 +1,20 @@
 import { functionMap } from "../../src/functions/index";
 
-const { CEILING, DECIMAL, DEGREES, ISEVEN, ISODD, MOD, ODD, SUM, RAND, MIN, MAX } = functionMap;
+const {
+  CEILING,
+  DECIMAL,
+  DEGREES,
+  ISEVEN,
+  ISODD,
+  MOD,
+  ODD,
+  PI,
+  POWER,
+  SUM,
+  RAND,
+  MIN,
+  MAX
+} = functionMap;
 
 describe("math", () => {
   //----------------------------------------------------------------------------
@@ -631,6 +645,59 @@ describe("math", () => {
     [null, 1]
   ])("ODD(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
     expect(ODD(a)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // PI
+  //----------------------------------------------------------------------------
+
+  // domain parameter:
+  // None
+
+  test("PI", () => {
+    expect(PI()).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
+    expect(PI()).toBeCloseTo(3.141592653589793, 9); // @compatibility: on google sheets return 3.14159265358979
+  });
+
+  //----------------------------------------------------------------------------
+  // POWER
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [0, 0, 1],
+    [0, 0.5, 0],
+    [4, 0, 1],
+    [0, 4, 0],
+    [4, 2, 16],
+    [-4, 2, 16],
+    [4, 3, 64],
+    [-4, 3, -64],
+    [4, 0.5, 2],
+    [4, -0.5, 0.5],
+    [4, -2, 0.0625]
+  ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(POWER(a, b)).toEqual(expected);
+  });
+
+  test.each([
+    [-4, 0.5],
+    [-4, 1.5],
+    [-4, 0.2]
+  ])("POWER(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
+    expect(() => {
+      POWER(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test.each([
+    [true, 4, 1],
+    [false, 4, 0],
+    [null, 4, 0],
+    [4, true, 4],
+    [4, false, 1],
+    [4, null, 1]
+  ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+    expect(POWER(a, b)).toEqual(expected);
   });
 
   test("SUM: add some numbers", () => {
