@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`math CEILING(6, -0.2) - error: take 2 parameter(s), return an error 1`] = `
+exports[`math CEILING(6, -0.2) - error: if value positive, factor can't be negative 1`] = `
 "
           Function CEILING expects the parameter 'factor' 
           to be positive when parameter 'value' is positive. 
@@ -8,31 +8,7 @@ exports[`math CEILING(6, -0.2) - error: take 2 parameter(s), return an error 1`]
           value."
 `;
 
-exports[`math CEILING(6.7, -0.1) - error: take 2 parameter(s), return an error 1`] = `
-"
-          Function CEILING expects the parameter 'factor' 
-          to be positive when parameter 'value' is positive. 
-          Change 'factor' from [-0.1] to positive 
-          value."
-`;
-
-exports[`math CEILING(6.7, -0.2) - error: take 2 parameter(s), return an error 1`] = `
-"
-          Function CEILING expects the parameter 'factor' 
-          to be positive when parameter 'value' is positive. 
-          Change 'factor' from [-0.2] to positive 
-          value."
-`;
-
-exports[`math CEILING(6.78, -0.1) - error: take 2 parameter(s), return an error 1`] = `
-"
-          Function CEILING expects the parameter 'factor' 
-          to be positive when parameter 'value' is positive. 
-          Change 'factor' from [-0.1] to positive 
-          value."
-`;
-
-exports[`math CEILING(6.78, -0.2) - error: take 2 parameter(s), return an error 1`] = `
+exports[`math CEILING(7.89, -0.2) - error: if value positive, factor can't be negative 1`] = `
 "
           Function CEILING expects the parameter 'factor' 
           to be positive when parameter 'value' is positive. 
@@ -426,25 +402,25 @@ exports[`math DECIMAL(0, 37) - error: take 2 parameter(s), return error on param
           from [37] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(0, false) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(0, false) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [0] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(0, true) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(0, null) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
+"
+          Function DECIMAL expects the parameter 'base' 
+          to be between 2 and 36 inclusive. Change 'base' 
+          from [0] to value between 2 and 36."
+`;
+
+exports[`math DECIMAL(0, true) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [1] to value between 2 and 36."
-`;
-
-exports[`math DECIMAL(0, undefined) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
-"
-          Function DECIMAL expects the parameter 'base' 
-          to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0.1, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
@@ -530,25 +506,25 @@ exports[`math DECIMAL(0.1, 37) - error: take 2 parameter(s), return error on par
           from [37] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(2, false) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(2, false) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [0] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(2, true) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(2, null) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
+"
+          Function DECIMAL expects the parameter 'base' 
+          to be between 2 and 36 inclusive. Change 'base' 
+          from [0] to value between 2 and 36."
+`;
+
+exports[`math DECIMAL(2, true) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [1] to value between 2 and 36."
-`;
-
-exports[`math DECIMAL(2, undefined) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
-"
-          Function DECIMAL expects the parameter 'base' 
-          to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1010, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
@@ -1406,14 +1382,14 @@ exports[`math DECIMAL(a1a1, 37) - error: take 2 parameter(s), return error on pa
           from [37] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(false, 0) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(false, 0) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [0] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(false, 2) - error casting test: take 2 parameter(s), return error on parameter 1 1`] = `
+exports[`math DECIMAL(false, 2) - error : take 2 parameter(s), return error on parameter 1, casting test 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
@@ -1421,21 +1397,42 @@ exports[`math DECIMAL(false, 2) - error casting test: take 2 parameter(s), retur
       "
 `;
 
-exports[`math DECIMAL(false, undefined) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(false, null) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [0] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(true, 0) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(null, 0) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [0] to value between 2 and 36."
 `;
 
-exports[`math DECIMAL(true, 2) - error casting test: take 2 parameter(s), return error on parameter 1 1`] = `
+exports[`math DECIMAL(null, false) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
+"
+          Function DECIMAL expects the parameter 'base' 
+          to be between 2 and 36 inclusive. Change 'base' 
+          from [0] to value between 2 and 36."
+`;
+
+exports[`math DECIMAL(null, true) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
+"
+          Function DECIMAL expects the parameter 'base' 
+          to be between 2 and 36 inclusive. Change 'base' 
+          from [1] to value between 2 and 36."
+`;
+
+exports[`math DECIMAL(true, 0) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
+"
+          Function DECIMAL expects the parameter 'base' 
+          to be between 2 and 36 inclusive. Change 'base' 
+          from [0] to value between 2 and 36."
+`;
+
+exports[`math DECIMAL(true, 2) - error : take 2 parameter(s), return error on parameter 1, casting test 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
@@ -1443,32 +1440,11 @@ exports[`math DECIMAL(true, 2) - error casting test: take 2 parameter(s), return
       "
 `;
 
-exports[`math DECIMAL(true, undefined) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
+exports[`math DECIMAL(true, null) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
           from [0] to value between 2 and 36."
-`;
-
-exports[`math DECIMAL(undefined, 0) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
-"
-          Function DECIMAL expects the parameter 'base' 
-          to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
-`;
-
-exports[`math DECIMAL(undefined, false) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
-"
-          Function DECIMAL expects the parameter 'base' 
-          to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
-`;
-
-exports[`math DECIMAL(undefined, true) - error casting test: take 2 parameter(s), return error on parameter 2 1`] = `
-"
-          Function DECIMAL expects the parameter 'base' 
-          to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
 `;
 
 exports[`math DECIMAL(zzzz, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
@@ -1602,7 +1578,7 @@ exports[`math MOD(42, false) - error: take 2 parameter(s), return error on param
           a value other than 0."
 `;
 
-exports[`math MOD(42, undefined) - error: take 2 parameter(s), return error on parameter 2, casting test  1`] = `
+exports[`math MOD(42, null) - error: take 2 parameter(s), return error on parameter 2, casting test  1`] = `
 "
           Function MOD expects the parameter 'base'
           to be different from 0. Change 'base' to 

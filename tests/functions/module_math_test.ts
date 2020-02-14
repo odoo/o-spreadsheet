@@ -4,460 +4,114 @@ const { CEILING, DECIMAL, DEGREES, ISEVEN, ISODD, MOD, ODD, SUM, RAND, MIN, MAX 
 
 describe("math", () => {
   //----------------------------------------------------------------------------
-  // CEILING
+  // CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING
   //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [0, 6, 6.7, 6.78, -6, -6.7, -6.78]
-  // b = [0, 0.1, 0.2, -0.1, -0.2]
 
   test.each([
     [0, 0],
     [6, 6],
-    [6.7, 7],
-    [6.78, 7],
     [-6, -6],
+    [6.7, 7],
+    [7.89, 8],
     [-6.7, -6],
-    [-6.78, -6]
-  ])("CEILING(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(CEILING(a)).toEqual(expected);
-  });
-
-  test.each([
+    [-7.89, -7],
     [true, 1],
     [false, 0],
-    [undefined, 0]
-  ])("MATH(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    [null, 0]
+  ])("CEILING FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
     expect(CEILING(a)).toEqual(expected);
+    expect(functionMap["CEILING.MATH"](a)).toEqual(expected);
+    expect(functionMap["CEILING.PRECISE"](a)).toEqual(expected);
+    expect(functionMap["ISO.CEILING"](a)).toEqual(expected);
   });
 
   test.each([
     [0, 0, 0],
     [0, 0.1, 0],
-    [0, 0.2, 0],
-    [0, -0.1, 0],
-    [0, -0.2, 0],
+    [0, -4, 0],
     [6, 0, 0],
-    [6, 0.1, 6],
-    [6, 0.2, 6],
     [6.7, 0, 0],
-    [6.7, 0.1, 6.7],
-    [6.7, 0.2, 6.8],
-    [6.78, 0, 0],
-    [6.78, 0.1, 6.8],
-    [6.78, 0.2, 6.8],
     [-6, 0, 0],
+    [6, 0.1, 6],
     [-6, 0.1, -6],
-    [-6, 0.2, -6],
-    [-6, -0.1, -6],
-    [-6, -0.2, -6],
-    [-6.7, 0, 0],
-    [-6.7, 0.1, -6.7],
+    [6, 0.7, 6.3],
+    [-6, 0.7, -5.6],
+    [6.7, 0.2, 6.8],
     [-6.7, 0.2, -6.6],
-    [-6.7, -0.1, -6.7],
-    [-6.7, -0.2, -6.8],
-    [-6.78, 0, 0],
-    [-6.78, 0.1, -6.7],
-    [-6.78, 0.2, -6.6],
-    [-6.78, -0.1, -6.8],
-    [-6.78, -0.2, -6.8]
-  ])("CEILING(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    [true, 4.2, 4.2],
+    [false, 4.2, 0],
+    [null, 4.2, 0],
+    [4.2, true, 5],
+    [4.2, false, 0],
+    [4.2, null, 0]
+  ])("CEILING FUNCTIONS(%s, %s) - %s: take 2 parameters, return a number", (a, b, expected) => {
     expect(CEILING(a, b)).toBeCloseTo(expected, 9);
+    expect(functionMap["CEILING.MATH"](a, b)).toBeCloseTo(expected, 9);
+    expect(functionMap["CEILING.PRECISE"](a, b)).toBeCloseTo(expected, 9);
+    expect(functionMap["ISO.CEILING"](a, b)).toBeCloseTo(expected, 9);
   });
 
   test.each([
+    [0, 0.2, 0],
+    [0, -0.2, 0],
+    [7.89, 0.2, 8],
+    [7.89, -0.2, 8],
+    [-7.89, 0.2, -7.8],
+    [-7.89, -0.2, -7.8]
+  ])(
+    "CEILING (MATH/PRECISE/ISO) FUNCTIONS(%s, %s) - %s: no effect with negative factor",
+    (a, b, expected) => {
+      expect(functionMap["CEILING.MATH"](a, b)).toBeCloseTo(expected, 9);
+      expect(functionMap["CEILING.PRECISE"](a, b)).toBeCloseTo(expected, 9);
+      expect(functionMap["ISO.CEILING"](a, b)).toBeCloseTo(expected, 9);
+    }
+  );
+
+  test.each([
     [6, -0.2],
-    [6.7, -0.1],
-    [6.7, -0.2],
-    [6.78, -0.1],
-    [6.78, -0.2]
-  ])("CEILING(%s, %s) - error: take 2 parameter(s), return an error", (a, b) => {
+    [7.89, -0.2]
+  ])("CEILING(%s, %s) - error: if value positive, factor can't be negative", (a, b) => {
     expect(() => {
       CEILING(a, b);
     }).toThrowErrorMatchingSnapshot();
   });
 
   test.each([
-    [true, 4.2, 4.2],
-    [false, 4.2, 0],
-    [undefined, 4.2, 0],
-    [4.2, true, 5],
-    [4.2, false, 0],
-    [4.2, undefined, 0]
-  ])(
-    "CEILING(%s, %s) - %s: cating test take 2 parameter(s), return a number",
-    (a, b, expected) => {
-      expect(CEILING(a, b)).toBeCloseTo(expected, 9);
-    }
-  );
-
-  //----------------------------------------------------------------------------
-  // CEILING.MATH
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [0, 6, 6.7, 6.78, -6, -6.7, -6.78]
-  // b = [0, 0.1, 0.2, -0.1, -0.2]
-  // c = [0, 1, 2, -1, -2]
-
-  test.each([
-    [0, 0],
-    [6, 6],
-    [6.7, 7],
-    [6.78, 7],
-    [-6, -6],
-    [-6.7, -6],
-    [-6.78, -6]
-  ])("CEILING.MATH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(functionMap["CEILING.MATH"](a)).toEqual(expected);
+    // Concerning CEILING function
+    // if "a" is negative and "b" is negative, rounds a number down (and not up)
+    // the nearest integer multiple of b
+    [-7.89, 0.2, -7.8],
+    [-7.89, -0.2, -8]
+  ])("CEILING(%s, %s) - %s: if factor negative, rouds number down", (a, b, expected) => {
+    expect(CEILING(a, b)).toBeCloseTo(expected, 9);
   });
 
   test.each([
-    [true, 1],
-    [false, 0],
-    [undefined, 0]
-  ])("CEILING.MATH(%s) - %s: casting test take 1 parameter(s), return a number", (a, expected) => {
-    expect(functionMap["CEILING.MATH"](a)).toEqual(expected);
-  });
-
-  test.each([
-    [0, 0, 0],
-    [0, 0.1, 0],
-    [0, 0.2, 0],
-    [0, -0.1, 0],
-    [0, -0.2, 0],
-    [6, 0, 0],
-    [6, 0.1, 6],
-    [6, 0.2, 6],
-    [6, -0.1, 6],
-    [6, -0.2, 6],
-    [6.7, 0, 0],
-    [6.7, 0.1, 6.7],
-    [6.7, 0.2, 6.8],
-    [6.7, -0.1, 6.7],
-    [6.7, -0.2, 6.8],
-    [6.78, 0, 0],
-    [6.78, 0.1, 6.8],
-    [6.78, 0.2, 6.8],
-    [6.78, -0.1, 6.8],
-    [6.78, -0.2, 6.8],
-    [-6, 0, 0],
-    [-6, 0.1, -6],
-    [-6, 0.2, -6],
-    [-6, -0.1, -6],
-    [-6, -0.2, -6],
-    [-6.7, 0, 0],
-    [-6.7, 0.1, -6.7],
-    [-6.7, 0.2, -6.6],
-    [-6.7, -0.1, -6.7],
-    [-6.7, -0.2, -6.6],
-    [-6.78, 0, 0],
-    [-6.78, 0.1, -6.7],
-    [-6.78, 0.2, -6.6],
-    [-6.78, -0.1, -6.7],
-    [-6.78, -0.2, -6.6]
-  ])("CEILING.MATH(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(functionMap["CEILING.MATH"](a, b)).toBeCloseTo(expected, 9);
-  });
-
-  test.each([
-    [true, 4.2, 4.2],
-    [false, 4.2, 0],
-    [undefined, 4.2, 0],
-    [4.2, true, 5],
-    [4.2, false, 0],
-    [4.2, undefined, 0]
-  ])(
-    "CEILING.MATH(%s, %s) - %s: cating test, take 2 parameter(s), return a number",
-    (a, b, expected) => {
-      expect(functionMap["CEILING.MATH"](a, b)).toBeCloseTo(expected, 9);
-    }
-  );
-
-  test.each([
-    [0, 0, 0, 0],
-    [0, 0, 1, 0],
-    [0, 0, 2, 0],
-    [0, 0, -1, 0],
-    [0, 0, -2, 0],
-    [0, 0.1, 0, 0],
-    [0, 0.1, 1, 0],
-    [0, 0.1, 2, 0],
-    [0, 0.1, -1, 0],
-    [0, 0.1, -2, 0],
-    [0, 0.2, 0, 0],
-    [0, 0.2, 1, 0],
-    [0, 0.2, 2, 0],
-    [0, 0.2, -1, 0],
-    [0, 0.2, -2, 0],
-    [0, -0.1, 0, 0],
-    [0, -0.1, 1, 0],
-    [0, -0.1, 2, 0],
-    [0, -0.1, -1, 0],
-    [0, -0.1, -2, 0],
-    [0, -0.2, 0, 0],
-    [0, -0.2, 1, 0],
-    [0, -0.2, 2, 0],
-    [0, -0.2, -1, 0],
-    [0, -0.2, -2, 0],
-    [6, 0, 0, 0],
-    [6, 0, 1, 0],
-    [6, 0, 2, 0],
-    [6, 0, -1, 0],
-    [6, 0, -2, 0],
-    [6, 0.1, 0, 6],
-    [6, 0.1, 1, 6],
-    [6, 0.1, 2, 6],
-    [6, 0.1, -1, 6],
-    [6, 0.1, -2, 6],
-    [6, 0.2, 0, 6],
-    [6, 0.2, 1, 6],
-    [6, 0.2, 2, 6],
-    [6, 0.2, -1, 6],
-    [6, 0.2, -2, 6],
-    [6, -0.1, 0, 6],
-    [6, -0.1, 1, 6],
-    [6, -0.1, 2, 6],
-    [6, -0.1, -1, 6],
-    [6, -0.1, -2, 6],
-    [6, -0.2, 0, 6],
-    [6, -0.2, 1, 6],
-    [6, -0.2, 2, 6],
-    [6, -0.2, -1, 6],
-    [6, -0.2, -2, 6],
-    [6.7, 0, 0, 0],
-    [6.7, 0, 1, 0],
-    [6.7, 0, 2, 0],
-    [6.7, 0, -1, 0],
-    [6.7, 0, -2, 0],
-    [6.7, 0.1, 0, 6.7],
-    [6.7, 0.1, 1, 6.7],
-    [6.7, 0.1, 2, 6.7],
-    [6.7, 0.1, -1, 6.7],
-    [6.7, 0.1, -2, 6.7],
-    [6.7, 0.2, 0, 6.8],
-    [6.7, 0.2, 1, 6.8],
-    [6.7, 0.2, 2, 6.8],
-    [6.7, 0.2, -1, 6.8],
-    [6.7, 0.2, -2, 6.8],
-    [6.7, -0.1, 0, 6.7],
-    [6.7, -0.1, 1, 6.7],
-    [6.7, -0.1, 2, 6.7],
-    [6.7, -0.1, -1, 6.7],
-    [6.7, -0.1, -2, 6.7],
-    [6.7, -0.2, 0, 6.8],
-    [6.7, -0.2, 1, 6.8],
-    [6.7, -0.2, 2, 6.8],
-    [6.7, -0.2, -1, 6.8],
-    [6.7, -0.2, -2, 6.8],
-    [6.78, 0, 0, 0],
-    [6.78, 0, 1, 0],
-    [6.78, 0, 2, 0],
-    [6.78, 0, -1, 0],
-    [6.78, 0, -2, 0],
-    [6.78, 0.1, 0, 6.8],
-    [6.78, 0.1, 1, 6.8],
-    [6.78, 0.1, 2, 6.8],
-    [6.78, 0.1, -1, 6.8],
-    [6.78, 0.1, -2, 6.8],
-    [6.78, 0.2, 0, 6.8],
-    [6.78, 0.2, 1, 6.8],
-    [6.78, 0.2, 2, 6.8],
-    [6.78, 0.2, -1, 6.8],
-    [6.78, 0.2, -2, 6.8],
-    [6.78, -0.1, 0, 6.8],
-    [6.78, -0.1, 1, 6.8],
-    [6.78, -0.1, 2, 6.8],
-    [6.78, -0.1, -1, 6.8],
-    [6.78, -0.1, -2, 6.8],
-    [6.78, -0.2, 0, 6.8],
-    [6.78, -0.2, 1, 6.8],
-    [6.78, -0.2, 2, 6.8],
-    [6.78, -0.2, -1, 6.8],
-    [6.78, -0.2, -2, 6.8],
-    [-6, 0, 0, 0],
-    [-6, 0, 1, 0],
-    [-6, 0, 2, 0],
-    [-6, 0, -1, 0],
-    [-6, 0, -2, 0],
-    [-6, 0.1, 0, -6],
-    [-6, 0.1, 1, -6],
-    [-6, 0.1, 2, -6],
-    [-6, 0.1, -1, -6],
-    [-6, 0.1, -2, -6],
-    [-6, 0.2, 0, -6],
-    [-6, 0.2, 1, -6],
-    [-6, 0.2, 2, -6],
-    [-6, 0.2, -1, -6],
-    [-6, 0.2, -2, -6],
-    [-6, -0.1, 0, -6],
-    [-6, -0.1, 1, -6],
-    [-6, -0.1, 2, -6],
-    [-6, -0.1, -1, -6],
-    [-6, -0.1, -2, -6],
-    [-6, -0.2, 0, -6],
-    [-6, -0.2, 1, -6],
-    [-6, -0.2, 2, -6],
-    [-6, -0.2, -1, -6],
-    [-6, -0.2, -2, -6],
-    [-6.7, 0, 0, 0],
-    [-6.7, 0, 1, 0],
-    [-6.7, 0, 2, 0],
-    [-6.7, 0, -1, 0],
-    [-6.7, 0, -2, 0],
-    [-6.7, 0.1, 0, -6.7],
-    [-6.7, 0.1, 1, -6.7],
-    [-6.7, 0.1, 2, -6.7],
-    [-6.7, 0.1, -1, -6.7],
-    [-6.7, 0.1, -2, -6.7],
-    [-6.7, 0.2, 0, -6.6],
-    [-6.7, 0.2, 1, -6.8],
-    [-6.7, 0.2, 2, -6.8],
-    [-6.7, 0.2, -1, -6.8],
-    [-6.7, 0.2, -2, -6.8],
-    [-6.7, -0.1, 0, -6.7],
-    [-6.7, -0.1, 1, -6.7],
-    [-6.7, -0.1, 2, -6.7],
-    [-6.7, -0.1, -1, -6.7],
-    [-6.7, -0.1, -2, -6.7],
-    [-6.7, -0.2, 0, -6.6],
-    [-6.7, -0.2, 1, -6.8],
-    [-6.7, -0.2, 2, -6.8],
-    [-6.7, -0.2, -1, -6.8],
-    [-6.7, -0.2, -2, -6.8],
-    [-6.78, 0, 0, 0],
-    [-6.78, 0, 1, 0],
-    [-6.78, 0, 2, 0],
-    [-6.78, 0, -1, 0],
-    [-6.78, 0, -2, 0],
-    [-6.78, 0.1, 0, -6.7],
-    [-6.78, 0.1, 1, -6.8],
-    [-6.78, 0.1, 2, -6.8],
-    [-6.78, 0.1, -1, -6.8],
-    [-6.78, 0.1, -2, -6.8],
-    [-6.78, 0.2, 0, -6.6],
-    [-6.78, 0.2, 1, -6.8],
-    [-6.78, 0.2, 2, -6.8],
-    [-6.78, 0.2, -1, -6.8],
-    [-6.78, 0.2, -2, -6.8],
-    [-6.78, -0.1, 0, -6.7],
-    [-6.78, -0.1, 1, -6.8],
-    [-6.78, -0.1, 2, -6.8],
-    [-6.78, -0.1, -1, -6.8],
-    [-6.78, -0.1, -2, -6.8],
-    [-6.78, -0.2, 0, -6.6],
-    [-6.78, -0.2, 1, -6.8],
-    [-6.78, -0.2, 2, -6.8],
-    [-6.78, -0.2, -1, -6.8],
-    [-6.78, -0.2, -2, -6.8]
-  ])(
-    "CEILING.MATH(%s, %s, %s) - %s: take 3 parameter(s), return a number",
-    (a, b, c, expected) => {
-      expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
-    }
-  );
-
-  test.each([
+    // Concerning CEILING.MATH function
+    // if "a" is negative and "c" different 0, rounds a number down (and not up)
+    // the nearest integer multiple of b
+    [7.89, 0.2, 0, 8],
+    [7.89, 0.2, 1, 8],
+    [-7.89, 0.2, 0, -7.8],
+    [-7.89, 0.2, 1, -8],
+    [-7.89, 0.2, 2.2, -8],
+    [-7.89, 0.2, -2.2, -8],
+    [-7.89, -0.2, 0, -7.8],
+    [-7.89, -0.2, 1, -8],
+    [-7.89, -0.2, 2.2, -8],
+    [-7.89, -0.2, -2.2, -8],
     [true, 4.2, 0, 4.2],
     [false, 4.2, 0, 0],
-    [undefined, 4.2, 0, 0],
+    [null, 4.2, 0, 0],
     [4.2, true, 0, 5],
     [4.2, false, 0, 0],
-    [4.2, undefined, 0, 0],
+    [4.2, null, 0, 0],
     [4.2, 4.2, true, 4.2],
     [4.2, 4.2, false, 4.2],
-    [4.2, 4.2, undefined, 4.2]
-  ])(
-    "CEILING.MATH(%s, %s, %s) - %s: take 3 parameters, return a number, casting test",
-    (a, b, c, expected) => {
-      expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
-    }
-  );
-
-  //----------------------------------------------------------------------------
-  // CEILING.PRECISE
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [0, 6, 6.7, 6.78, -6, -6.7, -6.78]
-  // b = [0, 0.1, 0.2, -0.1, -0.2]
-
-  test.each([
-    [0, 0],
-    [6, 6],
-    [6.7, 7],
-    [6.78, 7],
-    [-6, -6],
-    [-6.7, -6],
-    [-6.78, -6]
-  ])("CEILING.PRECISE(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(functionMap["CEILING.PRECISE"](a)).toEqual(expected);
+    [4.2, 4.2, null, 4.2]
+  ])("CEILING.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
+    expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
   });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [undefined, 0]
-  ])(
-    "CEILING.PRECISE(%s) - %s: take 1 parameter(s), return a number, casting test",
-    (a, expected) => {
-      expect(functionMap["CEILING.PRECISE"](a)).toEqual(expected);
-    }
-  );
-
-  test.each([
-    [0, 0, 0],
-    [0, 0.1, 0],
-    [0, 0.2, 0],
-    [0, -0.1, 0],
-    [0, -0.2, 0],
-    [6, 0, 0],
-    [6, 0.1, 6],
-    [6, 0.2, 6],
-    [6, -0.1, 6],
-    [6, -0.2, 6],
-    [6.7, 0, 0],
-    [6.7, 0.1, 6.7],
-    [6.7, 0.2, 6.8],
-    [6.7, -0.1, 6.7],
-    [6.7, -0.2, 6.8],
-    [6.78, 0, 0],
-    [6.78, 0.1, 6.8],
-    [6.78, 0.2, 6.8],
-    [6.78, -0.1, 6.8],
-    [6.78, -0.2, 6.8],
-    [-6, 0, 0],
-    [-6, 0.1, -6],
-    [-6, 0.2, -6],
-    [-6, -0.1, -6],
-    [-6, -0.2, -6],
-    [-6.7, 0, 0],
-    [-6.7, 0.1, -6.7],
-    [-6.7, 0.2, -6.6],
-    [-6.7, -0.1, -6.7],
-    [-6.7, -0.2, -6.6],
-    [-6.78, 0, 0],
-    [-6.78, 0.1, -6.7],
-    [-6.78, 0.2, -6.6],
-    [-6.78, -0.1, -6.7],
-    [-6.78, -0.2, -6.6]
-  ])("CEILING.PRECISE(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(functionMap["CEILING.PRECISE"](a, b)).toBeCloseTo(expected, 9);
-  });
-
-  test.each([
-    [true, 4.2, 4.2],
-    [false, 4.2, 0],
-    [undefined, 4.2, 0],
-    [4.2, true, 5],
-    [4.2, false, 0],
-    [4.2, undefined, 0]
-  ])(
-    "CEILING.PRECISE(%s, %s) - %s: cating test, take 2 parameter(s), return a number",
-    (a, b, expected) => {
-      expect(functionMap["CEILING.PRECISE"](a, b)).toBeCloseTo(expected, 9);
-    }
-  );
 
   //----------------------------------------------------------------------------
   // DECIMAL
@@ -720,7 +374,7 @@ describe("math", () => {
   test.each([
     [-1010, 2, -10], // @compatibility: return error on parameter 1 on google sheets
     ["-1010", 2, -10], // @compatibility: return error on parameter 1 on google sheets
-    [undefined, 2, 0],
+    [null, 2, 0],
     [0, 2, 0],
     ["0", 2, 0],
     [1010, 2, 10],
@@ -735,31 +389,37 @@ describe("math", () => {
   test.each([
     [true, 0],
     [false, 0],
-    [undefined, 0],
+    [null, 0],
     [0, true],
     [2, true],
     [0, false],
     [2, false],
-    [0, undefined],
-    [2, undefined],
-    [undefined, true],
-    [undefined, false],
-    [true, undefined],
-    [false, undefined]
-  ])("DECIMAL(%s, %s) - error casting test: take 2 parameter(s), return error on parameter 2", (a, b) => {
-    expect(() => {
-      DECIMAL(a, b);
-    }).toThrowErrorMatchingSnapshot();
-  });
+    [0, null],
+    [2, null],
+    [null, true],
+    [null, false],
+    [true, null],
+    [false, null]
+  ])(
+    "DECIMAL(%s, %s) - error: take 2 parameter(s), return error on parameter 2, casting test",
+    (a, b) => {
+      expect(() => {
+        DECIMAL(a, b);
+      }).toThrowErrorMatchingSnapshot();
+    }
+  );
 
   test.each([
     [true, 2],
     [false, 2]
-  ])("DECIMAL(%s, %s) - error casting test: take 2 parameter(s), return error on parameter 1", (a, b) => {
-    expect(() => {
-      DECIMAL(a, b);
-    }).toThrowErrorMatchingSnapshot();
-  });
+  ])(
+    "DECIMAL(%s, %s) - error : take 2 parameter(s), return error on parameter 1, casting test",
+    (a, b) => {
+      expect(() => {
+        DECIMAL(a, b);
+      }).toThrowErrorMatchingSnapshot();
+    }
+  );
 
   //----------------------------------------------------------------------------
   // DEGREES
@@ -787,7 +447,7 @@ describe("math", () => {
   test.each([
     [true, 57.29577951308232], // @compatibility: on google sheets return 57.2957795130823() and not (2)
     [false, 0],
-    [undefined, 0]
+    [null, 0]
   ])("DEGREES(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
     expect(DEGREES(a)).toEqual(expected);
   });
@@ -814,92 +474,10 @@ describe("math", () => {
   test.each([
     [true, false],
     [false, true],
-    [undefined, true]
+    [null, true]
   ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
     expect(ISEVEN(a)).toEqual(expected);
   });
-
-  //----------------------------------------------------------------------------
-  // ISO.CEILING
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [0, 6, 6.7, 6.78, -6, -6.7, -6.78]
-  // b = [0, 0.1, 0.2, -0.1, -0.2]
-
-  test.each([
-    [0, 0],
-    [6, 6],
-    [6.7, 7],
-    [6.78, 7],
-    [-6, -6],
-    [-6.7, -6],
-    [-6.78, -6]
-  ])("ISO.CEILING(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(functionMap["ISO.CEILING"](a)).toEqual(expected);
-  });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [undefined, 0]
-  ])("ISO.CEILING(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(functionMap["ISO.CEILING"](a)).toEqual(expected);
-  });
-
-  test.each([
-    [0, 0, 0],
-    [0, 0.1, 0],
-    [0, 0.2, 0],
-    [0, -0.1, 0],
-    [0, -0.2, 0],
-    [6, 0, 0],
-    [6, 0.1, 6],
-    [6, 0.2, 6],
-    [6, -0.1, 6],
-    [6, -0.2, 6],
-    [6.7, 0, 0],
-    [6.7, 0.1, 6.7],
-    [6.7, 0.2, 6.8],
-    [6.7, -0.1, 6.7],
-    [6.7, -0.2, 6.8],
-    [6.78, 0, 0],
-    [6.78, 0.1, 6.8],
-    [6.78, 0.2, 6.8],
-    [6.78, -0.1, 6.8],
-    [6.78, -0.2, 6.8],
-    [-6, 0, 0],
-    [-6, 0.1, -6],
-    [-6, 0.2, -6],
-    [-6, -0.1, -6],
-    [-6, -0.2, -6],
-    [-6.7, 0, 0],
-    [-6.7, 0.1, -6.7],
-    [-6.7, 0.2, -6.6],
-    [-6.7, -0.1, -6.7],
-    [-6.7, -0.2, -6.6],
-    [-6.78, 0, 0],
-    [-6.78, 0.1, -6.7],
-    [-6.78, 0.2, -6.6],
-    [-6.78, -0.1, -6.7],
-    [-6.78, -0.2, -6.6]
-  ])("ISO.CEILING(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(functionMap["ISO.CEILING"](a, b)).toBeCloseTo(expected, 9);
-  });
-
-  test.each([
-    [true, 4.2, 4.2],
-    [false, 4.2, 0],
-    [undefined, 4.2, 0],
-    [4.2, true, 5],
-    [4.2, false, 0],
-    [4.2, undefined, 0]
-  ])(
-    "ISO.CEILING(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
-    (a, b, expected) => {
-      expect(functionMap["ISO.CEILING"](a, b)).toEqual(expected);
-    }
-  );
 
   //----------------------------------------------------------------------------
   // ISODD
@@ -927,7 +505,7 @@ describe("math", () => {
   test.each([
     [true, true],
     [false, false],
-    [undefined, false]
+    [null, false]
   ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
     expect(ISODD(a)).toEqual(expected);
   });
@@ -1004,7 +582,7 @@ describe("math", () => {
   test.each([
     [true, 42, 1],
     [false, 42, 0],
-    [undefined, 42, 0],
+    [null, 42, 0],
     [42, true, 0]
   ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
     expect(MOD(a, b)).toBeCloseTo(expected, 14);
@@ -1012,12 +590,15 @@ describe("math", () => {
 
   test.each([
     [42, false],
-    [42, undefined]
-  ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2, casting test ", (a, b) => {
-    expect(() => {
-      MOD(a, b);
-    }).toThrowErrorMatchingSnapshot();
-  });
+    [42, null]
+  ])(
+    "MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2, casting test ",
+    (a, b) => {
+      expect(() => {
+        MOD(a, b);
+      }).toThrowErrorMatchingSnapshot();
+    }
+  );
 
   //----------------------------------------------------------------------------
   // ODD
@@ -1047,8 +628,8 @@ describe("math", () => {
   test.each([
     [true, 1],
     [false, 1],
-    [undefined, 1]
-  ])("ODD(%s) - %s: casting test take 1 parameter(s), return a number", (a, expected) => {
+    [null, 1]
+  ])("ODD(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
     expect(ODD(a)).toEqual(expected);
   });
 
