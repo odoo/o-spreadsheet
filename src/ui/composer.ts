@@ -194,11 +194,13 @@ export class Composer extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   onKeydown(ev: KeyboardEvent) {
+    // note: it is possible that this.autoCompleteState.showState has been set to true, and that
+    // this.autoCompleteRef.comp has not yet been assigned, if the user types quickly and there was no render frame yet executed.
     const autoComplete = this.autoCompleteRef.comp as TextValueProvider;
     switch (ev.key) {
       case "Enter":
         ev.preventDefault();
-        if (this.autoCompleteState.showProvider) {
+        if (this.autoCompleteState.showProvider && autoComplete) {
           const autoCompleteValue = autoComplete.getValueToFill();
           if (autoCompleteValue) {
             this.saveSelection();
@@ -218,7 +220,7 @@ export class Composer extends Component<any, any> {
       case "Tab":
         ev.preventDefault();
         ev.stopPropagation();
-        if (this.autoCompleteState.showProvider) {
+        if (this.autoCompleteState.showProvider && autoComplete) {
           const autoCompleteValue = autoComplete.getValueToFill();
           if (autoCompleteValue) {
             this.saveSelection();
@@ -238,14 +240,14 @@ export class Composer extends Component<any, any> {
       case "ArrowDown":
         ev.preventDefault();
         ev.stopPropagation();
-        if (this.autoCompleteState.showProvider) {
+        if (this.autoCompleteState.showProvider && autoComplete) {
           autoComplete.moveDown();
         }
         break;
       case "ArrowUp":
         ev.preventDefault();
         ev.stopPropagation();
-        if (this.autoCompleteState.showProvider) {
+        if (this.autoCompleteState.showProvider && autoComplete) {
           autoComplete.moveUp();
         }
         break;
