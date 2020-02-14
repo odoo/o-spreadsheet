@@ -121,9 +121,6 @@ if (args.length !== 1) {
 }
 let _val_1 = args[0];
 switch (typeof _val_1) {
- case \\"undefined\\":
-   args[0] = 0;
-   break;
  case \\"boolean\\":
    args[0] = _val_1 ? 1 : 0;
    break;
@@ -139,6 +136,12 @@ switch (typeof _val_1) {
      args[0] = 0;
    }
    break;
+  case \\"object\\":
+    if (_val_1 === null) {
+      args[0] = 0;
+      break;
+    }
+    break;
 }
 return args;
 }"
@@ -202,9 +205,6 @@ if (args.length < 1 || args.length > 2) {
 }
 let _val_1 = args[0];
 switch (typeof _val_1) {
- case \\"undefined\\":
-   args[0] = 0;
-   break;
  case \\"boolean\\":
    args[0] = _val_1 ? 1 : 0;
    break;
@@ -220,6 +220,12 @@ switch (typeof _val_1) {
      args[0] = 0;
    }
    break;
+  case \\"object\\":
+    if (_val_1 === null) {
+      args[0] = 0;
+      break;
+    }
+    break;
 }
 let _val_2 = args[1];
 switch (typeof _val_2) {
@@ -269,6 +275,12 @@ switch (typeof _val_1) {
      args[0] = 0;
    }
    break;
+  case \\"object\\":
+    if (_val_1 === null) {
+      args[0] = 0;
+      break;
+    }
+    break;
 }
 return args;
 }"
@@ -282,9 +294,6 @@ if (args.length !== 1) {
 }
 let _val_1 = args[0];
 switch (typeof _val_1) {
- case \\"undefined\\":
-   args[0] = 0;
-   break;
  case \\"boolean\\":
    args[0] = _val_1 ? 1 : 0;
    break;
@@ -301,6 +310,10 @@ switch (typeof _val_1) {
    }
    break;
   case \\"object\\":
+    if (_val_1 === null) {
+      args[0] = 0;
+      break;
+    }
 if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"n\\" has the wrong type\`);
 }
@@ -327,9 +340,6 @@ if (args.length < 1) {
 for (let i = 0; i < args.length; i++) {
 let _val_1 = args[i];
 switch (typeof _val_1) {
- case \\"undefined\\":
-   args[i] = 0;
-   break;
  case \\"boolean\\":
    args[i] = _val_1 ? 1 : 0;
    break;
@@ -345,6 +355,12 @@ switch (typeof _val_1) {
      args[i] = 0;
    }
    break;
+  case \\"object\\":
+    if (_val_1 === null) {
+      args[i] = 0;
+      break;
+    }
+    break;
 }
 }
 return args;
@@ -357,9 +373,6 @@ exports[`makeSanitizer repeating, optional, number argument 1`] = `
 for (let i = 0; i < args.length; i++) {
 let _val_1 = args[i];
 switch (typeof _val_1) {
- case \\"undefined\\":
-   args[i] = 0;
-   break;
  case \\"boolean\\":
    args[i] = _val_1 ? 1 : 0;
    break;
@@ -375,6 +388,12 @@ switch (typeof _val_1) {
      args[i] = 0;
    }
    break;
+  case \\"object\\":
+    if (_val_1 === null) {
+      args[i] = 0;
+      break;
+    }
+    break;
 }
 }
 return args;

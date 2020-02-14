@@ -674,13 +674,13 @@ describe("math", () => {
     expect(MIN(0, 1, 2)).toEqual(0);
     expect(MIN(1, 2)).toEqual(1);
     expect(MIN(true, 2)).toEqual(1);
-    expect(MIN(undefined, true)).toEqual(0);
-    expect(MIN(undefined, undefined)).toEqual(0);
+    expect(MIN(null, true)).toEqual(0);
+    expect(MIN(null, null)).toEqual(0);
     expect(MIN(-5)).toEqual(-5);
-    expect(MIN([[1, 2, undefined, -1]])).toEqual(-1);
-    expect(MIN([[undefined, undefined, undefined]])).toEqual(0);
-    expect(MIN([[undefined, undefined, -1]])).toEqual(-1);
-    expect(MIN([[undefined, 2, undefined]])).toEqual(2);
+    expect(MIN([[1, 2, null, -1]])).toEqual(-1);
+    expect(MIN([[null, null, null]])).toEqual(0);
+    expect(MIN([[null, null, -1]])).toEqual(-1);
+    expect(MIN([[null, 2, null]])).toEqual(2);
     expect(MIN([["one", 22, false]])).toEqual(22);
   });
 
@@ -691,12 +691,12 @@ describe("math", () => {
     expect(MAX(-5)).toEqual(-5);
     expect(MAX(true, 2)).toEqual(2);
     expect(MAX(true, 0)).toEqual(1);
-    expect(MAX(undefined, true)).toEqual(1);
-    expect(MAX(undefined, undefined)).toEqual(0);
-    expect(MAX([[1, 2, undefined, -1]])).toEqual(2);
-    expect(MAX([[undefined, undefined, undefined]])).toEqual(0);
-    expect(MAX([[undefined, undefined, -1]])).toEqual(-1);
-    expect(MAX([[undefined, 2, undefined]])).toEqual(2);
+    expect(MAX(null, true)).toEqual(1);
+    expect(MAX(null, null)).toEqual(0);
+    expect(MAX([[1, 2, null, -1]])).toEqual(2);
+    expect(MAX([[null, null, null]])).toEqual(0);
+    expect(MAX([[null, null, -1]])).toEqual(-1);
+    expect(MAX([[null, 2, null]])).toEqual(2);
     expect(MAX([["onasdfe", -2, true]])).toEqual(-2);
   });
 });

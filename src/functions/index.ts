@@ -2,6 +2,7 @@ import { Arg, ArgType, validateArguments } from "./arguments";
 import { protectFunction } from "./arguments_sanitizer";
 import { functions as logical } from "./module_logical";
 import { functions as math } from "./module_math";
+import { functions as operators } from "./module_operators";
 import { functions as string_fns } from "./module_string";
 
 //------------------------------------------------------------------------------
@@ -38,6 +39,7 @@ export { ArgType } from "./arguments";
 
 importFunctions(math, "math");
 importFunctions(logical, "logical");
+importFunctions(operators, "operators");
 importFunctions(string_fns, "string");
 
 function importFunctions(mapping: FunctionMap, category: string) {

@@ -21,11 +21,10 @@ describe("makeSanitizer", () => {
 
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
-    // const sanitizeArgs = transformSanitizer(sanitizer);
     expect(sanitizer([1])).toEqual([1]);
     expect(sanitizer([false])).toEqual([0]);
     expect(sanitizer([true])).toEqual([1]);
-    expect(sanitizer([undefined])).toEqual([0]);
+    expect(sanitizer([null])).toEqual([0]);
     expect(sanitizer([""])).toEqual([0]);
     expect(sanitizer(["1"])).toEqual([1]);
     expect(sanitizer(["-1"])).toEqual([-1]);
@@ -64,7 +63,7 @@ describe("makeSanitizer", () => {
     expect(sanitizer([1])).toEqual([1]);
     expect(sanitizer([false])).toEqual([0]);
     expect(sanitizer([true])).toEqual([1]);
-    expect(sanitizer([undefined])).toEqual([42]);
+    expect(sanitizer([null])).toEqual([0]);
     expect(sanitizer([])).toEqual([42]);
   });
 
@@ -81,8 +80,8 @@ describe("makeSanitizer", () => {
     expect(sanitizer([1])).toEqual([1]);
     expect(sanitizer([1, false])).toEqual([1, 0]);
     expect(sanitizer(["-1", 2, true])).toEqual([-1, 2, 1]);
-    expect(sanitizer(["-1", 2, undefined, true])).toEqual([-1, 2, 0, 1]);
-    expect(sanitizer(["-1", 2, true, undefined])).toEqual([-1, 2, 1, 0]);
+    expect(sanitizer(["-1", 2, null, true])).toEqual([-1, 2, 0, 1]);
+    expect(sanitizer(["-1", 2, true, null])).toEqual([-1, 2, 1, 0]);
   });
 
   test("repeating, optional, number argument", () => {
@@ -95,8 +94,8 @@ describe("makeSanitizer", () => {
     expect(sanitizer([1])).toEqual([1]);
     expect(sanitizer([1, false])).toEqual([1, 0]);
     expect(sanitizer(["-1", 2, true])).toEqual([-1, 2, 1]);
-    expect(sanitizer(["-1", 2, undefined, true])).toEqual([-1, 2, 0, 1]);
-    expect(sanitizer(["-1", 2, true, undefined])).toEqual([-1, 2, 1, 0]);
+    expect(sanitizer(["-1", 2, null, true])).toEqual([-1, 2, 0, 1]);
+    expect(sanitizer(["-1", 2, true, null])).toEqual([-1, 2, 1, 0]);
   });
 
   test("an optional number argument after another argument", () => {
@@ -237,7 +236,7 @@ describe("makeSanitizer", () => {
     expect(sanitizer([1])).toEqual([1]);
     expect(sanitizer([false])).toEqual([0]);
     expect(sanitizer([true])).toEqual([1]);
-    expect(sanitizer([undefined])).toEqual([0]);
+    expect(sanitizer([null])).toEqual([0]);
     expect(sanitizer([""])).toEqual([0]);
     expect(sanitizer(["1"])).toEqual([1]);
     expect(sanitizer(["-1"])).toEqual([-1]);

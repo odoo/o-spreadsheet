@@ -59,9 +59,9 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
 
   if (arg.type.includes("NUMBER")) {
     code.push(`switch (typeof ${id}) {`);
-    if (!arg.optional || (arg.optional && arg.default)) {
+    if (arg.optional && arg.default) {
       code.push(` case "undefined":`);
-      code.push(`   ${name}[${i}] = ${arg.default || 0};`);
+      code.push(`   ${name}[${i}] = ${arg.default ? arg.default : 0};`);
       code.push(`   break;`);
     }
     code.push(` case "boolean":`);
@@ -82,9 +82,17 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
     code.push(`   }`);
     code.push(`   break;`);
 
-    if (rangeType) {
+    if (rangeType || !arg.optional || (arg.optional && arg.default)) {
       code.push(`  case "object":`);
-      sanitizeRange(code, id, arg, type);
+      if (!arg.optional || (arg.optional && arg.default)) {
+        code.push(`    if (${id} === null) {`);
+        code.push(`      ${name}[${i}] = 0;`);
+        code.push(`      break;`);
+        code.push(`    }`);
+      }
+      if (rangeType) {
+        sanitizeRange(code, id, arg, type);
+      }
       code.push(`    break;`);
     }
     code.push(`}`);

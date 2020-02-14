@@ -27,7 +27,7 @@ describe("evaluateCells, async formulas", () => {
     const model = new GridModel();
     model.setValue("A1", "=3");
     model.setValue("A2", "=WAIT(3)");
-    model.setValue("A3", "=B2 + WAIT(1) + 1");
+    model.setValue("A3", "= WAIT(1) + 1");
 
     expect(model.state.cells["A1"].async).toBeUndefined();
     expect(model.state.cells["A2"].async).toBe(true);

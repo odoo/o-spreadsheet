@@ -97,7 +97,7 @@ export const functions: FunctionMap = {
   SUM: {
     description: "Returns the sum of all values in a range.",
     args: args`
-        number (number,range<number>, repeating)
+        number (number,range<number>,repeating)
     `,
     returns: ["NUMBER"],
     compute: function(...args: NumberOrRange[]): number {

@@ -103,7 +103,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   function getValue(xc: string): any {
     const cell = cells[xc];
     if (!cell || cell.content === "") {
-      return 0;
+      return null;
     }
     return getCellValue(cell);
   }
