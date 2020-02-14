@@ -35,10 +35,10 @@ export function makeSanitizer(args: Arg[]): Function {
     }
   }
   for (let i = 0; i < args.length; i++) {
-    sanitizeArg(code, args[i], 'args', i);
+    sanitizeArg(code, args[i], "args", i);
   }
   code.push(`return args;`);
-  return new Function("args", code.join("\n"))
+  return new Function("args", code.join("\n"));
 }
 
 function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string) {
@@ -176,7 +176,14 @@ function sanitizeRange(code: string[], name: string, arg: Arg, type: string) {
 //------------------------------------------------------------------------------
 export function protectFunction(fn: Function, argList: Arg[]): Function {
   if (argList.length === 0) {
-    return fn;
+    return function(this: any) {
+      if (arguments.length) {
+        throw new Error(
+          `Wrong number of arguments. Expected 0, but got ${arguments.length} argument(s) instead.`
+        );
+      }
+      return fn.call(this);
+    };
   }
   const sanitizer = makeSanitizer(argList);
   return function(this: any, ...args) {

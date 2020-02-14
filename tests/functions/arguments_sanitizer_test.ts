@@ -2,9 +2,16 @@ import { protectFunction, makeSanitizer } from "../../src/functions/arguments_sa
 import { args, Range } from "../../src/functions/arguments";
 
 describe("protectFunction", () => {
-  test("function with no args is not wrapped", () => {
-    function fn() {}
-    expect(protectFunction(fn, [])).toBe(fn);
+  test("no argument", () => {
+    const fn = protectFunction(() => 1, []);
+    expect(fn()).toEqual(1);
+
+    expect(() => fn(1)).toThrow(
+      "Wrong number of arguments. Expected 0, but got 1 argument(s) instead."
+    );
+    expect(() => fn(1, 2)).toThrow(
+      "Wrong number of arguments. Expected 0, but got 2 argument(s) instead."
+    );
   });
 });
 
