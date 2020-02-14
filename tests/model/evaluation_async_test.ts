@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 import { nextTick, patchWaitFunction } from "../helpers";
 
 const patch = patchWaitFunction();
@@ -37,6 +37,28 @@ describe("evaluateCells, async formulas", () => {
     await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(3);
     expect(model.state.cells["A3"].value).toEqual(2);
+  });
+
+  test("async formulas in base data", async () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "=WAIT(3)" } }
+        }
+      ]
+    });
+
+    expect(model.state.cells["B2"].async).toBe(true);
+    expect(model.state.cells["B2"].value).toEqual("#LOADING");
+    let updates = 0;
+    model.on("update", null, () => updates++);
+    expect(updates).toBe(0);
+    await waitForRecompute();
+    expect(updates).toBe(1);
+    expect(model.state.cells["B2"].value).toEqual(3);
   });
 
   test("async formula, on update", async () => {

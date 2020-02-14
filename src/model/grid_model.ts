@@ -32,6 +32,9 @@ export class GridModel extends owl.core.EventBus {
     super();
     this.state = importData(data);
     this.computeDerivedState();
+    if (this.state.loadingCells > 0) {
+      this.startScheduler();
+    }
   }
 
   load(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
