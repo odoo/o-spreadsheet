@@ -316,6 +316,10 @@ export class Grid extends Component<any, any> {
       if (ev.key.toLowerCase() === "y") {
         this.model.redo();
       }
+      if (ev.key.toLowerCase() === "a") {
+        ev.preventDefault();
+        this.model.selectAll();
+      }
       return;
     }
 

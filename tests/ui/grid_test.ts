@@ -203,6 +203,18 @@ describe("Grid component", () => {
       );
       expect(model.state.cells.A1.style).toBeDefined();
     });
+
+    test("can select all the sheet with CTRL+A", async () => {
+      const model = new GridModel();
+      const parent = new GridParent(model);
+      await parent.mount(fixture);
+      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "A", ctrlKey: true })
+      );
+      expect(model.state.activeXc).toBe("A1");
+      expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
+    });
   });
 
   describe("paint format tool with grid selection", () => {
