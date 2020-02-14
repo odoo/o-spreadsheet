@@ -9,7 +9,7 @@ export const functions: FunctionMap = {
       factor (number, optional, default=1) The number to whose multiples value will be rounded.
     `,
     returns: ["NUMBER"],
-    compute: function(value: number, factor: number = 1): number {
+    compute: function(value: number, factor: number): number {
       if (value > 0 && factor < 0) {
         throw new Error(`
           Function CEILING expects the parameter '${functions.CEILING.args[1].name}' 
@@ -29,7 +29,7 @@ export const functions: FunctionMap = {
       mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero.
     `,
     returns: ["NUMBER"],
-    compute: function(number: number, significance: number = 1, mode: number = 0): number {
+    compute: function(number: number, significance: number, mode: number): number {
       if (significance === 0) {
         return 0;
       }
@@ -53,8 +53,8 @@ export const functions: FunctionMap = {
       significance (number, optional, default=1) The number to whose multiples number will be rounded.
     `,
     returns: ["NUMBER"],
-    compute: function(number: number, significance: number = 1): number {
-      return functions["CEILING.MATH"].compute(number, significance);
+    compute: function(number: number, significance: number): number {
+      return functions["CEILING.MATH"].compute(number, significance, 0);
     }
   },
 
@@ -123,8 +123,8 @@ export const functions: FunctionMap = {
       significance (number, optional, default=1) The number to whose multiples number will be rounded.
     `,
     returns: ["NUMBER"],
-    compute: function(number: number, significance: number = 1): number {
-      return functions["CEILING.PRECISE"].compute(number, significance);
+    compute: function(number: number, significance: number): number {
+      return functions["CEILING.MATH"].compute(number, significance, 0);
     }
   },
 
