@@ -21,11 +21,12 @@ export function selectedCell(state: GridState): Cell | null {
 }
 
 export function formatCell(state: GridState, cell: Cell): string {
+  const value = cell.value || 0;
   // todo: apply formatters if needed
   if (cell.type !== "text") {
-    return formatNumber(cell.value);
+    return formatNumber(value);
   }
-  return cell.value.toString();
+  return value.toString();
 }
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;

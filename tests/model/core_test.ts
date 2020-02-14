@@ -1,4 +1,5 @@
 import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { formatCell } from "../../src/model/core";
 
 describe("core", () => {
   test("properly compute sum of current cells", () => {
@@ -32,6 +33,13 @@ describe("core", () => {
     // select A1:A3
     model.updateSelection(0, 2);
     expect(model.aggregate).toBe("5");
+  });
+
+  test("format cell that point to an empty cell properly", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=A2");
+
+    expect(formatCell(model.state, model.state.cells.A1)).toBe("0");
   });
 });
 
