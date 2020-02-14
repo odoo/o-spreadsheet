@@ -170,6 +170,21 @@ describe("composer highlights color", () => {
     let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
     expect(composer.textContent).toBe("=sum(a1:a10)");
   });
+
+  test.each(["=A0", "=ZZ1", "=A99"])("Do not highlight invalid ref", async ref => {
+    const model = new GridModel();
+    model.setValue("A1", ref);
+
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.highlights.length).toBe(0);
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.textContent).toBe(ref);
+  });
 });
 
 describe("ranges and highlights", () => {

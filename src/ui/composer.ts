@@ -420,6 +420,8 @@ export class Composer extends Component<any, any> {
     this.model.addHighlights(
       highlights.filter(
         x =>
+          x.zone.top >= 0 &&
+          x.zone.left >= 0 &&
           x.zone.bottom < this.model.state.rows.length &&
           x.zone.right < this.model.state.cols.length
       )
