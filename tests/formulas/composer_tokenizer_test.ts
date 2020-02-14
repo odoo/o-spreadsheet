@@ -57,13 +57,13 @@ describe("composerTokenizer", () => {
 describe("composerTokenizer base tests", () => {
   test("simple token", () => {
     expect(composerTokenize("1")).toEqual([
-      { start: 0, end: 1, length: 1, type: "NUMBER", value: 1 }
+      { start: 0, end: 1, length: 1, type: "NUMBER", value: "1" }
     ]);
   });
   test("formula token", () => {
     expect(composerTokenize("=1")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 2, length: 1, type: "NUMBER", value: 1 }
+      { start: 1, end: 2, length: 1, type: "NUMBER", value: "1" }
     ]);
   });
   test("longer operators >=", () => {
@@ -82,7 +82,7 @@ describe("composerTokenizer base tests", () => {
     expect(composerTokenize("=?1")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
       { start: 1, end: 2, length: 1, type: "DEBUGGER", value: "?" },
-      { start: 2, end: 3, length: 1, type: "NUMBER", value: 1 }
+      { start: 2, end: 3, length: 1, type: "NUMBER", value: "1" }
     ]);
   });
   test("String", () => {

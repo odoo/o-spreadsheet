@@ -2,12 +2,18 @@ import { tokenize } from "../../src/formulas";
 
 describe("tokenizer", () => {
   test("simple token", () => {
-    expect(tokenize("1")).toEqual([{ type: "NUMBER", value: 1 }]);
+    expect(tokenize("1")).toEqual([{ type: "NUMBER", value: "1" }]);
+  });
+  test("number with decimal token", () => {
+    expect(tokenize("=1.5")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "NUMBER", value: "1.5" }
+    ]);
   });
   test("formula token", () => {
     expect(tokenize("=1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "NUMBER", value: 1 }
+      { type: "NUMBER", value: "1" }
     ]);
   });
   test("longer operators >=", () => {
@@ -26,7 +32,7 @@ describe("tokenizer", () => {
     expect(tokenize("=?1")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "DEBUGGER", value: "?" },
-      { type: "NUMBER", value: 1 }
+      { type: "NUMBER", value: "1" }
     ]);
   });
   test("String", () => {

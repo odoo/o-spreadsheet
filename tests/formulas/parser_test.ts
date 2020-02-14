@@ -12,6 +12,12 @@ describe("parser", () => {
       right: { type: "NUMBER", value: 1 }
     });
   });
+  test("can parse numeric values", () => {
+    expect(parse("1")).toEqual({ type: "NUMBER", value: 1 });
+    expect(parse("1.5")).toEqual({ type: "NUMBER", value: 1.5 });
+    expect(parse("1.")).toEqual({ type: "NUMBER", value: 1 });
+    expect(parse(".5")).toEqual({ type: "NUMBER", value: 0.5 });
+  });
   test("can parse binary operations", () => {
     expect(parse("2-3")).toEqual({
       type: "BIN_OPERATION",

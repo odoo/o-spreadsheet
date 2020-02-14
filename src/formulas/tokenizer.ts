@@ -98,7 +98,7 @@ function tokenizeNumber(chars: string[]): Token | null {
   if (digits.length) {
     return {
       type: "NUMBER",
-      value: parseFloat(digits.join(""))
+      value: digits.join("")
     };
   }
   return null;

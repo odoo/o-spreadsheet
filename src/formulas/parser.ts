@@ -1,4 +1,4 @@
-import { TokenType, Token, tokenize } from "./tokenizer";
+import { Token, tokenize } from "./tokenizer";
 import { functions } from "../functions/index";
 
 const UNARY_OPERATORS = ["-"];
@@ -98,7 +98,6 @@ function bindingPower(token: Token): number {
   throw new Error("?");
 }
 
-const simpleTokens: TokenType[] = ["NUMBER", "STRING"];
 export const cellReference = new RegExp(/[A-Z]+[0-9]+/, "i");
 export const rangeReference = new RegExp(/^\s*[A-Z]+[0-9]+\s*(\s*:\s*[A-Z]+[0-9]+\s*)?$/, "i");
 
@@ -108,7 +107,10 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     next.debug = true;
     return next;
   }
-  if (simpleTokens.includes(current.type)) {
+  if (current.type === "NUMBER") {
+    return { type: current.type, value: parseFloat(current.value) } as AST;
+  }
+  if (current.type === "STRING") {
     return { type: current.type, value: current.value } as AST;
   }
   if (current.type === "SYMBOL") {
