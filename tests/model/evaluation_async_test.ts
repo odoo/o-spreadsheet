@@ -1,7 +1,26 @@
-import { GridModel } from "../../src/model/index";
-import { patchWaitFunction, nextTick } from "../helpers";
+import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { nextTick, patchWaitFunction } from "../helpers";
 
 const patch = patchWaitFunction();
+
+let timeHandlers: Function[] = [];
+GridModel.setTimeout = cb => {
+  timeHandlers.push(cb);
+};
+
+function clearTimers() {
+  let handlers = timeHandlers.slice();
+  timeHandlers = [];
+  for (let cb of handlers) {
+    cb();
+  }
+}
+
+async function waitForRecompute() {
+  patch.resolveAll();
+  await nextTick();
+  clearTimers();
+}
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {
@@ -15,10 +34,31 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A3"].async).toBe(true);
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(2);
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(3);
     expect(model.state.cells["A3"].value).toEqual(2);
+  });
+
+  test("async formulas in base data", async () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: { B2: { content: "=WAIT(3)" } }
+        }
+      ]
+    });
+
+    expect(model.state.cells["B2"].async).toBe(true);
+    expect(model.state.cells["B2"].value).toEqual("#LOADING");
+    let updates = 0;
+    model.on("update", null, () => updates++);
+    expect(updates).toBe(0);
+    await waitForRecompute();
+    expect(updates).toBe(1);
+    expect(model.state.cells["B2"].value).toEqual(3);
   });
 
   test("async formula, on update", async () => {
@@ -29,8 +69,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(33);
   });
 
@@ -41,14 +80,12 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
     // Inner wait is resolved
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
 
     // outer wait is resolved
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
 
     expect(model.state.cells["A2"].value).toEqual(3);
   });
@@ -62,8 +99,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(1);
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A1"].value).toEqual(3);
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(patch.calls.length).toBe(0);
@@ -80,8 +116,7 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
     expect(patch.calls.length).toBe(2);
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A1"].value).toEqual(3);
     expect(model.state.cells["A2"].value).toEqual(1);
     expect(model.state.cells["A3"].value).toEqual(4);
@@ -98,15 +133,12 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
     // We need two resolveAll, one for Wait(A2) and the second for (Wait(3 + 4))
-    patch.resolveAll();
-    await nextTick();
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
+    await waitForRecompute();
 
     expect(model.state.cells["A2"].value).toEqual(4);
     expect(model.state.cells["A3"].value).toEqual(9);
@@ -122,10 +154,50 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
     expect(model.state.cells["A3"].value).toEqual("#LOADING");
 
-    patch.resolveAll();
-    await nextTick();
+    await waitForRecompute();
+
     expect(model.state.cells["A1"].value).toEqual(1);
     expect(model.state.cells["A2"].value).toEqual(1);
     expect(model.state.cells["A3"].value).toEqual(1);
+  });
+
+  test("async formula, with another cell in sync error", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=A1");
+    model.setValue("A2", "=WAIT(3)");
+    let updateNbr = 0;
+    model.on("update", null, () => updateNbr++);
+
+    expect(model.state.cells["A2"].async).toBe(true);
+    expect(model.state.cells["A1"].value).toEqual("#CYCLE");
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+    expect(patch.calls.length).toBe(1);
+    updateNbr = 0;
+    await waitForRecompute();
+    // next assertion checks that the interface has properly been
+    // notified that the state did change
+    expect(updateNbr).toBe(1);
+    expect(model.state.cells["A2"].value).toEqual(3);
+  });
+
+  test("async formula and errors, scenario 1", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=WAIT(3)");
+    model.setValue("A2", "=A1 + CEILING(1,2,3,4,5)");
+
+    expect(model.state.cells["A2"].async).toBe(undefined);
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+
+    await waitForRecompute();
+
+    expect(model.state.cells["A2"].value).toEqual("#ERROR");
+
+    model.setValue("A1", "=WAIT(4)");
+
+    expect(model.state.cells["A2"].value).toEqual("#LOADING");
+
+    await waitForRecompute();
+
+    expect(model.state.cells["A2"].value).toEqual("#ERROR");
   });
 });
