@@ -59,7 +59,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
 
   if (arg.type.includes("NUMBER")) {
     code.push(`switch (typeof ${id}) {`);
-    if (arg.optional && arg.default) {
+    if (arg.optional && "default" in arg) {
       code.push(` case "undefined":`);
       code.push(`   ${name}[${i}] = ${arg.default ? arg.default : 0};`);
       code.push(`   break;`);
@@ -82,7 +82,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
     code.push(`   }`);
     code.push(`   break;`);
 
-    if (rangeType || !arg.optional || (arg.optional && arg.default)) {
+    if (rangeType || !arg.optional || (arg.optional && "default" in arg)) {
       code.push(`  case "object":`);
       if (!arg.optional || (arg.optional && arg.default)) {
         code.push(`    if (${id} === null) {`);

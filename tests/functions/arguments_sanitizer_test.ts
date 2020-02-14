@@ -112,6 +112,30 @@ describe("makeSanitizer", () => {
     expect(sanitizer([1, undefined])).toEqual([1, undefined]);
   });
 
+  test("two optional number arguments after another argument, with default values", () => {
+    const argList = args`
+      m (number) a number
+      n (number,optional,default=1) another number
+      p (number,optional,default=2) another number`;
+
+    const sanitizer = makeSanitizer(argList);
+    expect(sanitizer.toString()).toMatchSnapshot();
+
+    expect(sanitizer([111])).toEqual([111, 1, 2]);
+    expect(sanitizer([111, null, null])).toEqual([111, 0, 0]);
+    expect(sanitizer([111, null])).toEqual([111, 0, 2]);
+  });
+
+  test("a default value of 0", () => {
+    const argList = args`
+      m (number,optional,default=0) a number`;
+
+    const sanitizer = makeSanitizer(argList);
+    expect(sanitizer.toString()).toMatchSnapshot();
+
+    expect(sanitizer([])).toEqual([0]);
+  });
+
   test("a single boolean argument", () => {
     const argList = args`b (boolean) some boolean value`;
 

@@ -1,5 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`makeSanitizer a default value of 0 1`] = `
+"function anonymous(args
+) {
+if (args.length > 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
+}
+let _val_1 = args[0];
+switch (typeof _val_1) {
+ case \\"undefined\\":
+   args[0] = 0;
+   break;
+ case \\"boolean\\":
+   args[0] = _val_1 ? 1 : 0;
+   break;
+ case \\"string\\":
+   if (_val_1) {
+     let n = Number(_val_1);
+     if (isNaN(n)) {
+       throw new Error(\`Argument \\"m\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
+     } else {
+       args[0] = n;
+     }
+   } else {
+     args[0] = 0;
+   }
+   break;
+  case \\"object\\":
+    break;
+}
+return args;
+}"
+`;
+
 exports[`makeSanitizer a simple range of booleans 1`] = `
 "function anonymous(args
 ) {
@@ -429,6 +462,94 @@ for (let i = 0; i < _val_1.length; i++) {
     }
   }
 }
+    break;
+}
+return args;
+}"
+`;
+
+exports[`makeSanitizer two optional number arguments after another argument, with default values 1`] = `
+"function anonymous(args
+) {
+if (args.length < 1 || args.length > 3) {
+  throw new Error(\`Wrong number of arguments. Expected 3, but got \${args.length} argument(s) instead.\`);
+}
+let _val_1 = args[0];
+switch (typeof _val_1) {
+ case \\"boolean\\":
+   args[0] = _val_1 ? 1 : 0;
+   break;
+ case \\"string\\":
+   if (_val_1) {
+     let n = Number(_val_1);
+     if (isNaN(n)) {
+       throw new Error(\`Argument \\"m\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
+     } else {
+       args[0] = n;
+     }
+   } else {
+     args[0] = 0;
+   }
+   break;
+  case \\"object\\":
+    if (_val_1 === null) {
+      args[0] = 0;
+      break;
+    }
+    break;
+}
+let _val_2 = args[1];
+switch (typeof _val_2) {
+ case \\"undefined\\":
+   args[1] = 1;
+   break;
+ case \\"boolean\\":
+   args[1] = _val_2 ? 1 : 0;
+   break;
+ case \\"string\\":
+   if (_val_2) {
+     let n = Number(_val_2);
+     if (isNaN(n)) {
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_2}\\" is a text, and cannot be coerced to a number.\`);
+     } else {
+       args[1] = n;
+     }
+   } else {
+     args[1] = 0;
+   }
+   break;
+  case \\"object\\":
+    if (_val_2 === null) {
+      args[1] = 0;
+      break;
+    }
+    break;
+}
+let _val_3 = args[2];
+switch (typeof _val_3) {
+ case \\"undefined\\":
+   args[2] = 2;
+   break;
+ case \\"boolean\\":
+   args[2] = _val_3 ? 1 : 0;
+   break;
+ case \\"string\\":
+   if (_val_3) {
+     let n = Number(_val_3);
+     if (isNaN(n)) {
+       throw new Error(\`Argument \\"p\\" should be a number, but \\"\${_val_3}\\" is a text, and cannot be coerced to a number.\`);
+     } else {
+       args[2] = n;
+     }
+   } else {
+     args[2] = 0;
+   }
+   break;
+  case \\"object\\":
+    if (_val_3 === null) {
+      args[2] = 0;
+      break;
+    }
     break;
 }
 return args;
