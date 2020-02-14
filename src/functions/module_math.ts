@@ -142,15 +142,15 @@ export const functions: FunctionMap = {
   MOD: {
     description: `Modulo (remainder) operator.`,
     args: args`
-    dividend (number) The number to be divided to find the remainder.
-    divisor (number) The number to divide by.
+      dividend (number) The number to be divided to find the remainder.
+      divisor (number) The number to divide by.
     `,
     returns: ["NUMBER"],
     compute: function(dividend: number, divisor: number): number {
       if (divisor === 0) {
         throw new Error(`
-          Function MOD expects the parameter '${functions.DECIMAL.args[1].name}'
-          to be different from 0. Change '${functions.DECIMAL.args[1].name}' to 
+          Function MOD expects the parameter '${functions.MOD.args[1].name}'
+          to be different from 0. Change '${functions.MOD.args[1].name}' to 
           a value other than 0.`);
       }
       const modulus = dividend % divisor;
@@ -166,13 +166,47 @@ export const functions: FunctionMap = {
   ODD: {
     description: `Rounds a number up to the nearest odd integer.`,
     args: args`
-    value (number) The value to round to the next greatest odd number.
+      value (number) The value to round to the next greatest odd number.
     `,
     returns: ["NUMBER"],
     compute: function(value: number): number {
       let temp = Math.ceil(Math.abs(value));
       temp = temp & 1 ? temp : temp + 1;
       return value < 0 ? -temp : temp;
+    }
+  },
+
+  PI: {
+    description: `The number pi.`,
+    args: args`
+    `,
+    returns: ["NUMBER"],
+    compute: function(): number {
+      return Math.PI;
+    }
+  },
+
+  POWER: {
+    description: `A number raised to a power`,
+    args: args`
+      base (number) The number to raise to the exponent power.
+      exponent (number) The exponent to raise base to.
+    `,
+    returns: ["NUMBER"],
+    compute: function(base: number, exponent: number): number {
+      if (base >= 0) {
+        return Math.pow(base, exponent);
+      } else {
+        if (!Number.isInteger(exponent)) {
+          throw new Error(`
+            Function POWER expects the parameter '${functions.POWER.args[1].name}' 
+            to be an integer when parameter '${functions.POWER.args[0].name}' is negative.
+            Change '${functions.POWER.args[1].name}' 
+            from [${exponent}] to integer value.`);
+        } else {
+          return Math.pow(base, exponent);
+        }
+      }
     }
   },
 
