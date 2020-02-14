@@ -58,7 +58,6 @@ export function addFunction(name: string, descr: FunctionDescription) {
   }
 
   validateArguments(descr.args);
-
   functionMap[name] = protectFunction(descr.compute, descr.args);
   functions[name] = descr;
 }

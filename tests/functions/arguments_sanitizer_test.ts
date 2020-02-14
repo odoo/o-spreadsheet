@@ -9,42 +9,28 @@ describe("protectFunction", () => {
 });
 
 describe("makeSanitizer", () => {
-  let transformSanitizer = sanitizer => (...args) => {
-    let result;
-    sanitizer.call(
-      {
-        fn: (...r) => {
-          result = r;
-        }
-      },
-      ...args
-    );
-    return result;
-  };
-
   test("a single number argument", () => {
     const argList = args`n (number) some number`;
 
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
+    // const sanitizeArgs = transformSanitizer(sanitizer);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([false])).toEqual([0]);
+    expect(sanitizer([true])).toEqual([1]);
+    expect(sanitizer([undefined])).toEqual([0]);
+    expect(sanitizer([""])).toEqual([0]);
+    expect(sanitizer(["1"])).toEqual([1]);
+    expect(sanitizer(["-1"])).toEqual([-1]);
+    expect(sanitizer(["1.1"])).toEqual([1.1]);
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-    expect(sanitizeArgs(1)).toEqual([1]);
-    expect(sanitizeArgs(false)).toEqual([0]);
-    expect(sanitizeArgs(true)).toEqual([1]);
-    expect(sanitizeArgs(undefined)).toEqual([0]);
-    expect(sanitizeArgs("")).toEqual([0]);
-    expect(sanitizeArgs("1")).toEqual([1]);
-    expect(sanitizeArgs("-1")).toEqual([-1]);
-    expect(sanitizeArgs("1.1")).toEqual([1.1]);
-
-    expect(() => sanitizeArgs("ab")).toThrow(
+    expect(() => sanitizer(["ab"])).toThrow(
       'Argument "n" should be a number, but "ab" is a text, and cannot be coerced to a number.'
     );
-    expect(() => sanitizeArgs()).toThrow(
+    expect(() => sanitizer([])).toThrow(
       "Wrong number of arguments. Expected 1, but got 0 argument(s) instead."
     );
-    expect(() => sanitizeArgs(1, 2)).toThrow(
+    expect(() => sanitizer([1, 2])).toThrow(
       "Wrong number of arguments. Expected 1, but got 2 argument(s) instead."
     );
   });
@@ -55,12 +41,11 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-    expect(sanitizeArgs(1)).toEqual([1]);
-    expect(sanitizeArgs(false)).toEqual([0]);
-    expect(sanitizeArgs(true)).toEqual([1]);
-    expect(sanitizeArgs(undefined)).toEqual([undefined]);
-    expect(sanitizeArgs()).toEqual([undefined]);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([false])).toEqual([0]);
+    expect(sanitizer([true])).toEqual([1]);
+    expect(sanitizer([undefined])).toEqual([undefined]);
+    expect(sanitizer([])).toEqual([]);
   });
 
   test("an optional number argument with a default value", () => {
@@ -69,12 +54,11 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-    expect(sanitizeArgs(1)).toEqual([1]);
-    expect(sanitizeArgs(false)).toEqual([0]);
-    expect(sanitizeArgs(true)).toEqual([1]);
-    expect(sanitizeArgs(undefined)).toEqual([42]);
-    expect(sanitizeArgs()).toEqual([42]);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([false])).toEqual([0]);
+    expect(sanitizer([true])).toEqual([1]);
+    expect(sanitizer([undefined])).toEqual([42]);
+    expect(sanitizer([])).toEqual([42]);
   });
 
   test("repeating, non optional, number argument", () => {
@@ -83,17 +67,15 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
-    expect(() => sanitizeArgs()).toThrow(
+    expect(() => sanitizer([])).toThrow(
       "Wrong number of arguments. Expected 1, but got 0 argument(s) instead."
     );
 
-    expect(sanitizeArgs(1)).toEqual([1]);
-    expect(sanitizeArgs(1, false)).toEqual([1, 0]);
-    expect(sanitizeArgs("-1", 2, true)).toEqual([-1, 2, 1]);
-    expect(sanitizeArgs("-1", 2, undefined, true)).toEqual([-1, 2, 0, 1]);
-    expect(sanitizeArgs("-1", 2, true, undefined)).toEqual([-1, 2, 1, 0]);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([1, false])).toEqual([1, 0]);
+    expect(sanitizer(["-1", 2, true])).toEqual([-1, 2, 1]);
+    expect(sanitizer(["-1", 2, undefined, true])).toEqual([-1, 2, 0, 1]);
+    expect(sanitizer(["-1", 2, true, undefined])).toEqual([-1, 2, 1, 0]);
   });
 
   test("repeating, optional, number argument", () => {
@@ -102,14 +84,12 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
-    expect(sanitizeArgs()).toEqual([]);
-    expect(sanitizeArgs(1)).toEqual([1]);
-    expect(sanitizeArgs(1, false)).toEqual([1, 0]);
-    expect(sanitizeArgs("-1", 2, true)).toEqual([-1, 2, 1]);
-    expect(sanitizeArgs("-1", 2, undefined, true)).toEqual([-1, 2, 0, 1]);
-    expect(sanitizeArgs("-1", 2, true, undefined)).toEqual([-1, 2, 1, 0]);
+    expect(sanitizer([])).toEqual([]);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([1, false])).toEqual([1, 0]);
+    expect(sanitizer(["-1", 2, true])).toEqual([-1, 2, 1]);
+    expect(sanitizer(["-1", 2, undefined, true])).toEqual([-1, 2, 0, 1]);
+    expect(sanitizer(["-1", 2, true, undefined])).toEqual([-1, 2, 1, 0]);
   });
 
   test("an optional number argument after another argument", () => {
@@ -120,12 +100,10 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
-    expect(sanitizeArgs(1)).toEqual([1, undefined]);
-    expect(sanitizeArgs(1, false)).toEqual([1, 0]);
-    expect(sanitizeArgs(false, true)).toEqual([0, 1]);
-    expect(sanitizeArgs(1, undefined)).toEqual([1, undefined]);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([1, false])).toEqual([1, 0]);
+    expect(sanitizer([false, true])).toEqual([0, 1]);
+    expect(sanitizer([1, undefined])).toEqual([1, undefined]);
   });
 
   test("a single boolean argument", () => {
@@ -134,21 +112,19 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
-    expect(sanitizeArgs(1)).toEqual([true]);
-    expect(sanitizeArgs(0)).toEqual([false]);
-    expect(sanitizeArgs(true)).toEqual([true]);
-    expect(sanitizeArgs(false)).toEqual([false]);
-    expect(sanitizeArgs(undefined)).toEqual([false]);
-    expect(sanitizeArgs("")).toEqual([false]);
-    expect(sanitizeArgs("false")).toEqual([false]);
-    expect(sanitizeArgs("true")).toEqual([true]);
-    expect(sanitizeArgs("TRUE")).toEqual([true]);
-    expect(() => sanitizeArgs("abc")).toThrow(
+    expect(sanitizer([1])).toEqual([true]);
+    expect(sanitizer([0])).toEqual([false]);
+    expect(sanitizer([true])).toEqual([true]);
+    expect(sanitizer([false])).toEqual([false]);
+    expect(sanitizer([undefined])).toEqual([false]);
+    expect(sanitizer([""])).toEqual([false]);
+    expect(sanitizer(["false"])).toEqual([false]);
+    expect(sanitizer(["true"])).toEqual([true]);
+    expect(sanitizer(["TRUE"])).toEqual([true]);
+    expect(() => sanitizer(["abc"])).toThrow(
       'Argument "b" should be a boolean, but "abc" is a text, and cannot be coerced to a boolean.'
     );
-    expect(() => sanitizeArgs("1")).toThrow(
+    expect(() => sanitizer(["1"])).toThrow(
       'Argument "b" should be a boolean, but "1" is a text, and cannot be coerced to a boolean.'
     );
   });
@@ -159,13 +135,11 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
-    expect(sanitizeArgs("abc")).toEqual(["abc"]);
-    expect(sanitizeArgs(1)).toEqual(["1"]);
-    expect(sanitizeArgs(false)).toEqual(["FALSE"]);
-    expect(sanitizeArgs(true)).toEqual(["TRUE"]);
-    expect(sanitizeArgs(undefined)).toEqual([""]);
+    expect(sanitizer(["abc"])).toEqual(["abc"]);
+    expect(sanitizer([1])).toEqual(["1"]);
+    expect(sanitizer([false])).toEqual(["FALSE"]);
+    expect(sanitizer([true])).toEqual(["TRUE"]);
+    expect(sanitizer([undefined])).toEqual([""]);
   });
 
   test("a simple untyped range argument", () => {
@@ -173,18 +147,16 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
     const m1: Range<number> = [[1, 2]]; // one column with 1 2
-    expect(sanitizeArgs(m1)).toEqual([m1]);
+    expect(sanitizer([m1])).toEqual([m1]);
 
     const m2 = [
       [undefined, undefined],
       ["abc", true]
     ];
-    expect(sanitizeArgs(m2)).toEqual([m2]);
+    expect(sanitizer([m2])).toEqual([m2]);
 
-    expect(() => sanitizeArgs(1)).toThrow('Argument "r" has the wrong type');
+    expect(() => sanitizer([1])).toThrow('Argument "r" has the wrong type');
   });
 
   test("a simple range of numbers", () => {
@@ -192,10 +164,8 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
-
     const m1 = [[1, 2]]; // one column with 1 2
-    expect(sanitizeArgs(m1)).toEqual([m1]);
+    expect(sanitizer([m1])).toEqual([m1]);
 
     const m2 = [
       [undefined, 3],
@@ -205,9 +175,9 @@ describe("makeSanitizer", () => {
       [undefined, 3],
       [undefined, 1]
     ];
-    expect(sanitizeArgs(m2)).toEqual([m2_number]);
+    expect(sanitizer([m2])).toEqual([m2_number]);
 
-    expect(() => sanitizeArgs(1)).toThrow('Argument "r" has the wrong type');
+    expect(() => sanitizer([1])).toThrow('Argument "r" has the wrong type');
   });
 
   test("a simple range of booleans", () => {
@@ -215,9 +185,8 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
     const m1: Range<boolean> = [[true, false]];
-    expect(sanitizeArgs(m1)).toEqual([m1]);
+    expect(sanitizer([m1])).toEqual([m1]);
 
     const m2 = [
       [undefined, 3],
@@ -227,9 +196,9 @@ describe("makeSanitizer", () => {
       [undefined, undefined],
       [true, undefined]
     ];
-    expect(sanitizeArgs(m2)).toEqual([m2_number]);
+    expect(sanitizer([m2])).toEqual([m2_number]);
 
-    expect(() => sanitizeArgs(1)).toThrow('Argument "r" has the wrong type');
+    expect(() => sanitizer([1])).toThrow('Argument "r" has the wrong type');
   });
 
   test("a simple range of strings", () => {
@@ -237,9 +206,8 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
     const m1 = [["a", "b"]]; // one column with 1 2
-    expect(sanitizeArgs(m1)).toEqual([m1]);
+    expect(sanitizer([m1])).toEqual([m1]);
 
     const m2 = [
       [undefined, 3],
@@ -249,9 +217,9 @@ describe("makeSanitizer", () => {
       [undefined, undefined],
       ["abc", undefined]
     ];
-    expect(sanitizeArgs(m2)).toEqual([m2_number]);
+    expect(sanitizer([m2])).toEqual([m2_number]);
 
-    expect(() => sanitizeArgs(1)).toThrow('Argument "r" has the wrong type');
+    expect(() => sanitizer([1])).toThrow('Argument "r" has the wrong type');
   });
 
   test("number or range of numbers", () => {
@@ -259,29 +227,27 @@ describe("makeSanitizer", () => {
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
 
-    const sanitizeArgs = transformSanitizer(sanitizer);
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([false])).toEqual([0]);
+    expect(sanitizer([true])).toEqual([1]);
+    expect(sanitizer([undefined])).toEqual([0]);
+    expect(sanitizer([""])).toEqual([0]);
+    expect(sanitizer(["1"])).toEqual([1]);
+    expect(sanitizer(["-1"])).toEqual([-1]);
+    expect(sanitizer(["1.1"])).toEqual([1.1]);
 
-    expect(sanitizeArgs(1)).toEqual([1]);
-    expect(sanitizeArgs(false)).toEqual([0]);
-    expect(sanitizeArgs(true)).toEqual([1]);
-    expect(sanitizeArgs(undefined)).toEqual([0]);
-    expect(sanitizeArgs("")).toEqual([0]);
-    expect(sanitizeArgs("1")).toEqual([1]);
-    expect(sanitizeArgs("-1")).toEqual([-1]);
-    expect(sanitizeArgs("1.1")).toEqual([1.1]);
-
-    expect(() => sanitizeArgs("ab")).toThrow(
+    expect(() => sanitizer(["ab"])).toThrow(
       'Argument "n" should be a number, but "ab" is a text, and cannot be coerced to a number.'
     );
-    expect(() => sanitizeArgs()).toThrow(
+    expect(() => sanitizer([])).toThrow(
       "Wrong number of arguments. Expected 1, but got 0 argument(s) instead."
     );
-    expect(() => sanitizeArgs(1, 2)).toThrow(
+    expect(() => sanitizer([1, 2])).toThrow(
       "Wrong number of arguments. Expected 1, but got 2 argument(s) instead."
     );
 
     const m1 = [[1, 2]]; // one column with 1 2
-    expect(sanitizeArgs(m1)).toEqual([m1]);
+    expect(sanitizer([m1])).toEqual([m1]);
 
     const m2 = [
       [undefined, 3],
@@ -291,6 +257,31 @@ describe("makeSanitizer", () => {
       [undefined, 3],
       [undefined, 1]
     ];
-    expect(sanitizeArgs(m2)).toEqual([m2_number]);
+    expect(sanitizer([m2])).toEqual([m2_number]);
+  });
+
+  test("string or range of strings", () => {
+    const argList = args`s (string,range<string>) some string values`;
+    const sanitizer = makeSanitizer(argList);
+    expect(sanitizer.toString()).toMatchSnapshot();
+
+    expect(sanitizer(["abc"])).toEqual(["abc"]);
+    expect(sanitizer([1])).toEqual(["1"]);
+    expect(sanitizer([false])).toEqual(["FALSE"]);
+    expect(sanitizer([true])).toEqual(["TRUE"]);
+    expect(sanitizer([undefined])).toEqual([""]);
+
+    const m1 = [["a", "b"]]; // one column with 1 2
+    expect(sanitizer([m1])).toEqual([m1]);
+
+    const m2 = [
+      [undefined, 3],
+      ["abc", 1]
+    ];
+    const m2_number = [
+      [undefined, undefined],
+      ["abc", undefined]
+    ];
+    expect(sanitizer([m2])).toEqual([m2_number]);
   });
 });

@@ -1,299 +1,311 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`makeSanitizer a simple range of booleans 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-if (!(arg0 instanceof Array)) {
+let _val_1 = args[0];
+if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"r\\" has the wrong type\`);
 }
-for (let i = 0; i < arg0.length; i++) {
-  let col = arg0[i];
+for (let i = 0; i < _val_1.length; i++) {
+  let col = _val_1[i];
   for (let j = 0; j < col.length; j++) {
     if (typeof col[j] !== \\"boolean\\") {
       col[j] = undefined;
     }
   }
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer a simple range of numbers 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-if (!(arg0 instanceof Array)) {
+let _val_1 = args[0];
+if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"r\\" has the wrong type\`);
 }
-for (let i = 0; i < arg0.length; i++) {
-  let col = arg0[i];
+for (let i = 0; i < _val_1.length; i++) {
+  let col = _val_1[i];
   for (let j = 0; j < col.length; j++) {
     if (typeof col[j] !== \\"number\\") {
       col[j] = undefined;
     }
   }
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer a simple range of strings 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-if (!(arg0 instanceof Array)) {
+let _val_1 = args[0];
+if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"r\\" has the wrong type\`);
 }
-for (let i = 0; i < arg0.length; i++) {
-  let col = arg0[i];
+for (let i = 0; i < _val_1.length; i++) {
+  let col = _val_1[i];
   for (let j = 0; j < col.length; j++) {
     if (typeof col[j] !== \\"string\\") {
       col[j] = undefined;
     }
   }
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer a simple untyped range argument 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-if (!(arg0 instanceof Array)) {
+let _val_1 = args[0];
+if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"r\\" has the wrong type\`);
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer a single boolean argument 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0 = false;
+   args[0] = false;
    break;
  case \\"number\\":
-   arg0 = arg0 ? true : false;
+   args[0] = _val_1 ? true : false;
    break;
  case \\"string\\":
-   if (arg0) {
-     let uppercaseVal = arg0.toUpperCase();
+   if (args[0]) {
+     let uppercaseVal = _val_1.toUpperCase();
      if (uppercaseVal === \\"TRUE\\") {
-       arg0 = true;
+       args[0] = true;
      } else if (uppercaseVal === \\"FALSE\\") {
-       arg0 = false;
+       args[0] = false;
      } else {
-       throw new Error(\`Argument \\"b\\" should be a boolean, but \\"\${arg0}\\" is a text, and cannot be coerced to a boolean.\`);
+       throw new Error(\`Argument \\"b\\" should be a boolean, but \\"\${_val_1}\\" is a text, and cannot be coerced to a boolean.\`);
      }
    } else {
-     arg0 = false;
+     args[0] = false;
    }
    break;
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer a single number argument 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0 = 0;
+   args[0] = 0;
    break;
  case \\"boolean\\":
-   arg0 = arg0 ? 1 : 0;
+   args[0] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0) {
-     let n = Number(arg0);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg0}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0 = n;
+       args[0] = n;
      }
    } else {
-     arg0 = 0;
+     args[0] = 0;
    }
    break;
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer a single string argument 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0 = \\"\\";
+   args[0] = \\"\\";
    break;
  case \\"number\\":
-   arg0 = arg0.toString();
+   args[0] = _val_1.toString();
    break;
  case \\"boolean\\":
-   arg0 = arg0 ? \\"TRUE\\" : \\"FALSE\\";
+   args[0] = _val_1 ? \\"TRUE\\" : \\"FALSE\\";
    break;
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer an optional number argument 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length > 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length > 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"boolean\\":
-   arg0 = arg0 ? 1 : 0;
+   args[0] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0) {
-     let n = Number(arg0);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg0}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0 = n;
+       args[0] = n;
      }
    } else {
-     arg0 = 0;
+     args[0] = 0;
    }
    break;
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer an optional number argument after another argument 1`] = `
-"function anonymous(arg0,arg1
+"function anonymous(args
 ) {
-if (arguments.length < 1 || arguments.length > 2) {
-  throw new Error(\`Wrong number of arguments. Expected 2, but got \${arguments.length} argument(s) instead.\`);
+if (args.length < 1 || args.length > 2) {
+  throw new Error(\`Wrong number of arguments. Expected 2, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0 = 0;
+   args[0] = 0;
    break;
  case \\"boolean\\":
-   arg0 = arg0 ? 1 : 0;
+   args[0] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0) {
-     let n = Number(arg0);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"m\\" should be a number, but \\"\${arg0}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"m\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0 = n;
+       args[0] = n;
      }
    } else {
-     arg0 = 0;
+     args[0] = 0;
    }
    break;
 }
-switch (typeof arg1) {
+let _val_2 = args[1];
+switch (typeof _val_2) {
  case \\"boolean\\":
-   arg1 = arg1 ? 1 : 0;
+   args[1] = _val_2 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg1) {
-     let n = Number(arg1);
+   if (_val_2) {
+     let n = Number(_val_2);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg1}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_2}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg1 = n;
+       args[1] = n;
      }
    } else {
-     arg1 = 0;
+     args[1] = 0;
    }
    break;
 }
-return this.fn(arg0,arg1);
+return args;
 }"
 `;
 
 exports[`makeSanitizer an optional number argument with a default value 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length > 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length > 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0 = 42;
+   args[0] = 42;
    break;
  case \\"boolean\\":
-   arg0 = arg0 ? 1 : 0;
+   args[0] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0) {
-     let n = Number(arg0);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg0}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0 = n;
+       args[0] = n;
      }
    } else {
-     arg0 = 0;
+     args[0] = 0;
    }
    break;
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer number or range of numbers 1`] = `
-"function anonymous(arg0
+"function anonymous(args
 ) {
-if (arguments.length !== 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-switch (typeof arg0) {
+let _val_1 = args[0];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0 = 0;
+   args[0] = 0;
    break;
  case \\"boolean\\":
-   arg0 = arg0 ? 1 : 0;
+   args[0] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0) {
-     let n = Number(arg0);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg0}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0 = n;
+       args[0] = n;
      }
    } else {
-     arg0 = 0;
+     args[0] = 0;
    }
    break;
   case \\"object\\":
-if (!(arg0 instanceof Array)) {
+if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"n\\" has the wrong type\`);
 }
-for (let i = 0; i < arg0.length; i++) {
-  let col = arg0[i];
+for (let i = 0; i < _val_1.length; i++) {
+  let col = _val_1[i];
   for (let j = 0; j < col.length; j++) {
     if (typeof col[j] !== \\"number\\") {
       col[j] = undefined;
@@ -302,71 +314,104 @@ for (let i = 0; i < arg0.length; i++) {
 }
     break;
 }
-return this.fn(arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer repeating, non optional, number argument 1`] = `
-"function anonymous(...arg0
+"function anonymous(args
 ) {
-if (arguments.length < 1) {
-  throw new Error(\`Wrong number of arguments. Expected 1, but got \${arguments.length} argument(s) instead.\`);
+if (args.length < 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
-for (let i = 0; i < arg0.length; i++) {
-let arg0_value = arg0[i];
-switch (typeof arg0_value) {
+for (let i = 0; i < args.length; i++) {
+let _val_1 = args[i];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0_value = 0;
+   args[i] = 0;
    break;
  case \\"boolean\\":
-   arg0_value = arg0_value ? 1 : 0;
+   args[i] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0_value) {
-     let n = Number(arg0_value);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg0_value}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0_value = n;
+       args[i] = n;
      }
    } else {
-     arg0_value = 0;
+     args[i] = 0;
    }
    break;
 }
-arg0[i] = arg0_value;
 }
-return this.fn(...arg0);
+return args;
 }"
 `;
 
 exports[`makeSanitizer repeating, optional, number argument 1`] = `
-"function anonymous(...arg0
+"function anonymous(args
 ) {
-for (let i = 0; i < arg0.length; i++) {
-let arg0_value = arg0[i];
-switch (typeof arg0_value) {
+for (let i = 0; i < args.length; i++) {
+let _val_1 = args[i];
+switch (typeof _val_1) {
  case \\"undefined\\":
-   arg0_value = 0;
+   args[i] = 0;
    break;
  case \\"boolean\\":
-   arg0_value = arg0_value ? 1 : 0;
+   args[i] = _val_1 ? 1 : 0;
    break;
  case \\"string\\":
-   if (arg0_value) {
-     let n = Number(arg0_value);
+   if (_val_1) {
+     let n = Number(_val_1);
      if (isNaN(n)) {
-       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${arg0_value}\\" is a text, and cannot be coerced to a number.\`);
+       throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
-       arg0_value = n;
+       args[i] = n;
      }
    } else {
-     arg0_value = 0;
+     args[i] = 0;
    }
    break;
 }
-arg0[i] = arg0_value;
 }
-return this.fn(...arg0);
+return args;
+}"
+`;
+
+exports[`makeSanitizer string or range of strings 1`] = `
+"function anonymous(args
+) {
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
+}
+let _val_1 = args[0];
+switch (typeof _val_1) {
+ case \\"undefined\\":
+   args[0] = \\"\\";
+   break;
+ case \\"number\\":
+   args[0] = _val_1.toString();
+   break;
+ case \\"boolean\\":
+   args[0] = _val_1 ? \\"TRUE\\" : \\"FALSE\\";
+   break;
+  case \\"object\\":
+if (!(_val_1 instanceof Array)) {
+   throw new Error(\`Argument \\"s\\" has the wrong type\`);
+}
+for (let i = 0; i < _val_1.length; i++) {
+  let col = _val_1[i];
+  for (let j = 0; j < col.length; j++) {
+    if (typeof col[j] !== \\"string\\") {
+      col[j] = undefined;
+    }
+  }
+}
+    break;
+}
+return args;
 }"
 `;

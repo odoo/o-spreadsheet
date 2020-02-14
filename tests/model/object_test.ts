@@ -1,4 +1,7 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { addFunction } from "../../src/functions";
+import { args } from "../../src/functions/arguments";
+import { CURRENT_VERSION, GridModel } from "../../src/model/index";
+import { resetFunctions } from "../helpers";
 
 describe("Object", () => {
   test("Add an object", () => {
@@ -61,5 +64,45 @@ describe("Object", () => {
     model.removeObject("A", "1");
     expect(Object.keys(model.state.objects)).toHaveLength(1);
     expect(Object.keys(model.state.objects["A"])).toHaveLength(0);
+  });
+});
+
+describe("Object functions", () => {
+  test("Can call getObject from a function", () => {
+    expect.assertions(2);
+    resetFunctions();
+    addFunction("TEST", {
+      description: "test with getObject",
+      args: args``,
+      compute: function() {
+        // @ts-ignore
+        expect(this.getObject).toBeDefined();
+        // @ts-ignore
+        expect(this.getObjects).toBeDefined();
+        return 1;
+      },
+      returns: ["ANY"]
+    });
+    const model = new GridModel();
+    model.setValue("A1", "=TEST()");
+  });
+
+  test("Can call getObject from a function with one arg", () => {
+    expect.assertions(2);
+    resetFunctions();
+    addFunction("TEST", {
+      description: "test with getObject",
+      args: args`n (number) some number`,
+      compute: function() {
+        // @ts-ignore
+        expect(this.getObject).toBeDefined();
+        // @ts-ignore
+        expect(this.getObjects).toBeDefined();
+        return 1;
+      },
+      returns: ["ANY"]
+    });
+    const model = new GridModel();
+    model.setValue("A1", "=TEST(3)");
   });
 });
