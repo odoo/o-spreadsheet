@@ -85,7 +85,7 @@ export class GridModel extends owl.core.EventBus {
           GridModel.setTimeout(recomputeCells, 15);
         }
       };
-      GridModel.setTimeout(recomputeCells, 15);
+      GridModel.setTimeout(recomputeCells, 5);
     }
   }
 

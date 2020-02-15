@@ -41,6 +41,15 @@ describe("core", () => {
 
     expect(formatCell(model.state, model.state.cells.A1)).toBe("0");
   });
+
+  test("format cell to a boolean value", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=false");
+    model.setValue("A2", "=true");
+
+    expect(formatCell(model.state, model.state.cells.A1)).toBe("FALSE");
+    expect(formatCell(model.state, model.state.cells.A2)).toBe("TRUE");
+  });
 });
 
 describe("history", () => {

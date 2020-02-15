@@ -21,6 +21,13 @@ export function selectedCell(state: GridState): Cell | null {
 }
 
 export function formatCell(state: GridState, cell: Cell): string {
+  if (cell.value === false) {
+    return "FALSE";
+  }
+  if (cell.value === true) {
+    return "TRUE";
+  }
+
   const value = cell.value || 0;
   // todo: apply formatters if needed
   if (cell.type !== "text") {
