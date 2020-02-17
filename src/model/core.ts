@@ -21,6 +21,9 @@ export function selectedCell(state: GridState): Cell | null {
 }
 
 export function formatCell(state: GridState, cell: Cell): string {
+  if (cell.value === "") {
+    return "";
+  }
   if (cell.value === false) {
     return "FALSE";
   }

@@ -42,6 +42,14 @@ describe("core", () => {
     expect(formatCell(model.state, model.state.cells.A1)).toBe("0");
   });
 
+  test("format cell without content: empty string", () => {
+    const model = new GridModel();
+    model.selectCell(1, 1); // B2
+    model.setBorder("bottom");
+
+    expect(formatCell(model.state, model.state.cells.B2)).toBe("");
+  });
+
   test("format cell to a boolean value", () => {
     const model = new GridModel();
     model.setValue("A1", "=false");
