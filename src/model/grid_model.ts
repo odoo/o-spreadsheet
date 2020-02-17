@@ -6,7 +6,7 @@ import * as formatting from "./formatting";
 import * as history from "./history";
 import { exportData, importData, PartialGridDataWithVersion } from "./import_export";
 import * as merges from "./merges";
-import * as object from "./object";
+import * as entity from "./entity";
 import * as resizing from "./resizing";
 import * as selection from "./selection";
 import * as sheet from "./sheet";
@@ -156,12 +156,12 @@ export class GridModel extends owl.core.EventBus {
   setColSize = this.makeMutation(resizing.setColSize);
   setRowSize = this.makeMutation(resizing.setRowSize);
 
-  // object
+  // entity
   // ---------------------------------------------------------------------------
-  addObject = this.makeFn(object.addObject);
-  removeObject = this.makeFn(object.removeObject);
-  getObject = this.makeFn(object.getObject);
-  getObjects = this.makeFn(object.getObjects);
+  addEntity = this.makeFn(entity.addEntity);
+  removeEntity = this.makeFn(entity.removeEntity);
+  getEntity = this.makeFn(entity.getEntity);
+  getEntities = this.makeFn(entity.getEntities);
 
   // export
   // ---------------------------------------------------------------------------

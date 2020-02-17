@@ -137,7 +137,7 @@ describe("complete import, then export", () => {
         name: "My sheet"
       }
     ],
-    objects: {},
+    entities: {},
     styles: {
       99: { bold: true, textColor: "#3A3791", fontSize: 12 }
     },

@@ -45,7 +45,7 @@ interface GridData {
   sheets?: SheetData[];
   styles?: { [key: number]: Style };
   borders?: { [key: number]: Border };
-  objects?: { [key: string]: { [key: string]: Object } };
+  entities?: { [key: string]: { [key: string]: any } };
 }
 
 // -----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
   const styles: GridState["styles"] = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
   const borders: GridState["borders"] = data.borders || {};
-  const objects: GridState["objects"] = data.objects || {};
+  const entities: GridState["entities"] = data.entities || {};
 
   // compute next id
   let nextId = 1;
@@ -92,7 +92,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
     cells: {},
     styles,
     borders,
-    objects,
+    entities: entities,
     merges: {},
     mergeCellMap: {},
     width: 0,
@@ -266,7 +266,7 @@ export function exportData(state: GridState): GridData {
   // styles and borders
   const styles: GridData["styles"] = state.styles || {};
   const borders: GridData["borders"] = state.borders || {};
-  const objects: GridData["objects"] = state.objects || {};
+  const entities: GridData["entities"] = state.entities || {};
 
   const sheets: SheetData[] = [];
   for (let sheet of state.sheets) {
@@ -294,6 +294,6 @@ export function exportData(state: GridState): GridData {
     sheets,
     styles,
     borders,
-    objects
+    entities: entities
   };
 }
