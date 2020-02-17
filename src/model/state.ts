@@ -25,7 +25,7 @@ export interface GridState {
   cells: { [key: string]: Cell };
   styles: { [key: number]: Style };
   borders: { [key: number]: Border };
-  objects: { [key: string]: { [key: string]: Object } };
+  entities: { [key: string]: { [key: string]: any } };
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
 
