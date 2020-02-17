@@ -17,6 +17,7 @@ abstract class AbstractResizer extends Component<any, any> {
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
   lastSelectedElement: number | null = null;
+  lastElement: number | null = null;
 
   state = useState({
     isActive: <boolean>false,
@@ -56,10 +57,7 @@ abstract class AbstractResizer extends Component<any, any> {
 
   abstract _fitElementSize(index: number): void;
 
-  onMouseMove(ev: MouseEvent) {
-    if (this.state.isResizing) {
-      return;
-    }
+  _computeHandleDisplay(ev: MouseEvent) {
     const index = this._getEvOffset(ev);
     const elementIndex = this._getElementIndex(index);
     if (elementIndex < 0) {
@@ -80,6 +78,21 @@ abstract class AbstractResizer extends Component<any, any> {
       this.state.activeElement = elementIndex;
     } else {
       this.state.isActive = false;
+    }
+  }
+
+  onMouseMove(ev: MouseEvent) {
+    if (this.state.isResizing) {
+      return;
+    }
+    if (this.lastElement !== null && ev.buttons > 0) {
+      const index = this._getElementIndex(this._getEvOffset(ev));
+      if (index !== this.lastElement) {
+        this._increaseSelection(index);
+        this.lastElement = index;
+      }
+    } else {
+      this._computeHandleDisplay(ev);
     }
   }
 
@@ -124,6 +137,7 @@ abstract class AbstractResizer extends Component<any, any> {
 
   select(ev: MouseEvent) {
     const index = this._getElementIndex(this._getEvOffset(ev));
+    this.lastElement = index;
     if (ev.shiftKey) {
       this._increaseSelection(index);
     } else {
@@ -131,11 +145,16 @@ abstract class AbstractResizer extends Component<any, any> {
       this._selectElement(index, ev.ctrlKey);
     }
   }
+
+  onMouseUp(ev: MouseEvent) {
+    this.lastElement = null;
+  }
 }
 
 class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select">
+    <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select"
+      t-on-mouseup.self="onMouseUp">
       <t t-if="state.isActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick"
           t-attf-style="left:{{state.styleValue - 2}}px;">
