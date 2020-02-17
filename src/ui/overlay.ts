@@ -117,7 +117,9 @@ abstract class AbstractResizer extends Component<any, any> {
     const onMouseUp = ev => {
       this.state.isResizing = false;
       window.removeEventListener("mousemove", onMouseMove);
-      this._updateSize();
+      if (this.state.delta !== 0) {
+        this._updateSize();
+      }
     };
     const onMouseMove = ev => {
       this.state.delta = this._getClientPosition(ev) - initialIndex;
