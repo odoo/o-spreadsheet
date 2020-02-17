@@ -15,13 +15,13 @@ abstract class AbstractResizer extends Component<any, any> {
   model: GridModel = this.props.model;
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
-  MIN_ELT_SIZE: number = 0;
+  MIN_ELEMENT_SIZE: number = 0;
+  lastSelectedElement: number | null = null;
 
   state = useState({
     isActive: <boolean>false,
     isResizing: <boolean>false,
-    activeElt: <number>0,
-    activeElts: <Array<number>>[],
+    activeElement: <number>0,
     styleValue: <number>0,
     delta: <number>0
   });
@@ -52,6 +52,8 @@ abstract class AbstractResizer extends Component<any, any> {
 
   abstract _selectElement(index: number, ctrlKey: boolean): void;
 
+  abstract _increaseSelection(index: number): void;
+
   abstract _fitElementSize(index: number): void;
 
   onMouseMove(ev: MouseEvent) {
@@ -71,11 +73,11 @@ abstract class AbstractResizer extends Component<any, any> {
     ) {
       this.state.isActive = true;
       this.state.styleValue = this._getTopLeftValue(element) - offset - this._getHeaderSize();
-      this.state.activeElt = elementIndex - 1;
+      this.state.activeElement = elementIndex - 1;
     } else if (this._getBottomRightValue(element) - offset - index < this.PADDING) {
       this.state.isActive = true;
       this.state.styleValue = this._getBottomRightValue(element) - offset - this._getHeaderSize();
-      this.state.activeElt = elementIndex;
+      this.state.activeElement = elementIndex;
     } else {
       this.state.isActive = false;
     }
@@ -86,7 +88,7 @@ abstract class AbstractResizer extends Component<any, any> {
   }
 
   onDblClick() {
-    this._fitElementSize(this.state.activeElt);
+    this._fitElementSize(this.state.activeElement);
     this.state.isResizing = false;
   }
 
@@ -96,8 +98,8 @@ abstract class AbstractResizer extends Component<any, any> {
 
     const initialIndex = this._getClientPosition(ev);
     const styleValue = this.state.styleValue;
-    const size = this._getElementSize(this.state.activeElt);
-    const minSize = styleValue - size + this.MIN_ELT_SIZE;
+    const size = this._getElementSize(this.state.activeElement);
+    const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
     const onMouseUp = ev => {
       this.state.isResizing = false;
@@ -109,7 +111,7 @@ abstract class AbstractResizer extends Component<any, any> {
       this.state.styleValue = styleValue + this.state.delta;
       if (this.state.styleValue < minSize) {
         this.state.styleValue = minSize;
-        this.state.delta = this.MIN_ELT_SIZE - size;
+        this.state.delta = this.MIN_ELEMENT_SIZE - size;
       }
       if (this.state.styleValue > maxSize) {
         this.state.styleValue = maxSize;
@@ -122,11 +124,11 @@ abstract class AbstractResizer extends Component<any, any> {
 
   select(ev: MouseEvent) {
     const index = this._getElementIndex(this._getEvOffset(ev));
-    this._selectElement(index, ev.ctrlKey);
-    if (ev.ctrlKey) {
-      this.state.activeElts.push(index);
+    if (ev.shiftKey) {
+      this._increaseSelection(index);
     } else {
-      this.state.activeElts = [index];
+      this.lastSelectedElement = index;
+      this._selectElement(index, ev.ctrlKey);
     }
   }
 }
@@ -171,7 +173,7 @@ class ColResizer extends AbstractResizer {
     super(...arguments);
     this.PADDING = 15;
     this.MAX_SIZE_MARGIN = 90;
-    this.MIN_ELT_SIZE = MIN_COL_WIDTH;
+    this.MIN_ELEMENT_SIZE = MIN_COL_WIDTH;
   }
 
   _getEvOffset(ev: MouseEvent): number {
@@ -219,12 +221,15 @@ class ColResizer extends AbstractResizer {
   }
 
   _updateSize(): void {
-    const elts = this.state.activeElts.includes(this.state.activeElt) ? this.state.activeElts : [];
-    this.model.updateColsSize(this.state.activeElt, elts, this.state.delta);
+    this.model.updateColsSize(this.state.activeElement, this.state.delta);
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
     this.model.selectColumn(index, ctrlKey);
+  }
+
+  _increaseSelection(index: number): void {
+    this.model.increaseSelectColumn(index);
   }
 
   _fitElementSize(index: number): void {
@@ -273,7 +278,7 @@ class RowResizer extends AbstractResizer {
     super(...arguments);
     this.PADDING = 5;
     this.MAX_SIZE_MARGIN = 60;
-    this.MIN_ELT_SIZE = MIN_ROW_HEIGHT;
+    this.MIN_ELEMENT_SIZE = MIN_ROW_HEIGHT;
   }
 
   _getEvOffset(ev: MouseEvent): number {
@@ -321,12 +326,15 @@ class RowResizer extends AbstractResizer {
   }
 
   _updateSize(): void {
-    const elts = this.state.activeElts.includes(this.state.activeElt) ? this.state.activeElts : [];
-    this.model.updateRowsSize(this.state.activeElt, elts, this.state.delta);
+    this.model.updateRowsSize(this.state.activeElement, this.state.delta);
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
     this.model.selectRow(index, ctrlKey);
+  }
+
+  _increaseSelection(index: number): void {
+    this.model.increaseSelectRow(index);
   }
 
   _fitElementSize(index: number): void {

@@ -38,7 +38,7 @@ export function numberToLetters(n: number): string {
  *     'Z' => 25
  *     'AA' => 26
  */
-function lettersToNumber(letters: string): number {
+export function lettersToNumber(letters: string): number {
   let result = 0;
   const l = letters.length;
   for (let i = 0; i < l; i++) {

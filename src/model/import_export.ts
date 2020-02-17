@@ -104,7 +104,12 @@ export function importData(data: PartialGridDataWithVersion): GridState {
     scrollTop: 0,
     scrollLeft: 0,
     viewport: { top: 0, left: 0, bottom: 0, right: 0 },
-    selection: { zones: [{ top: 0, left: 0, bottom: 0, right: 0 }], anchor: { col: 0, row: 0 } },
+    selection: {
+      zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
+      anchor: { col: 0, row: 0 },
+      activeCols: new Set(),
+      activeRows: new Set()
+    },
     activeCol: 0,
     activeRow: 0,
     activeXc: "A1",

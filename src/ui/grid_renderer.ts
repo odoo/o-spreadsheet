@@ -57,7 +57,27 @@ function drawHeader() {
     ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
     ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
   }
+  // Rows/Cols selected
+  ctx.fillStyle = "#595959";
+  for (let index of selection.activeCols) {
+    const x1 = Math.max(HEADER_WIDTH, cols[index].left - offsetX);
+    const x2 = Math.max(HEADER_WIDTH, cols[index].right - offsetX);
+    const y1 = HEADER_HEIGHT;
+    const y2 = HEADER_HEIGHT;
+    ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+    ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+  }
+  for (let index of selection.activeRows) {
+    const x1 = HEADER_WIDTH;
+    const x2 = HEADER_WIDTH;
+    const y1 = Math.max(HEADER_HEIGHT, rows[index].top - offsetY);
+    const y2 = Math.max(HEADER_HEIGHT, rows[index].bottom - offsetY);
+    ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+    ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+  }
+
   // 2 main lines
+  ctx.fillStyle = "#dddddd";
   vLine(ctx, HEADER_WIDTH, height);
   hLine(ctx, HEADER_HEIGHT, width);
 
@@ -65,6 +85,11 @@ function drawHeader() {
   // column text + separator
   for (let i = left; i <= right; i++) {
     const col = cols[i];
+    if (selection.activeCols.has(i)) {
+      ctx.fillStyle = "#fff";
+    } else {
+      ctx.fillStyle = "#111";
+    }
     ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
     vLine(ctx, col.right - offsetX, HEADER_HEIGHT);
   }
@@ -72,6 +97,11 @@ function drawHeader() {
   // row text + separator
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
+    if (selection.activeRows.has(i)) {
+      ctx.fillStyle = "#fff";
+    } else {
+      ctx.fillStyle = "#111";
+    }
     ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
     hLine(ctx, row.bottom - offsetY, HEADER_WIDTH);
   }

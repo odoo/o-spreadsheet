@@ -55,7 +55,8 @@ describe("Model resizer", () => {
 
     const size = model.state.cols[0].size;
 
-    model.updateColsSize(1, [3, 4], 100);
+    model.state.selection.activeCols = new Set([1, 3, 4]);
+    model.updateColsSize(1, 100);
 
     expect(model.state.cols[1].size).toBe(size + 100);
     expect(model.state.cols[3].size).toBe(size + 100);
@@ -69,7 +70,8 @@ describe("Model resizer", () => {
 
     const size = model.state.rows[0].size;
 
-    model.updateRowsSize(1, [3, 4], 100);
+    model.state.selection.activeRows = new Set([1, 3, 4]);
+    model.updateRowsSize(1, 100);
 
     expect(model.state.rows[1].size).toBe(size + 100);
     expect(model.state.rows[3].size).toBe(size + 100);
