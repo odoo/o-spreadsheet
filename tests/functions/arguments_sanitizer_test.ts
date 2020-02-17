@@ -299,7 +299,7 @@ describe("makeSanitizer", () => {
     expect(sanitizer([1])).toEqual(["1"]);
     expect(sanitizer([false])).toEqual(["FALSE"]);
     expect(sanitizer([true])).toEqual(["TRUE"]);
-    expect(sanitizer([undefined])).toEqual([""]);
+    expect(sanitizer([null])).toEqual([""]);
 
     const m1 = [["a", "b"]]; // one column with 1 2
     expect(sanitizer([m1])).toEqual([m1]);
