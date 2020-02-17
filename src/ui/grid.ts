@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../constants";
+import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, SCROLLBAR_WIDTH, DEFAULT_CELL_HEIGHT } from "../constants";
 import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { Overlay } from "./overlay";
@@ -35,7 +35,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-dblclick="onDoubleClick"
       t-on-keydown="onKeydown" tabindex="-1"
       t-on-contextmenu="toggleContextMenu"
-      t-on-mousewheel="onMouseWheel" />
+      t-on-wheel="onMouseWheel" />
     <Overlay model="model" t-on-autoresize="onAutoresize"/>
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
@@ -74,9 +74,11 @@ const CSS = css/* scss */ `
         right: 0;
         top: ${SCROLLBAR_WIDTH + 1}px;
         bottom: 15px;
+        width: 15px;
       }
       &.horizontal {
         bottom: 0;
+        height: 15px;
         right: ${SCROLLBAR_WIDTH + 1}px;
         left: ${HEADER_WIDTH}px;
       }
@@ -181,11 +183,14 @@ export class Grid extends Component<any, any> {
     drawGrid(context, this.model, width, height);
   }
 
-  onMouseWheel(ev) {
+  onMouseWheel(ev: WheelEvent) {
+    function normalize(val: number): number {
+      return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
+    }
     const vScrollbar = this.vScrollbar.el!;
-    vScrollbar.scrollTop = vScrollbar.scrollTop + ev.deltaY;
+    vScrollbar.scrollTop = vScrollbar.scrollTop + normalize(ev.deltaY);
     const hScrollbar = this.hScrollbar.el!;
-    hScrollbar.scrollLeft = hScrollbar.scrollLeft + ev.deltaX;
+    hScrollbar.scrollLeft = hScrollbar.scrollLeft + normalize(ev.deltaX);
   }
 
   onAutoresize(ev: CustomEvent) {
