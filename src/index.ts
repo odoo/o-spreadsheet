@@ -5,7 +5,13 @@
  * the rollup.config.js file)
  */
 
+import { toXC, numberToLetters } from "./helpers";
+
 export const __info__ = {};
 export { Spreadsheet } from "./ui/spreadsheet";
 export { addFunction } from "./functions/index";
 export { args } from "./functions/arguments";
+export const utils = {
+  toXC,
+  numberToLetters
+};
