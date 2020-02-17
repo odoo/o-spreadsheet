@@ -146,10 +146,18 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
     code.push(` case "boolean":`);
     code.push(`   ${name}[${i}] = ${id} ? "TRUE" : "FALSE";`);
     code.push(`   break;`);
-    if (rangeType) {
-      code.push(`  case "object":`);
-      sanitizeRange(code, id, arg, type);
-      code.push(`    break;`);
+    if (rangeType || !arg.optional || (arg.optional && "default" in arg)) {
+      code.push(` case "object":`);
+      if (!arg.optional || (arg.optional && arg.default)) {
+        code.push(`   if (${id} === null) {`);
+        code.push(`     ${name}[${i}] = "";`);
+        code.push(`     break;`);
+        code.push(`   }`);
+      }
+      if (rangeType) {
+        sanitizeRange(code, id, arg, type);
+      }
+      code.push(`   break;`);
     }
     code.push(`}`);
     return;

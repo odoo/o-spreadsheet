@@ -73,6 +73,9 @@ export const functions: FunctionMap = {
           to be between 2 and 36 inclusive. Change '${functions.DECIMAL.args[1].name}' 
           from [${base}] to value between 2 and 36.`);
       }
+      if (value === "") {
+        return 0;
+      }
       const error_parameter_2 = `
         Function DECIMAL expects the parameter '${functions.DECIMAL.args[0].name}' 
         to be a valid base ${base} representation. Change '${functions.DECIMAL.args[0].name}' 

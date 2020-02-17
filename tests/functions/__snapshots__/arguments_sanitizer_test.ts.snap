@@ -197,6 +197,12 @@ switch (typeof _val_1) {
  case \\"boolean\\":
    args[0] = _val_1 ? \\"TRUE\\" : \\"FALSE\\";
    break;
+ case \\"object\\":
+   if (_val_1 === null) {
+     args[0] = \\"\\";
+     break;
+   }
+   break;
 }
 return args;
 }"
@@ -450,7 +456,11 @@ switch (typeof _val_1) {
  case \\"boolean\\":
    args[0] = _val_1 ? \\"TRUE\\" : \\"FALSE\\";
    break;
-  case \\"object\\":
+ case \\"object\\":
+   if (_val_1 === null) {
+     args[0] = \\"\\";
+     break;
+   }
 if (!(_val_1 instanceof Array)) {
    throw new Error(\`Argument \\"s\\" has the wrong type\`);
 }
@@ -462,7 +472,7 @@ for (let i = 0; i < _val_1.length; i++) {
     }
   }
 }
-    break;
+   break;
 }
 return args;
 }"
