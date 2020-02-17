@@ -434,4 +434,18 @@ describe("Cols/Rows selections", () => {
     expect(model.state.rows[4].size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.state.rows[5].size).toBe(1000);
   });
+
+  test("Select A, drag to C then ABC selected", async () => {
+    selectColumn("A");
+    const x = model.state.cols[2].left + 1;
+    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10, { buttons: 1 });
+    expect(model.state.selection.activeCols).toEqual(new Set([0, 1, 2]));
+  });
+
+  test("Select 1, drag to 3 then 123 selected", async () => {
+    selectRow(0);
+    const y = model.state.rows[2].top + 1;
+    triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y, { buttons: 1 });
+    expect(model.state.selection.activeRows).toEqual(new Set([0, 1, 2]));
+  });
 });
