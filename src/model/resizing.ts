@@ -45,16 +45,17 @@ export function updateRowSize(state: GridState, index: number, delta: number) {
  *
  * @param state GridState
  * @param base Index of the based column
- * @param all Indexes of the columns to update
  * @param delta Delta to add to the size of the based column
  */
-export function updateColsSize(state: GridState, base: number, all: Array<number>, delta: number) {
+export function updateColsSize(state: GridState, base: number, delta: number) {
   const { cols } = state;
   const col = cols[base];
   const size = col.size + delta;
   updateColSize(state, base, delta);
-  for (let col of all) {
-    updateColSize(state, col, size - cols[col].size);
+  if (state.selection.activeCols.has(base)) {
+    for (let col of state.selection.activeCols) {
+      updateColSize(state, col, size - cols[col].size);
+    }
   }
 }
 
@@ -65,16 +66,17 @@ export function updateColsSize(state: GridState, base: number, all: Array<number
  *
  * @param state GridState
  * @param base Index of the based row
- * @param all Indexes of the rows to update
  * @param delta Delta to add to the size of the based row
  */
-export function updateRowsSize(state: GridState, base: number, all: Array<number>, delta: number) {
+export function updateRowsSize(state: GridState, base: number, delta: number) {
   const { rows } = state;
   const row = rows[base];
   const size = row.size + delta;
   updateRowSize(state, base, delta);
-  for (let row of all) {
-    updateRowSize(state, row, size - rows[row].size);
+  if (state.selection.activeRows.has(base)) {
+    for (let row of state.selection.activeRows) {
+      updateRowSize(state, row, size - rows[row].size);
+    }
   }
 }
 

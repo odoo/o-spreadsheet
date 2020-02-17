@@ -64,35 +64,44 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   }
 }
 
-function selectColumnRow(
-  state: GridState,
-  type: string,
-  col: number,
-  row: number,
-  addToCurrent: boolean
-) {
+export function selectColumn(state: GridState, col: number, addToCurrent: boolean) {
   stopEditing(state);
-  activateCell(state, col, row);
+  activateCell(state, col, 0);
   const selection = {
-    top: row,
+    top: 0,
     left: col,
-    right: type === "col" ? col : state.cols.length - 1,
-    bottom: type === "col" ? state.rows.length - 1 : row
+    right: col,
+    bottom: state.rows.length - 1
   };
   state.selection.anchor = { col: state.activeCol, row: state.activeRow };
   if (addToCurrent) {
     state.selection.zones.push(selection);
+    state.selection.activeCols.add(col);
   } else {
     state.selection.zones = [selection];
+    state.selection.activeCols = new Set([col]);
+    state.selection.activeRows = new Set();
   }
 }
 
-export function selectColumn(state: GridState, col: number, addToCurrent: boolean) {
-  selectColumnRow(state, "col", col, 0, addToCurrent);
-}
-
 export function selectRow(state: GridState, row: number, addToCurrent: boolean) {
-  selectColumnRow(state, "row", 0, row, addToCurrent);
+  stopEditing(state);
+  activateCell(state, 0, row);
+  const selection = {
+    top: row,
+    left: 0,
+    right: state.cols.length - 1,
+    bottom: row
+  };
+  state.selection.anchor = { col: state.activeCol, row: state.activeRow };
+  if (addToCurrent) {
+    state.selection.zones.push(selection);
+    state.selection.activeRows.add(row);
+  } else {
+    state.selection.zones = [selection];
+    state.selection.activeCols = new Set();
+    state.selection.activeRows = new Set([row]);
+  }
 }
 
 export function selectAll(state: GridState) {
@@ -106,6 +115,8 @@ export function selectAll(state: GridState) {
   };
   state.selection.anchor = { col: state.activeCol, row: state.activeRow };
   state.selection.zones = [selection];
+  state.selection.activeCols = new Set([...Array(state.cols.length).keys()]);
+  state.selection.activeRows = new Set([...Array(state.rows.length).keys()]);
 }
 
 /**
@@ -129,4 +140,40 @@ export function updateSelection(state: GridState, col: number, row: number) {
  */
 export function setSelectingRange(state: GridState, isSelecting: boolean) {
   state.isSelectingRange = isSelecting;
+}
+
+export function increaseSelectColumn(state: GridState, col: number) {
+  const oldSelection = state.selection.zones[state.selection.zones.length - 1];
+  for (let i = oldSelection.left; i <= oldSelection.right; i++) {
+    state.selection.activeCols.delete(i);
+  }
+  const anchorCol = state.selection.anchor.col;
+  const zone: Zone = {
+    left: Math.min(anchorCol, col),
+    top: 0,
+    right: Math.max(anchorCol, col),
+    bottom: state.rows.length - 1
+  };
+  state.selection.zones[state.selection.zones.length - 1] = zone;
+  for (let i = zone.left; i <= zone.right; i++) {
+    state.selection.activeCols.add(i);
+  }
+}
+
+export function increaseSelectRow(state: GridState, row: number) {
+  const oldSelection = state.selection.zones[state.selection.zones.length - 1];
+  for (let i = oldSelection.top; i <= oldSelection.bottom; i++) {
+    state.selection.activeRows.delete(i);
+  }
+  const anchorRow = state.selection.anchor.row;
+  const zone: Zone = {
+    left: 0,
+    top: Math.min(anchorRow, row),
+    right: state.cols.length - 1,
+    bottom: Math.max(anchorRow, row)
+  };
+  state.selection.zones[state.selection.zones.length - 1] = zone;
+  for (let i = zone.top; i <= zone.bottom; i++) {
+    state.selection.activeRows.add(i);
+  }
 }

@@ -95,6 +95,8 @@ export interface Selection {
     row: number;
   };
   zones: Zone[];
+  activeCols: Set<number>;
+  activeRows: Set<number>;
 }
 
 export interface Style {

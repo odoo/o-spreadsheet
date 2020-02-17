@@ -191,6 +191,24 @@ export class Grid extends Component<any, any> {
   onAutoresize(ev: CustomEvent) {
     const index = ev.detail.index;
     const col = ev.detail.type === "col";
+    const activeElements = col ? this.state.selection.activeCols : this.state.selection.activeRows;
+    if (activeElements.has(index)) {
+      this._resizeElements(col, activeElements);
+    } else {
+      this._resizeElement(col, index);
+    }
+  }
+
+  _resizeElements(col, activeElts) {
+    for (let elt of activeElts) {
+      const size = getMaxSize(this.context!, this.model, col, elt);
+      if (size !== 0) {
+        col ? this.model.setColSize(elt, size) : this.model.setRowSize(elt, size);
+      }
+    }
+  }
+
+  _resizeElement(col, index) {
     const size = getMaxSize(this.context!, this.model, col, index);
     if (size !== 0) {
       col ? this.model.setColSize(index, size) : this.model.setRowSize(index, size);
