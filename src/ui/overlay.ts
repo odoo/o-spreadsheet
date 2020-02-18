@@ -85,15 +85,7 @@ abstract class AbstractResizer extends Component<any, any> {
     if (this.state.isResizing) {
       return;
     }
-    if (this.lastElement !== null && ev.buttons > 0) {
-      const index = this._getElementIndex(this._getEvOffset(ev));
-      if (index !== this.lastElement) {
-        this._increaseSelection(index);
-        this.lastElement = index;
-      }
-    } else {
-      this._computeHandleDisplay(ev);
-    }
+    this._computeHandleDisplay(ev);
   }
 
   onMouseLeave() {
@@ -146,6 +138,22 @@ abstract class AbstractResizer extends Component<any, any> {
       this.lastSelectedElement = index;
       this._selectElement(index, ev.ctrlKey);
     }
+    const initialIndex = this._getClientPosition(ev);
+    const initialOffset = this._getEvOffset(ev);
+    const onMouseMoveSelect = (ev: MouseEvent) => {
+      const offset = this._getClientPosition(ev) - initialIndex + initialOffset;
+      const index = this._getElementIndex(offset);
+      if (index !== this.lastElement && index !== -1) {
+        this._increaseSelection(index);
+        this.lastElement = index;
+      }
+    };
+    const onMouseUpSelect = (ev: MouseEvent) => {
+      window.removeEventListener("mousemove", onMouseMoveSelect);
+      this.lastElement = null;
+    };
+    window.addEventListener("mousemove", onMouseMoveSelect);
+    window.addEventListener("mouseup", onMouseUpSelect, { once: true });
   }
 
   onMouseUp(ev: MouseEvent) {
