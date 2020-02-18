@@ -16,7 +16,8 @@ export type TokenType =
   | "DEBUGGER"
   | "COMMA"
   | "LEFT_PAREN"
-  | "RIGHT_PAREN";
+  | "RIGHT_PAREN"
+  | "UNKNOWN";
 
 export interface Token {
   type: TokenType;
@@ -42,7 +43,7 @@ export function tokenize(str: string): Token[] {
       tokenizeSymbol(chars);
 
     if (!token) {
-      throw new Error(`Tokenizer error reading [${chars.join("")}]`);
+      token = { type: "UNKNOWN", value: chars.shift() };
     }
 
     result.push(token);
