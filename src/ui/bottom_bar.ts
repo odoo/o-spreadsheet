@@ -17,7 +17,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <t t-if="model.aggregate !== null">
       <span class="o-space"/>
-      <span class="o-aggregate" t-transition="fade">Sum: <t t-esc="model.aggregate"/></span>
+      <span class="o-aggregate">Sum: <t t-esc="model.aggregate"/></span>
     </t>
   </div>`;
 
