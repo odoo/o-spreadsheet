@@ -1,5 +1,6 @@
 import { GridState } from "./state";
 import { updateState } from "./history";
+import { getActiveCols, getActiveRows } from "./selection";
 
 /**
  * Update the size of the given column, by adding a delta (can be negative)
@@ -52,8 +53,9 @@ export function updateColsSize(state: GridState, base: number, delta: number) {
   const col = cols[base];
   const size = col.size + delta;
   updateColSize(state, base, delta);
-  if (state.selection.activeCols.has(base)) {
-    for (let col of state.selection.activeCols) {
+  const activeCols = getActiveCols(state);
+  if (activeCols.has(base)) {
+    for (let col of activeCols) {
       updateColSize(state, col, size - cols[col].size);
     }
   }
@@ -73,8 +75,9 @@ export function updateRowsSize(state: GridState, base: number, delta: number) {
   const row = rows[base];
   const size = row.size + delta;
   updateRowSize(state, base, delta);
-  if (state.selection.activeRows.has(base)) {
-    for (let row of state.selection.activeRows) {
+  const activeRows = getActiveRows(state);
+  if (activeRows.has(base)) {
+    for (let row of activeRows) {
       updateRowSize(state, row, size - rows[row].size);
     }
   }

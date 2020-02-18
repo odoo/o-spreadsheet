@@ -201,9 +201,7 @@ describe("selection", () => {
 
     expect(model.state.selection).toEqual({
       anchor: { col: 3, row: 3 },
-      zones: [{ left: 3, top: 3, right: 3, bottom: 3 }],
-      activeRows: new Set(),
-      activeCols: new Set()
+      zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
     });
   });
 
@@ -228,9 +226,7 @@ describe("selection", () => {
     expect(model.state.activeRow).toBe(2);
     expect(model.state.selection).toEqual({
       anchor: { col: 3, row: 3 },
-      zones: [{ left: 3, top: 3, right: 4, bottom: 4 }],
-      activeRows: new Set(),
-      activeCols: new Set()
+      zones: [{ left: 3, top: 3, right: 4, bottom: 4 }]
     });
   });
 });

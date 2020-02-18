@@ -55,7 +55,18 @@ describe("Model resizer", () => {
 
     const size = model.state.cols[0].size;
 
-    model.state.selection.activeCols = new Set([1, 3, 4]);
+    model.state.selection.zones[0] = {
+      top: 0,
+      bottom: 9,
+      left: 1,
+      right: 1
+    };
+    model.state.selection.zones[1] = {
+      top: 0,
+      bottom: 9,
+      left: 3,
+      right: 4
+    };
     model.updateColsSize(1, 100);
 
     expect(model.state.cols[1].size).toBe(size + 100);
@@ -70,7 +81,18 @@ describe("Model resizer", () => {
 
     const size = model.state.rows[0].size;
 
-    model.state.selection.activeRows = new Set([1, 3, 4]);
+    model.state.selection.zones[0] = {
+      top: 1,
+      bottom: 1,
+      left: 0,
+      right: 9
+    };
+    model.state.selection.zones[1] = {
+      top: 3,
+      bottom: 4,
+      left: 0,
+      right: 9
+    };
     model.updateRowsSize(1, 100);
 
     expect(model.state.rows[1].size).toBe(size + 100);

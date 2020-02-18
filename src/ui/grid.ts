@@ -1,5 +1,10 @@
 import * as owl from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, SCROLLBAR_WIDTH, DEFAULT_CELL_HEIGHT } from "../constants";
+import {
+  BACKGROUND_GRAY_COLOR,
+  HEADER_WIDTH,
+  SCROLLBAR_WIDTH,
+  DEFAULT_CELL_HEIGHT
+} from "../constants";
 import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { Overlay } from "./overlay";
@@ -196,7 +201,7 @@ export class Grid extends Component<any, any> {
   onAutoresize(ev: CustomEvent) {
     const index = ev.detail.index;
     const col = ev.detail.type === "col";
-    const activeElements = col ? this.state.selection.activeCols : this.state.selection.activeRows;
+    const activeElements = col ? this.model.getActiveCols() : this.model.getActiveRows();
     if (activeElements.has(index)) {
       this._resizeElements(col, activeElements);
     } else {

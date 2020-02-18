@@ -247,53 +247,53 @@ describe("Resizer component", () => {
   test("Select B, shift D then BCD selected", () => {
     selectColumn("B");
     selectColumn("D", { shiftKey: true });
-    expect(model.state.selection.activeCols).toEqual(new Set([1, 2, 3]));
+    expect(model.getActiveCols()).toEqual(new Set([1, 2, 3]));
   });
 
   test("Select B, ctrl D then BD selected", () => {
     selectColumn("B");
     selectColumn("D", { ctrlKey: true });
-    expect(model.state.selection.activeCols).toEqual(new Set([1, 3]));
+    expect(model.getActiveCols()).toEqual(new Set([1, 3]));
   });
 
   test("Select 2, shift 4 then 234 selected", () => {
     selectRow(1);
     selectRow(3, { shiftKey: true });
-    expect(model.state.selection.activeRows).toEqual(new Set([1, 2, 3]));
+    expect(model.getActiveRows()).toEqual(new Set([1, 2, 3]));
   });
 
   test("Select 2, ctrl 4 then 24 selected", () => {
     selectRow(1);
     selectRow(3, { ctrlKey: true });
-    expect(model.state.selection.activeRows).toEqual(new Set([1, 3]));
+    expect(model.getActiveRows()).toEqual(new Set([1, 3]));
   });
 
   test("Select B, shift D, shift A then AB selected", () => {
     selectColumn("B");
     selectColumn("D", { shiftKey: true });
     selectColumn("A", { shiftKey: true });
-    expect(model.state.selection.activeCols).toEqual(new Set([0, 1]));
+    expect(model.getActiveCols()).toEqual(new Set([0, 1]));
   });
 
   test("Select 2, shift 4, shift 1 then 12 selected", () => {
     selectRow(1);
     selectRow(3, { shiftKey: true });
     selectRow(0, { shiftKey: true });
-    expect(model.state.selection.activeRows).toEqual(new Set([0, 1]));
+    expect(model.getActiveRows()).toEqual(new Set([0, 1]));
   });
 
   test("Select A, shift C, ctrl E then ABCE selected", () => {
     selectColumn("A");
     selectColumn("C", { shiftKey: true });
     selectColumn("E", { ctrlKey: true });
-    expect(model.state.selection.activeCols).toEqual(new Set([0, 1, 2, 4]));
+    expect(model.getActiveCols()).toEqual(new Set([0, 1, 2, 4]));
   });
 
   test("Select 1, shift 3, ctrl 5 then 1235 selected", () => {
     selectRow(0);
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
-    expect(model.state.selection.activeRows).toEqual(new Set([0, 1, 2, 4]));
+    expect(model.getActiveRows()).toEqual(new Set([0, 1, 2, 4]));
   });
 
   test("Select A, shift C, ctrl E, shift G then ABCEFG selected", () => {
@@ -302,7 +302,7 @@ describe("Resizer component", () => {
     selectColumn("E", { ctrlKey: true });
     selectColumn("G", { shiftKey: true });
 
-    expect(model.state.selection.activeCols).toEqual(new Set([0, 1, 2, 4, 5, 6]));
+    expect(model.getActiveCols()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
   });
 
   test("Select 1, shift 3, ctrl 5, shift 7 then 123567 selected", () => {
@@ -310,7 +310,7 @@ describe("Resizer component", () => {
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     selectRow(6, { shiftKey: true });
-    expect(model.state.selection.activeRows).toEqual(new Set([0, 1, 2, 4, 5, 6]));
+    expect(model.getActiveRows()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
   });
 
   test("Select A, shift C, ctrl 1, shift 3 then ABC123 selected", () => {
@@ -319,22 +319,22 @@ describe("Resizer component", () => {
     selectRow(0, { ctrlKey: true });
     selectRow(2, { shiftKey: true });
 
-    expect(model.state.selection.activeCols).toEqual(new Set([0, 1, 2]));
-    expect(model.state.selection.activeRows).toEqual(new Set([0, 1, 2]));
+    expect(model.getActiveCols()).toEqual(new Set([0, 1, 2]));
+    expect(model.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select A, ctrl C, shift E then ACDE selected", () => {
     selectColumn("A");
     selectColumn("C", { ctrlKey: true });
     selectColumn("E", { shiftKey: true });
-    expect(model.state.selection.activeCols).toEqual(new Set([0, 2, 3, 4]));
+    expect(model.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
   });
 
   test("Select 1, ctrl 3, shift 5 then 1345 selected", () => {
     selectRow(0);
     selectRow(2, { ctrlKey: true });
     selectRow(4, { shiftKey: true });
-    expect(model.state.selection.activeRows).toEqual(new Set([0, 2, 3, 4]));
+    expect(model.getActiveRows()).toEqual(new Set([0, 2, 3, 4]));
   });
 
   test("Select ABC E, dblclick E then resize all", async () => {
@@ -392,7 +392,7 @@ describe("Resizer component", () => {
     triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
     x = model.state.cols[2].left + 1;
     triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
-    expect(model.state.selection.activeCols).toEqual(new Set([0, 1, 2]));
+    expect(model.getActiveCols()).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select 1, drag to 3 then 123 selected", async () => {
@@ -400,6 +400,6 @@ describe("Resizer component", () => {
     triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
     y = model.state.rows[2].top + 1;
     triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
-    expect(model.state.selection.activeRows).toEqual(new Set([0, 1, 2]));
+    expect(model.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 });
