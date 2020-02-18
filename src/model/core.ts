@@ -1,7 +1,7 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatNumber } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
-import { compile } from "../formulas/index";
+import { compile, tokenize } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
@@ -323,6 +323,15 @@ export function stopEditing(state: GridState) {
       xc = state.merges[mergeId].topLeft;
     }
     if (state.currentContent) {
+      if (state.currentContent.startsWith("=")) {
+        const tokens = tokenize(state.currentContent);
+        const left = tokens.filter(t => t.type === "LEFT_PAREN").length;
+        const right = tokens.filter(t => t.type === "RIGHT_PAREN").length;
+        const missing = left - right;
+        if (missing > 0) {
+          state.currentContent += new Array(missing).fill(")").join("");
+        }
+      }
       addCell(state, xc, { content: state.currentContent });
     } else {
       deleteCell(state, xc);

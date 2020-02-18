@@ -123,6 +123,7 @@ export class Composer extends Component<any, any> {
   // modify the model anymore.
   isDone: boolean = false;
   refSelectionStart: number = 0;
+  tokens: ComposerToken[] = [];
 
   constructor() {
     super(...arguments);
@@ -322,13 +323,11 @@ export class Composer extends Component<any, any> {
       const refUsed = {};
       let lastUsedColorIndex = 0;
 
-      const tokens = composerTokenize(value);
-      this.tokenAtCursor = tokens.find(
+      this.tokens = composerTokenize(value);
+      this.tokenAtCursor = this.tokens.find(
         t => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
       );
-      for (let i = 0; i < tokens.length; i++) {
-        let token = tokens[i];
-
+      for (let token of this.tokens) {
         switch (token.type) {
           case "OPERATOR":
           case "NUMBER":
@@ -446,6 +445,20 @@ export class Composer extends Component<any, any> {
       if (this.tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(this.tokenAtCursor.type)) {
         this.selectionStart = this.tokenAtCursor.start;
         this.selectionEnd = this.tokenAtCursor.end;
+      }
+
+      if (this.autoCompleteState.provider === "functions") {
+        if (this.tokens.length && this.tokenAtCursor) {
+          const currentTokenIndex = this.tokens.indexOf(this.tokenAtCursor);
+          if (currentTokenIndex + 1 < this.tokens.length) {
+            const nextToken = this.tokens[currentTokenIndex + 1];
+            if (nextToken.type !== "LEFT_PAREN") {
+              value += "(";
+            }
+          } else {
+            value += "(";
+          }
+        }
       }
       this.addText(value);
     }
