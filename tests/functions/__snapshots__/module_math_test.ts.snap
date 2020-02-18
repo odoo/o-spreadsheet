@@ -1611,18 +1611,18 @@ exports[`math POWER(-4, 1.5) - error: take 2 parameter(s), return an error on pa
 
 exports[`math RANDBETWEEN(-24, -42) - error: take 2 parameter(s), return an error 1`] = `
 "
-          Function RANDBETWEEN parameter 'heigh' value 
+          Function RANDBETWEEN parameter 'high' value 
           is -42. It should be greater than or equal to [-24]."
 `;
 
 exports[`math RANDBETWEEN(1.1, 1.2) - error: take 2 parameter(s), return an error 1`] = `
 "
-          Function RANDBETWEEN parameter 'heigh' value 
+          Function RANDBETWEEN parameter 'high' value 
           is 1. It should be greater than or equal to [2]."
 `;
 
 exports[`math RANDBETWEEN(42, 24) - error: take 2 parameter(s), return an error 1`] = `
 "
-          Function RANDBETWEEN parameter 'heigh' value 
+          Function RANDBETWEEN parameter 'high' value 
           is 24. It should be greater than or equal to [42]."
 `;
