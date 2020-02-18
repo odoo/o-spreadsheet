@@ -54,25 +54,9 @@ function drawHeader() {
     const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
     const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
     const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].bottom - offsetY);
+    ctx.fillStyle = model.zoneIsEntireColumn(zone) ? "#595959" : "#dddddd";
     ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-    ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
-  }
-  // Rows/Cols selected
-  ctx.fillStyle = "#595959";
-  for (let index of selection.activeCols) {
-    const x1 = Math.max(HEADER_WIDTH, cols[index].left - offsetX);
-    const x2 = Math.max(HEADER_WIDTH, cols[index].right - offsetX);
-    const y1 = HEADER_HEIGHT;
-    const y2 = HEADER_HEIGHT;
-    ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-    ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
-  }
-  for (let index of selection.activeRows) {
-    const x1 = HEADER_WIDTH;
-    const x2 = HEADER_WIDTH;
-    const y1 = Math.max(HEADER_HEIGHT, rows[index].top - offsetY);
-    const y2 = Math.max(HEADER_HEIGHT, rows[index].bottom - offsetY);
-    ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+    ctx.fillStyle = model.zoneIsEntireRow(zone) ? "#595959" : "#dddddd";
     ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
   }
 
@@ -82,10 +66,11 @@ function drawHeader() {
   hLine(ctx, HEADER_HEIGHT, width);
 
   ctx.fillStyle = "#111";
+  const activeCols = model.getActiveCols();
   // column text + separator
   for (let i = left; i <= right; i++) {
     const col = cols[i];
-    if (selection.activeCols.has(i)) {
+    if (activeCols.has(i)) {
       ctx.fillStyle = "#fff";
     } else {
       ctx.fillStyle = "#111";
@@ -95,9 +80,10 @@ function drawHeader() {
   }
 
   // row text + separator
+  const activeRows = model.getActiveRows();
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
-    if (selection.activeRows.has(i)) {
+    if (activeRows.has(i)) {
       ctx.fillStyle = "#fff";
     } else {
       ctx.fillStyle = "#111";

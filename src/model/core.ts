@@ -375,8 +375,6 @@ export function selectCell(state: GridState, col: number, row: number, newRange:
     state.selection.zones.push(zone);
   } else {
     state.selection.zones = [zone];
-    state.selection.activeCols = new Set();
-    state.selection.activeRows = new Set();
   }
   state.selection.anchor.col = col;
   state.selection.anchor.row = row;

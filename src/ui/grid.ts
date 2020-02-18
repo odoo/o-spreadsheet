@@ -201,7 +201,7 @@ export class Grid extends Component<any, any> {
   onAutoresize(ev: CustomEvent) {
     const index = ev.detail.index;
     const col = ev.detail.type === "col";
-    const activeElements = col ? this.state.selection.activeCols : this.state.selection.activeRows;
+    const activeElements = col ? this.model.getActiveCols() : this.model.getActiveRows();
     if (activeElements.has(index)) {
       this._resizeElements(col, activeElements);
     } else {
