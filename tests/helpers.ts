@@ -146,7 +146,10 @@ HTMLCanvasElement.prototype.getContext = jest.fn(function() {
     rect() {},
     clip() {},
     restore() {},
-    setLineDash() {}
+    setLineDash() {},
+    measureText() {
+      return { width: 1 };
+    }
   };
 }) as any;
 interface Deferred extends Promise<any> {

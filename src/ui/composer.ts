@@ -84,7 +84,7 @@ const CSS = css/* scss */ `
       box-sizing: border-box;
       background-color: white;
       padding-left: 2px;
-      padding-right: 4px;
+      padding-right: 2px;
       border: 1.5px solid #3266ca;
       font-family: arial;
       white-space: nowrap;
@@ -156,7 +156,7 @@ export class Composer extends Component<any, any> {
     this.processContent();
 
     const width = cols[this.zone.right].right - cols[this.zone.left].left;
-    el.style.width = Math.max(el.scrollWidth + 3, width + 0.5) as any;
+    el.style.width = Math.max(el.scrollWidth + 10, width + 0.5) as any;
 
     const height = rows[this.zone.bottom].bottom - rows[this.zone.top].top + 1;
     el.style.height = height as any;
@@ -171,7 +171,7 @@ export class Composer extends Component<any, any> {
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 2;
-    const top = row.top - offsetY + 1;
+    const top = row.top - offsetY - 0.5;
     const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
@@ -182,11 +182,11 @@ export class Composer extends Component<any, any> {
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     const position =
       align === "left"
-        ? `left: ${col.left - offsetX}px;`
+        ? `left: ${col.left - offsetX - 1}px;`
         : `right: ${this.model.state.clientWidth -
-            (cols[this.zone.right].right - offsetX) -
-            2 +
-            SCROLLBAR_WIDTH}px;`;
+            (cols[this.zone.right].right - offsetX) +
+            SCROLLBAR_WIDTH +
+            0.5}px;`;
     return `${position}top:${top}px;height:${height}px;line-height:${height -
       1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
