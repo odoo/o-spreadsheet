@@ -80,6 +80,7 @@ const CSS = css/* scss */ `
     margin: 0;
     border: 0;
     .o-composer {
+      caret-color: black;
       box-sizing: border-box;
       background-color: white;
       padding-left: 2px;
