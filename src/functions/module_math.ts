@@ -76,7 +76,7 @@ export const functions: FunctionMap = {
       if (value === "") {
         return 0;
       }
-      const error_parameter_2 = `
+      const errorParameter2 = `
         Function DECIMAL expects the parameter '${functions.DECIMAL.args[0].name}' 
         to be a valid base ${base} representation. Change '${functions.DECIMAL.args[0].name}' 
         from [${value}] to valid base ${base} representation.
@@ -87,11 +87,11 @@ export const functions: FunctionMap = {
        * Remove '-?' in the next regex to catch this error.
        */
       if (!value.match(/^-?[a-z0-9]+$/i)) {
-        throw new Error(error_parameter_2);
+        throw new Error(errorParameter2);
       }
       const deci = parseInt(value, base);
       if (isNaN(deci)) {
-        throw new Error(error_parameter_2);
+        throw new Error(errorParameter2);
       }
       return deci;
     }
@@ -181,8 +181,7 @@ export const functions: FunctionMap = {
 
   PI: {
     description: `The number pi.`,
-    args: args`
-    `,
+    args: [],
     returns: ["NUMBER"],
     compute: function(): number {
       return Math.PI;
@@ -213,6 +212,105 @@ export const functions: FunctionMap = {
     }
   },
 
+  RAND: {
+    description: "A random number between 0 inclusive and 1 exclusive.",
+    args: [],
+    returns: ["NUMBER"],
+    compute: function(): number {
+      return Math.random();
+    }
+  },
+
+  RANDBETWEEN: {
+    description: "Random integer between two values, inclusive.",
+    args: args`
+      low (number) The low end of the random range.
+      high (number) The high end of the random range.
+    `,
+    returns: ["NUMBER"],
+    compute: function(low: number, high: number): number {
+      if (!Number.isInteger(low)) {
+        low = Math.ceil(low);
+      }
+      if (!Number.isInteger(high)) {
+        high = Math.floor(high);
+      }
+      if (high < low) {
+        throw new Error(`
+          Function RANDBETWEEN parameter '${functions.RANDBETWEEN.args[1].name}' value 
+          is ${high}. It should be greater than or equal to [${low}].`);
+      } else {
+        return low + Math.ceil((high - low + 1) * Math.random()) - 1;
+      }
+    }
+  },
+
+  ROUND: {
+    description: "Rounds a number according to standard rules.",
+    args: args`
+      value (number) The value to round to places number of places.
+      places (number, optional, default=0) The number of decimal places to which to round.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number, places: number): number {
+      const absValue = Math.abs(value);
+      let tempResult;
+      if (places === 0) {
+        tempResult = Math.round(absValue);
+      } else {
+        if (!Number.isInteger(places)) {
+          places = places > 0 ? Math.floor(places) : Math.ceil(places);
+        }
+        tempResult = Math.round(absValue * Math.pow(10, places)) / Math.pow(10, places);
+      }
+      return value >= 0 ? tempResult : -tempResult;
+    }
+  },
+
+  ROUNDDOWN: {
+    description: `Rounds down a number.`,
+    args: args`
+      value (number) The value to round to places number of places, always rounding down.
+      places (number, optional, default=0) The number of decimal places to which to round.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number, places: number): number {
+      const absValue = Math.abs(value);
+      let tempResult;
+      if (places === 0) {
+        tempResult = Math.floor(absValue);
+      } else {
+        if (!Number.isInteger(places)) {
+          places = places > 0 ? Math.floor(places) : Math.ceil(places);
+        }
+        tempResult = Math.floor(absValue * Math.pow(10, places)) / Math.pow(10, places);
+      }
+      return value >= 0 ? tempResult : -tempResult;
+    }
+  },
+
+  ROUNDUP: {
+    description: `Rounds up a number.`,
+    args: args`
+      value (number) The value to round to places number of places, always rounding up.
+      places (number, optional, default=0) The number of decimal places to which to round.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number, places: number): number {
+      const absValue = Math.abs(value);
+      let tempResult;
+      if (places === 0) {
+        tempResult = Math.ceil(absValue);
+      } else {
+        if (!Number.isInteger(places)) {
+          places = places > 0 ? Math.floor(places) : Math.ceil(places);
+        }
+        tempResult = Math.ceil(absValue * Math.pow(10, places)) / Math.pow(10, places);
+      }
+      return value >= 0 ? tempResult : -tempResult;
+    }
+  },
+
   SUM: {
     description: "Returns the sum of all values in a range.",
     args: args`
@@ -221,14 +319,6 @@ export const functions: FunctionMap = {
     returns: ["NUMBER"],
     compute: function(...args: NumberOrRange[]): number {
       return args.flat(2).reduce((a, b) => a + (b || 0), 0);
-    }
-  },
-  RAND: {
-    description: "Returns a random number between 0 and 1",
-    args: [],
-    returns: ["NUMBER"],
-    compute: function(): number {
-      return Math.random();
     }
   },
   MIN: {

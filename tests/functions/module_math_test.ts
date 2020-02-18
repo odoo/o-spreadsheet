@@ -10,8 +10,12 @@ const {
   ODD,
   PI,
   POWER,
-  SUM,
   RAND,
+  RANDBETWEEN,
+  ROUND,
+  ROUNDDOWN,
+  ROUNDUP,
+  SUM,
   MIN,
   MAX
 } = functionMap;
@@ -699,6 +703,236 @@ describe("math", () => {
   ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
     expect(POWER(a, b)).toEqual(expected);
   });
+
+  //----------------------------------------------------------------------------
+  // RAND
+  //----------------------------------------------------------------------------
+
+  test("RAND(): return a number", () => {
+    const random = RAND();
+    expect(typeof random).toBe("number");
+    expect(random).toBeGreaterThanOrEqual(0);
+    expect(random).toBeLessThan(1);
+  });
+
+  //----------------------------------------------------------------------------
+  // RANDBETWEEN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [0, 0, 0],
+    [42, 42, 42],
+    [-42, -42, -42],
+    [1.1, 2, 2]
+  ])("RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(RANDBETWEEN(a, b)).toEqual(expected);
+  });
+
+  test.each([
+    [-42, 42],
+    [24, 42],
+    [-42, -24]
+  ])("RANDBETWEEN(%s, %s): take 2 parameter(s), return a number", (a, b) => {
+    const randint = RANDBETWEEN(a, b);
+    expect(typeof randint).toBe("number");
+    expect(randint).toBeGreaterThanOrEqual(a);
+    expect(randint).toBeLessThanOrEqual(b);
+  });
+
+  test.each([
+    [1.1, 1.2], // @compatibility: on google sheets, return 2
+    [-24, -42],
+    [42, 24]
+  ])("RANDBETWEEN(%s, %s) - error: take 2 parameter(s), return an error", (a, b) => {
+    expect(() => {
+      RANDBETWEEN(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test.each([
+    [1, true, 1],
+    [0, false, 0],
+    [0, null, 0],
+    [true, 1, 1],
+    [false, 0, 0],
+    [null, 0, 0]
+  ])(
+    "RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+    (a, b, expected) => {
+      expect(RANDBETWEEN(a, b)).toEqual(expected);
+    }
+  );
+
+  //----------------------------------------------------------------------------
+  // ROUND
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [-1.6, -2],
+    [-1.5, -2],
+    [-1.4, -1],
+    [0, 0],
+    [1.4, 1],
+    [1.5, 2],
+    [1.6, 2]
+  ])("ROUND(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(ROUND(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [null, 0]
+  ])("ROUND(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    expect(ROUND(a)).toEqual(expected);
+  });
+
+  test.each([
+    [0.3, 2, 0.3],
+    [0.34, 2, 0.34],
+    [0.345, 2, 0.35],
+    [-0.3, 2, -0.3],
+    [-0.34, 2, -0.34],
+    [-0.345, 2, -0.35],
+    [0.345, 1.9, 0.3],
+    [-0.345, 1.9, -0.3],
+    [4, -1, 0],
+    [5, -1, 10],
+    [50, -2, 100],
+    [-5, -1, -10],
+    [-50, -2, -100],
+    [5, -1.9, 10],
+    [-5, -1.9, -10]
+  ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(ROUND(a, b)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 42, 1],
+    [false, 42, 0],
+    [null, 42, 0],
+    [42.42, true, 42.4],
+    [42.42, false, 42],
+    [42.42, null, 42]
+  ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+    expect(ROUND(a, b)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // ROUNDDOWN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [-1.9, -1],
+    [-1.5, -1],
+    [-1.4, -1],
+    [0, 0],
+    [1.4, 1],
+    [1.5, 1],
+    [1.9, 1]
+  ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(ROUNDDOWN(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [null, 0]
+  ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    expect(ROUNDDOWN(a)).toEqual(expected);
+  });
+
+  test.each([
+    [0.3, 2, 0.3],
+    [0.34, 2, 0.34],
+    [0.349, 2, 0.34],
+    [-0.3, 2, -0.3],
+    [-0.34, 2, -0.34],
+    [-0.349, 2, -0.34],
+    [0.349, 1.9, 0.3],
+    [-0.349, 1.9, -0.3],
+    [9, -1, 0],
+    [19, -1, 10],
+    [599, -2, 500],
+    [-19, -1, -10],
+    [-599, -2, -500],
+    [19, -1.9, 10],
+    [-19, -1.9, -10]
+  ])("ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(ROUNDDOWN(a, b)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 42, 1],
+    [false, 42, 0],
+    [null, 42, 0],
+    [42.49, true, 42.4],
+    [42.49, false, 42],
+    [42.49, null, 42]
+  ])(
+    "ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+    (a, b, expected) => {
+      expect(ROUNDDOWN(a, b)).toEqual(expected);
+    }
+  );
+
+  //----------------------------------------------------------------------------
+  // ROUNDUP
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [-1.6, -2],
+    [-1.5, -2],
+    [-1.1, -2],
+    [0, 0],
+    [1.1, 2],
+    [1.5, 2],
+    [1.6, 2]
+  ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(ROUNDUP(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [null, 0]
+  ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    expect(ROUNDUP(a)).toEqual(expected);
+  });
+
+  test.each([
+    [0.3, 2, 0.3],
+    [0.34, 2, 0.34],
+    [0.341, 2, 0.35],
+    [-0.3, 2, -0.3],
+    [-0.34, 2, -0.34],
+    [-0.341, 2, -0.35],
+    [0.311, 1.9, 0.4],
+    [-0.311, 1.9, -0.4],
+    [1, -1, 10],
+    [11, -1, 20],
+    [1, -2, 100],
+    [-11, -1, -20],
+    [1, -2, 100],
+    [11, -1.9, 20],
+    [-11, -1.9, -20]
+  ])("ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(ROUNDUP(a, b)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 42, 1],
+    [false, 42, 0],
+    [null, 42, 0],
+    [42.41, true, 42.5],
+    [42.41, false, 43],
+    [42.41, null, 43]
+  ])(
+    "ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+    (a, b, expected) => {
+      expect(ROUNDUP(a, b)).toEqual(expected);
+    }
+  );
 
   test("SUM: add some numbers", () => {
     expect(SUM(1, 2)).toEqual(3);
