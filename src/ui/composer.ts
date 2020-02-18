@@ -144,14 +144,14 @@ export class Composer extends Component<any, any> {
     const el = this.composerRef.el!;
 
     this.contentHelper.updateEl(el);
-    this.processContent(undefined);
-
     if (this.model.state.currentContent) {
+      this.contentHelper.insertText(this.model.state.currentContent);
       this.contentHelper.selectRange(
         this.model.state.currentContent.length,
         this.model.state.currentContent.length
       );
     }
+    this.processContent();
 
     const width = cols[this.zone.right].right - cols[this.zone.left].left;
     el.style.width = Math.max(el.scrollWidth + 3, width + 0.5) as any;
@@ -288,14 +288,14 @@ export class Composer extends Component<any, any> {
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.showProvider = true;
     } else {
-      this.processContent(ev);
+      this.processContent();
       this.processTokenAtCursor();
     }
   }
 
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
-    this.processContent(ev);
+    this.processContent();
     this.processTokenAtCursor();
     this.model.setSelectingRange(false);
   }
@@ -308,7 +308,7 @@ export class Composer extends Component<any, any> {
   // Private
   // ---------------------------------------------------------------------------
 
-  processContent(ev: KeyboardEvent | MouseEvent | undefined = undefined) {
+  processContent() {
     this.shouldProcessInputEvents = false;
     let value = this.model.state.currentContent;
     this.tokenAtCursor = undefined;
@@ -325,7 +325,6 @@ export class Composer extends Component<any, any> {
       this.tokenAtCursor = tokens.find(
         t => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
       );
-
       for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
 
@@ -372,11 +371,6 @@ export class Composer extends Component<any, any> {
       // Put the cursor back where it was
       this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
       this.addHighlights(refUsed);
-    } else {
-      if (!ev) {
-        // We are coming from the mounted function, not from keydown/keypress
-        this.contentHelper.insertText(value);
-      }
     }
     this.shouldProcessInputEvents = true;
   }
