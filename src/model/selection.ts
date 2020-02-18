@@ -24,7 +24,12 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   const anchorCol = state.selection.anchor.col;
   const anchorRow = state.selection.anchor.row;
   const { left, right, top, bottom } = selection;
-  if (top + deltaY < 0 || left + deltaX < 0) {
+  if (
+    top + deltaY < 0 ||
+    left + deltaX < 0 ||
+    bottom + deltaY >= state.rows.length ||
+    right + deltaX >= state.cols.length
+  ) {
     return;
   }
   let result: Zone | null = selection;
