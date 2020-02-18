@@ -295,7 +295,7 @@ export class Composer extends Component<any, any> {
 
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
-    this.processContent();
+    this.processContent(ev);
     this.processTokenAtCursor();
     this.model.setSelectingRange(false);
   }
@@ -308,7 +308,7 @@ export class Composer extends Component<any, any> {
   // Private
   // ---------------------------------------------------------------------------
 
-  processContent(ev: KeyboardEvent | undefined = undefined) {
+  processContent(ev: KeyboardEvent | MouseEvent | undefined = undefined) {
     this.shouldProcessInputEvents = false;
     let value = this.model.state.currentContent;
     this.tokenAtCursor = undefined;

@@ -98,6 +98,18 @@ describe("composer", () => {
     await nextTick();
     expect(composer.textContent).toBe("=C8");
   });
+  test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
+    const model = new GridModel();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }));
+    await nextTick();
+    let composer = fixture.getElementsByClassName("o-composer")[0] as HTMLElement;
+    expect(composer.textContent).toBe("a");
+    composer.dispatchEvent(new MouseEvent("click"));
+    await nextTick();
+    expect(composer.textContent).toBe("a");
+  });
 });
 
 describe("composer highlights color", () => {
