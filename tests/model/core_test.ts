@@ -58,6 +58,14 @@ describe("core", () => {
     expect(formatCell(model.state, model.state.cells.A1)).toBe("FALSE");
     expect(formatCell(model.state, model.state.cells.A2)).toBe("TRUE");
   });
+
+  test("format cell put formatted value in a cache", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=123");
+    expect(model.state.cells.A1.formattedValue).not.toBeDefined();
+    expect(formatCell(model.state, model.state.cells.A1)).toBe("123");
+    expect(model.state.cells.A1.formattedValue).toBe("123");
+  });
 });
 
 describe("history", () => {

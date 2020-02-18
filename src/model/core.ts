@@ -24,6 +24,9 @@ export function formatCell(state: GridState, cell: Cell): string {
   if (cell.value === "") {
     return "";
   }
+  if (cell.formattedValue) {
+    return cell.formattedValue;
+  }
   if (cell.value === false) {
     return "FALSE";
   }
@@ -34,9 +37,11 @@ export function formatCell(state: GridState, cell: Cell): string {
   const value = cell.value || 0;
   // todo: apply formatters if needed
   if (cell.type !== "text") {
-    return formatNumber(value);
+    cell.formattedValue = formatNumber(value);
+  } else {
+    cell.formattedValue = value.toString();
   }
-  return value.toString();
+  return cell.formattedValue!;
 }
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;

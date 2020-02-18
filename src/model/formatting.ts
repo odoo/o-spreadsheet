@@ -51,6 +51,7 @@ function setStyleToCell(state: GridState, col: number, row: number, style) {
   const xc = toXC(col, row);
   if (cell) {
     updateCell(state, cell, "style", id);
+    delete cell.width;
   } else {
     addCell(state, xc, { style: id, content: "" });
   }

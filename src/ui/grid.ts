@@ -129,13 +129,7 @@ export class Grid extends Component<any, any> {
   }
 
   mounted() {
-    const canvas = this.canvas.el as any;
     this.focus();
-    const ctx = canvas.getContext("2d");
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    // ctx.scale(this.dpr, this.dpr);
-    this.context = ctx;
     this.updateVisibleZone();
     this.drawGrid();
   }
@@ -176,14 +170,14 @@ export class Grid extends Component<any, any> {
     const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
     const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     const canvas = this.canvas.el as any;
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext("2d", { alpha: false });
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
     this.context = context;
-    context.translate(0.5, 0.5);
+    context.translate(-0.5, -0.5);
     context.scale(dpr, dpr);
     drawGrid(context, this.model, width, height);
   }
