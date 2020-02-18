@@ -87,33 +87,6 @@ export function triggerMouseEvent(
   }
 }
 
-export async function triggerColResizer(x: number, delta: number, model: GridModel, width: number) {
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
-  await nextTick();
-  model.state.clientWidth = width;
-  triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
-  triggerMouseEvent(window, "mousemove", x + delta, 10);
-  triggerMouseEvent(window, "mouseup", x + delta, 10);
-  await nextTick();
-  model.state.clientWidth = width;
-}
-
-export async function triggerRowResizer(
-  y: number,
-  delta: number,
-  model: GridModel,
-  height: number
-) {
-  triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
-  await nextTick();
-  model.state.clientHeight = height;
-  triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "mousedown", 10, y);
-  triggerMouseEvent(window, "mousemove", 10, y + delta);
-  triggerMouseEvent(window, "mouseup", 10, y + delta);
-  await nextTick();
-  model.state.clientHeight = height;
-}
-
 export class GridParent extends Component<any, any> {
   static template = xml`
     <div class="parent">
