@@ -1,5 +1,10 @@
 import * as owl from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, SCROLLBAR_WIDTH, DEFAULT_CELL_HEIGHT } from "../constants";
+import {
+  BACKGROUND_GRAY_COLOR,
+  HEADER_WIDTH,
+  SCROLLBAR_WIDTH,
+  DEFAULT_CELL_HEIGHT
+} from "../constants";
 import { GridModel, GridState } from "../model/index";
 import { Composer } from "./composer";
 import { Overlay } from "./overlay";

@@ -80,6 +80,7 @@ const CSS = css/* scss */ `
     margin: 0;
     border: 0;
     .o-composer {
+      box-sizing: border-box;
       background-color: white;
       padding-left: 2px;
       padding-right: 4px;
@@ -139,7 +140,7 @@ export class Composer extends Component<any, any> {
     //TODO VSC: remove this debug code
     window.composer = this;
 
-    const { cols } = this.model.state;
+    const { cols, rows } = this.model.state;
     const el = this.composerRef.el!;
 
     this.contentHelper.updateEl(el);
@@ -153,11 +154,10 @@ export class Composer extends Component<any, any> {
     }
 
     const width = cols[this.zone.right].right - cols[this.zone.left].left;
-    el.style.width = (width + 1.5) as any;
-    el.style.width = Math.max(el.scrollWidth + 2, width + 1.5) as any;
+    el.style.width = Math.max(el.scrollWidth + 3, width + 0.5) as any;
 
-    el.style.width = (width + 1.5) as any;
-    el.style.width = Math.max(el.scrollWidth + 3, width + 1.5) as any;
+    const height = rows[this.zone.bottom].bottom - rows[this.zone.top].top + 1;
+    el.style.height = height as any;
   }
 
   willUnmount(): void {
@@ -169,7 +169,7 @@ export class Composer extends Component<any, any> {
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 2;
-    const top = row.top - offsetY;
+    const top = row.top - offsetY + 1;
     const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
@@ -185,7 +185,7 @@ export class Composer extends Component<any, any> {
             (cols[this.zone.right].right - offsetX) -
             2 +
             SCROLLBAR_WIDTH}px;`;
-    return `${position}top:${top}px;height:${height};line-height:${height -
+    return `${position}top:${top}px;height:${height}px;line-height:${height -
       1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
   }
 
