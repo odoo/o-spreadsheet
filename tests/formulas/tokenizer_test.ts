@@ -77,4 +77,11 @@ describe("tokenizer", () => {
       { type: "SYMBOL", value: "trueee" }
     ]);
   });
+  test("Unknown characters", () => {
+    expect(tokenize("=ù4")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "UNKNOWN", value: "ù" },
+      { type: "NUMBER", value: "4" }
+    ]);
+  });
 });
