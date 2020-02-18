@@ -46,6 +46,13 @@ describe("selection", () => {
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
     model.moveSelection(0, -1);
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
+
+    model.selectCell(9, 0);
+    model.moveSelection(1, 0);
+    expect(model.state.selection.zones[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
+    model.selectCell(0, 9);
+    model.moveSelection(0, 1);
+    expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
   test("can expand selection with mouse", () => {
