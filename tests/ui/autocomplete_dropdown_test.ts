@@ -2,6 +2,7 @@ import { GridModel } from "../../src/model";
 import { GridParent, makeTestFixture, nextTick, resetFunctions } from "../helpers";
 import { addFunction } from "../../src/functions";
 import { args } from "../../src/functions/arguments";
+import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/ui/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -10,7 +11,7 @@ let model: GridModel;
 let composerEl: Element;
 let canvasEl: Element;
 let fixture: HTMLElement;
-
+let parent: any;
 async function typeInComposer(text: string) {
   composerEl.append(text);
   composerEl.dispatchEvent(new Event("input"));
@@ -21,7 +22,7 @@ async function typeInComposer(text: string) {
 beforeEach(async () => {
   fixture = makeTestFixture();
   model = new GridModel();
-  const parent = new GridParent(model);
+  parent = new GridParent(model);
   await parent.mount(fixture);
   model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
   canvasEl = fixture.querySelector("canvas")!;
@@ -67,14 +68,14 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.state.currentContent).toBe("=SUM");
+      expect(model.state.currentContent).toBe("=SUM(");
     });
 
     test("=S+ENTER complete the function --> =sum(", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(model.state.currentContent).toBe("=SUM");
+      expect(model.state.currentContent).toBe("=SUM(");
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -140,7 +141,7 @@ describe("Functions autocomplete", () => {
         .querySelector(".o-autocomplete-dropdown")!
         .children[1].dispatchEvent(new MouseEvent("click"));
       await nextTick();
-      expect(composerEl.textContent).toBe("=SZZ");
+      expect(composerEl.textContent).toBe("=SZZ(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -174,8 +175,74 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.state.currentContent).toBe("=IF");
+      expect(model.state.currentContent).toBe("=IF(");
     });
+  });
+});
+
+describe("Autocomplete parenthesis", () => {
+  beforeAll(() => {
+    resetFunctions();
+    addFunction("IF", { description: "do if", args: args``, compute: () => 1, returns: ["ANY"] });
+    addFunction("SUM", { description: "do sum", args: args``, compute: () => 1, returns: ["ANY"] });
+    addFunction("SZZ", {
+      description: "do something",
+      args: args``,
+      compute: () => 1,
+      returns: ["ANY"]
+    });
+  });
+
+  test("=sum(1,2 + enter adds closing parenthesis", async () => {
+    await typeInComposer("=sum(1,2");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.cells["A1"].content).toBe("=sum(1,2)");
+  });
+  test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
+    await typeInComposer("=sum(1,2)");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    model.selectCell(0, 0);
+    //edit A1
+    model.startEditing();
+    await nextTick();
+    const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
+    // select SUM
+    cehMock.selectRange(1, 4);
+    // replace SUM with if
+    cehMock.insertText("if", "black");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown"));
+    composerEl.dispatchEvent(new Event("input"));
+    composerEl.dispatchEvent(new KeyboardEvent("keyup"));
+    await nextTick();
+    expect(model.state.currentContent).toBe("=if(1,2)");
+  });
+  test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
+    await typeInComposer("=sum(sum(1,2");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
+  });
+  test("=sum(sum(1,2) + enter add 1 closing parenthesis", async () => {
+    await typeInComposer("=sum(sum(1,2");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
+  });
+
+  test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
+    await typeInComposer("=sum(sum(1,2");
+
+    model.selectCell(1, 1);
+    await nextTick();
+    expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
+  });
+  test("=sum('((((((((') + enter should not complete the parenthesis in the string", async () => {
+    await typeInComposer("=sum('((((((((')");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.cells["A1"].content).toBe("=sum('((((((((')");
   });
 });
 
