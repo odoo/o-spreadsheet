@@ -270,7 +270,7 @@ export const functions: FunctionMap = {
         tempResult = Math.round(absValue);
       } else {
         if (!Number.isInteger(places)) {
-          places = places > 0 ? Math.floor(places) : Math.ceil(places);
+          places = Math.trunc(places);
         }
         tempResult = Math.round(absValue * Math.pow(10, places)) / Math.pow(10, places);
       }
@@ -292,7 +292,7 @@ export const functions: FunctionMap = {
         tempResult = Math.floor(absValue);
       } else {
         if (!Number.isInteger(places)) {
-          places = places > 0 ? Math.floor(places) : Math.ceil(places);
+          places = Math.trunc(places);
         }
         tempResult = Math.floor(absValue * Math.pow(10, places)) / Math.pow(10, places);
       }
@@ -314,7 +314,7 @@ export const functions: FunctionMap = {
         tempResult = Math.ceil(absValue);
       } else {
         if (!Number.isInteger(places)) {
-          places = places > 0 ? Math.floor(places) : Math.ceil(places);
+          places = Math.trunc(places);
         }
         tempResult = Math.ceil(absValue * Math.pow(10, places)) / Math.pow(10, places);
       }
