@@ -36,13 +36,11 @@ export const functions: FunctionMap = {
       significance = Math.abs(significance);
       if (number >= 0) {
         return Math.ceil(number / significance) * significance;
-      } else {
-        if (mode === 0) {
-          return -Math.floor(Math.abs(number) / significance) * significance;
-        } else {
-          return -Math.ceil(Math.abs(number) / significance) * significance;
-        }
       }
+      if (mode === 0) {
+        return -Math.floor(Math.abs(number) / significance) * significance;
+      }
+      return -Math.ceil(Math.abs(number) / significance) * significance;
     }
   },
 
@@ -225,9 +223,8 @@ export const functions: FunctionMap = {
       // -42 % 10 = -2 but we want 8, so need the code below
       if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {
         return modulus + divisor;
-      } else {
-        return modulus;
       }
+      return modulus;
     }
   },
 
@@ -263,17 +260,15 @@ export const functions: FunctionMap = {
     compute: function(base: number, exponent: number): number {
       if (base >= 0) {
         return Math.pow(base, exponent);
-      } else {
-        if (!Number.isInteger(exponent)) {
-          throw new Error(`
-            Function POWER expects the parameter '${functions.POWER.args[1].name}' 
-            to be an integer when parameter '${functions.POWER.args[0].name}' is negative.
-            Change '${functions.POWER.args[1].name}' 
-            from [${exponent}] to an integer value.`);
-        } else {
-          return Math.pow(base, exponent);
-        }
-      }
+      } 
+      if (!Number.isInteger(exponent)) {
+        throw new Error(`
+          Function POWER expects the parameter '${functions.POWER.args[1].name}' 
+          to be an integer when parameter '${functions.POWER.args[0].name}' is negative.
+          Change '${functions.POWER.args[1].name}' 
+          from [${exponent}] to an integer value.`);
+      } 
+      return Math.pow(base, exponent);
     }
   },
 
@@ -304,9 +299,8 @@ export const functions: FunctionMap = {
         throw new Error(`
           Function RANDBETWEEN parameter '${functions.RANDBETWEEN.args[1].name}' value 
           is ${high}. It should be greater than or equal to [${low}].`);
-      } else {
-        return low + Math.ceil((high - low + 1) * Math.random()) - 1;
       }
+      return low + Math.ceil((high - low + 1) * Math.random()) - 1;
     }
   },
 
