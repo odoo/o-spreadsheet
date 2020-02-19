@@ -27,6 +27,10 @@ switch (typeof _val_1) {
    }
    break;
   case \\"object\\":
+    if (_val_1 === null) {
+      args[0] = 0;
+      break;
+    }
     break;
 }
 return args;
