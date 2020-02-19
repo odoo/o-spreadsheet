@@ -20,6 +20,10 @@ describe("expression compiler", () => {
     expect(compile("=A1 + sum(A2:C3)").toString()).toMatchSnapshot();
   });
 
+  test("expression with $ref", () => {
+    expect(compile("=$A1+$A$2+A$3").toString()).toMatchSnapshot();
+  });
+
   test("expressions with a debugger", () => {
     expect(compile("=? A1 / 2").toString()).toMatchSnapshot();
   });

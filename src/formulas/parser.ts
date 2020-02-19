@@ -98,8 +98,11 @@ function bindingPower(token: Token): number {
   throw new Error("?");
 }
 
-export const cellReference = new RegExp(/[A-Z]+[0-9]+/, "i");
-export const rangeReference = new RegExp(/^\s*[A-Z]+[0-9]+\s*(\s*:\s*[A-Z]+[0-9]+\s*)?$/, "i");
+export const cellReference = new RegExp(/\$?[A-Z]+\$?[0-9]+/, "i");
+export const rangeReference = new RegExp(
+  /^\s*\$?[A-Z]+\$?[0-9]+\s*(\s*:\s*\$?[A-Z]+\$?[0-9]+\s*)?$/,
+  "i"
+);
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
   if (current.type === "DEBUGGER") {
@@ -115,7 +118,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
   }
   if (current.type === "SYMBOL") {
     if (cellReference.test(current.value)) {
-      return { type: "REFERENCE", value: current.value.toUpperCase() } as AST;
+      return { type: "REFERENCE", value: current.value.replace(/\$/g, "").toUpperCase() } as AST;
     } else {
       if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;

@@ -336,11 +336,12 @@ export class Composer extends Component<any, any> {
           case "SYMBOL":
             let value = token.value;
             if (rangeReference.test(value)) {
-              if (!refUsed[value]) {
-                refUsed[value] = colors[lastUsedColorIndex];
+              const refSanitized = value.replace(/\$/g, "");
+              if (!refUsed[refSanitized]) {
+                refUsed[refSanitized] = colors[lastUsedColorIndex];
                 lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
               }
-              this.contentHelper.insertText(value, refUsed[value]);
+              this.contentHelper.insertText(value, refUsed[refSanitized]);
             } else {
               this.contentHelper.insertText(value);
             }

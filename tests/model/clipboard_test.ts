@@ -389,4 +389,18 @@ describe("clipboard", () => {
     model.paste();
     expect(model.state.cells.B2.content).toBe("=SUM(D2:D3)");
   });
+
+  test.each([
+    ["=SUM(C1:C2)", "=SUM(D2:D3)"],
+    ["=$C1", "=$C2"],
+    ["=SUM($C1:D$1)", "=SUM($C2:E$1)"]
+  ])("can copy and paste formula with $refs", (value, expected) => {
+    const model = new GridModel();
+    model.setValue("A1", value);
+    model.selectCell(0, 0);
+    model.copy();
+    model.selectCell(1, 1);
+    model.paste();
+    expect(model.state.cells.B2.content).toBe(expected);
+  });
 });

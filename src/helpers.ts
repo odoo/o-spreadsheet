@@ -55,7 +55,7 @@ export function lettersToNumber(letters: string): number {
  *   A1 => [0,0]
  *   B3 => [1,2]
  *
- * Note: it also accepts lowercase coordinates
+ * Note: it also accepts lowercase coordinates, but not fixed references
  */
 export function toCartesian(xc: string): [number, number] {
   xc = xc.toUpperCase();
@@ -74,6 +74,8 @@ export function toCartesian(xc: string): [number, number] {
  * Examples:
  *   [0,0] => A1
  *   [1,2] => B3
+ *
+ * Note: it does not support fixed references
  */
 export function toXC(col: number, row: number): string {
   return numberToLetters(col) + String(row + 1);

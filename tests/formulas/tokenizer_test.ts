@@ -77,6 +77,20 @@ describe("tokenizer", () => {
       { type: "SYMBOL", value: "trueee" }
     ]);
   });
+  test("$references", () => {
+    expect(tokenize("=$A$1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "$A$1" }
+    ]);
+    expect(tokenize("=C$1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "C$1" }
+    ]);
+    expect(tokenize("=$C1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "$C1" }
+    ]);
+  });
   test("Unknown characters", () => {
     expect(tokenize("=ù4")).toEqual([
       { type: "OPERATOR", value: "=" },
