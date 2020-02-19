@@ -156,7 +156,7 @@ function pasteFromModel(state: GridState, options: PasteOptions): boolean {
           if (options.onlyFormat) {
             newCell.content = targetCell ? targetCell.content : "";
           } else {
-            newCell.content = originCell.content;
+            newCell.content = content;
           }
 
           addCell(state, xc, newCell);
