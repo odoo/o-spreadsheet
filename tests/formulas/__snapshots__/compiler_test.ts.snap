@@ -9,6 +9,19 @@ return _1;
 }"
 `;
 
+exports[`expression compiler expression with $ref 1`] = `
+"function anonymous(getValue,fns
+) {
+// =$A1+$A$2+A$3
+let _3 = getValue('A1')
+let _4 = getValue('A2')
+let _2 = fns['ADD'](_3, _4)
+let _5 = getValue('A3')
+let _1 = fns['ADD'](_2, _5)
+return _1;
+}"
+`;
+
 exports[`expression compiler expressions with a debugger 1`] = `
 "function anonymous(getValue,fns
 ) {

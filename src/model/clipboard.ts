@@ -150,7 +150,9 @@ function pasteFromModel(state: GridState, options: PasteOptions): boolean {
           if (originCell.type === "formula") {
             const offsetX = col + c - originCell.col;
             const offsetY = row + r - originCell.row;
-            content = applyOffset(content, offsetX, offsetY);
+            const maxX = state.cols.length;
+            const maxY = state.rows.length;
+            content = applyOffset(content, offsetX, offsetY, maxX, maxY);
           }
           let newCell: NewCell = { style: originCell.style, border: originCell.border };
           if (options.onlyFormat) {

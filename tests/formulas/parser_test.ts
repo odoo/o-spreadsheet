@@ -74,19 +74,19 @@ describe("knows what's a reference and what's not", () => {
       value: "AA100"
     });
   });
-  test.skip("fixed cell", () => {
+  test("fixed cell", () => {
     expect(parse("=$a$1")).toEqual({
       type: "REFERENCE",
       value: "A1"
     });
   });
-  test.skip("fixed row", () => {
+  test("fixed row", () => {
     expect(parse("=a$1")).toEqual({
       type: "REFERENCE",
       value: "A1"
     });
   });
-  test.skip("fixed column", () => {
+  test("fixed column", () => {
     expect(parse("=$a1")).toEqual({
       type: "REFERENCE",
       value: "A1"
