@@ -82,6 +82,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           .formula(getValue, functions)
           .then(val => {
             cell.value = val;
+            delete cell.formattedValue;
             state.loadingCells--;
             if (PENDING.has(cell)) {
               PENDING.delete(cell);
