@@ -1,17 +1,5 @@
 import { GridModel } from "../../src/model";
 
-import { makeTestFixture } from "../helpers";
-
-let fixture: HTMLElement;
-
-beforeEach(() => {
-  fixture = makeTestFixture();
-});
-
-afterEach(() => {
-  fixture.remove();
-});
-
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
     const model = new GridModel();
