@@ -82,7 +82,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           .formula(getValue, functions)
           .then(val => {
             cell.value = val;
-            delete cell.formattedValue;
+            cell.formattedValue = undefined;
             state.loadingCells--;
             if (PENDING.has(cell)) {
               PENDING.delete(cell);
@@ -155,11 +155,14 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     const clone: Set<Cell> = new Set(WAITING);
     WAITING.clear();
     for (let cell of clone) {
+      cell.formattedValue = undefined;
       computeValue(cell.xc, cell);
     }
   } else {
     for (let xc in cells) {
-      computeValue(xc, cells[xc]);
+      const cell = cells[xc];
+      cell.formattedValue = undefined;
+      computeValue(xc, cell);
     }
   }
 }

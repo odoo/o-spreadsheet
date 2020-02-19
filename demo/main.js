@@ -48,7 +48,6 @@ class App extends Component {
     uploadAnchorNode.setAttribute("type", "file");
     uploadAnchorNode.setAttribute("id", "selectFiles");
     document.body.appendChild(uploadAnchorNode);
-    debugger;
     uploadAnchorNode.addEventListener("change", () => {
       const files = document.getElementById("selectFiles").files;
       if (files.length <= 0) {

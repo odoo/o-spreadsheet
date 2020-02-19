@@ -327,23 +327,30 @@ export function stopEditing(state: GridState) {
       const mergeId = state.mergeCellMap[xc];
       xc = state.merges[mergeId].topLeft;
     }
-    if (state.currentContent) {
-      if (state.currentContent.startsWith("=")) {
-        const tokens = tokenize(state.currentContent);
+    let content = state.currentContent;
+    state.currentContent = "";
+    const cell = state.cells[xc];
+    const didChange = cell ? cell.content !== content : content !== "";
+    if (!didChange) {
+      cancelEdition(state);
+      return;
+    }
+    if (content) {
+      if (content.startsWith("=")) {
+        const tokens = tokenize(content);
         const left = tokens.filter(t => t.type === "LEFT_PAREN").length;
         const right = tokens.filter(t => t.type === "RIGHT_PAREN").length;
         const missing = left - right;
         if (missing > 0) {
-          state.currentContent += new Array(missing).fill(")").join("");
+          content += new Array(missing).fill(")").join("");
         }
       }
-      addCell(state, xc, { content: state.currentContent });
+      addCell(state, xc, { content: content });
     } else {
       deleteCell(state, xc);
     }
 
     evaluateCells(state);
-    state.currentContent = "";
     cancelEdition(state);
   }
 }

@@ -66,6 +66,18 @@ describe("core", () => {
     expect(formatCell(model.state, model.state.cells.A1)).toBe("123");
     expect(model.state.cells.A1.formattedValue).toBe("123");
   });
+
+  test("does not reevaluate cells if edition does not change content", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=rand()");
+
+    expect(model.state.cells.A1.value).toBeDefined();
+    const val = model.state.cells.A1.value;
+
+    model.startEditing();
+    model.stopEditing();
+    expect(model.state.cells.A1.value).toBe(val);
+  });
 });
 
 describe("history", () => {
