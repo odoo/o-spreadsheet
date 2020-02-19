@@ -4,7 +4,7 @@ exports[`math CEILING(6, -0.2) - error: if value positive, factor can't be negat
 "
           Function CEILING expects the parameter 'factor' 
           to be positive when parameter 'value' is positive. 
-          Change 'factor' from [-0.2] to positive 
+          Change 'factor' from [-0.2] to a positive 
           value."
 `;
 
@@ -12,7 +12,7 @@ exports[`math CEILING(7.89, -0.2) - error: if value positive, factor can't be ne
 "
           Function CEILING expects the parameter 'factor' 
           to be positive when parameter 'value' is positive. 
-          Change 'factor' from [-0.2] to positive 
+          Change 'factor' from [-0.2] to a positive 
           value."
 `;
 
@@ -20,35 +20,35 @@ exports[`math DECIMAL(@ABAB, -1) - error: take 2 parameter(s), return error on p
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(@ABAB, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(@ABAB, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(@ABAB, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(@ABAB, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [@ABAB] to valid base 2 representation.
+        from [@ABAB] to a valid base 2 representation.
       "
 `;
 
@@ -56,7 +56,7 @@ exports[`math DECIMAL(@ABAB, 3) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [@ABAB] to valid base 3 representation.
+        from [@ABAB] to a valid base 3 representation.
       "
 `;
 
@@ -64,7 +64,7 @@ exports[`math DECIMAL(@ABAB, 4) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [@ABAB] to valid base 4 representation.
+        from [@ABAB] to a valid base 4 representation.
       "
 `;
 
@@ -72,7 +72,7 @@ exports[`math DECIMAL(@ABAB, 10) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [@ABAB] to valid base 10 representation.
+        from [@ABAB] to a valid base 10 representation.
       "
 `;
 
@@ -80,7 +80,7 @@ exports[`math DECIMAL(@ABAB, 16) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [@ABAB] to valid base 16 representation.
+        from [@ABAB] to a valid base 16 representation.
       "
 `;
 
@@ -88,7 +88,7 @@ exports[`math DECIMAL(@ABAB, 36) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [@ABAB] to valid base 36 representation.
+        from [@ABAB] to a valid base 36 representation.
       "
 `;
 
@@ -96,42 +96,42 @@ exports[`math DECIMAL(@ABAB, 37) - error: take 2 parameter(s), return error on p
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [-] to valid base 2 representation.
+        from [-] to a valid base 2 representation.
       "
 `;
 
@@ -139,7 +139,7 @@ exports[`math DECIMAL(-, 3) - error: take 2 parameter(s), return error on parame
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [-] to valid base 3 representation.
+        from [-] to a valid base 3 representation.
       "
 `;
 
@@ -147,7 +147,7 @@ exports[`math DECIMAL(-, 4) - error: take 2 parameter(s), return error on parame
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [-] to valid base 4 representation.
+        from [-] to a valid base 4 representation.
       "
 `;
 
@@ -155,7 +155,7 @@ exports[`math DECIMAL(-, 10) - error: take 2 parameter(s), return error on param
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [-] to valid base 10 representation.
+        from [-] to a valid base 10 representation.
       "
 `;
 
@@ -163,7 +163,7 @@ exports[`math DECIMAL(-, 16) - error: take 2 parameter(s), return error on param
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [-] to valid base 16 representation.
+        from [-] to a valid base 16 representation.
       "
 `;
 
@@ -171,7 +171,7 @@ exports[`math DECIMAL(-, 36) - error: take 2 parameter(s), return error on param
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [-] to valid base 36 representation.
+        from [-] to a valid base 36 representation.
       "
 `;
 
@@ -179,42 +179,42 @@ exports[`math DECIMAL(-, 37) - error: take 2 parameter(s), return error on param
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-0.1, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-0.1, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-0.1, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-0.1, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-0.1, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [-0.1] to valid base 2 representation.
+        from [-0.1] to a valid base 2 representation.
       "
 `;
 
@@ -222,7 +222,7 @@ exports[`math DECIMAL(-0.1, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [-0.1] to valid base 3 representation.
+        from [-0.1] to a valid base 3 representation.
       "
 `;
 
@@ -230,7 +230,7 @@ exports[`math DECIMAL(-0.1, 4) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [-0.1] to valid base 4 representation.
+        from [-0.1] to a valid base 4 representation.
       "
 `;
 
@@ -238,7 +238,7 @@ exports[`math DECIMAL(-0.1, 10) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [-0.1] to valid base 10 representation.
+        from [-0.1] to a valid base 10 representation.
       "
 `;
 
@@ -246,7 +246,7 @@ exports[`math DECIMAL(-0.1, 16) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [-0.1] to valid base 16 representation.
+        from [-0.1] to a valid base 16 representation.
       "
 `;
 
@@ -254,7 +254,7 @@ exports[`math DECIMAL(-0.1, 36) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [-0.1] to valid base 36 representation.
+        from [-0.1] to a valid base 36 representation.
       "
 `;
 
@@ -262,77 +262,77 @@ exports[`math DECIMAL(-0.1, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-1010, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-1010, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-1010, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-1010, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-1010, 37) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-ABAB, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-ABAB, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-ABAB, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-ABAB, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(-ABAB, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [-ABAB] to valid base 2 representation.
+        from [-ABAB] to a valid base 2 representation.
       "
 `;
 
@@ -340,7 +340,7 @@ exports[`math DECIMAL(-ABAB, 3) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [-ABAB] to valid base 3 representation.
+        from [-ABAB] to a valid base 3 representation.
       "
 `;
 
@@ -348,7 +348,7 @@ exports[`math DECIMAL(-ABAB, 4) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [-ABAB] to valid base 4 representation.
+        from [-ABAB] to a valid base 4 representation.
       "
 `;
 
@@ -356,7 +356,7 @@ exports[`math DECIMAL(-ABAB, 10) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [-ABAB] to valid base 10 representation.
+        from [-ABAB] to a valid base 10 representation.
       "
 `;
 
@@ -364,98 +364,98 @@ exports[`math DECIMAL(-ABAB, 37) - error: take 2 parameter(s), return error on p
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, 37) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, false) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, null) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0, true) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0.1, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0.1, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0.1, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0.1, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(0.1, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [0.1] to valid base 2 representation.
+        from [0.1] to a valid base 2 representation.
       "
 `;
 
@@ -463,7 +463,7 @@ exports[`math DECIMAL(0.1, 3) - error: take 2 parameter(s), return error on para
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [0.1] to valid base 3 representation.
+        from [0.1] to a valid base 3 representation.
       "
 `;
 
@@ -471,7 +471,7 @@ exports[`math DECIMAL(0.1, 4) - error: take 2 parameter(s), return error on para
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [0.1] to valid base 4 representation.
+        from [0.1] to a valid base 4 representation.
       "
 `;
 
@@ -479,7 +479,7 @@ exports[`math DECIMAL(0.1, 10) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [0.1] to valid base 10 representation.
+        from [0.1] to a valid base 10 representation.
       "
 `;
 
@@ -487,7 +487,7 @@ exports[`math DECIMAL(0.1, 16) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [0.1] to valid base 16 representation.
+        from [0.1] to a valid base 16 representation.
       "
 `;
 
@@ -495,7 +495,7 @@ exports[`math DECIMAL(0.1, 36) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [0.1] to valid base 36 representation.
+        from [0.1] to a valid base 36 representation.
       "
 `;
 
@@ -503,133 +503,133 @@ exports[`math DECIMAL(0.1, 37) - error: take 2 parameter(s), return error on par
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2, false) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2, null) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2, true) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1010, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1010, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1010, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1010, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1010, 37) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1111, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1111, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1111, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1111, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(1111, 37) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2020, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2020, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2020, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2020, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(2020, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [2020] to valid base 2 representation.
+        from [2020] to a valid base 2 representation.
       "
 `;
 
@@ -637,42 +637,42 @@ exports[`math DECIMAL(2020, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(3030, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(3030, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(3030, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(3030, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(3030, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [3030] to valid base 2 representation.
+        from [3030] to a valid base 2 representation.
       "
 `;
 
@@ -680,7 +680,7 @@ exports[`math DECIMAL(3030, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [3030] to valid base 3 representation.
+        from [3030] to a valid base 3 representation.
       "
 `;
 
@@ -688,42 +688,42 @@ exports[`math DECIMAL(3030, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A-, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A-, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A-, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A-, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A-, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [A-] to valid base 2 representation.
+        from [A-] to a valid base 2 representation.
       "
 `;
 
@@ -731,7 +731,7 @@ exports[`math DECIMAL(A-, 3) - error: take 2 parameter(s), return error on param
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [A-] to valid base 3 representation.
+        from [A-] to a valid base 3 representation.
       "
 `;
 
@@ -739,7 +739,7 @@ exports[`math DECIMAL(A-, 4) - error: take 2 parameter(s), return error on param
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [A-] to valid base 4 representation.
+        from [A-] to a valid base 4 representation.
       "
 `;
 
@@ -747,7 +747,7 @@ exports[`math DECIMAL(A-, 10) - error: take 2 parameter(s), return error on para
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [A-] to valid base 10 representation.
+        from [A-] to a valid base 10 representation.
       "
 `;
 
@@ -755,7 +755,7 @@ exports[`math DECIMAL(A-, 16) - error: take 2 parameter(s), return error on para
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [A-] to valid base 16 representation.
+        from [A-] to a valid base 16 representation.
       "
 `;
 
@@ -763,7 +763,7 @@ exports[`math DECIMAL(A-, 36) - error: take 2 parameter(s), return error on para
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [A-] to valid base 36 representation.
+        from [A-] to a valid base 36 representation.
       "
 `;
 
@@ -771,42 +771,42 @@ exports[`math DECIMAL(A-, 37) - error: take 2 parameter(s), return error on para
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A1A1, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A1A1, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A1A1, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A1A1, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(A1A1, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [A1A1] to valid base 2 representation.
+        from [A1A1] to a valid base 2 representation.
       "
 `;
 
@@ -814,7 +814,7 @@ exports[`math DECIMAL(A1A1, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [A1A1] to valid base 3 representation.
+        from [A1A1] to a valid base 3 representation.
       "
 `;
 
@@ -822,7 +822,7 @@ exports[`math DECIMAL(A1A1, 4) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [A1A1] to valid base 4 representation.
+        from [A1A1] to a valid base 4 representation.
       "
 `;
 
@@ -830,7 +830,7 @@ exports[`math DECIMAL(A1A1, 10) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [A1A1] to valid base 10 representation.
+        from [A1A1] to a valid base 10 representation.
       "
 `;
 
@@ -838,42 +838,42 @@ exports[`math DECIMAL(A1A1, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(AB AB, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(AB AB, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(AB AB, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(AB AB, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(AB AB, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [AB AB] to valid base 2 representation.
+        from [AB AB] to a valid base 2 representation.
       "
 `;
 
@@ -881,7 +881,7 @@ exports[`math DECIMAL(AB AB, 3) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [AB AB] to valid base 3 representation.
+        from [AB AB] to a valid base 3 representation.
       "
 `;
 
@@ -889,7 +889,7 @@ exports[`math DECIMAL(AB AB, 4) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [AB AB] to valid base 4 representation.
+        from [AB AB] to a valid base 4 representation.
       "
 `;
 
@@ -897,7 +897,7 @@ exports[`math DECIMAL(AB AB, 10) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [AB AB] to valid base 10 representation.
+        from [AB AB] to a valid base 10 representation.
       "
 `;
 
@@ -905,7 +905,7 @@ exports[`math DECIMAL(AB AB, 16) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [AB AB] to valid base 16 representation.
+        from [AB AB] to a valid base 16 representation.
       "
 `;
 
@@ -913,7 +913,7 @@ exports[`math DECIMAL(AB AB, 36) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [AB AB] to valid base 36 representation.
+        from [AB AB] to a valid base 36 representation.
       "
 `;
 
@@ -921,42 +921,42 @@ exports[`math DECIMAL(AB AB, 37) - error: take 2 parameter(s), return error on p
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [ABAB] to valid base 2 representation.
+        from [ABAB] to a valid base 2 representation.
       "
 `;
 
@@ -964,7 +964,7 @@ exports[`math DECIMAL(ABAB, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [ABAB] to valid base 3 representation.
+        from [ABAB] to a valid base 3 representation.
       "
 `;
 
@@ -972,7 +972,7 @@ exports[`math DECIMAL(ABAB, 4) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [ABAB] to valid base 4 representation.
+        from [ABAB] to a valid base 4 representation.
       "
 `;
 
@@ -980,7 +980,7 @@ exports[`math DECIMAL(ABAB, 10) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [ABAB] to valid base 10 representation.
+        from [ABAB] to a valid base 10 representation.
       "
 `;
 
@@ -988,42 +988,42 @@ exports[`math DECIMAL(ABAB, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.2, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.2, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.2, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.2, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.2, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [ABAB.2] to valid base 2 representation.
+        from [ABAB.2] to a valid base 2 representation.
       "
 `;
 
@@ -1031,7 +1031,7 @@ exports[`math DECIMAL(ABAB.2, 3) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [ABAB.2] to valid base 3 representation.
+        from [ABAB.2] to a valid base 3 representation.
       "
 `;
 
@@ -1039,7 +1039,7 @@ exports[`math DECIMAL(ABAB.2, 4) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [ABAB.2] to valid base 4 representation.
+        from [ABAB.2] to a valid base 4 representation.
       "
 `;
 
@@ -1047,7 +1047,7 @@ exports[`math DECIMAL(ABAB.2, 10) - error: take 2 parameter(s), return error on 
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [ABAB.2] to valid base 10 representation.
+        from [ABAB.2] to a valid base 10 representation.
       "
 `;
 
@@ -1055,7 +1055,7 @@ exports[`math DECIMAL(ABAB.2, 16) - error: take 2 parameter(s), return error on 
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [ABAB.2] to valid base 16 representation.
+        from [ABAB.2] to a valid base 16 representation.
       "
 `;
 
@@ -1063,7 +1063,7 @@ exports[`math DECIMAL(ABAB.2, 36) - error: take 2 parameter(s), return error on 
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [ABAB.2] to valid base 36 representation.
+        from [ABAB.2] to a valid base 36 representation.
       "
 `;
 
@@ -1071,42 +1071,42 @@ exports[`math DECIMAL(ABAB.2, 37) - error: take 2 parameter(s), return error on 
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.21@, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.21@, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.21@, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.21@, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB.21@, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [ABAB.21@] to valid base 2 representation.
+        from [ABAB.21@] to a valid base 2 representation.
       "
 `;
 
@@ -1114,7 +1114,7 @@ exports[`math DECIMAL(ABAB.21@, 3) - error: take 2 parameter(s), return error on
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [ABAB.21@] to valid base 3 representation.
+        from [ABAB.21@] to a valid base 3 representation.
       "
 `;
 
@@ -1122,7 +1122,7 @@ exports[`math DECIMAL(ABAB.21@, 4) - error: take 2 parameter(s), return error on
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [ABAB.21@] to valid base 4 representation.
+        from [ABAB.21@] to a valid base 4 representation.
       "
 `;
 
@@ -1130,7 +1130,7 @@ exports[`math DECIMAL(ABAB.21@, 10) - error: take 2 parameter(s), return error o
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [ABAB.21@] to valid base 10 representation.
+        from [ABAB.21@] to a valid base 10 representation.
       "
 `;
 
@@ -1138,7 +1138,7 @@ exports[`math DECIMAL(ABAB.21@, 16) - error: take 2 parameter(s), return error o
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [ABAB.21@] to valid base 16 representation.
+        from [ABAB.21@] to a valid base 16 representation.
       "
 `;
 
@@ -1146,7 +1146,7 @@ exports[`math DECIMAL(ABAB.21@, 36) - error: take 2 parameter(s), return error o
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [ABAB.21@] to valid base 36 representation.
+        from [ABAB.21@] to a valid base 36 representation.
       "
 `;
 
@@ -1154,42 +1154,42 @@ exports[`math DECIMAL(ABAB.21@, 37) - error: take 2 parameter(s), return error o
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB@, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB@, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB@, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB@, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ABAB@, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [ABAB@] to valid base 2 representation.
+        from [ABAB@] to a valid base 2 representation.
       "
 `;
 
@@ -1197,7 +1197,7 @@ exports[`math DECIMAL(ABAB@, 3) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [ABAB@] to valid base 3 representation.
+        from [ABAB@] to a valid base 3 representation.
       "
 `;
 
@@ -1205,7 +1205,7 @@ exports[`math DECIMAL(ABAB@, 4) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [ABAB@] to valid base 4 representation.
+        from [ABAB@] to a valid base 4 representation.
       "
 `;
 
@@ -1213,7 +1213,7 @@ exports[`math DECIMAL(ABAB@, 10) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [ABAB@] to valid base 10 representation.
+        from [ABAB@] to a valid base 10 representation.
       "
 `;
 
@@ -1221,7 +1221,7 @@ exports[`math DECIMAL(ABAB@, 16) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [ABAB@] to valid base 16 representation.
+        from [ABAB@] to a valid base 16 representation.
       "
 `;
 
@@ -1229,7 +1229,7 @@ exports[`math DECIMAL(ABAB@, 36) - error: take 2 parameter(s), return error on p
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 36 representation. Change 'value' 
-        from [ABAB@] to valid base 36 representation.
+        from [ABAB@] to a valid base 36 representation.
       "
 `;
 
@@ -1237,42 +1237,42 @@ exports[`math DECIMAL(ABAB@, 37) - error: take 2 parameter(s), return error on p
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ZZZZ, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ZZZZ, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ZZZZ, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ZZZZ, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(ZZZZ, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [ZZZZ] to valid base 2 representation.
+        from [ZZZZ] to a valid base 2 representation.
       "
 `;
 
@@ -1280,7 +1280,7 @@ exports[`math DECIMAL(ZZZZ, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [ZZZZ] to valid base 3 representation.
+        from [ZZZZ] to a valid base 3 representation.
       "
 `;
 
@@ -1288,7 +1288,7 @@ exports[`math DECIMAL(ZZZZ, 4) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [ZZZZ] to valid base 4 representation.
+        from [ZZZZ] to a valid base 4 representation.
       "
 `;
 
@@ -1296,7 +1296,7 @@ exports[`math DECIMAL(ZZZZ, 10) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [ZZZZ] to valid base 10 representation.
+        from [ZZZZ] to a valid base 10 representation.
       "
 `;
 
@@ -1304,7 +1304,7 @@ exports[`math DECIMAL(ZZZZ, 16) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [ZZZZ] to valid base 16 representation.
+        from [ZZZZ] to a valid base 16 representation.
       "
 `;
 
@@ -1312,42 +1312,42 @@ exports[`math DECIMAL(ZZZZ, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(a1a1, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(a1a1, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(a1a1, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(a1a1, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(a1a1, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [a1a1] to valid base 2 representation.
+        from [a1a1] to a valid base 2 representation.
       "
 `;
 
@@ -1355,7 +1355,7 @@ exports[`math DECIMAL(a1a1, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [a1a1] to valid base 3 representation.
+        from [a1a1] to a valid base 3 representation.
       "
 `;
 
@@ -1363,7 +1363,7 @@ exports[`math DECIMAL(a1a1, 4) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [a1a1] to valid base 4 representation.
+        from [a1a1] to a valid base 4 representation.
       "
 `;
 
@@ -1371,7 +1371,7 @@ exports[`math DECIMAL(a1a1, 10) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [a1a1] to valid base 10 representation.
+        from [a1a1] to a valid base 10 representation.
       "
 `;
 
@@ -1379,21 +1379,21 @@ exports[`math DECIMAL(a1a1, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(false, 0) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(false, 2) - error : take 2 parameter(s), return error on parameter 1, casting test 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [FALSE] to valid base 2 representation.
+        from [FALSE] to a valid base 2 representation.
       "
 `;
 
@@ -1401,42 +1401,42 @@ exports[`math DECIMAL(false, null) - error: take 2 parameter(s), return error on
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(null, 0) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(null, false) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(null, true) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(true, 0) - error: take 2 parameter(s), return error on parameter 2, casting test 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(true, 2) - error : take 2 parameter(s), return error on parameter 1, casting test 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [TRUE] to valid base 2 representation.
+        from [TRUE] to a valid base 2 representation.
       "
 `;
 
@@ -1444,42 +1444,42 @@ exports[`math DECIMAL(true, null) - error: take 2 parameter(s), return error on 
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(zzzz, -1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [-1] to value between 2 and 36."
+          from [-1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(zzzz, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(zzzz, 0.1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [0] to value between 2 and 36."
+          from [0] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(zzzz, 1) - error: take 2 parameter(s), return error on parameter 2 1`] = `
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [1] to value between 2 and 36."
+          from [1] to a value between 2 and 36."
 `;
 
 exports[`math DECIMAL(zzzz, 2) - error: take 2 parameter(s), return error on parameter 1 1`] = `
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 2 representation. Change 'value' 
-        from [zzzz] to valid base 2 representation.
+        from [zzzz] to a valid base 2 representation.
       "
 `;
 
@@ -1487,7 +1487,7 @@ exports[`math DECIMAL(zzzz, 3) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 3 representation. Change 'value' 
-        from [zzzz] to valid base 3 representation.
+        from [zzzz] to a valid base 3 representation.
       "
 `;
 
@@ -1495,7 +1495,7 @@ exports[`math DECIMAL(zzzz, 4) - error: take 2 parameter(s), return error on par
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 4 representation. Change 'value' 
-        from [zzzz] to valid base 4 representation.
+        from [zzzz] to a valid base 4 representation.
       "
 `;
 
@@ -1503,7 +1503,7 @@ exports[`math DECIMAL(zzzz, 10) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 10 representation. Change 'value' 
-        from [zzzz] to valid base 10 representation.
+        from [zzzz] to a valid base 10 representation.
       "
 `;
 
@@ -1511,7 +1511,7 @@ exports[`math DECIMAL(zzzz, 16) - error: take 2 parameter(s), return error on pa
 "
         Function DECIMAL expects the parameter 'value' 
         to be a valid base 16 representation. Change 'value' 
-        from [zzzz] to valid base 16 representation.
+        from [zzzz] to a valid base 16 representation.
       "
 `;
 
@@ -1519,7 +1519,7 @@ exports[`math DECIMAL(zzzz, 37) - error: take 2 parameter(s), return error on pa
 "
           Function DECIMAL expects the parameter 'base' 
           to be between 2 and 36 inclusive. Change 'base' 
-          from [37] to value between 2 and 36."
+          from [37] to a value between 2 and 36."
 `;
 
 exports[`math MOD(-2, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
@@ -1590,7 +1590,7 @@ exports[`math POWER(-4, 0.2) - error: take 2 parameter(s), return an error on pa
             Function POWER expects the parameter 'exponent' 
             to be an integer when parameter 'base' is negative.
             Change 'exponent' 
-            from [0.2] to integer value."
+            from [0.2] to an integer value."
 `;
 
 exports[`math POWER(-4, 0.5) - error: take 2 parameter(s), return an error on parameter 2 1`] = `
@@ -1598,7 +1598,7 @@ exports[`math POWER(-4, 0.5) - error: take 2 parameter(s), return an error on pa
             Function POWER expects the parameter 'exponent' 
             to be an integer when parameter 'base' is negative.
             Change 'exponent' 
-            from [0.5] to integer value."
+            from [0.5] to an integer value."
 `;
 
 exports[`math POWER(-4, 1.5) - error: take 2 parameter(s), return an error on parameter 2 1`] = `
@@ -1606,7 +1606,7 @@ exports[`math POWER(-4, 1.5) - error: take 2 parameter(s), return an error on pa
             Function POWER expects the parameter 'exponent' 
             to be an integer when parameter 'base' is negative.
             Change 'exponent' 
-            from [1.5] to integer value."
+            from [1.5] to an integer value."
 `;
 
 exports[`math RANDBETWEEN(-24, -42) - error: take 2 parameter(s), return an error 1`] = `
@@ -1625,4 +1625,18 @@ exports[`math RANDBETWEEN(42, 24) - error: take 2 parameter(s), return an error 
 "
           Function RANDBETWEEN parameter 'high' value 
           is 24. It should be greater than or equal to [42]."
+`;
+
+exports[`math SQRT(-4) - error: take 1 parameter(s), return an error  1`] = `
+"
+          Function SQRT parameter 'value' value is negative. 
+          It should be positive or zero. Change 'value' 
+          from [-4] to a positive value."
+`;
+
+exports[`math SQRT(-9) - error: take 1 parameter(s), return an error  1`] = `
+"
+          Function SQRT parameter 'value' value is negative. 
+          It should be positive or zero. Change 'value' 
+          from [-9] to a positive value."
 `;
