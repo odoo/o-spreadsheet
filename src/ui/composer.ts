@@ -205,7 +205,6 @@ export class Composer extends Component<any, any> {
         if (this.autoCompleteState.showProvider && autoComplete) {
           const autoCompleteValue = autoComplete.getValueToFill();
           if (autoCompleteValue) {
-            this.saveSelection();
             this.autoComplete(autoCompleteValue);
             ev.stopPropagation();
             return;
@@ -225,7 +224,6 @@ export class Composer extends Component<any, any> {
         if (this.autoCompleteState.showProvider && autoComplete) {
           const autoCompleteValue = autoComplete.getValueToFill();
           if (autoCompleteValue) {
-            this.saveSelection();
             this.autoComplete(autoCompleteValue);
             return;
           }
@@ -302,7 +300,6 @@ export class Composer extends Component<any, any> {
     this.model.setSelectingRange(false);
   }
   onCompleted(ev: CustomEvent) {
-    this.saveSelection();
     this.autoComplete(ev.detail.text);
   }
 
@@ -441,6 +438,7 @@ export class Composer extends Component<any, any> {
   }
 
   autoComplete(value: string) {
+    this.saveSelection();
     if (value) {
       if (this.tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(this.tokenAtCursor.type)) {
         this.selectionStart = this.tokenAtCursor.start;
@@ -464,6 +462,8 @@ export class Composer extends Component<any, any> {
     }
     this.autoCompleteState.search = "";
     this.autoCompleteState.showProvider = false;
+    this.processContent();
+    this.processTokenAtCursor();
   }
 
   /**

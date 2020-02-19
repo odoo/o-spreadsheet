@@ -244,6 +244,12 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     expect(model.state.cells["A1"].content).toBe("=sum('((((((((')");
   });
+  test("=s + tab should allow to select a ref", async () => {
+    await typeInComposer("=s");
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+    await nextTick();
+    expect(model.state.isSelectingRange).toBeTruthy();
+  });
 });
 
 describe("autocomplete parameters", () => {});
