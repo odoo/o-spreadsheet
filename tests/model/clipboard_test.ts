@@ -379,4 +379,14 @@ describe("clipboard", () => {
     model.undo();
     expect(model.state.cells.C2).not.toBeDefined();
   });
+
+  test("can copy and paste a formula and update the refs", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=SUM(C1:C2)");
+    model.selectCell(0, 0);
+    model.copy();
+    model.selectCell(1, 1);
+    model.paste();
+    expect(model.state.cells.B2.content).toBe("=SUM(D2:D3");
+  });
 });
