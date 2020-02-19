@@ -14,7 +14,7 @@ export const functions: FunctionMap = {
         throw new Error(`
           Function CEILING expects the parameter '${functions.CEILING.args[1].name}' 
           to be positive when parameter '${functions.CEILING.args[0].name}' is positive. 
-          Change '${functions.CEILING.args[1].name}' from [${factor}] to positive 
+          Change '${functions.CEILING.args[1].name}' from [${factor}] to a positive 
           value.`);
       }
       return factor ? Math.ceil(value / factor) * factor : 0;
@@ -58,6 +58,17 @@ export const functions: FunctionMap = {
     }
   },
 
+  COS: {
+    description: "Cosine of an angle provided in radians.",
+    args: args`
+      angle (number) The angle to find the cosine of, in radians.
+    `,
+    returns: ["NUMBER"],
+    compute: function(angle: number): number {
+      return Math.cos(angle);
+    }
+  },
+
   DECIMAL: {
     description: `Converts from another base to decimal.`,
     args: args`
@@ -71,7 +82,7 @@ export const functions: FunctionMap = {
         throw new Error(`
           Function DECIMAL expects the parameter '${functions.DECIMAL.args[1].name}' 
           to be between 2 and 36 inclusive. Change '${functions.DECIMAL.args[1].name}' 
-          from [${base}] to value between 2 and 36.`);
+          from [${base}] to a value between 2 and 36.`);
       }
       if (value === "") {
         return 0;
@@ -79,7 +90,7 @@ export const functions: FunctionMap = {
       const errorParameter2 = `
         Function DECIMAL expects the parameter '${functions.DECIMAL.args[0].name}' 
         to be a valid base ${base} representation. Change '${functions.DECIMAL.args[0].name}' 
-        from [${value}] to valid base ${base} representation.
+        from [${value}] to a valid base ${base} representation.
       `;
       /**
        * @compatibility: on Google sheets, expects the parameter 'value' to be positive.
@@ -204,7 +215,7 @@ export const functions: FunctionMap = {
             Function POWER expects the parameter '${functions.POWER.args[1].name}' 
             to be an integer when parameter '${functions.POWER.args[0].name}' is negative.
             Change '${functions.POWER.args[1].name}' 
-            from [${exponent}] to integer value.`);
+            from [${exponent}] to an integer value.`);
         } else {
           return Math.pow(base, exponent);
         }
@@ -308,6 +319,52 @@ export const functions: FunctionMap = {
         tempResult = Math.ceil(absValue * Math.pow(10, places)) / Math.pow(10, places);
       }
       return value >= 0 ? tempResult : -tempResult;
+    }
+  },
+
+  SIN: {
+    description: "Sine of an angle provided in radians.",
+    args: args`
+      angle (number) The angle to find the sine of, in radians.
+    `,
+    returns: ["NUMBER"],
+    compute: function(angle: number): number {
+      return Math.sin(angle);
+    }
+  },
+
+  SQRT: {
+    description: "Positive square root of a positive number.",
+    args: args`
+      value (number) The number for which to calculate the positive square root.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number): number {
+      if (value < 0) {
+        throw new Error(`
+          Function SQRT parameter '${functions.SQRT.args[0].name}' value is negative. 
+          It should be positive or zero. Change '${functions.SQRT.args[0].name}' 
+          from [${value}] to a positive value.`);
+      }
+      return Math.sqrt(value);
+    }
+  },
+
+  TRUNC: {
+    description: "Truncates a number.",
+    args: args`
+      value (number) The value to be truncated.
+      places (number, optional, default=0) The number of significant digits to the right of the decimal point to retain.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number, places: number): number {
+      if (places === 0) {
+        return Math.trunc(value);
+      } 
+      if (!Number.isInteger(places)) {
+        places = Math.trunc(places);
+      }
+      return Math.trunc(value * Math.pow(10, places)) / Math.pow(10, places);
     }
   },
 

@@ -2,6 +2,7 @@ import { functionMap } from "../../src/functions/index";
 
 const {
   CEILING,
+  COS,
   DECIMAL,
   DEGREES,
   ISEVEN,
@@ -15,6 +16,9 @@ const {
   ROUND,
   ROUNDDOWN,
   ROUNDUP,
+  SIN,
+  SQRT,
+  TRUNC,
   SUM,
   MIN,
   MAX
@@ -129,6 +133,29 @@ describe("math", () => {
     [4.2, 4.2, null, 4.2]
   ])("CEILING.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
     expect(functionMap["CEILING.MATH"](a, b, c)).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // COS
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [0, 1],
+    [Math.PI, -1],
+    [Math.PI * 2, 1],
+    [Math.PI / 2, 0],
+    [Math.PI / 3, 0.5],
+    [-Math.PI / 2, 0]
+  ])("COS(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+    expect(COS(a)).toBeCloseTo(expected, 9);
+  });
+
+  test.each([
+    [true, 0.54030230586814],
+    [false, 1],
+    [null, 1]
+  ])("COS(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
+    expect(COS(a)).toBeCloseTo(expected, 9);
   });
 
   //----------------------------------------------------------------------------
@@ -933,6 +960,110 @@ describe("math", () => {
       expect(ROUNDUP(a, b)).toEqual(expected);
     }
   );
+
+  //----------------------------------------------------------------------------
+  // SIN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [0, 0],
+    [Math.PI, 0],
+    [Math.PI * 2, 0],
+    [Math.PI / 2, 1],
+    [Math.PI / 6, 0.5],
+    [-Math.PI / 2, -1]
+  ])("SIN(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+    expect(SIN(a)).toBeCloseTo(expected, 9);
+  });
+
+  test.each([
+    [true, 0.8414709848],
+    [false, 0],
+    [null, 0]
+  ])("SIN(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
+    expect(SIN(a)).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // SQRT
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [0, 0],
+    [4, 2],
+    [9, 3]
+  ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+    expect(SQRT(a)).toEqual(expected);
+  });
+
+  test.each([[-4], [-9]])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
+    expect(() => {
+      SQRT(a);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [null, 0]
+  ])("SQRT(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
+    expect(SQRT(a)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // TRUNC
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [-1.6, -1],
+    [-1.5, -1],
+    [-1.4, -1],
+    [0, 0],
+    [1.4, 1],
+    [1.5, 1],
+    [1.6, 1]
+  ])("TRUNC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(TRUNC(a)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+    [null, 0]
+  ])("TRUNC(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+    expect(TRUNC(a)).toEqual(expected);
+  });
+
+  test.each([
+    [0.3, 2, 0.3],
+    [0.34, 2, 0.34],
+    [0.345, 2, 0.34],
+    [-0.3, 2, -0.3],
+    [-0.34, 2, -0.34],
+    [-0.345, 2, -0.34],
+    [0.345, 1.9, 0.3],
+    [-0.345, 1.9, -0.3],
+    [12345, -1, 12340],
+    [123456, -1, 123450],
+    [12345, -2, 12300],
+    [-123456, -1, -123450],
+    [-12345, -2, -12300],
+    [12345, -1.9, 12340],
+    [-12345, -1.9, -12340]
+  ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+    expect(TRUNC(a, b)).toEqual(expected);
+  });
+
+  test.each([
+    [true, 42, 1],
+    [false, 42, 0],
+    [null, 42, 0],
+    [42.42, true, 42.4],
+    [42.42, false, 42],
+    [42.42, null, 42]
+  ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+    expect(TRUNC(a, b)).toEqual(expected);
+  });
 
   test("SUM: add some numbers", () => {
     expect(SUM(1, 2)).toEqual(3);
