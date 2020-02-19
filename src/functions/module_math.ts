@@ -119,6 +119,60 @@ export const functions: FunctionMap = {
     }
   },
 
+  FLOOR: {
+    description: `Rounds number down to nearest multiple of factor.`,
+    args: args`
+      value (number) The value to round down to the nearest integer multiple of factor.
+      factor (number, optional, default=1) The number to whose multiples value will be rounded.
+    `,
+    returns: ["NUMBER"],
+    compute: function(value: number, factor: number): number {
+      if (value > 0 && factor < 0) {
+        throw new Error(`
+          Function FLOOR expects the parameter '${functions.FLOOR.args[1].name}' 
+          to be positive when parameter '${functions.FLOOR.args[0].name}' is positive. 
+          Change '${functions.FLOOR.args[1].name}' from [${factor}] to a positive 
+          value.`);
+      }
+      return factor ? Math.floor(value / factor) * factor : 0;
+    }
+  },
+
+  "FLOOR.MATH": {
+    description: `Rounds number down to nearest multiple of factor.`,
+    args: args`
+      number (number) The value to round down to the nearest integer multiple of significance.
+      significance (number, optional, default=1) The number to whose multiples number will be rounded. The sign of significance will be ignored.
+      mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.
+    `,
+    returns: ["NUMBER"],
+    compute: function(number: number, significance: number, mode: number): number {
+      if (significance === 0) {
+        return 0;
+      }
+      significance = Math.abs(significance);
+      if (number >= 0) {
+        return Math.floor(number / significance) * significance;
+      }
+      if (mode === 0) {
+        return -Math.ceil(Math.abs(number) / significance) * significance;
+      }
+      return -Math.floor(Math.abs(number) / significance) * significance;
+    }
+  },
+
+  "FLOOR.PRECISE": {
+    description: `Rounds number down to nearest multiple of factor.`,
+    args: args`
+      number (number) The value to round down to the nearest integer multiple of significance.
+      significance (number, optional, default=1) The number to whose multiples number will be rounded.
+    `,
+    returns: ["NUMBER"],
+    compute: function(number: number, significance: number): number {
+      return functions["FLOOR.MATH"].compute(number, significance, 0);
+    }
+  },
+
   ISEVEN: {
     description: `Whether the provided value is even.`,
     args: args`
@@ -360,7 +414,7 @@ export const functions: FunctionMap = {
     compute: function(value: number, places: number): number {
       if (places === 0) {
         return Math.trunc(value);
-      } 
+      }
       if (!Number.isInteger(places)) {
         places = Math.trunc(places);
       }

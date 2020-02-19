@@ -5,6 +5,7 @@ const {
   COS,
   DECIMAL,
   DEGREES,
+  FLOOR,
   ISEVEN,
   ISODD,
   MOD,
@@ -495,6 +496,113 @@ describe("math", () => {
     [null, 0]
   ])("DEGREES(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
     expect(DEGREES(a)).toEqual(expected);
+  });
+
+  //----------------------------------------------------------------------------
+  // FLOOR / FLOOR.MATH / FLOOR.PRECISE
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [0, 0],
+    [6, 6],
+    [6.7, 6],
+    [7.89, 7],
+    [-6, -6],
+    [-6.7, -7],
+    [-7.89, -8],
+    [true, 1],
+    [false, 0],
+    [null, 0]
+  ])("FLOOR FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
+    expect(FLOOR(a)).toEqual(expected);
+    expect(functionMap["FLOOR.MATH"](a)).toEqual(expected);
+    expect(functionMap["FLOOR.PRECISE"](a)).toEqual(expected);
+  });
+
+  test.each([
+    [0, 0, 0],
+    [0, 0.1, 0],
+    [0, -4, 0],
+    [6, 0, 0], // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    [6.7, 0, 0], // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    [-6, 0, 0], // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    [6, 0.1, 6],
+    [-6, 0.1, -6],
+    [6, 0.7, 5.6],
+    [-6, 0.7, -6.3],
+    [6.7, 0.2, 6.6],
+    [-6.7, 0.2, -6.8],
+    [true, 0.3, 0.9],
+    [false, 0.3, 0],
+    [null, 0.3, 0],
+    [4.2, true, 4],
+    [4.2, false, 0], // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    [4.2, null, 0] // @compatibility on google sheets: concerning basic floor function, return error div by 0
+  ])("FLOOR FUNCTIONS(%s, %s) - %s: take 2 parameters, return a number", (a, b, expected) => {
+    expect(FLOOR(a, b)).toBeCloseTo(expected, 9);
+    expect(functionMap["FLOOR.MATH"](a, b)).toBeCloseTo(expected, 9);
+    expect(functionMap["FLOOR.PRECISE"](a, b)).toBeCloseTo(expected, 9);
+  });
+
+  test.each([
+    [0, 0.2, 0],
+    [0, -0.2, 0],
+    [7.89, 0.2, 7.8],
+    [7.89, -0.2, 7.8],
+    [-7.89, 0.2, -8],
+    [-7.89, -0.2, -8]
+  ])(
+    "FLOOR (MATH/PRECISE) FUNCTIONS(%s, %s) - %s: no effect with negative factor",
+    (a, b, expected) => {
+      expect(functionMap["FLOOR.MATH"](a, b)).toBeCloseTo(expected, 9);
+      expect(functionMap["FLOOR.PRECISE"](a, b)).toBeCloseTo(expected, 9);
+    }
+  );
+
+  test.each([
+    [6, -0.2],
+    [7.89, -0.2]
+  ])("FLOOR(%s, %s) - error: if value positive, factor can't be negative", (a, b) => {
+    expect(() => {
+      FLOOR(a, b);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test.each([
+    // Concerning FLOOR function
+    // if "a" is negative and "b" is negative, rounds a number up (and not down)
+    // the nearest integer multiple of b
+    [-7.89, 0.2, -8],
+    [-7.89, -0.2, -7.8]
+  ])("FLOOR(%s, %s) - %s: if factor negative, rouds number down", (a, b, expected) => {
+    expect(FLOOR(a, b)).toBeCloseTo(expected, 9);
+  });
+
+  test.each([
+    // Concerning FLOOR.MATH function
+    // if "a" is negative and "c" different 0, rounds a number up (and not down)
+    // the nearest integer multiple of b
+    [7.89, 0.2, 0, 7.8],
+    [7.89, 0.2, 1, 7.8],
+    [-7.89, 0.2, 0, -8],
+    [-7.89, 0.2, 1, -7.8],
+    [-7.89, 0.2, 2.2, -7.8],
+    [-7.89, 0.2, -2.2, -7.8],
+    [-7.89, -0.2, 0, -8],
+    [-7.89, -0.2, 1, -7.8],
+    [-7.89, -0.2, 2.2, -7.8],
+    [-7.89, -0.2, -2.2, -7.8],
+    [true, 0.3, 0, 0.9],
+    [false, 0.3, 0, 0],
+    [null, 0.3, 0, 0],
+    [4.2, true, 0, 4],
+    [4.2, false, 0, 0],
+    [4.2, null, 0, 0],
+    [-7.89, 0.2, true, -7.8],
+    [-7.89, 0.2, false, -8],
+    [-7.89, 0.2, null, -8]
+  ])("FLOOR.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
+    expect(functionMap["FLOOR.MATH"](a, b, c)).toBeCloseTo(expected, 9);
   });
 
   //----------------------------------------------------------------------------
