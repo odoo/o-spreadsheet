@@ -84,7 +84,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
 
     if (rangeType || !arg.optional || (arg.optional && "default" in arg)) {
       code.push(`  case "object":`);
-      if (!arg.optional || (arg.optional && arg.default)) {
+      if (!arg.optional || (arg.optional && "default" in arg)) {
         code.push(`    if (${id} === null) {`);
         code.push(`      ${name}[${i}] = 0;`);
         code.push(`      break;`);
@@ -148,7 +148,7 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
     code.push(`   break;`);
     if (rangeType || !arg.optional || (arg.optional && "default" in arg)) {
       code.push(` case "object":`);
-      if (!arg.optional || (arg.optional && arg.default)) {
+      if (!arg.optional || (arg.optional && "default" in arg)) {
         code.push(`   if (${id} === null) {`);
         code.push(`     ${name}[${i}] = "";`);
         code.push(`     break;`);
