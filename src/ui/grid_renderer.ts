@@ -285,19 +285,21 @@ function drawTexts(boxes: Box[], ctx: CanvasRenderingContext2D) {
 
 function drawSelection(state: GridState, ctx: CanvasRenderingContext2D) {
   const { selection } = state;
+  const { zones } = selection;
   ctx.fillStyle = "#f3f7fe";
+  const onlyOneCell =
+    zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
+  ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
   ctx.strokeStyle = "#3266ca";
   ctx.lineWidth = 1.5 * thinLineWidth;
-  // ctx.globalAlpha = 0.6;
   ctx.globalCompositeOperation = "multiply";
-  for (const zone of selection.zones) {
+  for (const zone of zones) {
     const [x, y, width, height] = getRect(zone, state);
     if (width > 0 && height > 0) {
       ctx.fillRect(x, y, width, height);
       ctx.strokeRect(x, y, width, height);
     }
   }
-  // ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
 }
 

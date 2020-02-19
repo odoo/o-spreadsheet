@@ -260,14 +260,14 @@ export const functions: FunctionMap = {
     compute: function(base: number, exponent: number): number {
       if (base >= 0) {
         return Math.pow(base, exponent);
-      } 
+      }
       if (!Number.isInteger(exponent)) {
         throw new Error(`
           Function POWER expects the parameter '${functions.POWER.args[1].name}' 
           to be an integer when parameter '${functions.POWER.args[0].name}' is negative.
           Change '${functions.POWER.args[1].name}' 
           from [${exponent}] to an integer value.`);
-      } 
+      }
       return Math.pow(base, exponent);
     }
   },
