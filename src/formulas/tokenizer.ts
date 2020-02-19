@@ -21,7 +21,7 @@ export type TokenType =
 
 export interface Token {
   type: TokenType;
-  value: any;
+  value: string;
 }
 
 export function tokenize(str: string): Token[] {
@@ -43,7 +43,7 @@ export function tokenize(str: string): Token[] {
       tokenizeSymbol(chars);
 
     if (!token) {
-      token = { type: "UNKNOWN", value: chars.shift() };
+      token = { type: "UNKNOWN", value: chars.shift()! };
     }
 
     result.push(token);
