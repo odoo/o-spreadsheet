@@ -387,6 +387,6 @@ describe("clipboard", () => {
     model.copy();
     model.selectCell(1, 1);
     model.paste();
-    expect(model.state.cells.B2.content).toBe("=SUM(D2:D3");
+    expect(model.state.cells.B2.content).toBe("=SUM(D2:D3)");
   });
 });
