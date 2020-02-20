@@ -122,6 +122,7 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
     if (overlap(merge, viewport)) {
       const refCell = cells[merge.topLeft];
       const text = model.formatCell(refCell);
+      const textWidth = getCellWidth(refCell, model, ctx);
       const width = cols[merge.right].right - cols[merge.left].left;
       let style = refCell.style ? state.styles[refCell.style] : {};
       const align = text
@@ -140,7 +141,7 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
         width,
         height: height,
         text: text,
-        textWidth: width,
+        textWidth: textWidth,
         border: refCell.border ? state.borders[refCell.border] : null,
         style,
         align,
