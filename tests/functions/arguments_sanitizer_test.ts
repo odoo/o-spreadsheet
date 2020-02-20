@@ -4,7 +4,7 @@ import { args, Range } from "../../src/functions/arguments";
 describe("protectFunction", () => {
   test("no argument", () => {
     const fn = protectFunction(() => 1, []);
-    expect(fn()).toEqual(1);
+    expect(fn()).toBe(1);
 
     expect(() => fn(1)).toThrow(
       "Wrong number of arguments. Expected 0, but got 1 argument(s) instead."

@@ -43,10 +43,10 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("CEILING FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
-    expect(CEILING(a)).toEqual(expected);
-    expect(functionMap["CEILING.MATH"](a)).toEqual(expected);
-    expect(functionMap["CEILING.PRECISE"](a)).toEqual(expected);
-    expect(functionMap["ISO.CEILING"](a)).toEqual(expected);
+    expect(CEILING(a)).toBe(expected);
+    expect(functionMap["CEILING.MATH"](a)).toBe(expected);
+    expect(functionMap["CEILING.PRECISE"](a)).toBe(expected);
+    expect(functionMap["ISO.CEILING"](a)).toBe(expected);
   });
 
   test.each([
@@ -200,18 +200,18 @@ describe("math", () => {
       [false, true, 42]
     ];
 
-    expect(COUNTBLANK(cell1, cell2, cell3, cell4, cell5, cell6)).toEqual(2);
-    expect(COUNTBLANK(col1)).toEqual(2);
-    expect(COUNTBLANK(col2)).toEqual(3);
-    expect(COUNTBLANK(col1, col2)).toEqual(5);
-    expect(COUNTBLANK(line1)).toEqual(2);
-    expect(COUNTBLANK(line2)).toEqual(3);
-    expect(COUNTBLANK(line1, line2)).toEqual(5);
-    expect(COUNTBLANK(tab1)).toEqual(2);
-    expect(COUNTBLANK(tab2)).toEqual(3);
-    expect(COUNTBLANK(tab1, tab2)).toEqual(5);
-    expect(COUNTBLANK(cell1, col1, line1, tab1)).toEqual(7);
-    expect(COUNTBLANK(tab2, line2, col2, cell5)).toEqual(9);
+    expect(COUNTBLANK(cell1, cell2, cell3, cell4, cell5, cell6)).toBe(2);
+    expect(COUNTBLANK(col1)).toBe(2);
+    expect(COUNTBLANK(col2)).toBe(3);
+    expect(COUNTBLANK(col1, col2)).toBe(5);
+    expect(COUNTBLANK(line1)).toBe(2);
+    expect(COUNTBLANK(line2)).toBe(3);
+    expect(COUNTBLANK(line1, line2)).toBe(5);
+    expect(COUNTBLANK(tab1)).toBe(2);
+    expect(COUNTBLANK(tab2)).toBe(3);
+    expect(COUNTBLANK(tab1, tab2)).toBe(5);
+    expect(COUNTBLANK(cell1, col1, line1, tab1)).toBe(7);
+    expect(COUNTBLANK(tab2, line2, col2, cell5)).toBe(9);
   });
 
   //----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ describe("math", () => {
     ["ZZZZ", 36, 1679615],
     ["zzzz", 36, 1679615]
   ])("DECIMAL(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(DECIMAL(a, b)).toEqual(expected);
+    expect(DECIMAL(a, b)).toBe(expected);
   });
 
   test.each([
@@ -483,7 +483,7 @@ describe("math", () => {
   ])(
     "DECIMAL(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
     (a, b, expected) => {
-      expect(DECIMAL(a, b)).toEqual(expected);
+      expect(DECIMAL(a, b)).toBe(expected);
     }
   );
 
@@ -542,7 +542,7 @@ describe("math", () => {
     [3.14159265358979, 179.99999999999983], // @compatibility: on google sheets return 180
     [3.1415926535897, 179.99999999999466] // @compatibility: on google sheets return 179.99999999999(5) and not (466)
   ])("DEGREES(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(DEGREES(a)).toEqual(expected);
+    expect(DEGREES(a)).toBe(expected);
   });
 
   test.each([
@@ -550,7 +550,7 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("DEGREES(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(DEGREES(a)).toEqual(expected);
+    expect(DEGREES(a)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -569,9 +569,9 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("FLOOR FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
-    expect(FLOOR(a)).toEqual(expected);
-    expect(functionMap["FLOOR.MATH"](a)).toEqual(expected);
-    expect(functionMap["FLOOR.PRECISE"](a)).toEqual(expected);
+    expect(FLOOR(a)).toBe(expected);
+    expect(functionMap["FLOOR.MATH"](a)).toBe(expected);
+    expect(functionMap["FLOOR.PRECISE"](a)).toBe(expected);
   });
 
   test.each([
@@ -676,7 +676,7 @@ describe("math", () => {
     [2.3, true],
     [3, false]
   ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
-    expect(ISEVEN(a)).toEqual(expected);
+    expect(ISEVEN(a)).toBe(expected);
   });
 
   test.each([
@@ -684,7 +684,7 @@ describe("math", () => {
     [false, true],
     [null, true]
   ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
-    expect(ISEVEN(a)).toEqual(expected);
+    expect(ISEVEN(a)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -707,7 +707,7 @@ describe("math", () => {
     [5, true],
     [6, false]
   ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
-    expect(ISODD(a)).toEqual(expected);
+    expect(ISODD(a)).toBe(expected);
   });
 
   test.each([
@@ -715,7 +715,7 @@ describe("math", () => {
     [false, false],
     [null, false]
   ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
-    expect(ISODD(a)).toEqual(expected);
+    expect(ISODD(a)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -830,7 +830,7 @@ describe("math", () => {
     [3.1, 5],
     [3.9, 5]
   ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(ODD(a)).toEqual(expected);
+    expect(ODD(a)).toBe(expected);
   });
 
   test.each([
@@ -838,7 +838,7 @@ describe("math", () => {
     [false, 1],
     [null, 1]
   ])("ODD(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
-    expect(ODD(a)).toEqual(expected);
+    expect(ODD(a)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -870,7 +870,7 @@ describe("math", () => {
     [4, -0.5, 0.5],
     [4, -2, 0.0625]
   ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(POWER(a, b)).toEqual(expected);
+    expect(POWER(a, b)).toBe(expected);
   });
 
   test.each([
@@ -891,7 +891,7 @@ describe("math", () => {
     [4, false, 1],
     [4, null, 1]
   ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(POWER(a, b)).toEqual(expected);
+    expect(POWER(a, b)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -915,7 +915,7 @@ describe("math", () => {
     [-42, -42, -42],
     [1.1, 2, 2]
   ])("RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(RANDBETWEEN(a, b)).toEqual(expected);
+    expect(RANDBETWEEN(a, b)).toBe(expected);
   });
 
   test.each([
@@ -949,7 +949,7 @@ describe("math", () => {
   ])(
     "RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
     (a, b, expected) => {
-      expect(RANDBETWEEN(a, b)).toEqual(expected);
+      expect(RANDBETWEEN(a, b)).toBe(expected);
     }
   );
 
@@ -966,7 +966,7 @@ describe("math", () => {
     [1.5, 2],
     [1.6, 2]
   ])("ROUND(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(ROUND(a)).toEqual(expected);
+    expect(ROUND(a)).toBe(expected);
   });
 
   test.each([
@@ -974,7 +974,7 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("ROUND(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(ROUND(a)).toEqual(expected);
+    expect(ROUND(a)).toBe(expected);
   });
 
   test.each([
@@ -994,7 +994,7 @@ describe("math", () => {
     [5, -1.9, 10],
     [-5, -1.9, -10]
   ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(ROUND(a, b)).toEqual(expected);
+    expect(ROUND(a, b)).toBe(expected);
   });
 
   test.each([
@@ -1005,7 +1005,7 @@ describe("math", () => {
     [42.42, false, 42],
     [42.42, null, 42]
   ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(ROUND(a, b)).toEqual(expected);
+    expect(ROUND(a, b)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -1021,7 +1021,7 @@ describe("math", () => {
     [1.5, 1],
     [1.9, 1]
   ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(ROUNDDOWN(a)).toEqual(expected);
+    expect(ROUNDDOWN(a)).toBe(expected);
   });
 
   test.each([
@@ -1029,7 +1029,7 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(ROUNDDOWN(a)).toEqual(expected);
+    expect(ROUNDDOWN(a)).toBe(expected);
   });
 
   test.each([
@@ -1049,7 +1049,7 @@ describe("math", () => {
     [19, -1.9, 10],
     [-19, -1.9, -10]
   ])("ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(ROUNDDOWN(a, b)).toEqual(expected);
+    expect(ROUNDDOWN(a, b)).toBe(expected);
   });
 
   test.each([
@@ -1062,7 +1062,7 @@ describe("math", () => {
   ])(
     "ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
     (a, b, expected) => {
-      expect(ROUNDDOWN(a, b)).toEqual(expected);
+      expect(ROUNDDOWN(a, b)).toBe(expected);
     }
   );
 
@@ -1079,7 +1079,7 @@ describe("math", () => {
     [1.5, 2],
     [1.6, 2]
   ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(ROUNDUP(a)).toEqual(expected);
+    expect(ROUNDUP(a)).toBe(expected);
   });
 
   test.each([
@@ -1087,7 +1087,7 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(ROUNDUP(a)).toEqual(expected);
+    expect(ROUNDUP(a)).toBe(expected);
   });
 
   test.each([
@@ -1107,7 +1107,7 @@ describe("math", () => {
     [11, -1.9, 20],
     [-11, -1.9, -20]
   ])("ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(ROUNDUP(a, b)).toEqual(expected);
+    expect(ROUNDUP(a, b)).toBe(expected);
   });
 
   test.each([
@@ -1120,7 +1120,7 @@ describe("math", () => {
   ])(
     "ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
     (a, b, expected) => {
-      expect(ROUNDUP(a, b)).toEqual(expected);
+      expect(ROUNDUP(a, b)).toBe(expected);
     }
   );
 
@@ -1156,7 +1156,7 @@ describe("math", () => {
     [4, 2],
     [9, 3]
   ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(SQRT(a)).toEqual(expected);
+    expect(SQRT(a)).toBe(expected);
   });
 
   test.each([[-4], [-9]])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
@@ -1170,7 +1170,7 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("SQRT(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
-    expect(SQRT(a)).toEqual(expected);
+    expect(SQRT(a)).toBe(expected);
   });
 
   //----------------------------------------------------------------------------
@@ -1186,7 +1186,7 @@ describe("math", () => {
     [1.5, 1],
     [1.6, 1]
   ])("TRUNC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(TRUNC(a)).toEqual(expected);
+    expect(TRUNC(a)).toBe(expected);
   });
 
   test.each([
@@ -1194,7 +1194,7 @@ describe("math", () => {
     [false, 0],
     [null, 0]
   ])("TRUNC(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(TRUNC(a)).toEqual(expected);
+    expect(TRUNC(a)).toBe(expected);
   });
 
   test.each([
@@ -1214,7 +1214,7 @@ describe("math", () => {
     [12345, -1.9, 12340],
     [-12345, -1.9, -12340]
   ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(TRUNC(a, b)).toEqual(expected);
+    expect(TRUNC(a, b)).toBe(expected);
   });
 
   test.each([
@@ -1225,24 +1225,24 @@ describe("math", () => {
     [42.42, false, 42],
     [42.42, null, 42]
   ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(TRUNC(a, b)).toEqual(expected);
+    expect(TRUNC(a, b)).toBe(expected);
   });
 
   test("SUM: add some numbers", () => {
-    expect(SUM(1, 2)).toEqual(3);
-    expect(SUM(1, 2, 3)).toEqual(6);
+    expect(SUM(1, 2)).toBe(3);
+    expect(SUM(1, 2, 3)).toBe(6);
   });
 
   test("SUM: add some ranges", () => {
-    expect(SUM([[1, 2]])).toEqual(3);
-    expect(SUM(1, [[2, 3]])).toEqual(6);
-    expect(SUM([[1], [2], [3]])).toEqual(6);
-    expect(SUM([[1], [2]], 3)).toEqual(6);
+    expect(SUM([[1, 2]])).toBe(3);
+    expect(SUM(1, [[2, 3]])).toBe(6);
+    expect(SUM([[1], [2], [3]])).toBe(6);
+    expect(SUM([[1], [2]], 3)).toBe(6);
   });
 
   test("SUM: add a number and a string", () => {
-    expect(SUM([[11, "str"]])).toEqual(11);
-    expect(SUM([[11], ["str"]])).toEqual(11);
+    expect(SUM([[11, "str"]])).toBe(11);
+    expect(SUM([[11], ["str"]])).toBe(11);
     expect(() => SUM(11, "str")).toThrow(
       `Argument "number" should be a number, but "str" is a text, and cannot be coerced to a number.`
     );
@@ -1256,33 +1256,33 @@ describe("math", () => {
   });
 
   test("MIN", () => {
-    expect(MIN(0, 1, 2, -1)).toEqual(-1);
-    expect(MIN(0, 1, 2)).toEqual(0);
-    expect(MIN(1, 2)).toEqual(1);
-    expect(MIN(true, 2)).toEqual(1);
-    expect(MIN(null, true)).toEqual(0);
-    expect(MIN(null, null)).toEqual(0);
-    expect(MIN(-5)).toEqual(-5);
-    expect(MIN([[1, 2, null, -1]])).toEqual(-1);
-    expect(MIN([[null, null, null]])).toEqual(0);
-    expect(MIN([[null, null, -1]])).toEqual(-1);
-    expect(MIN([[null, 2, null]])).toEqual(2);
-    expect(MIN([["one", 22, false]])).toEqual(22);
+    expect(MIN(0, 1, 2, -1)).toBe(-1);
+    expect(MIN(0, 1, 2)).toBe(0);
+    expect(MIN(1, 2)).toBe(1);
+    expect(MIN(true, 2)).toBe(1);
+    expect(MIN(null, true)).toBe(0);
+    expect(MIN(null, null)).toBe(0);
+    expect(MIN(-5)).toBe(-5);
+    expect(MIN([[1, 2, null, -1]])).toBe(-1);
+    expect(MIN([[null, null, null]])).toBe(0);
+    expect(MIN([[null, null, -1]])).toBe(-1);
+    expect(MIN([[null, 2, null]])).toBe(2);
+    expect(MIN([["one", 22, false]])).toBe(22);
   });
 
   test("MAX", () => {
-    expect(MAX(0, 1, 2, -1)).toEqual(2);
-    expect(MAX(0, 1, 2)).toEqual(2);
-    expect(MAX(1, 2)).toEqual(2);
-    expect(MAX(-5)).toEqual(-5);
-    expect(MAX(true, 2)).toEqual(2);
-    expect(MAX(true, 0)).toEqual(1);
-    expect(MAX(null, true)).toEqual(1);
-    expect(MAX(null, null)).toEqual(0);
-    expect(MAX([[1, 2, null, -1]])).toEqual(2);
-    expect(MAX([[null, null, null]])).toEqual(0);
-    expect(MAX([[null, null, -1]])).toEqual(-1);
-    expect(MAX([[null, 2, null]])).toEqual(2);
-    expect(MAX([["onasdfe", -2, true]])).toEqual(-2);
+    expect(MAX(0, 1, 2, -1)).toBe(2);
+    expect(MAX(0, 1, 2)).toBe(2);
+    expect(MAX(1, 2)).toBe(2);
+    expect(MAX(-5)).toBe(-5);
+    expect(MAX(true, 2)).toBe(2);
+    expect(MAX(true, 0)).toBe(1);
+    expect(MAX(null, true)).toBe(1);
+    expect(MAX(null, null)).toBe(0);
+    expect(MAX([[1, 2, null, -1]])).toBe(2);
+    expect(MAX([[null, null, null]])).toBe(0);
+    expect(MAX([[null, null, -1]])).toBe(-1);
+    expect(MAX([[null, 2, null]])).toBe(2);
+    expect(MAX([["onasdfe", -2, true]])).toBe(-2);
   });
 });
