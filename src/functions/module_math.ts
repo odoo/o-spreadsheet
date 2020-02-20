@@ -1,4 +1,4 @@
-import { args, NumberOrRange } from "./arguments";
+import { args, AnyOrRange, NumberOrRange } from "./arguments";
 import { FunctionMap } from "./index";
 
 export const functions: FunctionMap = {
@@ -64,6 +64,32 @@ export const functions: FunctionMap = {
     returns: ["NUMBER"],
     compute: function(angle: number): number {
       return Math.cos(angle);
+    }
+  },
+
+  COUNTBLANK: {
+    description: "Number of empty values.",
+    args: args`
+      value1 (any, range) The first value or range in which to count the number of blanks.
+      value2 (any, range, optional, repeating) Additional values or ranges in which to count the number of blanks.
+    `,
+    returns: ["NUMBER"],
+    compute: function(...args: AnyOrRange): number {
+      let blanks = 0;
+      for (let element of args) {
+        if (Array.isArray(element)) {
+          for (let col of element) {
+            for (let cell of col) {
+              if (cell === undefined || cell === "") {
+                blanks++;
+              }
+            }
+          }
+        } else if (element === null || element === "") {
+          blanks++;
+        }
+      }
+      return blanks;
     }
   },
 

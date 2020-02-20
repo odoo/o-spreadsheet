@@ -3,6 +3,7 @@ import { functionMap } from "../../src/functions/index";
 const {
   CEILING,
   COS,
+  COUNTBLANK,
   DECIMAL,
   DEGREES,
   FLOOR,
@@ -157,6 +158,60 @@ describe("math", () => {
     [null, 1]
   ])("COS(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
     expect(COS(a)).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // COUNTBLANK
+  //----------------------------------------------------------------------------
+
+  test.each([
+    [null, 1],
+    ["", 1],
+    [true, 0],
+    [false, 0],
+    [0, 0],
+    [1, 0],
+    ["hello there", 0],
+    ["''", 0]
+  ])("COUNTBLANK(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(COUNTBLANK(a)).toBe(expected);
+  });
+
+  test("COUNTBLANK: count blank on some cells and ranges ", () => {
+    const cell1 = null;
+    const cell2 = "";
+    const cell3 = true;
+    const cell4 = false;
+    const cell5 = 42;
+    const cell6 = "''";
+
+    const col1 = [[0, 1, 2, undefined, "''", undefined]];
+    const col2 = [[undefined, undefined, "", false, true, 42]];
+
+    const line1 = [[0], [1], [2], [undefined], ["''"], [undefined]];
+    const line2 = [[undefined], [undefined], [""], [false], [true], [42]];
+
+    const tab1 = [
+      [0, 1, 2],
+      [undefined, "''", undefined]
+    ];
+    const tab2 = [
+      [undefined, undefined, ""],
+      [false, true, 42]
+    ];
+
+    expect(COUNTBLANK(cell1, cell2, cell3, cell4, cell5, cell6)).toEqual(2);
+    expect(COUNTBLANK(col1)).toEqual(2);
+    expect(COUNTBLANK(col2)).toEqual(3);
+    expect(COUNTBLANK(col1, col2)).toEqual(5);
+    expect(COUNTBLANK(line1)).toEqual(2);
+    expect(COUNTBLANK(line2)).toEqual(3);
+    expect(COUNTBLANK(line1, line2)).toEqual(5);
+    expect(COUNTBLANK(tab1)).toEqual(2);
+    expect(COUNTBLANK(tab2)).toEqual(3);
+    expect(COUNTBLANK(tab1, tab2)).toEqual(5);
+    expect(COUNTBLANK(cell1, col1, line1, tab1)).toEqual(7);
+    expect(COUNTBLANK(tab2, line2, col2, cell5)).toEqual(9);
   });
 
   //----------------------------------------------------------------------------

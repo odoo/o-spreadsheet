@@ -16,13 +16,12 @@ describe("protectFunction", () => {
 });
 
 describe("makeSanitizer", () => {
-
   test("a simple untyped argument", () => {
     const argList = args`a (any) some untyped argument`;
 
     const sanitizer = makeSanitizer(argList);
     expect(sanitizer.toString()).toMatchSnapshot();
-    
+
     expect(sanitizer([1])).toEqual([1]);
     expect(sanitizer([false])).toEqual([false]);
     expect(sanitizer([true])).toEqual([true]);
