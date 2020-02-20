@@ -16,6 +16,21 @@ describe("protectFunction", () => {
 });
 
 describe("makeSanitizer", () => {
+
+  test("a simple untyped argument", () => {
+    const argList = args`a (any) some untyped argument`;
+
+    const sanitizer = makeSanitizer(argList);
+    expect(sanitizer.toString()).toMatchSnapshot();
+    
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([false])).toEqual([false]);
+    expect(sanitizer([true])).toEqual([true]);
+    expect(sanitizer([null])).toEqual([null]);
+    expect(sanitizer([""])).toEqual([""]);
+    expect(sanitizer(["-1.1"])).toEqual(["-1.1"]);
+  });
+
   test("a single number argument", () => {
     const argList = args`n (number) some number`;
 
@@ -250,6 +265,22 @@ describe("makeSanitizer", () => {
     expect(sanitizer([m2])).toEqual([m2_number]);
 
     expect(() => sanitizer([1])).toThrow('Argument "r" has the wrong type');
+  });
+
+  test("untyped argument or range of untyped arguments", () => {
+    const argList = args`a (any,range) some untyped arguments`;
+    const sanitizer = makeSanitizer(argList);
+    expect(sanitizer.toString()).toMatchSnapshot();
+
+    expect(sanitizer([1])).toEqual([1]);
+    expect(sanitizer([false])).toEqual([false]);
+    expect(sanitizer([true])).toEqual([true]);
+    expect(sanitizer([null])).toEqual([null]);
+    expect(sanitizer([""])).toEqual([""]);
+    expect(sanitizer(["-1.1"])).toEqual(["-1.1"]);
+
+    const m1 = [[1, false, true, null, "", "-1.1"]];
+    expect(sanitizer([m1])).toEqual([m1]);
   });
 
   test("number or range of numbers", () => {
