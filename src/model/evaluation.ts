@@ -129,9 +129,9 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   function range(v1: string, v2: string): any[] {
     const [c1, r1] = toCartesian(v1);
     const [c2, r2] = toCartesian(v2);
-    const result: any[] = new Array(c2 - c1);
+    const result: any[] = new Array(c2 - c1 + 1);
     for (let c = c1; c <= c2; c++) {
-      let col: any[] = new Array(r2 - r1);
+      let col: any[] = new Array(r2 - r1 + 1);
       result[c - c1] = col;
       for (let r = r1; r <= r2; r++) {
         let cell = state.rows[r].cells[c];

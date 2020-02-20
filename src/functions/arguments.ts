@@ -22,6 +22,7 @@ export interface Arg {
 export type Range<T> = (T | undefined)[][];
 
 export type NumberOrRange = number | Range<number>;
+export type AnyOrRange = any | Range<any>;
 
 //------------------------------------------------------------------------------
 // Arg description DSL
