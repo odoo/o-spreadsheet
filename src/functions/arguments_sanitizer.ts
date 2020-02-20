@@ -1,6 +1,6 @@
 import { Arg } from "./arguments";
 
-const PRIMITIVE_TYPES = ["NUMBER", "STRING", "BOOLEAN"];
+const PRIMITIVE_TYPES = ["ANY", "NUMBER", "STRING", "BOOLEAN"];
 const RANGE_TYPES = ["RANGE<NUMBER>", "RANGE<STRING>", "RANGE<BOOLEAN>"];
 
 let nextId = 1;
@@ -52,6 +52,9 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
     code.push(`}`);
     return;
   }
+  if (arg.type.includes("ANY")){
+    return;
+  } 
   const id = `_val_${nextId++}`;
   code.push(`let ${id} = ${name}[${i}];`);
   const rangeType = arg.type.find(t => RANGE_TYPES.includes(t));

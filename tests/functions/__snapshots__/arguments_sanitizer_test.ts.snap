@@ -103,6 +103,16 @@ return args;
 }"
 `;
 
+exports[`makeSanitizer a simple untyped argument 1`] = `
+"function anonymous(args
+) {
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
+}
+return args;
+}"
+`;
+
 exports[`makeSanitizer a simple untyped range argument 1`] = `
 "function anonymous(args
 ) {
@@ -565,6 +575,16 @@ switch (typeof _val_3) {
       break;
     }
     break;
+}
+return args;
+}"
+`;
+
+exports[`makeSanitizer untyped argument or range of untyped arguments 1`] = `
+"function anonymous(args
+) {
+if (args.length !== 1) {
+  throw new Error(\`Wrong number of arguments. Expected 1, but got \${args.length} argument(s) instead.\`);
 }
 return args;
 }"
