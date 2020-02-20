@@ -3,7 +3,6 @@ import * as owl from "@odoo/owl";
 import { GridModel, Zone } from "../model";
 import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
-import { SCROLLBAR_WIDTH } from "../constants";
 import { ComposerToken, composerTokenize } from "../formulas/composer_tokenizer";
 import { rangeReference } from "../formulas/parser";
 import { ContentEditableHelper } from "./content_editable_helper";
@@ -49,8 +48,9 @@ const tokenColor = {
 };
 
 const TEMPLATE = xml/* xml */ `
-<div class="o-composer-container" t-att-style="style">
+<div class="o-composer-container" t-att-style="containerStyle">
     <div class="o-composer"
+      t-att-style="composerStyle"
       t-ref="o_composer"
       tabindex="1"
       contenteditable="true"
@@ -166,29 +166,31 @@ export class Composer extends Component<any, any> {
     this.trigger("composer-unmounted");
   }
 
-  get style() {
+  get containerStyle() {
     const { cols, rows, offsetX, offsetY } = this.model.state;
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 2;
     const top = row.top - offsetY - 0.5;
-    const cell = this.model.selectedCell || { type: "text" };
     const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const sizeInPt = style.fontSize || 10;
     const size = fontSizeMap[sizeInPt];
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
+    return `left: ${col.left - offsetX - 1}px;
+    top:${top}px;
+    height:${height}px;
+    line-height:${height - 1}px;
+    font-size:${size}px;
+    ${weight}${italic}${strikethrough}`;
+  }
+
+  get composerStyle() {
+    const style = this.model.style;
+    const cell = this.model.selectedCell || { type: "text" };
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
-    const position =
-      align === "left"
-        ? `left: ${col.left - offsetX - 1}px;`
-        : `right: ${this.model.state.clientWidth -
-            (cols[this.zone.right].right - offsetX) +
-            SCROLLBAR_WIDTH +
-            0.5}px;`;
-    return `${position}top:${top}px;height:${height}px;line-height:${height -
-      1}px;text-align:${align};font-size:${size}px;${weight}${italic}${strikethrough}`;
+    return `text-align:${align};`;
   }
 
   // ---------------------------------------------------------------------------
