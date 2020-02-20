@@ -90,14 +90,18 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
               c++;
             }
             const width = cols[c].right - col.left;
-            clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
+            if (width < textWidth) {
+              clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
+            }
           } else {
             let c = cell.col;
             while (c > left && !hasContent(state, c - 1, cell.row)) {
               c--;
             }
             const width = col.right - cols[c].left;
-            clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
+            if (width < textWidth) {
+              clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
+            }
           }
         }
 
@@ -242,12 +246,6 @@ function drawTexts(boxes: Box[], ctx: CanvasRenderingContext2D) {
   let currentFont;
   for (let box of boxes) {
     if (box.text) {
-      if (box.clipRect) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(...box.clipRect);
-        ctx.clip();
-      }
       const style = box.style || {};
       const align = box.align!;
       const italic = style.italic ? "italic " : "";
@@ -270,7 +268,13 @@ function drawTexts(boxes: Box[], ctx: CanvasRenderingContext2D) {
         x = box.x + box.width / 2;
       }
       ctx.textAlign = align;
-      ctx.fillText(box.text, x, y);
+      if (box.clipRect) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(...box.clipRect);
+        ctx.clip();
+      }
+      ctx.fillText(box.text, Math.round(x), Math.round(y));
       if (style.strikethrough) {
         if (align === "right") {
           x = x - box.textWidth;
