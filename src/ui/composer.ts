@@ -410,6 +410,12 @@ export class Composer extends Component<any, any> {
         let d = toCartesian(ranges[1].trim());
         right = d[0];
         bottom = d[1];
+        if (right < left) {
+          [right, left] = [left, right];
+        }
+        if (bottom < top) {
+          [bottom, top] = [top, bottom];
+        }
       }
       return { zone: { top, bottom, left, right }, color: rangesUsed[r1c1] };
     });

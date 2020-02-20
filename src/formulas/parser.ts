@@ -1,5 +1,6 @@
 import { Token, tokenize } from "./tokenizer";
 import { functions } from "../functions/index";
+import { toCartesian, toXC } from "../helpers";
 
 const UNARY_OPERATORS = ["-"];
 
@@ -168,6 +169,14 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
   if (current.type === "OPERATOR") {
     const bp = bindingPower(current);
     const right = parseExpression(tokens, bp);
+    if (current.value === ":") {
+      if (left.type === "REFERENCE" && right.type === "REFERENCE") {
+        const [x1, y1] = toCartesian(left.value);
+        const [x2, y2] = toCartesian(right.value);
+        left.value = toXC(Math.min(x1, x2), Math.min(y1, y2));
+        right.value = toXC(Math.max(x1, x2), Math.max(y1, y2));
+      }
+    }
     return {
       type: "BIN_OPERATION",
       value: current.value,

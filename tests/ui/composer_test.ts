@@ -183,6 +183,20 @@ describe("composer highlights color", () => {
     expect(composer.textContent).toBe("=sum(a1:a10)");
   });
 
+  test("highlight 'reverse' ranges", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=sum(B3:a1)");
+
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    // todo: find a way to have actual width/height instead of this
+    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+
+    fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await nextTick();
+    expect(model.state.highlights[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
+  });
+
   test.each(["=A0", "=ZZ1", "=A99"])("Do not highlight invalid ref", async ref => {
     const model = new GridModel();
     model.setValue("A1", ref);

@@ -95,6 +95,36 @@ describe("knows what's a reference and what's not", () => {
 });
 
 describe("parsing ranges", () => {
+  test("normal range", () => {
+    expect(parse("=A1:B2")).toEqual({
+      type: "BIN_OPERATION",
+      value: ":",
+      left: {
+        type: "REFERENCE",
+        value: "A1"
+      },
+      right: {
+        type: "REFERENCE",
+        value: "B2"
+      }
+    });
+  });
+
+  test("invalid range should be corrected", () => {
+    expect(parse("=B1:A2")).toEqual({
+      type: "BIN_OPERATION",
+      value: ":",
+      left: {
+        type: "REFERENCE",
+        value: "A1"
+      },
+      right: {
+        type: "REFERENCE",
+        value: "B2"
+      }
+    });
+  });
+
   test.skip("column", () => {
     expect(parse("=A:A")).toEqual({
       type: "BIN_OPERATION",
