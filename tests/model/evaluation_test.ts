@@ -116,4 +116,25 @@ describe("evaluateCells", () => {
     formatCell(model.state, model.state.cells.A2);
     expect(model.state.cells.A2.formattedValue).toBe("2");
   });
+
+  test("misc math formulas", () => {
+    const model = new GridModel();
+    model.setValue("A1", "42");
+    model.setValue("A2", "2");
+    model.setValue("B3", "2.3");
+    model.setValue("C1", "=countblank(A1:A10)");
+    model.setValue("C2", "=sum(A1,B1)");
+    model.setValue("C3", "=countblank(B1:A1)");
+    model.setValue("C4", "=floor(B3)");
+    model.setValue("C5", "=floor(A8)");
+    model.setValue("C6", "=sum(A1:A4,B1:B5)");
+
+    expect(model.state.cells.C1.value).toBe(8);
+    expect(model.state.cells.C2.value).toBe(42);
+    expect(model.state.cells.C3.value).toBe(1);
+    expect(model.state.cells.C4.value).toBe(2);
+    expect(model.state.cells.C5.value).toBe(0);
+    expect(model.state.cells.C6.value).toBe(46.3);
+  });
+
 });
