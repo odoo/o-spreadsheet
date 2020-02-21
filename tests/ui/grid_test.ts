@@ -13,6 +13,18 @@ afterEach(() => {
 });
 
 describe("Grid component", () => {
+  test("can render a sheet with a merge", async () => {
+    const model = new GridModel();
+    // select B2:B3 and merge
+    model.selectCell(1, 1);
+    model.updateSelection(1, 2);
+    model.merge();
+
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    expect(fixture.querySelector("canvas")).toBeDefined();
+  });
+
   test("can click on a cell to select it", async () => {
     const model = new GridModel();
     model.setValue("B2", "b2");
