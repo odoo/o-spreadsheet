@@ -9,7 +9,6 @@ jest.mock("../../src/ui/content_editable_helper", () =>
 
 let model: GridModel;
 let composerEl: Element;
-let canvasEl: Element;
 let fixture: HTMLElement;
 let parent: any;
 async function typeInComposer(text: string) {
@@ -25,10 +24,9 @@ beforeEach(async () => {
   parent = new GridParent(model);
   await parent.mount(fixture);
   model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-  canvasEl = fixture.querySelector("canvas")!;
 
   // start composition
-  canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+  parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
   composerEl = fixture.querySelector("div.o-composer")!;
 });

@@ -1,4 +1,4 @@
-import { isEqual, toXC, union } from "../helpers";
+import { isEqual, toCartesian, toXC, union } from "../helpers";
 import { Zone, GridState } from "./state";
 import { stopEditing, activateCell } from "./core";
 
@@ -191,4 +191,69 @@ export function getActiveRows(state: GridState): Set<number> {
     }
   }
   return activeRows;
+}
+
+export function startNewComposerSelection(state: GridState): void {
+  state.selection.anchor = { row: state.activeRow, col: state.activeCol };
+}
+
+/**
+ * Converts the selection zone to a XC coordinate system
+ *
+ * The conversion also treats merges a one single cell
+ *
+ * Examples:
+ * {top:0,left:0,right:0,bottom:0} ==> A1
+ * {top:0,left:0,right:1,bottom:1} ==> A1:B2
+ *
+ * if A1:B2 is a merge:
+ * {top:0,left:0,right:1,bottom:1} ==> A1
+ */
+export function selectionZoneXC(state: GridState): string {
+  const zone = state.selection.zones[0];
+  const topLeft = toXC(zone.left, zone.top);
+  const botRight = toXC(zone.right, zone.bottom);
+
+  if (topLeft != botRight && !state.mergeCellMap[topLeft]) {
+    return topLeft + ":" + botRight;
+  }
+
+  return topLeft;
+}
+
+export function addHighlights(state: GridState, rangesUsed: { [keys: string]: string }) {
+  let highlights = Object.keys(rangesUsed)
+    .map(r1c1 => {
+      const ranges = r1c1.split(":");
+      let top: number, bottom: number, left: number, right: number;
+
+      let c = toCartesian(ranges[0].trim());
+      left = right = c[0];
+      top = bottom = c[1];
+      if (ranges.length === 2) {
+        let d = toCartesian(ranges[1].trim());
+        right = d[0];
+        bottom = d[1];
+        if (right < left) {
+          [right, left] = [left, right];
+        }
+        if (bottom < top) {
+          [bottom, top] = [top, bottom];
+        }
+      }
+
+      let zone: Zone = { top, bottom, left, right };
+      zone = expandZone(state, zone);
+
+      return { zone, color: rangesUsed[r1c1] };
+    })
+    .filter(
+      x =>
+        x.zone.top >= 0 &&
+        x.zone.left >= 0 &&
+        x.zone.bottom < state.rows.length &&
+        x.zone.right < state.cols.length
+    );
+
+  state.highlights = state.highlights.concat(highlights);
 }
