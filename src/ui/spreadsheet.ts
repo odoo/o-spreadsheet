@@ -16,7 +16,7 @@ const { xml, css } = owl.tags;
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet hello FP">
+  <div class="o-spreadsheet">
     <TopBar model="model" t-on-click="focusGrid"/>
     <Grid model="model" t-ref="grid"/>
     <BottomBar model="model" />
@@ -27,6 +27,12 @@ const CSS = css/* scss */ `
     display: grid;
     grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT}px;
     font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+    &,
+    *,
+    *:before,
+    *:after {
+      box-sizing: content-box;
+    }
   }
 
   .o-icon {
