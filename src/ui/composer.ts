@@ -156,10 +156,10 @@ export class Composer extends Component<any, any> {
     this.processContent();
 
     const width = cols[this.zone.right].right - cols[this.zone.left].left;
-    el.style.width = Math.max(el.scrollWidth + 10, width + 0.5) as any;
+    el.style.width = (Math.max(el.scrollWidth + 10, width + 0.5) + "px") as string;
 
     const height = rows[this.zone.bottom].bottom - rows[this.zone.top].top + 1;
-    el.style.height = height as any;
+    el.style.height = (height + "px") as string;
   }
 
   willUnmount(): void {

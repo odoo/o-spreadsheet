@@ -136,5 +136,4 @@ describe("evaluateCells", () => {
     expect(model.state.cells.C5.value).toBe(0);
     expect(model.state.cells.C6.value).toBe(46.3);
   });
-
 });
