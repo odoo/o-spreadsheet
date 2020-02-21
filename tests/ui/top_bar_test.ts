@@ -173,6 +173,21 @@ describe("TopBar component", () => {
     expect(model.state.cells.B1).not.toBeDefined();
   });
 
+  test("can set cell format", async () => {
+    const model = new GridModel();
+    expect(model.state.cells.A1).not.toBeDefined();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    const formatTool = fixture.querySelector('.o-tool[title="Format"]')!;
+    formatTool.querySelector(".o-text-icon")!.dispatchEvent(new Event("click"));
+    await nextTick();
+    formatTool
+      .querySelector('[data-format="percent"]')!
+      .dispatchEvent(new Event("click", { bubbles: true }));
+    await nextTick();
+    expect(model.state.cells.A1.format).toEqual("0.00%");
+  });
+
   test("can set font size", async () => {
     const model = new GridModel();
     const parent = new Parent(model);

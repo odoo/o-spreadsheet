@@ -3,6 +3,13 @@ import { addCell, deleteCell, getCell, selectedCell } from "./core";
 import { updateCell } from "./history";
 import { Border, BorderCommand, GridState, Style, Zone } from "./state";
 
+/**
+ * All things related to:
+ * - styling cells
+ * - setting borders on cells
+ * - setting a value formatter
+ */
+
 // ---------------------------------------------------------------------------
 // Styles
 // ---------------------------------------------------------------------------
@@ -17,17 +24,20 @@ export function setStyle(state: GridState, style: Style) {
   }
 }
 
-export function clearFormat(state: GridState) {
+/**
+ * Note that here, formatting refers to styles+border, not value formatters
+ */
+export function clearFormatting(state: GridState) {
   for (let zone of state.selection.zones) {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
-        removeFormat(state, col, row);
+        removeFormatting(state, col, row);
       }
     }
   }
 }
 
-function removeFormat(state: GridState, col: number, row: number) {
+function removeFormatting(state: GridState, col: number, row: number) {
   const cell = getCell(state, col, row);
   if (cell) {
     if (cell.content) {
@@ -207,4 +217,30 @@ function registerBorder(state: GridState, border: Border) {
   const id = state.nextId++;
   state.borders[id] = border;
   return id;
+}
+
+// ---------------------------------------------------------------------------
+// Value formatters
+// ---------------------------------------------------------------------------
+
+export function setFormat(state: GridState, format: string) {
+  for (let zone of state.selection.zones) {
+    for (let rowIndex = zone.top; rowIndex <= zone.bottom; rowIndex++) {
+      const row = state.rows[rowIndex];
+      for (let colIndex = zone.left; colIndex <= zone.right; colIndex++) {
+        const cell = row.cells[colIndex];
+        if (cell) {
+          // the undefined fallback is there to make updateCell delete the key
+          if (!format && !cell.value && !cell.border && !cell.style) {
+            deleteCell(state, cell.xc, true);
+          } else {
+            updateCell(state, cell, "format", format || undefined);
+          }
+        } else if (format) {
+          const xc = toXC(colIndex, rowIndex);
+          addCell(state, xc, { format: format });
+        }
+      }
+    }
+  }
 }

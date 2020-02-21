@@ -255,7 +255,7 @@ describe("borders", () => {
     model.setBorder("all");
 
     expect(model.state.cells.B1.border).toBeDefined();
-    model.clearFormat();
+    model.clearFormatting();
     expect(model.state.cells.B1.border).not.toBeDefined();
   });
 });

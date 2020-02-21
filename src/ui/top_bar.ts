@@ -103,6 +103,12 @@ const COLOR_PICKER = xml/* xml */ `
     </t>
   </div>`;
 
+const FORMATS = [
+  { name: "auto", text: "Automatic" },
+  { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
+  { name: "percent", text: "Percent (10.12%)", value: "0.00%" }
+];
+
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
@@ -115,13 +121,20 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
         <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
         <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
-        <div class="o-tool" title="Clear Format" t-on-click="model.clearFormat()">${icons.CLEAR_FORMAT_ICON}</div>
+        <div class="o-tool" title="Clear Format" t-on-click="model.clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
         <div class="o-divider"/>
-        <div class="o-tool" title="Format">Format ${icons.TRIANGLE_DOWN_ICON}</div>
+        <div class="o-tool o-dropdown" title="Format">
+          <div class="o-text-icon" t-on-click.stop="toggleMenu('formatTool')">Format ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.formatTool" t-on-click="setFormat">
+            <t t-foreach="formats" t-as="format" t-key="format.name">
+              <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
+            </t>
+          </div>
+        </div>
         <div class="o-divider"/>
         <div class="o-tool" title="Font"><span>Arial</span> ${icons.TRIANGLE_DOWN_ICON}</div>
         <div class="o-tool o-dropdown" title="Font Size">
-          <div class="o-text-icon"  t-on-click.stop="toggleMenu('fontSizeTool')"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-text-icon" t-on-click.stop="toggleMenu('fontSizeTool')"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
           <div class="o-dropdown-content o-text-options "  t-if="state.fontSizeTool" t-on-click="setSize">
             <t t-foreach="fontSizes" t-as="font" t-key="font_index">
               <div t-esc="font.pt" t-att-data-size="font.pt"/>
@@ -247,6 +260,19 @@ export class TopBar extends Component<any, any> {
               }
             }
           }
+
+          &.o-format-tool {
+            width: 180px;
+            > div {
+              padding-left: 25px;
+              &.active:before {
+                content: "✓";
+                font-weight: bold;
+                position: absolute;
+                left: 10px;
+              }
+            }
+          }
         }
       }
 
@@ -299,10 +325,13 @@ export class TopBar extends Component<any, any> {
     }
   `;
   COLORS = COLORS;
+  formats = FORMATS;
+  currentFormat = "auto";
   fontSizes = fontSizes;
   model: GridModel = this.props.model;
   style: Style = {};
   state = useState({
+    formatTool: false,
     alignTool: false,
     textColorTool: false,
     fillColorTool: false,
@@ -343,6 +372,7 @@ export class TopBar extends Component<any, any> {
     this.state[tool] = !isOpen;
   }
   closeMenus() {
+    this.state.formatTool = false;
     this.state.alignTool = false;
     this.state.fillColorTool = false;
     this.state.textColorTool = false;
@@ -366,6 +396,13 @@ export class TopBar extends Component<any, any> {
     this.undoTool = state.undoStack.length > 0;
     this.redoTool = state.redoStack.length > 0;
     this.paintFormatTool = state.isCopyingFormat;
+    const cell = this.model.selectedCell;
+    if (cell && cell.format) {
+      const format = this.formats.find(f => f.value === cell.format);
+      this.currentFormat = format ? format.name : "";
+    } else {
+      this.currentFormat = "auto";
+    }
   }
 
   toggleMerge() {
@@ -391,6 +428,14 @@ export class TopBar extends Component<any, any> {
   }
   setBorder(command) {
     this.model.setBorder(command);
+  }
+  setFormat(ev: MouseEvent) {
+    const format = (ev.target as HTMLElement).dataset.format;
+    if (format) {
+      const formatter = FORMATS.find(f => f.name === format);
+      const value = (formatter && formatter.value) || "";
+      this.model.setFormat(value);
+    }
   }
   paintFormat() {
     this.model.copy({ onlyFormat: true });

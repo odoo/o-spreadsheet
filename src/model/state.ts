@@ -133,6 +133,7 @@ export interface NewCell {
   content?: string;
   style?: number;
   border?: number;
+  format?: string;
 }
 
 export interface Cell extends NewCell {

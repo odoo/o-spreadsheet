@@ -1,11 +1,11 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { formatNumber } from "../formatters";
+import { formatNumber, formatValue } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile, tokenize } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
-import { Cell, GridState, Highlight, Sheet, Zone, NewCell } from "./state";
+import { Cell, GridState, Highlight, NewCell, Sheet, Zone } from "./state";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -32,8 +32,14 @@ export function formatCell(state: GridState, cell: Cell): string {
   }
 
   const value = cell.value || 0;
-  // todo: apply formatters if needed
-  return cell.type !== "text" ? formatNumber(value) : value.toString();
+
+  if (cell.type === "text") {
+    return value.toString();
+  }
+  if (cell.format) {
+    return formatValue(cell.value, cell.format);
+  }
+  return formatNumber(value);
 }
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
@@ -73,13 +79,17 @@ export function addCell(
   const value = type === "text" ? content : type === "number" ? parseFloat(content) : null;
   const cell: Cell = { col, row, xc, content, value, type };
   const style = data.style || (currentCell && currentCell.style);
-  const border = data.border;
+  const border = data.border || (currentCell && currentCell.border);
+  const format = data.format || (currentCell && currentCell.format);
   if (options.preserveFormatting || options.sheet) {
     if (border) {
       cell.border = border;
     }
     if (style) {
       cell.style = style;
+    }
+    if (format) {
+      cell.format = format;
     }
   }
   if (cell.type === "formula") {

@@ -26,7 +26,9 @@ const CSS = css/* scss */ `
   .o-spreadsheet {
     display: grid;
     grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT}px;
-    font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+    * {
+      font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+    }
     &,
     *,
     *:before,

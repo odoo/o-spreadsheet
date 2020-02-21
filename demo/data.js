@@ -39,7 +39,10 @@ export const demoData = {
         G20: { content: "all", border: 3 },
         K3: { border: 3 },
         B17: {content: "=WAIT(1000)"},
-        G13: { content: "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16+A17+A18" }
+        G13: { content: "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16+A17+A18" },
+        C23: { content: "0.43", format: "0.00%"},
+        C24: { content: "10", format: "#,##0.00"},
+        C25: { content: "10.123", format: "#,##0.00"},
       },
       merges: ["H2:I5", "K3:K8"]
     }

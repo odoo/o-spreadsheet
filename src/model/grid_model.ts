@@ -124,7 +124,8 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   setBorder = this.makeMutation(formatting.setBorder);
   setStyle = this.makeMutation(formatting.setStyle);
-  clearFormat = this.makeMutation(formatting.clearFormat);
+  clearFormatting = this.makeMutation(formatting.clearFormatting);
+  setFormat = this.makeMutation(formatting.setFormat);
 
   // selection
   // ---------------------------------------------------------------------------
