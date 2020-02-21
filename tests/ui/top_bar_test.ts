@@ -190,4 +190,19 @@ describe("TopBar component", () => {
     const style = model.state.styles[styleId];
     expect(style.fontSize).toBe(8);
   });
+
+  test("opening, then closing same menu", async () => {
+    const model = new GridModel();
+    model.setValue("B2", "b2");
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
+    fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+  });
 });

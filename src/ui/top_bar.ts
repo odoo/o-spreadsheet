@@ -121,7 +121,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-divider"/>
         <div class="o-tool" title="Font"><span>Arial</span> ${icons.TRIANGLE_DOWN_ICON}</div>
         <div class="o-tool o-dropdown" title="Font Size">
-          <div class="o-text-icon"  t-on-click.stop="openMenu('fontSizeTool')"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-text-icon"  t-on-click.stop="toggleMenu('fontSizeTool')"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
           <div class="o-dropdown-content o-text-options "  t-if="state.fontSizeTool" t-on-click="setSize">
             <t t-foreach="fontSizes" t-as="font" t-key="font_index">
               <div t-esc="font.pt" t-att-data-size="font.pt"/>
@@ -133,20 +133,20 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleTool('italic')">${icons.ITALIC_ICON}</div>
         <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}</div>
         <div class="o-tool o-dropdown o-with-color">
-          <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="openMenu('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
+          <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="toggleMenu('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
           <div class="o-dropdown-content" t-if="state.textColorTool" t-on-click="setColor('textColor')">
             <t t-call="${COLOR_PICKER}"/>
           </div>
         </div>
         <div class="o-divider"/>
         <div class="o-tool  o-dropdown o-with-color">
-          <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="openMenu('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
+          <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="toggleMenu('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
           <div class="o-dropdown-content" t-if="state.fillColorTool" t-on-click="setColor('fillColor')">
             <t t-call="${COLOR_PICKER}"/>
           </div>
         </div>
         <div class="o-tool o-dropdown">
-          <span title="Borders" t-on-click.stop="openMenu('borderTool')">${icons.BORDERS_ICON}</span>
+          <span title="Borders" t-on-click.stop="toggleMenu('borderTool')">${icons.BORDERS_ICON}</span>
           <div class="o-dropdown-content o-border" t-if="state.borderTool">
             <div class="o-dropdown-line">
               <span class="o-line-item" t-on-click="setBorder('all')">${icons.BORDERS_ICON}</span>
@@ -167,7 +167,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool o-dropdown" title="Horizontal align">
-          <span t-on-click.stop="openMenu('alignTool')">
+          <span t-on-click.stop="toggleMenu('alignTool')">
             <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
             <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
             ${icons.TRIANGLE_DOWN_ICON}
@@ -337,9 +337,10 @@ export class TopBar extends Component<any, any> {
     this.model.setStyle({ [tool]: value });
   }
 
-  openMenu(tool) {
+  toggleMenu(tool) {
+    const isOpen = this.state[tool];
     this.closeMenus();
-    this.state[tool] = true;
+    this.state[tool] = !isOpen;
   }
   closeMenus() {
     this.state.alignTool = false;
