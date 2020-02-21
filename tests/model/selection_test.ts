@@ -31,6 +31,16 @@ describe("selection", () => {
     expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
+  test("can grow/shrink selection with shift-arrow", () => {
+    const model = new GridModel();
+
+    expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    model.moveSelection(1, 0);
+    expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
+    model.moveSelection(-1, 0);
+    expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+  });
+
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,

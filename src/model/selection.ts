@@ -24,18 +24,18 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   const anchorCol = state.selection.anchor.col;
   const anchorRow = state.selection.anchor.row;
   const { left, right, top, bottom } = selection;
-  if (
-    top + deltaY < 0 ||
-    left + deltaX < 0 ||
-    bottom + deltaY >= state.rows.length ||
-    right + deltaX >= state.cols.length
-  ) {
-    return;
-  }
   let result: Zone | null = selection;
-  // check if we can shrink selection
-  let expand = z => expandZone(state, z);
+  function expand(z: Zone): Zone {
+    const { left, right, top, bottom } = expandZone(state, z);
+    return {
+      left: Math.max(0, left),
+      right: Math.min(state.cols.length - 1, right),
+      top: Math.max(0, top),
+      bottom: Math.min(state.rows.length - 1, bottom)
+    };
+  }
 
+  // check if we can shrink selection
   let n = 0;
   while (result !== null) {
     n++;
