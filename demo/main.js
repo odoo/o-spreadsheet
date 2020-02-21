@@ -9,8 +9,11 @@ let start;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
-  data = demoData;
-  // data = makeLargeDataset();
+  constructor() {
+    super();
+    this.data = demoData;
+    // this.data = makeLargeDataset();
+  }
 
   mounted() {
     console.log("Mounted: ", Date.now() - start);

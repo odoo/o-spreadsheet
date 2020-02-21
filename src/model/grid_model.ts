@@ -105,7 +105,6 @@ export class GridModel extends owl.core.EventBus {
   startEditing = this.makeMutation(core.startEditing);
   stopEditing = this.makeMutation(core.stopEditing);
   setCurrentContent = this.makeFn(core.setCurrentContent);
-  addHighlights = this.makeMutation(core.addHighlights);
   removeHighlights = this.makeMutation(core.removeHighlights);
   selectCell = this.makeMutation(core.selectCell);
   // updateVisibleZone and updateScroll should not be a mutation
@@ -141,6 +140,9 @@ export class GridModel extends owl.core.EventBus {
   zoneIsEntireRow = this.makeFn(selection.zoneIsEntireRow);
   getActiveCols = this.makeFn(selection.getActiveCols);
   getActiveRows = this.makeFn(selection.getActiveRows);
+  startNewComposerSelection = this.makeFn(selection.startNewComposerSelection);
+  selectionZoneXC = this.makeFn(selection.selectionZoneXC);
+  addHighlights = this.makeMutation(selection.addHighlights);
 
   // merges
   // ---------------------------------------------------------------------------

@@ -51,7 +51,9 @@ describe("Grid component", () => {
 
     expect(model.state.activeXc).toBe("A1");
     triggerMouseEvent(".o-overlay", "click", 300, 20);
-    document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
+    );
     expect(model.state.activeXc).toBe("A2");
   });
 
@@ -85,9 +87,7 @@ describe("Grid component", () => {
       model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
       expect(model.state.activeXc).toBe("A1");
-      fixture
-        .querySelector("canvas")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(model.state.activeXc).toBe("A1");
       expect(model.state.isEditing).toBe(true);
     });
@@ -155,7 +155,7 @@ describe("Grid component", () => {
       model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
       expect(model.state.activeXc).toBe("A1");
-      fixture.querySelector("canvas")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+      parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       expect(model.state.activeXc).toBe("B1");
     });
 
@@ -168,9 +168,7 @@ describe("Grid component", () => {
 
       model.selectCell(1, 0);
       expect(model.state.activeXc).toBe("B1");
-      fixture
-        .querySelector("canvas")!
-        .dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
+      parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(model.state.activeXc).toBe("A1");
     });
 
@@ -183,14 +181,14 @@ describe("Grid component", () => {
 
       expect(model.state.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "z", ctrlKey: true })
+        new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
       );
 
       expect(model.state.cells.A1).not.toBeDefined();
 
       await nextTick();
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "y", ctrlKey: true })
+        new KeyboardEvent("keydown", { key: "y", ctrlKey: true, bubbles: true })
       );
       expect(model.state.cells.A1.style).toBeDefined();
     });
@@ -204,14 +202,14 @@ describe("Grid component", () => {
 
       expect(model.state.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Z", ctrlKey: true })
+        new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
       );
 
       expect(model.state.cells.A1).not.toBeDefined();
 
       await nextTick();
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Y", ctrlKey: true })
+        new KeyboardEvent("keydown", { key: "Y", ctrlKey: true, bubbles: true })
       );
       expect(model.state.cells.A1.style).toBeDefined();
     });
@@ -222,7 +220,7 @@ describe("Grid component", () => {
       await parent.mount(fixture);
       model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
       document.activeElement!.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "A", ctrlKey: true })
+        new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
       );
       expect(model.state.activeXc).toBe("A1");
       expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
@@ -259,7 +257,9 @@ describe("Grid component", () => {
       model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
       expect(model.state.cells.C2).not.toBeDefined();
-      document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+      );
 
       expect(model.state.cells.C2.style).toBe(2);
     });

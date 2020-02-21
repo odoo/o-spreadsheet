@@ -1,7 +1,6 @@
 import * as owl from "@odoo/owl";
 
 import { GridModel, Zone } from "../model";
-import { toCartesian, zoneToXC } from "../helpers";
 import { fontSizeMap } from "../fonts";
 import { ComposerToken, composerTokenize } from "../formulas/composer_tokenizer";
 import { rangeReference } from "../formulas/parser";
@@ -13,20 +12,20 @@ const { useRef, useState } = owl.hooks;
 const { xml, css } = owl.tags;
 
 export const colors = [
-  "#0074d9",
-  "#7fdbff",
-  "#39cccc",
-  "#3d9970",
-  "#0ecc40",
-  "#01ff70",
-  "#ffdc00",
   "#ff851b",
-  "#ff4136",
-  "#85144b",
-  "#f012be",
+  "#0074d9",
+  "#ffdc00",
+  "#7fdbff",
   "#b10dc9",
+  "#0ecc40",
+  "#39cccc",
+  "#f012be",
+  "#3d9970",
   "#111111",
+  "#01ff70",
+  "#ff4136",
   "#aaaaaa",
+  "#85144b",
   "#001f3f"
 ];
 
@@ -125,6 +124,18 @@ export class Composer extends Component<any, any> {
   refSelectionStart: number = 0;
   tokens: ComposerToken[] = [];
 
+  keyMapping: { [key: string]: Function } = {
+    Enter: this.processEnterKey,
+    Escape: this.processEscapeKey,
+    Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
+    F2: () => console.warn("Not implemented"),
+    F4: () => console.warn("Not implemented"),
+    ArrowUp: this.processArrowKeys,
+    ArrowDown: this.processArrowKeys,
+    ArrowLeft: this.processArrowKeys,
+    ArrowRight: this.processArrowKeys
+  };
+
   constructor() {
     super(...arguments);
     const model = this.model;
@@ -197,63 +208,75 @@ export class Composer extends Component<any, any> {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  onKeydown(ev: KeyboardEvent) {
-    // note: it is possible that this.autoCompleteState.showState has been set to true, and that
-    // this.autoCompleteRef.comp has not yet been assigned, if the user types quickly and there was no render frame yet executed.
-    const autoComplete = this.autoCompleteRef.comp as TextValueProvider;
-    switch (ev.key) {
-      case "Enter":
-        ev.preventDefault();
-        if (this.autoCompleteState.showProvider && autoComplete) {
-          const autoCompleteValue = autoComplete.getValueToFill();
-          if (autoCompleteValue) {
-            this.autoComplete(autoCompleteValue);
-            ev.stopPropagation();
-            return;
-          }
-        }
-        this.model.stopEditing();
-        this.model.movePosition(0, ev.shiftKey ? -1 : 1);
-        this.isDone = true;
-        break;
-      case "Escape":
-        this.model.cancelEdition();
-        this.isDone = true;
-        break;
-      case "Tab":
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (this.autoCompleteState.showProvider && autoComplete) {
-          const autoCompleteValue = autoComplete.getValueToFill();
-          if (autoCompleteValue) {
-            this.autoComplete(autoCompleteValue);
-            return;
-          }
-        } else {
-          // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
-          // we can't let the model think that it is for a ref selection.
-          this.model.setSelectingRange(false);
-        }
-
-        const deltaX = ev.shiftKey ? -1 : 1;
-        this.isDone = true;
-        this.model.movePosition(deltaX, 0);
-        break;
-      case "ArrowDown":
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (this.autoCompleteState.showProvider && autoComplete) {
-          autoComplete.moveDown();
-        }
-        break;
-      case "ArrowUp":
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (this.autoCompleteState.showProvider && autoComplete) {
-          autoComplete.moveUp();
-        }
-        break;
+  processArrowKeys(ev: KeyboardEvent, delta: Array<number>) {
+    if (this.model.state.isSelectingRange) {
+      ev.preventDefault();
+      return;
     }
+    ev.stopPropagation();
+    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
+    if (
+      ["ArrowUp", "ArrowDown"].includes(ev.key) &&
+      this.autoCompleteState.showProvider &&
+      autoCompleteComp
+    ) {
+      ev.preventDefault();
+      if (ev.key === "ArrowUp") {
+        autoCompleteComp.moveUp();
+      } else {
+        autoCompleteComp.moveDown();
+      }
+    }
+  }
+
+  processTabKey(ev: KeyboardEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
+    if (this.autoCompleteState.showProvider && autoCompleteComp) {
+      const autoCompleteValue = autoCompleteComp.getValueToFill();
+      if (autoCompleteValue) {
+        this.autoComplete(autoCompleteValue);
+        return;
+      }
+    } else {
+      // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
+      // we can't let the model think that it is for a ref selection.
+      this.model.setSelectingRange(false);
+    }
+
+    const deltaX = ev.shiftKey ? -1 : 1;
+    this.isDone = true;
+    this.model.movePosition(deltaX, 0);
+  }
+
+  processEnterKey(ev: KeyboardEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
+    if (this.autoCompleteState.showProvider && autoCompleteComp) {
+      const autoCompleteValue = autoCompleteComp.getValueToFill();
+      if (autoCompleteValue) {
+        this.autoComplete(autoCompleteValue);
+        return;
+      }
+    }
+    this.model.stopEditing();
+    this.model.movePosition(0, ev.shiftKey ? -1 : 1);
+    this.isDone = true;
+  }
+
+  processEscapeKey() {
+    this.model.cancelEdition();
+    this.isDone = true;
+  }
+
+  onKeydown(ev: KeyboardEvent) {
+    let handler = this.keyMapping[ev.key];
+    if (handler) {
+      return handler.call(this, ev);
+    }
+    ev.stopPropagation();
   }
 
   /*
@@ -275,7 +298,18 @@ export class Composer extends Component<any, any> {
   }
 
   onKeyup(ev: KeyboardEvent) {
-    if (["Control", "ArrowUp", "ArrowDown", "Tab", "Enter"].includes(ev.key)) {
+    if (
+      [
+        "Control",
+        "Shift",
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "Tab",
+        "Enter"
+      ].includes(ev.key)
+    ) {
       // already processed in keydown
       return;
     }
@@ -299,7 +333,6 @@ export class Composer extends Component<any, any> {
     ev.stopPropagation();
     this.processContent();
     this.processTokenAtCursor();
-    this.model.setSelectingRange(false);
   }
   onCompleted(ev: CustomEvent) {
     this.autoComplete(ev.detail.text);
@@ -323,9 +356,13 @@ export class Composer extends Component<any, any> {
       let lastUsedColorIndex = 0;
 
       this.tokens = composerTokenize(value);
-      this.tokenAtCursor = this.tokens.find(
-        t => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
-      );
+      if (this.selectionStart === this.selectionEnd && this.selectionEnd === 0) {
+        this.tokenAtCursor = undefined;
+      } else {
+        this.tokenAtCursor = this.tokens.find(
+          t => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
+        );
+      }
       for (let token of this.tokens) {
         switch (token.type) {
           case "OPERATOR":
@@ -370,7 +407,7 @@ export class Composer extends Component<any, any> {
 
       // Put the cursor back where it was
       this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
-      this.addHighlights(refUsed);
+      this.model.addHighlights(refUsed);
     }
     this.shouldProcessInputEvents = true;
   }
@@ -390,44 +427,15 @@ export class Composer extends Component<any, any> {
         this.autoCompleteState.showProvider = true;
       }
     } else if (["COMMA", "LEFT_PAREN", "OPERATOR"].includes(this.tokenAtCursor.type)) {
+      // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
+      // is relative the to the cell we edit
+      this.model.startNewComposerSelection();
       this.model.setSelectingRange(true);
       // We set this variable to store the start of the selection, to allow
       // to replace selections (ex: select twice a cell should only be added
       // once)
       this.refSelectionStart = this.selectionStart;
     }
-  }
-
-  addHighlights(rangesUsed: {}) {
-    let highlights = Object.keys(rangesUsed).map(r1c1 => {
-      const ranges = r1c1.split(":");
-      let top: number, bottom: number, left: number, right: number;
-
-      let c = toCartesian(ranges[0].trim());
-      left = right = c[0];
-      top = bottom = c[1];
-      if (ranges.length === 2) {
-        let d = toCartesian(ranges[1].trim());
-        right = d[0];
-        bottom = d[1];
-        if (right < left) {
-          [right, left] = [left, right];
-        }
-        if (bottom < top) {
-          [bottom, top] = [top, bottom];
-        }
-      }
-      return { zone: { top, bottom, left, right }, color: rangesUsed[r1c1] };
-    });
-    this.model.addHighlights(
-      highlights.filter(
-        x =>
-          x.zone.top >= 0 &&
-          x.zone.left >= 0 &&
-          x.zone.bottom < this.model.state.rows.length &&
-          x.zone.right < this.model.state.cols.length
-      )
-    );
   }
 
   addText(text: string) {
@@ -438,11 +446,12 @@ export class Composer extends Component<any, any> {
   }
 
   addTextFromSelection() {
-    let newValue = zoneToXC(this.model.state.selection.zones[0]);
+    let selection = this.model.selectionZoneXC();
     if (this.refSelectionStart) {
       this.selectionStart = this.refSelectionStart;
     }
-    this.addText(newValue);
+
+    this.addText(selection);
     this.processContent();
   }
 

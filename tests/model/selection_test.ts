@@ -246,6 +246,24 @@ describe("selection", () => {
       zones: [{ left: 3, top: 3, right: 4, bottom: 4 }]
     });
   });
+  test("make selection works based on selection anchor, not active cell", () => {
+    const model = new GridModel();
+    model.selectCell(0, 0); // select A1
+
+    model.state.isSelectingRange = true;
+    model.selectCell(3, 3);
+
+    model.moveSelection(0, 1);
+    model.moveSelection(0, -1);
+
+    expect(model.state.activeXc).toBe("A1"); // active cell is not modified but the selection is
+    expect(model.state.activeCol).toBe(0);
+    expect(model.state.activeRow).toBe(0);
+    expect(model.state.selection).toEqual({
+      anchor: { col: 3, row: 3 },
+      zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
+    });
+  });
 });
 
 describe("multiple selections", () => {

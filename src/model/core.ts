@@ -5,7 +5,7 @@ import { compile, tokenize } from "../formulas/index";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
-import { Cell, GridState, Highlight, NewCell, Sheet, Zone } from "./state";
+import { Cell, GridState, NewCell, Sheet, Zone } from "./state";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -140,22 +140,24 @@ export function deleteCell(state: GridState, xc: string, force: boolean = false)
 }
 
 export function movePosition(state: GridState, deltaX: number, deltaY: number) {
-  const { activeCol, activeRow, cols, rows, viewport } = state;
+  const { activeCol, activeRow, cols, rows, viewport, selection } = state;
+
+  const moveReferenceRow = state.isSelectingRange ? selection.anchor.row : activeRow;
+  const moveReferenceCol = state.isSelectingRange ? selection.anchor.col : activeCol;
+  const activeReference = toXC(moveReferenceCol, moveReferenceRow);
+
   const invalidMove =
-    (deltaY < 0 && activeRow === 0) ||
-    (deltaY > 0 && activeRow === rows.length - 1) ||
-    (deltaX < 0 && activeCol === 0) ||
-    (deltaX > 0 && activeCol === cols.length - 1);
+    (deltaY < 0 && moveReferenceRow === 0) ||
+    (deltaY > 0 && moveReferenceRow === rows.length - 1) ||
+    (deltaX < 0 && moveReferenceCol === 0) ||
+    (deltaX > 0 && moveReferenceCol === cols.length - 1);
   if (invalidMove) {
-    if (state.isEditing) {
-      stopEditing(state);
-    }
     return;
   }
-  let mergeId = state.mergeCellMap[state.activeXc];
+  let mergeId = state.mergeCellMap[activeReference];
   if (mergeId) {
-    let targetCol = state.activeCol;
-    let targetRow = state.activeRow;
+    let targetCol = moveReferenceCol;
+    let targetRow = moveReferenceRow;
     while (state.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
       targetCol += deltaX;
       targetRow += deltaY;
@@ -164,7 +166,7 @@ export function movePosition(state: GridState, deltaX: number, deltaY: number) {
       selectCell(state, targetCol, targetRow);
     }
   } else {
-    selectCell(state, state.activeCol + deltaX, state.activeRow + deltaY);
+    selectCell(state, moveReferenceCol + deltaX, moveReferenceRow + deltaY);
   }
   // keep current cell in the viewport, if possible
   while (state.activeCol >= viewport.right && state.activeCol !== cols.length - 1) {
@@ -298,10 +300,6 @@ export function startEditing(state: GridState, str?: string) {
   state.isEditing = true;
   state.currentContent = str;
   state.highlights = [];
-}
-
-export function addHighlights(state: GridState, highlights: Highlight[]) {
-  state.highlights = state.highlights.concat(highlights);
 }
 
 export function removeHighlights(state: GridState) {

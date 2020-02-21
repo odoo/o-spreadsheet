@@ -31,14 +31,14 @@ const { useRef, useExternalListener } = owl.hooks;
 // TEMPLATE
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet-sheet" t-on-click="focus">
+  <div class="o-spreadsheet-sheet" t-on-click="focus" t-on-keydown="onKeydown">
     <t t-if="state.isEditing">
       <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
-      t-on-keydown="onKeydown" tabindex="-1"
+      tabindex="-1"
       t-on-contextmenu="toggleContextMenu"
       t-on-wheel="onMouseWheel" />
     <Overlay model="model" t-on-autoresize="onAutoresize"/>
@@ -91,6 +91,11 @@ const CSS = css/* scss */ `
   }
 `;
 
+// copy and paste are specific events that should not be managed by the keydown event,
+// but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
+// and also should not result in typing the character C or V in the composer
+const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
+
 // -----------------------------------------------------------------------------
 // JS
 
@@ -120,6 +125,26 @@ export class Grid extends Component<any, any> {
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
   clipBoardString: string = "";
+
+  // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
+  // down itself
+  keyDownMapping: { [key: string]: Function } = {
+    ENTER: this.model.startEditing,
+    TAB: () => this.model.movePosition(1, 0),
+    "SHIFT+TAB": () => this.model.movePosition(-1, 0),
+    F2: this.model.startEditing,
+    DELETE: this.model.deleteSelection,
+    "CTRL+A": this.model.selectAll,
+    "CTRL+S": () => console.warn("not implemented"),
+    "CTRL+Z": this.model.undo,
+    "CTRL+Y": this.model.redo
+  };
+
+  private processCopyFormat() {
+    if (this.model.state.isCopyingFormat) {
+      this.model.paste({ onlyFormat: true });
+    }
+  }
 
   constructor() {
     super(...arguments);
@@ -288,7 +313,16 @@ export class Grid extends Component<any, any> {
   // Keyboard interactions
   // ---------------------------------------------------------------------------
 
-  onKeydown(ev: KeyboardEvent) {
+  processTabKey(ev: KeyboardEvent) {
+    ev.preventDefault();
+    const deltaX = ev.shiftKey ? -1 : 1;
+    this.model.movePosition(deltaX, 0);
+    return;
+  }
+
+  processArrows(ev: KeyboardEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
     const deltaMap = {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
@@ -296,64 +330,50 @@ export class Grid extends Component<any, any> {
       ArrowUp: [0, -1]
     };
     const delta = deltaMap[ev.key];
-    if (delta) {
-      if (ev.shiftKey) {
-        this.model.moveSelection(delta[0], delta[1]);
-      } else {
-        this.model.movePosition(delta[0], delta[1]);
-      }
-      if (this.model.state.isCopyingFormat) {
-        this.model.paste({ onlyFormat: true });
-      }
-      return;
-    }
-    if (this.state.isSelectingRange) {
-      switch (ev.key) {
-        case "Enter":
-          if (this.composer.comp) {
-            (this.composer.comp as Composer).addTextFromSelection();
-            this.state.isSelectingRange = false;
-          }
-          return;
-
-        case "Escape":
-          this.state.isSelectingRange = false;
-          ev.stopPropagation();
-          return;
-      }
+    if (ev.shiftKey) {
+      this.model.moveSelection(delta[0], delta[1]);
+    } else {
+      this.model.movePosition(delta[0], delta[1]);
     }
 
-    if (ev.key === "Tab") {
-      ev.preventDefault();
-      const deltaX = ev.shiftKey ? -1 : 1;
-      this.model.movePosition(deltaX, 0);
-      return;
-    }
-    if (ev.key === "F2" || ev.key === "Enter") {
-      this.model.startEditing();
-      return;
-    }
-    if (ev.key === "Delete") {
-      this.model.deleteSelection();
-    }
-    if (ev.ctrlKey) {
-      if (ev.key.toLowerCase() === "z") {
-        this.model.undo();
-      }
-      if (ev.key.toLowerCase() === "y") {
-        this.model.redo();
-      }
-      if (ev.key.toLowerCase() === "a") {
-        ev.preventDefault();
-        this.model.selectAll();
-      }
-      return;
-    }
-
-    if (ev.key.length === 1) {
-      this.model.startEditing(ev.key);
+    if (this.model.state.isSelectingRange && this.composer.comp) {
+      (this.composer.comp as Composer).addTextFromSelection();
+    } else {
+      this.processCopyFormat();
     }
   }
+
+  onKeydown(ev: KeyboardEvent) {
+    if (ev.key.startsWith("Arrow")) {
+      this.processArrows(ev);
+      return;
+    }
+
+    let keyDownString = "";
+    if (ev.ctrlKey) keyDownString += "CTRL+";
+    if (ev.metaKey) keyDownString += "CTRL+";
+    if (ev.altKey) keyDownString += "ALT+";
+    if (ev.shiftKey) keyDownString += "SHIFT+";
+    keyDownString += ev.key.toUpperCase();
+
+    let handler = this.keyDownMapping[keyDownString];
+    if (handler) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      handler();
+      return;
+    }
+    if (!keyDownMappingIgnore.includes(keyDownString)) {
+      if (ev.key.length === 1) {
+        // if the user types a character on the grid, it means he wants to start composing the selected cell with that
+        // character
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.model.startEditing(ev.key);
+      }
+    }
+  }
+
   copy(cut: boolean, ev: ClipboardEvent) {
     if (document.activeElement !== this.canvas.el) {
       return;
