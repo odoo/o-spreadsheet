@@ -53,9 +53,9 @@ function importFunctions(mapping: FunctionMap, category: string) {
 /**
  * Add a function to the internal function list.
  */
-export function addFunction(name: string, descr: FunctionDescription) {
+export function addFunction(name: string, descr: FunctionDescription, replace: boolean = false) {
   name = name.toUpperCase();
-  if (name in functionMap) {
+  if (!replace && name in functionMap) {
     throw new Error(`Function ${name} already registered...`);
   }
 

@@ -1,5 +1,5 @@
 import { args } from "../../src/functions/arguments";
-import { addFunction } from "../../src/functions/index";
+import { addFunction, FunctionDescription } from "../../src/functions/index";
 import { evaluate } from "../helpers";
 
 describe("addFunction", () => {
@@ -31,5 +31,21 @@ describe("addFunction", () => {
       error = e;
     }
     expect(error).toBeDefined();
+  });
+  test("Can replace existing function", () => {
+    const description: FunctionDescription = {
+      description: "Triple the first argument",
+      compute: arg => 3 * arg,
+      args: args`number (number) my number`,
+      returns: ["NUMBER"]
+    };
+    addFunction("TRIPLETRIPLE", description);
+    let error = null;
+    try {
+      addFunction("TRIPLETRIPLE", description, true);
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeNull();
   });
 });
