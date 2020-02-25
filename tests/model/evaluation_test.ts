@@ -1,5 +1,4 @@
 import { GridModel } from "../../src/model/index";
-import { formatCell } from "../../src/model/core";
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
@@ -105,17 +104,6 @@ describe("evaluateCells", () => {
     expect(model.state.cells.A1.value).toBe(42);
   });
 
-  test("evaluate clear formattedValue cache", () => {
-    const model = new GridModel();
-    model.setValue("A1", "1");
-    model.setValue("A2", "=A1");
-    formatCell(model.state, model.state.cells.A2);
-    expect(model.state.cells.A2.formattedValue).toBe("1");
-    model.setValue("A1", "2");
-    expect(model.state.cells.A2.formattedValue).not.toBeDefined();
-    formatCell(model.state, model.state.cells.A2);
-    expect(model.state.cells.A2.formattedValue).toBe("2");
-  });
 
   test("misc math formulas", () => {
     const model = new GridModel();

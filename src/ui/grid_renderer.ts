@@ -24,6 +24,8 @@ interface Box {
 
 type Rect = [number, number, number, number];
 
+let valuesCache: {[xc: string]: string} = {}
+
 let dpr = window.devicePixelRatio || 1;
 let thinLineWidth = 0.4 * dpr;
 
@@ -56,6 +58,20 @@ export function drawGrid(
   drawActiveZone(model.state, context);
 }
 
+function formatCell(model: GridModel, cell: Cell) {
+  let value = valuesCache[cell.xc];
+  if (value) {
+    return value;
+  }
+  value = model.formatCell(cell);
+  valuesCache[cell.xc] = value;
+  return value;
+}
+
+export function clearCache() {
+  valuesCache = {};
+}
+
 function hasContent(state: GridState, col: number, row: number): boolean {
   const { cells, mergeCellMap } = state;
   const xc = toXC(col, row);
@@ -76,7 +92,7 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
       let cell = row.cells[colNumber];
       if (cell && !(cell.xc in mergeCellMap)) {
         let col = cols[colNumber];
-        const text = model.formatCell(cell);
+        const text = formatCell(model, cell);
         const textWidth = getCellWidth(cell, model, ctx);
         const style = cell.style ? state.styles[cell.style] : null;
         const align = text
@@ -128,7 +144,7 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
       const width = cols[merge.right].right - cols[merge.left].left;
       let text, textWidth, style, align, border;
       if (refCell) {
-        text = refCell ? model.formatCell(refCell) : "";
+        text = refCell ? formatCell(model, refCell) : "";
         textWidth = getCellWidth(refCell, model, ctx);
         style = refCell.style ? state.styles[refCell.style] : {};
         align = text
@@ -172,7 +188,7 @@ function getCellWidth(cell: Cell, model: GridModel, ctx: CanvasRenderingContext2
   const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
   const size = fontSizeMap[sizeInPt];
   ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-  cell.width = ctx.measureText(model.formatCell(cell)).width;
+  cell.width = ctx.measureText(formatCell(model, cell)).width;
   return cell.width;
 }
 

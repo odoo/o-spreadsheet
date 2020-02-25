@@ -10,7 +10,7 @@ import { Composer } from "./composer";
 import { Overlay } from "./overlay";
 import { ContextMenu } from "./context_menu";
 import { isInside } from "../helpers";
-import { drawGrid, getMaxSize } from "./grid_renderer";
+import { drawGrid, getMaxSize, clearCache } from "./grid_renderer";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -129,6 +129,7 @@ export class Grid extends Component<any, any> {
   }
 
   mounted() {
+    this.model.on('update', this, clearCache);
     this.focus();
     this.updateVisibleZone();
     this.drawGrid();
@@ -142,6 +143,10 @@ export class Grid extends Component<any, any> {
     this.vScrollbar.el!.scrollTop = this.state.scrollTop;
     this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
     this.drawGrid();
+  }
+
+  willUnmount() {
+    this.model.off('update', this);
   }
 
   focus() {

@@ -1,6 +1,5 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { CURRENT_VERSION, GridModel } from "../../src/model/index";
 import { nextTick, patchWaitFunction } from "../helpers";
-import { formatCell } from "../../src/model/core";
 
 const patch = patchWaitFunction();
 
@@ -202,16 +201,4 @@ describe("evaluateCells, async formulas", () => {
     expect(model.state.cells["A2"].value).toEqual("#ERROR");
   });
 
-  test("async formula: formatted value is properly cleared", async () => {
-    const model = new GridModel();
-    model.setValue("A1", "=WAIT(3)");
-
-    formatCell(model.state, model.state.cells.A1);
-    expect(model.state.cells["A1"].value).toEqual("#LOADING");
-    expect(model.state.cells["A1"].formattedValue).toEqual("#LOADING");
-    await waitForRecompute();
-
-    expect(model.state.cells["A1"].value).toEqual(3);
-    expect(model.state.cells["A1"].formattedValue).not.toBeDefined();
-  });
 });

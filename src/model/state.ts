@@ -145,7 +145,6 @@ export interface Cell extends NewCell {
   async?: boolean;
   type: "formula" | "text" | "number";
   width?: number;
-  formattedValue?: string;
 }
 
 export interface Row {
