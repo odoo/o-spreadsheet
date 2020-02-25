@@ -104,7 +104,6 @@ describe("evaluateCells", () => {
     expect(model.state.cells.A1.value).toBe(42);
   });
 
-
   test("misc math formulas", () => {
     const model = new GridModel();
     model.setValue("A1", "42");

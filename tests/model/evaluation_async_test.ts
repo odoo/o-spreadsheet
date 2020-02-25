@@ -200,5 +200,4 @@ describe("evaluateCells, async formulas", () => {
 
     expect(model.state.cells["A2"].value).toEqual("#ERROR");
   });
-
 });

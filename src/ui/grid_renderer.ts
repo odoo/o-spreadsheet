@@ -24,7 +24,7 @@ interface Box {
 
 type Rect = [number, number, number, number];
 
-let valuesCache: {[xc: string]: string} = {}
+let valuesCache: { [xc: string]: string } = {};
 
 let dpr = window.devicePixelRatio || 1;
 let thinLineWidth = 0.4 * dpr;

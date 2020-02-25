@@ -129,7 +129,7 @@ export class Grid extends Component<any, any> {
   }
 
   mounted() {
-    this.model.on('update', this, clearCache);
+    this.model.on("update", this, clearCache);
     this.focus();
     this.updateVisibleZone();
     this.drawGrid();
@@ -146,7 +146,7 @@ export class Grid extends Component<any, any> {
   }
 
   willUnmount() {
-    this.model.off('update', this);
+    this.model.off("update", this);
   }
 
   focus() {
