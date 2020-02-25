@@ -1,5 +1,5 @@
 import { AST, parse, ASTFuncall, ASTAsyncFuncall } from "./parser";
-import { functions } from "../functions";
+import { functions } from "../functions/index";
 import { Arg } from "../functions/arguments";
 
 const OPERATOR_MAP = {
