@@ -120,6 +120,42 @@ export class GridParent extends Component<any, any> {
   }
 }
 
+type GridDescr = { [xc: string]: string };
+type GridResult = { [xc: string]: any };
+
+/**
+ * Evaluate the final state of a grid according to the different values ​​and
+ * different functions submitted in the grid cells
+ *
+ * Examples:
+ *   {A1: "=sum(B2:B3)", B2: "2", B3: "3"} => {A1: 5, B2: 2, B3: 3}
+ *   {B5: "5", D8: "2.6", W4: "=round(A2)"} => {B5: 5, D8: 2.6, W4: 3}
+ */
+export function evaluateGrid(grid: GridDescr): GridResult {
+  const model = new GridModel();
+  for (let xc in grid) {
+    model.setValue(xc, grid[xc]);
+  }
+  const result = {};
+  for (let xc in grid) {
+    result[xc] = model.state.cells[xc].value;
+  }
+  return result;
+}
+
+/**
+ * Evaluate the final state of a cell according to the different values ​​and
+ * different functions submitted in a grid cells
+ *
+ * Examples:
+ *   "A2", {A1: "41", A2: "42", A3: "43"} => 42
+ *   "A1", {A1: "=sum(A2:A4)", A2: "2", A3: "3", "A4": "4"} => 9
+ */
+export function evaluateCell(xc: string, grid: GridDescr): any {
+  const gridResult = evaluateGrid(grid);
+  return gridResult[xc];
+}
+
 //------------------------------------------------------------------------------
 // DOM/Misc Mocks
 //------------------------------------------------------------------------------
