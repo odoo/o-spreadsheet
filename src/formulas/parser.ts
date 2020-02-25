@@ -149,10 +149,22 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     }
     const args: AST[] = [];
     if (tokens[0].type !== "RIGHT_PAREN") {
-      args.push(parseExpression(tokens, 10));
+      if (tokens[0].type === "COMMA") {
+        args.push({ type: "STRING", value: "" });
+      } else {
+        args.push(parseExpression(tokens, 10));
+      }
       while (tokens[0].type === "COMMA") {
         tokens.shift();
-        args.push(parseExpression(tokens, 10));
+        if ((tokens as any)[0].type === "RIGHT_PAREN") {
+          args.push({ type: "STRING", value: "" });
+          break;
+        }
+        if ((tokens as any)[0].type === "COMMA") {
+          args.push({ type: "STRING", value: "" });
+        } else {
+          args.push(parseExpression(tokens, 10));
+        }
       }
     }
     if (tokens.shift()!.type !== "RIGHT_PAREN") {

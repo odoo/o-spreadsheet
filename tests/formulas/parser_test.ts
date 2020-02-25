@@ -5,6 +5,60 @@ describe("parser", () => {
     expect(parse("RAND()")).toEqual({ type: "FUNCALL", value: "RAND", args: [] });
   });
 
+  test("can parse a function call with one argument", () => {
+    expect(parse("SUM(1)")).toEqual({
+      type: "FUNCALL",
+      value: "SUM",
+      args: [{ type: "NUMBER", value: 1 }]
+    });
+  });
+
+  test("add a string token for empty arguments", () => {
+    expect(parse("SUM(1,)")).toEqual({
+      type: "FUNCALL",
+      value: "SUM",
+      args: [
+        { type: "NUMBER", value: 1 },
+        { type: "STRING", value: "" }
+      ]
+    });
+    expect(parse("SUM(,1)")).toEqual({
+      type: "FUNCALL",
+      value: "SUM",
+      args: [
+        { type: "STRING", value: "" },
+        { type: "NUMBER", value: 1 }
+      ]
+    });
+    expect(parse("SUM(,)")).toEqual({
+      type: "FUNCALL",
+      value: "SUM",
+      args: [
+        { type: "STRING", value: "" },
+        { type: "STRING", value: "" }
+      ]
+    });
+    expect(parse("SUM(,,)")).toEqual({
+      type: "FUNCALL",
+      value: "SUM",
+      args: [
+        { type: "STRING", value: "" },
+        { type: "STRING", value: "" },
+        { type: "STRING", value: "" }
+      ]
+    });
+    expect(parse("SUM(,,,1)")).toEqual({
+      type: "FUNCALL",
+      value: "SUM",
+      args: [
+        { type: "STRING", value: "" },
+        { type: "STRING", value: "" },
+        { type: "STRING", value: "" },
+        { type: "NUMBER", value: 1 }
+      ]
+    });
+  });
+
   test("can parse unary operations", () => {
     expect(parse("-1")).toEqual({
       type: "UNARY_OPERATION",
