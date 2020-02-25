@@ -31,4 +31,8 @@ describe("expression compiler", () => {
   test("async functions", () => {
     expect(compile("=WAIT(5)").toString()).toMatchSnapshot();
   });
+
+  test("cells are converted to ranges if function require a range", () => {
+    expect(compile("=sum(A1)").toString()).toMatchSnapshot();
+  });
 });

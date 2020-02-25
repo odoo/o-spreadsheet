@@ -44,13 +44,13 @@ interface ASTOperation extends ASTBase {
   right: AST;
 }
 
-interface ASTFuncall extends ASTBase {
+export interface ASTFuncall extends ASTBase {
   type: "FUNCALL";
   value: string;
   args: AST[];
 }
 
-interface ASTAsyncFuncall extends ASTBase {
+export interface ASTAsyncFuncall extends ASTBase {
   type: "ASYNC_FUNCALL";
   value: string;
   args: AST[];

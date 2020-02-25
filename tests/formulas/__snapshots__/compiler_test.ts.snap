@@ -9,6 +9,16 @@ return _1;
 }"
 `;
 
+exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
+"function anonymous(getValue,fns
+) {
+// =sum(A1)
+let _2 = getValue('A1')
+let _1 = fns['SUM']([[_2]])
+return _1;
+}"
+`;
+
 exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(getValue,fns
 ) {
