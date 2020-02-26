@@ -38,7 +38,7 @@ afterEach(() => {
 });
 
 describe("Functions autocomplete", () => {
-  beforeAll(() => {
+  beforeEach(() => {
     resetFunctions();
     addFunction("IF", { description: "do if", args: args``, compute: () => 1, returns: ["ANY"] });
     addFunction("SUM", { description: "do sum", args: args``, compute: () => 1, returns: ["ANY"] });
@@ -135,6 +135,21 @@ describe("Functions autocomplete", () => {
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
     });
+
+    test("autocomplete restrict number of proposition to 10", async () => {
+      for (let i = 0; i < 20; i++) {
+        addFunction(`SUM${i + 1}`, {
+          description: "do sum",
+          args: args``,
+          compute: () => 1,
+          returns: ["ANY"]
+        });
+      }
+
+      await typeInComposer("=S");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(10);
+    });
+
     test("click on a autocomplete does the autocomplete", async () => {
       await typeInComposer("=S");
       fixture

@@ -103,7 +103,7 @@ export abstract class TextValueProvider extends Component<any, Props> {
         .filter(t => t.text.toUpperCase().startsWith(searchTerm.toUpperCase()))
         .sort((l, r) => (l.text < r.text ? -1 : l.text > r.text ? 1 : 0));
     }
-    this.state.values = values;
+    this.state.values = values.slice(0, 10);
     this.state.selectedIndex = 0;
   }
 

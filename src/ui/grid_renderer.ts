@@ -1,4 +1,10 @@
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import {
+  DEFAULT_FONT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT_WEIGHT,
+  HEADER_HEIGHT,
+  HEADER_WIDTH
+} from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers";
 import { Border, Cell, GridModel, GridState, Style, Zone } from "../model/index";
