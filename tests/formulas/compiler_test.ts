@@ -41,4 +41,8 @@ describe("expression compiler", () => {
   test("cells are converted to ranges if function require a range", () => {
     expect(compile("=sum(A1)").toString()).toMatchSnapshot();
   });
+
+  test("cannot compile a single range", () => {
+    expect(() => compile("=A1:A2")).toThrow();
+  });
 });

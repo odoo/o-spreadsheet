@@ -29,6 +29,10 @@ export function compile(str: string): Function {
   const code = [`// ${str}`];
   let isAsync = false;
 
+  if (ast.type === "BIN_OPERATION" && ast.value === ":") {
+    throw new Error("Invalid formula");
+  }
+
   /**
    * This function compile the function arguments. It is mostly straightforward,
    * except that there is a non trivial transformation in one situation:
