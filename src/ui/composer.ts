@@ -297,7 +297,7 @@ export class Composer extends Component<any, any> {
 
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
-    this.processContent();
+    //this.processContent();
     this.processTokenAtCursor();
     this.model.setSelectingRange(false);
   }
