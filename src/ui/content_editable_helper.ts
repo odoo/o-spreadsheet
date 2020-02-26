@@ -140,11 +140,12 @@ export class ContentEditableHelper {
 
     const range = selection.getRangeAt(0);
 
-    return {
+    return {llllllllll
       startElement: range.startContainer,
       startSelectionOffset: range.startOffset,
       endElement: range.endContainer,
-      endSelectionOffset: range.endOffset
+      endSelectionOffset: range.endOffset,
+      direction: selection.anchorNode.compareDocumentPosition(selection.focusNode)
     };
   }
 }
