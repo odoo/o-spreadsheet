@@ -403,4 +403,25 @@ describe("clipboard", () => {
     model.paste();
     expect(model.state.cells.B2.content).toBe(expected);
   });
+
+  test("can copy format from empty cell to another cell to clear format", () => {
+    const model = new GridModel();
+
+    // write something in B2 and set its format
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    // select A1 and copy format
+    model.selectCell(0, 0);
+    model.copy({ onlyFormat: true });
+
+    // select B2 and paste format
+    model.selectCell(1, 1); // C2
+    model.paste({ onlyFormat: true });
+
+    expect(model.state.cells.B2.content).toBe("b2");
+    expect(model.state.cells.B2.style).not.toBeDefined();
+  });
 });

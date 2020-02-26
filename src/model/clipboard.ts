@@ -12,6 +12,7 @@ import {
 import { evaluateCells } from "./evaluation";
 import { updateSelection } from "./selection";
 import { Cell, GridState, NewCell } from "./state";
+import { updateCell } from "./history";
 
 export function cut(state: GridState) {
   cutOrCopy(state, true);
@@ -167,7 +168,14 @@ function pasteFromModel(state: GridState, options: PasteOptions): boolean {
           }
         }
         if (!originCell && targetCell) {
-          addCell(state, xc, { content: "" });
+          if (options.onlyFormat) {
+            if (targetCell.style || targetCell.border) {
+              updateCell(state, targetCell, "style", undefined);
+              updateCell(state, targetCell, "border", undefined);
+            }
+          } else {
+            addCell(state, xc, { content: "" });
+          }
         }
       }
     }
