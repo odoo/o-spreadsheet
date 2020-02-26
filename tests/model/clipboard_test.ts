@@ -81,6 +81,24 @@ describe("clipboard", () => {
     expect(model.state.cells.B2.style).not.toBeDefined();
   });
 
+  test("can copy from an empty cell into a cell with style", () => {
+    const model = new GridModel();
+    // set value and style in B2
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    // set value in A1, select and copy it
+    model.selectCell(0, 0);
+    model.copy();
+
+    // select B2 again and paste
+    model.selectCell(1, 1);
+    model.paste();
+    expect(model.state.cells.B2).not.toBeDefined();
+  });
+
   test("can copy a cell with borders", () => {
     const model = new GridModel();
     model.setValue("B2", "b2");
@@ -160,9 +178,9 @@ describe("clipboard", () => {
     expect(model.state.cells.E2.content).toBe("c3");
   });
 
-  test("empty clipboard: getClipboardContent returns empty string", () => {
+  test("empty clipboard: getClipboardContent returns a tab", () => {
     const model = new GridModel();
-    expect(model.getClipboardContent()).toBe("");
+    expect(model.getClipboardContent()).toBe("\t");
   });
 
   test("getClipboardContent exports multiple cells", () => {

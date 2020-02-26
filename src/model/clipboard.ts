@@ -178,7 +178,7 @@ function pasteFromModel(state: GridState, options: PasteOptions): boolean {
               updateCell(state, targetCell, "border", undefined);
             }
           } else {
-            addCell(state, xc, { content: "" });
+            deleteCell(state, xc, true);
           }
         }
       }
@@ -209,14 +209,20 @@ function clip(val: number, min: number, max: number): number {
  *
  * - add a tab character between each concecutive cells
  * - add a newline character between each line
+ *
+ * Note that it returns \t if the clipboard is empty. This is necessary for the
+ * clipboard copy event to add it as data, otherwise an empty string is not
+ * considered as a copy content.
  */
 export function getClipboardContent(state: GridState): string {
   if (!state.clipboard.cells) {
-    return "";
+    return "\t";
   }
-  return state.clipboard.cells
-    .map(cells => {
-      return cells.map(c => (c ? formatCell(state, c) : "")).join("\t");
-    })
-    .join("\n");
+  return (
+    state.clipboard.cells
+      .map(cells => {
+        return cells.map(c => (c ? formatCell(state, c) : "")).join("\t");
+      })
+      .join("\n") || "\t"
+  );
 }
