@@ -21,6 +21,15 @@ describe("formatting values (with formatters)", () => {
     expect(model.formatCell(model.state.cells.A1)).toBe("43.10%");
   });
 
+  test("can set the default format to a cell with value = 0", () => {
+    const model = new GridModel();
+    model.setValue("A1", "0");
+    model.selectCell(0, 0);
+    model.setFormat("");
+    expect(model.state.cells.A1.format).not.toBeDefined();
+    expect(model.formatCell(model.state.cells.A1)).toBe("0");
+  });
+
   test("can clear a format in a non empty cell", () => {
     const model = new GridModel();
     model.setValue("A1", "3");
