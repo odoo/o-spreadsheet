@@ -57,4 +57,14 @@ describe("formatting values (with formatters)", () => {
     model.setFormat("");
     expect(model.state.cells.A1).not.toBeDefined();
   });
+
+  test("does not format errors", () => {
+    const model = new GridModel();
+    model.setValue("A1", "3");
+    model.selectCell(0, 0);
+    model.setFormat("0.00%");
+    expect(model.formatCell(model.state.cells.A1)).toBe("300.00%");
+    model.setValue("A1", "=A1");
+    expect(model.formatCell(model.state.cells.A1)).toBe("#CYCLE");
+  });
 });

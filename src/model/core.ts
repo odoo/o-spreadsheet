@@ -30,6 +30,9 @@ export function formatCell(state: GridState, cell: Cell): string {
   if (cell.value === true) {
     return "TRUE";
   }
+  if (cell.error) {
+    return cell.value;
+  }
 
   const value = cell.value || 0;
 
