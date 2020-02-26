@@ -43,6 +43,33 @@ return _1;
 }"
 `;
 
+exports[`expression compiler function call 1`] = `
+"function anonymous(getValue,fns
+) {
+// =sum(1,2)
+let _1 = fns['SUM'](1,2)
+return _1;
+}"
+`;
+
+exports[`expression compiler function call 2`] = `
+"function anonymous(getValue,fns
+) {
+// =sum(true, \\"\\")
+let _1 = fns['SUM'](true,\\"\\")
+return _1;
+}"
+`;
+
+exports[`expression compiler function call 3`] = `
+"function anonymous(getValue,fns
+) {
+// =sum(1,,2)
+let _1 = fns['SUM'](1,\\"\\",2)
+return _1;
+}"
+`;
+
 exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(getValue,fns
 ) {

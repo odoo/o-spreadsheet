@@ -60,7 +60,7 @@ export function compile(str: string): Function {
           argValue = `[[${argValue}]]`;
         }
       }
-      result.push(argValue);
+      result.push(argValue === "" ? `""` : argValue);
     }
     return result;
   }

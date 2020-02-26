@@ -16,6 +16,12 @@ describe("expression compiler", () => {
     expect(compile("=(3 + 1) * (-1 + 4)").toString()).toMatchSnapshot();
   });
 
+  test("function call", () => {
+    expect(compile("=sum(1,2)").toString()).toMatchSnapshot();
+    expect(compile('=sum(true, "")').toString()).toMatchSnapshot();
+    expect(compile("=sum(1,,2)").toString()).toMatchSnapshot();
+  });
+
   test("read some values and functions", () => {
     expect(compile("=A1 + sum(A2:C3)").toString()).toMatchSnapshot();
   });
