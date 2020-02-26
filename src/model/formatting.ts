@@ -231,7 +231,7 @@ export function setFormat(state: GridState, format: string) {
         const cell = row.cells[colIndex];
         if (cell) {
           // the undefined fallback is there to make updateCell delete the key
-          if (!format && !cell.value && !cell.border && !cell.style) {
+          if (!format && cell.value === "" && !cell.border && !cell.style) {
             deleteCell(state, cell.xc, true);
           } else {
             updateCell(state, cell, "format", format || undefined);
