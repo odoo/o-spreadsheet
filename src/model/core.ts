@@ -78,9 +78,9 @@ export function addCell(
   const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
   const value = type === "text" ? content : type === "number" ? parseFloat(content) : null;
   const cell: Cell = { col, row, xc, content, value, type };
-  const style = data.style || (currentCell && currentCell.style);
-  const border = data.border || (currentCell && currentCell.border);
-  const format = data.format || (currentCell && currentCell.format);
+  const style = "style" in data ? data.style : currentCell && currentCell.style;
+  const border = "border" in data ? data.border : currentCell && currentCell.border;
+  const format = "format" in data ? data.format : currentCell && currentCell.format;
   if (options.preserveFormatting || options.sheet) {
     if (border) {
       cell.border = border;

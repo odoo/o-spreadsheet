@@ -61,6 +61,26 @@ describe("clipboard", () => {
     expect(model.state.cells.C2.style).toBe(2);
   });
 
+  test("can copy into a cell with style", () => {
+    const model = new GridModel();
+    // set value and style in B2
+    model.setValue("B2", "b2");
+    model.selectCell(1, 1);
+    model.setStyle({ bold: true });
+    expect(model.state.cells.B2.style).toBe(2);
+
+    // set value in A1, select and copy it
+    model.setValue("A1", "a1");
+    model.selectCell(0, 0);
+    model.copy();
+
+    // select B2 again and paste
+    model.selectCell(1, 1);
+    model.paste();
+    expect(model.state.cells.B2.value).toBe("a1");
+    expect(model.state.cells.B2.style).not.toBeDefined();
+  });
+
   test("can copy a cell with borders", () => {
     const model = new GridModel();
     model.setValue("B2", "b2");
@@ -73,6 +93,19 @@ describe("clipboard", () => {
     model.paste();
     expect(model.state.cells.B2.border).toBe(2);
     expect(model.state.cells.C2.border).toBe(2);
+  });
+
+  test("can copy a cell with a formatter", () => {
+    const model = new GridModel();
+    model.setValue("B2", "0.451");
+    model.selectCell(1, 1);
+    model.setFormat("0.00%");
+    expect(model.formatCell(model.state.cells.B2)).toBe("45.10%");
+
+    model.copy();
+    model.selectCell(2, 1); // C2
+    model.paste();
+    expect(model.formatCell(model.state.cells.C2)).toBe("45.10%");
   });
 
   test("cutting a cell with style remove the cell", () => {

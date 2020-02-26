@@ -155,7 +155,11 @@ function pasteFromModel(state: GridState, options: PasteOptions): boolean {
             const maxY = state.rows.length;
             content = applyOffset(content, offsetX, offsetY, maxX, maxY);
           }
-          let newCell: NewCell = { style: originCell.style, border: originCell.border };
+          let newCell: NewCell = {
+            style: originCell.style,
+            border: originCell.border,
+            format: originCell.format
+          };
           if (options.onlyFormat) {
             newCell.content = targetCell ? targetCell.content : "";
           } else {
