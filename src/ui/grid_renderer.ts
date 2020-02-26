@@ -1,10 +1,4 @@
-import {
-  DEFAULT_FONT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT_WEIGHT,
-  HEADER_HEIGHT,
-  HEADER_WIDTH
-} from "../constants";
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers";
 import { Border, Cell, GridModel, GridState, Style, Zone } from "../model/index";
@@ -20,6 +14,7 @@ interface Box {
   border: Border | null;
   align: "left" | "right" | null;
   clipRect: Rect | null;
+  isError?: boolean;
 }
 
 type Rect = [number, number, number, number];
@@ -43,7 +38,6 @@ export function drawGrid(
   context.fillStyle = model.state.styles[0].fillColor || "white";
   context.fillRect(0, 0, width, height);
   const boxes = getGridBoxes(model, context);
-
   // 2. draw grid content
   drawBackgroundGrid(model.state, context);
   drawBackgrounds(boxes, context);
@@ -131,7 +125,8 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
           border: cell.border ? state.borders[cell.border] : null,
           style,
           align,
-          clipRect
+          clipRect,
+          isError: cell.error
         });
       }
     }
@@ -171,7 +166,8 @@ function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
         border,
         style,
         align,
-        clipRect: [x, y, width, height]
+        clipRect: [x, y, width, height],
+        isError: refCell ? refCell.error : false
       });
     }
   }
@@ -229,6 +225,14 @@ function drawBackgrounds(boxes: Box[], ctx: CanvasRenderingContext2D) {
       ctx.fillStyle = style.fillColor;
       ctx.fillRect(box.x, box.y, box.width, box.height);
       ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
+    }
+    if (box.isError) {
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.moveTo(box.x + box.width - 5, box.y);
+      ctx.lineTo(box.x + box.width, box.y);
+      ctx.lineTo(box.x + box.width, box.y + 5);
+      ctx.fill();
     }
   }
 }

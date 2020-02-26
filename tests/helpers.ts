@@ -178,6 +178,7 @@ HTMLCanvasElement.prototype.getContext = jest.fn(function() {
     fillRect() {},
     strokeRect() {},
     fillText() {},
+    fill() {},
     save() {},
     rect() {},
     clip() {},
