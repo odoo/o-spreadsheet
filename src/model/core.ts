@@ -6,6 +6,7 @@ import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
 import { Cell, GridState, NewCell, Sheet, Zone } from "./state";
+import { isNumber } from "../functions/arguments";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -45,8 +46,6 @@ export function formatCell(state: GridState, cell: Cell): string {
   return formatNumber(value);
 }
 
-const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?(%)?$/;
-
 /**
  * Set the text value for a given cell.
  *
@@ -84,7 +83,7 @@ export function addCell(
   if (content[0] === "=") {
     type = "formula";
   }
-  if (content.match(numberRegexp)) {
+  if (isNumber(content)) {
     type = "number";
     value = parseFloat(content);
     if (content.includes("%")) {
