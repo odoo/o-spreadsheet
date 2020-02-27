@@ -123,4 +123,31 @@ describe("evaluateCells", () => {
     expect(model.state.cells.C5.value).toBe(0);
     expect(model.state.cells.C6.value).toBe(46.3);
   });
+
+  test("various expressions with percent", () => {
+    const model = new GridModel();
+    model.setValue("A1", "41%");
+    model.setValue("A2", "=42%");
+    model.setValue("A3", "=sum(43%)");
+    model.setValue("A4", `="44%"`);
+    model.setValue("A5", `=sum("45%")`);
+
+    model.setValue("B1", "41 %");
+    model.setValue("B2", "=42 %");
+    model.setValue("B3", "=sum(43 %)");
+    model.setValue("B4", `="44 %"`);
+    model.setValue("B5", `=sum("45 %")`);
+
+    expect(model.state.cells.A1.value).toBe(0.41);
+    expect(model.state.cells.A2.value).toBe(0.42);
+    expect(model.state.cells.A3.value).toBe(0.43);
+    expect(model.state.cells.A4.value).toBe("44%");
+    expect(model.state.cells.A5.value).toBe(0.45);
+
+    expect(model.state.cells.B1.value).toBe("41 %");
+    expect(model.state.cells.B2.value).toBe(0.42);
+    expect(model.state.cells.B3.value).toBe(0.43);
+    expect(model.state.cells.B4.value).toBe("44 %");
+    expect(model.state.cells.B5.value).toBe(0.45);
+  });
 });

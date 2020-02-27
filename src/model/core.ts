@@ -45,7 +45,7 @@ export function formatCell(state: GridState, cell: Cell): string {
   return formatNumber(value);
 }
 
-const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?$/;
+const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?(%)?$/;
 
 /**
  * Set the text value for a given cell.
@@ -78,8 +78,18 @@ export function addCell(
   const [col, row] = toCartesian(xc);
   const currentCell = options.sheet ? options.sheet.cells[xc] : state.cells[xc];
   const content = data.content || "";
-  const type = content[0] === "=" ? "formula" : content.match(numberRegexp) ? "number" : "text";
-  const value = type === "text" ? content : type === "number" ? parseFloat(content) : null;
+  let type: Cell["type"] = "text";
+  let value: Cell["value"] = content;
+  if (content[0] === "=") {
+    type = "formula";
+  }
+  if (content.match(numberRegexp)) {
+    type = "number";
+    value = parseFloat(content);
+    if (content.includes("%")) {
+      value = value / 100;
+    }
+  }
   const cell: Cell = { col, row, xc, content, value, type };
   const style = "style" in data ? data.style : currentCell && currentCell.style;
   const border = "border" in data ? data.border : currentCell && currentCell.border;

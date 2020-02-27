@@ -72,6 +72,13 @@ describe("parser", () => {
     expect(parse("1.")).toEqual({ type: "NUMBER", value: 1 });
     expect(parse(".5")).toEqual({ type: "NUMBER", value: 0.5 });
   });
+
+  test("can parse number expressed as percent", () => {
+    expect(parse("1%")).toEqual({ type: "NUMBER", value: 0.01 });
+    expect(parse("100%")).toEqual({ type: "NUMBER", value: 1 });
+    expect(parse("50.0%")).toEqual({ type: "NUMBER", value: 0.5 });
+  });
+
   test("can parse binary operations", () => {
     expect(parse("2-3")).toEqual({
       type: "BIN_OPERATION",

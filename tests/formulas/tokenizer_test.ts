@@ -28,6 +28,13 @@ describe("tokenizer", () => {
     ]);
   });
 
+  test("can tokenize percent expression", () => {
+    expect(tokenize("1%")).toEqual([
+      { type: "NUMBER", value: "1" },
+      { type: "OPERATOR", value: "%" }
+    ]);
+  });
+
   test("debug formula token", () => {
     expect(tokenize("=?1")).toEqual([
       { type: "OPERATOR", value: "=" },

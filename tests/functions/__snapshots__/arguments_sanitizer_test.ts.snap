@@ -18,6 +18,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"m\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -175,6 +182,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -237,6 +251,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -265,6 +286,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"m\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -289,6 +317,13 @@ switch (typeof _val_2) {
    if (_val_2) {
      let n = Number(_val_2);
      if (isNaN(n)) {
+       if (_val_2.includes('%')) {
+         n = Number(_val_2.split('%')[0]);
+         if (!isNaN(n)) {
+           args[1] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_2}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[1] = n;
@@ -320,6 +355,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -354,6 +396,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -400,6 +449,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[i] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[i] = n;
@@ -433,6 +489,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[i] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[i] = n;
@@ -507,6 +570,13 @@ switch (typeof _val_1) {
    if (_val_1) {
      let n = Number(_val_1);
      if (isNaN(n)) {
+       if (_val_1.includes('%')) {
+         n = Number(_val_1.split('%')[0]);
+         if (!isNaN(n)) {
+           args[0] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"m\\" should be a number, but \\"\${_val_1}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[0] = n;
@@ -534,6 +604,13 @@ switch (typeof _val_2) {
    if (_val_2) {
      let n = Number(_val_2);
      if (isNaN(n)) {
+       if (_val_2.includes('%')) {
+         n = Number(_val_2.split('%')[0]);
+         if (!isNaN(n)) {
+           args[1] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"n\\" should be a number, but \\"\${_val_2}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[1] = n;
@@ -561,6 +638,13 @@ switch (typeof _val_3) {
    if (_val_3) {
      let n = Number(_val_3);
      if (isNaN(n)) {
+       if (_val_3.includes('%')) {
+         n = Number(_val_3.split('%')[0]);
+         if (!isNaN(n)) {
+           args[2] = n/100;
+           break;
+         }
+       }
        throw new Error(\`Argument \\"p\\" should be a number, but \\"\${_val_3}\\" is a text, and cannot be coerced to a number.\`);
      } else {
        args[2] = n;

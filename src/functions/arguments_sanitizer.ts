@@ -74,6 +74,13 @@ function sanitizeArg(code: string[], arg: Arg, name: string, i: number | string)
     code.push(`   if (${id}) {`);
     code.push(`     let n = Number(${id});`);
     code.push(`     if (isNaN(n)) {`);
+    code.push(`       if (${id}.includes('%')) {`);
+    code.push(`         n = Number(${id}.split('%')[0]);`);
+    code.push(`         if (!isNaN(n)) {`);
+    code.push(`           ${name}[${i}] = n/100;`);
+    code.push(`           break;`);
+    code.push(`         }`);
+    code.push(`       }`);
     code.push(
       `       throw new Error(\`Argument "${arg.name}" should be a number, but "\$\{${id}\}" is a text, and cannot be coerced to a number.\`);`
     );

@@ -112,7 +112,12 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     return next;
   }
   if (current.type === "NUMBER") {
-    return { type: current.type, value: parseFloat(current.value) } as AST;
+    let value = parseFloat(current.value);
+    if (tokens[0] && tokens[0].value === "%" && tokens[0].type === "OPERATOR") {
+      value = value / 100;
+      tokens.shift();
+    }
+    return { type: current.type, value } as AST;
   }
   if (current.type === "STRING") {
     return { type: current.type, value: current.value } as AST;
