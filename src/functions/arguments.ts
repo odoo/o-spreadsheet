@@ -148,6 +148,15 @@ export function toNumber(value: any): number {
   }
 }
 
+const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?(%)?$/;
+
+export function isNumber(value: any): boolean {
+  if (typeof value === "string" && !value.match(numberRegexp)) {
+    return false;
+  }
+  return true;
+}
+
 export function toString(value: any): string {
   switch (typeof value) {
     case "string":

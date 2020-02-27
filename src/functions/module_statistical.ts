@@ -1,4 +1,4 @@
-import { args, toNumber } from "./arguments";
+import { args, toNumber, isNumber } from "./arguments";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------
@@ -121,5 +121,34 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
         `);
     }
     return sum / count;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// COUNT
+// -----------------------------------------------------------------------------
+export const COUNT: FunctionDescription = {
+  description: `The number of numeric values in dataset.`,
+  args: args`
+    value1 (number, range<number>) The first value or range to consider when counting.
+    value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when counting.
+  `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let count = 0;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (typeof j === "number") {
+              count += 1;
+            }
+          }
+        }
+      } else if (isNumber(n)) {
+        count += 1;
+      }
+    }
+    return count;
   }
 };

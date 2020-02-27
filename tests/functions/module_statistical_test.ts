@@ -40,7 +40,7 @@ describe("statistical", () => {
   });
 
   test("AVERAGE: functional tests on range arguments", () => {
-    const gridAverage = {
+    const grid = {
       A1: "=average(B2:D4)",
       A2: "=average(B2:C3, B4:C4, D2:D3, D4)",
       B2: "42.2",
@@ -53,8 +53,8 @@ describe("statistical", () => {
       C4: "0",
       D4: "0"
     };
-    expect(evaluateCell("A1", gridAverage)).toEqual(8);
-    expect(evaluateCell("A2", gridAverage)).toEqual(8);
+    expect(evaluateCell("A1", grid)).toEqual(8);
+    expect(evaluateCell("A2", grid)).toEqual(8);
   });
 
   //----------------------------------------------------------------------------
@@ -228,7 +228,7 @@ describe("statistical", () => {
   });
 
   test("AVERAGE.WEIGHTED: functional tests on range arguments", () => {
-    const gridAverage = {
+    const grid = {
       A1: "=average.weighted(C1, C3, D1, D3, E1, E3, F1, F3)",
       A2: "=average.weighted(C1:F1, C3:F3)",
       A3: "=average.weighted(C1:D1, C3:D3, E1:F1, E3:F3)",
@@ -260,15 +260,77 @@ describe("statistical", () => {
       E4: "",
       F4: "2"
     };
-    expect(evaluateCell("A1", gridAverage)).toBe(16);
-    expect(evaluateCell("A2", gridAverage)).toBe(16);
-    expect(evaluateCell("A3", gridAverage)).toBe(16);
-    expect(evaluateCell("A4", gridAverage)).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A5", gridAverage)).toBe(16);
-    expect(evaluateCell("A6", gridAverage)).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A7", gridAverage)).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A8", gridAverage)).toBe(16);
-    expect(evaluateCell("A9", gridAverage)).toBe(16);
-    expect(evaluateCell("A10", gridAverage)).toBe(16);
+    expect(evaluateCell("A1", grid)).toBe(16);
+    expect(evaluateCell("A2", grid)).toBe(16);
+    expect(evaluateCell("A3", grid)).toBe(16);
+    expect(evaluateCell("A4", grid)).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A5", grid)).toBe(16);
+    expect(evaluateCell("A6", grid)).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A7", grid)).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A8", grid)).toBe(16);
+    expect(evaluateCell("A9", grid)).toBe(16);
+    expect(evaluateCell("A10", grid)).toBe(16);
+  });
+
+  //----------------------------------------------------------------------------
+  // COUNT
+  //----------------------------------------------------------------------------
+
+  test("COUNT: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=count()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=count( ,  )" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=count(1, 2, 3, 4)" })).toBe(4);
+    expect(evaluateCell("A1", { A1: "=count(1, 2, -3, 4.4)" })).toBe(4);
+    expect(evaluateCell("A1", { A1: "=count(1, 2, 3,  , 4)" })).toBe(5);
+    expect(evaluateCell("A1", { A1: "=count(1 ,2, 3%)" })).toBe(3);
+  });
+
+  test("count: casting tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, " ")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "3")' })).toBe(3);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "-3")' })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=count(1, 2, TRUE)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "TRUE")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "3%")' })).toBe(3);
+    expect(evaluateCell("A1", { A1: '=count(1, 2, "3@")' })).toBe(2);
+  });
+
+  test("COUNT: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=count(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=count(A2)", A2: "0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "42" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "-1", A3: "4.2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "3%" })).toBe(2);
+  });
+
+  test("COUNT: casting tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '" "' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"-3"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: "TRUE" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"TRUE"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3%"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3@"' })).toBe(1);
+  });
+
+  test("COUNT: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=count(B2:D4)",
+      A2: "=count(B2:C3, B4:C4, D2:D3, D4)",
+      B2: "42.2",
+      C2: "TRUE",
+      D2: "FALSE",
+      B3: "",
+      C3: "-10.2",
+      D3: "Jean Neypleinlenez",
+      B4: '"111111"',
+      C4: "0",
+      D4: "0"
+    };
+    expect(evaluateCell("A1", grid)).toEqual(4);
+    expect(evaluateCell("A2", grid)).toEqual(4);
   });
 });
