@@ -258,4 +258,20 @@ describe("borders", () => {
     model.clearFormatting();
     expect(model.state.cells.B1.border).not.toBeDefined();
   });
+
+  test("can clear formatting (border) after selecting all cells", () => {
+    const model = new GridModel();
+    model.selectCell(0, 0);
+    model.updateSelection(9, 9);
+    expect(model.state.selection.zones[0]).toEqual({
+      left: 0,
+      top: 0,
+      right: model.state.cols.length - 1,
+      bottom: model.state.rows.length - 1
+    });
+    model.setBorder("all");
+    expect(model.state.cells.B1.border).toBeDefined();
+    model.setBorder("clear");
+    expect(model.state.cells.B1).not.toBeDefined();
+  });
 });

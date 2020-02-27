@@ -173,8 +173,12 @@ function clearBorder(state: GridState, col: number, row: number) {
   if (row > 0) {
     clearSide(state, col, row - 1, "bottom");
   }
-  clearSide(state, col + 1, row, "left");
-  clearSide(state, col, row + 1, "top");
+  if (col < state.cols.length - 1) {
+    clearSide(state, col + 1, row, "left");
+  }
+  if (row < state.rows.length - 1) {
+    clearSide(state, col, row + 1, "top");
+  }
 }
 
 function clearSide(state: GridState, col: number, row: number, side: string) {
