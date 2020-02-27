@@ -28,7 +28,7 @@ export type AnyOrRange = any | Range<any>;
 // Arg description DSL
 //------------------------------------------------------------------------------
 
-const ARG_REGEXP = /(.*)\((.*)\)(.*)/;
+const ARG_REGEXP = /(.*?)\((.*?)\)(.*)/;
 const ARG_TYPES: ArgType[] = [
   "ANY",
   "BOOLEAN",

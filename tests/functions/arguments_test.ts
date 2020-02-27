@@ -60,6 +60,16 @@ describe("args", () => {
     ]);
   });
 
+  test("with parenthesis in the description", () => {
+    expect(args`test (number) descr( hahaha )`).toEqual([
+      {
+        type: ["NUMBER"],
+        name: "test",
+        description: "descr( hahaha )"
+      }
+    ]);
+  });
+
   test("does not care if lower or uppercase", () => {
     expect(args`test (NUMBER)`).toEqual([
       {
