@@ -368,7 +368,7 @@ export class Grid extends Component<any, any> {
       return;
     }
     if (!keyDownMappingIgnore.includes(keyDownString)) {
-      if (ev.key.length === 1) {
+      if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
         // if the user types a character on the grid, it means he wants to start composing the selected cell with that
         // character
         ev.preventDefault();
