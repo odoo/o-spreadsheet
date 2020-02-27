@@ -59,6 +59,17 @@ describe("core", () => {
     expect(formatCell(model.state, model.state.cells.A2)).toBe("TRUE");
   });
 
+  test("detect and format percentage values automatically", () => {
+    const model = new GridModel();
+    model.setValue("A1", "3%");
+    model.setValue("A2", "3.4%");
+
+    expect(formatCell(model.state, model.state.cells.A1)).toBe("3%");
+    expect(model.state.cells.A1.format).toBe("0%");
+    expect(formatCell(model.state, model.state.cells.A2)).toBe("3.40%");
+    expect(model.state.cells.A2.format).toBe("0.00%");
+  });
+
   test("does not reevaluate cells if edition does not change content", () => {
     const model = new GridModel();
     model.setValue("A1", "=rand()");

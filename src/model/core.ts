@@ -80,6 +80,7 @@ export function addCell(
   const content = data.content || "";
   let type: Cell["type"] = "text";
   let value: Cell["value"] = content;
+  let format;
   if (content[0] === "=") {
     type = "formula";
   }
@@ -88,12 +89,13 @@ export function addCell(
     value = parseFloat(content);
     if (content.includes("%")) {
       value = value / 100;
+      format = content.includes(".") ? "0.00%" : "0%";
     }
   }
   const cell: Cell = { col, row, xc, content, value, type };
   const style = "style" in data ? data.style : currentCell && currentCell.style;
   const border = "border" in data ? data.border : currentCell && currentCell.border;
-  const format = "format" in data ? data.format : currentCell && currentCell.format;
+  format = format || ("format" in data ? data.format : currentCell && currentCell.format);
   if (options.preserveFormatting || options.sheet) {
     if (border) {
       cell.border = border;
