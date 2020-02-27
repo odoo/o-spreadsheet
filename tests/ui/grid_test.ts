@@ -3,9 +3,15 @@ import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../hel
 jest.mock("../../src/ui/content_editable_helper");
 
 let fixture: HTMLElement;
+let model: GridModel;
+let parent: GridParent;
 
-beforeEach(() => {
+beforeEach(async () => {
   fixture = makeTestFixture();
+  model = new GridModel();
+  model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+  parent = new GridParent(model);
+  await parent.mount(fixture);
 });
 
 afterEach(() => {
@@ -14,42 +20,23 @@ afterEach(() => {
 
 describe("Grid component", () => {
   test("can render a sheet with a merge", async () => {
-    const model = new GridModel();
     // select B2:B3 and merge
     model.selectCell(1, 1);
     model.updateSelection(1, 2);
     model.merge();
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
     expect(fixture.querySelector("canvas")).toBeDefined();
   });
 
   test("can click on a cell to select it", async () => {
-    const model = new GridModel();
     model.setValue("B2", "b2");
     model.setValue("B3", "b3");
-
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-    expect(model.state.activeXc).toBe("A1");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     expect(model.state.activeXc).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
-    const model = new GridModel();
     model.setValue("B2", "b2");
     model.setValue("B3", "b3");
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-    expect(model.state.activeXc).toBe("A1");
     triggerMouseEvent(".o-overlay", "click", 300, 20);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
@@ -58,15 +45,8 @@ describe("Grid component", () => {
   });
 
   test("can shift-click on a cell to update selection", async () => {
-    const model = new GridModel();
     model.setValue("B2", "b2");
     model.setValue("B3", "b3");
-    const parent = new GridParent(model);
-    await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-    expect(model.state.activeXc).toBe("A1");
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
     expect(model.state.selection.zones[0]).toEqual({
       top: 0,
@@ -80,26 +60,12 @@ describe("Grid component", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behavious is not like excel. Maybe someone will want to
       // change this
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      // todo: find a way to have actual width/height instead of this
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-      expect(model.state.activeXc).toBe("A1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(model.state.activeXc).toBe("A1");
       expect(model.state.isEditing).toBe(true);
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      // todo: find a way to have actual width/height instead of this
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-      expect(model.state.activeXc).toBe("A1");
       model.startEditing("a");
       await nextTick();
       fixture
@@ -111,12 +77,6 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      // todo: find a way to have actual width/height instead of this
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
       model.selectCell(0, 1);
       expect(model.state.activeXc).toBe("A2");
       model.startEditing("a");
@@ -130,13 +90,6 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      // todo: find a way to have actual width/height instead of this
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-      expect(model.state.activeXc).toBe("A1");
       model.startEditing("a");
       await nextTick();
       fixture
@@ -148,24 +101,11 @@ describe("Grid component", () => {
     });
 
     test("pressing TAB move to next cell", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      // todo: find a way to have actual width/height instead of this
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
-      expect(model.state.activeXc).toBe("A1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       expect(model.state.activeXc).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      // todo: find a way to have actual width/height instead of this
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
       model.selectCell(1, 0);
       expect(model.state.activeXc).toBe("B1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
@@ -173,19 +113,12 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard", async () => {
-      const model = new GridModel();
       model.setStyle({ fillColor: "red" });
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
       expect(model.state.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
       );
-
       expect(model.state.cells.A1).not.toBeDefined();
-
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "y", ctrlKey: true, bubbles: true })
@@ -194,19 +127,12 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
-      const model = new GridModel();
       model.setStyle({ fillColor: "red" });
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
       expect(model.state.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
       );
-
       expect(model.state.cells.A1).not.toBeDefined();
-
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Y", ctrlKey: true, bubbles: true })
@@ -215,10 +141,6 @@ describe("Grid component", () => {
     });
 
     test("can select all the sheet with CTRL+A", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
       );
@@ -227,10 +149,6 @@ describe("Grid component", () => {
     });
 
     test("can save the sheet with CTRL+S", async () => {
-      const model = new GridModel();
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
       let saveContentCalled = false;
       parent.el!.addEventListener("save-content", () => {
         saveContentCalled = true;
@@ -244,16 +162,10 @@ describe("Grid component", () => {
 
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
-      const model = new GridModel();
       model.setValue("B2", "b2");
       model.selectCell(1, 1);
       model.setStyle({ bold: true });
       model.copy({ onlyFormat: true });
-
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
       triggerMouseEvent("canvas", "mousedown", 300, 200);
       expect(model.state.cells.C8).not.toBeDefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
@@ -261,21 +173,14 @@ describe("Grid component", () => {
     });
 
     test("can paste format with key", async () => {
-      const model = new GridModel();
       model.setValue("B2", "b2");
       model.selectCell(1, 1);
       model.setStyle({ bold: true });
       model.copy({ onlyFormat: true });
-
-      const parent = new GridParent(model);
-      await parent.mount(fixture);
-      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
-
       expect(model.state.cells.C2).not.toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
       );
-
       expect(model.state.cells.C2.style).toBe(2);
     });
   });
