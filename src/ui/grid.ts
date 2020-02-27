@@ -135,7 +135,11 @@ export class Grid extends Component<any, any> {
     F2: this.model.startEditing,
     DELETE: this.model.deleteSelection,
     "CTRL+A": this.model.selectAll,
-    "CTRL+S": () => console.warn("not implemented"),
+    "CTRL+S": () => {
+      this.trigger("save-content", {
+        data: this.model.exportData()
+      });
+    },
     "CTRL+Z": this.model.undo,
     "CTRL+Y": this.model.redo
   };
