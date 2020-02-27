@@ -84,7 +84,7 @@ const CSS = css/* scss */ `
       background-color: white;
       padding-left: 2px;
       padding-right: 2px;
-      border: 1.5px solid #3266ca;
+      border: 1.6px solid #3266ca;
       font-family: arial;
       white-space: nowrap;
       &:focus {
@@ -167,9 +167,9 @@ export class Composer extends Component<any, any> {
     this.processContent();
 
     const width = cols[this.zone.right].right - cols[this.zone.left].left;
-    el.style.width = (Math.max(el.scrollWidth + 10, width + 0.5) + "px") as string;
+    el.style.width = (Math.max(el.scrollWidth + 10, width + 1.5) + "px") as string;
 
-    const height = rows[this.zone.bottom].bottom - rows[this.zone.top].top + 1;
+    const height = rows[this.zone.bottom].bottom - rows[this.zone.top].top + 1.5;
     el.style.height = (height + "px") as string;
   }
 
@@ -181,8 +181,8 @@ export class Composer extends Component<any, any> {
     const { cols, rows, offsetX, offsetY } = this.model.state;
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
-    const height = rows[this.zone.bottom].bottom - row.top + 2;
-    const top = row.top - offsetY - 0.5;
+    const height = rows[this.zone.bottom].bottom - row.top + 3;
+    const top = row.top - offsetY;
     const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const sizeInPt = style.fontSize || 10;
@@ -192,7 +192,7 @@ export class Composer extends Component<any, any> {
     return `left: ${col.left - offsetX - 1}px;
     top:${top}px;
     height:${height}px;
-    line-height:${height - 1}px;
+    line-height:${height - 1.5}px;
     font-size:${size}px;
     ${weight}${italic}${strikethrough}`;
   }
