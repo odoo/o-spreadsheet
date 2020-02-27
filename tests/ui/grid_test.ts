@@ -225,6 +225,21 @@ describe("Grid component", () => {
       expect(model.state.activeXc).toBe("A1");
       expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
     });
+
+    test("can save the sheet with CTRL+S", async () => {
+      const model = new GridModel();
+      const parent = new GridParent(model);
+      await parent.mount(fixture);
+      model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+      let saveContentCalled = false;
+      parent.el!.addEventListener("save-content", () => {
+        saveContentCalled = true;
+      });
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "S", ctrlKey: true, bubbles: true })
+      );
+      expect(saveContentCalled).toBe(true);
+    });
   });
 
   describe("paint format tool with grid selection", () => {
