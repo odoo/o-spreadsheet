@@ -24,6 +24,7 @@ interface CellData {
   content?: string;
   style?: number;
   border?: number;
+  format?: string;
 }
 
 interface HeaderData {
@@ -278,7 +279,8 @@ export function exportData(state: GridState): GridData {
       cells[key] = {
         content: cell.content,
         border: cell.border,
-        style: cell.style
+        style: cell.style,
+        format: cell.format
       };
     }
     sheets.push({

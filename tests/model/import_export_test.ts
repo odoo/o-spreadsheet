@@ -113,6 +113,22 @@ describe("Export", () => {
     const exp = model.exportData();
     expect(exp.sheets![0].merges).toHaveLength(3);
   });
+  test("Can export format", () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: { content: "145", format: "0.00%" }
+          }
+        }
+      ]
+    });
+    const exp = model.exportData();
+    expect(exp.sheets![0].cells!.A1.format).toBe("0.00%");
+  });
 });
 
 describe("complete import, then export", () => {
@@ -131,7 +147,7 @@ describe("complete import, then export", () => {
         },
         cells: {
           A1: { content: "hello" },
-          B1: { content: "=a1", style: 99, border: 8 },
+          B1: { content: "=a1", style: 99, border: 8, format: "0.00%" },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" }
         },
         name: "My sheet"
