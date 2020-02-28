@@ -13,20 +13,20 @@ describe("parser", () => {
     });
   });
 
-  test("add a string token for empty arguments", () => {
+  test("add a unknown token for empty arguments", () => {
     expect(parse("SUM(1,)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
       args: [
         { type: "NUMBER", value: 1 },
-        { type: "STRING", value: "" }
+        { type: "UNKNOWN", value: "" }
       ]
     });
     expect(parse("SUM(,1)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
       args: [
-        { type: "STRING", value: "" },
+        { type: "UNKNOWN", value: "" },
         { type: "NUMBER", value: 1 }
       ]
     });
@@ -34,26 +34,26 @@ describe("parser", () => {
       type: "FUNCALL",
       value: "SUM",
       args: [
-        { type: "STRING", value: "" },
-        { type: "STRING", value: "" }
+        { type: "UNKNOWN", value: "" },
+        { type: "UNKNOWN", value: "" }
       ]
     });
     expect(parse("SUM(,,)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
       args: [
-        { type: "STRING", value: "" },
-        { type: "STRING", value: "" },
-        { type: "STRING", value: "" }
+        { type: "UNKNOWN", value: "" },
+        { type: "UNKNOWN", value: "" },
+        { type: "UNKNOWN", value: "" }
       ]
     });
     expect(parse("SUM(,,,1)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
       args: [
-        { type: "STRING", value: "" },
-        { type: "STRING", value: "" },
-        { type: "STRING", value: "" },
+        { type: "UNKNOWN", value: "" },
+        { type: "UNKNOWN", value: "" },
+        { type: "UNKNOWN", value: "" },
         { type: "NUMBER", value: 1 }
       ]
     });

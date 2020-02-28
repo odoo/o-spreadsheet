@@ -197,7 +197,7 @@ describe("composer", () => {
     await typeInComposer("=qsdf");
     await keydown("Enter");
     expect(model.state.cells["A1"].content).toBe("=qsdf");
-    expect(model.state.cells["A1"].value).toBe("#ERROR");
+    expect(model.state.cells["A1"].value).toBe("#BAD_EXPR");
   });
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
     await startComposition();

@@ -1,23 +1,19 @@
 import { args } from "../../src/functions/arguments";
 import { addFunction, FunctionDescription } from "../../src/functions/index";
-import { evaluate } from "../helpers";
+import { evaluateCell } from "../helpers";
 
 describe("addFunction", () => {
   test("can add a function, once, but not twice", () => {
     let error;
-    try {
-      evaluate("=DOUBLEDOUBLE(3)");
-    } catch (e) {
-      error = e;
-    }
-    expect(error).toBeDefined();
+    const val = evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
+    expect(val).toBe("#BAD_EXPR");
     addFunction("DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: arg => 2 * arg,
       args: args`number (number) my number`,
       returns: ["NUMBER"]
     });
-    expect(evaluate("=DOUBLEDOUBLE(3)")).toBe(6);
+    expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
 
     error = null;
     try {

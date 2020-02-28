@@ -1,4 +1,5 @@
 import { functionMap } from "../../src/functions/index";
+import { evaluateCell } from "../helpers";
 
 const { ADD, DIVIDE, EQ, GT, GTE, LT, LTE, MINUS, MULTIPLY, UMINUS } = functionMap;
 
@@ -11,6 +12,7 @@ describe("operators", () => {
 
   test("DIVIDE", () => {
     expect(DIVIDE(24, 2)).toBe(12);
+    expect(evaluateCell("A1", { A1: "=1/0" })).toBe("#ERROR");
   });
 
   test("EQ", () => {

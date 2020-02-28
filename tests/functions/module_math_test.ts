@@ -106,7 +106,7 @@ describe("math", () => {
     // the nearest integer multiple of b
     [-7.89, 0.2, -7.8],
     [-7.89, -0.2, -8]
-  ])("CEILING(%s, %s) - %s: if factor negative, rouds number down", (a, b, expected) => {
+  ])("CEILING(%s, %s) - %s: if factor negative, rounds number down", (a, b, expected) => {
     expect(CEILING(a, b)).toBeCloseTo(expected, 9);
   });
 
@@ -1243,9 +1243,7 @@ describe("math", () => {
   test("SUM: add a number and a string", () => {
     expect(SUM([[11, "str"]])).toBe(11);
     expect(SUM([[11], ["str"]])).toBe(11);
-    expect(() => SUM(11, "str")).toThrow(
-      `Argument "number" should be a number, but "str" is a text, and cannot be coerced to a number.`
-    );
+    expect(() => SUM(11, "str")).toThrowErrorMatchingSnapshot();
   });
 
   test("RAND: return a number", () => {
