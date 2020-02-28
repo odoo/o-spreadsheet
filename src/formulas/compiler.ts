@@ -108,7 +108,9 @@ export function compile(str: string): Function {
           code.push(`let _${id} = fns['${OPERATOR_MAP[ast.value]}'](${left}, ${right})`);
         }
         break;
-    }
+      case "UNKNOWN":
+        return "undefined";
+      }
     return `_${id}`;
   }
 

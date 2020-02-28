@@ -93,7 +93,7 @@ export const MINUS: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(a: number, b: number): number {
-    return  toNumber(a) - toNumber(b);
+    return toNumber(a) - toNumber(b);
   }
 };
 
