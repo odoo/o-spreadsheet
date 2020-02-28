@@ -6,7 +6,7 @@ describe("statistical", () => {
   //----------------------------------------------------------------------------
 
   test("AVERAGE: functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=average()" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=average()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=average(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=average(1, 2)" })).toBe(1.5);
     expect(evaluateCell("A1", { A1: "=average(1,  , 2)" })).toBe(1);

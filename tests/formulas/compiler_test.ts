@@ -43,7 +43,17 @@ describe("expression compiler", () => {
     expect(compile("=sum(A1)").toString()).toMatchSnapshot();
   });
 
-  test("cannot compile a single range", () => {
+  test("cannot compile some invalid formulas", () => {
     expect(() => compile("=A1:A2")).toThrow();
+    expect(() => compile("=qsdf")).toThrow();
+  });
+
+  test("check at compile time for number of arguments", () => {
+    expect(() => compile("=pi()")).not.toThrow();
+    expect(() => compile("=pi(3)")).toThrowError("Invalid number of arguments");
+    expect(() => compile("=sum()")).toThrowError("Invalid number of arguments");
+    expect(() => compile("=sum(1)")).not.toThrowError();
+    expect(() => compile("=sum(1,2)")).not.toThrowError();
+    expect(() => compile("=sum(1,2,3)")).not.toThrowError();
   });
 });

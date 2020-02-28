@@ -32,6 +32,9 @@ export function compile(str: string): Function {
   if (ast.type === "BIN_OPERATION" && ast.value === ":") {
     throw new Error("Invalid formula");
   }
+  if (ast.type === "UNKNOWN") {
+    throw new Error("Invalid formula");
+  }
 
   /**
    * This function compile the function arguments. It is mostly straightforward,
@@ -65,6 +68,19 @@ export function compile(str: string): Function {
         }
       }
       result.push(argValue === "" ? `""` : argValue);
+    }
+    const isRepeating = fn.args.length ? fn.args[fn.args.length - 1].repeating : false;
+    let minArg = 0;
+    let maxArg = isRepeating ? Infinity : fn.args.length;
+    for (let arg of fn.args) {
+      if (!arg.optional) {
+        minArg++;
+      }
+    }
+    if (result.length < minArg || result.length > maxArg) {
+      throw new Error(`
+          Invalid number of arguments for the ${ast.value.toUpperCase()} function.
+          Expected ${fn.args.length}, but got ${result.length} instead.`);
     }
     return result;
   }
@@ -108,6 +124,8 @@ export function compile(str: string): Function {
           code.push(`let _${id} = fns['${OPERATOR_MAP[ast.value]}'](${left}, ${right})`);
         }
         break;
+      case "UNKNOWN":
+        return "undefined";
     }
     return `_${id}`;
   }

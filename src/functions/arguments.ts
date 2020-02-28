@@ -15,14 +15,7 @@ export interface Arg {
   name: string;
   type: ArgType[];
   default?: any;
-  valueProvider?: Function;
-  isValueProviderRestrictive?: boolean;
 }
-
-export type Range<T> = (T | undefined)[][];
-
-export type NumberOrRange = number | Range<number>;
-export type AnyOrRange = any | Range<any>;
 
 //------------------------------------------------------------------------------
 // Arg description DSL
@@ -122,4 +115,93 @@ export function validateArguments(args: Arg[]) {
     previousArgRepeating = current.repeating;
     previousArgOptional = current.optional;
   }
+}
+
+// HELPERS
+export function toNumber(value: any): number {
+  switch (typeof value) {
+    case "number":
+      return value;
+    case "boolean":
+      return value ? 1 : 0;
+    case "string":
+      if (value) {
+        let n = Number(value);
+        if (isNaN(n)) {
+          if (value.includes("%")) {
+            n = Number(value.split("%")[0]);
+            if (!isNaN(n)) {
+              return n / 100;
+            }
+          }
+          throw new Error(`
+            The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string,
+            and cannot be coerced to a number`);
+        } else {
+          return n;
+        }
+      } else {
+        return 0;
+      }
+    default:
+      return 0;
+  }
+}
+
+export function toString(value: any): string {
+  switch (typeof value) {
+    case "string":
+      return value;
+    case "number":
+      return value.toString();
+    case "boolean":
+      return value ? "TRUE" : "FALSE";
+    default:
+      return "";
+  }
+}
+
+export function toBoolean(value: any): boolean {
+  switch (typeof value) {
+    case "boolean":
+      return value;
+    case "string":
+      if (value) {
+        let uppercaseVal = value.toUpperCase();
+        if (uppercaseVal === "TRUE") {
+          return true;
+        }
+        if (uppercaseVal === "FALSE") {
+          return false;
+        }
+        throw new Error(
+          `The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a text, and cannot be coerced to a boolean.`
+        );
+      } else {
+        return false;
+      }
+    case "number":
+      return value ? true : false;
+    default:
+      return false;
+  }
+}
+
+export function getNumbers(args: IArguments): number[] {
+  const result: number[] = [];
+  for (let arg of args) {
+    if (Array.isArray(arg)) {
+      // this is a range
+      for (let i of arg) {
+        for (let val of i) {
+          if (typeof val === "number") {
+            result.push(val);
+          }
+        }
+      }
+    } else {
+      result.push(toNumber(arg));
+    }
+  }
+  return result;
 }

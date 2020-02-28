@@ -183,7 +183,7 @@ describe("evaluateCells, async formulas", () => {
   test("async formula and errors, scenario 1", async () => {
     const model = new GridModel();
     model.setValue("A1", "=WAIT(3)");
-    model.setValue("A2", "=A1 + CEILING(1,2,3,4,5)");
+    model.setValue("A2", "=A1 + 1/0");
 
     expect(model.state.cells["A2"].async).toBe(undefined);
     expect(model.state.cells["A2"].value).toEqual("#LOADING");
