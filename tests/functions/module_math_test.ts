@@ -21,9 +21,9 @@ const {
   SIN,
   SQRT,
   TRUNC,
-  // SUM,
-  // MIN,
-  // MAX
+  SUM,
+  MIN,
+  MAX
 } = functionMap;
 
 describe("math", () => {
@@ -1228,61 +1228,59 @@ describe("math", () => {
     expect(TRUNC(a, b)).toBe(expected);
   });
 
-  // test("SUM: add some numbers", () => {
-  //   expect(SUM(1, 2)).toBe(3);
-  //   expect(SUM(1, 2, 3)).toBe(6);
-  // });
+  test("SUM: add some numbers", () => {
+    expect(SUM(1, 2)).toBe(3);
+    expect(SUM(1, 2, 3)).toBe(6);
+  });
 
-  // test("SUM: add some ranges", () => {
-  //   expect(SUM([[1, 2]])).toBe(3);
-  //   expect(SUM(1, [[2, 3]])).toBe(6);
-  //   expect(SUM([[1], [2], [3]])).toBe(6);
-  //   expect(SUM([[1], [2]], 3)).toBe(6);
-  // });
+  test("SUM: add some ranges", () => {
+    expect(SUM([[1, 2]])).toBe(3);
+    expect(SUM(1, [[2, 3]])).toBe(6);
+    expect(SUM([[1], [2], [3]])).toBe(6);
+    expect(SUM([[1], [2]], 3)).toBe(6);
+  });
 
-  // test("SUM: add a number and a string", () => {
-  //   expect(SUM([[11, "str"]])).toBe(11);
-  //   expect(SUM([[11], ["str"]])).toBe(11);
-  //   expect(() => SUM(11, "str")).toThrow(
-  //     `Argument "number" should be a number, but "str" is a text, and cannot be coerced to a number.`
-  //   );
-  // });
+  test("SUM: add a number and a string", () => {
+    expect(SUM([[11, "str"]])).toBe(11);
+    expect(SUM([[11], ["str"]])).toBe(11);
+    expect(() => SUM(11, "str")).toThrowErrorMatchingSnapshot();
+  });
 
-  // test("RAND: return a number", () => {
-  //   const random = RAND();
-  //   expect(typeof random).toBe("number");
-  //   expect(random).toBeGreaterThanOrEqual(0);
-  //   expect(random).toBeLessThanOrEqual(1);
-  // });
+  test("RAND: return a number", () => {
+    const random = RAND();
+    expect(typeof random).toBe("number");
+    expect(random).toBeGreaterThanOrEqual(0);
+    expect(random).toBeLessThanOrEqual(1);
+  });
 
-  // test("MIN", () => {
-  //   expect(MIN(0, 1, 2, -1)).toBe(-1);
-  //   expect(MIN(0, 1, 2)).toBe(0);
-  //   expect(MIN(1, 2)).toBe(1);
-  //   expect(MIN(true, 2)).toBe(1);
-  //   expect(MIN(null, true)).toBe(0);
-  //   expect(MIN(null, null)).toBe(0);
-  //   expect(MIN(-5)).toBe(-5);
-  //   expect(MIN([[1, 2, null, -1]])).toBe(-1);
-  //   expect(MIN([[null, null, null]])).toBe(0);
-  //   expect(MIN([[null, null, -1]])).toBe(-1);
-  //   expect(MIN([[null, 2, null]])).toBe(2);
-  //   expect(MIN([["one", 22, false]])).toBe(22);
-  // });
+  test("MIN", () => {
+    expect(MIN(0, 1, 2, -1)).toBe(-1);
+    expect(MIN(0, 1, 2)).toBe(0);
+    expect(MIN(1, 2)).toBe(1);
+    expect(MIN(true, 2)).toBe(1);
+    expect(MIN(null, true)).toBe(0);
+    expect(MIN(null, null)).toBe(0);
+    expect(MIN(-5)).toBe(-5);
+    expect(MIN([[1, 2, null, -1]])).toBe(-1);
+    expect(MIN([[null, null, null]])).toBe(0);
+    expect(MIN([[null, null, -1]])).toBe(-1);
+    expect(MIN([[null, 2, null]])).toBe(2);
+    expect(MIN([["one", 22, false]])).toBe(22);
+  });
 
-  // test("MAX", () => {
-  //   expect(MAX(0, 1, 2, -1)).toBe(2);
-  //   expect(MAX(0, 1, 2)).toBe(2);
-  //   expect(MAX(1, 2)).toBe(2);
-  //   expect(MAX(-5)).toBe(-5);
-  //   expect(MAX(true, 2)).toBe(2);
-  //   expect(MAX(true, 0)).toBe(1);
-  //   expect(MAX(null, true)).toBe(1);
-  //   expect(MAX(null, null)).toBe(0);
-  //   expect(MAX([[1, 2, null, -1]])).toBe(2);
-  //   expect(MAX([[null, null, null]])).toBe(0);
-  //   expect(MAX([[null, null, -1]])).toBe(-1);
-  //   expect(MAX([[null, 2, null]])).toBe(2);
-  //   expect(MAX([["onasdfe", -2, true]])).toBe(-2);
-  // });
+  test("MAX", () => {
+    expect(MAX(0, 1, 2, -1)).toBe(2);
+    expect(MAX(0, 1, 2)).toBe(2);
+    expect(MAX(1, 2)).toBe(2);
+    expect(MAX(-5)).toBe(-5);
+    expect(MAX(true, 2)).toBe(2);
+    expect(MAX(true, 0)).toBe(1);
+    expect(MAX(null, true)).toBe(1);
+    expect(MAX(null, null)).toBe(0);
+    expect(MAX([[1, 2, null, -1]])).toBe(2);
+    expect(MAX([[null, null, null]])).toBe(0);
+    expect(MAX([[null, null, -1]])).toBe(-1);
+    expect(MAX([[null, 2, null]])).toBe(2);
+    expect(MAX([["onasdfe", -2, true]])).toBe(-2);
+  });
 });
