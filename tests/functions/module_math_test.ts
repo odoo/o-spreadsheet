@@ -7,23 +7,23 @@ const {
   DECIMAL,
   DEGREES,
   FLOOR,
-  ISEVEN,
-  ISODD,
-  MOD,
-  ODD,
-  PI,
-  POWER,
-  RAND,
-  RANDBETWEEN,
-  ROUND,
-  ROUNDDOWN,
-  ROUNDUP,
-  SIN,
-  SQRT,
-  TRUNC,
-  SUM,
-  MIN,
-  MAX
+  // ISEVEN,
+  // ISODD,
+  // MOD,
+  // ODD,
+  // PI,
+  // POWER,
+  // RAND,
+  // RANDBETWEEN,
+  // ROUND,
+  // ROUNDDOWN,
+  // ROUNDUP,
+  // SIN,
+  // SQRT,
+  // TRUNC,
+  // SUM,
+  // MIN,
+  // MAX
 } = functionMap;
 
 describe("math", () => {
@@ -106,7 +106,7 @@ describe("math", () => {
     // the nearest integer multiple of b
     [-7.89, 0.2, -7.8],
     [-7.89, -0.2, -8]
-  ])("CEILING(%s, %s) - %s: if factor negative, rouds number down", (a, b, expected) => {
+  ])("CEILING(%s, %s) - %s: if factor negative, rounds number down", (a, b, expected) => {
     expect(CEILING(a, b)).toBeCloseTo(expected, 9);
   });
 
@@ -660,629 +660,629 @@ describe("math", () => {
     expect(functionMap["FLOOR.MATH"](a, b, c)).toBeCloseTo(expected, 9);
   });
 
-  //----------------------------------------------------------------------------
-  // ISEVEN
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [-3, -2.3, -2, 0, 2, 2.3, 3]
-
-  test.each([
-    [-3, false],
-    [-2.3, true],
-    [-2, true],
-    [0, true],
-    [2, true],
-    [2.3, true],
-    [3, false]
-  ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
-    expect(ISEVEN(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, false],
-    [false, true],
-    [null, true]
-  ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
-    expect(ISEVEN(a)).toBe(expected);
-  });
-
-  //----------------------------------------------------------------------------
-  // ISODD
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [-3.3, -3, -2.2, -2, 0, 2, 2.2, 3, 3.3, 5, 6]
-
-  test.each([
-    [-3.3, true],
-    [-3, true],
-    [-2.2, false],
-    [-2, false],
-    [0, false],
-    [2, false],
-    [2.2, false],
-    [3, true],
-    [3.3, true],
-    [5, true],
-    [6, false]
-  ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
-    expect(ISODD(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, true],
-    [false, false],
-    [null, false]
-  ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
-    expect(ISODD(a)).toBe(expected);
-  });
-
-  //----------------------------------------------------------------------------
-  // MOD
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [-42, -2.2, -2, 0, 2, 2.2, 42]
-  // b = [-10, -2.2, -2, 0, 2, 2.2, 10]
-
-  test.each([
-    [-42, -10, -2],
-    [-42, -2.2, -0.2],
-    [-42, -2, 0],
-    [-42, 2, 0],
-    [-42, 2.2, 2],
-    [-42, 10, 8],
-    [-2.2, -10, -2.2],
-    [-2.2, -2.2, 0],
-    [-2.2, -2, -0.2],
-    [-2.2, 2, 1.8],
-    [-2.2, 2.2, 0],
-    [-2.2, 10, 7.8],
-    [-2, -10, -2],
-    [-2, -2.2, -2],
-    [-2, -2, 0],
-    [-2, 2, 0],
-    [-2, 2.2, 0.2],
-    [-2, 10, 8],
-    [0, -10, 0],
-    [0, -2.2, 0],
-    [0, -2, 0],
-    [0, 2, 0],
-    [0, 2.2, 0],
-    [0, 10, 0],
-    [2, -10, -8],
-    [2, -2.2, -0.2],
-    [2, -2, 0],
-    [2, 2, 0],
-    [2, 2.2, 2],
-    [2, 10, 2],
-    [2.2, -10, -7.8],
-    [2.2, -2.2, 0],
-    [2.2, -2, -1.8],
-    [2.2, 2, 0.2],
-    [2.2, 2.2, 0],
-    [2.2, 10, 2.2],
-    [42, -10, -8],
-    [42, -2.2, -2],
-    [42, -2, 0],
-    [42, 2, 0],
-    [42, 2.2, 0.2],
-    [42, 10, 2]
-  ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(MOD(a, b)).toBeCloseTo(expected, 14);
-  });
-
-  test.each([
-    [-42, 0],
-    [-2.2, 0],
-    [-2, 0],
-    [0, 0],
-    [2, 0],
-    [2.2, 0],
-    [42, 0]
-  ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
-    expect(() => {
-      MOD(a, b);
-    }).toThrowErrorMatchingSnapshot();
-  });
-
-  test.each([
-    [true, 42, 1],
-    [false, 42, 0],
-    [null, 42, 0],
-    [42, true, 0]
-  ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(MOD(a, b)).toBeCloseTo(expected, 14);
-  });
-
-  test.each([
-    [42, false],
-    [42, null]
-  ])(
-    "MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2, casting test ",
-    (a, b) => {
-      expect(() => {
-        MOD(a, b);
-      }).toThrowErrorMatchingSnapshot();
-    }
-  );
-
-  //----------------------------------------------------------------------------
-  // ODD
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // a = [-3.9, -3.1, -3, -2.9, -2.1, -2, 0, 2, 2.1, 2.9, 3, 3.1, 3.9]
-
-  test.each([
-    [-3.9, -5],
-    [-3.1, -5],
-    [-3, -3],
-    [-2.9, -3],
-    [-2.1, -3],
-    [-2, -3],
-    [0, 1],
-    [2, 3],
-    [2.1, 3],
-    [2.9, 3],
-    [3, 3],
-    [3.1, 5],
-    [3.9, 5]
-  ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(ODD(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, 1],
-    [false, 1],
-    [null, 1]
-  ])("ODD(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
-    expect(ODD(a)).toBe(expected);
-  });
-
-  //----------------------------------------------------------------------------
-  // PI
-  //----------------------------------------------------------------------------
-
-  // domain parameter:
-  // None
-
-  test("PI", () => {
-    expect(PI()).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
-    expect(PI()).toBeCloseTo(3.141592653589793, 9); // @compatibility: on google sheets return 3.14159265358979
-  });
-
-  //----------------------------------------------------------------------------
-  // POWER
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [0, 0, 1],
-    [0, 0.5, 0],
-    [4, 0, 1],
-    [0, 4, 0],
-    [4, 2, 16],
-    [-4, 2, 16],
-    [4, 3, 64],
-    [-4, 3, -64],
-    [4, 0.5, 2],
-    [4, -0.5, 0.5],
-    [4, -2, 0.0625]
-  ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(POWER(a, b)).toBe(expected);
-  });
-
-  test.each([
-    [-4, 0.5],
-    [-4, 1.5],
-    [-4, 0.2]
-  ])("POWER(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
-    expect(() => {
-      POWER(a, b);
-    }).toThrowErrorMatchingSnapshot();
-  });
-
-  test.each([
-    [true, 4, 1],
-    [false, 4, 0],
-    [null, 4, 0],
-    [4, true, 4],
-    [4, false, 1],
-    [4, null, 1]
-  ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(POWER(a, b)).toBe(expected);
-  });
-
-  //----------------------------------------------------------------------------
-  // RAND
-  //----------------------------------------------------------------------------
-
-  test("RAND(): return a number", () => {
-    const random = RAND();
-    expect(typeof random).toBe("number");
-    expect(random).toBeGreaterThanOrEqual(0);
-    expect(random).toBeLessThan(1);
-  });
-
-  //----------------------------------------------------------------------------
-  // RANDBETWEEN
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [0, 0, 0],
-    [42, 42, 42],
-    [-42, -42, -42],
-    [1.1, 2, 2]
-  ])("RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(RANDBETWEEN(a, b)).toBe(expected);
-  });
-
-  test.each([
-    [-42, 42],
-    [24, 42],
-    [-42, -24]
-  ])("RANDBETWEEN(%s, %s): take 2 parameter(s), return a number", (a, b) => {
-    const randint = RANDBETWEEN(a, b);
-    expect(typeof randint).toBe("number");
-    expect(randint).toBeGreaterThanOrEqual(a);
-    expect(randint).toBeLessThanOrEqual(b);
-  });
-
-  test.each([
-    [1.1, 1.2], // @compatibility: on google sheets, return 2
-    [-24, -42],
-    [42, 24]
-  ])("RANDBETWEEN(%s, %s) - error: take 2 parameter(s), return an error", (a, b) => {
-    expect(() => {
-      RANDBETWEEN(a, b);
-    }).toThrowErrorMatchingSnapshot();
-  });
-
-  test.each([
-    [1, true, 1],
-    [0, false, 0],
-    [0, null, 0],
-    [true, 1, 1],
-    [false, 0, 0],
-    [null, 0, 0]
-  ])(
-    "RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
-    (a, b, expected) => {
-      expect(RANDBETWEEN(a, b)).toBe(expected);
-    }
-  );
-
-  //----------------------------------------------------------------------------
-  // ROUND
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [-1.6, -2],
-    [-1.5, -2],
-    [-1.4, -1],
-    [0, 0],
-    [1.4, 1],
-    [1.5, 2],
-    [1.6, 2]
-  ])("ROUND(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(ROUND(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [null, 0]
-  ])("ROUND(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(ROUND(a)).toBe(expected);
-  });
-
-  test.each([
-    [0.3, 2, 0.3],
-    [0.34, 2, 0.34],
-    [0.345, 2, 0.35],
-    [-0.3, 2, -0.3],
-    [-0.34, 2, -0.34],
-    [-0.345, 2, -0.35],
-    [0.345, 1.9, 0.3],
-    [-0.345, 1.9, -0.3],
-    [4, -1, 0],
-    [5, -1, 10],
-    [50, -2, 100],
-    [-5, -1, -10],
-    [-50, -2, -100],
-    [5, -1.9, 10],
-    [-5, -1.9, -10]
-  ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(ROUND(a, b)).toBe(expected);
-  });
-
-  test.each([
-    [true, 42, 1],
-    [false, 42, 0],
-    [null, 42, 0],
-    [42.42, true, 42.4],
-    [42.42, false, 42],
-    [42.42, null, 42]
-  ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(ROUND(a, b)).toBe(expected);
-  });
-
-  //----------------------------------------------------------------------------
-  // ROUNDDOWN
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [-1.9, -1],
-    [-1.5, -1],
-    [-1.4, -1],
-    [0, 0],
-    [1.4, 1],
-    [1.5, 1],
-    [1.9, 1]
-  ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(ROUNDDOWN(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [null, 0]
-  ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(ROUNDDOWN(a)).toBe(expected);
-  });
-
-  test.each([
-    [0.3, 2, 0.3],
-    [0.34, 2, 0.34],
-    [0.349, 2, 0.34],
-    [-0.3, 2, -0.3],
-    [-0.34, 2, -0.34],
-    [-0.349, 2, -0.34],
-    [0.349, 1.9, 0.3],
-    [-0.349, 1.9, -0.3],
-    [9, -1, 0],
-    [19, -1, 10],
-    [599, -2, 500],
-    [-19, -1, -10],
-    [-599, -2, -500],
-    [19, -1.9, 10],
-    [-19, -1.9, -10]
-  ])("ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(ROUNDDOWN(a, b)).toBe(expected);
-  });
-
-  test.each([
-    [true, 42, 1],
-    [false, 42, 0],
-    [null, 42, 0],
-    [42.49, true, 42.4],
-    [42.49, false, 42],
-    [42.49, null, 42]
-  ])(
-    "ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
-    (a, b, expected) => {
-      expect(ROUNDDOWN(a, b)).toBe(expected);
-    }
-  );
-
-  //----------------------------------------------------------------------------
-  // ROUNDUP
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [-1.6, -2],
-    [-1.5, -2],
-    [-1.1, -2],
-    [0, 0],
-    [1.1, 2],
-    [1.5, 2],
-    [1.6, 2]
-  ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(ROUNDUP(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [null, 0]
-  ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(ROUNDUP(a)).toBe(expected);
-  });
-
-  test.each([
-    [0.3, 2, 0.3],
-    [0.34, 2, 0.34],
-    [0.341, 2, 0.35],
-    [-0.3, 2, -0.3],
-    [-0.34, 2, -0.34],
-    [-0.341, 2, -0.35],
-    [0.311, 1.9, 0.4],
-    [-0.311, 1.9, -0.4],
-    [1, -1, 10],
-    [11, -1, 20],
-    [1, -2, 100],
-    [-11, -1, -20],
-    [1, -2, 100],
-    [11, -1.9, 20],
-    [-11, -1.9, -20]
-  ])("ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(ROUNDUP(a, b)).toBe(expected);
-  });
-
-  test.each([
-    [true, 42, 1],
-    [false, 42, 0],
-    [null, 42, 0],
-    [42.41, true, 42.5],
-    [42.41, false, 43],
-    [42.41, null, 43]
-  ])(
-    "ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
-    (a, b, expected) => {
-      expect(ROUNDUP(a, b)).toBe(expected);
-    }
-  );
-
-  //----------------------------------------------------------------------------
-  // SIN
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [0, 0],
-    [Math.PI, 0],
-    [Math.PI * 2, 0],
-    [Math.PI / 2, 1],
-    [Math.PI / 6, 0.5],
-    [-Math.PI / 2, -1]
-  ])("SIN(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(SIN(a)).toBeCloseTo(expected, 9);
-  });
-
-  test.each([
-    [true, 0.8414709848],
-    [false, 0],
-    [null, 0]
-  ])("SIN(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
-    expect(SIN(a)).toBeCloseTo(expected, 9);
-  });
-
-  //----------------------------------------------------------------------------
-  // SQRT
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [0, 0],
-    [4, 2],
-    [9, 3]
-  ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(SQRT(a)).toBe(expected);
-  });
-
-  test.each([[-4], [-9]])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
-    expect(() => {
-      SQRT(a);
-    }).toThrowErrorMatchingSnapshot();
-  });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [null, 0]
-  ])("SQRT(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
-    expect(SQRT(a)).toBe(expected);
-  });
-
-  //----------------------------------------------------------------------------
-  // TRUNC
-  //----------------------------------------------------------------------------
-
-  test.each([
-    [-1.6, -1],
-    [-1.5, -1],
-    [-1.4, -1],
-    [0, 0],
-    [1.4, 1],
-    [1.5, 1],
-    [1.6, 1]
-  ])("TRUNC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(TRUNC(a)).toBe(expected);
-  });
-
-  test.each([
-    [true, 1],
-    [false, 0],
-    [null, 0]
-  ])("TRUNC(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
-    expect(TRUNC(a)).toBe(expected);
-  });
-
-  test.each([
-    [0.3, 2, 0.3],
-    [0.34, 2, 0.34],
-    [0.345, 2, 0.34],
-    [-0.3, 2, -0.3],
-    [-0.34, 2, -0.34],
-    [-0.345, 2, -0.34],
-    [0.345, 1.9, 0.3],
-    [-0.345, 1.9, -0.3],
-    [12345, -1, 12340],
-    [123456, -1, 123450],
-    [12345, -2, 12300],
-    [-123456, -1, -123450],
-    [-12345, -2, -12300],
-    [12345, -1.9, 12340],
-    [-12345, -1.9, -12340]
-  ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(TRUNC(a, b)).toBe(expected);
-  });
-
-  test.each([
-    [true, 42, 1],
-    [false, 42, 0],
-    [null, 42, 0],
-    [42.42, true, 42.4],
-    [42.42, false, 42],
-    [42.42, null, 42]
-  ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
-    expect(TRUNC(a, b)).toBe(expected);
-  });
-
-  test("SUM: add some numbers", () => {
-    expect(SUM(1, 2)).toBe(3);
-    expect(SUM(1, 2, 3)).toBe(6);
-  });
-
-  test("SUM: add some ranges", () => {
-    expect(SUM([[1, 2]])).toBe(3);
-    expect(SUM(1, [[2, 3]])).toBe(6);
-    expect(SUM([[1], [2], [3]])).toBe(6);
-    expect(SUM([[1], [2]], 3)).toBe(6);
-  });
-
-  test("SUM: add a number and a string", () => {
-    expect(SUM([[11, "str"]])).toBe(11);
-    expect(SUM([[11], ["str"]])).toBe(11);
-    expect(() => SUM(11, "str")).toThrow(
-      `Argument "number" should be a number, but "str" is a text, and cannot be coerced to a number.`
-    );
-  });
-
-  test("RAND: return a number", () => {
-    const random = RAND();
-    expect(typeof random).toBe("number");
-    expect(random).toBeGreaterThanOrEqual(0);
-    expect(random).toBeLessThanOrEqual(1);
-  });
-
-  test("MIN", () => {
-    expect(MIN(0, 1, 2, -1)).toBe(-1);
-    expect(MIN(0, 1, 2)).toBe(0);
-    expect(MIN(1, 2)).toBe(1);
-    expect(MIN(true, 2)).toBe(1);
-    expect(MIN(null, true)).toBe(0);
-    expect(MIN(null, null)).toBe(0);
-    expect(MIN(-5)).toBe(-5);
-    expect(MIN([[1, 2, null, -1]])).toBe(-1);
-    expect(MIN([[null, null, null]])).toBe(0);
-    expect(MIN([[null, null, -1]])).toBe(-1);
-    expect(MIN([[null, 2, null]])).toBe(2);
-    expect(MIN([["one", 22, false]])).toBe(22);
-  });
-
-  test("MAX", () => {
-    expect(MAX(0, 1, 2, -1)).toBe(2);
-    expect(MAX(0, 1, 2)).toBe(2);
-    expect(MAX(1, 2)).toBe(2);
-    expect(MAX(-5)).toBe(-5);
-    expect(MAX(true, 2)).toBe(2);
-    expect(MAX(true, 0)).toBe(1);
-    expect(MAX(null, true)).toBe(1);
-    expect(MAX(null, null)).toBe(0);
-    expect(MAX([[1, 2, null, -1]])).toBe(2);
-    expect(MAX([[null, null, null]])).toBe(0);
-    expect(MAX([[null, null, -1]])).toBe(-1);
-    expect(MAX([[null, 2, null]])).toBe(2);
-    expect(MAX([["onasdfe", -2, true]])).toBe(-2);
-  });
+  // //----------------------------------------------------------------------------
+  // // ISEVEN
+  // //----------------------------------------------------------------------------
+
+  // // domain parameter:
+  // // a = [-3, -2.3, -2, 0, 2, 2.3, 3]
+
+  // test.each([
+  //   [-3, false],
+  //   [-2.3, true],
+  //   [-2, true],
+  //   [0, true],
+  //   [2, true],
+  //   [2.3, true],
+  //   [3, false]
+  // ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
+  //   expect(ISEVEN(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, false],
+  //   [false, true],
+  //   [null, true]
+  // ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
+  //   expect(ISEVEN(a)).toBe(expected);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // ISODD
+  // //----------------------------------------------------------------------------
+
+  // // domain parameter:
+  // // a = [-3.3, -3, -2.2, -2, 0, 2, 2.2, 3, 3.3, 5, 6]
+
+  // test.each([
+  //   [-3.3, true],
+  //   [-3, true],
+  //   [-2.2, false],
+  //   [-2, false],
+  //   [0, false],
+  //   [2, false],
+  //   [2.2, false],
+  //   [3, true],
+  //   [3.3, true],
+  //   [5, true],
+  //   [6, false]
+  // ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
+  //   expect(ISODD(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, true],
+  //   [false, false],
+  //   [null, false]
+  // ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean, casting test", (a, expected) => {
+  //   expect(ISODD(a)).toBe(expected);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // MOD
+  // //----------------------------------------------------------------------------
+
+  // // domain parameter:
+  // // a = [-42, -2.2, -2, 0, 2, 2.2, 42]
+  // // b = [-10, -2.2, -2, 0, 2, 2.2, 10]
+
+  // test.each([
+  //   [-42, -10, -2],
+  //   [-42, -2.2, -0.2],
+  //   [-42, -2, 0],
+  //   [-42, 2, 0],
+  //   [-42, 2.2, 2],
+  //   [-42, 10, 8],
+  //   [-2.2, -10, -2.2],
+  //   [-2.2, -2.2, 0],
+  //   [-2.2, -2, -0.2],
+  //   [-2.2, 2, 1.8],
+  //   [-2.2, 2.2, 0],
+  //   [-2.2, 10, 7.8],
+  //   [-2, -10, -2],
+  //   [-2, -2.2, -2],
+  //   [-2, -2, 0],
+  //   [-2, 2, 0],
+  //   [-2, 2.2, 0.2],
+  //   [-2, 10, 8],
+  //   [0, -10, 0],
+  //   [0, -2.2, 0],
+  //   [0, -2, 0],
+  //   [0, 2, 0],
+  //   [0, 2.2, 0],
+  //   [0, 10, 0],
+  //   [2, -10, -8],
+  //   [2, -2.2, -0.2],
+  //   [2, -2, 0],
+  //   [2, 2, 0],
+  //   [2, 2.2, 2],
+  //   [2, 10, 2],
+  //   [2.2, -10, -7.8],
+  //   [2.2, -2.2, 0],
+  //   [2.2, -2, -1.8],
+  //   [2.2, 2, 0.2],
+  //   [2.2, 2.2, 0],
+  //   [2.2, 10, 2.2],
+  //   [42, -10, -8],
+  //   [42, -2.2, -2],
+  //   [42, -2, 0],
+  //   [42, 2, 0],
+  //   [42, 2.2, 0.2],
+  //   [42, 10, 2]
+  // ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(MOD(a, b)).toBeCloseTo(expected, 14);
+  // });
+
+  // test.each([
+  //   [-42, 0],
+  //   [-2.2, 0],
+  //   [-2, 0],
+  //   [0, 0],
+  //   [2, 0],
+  //   [2.2, 0],
+  //   [42, 0]
+  // ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
+  //   expect(() => {
+  //     MOD(a, b);
+  //   }).toThrowErrorMatchingSnapshot();
+  // });
+
+  // test.each([
+  //   [true, 42, 1],
+  //   [false, 42, 0],
+  //   [null, 42, 0],
+  //   [42, true, 0]
+  // ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+  //   expect(MOD(a, b)).toBeCloseTo(expected, 14);
+  // });
+
+  // test.each([
+  //   [42, false],
+  //   [42, null]
+  // ])(
+  //   "MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2, casting test ",
+  //   (a, b) => {
+  //     expect(() => {
+  //       MOD(a, b);
+  //     }).toThrowErrorMatchingSnapshot();
+  //   }
+  // );
+
+  // //----------------------------------------------------------------------------
+  // // ODD
+  // //----------------------------------------------------------------------------
+
+  // // domain parameter:
+  // // a = [-3.9, -3.1, -3, -2.9, -2.1, -2, 0, 2, 2.1, 2.9, 3, 3.1, 3.9]
+
+  // test.each([
+  //   [-3.9, -5],
+  //   [-3.1, -5],
+  //   [-3, -3],
+  //   [-2.9, -3],
+  //   [-2.1, -3],
+  //   [-2, -3],
+  //   [0, 1],
+  //   [2, 3],
+  //   [2.1, 3],
+  //   [2.9, 3],
+  //   [3, 3],
+  //   [3.1, 5],
+  //   [3.9, 5]
+  // ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  //   expect(ODD(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 1],
+  //   [false, 1],
+  //   [null, 1]
+  // ])("ODD(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
+  //   expect(ODD(a)).toBe(expected);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // PI
+  // //----------------------------------------------------------------------------
+
+  // // domain parameter:
+  // // None
+
+  // test("PI", () => {
+  //   expect(PI()).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
+  //   expect(PI()).toBeCloseTo(3.141592653589793, 9); // @compatibility: on google sheets return 3.14159265358979
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // POWER
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [0, 0, 1],
+  //   [0, 0.5, 0],
+  //   [4, 0, 1],
+  //   [0, 4, 0],
+  //   [4, 2, 16],
+  //   [-4, 2, 16],
+  //   [4, 3, 64],
+  //   [-4, 3, -64],
+  //   [4, 0.5, 2],
+  //   [4, -0.5, 0.5],
+  //   [4, -2, 0.0625]
+  // ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(POWER(a, b)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [-4, 0.5],
+  //   [-4, 1.5],
+  //   [-4, 0.2]
+  // ])("POWER(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
+  //   expect(() => {
+  //     POWER(a, b);
+  //   }).toThrowErrorMatchingSnapshot();
+  // });
+
+  // test.each([
+  //   [true, 4, 1],
+  //   [false, 4, 0],
+  //   [null, 4, 0],
+  //   [4, true, 4],
+  //   [4, false, 1],
+  //   [4, null, 1]
+  // ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+  //   expect(POWER(a, b)).toBe(expected);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // RAND
+  // //----------------------------------------------------------------------------
+
+  // test("RAND(): return a number", () => {
+  //   const random = RAND();
+  //   expect(typeof random).toBe("number");
+  //   expect(random).toBeGreaterThanOrEqual(0);
+  //   expect(random).toBeLessThan(1);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // RANDBETWEEN
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [0, 0, 0],
+  //   [42, 42, 42],
+  //   [-42, -42, -42],
+  //   [1.1, 2, 2]
+  // ])("RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(RANDBETWEEN(a, b)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [-42, 42],
+  //   [24, 42],
+  //   [-42, -24]
+  // ])("RANDBETWEEN(%s, %s): take 2 parameter(s), return a number", (a, b) => {
+  //   const randint = RANDBETWEEN(a, b);
+  //   expect(typeof randint).toBe("number");
+  //   expect(randint).toBeGreaterThanOrEqual(a);
+  //   expect(randint).toBeLessThanOrEqual(b);
+  // });
+
+  // test.each([
+  //   [1.1, 1.2], // @compatibility: on google sheets, return 2
+  //   [-24, -42],
+  //   [42, 24]
+  // ])("RANDBETWEEN(%s, %s) - error: take 2 parameter(s), return an error", (a, b) => {
+  //   expect(() => {
+  //     RANDBETWEEN(a, b);
+  //   }).toThrowErrorMatchingSnapshot();
+  // });
+
+  // test.each([
+  //   [1, true, 1],
+  //   [0, false, 0],
+  //   [0, null, 0],
+  //   [true, 1, 1],
+  //   [false, 0, 0],
+  //   [null, 0, 0]
+  // ])(
+  //   "RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+  //   (a, b, expected) => {
+  //     expect(RANDBETWEEN(a, b)).toBe(expected);
+  //   }
+  // );
+
+  // //----------------------------------------------------------------------------
+  // // ROUND
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [-1.6, -2],
+  //   [-1.5, -2],
+  //   [-1.4, -1],
+  //   [0, 0],
+  //   [1.4, 1],
+  //   [1.5, 2],
+  //   [1.6, 2]
+  // ])("ROUND(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+  //   expect(ROUND(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 1],
+  //   [false, 0],
+  //   [null, 0]
+  // ])("ROUND(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+  //   expect(ROUND(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [0.3, 2, 0.3],
+  //   [0.34, 2, 0.34],
+  //   [0.345, 2, 0.35],
+  //   [-0.3, 2, -0.3],
+  //   [-0.34, 2, -0.34],
+  //   [-0.345, 2, -0.35],
+  //   [0.345, 1.9, 0.3],
+  //   [-0.345, 1.9, -0.3],
+  //   [4, -1, 0],
+  //   [5, -1, 10],
+  //   [50, -2, 100],
+  //   [-5, -1, -10],
+  //   [-50, -2, -100],
+  //   [5, -1.9, 10],
+  //   [-5, -1.9, -10]
+  // ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(ROUND(a, b)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 42, 1],
+  //   [false, 42, 0],
+  //   [null, 42, 0],
+  //   [42.42, true, 42.4],
+  //   [42.42, false, 42],
+  //   [42.42, null, 42]
+  // ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+  //   expect(ROUND(a, b)).toBe(expected);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // ROUNDDOWN
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [-1.9, -1],
+  //   [-1.5, -1],
+  //   [-1.4, -1],
+  //   [0, 0],
+  //   [1.4, 1],
+  //   [1.5, 1],
+  //   [1.9, 1]
+  // ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+  //   expect(ROUNDDOWN(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 1],
+  //   [false, 0],
+  //   [null, 0]
+  // ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+  //   expect(ROUNDDOWN(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [0.3, 2, 0.3],
+  //   [0.34, 2, 0.34],
+  //   [0.349, 2, 0.34],
+  //   [-0.3, 2, -0.3],
+  //   [-0.34, 2, -0.34],
+  //   [-0.349, 2, -0.34],
+  //   [0.349, 1.9, 0.3],
+  //   [-0.349, 1.9, -0.3],
+  //   [9, -1, 0],
+  //   [19, -1, 10],
+  //   [599, -2, 500],
+  //   [-19, -1, -10],
+  //   [-599, -2, -500],
+  //   [19, -1.9, 10],
+  //   [-19, -1.9, -10]
+  // ])("ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(ROUNDDOWN(a, b)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 42, 1],
+  //   [false, 42, 0],
+  //   [null, 42, 0],
+  //   [42.49, true, 42.4],
+  //   [42.49, false, 42],
+  //   [42.49, null, 42]
+  // ])(
+  //   "ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+  //   (a, b, expected) => {
+  //     expect(ROUNDDOWN(a, b)).toBe(expected);
+  //   }
+  // );
+
+  // //----------------------------------------------------------------------------
+  // // ROUNDUP
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [-1.6, -2],
+  //   [-1.5, -2],
+  //   [-1.1, -2],
+  //   [0, 0],
+  //   [1.1, 2],
+  //   [1.5, 2],
+  //   [1.6, 2]
+  // ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+  //   expect(ROUNDUP(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 1],
+  //   [false, 0],
+  //   [null, 0]
+  // ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+  //   expect(ROUNDUP(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [0.3, 2, 0.3],
+  //   [0.34, 2, 0.34],
+  //   [0.341, 2, 0.35],
+  //   [-0.3, 2, -0.3],
+  //   [-0.34, 2, -0.34],
+  //   [-0.341, 2, -0.35],
+  //   [0.311, 1.9, 0.4],
+  //   [-0.311, 1.9, -0.4],
+  //   [1, -1, 10],
+  //   [11, -1, 20],
+  //   [1, -2, 100],
+  //   [-11, -1, -20],
+  //   [1, -2, 100],
+  //   [11, -1.9, 20],
+  //   [-11, -1.9, -20]
+  // ])("ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(ROUNDUP(a, b)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 42, 1],
+  //   [false, 42, 0],
+  //   [null, 42, 0],
+  //   [42.41, true, 42.5],
+  //   [42.41, false, 43],
+  //   [42.41, null, 43]
+  // ])(
+  //   "ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number, casting test",
+  //   (a, b, expected) => {
+  //     expect(ROUNDUP(a, b)).toBe(expected);
+  //   }
+  // );
+
+  // //----------------------------------------------------------------------------
+  // // SIN
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [0, 0],
+  //   [Math.PI, 0],
+  //   [Math.PI * 2, 0],
+  //   [Math.PI / 2, 1],
+  //   [Math.PI / 6, 0.5],
+  //   [-Math.PI / 2, -1]
+  // ])("SIN(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  //   expect(SIN(a)).toBeCloseTo(expected, 9);
+  // });
+
+  // test.each([
+  //   [true, 0.8414709848],
+  //   [false, 0],
+  //   [null, 0]
+  // ])("SIN(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
+  //   expect(SIN(a)).toBeCloseTo(expected, 9);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // SQRT
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [0, 0],
+  //   [4, 2],
+  //   [9, 3]
+  // ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  //   expect(SQRT(a)).toBe(expected);
+  // });
+
+  // test.each([[-4], [-9]])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
+  //   expect(() => {
+  //     SQRT(a);
+  //   }).toThrowErrorMatchingSnapshot();
+  // });
+
+  // test.each([
+  //   [true, 1],
+  //   [false, 0],
+  //   [null, 0]
+  // ])("SQRT(%s) - %s: take 1 parameter(s), return a number, casting test ", (a, expected) => {
+  //   expect(SQRT(a)).toBe(expected);
+  // });
+
+  // //----------------------------------------------------------------------------
+  // // TRUNC
+  // //----------------------------------------------------------------------------
+
+  // test.each([
+  //   [-1.6, -1],
+  //   [-1.5, -1],
+  //   [-1.4, -1],
+  //   [0, 0],
+  //   [1.4, 1],
+  //   [1.5, 1],
+  //   [1.6, 1]
+  // ])("TRUNC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+  //   expect(TRUNC(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 1],
+  //   [false, 0],
+  //   [null, 0]
+  // ])("TRUNC(%s) - %s: take 1 parameter(s), return a number, casting test", (a, expected) => {
+  //   expect(TRUNC(a)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [0.3, 2, 0.3],
+  //   [0.34, 2, 0.34],
+  //   [0.345, 2, 0.34],
+  //   [-0.3, 2, -0.3],
+  //   [-0.34, 2, -0.34],
+  //   [-0.345, 2, -0.34],
+  //   [0.345, 1.9, 0.3],
+  //   [-0.345, 1.9, -0.3],
+  //   [12345, -1, 12340],
+  //   [123456, -1, 123450],
+  //   [12345, -2, 12300],
+  //   [-123456, -1, -123450],
+  //   [-12345, -2, -12300],
+  //   [12345, -1.9, 12340],
+  //   [-12345, -1.9, -12340]
+  // ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  //   expect(TRUNC(a, b)).toBe(expected);
+  // });
+
+  // test.each([
+  //   [true, 42, 1],
+  //   [false, 42, 0],
+  //   [null, 42, 0],
+  //   [42.42, true, 42.4],
+  //   [42.42, false, 42],
+  //   [42.42, null, 42]
+  // ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
+  //   expect(TRUNC(a, b)).toBe(expected);
+  // });
+
+  // test("SUM: add some numbers", () => {
+  //   expect(SUM(1, 2)).toBe(3);
+  //   expect(SUM(1, 2, 3)).toBe(6);
+  // });
+
+  // test("SUM: add some ranges", () => {
+  //   expect(SUM([[1, 2]])).toBe(3);
+  //   expect(SUM(1, [[2, 3]])).toBe(6);
+  //   expect(SUM([[1], [2], [3]])).toBe(6);
+  //   expect(SUM([[1], [2]], 3)).toBe(6);
+  // });
+
+  // test("SUM: add a number and a string", () => {
+  //   expect(SUM([[11, "str"]])).toBe(11);
+  //   expect(SUM([[11], ["str"]])).toBe(11);
+  //   expect(() => SUM(11, "str")).toThrow(
+  //     `Argument "number" should be a number, but "str" is a text, and cannot be coerced to a number.`
+  //   );
+  // });
+
+  // test("RAND: return a number", () => {
+  //   const random = RAND();
+  //   expect(typeof random).toBe("number");
+  //   expect(random).toBeGreaterThanOrEqual(0);
+  //   expect(random).toBeLessThanOrEqual(1);
+  // });
+
+  // test("MIN", () => {
+  //   expect(MIN(0, 1, 2, -1)).toBe(-1);
+  //   expect(MIN(0, 1, 2)).toBe(0);
+  //   expect(MIN(1, 2)).toBe(1);
+  //   expect(MIN(true, 2)).toBe(1);
+  //   expect(MIN(null, true)).toBe(0);
+  //   expect(MIN(null, null)).toBe(0);
+  //   expect(MIN(-5)).toBe(-5);
+  //   expect(MIN([[1, 2, null, -1]])).toBe(-1);
+  //   expect(MIN([[null, null, null]])).toBe(0);
+  //   expect(MIN([[null, null, -1]])).toBe(-1);
+  //   expect(MIN([[null, 2, null]])).toBe(2);
+  //   expect(MIN([["one", 22, false]])).toBe(22);
+  // });
+
+  // test("MAX", () => {
+  //   expect(MAX(0, 1, 2, -1)).toBe(2);
+  //   expect(MAX(0, 1, 2)).toBe(2);
+  //   expect(MAX(1, 2)).toBe(2);
+  //   expect(MAX(-5)).toBe(-5);
+  //   expect(MAX(true, 2)).toBe(2);
+  //   expect(MAX(true, 0)).toBe(1);
+  //   expect(MAX(null, true)).toBe(1);
+  //   expect(MAX(null, null)).toBe(0);
+  //   expect(MAX([[1, 2, null, -1]])).toBe(2);
+  //   expect(MAX([[null, null, null]])).toBe(0);
+  //   expect(MAX([[null, null, -1]])).toBe(-1);
+  //   expect(MAX([[null, 2, null]])).toBe(2);
+  //   expect(MAX([["onasdfe", -2, true]])).toBe(-2);
+  // });
 });

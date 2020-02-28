@@ -123,3 +123,85 @@ export function validateArguments(args: Arg[]) {
     previousArgOptional = current.optional;
   }
 }
+
+// HELPERS
+export function toNumber(value: any): number {
+  switch (typeof value) {
+    case "number":
+      return value;
+    case "boolean":
+      return value ? 1 : 0;
+    case "string":
+      if (value) {
+        let n = parseFloat(value);
+        if (isNaN(n)) {
+          if (value.includes("%")) {
+            n = parseFloat(value.split("%")[0]);
+            if (!isNaN(n)) {
+              return n / 100;
+            }
+          }
+          throw new Error(`
+            The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string,
+            and cannot be coerced to a number`);
+        } else {
+          return n;
+        }
+      } else {
+        return 0;
+      }
+    default:
+      return 0;
+  }
+}
+
+export function toString(value: any): string {
+  switch (typeof value) {
+    case "string":
+      return value;
+    case "number":
+      return value.toString();
+    case "boolean":
+      return value ? "TRUE" : "FALSE";
+    default:
+      return ""
+  }
+//   let _val_1 = args[0];
+// switch (typeof _val_1) {
+//  case \\"undefined\\":
+//    args[0] = \\"\\";
+//    break;
+//  case \\"number\\":
+//    args[0] = _val_1.toString();
+//    break;
+//  case \\"boolean\\":
+//    args[0] = _val_1 ? \\"TRUE\\" : \\"FALSE\\";
+//    break;
+//  case \\"object\\":
+//    if (_val_1 === null) {
+//      args[0] = \\"\\";
+//      break;
+//    }
+//    break;
+// }
+// return args;
+}
+
+export function getNumbers(args: IArguments): number[] {
+  const result: number[] = [];
+  for (let arg of args) {
+    if (Array.isArray(arg)) {
+      // this is a range
+      for (let i of arg) {
+        for (let val of i) {
+          if (typeof val === 'number') {
+            result.push(val);
+          }
+        }
+      }
+    } else {
+      result.push(toNumber(arg));
+    }
+  }
+  return result;
+}

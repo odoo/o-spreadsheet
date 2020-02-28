@@ -1,7 +1,6 @@
 import { Arg, ArgType, validateArguments } from "./arguments";
-import { protectFunction } from "./arguments_sanitizer";
 import { functions as logical } from "./module_logical";
-import { functions as math } from "./module_math";
+import * as math from "./module_math";
 import { functions as operators } from "./module_operators";
 import { functions as statistical } from "./module_statistical";
 import { functions as string_fns } from "./module_string";
@@ -56,12 +55,12 @@ function importFunctions(mapping: FunctionMap, category: string) {
  * Add a function to the internal function list.
  */
 export function addFunction(name: string, descr: FunctionDescription, replace: boolean = false) {
-  name = name.toUpperCase();
+  name = name.toUpperCase().replace('_', '.');
   if (!replace && name in functionMap) {
     throw new Error(`Function ${name} already registered...`);
   }
 
   validateArguments(descr.args);
-  functionMap[name] = protectFunction(descr.compute, descr.args);
+  functionMap[name] = descr.compute;
   functions[name] = descr;
 }
