@@ -1537,3 +1537,122 @@ exports[`math FLOOR(7.89, -0.2) - error: if value positive, factor can't be nega
         Change 'factor' from [-0.2] to a positive
         value."
 `;
+
+exports[`math MOD(-2, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(-2.2, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(-42, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(0, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(2, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(2.2, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(42, 0) - error: take 2 parameter(s), return error on parameter 2 1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(42, false) - error: take 2 parameter(s), return error on parameter 2, casting test  1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math MOD(42, null) - error: take 2 parameter(s), return error on parameter 2, casting test  1`] = `
+"
+          Function MOD expects the parameter 'divisor'
+          to be different from 0. Change 'divisor' to 
+          a value other than 0."
+`;
+
+exports[`math POWER(-4, 0.2) - error: take 2 parameter(s), return an error on parameter 2 1`] = `
+"
+          Function POWER expects the parameter 'exponent' 
+          to be an integer when parameter 'base' is negative.
+          Change 'exponent' 
+          from [0.2] to an integer value."
+`;
+
+exports[`math POWER(-4, 0.5) - error: take 2 parameter(s), return an error on parameter 2 1`] = `
+"
+          Function POWER expects the parameter 'exponent' 
+          to be an integer when parameter 'base' is negative.
+          Change 'exponent' 
+          from [0.5] to an integer value."
+`;
+
+exports[`math POWER(-4, 1.5) - error: take 2 parameter(s), return an error on parameter 2 1`] = `
+"
+          Function POWER expects the parameter 'exponent' 
+          to be an integer when parameter 'base' is negative.
+          Change 'exponent' 
+          from [1.5] to an integer value."
+`;
+
+exports[`math RANDBETWEEN(-24, -42) - error: take 2 parameter(s), return an error 1`] = `
+"
+          Function RANDBETWEEN parameter 'high' value 
+          is -42. It should be greater than or equal to [-24]."
+`;
+
+exports[`math RANDBETWEEN(1.1, 1.2) - error: take 2 parameter(s), return an error 1`] = `
+"
+          Function RANDBETWEEN parameter 'high' value 
+          is 1. It should be greater than or equal to [2]."
+`;
+
+exports[`math RANDBETWEEN(42, 24) - error: take 2 parameter(s), return an error 1`] = `
+"
+          Function RANDBETWEEN parameter 'high' value 
+          is 24. It should be greater than or equal to [42]."
+`;
+
+exports[`math SQRT(-4) - error: take 1 parameter(s), return an error  1`] = `
+"
+          Function SQRT parameter 'value' value is negative. 
+          It should be positive or zero. Change 'value' 
+          from [-4] to a positive value."
+`;
+
+exports[`math SQRT(-9) - error: take 1 parameter(s), return an error  1`] = `
+"
+          Function SQRT parameter 'value' value is negative. 
+          It should be positive or zero. Change 'value' 
+          from [-9] to a positive value."
+`;

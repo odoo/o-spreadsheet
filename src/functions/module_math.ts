@@ -1,4 +1,4 @@
-import { AnyOrRange, args, getNumbers, toNumber, toString } from "./arguments";
+import { args, getNumbers, toNumber, toString } from "./arguments";
 import { FunctionDescription } from "./index";
 
 export const CEILING: FunctionDescription = {
@@ -11,6 +11,7 @@ export const CEILING: FunctionDescription = {
   compute: function(value: any, factor: any = 1): number {
     value = toNumber(value);
     factor = toNumber(factor);
+
     if (value > 0 && factor < 0) {
       throw new Error(`
         Function CEILING expects the parameter '${CEILING.args[1].name}'
@@ -34,6 +35,7 @@ export const CEILING_MATH: FunctionDescription = {
     significance = toNumber(significance);
     number = toNumber(number);
     mode = toNumber(mode);
+
     if (significance === 0) {
       return 0;
     }
@@ -67,6 +69,8 @@ export const COS: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(angle: any): number {
+    angle = toNumber(angle);
+
     return Math.cos(angle);
   }
 };
@@ -78,9 +82,9 @@ export const COUNTBLANK: FunctionDescription = {
     value2 (any, range, optional, repeating) Additional values or ranges in which to count the number of blanks.
   `,
   returns: ["NUMBER"],
-  compute: function(...args: AnyOrRange): number {
+  compute: function(): number {
     let blanks = 0;
-    for (let element of args) {
+    for (let element of arguments) {
       if (Array.isArray(element)) {
         for (let col of element) {
           for (let cell of col) {
@@ -108,6 +112,7 @@ export const DECIMAL: FunctionDescription = {
     value = toString(value);
     base = toNumber(base);
     base = Math.floor(base);
+
     if (base < 2 || base > 36) {
       throw new Error(`
         Function DECIMAL expects the parameter '${DECIMAL.args[1].name}' 
@@ -144,7 +149,8 @@ export const DEGREES: FunctionDescription = {
     angle (number) The angle to convert from radians to degrees.
   `,
   returns: ["NUMBER"],
-  compute: function(angle: number): number {
+  compute: function(angle: any): number {
+    angle = toNumber(angle);
     return (angle * 180) / Math.PI;
   }
 };
@@ -159,6 +165,7 @@ export const FLOOR: FunctionDescription = {
   compute: function(value: any, factor: any = 1): number {
     value = toNumber(value);
     factor = toNumber(factor);
+
     if (value > 0 && factor < 0) {
       throw new Error(`
         Function FLOOR expects the parameter '${FLOOR.args[1].name}'
@@ -182,6 +189,7 @@ export const FLOOR_MATH: FunctionDescription = {
     significance = toNumber(significance);
     number = toNumber(number);
     mode = toNumber(mode);
+
     if (significance === 0) {
       return 0;
     }
@@ -215,6 +223,8 @@ export const ISEVEN: FunctionDescription = {
   `,
   returns: ["BOOLEAN"],
   compute: function(value: number): boolean {
+    value = toNumber(value);
+
     return Math.floor(Math.abs(value)) & 1 ? false : true;
   }
 };
@@ -226,7 +236,7 @@ export const ISO_CEILING: FunctionDescription = {
       significance (number, optional, default=1) The number to whose multiples number will be rounded.
     `,
   returns: ["NUMBER"],
-  compute: function(number: number, significance: number): number {
+  compute: function(number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
   }
 };
@@ -237,7 +247,9 @@ export const ISODD: FunctionDescription = {
     value (number) The value to be verified as even.
   `,
   returns: ["BOOLEAN"],
-  compute: function(value: number): boolean {
+  compute: function(value: any): boolean {
+    value = toNumber(value);
+
     return Math.floor(Math.abs(value)) & 1 ? true : false;
   }
 };
@@ -249,7 +261,10 @@ export const MOD: FunctionDescription = {
       divisor (number) The number to divide by.
     `,
   returns: ["NUMBER"],
-  compute: function(dividend: number, divisor: number): number {
+  compute: function(dividend: any, divisor: any): number {
+    dividend = toNumber(dividend);
+    divisor = toNumber(divisor);
+
     if (divisor === 0) {
       throw new Error(`
           Function MOD expects the parameter '${MOD.args[1].name}'
@@ -271,7 +286,9 @@ export const ODD: FunctionDescription = {
       value (number) The value to round to the next greatest odd number.
     `,
   returns: ["NUMBER"],
-  compute: function(value: number): number {
+  compute: function(value: any): number {
+    value = toNumber(value);
+
     let temp = Math.ceil(Math.abs(value));
     temp = temp & 1 ? temp : temp + 1;
     return value < 0 ? -temp : temp;
@@ -294,7 +311,10 @@ export const POWER: FunctionDescription = {
       exponent (number) The exponent to raise base to.
     `,
   returns: ["NUMBER"],
-  compute: function(base: number, exponent: number): number {
+  compute: function(base: any, exponent: any): number {
+    base = toNumber(base);
+    exponent = toNumber(exponent);
+
     if (base >= 0) {
       return Math.pow(base, exponent);
     }
@@ -326,6 +346,9 @@ export const RANDBETWEEN: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(low: number, high: number): number {
+    low = toNumber(low);
+    high = toNumber(high);
+
     if (!Number.isInteger(low)) {
       low = Math.ceil(low);
     }
@@ -348,7 +371,10 @@ export const ROUND: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: number, places: number): number {
+  compute: function(value: any, places: any = 0): number {
+    value = toNumber(value);
+    places = toNumber(places);
+
     const absValue = Math.abs(value);
     let tempResult;
     if (places === 0) {
@@ -370,7 +396,10 @@ export const ROUNDDOWN: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: number, places: number): number {
+  compute: function(value: number, places: number = 0): number {
+    value = toNumber(value);
+    places = toNumber(places);
+
     const absValue = Math.abs(value);
     let tempResult;
     if (places === 0) {
@@ -393,6 +422,9 @@ export const ROUNDUP: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(value: number, places: number): number {
+    value = toNumber(value);
+    places = toNumber(places);
+
     const absValue = Math.abs(value);
     let tempResult;
     if (places === 0) {
@@ -414,6 +446,8 @@ export const SIN: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(angle: number): number {
+    angle = toNumber(angle);
+
     return Math.sin(angle);
   }
 };
@@ -425,6 +459,8 @@ export const SQRT: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(value: number): number {
+    value = toNumber(value);
+
     if (value < 0) {
       throw new Error(`
           Function SQRT parameter '${SQRT.args[0].name}' value is negative. 
@@ -442,7 +478,9 @@ export const TRUNC: FunctionDescription = {
       places (number, optional, default=0) The number of significant digits to the right of the decimal point to retain.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any, places: any): number {
+  compute: function(value: any, places: any = 0): number {
+    value = toNumber(value);
+
     if (places === 0) {
       return Math.trunc(value);
     }

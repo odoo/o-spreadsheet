@@ -133,10 +133,10 @@ export function toNumber(value: any): number {
       return value ? 1 : 0;
     case "string":
       if (value) {
-        let n = parseFloat(value);
+        let n = Number(value);
         if (isNaN(n)) {
           if (value.includes("%")) {
-            n = parseFloat(value.split("%")[0]);
+            n = Number(value.split("%")[0]);
             if (!isNaN(n)) {
               return n / 100;
             }
