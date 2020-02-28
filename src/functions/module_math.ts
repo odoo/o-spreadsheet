@@ -32,12 +32,12 @@ export const CEILING_MATH: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function(number: any, significance: any = 1, mode: any = 0): number {
     significance = toNumber(significance);
+    number = toNumber(number);
+    mode = toNumber(mode);
     if (significance === 0) {
       return 0;
     }
     significance = Math.abs(significance);
-    number = toNumber(number);
-    mode = toNumber(mode);
     if (number >= 0) {
       return Math.ceil(number / significance) * significance;
     }
@@ -156,14 +156,14 @@ export const FLOOR: FunctionDescription = {
     factor (number, optional, default=1) The number to whose multiples value will be rounded.
   `,
   returns: ["NUMBER"],
-  compute: function(value: number, factor: number = 1): number {
-    // value = toNumber(value);
-    // factor = toNumber(factor);
+  compute: function(value: any, factor: any = 1): number {
+    value = toNumber(value);
+    factor = toNumber(factor);
     if (value > 0 && factor < 0) {
       throw new Error(`
-        Function FLOOR expects the parameter '${FLOOR.args[1].name}' 
-        to be positive when parameter '${FLOOR.args[0].name}' is positive. 
-        Change '${FLOOR.args[1].name}' from [${factor}] to a positive 
+        Function FLOOR expects the parameter '${FLOOR.args[1].name}'
+        to be positive when parameter '${FLOOR.args[0].name}' is positive.
+        Change '${FLOOR.args[1].name}' from [${factor}] to a positive
         value.`);
     }
     return factor ? Math.floor(value / factor) * factor : 0;
@@ -178,7 +178,10 @@ export const FLOOR_MATH: FunctionDescription = {
     mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.
   `,
   returns: ["NUMBER"],
-  compute: function(number: number, significance: number, mode: number): number {
+  compute: function(number: number, significance: number = 1, mode: number = 0): number {
+    significance = toNumber(significance);
+    number = toNumber(number);
+    mode = toNumber(mode);
     if (significance === 0) {
       return 0;
     }
@@ -200,7 +203,7 @@ export const FLOOR_PRECISE: FunctionDescription = {
     significance (number, optional, default=1) The number to whose multiples number will be rounded.
   `,
   returns: ["NUMBER"],
-  compute: function(number: number, significance: number): number {
+  compute: function(number: number, significance: number = 1): number {
     return FLOOR_MATH.compute(number, significance, 0);
   }
 };

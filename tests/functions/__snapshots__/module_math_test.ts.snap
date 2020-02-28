@@ -1524,16 +1524,16 @@ exports[`math DECIMAL(zzzz, 37) - error: take 2 parameter(s), return error on pa
 
 exports[`math FLOOR(6, -0.2) - error: if value positive, factor can't be negative 1`] = `
 "
-        Function FLOOR expects the parameter 'factor' 
-        to be positive when parameter 'value' is positive. 
-        Change 'factor' from [-0.2] to a positive 
+        Function FLOOR expects the parameter 'factor'
+        to be positive when parameter 'value' is positive.
+        Change 'factor' from [-0.2] to a positive
         value."
 `;
 
 exports[`math FLOOR(7.89, -0.2) - error: if value positive, factor can't be negative 1`] = `
 "
-        Function FLOOR expects the parameter 'factor' 
-        to be positive when parameter 'value' is positive. 
-        Change 'factor' from [-0.2] to a positive 
+        Function FLOOR expects the parameter 'factor'
+        to be positive when parameter 'value' is positive.
+        Change 'factor' from [-0.2] to a positive
         value."
 `;
