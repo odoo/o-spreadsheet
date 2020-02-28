@@ -1,4 +1,4 @@
-import { args } from "./arguments";
+import { args, toBoolean } from "./arguments";
 import { FunctionDescription } from "./index";
 
 export const WAIT: FunctionDescription = {
@@ -20,7 +20,7 @@ export const AND: FunctionDescription = {
   args: args`logicalPart (boolean,repeating) logical part`,
   returns: ["BOOLEAN"],
   compute: function(...args: boolean[]): boolean {
-    return args.reduce((a, b) => a && b, true);
+    return args.reduce((a, b) => a && toBoolean(b), true);
   }
 };
 
@@ -29,7 +29,7 @@ export const OR: FunctionDescription = {
   args: args`logicalPart (boolean,repeating) logical part`,
   returns: ["BOOLEAN"],
   compute: function(...args: boolean[]): boolean {
-    return args.reduce((a, b) => a || b, false);
+    return args.reduce((a, b) => a || toBoolean(b), false);
   }
 };
 
@@ -38,7 +38,7 @@ export const XOR: FunctionDescription = {
   args: args`logicalPart (boolean,repeating) logical part`,
   returns: ["BOOLEAN"],
   compute: function(...args: boolean[]): boolean {
-    return args.filter(a => a).length % 2 !== 0;
+    return args.filter(a => toBoolean(a)).length % 2 !== 0;
   }
 };
 
@@ -47,6 +47,8 @@ export const NOT: FunctionDescription = {
   args: args`XXX (boolean) logical part`,
   returns: ["BOOLEAN"],
   compute: function(value: boolean): boolean {
+    value = toBoolean(value);
+
     return !value;
   }
 };
@@ -60,6 +62,8 @@ export const IF: FunctionDescription = {
     `,
   returns: ["ANY"],
   compute: function(condition: boolean, valueTrue: any, valueFalse: any): any {
+    condition = toBoolean(condition)
+
     return condition ? valueTrue : valueFalse;
   }
 };
