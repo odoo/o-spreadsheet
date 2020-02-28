@@ -181,7 +181,8 @@ export function toBoolean(value: any): boolean {
         if (uppercaseVal === "FALSE") {
           return false;
         }
-        throw new Error("asfd");
+        throw new Error(
+          `The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a text, and cannot be coerced to a boolean.`);
       } else {
         return false;
       }
