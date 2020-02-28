@@ -82,6 +82,10 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
           for (let j = 0; j < dimLinValue; j++) {
             let subValue = value[i][j];
             let subWeight = weight[i][j];
+            if (typeof subValue === "number") {
+              
+            }
+
             // typeof subValue or subWeight can be 'number' or 'undefined'
             if (typeof subValue !== typeof subWeight) {
               throw new Error(`
