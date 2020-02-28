@@ -6,7 +6,7 @@ const {
   COUNTBLANK,
   DECIMAL,
   DEGREES,
-  FLOOR,
+  FLOOR
   // ISEVEN,
   // ISODD,
   // MOD,

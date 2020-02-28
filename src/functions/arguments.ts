@@ -164,27 +164,32 @@ export function toString(value: any): string {
     case "boolean":
       return value ? "TRUE" : "FALSE";
     default:
-      return ""
+      return "";
   }
-//   let _val_1 = args[0];
-// switch (typeof _val_1) {
-//  case \\"undefined\\":
-//    args[0] = \\"\\";
-//    break;
-//  case \\"number\\":
-//    args[0] = _val_1.toString();
-//    break;
-//  case \\"boolean\\":
-//    args[0] = _val_1 ? \\"TRUE\\" : \\"FALSE\\";
-//    break;
-//  case \\"object\\":
-//    if (_val_1 === null) {
-//      args[0] = \\"\\";
-//      break;
-//    }
-//    break;
-// }
-// return args;
+}
+
+export function toBoolean(value: any): boolean {
+  switch (typeof value) {
+    case "boolean":
+      return value;
+    case "string":
+      if (value) {
+        let uppercaseVal = value.toUpperCase();
+        if (uppercaseVal === "TRUE") {
+          return true;
+        }
+        if (uppercaseVal === "FALSE") {
+          return false;
+        }
+        throw new Error("asfd");
+      } else {
+        return false;
+      }
+    case "number":
+      return value ? true : false;
+    default:
+      return false;
+  }
 }
 
 export function getNumbers(args: IArguments): number[] {
@@ -194,7 +199,7 @@ export function getNumbers(args: IArguments): number[] {
       // this is a range
       for (let i of arg) {
         for (let val of i) {
-          if (typeof val === 'number') {
+          if (typeof val === "number") {
             result.push(val);
           }
         }

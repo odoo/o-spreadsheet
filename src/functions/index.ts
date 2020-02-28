@@ -1,5 +1,5 @@
 import { Arg, ArgType, validateArguments } from "./arguments";
-import { functions as logical } from "./module_logical";
+import * as logical from "./module_logical";
 import * as math from "./module_math";
 import { functions as operators } from "./module_operators";
 import { functions as statistical } from "./module_statistical";
@@ -55,7 +55,7 @@ function importFunctions(mapping: FunctionMap, category: string) {
  * Add a function to the internal function list.
  */
 export function addFunction(name: string, descr: FunctionDescription, replace: boolean = false) {
-  name = name.toUpperCase().replace('_', '.');
+  name = name.toUpperCase().replace("_", ".");
   if (!replace && name in functionMap) {
     throw new Error(`Function ${name} already registered...`);
   }
