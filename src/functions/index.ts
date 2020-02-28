@@ -1,7 +1,7 @@
 import { Arg, ArgType, validateArguments } from "./arguments";
 import * as logical from "./module_logical";
 import * as math from "./module_math";
-import { functions as operators } from "./module_operators";
+import * as operators from "./module_operators";
 import { functions as statistical } from "./module_statistical";
 import { functions as string_fns } from "./module_string";
 

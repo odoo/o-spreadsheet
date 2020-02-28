@@ -1,114 +1,121 @@
-import { args } from "./arguments";
-import { FunctionMap } from "./index";
+import { args, toNumber } from "./arguments";
+import { FunctionDescription } from "./index";
 
-export const functions: FunctionMap = {
-  ADD: {
-    description: `Sum of two numbers`,
-    args: args`
+export const ADD: FunctionDescription = {
+  description: `Sum of two numbers`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["NUMBER"],
-    compute: function(a: number, b: number): number {
-      return a + b;
-    }
-  },
-  DIVIDE: {
-    description: `One number divided by another`,
-    args: args`
+  returns: ["NUMBER"],
+  compute: function(a: number, b: number): number {
+    return toNumber(a) + toNumber(b);
+  }
+};
+
+export const DIVIDE: FunctionDescription = {
+  description: `One number divided by another`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["NUMBER"],
-    compute: function(a: number, b: number): number {
-      return a / b;
-    }
-  },
-  EQ: {
-    description: `Equality of two numbers`,
-    args: args`
+  returns: ["NUMBER"],
+  compute: function(a: number, b: number): number {
+    return toNumber(a) / toNumber(b);
+  }
+};
+
+export const EQ: FunctionDescription = {
+  description: `Equality of two numbers`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["BOOLEAN"],
-    compute: function(a: number, b: number): boolean {
-      return a === b;
-    }
-  },
-  GT: {
-    description: `Strictly greater than`,
-    args: args`
+  returns: ["BOOLEAN"],
+  compute: function(a: number, b: number): boolean {
+    return toNumber(a) === toNumber(b);
+  }
+};
+
+export const GT: FunctionDescription = {
+  description: `Strictly greater than`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["BOOLEAN"],
-    compute: function(a: number, b: number): boolean {
-      return a > b;
-    }
-  },
-  GTE: {
-    description: `Greater than or equal to`,
-    args: args`
+  returns: ["BOOLEAN"],
+  compute: function(a: number, b: number): boolean {
+    return toNumber(a) > toNumber(b);
+  }
+};
+
+export const GTE: FunctionDescription = {
+  description: `Greater than or equal to`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["BOOLEAN"],
-    compute: function(a: number, b: number): boolean {
-      return a >= b;
-    }
-  },
-  LT: {
-    description: `Less than`,
-    args: args`
+  returns: ["BOOLEAN"],
+  compute: function(a: number, b: number): boolean {
+    return toNumber(a) >= toNumber(b);
+  }
+};
+
+export const LT: FunctionDescription = {
+  description: `Less than`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["BOOLEAN"],
-    compute: function(a: number, b: number): boolean {
-      return a < b;
-    }
-  },
-  LTE: {
-    description: `Less than or equal to`,
-    args: args`
+  returns: ["BOOLEAN"],
+  compute: function(a: number, b: number): boolean {
+    return toNumber(a) < toNumber(b);
+  }
+};
+
+export const LTE: FunctionDescription = {
+  description: `Less than or equal to`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["BOOLEAN"],
-    compute: function(a: number, b: number): boolean {
-      return a <= b;
-    }
-  },
-  MINUS: {
-    description: `Difference of two numbers`,
-    args: args`
+  returns: ["BOOLEAN"],
+  compute: function(a: number, b: number): boolean {
+    return toNumber(a) <= toNumber(b);
+  }
+};
+
+export const MINUS: FunctionDescription = {
+  description: `Difference of two numbers`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["NUMBER"],
-    compute: function(a: number, b: number): number {
-      return a - b;
-    }
-  },
-  MULTIPLY: {
-    description: `Product of two numbers`,
-    args: args`
+  returns: ["NUMBER"],
+  compute: function(a: number, b: number): number {
+    return  toNumber(a) - toNumber(b);
+  }
+};
+
+export const MULTIPLY: FunctionDescription = {
+  description: `Product of two numbers`,
+  args: args`
       a (number)
       b (number)
     `,
-    returns: ["NUMBER"],
-    compute: function(a: number, b: number): number {
-      return a * b;
-    }
-  },
-  UMINUS: {
-    description: `A number with the sign reversed`,
-    args: args`
+  returns: ["NUMBER"],
+  compute: function(a: number, b: number): number {
+    return toNumber(a) * toNumber(b);
+  }
+};
+
+export const UMINUS: FunctionDescription = {
+  description: `A number with the sign reversed`,
+  args: args`
       n (number)
     `,
-    returns: ["NUMBER"],
-    compute: function(n: number): number {
-      return -n;
-    }
+  returns: ["NUMBER"],
+  compute: function(n: number): number {
+    return -toNumber(n);
   }
 };
