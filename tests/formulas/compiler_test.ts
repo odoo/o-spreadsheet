@@ -4,7 +4,8 @@ describe("expression compiler", () => {
   test("simple values", () => {
     expect(compile("=1").toString()).toMatchSnapshot();
     expect(compile("=true").toString()).toMatchSnapshot();
-    expect(compile(`='abc'`).toString()).toMatchSnapshot();
+    expect(compile(`="abc"`).toString()).toMatchSnapshot();
+    expect(() => compile(`='abc'`).toString()).toThrowError();
   });
 
   test("some arithmetic expressions", () => {

@@ -101,8 +101,8 @@ return true;
 exports[`expression compiler simple values 3`] = `
 "function anonymous(getValue,fns
 ) {
-// ='abc'
-return 'abc';
+// =\\"abc\\"
+return \\"abc\\";
 }"
 `;
 

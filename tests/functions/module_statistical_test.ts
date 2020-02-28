@@ -16,7 +16,7 @@ describe("statistical", () => {
   });
 
   test("AVERAGE: casting tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=average('2', '-6')" })).toBe(-2);
+    expect(evaluateCell("A1", { A1: '=average("2", "-6")' })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=average(TRUE, FALSE)" })).toBe(0.5);
   });
 
@@ -31,8 +31,8 @@ describe("statistical", () => {
   });
 
   test("AVERAGE: casting tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "'2'", A3: "'6'" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "'2'", A3: "42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: '"2"', A3: '"6"' })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: '"2"', A3: "42" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "TRUE", A3: "FALSE" })).toEqual(
       "#ERROR"
     ); // @compatibility: on google sheets, return #DIV/0!
@@ -49,7 +49,7 @@ describe("statistical", () => {
       B3: "",
       C3: "-10.2",
       D3: "kikou",
-      B4: "'111111'",
+      B4: '"111111"',
       C4: "0",
       D4: "0"
     };
@@ -77,10 +77,10 @@ describe("statistical", () => {
   });
 
   test("AVERAGE.WEIGHTED: casting tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=average.weighted('-10', '1', '20', '2')" })).toBe(10);
+    expect(evaluateCell("A1", { A1: '=average.weighted("-10", "1", "20", "2")' })).toBe(10);
     expect(evaluateCell("A1", { A1: "=average.weighted(TRUE, FALSE)" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=average.weighted(FALSE, TRUE)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=average.weighted('@#%!*', '@#%!*', '20', '2')" })).toEqual(
+    expect(evaluateCell("A1", { A1: '=average.weighted("@#%!*", "@#%!*", "20", "2")' })).toEqual(
       "#ERROR"
     ); // @compatibility: on google sheets, return #VALUE!
   });
@@ -165,17 +165,17 @@ describe("statistical", () => {
     expect(
       evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",
-        A2: "'2'",
-        A3: "'1'",
-        A4: "'6'",
-        A5: "'1'"
+        A2: '"2"',
+        A3: '"1"',
+        A4: '"6"',
+        A5: '"1"'
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(
       evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",
-        A2: "'2'",
-        A3: "'1'",
+        A2: '"2"',
+        A3: '"1"',
         A4: "6",
         A5: "1"
       })
@@ -183,7 +183,7 @@ describe("statistical", () => {
     expect(
       evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",
-        A2: "'2'",
+        A2: '"2"',
         A3: "1",
         A4: "6",
         A5: "1"
@@ -193,9 +193,9 @@ describe("statistical", () => {
       evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",
         A2: "2",
-        A3: "'1'",
+        A3: '"1"',
         A4: "6",
-        A5: "'1'"
+        A5: '"1"'
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
