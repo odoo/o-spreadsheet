@@ -9,7 +9,7 @@ describe("constants", () => {
     expect(validate("3")).toBeTruthy();
     expect(validate("0")).toBeTruthy();
     expect(validate("bla")).toBeTruthy();
-    expect(validate("='bla'")).toBeTruthy();
+    expect(validate('="bla"')).toBeTruthy();
     expect(validate("=A1")).toBeTruthy();
     expect(validate("=3.5")).toBeTruthy();
     expect(validate("3.5")).toBeTruthy();
@@ -49,10 +49,10 @@ describe("formula with no parameters should not allow parameters", () => {
     expect(validate("=noargs(A1:A2)")).toBeFalsy();
   });
   test("string", () => {
-    expect(validate("=noargs('bla')")).toBeFalsy();
+    expect(validate('=noargs("bla")')).toBeFalsy();
   });
   test("empty string", () => {
-    expect(validate("=noargs('')")).toBeFalsy();
+    expect(validate('=noargs("")')).toBeFalsy();
   });
   test("int 0", () => {
     expect(validate("=noargs(0)")).toBeFalsy();
@@ -69,8 +69,8 @@ describe("formula with no parameters should not allow parameters", () => {
   test("undefined as parameter", () => {
     expect(validate("=noargs(undefined)")).toBeFalsy();
   });
-  test("string 'undefined' as parameter", () => {
-    expect(validate("=noargs('undefined')")).toBeFalsy();
+  test('string "undefined" as parameter', () => {
+    expect(validate('=noargs("undefined")')).toBeFalsy();
   });
   test("null as parameter", () => {
     expect(validate("=noargs(null)")).toBeFalsy();
@@ -117,10 +117,10 @@ describe("formula with exactly 1 parameter of any type", () => {
     expect(validate("=one(A1:A2)")).toBeTruthy();
   });
   test("string", () => {
-    expect(validate("=one('bla')")).toBeTruthy();
+    expect(validate('=one("bla")')).toBeTruthy();
   });
   test("empty string", () => {
-    expect(validate("=one('')")).toBeTruthy();
+    expect(validate('=one("")')).toBeTruthy();
   });
   test("int 0", () => {
     expect(validate("=one(0)")).toBeTruthy();
@@ -137,8 +137,8 @@ describe("formula with exactly 1 parameter of any type", () => {
   test("undefined as parameter", () => {
     expect(validate("=one(undefined)")).toBeFalsy();
   });
-  test("string 'undefined' as parameter", () => {
-    expect(validate("=one('undefined')")).toBeTruthy();
+  test('string "undefined" as parameter', () => {
+    expect(validate('=one("undefined")')).toBeTruthy();
   });
   test("null as parameter", () => {
     expect(validate("=one(null)")).toBeFalsy();
@@ -185,10 +185,10 @@ describe("formula with exactly 1 parameter of type number", () => {
     expect(validate("=onenum(A1:A2)")).toBeFalsy();
   });
   test("string", () => {
-    expect(validate("=onenum('bla')")).toBeFalsy();
+    expect(validate('=onenum("bla")')).toBeFalsy();
   });
   test("empty string", () => {
-    expect(validate("=onenum('')")).toBeFalsy();
+    expect(validate('=onenum("")')).toBeFalsy();
   });
   test("int 0", () => {
     expect(validate("=onenum(0)")).toBeTruthy();
@@ -205,8 +205,8 @@ describe("formula with exactly 1 parameter of type number", () => {
   test("undefined as parameter", () => {
     expect(validate("=onenum(undefined)")).toBeFalsy();
   });
-  test("string 'undefined' as parameter", () => {
-    expect(validate("=onenum('undefined')")).toBeFalsy();
+  test('string "undefined" as parameter', () => {
+    expect(validate('=onenum("undefined")')).toBeFalsy();
   });
   test("null as parameter", () => {
     expect(validate("=onenum(null)")).toBeFalsy();
@@ -253,10 +253,10 @@ describe("formula with 1 optional parameter of type number", () => {
     expect(validate("=onenumopt(A1:A2)")).toBeFalsy();
   });
   test("string", () => {
-    expect(validate("=onenumopt('bla')")).toBeFalsy();
+    expect(validate('=onenumopt("bla")')).toBeFalsy();
   });
   test("empty string", () => {
-    expect(validate("=onenumopt('')")).toBeFalsy();
+    expect(validate('=onenumopt("")')).toBeFalsy();
   });
   test("int 0", () => {
     expect(validate("=onenumopt(0)")).toBeTruthy();
@@ -276,8 +276,8 @@ describe("formula with 1 optional parameter of type number", () => {
   test("undefined as parameter", () => {
     expect(validate("=onenumopt(undefined)")).toBeFalsy();
   });
-  test("string 'undefined' as parameter", () => {
-    expect(validate("=onenumopt('undefined')")).toBeFalsy();
+  test('string "undefined" as parameter', () => {
+    expect(validate('=onenumopt("undefined")')).toBeFalsy();
   });
   test("null as parameter", () => {
     expect(validate("=onenumopt(null)")).toBeFalsy();
@@ -327,10 +327,10 @@ describe("formula with 1 mandatory and 1 optional parameter of type number", () 
     expect(validate("=numnumopt(A1:A2)")).toBeFalsy();
   });
   test("string", () => {
-    expect(validate("=numnumopt('bla')")).toBeFalsy();
+    expect(validate('=numnumopt("bla")')).toBeFalsy();
   });
   test("empty string", () => {
-    expect(validate("=numnumopt('')")).toBeFalsy();
+    expect(validate('=numnumopt("")')).toBeFalsy();
   });
   test("int 0", () => {
     expect(validate("=numnumopt(0)")).toBeTruthy();
@@ -350,8 +350,8 @@ describe("formula with 1 mandatory and 1 optional parameter of type number", () 
   test("undefined as parameter", () => {
     expect(validate("=numnumopt(undefined)")).toBeFalsy();
   });
-  test("string 'undefined' as parameter", () => {
-    expect(validate("=numnumopt('undefined')")).toBeFalsy();
+  test('string "undefined" as parameter', () => {
+    expect(validate('=numnumopt("undefined")')).toBeFalsy();
   });
   test("null as parameter", () => {
     expect(validate("=numnumopt(null)")).toBeFalsy();
@@ -372,10 +372,10 @@ describe("formula with 1 mandatory and 1 optional parameter of type number", () 
     expect(validate("=numnumopt(1,numnumopt(1))")).toBeTruthy();
   });
   test("1st incorrect params with second", () => {
-    expect(validate("=numnumopt('bla',1)")).toBeFalsy();
+    expect(validate('=numnumopt("bla",1)')).toBeFalsy();
   });
   test("2nd incorrect params with 1st correct", () => {
-    expect(validate("=numnumopt(1,'bla')")).toBeFalsy();
+    expect(validate('=numnumopt(1,"bla")')).toBeFalsy();
   });
 });
 describe("formula with repeating number of args", () => {
@@ -410,10 +410,10 @@ describe("formula with repeating number of args", () => {
     expect(validate("=repa(A1:A2)")).toBeFalsy();
   });
   test("string", () => {
-    expect(validate("=repa('bla')")).toBeFalsy();
+    expect(validate('=repa("bla")')).toBeFalsy();
   });
   test("empty string", () => {
-    expect(validate("=repa('')")).toBeFalsy();
+    expect(validate('=repa("")')).toBeFalsy();
   });
   test("int 0", () => {
     expect(validate("=repa(0)")).toBeTruthy();
@@ -433,8 +433,8 @@ describe("formula with repeating number of args", () => {
   test("undefined as parameter", () => {
     expect(validate("=repa(undefined)")).toBeFalsy();
   });
-  test("string 'undefined' as parameter", () => {
-    expect(validate("=repa('undefined')")).toBeFalsy();
+  test('string "undefined" as parameter', () => {
+    expect(validate('=repa("undefined")')).toBeFalsy();
   });
   test("null as parameter", () => {
     expect(validate("=repa(null)")).toBeFalsy();
@@ -459,10 +459,10 @@ describe("formula with repeating number of args", () => {
     expect(validate("=repa(1,repa(1))")).toBeTruthy();
   });
   test("1st incorrect params with second", () => {
-    expect(validate("=repa('bla',1)")).toBeFalsy();
+    expect(validate('=repa("bla",1)')).toBeFalsy();
   });
   test("2nd incorrect params with 1st correct", () => {
-    expect(validate("=repa(1,'bla')")).toBeFalsy();
+    expect(validate('=repa(1,"bla")')).toBeFalsy();
   });
 });
 describe("formula with optional repeating  number of args", () => {
@@ -485,10 +485,10 @@ describe("formula with optional repeating  number of args", () => {
     expect(validate("=repaopt(1,repaopt(1))")).toBeTruthy();
   });
   test("1st incorrect params with second", () => {
-    expect(validate("=repaopt('bla',1)")).toBeFalsy();
+    expect(validate('=repaopt("bla",1)')).toBeFalsy();
   });
   test("2nd incorrect params with 1st correct", () => {
-    expect(validate("=repaopt(1,'bla')")).toBeFalsy();
+    expect(validate('=repaopt(1,"bla")')).toBeFalsy();
   });
 });
 
@@ -534,8 +534,8 @@ describe("formula with bool", () => {
   test("0", () => {
     expect(validate("=boolarg(0)")).toBeTruthy();
   });
-  test("'whatever'", () => {
-    expect(validate("=boolarg('whatever')")).toBeFalsy();
+  test('"whatever"', () => {
+    expect(validate('=boolarg("whatever")')).toBeFalsy();
   });
 });
 describe("formula with string", () => {
@@ -548,7 +548,7 @@ describe("formula with string", () => {
     });
   });
   test("'true'", () => {
-    expect(validate("=stringy('true')")).toBeTruthy();
+    expect(() => validate("=stringy('true')")).toThrowError();
   });
   test('"true"', () => {
     expect(validate('=stringy("true")')).toBeTruthy();

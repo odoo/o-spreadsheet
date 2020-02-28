@@ -106,15 +106,14 @@ function tokenizeNumber(chars: string[]): Token | null {
 }
 
 function tokenizeString(chars: string[]): Token | null {
-  const quotes = ["'", '"'];
-  if (quotes.includes(chars[0])) {
+  if (chars[0] === '"') {
     const startChar = chars.shift();
     const letters: any[] = [];
     letters.push(startChar);
     while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === "\\")) {
       letters.push(chars.shift());
     }
-    if (chars[0] === startChar) {
+    if (chars[0] === '"') {
       letters.push(chars.shift());
     }
     return {

@@ -43,12 +43,17 @@ describe("tokenizer", () => {
     ]);
   });
   test("String", () => {
-    expect(tokenize("'hello'")).toEqual([{ type: "STRING", value: "'hello'" }]);
-    expect(tokenize("'he\\'l\\'lo'")).toEqual([{ type: "STRING", value: "'he\\'l\\'lo'" }]);
-    expect(tokenize("'hel\"l\"o'")).toEqual([{ type: "STRING", value: "'hel\"l\"o'" }]);
-    expect(tokenize("'hello''test'")).toEqual([
-      { type: "STRING", value: "'hello'" },
-      { type: "STRING", value: "'test'" }
+    expect(tokenize('"hello"')).toEqual([{ type: "STRING", value: '"hello"' }]);
+    expect(tokenize("'hello'")).toEqual([
+      { type: "UNKNOWN", value: "'" },
+      { type: "SYMBOL", value: "hello" },
+      { type: "UNKNOWN", value: "'" }
+    ]);
+    expect(tokenize('"he\\"l\\"lo"')).toEqual([{ type: "STRING", value: '"he\\"l\\"lo"' }]);
+    expect(tokenize("\"hel'l'o\"")).toEqual([{ type: "STRING", value: "\"hel'l'o\"" }]);
+    expect(tokenize('"hello""test"')).toEqual([
+      { type: "STRING", value: '"hello"' },
+      { type: "STRING", value: '"test"' }
     ]);
   });
 

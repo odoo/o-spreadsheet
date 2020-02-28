@@ -86,18 +86,24 @@ describe("composerTokenizer base tests", () => {
     ]);
   });
   test("String", () => {
+    expect(composerTokenize('"hello"')).toEqual([
+      { start: 0, end: 7, length: 7, type: "STRING", value: '"hello"' }
+    ]);
+    //expect(() => composerTokenize("'hello'")).toThrowError("kikou");
     expect(composerTokenize("'hello'")).toEqual([
-      { start: 0, end: 7, length: 7, type: "STRING", value: "'hello'" }
+      { start: 0, end: 1, length: 1, type: "UNKNOWN", value: "'" },
+      { start: 1, end: 6, length: 5, type: "SYMBOL", value: "hello" },
+      { start: 6, end: 7, length: 1, type: "UNKNOWN", value: "'" }
     ]);
-    expect(composerTokenize("'he\\'l\\'lo'")).toEqual([
-      { start: 0, end: 11, length: 11, type: "STRING", value: "'he\\'l\\'lo'" }
+    expect(composerTokenize('"he\\"l\\"lo"')).toEqual([
+      { start: 0, end: 11, length: 11, type: "STRING", value: '"he\\"l\\"lo"' }
     ]);
-    expect(composerTokenize("'hel\"l\"o'")).toEqual([
-      { start: 0, end: 9, length: 9, type: "STRING", value: "'hel\"l\"o'" }
+    expect(composerTokenize("\"hel'l'o\"")).toEqual([
+      { start: 0, end: 9, length: 9, type: "STRING", value: "\"hel'l'o\"" }
     ]);
-    expect(composerTokenize("'hello''test'")).toEqual([
-      { start: 0, end: 7, length: 7, type: "STRING", value: "'hello'" },
-      { start: 7, end: 13, length: 6, type: "STRING", value: "'test'" }
+    expect(composerTokenize('"hello""test"')).toEqual([
+      { start: 0, end: 7, length: 7, type: "STRING", value: '"hello"' },
+      { start: 7, end: 13, length: 6, type: "STRING", value: '"test"' }
     ]);
   });
 

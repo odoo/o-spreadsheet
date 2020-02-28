@@ -251,11 +251,11 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
   });
-  test("=sum('((((((((') + enter should not complete the parenthesis in the string", async () => {
-    await typeInComposer("=sum('((((((((')");
+  test('=sum("((((((((") + enter should not complete the parenthesis in the string', async () => {
+    await typeInComposer('=sum("((((((((")');
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.state.cells["A1"].content).toBe("=sum('((((((((')");
+    expect(model.state.cells["A1"].content).toBe('=sum("((((((((")');
   });
   test("=s + tab should allow to select a ref", async () => {
     await typeInComposer("=s");
