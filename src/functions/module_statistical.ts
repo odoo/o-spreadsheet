@@ -1,5 +1,6 @@
 import { args, toNumber } from "./arguments";
 import { FunctionDescription } from "./index";
+import { isNumber } from "util";
 
 export const AVERAGE: FunctionDescription = {
   description: `Numerical average value in a dataset, ignoring text.`,
@@ -82,17 +83,15 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
           for (let j = 0; j < dimLinValue; j++) {
             let subValue = value[i][j];
             let subWeight = weight[i][j];
-            if (typeof subValue === "number") {
-              
-            }
-
+            let subValueIsNumber = isNumber(subValue);
+            let subWeightIsNumber = isNumber(subWeight);
             // typeof subValue or subWeight can be 'number' or 'undefined'
-            if (typeof subValue !== typeof subWeight) {
+            if (subValueIsNumber !== subWeightIsNumber) {
               throw new Error(`
                   AVERAGE.WEIGHTED expects number values.
                 `);
             }
-            if (typeof subValue !== "undefined") {
+            if (subWeightIsNumber) {
               if (subWeight < 0) {
                 throw new Error(negativeWeightError);
               }
