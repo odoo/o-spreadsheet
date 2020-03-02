@@ -134,7 +134,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
   // sheets
   const sheets = data.sheets || [];
   if (sheets.length === 0) {
-    sheets.push({ name: "Sheet1", colNumber: 10, rowNumber: 10 });
+    sheets.push({ name: "Sheet1", colNumber: 26, rowNumber: 100 });
   }
   for (let sheet of sheets) {
     importSheet(state, sheet);

@@ -261,7 +261,7 @@ describe("composer highlights color", () => {
     expect(model.state.highlights[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
-  test.each(["=A0", "=ZZ1", "=A99"])("Do not highlight invalid ref", async ref => {
+  test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async ref => {
     model.setValue("A1", ref);
     await startComposition();
     expect(model.state.highlights.length).toBe(0);
