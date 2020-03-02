@@ -2,11 +2,11 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatNumber, formatValue } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile, tokenize } from "../formulas/index";
+import { isNumber } from "../functions/arguments";
 import { toCartesian, toXC } from "../helpers";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
-import { Cell, GridState, NewCell, Sheet, Zone } from "./state";
-import { isNumber } from "../functions/arguments";
+import { Cell, GridState, NewCell, Zone } from "./state";
 
 export function getCell(state: GridState, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -58,7 +58,7 @@ export function setValue(state: GridState, xc: string, text: string) {
 }
 
 interface AddCellOptions {
-  sheet?: Sheet;
+  sheet?: string;
   preserveFormatting?: boolean;
 }
 
@@ -75,7 +75,9 @@ export function addCell(
   options: AddCellOptions = { preserveFormatting: true }
 ) {
   const [col, row] = toCartesian(xc);
-  const currentCell = options.sheet ? options.sheet.cells[xc] : state.cells[xc];
+  const sheetName = options.sheet || state.activeSheet;
+  const sheet = state.sheets.find(s => s.name === sheetName)!;
+  const currentCell = sheet.cells[xc];
   const content = data.content || "";
   let type: Cell["type"] = "text";
   let value: Cell["value"] = content;
@@ -109,7 +111,8 @@ export function addCell(
   if (cell.type === "formula") {
     cell.error = false;
     try {
-      cell.formula = compile(content);
+      cell.formula = compile(content, sheetName);
+
       if (cell.formula instanceof AsyncFunction) {
         cell.async = true;
       }
@@ -119,7 +122,7 @@ export function addCell(
     }
   }
   if (options.sheet) {
-    options.sheet.cells[xc] = cell;
+    sheet.cells[xc] = cell;
   } else {
     updateState(state, ["cells", xc], cell);
     updateState(state, ["rows", cell.row, "cells", cell.col], cell);

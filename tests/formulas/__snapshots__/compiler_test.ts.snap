@@ -1,89 +1,98 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`expression compiler async functions 1`] = `
-"async function anonymous(getValue,fns
+"async function anonymous(cell,range,ctx
 ) {
 // =WAIT(5)
-let _1 = await fns['WAIT'](5)
+let _1 = await ctx['WAIT'](5)
 return _1;
 }"
 `;
 
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =sum(A1)
-let _2 = getValue('A1')
-let _1 = fns['SUM']([[_2]])
+let _2 = cell('A1', \`Sheet1\`)
+let _1 = ctx['SUM']([[_2]])
 return _1;
 }"
 `;
 
 exports[`expression compiler expression with $ref 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =$A1+$A$2+A$3
-let _3 = getValue('A1')
-let _4 = getValue('A2')
-let _2 = fns['ADD'](_3, _4)
-let _5 = getValue('A3')
-let _1 = fns['ADD'](_2, _5)
+let _3 = cell('A1', \`Sheet1\`)
+let _4 = cell('A2', \`Sheet1\`)
+let _2 = ctx['ADD'](_3, _4)
+let _5 = cell('A3', \`Sheet1\`)
+let _1 = ctx['ADD'](_2, _5)
+return _1;
+}"
+`;
+
+exports[`expression compiler expression with references with a sheet 1`] = `
+"function anonymous(cell,range,ctx
+) {
+// =Sheet34!B3
+let _1 = cell('B3', \`Sheet34\`)
 return _1;
 }"
 `;
 
 exports[`expression compiler expressions with a debugger 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =? A1 / 2
 debugger;
-let _2 = getValue('A1')
-let _1 = fns['DIVIDE'](_2, 2)
+let _2 = cell('A1', \`Sheet1\`)
+let _1 = ctx['DIVIDE'](_2, 2)
 return _1;
 }"
 `;
 
 exports[`expression compiler function call 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =sum(1,2)
-let _1 = fns['SUM'](1,2)
+let _1 = ctx['SUM'](1,2)
 return _1;
 }"
 `;
 
 exports[`expression compiler function call 2`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =sum(true, \\"\\")
-let _1 = fns['SUM'](true,\\"\\")
+let _1 = ctx['SUM'](true,\\"\\")
 return _1;
 }"
 `;
 
 exports[`expression compiler function call 3`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =sum(1,,2)
-let _1 = fns['SUM'](1,undefined,2)
+let _1 = ctx['SUM'](1,undefined,2)
 return _1;
 }"
 `;
 
 exports[`expression compiler read some values and functions 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =A1 + sum(A2:C3)
-let _2 = getValue('A1')
-let _4 = fns.range('A2', 'C3');
-let _3 = fns['SUM'](_4)
-let _1 = fns['ADD'](_2, _3)
+let _2 = cell('A1', \`Sheet1\`)
+let _4 = range('A2', 'C3', \`Sheet1\`);
+let _3 = ctx['SUM'](_4)
+let _1 = ctx['ADD'](_2, _3)
 return _1;
 }"
 `;
 
 exports[`expression compiler simple values 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =1
 return 1;
@@ -91,7 +100,7 @@ return 1;
 `;
 
 exports[`expression compiler simple values 2`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =true
 return true;
@@ -99,7 +108,7 @@ return true;
 `;
 
 exports[`expression compiler simple values 3`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =\\"abc\\"
 return \\"abc\\";
@@ -107,58 +116,58 @@ return \\"abc\\";
 `;
 
 exports[`expression compiler some arithmetic expressions 1`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =1 + 3
-let _1 = fns['ADD'](1, 3)
+let _1 = ctx['ADD'](1, 3)
 return _1;
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 2`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =2 * 3
-let _1 = fns['MULTIPLY'](2, 3)
+let _1 = ctx['MULTIPLY'](2, 3)
 return _1;
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 3`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =2 - 3
-let _1 = fns['MINUS'](2, 3)
+let _1 = ctx['MINUS'](2, 3)
 return _1;
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 4`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =2 / 3
-let _1 = fns['DIVIDE'](2, 3)
+let _1 = ctx['DIVIDE'](2, 3)
 return _1;
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 5`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =-3
-let _1 = fns['UMINUS']( 3)
+let _1 = ctx['UMINUS']( 3)
 return _1;
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 6`] = `
-"function anonymous(getValue,fns
+"function anonymous(cell,range,ctx
 ) {
 // =(3 + 1) * (-1 + 4)
-let _2 = fns['ADD'](3, 1)
-let _4 = fns['UMINUS']( 1)
-let _3 = fns['ADD'](_4, 4)
-let _1 = fns['MULTIPLY'](_2, _3)
+let _2 = ctx['ADD'](3, 1)
+let _4 = ctx['UMINUS']( 1)
+let _3 = ctx['ADD'](_4, 4)
+let _1 = ctx['MULTIPLY'](_2, _3)
 return _1;
 }"
 `;

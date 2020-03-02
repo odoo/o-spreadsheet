@@ -67,8 +67,7 @@ export interface GridState {
 
   // sheets
   sheets: Sheet[];
-  activeSheet: number; // index
-  activeSheetName: string;
+  activeSheet: string;
 }
 
 export interface HistoryChange {

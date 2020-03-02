@@ -51,21 +51,19 @@ export function createSheet(state: GridState) {
     merges: {},
     mergeCellMap: {}
   };
-  const index = addSheet(state, sheet);
-  activateSheet(state, index);
+  addSheet(state, sheet);
+  activateSheet(state, sheet.name);
 }
 
 export function addSheet(state: GridState, sheet: Sheet) {
   const sheets = state.sheets.slice();
-  const index = sheets.push(sheet) - 1;
+  sheets.push(sheet);
   updateState(state, ["sheets"], sheets);
-  return index;
 }
 
-export function activateSheet(state: GridState, index: number) {
-  const sheet = state.sheets[index];
-  updateState(state, ["activeSheet"], index);
-  updateState(state, ["activeSheetName"], sheet.name);
+export function activateSheet(state: GridState, name: string) {
+  const sheet = state.sheets.find(s => s.name === name)!;
+  updateState(state, ["activeSheet"], name);
 
   // setting up rows and columns
   updateState(state, ["rows"], sheet.rows);

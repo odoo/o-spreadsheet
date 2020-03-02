@@ -24,7 +24,7 @@ const UNARY_OPERATOR_MAP = {
 // -----------------------------------------------------------------------------
 export const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
 
-export function compile(str: string): Function {
+export function compile(str: string, sheet: string = "Sheet1"): Function {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
@@ -97,32 +97,35 @@ export function compile(str: string): Function {
         return ast.value;
       case "REFERENCE":
         id = nextId++;
-        code.push(`let _${id} = getValue('${ast.value}')`);
+        code.push(`let _${id} = cell('${ast.value}', \`${ast.sheet || sheet}\`)`);
         break;
       case "FUNCALL":
         id = nextId++;
         args = compileFunctionArgs(ast);
-        code.push(`let _${id} = fns['${ast.value.toUpperCase()}'](${args})`);
+        code.push(`let _${id} = ctx['${ast.value.toUpperCase()}'](${args})`);
         break;
       case "ASYNC_FUNCALL":
         id = nextId++;
         isAsync = true;
         args = compileFunctionArgs(ast);
-        code.push(`let _${id} = await fns['${ast.value.toUpperCase()}'](${args})`);
+        code.push(`let _${id} = await ctx['${ast.value.toUpperCase()}'](${args})`);
         break;
       case "UNARY_OPERATION":
         id = nextId++;
         right = compileAST(ast.right);
-        code.push(`let _${id} = fns['${UNARY_OPERATOR_MAP[ast.value]}']( ${right})`);
+        code.push(`let _${id} = ctx['${UNARY_OPERATOR_MAP[ast.value]}']( ${right})`);
         break;
       case "BIN_OPERATION":
         id = nextId++;
         if (ast.value === ":") {
-          code.push(`let _${id} = fns.range('${ast.left.value}', '${ast.right.value}');`);
+          const sheetName = (ast.left.type === "REFERENCE" && ast.left.sheet) || sheet;
+          code.push(
+            `let _${id} = range('${ast.left.value}', '${ast.right.value}', \`${sheetName}\`);`
+          );
         } else {
           left = compileAST(ast.left);
           right = compileAST(ast.right);
-          code.push(`let _${id} = fns['${OPERATOR_MAP[ast.value]}'](${left}, ${right})`);
+          code.push(`let _${id} = ctx['${OPERATOR_MAP[ast.value]}'](${left}, ${right})`);
         }
         break;
       case "UNKNOWN":
@@ -133,5 +136,5 @@ export function compile(str: string): Function {
 
   code.push(`return ${compileAST(ast)};`);
   const Constructor = isAsync ? AsyncFunction : Function;
-  return new Constructor("getValue", "fns", code.join("\n"));
+  return new Constructor("cell", "range", "ctx", code.join("\n"));
 }

@@ -62,9 +62,9 @@ describe("Import", () => {
     });
     model.selectRow(1, false);
     model.merge();
-    model.activateSheet(1);
+    model.activateSheet("Sheet2");
     expect(Object.keys(model.state.merges)).toHaveLength(0);
-    model.activateSheet(0);
+    model.activateSheet("Sheet1");
     expect(Object.keys(model.state.merges)).toHaveLength(1);
     expect(Object.values(model.state.merges)[0].topLeft).toBe("A2");
   });

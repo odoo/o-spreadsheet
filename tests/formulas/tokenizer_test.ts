@@ -44,11 +44,8 @@ describe("tokenizer", () => {
   });
   test("String", () => {
     expect(tokenize('"hello"')).toEqual([{ type: "STRING", value: '"hello"' }]);
-    expect(tokenize("'hello'")).toEqual([
-      { type: "UNKNOWN", value: "'" },
-      { type: "SYMBOL", value: "hello" },
-      { type: "UNKNOWN", value: "'" }
-    ]);
+    expect(tokenize("'hello'")).toEqual([{ type: "SYMBOL", value: "'hello'" }]);
+    expect(tokenize("'hello")).toEqual([{ type: "UNKNOWN", value: "'hello" }]);
     expect(tokenize('"he\\"l\\"lo"')).toEqual([{ type: "STRING", value: '"he\\"l\\"lo"' }]);
     expect(tokenize("\"hel'l'o\"")).toEqual([{ type: "STRING", value: "\"hel'l'o\"" }]);
     expect(tokenize('"hello""test"')).toEqual([
@@ -67,6 +64,7 @@ describe("tokenizer", () => {
     expect(tokenize("CEILING.MATH")).toEqual([{ type: "FUNCTION", value: "CEILING.MATH" }]);
     expect(tokenize("ceiling.math")).toEqual([{ type: "FUNCTION", value: "ceiling.math" }]);
   });
+
   test("Boolean", () => {
     expect(tokenize("true")).toEqual([{ type: "SYMBOL", value: "true" }]);
     expect(tokenize("false")).toEqual([
@@ -89,6 +87,7 @@ describe("tokenizer", () => {
       { type: "SYMBOL", value: "trueee" }
     ]);
   });
+
   test("$references", () => {
     expect(tokenize("=$A$1")).toEqual([
       { type: "OPERATOR", value: "=" },
@@ -103,6 +102,40 @@ describe("tokenizer", () => {
       { type: "SYMBOL", value: "$C1" }
     ]);
   });
+
+  test("reference and sheets", () => {
+    expect(tokenize("=Sheet1!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "Sheet1!A1" }
+    ]);
+    expect(tokenize("='Sheet1'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "'Sheet1'!A1" }
+    ]);
+    expect(tokenize("='Aryl Nibor Xela Nalim'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "'Aryl Nibor Xela Nalim'!A1" }
+    ]);
+    expect(tokenize("=Sheet1!$A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "Sheet1!$A1" }
+    ]);
+    expect(tokenize("=Sheet1!A$1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "Sheet1!A$1" }
+    ]);
+    expect(tokenize("='a '' b'!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "'a '' b'!A1" }
+    ]);
+
+    // note the missing ' in the following test:
+    expect(tokenize("='Sheet1!A1")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "UNKNOWN", value: "'Sheet1!A1" }
+    ]);
+  });
+
   test("Unknown characters", () => {
     expect(tokenize("=ù4")).toEqual([
       { type: "OPERATOR", value: "=" },
