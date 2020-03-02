@@ -124,9 +124,44 @@ function tokenizeString(chars: string[]): Token | null {
   return null;
 }
 
+/**
+ * A "Symbol" is just basically any word-like element that can appear in a
+ * formula, which is not a string. So:
+ *   A1
+ *   SUM
+ *   CEILING.MATH
+ *   A$1
+ *   Sheet2!A2
+ *   'Sheet 2'!A2
+ *
+ * are examples of symbols
+ */
 function tokenizeSymbol(chars: string[]): Token | null {
   const result: any[] = [];
-  while (chars[0] && chars[0].match(/\w|\.|\$/)) {
+  // there are two main cases to manage: either something which starts with
+  // a ', like 'Sheet 2'A2, or a word-like element.
+  if (chars[0] === "'") {
+    result.push(chars.shift());
+    while (chars[0]) {
+      let char = chars.shift();
+      result.push(char);
+      if (char === "'") {
+        if (chars[0] && chars[0] === "'") {
+          result.push(chars.shift());
+        } else {
+          break;
+        }
+      }
+    }
+
+    if (result[result.length - 1] !== "'") {
+      return {
+        type: "UNKNOWN",
+        value: result.join("")
+      };
+    }
+  }
+  while (chars[0] && chars[0].match(/\w|\.|!|\$/)) {
     result.push(chars.shift());
   }
   if (result.length) {

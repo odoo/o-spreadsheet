@@ -30,10 +30,12 @@ describe("evaluateCells", () => {
     model.setValue("A2", "=A1");
     model.setValue("A3", "=+");
     model.setValue("A4", "=1 + A3");
+    model.setValue("A5", "=sum('asdf')"); // not a string!
     expect(model.state.cells["A1"].value).toEqual("#CYCLE");
     expect(model.state.cells["A2"].value).toEqual("#ERROR");
     expect(model.state.cells["A3"].value).toEqual("#BAD_EXPR");
     expect(model.state.cells["A4"].value).toEqual("#ERROR");
+    expect(model.state.cells.A5.value).toEqual("#BAD_EXPR");
   });
 
   test("error in an addition", () => {

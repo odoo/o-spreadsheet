@@ -5,8 +5,8 @@ export function validate(formula: string): boolean {
   if (!formula) return true;
   if (!formula.startsWith("=")) return true;
 
-  const tokens = parse(formula);
-  return validateAST(tokens, ["ANY"]);
+  const ast = parse(formula);
+  return validateAST(ast, ["ANY"]);
 }
 
 /**

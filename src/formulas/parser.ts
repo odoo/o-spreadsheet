@@ -29,6 +29,7 @@ interface ASTBoolean extends ASTBase {
 interface ASTReference extends ASTBase {
   type: "REFERENCE";
   value: string;
+  sheet?: string;
 }
 
 interface ASTUnaryOperation extends ASTBase {
@@ -81,7 +82,7 @@ const OP_PRIORITY = {
   "<": 10,
   "<=": 10,
   "=": 10,
-  "-": 7,
+  "-": 7
 };
 
 function bindingPower(token: Token): number {
@@ -126,11 +127,26 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
   }
   if (current.type === "SYMBOL") {
     if (cellReference.test(current.value)) {
-      return { type: "REFERENCE", value: current.value.replace(/\$/g, "").toUpperCase() } as AST;
+      if (current.value.includes("!")) {
+        let [sheet, val] = current.value.split("!");
+        if (sheet.startsWith("'")) {
+          sheet = sheet.slice(1, -1).replace(/''/g, "'");
+        }
+        return {
+          type: "REFERENCE",
+          value: val.replace(/\$/g, "").toUpperCase(),
+          sheet: sheet
+        };
+      } else {
+        return { type: "REFERENCE", value: current.value.replace(/\$/g, "").toUpperCase() } as AST;
+      }
     } else {
       if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
       } else {
+        if (current.value) {
+          throw new Error("Invalid formula");
+        }
         return { type: "UNKNOWN", value: current.value } as AST;
       }
     }

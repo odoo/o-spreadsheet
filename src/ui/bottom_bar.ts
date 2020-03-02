@@ -12,8 +12,8 @@ const { xml, css } = owl.tags;
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
     <span class="o-add-sheet" t-on-click="addSheet">${PLUS}</span>
-    <t t-foreach="model.state.sheets" t-as="sheet" t-key="sheet_index">
-      <span class="o-sheet" t-on-click="activateSheet(sheet_index)" t-att-class="{active: sheet_index === model.state.activeSheet}"><t t-esc="sheet.name"/></span>
+    <t t-foreach="model.state.sheets" t-as="sheet" t-key="sheet.name">
+      <span class="o-sheet" t-on-click="activateSheet(sheet.name)" t-att-class="{active: sheet.name === model.state.activeSheet}"><t t-esc="sheet.name"/></span>
     </t>
     <t t-if="model.aggregate !== null">
       <span class="o-space"/>
@@ -88,7 +88,7 @@ export class BottomBar extends Component<any, any> {
     this.model.createSheet();
   }
 
-  activateSheet(index: number) {
-    this.model.activateSheet(index);
+  activateSheet(name: string) {
+    this.model.activateSheet(name);
   }
 }

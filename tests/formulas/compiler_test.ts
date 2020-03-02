@@ -31,6 +31,10 @@ describe("expression compiler", () => {
     expect(compile("=$A1+$A$2+A$3").toString()).toMatchSnapshot();
   });
 
+  test("expression with references with a sheet", () => {
+    expect(compile("=Sheet34!B3").toString()).toMatchSnapshot();
+  });
+
   test("expressions with a debugger", () => {
     expect(compile("=? A1 / 2").toString()).toMatchSnapshot();
   });

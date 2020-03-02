@@ -123,34 +123,89 @@ describe("knows what's a reference and what's not", () => {
       value: "A1"
     });
   });
+
   test("single cell reference", () => {
     expect(parse("=AA1")).toEqual({
       type: "REFERENCE",
       value: "AA1"
     });
   });
+
   test("large single cell reference", () => {
     expect(parse("=AA100")).toEqual({
       type: "REFERENCE",
       value: "AA100"
     });
   });
+
   test("fixed cell", () => {
     expect(parse("=$a$1")).toEqual({
       type: "REFERENCE",
       value: "A1"
     });
   });
+
   test("fixed row", () => {
     expect(parse("=a$1")).toEqual({
       type: "REFERENCE",
       value: "A1"
     });
   });
+
   test("fixed column", () => {
     expect(parse("=$a1")).toEqual({
       type: "REFERENCE",
       value: "A1"
+    });
+  });
+
+  test("sheet, with lowercase cell reference", () => {
+    expect(parse("=Sheet3!a1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "Sheet3"
+    });
+  });
+
+  test("sheet, fixed cell", () => {
+    expect(parse("=Sheet3!$a$1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "Sheet3"
+    });
+  });
+
+  test("sheet, fixed row", () => {
+    expect(parse("=Sheet3!a$1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "Sheet3"
+    });
+  });
+
+  test("sheet, fixed column", () => {
+    expect(parse("=Sheet3!$a1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "Sheet3"
+    });
+  });
+
+  test("sheet with quotes and spaces", () => {
+    expect(parse("='Sheet3'!a1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "Sheet3"
+    });
+    expect(parse("='S h i t'!a1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "S h i t"
+    });
+    expect(parse("='S ''h i t'!a1")).toEqual({
+      type: "REFERENCE",
+      value: "A1",
+      sheet: "S 'h i t"
     });
   });
 });
@@ -217,9 +272,6 @@ describe("parsing ranges", () => {
 });
 describe("parsing other stuff", () => {
   test("arbitrary text", () => {
-    expect(parse("=undefined")).toEqual({
-      type: "UNKNOWN",
-      value: "undefined"
-    });
+    expect(() => parse("=undefined")).toThrow();
   });
 });

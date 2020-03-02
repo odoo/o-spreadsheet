@@ -126,9 +126,8 @@ export function importData(data: PartialGridDataWithVersion): GridState {
     isSelectingRange: false,
     isCopyingFormat: false,
     loadingCells: 0,
-    activeSheet: 0,
-    activeSheetName: "Sheet1",
-    sheets: []
+    sheets: [],
+    activeSheet: "Sheet1"
   };
 
   // sheets
@@ -140,7 +139,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
     importSheet(state, sheet);
   }
 
-  activateSheet(state, 0);
+  activateSheet(state, state.sheets[0].name);
 
   return state;
 }
@@ -212,8 +211,9 @@ function addMerges(state: GridState, sheet: Sheet, merges: string[]) {
 }
 
 function importSheet(state: GridState, data: SheetData) {
+  const name = data.name || `Sheet${state.sheets.length + 1}`;
   const sheet: Sheet = {
-    name: data.name || `Sheet${state.sheets.length + 1}`,
+    name: name,
     cells: {},
     colNumber: data.colNumber,
     rowNumber: data.rowNumber,
@@ -225,13 +225,13 @@ function importSheet(state: GridState, data: SheetData) {
   if (data.merges) {
     addMerges(state, sheet, data.merges);
   }
+  addSheet(state, sheet);
   // cells
   for (let xc in data.cells) {
-    addCell(state, xc, data.cells[xc], { sheet });
+    addCell(state, xc, data.cells[xc], { sheet: name });
     const cell = sheet.cells[xc];
     sheet.rows[cell.row].cells[cell.col] = cell;
   }
-  addSheet(state, sheet);
 }
 
 // -----------------------------------------------------------------------------
@@ -273,7 +273,8 @@ export function exportData(state: GridState): GridData {
   const entities: GridData["entities"] = state.entities || {};
 
   const sheets: SheetData[] = [];
-  for (let sheet of state.sheets) {
+  for (let sheetName in state.sheets) {
+    const sheet = state.sheets[sheetName];
     const cells: { [key: string]: CellData } = {};
     for (let [key, cell] of Object.entries(sheet.cells)) {
       cells[key] = {

@@ -1,7 +1,7 @@
 import { functionMap } from "../functions/index";
 import { toCartesian } from "../helpers";
-import { Cell, GridState } from "./state";
 import * as entity from "./entity";
+import { Cell, GridState, Sheet } from "./state";
 
 /**
  * For all cells that are being currently computed (asynchronously).
@@ -36,12 +36,18 @@ export function evaluateCells(state: GridState) {
 }
 
 export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
+  const sheets: { [name: string]: Sheet } = {};
+  for (let sheet of state.sheets) {
+    sheets[sheet.name] = sheet;
+  }
   if (!onlyWaiting) {
     COMPUTED.clear();
   }
   const cells = state.cells;
   const visited = {};
-  const functions = Object.assign({ range, getEntity, getEntities }, functionMap);
+  const ctx = Object.create(functionMap);
+  ctx.getEntity = getEntity;
+  ctx.getEntities = getEntities;
 
   function handleError(e: Error, cell: Cell) {
     if (PENDING.has(cell)) {
@@ -57,10 +63,11 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     }
   }
 
-  function computeValue(xc, cell: Cell) {
+  function computeValue(cell: Cell) {
     if (cell.type !== "formula" || !cell.formula) {
       return;
     }
+    const xc = cell.xc;
     if (xc in visited) {
       if (visited[xc] === null) {
         cell.value = "#CYCLE";
@@ -79,7 +86,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
         cell.value = "#LOADING";
         PENDING.add(cell);
         cell
-          .formula(getValue, functions)
+          .formula(readCell, range, ctx)
           .then(val => {
             cell.value = val;
             state.loadingCells--;
@@ -91,7 +98,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
           .catch((e: Error) => handleError(e, cell));
         state.loadingCells++;
       } else {
-        cell.value = cell.formula(getValue, functions);
+        cell.value = cell.formula(readCell, range, ctx);
       }
       cell.error = false;
     } catch (e) {
@@ -100,8 +107,14 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     visited[xc] = true;
   }
 
-  function getValue(xc: string): any {
-    const cell = cells[xc];
+  function readCell(xc: string, sheet: string): any {
+    let cell;
+    const s = sheets[sheet];
+    if (s) {
+      cell = s.cells[xc];
+    } else {
+      throw new Error("Invalid sheet name");
+    }
     if (!cell || cell.content === "") {
       return null;
     }
@@ -109,7 +122,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   }
 
   function getCellValue(cell: Cell): any {
-    computeValue(cell.xc, cell);
+    computeValue(cell);
     if (cell.error) {
       throw new Error("boom");
     }
@@ -125,7 +138,8 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  function range(v1: string, v2: string): any[] {
+  function range(v1: string, v2: string, sheetName: string): any[] {
+    const sheet = sheets[sheetName];
     const [c1, r1] = toCartesian(v1);
     const [c2, r2] = toCartesian(v2);
     const result: any[] = new Array(c2 - c1 + 1);
@@ -133,7 +147,7 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       let col: any[] = new Array(r2 - r1 + 1);
       result[c - c1] = col;
       for (let r = r1; r <= r2; r++) {
-        let cell = state.rows[r].cells[c];
+        let cell = sheet.rows[r].cells[c];
         if (cell) {
           col[r - r1] = getCellValue(cell);
         }
@@ -154,12 +168,12 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     const clone: Set<Cell> = new Set(WAITING);
     WAITING.clear();
     for (let cell of clone) {
-      computeValue(cell.xc, cell);
+      computeValue(cell);
     }
   } else {
     for (let xc in cells) {
       const cell = cells[xc];
-      computeValue(xc, cell);
+      computeValue(cell);
     }
   }
 }

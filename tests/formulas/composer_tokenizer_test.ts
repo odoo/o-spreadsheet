@@ -91,9 +91,7 @@ describe("composerTokenizer base tests", () => {
     ]);
     //expect(() => composerTokenize("'hello'")).toThrowError("kikou");
     expect(composerTokenize("'hello'")).toEqual([
-      { start: 0, end: 1, length: 1, type: "UNKNOWN", value: "'" },
-      { start: 1, end: 6, length: 5, type: "SYMBOL", value: "hello" },
-      { start: 6, end: 7, length: 1, type: "UNKNOWN", value: "'" }
+      { start: 0, end: 7, length: 7, type: "SYMBOL", value: "'hello'" }
     ]);
     expect(composerTokenize('"he\\"l\\"lo"')).toEqual([
       { start: 0, end: 11, length: 11, type: "STRING", value: '"he\\"l\\"lo"' }
