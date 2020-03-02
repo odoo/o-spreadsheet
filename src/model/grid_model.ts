@@ -79,6 +79,7 @@ export class GridModel extends owl.core.EventBus {
           if (current === 0) {
             this.isStarted = false;
           }
+          this.computeDerivedState();
           this.trigger("update");
         }
         if (current > 0) {

@@ -81,5 +81,3 @@ export const XOR: FunctionDescription = {
     return args.filter(a => toBoolean(a)).length % 2 !== 0;
   }
 };
-
-

@@ -1,5 +1,6 @@
 import { GridModel, CURRENT_VERSION } from "../../src/model/index";
 import { formatCell } from "../../src/model/core";
+import { waitForRecompute } from "../helpers";
 
 describe("core", () => {
   test("properly compute sum of current cells", () => {
@@ -33,6 +34,23 @@ describe("core", () => {
     // select A1:A3
     model.updateSelection(0, 2);
     expect(model.aggregate).toBe("5");
+  });
+
+  test("ignore async cells while they are not ready", async () => {
+    const model = new GridModel();
+    model.setValue("A1", "=Wait(1000)");
+    model.setValue("A2", "44");
+
+    // select A1
+    model.selectCell(0, 0);
+    expect(model.aggregate).toBe(null);
+
+    // select A1:A2
+    model.updateSelection(0, 1);
+    expect(model.aggregate).toBe(null);
+
+    await waitForRecompute();
+    expect(model.aggregate).toBe("1044");
   });
 
   test("format cell that point to an empty cell properly", () => {

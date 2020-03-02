@@ -1,26 +1,5 @@
 import { CURRENT_VERSION, GridModel } from "../../src/model/index";
-import { nextTick, patchWaitFunction } from "../helpers";
-
-const patch = patchWaitFunction();
-
-let timeHandlers: Function[] = [];
-GridModel.setTimeout = cb => {
-  timeHandlers.push(cb);
-};
-
-function clearTimers() {
-  let handlers = timeHandlers.slice();
-  timeHandlers = [];
-  for (let cb of handlers) {
-    cb();
-  }
-}
-
-async function waitForRecompute() {
-  patch.resolveAll();
-  await nextTick();
-  clearTimers();
-}
+import { patch, waitForRecompute } from "../helpers";
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {

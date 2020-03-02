@@ -194,6 +194,26 @@ export function patchWaitFunction(): PatchResult {
   return result;
 }
 
+export const patch = patchWaitFunction();
+
+let timeHandlers: Function[] = [];
+GridModel.setTimeout = cb => {
+  timeHandlers.push(cb);
+};
+
+function clearTimers() {
+  let handlers = timeHandlers.slice();
+  timeHandlers = [];
+  for (let cb of handlers) {
+    cb();
+  }
+}
+
+export async function waitForRecompute() {
+  patch.resolveAll();
+  await nextTick();
+  clearTimers();
+}
 /*
  * Remove all functions from the internal function list.
  */

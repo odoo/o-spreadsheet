@@ -428,7 +428,7 @@ export function computeAggregate(state: GridState): string | null {
       const r = state.rows[row];
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = r.cells[col];
-        if (cell && cell.type !== "text" && !cell.error) {
+        if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
           n++;
           aggregate += cell.value;
         }
