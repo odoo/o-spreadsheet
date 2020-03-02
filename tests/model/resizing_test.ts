@@ -3,7 +3,7 @@ import { GridModel } from "../../src/model";
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
     const model = new GridModel();
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const initialSize = model.state.cols[1].size;
     const initialTop = model.state.cols[2].left;
@@ -23,7 +23,7 @@ describe("Model resizer", () => {
 
   test("Can resize one row, then undo", async () => {
     const model = new GridModel();
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const initialSize = model.state.rows[1].size;
     const initialTop = model.state.rows[2].top;
@@ -39,19 +39,19 @@ describe("Model resizer", () => {
 
   test("Can resize multiple columns", async () => {
     const model = new GridModel();
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const size = model.state.cols[0].size;
 
     model.state.selection.zones[0] = {
       top: 0,
-      bottom: 9,
+      bottom: 99,
       left: 1,
       right: 1
     };
     model.state.selection.zones[1] = {
       top: 0,
-      bottom: 9,
+      bottom: 99,
       left: 3,
       right: 4
     };
@@ -65,7 +65,7 @@ describe("Model resizer", () => {
 
   test("Can resize multiple rows", async () => {
     const model = new GridModel();
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+    model.state.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const size = model.state.rows[0].size;
 
@@ -73,13 +73,13 @@ describe("Model resizer", () => {
       top: 1,
       bottom: 1,
       left: 0,
-      right: 9
+      right: 25
     };
     model.state.selection.zones[1] = {
       top: 3,
       bottom: 4,
       left: 0,
-      right: 9
+      right: 25
     };
     model.updateRowsSize(1, 100);
 

@@ -145,7 +145,7 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
       );
       expect(model.state.activeXc).toBe("A1");
-      expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
+      expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 25, bottom: 99 });
     });
 
     test("can save the sheet with CTRL+S", async () => {

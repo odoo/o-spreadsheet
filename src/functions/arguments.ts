@@ -125,7 +125,7 @@ export function toNumber(value: any): number {
     case "boolean":
       return value ? 1 : 0;
     case "string":
-      if (value) {
+      if (isNumber(value)) {
         let n = Number(value);
         if (isNaN(n)) {
           if (value.includes("%")) {
@@ -134,24 +134,24 @@ export function toNumber(value: any): number {
               return n / 100;
             }
           }
-          throw new Error(`
-            The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string,
-            and cannot be coerced to a number`);
         } else {
           return n;
         }
-      } else {
-        return 0;
       }
+      throw new Error(`
+      The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string,
+      and cannot be coerced to a number`);
     default:
       return 0;
   }
 }
 
-const numberRegexp = /^-?\d+(,\d+)*(\.\d+(e\d+)?)?(%)?$/;
+const numberRegexp = /^-?\d+(,\d+)*(\.\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
 
 export function isNumber(value: any): boolean {
-  if (typeof value === "string" && !value.match(numberRegexp)) {
+  // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
+  // TO DO: add regexp for exp format (ex match: "42E10")
+  if (typeof value === "string" && !value.trim().match(numberRegexp)) {
     return false;
   }
   return true;

@@ -262,7 +262,7 @@ describe("borders", () => {
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new GridModel();
     model.selectCell(0, 0);
-    model.updateSelection(9, 9);
+    model.updateSelection(25, 99);
     expect(model.state.selection.zones[0]).toEqual({
       left: 0,
       top: 0,

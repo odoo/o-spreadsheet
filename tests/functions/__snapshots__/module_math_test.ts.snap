@@ -1659,6 +1659,6 @@ exports[`math SQRT(-9) - error: take 1 parameter(s), return an error  1`] = `
 
 exports[`math SUM: add a number and a string 1`] = `
 "
-            The function [[FUNCTION_NAME]] expects a number value, but 'str' is a string,
-            and cannot be coerced to a number"
+      The function [[FUNCTION_NAME]] expects a number value, but 'str' is a string,
+      and cannot be coerced to a number"
 `;
