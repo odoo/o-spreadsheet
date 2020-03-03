@@ -5,24 +5,24 @@ describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
     const model = new GridModel();
     expect(model.state.sheets.length).toBe(1);
-    expect(model.state.activeSheet).toBe("Sheet1");
+    expect(model.state.activeSheet.name).toBe("Sheet1");
 
     model.createSheet();
     expect(model.state.sheets.length).toBe(2);
-    expect(model.state.activeSheet).toBe("Sheet2");
+    expect(model.state.activeSheet.name).toBe("Sheet2");
 
     model.undo();
     expect(model.state.sheets.length).toBe(1);
-    expect(model.state.activeSheet).toBe("Sheet1");
+    expect(model.state.activeSheet.name).toBe("Sheet1");
 
     model.redo();
     expect(model.state.sheets.length).toBe(2);
-    expect(model.state.activeSheet).toBe("Sheet2");
+    expect(model.state.activeSheet.name).toBe("Sheet2");
   });
 
   test("can read a value in same sheet", () => {
     const model = new GridModel();
-    expect(model.state.activeSheet).toBe("Sheet1");
+    expect(model.state.activeSheet.name).toBe("Sheet1");
 
     model.setValue("A1", "3");
     model.setValue("A2", "=Sheet1!A1");
@@ -32,11 +32,11 @@ describe("sheets", () => {
 
   test("can read a value in another sheet", () => {
     const model = new GridModel();
-    expect(model.state.activeSheet).toBe("Sheet1");
+    expect(model.state.activeSheet.name).toBe("Sheet1");
 
     model.setValue("A1", "3");
     model.createSheet();
-    expect(model.state.activeSheet).toBe("Sheet2");
+    expect(model.state.activeSheet.name).toBe("Sheet2");
     model.setValue("A1", "=Sheet1!A1");
     expect(model.state.cells.A1.value).toBe(3);
   });
@@ -67,7 +67,7 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet).toBe("ABC");
+    expect(model.state.activeSheet.name).toBe("ABC");
     expect(model.state.cells.B1.value).toBe(3);
   });
 
@@ -93,7 +93,7 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet).toBe("ABC");
+    expect(model.state.activeSheet.name).toBe("ABC");
     expect(model.state.cells.B1.value).toBe(3);
   });
 
@@ -120,7 +120,7 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet).toBe("ABC");
+    expect(model.state.activeSheet.name).toBe("ABC");
     expect(model.state.cells.B1.value).toBe(5);
   });
 
@@ -150,7 +150,7 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet).toBe("ABC");
+    expect(model.state.activeSheet.name).toBe("ABC");
     expect(model.state.cells.B1.value).toBe("#CYCLE");
     expect(model.state.cells.C3.value).toBe(42);
   });

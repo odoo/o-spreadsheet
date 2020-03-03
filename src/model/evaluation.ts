@@ -1,7 +1,7 @@
 import { functionMap } from "../functions/index";
-import { toCartesian } from "../helpers";
+import { toCartesian, toZone } from "../helpers";
 import * as entity from "./entity";
-import { Cell, Workbook, Sheet } from "./types";
+import { Cell, Workbook, Sheet, Zone, CellIsRule } from "./types";
 
 /**
  * For all cells that are being currently computed (asynchronously).
@@ -174,6 +174,53 @@ export function _evaluateCells(state: Workbook, onlyWaiting: boolean) {
     for (let xc in cells) {
       const cell = cells[xc];
       computeValue(cell);
+    }
+  }
+  computeStyles(state);
+}
+
+let ruleExecutor = {
+  CellIsRule: (cell: Cell, rule: CellIsRule): boolean => {
+    switch (rule.operator) {
+      case "Equal":
+        return cell && cell.value == rule.values[0];
+
+      default:
+        console.warn(
+          `Not implemented operator ${rule.operator} for kind of conditional formatting:  ${rule.kind}`
+        );
+    }
+    return false;
+  }
+};
+
+/**
+ * Compute the styles according to the conditional formatting.
+ * This computation must happen after the cell values are computed if they change
+ *
+ * This result of the computation will be in the state.cell[XC].conditionalStyle and will be the union of all the style
+ * properties applied (in order).
+ * So if a cell has multiple conditional formatting applied to it, and each affect a different value of the style,
+ * the resulting style will have the combination of all those values.
+ * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
+ */
+// TODO: VSC: we might need to create the cells if they are not yet created ?
+export function computeStyles(state: Workbook) {
+  for (let c of Object.values(state.cells)) {
+    c.conditionalStyle = undefined;
+  }
+  for (let cf of state.activeSheet.conditionalFormats) {
+    for (let ref of cf.ranges) {
+      const zone: Zone = toZone(ref);
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          const rulePredicate = ruleExecutor[cf.formatRule.type.kind];
+          const cell = state.rows[row].cells[col];
+          if (rulePredicate && rulePredicate(cell, cf.formatRule.type)) {
+            cell.conditionalStyle = Object.assign(cell.conditionalStyle || {}, cf.style);
+          }
+        }
+      }
     }
   }
 }

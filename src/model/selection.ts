@@ -1,4 +1,4 @@
-import { isEqual, toCartesian, toXC, union } from "../helpers";
+import { isEqual, toZone, toXC, union } from "../helpers";
 import { Zone, Workbook } from "./types";
 import { stopEditing, activateCell } from "./core";
 
@@ -19,6 +19,10 @@ function expandZone(state: Workbook, zone: Zone): Zone {
   return isEqual(result, zone) ? result : expandZone(state, result);
 }
 
+/**
+ * Expand/contract the current selection by a given delta.
+ * The anchor of the selection is used as reference
+ */
 export function moveSelection(state: Workbook, deltaX: number, deltaY: number) {
   const selection = state.selection.zones[state.selection.zones.length - 1];
   const anchorCol = state.selection.anchor.col;
@@ -196,9 +200,16 @@ export function getActiveRows(state: Workbook): Set<number> {
 export function startNewComposerSelection(state: Workbook): void {
   state.selection.anchor = { row: state.activeRow, col: state.activeCol };
 }
-
 /**
  * Converts the selection zone to a XC coordinate system
+ */
+export function selectionZoneXC(state: Workbook): string {
+  const zone = state.selection.zones[0];
+  return zoneToXC(state, zone);
+}
+
+/**
+ * Converts a zone to a XC coordinate system
  *
  * The conversion also treats merges a one single cell
  *
@@ -209,8 +220,7 @@ export function startNewComposerSelection(state: Workbook): void {
  * if A1:B2 is a merge:
  * {top:0,left:0,right:1,bottom:1} ==> A1
  */
-export function selectionZoneXC(state: Workbook): string {
-  const zone = state.selection.zones[0];
+export function zoneToXC(state: Workbook, zone: Zone): string {
   const topLeft = toXC(zone.left, zone.top);
   const botRight = toXC(zone.right, zone.bottom);
 
@@ -221,28 +231,16 @@ export function selectionZoneXC(state: Workbook): string {
   return topLeft;
 }
 
+/**
+ * Add the highlights of the composer to the state.
+ * When the highlight are defined for a merge, it will expand to the size of the merge
+ * @param state
+ * @param rangesUsed
+ */
 export function addHighlights(state: Workbook, rangesUsed: { [keys: string]: string }) {
   let highlights = Object.keys(rangesUsed)
     .map(r1c1 => {
-      const ranges = r1c1.split(":");
-      let top: number, bottom: number, left: number, right: number;
-
-      let c = toCartesian(ranges[0].trim());
-      left = right = c[0];
-      top = bottom = c[1];
-      if (ranges.length === 2) {
-        let d = toCartesian(ranges[1].trim());
-        right = d[0];
-        bottom = d[1];
-        if (right < left) {
-          [right, left] = [left, right];
-        }
-        if (bottom < top) {
-          [bottom, top] = [top, bottom];
-        }
-      }
-
-      let zone: Zone = { top, bottom, left, right };
+      let zone: Zone = toZone(r1c1);
       zone = expandZone(state, zone);
 
       return { zone, color: rangesUsed[r1c1] };

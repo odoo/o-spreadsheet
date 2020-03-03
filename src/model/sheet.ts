@@ -49,7 +49,8 @@ export function createSheet(state: Workbook) {
     cols: createDefaultCols(26),
     rows: createDefaultRows(100),
     merges: {},
-    mergeCellMap: {}
+    mergeCellMap: {},
+    conditionalFormats: []
   };
   addSheet(state, sheet);
   activateSheet(state, sheet.name);
@@ -63,7 +64,7 @@ export function addSheet(state: Workbook, sheet: Sheet) {
 
 export function activateSheet(state: Workbook, name: string) {
   const sheet = state.sheets.find(s => s.name === name)!;
-  updateState(state, ["activeSheet"], name);
+  updateState(state, ["activeSheet"], sheet);
 
   // setting up rows and columns
   updateState(state, ["rows"], sheet.rows);
