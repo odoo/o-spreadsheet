@@ -1,4 +1,4 @@
-import { Style, Border, Workbook, Col, Row, Sheet, Merge } from "./types";
+import { Style, Border, Workbook, Col, Row, Sheet, Merge, ConditionalFormat } from "./types";
 import { addCell } from "./core";
 import { numberToLetters, toXC, toCartesian } from "../helpers";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
@@ -46,6 +46,7 @@ interface SheetData {
   merges?: string[];
   cols?: { [key: number]: HeaderData };
   rows?: { [key: number]: HeaderData };
+  conditionalFormats?: ConditionalFormat[];
 }
 
 interface WorkbookData {
@@ -134,7 +135,8 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     isCopyingFormat: false,
     loadingCells: 0,
     sheets: [],
-    activeSheet: "Sheet1"
+    // @ts-ignore
+    activeSheet: {}
   };
 
   // sheets
@@ -227,7 +229,8 @@ function importSheet(state: Workbook, data: SheetData) {
     cols: addCols(state, data.cols || {}, data.colNumber),
     rows: addRows(state, data.rows || {}, data.rowNumber),
     merges: {},
-    mergeCellMap: {}
+    mergeCellMap: {},
+    conditionalFormats: data.conditionalFormats || []
   };
   if (data.merges) {
     addMerges(state, sheet, data.merges);
@@ -298,7 +301,8 @@ export function exportData(state: Workbook): WorkbookData {
       rows: exportRows(sheet.rows),
       cols: exportCols(sheet.cols),
       merges: exportMerges(sheet.merges),
-      cells: cells
+      cells: cells,
+      conditionalFormats: sheet.conditionalFormats
     });
   }
 

@@ -9,7 +9,7 @@ const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
 
-const COLORS = [
+export const COLORS = [
   [
     "#ffffff",
     "#000100",
@@ -96,7 +96,7 @@ const COLORS = [
   ]
 ];
 
-const COLOR_PICKER = xml/* xml */ `
+export const COLOR_PICKER = xml/* xml */ `
   <div class="o-dropdown-line" t-foreach="COLORS" t-as="colors" t-key="colors">
     <t t-foreach="colors" t-as="color" t-key="color">
       <div class="o-line-item" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
@@ -193,6 +193,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div>
         <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div>
         <div class="o-divider"/>
+        <div class="o-tool" title="Conditional Formatting" t-on-click="setConditionalFormatting"><span>${icons.CONDITIONAL_FORMATTING}</span></div>
       </div>
       <div class="o-cell-content">
          <t t-esc="model.selectedCell and model.selectedCell.content"/>
@@ -356,6 +357,10 @@ export class TopBar extends Component<any, any> {
   }
   async willUpdateProps() {
     this.updateCellState();
+  }
+
+  setConditionalFormatting() {
+    this.model.trigger("openSidePanel", { panelName: "ConditionalFormattingPanel" });
   }
 
   toggleTool(tool) {

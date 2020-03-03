@@ -77,8 +77,9 @@ export function addCell(
   options: AddCellOptions = { preserveFormatting: true }
 ) {
   const [col, row] = toCartesian(xc);
-  const sheetName = options.sheet || state.activeSheet;
-  const sheet = state.sheets.find(s => s.name === sheetName)!;
+  const sheet = options.sheet
+    ? state.sheets.find(s => s.name === options.sheet)!
+    : state.activeSheet;
   const currentCell = sheet.cells[xc];
   const content = data.content ? data.content.replace(nbspRegexp, " ") : "";
   let type: Cell["type"] = "text";
@@ -113,7 +114,7 @@ export function addCell(
   if (cell.type === "formula") {
     cell.error = false;
     try {
-      cell.formula = compile(content, sheetName);
+      cell.formula = compile(content, sheet.name);
 
       if (cell.formula instanceof AsyncFunction) {
         cell.async = true;
@@ -158,6 +159,9 @@ export function deleteCell(state: Workbook, xc: string, force: boolean = false) 
   }
 }
 
+/**
+ * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
+ */
 export function movePosition(state: Workbook, deltaX: number, deltaY: number) {
   const { activeCol, activeRow, cols, rows, viewport, selection } = state;
 
@@ -382,7 +386,7 @@ export function setCurrentContent(state: Workbook, content: string) {
 }
 
 /**
- * Change the active cell.
+ * Change the anchor of the selection active cell to an absolute col and row inded.
  *
  * This is a non trivial task. We need to stop the editing process and update
  * properly the current selection.  Also, this method can optionally create a new

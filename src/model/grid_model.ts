@@ -15,6 +15,7 @@ import * as entity from "./entity";
 import * as resizing from "./resizing";
 import * as selection from "./selection";
 import * as sheet from "./sheet";
+import * as conditionalFormat from "./conditional_format";
 import { Cell, Workbook, Style, Box, Rect, Viewport } from "./types";
 import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../constants";
 import { fontSizeMap } from "../fonts";
@@ -156,6 +157,7 @@ export class GridModel extends owl.core.EventBus {
   getActiveRows = this.makeFn(selection.getActiveRows);
   startNewComposerSelection = this.makeFn(selection.startNewComposerSelection);
   selectionZoneXC = this.makeFn(selection.selectionZoneXC);
+  zoneToXC = this.makeFn(selection.zoneToXC);
   addHighlights = this.makeMutation(selection.addHighlights);
 
   // merges
@@ -189,6 +191,10 @@ export class GridModel extends owl.core.EventBus {
   // export
   // ---------------------------------------------------------------------------
   exportData = this.makeFn(exportData);
+
+  // conditional formatting
+  // ---------------------------------------------------------------------------
+  addConditionalFormat = this.makeMutation(conditionalFormat.addConditionalFormat);
 
   getCellWidth(cell: Cell): number {
     const style = this.state.styles[cell ? cell.style || 0 : 0];
@@ -264,7 +270,10 @@ function getGridBoxes(model: GridModel): Box[] {
         let col = cols[colNumber];
         const text = model.formatCell(cell);
         const textWidth = model.getCellWidth(cell);
-        const style = cell.style ? state.styles[cell.style] : null;
+        let style = cell.style ? state.styles[cell.style] : null;
+        if (cell.conditionalStyle) {
+          style = Object.assign({}, style, cell.conditionalStyle);
+        }
         const align = text
           ? (style && style.align) || (cell.type === "text" ? "left" : "right")
           : null;

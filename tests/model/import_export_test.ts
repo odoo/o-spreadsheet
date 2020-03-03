@@ -151,7 +151,8 @@ describe("complete import, then export", () => {
           B1: { content: "=a1", style: 99, border: 8, format: "0.00%" },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" }
         },
-        name: "My sheet"
+        name: "My sheet",
+        conditionalFormats: []
       }
     ],
     entities: {},
