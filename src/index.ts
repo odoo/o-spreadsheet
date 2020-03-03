@@ -6,12 +6,18 @@
  */
 
 import { toXC, numberToLetters } from "./helpers";
+import { args, toBoolean, toNumber, toString, getNumbers } from "./functions/arguments";
+import { addFunction } from "./functions/index";
 
 export const __info__ = {};
 export { Spreadsheet } from "./ui/spreadsheet";
-export { addFunction } from "./functions/index";
-export { args, toBoolean, toNumber, toString, getNumbers } from "./functions/arguments";
 export const utils = {
   toXC,
-  numberToLetters
+  numberToLetters,
+  args,
+  toBoolean,
+  toNumber,
+  toString,
+  getNumbers,
+  addFunction
 };
