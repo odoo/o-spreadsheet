@@ -62,6 +62,8 @@ interface AddCellOptions {
   preserveFormatting?: boolean;
 }
 
+const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
+
 /**
  * Add a cell (it recreates a new cell from scratch).
  *
@@ -78,7 +80,7 @@ export function addCell(
   const sheetName = options.sheet || state.activeSheet;
   const sheet = state.sheets.find(s => s.name === sheetName)!;
   const currentCell = sheet.cells[xc];
-  const content = data.content || "";
+  const content = data.content ? data.content.replace(nbspRegexp, " ") : "";
   let type: Cell["type"] = "text";
   let value: Cell["value"] = content;
   let format;
