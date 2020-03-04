@@ -118,6 +118,7 @@ export function validateArguments(args: Arg[]) {
 }
 
 // HELPERS
+
 export function toNumber(value: any): number {
   switch (typeof value) {
     case "number":

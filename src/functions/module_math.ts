@@ -117,6 +117,49 @@ export const COUNTBLANK: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// COUNTUNIQUE
+// -----------------------------------------------------------------------------
+
+function isDefined(value: any): boolean {
+  switch (value) {
+    case undefined:
+      return false;
+    case "":
+      return false;
+    case null:
+      return false;
+    default:
+      return true;
+  }
+}
+
+export const COUNTUNIQUE: FunctionDescription = {
+  description: "Counts number of unique values in a range.",
+  args: args`
+    value1 (any, range) The first value or range to consider for uniqueness.
+    value2 (any, range, optional, repeating) Additional values or ranges to consider for uniqueness.
+  `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let values = new Set();
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (isDefined(j)) {
+              values.add(j);
+            }
+          }
+        }
+      } else if (isDefined(n)) {
+        values.add(n);
+      }
+    }
+    return values.size;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // DECIMAL
 // -----------------------------------------------------------------------------
 export const DECIMAL: FunctionDescription = {

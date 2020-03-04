@@ -1,4 +1,5 @@
 import { functionMap } from "../../src/functions/index";
+import { evaluateCell, evaluateGrid } from "../helpers";
 
 const {
   CEILING,
@@ -212,6 +213,130 @@ describe("math", () => {
     expect(COUNTBLANK(tab1, tab2)).toBe(5);
     expect(COUNTBLANK(cell1, col1, line1, tab1)).toBe(7);
     expect(COUNTBLANK(tab2, line2, col2, cell5)).toBe(9);
+  });
+
+  //----------------------------------------------------------------------------
+  // COUNTUNIQUE
+  //----------------------------------------------------------------------------
+
+  test("COUNTUNIQUE: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=countunique()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=countunique(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=countunique(0)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(1, 2, 3, 1, 2)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=countunique(1,  , 2,  , 3)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=countunique(1.5, 1.4)" })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique("Jean Saisrien", "Jean Prendnote")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique("")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=countunique(" ")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique("2", "-2")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique("2", "")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique("2", " ")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(TRUE, FALSE)" })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique(1, "1", TRUE)' })).toBe(3);
+  });
+
+  test("COUNTUNIQUE: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: " " })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "," })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "1", A3: "2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(
+      1
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=countunique(A2, A3, A4)",
+        A2: "1.4",
+        A3: "-1",
+        A4: "Jean Peuxplus"
+      })
+    ).toBe(3);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: '=" "' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: '=" "' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "  ", A3: '=" "' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: '="  "' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: "42" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: '"42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: "=42" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: '="42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: "=42" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "=42", A3: "=42" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "=42", A3: '="42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(1);
+  });
+
+  test("COUNTUNIQUE: functional tests on simple and cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: " " })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: '=" "' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: " " })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: '=" "' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: " " })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: '=""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: '=" "' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=countunique(42, "42")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: "42" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: '"42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: "=42" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: '="42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: "42" })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: '"42"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: "=42" })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: '="42"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: "1" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: '"1"' })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: "=1" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: '="1"' })).toBe(2);
+  });
+
+  test("COUNTUNIQUE: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=COUNTUNIQUE(B2:D3,B4:D4,E2:E3,E4)",
+
+      A2: "=COUNTUNIQUE(B2:E2)",
+      A3: "=COUNTUNIQUE(B3:E3)",
+      A4: "=COUNTUNIQUE(B4:E4)",
+
+      B1: "=COUNTUNIQUE(B2:B4)",
+      C1: "=COUNTUNIQUE(C2:C4)",
+      D1: "=COUNTUNIQUE(D2:D4)",
+      E1: "=COUNTUNIQUE(E2:E4)",
+
+      B2: "=3",
+      C2: "3",
+      D2: '"3"',
+      E2: '="3"',
+
+      B3: '=" "',
+      C3: "0",
+      D3: "Jean Registre",
+      E3: '"Jean Titouplin"',
+
+      B4: " ",
+      C4: '""',
+      D4: '=""',
+      E4: '" "'
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toEqual(9);
+    expect(gridResult.A2).toEqual(3);
+    expect(gridResult.A3).toEqual(4);
+    expect(gridResult.A4).toEqual(3);
+    expect(gridResult.B1).toEqual(2);
+    expect(gridResult.C1).toEqual(3);
+    expect(gridResult.D1).toEqual(2);
+    expect(gridResult.E1).toEqual(3);
   });
 
   //----------------------------------------------------------------------------
