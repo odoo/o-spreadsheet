@@ -124,6 +124,21 @@ describe("evaluateCells", () => {
     expect(model.state.cells.C6.value).toBe(46.3);
   });
 
+  test("priority of operations", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=1 + 2 * 3");
+    model.setValue("A2", "=-2*-2");
+    model.setValue("A3", "=-2^2");
+    model.setValue("A4", "=-2^2 + 3");
+    model.setValue("A5", "= - 1 + - 2 * - 3");
+
+    expect(model.state.cells.A1.value).toBe(7);
+    expect(model.state.cells.A2.value).toBe(4);
+    expect(model.state.cells.A3.value).toBe(-4);
+    expect(model.state.cells.A4.value).toBe(-1);
+    expect(model.state.cells.A5.value).toBe(5);
+  });
+
   test("various expressions with whitespace", () => {
     const model = new GridModel();
 

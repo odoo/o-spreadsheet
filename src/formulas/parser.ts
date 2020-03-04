@@ -73,13 +73,15 @@ export type AST =
   | ASTUnknown;
 
 const OP_PRIORITY = {
+  "^": 30,
   "*": 20,
   "/": 20,
   ">": 10,
   ">=": 10,
   "<": 10,
   "<=": 10,
-  "=": 10
+  "=": 10,
+  "-": 7,
 };
 
 function bindingPower(token: Token): number {

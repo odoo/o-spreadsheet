@@ -11,7 +11,8 @@ const OPERATOR_MAP = {
   ">=": "GTE",
   ">": "GT",
   "<=": "LTE",
-  "<": "LT"
+  "<": "LT",
+  "^": "POWER"
 };
 
 const UNARY_OPERATOR_MAP = {
