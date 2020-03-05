@@ -45,9 +45,17 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
   }
   const cells = state.cells;
   const visited = {};
-  const ctx = Object.create(functionMap);
-  ctx.getEntity = getEntity;
-  ctx.getEntities = getEntities;
+
+  // Evaluation context
+  // All functions + entity functions
+  const ctx = Object.assign(Object.create(functionMap), {
+    getEntity(type: string, key: string): any {
+      return entity.getEntity(state, type, key);
+    },
+    getEntities(type: string): { [key: string]: any } {
+      return entity.getEntities(state, type);
+    }
+  });
 
   function handleError(e: Error, cell: Cell) {
     if (PENDING.has(cell)) {
@@ -154,14 +162,6 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
       }
     }
     return result;
-  }
-
-  function getEntity(type: string, key: string): any {
-    return entity.getEntity(state, type, key);
-  }
-
-  function getEntities(type: string): { [key: string]: any } {
-    return entity.getEntities(state, type);
   }
 
   if (onlyWaiting) {

@@ -1,10 +1,10 @@
-import { Component, hooks, tags } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { functionMap, functions } from "../src/functions/index";
 import { GridModel } from "../src/model";
-import { Grid } from "../src/ui/grid";
+// import { Grid } from "../src/ui/grid";
 
-const { xml } = tags;
-const { useRef } = hooks;
+// const { xml } = tags;
+// const { useRef } = hooks;
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -55,38 +55,38 @@ export function triggerMouseEvent(
   }
 }
 
-export class GridParent extends Component<any, any> {
-  static template = xml`
-    <div class="parent">
-      <Grid model="model" t-ref="grid"/>
-    </div>`;
+// export class GridParent extends Component<any, any> {
+//   static template = xml`
+//     <div class="parent">
+//       <Grid model="model" t-ref="grid"/>
+//     </div>`;
 
-  static components = { Grid };
-  model: GridModel;
-  grid: any = useRef("grid");
-  constructor(model: GridModel) {
-    super();
+//   static components = { Grid };
+//   model: GridModel;
+//   grid: any = useRef("grid");
+//   constructor(model: GridModel) {
+//     super();
 
-    const uvz = model.updateVisibleZone;
-    model.updateVisibleZone = function(width?: number, height?: number) {
-      // we simulate here a vizible zone of 1000x1000px
-      if (width !== undefined) {
-        uvz.call(this, 1000, 1000);
-      } else {
-        uvz.call(this);
-      }
-    };
-    this.model = model;
-  }
+//   //   const uvz = model.updateVisibleZone;
+//   //   model.updateVisibleZone = function(width?: number, height?: number) {
+//   //     // we simulate here a vizible zone of 1000x1000px
+//   //     if (width !== undefined) {
+//   //       uvz.call(this, 1000, 1000);
+//   //     } else {
+//   //       uvz.call(this);
+//   //     }
+//   //   };
+//     this.model = model;
+//   }
 
-  mounted() {
-    this.model.on("update", this, this.render);
-  }
+//   mounted() {
+//     this.model.on("update", this, this.render);
+//   }
 
-  willUnmount() {
-    this.model.off("update", this);
-  }
-}
+//   willUnmount() {
+//     this.model.off("update", this);
+//   }
+// }
 
 type GridDescr = { [xc: string]: string };
 type GridResult = { [xc: string]: any };
@@ -101,12 +101,13 @@ type GridResult = { [xc: string]: any };
  */
 export function evaluateGrid(grid: GridDescr): GridResult {
   const model = new GridModel();
+  const sheet = model.core.activeSheet.name;
   for (let xc in grid) {
-    model.setValue(xc, grid[xc]);
+    model.dispatch({ sheet, type: "ADD_CELL", xc, content: grid[xc] });
   }
   const result = {};
   for (let xc in grid) {
-    result[xc] = model.state.cells[xc].value;
+    result[xc] = model.core.activeSheet.xcCells[xc].value;
   }
   return result;
 }
@@ -196,23 +197,23 @@ export function patchWaitFunction(): PatchResult {
 
 export const patch = patchWaitFunction();
 
-let timeHandlers: Function[] = [];
-GridModel.setTimeout = cb => {
-  timeHandlers.push(cb);
-};
+// let timeHandlers: Function[] = [];
+// GridModel.setTimeout = cb => {
+//   timeHandlers.push(cb);
+// };
 
-function clearTimers() {
-  let handlers = timeHandlers.slice();
-  timeHandlers = [];
-  for (let cb of handlers) {
-    cb();
-  }
-}
+// function clearTimers() {
+//   let handlers = timeHandlers.slice();
+//   timeHandlers = [];
+//   for (let cb of handlers) {
+//     cb();
+//   }
+// }
 
 export async function waitForRecompute() {
   patch.resolveAll();
   await nextTick();
-  clearTimers();
+  // clearTimers();
 }
 /*
  * Remove all functions from the internal function list.

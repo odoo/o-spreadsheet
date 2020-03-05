@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 
 import { Grid } from "./grid";
 import { GridModel } from "../model/index";
-import { PartialGridDataWithVersion } from "../model/import_export";
+import { PartialGridDataWithVersion } from "../model/types";
 import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
 import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";

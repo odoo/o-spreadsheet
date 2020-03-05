@@ -1,179 +1,94 @@
 import * as owl from "@odoo/owl";
-import * as clipboard from "./clipboard";
-import * as core from "./core";
-import { _evaluateCells } from "./evaluation";
-import * as formatting from "./formatting";
-import * as history from "./history";
-import { exportData, importData, PartialGridDataWithVersion } from "./import_export";
-import * as merges from "./merges";
-import * as entity from "./entity";
-import * as resizing from "./resizing";
-import * as selection from "./selection";
-import * as sheet from "./sheet";
-import { Cell, CURRENT_VERSION, GridState, Style } from "./state";
+import { AbstractPlugin } from "./abstract_plugin";
+import { Core } from "./core/core";
+import { GridHistory } from "./history";
+import { MergePlugin } from "./plugins/merge";
+import { StylePlugin } from "./plugins/style";
+import {
+  GridCommand,
+  GridState,
+  PartialGridDataWithVersion,
+  SpreadSheetState,
+  ViewPort
+} from "./types";
 
-// https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
-type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
+/**
+ * This is the current state version number. It should be incremented each time
+ * a breaking change is made in the way the state is handled, and an upgrade
+ * function should be defined
+ */
+export const CURRENT_VERSION = 1;
+
+// ----------------------------------------------------------------------------
+// GridModel
+// ----------------------------------------------------------------------------
 
 export class GridModel extends owl.core.EventBus {
-  state: GridState;
+  static plugins = [MergePlugin, StylePlugin];
+  core: Core;
+  plugins: AbstractPlugin[] = [];
+  history: GridHistory = new GridHistory();
 
-  // scheduling
-  static setTimeout = window.setTimeout.bind(window);
-  isStarted: boolean = false;
-
-  // derived state
-  selectedCell: Cell | null = null;
-  style: Style = {};
-  isMergeDestructive: boolean = false;
-  aggregate: string | null = null;
+  state: SpreadSheetState;
+  selection: any;
 
   constructor(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
     super();
-    this.state = importData(data);
-    this.computeDerivedState();
-    if (this.state.loadingCells > 0) {
-      this.startScheduler();
+
+    // todo: remove this:
+    (window as any).gridModel = this;
+
+    this.core = new Core(this.history, data);
+    for (let Plugin of GridModel.plugins) {
+      const plugin = new Plugin(this.history, data);
+      this.plugins.push(plugin);
     }
+    this.state = this.getState();
+    this.core.evaluateFormulas();
   }
 
-  load(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
-    this.state = importData(data);
-    this.computeDerivedState();
-    this.trigger("update");
+  undo() {
+    this.history.undo();
   }
 
-  private makeMutation<T>(f: T): OmitFirstArg<T> {
-    return ((...args) => {
-      history.start(this.state);
-      let result = (f as any).call(null, this.state, ...args);
-      history.stop(this.state);
-      this.computeDerivedState();
-      this.trigger("update");
-      if (this.state.loadingCells > 0) {
-        this.startScheduler();
+  redo() {
+    this.history.redo();
+  }
+
+  dispatch(command: GridCommand) {
+    this.history.startTracking();
+    let list = [command];
+    const listeners = [this.core, ...this.plugins];
+    while (list.length) {
+      const current = list.shift()!;
+
+      for (let p of listeners) {
+        const result = p.dispatch(current);
+        if (result) {
+          list.push(...result);
+        }
       }
-      return result;
-    }) as any;
-  }
-
-  private computeDerivedState() {
-    this.selectedCell = core.selectedCell(this.state);
-    this.style = formatting.getStyle(this.state);
-    this.isMergeDestructive = merges.isMergeDestructive(this.state);
-    this.aggregate = core.computeAggregate(this.state);
-  }
-
-  private makeFn<T>(f: T): OmitFirstArg<T> {
-    return ((...args) => (f as any).call(null, this.state, ...args)) as any;
-  }
-
-  private startScheduler() {
-    if (!this.isStarted) {
-      this.isStarted = true;
-      let current = this.state.loadingCells;
-      const recomputeCells = () => {
-        if (this.state.loadingCells !== current) {
-          _evaluateCells(this.state, true);
-          current = this.state.loadingCells;
-          if (current === 0) {
-            this.isStarted = false;
-          }
-          this.computeDerivedState();
-          this.trigger("update");
-        }
-        if (current > 0) {
-          GridModel.setTimeout(recomputeCells, 15);
-        }
-      };
-      GridModel.setTimeout(recomputeCells, 5);
     }
+    this.history.stopTracking();
+    this.core.evaluateFormulas();
+
+    this.state = this.getState();
+    // this.selection = this.core.selection;
   }
 
-  // history
-  // ---------------------------------------------------------------------------
-  undo = this.makeMutation(history.undo);
-  redo = this.makeMutation(history.redo);
+  getState(): SpreadSheetState {
+    let state = this.core.getState();
+    for (let p of this.plugins) {
+      state = p.getState(state);
+    }
+    return state as SpreadSheetState;
+  }
 
-  // core
-  // ---------------------------------------------------------------------------
-  movePosition = this.makeMutation(core.movePosition);
-  getColSize = this.makeFn(core.getColSize);
-  getRowSize = this.makeFn(core.getRowSize);
-  deleteSelection = this.makeMutation(core.deleteSelection);
-  setValue = this.makeMutation(core.setValue);
-  cancelEdition = this.makeMutation(core.cancelEdition);
-  startEditing = this.makeMutation(core.startEditing);
-  stopEditing = this.makeMutation(core.stopEditing);
-  setCurrentContent = this.makeFn(core.setCurrentContent);
-  removeHighlights = this.makeMutation(core.removeHighlights);
-  selectCell = this.makeMutation(core.selectCell);
-  // updateVisibleZone and updateScroll should not be a mutation
-  updateVisibleZone = this.makeFn(core.updateVisibleZone);
-  updateScroll = this.makeFn(core.updateScroll);
-  getCol = this.makeFn(core.getCol);
-  getRow = this.makeFn(core.getRow);
-  formatCell = this.makeFn(core.formatCell);
-
-  // sheets
-  // ---------------------------------------------------------------------------
-  createSheet = this.makeMutation(sheet.createSheet);
-  activateSheet = this.makeMutation(sheet.activateSheet);
-
-  // formatting
-  // ---------------------------------------------------------------------------
-  setBorder = this.makeMutation(formatting.setBorder);
-  setStyle = this.makeMutation(formatting.setStyle);
-  clearFormatting = this.makeMutation(formatting.clearFormatting);
-  setFormat = this.makeMutation(formatting.setFormat);
-
-  // selection
-  // ---------------------------------------------------------------------------
-  updateSelection = this.makeMutation(selection.updateSelection);
-  moveSelection = this.makeMutation(selection.moveSelection);
-  selectColumn = this.makeMutation(selection.selectColumn);
-  selectRow = this.makeMutation(selection.selectRow);
-  selectAll = this.makeMutation(selection.selectAll);
-  setSelectingRange = this.makeFn(selection.setSelectingRange);
-  increaseSelectColumn = this.makeMutation(selection.increaseSelectColumn);
-  increaseSelectRow = this.makeMutation(selection.increaseSelectRow);
-  zoneIsEntireColumn = this.makeFn(selection.zoneIsEntireColumn);
-  zoneIsEntireRow = this.makeFn(selection.zoneIsEntireRow);
-  getActiveCols = this.makeFn(selection.getActiveCols);
-  getActiveRows = this.makeFn(selection.getActiveRows);
-  startNewComposerSelection = this.makeFn(selection.startNewComposerSelection);
-  selectionZoneXC = this.makeFn(selection.selectionZoneXC);
-  addHighlights = this.makeMutation(selection.addHighlights);
-
-  // merges
-  // ---------------------------------------------------------------------------
-  merge = this.makeMutation(merges.merge);
-  unmerge = this.makeMutation(merges.unmerge);
-
-  // clipboard
-  // ---------------------------------------------------------------------------
-  cut = this.makeMutation(clipboard.cut);
-  copy = this.makeMutation(clipboard.copy);
-  paste = this.makeMutation(clipboard.paste);
-  getClipboardContent = this.makeFn(clipboard.getClipboardContent);
-
-  // resizing
-  // ---------------------------------------------------------------------------
-  updateColSize = this.makeMutation(resizing.updateColSize);
-  updateColsSize = this.makeMutation(resizing.updateColsSize);
-  updateRowSize = this.makeMutation(resizing.updateRowSize);
-  updateRowsSize = this.makeMutation(resizing.updateRowsSize);
-  setColSize = this.makeMutation(resizing.setColSize);
-  setRowSize = this.makeMutation(resizing.setRowSize);
-
-  // entity
-  // ---------------------------------------------------------------------------
-  addEntity = this.makeFn(entity.addEntity);
-  removeEntity = this.makeFn(entity.removeEntity);
-  getEntity = this.makeFn(entity.getEntity);
-  getEntities = this.makeFn(entity.getEntities);
-
-  // export
-  // ---------------------------------------------------------------------------
-  exportData = this.makeFn(exportData);
+  getGridState(viewPort: ViewPort): GridState {
+    let state = this.core.getGridState(null, viewPort);
+    for (let p of this.plugins) {
+      state = p.getGridState(state, viewPort);
+    }
+    return state as GridState;
+  }
 }

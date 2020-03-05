@@ -1,10 +1,10 @@
 import * as owl from "@odoo/owl";
 
-import { GridModel, Style } from "../model/index";
+import { GridModel } from "../model/index";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
-import { isEqual } from "../helpers";
+// import { isEqual } from "../helpers";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
@@ -329,7 +329,7 @@ export class TopBar extends Component<any, any> {
   currentFormat = "auto";
   fontSizes = fontSizes;
   model: GridModel = this.props.model;
-  style: Style = {};
+  style: any = {};
   state = useState({
     formatTool: false,
     alignTool: false,
@@ -359,11 +359,11 @@ export class TopBar extends Component<any, any> {
   }
 
   toggleTool(tool) {
-    const value = !this.style[tool];
-    this.useTool(tool, value);
+    // const value = !this.style[tool];
+    // this.useTool(tool, value);
   }
   useTool(tool, value) {
-    this.model.setStyle({ [tool]: value });
+    // this.model.setStyle({ [tool]: value });
   }
 
   toggleMenu(tool) {
@@ -382,76 +382,77 @@ export class TopBar extends Component<any, any> {
 
   updateCellState() {
     const state = this.model.state;
-    this.style = this.model.style;
-    this.fillColor = this.style.fillColor || "white";
-    this.textColor = this.style.textColor || "black";
-    const selection = state.selection;
-    const { top, left, right, bottom } = selection.zones[0];
-    this.cannotMerge = selection.zones.length > 1 || (top === bottom && left === right);
-    this.inMerge = false;
-    if (!this.cannotMerge) {
-      const mergeId = state.mergeCellMap[state.activeXc];
-      this.inMerge = mergeId ? isEqual(selection.zones[0], state.merges[mergeId]) : false;
-    }
-    this.undoTool = state.undoStack.length > 0;
-    this.redoTool = state.redoStack.length > 0;
-    this.paintFormatTool = state.isCopyingFormat;
-    const cell = this.model.selectedCell;
-    if (cell && cell.format) {
-      const format = this.formats.find(f => f.value === cell.format);
-      this.currentFormat = format ? format.name : "";
-    } else {
-      this.currentFormat = "auto";
-    }
+    this.fillColor = state.fillColor;
+    this.textColor = state.textColor;
+    // this.style = this.model.style;
+    // this.textColor = this.style.textColor || "black";
+    // const selection = state.selection;
+    // const { top, left, right, bottom } = selection.zones[0];
+    // this.cannotMerge = selection.zones.length > 1 || (top === bottom && left === right);
+    // this.inMerge = false;
+    // if (!this.cannotMerge) {
+    //   const mergeId = state.mergeCellMap[state.activeXc];
+    //   this.inMerge = mergeId ? isEqual(selection.zones[0], state.merges[mergeId]) : false;
+    // }
+    // this.undoTool = state.undoStack.length > 0;
+    // this.redoTool = state.redoStack.length > 0;
+    // this.paintFormatTool = state.isCopyingFormat;
+    // const cell = this.model.selectedCell;
+    // if (cell && cell.format) {
+    //   const format = this.formats.find(f => f.value === cell.format);
+    //   this.currentFormat = format ? format.name : "";
+    // } else {
+    //   this.currentFormat = "auto";
+    // }
   }
 
   toggleMerge() {
-    if (this.inMerge) {
-      this.model.unmerge();
-    } else {
-      if (this.model.isMergeDestructive) {
-        this.trigger("ask-confirmation", {
-          content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
-          confirm: () => this.model.merge()
-        });
-      } else {
-        this.model.merge();
-      }
-    }
+    // if (this.inMerge) {
+    //   this.model.unmerge();
+    // } else {
+    //   if (this.model.isMergeDestructive) {
+    //     this.trigger("ask-confirmation", {
+    //       content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
+    //       confirm: () => this.model.merge()
+    //     });
+    //   } else {
+    //     this.model.merge();
+    //   }
+    // }
   }
   setColor(target, ev) {
-    const color = ev.target.dataset.color;
-    if (color) {
-      this.model.setStyle({ [target]: color });
-      this.closeMenus();
-    }
+    // const color = ev.target.dataset.color;
+    // if (color) {
+    //   this.model.setStyle({ [target]: color });
+    //   this.closeMenus();
+    // }
   }
   setBorder(command) {
-    this.model.setBorder(command);
+    // this.model.setBorder(command);
   }
   setFormat(ev: MouseEvent) {
-    const format = (ev.target as HTMLElement).dataset.format;
-    if (format) {
-      const formatter = FORMATS.find(f => f.name === format);
-      const value = (formatter && formatter.value) || "";
-      this.model.setFormat(value);
-    }
+    // const format = (ev.target as HTMLElement).dataset.format;
+    // if (format) {
+    // const formatter = FORMATS.find(f => f.name === format);
+    // const value = (formatter && formatter.value) || "";
+    // this.model.setFormat(value);
+    // }
   }
   paintFormat() {
-    this.model.copy({ onlyFormat: true });
+    // this.model.copy({ onlyFormat: true });
   }
   setSize(ev) {
-    const fontSize = parseFloat(ev.target.dataset.size);
-    this.model.setStyle({ fontSize });
+    // const fontSize = parseFloat(ev.target.dataset.size);
+    // this.model.setStyle({ fontSize });
   }
   onSave() {
-    this.trigger("save-content", {
-      data: this.model.exportData()
-    });
+    // this.trigger("save-content", {
+    //   data: this.model.exportData()
+    // });
   }
   onLoad() {
-    this.trigger("load-content", {
-      loadData: data => this.model.load(data)
-    });
+    // this.trigger("load-content", {
+    //   loadData: data => this.model.load(data)
+    // });
   }
 }

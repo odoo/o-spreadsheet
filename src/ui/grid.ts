@@ -1,16 +1,13 @@
 import * as owl from "@odoo/owl";
 import {
   BACKGROUND_GRAY_COLOR,
+  DEFAULT_CELL_HEIGHT,
   HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-  DEFAULT_CELL_HEIGHT
+  SCROLLBAR_WIDTH
 } from "../constants";
-import { GridModel, GridState } from "../model/index";
-import { Composer } from "./composer";
-import { Overlay } from "./overlay";
-import { ContextMenu } from "./context_menu";
-import { isInside } from "../helpers";
-import { drawGrid, getMaxSize, clearCache } from "./grid_renderer";
+import { GridModel } from "../model/index";
+import { SpreadSheetState } from "../model/types";
+import { drawGrid } from "./grid_renderer";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -33,7 +30,7 @@ const { useRef, useExternalListener } = owl.hooks;
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet" t-on-click="focus" t-on-keydown="onKeydown">
     <t t-if="state.isEditing">
-      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
+      <!-- <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" /> -->
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -41,16 +38,16 @@ const TEMPLATE = xml/* xml */ `
       tabindex="-1"
       t-on-contextmenu="toggleContextMenu"
       t-on-wheel="onMouseWheel" />
-    <Overlay model="model" t-on-autoresize="onAutoresize"/>
-    <ContextMenu t-if="contextMenu.isOpen"
+    <!-- <Overlay model="model" t-on-autoresize="onAutoresize"/> -->
+    <!-- <ContextMenu t-if="contextMenu.isOpen"
       model="model"
       position="contextMenu.position"
-      t-on-close.stop="contextMenu.isOpen=false"/>
+      t-on-close.stop="contextMenu.isOpen=false"/> -->
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{state.height}}px"/>
+      <div t-attf-style="width:1px;height:{{state.totalHeight}}px"/>
     </div>
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{state.width}}px"/>
+      <div t-attf-style="height:1px;width:{{state.totalWidth}}px"/>
     </div>
   </div>`;
 
@@ -65,7 +62,6 @@ const CSS = css/* scss */ `
 
     > canvas {
       border-top: 1px solid #aaa;
-      border-bottom: 1px solid #aaa;
 
       &:focus {
         outline: none;
@@ -94,7 +90,7 @@ const CSS = css/* scss */ `
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
-const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
+// const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 
 // -----------------------------------------------------------------------------
 // JS
@@ -103,7 +99,7 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 export class Grid extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Overlay, ContextMenu };
+  // static components = { Composer, Overlay, ContextMenu };
 
   contextMenu = useState({ isOpen: false, position: null } as {
     isOpen: boolean;
@@ -115,10 +111,12 @@ export class Grid extends Component<any, any> {
   vScrollbar = useRef("vscrollbar");
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
-  context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
   model: GridModel = this.props.model;
-  state: GridState = this.model.state;
+  state: SpreadSheetState = this.model.state;
+  // state = {
+  //   isEditing: false
+  // };
   clickedCol = 0;
   clickedRow = 0;
   // last string that was cut or copied. It is necessary so we can make the
@@ -128,27 +126,27 @@ export class Grid extends Component<any, any> {
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
-  keyDownMapping: { [key: string]: Function } = {
-    ENTER: this.model.startEditing,
-    TAB: () => this.model.movePosition(1, 0),
-    "SHIFT+TAB": () => this.model.movePosition(-1, 0),
-    F2: this.model.startEditing,
-    DELETE: this.model.deleteSelection,
-    "CTRL+A": this.model.selectAll,
-    "CTRL+S": () => {
-      this.trigger("save-content", {
-        data: this.model.exportData()
-      });
-    },
-    "CTRL+Z": this.model.undo,
-    "CTRL+Y": this.model.redo
-  };
+  // keyDownMapping: { [key: string]: Function } = {
+  //   ENTER: this.model.startEditing,
+  //   TAB: () => this.model.movePosition(1, 0),
+  //   "SHIFT+TAB": () => this.model.movePosition(-1, 0),
+  //   F2: this.model.startEditing,
+  //   DELETE: this.model.deleteSelection,
+  //   "CTRL+A": this.model.selectAll,
+  //   "CTRL+S": () => {
+  //     this.trigger("save-content", {
+  //       data: this.model.exportData()
+  //     });
+  //   },
+  //   "CTRL+Z": this.model.undo,
+  //   "CTRL+Y": this.model.redo
+  // };
 
-  private processCopyFormat() {
-    if (this.model.state.isCopyingFormat) {
-      this.model.paste({ onlyFormat: true });
-    }
-  }
+  // private processCopyFormat() {
+  // if (this.model.state.isCopyingFormat) {
+  //   this.model.paste({ onlyFormat: true });
+  // }
+  // }
 
   constructor() {
     super(...arguments);
@@ -158,24 +156,19 @@ export class Grid extends Component<any, any> {
   }
 
   mounted() {
-    this.model.on("update", this, clearCache);
     this.focus();
-    this.updateVisibleZone();
     this.drawGrid();
+  }
+
+  async willUpdateProps() {
+    this.state = this.model.state;
   }
 
   willPatch() {
     this.hasFocus = this.el!.contains(document.activeElement);
   }
   patched() {
-    this.updateVisibleZone();
-    this.vScrollbar.el!.scrollTop = this.state.scrollTop;
-    this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
     this.drawGrid();
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
   }
 
   focus() {
@@ -185,24 +178,22 @@ export class Grid extends Component<any, any> {
   }
 
   onScroll() {
-    const scrollTop = this.vScrollbar.el!.scrollTop;
-    const scrollLeft = this.hScrollbar.el!.scrollLeft;
-    if (this.model.updateScroll(scrollTop, scrollLeft)) {
-      this.render();
-    }
+    this.render();
   }
 
-  updateVisibleZone() {
+  drawGrid() {
     const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
     const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
-    this.model.updateVisibleZone(width, height);
-  }
-  drawGrid() {
+    const offsetY = this.vScrollbar.el!.scrollTop;
+    const offsetX = this.hScrollbar.el!.scrollLeft;
+    const viewPort = { width, height, offsetX, offsetY };
+
+    const gridState = this.model.getGridState(viewPort);
+    console.log(gridState);
+
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
     const dpr = window.devicePixelRatio || 1;
-    const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
-    const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     const canvas = this.canvas.el as any;
     const context = canvas.getContext("2d", { alpha: false });
     canvas.style.width = `${width}px`;
@@ -210,10 +201,9 @@ export class Grid extends Component<any, any> {
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    this.context = context;
     context.translate(-0.5, -0.5);
     context.scale(dpr, dpr);
-    drawGrid(context, this.model, width, height);
+    drawGrid(context, gridState);
   }
 
   onMouseWheel(ev: WheelEvent) {
@@ -227,30 +217,30 @@ export class Grid extends Component<any, any> {
   }
 
   onAutoresize(ev: CustomEvent) {
-    const index = ev.detail.index;
-    const col = ev.detail.type === "col";
-    const activeElements = col ? this.model.getActiveCols() : this.model.getActiveRows();
-    if (activeElements.has(index)) {
-      this._resizeElements(col, activeElements);
-    } else {
-      this._resizeElement(col, index);
-    }
+    // const index = ev.detail.index;
+    // const col = ev.detail.type === "col";
+    // const activeElements = col ? this.model.getActiveCols() : this.model.getActiveRows();
+    // if (activeElements.has(index)) {
+    //   this._resizeElements(col, activeElements);
+    // } else {
+    //   this._resizeElement(col, index);
+    // }
   }
 
   _resizeElements(col, activeElts) {
-    for (let elt of activeElts) {
-      const size = getMaxSize(this.context!, this.model, col, elt);
-      if (size !== 0) {
-        col ? this.model.setColSize(elt, size) : this.model.setRowSize(elt, size);
-      }
-    }
+    // for (let elt of activeElts) {
+    //   const size = getMaxSize(this.context!, this.model, col, elt);
+    //   if (size !== 0) {
+    //     col ? this.model.setColSize(elt, size) : this.model.setRowSize(elt, size);
+    //   }
+    // }
   }
 
   _resizeElement(col, index) {
-    const size = getMaxSize(this.context!, this.model, col, index);
-    if (size !== 0) {
-      col ? this.model.setColSize(index, size) : this.model.setRowSize(index, size);
-    }
+    // const size = getMaxSize(this.context!, this.model, col, index);
+    // if (size !== 0) {
+    //   col ? this.model.setColSize(index, size) : this.model.setRowSize(index, size);
+    // }
   }
 
   // ---------------------------------------------------------------------------
@@ -262,55 +252,55 @@ export class Grid extends Component<any, any> {
       // not main button, probably a context menu
       return;
     }
-    const col = this.model.getCol(ev.offsetX);
-    const row = this.model.getRow(ev.offsetY);
-    if (col < 0 || row < 0) {
-      return;
-    }
-    this.clickedCol = col;
-    this.clickedRow = row;
+    // const col = this.model.getCol(ev.offsetX);
+    // const row = this.model.getRow(ev.offsetY);
+    // if (col < 0 || row < 0) {
+    //   return;
+    // }
+    // this.clickedCol = col;
+    // this.clickedRow = row;
 
-    if (ev.shiftKey) {
-      this.model.updateSelection(col, row);
-    } else {
-      this.model.selectCell(col, row, ev.ctrlKey);
-    }
-    let prevCol = col;
-    let prevRow = row;
-    const onMouseMove = ev => {
-      const col = this.model.getCol(ev.offsetX);
-      const row = this.model.getRow(ev.offsetY);
-      if (col < 0 || row < 0) {
-        return;
-      }
-      if (col !== prevCol || row !== prevRow) {
-        prevCol = col;
-        prevRow = row;
-        this.model.updateSelection(col, row);
-      }
-    };
-    const onMouseUp = ev => {
-      if (this.model.state.isSelectingRange) {
-        if (this.composer.comp) {
-          (this.composer.comp as Composer).addTextFromSelection();
-        }
-      }
-      this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-      if (this.model.state.isCopyingFormat) {
-        this.model.paste({ onlyFormat: true });
-      }
-    };
+    // if (ev.shiftKey) {
+    //   this.model.updateSelection(col, row);
+    // } else {
+    //   this.model.selectCell(col, row, ev.ctrlKey);
+    // }
+    // let prevCol = col;
+    // let prevRow = row;
+    // const onMouseMove = ev => {
+    //   const col = this.model.getCol(ev.offsetX);
+    //   const row = this.model.getRow(ev.offsetY);
+    //   if (col < 0 || row < 0) {
+    //     return;
+    //   }
+    //   if (col !== prevCol || row !== prevRow) {
+    //     prevCol = col;
+    //     prevRow = row;
+    //     this.model.updateSelection(col, row);
+    //   }
+    // };
+    // const onMouseUp = ev => {
+    //   if (this.model.state.isSelectingRange) {
+    //     if (this.composer.comp) {
+    //       (this.composer.comp as Composer).addTextFromSelection();
+    //     }
+    //   }
+    //   this.canvas.el!.removeEventListener("mousemove", onMouseMove);
+    //   if (this.model.state.isCopyingFormat) {
+    //     this.model.paste({ onlyFormat: true });
+    //   }
+    // };
 
-    this.canvas.el!.addEventListener("mousemove", onMouseMove);
-    document.body.addEventListener("mouseup", onMouseUp, { once: true });
+    // this.canvas.el!.addEventListener("mousemove", onMouseMove);
+    // document.body.addEventListener("mouseup", onMouseUp, { once: true });
   }
 
   onDoubleClick(ev) {
-    const col = this.model.getCol(ev.offsetX);
-    const row = this.model.getRow(ev.offsetY);
-    if (this.clickedCol === col && this.clickedRow === row) {
-      this.model.startEditing();
-    }
+    // const col = this.model.getCol(ev.offsetX);
+    // const row = this.model.getRow(ev.offsetY);
+    // if (this.clickedCol === col && this.clickedRow === row) {
+    //   this.model.startEditing();
+    // }
   }
 
   // ---------------------------------------------------------------------------
@@ -318,33 +308,31 @@ export class Grid extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   processTabKey(ev: KeyboardEvent) {
-    ev.preventDefault();
-    const deltaX = ev.shiftKey ? -1 : 1;
-    this.model.movePosition(deltaX, 0);
-    return;
+    // ev.preventDefault();
+    // const deltaX = ev.shiftKey ? -1 : 1;
+    // this.model.movePosition(deltaX, 0);
   }
 
   processArrows(ev: KeyboardEvent) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    const deltaMap = {
-      ArrowDown: [0, 1],
-      ArrowLeft: [-1, 0],
-      ArrowRight: [1, 0],
-      ArrowUp: [0, -1]
-    };
-    const delta = deltaMap[ev.key];
-    if (ev.shiftKey) {
-      this.model.moveSelection(delta[0], delta[1]);
-    } else {
-      this.model.movePosition(delta[0], delta[1]);
-    }
-
-    if (this.model.state.isSelectingRange && this.composer.comp) {
-      (this.composer.comp as Composer).addTextFromSelection();
-    } else {
-      this.processCopyFormat();
-    }
+    // ev.preventDefault();
+    // ev.stopPropagation();
+    // const deltaMap = {
+    //   ArrowDown: [0, 1],
+    //   ArrowLeft: [-1, 0],
+    //   ArrowRight: [1, 0],
+    //   ArrowUp: [0, -1]
+    // };
+    // const delta = deltaMap[ev.key];
+    // if (ev.shiftKey) {
+    //   this.model.moveSelection(delta[0], delta[1]);
+    // } else {
+    //   this.model.movePosition(delta[0], delta[1]);
+    // }
+    // if (this.model.state.isSelectingRange && this.composer.comp) {
+    //   (this.composer.comp as Composer).addTextFromSelection();
+    // } else {
+    //   this.processCopyFormat();
+    // }
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -353,78 +341,78 @@ export class Grid extends Component<any, any> {
       return;
     }
 
-    let keyDownString = "";
-    if (ev.ctrlKey) keyDownString += "CTRL+";
-    if (ev.metaKey) keyDownString += "CTRL+";
-    if (ev.altKey) keyDownString += "ALT+";
-    if (ev.shiftKey) keyDownString += "SHIFT+";
-    keyDownString += ev.key.toUpperCase();
+    // let keyDownString = "";
+    // if (ev.ctrlKey) keyDownString += "CTRL+";
+    // if (ev.metaKey) keyDownString += "CTRL+";
+    // if (ev.altKey) keyDownString += "ALT+";
+    // if (ev.shiftKey) keyDownString += "SHIFT+";
+    // keyDownString += ev.key.toUpperCase();
 
-    let handler = this.keyDownMapping[keyDownString];
-    if (handler) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      handler();
-      return;
-    }
-    if (!keyDownMappingIgnore.includes(keyDownString)) {
-      if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
-        // if the user types a character on the grid, it means he wants to start composing the selected cell with that
-        // character
-        ev.preventDefault();
-        ev.stopPropagation();
-        this.model.startEditing(ev.key);
-      }
-    }
+    // let handler = this.keyDownMapping[keyDownString];
+    // if (handler) {
+    //   ev.preventDefault();
+    //   ev.stopPropagation();
+    //   handler();
+    //   return;
+    // }
+    // if (!keyDownMappingIgnore.includes(keyDownString)) {
+    //   if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
+    //     // if the user types a character on the grid, it means he wants to start composing the selected cell with that
+    //     // character
+    //     ev.preventDefault();
+    //     ev.stopPropagation();
+    //     this.model.startEditing(ev.key);
+    //   }
+    // }
   }
 
   copy(cut: boolean, ev: ClipboardEvent) {
     if (document.activeElement !== this.canvas.el) {
       return;
     }
-    if (cut) {
-      this.model.cut();
-    } else {
-      this.model.copy();
-    }
-    const content = this.model.getClipboardContent();
-    this.clipBoardString = content;
-    ev.clipboardData!.setData("text/plain", content);
-    ev.preventDefault();
+    // if (cut) {
+    //   this.model.cut();
+    // } else {
+    //   this.model.copy();
+    // }
+    // const content = this.model.getClipboardContent();
+    // this.clipBoardString = content;
+    // ev.clipboardData!.setData("text/plain", content);
+    // ev.preventDefault();
   }
   paste(ev: ClipboardEvent) {
-    if (document.activeElement !== this.canvas.el) {
-      return;
-    }
-    const clipboardData = ev.clipboardData!;
-    if (clipboardData.types.indexOf("text/plain") > -1) {
-      const content = clipboardData.getData("text/plain");
-      if (this.clipBoardString === content) {
-        // the paste actually comes from o-spreadsheet itself
-        const didPaste = this.model.paste();
-        if (!didPaste) {
-          this.trigger("notify-user", {
-            content: "This operation is not allowed with multiple selections."
-          });
-        }
-      } else {
-        this.model.paste({ clipboardContent: content });
-      }
-    }
+    // if (document.activeElement !== this.canvas.el) {
+    //   return;
+    // }
+    // const clipboardData = ev.clipboardData!;
+    // if (clipboardData.types.indexOf("text/plain") > -1) {
+    //   const content = clipboardData.getData("text/plain");
+    //   if (this.clipBoardString === content) {
+    //     // the paste actually comes from o-spreadsheet itself
+    //     const didPaste = this.model.paste();
+    //     if (!didPaste) {
+    //       this.trigger("notify-user", {
+    //         content: "This operation is not allowed with multiple selections."
+    //       });
+    //     }
+    //   } else {
+    //     this.model.paste({ clipboardContent: content });
+    //   }
+    // }
   }
   toggleContextMenu(ev) {
-    const col = this.model.getCol(ev.offsetX);
-    const row = this.model.getRow(ev.offsetY);
-    if (col < 0 || row < 0) {
-      return;
-    }
-    const zones = this.model.state.selection.zones;
-    const lastZone = zones[zones.length - 1];
-    if (!isInside(col, row, lastZone)) {
-      this.model.selectCell(col, row);
-    }
-    ev.preventDefault();
-    this.contextMenu.isOpen = true;
-    this.contextMenu.position = { x: ev.offsetX, y: ev.offsetY };
+    // const col = this.model.getCol(ev.offsetX);
+    // const row = this.model.getRow(ev.offsetY);
+    // if (col < 0 || row < 0) {
+    //   return;
+    // }
+    // const zones = this.model.state.selection.zones;
+    // const lastZone = zones[zones.length - 1];
+    // if (!isInside(col, row, lastZone)) {
+    //   this.model.selectCell(col, row);
+    // }
+    // ev.preventDefault();
+    // this.contextMenu.isOpen = true;
+    // this.contextMenu.position = { x: ev.offsetX, y: ev.offsetY };
   }
 }
