@@ -131,6 +131,9 @@ abstract class AbstractResizer extends Component<any, any> {
 
   select(ev: MouseEvent) {
     const index = this._getElementIndex(this._getEvOffset(ev));
+    if (index < 0) {
+      return;
+    }
     this.lastElement = index;
     if (ev.shiftKey) {
       this._increaseSelection(index);
