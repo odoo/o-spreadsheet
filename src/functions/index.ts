@@ -1,5 +1,6 @@
 import { Arg, ArgType, validateArguments } from "./arguments";
 import * as logical from "./module_logical";
+import * as lookup from "./module_lookup";
 import * as math from "./module_math";
 import * as operators from "./module_operators";
 import * as statistical from "./module_statistical";
@@ -37,6 +38,7 @@ export const functionMap: { [name: string]: Function } = {};
 
 export { ArgType } from "./arguments";
 
+importFunctions(lookup, "lookup");
 importFunctions(math, "math");
 importFunctions(logical, "logical");
 importFunctions(operators, "operators");
