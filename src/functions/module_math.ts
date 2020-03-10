@@ -589,6 +589,35 @@ export const SQRT: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// SUM
+// -----------------------------------------------------------------------------
+export const SUM: FunctionDescription = {
+  description: "Sum of a series of numbers and/or cells.",
+  args: args`
+      value1 (number, range<number>) The first number or range to add together.
+      value2 (number, range<number>, optional, repeating) Additional numbers or ranges to add to value1.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let sum = 0;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (typeof j === "number") {
+              sum += j;
+            }
+          }
+        }
+      } else {
+        sum += toNumber(n);
+      }
+    }
+    return sum;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // TRUNC
 // -----------------------------------------------------------------------------
 export const TRUNC: FunctionDescription = {
@@ -609,19 +638,6 @@ export const TRUNC: FunctionDescription = {
       _places = Math.trunc(_places);
     }
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
-  }
-};
-
-// -----------------------------------------------------------------------------
-// SUM
-// -----------------------------------------------------------------------------
-export const SUM: FunctionDescription = {
-  description: "Returns the sum of all values in a range.",
-  args: args`number (number,range<number>,repeating)`,
-  returns: ["NUMBER"],
-  compute: function(): number {
-    const numbers = getNumbers(arguments);
-    return numbers.reduce((a, b) => a + b, 0);
   }
 };
 

@@ -22,7 +22,6 @@ const {
   SIN,
   SQRT,
   TRUNC,
-  SUM,
   MIN,
   MAX
 } = functionMap;
@@ -1299,6 +1298,122 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // SUM
+  //----------------------------------------------------------------------------
+
+  test("SUM: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SUM()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SUM(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(1, 2, 3, 1, 2)" })).toBe(9);
+    expect(evaluateCell("A1", { A1: "=SUM(1,  , 2,  , 3)" })).toBe(6);
+    expect(evaluateCell("A1", { A1: "=SUM(1.5, 1.4)" })).toBe(2.9);
+    expect(evaluateCell("A1", { A1: '=SUM("Jean Saigne", "Jean Tanrien")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM("2", "-2")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=SUM("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SUM(TRUE, FALSE)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=SUM(1, "1", TRUE)' })).toBe(3);
+  });
+
+  // prettier-ignore
+  test("SUM: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "," })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "1", A3: "2" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Vier"})).toBe(-8.5);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: "42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: '"42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: "=42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "=42", A3: "=42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "=42", A3: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(0);
+  });
+
+  test("SUM: functional tests on simple and cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SUM(42, "42")' })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '"42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "=42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: "42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: '"42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: "=42" })).toBe(84);
+    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: "1" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: '"1"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: "=1" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: '="1"' })).toBe(1);
+  });
+
+  test("SUM: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=SUM(B2:D3,B4:D4,E2:E3,E4)",
+
+      A2: "=SUM(B2:E2)",
+      A3: "=SUM(B3:E3)",
+      A4: "=SUM(B4:E4)",
+
+      B1: "=SUM(B2:B4)",
+      C1: "=SUM(C2:C4)",
+      D1: "=SUM(D2:D4)",
+      E1: "=SUM(E2:E4)",
+
+      B2: "=3",
+      C2: "3",
+      D2: '"3"',
+      E2: '="3"',
+
+      B3: '=" "',
+      C3: "0",
+      D3: "Jean Bave",
+      E3: '"Jean Darme"',
+
+      B4: " ",
+      C4: '""',
+      D4: '=""',
+      E4: '" "'
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toEqual(6);
+    expect(gridResult.A2).toEqual(6);
+    expect(gridResult.A3).toEqual(0);
+    expect(gridResult.A4).toEqual(0);
+    expect(gridResult.B1).toEqual(3);
+    expect(gridResult.C1).toEqual(3);
+    expect(gridResult.D1).toEqual(0);
+    expect(gridResult.E1).toEqual(0);
+  });
+
+  //----------------------------------------------------------------------------
   // TRUNC
   //----------------------------------------------------------------------------
 
@@ -1351,24 +1466,6 @@ describe("math", () => {
     [42.42, null, 42]
   ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
     expect(TRUNC(a, b)).toBe(expected);
-  });
-
-  test("SUM: add some numbers", () => {
-    expect(SUM(1, 2)).toBe(3);
-    expect(SUM(1, 2, 3)).toBe(6);
-  });
-
-  test("SUM: add some ranges", () => {
-    expect(SUM([[1, 2]])).toBe(3);
-    expect(SUM(1, [[2, 3]])).toBe(6);
-    expect(SUM([[1], [2], [3]])).toBe(6);
-    expect(SUM([[1], [2]], 3)).toBe(6);
-  });
-
-  test("SUM: add a number and a string", () => {
-    expect(SUM([[11, "str"]])).toBe(11);
-    expect(SUM([[11], ["str"]])).toBe(11);
-    expect(() => SUM(11, "str")).toThrowErrorMatchingSnapshot();
   });
 
   test("RAND: return a number", () => {
