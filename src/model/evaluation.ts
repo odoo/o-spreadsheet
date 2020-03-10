@@ -164,7 +164,6 @@ export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
     return result;
   }
 
-
   if (onlyWaiting) {
     const clone: Set<Cell> = new Set(WAITING);
     WAITING.clear();
