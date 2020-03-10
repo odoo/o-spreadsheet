@@ -162,6 +162,12 @@ export const COUNTUNIQUE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DECIMAL
 // -----------------------------------------------------------------------------
+const decimalErrorParameter2 = (parameterName, base, value) => `
+  Function DECIMAL expects the parameter '${parameterName}' 
+  to be a valid base ${base} representation. Change '${parameterName}' 
+  from [${value}] to a valid base ${base} representation.
+`;
+
 export const DECIMAL: FunctionDescription = {
   description: `Converts from another base to decimal.`,
   args: args`
@@ -184,24 +190,18 @@ export const DECIMAL: FunctionDescription = {
       return 0;
     }
 
-    const errorParameter2 = `
-      Function DECIMAL expects the parameter '${DECIMAL.args[0].name}' 
-      to be a valid base ${_base} representation. Change '${DECIMAL.args[0].name}' 
-      from [${_value}] to a valid base ${_base} representation.
-    `;
     /**
      * @compatibility: on Google sheets, expects the parameter 'value' to be positive.
      * Return error if 'value' is positive.
      * Remove '-?' in the next regex to catch this error.
      */
-
     if (!_value.match(/^-?[a-z0-9]+$/i)) {
-      throw new Error(errorParameter2);
+      throw new Error(decimalErrorParameter2(DECIMAL.args[0].name, _base, _value));
     }
 
     const deci = parseInt(_value, _base);
     if (isNaN(deci)) {
-      throw new Error(errorParameter2);
+      throw new Error(decimalErrorParameter2(DECIMAL.args[0].name, _base, _value));
     }
     return deci;
   }
