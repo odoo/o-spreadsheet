@@ -152,3 +152,37 @@ export const COUNT: FunctionDescription = {
     return count;
   }
 };
+
+// -----------------------------------------------------------------------------
+// MAX
+// -----------------------------------------------------------------------------
+export const MAX: FunctionDescription = {
+  description: "Maximum value in a numeric dataset.",
+  args: args`
+      value1 (number, range<number>) The first value or range to consider when calculating the maximum value.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the maximum value.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let max = -Infinity;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (typeof j === "number") {
+              if (max < j) {
+                max = j;
+              }
+            }
+          }
+        }
+      } else {
+        n = toNumber(n);
+        if (max < n) {
+          max = n;
+        }
+      }
+    }
+    return max === -Infinity ? 0 : max;
+  }
+};
