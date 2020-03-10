@@ -6,7 +6,7 @@
  */
 
 import { toXC, numberToLetters } from "./helpers";
-import { args, toBoolean, toNumber, toString, getNumbers } from "./functions/arguments";
+import { args, toBoolean, toNumber, toString } from "./functions/arguments";
 import { addFunction } from "./functions/index";
 
 export const __info__ = {};
@@ -18,6 +18,5 @@ export const utils = {
   toBoolean,
   toNumber,
   toString,
-  getNumbers,
   addFunction
 };

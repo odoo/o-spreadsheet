@@ -196,22 +196,3 @@ export function toBoolean(value: any): boolean {
       return false;
   }
 }
-
-export function getNumbers(args: IArguments): number[] {
-  const result: number[] = [];
-  for (let arg of args) {
-    if (Array.isArray(arg)) {
-      // this is a range
-      for (let i of arg) {
-        for (let val of i) {
-          if (typeof val === "number") {
-            result.push(val);
-          }
-        }
-      }
-    } else {
-      result.push(toNumber(arg));
-    }
-  }
-  return result;
-}

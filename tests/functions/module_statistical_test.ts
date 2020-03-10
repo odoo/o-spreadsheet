@@ -450,4 +450,121 @@ describe("statistical", () => {
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
   });
+
+  //----------------------------------------------------------------------------
+  // MIN
+  //----------------------------------------------------------------------------
+
+  test("MIN: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MIN()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MIN(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(1, 2, 3, 1, 2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MIN(1,  , 2,  , 3)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(1.5, 1.4)" })).toBe(1.4);
+    expect(evaluateCell("A1", { A1: "=MIN(42.42)" })).toBe(42.42);
+    expect(evaluateCell("A1", { A1: '=MIN("Jean Fume", "Jean Dreu")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN("2", "-2")' })).toBe(-2);
+    expect(evaluateCell("A1", { A1: '=MIN("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=MIN(TRUE, FALSE)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=MIN(0, "0", TRUE)' })).toBe(0);
+  });
+
+  // prettier-ignore
+  test("MIN: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: "," })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "1", A3: "2" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3, A4)", A2: "1", A3: "", A4: "2" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Terre"})).toBe(-10);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: " ", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: "24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: '"24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: "=24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "42", A3: '="24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: '"42"', A3: '"24"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: '"42"', A3: "=24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: '"42"', A3: '="24"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "=42", A3: "=24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: "=42", A3: '="24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: '="42"', A3: '="24"' })).toBe(0);
+  });
+
+  test("MIN: functional tests on simple and cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MIN(42, "24")' })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, 42)", A2: "24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, 42)", A2: '"24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, 42)", A2: "=24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, 42)", A2: '="24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "42")', A2: "24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "42")', A2: '"24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "42")', A2: "=24" })).toBe(24);
+    expect(evaluateCell("A1", { A1: '=MIN(A2, "42")', A2: '="24"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, TRUE)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, TRUE)", A2: '"0"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, TRUE)", A2: "=0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MIN(A2, TRUE)", A2: '="0"' })).toBe(1);
+  });
+
+  test("MIN: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=MIN(B2:D3,B4:D4,E2:E3,E4)",
+
+      A2: "=MIN(B2:E2)",
+      A3: "=MIN(B3:E3)",
+      A4: "=MIN(B4:E4)",
+
+      B1: "=MIN(B2:B4)",
+      C1: "=MIN(C2:C4)",
+      D1: "=MIN(D2:D4)",
+      E1: "=MIN(E2:E4)",
+
+      B2: "=9",
+      C2: "9",
+      D2: '"0"',
+      E2: '="0"',
+
+      B3: '=" "',
+      C3: "3",
+      D3: "Jean PERRIN (10 de retrouvés)",
+      E3: '"Jean Boirébienunautre"',
+
+      B4: " ",
+      C4: '""',
+      D4: '=""',
+      E4: '" "'
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toEqual(3);
+    expect(gridResult.A2).toEqual(9);
+    expect(gridResult.A3).toEqual(3);
+    expect(gridResult.A4).toEqual(0);
+    expect(gridResult.B1).toEqual(9);
+    expect(gridResult.C1).toEqual(3);
+    expect(gridResult.D1).toEqual(0);
+    expect(gridResult.E1).toEqual(0);
+  });
 });

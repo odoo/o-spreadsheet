@@ -186,3 +186,37 @@ export const MAX: FunctionDescription = {
     return max === -Infinity ? 0 : max;
   }
 };
+
+// -----------------------------------------------------------------------------
+// MIN
+// -----------------------------------------------------------------------------
+export const MIN: FunctionDescription = {
+  description: "Minimum value in a numeric dataset.",
+  args: args`
+      value1 (number, range<number>) The first value or range to consider when calculating the minimum value.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the minimum value.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let min = Infinity;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (typeof j === "number") {
+              if (j < min) {
+                min = j;
+              }
+            }
+          }
+        }
+      } else {
+        n = toNumber(n);
+        if (n < min) {
+          min = n;
+        }
+      }
+    }
+    return min === Infinity ? 0 : min;
+  }
+};

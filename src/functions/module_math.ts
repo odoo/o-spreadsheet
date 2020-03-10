@@ -1,4 +1,4 @@
-import { args, getNumbers, toNumber, toString } from "./arguments";
+import { args, toNumber, toString } from "./arguments";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------
@@ -638,19 +638,5 @@ export const TRUNC: FunctionDescription = {
       _places = Math.trunc(_places);
     }
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
-  }
-};
-
-// -----------------------------------------------------------------------------
-// MIN
-// -----------------------------------------------------------------------------
-export const MIN: FunctionDescription = {
-  description: "Returns the minimum value.",
-  args: args`number (number,range<number>, repeating)`,
-  returns: ["NUMBER"],
-  compute: function(): number {
-    const numbers = getNumbers(arguments);
-    const min = numbers.reduce((a, b) => Math.min(a, b), Infinity);
-    return min === Infinity ? 0 : min;
   }
 };

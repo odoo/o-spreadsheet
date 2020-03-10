@@ -21,9 +21,7 @@ const {
   ROUNDUP,
   SIN,
   SQRT,
-  TRUNC,
-  MIN,
-  MAX
+  TRUNC
 } = functionMap;
 
 describe("math", () => {
@@ -1466,43 +1464,5 @@ describe("math", () => {
     [42.42, null, 42]
   ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number, casting test", (a, b, expected) => {
     expect(TRUNC(a, b)).toBe(expected);
-  });
-
-  test("RAND: return a number", () => {
-    const random = RAND();
-    expect(typeof random).toBe("number");
-    expect(random).toBeGreaterThanOrEqual(0);
-    expect(random).toBeLessThanOrEqual(1);
-  });
-
-  test("MIN", () => {
-    expect(MIN(0, 1, 2, -1)).toBe(-1);
-    expect(MIN(0, 1, 2)).toBe(0);
-    expect(MIN(1, 2)).toBe(1);
-    expect(MIN(true, 2)).toBe(1);
-    expect(MIN(null, true)).toBe(0);
-    expect(MIN(null, null)).toBe(0);
-    expect(MIN(-5)).toBe(-5);
-    expect(MIN([[1, 2, null, -1]])).toBe(-1);
-    expect(MIN([[null, null, null]])).toBe(0);
-    expect(MIN([[null, null, -1]])).toBe(-1);
-    expect(MIN([[null, 2, null]])).toBe(2);
-    expect(MIN([["one", 22, false]])).toBe(22);
-  });
-
-  test("MAX", () => {
-    expect(MAX(0, 1, 2, -1)).toBe(2);
-    expect(MAX(0, 1, 2)).toBe(2);
-    expect(MAX(1, 2)).toBe(2);
-    expect(MAX(-5)).toBe(-5);
-    expect(MAX(true, 2)).toBe(2);
-    expect(MAX(true, 0)).toBe(1);
-    expect(MAX(null, true)).toBe(1);
-    expect(MAX(null, null)).toBe(0);
-    expect(MAX([[1, 2, null, -1]])).toBe(2);
-    expect(MAX([[null, null, null]])).toBe(0);
-    expect(MAX([[null, null, -1]])).toBe(-1);
-    expect(MAX([[null, 2, null]])).toBe(2);
-    expect(MAX([["onasdfe", -2, true]])).toBe(-2);
   });
 });
