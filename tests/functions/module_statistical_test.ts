@@ -1,4 +1,4 @@
-import { evaluateCell } from "../helpers";
+import { evaluateCell, evaluateGrid } from "../helpers";
 
 describe("statistical", () => {
   //----------------------------------------------------------------------------
@@ -332,5 +332,122 @@ describe("statistical", () => {
     };
     expect(evaluateCell("A1", grid)).toEqual(4);
     expect(evaluateCell("A2", grid)).toEqual(4);
+  });
+
+  //----------------------------------------------------------------------------
+  // MAX
+  //----------------------------------------------------------------------------
+
+  test("MAX: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MAX()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MAX(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(1, 2, 3, 1, 2)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=MAX(1,  , 2,  , 3)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=MAX(1.5, 1.4)" })).toBe(1.5);
+    expect(evaluateCell("A1", { A1: "=MAX(-42.42)" })).toBe(-42.42);
+    expect(evaluateCell("A1", { A1: '=MAX("Jean Fume", "Jean Dreu")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX("2", "-2")' })).toBe(2);
+    expect(evaluateCell("A1", { A1: '=MAX("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=MAX(TRUE, FALSE)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=MAX(0, "0", TRUE)' })).toBe(1);
+  });
+
+  // prettier-ignore
+  test("MAX: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: "," })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "1", A3: "2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3, A4)", A2: "1", A3: "", A4: "2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Terre"})).toBe(1.5);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: " ", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "24", A3: "42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "24", A3: '"42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "24", A3: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "24", A3: '="42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '"24"', A3: '"42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '"24"', A3: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '"24"', A3: '="42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "=24", A3: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "=24", A3: '="42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '="24"', A3: '="42"' })).toBe(0);
+  });
+
+  test("MAX: functional tests on simple and cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MAX(24, "42")' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, 24)", A2: "42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, 24)", A2: '"42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, 24)", A2: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, 24)", A2: '="42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "24")', A2: "42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "24")', A2: '"42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "24")', A2: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=MAX(A2, "24")', A2: '="42"' })).toBe(24);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, TRUE)", A2: "0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, TRUE)", A2: '"0"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, TRUE)", A2: "=0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, TRUE)", A2: '="0"' })).toBe(1);
+  });
+
+  test("MAX: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=MAX(B2:D3,B4:D4,E2:E3,E4)",
+
+      A2: "=MAX(B2:E2)",
+      A3: "=MAX(B3:E3)",
+      A4: "=MAX(B4:E4)",
+
+      B1: "=MAX(B2:B4)",
+      C1: "=MAX(C2:C4)",
+      D1: "=MAX(D2:D4)",
+      E1: "=MAX(E2:E4)",
+
+      B2: "=3",
+      C2: "3",
+      D2: '"9"',
+      E2: '="9"',
+
+      B3: '=" "',
+      C3: "0",
+      D3: "Jean PERRIN (10 de retrouvés)",
+      E3: '"Jean Boirébienunautre"',
+
+      B4: " ",
+      C4: '""',
+      D4: '=""',
+      E4: '" "'
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toEqual(3);
+    expect(gridResult.A2).toEqual(3);
+    expect(gridResult.A3).toEqual(0);
+    expect(gridResult.A4).toEqual(0);
+    expect(gridResult.B1).toEqual(3);
+    expect(gridResult.C1).toEqual(3);
+    expect(gridResult.D1).toEqual(0);
+    expect(gridResult.E1).toEqual(0);
   });
 });

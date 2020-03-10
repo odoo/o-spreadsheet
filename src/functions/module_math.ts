@@ -654,17 +654,3 @@ export const MIN: FunctionDescription = {
     return min === Infinity ? 0 : min;
   }
 };
-
-// -----------------------------------------------------------------------------
-// MAX
-// -----------------------------------------------------------------------------
-export const MAX: FunctionDescription = {
-  description: "Returns the maximum value.",
-  args: args`number (number,range<number>,repeating)`,
-  returns: ["NUMBER"],
-  compute: function(): number {
-    const numbers = getNumbers(arguments);
-    const max = numbers.reduce((a, b) => Math.max(a, b), -Infinity);
-    return max === -Infinity ? 0 : max;
-  }
-};
