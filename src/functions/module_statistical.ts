@@ -1,4 +1,4 @@
-import { args, toNumber, isNumber } from "./arguments";
+import { args, toNumber, isNumber, visitNumbers } from "./arguments";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------
@@ -14,22 +14,10 @@ export const AVERAGE: FunctionDescription = {
   compute: function(): number {
     let sum = 0;
     let count = 0;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (typeof j === "number") {
-              sum += j;
-              count += 1;
-            }
-          }
-        }
-      } else {
-        n = toNumber(n);
-        sum += n;
-        count += 1;
-      }
-    }
+    visitNumbers(arguments, n => {
+      sum += n;
+      count += 1;
+    });
     if (count === 0) {
       throw new Error(`
         Evaluation of function AVERAGE caused a divide by zero error.`);
@@ -165,24 +153,11 @@ export const MAX: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function(): number {
     let max = -Infinity;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (typeof j === "number") {
-              if (max < j) {
-                max = j;
-              }
-            }
-          }
-        }
-      } else {
-        n = toNumber(n);
-        if (max < n) {
-          max = n;
-        }
+    visitNumbers(arguments, n => {
+      if (max < n) {
+        max = n;
       }
-    }
+    });
     return max === -Infinity ? 0 : max;
   }
 };
@@ -199,24 +174,11 @@ export const MIN: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function(): number {
     let min = Infinity;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (typeof j === "number") {
-              if (j < min) {
-                min = j;
-              }
-            }
-          }
-        }
-      } else {
-        n = toNumber(n);
-        if (n < min) {
-          min = n;
-        }
+    visitNumbers(arguments, n => {
+      if (n < min) {
+        min = n;
       }
-    }
+    });
     return min === Infinity ? 0 : min;
   }
 };

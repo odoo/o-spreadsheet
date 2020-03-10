@@ -158,6 +158,22 @@ export function isNumber(value: any): boolean {
   return true;
 }
 
+export function visitNumbers(args: IArguments, cb: (arg: number) => void): void {
+  for (let n of args) {
+    if (Array.isArray(n)) {
+      for (let i of n) {
+        for (let j of i) {
+          if (typeof j === "number") {
+            cb(j);
+          }
+        }
+      }
+    } else {
+      cb(toNumber(n));
+    }
+  }
+}
+
 export function toString(value: any): string {
   switch (typeof value) {
     case "string":

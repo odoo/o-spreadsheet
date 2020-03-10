@@ -1,4 +1,4 @@
-import { args, toNumber, toString } from "./arguments";
+import { args, toNumber, visitNumbers, toString } from "./arguments";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------
@@ -600,19 +600,9 @@ export const SUM: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function(): number {
     let sum = 0;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (typeof j === "number") {
-              sum += j;
-            }
-          }
-        }
-      } else {
-        sum += toNumber(n);
-      }
-    }
+    visitNumbers(arguments, n => {
+      sum += n;
+    });
     return sum;
   }
 };
