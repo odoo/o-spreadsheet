@@ -60,8 +60,6 @@ function linearSearch(range: any[], target: any): number {
   return -1;
 }
 
-const valueNotFound = value => `Did not find value '${value}' in VLOOKUP evaluation.`;
-
 export const VLOOKUP: FunctionDescription = {
   description: `Vertical lookup.`,
   args: args`
@@ -89,7 +87,7 @@ export const VLOOKUP: FunctionDescription = {
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {
-      throw new Error(valueNotFound(search_key));
+      throw new Error(`Did not find value '${search_key}' in VLOOKUP evaluation.`);
     }
   }
 };
