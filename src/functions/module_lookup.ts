@@ -73,17 +73,19 @@ export const VLOOKUP: FunctionDescription = {
   returns: ["ANY"],
   compute: function(search_key: any, range: any[], index: any, is_sorted: any = true): any {
     const _index = Math.trunc(toNumber(index));
-    const _isSorted = toBoolean(is_sorted);
-    const firstCol = range[0];
-    let lineIndex;
     if (_index < 1 || range.length < _index) {
       throw new Error(`VLOOKUP evaluates to an out of bounds range.`);
     }
+
+    const _isSorted = toBoolean(is_sorted);
+    const firstCol = range[0];
+    let lineIndex;
     if (_isSorted) {
       lineIndex = dichotomicPredecessorSearch(firstCol, search_key);
     } else {
       lineIndex = linearSearch(firstCol, search_key);
     }
+
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {

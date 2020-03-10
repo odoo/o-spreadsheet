@@ -12,17 +12,17 @@ export const CEILING: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(value: any, factor: any = 1): number {
-    value = toNumber(value);
-    factor = toNumber(factor);
+    const _value = toNumber(value);
+    const _factor = toNumber(factor);
 
-    if (value > 0 && factor < 0) {
+    if (_value > 0 && _factor < 0) {
       throw new Error(`
         Function CEILING expects the parameter '${CEILING.args[1].name}'
         to be positive when parameter '${CEILING.args[0].name}' is positive.
-        Change '${CEILING.args[1].name}' from [${factor}] to a positive
+        Change '${CEILING.args[1].name}' from [${_factor}] to a positive
         value.`);
     }
-    return factor ? Math.ceil(value / factor) * factor : 0;
+    return _factor ? Math.ceil(_value / _factor) * _factor : 0;
   }
 };
 
@@ -38,21 +38,23 @@ export const CEILING_MATH: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(number: any, significance: any = 1, mode: any = 0): number {
-    significance = toNumber(significance);
-    number = toNumber(number);
-    mode = toNumber(mode);
-
-    if (significance === 0) {
+    let _significance = toNumber(significance);
+    if (_significance === 0) {
       return 0;
     }
-    significance = Math.abs(significance);
-    if (number >= 0) {
-      return Math.ceil(number / significance) * significance;
+
+    const _number = toNumber(number);
+    _significance = Math.abs(_significance);
+    if (_number >= 0) {
+      return Math.ceil(_number / _significance) * _significance;
     }
-    if (mode === 0) {
-      return -Math.floor(Math.abs(number) / significance) * significance;
+
+    const _mode = toNumber(mode);
+    if (_mode === 0) {
+      return -Math.floor(Math.abs(_number) / _significance) * _significance;
     }
-    return -Math.ceil(Math.abs(number) / significance) * significance;
+
+    return -Math.ceil(Math.abs(_number) / _significance) * _significance;
   }
 };
 
@@ -81,9 +83,7 @@ export const COS: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(angle: any): number {
-    angle = toNumber(angle);
-
-    return Math.cos(angle);
+    return Math.cos(toNumber(angle));
   }
 };
 
@@ -169,34 +169,37 @@ export const DECIMAL: FunctionDescription = {
     base (number) The base to convert the value from.
   `,
   returns: ["NUMBER"],
-  compute: function(value: string, base: number): number {
-    value = toString(value);
-    base = toNumber(base);
-    base = Math.floor(base);
-
-    if (base < 2 || base > 36) {
+  compute: function(value: any, base: any): number {
+    let _base = toNumber(base);
+    _base = Math.floor(_base);
+    if (_base < 2 || _base > 36) {
       throw new Error(`
         Function DECIMAL expects the parameter '${DECIMAL.args[1].name}' 
         to be between 2 and 36 inclusive. Change '${DECIMAL.args[1].name}' 
-        from [${base}] to a value between 2 and 36.`);
+        from [${_base}] to a value between 2 and 36.`);
     }
-    if (value === "") {
+
+    const _value = toString(value);
+    if (_value === "") {
       return 0;
     }
+
     const errorParameter2 = `
       Function DECIMAL expects the parameter '${DECIMAL.args[0].name}' 
-      to be a valid base ${base} representation. Change '${DECIMAL.args[0].name}' 
-      from [${value}] to a valid base ${base} representation.
+      to be a valid base ${_base} representation. Change '${DECIMAL.args[0].name}' 
+      from [${_value}] to a valid base ${_base} representation.
     `;
     /**
      * @compatibility: on Google sheets, expects the parameter 'value' to be positive.
      * Return error if 'value' is positive.
      * Remove '-?' in the next regex to catch this error.
      */
-    if (!value.match(/^-?[a-z0-9]+$/i)) {
+
+    if (!_value.match(/^-?[a-z0-9]+$/i)) {
       throw new Error(errorParameter2);
     }
-    const deci = parseInt(value, base);
+
+    const deci = parseInt(_value, _base);
     if (isNaN(deci)) {
       throw new Error(errorParameter2);
     }
@@ -214,8 +217,7 @@ export const DEGREES: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(angle: any): number {
-    angle = toNumber(angle);
-    return (angle * 180) / Math.PI;
+    return (toNumber(angle) * 180) / Math.PI;
   }
 };
 
@@ -230,17 +232,17 @@ export const FLOOR: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(value: any, factor: any = 1): number {
-    value = toNumber(value);
-    factor = toNumber(factor);
+    const _value = toNumber(value);
+    const _factor = toNumber(factor);
 
-    if (value > 0 && factor < 0) {
+    if (_value > 0 && _factor < 0) {
       throw new Error(`
         Function FLOOR expects the parameter '${FLOOR.args[1].name}'
         to be positive when parameter '${FLOOR.args[0].name}' is positive.
-        Change '${FLOOR.args[1].name}' from [${factor}] to a positive
+        Change '${FLOOR.args[1].name}' from [${_factor}] to a positive
         value.`);
     }
-    return factor ? Math.floor(value / factor) * factor : 0;
+    return _factor ? Math.floor(_value / _factor) * _factor : 0;
   }
 };
 
@@ -255,22 +257,23 @@ export const FLOOR_MATH: FunctionDescription = {
     mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.
   `,
   returns: ["NUMBER"],
-  compute: function(number: number, significance: number = 1, mode: number = 0): number {
-    significance = toNumber(significance);
-    number = toNumber(number);
-    mode = toNumber(mode);
-
-    if (significance === 0) {
+  compute: function(number: any, significance: any = 1, mode: any = 0): number {
+    let _significance = toNumber(significance);
+    if (_significance === 0) {
       return 0;
     }
-    significance = Math.abs(significance);
-    if (number >= 0) {
-      return Math.floor(number / significance) * significance;
+
+    const _number = toNumber(number);
+    _significance = Math.abs(_significance);
+    if (_number >= 0) {
+      return Math.floor(_number / _significance) * _significance;
     }
-    if (mode === 0) {
-      return -Math.ceil(Math.abs(number) / significance) * significance;
+
+    const _mode = toNumber(mode);
+    if (_mode === 0) {
+      return -Math.ceil(Math.abs(_number) / _significance) * _significance;
     }
-    return -Math.floor(Math.abs(number) / significance) * significance;
+    return -Math.floor(Math.abs(_number) / _significance) * _significance;
   }
 };
 
@@ -298,10 +301,10 @@ export const ISEVEN: FunctionDescription = {
     value (number) The value to be verified as even.
   `,
   returns: ["BOOLEAN"],
-  compute: function(value: number): boolean {
-    value = toNumber(value);
+  compute: function(value: any): boolean {
+    const _value = toNumber(value);
 
-    return Math.floor(Math.abs(value)) & 1 ? false : true;
+    return Math.floor(Math.abs(_value)) & 1 ? false : true;
   }
 };
 
@@ -330,9 +333,9 @@ export const ISODD: FunctionDescription = {
   `,
   returns: ["BOOLEAN"],
   compute: function(value: any): boolean {
-    value = toNumber(value);
+    const _value = toNumber(value);
 
-    return Math.floor(Math.abs(value)) & 1 ? true : false;
+    return Math.floor(Math.abs(_value)) & 1 ? true : false;
   }
 };
 
@@ -347,19 +350,19 @@ export const MOD: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(dividend: any, divisor: any): number {
-    dividend = toNumber(dividend);
-    divisor = toNumber(divisor);
+    const _divisor = toNumber(divisor);
 
-    if (divisor === 0) {
+    if (_divisor === 0) {
       throw new Error(`
           Function MOD expects the parameter '${MOD.args[1].name}'
           to be different from 0. Change '${MOD.args[1].name}' to 
           a value other than 0.`);
     }
-    const modulus = dividend % divisor;
+    const _dividend = toNumber(dividend);
+    const modulus = _dividend % _divisor;
     // -42 % 10 = -2 but we want 8, so need the code below
-    if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {
-      return modulus + divisor;
+    if ((modulus > 0 && _divisor < 0) || (modulus < 0 && _divisor > 0)) {
+      return modulus + _divisor;
     }
     return modulus;
   }
@@ -375,11 +378,11 @@ export const ODD: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(value: any): number {
-    value = toNumber(value);
+    const _value = toNumber(value);
 
-    let temp = Math.ceil(Math.abs(value));
+    let temp = Math.ceil(Math.abs(_value));
     temp = temp & 1 ? temp : temp + 1;
-    return value < 0 ? -temp : temp;
+    return _value < 0 ? -temp : temp;
   }
 };
 
@@ -406,20 +409,20 @@ export const POWER: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(base: any, exponent: any): number {
-    base = toNumber(base);
-    exponent = toNumber(exponent);
-
-    if (base >= 0) {
-      return Math.pow(base, exponent);
+    const _base = toNumber(base);
+    if (_base >= 0) {
+      return Math.pow(_base, exponent);
     }
-    if (!Number.isInteger(exponent)) {
+
+    const _exponent = toNumber(exponent);
+    if (!Number.isInteger(_exponent)) {
       throw new Error(`
           Function POWER expects the parameter '${POWER.args[1].name}' 
           to be an integer when parameter '${POWER.args[0].name}' is negative.
           Change '${POWER.args[1].name}' 
-          from [${exponent}] to an integer value.`);
+          from [${_exponent}] to an integer value.`);
     }
-    return Math.pow(base, exponent);
+    return Math.pow(_base, _exponent);
   }
 };
 
@@ -445,22 +448,23 @@ export const RANDBETWEEN: FunctionDescription = {
       high (number) The high end of the random range.
     `,
   returns: ["NUMBER"],
-  compute: function(low: number, high: number): number {
-    low = toNumber(low);
-    high = toNumber(high);
+  compute: function(low: any, high: any): number {
+    let _low = toNumber(low);
+    if (!Number.isInteger(_low)) {
+      _low = Math.ceil(_low);
+    }
 
-    if (!Number.isInteger(low)) {
-      low = Math.ceil(low);
+    let _high = toNumber(high);
+    if (!Number.isInteger(_high)) {
+      _high = Math.floor(_high);
     }
-    if (!Number.isInteger(high)) {
-      high = Math.floor(high);
-    }
-    if (high < low) {
+
+    if (_high < _low) {
       throw new Error(`
           Function RANDBETWEEN parameter '${RANDBETWEEN.args[1].name}' value 
-          is ${high}. It should be greater than or equal to [${low}].`);
+          is ${_high}. It should be greater than or equal to [${_low}].`);
     }
-    return low + Math.ceil((high - low + 1) * Math.random()) - 1;
+    return _low + Math.ceil((_high - _low + 1) * Math.random()) - 1;
   }
 };
 
@@ -475,20 +479,20 @@ export const ROUND: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(value: any, places: any = 0): number {
-    value = toNumber(value);
-    places = toNumber(places);
+    const _value = toNumber(value);
+    let _places = toNumber(places);
 
-    const absValue = Math.abs(value);
+    const absValue = Math.abs(_value);
     let tempResult;
-    if (places === 0) {
+    if (_places === 0) {
       tempResult = Math.round(absValue);
     } else {
-      if (!Number.isInteger(places)) {
-        places = Math.trunc(places);
+      if (!Number.isInteger(_places)) {
+        _places = Math.trunc(_places);
       }
-      tempResult = Math.round(absValue * Math.pow(10, places)) / Math.pow(10, places);
+      tempResult = Math.round(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
-    return value >= 0 ? tempResult : -tempResult;
+    return _value >= 0 ? tempResult : -tempResult;
   }
 };
 
@@ -502,21 +506,21 @@ export const ROUNDDOWN: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: number, places: number = 0): number {
-    value = toNumber(value);
-    places = toNumber(places);
+  compute: function(value: any, places: any = 0): number {
+    const _value = toNumber(value);
+    let _places = toNumber(places);
 
-    const absValue = Math.abs(value);
+    const absValue = Math.abs(_value);
     let tempResult;
-    if (places === 0) {
+    if (_places === 0) {
       tempResult = Math.floor(absValue);
     } else {
-      if (!Number.isInteger(places)) {
-        places = Math.trunc(places);
+      if (!Number.isInteger(_places)) {
+        _places = Math.trunc(_places);
       }
-      tempResult = Math.floor(absValue * Math.pow(10, places)) / Math.pow(10, places);
+      tempResult = Math.floor(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
-    return value >= 0 ? tempResult : -tempResult;
+    return _value >= 0 ? tempResult : -tempResult;
   }
 };
 
@@ -530,21 +534,21 @@ export const ROUNDUP: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: number, places: number): number {
-    value = toNumber(value);
-    places = toNumber(places);
+  compute: function(value: any, places: any): number {
+    const _value = toNumber(value);
+    let _places = toNumber(places);
 
-    const absValue = Math.abs(value);
+    const absValue = Math.abs(_value);
     let tempResult;
-    if (places === 0) {
+    if (_places === 0) {
       tempResult = Math.ceil(absValue);
     } else {
-      if (!Number.isInteger(places)) {
-        places = Math.trunc(places);
+      if (!Number.isInteger(_places)) {
+        _places = Math.trunc(_places);
       }
-      tempResult = Math.ceil(absValue * Math.pow(10, places)) / Math.pow(10, places);
+      tempResult = Math.ceil(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
-    return value >= 0 ? tempResult : -tempResult;
+    return _value >= 0 ? tempResult : -tempResult;
   }
 };
 
@@ -558,9 +562,7 @@ export const SIN: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(angle: number): number {
-    angle = toNumber(angle);
-
-    return Math.sin(angle);
+    return Math.sin(toNumber(angle));
   }
 };
 
@@ -573,16 +575,16 @@ export const SQRT: FunctionDescription = {
       value (number) The number for which to calculate the positive square root.
     `,
   returns: ["NUMBER"],
-  compute: function(value: number): number {
-    value = toNumber(value);
+  compute: function(value: any): number {
+    const _value = toNumber(value);
 
-    if (value < 0) {
+    if (_value < 0) {
       throw new Error(`
           Function SQRT parameter '${SQRT.args[0].name}' value is negative. 
           It should be positive or zero. Change '${SQRT.args[0].name}' 
-          from [${value}] to a positive value.`);
+          from [${_value}] to a positive value.`);
     }
-    return Math.sqrt(value);
+    return Math.sqrt(_value);
   }
 };
 
@@ -597,15 +599,16 @@ export const TRUNC: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(value: any, places: any = 0): number {
-    value = toNumber(value);
+    const _value = toNumber(value);
+    let _places = toNumber(places);
 
-    if (places === 0) {
-      return Math.trunc(value);
+    if (_places === 0) {
+      return Math.trunc(_value);
     }
-    if (!Number.isInteger(places)) {
-      places = Math.trunc(places);
+    if (!Number.isInteger(_places)) {
+      _places = Math.trunc(_places);
     }
-    return Math.trunc(value * Math.pow(10, places)) / Math.pow(10, places);
+    return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
   }
 };
 
