@@ -1,6 +1,7 @@
 import { GridModel, CURRENT_VERSION, BorderDescr } from "../../src/model/index";
 import { DEFAULT_STYLE, importData } from "../../src/model/import_export";
 import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
+import "../helpers"; // to have getcontext mocks
 
 describe("data", () => {
   test("give default col size if not specified", () => {

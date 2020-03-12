@@ -1,4 +1,4 @@
-import { GridState } from "./state";
+import { Workbook } from "./types";
 import { updateState } from "./history";
 import { getActiveCols, getActiveRows } from "./selection";
 
@@ -8,7 +8,7 @@ import { getActiveCols, getActiveRows } from "./selection";
  * @param index Index of the column
  * @param delta Delta add to the size
  */
-export function updateColSize(state: GridState, index: number, delta: number) {
+export function updateColSize(state: Workbook, index: number, delta: number) {
   const { cols } = state;
   const col = cols[index];
   updateState(state, ["cols", index, "size"], col.size + delta);
@@ -26,7 +26,7 @@ export function updateColSize(state: GridState, index: number, delta: number) {
  * @param index Index of the row
  * @param delta Delta add to the size
  */
-export function updateRowSize(state: GridState, index: number, delta: number) {
+export function updateRowSize(state: Workbook, index: number, delta: number) {
   const { rows } = state;
   const row = rows[index];
   updateState(state, ["rows", index, "size"], row.size + delta);
@@ -48,7 +48,7 @@ export function updateRowSize(state: GridState, index: number, delta: number) {
  * @param base Index of the based column
  * @param delta Delta to add to the size of the based column
  */
-export function updateColsSize(state: GridState, base: number, delta: number) {
+export function updateColsSize(state: Workbook, base: number, delta: number) {
   const { cols } = state;
   const col = cols[base];
   const size = col.size + delta;
@@ -70,7 +70,7 @@ export function updateColsSize(state: GridState, base: number, delta: number) {
  * @param base Index of the based row
  * @param delta Delta to add to the size of the based row
  */
-export function updateRowsSize(state: GridState, base: number, delta: number) {
+export function updateRowsSize(state: Workbook, base: number, delta: number) {
   const { rows } = state;
   const row = rows[base];
   const size = row.size + delta;
@@ -83,10 +83,10 @@ export function updateRowsSize(state: GridState, base: number, delta: number) {
   }
 }
 
-export function setColSize(state: GridState, col: number, size: number) {
+export function setColSize(state: Workbook, col: number, size: number) {
   updateColSize(state, col, size - state.cols[col].size);
 }
 
-export function setRowSize(state: GridState, row: number, size: number) {
+export function setRowSize(state: Workbook, row: number, size: number) {
   updateRowSize(state, row, size - state.rows[row].size);
 }

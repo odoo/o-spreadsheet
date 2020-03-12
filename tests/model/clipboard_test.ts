@@ -1,4 +1,5 @@
 import { GridModel } from "../../src/model/index";
+import "../canvas.mock";
 
 describe("clipboard", () => {
   test("can copy and paste a cell", () => {

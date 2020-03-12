@@ -2,6 +2,7 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { functionMap, functions } from "../src/functions/index";
 import { GridModel } from "../src/model";
 import { Grid } from "../src/ui/grid";
+import "./canvas.mock";
 
 const { xml } = tags;
 const { useRef } = hooks;
@@ -134,29 +135,6 @@ Component.scheduler.requestAnimationFrame = function(callback: FrameRequestCallb
   return 1;
 };
 
-HTMLCanvasElement.prototype.getContext = jest.fn(function() {
-  return {
-    translate() {},
-    scale() {},
-    clearRect() {},
-    beginPath() {},
-    moveTo() {},
-    lineTo() {},
-    stroke() {},
-    fillRect() {},
-    strokeRect() {},
-    fillText() {},
-    fill() {},
-    save() {},
-    rect() {},
-    clip() {},
-    restore() {},
-    setLineDash() {},
-    measureText() {
-      return { width: 1 };
-    }
-  };
-}) as any;
 interface Deferred extends Promise<any> {
   resolve(val?: any): void;
   reject(): void;

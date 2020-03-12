@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 
 import { Grid } from "./grid";
 import { GridModel } from "../model/index";
-import { PartialGridDataWithVersion } from "../model/import_export";
+import { PartialWorkbookDataWithVersion } from "../model/import_export";
 import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
 import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";
@@ -45,7 +45,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  data: PartialGridDataWithVersion;
+  data: PartialWorkbookDataWithVersion;
 }
 export class Spreadsheet extends Component<any, Props> {
   static template = TEMPLATE;

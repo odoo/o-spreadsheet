@@ -1,4 +1,5 @@
 import { GridModel } from "../../src/model/index";
+import "../canvas.mock";
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {

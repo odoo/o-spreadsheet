@@ -1,6 +1,7 @@
-import { GridModel, GridState } from "../../src/model/index";
+import { GridModel, Workbook } from "../../src/model/index";
+import "../helpers"; // to have getcontext mocks
 
-function getBorder(state: GridState, xc: string) {
+function getBorder(state: Workbook, xc: string) {
   const cell = state.cells[xc];
   return cell && cell.border ? state.borders[cell.border] : null;
 }

@@ -1,8 +1,15 @@
-import { Style, Border, GridState, Col, Row, Sheet, Merge, CURRENT_VERSION } from "./state";
+import { Style, Border, Workbook, Col, Row, Sheet, Merge } from "./types";
 import { addCell } from "./core";
 import { numberToLetters, toXC, toCartesian } from "../helpers";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 import { addSheet, activateSheet } from "./sheet";
+
+/**
+ * This is the current state version number. It should be incremented each time
+ * a breaking change is made in the way the state is handled, and an upgrade
+ * function should be defined
+ */
+export const CURRENT_VERSION = 1;
 
 /**
  * Data
@@ -11,13 +18,13 @@ import { addSheet, activateSheet } from "./sheet";
  * how to import and export data.
  *
  * The most important exported values are:
- * - interface GridData: the type of that data that is given to the spreadsheet
- * - function importData: convert from GridData -> GridState
- * - funtion exportData: convert from GridState -> GridData
+ * - interface WorkbookData: the type of that data that is given to the spreadsheet
+ * - function importData: convert from WorkbookData -> Workbook
+ * - function exportData: convert from Workbook -> WorkbookData
  */
 
-export interface PartialGridDataWithVersion extends Partial<GridData> {
-  version: GridData["version"];
+export interface PartialWorkbookDataWithVersion extends Partial<WorkbookData> {
+  version: WorkbookData["version"];
 }
 
 interface CellData {
@@ -41,7 +48,7 @@ interface SheetData {
   rows?: { [key: number]: HeaderData };
 }
 
-interface GridData {
+interface WorkbookData {
   version: number;
   sheets?: SheetData[];
   styles?: { [key: number]: Style };
@@ -67,15 +74,15 @@ export const DEFAULT_STYLE: Style = {
   fontSize: 10
 };
 
-export function importData(data: PartialGridDataWithVersion): GridState {
+export function importData(data: PartialWorkbookDataWithVersion): Workbook {
   if (!data.version) {
     throw new Error("Missing version number");
   }
   // styles and borders
-  const styles: GridState["styles"] = data.styles || {};
+  const styles: Workbook["styles"] = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
-  const borders: GridState["borders"] = data.borders || {};
-  const entities: GridState["entities"] = data.entities || {};
+  const borders: Workbook["borders"] = data.borders || {};
+  const entities: Workbook["entities"] = data.entities || {};
 
   // compute next id
   let nextId = 1;
@@ -87,7 +94,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
   }
   nextId++;
 
-  const state: GridState = {
+  const state: Workbook = {
     rows: [],
     cols: [],
     cells: {},
@@ -145,7 +152,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
 }
 
 function addCols(
-  state: GridState,
+  state: Workbook,
   savedCols: { [key: number]: HeaderData },
   colNumber: number
 ): Col[] {
@@ -166,7 +173,7 @@ function addCols(
 }
 
 function addRows(
-  state: GridState,
+  state: Workbook,
   savedRows: { [key: number]: HeaderData },
   rowNumber: number
 ): Row[] {
@@ -187,7 +194,7 @@ function addRows(
   return rows;
 }
 
-function addMerges(state: GridState, sheet: Sheet, merges: string[]) {
+function addMerges(state: Workbook, sheet: Sheet, merges: string[]) {
   for (let m of merges) {
     let id = state.nextId++;
     const [tl, br] = m.split(":");
@@ -210,7 +217,7 @@ function addMerges(state: GridState, sheet: Sheet, merges: string[]) {
   }
 }
 
-function importSheet(state: GridState, data: SheetData) {
+function importSheet(state: Workbook, data: SheetData) {
   const name = data.name || `Sheet${state.sheets.length + 1}`;
   const sheet: Sheet = {
     name: name,
@@ -266,11 +273,11 @@ function exportMerges(merges: { [key: number]: Merge }): string[] {
   );
 }
 
-export function exportData(state: GridState): GridData {
+export function exportData(state: Workbook): WorkbookData {
   // styles and borders
-  const styles: GridData["styles"] = state.styles || {};
-  const borders: GridData["borders"] = state.borders || {};
-  const entities: GridData["entities"] = state.entities || {};
+  const styles: WorkbookData["styles"] = state.styles || {};
+  const borders: WorkbookData["borders"] = state.borders || {};
+  const entities: WorkbookData["entities"] = state.entities || {};
 
   const sheets: SheetData[] = [];
   for (let sheetName in state.sheets) {
