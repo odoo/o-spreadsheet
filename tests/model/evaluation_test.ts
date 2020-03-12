@@ -142,6 +142,66 @@ describe("evaluateCells", () => {
     expect(model.workbook.cells.A5.value).toBe(5);
   });
 
+  test("various expressions with boolean", () => {
+    const model = new GridModel();
+
+    model.setValue("A1", "FALSE");
+    model.setValue("A2", "TRUE");
+    model.setValue("A3", "false");
+    model.setValue("A4", "true");
+    model.setValue("A5", "FaLsE");
+    model.setValue("A6", "TrUe");
+
+    expect(model.workbook.cells.A1.value).toBe(false);
+    expect(model.workbook.cells.A2.value).toBe(true);
+    expect(model.workbook.cells.A3.value).toBe(false);
+    expect(model.workbook.cells.A4.value).toBe(true);
+    expect(model.workbook.cells.A5.value).toBe(false);
+    expect(model.workbook.cells.A6.value).toBe(true);
+
+    model.setValue("B1", "=FALSE");
+    model.setValue("B2", "=TRUE");
+    model.setValue("B3", "=false");
+    model.setValue("B4", "=true");
+    model.setValue("B5", "=FaLsE");
+    model.setValue("B6", "=TrUe");
+
+    expect(model.workbook.cells.B1.value).toBe(false);
+    expect(model.workbook.cells.B2.value).toBe(true);
+    expect(model.workbook.cells.B3.value).toBe(false);
+    expect(model.workbook.cells.B4.value).toBe(true);
+    expect(model.workbook.cells.B5.value).toBe(false);
+    expect(model.workbook.cells.B6.value).toBe(true);
+
+    model.setValue("A1", " FALSE ");
+    model.setValue("A2", " TRUE ");
+    model.setValue("A3", " false ");
+    model.setValue("A4", " true ");
+    model.setValue("A5", " FaLsE ");
+    model.setValue("A6", " TrUe ");
+
+    expect(model.workbook.cells.A1.value).toBe(" FALSE ");
+    expect(model.workbook.cells.A2.value).toBe(" TRUE ");
+    expect(model.workbook.cells.A3.value).toBe(" false ");
+    expect(model.workbook.cells.A4.value).toBe(" true ");
+    expect(model.workbook.cells.A5.value).toBe(" FaLsE ");
+    expect(model.workbook.cells.A6.value).toBe(" TrUe ");
+
+    model.setValue("B1", "= FALSE ");
+    model.setValue("B2", "= TRUE ");
+    model.setValue("B3", "= false ");
+    model.setValue("B4", "= true ");
+    model.setValue("B5", "= FaLsE ");
+    model.setValue("B6", "= TrUe ");
+
+    expect(model.workbook.cells.B1.value).toBe(false);
+    expect(model.workbook.cells.B2.value).toBe(true);
+    expect(model.workbook.cells.B3.value).toBe(false);
+    expect(model.workbook.cells.B4.value).toBe(true);
+    expect(model.workbook.cells.B5.value).toBe(false);
+    expect(model.workbook.cells.B6.value).toBe(true);
+  });
+
   test("various expressions with whitespace", () => {
     const model = new GridModel();
 
