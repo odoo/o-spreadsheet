@@ -96,6 +96,13 @@ export function addCell(
       format = content.includes(".") ? "0.00%" : "0%";
     }
   }
+  const contentUpperCase = content.toUpperCase();
+  if (contentUpperCase === "TRUE") {
+    value = true;
+  }
+  if (contentUpperCase === "FALSE") {
+    value = false;
+  }
   const cell: Cell = { col, row, xc, content, value, type };
   const style = "style" in data ? data.style : currentCell && currentCell.style;
   const border = "border" in data ? data.border : currentCell && currentCell.border;
