@@ -8,9 +8,6 @@ import {
 } from "../../src/constants";
 import { lettersToNumber } from "../../src/helpers";
 
-jest.mock("../../src/ui/grid_renderer");
-const { getMaxSize } = require("../../src/ui/grid_renderer");
-
 let fixture: HTMLElement;
 let model: GridModel;
 
@@ -68,7 +65,7 @@ async function resizeColumn(letter: string, delta: number) {
  * @param letter Name of the column to double click on (Starts at 'A')
  */
 async function dblClickColumn(letter: string) {
-  getMaxSize.mockImplementation(() => 1000);
+  GridModel.prototype.getMaxSize = () => 1000;
   const index = lettersToNumber(letter);
   const x = model.state.cols[index].right;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
@@ -108,7 +105,7 @@ async function resizeRow(index: number, delta: number) {
  * @param letter Number of the row to double click on (Starts at 0)
  */
 async function dblClickRow(index: number) {
-  getMaxSize.mockImplementation(() => 1000);
+  GridModel.prototype.getMaxSize = () => 1000;
   const y = model.state.rows[index].bottom;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();

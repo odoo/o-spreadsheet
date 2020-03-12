@@ -1,7 +1,7 @@
 import { functionMap } from "../functions/index";
 import { toCartesian } from "../helpers";
 import * as entity from "./entity";
-import { Cell, GridState, Sheet } from "./state";
+import { Cell, Workbook, Sheet } from "./types";
 
 /**
  * For all cells that are being currently computed (asynchronously).
@@ -31,11 +31,11 @@ const WAITING: Set<Cell> = new Set();
  */
 const COMPUTED: Set<Cell> = new Set();
 
-export function evaluateCells(state: GridState) {
+export function evaluateCells(state: Workbook) {
   _evaluateCells(state, false);
 }
 
-export function _evaluateCells(state: GridState, onlyWaiting: boolean) {
+export function _evaluateCells(state: Workbook, onlyWaiting: boolean) {
   const sheets: { [name: string]: Sheet } = {};
   for (let sheet of state.sheets) {
     sheets[sheet.name] = sheet;

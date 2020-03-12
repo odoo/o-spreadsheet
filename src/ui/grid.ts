@@ -1,16 +1,16 @@
 import * as owl from "@odoo/owl";
 import {
   BACKGROUND_GRAY_COLOR,
+  DEFAULT_CELL_HEIGHT,
   HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-  DEFAULT_CELL_HEIGHT
+  SCROLLBAR_WIDTH
 } from "../constants";
-import { GridModel, GridState } from "../model/index";
-import { Composer } from "./composer";
-import { Overlay } from "./overlay";
-import { ContextMenu } from "./context_menu";
 import { isInside } from "../helpers";
-import { drawGrid, getMaxSize, clearCache } from "./grid_renderer";
+import { GridModel, Workbook } from "../model/index";
+import { Composer } from "./composer";
+import { ContextMenu } from "./context_menu";
+import { drawGrid } from "./grid_renderer";
+import { Overlay } from "./overlay";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -118,7 +118,7 @@ export class Grid extends Component<any, any> {
   context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
   model: GridModel = this.props.model;
-  state: GridState = this.model.state;
+  state: Workbook = this.model.state;
   clickedCol = 0;
   clickedRow = 0;
   // last string that was cut or copied. It is necessary so we can make the
@@ -158,9 +158,7 @@ export class Grid extends Component<any, any> {
   }
 
   mounted() {
-    this.model.on("update", this, clearCache);
     this.focus();
-    this.updateVisibleZone();
     this.drawGrid();
   }
 
@@ -168,14 +166,9 @@ export class Grid extends Component<any, any> {
     this.hasFocus = this.el!.contains(document.activeElement);
   }
   patched() {
-    this.updateVisibleZone();
     this.vScrollbar.el!.scrollTop = this.state.scrollTop;
     this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
     this.drawGrid();
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
   }
 
   focus() {
@@ -192,17 +185,15 @@ export class Grid extends Component<any, any> {
     }
   }
 
-  updateVisibleZone() {
+  drawGrid() {
     const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
     const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
+    const offsetX = this.hScrollbar.el!.scrollLeft;
+    const offsetY = this.vScrollbar.el!.scrollTop;
     this.model.updateVisibleZone(width, height);
-  }
-  drawGrid() {
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
     const dpr = window.devicePixelRatio || 1;
-    const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
-    const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     const canvas = this.canvas.el as any;
     const context = canvas.getContext("2d", { alpha: false });
     canvas.style.width = `${width}px`;
@@ -213,7 +204,9 @@ export class Grid extends Component<any, any> {
     this.context = context;
     context.translate(-0.5, -0.5);
     context.scale(dpr, dpr);
-    drawGrid(context, this.model, width, height);
+
+    const viewport = this.model.getViewport(width, height, offsetX, offsetY);
+    drawGrid(context, this.model.state, viewport);
   }
 
   onMouseWheel(ev: WheelEvent) {
@@ -239,7 +232,7 @@ export class Grid extends Component<any, any> {
 
   _resizeElements(col, activeElts) {
     for (let elt of activeElts) {
-      const size = getMaxSize(this.context!, this.model, col, elt);
+      const size = this.model.getMaxSize(col, elt);
       if (size !== 0) {
         col ? this.model.setColSize(elt, size) : this.model.setRowSize(elt, size);
       }
@@ -247,7 +240,7 @@ export class Grid extends Component<any, any> {
   }
 
   _resizeElement(col, index) {
-    const size = getMaxSize(this.context!, this.model, col, index);
+    const size = this.model.getMaxSize(col, index);
     if (size !== 0) {
       col ? this.model.setColSize(index, size) : this.model.setRowSize(index, size);
     }

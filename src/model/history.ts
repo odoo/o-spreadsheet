@@ -1,4 +1,4 @@
-import { Cell, GridState, HistoryChange, HistoryStep } from "./state";
+import { Cell, Workbook, HistoryChange, HistoryStep } from "./types";
 import { evaluateCells } from "./evaluation";
 
 /**
@@ -19,7 +19,7 @@ export const MAX_HISTORY_STEPS = 99;
  *
  * @see stop method
  */
-export function start(state: GridState) {
+export function start(state: Workbook) {
   const step: HistoryStep = { batch: [] };
   state.undoStack.push(step);
   state.trackChanges = true;
@@ -32,7 +32,7 @@ export function start(state: GridState) {
  * After each mutation, we need to stop tracking changes. This is the purpose
  * of this method.
  */
-export function stop(state: GridState) {
+export function stop(state: Workbook) {
   const lastStep = state.undoStack[state.undoStack.length - 1];
   state.trackChanges = false;
   if (lastStep.batch.length === 0) {
@@ -50,7 +50,7 @@ export function stop(state: GridState) {
  * step in the undo
  * @param state
  */
-export function undo(state: GridState) {
+export function undo(state: Workbook) {
   const prev = state.undoStack.pop()!; // need to remove empty step created in model undo
   const step = state.undoStack.pop();
   state.undoStack.push(prev);
@@ -65,7 +65,7 @@ export function undo(state: GridState) {
   evaluateCells(state);
 }
 
-export function redo(state: GridState) {
+export function redo(state: Workbook) {
   const step = state.redoStack.pop();
   if (!step) {
     return;
@@ -92,11 +92,11 @@ function applyChange(change: HistoryChange, target: "before" | "after") {
   }
 }
 
-export function updateState(state: GridState, path: (string | number)[], val: any) {
+export function updateState(state: Workbook, path: (string | number)[], val: any) {
   _updateState(state, state, path, val);
 }
 
-function _updateState(state: GridState, root: any, path: (string | number)[], val: any) {
+function _updateState(state: Workbook, root: any, path: (string | number)[], val: any) {
   let value = root as any;
   let key = path[path.length - 1];
   for (let p of path.slice(0, -1)) {
@@ -122,7 +122,7 @@ function _updateState(state: GridState, root: any, path: (string | number)[], va
 }
 
 export function updateCell<T extends keyof Cell>(
-  state: GridState,
+  state: Workbook,
   cell: Cell,
   key: T,
   value: Cell[T]

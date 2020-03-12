@@ -6,197 +6,36 @@ import {
   HEADER_WIDTH
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { overlap, toXC } from "../helpers";
-import { Border, Cell, GridModel, GridState, Style, Zone } from "../model/index";
-
-interface Box {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  text: string;
-  textWidth: number;
-  style: Style | null;
-  border: Border | null;
-  align: "left" | "right" | null;
-  clipRect: Rect | null;
-  isError?: boolean;
-}
-
-type Rect = [number, number, number, number];
-
-let valuesCache: { [xc: string]: string } = {};
+import { Box, Rect, UI, Viewport, Zone } from "../model/index";
 
 let dpr = window.devicePixelRatio || 1;
 let thinLineWidth = 0.4 * dpr;
 
-export function drawGrid(
-  context: CanvasRenderingContext2D,
-  model: GridModel,
-  width: number,
-  height: number
-) {
-  (window as any).gridmodel = model; // to debug. remove this someday
-
+export function drawGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Viewport) {
   // 1. initial setup, clear canvas, collect info
   dpr = window.devicePixelRatio || 1;
   thinLineWidth = 0.4 * dpr;
-  context.fillStyle = model.state.styles[0].fillColor || "white";
-  context.fillRect(0, 0, width, height);
-  const boxes = getGridBoxes(model, context);
+  ctx.fillStyle = state.styles[0].fillColor || "white";
+  ctx.fillRect(0, 0, viewport.width, viewport.height);
+
   // 2. draw grid content
-  drawBackgroundGrid(model.state, context);
-  drawBackgrounds(boxes, context);
-  drawBorders(boxes, context);
-  drawTexts(boxes, context);
+  drawBackgroundGrid(ctx, state, viewport);
+  drawBackgrounds(ctx, viewport.boxes);
+  drawBorders(ctx, viewport.boxes);
+  drawTexts(ctx, viewport.boxes);
 
   // 3. draw additional chrome: selection, clipboard, headers, ...
-  drawHighlights(model.state, context);
-  drawClipBoard(model.state, context);
-  drawSelection(model.state, context);
-  drawHeader(model, context);
-  drawActiveZone(model.state, context);
+  drawHighlights(ctx, state);
+  drawClipBoard(ctx, state);
+  drawSelection(ctx, state);
+  drawHeader(ctx, state, viewport);
+  drawActiveZone(ctx, state);
 }
 
-function formatCell(model: GridModel, cell: Cell) {
-  let value = valuesCache[cell.xc];
-  if (value) {
-    return value;
-  }
-  value = model.formatCell(cell);
-  valuesCache[cell.xc] = value;
-  return value;
-}
-
-export function clearCache() {
-  valuesCache = {};
-}
-
-function hasContent(state: GridState, col: number, row: number): boolean {
-  const { cells, mergeCellMap } = state;
-  const xc = toXC(col, row);
-  const cell = cells[xc];
-  return (cell && cell.content) || ((xc in mergeCellMap) as any);
-}
-
-function getGridBoxes(model: GridModel, ctx: CanvasRenderingContext2D): Box[] {
-  const result: Box[] = [];
-  const state = model.state;
-  const { cols, rows, viewport, mergeCellMap, offsetX, offsetY, merges } = state;
-  const { cells } = state;
-  const { right, left, top, bottom } = viewport;
-  // process all visible cells
-  for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
-    let row = rows[rowNumber];
-    for (let colNumber = left; colNumber <= right; colNumber++) {
-      let cell = row.cells[colNumber];
-      if (cell && !(cell.xc in mergeCellMap)) {
-        let col = cols[colNumber];
-        const text = formatCell(model, cell);
-        const textWidth = getCellWidth(cell, model, ctx);
-        const style = cell.style ? state.styles[cell.style] : null;
-        const align = text
-          ? (style && style.align) || (cell.type === "text" ? "left" : "right")
-          : null;
-        let clipRect: Rect | null = null;
-        if (text && textWidth > cols[cell.col].size) {
-          if (align === "left") {
-            let c = cell.col;
-            while (c < right && !hasContent(state, c + 1, cell.row)) {
-              c++;
-            }
-            const width = cols[c].right - col.left;
-            if (width < textWidth) {
-              clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
-            }
-          } else {
-            let c = cell.col;
-            while (c > left && !hasContent(state, c - 1, cell.row)) {
-              c--;
-            }
-            const width = col.right - cols[c].left;
-            if (width < textWidth) {
-              clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
-            }
-          }
-        }
-
-        result.push({
-          x: col.left - offsetX,
-          y: row.top - offsetY,
-          width: col.size,
-          height: row.size,
-          text,
-          textWidth,
-          border: cell.border ? state.borders[cell.border] : null,
-          style,
-          align,
-          clipRect,
-          isError: cell.error
-        });
-      }
-    }
-  }
-  // process all visible merges
-  for (let id in merges) {
-    let merge = merges[id];
-    if (overlap(merge, viewport)) {
-      const refCell = cells[merge.topLeft];
-      const width = cols[merge.right].right - cols[merge.left].left;
-      let text, textWidth, style, align, border;
-      if (refCell) {
-        text = refCell ? formatCell(model, refCell) : "";
-        textWidth = getCellWidth(refCell, model, ctx);
-        style = refCell.style ? state.styles[refCell.style] : {};
-        align = text
-          ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
-          : null;
-        border = refCell.border ? state.borders[refCell.border] : null;
-      }
-      style = style || {};
-      if (!style.fillColor) {
-        style = Object.create(style);
-        style.fillColor = "#fff";
-      }
-
-      const x = cols[merge.left].left - offsetX;
-      const y = rows[merge.top].top - offsetY;
-      const height = rows[merge.bottom].bottom - rows[merge.top].top;
-      result.push({
-        x: x,
-        y: y,
-        width,
-        height,
-        text,
-        textWidth,
-        border,
-        style,
-        align,
-        clipRect: [x, y, width, height],
-        isError: refCell ? refCell.error : false
-      });
-    }
-  }
-  return result;
-}
-
-function getCellWidth(cell: Cell, model: GridModel, ctx: CanvasRenderingContext2D): number {
-  if (cell.width) {
-    return cell.width;
-  }
-  const style = model.state.styles[cell ? cell.style || 0 : 0];
-  const italic = style.italic ? "italic " : "";
-  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-  const size = fontSizeMap[sizeInPt];
-  ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-  cell.width = ctx.measureText(formatCell(model, cell)).width;
-  return cell.width;
-}
-
-function drawBackgroundGrid(state: GridState, ctx: CanvasRenderingContext2D) {
-  const { viewport, rows, cols, height, offsetX, offsetY, width } = state;
-  const { top, left, bottom, right } = viewport;
+function drawBackgroundGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Viewport) {
+  const { viewport: _viewport, rows, cols, offsetX, offsetY } = state;
+  const { width, height } = viewport;
+  const { top, left, bottom, right } = _viewport;
 
   ctx.lineWidth = 0.4 * thinLineWidth;
   ctx.strokeStyle = "#222";
@@ -220,7 +59,7 @@ function drawBackgroundGrid(state: GridState, ctx: CanvasRenderingContext2D) {
   ctx.stroke();
 }
 
-function drawBackgrounds(boxes: Box[], ctx: CanvasRenderingContext2D) {
+function drawBackgrounds(ctx: CanvasRenderingContext2D, boxes: Box[]) {
   ctx.lineWidth = 0.3 * thinLineWidth;
   const inset = 0.1 * thinLineWidth;
   ctx.strokeStyle = "#111";
@@ -243,7 +82,7 @@ function drawBackgrounds(boxes: Box[], ctx: CanvasRenderingContext2D) {
   }
 }
 
-function drawBorders(boxes: Box[], ctx: CanvasRenderingContext2D) {
+function drawBorders(ctx: CanvasRenderingContext2D, boxes: Box[]) {
   for (let box of boxes) {
     // fill color
     let border = box.border;
@@ -273,7 +112,7 @@ function drawBorders(boxes: Box[], ctx: CanvasRenderingContext2D) {
   }
 }
 
-function drawTexts(boxes: Box[], ctx: CanvasRenderingContext2D) {
+function drawTexts(ctx: CanvasRenderingContext2D, boxes: Box[]) {
   ctx.textBaseline = "middle";
   let currentFont;
   for (let box of boxes) {
@@ -320,7 +159,7 @@ function drawTexts(boxes: Box[], ctx: CanvasRenderingContext2D) {
   }
 }
 
-function drawSelection(state: GridState, ctx: CanvasRenderingContext2D) {
+function drawSelection(ctx: CanvasRenderingContext2D, state: UI) {
   const { selection } = state;
   const { zones } = selection;
   ctx.fillStyle = "#f3f7fe";
@@ -340,7 +179,7 @@ function drawSelection(state: GridState, ctx: CanvasRenderingContext2D) {
   ctx.globalCompositeOperation = "source-over";
 }
 
-function drawActiveZone(state: GridState, ctx: CanvasRenderingContext2D) {
+function drawActiveZone(ctx: CanvasRenderingContext2D, state: UI) {
   const { mergeCellMap } = state;
   ctx.strokeStyle = "#3266ca";
   ctx.lineWidth = 3 * thinLineWidth;
@@ -361,7 +200,7 @@ function drawActiveZone(state: GridState, ctx: CanvasRenderingContext2D) {
   }
 }
 
-function getRect(zone: Zone, state: GridState): Rect {
+function getRect(zone: Zone, state: UI): Rect {
   const { left, top, right, bottom } = zone;
   const { cols, rows, offsetY, offsetX } = state;
   const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
@@ -371,7 +210,7 @@ function getRect(zone: Zone, state: GridState): Rect {
   return [x, y, width, height];
 }
 
-function drawHighlights(state: GridState, ctx: CanvasRenderingContext2D) {
+function drawHighlights(ctx: CanvasRenderingContext2D, state: UI) {
   ctx.lineWidth = 3 * thinLineWidth;
   for (let h of state.highlights) {
     const [x, y, width, height] = getRect(h.zone, state);
@@ -382,7 +221,7 @@ function drawHighlights(state: GridState, ctx: CanvasRenderingContext2D) {
   }
 }
 
-function drawClipBoard(state: GridState, ctx: CanvasRenderingContext2D) {
+function drawClipBoard(ctx: CanvasRenderingContext2D, state: UI) {
   const { clipboard } = state;
   if (clipboard.status !== "visible" || !clipboard.zones.length) {
     return;
@@ -400,8 +239,8 @@ function drawClipBoard(state: GridState, ctx: CanvasRenderingContext2D) {
   ctx.restore();
 }
 
-function drawHeader(model: GridModel, ctx: CanvasRenderingContext2D) {
-  const { state, zoneIsEntireColumn, zoneIsEntireRow } = model;
+function drawHeader(ctx: CanvasRenderingContext2D, state: UI, viewportState: Viewport) {
+  const { activeCols, activeRows } = viewportState;
   const { selection, viewport, width, height, cols, rows, offsetX, offsetY } = state;
   const { top, left, bottom, right } = viewport;
 
@@ -422,9 +261,9 @@ function drawHeader(model: GridModel, ctx: CanvasRenderingContext2D) {
     const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
     const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
     const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].bottom - offsetY);
-    ctx.fillStyle = zoneIsEntireColumn(zone) ? "#595959" : "#dddddd";
+    ctx.fillStyle = activeCols.has(zone.left) ? "#595959" : "#dddddd";
     ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-    ctx.fillStyle = zoneIsEntireRow(zone) ? "#595959" : "#dddddd";
+    ctx.fillStyle = activeRows.has(zone.top) ? "#595959" : "#dddddd";
     ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
   }
 
@@ -437,7 +276,6 @@ function drawHeader(model: GridModel, ctx: CanvasRenderingContext2D) {
   ctx.stroke();
 
   ctx.beginPath();
-  const activeCols = model.getActiveCols();
   // column text + separator
   for (let i = left; i <= right; i++) {
     const col = cols[i];
@@ -447,7 +285,6 @@ function drawHeader(model: GridModel, ctx: CanvasRenderingContext2D) {
     ctx.lineTo(col.right - offsetX, HEADER_HEIGHT);
   }
   // row text + separator
-  const activeRows = model.getActiveRows();
   for (let i = top; i <= bottom; i++) {
     const row = rows[i];
     ctx.fillStyle = activeRows.has(i) ? "#fff" : "#111";
@@ -458,38 +295,4 @@ function drawHeader(model: GridModel, ctx: CanvasRenderingContext2D) {
   }
 
   ctx.stroke();
-}
-
-/**
- * Return the max size of the text in a row/col
- * @param context Canvas context
- * @param _model Model
- * @param col True if the size it's a column, false otherwise
- * @param index Index of the row/col
- *
- * @returns Max size of the row/col
- */
-export function getMaxSize(
-  ctx: CanvasRenderingContext2D,
-  model: GridModel,
-  col: boolean,
-  index: number
-): number {
-  let size = 0;
-  const state = model.state;
-  const headers = state[col ? "rows" : "cols"];
-  for (let i = 0; i < headers.length; i++) {
-    const cell = state.rows[col ? i : index].cells[col ? index : i];
-    if (cell) {
-      if (col) {
-        size = Math.max(size, getCellWidth(cell, model, ctx));
-      } else {
-        const style = state.styles[cell ? cell.style || 0 : 0];
-        const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-        const fontSize = fontSizeMap[sizeInPt];
-        size = Math.max(size, fontSize);
-      }
-    }
-  }
-  return size ? size + 6 : 0;
 }

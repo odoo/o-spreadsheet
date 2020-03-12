@@ -1,4 +1,4 @@
-import { GridModel, GridState, CURRENT_VERSION } from "../../src/model/index";
+import { GridModel, Workbook, CURRENT_VERSION } from "../../src/model/index";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -258,7 +258,7 @@ describe("merges", () => {
   });
 });
 
-function getStyle(state: GridState, xc: string) {
+function getStyle(state: Workbook, xc: string) {
   const cell = state.cells[xc];
   return cell && cell.style && state.styles[cell.style];
 }

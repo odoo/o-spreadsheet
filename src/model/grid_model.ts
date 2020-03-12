@@ -4,19 +4,29 @@ import * as core from "./core";
 import { _evaluateCells } from "./evaluation";
 import * as formatting from "./formatting";
 import * as history from "./history";
-import { exportData, importData, PartialGridDataWithVersion } from "./import_export";
+import {
+  exportData,
+  importData,
+  PartialWorkbookDataWithVersion,
+  CURRENT_VERSION
+} from "./import_export";
 import * as merges from "./merges";
 import * as entity from "./entity";
 import * as resizing from "./resizing";
 import * as selection from "./selection";
 import * as sheet from "./sheet";
-import { Cell, CURRENT_VERSION, GridState, Style } from "./state";
+import { Cell, Workbook, Style, Box, Rect, Viewport } from "./types";
+import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../constants";
+import { fontSizeMap } from "../fonts";
+import { toXC, overlap } from "../helpers";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
 
 export class GridModel extends owl.core.EventBus {
-  state: GridState;
+  state: Workbook;
+
+  private ctx: CanvasRenderingContext2D;
 
   // scheduling
   static setTimeout = window.setTimeout.bind(window);
@@ -28,8 +38,11 @@ export class GridModel extends owl.core.EventBus {
   isMergeDestructive: boolean = false;
   aggregate: string | null = null;
 
-  constructor(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
+  constructor(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
     super();
+    (window as any).gridmodel = this; // to debug. remove this someday
+
+    this.ctx = document.createElement("canvas").getContext("2d")!;
     this.state = importData(data);
     this.computeDerivedState();
     if (this.state.loadingCells > 0) {
@@ -37,7 +50,7 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  load(data: PartialGridDataWithVersion = { version: CURRENT_VERSION }) {
+  load(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
     this.state = importData(data);
     this.computeDerivedState();
     this.trigger("update");
@@ -176,4 +189,163 @@ export class GridModel extends owl.core.EventBus {
   // export
   // ---------------------------------------------------------------------------
   exportData = this.makeFn(exportData);
+
+  getCellWidth(cell: Cell): number {
+    const style = this.state.styles[cell ? cell.style || 0 : 0];
+    const italic = style.italic ? "italic " : "";
+    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+    const size = fontSizeMap[sizeInPt];
+    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+    return this.ctx.measureText(this.formatCell(cell)).width;
+  }
+
+  /**
+   * Return the max size of the text in a row/col
+   * @param context Canvas context
+   * @param _model Model
+   * @param col True if the size it's a column, false otherwise
+   * @param index Index of the row/col
+   *
+   * @returns Max size of the row/col
+   */
+  getMaxSize(col: boolean, index: number): number {
+    let size = 0;
+    const state = this.state;
+    const headers = state[col ? "rows" : "cols"];
+    for (let i = 0; i < headers.length; i++) {
+      const cell = state.rows[col ? i : index].cells[col ? index : i];
+      if (cell) {
+        if (col) {
+          size = Math.max(size, this.getCellWidth(cell));
+        } else {
+          const style = state.styles[cell ? cell.style || 0 : 0];
+          const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+          const fontSize = fontSizeMap[sizeInPt];
+          size = Math.max(size, fontSize);
+        }
+      }
+    }
+    return size ? size + 6 : 0;
+  }
+
+  getViewport(width: number, height: number, offsetX: number, offsetY: number): Viewport {
+    return {
+      width,
+      height,
+      offsetX,
+      offsetY,
+      boxes: getGridBoxes(this),
+      activeCols: selection.getActiveCols(this.state),
+      activeRows: selection.getActiveRows(this.state)
+    };
+  }
+}
+
+function hasContent(state: Workbook, col: number, row: number): boolean {
+  const { cells, mergeCellMap } = state;
+  const xc = toXC(col, row);
+  const cell = cells[xc];
+  return (cell && cell.content) || ((xc in mergeCellMap) as any);
+}
+
+function getGridBoxes(model: GridModel): Box[] {
+  const result: Box[] = [];
+  const state = model.state;
+  const { cols, rows, viewport, mergeCellMap, offsetX, offsetY, merges } = state;
+  const { cells } = state;
+  const { right, left, top, bottom } = viewport;
+  // process all visible cells
+  for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
+    let row = rows[rowNumber];
+    for (let colNumber = left; colNumber <= right; colNumber++) {
+      let cell = row.cells[colNumber];
+      if (cell && !(cell.xc in mergeCellMap)) {
+        let col = cols[colNumber];
+        const text = model.formatCell(cell);
+        const textWidth = model.getCellWidth(cell);
+        const style = cell.style ? state.styles[cell.style] : null;
+        const align = text
+          ? (style && style.align) || (cell.type === "text" ? "left" : "right")
+          : null;
+        let clipRect: Rect | null = null;
+        if (text && textWidth > cols[cell.col].size) {
+          if (align === "left") {
+            let c = cell.col;
+            while (c < right && !hasContent(state, c + 1, cell.row)) {
+              c++;
+            }
+            const width = cols[c].right - col.left;
+            if (width < textWidth) {
+              clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
+            }
+          } else {
+            let c = cell.col;
+            while (c > left && !hasContent(state, c - 1, cell.row)) {
+              c--;
+            }
+            const width = col.right - cols[c].left;
+            if (width < textWidth) {
+              clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
+            }
+          }
+        }
+
+        result.push({
+          x: col.left - offsetX,
+          y: row.top - offsetY,
+          width: col.size,
+          height: row.size,
+          text,
+          textWidth,
+          border: cell.border ? state.borders[cell.border] : null,
+          style,
+          align,
+          clipRect,
+          isError: cell.error
+        });
+      }
+    }
+  }
+  // process all visible merges
+  for (let id in merges) {
+    let merge = merges[id];
+    if (overlap(merge, viewport)) {
+      const refCell = cells[merge.topLeft];
+      const width = cols[merge.right].right - cols[merge.left].left;
+      let text, textWidth, style, align, border;
+      if (refCell) {
+        text = refCell ? model.formatCell(refCell) : "";
+        textWidth = model.getCellWidth(refCell);
+        style = refCell.style ? state.styles[refCell.style] : {};
+        align = text
+          ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
+          : null;
+        border = refCell.border ? state.borders[refCell.border] : null;
+      }
+      style = style || {};
+      if (!style.fillColor) {
+        style = Object.create(style);
+        style.fillColor = "#fff";
+      }
+
+      const x = cols[merge.left].left - offsetX;
+      const y = rows[merge.top].top - offsetY;
+      const height = rows[merge.bottom].bottom - rows[merge.top].top;
+      result.push({
+        x: x,
+        y: y,
+        width,
+        height,
+        text,
+        textWidth,
+        border,
+        style,
+        align,
+        clipRect: [x, y, width, height],
+        isError: refCell ? refCell.error : false
+      });
+    }
+  }
+  return result;
 }

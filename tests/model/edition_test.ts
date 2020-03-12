@@ -1,4 +1,5 @@
 import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import "../helpers"; // to have getcontext mocks
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {

@@ -1,11 +1,11 @@
 import { isEqual, toCartesian, toXC, union } from "../helpers";
-import { Zone, GridState } from "./state";
+import { Zone, Workbook } from "./types";
 import { stopEditing, activateCell } from "./core";
 
 /**
  * Add all necessary merge to the current selection to make it valid
  */
-function expandZone(state: GridState, zone: Zone): Zone {
+function expandZone(state: Workbook, zone: Zone): Zone {
   let { left, right, top, bottom } = zone;
   let result: Zone = { left, right, top, bottom };
   for (let i = left; i <= right; i++) {
@@ -19,7 +19,7 @@ function expandZone(state: GridState, zone: Zone): Zone {
   return isEqual(result, zone) ? result : expandZone(state, result);
 }
 
-export function moveSelection(state: GridState, deltaX: number, deltaY: number) {
+export function moveSelection(state: Workbook, deltaX: number, deltaY: number) {
   const selection = state.selection.zones[state.selection.zones.length - 1];
   const anchorCol = state.selection.anchor.col;
   const anchorRow = state.selection.anchor.row;
@@ -69,7 +69,7 @@ export function moveSelection(state: GridState, deltaX: number, deltaY: number) 
   }
 }
 
-export function selectColumn(state: GridState, col: number, addToCurrent: boolean) {
+export function selectColumn(state: Workbook, col: number, addToCurrent: boolean) {
   stopEditing(state);
   activateCell(state, col, 0);
   const selection = {
@@ -86,7 +86,7 @@ export function selectColumn(state: GridState, col: number, addToCurrent: boolea
   }
 }
 
-export function selectRow(state: GridState, row: number, addToCurrent: boolean) {
+export function selectRow(state: Workbook, row: number, addToCurrent: boolean) {
   stopEditing(state);
   activateCell(state, 0, row);
   const selection = {
@@ -103,7 +103,7 @@ export function selectRow(state: GridState, row: number, addToCurrent: boolean) 
   }
 }
 
-export function selectAll(state: GridState) {
+export function selectAll(state: Workbook) {
   stopEditing(state);
   activateCell(state, 0, 0);
   const selection = {
@@ -119,7 +119,7 @@ export function selectAll(state: GridState) {
 /**
  * Update the current selection to include the cell col/row.
  */
-export function updateSelection(state: GridState, col: number, row: number) {
+export function updateSelection(state: Workbook, col: number, row: number) {
   const anchorCol = state.selection.anchor.col;
   const anchorRow = state.selection.anchor.row;
   const zone: Zone = {
@@ -135,11 +135,11 @@ export function updateSelection(state: GridState, col: number, row: number) {
  * set the flag that allow the user to make a selection using the mouse and keyboard, this selection will be
  * reflected in the composer
  */
-export function setSelectingRange(state: GridState, isSelecting: boolean) {
+export function setSelectingRange(state: Workbook, isSelecting: boolean) {
   state.isSelectingRange = isSelecting;
 }
 
-export function increaseSelectColumn(state: GridState, col: number) {
+export function increaseSelectColumn(state: Workbook, col: number) {
   const anchorCol = state.selection.anchor.col;
   const zone: Zone = {
     left: Math.min(anchorCol, col),
@@ -150,7 +150,7 @@ export function increaseSelectColumn(state: GridState, col: number) {
   state.selection.zones[state.selection.zones.length - 1] = zone;
 }
 
-export function increaseSelectRow(state: GridState, row: number) {
+export function increaseSelectRow(state: Workbook, row: number) {
   const anchorRow = state.selection.anchor.row;
   const zone: Zone = {
     left: 0,
@@ -161,15 +161,15 @@ export function increaseSelectRow(state: GridState, row: number) {
   state.selection.zones[state.selection.zones.length - 1] = zone;
 }
 
-export function zoneIsEntireColumn(state: GridState, zone: Zone) {
+export function zoneIsEntireColumn(state: Workbook, zone: Zone) {
   return zone.top === 0 && zone.bottom === state.rows.length - 1;
 }
 
-export function zoneIsEntireRow(state: GridState, zone: Zone) {
+export function zoneIsEntireRow(state: Workbook, zone: Zone) {
   return zone.left === 0 && zone.right === state.cols.length - 1;
 }
 
-export function getActiveCols(state: GridState): Set<number> {
+export function getActiveCols(state: Workbook): Set<number> {
   const activeCols = new Set<number>();
   for (let zone of state.selection.zones) {
     if (zoneIsEntireColumn(state, zone)) {
@@ -181,7 +181,7 @@ export function getActiveCols(state: GridState): Set<number> {
   return activeCols;
 }
 
-export function getActiveRows(state: GridState): Set<number> {
+export function getActiveRows(state: Workbook): Set<number> {
   const activeRows = new Set<number>();
   for (let zone of state.selection.zones) {
     if (zoneIsEntireRow(state, zone)) {
@@ -193,7 +193,7 @@ export function getActiveRows(state: GridState): Set<number> {
   return activeRows;
 }
 
-export function startNewComposerSelection(state: GridState): void {
+export function startNewComposerSelection(state: Workbook): void {
   state.selection.anchor = { row: state.activeRow, col: state.activeCol };
 }
 
@@ -209,7 +209,7 @@ export function startNewComposerSelection(state: GridState): void {
  * if A1:B2 is a merge:
  * {top:0,left:0,right:1,bottom:1} ==> A1
  */
-export function selectionZoneXC(state: GridState): string {
+export function selectionZoneXC(state: Workbook): string {
   const zone = state.selection.zones[0];
   const topLeft = toXC(zone.left, zone.top);
   const botRight = toXC(zone.right, zone.bottom);
@@ -221,7 +221,7 @@ export function selectionZoneXC(state: GridState): string {
   return topLeft;
 }
 
-export function addHighlights(state: GridState, rangesUsed: { [keys: string]: string }) {
+export function addHighlights(state: Workbook, rangesUsed: { [keys: string]: string }) {
   let highlights = Object.keys(rangesUsed)
     .map(r1c1 => {
       const ranges = r1c1.split(":");

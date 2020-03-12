@@ -1,4 +1,4 @@
-import { GridState, Sheet, Col, Row } from ".";
+import { Workbook, Sheet, Col, Row } from ".";
 import { updateState } from "./history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { evaluateCells } from "./evaluation";
@@ -40,7 +40,7 @@ function createDefaultRows(rowNumber: number): Row[] {
   return rows;
 }
 
-export function createSheet(state: GridState) {
+export function createSheet(state: Workbook) {
   const sheet: Sheet = {
     name: `Sheet${state.sheets.length + 1}`,
     cells: {},
@@ -55,13 +55,13 @@ export function createSheet(state: GridState) {
   activateSheet(state, sheet.name);
 }
 
-export function addSheet(state: GridState, sheet: Sheet) {
+export function addSheet(state: Workbook, sheet: Sheet) {
   const sheets = state.sheets.slice();
   sheets.push(sheet);
   updateState(state, ["sheets"], sheets);
 }
 
-export function activateSheet(state: GridState, name: string) {
+export function activateSheet(state: Workbook, name: string) {
   const sheet = state.sheets.find(s => s.name === name)!;
   updateState(state, ["activeSheet"], name);
 

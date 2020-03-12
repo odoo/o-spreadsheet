@@ -1,7 +1,7 @@
 import { stringify, toXC } from "../helpers";
 import { addCell, deleteCell, getCell, selectedCell } from "./core";
 import { updateCell } from "./history";
-import { Border, BorderCommand, GridState, Style, Zone } from "./state";
+import { Border, BorderCommand, Workbook, Style, Zone } from "./types";
 
 /**
  * All things related to:
@@ -14,7 +14,7 @@ import { Border, BorderCommand, GridState, Style, Zone } from "./state";
 // Styles
 // ---------------------------------------------------------------------------
 
-export function setStyle(state: GridState, style: Style) {
+export function setStyle(state: Workbook, style: Style) {
   for (let zone of state.selection.zones) {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
@@ -27,7 +27,7 @@ export function setStyle(state: GridState, style: Style) {
 /**
  * Note that here, formatting refers to styles+border, not value formatters
  */
-export function clearFormatting(state: GridState) {
+export function clearFormatting(state: Workbook) {
   for (let zone of state.selection.zones) {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
@@ -37,7 +37,7 @@ export function clearFormatting(state: GridState) {
   }
 }
 
-function removeFormatting(state: GridState, col: number, row: number) {
+function removeFormatting(state: Workbook, col: number, row: number) {
   const cell = getCell(state, col, row);
   if (cell) {
     if (cell.content) {
@@ -48,12 +48,12 @@ function removeFormatting(state: GridState, col: number, row: number) {
   }
 }
 
-export function getStyle(state: GridState): Style {
+export function getStyle(state: Workbook): Style {
   const cell = selectedCell(state);
   return cell && cell.style ? state.styles[cell.style] : {};
 }
 
-function setStyleToCell(state: GridState, col: number, row: number, style) {
+function setStyleToCell(state: Workbook, col: number, row: number, style) {
   const cell = getCell(state, col, row);
   const currentStyle = cell && cell.style ? state.styles[cell.style] : {};
   const nextStyle = Object.assign({}, currentStyle, style);
@@ -67,7 +67,7 @@ function setStyleToCell(state: GridState, col: number, row: number, style) {
   }
 }
 
-function registerStyle(state: GridState, style) {
+function registerStyle(state: Workbook, style) {
   const strStyle = stringify(style);
   for (let k in state.styles) {
     if (stringify(state.styles[k]) === strStyle) {
@@ -104,13 +104,13 @@ function getTargetZone(zone: Zone, side: string): Zone {
   }
   return zone;
 }
-export function setBorder(state: GridState, command: BorderCommand) {
+export function setBorder(state: Workbook, command: BorderCommand) {
   for (let zone of state.selection.zones) {
     setBorderToZone(state, zone, command);
   }
 }
 
-function setBorderToZone(state: GridState, zone: Zone, command: BorderCommand) {
+function setBorderToZone(state: Workbook, zone: Zone, command: BorderCommand) {
   if (command === "clear") {
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -158,7 +158,7 @@ function setBorderToZone(state: GridState, zone: Zone, command: BorderCommand) {
   }
 }
 
-function clearBorder(state: GridState, col: number, row: number) {
+function clearBorder(state: Workbook, col: number, row: number) {
   const cell = getCell(state, col, row);
   if (cell) {
     if (!cell.content && !cell.style) {
@@ -181,7 +181,7 @@ function clearBorder(state: GridState, col: number, row: number) {
   }
 }
 
-function clearSide(state: GridState, col: number, row: number, side: string) {
+function clearSide(state: Workbook, col: number, row: number, side: string) {
   const cell = getCell(state, col, row);
   if (cell && cell.border) {
     const border = state.borders[cell.border];
@@ -198,7 +198,7 @@ function clearSide(state: GridState, col: number, row: number, side: string) {
   }
 }
 
-function setBorderToCell(state: GridState, col: number, row: number, border: Border) {
+function setBorderToCell(state: Workbook, col: number, row: number, border: Border) {
   const cell = getCell(state, col, row);
   const currentBorder = cell && cell.border ? state.borders[cell.border] : {};
   const nextBorder = Object.assign({}, currentBorder, border);
@@ -211,7 +211,7 @@ function setBorderToCell(state: GridState, col: number, row: number, border: Bor
   }
 }
 
-function registerBorder(state: GridState, border: Border) {
+function registerBorder(state: Workbook, border: Border) {
   const strBorder = stringify(border);
   for (let k in state.borders) {
     if (stringify(state.borders[k]) === strBorder) {
@@ -227,7 +227,7 @@ function registerBorder(state: GridState, border: Border) {
 // Value formatters
 // ---------------------------------------------------------------------------
 
-export function setFormat(state: GridState, format: string) {
+export function setFormat(state: Workbook, format: string) {
   for (let zone of state.selection.zones) {
     for (let rowIndex = zone.top; rowIndex <= zone.bottom; rowIndex++) {
       const row = state.rows[rowIndex];

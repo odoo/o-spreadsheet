@@ -1,4 +1,5 @@
 import { GridModel } from "../../src/model/index";
+import "../canvas.mock";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {

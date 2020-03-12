@@ -1,4 +1,5 @@
 import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import "../helpers"; // to have getcontext mocks
 
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
