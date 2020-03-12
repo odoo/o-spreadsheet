@@ -1,4 +1,5 @@
 import { Cell, GridState, HistoryChange, HistoryStep } from "./state";
+import { evaluateCells } from "./evaluation";
 
 /**
  * History Management System
@@ -61,6 +62,7 @@ export function undo(state: GridState) {
     let change = step.batch[i];
     applyChange(change, "before");
   }
+  evaluateCells(state);
 }
 
 export function redo(state: GridState) {
@@ -74,6 +76,7 @@ export function redo(state: GridState) {
   for (let change of step.batch) {
     applyChange(change, "after");
   }
+  evaluateCells(state);
 }
 
 function applyChange(change: HistoryChange, target: "before" | "after") {

@@ -67,4 +67,13 @@ describe("history", () => {
     model.undo();
     expect(model.state.cells.A1.content).toBe(String(MAX_HISTORY_STEPS - 1));
   });
+
+  test("undo recomputes the cells", () => {
+    const model = new GridModel();
+    model.setValue("A1", "=A2");
+    model.setValue("A2", "11");
+    expect(model.state.cells.A1.value).toBe(11);
+    model.undo();
+    expect(model.state.cells.A1.value).toBe(null);
+  });
 });
