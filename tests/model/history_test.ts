@@ -75,5 +75,7 @@ describe("history", () => {
     expect(model.state.cells.A1.value).toBe(11);
     model.undo();
     expect(model.state.cells.A1.value).toBe(null);
+    model.redo();
+    expect(model.state.cells.A1.value).toBe(11);
   });
 });
