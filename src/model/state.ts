@@ -16,10 +16,10 @@
 export const CURRENT_VERSION = 1;
 
 // -----------------------------------------------------------------------------
-// Types
+// Workbook state
 // -----------------------------------------------------------------------------
 
-export interface GridState {
+export interface WorkBookState {
   rows: Row[];
   cols: Col[];
   cells: { [key: string]: Cell };
@@ -41,8 +41,6 @@ export interface GridState {
   // headers)
   offsetX: number;
   offsetY: number;
-  scrollTop: number;
-  scrollLeft: number;
 
   viewport: Zone;
   selection: Selection;
@@ -60,15 +58,69 @@ export interface GridState {
   redoStack: HistoryStep[];
   nextId: number;
   highlights: Highlight[];
-  isSelectingRange: boolean;
-  isCopyingFormat: boolean;
-
+  
   loadingCells: number;
-
+  
   // sheets
   sheets: Sheet[];
   activeSheet: string;
+  isCopyingFormat: boolean;
+  scrollTop: number;
+  scrollLeft: number;
+  isSelectingRange: boolean;
 }
+
+// -----------------------------------------------------------------------------
+// Render state
+// -----------------------------------------------------------------------------
+export interface RenderState {
+  isCopyingFormat: boolean;
+  scrollTop: number;
+  scrollLeft: number;
+  isSelectingRange: boolean;
+  selection: Selection;
+
+}
+
+// -----------------------------------------------------------------------------
+// Viewport state
+// -----------------------------------------------------------------------------
+type Rect = [number, number, number, number];
+
+export interface ViewPort {
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+export interface Box {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  text: string;
+  textWidth: number;
+  style: Style | null;
+  border: Border | null;
+  align: "left" | "right" | null;
+  clipRect: Rect | null;
+  isError?: boolean;
+}
+
+export interface ViewPortState {
+  boxes: Box[];
+  width: number;
+  height: number;
+  bgColor: string;
+  selection: Selection;
+  // activeZone: Rect;
+}
+
+// -----------------------------------------------------------------------------
+// Miscellaneous
+// -----------------------------------------------------------------------------
+
 
 export interface HistoryChange {
   root: any;

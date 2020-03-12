@@ -1,4 +1,4 @@
-import { Style, Border, GridState, Col, Row, Sheet, Merge, CURRENT_VERSION } from "./state";
+import { Style, Border, WorkBookState, Col, Row, Sheet, Merge, CURRENT_VERSION } from "./state";
 import { addCell } from "./core";
 import { numberToLetters, toXC, toCartesian } from "../helpers";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
@@ -67,15 +67,15 @@ export const DEFAULT_STYLE: Style = {
   fontSize: 10
 };
 
-export function importData(data: PartialGridDataWithVersion): GridState {
+export function importData(data: PartialGridDataWithVersion): WorkBookState {
   if (!data.version) {
     throw new Error("Missing version number");
   }
   // styles and borders
-  const styles: GridState["styles"] = data.styles || {};
+  const styles: WorkBookState["styles"] = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
-  const borders: GridState["borders"] = data.borders || {};
-  const entities: GridState["entities"] = data.entities || {};
+  const borders: WorkBookState["borders"] = data.borders || {};
+  const entities: WorkBookState["entities"] = data.entities || {};
 
   // compute next id
   let nextId = 1;
@@ -87,7 +87,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
   }
   nextId++;
 
-  const state: GridState = {
+  const state: WorkBookState = {
     rows: [],
     cols: [],
     cells: {},
@@ -145,7 +145,7 @@ export function importData(data: PartialGridDataWithVersion): GridState {
 }
 
 function addCols(
-  state: GridState,
+  state: WorkBookState,
   savedCols: { [key: number]: HeaderData },
   colNumber: number
 ): Col[] {
@@ -166,7 +166,7 @@ function addCols(
 }
 
 function addRows(
-  state: GridState,
+  state: WorkBookState,
   savedRows: { [key: number]: HeaderData },
   rowNumber: number
 ): Row[] {
@@ -187,7 +187,7 @@ function addRows(
   return rows;
 }
 
-function addMerges(state: GridState, sheet: Sheet, merges: string[]) {
+function addMerges(state: WorkBookState, sheet: Sheet, merges: string[]) {
   for (let m of merges) {
     let id = state.nextId++;
     const [tl, br] = m.split(":");
@@ -210,7 +210,7 @@ function addMerges(state: GridState, sheet: Sheet, merges: string[]) {
   }
 }
 
-function importSheet(state: GridState, data: SheetData) {
+function importSheet(state: WorkBookState, data: SheetData) {
   const name = data.name || `Sheet${state.sheets.length + 1}`;
   const sheet: Sheet = {
     name: name,
@@ -266,7 +266,7 @@ function exportMerges(merges: { [key: number]: Merge }): string[] {
   );
 }
 
-export function exportData(state: GridState): GridData {
+export function exportData(state: WorkBookState): GridData {
   // styles and borders
   const styles: GridData["styles"] = state.styles || {};
   const borders: GridData["borders"] = state.borders || {};

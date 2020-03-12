@@ -1,16 +1,11 @@
 import * as owl from "@odoo/owl";
-import {
-  BACKGROUND_GRAY_COLOR,
-  HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-  DEFAULT_CELL_HEIGHT
-} from "../constants";
-import { GridModel, GridState } from "../model/index";
-import { Composer } from "./composer";
-import { Overlay } from "./overlay";
-import { ContextMenu } from "./context_menu";
+import { BACKGROUND_GRAY_COLOR, DEFAULT_CELL_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../constants";
 import { isInside } from "../helpers";
-import { drawGrid, getMaxSize, clearCache } from "./grid_renderer";
+import { GridModel, RenderState } from "../model/index";
+import { Composer } from "./composer";
+import { ContextMenu } from "./context_menu";
+import { drawGrid, getMaxSize } from "./grid_renderer";
+import { Overlay } from "./overlay";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -118,7 +113,7 @@ export class Grid extends Component<any, any> {
   context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
   model: GridModel = this.props.model;
-  state: GridState = this.model.state;
+  state: RenderState = this.model.renderState;
   clickedCol = 0;
   clickedRow = 0;
   // last string that was cut or copied. It is necessary so we can make the
@@ -145,7 +140,7 @@ export class Grid extends Component<any, any> {
   };
 
   private processCopyFormat() {
-    if (this.model.state.isCopyingFormat) {
+    if (this.model.renderState.isCopyingFormat) {
       this.model.paste({ onlyFormat: true });
     }
   }
@@ -158,9 +153,7 @@ export class Grid extends Component<any, any> {
   }
 
   mounted() {
-    this.model.on("update", this, clearCache);
     this.focus();
-    this.updateVisibleZone();
     this.drawGrid();
   }
 
@@ -168,14 +161,9 @@ export class Grid extends Component<any, any> {
     this.hasFocus = this.el!.contains(document.activeElement);
   }
   patched() {
-    this.updateVisibleZone();
     this.vScrollbar.el!.scrollTop = this.state.scrollTop;
     this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
     this.drawGrid();
-  }
-
-  willUnmount() {
-    this.model.off("update", this);
   }
 
   focus() {
@@ -192,17 +180,17 @@ export class Grid extends Component<any, any> {
     }
   }
 
-  updateVisibleZone() {
+  drawGrid() {
     const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
     const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
-    this.model.updateVisibleZone(width, height);
-  }
-  drawGrid() {
+    const offsetX = this.vScrollbar.el!.scrollTop;
+    const offsetY = this.hScrollbar.el!.scrollLeft;
+    const viewport = { width, height, offsetX, offsetY};
+    const viewportState = this.model.getViewportState(viewport);
+
     // whenever the dimensions are changed, we need to reset the width/height
     // of the canvas manually, and reset its scaling.
     const dpr = window.devicePixelRatio || 1;
-    const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
-    const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     const canvas = this.canvas.el as any;
     const context = canvas.getContext("2d", { alpha: false });
     canvas.style.width = `${width}px`;
@@ -213,7 +201,7 @@ export class Grid extends Component<any, any> {
     this.context = context;
     context.translate(-0.5, -0.5);
     context.scale(dpr, dpr);
-    drawGrid(context, this.model, width, height);
+    drawGrid(context, viewportState);
   }
 
   onMouseWheel(ev: WheelEvent) {
@@ -290,13 +278,13 @@ export class Grid extends Component<any, any> {
       }
     };
     const onMouseUp = ev => {
-      if (this.model.state.isSelectingRange) {
+      if (this.state.isSelectingRange) {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
         }
       }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-      if (this.model.state.isCopyingFormat) {
+      if (this.state.isCopyingFormat) {
         this.model.paste({ onlyFormat: true });
       }
     };
@@ -340,7 +328,7 @@ export class Grid extends Component<any, any> {
       this.model.movePosition(delta[0], delta[1]);
     }
 
-    if (this.model.state.isSelectingRange && this.composer.comp) {
+    if (this.state.isSelectingRange && this.composer.comp) {
       (this.composer.comp as Composer).addTextFromSelection();
     } else {
       this.processCopyFormat();
@@ -418,7 +406,7 @@ export class Grid extends Component<any, any> {
     if (col < 0 || row < 0) {
       return;
     }
-    const zones = this.model.state.selection.zones;
+    const zones = this.state.selection.zones;
     const lastZone = zones[zones.length - 1];
     if (!isInside(col, row, lastZone)) {
       this.model.selectCell(col, row);

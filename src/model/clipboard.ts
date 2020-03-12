@@ -11,10 +11,10 @@ import {
 } from "./core";
 import { evaluateCells } from "./evaluation";
 import { updateSelection } from "./selection";
-import { Cell, GridState, NewCell } from "./state";
+import { Cell, WorkBookState, NewCell } from "./state";
 import { updateCell } from "./history";
 
-export function cut(state: GridState) {
+export function cut(state: WorkBookState) {
   cutOrCopy(state, true);
 }
 
@@ -22,14 +22,14 @@ interface CopyOptions {
   onlyFormat?: boolean;
 }
 
-export function copy(state: GridState, options: CopyOptions = {}) {
+export function copy(state: WorkBookState, options: CopyOptions = {}) {
   if (options.onlyFormat) {
     state.isCopyingFormat = true;
   }
   cutOrCopy(state, false);
 }
 
-function cutOrCopy(state: GridState, cut: boolean) {
+function cutOrCopy(state: WorkBookState, cut: boolean) {
   const zones = state.selection.zones;
   const tops = new Set(zones.map(z => z.top));
   const bottoms = new Set(zones.map(z => z.bottom));
@@ -74,7 +74,7 @@ interface PasteOptions {
  *
  * Return false if the paste operation was not allowed.
  */
-export function paste(state: GridState, options: PasteOptions = {}): boolean {
+export function paste(state: WorkBookState, options: PasteOptions = {}): boolean {
   state.isCopyingFormat = false;
   if (options.clipboardContent === undefined) {
     return pasteFromModel(state, options);
@@ -84,7 +84,7 @@ export function paste(state: GridState, options: PasteOptions = {}): boolean {
   }
 }
 
-function pasteFromClipboard(state: GridState, content: string) {
+function pasteFromClipboard(state: WorkBookState, content: string) {
   state.clipboard.status = "invisible";
   const values = content
     .replace(/\r/g, "")
@@ -102,7 +102,7 @@ function pasteFromClipboard(state: GridState, content: string) {
 /**
  * Return false if the paste operation was not allowed
  */
-function pasteFromModel(state: GridState, options: PasteOptions): boolean {
+function pasteFromModel(state: WorkBookState, options: PasteOptions): boolean {
   const { zones, cells, shouldCut, status } = state.clipboard;
   if (!zones || !cells) {
     return true;
@@ -214,7 +214,7 @@ function clip(val: number, min: number, max: number): number {
  * clipboard copy event to add it as data, otherwise an empty string is not
  * considered as a copy content.
  */
-export function getClipboardContent(state: GridState): string {
+export function getClipboardContent(state: WorkBookState): string {
   if (!state.clipboard.cells) {
     return "\t";
   }

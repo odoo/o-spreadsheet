@@ -1,5 +1,5 @@
 import { toXC, toCartesian } from "../helpers";
-import { GridState } from "./state";
+import { WorkBookState } from "./state";
 import { deleteCell } from "./core";
 import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
@@ -8,7 +8,7 @@ import { updateState } from "./history";
 // Merges
 // ---------------------------------------------------------------------------
 
-export function addMerge(state: GridState, m: string) {
+export function addMerge(state: WorkBookState, m: string) {
   let id = state.nextId++;
   const [tl, br] = m.split(":");
   const [left, top] = toCartesian(tl);
@@ -50,7 +50,7 @@ export function addMerge(state: GridState, m: string) {
  *   merges)
  * - it does nothing if the merge is trivial: A1:A1
  */
-export function merge(state: GridState) {
+export function merge(state: WorkBookState) {
   const { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   let tl = toXC(left, top);
   let br = toXC(right, bottom);
@@ -59,7 +59,7 @@ export function merge(state: GridState) {
   }
 }
 
-export function unmerge(state: GridState) {
+export function unmerge(state: WorkBookState) {
   const mergeId = state.mergeCellMap[state.activeXc];
   const { left, top, right, bottom } = state.merges[mergeId];
   updateState(state, ["merges", mergeId], undefined);
@@ -76,7 +76,7 @@ export function unmerge(state: GridState) {
  * This happens when there is some textual content in other cells than the
  * top left.
  */
-export function isMergeDestructive(state: GridState): boolean {
+export function isMergeDestructive(state: WorkBookState): boolean {
   const { left, right, top, bottom } = state.selection.zones[state.selection.zones.length - 1];
   for (let row = top; row <= bottom; row++) {
     const actualRow = state.rows[row];
