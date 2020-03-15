@@ -107,7 +107,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   }
   const result = {};
   for (let xc in grid) {
-    result[xc] = model.state.cells[xc].value;
+    result[xc] = model.workbook.cells[xc].value;
   }
   return result;
 }

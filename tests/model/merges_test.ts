@@ -6,18 +6,18 @@ describe("merges", () => {
     model.setValue("B2", "b2");
     model.setValue("B3", "b3");
 
-    expect(Object.keys(model.state.cells)).toEqual(["B2", "B3"]);
-    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.state.merges)).toEqual([]);
+    expect(Object.keys(model.workbook.cells)).toEqual(["B2", "B3"]);
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.workbook.merges)).toEqual([]);
 
     model.selectCell(1, 1);
     model.updateSelection(1, 2);
     model.merge();
 
-    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
-    expect(model.state.cells.B2.content).toBe("b2");
-    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.state.merges).toEqual({
+    expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
+    expect(model.workbook.cells.B2.content).toBe("b2");
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.workbook.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
@@ -34,29 +34,29 @@ describe("merges", () => {
         }
       ]
     });
-    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.state.merges).toEqual({
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.workbook.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     model.selectCell(1, 1);
     model.unmerge();
-    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
-    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.state.merges)).toEqual([]);
+    expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.workbook.merges)).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
     const model = new GridModel();
     model.setValue("B2", "b2");
 
-    expect(Object.keys(model.state.merges)).toEqual([]);
+    expect(Object.keys(model.workbook.merges)).toEqual([]);
 
     model.selectCell(1, 1);
     model.merge();
 
-    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.state.merges)).toEqual([]);
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.workbook.merges)).toEqual([]);
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -73,12 +73,12 @@ describe("merges", () => {
     });
 
     model.selectCell(2, 2);
-    expect(model.state.activeXc).toBe("C3");
+    expect(model.workbook.activeXc).toBe("C3");
     model.startEditing();
-    expect(model.state.currentContent).toBe("b2");
-    model.state.currentContent = "new value";
+    expect(model.workbook.currentContent).toBe("b2");
+    model.workbook.currentContent = "new value";
     model.stopEditing();
-    expect(model.state.cells["B2"].content).toBe("new value");
+    expect(model.workbook.cells["B2"].content).toBe("new value");
   });
 
   test("setting a style to a merge edit all the cells", () => {
@@ -95,13 +95,13 @@ describe("merges", () => {
     });
 
     model.selectCell(2, 2);
-    expect(model.state.activeXc).toBe("C3");
-    expect(Object.keys(model.state.cells)).toEqual(["B2"]);
-    expect(model.state.cells["B2"].style).not.toBeDefined();
+    expect(model.workbook.activeXc).toBe("C3");
+    expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
+    expect(model.workbook.cells["B2"].style).not.toBeDefined();
 
     model.setStyle({ fillColor: "#333" });
-    expect(Object.keys(model.state.cells)).toEqual(["B2", "B3", "C2", "C3"]);
-    expect(model.state.cells["B2"].style).toBeDefined();
+    expect(Object.keys(model.workbook.cells)).toEqual(["B2", "B3", "C2", "C3"]);
+    expect(model.workbook.cells["B2"].style).toBeDefined();
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
@@ -118,11 +118,11 @@ describe("merges", () => {
     });
 
     model.selectCell(2, 3);
-    expect(model.state.activeXc).toBe("C4");
-    expect(model.selectedCell).toBeNull(); // no active cell in C4
+    expect(model.workbook.activeXc).toBe("C4");
+    expect(model.state.selectedCell).toBeNull(); // no active cell in C4
     model.movePosition(0, -1);
-    expect(model.state.activeXc).toBe("C3");
-    expect(model.selectedCell!.xc).toBe("B2");
+    expect(model.workbook.activeXc).toBe("C3");
+    expect(model.state.selectedCell!.xc).toBe("B2");
   });
 
   test("properly compute if a merge is destructive or not", () => {
@@ -138,12 +138,12 @@ describe("merges", () => {
     });
     model.updateSelection(2, 2);
     // B2 is not top left, so it is destructive
-    expect(model.isMergeDestructive).toBeTruthy();
+    expect(model.state.isMergeDestructive).toBeTruthy();
 
     model.selectCell(1, 1);
     model.updateSelection(2, 2);
     // B2 is top left, so it is not destructive
-    expect(model.isMergeDestructive).toBeFalsy();
+    expect(model.state.isMergeDestructive).toBeFalsy();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -158,7 +158,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} }
     });
-    model.state.selection.zones = [
+    model.workbook.selection.zones = [
       {
         left: 0,
         top: 0,
@@ -166,7 +166,7 @@ describe("merges", () => {
         bottom: 2
       }
     ];
-    expect(model.isMergeDestructive).toBeFalsy();
+    expect(model.state.isMergeDestructive).toBeFalsy();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -185,29 +185,29 @@ describe("merges", () => {
         }
       ]
     });
-    expect(model.state.cells["A4"].value).toBe(6);
+    expect(model.workbook.cells["A4"].value).toBe(6);
     model.updateSelection(0, 2);
     model.merge();
-    expect(model.state.cells["A1"].value).toBe(1);
-    expect(model.state.cells["A2"]).toBeUndefined();
-    expect(model.state.cells["A3"]).toBeUndefined();
-    expect(model.state.cells["A4"].value).toBe(1);
+    expect(model.workbook.cells["A1"].value).toBe(1);
+    expect(model.workbook.cells["A2"]).toBeUndefined();
+    expect(model.workbook.cells["A3"]).toBeUndefined();
+    expect(model.workbook.cells["A4"].value).toBe(1);
   });
 
   test("merging => setting background color => unmerging", () => {
     const model = new GridModel();
     model.updateSelection(1, 0);
 
-    expect(model.state.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
+    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
     model.merge();
     model.setStyle({ fillColor: "red" });
-    expect(getStyle(model.state, "A1")).toEqual({ fillColor: "red" });
-    expect(getStyle(model.state, "B1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
 
     model.unmerge();
-    expect(getStyle(model.state, "A1")).toEqual({ fillColor: "red" });
-    expect(getStyle(model.state, "B1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
   });
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
@@ -221,14 +221,14 @@ describe("merges", () => {
 
     //merging
     model.merge();
-    const mergeId = model.state.mergeCellMap.A1;
+    const mergeId = model.workbook.mergeCellMap.A1;
     expect(mergeId).toBeGreaterThan(0);
-    expect(model.state.mergeCellMap.A2).toBe(mergeId);
+    expect(model.workbook.mergeCellMap.A2).toBe(mergeId);
 
     // unmerge. there should not be any merge left
     model.unmerge();
-    expect(model.state.mergeCellMap).toEqual({});
-    expect(model.state.merges).toEqual({});
+    expect(model.workbook.mergeCellMap).toEqual({});
+    expect(model.workbook.merges).toEqual({});
   });
 
   test("can undo and redo a merge", () => {
@@ -239,20 +239,20 @@ describe("merges", () => {
     model.updateSelection(1, 2);
     model.merge();
 
-    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.state.merges).toEqual({
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.workbook.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     // undo
     model.undo();
-    expect(Object.keys(model.state.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.state.merges)).toEqual([]);
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model.workbook.merges)).toEqual([]);
 
     // redo
     model.redo();
-    expect(Object.keys(model.state.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.state.merges).toEqual({
+    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model.workbook.merges).toEqual({
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });

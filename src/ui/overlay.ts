@@ -164,7 +164,7 @@ abstract class AbstractResizer extends Component<any, any> {
   }
 }
 
-class ColResizer extends AbstractResizer {
+export class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select"
       t-on-mouseup.self="onMouseUp">
@@ -249,7 +249,7 @@ class ColResizer extends AbstractResizer {
   }
 
   _getMaxSize(): number {
-    return this.model.state.clientWidth - this.MAX_SIZE_MARGIN;
+    return this.el!.clientWidth;
   }
 
   _updateSize(): void {
@@ -269,7 +269,7 @@ class ColResizer extends AbstractResizer {
   }
 }
 
-class RowResizer extends AbstractResizer {
+export class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select">
       <t t-if="state.isActive">
@@ -354,7 +354,7 @@ class RowResizer extends AbstractResizer {
   }
 
   _getMaxSize(): number {
-    return this.model.state.clientHeight - this.MAX_SIZE_MARGIN;
+    return this.el!.clientHeight;
   }
 
   _updateSize(): void {

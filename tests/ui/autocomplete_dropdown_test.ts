@@ -23,7 +23,7 @@ beforeEach(async () => {
   model = new GridModel();
   parent = new GridParent(model);
   await parent.mount(fixture);
-  model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+  model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
   // start composition
   parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
@@ -66,14 +66,14 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.state.currentContent).toBe("=SUM(");
+      expect(model.workbook.currentContent).toBe("=SUM(");
     });
 
     test("=S+ENTER complete the function --> =sum(", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(model.state.currentContent).toBe("=SUM(");
+      expect(model.workbook.currentContent).toBe("=SUM(");
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -85,7 +85,7 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=SX");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.state.cells["A1"].content).toBe("=SX");
+      expect(model.workbook.cells["A1"].content).toBe("=SX");
     });
 
     test("=S+UP cycle to the last item", async () => {
@@ -188,7 +188,7 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.state.currentContent).toBe("=IF(");
+      expect(model.workbook.currentContent).toBe("=IF(");
     });
   });
 });
@@ -210,7 +210,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(1,2");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.state.cells["A1"].content).toBe("=sum(1,2)");
+    expect(model.workbook.cells["A1"].content).toBe("=sum(1,2)");
   });
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
     await typeInComposer("=sum(1,2)");
@@ -229,19 +229,19 @@ describe("Autocomplete parenthesis", () => {
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new KeyboardEvent("keyup"));
     await nextTick();
-    expect(model.state.currentContent).toBe("=if(1,2)");
+    expect(model.workbook.currentContent).toBe("=if(1,2)");
   });
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
     await typeInComposer("=sum(sum(1,2");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
+    expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
   });
   test("=sum(sum(1,2) + enter add 1 closing parenthesis", async () => {
     await typeInComposer("=sum(sum(1,2");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
+    expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
@@ -249,19 +249,19 @@ describe("Autocomplete parenthesis", () => {
 
     model.selectCell(1, 1);
     await nextTick();
-    expect(model.state.cells["A1"].content).toBe("=sum(sum(1,2))");
+    expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
   });
   test('=sum("((((((((") + enter should not complete the parenthesis in the string', async () => {
     await typeInComposer('=sum("((((((((")');
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.state.cells["A1"].content).toBe('=sum("((((((((")');
+    expect(model.workbook.cells["A1"].content).toBe('=sum("((((((((")');
   });
   test("=s + tab should allow to select a ref", async () => {
     await typeInComposer("=s");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
     await nextTick();
-    expect(model.state.isSelectingRange).toBeTruthy();
+    expect(model.workbook.isSelectingRange).toBeTruthy();
   });
 });
 

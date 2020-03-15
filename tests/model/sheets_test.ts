@@ -4,48 +4,48 @@ import "../helpers"; // to have getcontext mocks
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
     const model = new GridModel();
-    expect(model.state.sheets.length).toBe(1);
-    expect(model.state.activeSheet.name).toBe("Sheet1");
+    expect(model.workbook.sheets.length).toBe(1);
+    expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.createSheet();
-    expect(model.state.sheets.length).toBe(2);
-    expect(model.state.activeSheet.name).toBe("Sheet2");
+    expect(model.workbook.sheets.length).toBe(2);
+    expect(model.workbook.activeSheet.name).toBe("Sheet2");
 
     model.undo();
-    expect(model.state.sheets.length).toBe(1);
-    expect(model.state.activeSheet.name).toBe("Sheet1");
+    expect(model.workbook.sheets.length).toBe(1);
+    expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.redo();
-    expect(model.state.sheets.length).toBe(2);
-    expect(model.state.activeSheet.name).toBe("Sheet2");
+    expect(model.workbook.sheets.length).toBe(2);
+    expect(model.workbook.activeSheet.name).toBe("Sheet2");
   });
 
   test("can read a value in same sheet", () => {
     const model = new GridModel();
-    expect(model.state.activeSheet.name).toBe("Sheet1");
+    expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.setValue("A1", "3");
     model.setValue("A2", "=Sheet1!A1");
 
-    expect(model.state.cells.A2.value).toBe(3);
+    expect(model.workbook.cells.A2.value).toBe(3);
   });
 
   test("can read a value in another sheet", () => {
     const model = new GridModel();
-    expect(model.state.activeSheet.name).toBe("Sheet1");
+    expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.setValue("A1", "3");
     model.createSheet();
-    expect(model.state.activeSheet.name).toBe("Sheet2");
+    expect(model.workbook.activeSheet.name).toBe("Sheet2");
     model.setValue("A1", "=Sheet1!A1");
-    expect(model.state.cells.A1.value).toBe(3);
+    expect(model.workbook.cells.A1.value).toBe(3);
   });
 
   test("throw if invalid sheet name", () => {
     const model = new GridModel();
     model.setValue("A1", "=Sheet133!A1");
 
-    expect(model.state.cells.A1.value).toBe("#ERROR");
+    expect(model.workbook.cells.A1.value).toBe("#ERROR");
   });
 
   test("evaluating multiple sheets", () => {
@@ -67,8 +67,8 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet.name).toBe("ABC");
-    expect(model.state.cells.B1.value).toBe(3);
+    expect(model.workbook.activeSheet.name).toBe("ABC");
+    expect(model.workbook.cells.B1.value).toBe(3);
   });
 
   test("evaluating multiple sheets, 2", () => {
@@ -93,8 +93,8 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet.name).toBe("ABC");
-    expect(model.state.cells.B1.value).toBe(3);
+    expect(model.workbook.activeSheet.name).toBe("ABC");
+    expect(model.workbook.cells.B1.value).toBe(3);
   });
 
   test("evaluating multiple sheets, 3 (with range)", () => {
@@ -120,8 +120,8 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet.name).toBe("ABC");
-    expect(model.state.cells.B1.value).toBe(5);
+    expect(model.workbook.activeSheet.name).toBe("ABC");
+    expect(model.workbook.cells.B1.value).toBe(5);
   });
 
   test("evaluating multiple sheets: cycles", () => {
@@ -150,8 +150,8 @@ describe("sheets", () => {
       ]
     });
 
-    expect(model.state.activeSheet.name).toBe("ABC");
-    expect(model.state.cells.B1.value).toBe("#CYCLE");
-    expect(model.state.cells.C3.value).toBe(42);
+    expect(model.workbook.activeSheet.name).toBe("ABC");
+    expect(model.workbook.cells.B1.value).toBe("#CYCLE");
+    expect(model.workbook.cells.C3.value).toBe(42);
   });
 });

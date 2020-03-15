@@ -196,7 +196,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Conditional Formatting" t-on-click="setConditionalFormatting"><span>${icons.CONDITIONAL_FORMATTING}</span></div>
       </div>
       <div class="o-cell-content">
-         <t t-esc="model.selectedCell and model.selectedCell.content"/>
+         <t t-esc="model.state.selectedCell and model.state.selectedCell.content"/>
       </div>
     </div>`;
   static style = css/* scss */ `
@@ -387,7 +387,7 @@ export class TopBar extends Component<any, any> {
 
   updateCellState() {
     const state = this.model.state;
-    this.style = this.model.style;
+    this.style = state.style;
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
     const selection = state.selection;
@@ -398,10 +398,10 @@ export class TopBar extends Component<any, any> {
       const mergeId = state.mergeCellMap[state.activeXc];
       this.inMerge = mergeId ? isEqual(selection.zones[0], state.merges[mergeId]) : false;
     }
-    this.undoTool = state.undoStack.length > 0;
-    this.redoTool = state.redoStack.length > 0;
+    this.undoTool = state.canUndo;
+    this.redoTool = state.canRedo;
     this.paintFormatTool = state.isCopyingFormat;
-    const cell = this.model.selectedCell;
+    const cell = state.selectedCell;
     if (cell && cell.format) {
       const format = this.formats.find(f => f.value === cell.format);
       this.currentFormat = format ? format.name : "";
@@ -414,7 +414,7 @@ export class TopBar extends Component<any, any> {
     if (this.inMerge) {
       this.model.unmerge();
     } else {
-      if (this.model.isMergeDestructive) {
+      if (this.model.state.isMergeDestructive) {
         this.trigger("ask-confirmation", {
           content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
           confirm: () => this.model.merge()
@@ -443,7 +443,11 @@ export class TopBar extends Component<any, any> {
     }
   }
   paintFormat() {
-    this.model.copy({ onlyFormat: true });
+    this.model.dispatch({
+      type: "COPY",
+      target: this.model.state.selection.zones,
+      onlyFormat: true
+    });
   }
   setSize(ev) {
     const fontSize = parseFloat(ev.target.dataset.size);
