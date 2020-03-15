@@ -204,7 +204,48 @@ export interface Box {
   isError?: boolean;
 }
 
-export interface UI extends Workbook {}
+export interface UI {
+  selection: Selection;
+
+  activeCol: number;
+  activeRow: number;
+  activeXc: string;
+  sheets: string[];
+  activeSheet: string;
+
+  clipboard: ClipBoard;
+  highlights: Highlight[];
+  isSelectingRange: boolean;
+
+  selectedCell: Cell | null;
+  style: Style;
+  isMergeDestructive: boolean;
+  aggregate: string | null;
+
+  isCopyingFormat: boolean;
+  isEditing: boolean;
+
+  canUndo: boolean;
+  canRedo: boolean;
+
+  // to remove someday
+  currentContent: string;
+  rows: Row[];
+  cols: Col[];
+  styles: { [key: number]: Style };
+  merges: { [key: number]: Merge };
+  mergeCellMap: { [key: string]: number };
+
+  width: number;
+  height: number;
+
+  offsetX: number;
+  offsetY: number;
+  scrollTop: number;
+  scrollLeft: number;
+
+  viewport: Zone;
+}
 
 export interface Viewport {
   boxes: Box[];
@@ -351,3 +392,21 @@ export type ConditionalFormattingOperatorValues =
   | "NotBetween"
   | "NotContains"
   | "NotEqual";
+
+// -----------------------------------------------------------------------------
+// Grid commands
+// -----------------------------------------------------------------------------
+type Target = Zone[];
+
+export interface CommandCopy {
+  type: "COPY";
+  target: Target;
+  onlyFormat?: boolean;
+}
+
+export interface CommandCut {
+  type: "CUT";
+  target: Target;
+}
+
+export type GridCommand = CommandCopy | CommandCut;

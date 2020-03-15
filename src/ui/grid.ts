@@ -6,7 +6,7 @@ import {
   SCROLLBAR_WIDTH
 } from "../constants";
 import { isInside } from "../helpers";
-import { GridModel, Workbook } from "../model/index";
+import { GridModel, UI } from "../model/index";
 import { Composer } from "./composer";
 import { ContextMenu } from "./context_menu";
 import { drawGrid } from "./grid_renderer";
@@ -118,7 +118,7 @@ export class Grid extends Component<any, any> {
   context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
   model: GridModel = this.props.model;
-  state: Workbook = this.model.state;
+  state: UI = this.model.state;
   clickedCol = 0;
   clickedRow = 0;
   // last string that was cut or copied. It is necessary so we can make the
@@ -165,6 +165,9 @@ export class Grid extends Component<any, any> {
   willPatch() {
     this.hasFocus = this.el!.contains(document.activeElement);
   }
+  async willUpdateProps() {
+    this.state = this.model.state;
+  }
   patched() {
     this.vScrollbar.el!.scrollTop = this.state.scrollTop;
     this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
@@ -210,6 +213,7 @@ export class Grid extends Component<any, any> {
   }
 
   onMouseWheel(ev: WheelEvent) {
+    
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
@@ -375,11 +379,9 @@ export class Grid extends Component<any, any> {
     if (document.activeElement !== this.canvas.el) {
       return;
     }
-    if (cut) {
-      this.model.cut();
-    } else {
-      this.model.copy();
-    }
+    const type = cut ? "CUT" : "COPY";
+    const target = this.model.state.selection.zones;
+    this.model.dispatch({ type, target });
     const content = this.model.getClipboardContent();
     this.clipBoardString = content;
     ev.clipboardData!.setData("text/plain", content);

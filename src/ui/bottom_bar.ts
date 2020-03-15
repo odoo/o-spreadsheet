@@ -12,12 +12,12 @@ const { xml, css } = owl.tags;
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
     <span class="o-add-sheet" t-on-click="addSheet">${PLUS}</span>
-    <t t-foreach="model.state.sheets" t-as="sheet" t-key="sheet.name">
-      <span class="o-sheet" t-on-click="activateSheet(sheet.name)" t-att-class="{active: sheet.name === model.state.activeSheet}"><t t-esc="sheet.name"/></span>
+    <t t-foreach="model.state.sheets" t-as="sheet" t-key="sheet">
+      <span class="o-sheet" t-on-click="activateSheet(sheet)" t-att-class="{active: sheet === model.state.activeSheet}"><t t-esc="sheet"/></span>
     </t>
-    <t t-if="model.aggregate !== null">
+    <t t-if="model.state.aggregate !== null">
       <span class="o-space"/>
-      <span class="o-aggregate">Sum: <t t-esc="model.aggregate"/></span>
+      <span class="o-aggregate">Sum: <t t-esc="model.state.aggregate"/></span>
     </t>
   </div>`;
 

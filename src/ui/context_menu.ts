@@ -50,7 +50,7 @@ export const menuItems: MenuItem[] = [
     name: "cut",
     description: "Cut",
     action(model) {
-      model.cut();
+      model.dispatch({ type: "CUT", target: model.state.selection.zones });
     }
   },
   {
@@ -58,7 +58,7 @@ export const menuItems: MenuItem[] = [
     name: "copy",
     description: "Copy",
     action(model) {
-      model.copy();
+      model.dispatch({ type: "COPY", target: model.state.selection.zones });
     }
   },
   {
@@ -85,8 +85,8 @@ export class ContextMenu extends Component<any, any> {
 
   get style() {
     const { x, y } = this.props.position;
-    const width = this.model.state.clientWidth;
-    const height = this.model.state.clientHeight;
+    const width = this.model.state.width;
+    const height = this.model.state.height;
     const hAlign = x < width - 220 ? "left" : "right";
     const hStyle = hAlign + ":" + (hAlign === "left" ? x : width - x + SCROLLBAR_WIDTH);
     const vAlign = y < height - 220 ? "top" : "bottom";

@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import * as clipboard from "./clipboard";
 import * as core from "./core";
 import { _evaluateCells } from "./evaluation";
 import * as formatting from "./formatting";
@@ -14,10 +13,17 @@ import * as merges from "./merges";
 import * as entity from "./entity";
 import * as resizing from "./resizing";
 import * as selection from "./selection";
+import * as clipboard from "./clipboard";
 import * as sheet from "./sheet";
 import * as conditionalFormat from "./conditional_format";
-import { Cell, Workbook, Style, Box, Rect, Viewport } from "./types";
-import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../constants";
+import { Cell, Workbook, Box, Rect, Viewport, GridCommand, UI } from "./types";
+import {
+  DEFAULT_FONT_WEIGHT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT,
+  HEADER_WIDTH,
+  HEADER_HEIGHT
+} from "../constants";
 import { fontSizeMap } from "../fonts";
 import { toXC, overlap } from "../helpers";
 
@@ -25,7 +31,8 @@ import { toXC, overlap } from "../helpers";
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
 
 export class GridModel extends owl.core.EventBus {
-  state: Workbook;
+  workbook: Workbook;
+  state: UI;
 
   private ctx: CanvasRenderingContext2D;
 
@@ -33,67 +40,101 @@ export class GridModel extends owl.core.EventBus {
   static setTimeout = window.setTimeout.bind(window);
   isStarted: boolean = false;
 
-  // derived state
-  selectedCell: Cell | null = null;
-  style: Style = {};
-  isMergeDestructive: boolean = false;
-  aggregate: string | null = null;
-
   constructor(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
     super();
     (window as any).gridmodel = this; // to debug. remove this someday
 
     this.ctx = document.createElement("canvas").getContext("2d")!;
-    this.state = importData(data);
-    this.computeDerivedState();
-    if (this.state.loadingCells > 0) {
+    this.workbook = importData(data);
+    this.state = this.computeDerivedState();
+    if (this.workbook.loadingCells > 0) {
       this.startScheduler();
     }
   }
 
   load(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
-    this.state = importData(data);
-    this.computeDerivedState();
+    this.workbook = importData(data);
+    Object.assign(this.state, this.computeDerivedState());
     this.trigger("update");
   }
 
   private makeMutation<T>(f: T): OmitFirstArg<T> {
     return ((...args) => {
-      history.start(this.state);
-      let result = (f as any).call(null, this.state, ...args);
-      history.stop(this.state);
-      this.computeDerivedState();
+      history.start(this.workbook);
+      let result = (f as any).call(null, this.workbook, ...args);
+      history.stop(this.workbook);
+      Object.assign(this.state, this.computeDerivedState());
       this.trigger("update");
-      if (this.state.loadingCells > 0) {
+      if (this.workbook.loadingCells > 0) {
         this.startScheduler();
       }
       return result;
     }) as any;
   }
 
-  private computeDerivedState() {
-    this.selectedCell = core.selectedCell(this.state);
-    this.style = formatting.getStyle(this.state);
-    this.isMergeDestructive = merges.isMergeDestructive(this.state);
-    this.aggregate = core.computeAggregate(this.state);
+  dispatch(command: GridCommand) {
+    history.start(this.workbook);
+    clipboard.dispatch(this.workbook, command);
+    history.stop(this.workbook);
+    Object.assign(this.state, this.computeDerivedState());
+    this.trigger("update");
+    if (this.workbook.loadingCells > 0) {
+      this.startScheduler();
+    }
+  }
+
+  computeDerivedState(): UI {
+    const { viewport, cols, rows } = this.workbook;
+    return {
+      rows: this.workbook.rows,
+      cols: this.workbook.cols,
+      styles: this.workbook.styles,
+      merges: this.workbook.merges,
+      mergeCellMap: this.workbook.mergeCellMap,
+      width: this.workbook.width,
+      height: this.workbook.height,
+      offsetX: cols[viewport.left].left - HEADER_WIDTH,
+      offsetY: rows[viewport.top].top - HEADER_HEIGHT,
+      scrollTop: this.workbook.scrollTop,
+      scrollLeft: this.workbook.scrollLeft,
+      viewport: this.workbook.viewport,
+      selection: this.workbook.selection,
+      activeCol: this.workbook.activeCol,
+      activeRow: this.workbook.activeRow,
+      activeXc: this.workbook.activeXc,
+      clipboard: this.workbook.clipboard,
+      highlights: this.workbook.highlights,
+      isSelectingRange: this.workbook.isSelectingRange,
+      isEditing: this.workbook.isEditing,
+      selectedCell: core.selectedCell(this.workbook),
+      style: formatting.getStyle(this.workbook),
+      isMergeDestructive: merges.isMergeDestructive(this.workbook),
+      aggregate: core.computeAggregate(this.workbook),
+      canUndo: this.workbook.undoStack.length > 0,
+      canRedo: this.workbook.redoStack.length > 0,
+      isCopyingFormat: this.workbook.isCopyingFormat,
+      currentContent: this.workbook.currentContent,
+      sheets: this.workbook.sheets.map(s => s.name),
+      activeSheet: this.workbook.activeSheet.name
+    };
   }
 
   private makeFn<T>(f: T): OmitFirstArg<T> {
-    return ((...args) => (f as any).call(null, this.state, ...args)) as any;
+    return ((...args) => (f as any).call(null, this.workbook, ...args)) as any;
   }
 
   private startScheduler() {
     if (!this.isStarted) {
       this.isStarted = true;
-      let current = this.state.loadingCells;
+      let current = this.workbook.loadingCells;
       const recomputeCells = () => {
-        if (this.state.loadingCells !== current) {
-          _evaluateCells(this.state, true);
-          current = this.state.loadingCells;
+        if (this.workbook.loadingCells !== current) {
+          _evaluateCells(this.workbook, true);
+          current = this.workbook.loadingCells;
           if (current === 0) {
             this.isStarted = false;
           }
-          this.computeDerivedState();
+          Object.assign(this.state, this.computeDerivedState());
           this.trigger("update");
         }
         if (current > 0) {
@@ -119,12 +160,17 @@ export class GridModel extends owl.core.EventBus {
   cancelEdition = this.makeMutation(core.cancelEdition);
   startEditing = this.makeMutation(core.startEditing);
   stopEditing = this.makeMutation(core.stopEditing);
-  setCurrentContent = this.makeFn(core.setCurrentContent);
+  setCurrentContent = this.makeMutation(core.setCurrentContent);
   removeHighlights = this.makeMutation(core.removeHighlights);
   selectCell = this.makeMutation(core.selectCell);
   // updateVisibleZone and updateScroll should not be a mutation
+
   updateVisibleZone = this.makeFn(core.updateVisibleZone);
-  updateScroll = this.makeFn(core.updateScroll);
+  updateScroll(scrollTop, scrollLeft) {
+    const result = core.updateScroll(this.workbook, scrollTop, scrollLeft);
+    Object.assign(this.state, this.computeDerivedState());
+    return result; //= this.makeFn(core.updateScroll);
+  }
   getCol = this.makeFn(core.getCol);
   getRow = this.makeFn(core.getRow);
   formatCell = this.makeFn(core.formatCell);
@@ -148,14 +194,17 @@ export class GridModel extends owl.core.EventBus {
   selectColumn = this.makeMutation(selection.selectColumn);
   selectRow = this.makeMutation(selection.selectRow);
   selectAll = this.makeMutation(selection.selectAll);
-  setSelectingRange = this.makeFn(selection.setSelectingRange);
+  setSelectingRange(isSelecting: boolean) {
+    selection.setSelectingRange(this.workbook, isSelecting);
+    this.state.isSelectingRange = isSelecting;
+  }
   increaseSelectColumn = this.makeMutation(selection.increaseSelectColumn);
   increaseSelectRow = this.makeMutation(selection.increaseSelectRow);
   zoneIsEntireColumn = this.makeFn(selection.zoneIsEntireColumn);
   zoneIsEntireRow = this.makeFn(selection.zoneIsEntireRow);
   getActiveCols = this.makeFn(selection.getActiveCols);
   getActiveRows = this.makeFn(selection.getActiveRows);
-  startNewComposerSelection = this.makeFn(selection.startNewComposerSelection);
+  startNewComposerSelection = this.makeMutation(selection.startNewComposerSelection);
   selectionZoneXC = this.makeFn(selection.selectionZoneXC);
   zoneToXC = this.makeFn(selection.zoneToXC);
   addHighlights = this.makeMutation(selection.addHighlights);
@@ -167,8 +216,6 @@ export class GridModel extends owl.core.EventBus {
 
   // clipboard
   // ---------------------------------------------------------------------------
-  cut = this.makeMutation(clipboard.cut);
-  copy = this.makeMutation(clipboard.copy);
   paste = this.makeMutation(clipboard.paste);
   getClipboardContent = this.makeFn(clipboard.getClipboardContent);
 
@@ -241,120 +288,117 @@ export class GridModel extends owl.core.EventBus {
       height,
       offsetX,
       offsetY,
-      boxes: getGridBoxes(this),
-      activeCols: selection.getActiveCols(this.state),
-      activeRows: selection.getActiveRows(this.state)
+      boxes: this.getGridBoxes(),
+      activeCols: selection.getActiveCols(this.workbook),
+      activeRows: selection.getActiveRows(this.workbook)
     };
   }
-}
-
-function hasContent(state: Workbook, col: number, row: number): boolean {
-  const { cells, mergeCellMap } = state;
-  const xc = toXC(col, row);
-  const cell = cells[xc];
-  return (cell && cell.content) || ((xc in mergeCellMap) as any);
-}
-
-function getGridBoxes(model: GridModel): Box[] {
-  const result: Box[] = [];
-  const state = model.state;
-  const { cols, rows, viewport, mergeCellMap, offsetX, offsetY, merges } = state;
-  const { cells } = state;
-  const { right, left, top, bottom } = viewport;
-  // process all visible cells
-  for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
-    let row = rows[rowNumber];
-    for (let colNumber = left; colNumber <= right; colNumber++) {
-      let cell = row.cells[colNumber];
-      if (cell && !(cell.xc in mergeCellMap)) {
-        let col = cols[colNumber];
-        const text = model.formatCell(cell);
-        const textWidth = model.getCellWidth(cell);
-        let style = cell.style ? state.styles[cell.style] : null;
-        if (cell.conditionalStyle) {
-          style = Object.assign({}, style, cell.conditionalStyle);
-        }
-        const align = text
-          ? (style && style.align) || (cell.type === "text" ? "left" : "right")
-          : null;
-        let clipRect: Rect | null = null;
-        if (text && textWidth > cols[cell.col].size) {
-          if (align === "left") {
-            let c = cell.col;
-            while (c < right && !hasContent(state, c + 1, cell.row)) {
-              c++;
-            }
-            const width = cols[c].right - col.left;
-            if (width < textWidth) {
-              clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
-            }
-          } else {
-            let c = cell.col;
-            while (c > left && !hasContent(state, c - 1, cell.row)) {
-              c--;
-            }
-            const width = col.right - cols[c].left;
-            if (width < textWidth) {
-              clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
+  private hasContent(col: number, row: number): boolean {
+    const { cells, mergeCellMap } = this.workbook;
+    const xc = toXC(col, row);
+    const cell = cells[xc];
+    return (cell && cell.content) || ((xc in mergeCellMap) as any);
+  }
+  private getGridBoxes(): Box[] {
+    const result: Box[] = [];
+    const { cols, rows, viewport, mergeCellMap, merges, cells } = this.workbook;
+    const { offsetX, offsetY } = this.state;
+    const { right, left, top, bottom } = viewport;
+    // process all visible cells
+    for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
+      let row = rows[rowNumber];
+      for (let colNumber = left; colNumber <= right; colNumber++) {
+        let cell = row.cells[colNumber];
+        if (cell && !(cell.xc in mergeCellMap)) {
+          let col = cols[colNumber];
+          const text = this.formatCell(cell);
+          const textWidth = this.getCellWidth(cell);
+          let style = cell.style ? this.workbook.styles[cell.style] : null;
+          if (cell.conditionalStyle) {
+            style = Object.assign({}, style, cell.conditionalStyle);
+          }
+          const align = text
+            ? (style && style.align) || (cell.type === "text" ? "left" : "right")
+            : null;
+          let clipRect: Rect | null = null;
+          if (text && textWidth > cols[cell.col].size) {
+            if (align === "left") {
+              let c = cell.col;
+              while (c < right && !this.hasContent(c + 1, cell.row)) {
+                c++;
+              }
+              const width = cols[c].right - col.left;
+              if (width < textWidth) {
+                clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
+              }
+            } else {
+              let c = cell.col;
+              while (c > left && !this.hasContent(c - 1, cell.row)) {
+                c--;
+              }
+              const width = col.right - cols[c].left;
+              if (width < textWidth) {
+                clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
+              }
             }
           }
+
+          result.push({
+            x: col.left - offsetX,
+            y: row.top - offsetY,
+            width: col.size,
+            height: row.size,
+            text,
+            textWidth,
+            border: cell.border ? this.workbook.borders[cell.border] : null,
+            style,
+            align,
+            clipRect,
+            isError: cell.error
+          });
+        }
+      }
+    }
+    // process all visible merges
+    for (let id in merges) {
+      let merge = merges[id];
+      if (overlap(merge, viewport)) {
+        const refCell = cells[merge.topLeft];
+        const width = cols[merge.right].right - cols[merge.left].left;
+        let text, textWidth, style, align, border;
+        if (refCell) {
+          text = refCell ? this.formatCell(refCell) : "";
+          textWidth = this.getCellWidth(refCell);
+          style = refCell.style ? this.workbook.styles[refCell.style] : {};
+          align = text
+            ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
+            : null;
+          border = refCell.border ? this.workbook.borders[refCell.border] : null;
+        }
+        style = style || {};
+        if (!style.fillColor) {
+          style = Object.create(style);
+          style.fillColor = "#fff";
         }
 
+        const x = cols[merge.left].left - offsetX;
+        const y = rows[merge.top].top - offsetY;
+        const height = rows[merge.bottom].bottom - rows[merge.top].top;
         result.push({
-          x: col.left - offsetX,
-          y: row.top - offsetY,
-          width: col.size,
-          height: row.size,
+          x: x,
+          y: y,
+          width,
+          height,
           text,
           textWidth,
-          border: cell.border ? state.borders[cell.border] : null,
+          border,
           style,
           align,
-          clipRect,
-          isError: cell.error
+          clipRect: [x, y, width, height],
+          isError: refCell ? refCell.error : false
         });
       }
     }
+    return result;
   }
-  // process all visible merges
-  for (let id in merges) {
-    let merge = merges[id];
-    if (overlap(merge, viewport)) {
-      const refCell = cells[merge.topLeft];
-      const width = cols[merge.right].right - cols[merge.left].left;
-      let text, textWidth, style, align, border;
-      if (refCell) {
-        text = refCell ? model.formatCell(refCell) : "";
-        textWidth = model.getCellWidth(refCell);
-        style = refCell.style ? state.styles[refCell.style] : {};
-        align = text
-          ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
-          : null;
-        border = refCell.border ? state.borders[refCell.border] : null;
-      }
-      style = style || {};
-      if (!style.fillColor) {
-        style = Object.create(style);
-        style.fillColor = "#fff";
-      }
-
-      const x = cols[merge.left].left - offsetX;
-      const y = rows[merge.top].top - offsetY;
-      const height = rows[merge.bottom].bottom - rows[merge.top].top;
-      result.push({
-        x: x,
-        y: y,
-        width,
-        height,
-        text,
-        textWidth,
-        border,
-        style,
-        align,
-        clipRect: [x, y, width, height],
-        isError: refCell ? refCell.error : false
-      });
-    }
-  }
-  return result;
 }

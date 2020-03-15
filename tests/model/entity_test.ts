@@ -16,7 +16,7 @@ describe("Entity", () => {
       ]
     });
     model.addEntity("A", "1", { name: "Name" });
-    expect(Object.keys(model.state.entities)).toHaveLength(1);
+    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
     expect(Object.keys(model.getEntities("A"))).toHaveLength(1);
     expect(model.getEntity("A", "1")).toBeDefined();
     expect(() => model.getEntity("A", "2")).toThrow();
@@ -36,7 +36,7 @@ describe("Entity", () => {
     });
     model.addEntity("A", "1", { name: "Name" });
     model.addEntity("A", "2", { name: "Test" });
-    expect(Object.keys(model.state.entities)).toHaveLength(1);
+    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
     expect(model.getEntity("A", "1")["name"]).toBe("Name");
     expect(model.getEntity("A", "2")["name"]).toBe("Test");
   });
@@ -56,14 +56,14 @@ describe("Entity", () => {
         }
       }
     });
-    expect(Object.keys(model.state.entities)).toHaveLength(1);
+    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
     model.removeEntity("A", "2");
     model.removeEntity("B", "2");
-    expect(Object.keys(model.state.entities)).toHaveLength(1);
-    expect(Object.keys(model.state.entities["A"])).toHaveLength(1);
+    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
+    expect(Object.keys(model.workbook.entities["A"])).toHaveLength(1);
     model.removeEntity("A", "1");
-    expect(Object.keys(model.state.entities)).toHaveLength(1);
-    expect(Object.keys(model.state.entities["A"])).toHaveLength(0);
+    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
+    expect(Object.keys(model.workbook.entities["A"])).toHaveLength(0);
   });
 });
 

@@ -113,7 +113,6 @@ export class Composer extends Component<any, any> {
     provider: "functions",
     search: ""
   });
-  debug: boolean = false;
   tokenAtCursor: ComposerToken | void = undefined;
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
@@ -150,7 +149,6 @@ export class Composer extends Component<any, any> {
 
   mounted() {
     // @ts-ignore
-    //TODO VSC: remove this debug code
     window.composer = this;
 
     const { cols, rows } = this.model.state;
@@ -178,12 +176,11 @@ export class Composer extends Component<any, any> {
   }
 
   get containerStyle() {
-    const { cols, rows, offsetX, offsetY } = this.model.state;
+    const { cols, rows, offsetX, offsetY, style } = this.model.state;
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 3;
     const top = row.top - offsetY;
-    const style = this.model.style;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const sizeInPt = style.fontSize || 10;
     const size = fontSizeMap[sizeInPt];
@@ -198,8 +195,8 @@ export class Composer extends Component<any, any> {
   }
 
   get composerStyle() {
-    const style = this.model.style;
-    const cell = this.model.selectedCell || { type: "text" };
+    const style = this.model.state.style;
+    const cell = this.model.state.selectedCell || { type: "text" };
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     return `text-align:${align};`;
   }

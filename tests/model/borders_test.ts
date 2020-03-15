@@ -13,34 +13,34 @@ describe("borders", () => {
     // select B2, set its top border, then clear it
     model.selectCell(1, 1);
     model.setBorder("top");
-    expect(model.state.cells.B2.border).toBeDefined();
-    expect(getBorder(model.state, "B2")).toEqual({ top: ["thin", "#000"] });
+    expect(model.workbook.cells.B2.border).toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
     model.setBorder("clear");
-    expect(model.state.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its left border, then clear it
     model.selectCell(1, 1);
     model.setBorder("left");
-    expect(model.state.cells.B2.border).toBeDefined();
-    expect(getBorder(model.state, "B2")).toEqual({ left: ["thin", "#000"] });
+    expect(model.workbook.cells.B2.border).toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual({ left: ["thin", "#000"] });
     model.setBorder("clear");
-    expect(model.state.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its bottom border, then clear it
     model.selectCell(1, 1);
     model.setBorder("bottom");
-    expect(model.state.cells.B2.border).toBeDefined();
-    expect(getBorder(model.state, "B2")).toEqual({ bottom: ["thin", "#000"] });
+    expect(model.workbook.cells.B2.border).toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual({ bottom: ["thin", "#000"] });
     model.setBorder("clear");
-    expect(model.state.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its right border, then clear it
     model.selectCell(1, 1);
     model.setBorder("right");
-    expect(model.state.cells.B2.border).toBeDefined();
-    expect(getBorder(model.state, "B2")).toEqual({ right: ["thin", "#000"] });
+    expect(model.workbook.cells.B2.border).toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
     model.setBorder("clear");
-    expect(model.state.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.B2).not.toBeDefined();
   });
 
   test("can add and remove a top border, on existing cell", () => {
@@ -53,12 +53,12 @@ describe("borders", () => {
     // set a border top
     model.setBorder("top");
 
-    expect(model.state.cells.B2.border).toBeDefined();
-    expect(getBorder(model.state, "B2")).toEqual({ top: ["thin", "#000"] });
+    expect(model.workbook.cells.B2.border).toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
 
     // clear borders
     model.setBorder("clear");
-    expect(model.state.cells.B2.border).not.toBeDefined();
+    expect(model.workbook.cells.B2.border).not.toBeDefined();
   });
 
   test("can add and remove a top border, on a selection", () => {
@@ -71,10 +71,10 @@ describe("borders", () => {
     // set a border top
     model.setBorder("top");
 
-    expect(model.state.cells.B2.border).toBeDefined();
-    expect(getBorder(model.state, "B2")).toEqual({ top: ["thin", "#000"] });
-    expect(model.state.cells.C2.border).toBeDefined();
-    expect(getBorder(model.state, "C2")).toEqual({ top: ["thin", "#000"] });
+    expect(model.workbook.cells.B2.border).toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
+    expect(model.workbook.cells.C2.border).toBeDefined();
+    expect(getBorder(model.workbook, "C2")).toEqual({ top: ["thin", "#000"] });
   });
 
   test("can clear a zone", () => {
@@ -83,7 +83,7 @@ describe("borders", () => {
     // select C3 and add a border
     model.selectCell(2, 2);
     model.setBorder("top");
-    expect(model.state.cells.C3.border).toBeDefined();
+    expect(model.workbook.cells.C3.border).toBeDefined();
 
     // select A1:E6
     model.selectCell(0, 0);
@@ -92,7 +92,7 @@ describe("borders", () => {
     // clear all borders
     model.setBorder("clear");
 
-    expect(model.state.cells.C3).not.toBeDefined();
+    expect(model.workbook.cells.C3).not.toBeDefined();
   });
 
   test("can set all borders in a zone", () => {
@@ -110,10 +110,10 @@ describe("borders", () => {
       bottom: ["thin", "#000"],
       right: ["thin", "#000"]
     };
-    expect(getBorder(model.state, "B2")).toEqual(all);
-    expect(getBorder(model.state, "B3")).toEqual(all);
-    expect(getBorder(model.state, "C2")).toEqual(all);
-    expect(getBorder(model.state, "C3")).toEqual(all);
+    expect(getBorder(model.workbook, "B2")).toEqual(all);
+    expect(getBorder(model.workbook, "B3")).toEqual(all);
+    expect(getBorder(model.workbook, "C2")).toEqual(all);
+    expect(getBorder(model.workbook, "C3")).toEqual(all);
   });
 
   test("setting top border in a zone only set top row", () => {
@@ -128,10 +128,10 @@ describe("borders", () => {
     const border = {
       top: ["thin", "#000"]
     };
-    expect(getBorder(model.state, "B2")).toEqual(border);
-    expect(getBorder(model.state, "C2")).toEqual(border);
-    expect(model.state.cells.B3).not.toBeDefined();
-    expect(model.state.cells.C3).not.toBeDefined();
+    expect(getBorder(model.workbook, "B2")).toEqual(border);
+    expect(getBorder(model.workbook, "C2")).toEqual(border);
+    expect(model.workbook.cells.B3).not.toBeDefined();
+    expect(model.workbook.cells.C3).not.toBeDefined();
   });
 
   test("clearing a common border in a neighbour cell", () => {
@@ -140,12 +140,12 @@ describe("borders", () => {
     // select B2, then set its right border
     model.selectCell(1, 1);
     model.setBorder("right");
-    expect(getBorder(model.state, "B2")).toEqual({ right: ["thin", "#000"] });
+    expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
 
     // select C2 then clear it
     model.selectCell(2, 1);
     model.setBorder("clear");
-    expect(model.state.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.B2).not.toBeDefined();
   });
 
   test("setting external border in a zone works", () => {
@@ -158,15 +158,15 @@ describe("borders", () => {
     // set external borders
     model.setBorder("external");
     const s = ["thin", "#000"];
-    expect(getBorder(model.state, "B2")).toEqual({ top: s, left: s });
-    expect(getBorder(model.state, "C2")).toEqual({ top: s });
-    expect(getBorder(model.state, "D2")).toEqual({ top: s, right: s });
-    expect(getBorder(model.state, "B3")).toEqual({ left: s });
-    expect(model.state.cells.C3).not.toBeDefined();
-    expect(getBorder(model.state, "D3")).toEqual({ right: s });
-    expect(getBorder(model.state, "B4")).toEqual({ bottom: s, left: s });
-    expect(getBorder(model.state, "C4")).toEqual({ bottom: s });
-    expect(getBorder(model.state, "D4")).toEqual({ bottom: s, right: s });
+    expect(getBorder(model.workbook, "B2")).toEqual({ top: s, left: s });
+    expect(getBorder(model.workbook, "C2")).toEqual({ top: s });
+    expect(getBorder(model.workbook, "D2")).toEqual({ top: s, right: s });
+    expect(getBorder(model.workbook, "B3")).toEqual({ left: s });
+    expect(model.workbook.cells.C3).not.toBeDefined();
+    expect(getBorder(model.workbook, "D3")).toEqual({ right: s });
+    expect(getBorder(model.workbook, "B4")).toEqual({ bottom: s, left: s });
+    expect(getBorder(model.workbook, "C4")).toEqual({ bottom: s });
+    expect(getBorder(model.workbook, "D4")).toEqual({ bottom: s, right: s });
   });
 
   test("setting internal horizontal borders in a zone works", () => {
@@ -179,12 +179,12 @@ describe("borders", () => {
     // set external borders
     model.setBorder("h");
     const s = ["thin", "#000"];
-    expect(model.state.cells.B2).not.toBeDefined();
-    expect(model.state.cells.C2).not.toBeDefined();
-    expect(getBorder(model.state, "B3")).toEqual({ top: s });
-    expect(getBorder(model.state, "C3")).toEqual({ top: s });
-    expect(getBorder(model.state, "B4")).toEqual({ top: s });
-    expect(getBorder(model.state, "C4")).toEqual({ top: s });
+    expect(model.workbook.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.C2).not.toBeDefined();
+    expect(getBorder(model.workbook, "B3")).toEqual({ top: s });
+    expect(getBorder(model.workbook, "C3")).toEqual({ top: s });
+    expect(getBorder(model.workbook, "B4")).toEqual({ top: s });
+    expect(getBorder(model.workbook, "C4")).toEqual({ top: s });
   });
 
   test("setting internal vertical borders in a zone works", () => {
@@ -197,12 +197,12 @@ describe("borders", () => {
     // set external borders
     model.setBorder("v");
     const s = ["thin", "#000"];
-    expect(model.state.cells.B2).not.toBeDefined();
-    expect(model.state.cells.B3).not.toBeDefined();
-    expect(model.state.cells.B4).not.toBeDefined();
-    expect(getBorder(model.state, "C2")).toEqual({ left: s });
-    expect(getBorder(model.state, "C3")).toEqual({ left: s });
-    expect(getBorder(model.state, "C4")).toEqual({ left: s });
+    expect(model.workbook.cells.B2).not.toBeDefined();
+    expect(model.workbook.cells.B3).not.toBeDefined();
+    expect(model.workbook.cells.B4).not.toBeDefined();
+    expect(getBorder(model.workbook, "C2")).toEqual({ left: s });
+    expect(getBorder(model.workbook, "C3")).toEqual({ left: s });
+    expect(getBorder(model.workbook, "C4")).toEqual({ left: s });
   });
 
   test("setting internal  borders in a zone works", () => {
@@ -215,12 +215,12 @@ describe("borders", () => {
     // set external borders
     model.setBorder("hv");
     const s = ["thin", "#000"];
-    expect(model.state.cells.B2).not.toBeDefined();
-    expect(getBorder(model.state, "C2")).toEqual({ left: s });
-    expect(getBorder(model.state, "B3")).toEqual({ top: s });
-    expect(getBorder(model.state, "C3")).toEqual({ top: s, left: s });
-    expect(getBorder(model.state, "B4")).toEqual({ top: s });
-    expect(getBorder(model.state, "C4")).toEqual({ top: s, left: s });
+    expect(model.workbook.cells.B2).not.toBeDefined();
+    expect(getBorder(model.workbook, "C2")).toEqual({ left: s });
+    expect(getBorder(model.workbook, "B3")).toEqual({ top: s });
+    expect(getBorder(model.workbook, "C3")).toEqual({ top: s, left: s });
+    expect(getBorder(model.workbook, "B4")).toEqual({ top: s });
+    expect(getBorder(model.workbook, "C4")).toEqual({ top: s, left: s });
   });
 
   test("deleting a cell with a border does not remove the border", () => {
@@ -231,9 +231,9 @@ describe("borders", () => {
     model.selectCell(1, 1);
     model.setBorder("top");
 
-    expect(model.state.cells.B2.border).toBeDefined();
+    expect(model.workbook.cells.B2.border).toBeDefined();
     model.deleteSelection();
-    expect(model.state.cells.B2.border).toBeDefined();
+    expect(model.workbook.cells.B2.border).toBeDefined();
   });
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
@@ -242,11 +242,11 @@ describe("borders", () => {
     model.selectCell(1, 1);
     model.setBorder("all");
 
-    expect(model.state.cells.B2.content).toBe("some content");
-    expect(model.state.cells.B2.border).toBeDefined();
+    expect(model.workbook.cells.B2.content).toBe("some content");
+    expect(model.workbook.cells.B2.border).toBeDefined();
     model.undo();
-    expect(model.state.cells.B2.content).toBe("some content");
-    expect(model.state.cells.B2.border).not.toBeDefined();
+    expect(model.workbook.cells.B2.content).toBe("some content");
+    expect(model.workbook.cells.B2.border).not.toBeDefined();
   });
 
   test("can clear formatting (border)", () => {
@@ -255,24 +255,24 @@ describe("borders", () => {
     model.selectCell(1, 0);
     model.setBorder("all");
 
-    expect(model.state.cells.B1.border).toBeDefined();
+    expect(model.workbook.cells.B1.border).toBeDefined();
     model.clearFormatting();
-    expect(model.state.cells.B1.border).not.toBeDefined();
+    expect(model.workbook.cells.B1.border).not.toBeDefined();
   });
 
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new GridModel();
     model.selectCell(0, 0);
     model.updateSelection(25, 99);
-    expect(model.state.selection.zones[0]).toEqual({
+    expect(model.workbook.selection.zones[0]).toEqual({
       left: 0,
       top: 0,
-      right: model.state.cols.length - 1,
-      bottom: model.state.rows.length - 1
+      right: model.workbook.cols.length - 1,
+      bottom: model.workbook.rows.length - 1
     });
     model.setBorder("all");
-    expect(model.state.cells.B1.border).toBeDefined();
+    expect(model.workbook.cells.B1.border).toBeDefined();
     model.setBorder("clear");
-    expect(model.state.cells.B1).not.toBeDefined();
+    expect(model.workbook.cells.B1).not.toBeDefined();
   });
 });

@@ -11,29 +11,26 @@ import {
 } from "./core";
 import { evaluateCells } from "./evaluation";
 import { updateSelection } from "./selection";
-import { Cell, Workbook, NewCell } from "./types";
+import { Cell, Workbook, NewCell, Zone, GridCommand } from "./types";
 import { updateCell } from "./history";
 
-export function cut(state: Workbook) {
-  cutOrCopy(state, true);
-}
-
-interface CopyOptions {
-  onlyFormat?: boolean;
-}
-
-export function copy(state: Workbook, options: CopyOptions = {}) {
-  if (options.onlyFormat) {
-    state.isCopyingFormat = true;
+export function dispatch(state: Workbook, command: GridCommand) {
+  switch (command.type) {
+    case "COPY":
+      if (command.onlyFormat) {
+        state.isCopyingFormat = true;
+      }
+      cutOrCopy(state, command.target, false);
+      break;
+    case "CUT":
+      cutOrCopy(state, command.target, true);
   }
-  cutOrCopy(state, false);
 }
 
-function cutOrCopy(state: Workbook, cut: boolean) {
-  const zones = state.selection.zones;
+function cutOrCopy(state: Workbook, zones: Zone[], cut: boolean) {
   const tops = new Set(zones.map(z => z.top));
   const bottoms = new Set(zones.map(z => z.bottom));
-  const areZonesCompatible = tops.size === 1 && bottoms.size === 1;
+  const areZonesCompatible = tops.size === 1 && bottoms.size;
   let clippedZones = areZonesCompatible ? zones : [zones[zones.length - 1]];
 
   clippedZones = clippedZones.map(z => Object.assign({}, z));

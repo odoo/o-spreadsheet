@@ -9,7 +9,7 @@ let parent: GridParent;
 beforeEach(async () => {
   fixture = makeTestFixture();
   model = new GridModel();
-  model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
+  model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
   parent = new GridParent(model);
   await parent.mount(fixture);
 });
@@ -31,7 +31,7 @@ describe("Grid component", () => {
     model.setValue("B2", "b2");
     model.setValue("B3", "b3");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
-    expect(model.state.activeXc).toBe("C8");
+    expect(model.workbook.activeXc).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
@@ -41,14 +41,14 @@ describe("Grid component", () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
     );
-    expect(model.state.activeXc).toBe("A2");
+    expect(model.workbook.activeXc).toBe("A2");
   });
 
   test("can shift-click on a cell to update selection", async () => {
     model.setValue("B2", "b2");
     model.setValue("B3", "b3");
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
-    expect(model.state.selection.zones[0]).toEqual({
+    expect(model.workbook.selection.zones[0]).toEqual({
       top: 0,
       left: 0,
       bottom: 7,
@@ -61,8 +61,8 @@ describe("Grid component", () => {
       // note: this behavious is not like excel. Maybe someone will want to
       // change this
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      expect(model.state.activeXc).toBe("A1");
-      expect(model.state.isEditing).toBe(true);
+      expect(model.workbook.activeXc).toBe("A1");
+      expect(model.workbook.isEditing).toBe(true);
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
@@ -71,22 +71,22 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      expect(model.state.activeXc).toBe("A2");
-      expect(model.state.isEditing).toBe(false);
-      expect(model.state.cells["A1"].content).toBe("a");
+      expect(model.workbook.activeXc).toBe("A2");
+      expect(model.workbook.isEditing).toBe(false);
+      expect(model.workbook.cells["A1"].content).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       model.selectCell(0, 1);
-      expect(model.state.activeXc).toBe("A2");
+      expect(model.workbook.activeXc).toBe("A2");
       model.startEditing("a");
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
-      expect(model.state.activeXc).toBe("A1");
-      expect(model.state.isEditing).toBe(false);
-      expect(model.state.cells["A2"].content).toBe("a");
+      expect(model.workbook.activeXc).toBe("A1");
+      expect(model.workbook.isEditing).toBe(false);
+      expect(model.workbook.cells["A2"].content).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
@@ -95,57 +95,57 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
-      expect(model.state.activeXc).toBe("A1");
-      expect(model.state.isEditing).toBe(false);
-      expect(model.state.cells["A1"].content).toBe("a");
+      expect(model.workbook.activeXc).toBe("A1");
+      expect(model.workbook.isEditing).toBe(false);
+      expect(model.workbook.cells["A1"].content).toBe("a");
     });
 
     test("pressing TAB move to next cell", async () => {
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-      expect(model.state.activeXc).toBe("B1");
+      expect(model.workbook.activeXc).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       model.selectCell(1, 0);
-      expect(model.state.activeXc).toBe("B1");
+      expect(model.workbook.activeXc).toBe("B1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
-      expect(model.state.activeXc).toBe("A1");
+      expect(model.workbook.activeXc).toBe("A1");
     });
 
     test("can undo/redo with keyboard", async () => {
       model.setStyle({ fillColor: "red" });
-      expect(model.state.cells.A1.style).toBeDefined();
+      expect(model.workbook.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
       );
-      expect(model.state.cells.A1).not.toBeDefined();
+      expect(model.workbook.cells.A1).not.toBeDefined();
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "y", ctrlKey: true, bubbles: true })
       );
-      expect(model.state.cells.A1.style).toBeDefined();
+      expect(model.workbook.cells.A1.style).toBeDefined();
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
       model.setStyle({ fillColor: "red" });
-      expect(model.state.cells.A1.style).toBeDefined();
+      expect(model.workbook.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
       );
-      expect(model.state.cells.A1).not.toBeDefined();
+      expect(model.workbook.cells.A1).not.toBeDefined();
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Y", ctrlKey: true, bubbles: true })
       );
-      expect(model.state.cells.A1.style).toBeDefined();
+      expect(model.workbook.cells.A1.style).toBeDefined();
     });
 
     test("can select all the sheet with CTRL+A", async () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
       );
-      expect(model.state.activeXc).toBe("A1");
-      expect(model.state.selection.zones[0]).toEqual({ left: 0, top: 0, right: 25, bottom: 99 });
+      expect(model.workbook.activeXc).toBe("A1");
+      expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 25, bottom: 99 });
     });
 
     test("can save the sheet with CTRL+S", async () => {
@@ -165,23 +165,25 @@ describe("Grid component", () => {
       model.setValue("B2", "b2");
       model.selectCell(1, 1);
       model.setStyle({ bold: true });
-      model.copy({ onlyFormat: true });
+      const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
+      model.dispatch({ type: "COPY", onlyFormat: true, target });
       triggerMouseEvent("canvas", "mousedown", 300, 200);
-      expect(model.state.cells.C8).not.toBeDefined();
+      expect(model.workbook.cells.C8).not.toBeDefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
-      expect(model.state.cells.C8.style).toBe(2);
+      expect(model.workbook.cells.C8.style).toBe(2);
     });
 
     test("can paste format with key", async () => {
       model.setValue("B2", "b2");
       model.selectCell(1, 1);
       model.setStyle({ bold: true });
-      model.copy({ onlyFormat: true });
-      expect(model.state.cells.C2).not.toBeDefined();
+      const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
+      model.dispatch({ type: "COPY", onlyFormat: true, target });
+      expect(model.workbook.cells.C2).not.toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
       );
-      expect(model.state.cells.C2.style).toBe(2);
+      expect(model.workbook.cells.C2.style).toBe(2);
     });
   });
 });

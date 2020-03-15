@@ -87,8 +87,8 @@ describe("Context Menu", () => {
     simulateClick(".o-context-menu div[data-name='paste']");
     await nextTick();
 
-    expect(model.state.cells.B1.content).toBe("b1");
-    expect(model.state.cells.B2.content).toBe("b1");
+    expect(model.workbook.cells.B1.content).toBe("b1");
+    expect(model.workbook.cells.B2.content).toBe("b1");
   });
 
   test("can cut/paste with context menu", async () => {
@@ -118,7 +118,7 @@ describe("Context Menu", () => {
     simulateClick(".o-context-menu div[data-name='paste']");
     await nextTick();
 
-    expect(model.state.cells.B1).not.toBeDefined();
-    expect(model.state.cells.B2.content).toBe("b1");
+    expect(model.workbook.cells.B1).not.toBeDefined();
+    expect(model.workbook.cells.B2.content).toBe("b1");
   });
 });
