@@ -73,7 +73,7 @@ interface Props {
   search: string;
 }
 
-export abstract class TextValueProvider extends Component<any, Props> {
+export abstract class TextValueProvider extends Component<Props, any> {
   static template = TEMPLATE;
   static style = CSS;
 
