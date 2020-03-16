@@ -1,4 +1,4 @@
-import { args, toNumber, visitNumbers, toString } from "./arguments";
+import { args, toNumber, strictToNumber, visitNumbers, toString } from "./arguments";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------
@@ -103,12 +103,12 @@ export const COUNTBLANK: FunctionDescription = {
       if (Array.isArray(element)) {
         for (let col of element) {
           for (let cell of col) {
-            if (cell === undefined || cell === "") {
+            if (cell === null || cell === undefined || cell === "") {
               blanks++;
             }
           }
         }
-      } else if (element === null || element === "") {
+      } else if (element === undefined || element === "") {
         blanks++;
       }
     }
@@ -302,7 +302,7 @@ export const ISEVEN: FunctionDescription = {
   `,
   returns: ["BOOLEAN"],
   compute: function(value: any): boolean {
-    const _value = toNumber(value);
+    const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
   }
@@ -333,7 +333,7 @@ export const ISODD: FunctionDescription = {
   `,
   returns: ["BOOLEAN"],
   compute: function(value: any): boolean {
-    const _value = toNumber(value);
+    const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
   }
@@ -410,11 +410,11 @@ export const POWER: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function(base: any, exponent: any): number {
     const _base = toNumber(base);
-    if (_base >= 0) {
-      return Math.pow(_base, exponent);
-    }
-
     const _exponent = toNumber(exponent);
+
+    if (_base >= 0) {
+      return Math.pow(_base, _exponent);
+    }
     if (!Number.isInteger(_exponent)) {
       throw new Error(`
           Function POWER expects the parameter '${POWER.args[1].name}' 
