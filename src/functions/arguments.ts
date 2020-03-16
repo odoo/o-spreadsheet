@@ -119,6 +119,11 @@ export function validateArguments(args: Arg[]) {
 
 // HELPERS
 
+const expectNumberValueError = (value: string) => `
+  The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a 
+  string, and cannot be coerced to a number.
+`;
+
 export function toNumber(value: any): number {
   switch (typeof value) {
     case "number":
@@ -126,7 +131,7 @@ export function toNumber(value: any): number {
     case "boolean":
       return value ? 1 : 0;
     case "string":
-      if (isNumber(value)) {
+      if (isNumber(value) || value === "") {
         let n = Number(value);
         if (isNaN(n)) {
           if (value.includes("%")) {
@@ -139,12 +144,17 @@ export function toNumber(value: any): number {
           return n;
         }
       }
-      throw new Error(`
-      The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string,
-      and cannot be coerced to a number`);
+      throw new Error(expectNumberValueError(value));
     default:
       return 0;
   }
+}
+
+export function strictToNumber(value: any): number {
+  if (value === "") {
+    throw new Error(expectNumberValueError(value));
+  }
+  return toNumber(value);
 }
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
@@ -169,7 +179,7 @@ export function visitNumbers(args: IArguments, cb: (arg: number) => void): void 
         }
       }
     } else {
-      cb(toNumber(n));
+      cb(strictToNumber(n));
     }
   }
 }
