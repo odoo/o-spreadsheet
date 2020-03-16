@@ -57,7 +57,7 @@ interface Props {
   data: PartialWorkbookDataWithVersion;
 }
 
-export class Spreadsheet extends Component<any, Props> {
+export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };

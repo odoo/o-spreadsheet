@@ -171,7 +171,7 @@ interface props {
   model: GridModel;
 }
 
-export class ConditionalFormattingRuleEditor extends Component<any, props> {
+export class ConditionalFormattingRuleEditor extends Component<props> {
   static template = TEMPLATE;
   static style = CSS;
 
