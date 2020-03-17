@@ -400,7 +400,7 @@ export class TopBar extends Component<any, any> {
     }
     this.undoTool = state.canUndo;
     this.redoTool = state.canRedo;
-    this.paintFormatTool = state.isCopyingFormat;
+    this.paintFormatTool = state.isPaintingFormat;
     const cell = state.selectedCell;
     if (cell && cell.format) {
       const format = this.formats.find(f => f.value === cell.format);
@@ -444,9 +444,8 @@ export class TopBar extends Component<any, any> {
   }
   paintFormat() {
     this.model.dispatch({
-      type: "COPY",
-      target: this.model.state.selection.zones,
-      onlyFormat: true
+      type: "ACTIVATE_PAINT_FORMAT",
+      target: this.model.state.selection.zones
     });
   }
   setSize(ev) {

@@ -8,6 +8,8 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
+import { Clipboard } from "./clipboard";
+
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
@@ -110,13 +112,6 @@ export interface Merge extends Zone {
   topLeft: string;
 }
 
-export interface ClipBoard {
-  status: "empty" | "visible" | "invisible";
-  shouldCut?: boolean;
-  zones: Zone[];
-  cells?: (Cell | null)[][];
-}
-
 export interface Highlight {
   zone: Zone;
   color: string | null;
@@ -169,14 +164,12 @@ export interface Workbook {
   isEditing: boolean;
   currentContent: string;
 
-  clipboard: ClipBoard;
   trackChanges: boolean;
   undoStack: HistoryStep[];
   redoStack: HistoryStep[];
   nextId: number;
   highlights: Highlight[];
   isSelectingRange: boolean;
-  isCopyingFormat: boolean;
 
   loadingCells: number;
 
@@ -213,7 +206,7 @@ export interface UI {
   sheets: string[];
   activeSheet: string;
 
-  clipboard: ClipBoard;
+  clipboard: Clipboard;
   highlights: Highlight[];
   isSelectingRange: boolean;
 
@@ -222,12 +215,12 @@ export interface UI {
   isMergeDestructive: boolean;
   aggregate: string | null;
 
-  isCopyingFormat: boolean;
   isEditing: boolean;
 
   canUndo: boolean;
   canRedo: boolean;
 
+  isPaintingFormat: boolean;
   // to remove someday
   currentContent: string;
   rows: Row[];
@@ -401,7 +394,6 @@ type Target = Zone[];
 export interface CommandCopy {
   type: "COPY";
   target: Target;
-  onlyFormat?: boolean;
 }
 
 export interface CommandCut {
@@ -409,4 +401,28 @@ export interface CommandCut {
   target: Target;
 }
 
-export type GridCommand = CommandCopy | CommandCut;
+export interface CommandActivatePaintFormat {
+  type: "ACTIVATE_PAINT_FORMAT";
+  target: Target;
+}
+
+export interface CommandPaste {
+  type: "PASTE";
+  target: Target;
+  onlyFormat?: boolean;
+}
+
+export interface CommandPasteFromOSClipboard {
+  type: "PASTE_FROM_OS_CLIPBOARD";
+  target: Target;
+  text: string;
+}
+
+export type GridCommand =
+  | CommandCopy
+  | CommandCut
+  | CommandPaste
+  | CommandPasteFromOSClipboard
+  | CommandActivatePaintFormat;
+
+export type CommandResult = "CANCELLED";

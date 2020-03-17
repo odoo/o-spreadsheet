@@ -139,7 +139,12 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(model.workbook.currentContent).toBe("=B2");
     expect(model.workbook.highlights).toHaveLength(1);
-    expect(model.workbook.highlights[0].zone).toMatchObject({ top: 1, bottom: 2, left: 1, right: 2 });
+    expect(model.workbook.highlights[0].zone).toMatchObject({
+      top: 1,
+      bottom: 2,
+      left: 1,
+      right: 2
+    });
     await keydown("ArrowDown");
     expect(model.workbook.currentContent).toBe("=C4");
   });

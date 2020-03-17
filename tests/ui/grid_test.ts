@@ -166,7 +166,7 @@ describe("Grid component", () => {
       model.selectCell(1, 1);
       model.setStyle({ bold: true });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
-      model.dispatch({ type: "COPY", onlyFormat: true, target });
+      model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
       triggerMouseEvent("canvas", "mousedown", 300, 200);
       expect(model.workbook.cells.C8).not.toBeDefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
@@ -178,7 +178,7 @@ describe("Grid component", () => {
       model.selectCell(1, 1);
       model.setStyle({ bold: true });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
-      model.dispatch({ type: "COPY", onlyFormat: true, target });
+      model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
       expect(model.workbook.cells.C2).not.toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })

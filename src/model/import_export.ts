@@ -122,10 +122,6 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     activeXc: "A1",
     isEditing: false,
     currentContent: "",
-    clipboard: {
-      status: "empty",
-      zones: []
-    },
     trackChanges: false,
     undoStack: [],
     redoStack: [],
