@@ -58,13 +58,13 @@ async function resizeColumn(letter: string, delta: number) {
   await nextTick();
   const width = model.workbook.cols[8].right;
   model.workbook.clientWidth = width;
-  Object.assign(model.state, model.computeDerivedState())
+  Object.assign(model.state, model.computeDerivedState());
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
   triggerMouseEvent(window, "mousemove", x + delta, 10);
   triggerMouseEvent(window, "mouseup", x + delta, 10);
   await nextTick();
   model.workbook.clientWidth = width;
-  Object.assign(model.state, model.computeDerivedState())
+  Object.assign(model.state, model.computeDerivedState());
 }
 /**
  * Trigger a double click on a column

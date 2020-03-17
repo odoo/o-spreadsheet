@@ -66,7 +66,11 @@ export const menuItems: MenuItem[] = [
     name: "paste",
     description: "Paste",
     action(model) {
-      model.paste();
+      model.dispatch({
+        type: "PASTE",
+        target: model.state.selection.zones,
+        onlyFormat: false
+      });
     }
   }
 ];

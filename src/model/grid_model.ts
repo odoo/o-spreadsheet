@@ -16,7 +16,7 @@ import * as selection from "./selection";
 import * as clipboard from "./clipboard";
 import * as sheet from "./sheet";
 import * as conditionalFormat from "./conditional_format";
-import { Cell, Workbook, Box, Rect, Viewport, GridCommand, UI } from "./types";
+import { Cell, Workbook, Box, Rect, Viewport, GridCommand, UI, CommandResult } from "./types";
 import {
   DEFAULT_FONT_WEIGHT,
   DEFAULT_FONT_SIZE,
@@ -26,6 +26,7 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { toXC, overlap } from "../helpers";
+import { BasePlugin } from "./base_plugin";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
@@ -35,6 +36,7 @@ export class GridModel extends owl.core.EventBus {
   state: UI;
 
   private ctx: CanvasRenderingContext2D;
+  private plugins: BasePlugin[];
 
   // scheduling
   static setTimeout = window.setTimeout.bind(window);
@@ -44,8 +46,12 @@ export class GridModel extends owl.core.EventBus {
     super();
     (window as any).gridmodel = this; // to debug. remove this someday
 
-    this.ctx = document.createElement("canvas").getContext("2d")!;
     this.workbook = importData(data);
+    // plugins
+    this.plugins = [new clipboard.ClipboardPlugin(this.workbook)];
+
+    // misc
+    this.ctx = document.createElement("canvas").getContext("2d")!;
     this.state = this.computeDerivedState();
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
@@ -72,15 +78,22 @@ export class GridModel extends owl.core.EventBus {
     }) as any;
   }
 
-  dispatch(command: GridCommand) {
+  dispatch(command: GridCommand): CommandResult[] {
     history.start(this.workbook);
-    clipboard.dispatch(this.workbook, command);
+    const results: CommandResult[] = [];
+    for (let plugin of this.plugins) {
+      let result = plugin.dispatch(command);
+      if (result) {
+        results.push(result);
+      }
+    }
     history.stop(this.workbook);
     Object.assign(this.state, this.computeDerivedState());
     this.trigger("update");
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
     }
+    return results;
   }
 
   computeDerivedState(): UI {
@@ -102,17 +115,17 @@ export class GridModel extends owl.core.EventBus {
       activeCol: this.workbook.activeCol,
       activeRow: this.workbook.activeRow,
       activeXc: this.workbook.activeXc,
-      clipboard: this.workbook.clipboard,
+      clipboard: (this.plugins[0] as clipboard.ClipboardPlugin).clipboard,
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.workbook.isEditing,
+      isPaintingFormat: (this.plugins[0] as clipboard.ClipboardPlugin).isPaintingFormat,
       selectedCell: core.selectedCell(this.workbook),
       style: formatting.getStyle(this.workbook),
       isMergeDestructive: merges.isMergeDestructive(this.workbook),
       aggregate: core.computeAggregate(this.workbook),
       canUndo: this.workbook.undoStack.length > 0,
       canRedo: this.workbook.redoStack.length > 0,
-      isCopyingFormat: this.workbook.isCopyingFormat,
       currentContent: this.workbook.currentContent,
       sheets: this.workbook.sheets.map(s => s.name),
       activeSheet: this.workbook.activeSheet.name
@@ -216,8 +229,9 @@ export class GridModel extends owl.core.EventBus {
 
   // clipboard
   // ---------------------------------------------------------------------------
-  paste = this.makeMutation(clipboard.paste);
-  getClipboardContent = this.makeFn(clipboard.getClipboardContent);
+  getClipboardContent(): string {
+    return (this.plugins[0] as clipboard.ClipboardPlugin).getClipboardContent();
+  }
 
   // resizing
   // ---------------------------------------------------------------------------

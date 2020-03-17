@@ -145,8 +145,11 @@ export class Grid extends Component<any, any> {
   };
 
   private processCopyFormat() {
-    if (this.model.state.isCopyingFormat) {
-      this.model.paste({ onlyFormat: true });
+    if (this.model.state.isPaintingFormat) {
+      this.model.dispatch({
+        type: "PASTE",
+        target: this.model.state.selection.zones
+      });
     }
   }
 
@@ -213,7 +216,6 @@ export class Grid extends Component<any, any> {
   }
 
   onMouseWheel(ev: WheelEvent) {
-    
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
@@ -293,8 +295,11 @@ export class Grid extends Component<any, any> {
         }
       }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-      if (this.model.state.isCopyingFormat) {
-        this.model.paste({ onlyFormat: true });
+      if (this.model.state.isPaintingFormat) {
+        this.model.dispatch({
+          type: "PASTE",
+          target: this.model.state.selection.zones
+        });
       }
     };
 
@@ -396,14 +401,22 @@ export class Grid extends Component<any, any> {
       const content = clipboardData.getData("text/plain");
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        const didPaste = this.model.paste();
+        const results = this.model.dispatch({
+          type: "PASTE",
+          target: this.model.state.selection.zones
+        });
+        const didPaste = !results.find(r => r === "CANCELLED");
         if (!didPaste) {
           this.trigger("notify-user", {
             content: "This operation is not allowed with multiple selections."
           });
         }
       } else {
-        this.model.paste({ clipboardContent: content });
+        this.model.dispatch({
+          type: "PASTE_FROM_OS_CLIPBOARD",
+          target: this.model.state.selection.zones,
+          text: content
+        });
       }
     }
   }
