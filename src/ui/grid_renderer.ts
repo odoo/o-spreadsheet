@@ -223,14 +223,14 @@ function drawHighlights(ctx: CanvasRenderingContext2D, state: UI) {
 
 function drawClipBoard(ctx: CanvasRenderingContext2D, state: UI) {
   const { clipboard } = state;
-  if (clipboard.status !== "visible" || !clipboard.zones.length) {
+  if (!clipboard.length) {
     return;
   }
   ctx.save();
   ctx.setLineDash([8, 5]);
   ctx.strokeStyle = "#3266ca";
   ctx.lineWidth = 3.3 * thinLineWidth;
-  for (const zone of clipboard.zones) {
+  for (const zone of clipboard) {
     const [x, y, width, height] = getRect(zone, state);
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);

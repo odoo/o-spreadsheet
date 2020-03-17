@@ -8,8 +8,6 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
-import { Clipboard } from "./clipboard";
-
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
@@ -206,7 +204,7 @@ export interface UI {
   sheets: string[];
   activeSheet: string;
 
-  clipboard: Clipboard;
+  clipboard: Zone[];
   highlights: Highlight[];
   isSelectingRange: boolean;
 

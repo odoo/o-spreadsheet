@@ -13,7 +13,7 @@ import * as merges from "./merges";
 import * as entity from "./entity";
 import * as resizing from "./resizing";
 import * as selection from "./selection";
-import * as clipboard from "./clipboard";
+import { ClipboardPlugin } from "./plugins/clipboard";
 import * as sheet from "./sheet";
 import * as conditionalFormat from "./conditional_format";
 import { Cell, Workbook, Box, Rect, Viewport, GridCommand, UI, CommandResult } from "./types";
@@ -31,12 +31,18 @@ import { BasePlugin } from "./base_plugin";
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
 
+
+// -----------------------------------------------------------------------------
+// GridModel
+// -----------------------------------------------------------------------------
 export class GridModel extends owl.core.EventBus {
+  private plugins: BasePlugin[];
+
   workbook: Workbook;
   state: UI;
 
+
   private ctx: CanvasRenderingContext2D;
-  private plugins: BasePlugin[];
 
   // scheduling
   static setTimeout = window.setTimeout.bind(window);
@@ -48,7 +54,7 @@ export class GridModel extends owl.core.EventBus {
 
     this.workbook = importData(data);
     // plugins
-    this.plugins = [new clipboard.ClipboardPlugin(this.workbook)];
+    this.plugins = [new ClipboardPlugin(this.workbook)];
 
     // misc
     this.ctx = document.createElement("canvas").getContext("2d")!;
@@ -98,6 +104,8 @@ export class GridModel extends owl.core.EventBus {
 
   computeDerivedState(): UI {
     const { viewport, cols, rows } = this.workbook;
+    const clipboard = this.plugins[0] as ClipboardPlugin;
+    const clipboardZones = clipboard.status === "visible" ? clipboard.zones : [];
     return {
       rows: this.workbook.rows,
       cols: this.workbook.cols,
@@ -115,11 +123,11 @@ export class GridModel extends owl.core.EventBus {
       activeCol: this.workbook.activeCol,
       activeRow: this.workbook.activeRow,
       activeXc: this.workbook.activeXc,
-      clipboard: (this.plugins[0] as clipboard.ClipboardPlugin).clipboard,
+      clipboard: clipboardZones,
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.workbook.isEditing,
-      isPaintingFormat: (this.plugins[0] as clipboard.ClipboardPlugin).isPaintingFormat,
+      isPaintingFormat: (this.plugins[0] as ClipboardPlugin).isPaintingFormat,
       selectedCell: core.selectedCell(this.workbook),
       style: formatting.getStyle(this.workbook),
       isMergeDestructive: merges.isMergeDestructive(this.workbook),
@@ -230,7 +238,7 @@ export class GridModel extends owl.core.EventBus {
   // clipboard
   // ---------------------------------------------------------------------------
   getClipboardContent(): string {
-    return (this.plugins[0] as clipboard.ClipboardPlugin).getClipboardContent();
+    return (this.plugins[0] as ClipboardPlugin).getClipboardContent();
   }
 
   // resizing
