@@ -6,8 +6,8 @@ export class EntityPlugin extends BasePlugin {
   entities: { [key: string]: { [key: string]: any } } = {};
 
   getters = {
-    getEntity: (kind: string, key: string) => this.getEntity(kind, key),
-    getEntities: (kind: string) => this.getEntities(kind)
+    getEntity: this.getEntity,
+    getEntities: this.getEntities
   };
 
   constructor(workbook: Workbook, data: PartialWorkbookDataWithVersion) {
@@ -39,17 +39,17 @@ export class EntityPlugin extends BasePlugin {
     data.entities = JSON.parse(JSON.stringify(this.entities));
   }
 
-  getEntity(type: string, key: string): any {
-    if (!(type in this.entities) || !(key in this.entities[type])) {
-      throw new Error(`Could not find ${type}/${key} in entities.`);
+  getEntity(kind: string, key: string): any {
+    if (!(kind in this.entities) || !(key in this.entities[kind])) {
+      throw new Error(`Could not find ${kind}/${key} in entities.`);
     }
-    return this.entities[type] && this.entities[type][key];
+    return this.entities[kind] && this.entities[kind][key];
   }
 
-  getEntities(type: string): { [key: string]: any } {
-    if (!(type in this.entities)) {
-      throw new Error(`Could not find ${type} in entities.`);
+  getEntities(kind: string): { [key: string]: any } {
+    if (!(kind in this.entities)) {
+      throw new Error(`Could not find ${kind} in entities.`);
     }
-    return this.entities[type];
+    return this.entities[kind];
   }
 }

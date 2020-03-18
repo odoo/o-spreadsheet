@@ -27,8 +27,8 @@ export class ClipboardPlugin extends BasePlugin {
   onlyFormat: boolean = false;
 
   getters = {
-    getClipboardContent: () => this.getClipboardContent()
-  }
+    getClipboardContent: this.getClipboardContent
+  };
 
   dispatch(cmd: GridCommand): CommandResult | void {
     switch (cmd.type) {

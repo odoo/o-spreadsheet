@@ -253,7 +253,15 @@ export class ColResizer extends AbstractResizer {
   }
 
   _updateSize(): void {
-    this.model.updateColsSize(this.state.activeElement, this.state.delta);
+    const index = this.state.activeElement;
+    const size = this.state.delta + this._getElementSize(index);
+    const cols = this.model.getActiveCols();
+    this.model.dispatch({
+      type: "RESIZE_COLUMNS",
+      sheet: this.model.state.activeSheet,
+      cols: cols.has(index) ? [...cols] : [index],
+      size
+    });
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
@@ -265,7 +273,12 @@ export class ColResizer extends AbstractResizer {
   }
 
   _fitElementSize(index: number): void {
-    this.model.autoresizeCols(index);
+    const cols = this.model.getActiveCols();
+    this.model.dispatch({
+      type: "AUTORESIZE_COLUMNS",
+      sheet: this.model.state.activeSheet,
+      cols: cols.has(index) ? [...cols] : [index]
+    });
   }
 }
 
@@ -358,7 +371,15 @@ export class RowResizer extends AbstractResizer {
   }
 
   _updateSize(): void {
-    this.model.updateRowsSize(this.state.activeElement, this.state.delta);
+    const index = this.state.activeElement;
+    const size = this.state.delta + this._getElementSize(index);
+    const rows = this.model.getActiveRows();
+    this.model.dispatch({
+      type: "RESIZE_ROWS",
+      sheet: this.model.state.activeSheet,
+      rows: rows.has(index) ? [...rows] : [index],
+      size
+    });
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
@@ -370,7 +391,12 @@ export class RowResizer extends AbstractResizer {
   }
 
   _fitElementSize(index: number): void {
-    this.model.autoresizeRows(index);
+    const rows = this.model.getActiveRows();
+    this.model.dispatch({
+      type: "AUTORESIZE_ROWS",
+      sheet: this.model.state.activeSheet,
+      rows: rows.has(index) ? [...rows] : [index]
+    });
   }
 }
 
