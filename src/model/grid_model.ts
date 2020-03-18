@@ -31,7 +31,6 @@ import { BasePlugin } from "./base_plugin";
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
 
-
 // -----------------------------------------------------------------------------
 // GridModel
 // -----------------------------------------------------------------------------
@@ -40,7 +39,6 @@ export class GridModel extends owl.core.EventBus {
 
   workbook: Workbook;
   state: UI;
-
 
   private ctx: CanvasRenderingContext2D;
 
@@ -136,7 +134,8 @@ export class GridModel extends owl.core.EventBus {
       canRedo: this.workbook.redoStack.length > 0,
       currentContent: this.workbook.currentContent,
       sheets: this.workbook.sheets.map(s => s.name),
-      activeSheet: this.workbook.activeSheet.name
+      activeSheet: this.workbook.activeSheet.name,
+      conditionalFormats: this.workbook.activeSheet.conditionalFormats
     };
   }
 
