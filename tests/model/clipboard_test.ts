@@ -156,12 +156,12 @@ describe("clipboard", () => {
     model.setValue("B2", "abc");
     model.selectCell(1, 1);
     model.dispatch({ type: "COPY", target: target("B2") });
-    expect(model.getClipboardContent()).toBe("abc");
+    expect(model.getters.getClipboardContent()).toBe("abc");
 
     model.setValue("B2", "= 1 + 2");
     model.selectCell(1, 1);
     model.dispatch({ type: "COPY", target: target("B2") });
-    expect(model.getClipboardContent()).toBe("3");
+    expect(model.getters.getClipboardContent()).toBe("3");
   });
 
   test("can copy a rectangular selection", () => {
@@ -188,7 +188,7 @@ describe("clipboard", () => {
 
   test("empty clipboard: getClipboardContent returns a tab", () => {
     const model = new GridModel();
-    expect(model.getClipboardContent()).toBe("\t");
+    expect(model.getters.getClipboardContent()).toBe("\t");
   });
 
   test("getClipboardContent exports multiple cells", () => {
@@ -198,7 +198,7 @@ describe("clipboard", () => {
     model.setValue("C2", "c2");
     model.setValue("C3", "c3");
     model.dispatch({ type: "COPY", target: target("B2:C3") });
-    expect(model.getClipboardContent()).toBe("b2\tc2\nb3\tc3");
+    expect(model.getters.getClipboardContent()).toBe("b2\tc2\nb3\tc3");
   });
 
   test("can paste multiple cells from os clipboard", () => {

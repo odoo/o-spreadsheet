@@ -260,12 +260,6 @@ export class GridModel extends owl.core.EventBus {
   merge = this.makeMutation(merges.merge);
   unmerge = this.makeMutation(merges.unmerge);
 
-  // clipboard
-  // ---------------------------------------------------------------------------
-  getClipboardContent(): string {
-    return (this.plugins[0] as ClipboardPlugin).getClipboardContent();
-  }
-
   // resizing
   // ---------------------------------------------------------------------------
   updateColSize = this.makeMutation(resizing.updateColSize);

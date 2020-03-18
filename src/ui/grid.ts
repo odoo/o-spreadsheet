@@ -360,7 +360,7 @@ export class Grid extends Component<any, any> {
     const type = cut ? "CUT" : "COPY";
     const target = this.model.state.selection.zones;
     this.model.dispatch({ type, target });
-    const content = this.model.getClipboardContent();
+    const content = this.model.getters.getClipboardContent();
     this.clipBoardString = content;
     ev.clipboardData!.setData("text/plain", content);
     ev.preventDefault();

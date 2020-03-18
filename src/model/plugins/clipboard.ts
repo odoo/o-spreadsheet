@@ -26,6 +26,10 @@ export class ClipboardPlugin extends BasePlugin {
   isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
+  getters = {
+    getClipboardContent: () => this.getClipboardContent()
+  }
+
   dispatch(cmd: GridCommand): CommandResult | void {
     switch (cmd.type) {
       case "COPY":
