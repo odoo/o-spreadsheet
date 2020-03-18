@@ -1,6 +1,7 @@
 import { addFunction } from "../../src/functions";
 import { args } from "../../src/functions/arguments";
 import { CURRENT_VERSION, GridModel } from "../../src/model/index";
+import "../canvas.mock";
 import { resetFunctions } from "../helpers";
 
 describe("Entity", () => {
@@ -15,14 +16,16 @@ describe("Entity", () => {
         }
       ]
     });
-    model.addEntity("A", "1", { name: "Name" });
-    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
-    expect(Object.keys(model.getEntities("A"))).toHaveLength(1);
-    expect(model.getEntity("A", "1")).toBeDefined();
-    expect(() => model.getEntity("A", "2")).toThrow();
-    expect(() => model.getEntity("B", "1")).toThrow();
-    expect(() => model.getEntities("B")).toThrow();
+    expect(model.exportData().entities).toEqual({});
+    model.dispatch({ type: "ADD_ENTITY", kind: "A", key: "1", value: { name: "Name" } });
+
+    expect(model.exportData().entities).toEqual({
+      A: { "1": { name: "Name" } }
+    });
+
+    expect(model.getters["getEntity"]("A", "1")).toEqual({ name: "Name" });
   });
+
   test("Add multiple entities", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
@@ -34,12 +37,15 @@ describe("Entity", () => {
         }
       ]
     });
-    model.addEntity("A", "1", { name: "Name" });
-    model.addEntity("A", "2", { name: "Test" });
-    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
-    expect(model.getEntity("A", "1")["name"]).toBe("Name");
-    expect(model.getEntity("A", "2")["name"]).toBe("Test");
+
+    model.dispatch({ type: "ADD_ENTITY", kind: "A", key: "1", value: { name: "Name" } });
+    model.dispatch({ type: "ADD_ENTITY", kind: "A", key: "2", value: { name: "Test" } });
+
+    expect(model.exportData().entities).toEqual({
+      A: { "1": { name: "Name" }, "2": { name: "Test" } }
+    });
   });
+
   test("Remove entities", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
@@ -56,14 +62,23 @@ describe("Entity", () => {
         }
       }
     });
-    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
-    model.removeEntity("A", "2");
-    model.removeEntity("B", "2");
-    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
-    expect(Object.keys(model.workbook.entities["A"])).toHaveLength(1);
-    model.removeEntity("A", "1");
-    expect(Object.keys(model.workbook.entities)).toHaveLength(1);
-    expect(Object.keys(model.workbook.entities["A"])).toHaveLength(0);
+
+    expect(model.exportData().entities).toEqual({
+      A: { "1": { name: "Name" } }
+    });
+
+    model.dispatch({ type: "REMOVE_ENTITY", kind: "A", key: "2" });
+    model.dispatch({ type: "REMOVE_ENTITY", kind: "B", key: "2" });
+
+    expect(model.exportData().entities).toEqual({
+      A: { "1": { name: "Name" } }
+    });
+
+    model.dispatch({ type: "REMOVE_ENTITY", kind: "A", key: "1" });
+
+    expect(model.exportData().entities).toEqual({
+      A: {}
+    });
   });
 });
 
@@ -73,7 +88,7 @@ describe("Entity functions", () => {
     resetFunctions();
     addFunction("TEST", {
       description: "test with getEntity",
-      args: args``,
+      args: [],
       compute: function() {
         // @ts-ignore
         expect(this.getEntity).toBeDefined();

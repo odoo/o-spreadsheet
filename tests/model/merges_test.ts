@@ -1,4 +1,5 @@
 import { GridModel, Workbook, CURRENT_VERSION } from "../../src/model/index";
+import "../canvas.mock";
 
 describe("merges", () => {
   test("can merge two cells", () => {

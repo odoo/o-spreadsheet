@@ -1,6 +1,4 @@
-import { functionMap } from "../functions/index";
 import { toCartesian, toZone } from "../helpers";
-import * as entity from "./entity";
 import { Cell, Workbook, Sheet, Zone, CellIsRule } from "./types";
 
 /**
@@ -31,12 +29,12 @@ const WAITING: Set<Cell> = new Set();
  */
 const COMPUTED: Set<Cell> = new Set();
 
-export function evaluateCells(state: Workbook) {
+export function evaluateCells(state: Workbook, ctx: any) {
   state.isStale = false;
-  _evaluateCells(state, false);
+  _evaluateCells(state, ctx, false);
 }
 
-export function _evaluateCells(state: Workbook, onlyWaiting: boolean) {
+export function _evaluateCells(state: Workbook, ctx: any, onlyWaiting: boolean) {
   const sheets: { [name: string]: Sheet } = {};
   for (let sheet of state.sheets) {
     sheets[sheet.name] = sheet;
@@ -46,17 +44,6 @@ export function _evaluateCells(state: Workbook, onlyWaiting: boolean) {
   }
   const cells = state.cells;
   const visited = {};
-
-  // Evaluation context
-  // All functions + entity functions
-  const ctx = Object.assign(Object.create(functionMap), {
-    getEntity(type: string, key: string): any {
-      return entity.getEntity(state, type, key);
-    },
-    getEntities(type: string): { [key: string]: any } {
-      return entity.getEntities(state, type);
-    }
-  });
 
   function handleError(e: Error, cell: Cell) {
     if (PENDING.has(cell)) {

@@ -10,7 +10,7 @@ import {
   CURRENT_VERSION
 } from "./import_export";
 import * as merges from "./merges";
-import * as entity from "./entity";
+import * as entity from "./plugins/entity";
 import * as resizing from "./resizing";
 import * as selection from "./selection";
 import { ClipboardPlugin } from "./plugins/clipboard";
@@ -27,6 +27,7 @@ import {
 import { fontSizeMap } from "../fonts";
 import { toXC, overlap } from "../helpers";
 import { Plugin } from "./base_plugin";
+import { functionMap } from "../functions/index";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
@@ -35,25 +36,43 @@ type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...arg
 // GridModel
 // -----------------------------------------------------------------------------
 export class GridModel extends owl.core.EventBus {
-  private plugins: Plugin[];
+  static setTimeout = window.setTimeout.bind(window);
 
-  workbook: Workbook;
+  private plugins: Plugin[];
+  private workbook: Workbook;
+  private evalContext: any;
+  private ctx: CanvasRenderingContext2D;
+  private isStarted: boolean = false;
   state: UI;
 
-  private ctx: CanvasRenderingContext2D;
-
-  // scheduling
-  static setTimeout = window.setTimeout.bind(window);
-  isStarted: boolean = false;
+  getters: { [key: string]: Function } = {};
 
   constructor(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
     super();
     (window as any).gridmodel = this; // to debug. remove this someday
 
-    this.workbook = importData(data);
-    evaluateCells(this.workbook);
-    // plugins
-    this.plugins = [new ClipboardPlugin(this.workbook)];
+    const workbook = importData(data);
+    this.workbook = workbook;
+
+    // Plugins
+    const clipboardPlugin = new ClipboardPlugin(workbook, data);
+    const entityPlugin = new entity.EntityPlugin(workbook, data);
+    this.plugins = [clipboardPlugin, entityPlugin];
+    for (let p of this.plugins) {
+      Object.assign(this.getters, p.getters);
+    }
+
+    // Evaluation context
+    this.evalContext = Object.assign(Object.create(functionMap), {
+      getEntity(type: string, key: string): any {
+        return entityPlugin.getEntity(type, key);
+      },
+      getEntities(type: string): { [key: string]: any } {
+        return entityPlugin.getEntities(type);
+      }
+    });
+
+    evaluateCells(workbook, this.evalContext);
 
     // misc
     this.ctx = document.createElement("canvas").getContext("2d")!;
@@ -76,7 +95,7 @@ export class GridModel extends owl.core.EventBus {
       history.stop(this.workbook);
       Object.assign(this.state, this.computeDerivedState());
       if (this.workbook.isStale) {
-        evaluateCells(this.workbook);
+        evaluateCells(this.workbook, this.evalContext);
       }
       this.trigger("update");
       if (this.workbook.loadingCells > 0) {
@@ -98,7 +117,7 @@ export class GridModel extends owl.core.EventBus {
     history.stop(this.workbook);
     Object.assign(this.state, this.computeDerivedState());
     if (this.workbook.isStale) {
-      evaluateCells(this.workbook);
+      evaluateCells(this.workbook, this.evalContext);
     }
     this.trigger("update");
     if (this.workbook.loadingCells > 0) {
@@ -156,7 +175,7 @@ export class GridModel extends owl.core.EventBus {
       let current = this.workbook.loadingCells;
       const recomputeCells = () => {
         if (this.workbook.loadingCells !== current) {
-          _evaluateCells(this.workbook, true);
+          _evaluateCells(this.workbook, this.evalContext, true);
           current = this.workbook.loadingCells;
           if (current === 0) {
             this.isStarted = false;
@@ -256,16 +275,15 @@ export class GridModel extends owl.core.EventBus {
   setColSize = this.makeMutation(resizing.setColSize);
   setRowSize = this.makeMutation(resizing.setRowSize);
 
-  // entity
-  // ---------------------------------------------------------------------------
-  addEntity = this.makeFn(entity.addEntity);
-  removeEntity = this.makeFn(entity.removeEntity);
-  getEntity = this.makeFn(entity.getEntity);
-  getEntities = this.makeFn(entity.getEntities);
-
   // export
   // ---------------------------------------------------------------------------
-  exportData = this.makeFn(exportData);
+  exportData() {
+    const data = exportData(this.workbook);
+    for (let plugin of this.plugins) {
+      plugin.export(data);
+    }
+    return data;
+  }
 
   // conditional formatting
   // ---------------------------------------------------------------------------

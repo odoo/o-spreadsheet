@@ -49,7 +49,7 @@ interface SheetData {
   conditionalFormats?: ConditionalFormat[];
 }
 
-interface WorkbookData {
+export interface WorkbookData {
   version: number;
   sheets?: SheetData[];
   styles?: { [key: number]: Style };
@@ -83,7 +83,6 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
   const styles: Workbook["styles"] = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
   const borders: Workbook["borders"] = data.borders || {};
-  const entities: Workbook["entities"] = data.entities || {};
 
   // compute next id
   let nextId = 1;
@@ -101,7 +100,6 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     cells: {},
     styles,
     borders,
-    entities: entities,
     merges: {},
     mergeCellMap: {},
     width: 0,
@@ -278,7 +276,6 @@ export function exportData(state: Workbook): WorkbookData {
   // styles and borders
   const styles: WorkbookData["styles"] = state.styles || {};
   const borders: WorkbookData["borders"] = state.borders || {};
-  const entities: WorkbookData["entities"] = state.entities || {};
 
   const sheets: SheetData[] = [];
   for (let sheetName in state.sheets) {
@@ -308,7 +305,6 @@ export function exportData(state: Workbook): WorkbookData {
     version: CURRENT_VERSION,
     sheets,
     styles,
-    borders,
-    entities: entities
+    borders
   };
 }
