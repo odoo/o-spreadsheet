@@ -77,13 +77,19 @@ export interface NewCell {
   format?: string;
 }
 
+export type CompiledFormula = (
+  readCell: (xc: string, sheet: string) => any,
+  range: (v1: string, v2: string, sheetName: string) => any[],
+  ctx: {}
+) => any;
+
 export interface Cell extends NewCell {
   col: number;
   row: number;
   xc: string;
   error?: boolean;
   value: any;
-  formula?: any;
+  formula?: CompiledFormula;
   async?: boolean;
   type: "formula" | "text" | "number";
   width?: number;
