@@ -14,4 +14,8 @@ export class Registry<T> {
     }
     return this.content[key];
   }
+
+  getAll(): T[] {
+    return Object.values(this.content);
+  }
 }

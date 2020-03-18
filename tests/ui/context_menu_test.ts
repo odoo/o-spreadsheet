@@ -6,6 +6,8 @@ import {
   nextTick,
   simulateClick
 } from "../helpers";
+import { Registry } from "../../src/registry";
+import { ContextMenuItem } from "../../src/ui/registries";
 
 let fixture: HTMLElement;
 
@@ -120,5 +122,39 @@ describe("Context Menu", () => {
 
     expect(model.workbook.cells.B1).not.toBeDefined();
     expect(model.workbook.cells.B2.content).toBe("b1");
+  });
+
+  test("Visible - Enable", () => {
+    const registry = new Registry<ContextMenuItem>();
+    registry.add("enabled", {
+      type: "action",
+      name: "1",
+      description: "1",
+      action: () => true
+    });
+    registry.add("disabled", {
+      type: "action",
+      name: "1",
+      description: "1",
+      action: () => true,
+      isEnabled: () => false
+    });
+    registry.add("visible", {
+      type: "action",
+      name: "1",
+      description: "1",
+      action: () => true
+    });
+    registry.add("invisible", {
+      type: "action",
+      name: "1",
+      description: "1",
+      action: () => true,
+      isVisible: () => false
+    });
+    const items = registry.getAll().filter(item => !item.isVisible || item.isVisible("CELL"));
+    expect(items.length).toBe(3);
+    const enabled = items.filter(item => !item.isEnabled || item.isEnabled(null));
+    expect(enabled.length).toBe(2);
   });
 });

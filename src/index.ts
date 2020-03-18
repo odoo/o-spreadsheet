@@ -8,17 +8,25 @@
 import { toXC, numberToLetters } from "./helpers";
 import { args, toBoolean, toNumber, toString } from "./functions/arguments";
 import { addFunction } from "./functions/index";
-import { sidePanelRegistry } from "./ui/registries";
+import { sidePanelRegistry, contextMenuRegistry } from "./ui/registries";
 
 export const __info__ = {};
 export { Spreadsheet } from "./ui/spreadsheet";
-export const utils = {
-  toXC,
-  numberToLetters,
-  args,
-  toBoolean,
-  toNumber,
-  toString,
-  addFunction,
-  sidePanelRegistry
+
+export const helpers = {
+  functions: {
+    args,
+    toBoolean,
+    toNumber,
+    toString
+  },
+  utils: {
+    toXC,
+    numberToLetters
+  },
+  registry: {
+    sidePanelRegistry,
+    contextMenuRegistry,
+    newFunction: addFunction
+  }
 };
