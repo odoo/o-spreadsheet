@@ -2,6 +2,36 @@ import { args, toNumber, isNumber, visitNumbers } from "./arguments";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------
+// AVEDEV
+// -----------------------------------------------------------------------------
+export const AVEDEV: FunctionDescription = {
+  description: "Average magnitude of deviations from mean.",
+  args: args`
+    value1 (number, range<number>) The first value or range of the sample.
+    value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
+  `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let sum = 0;
+    let count = 0;
+    visitNumbers(arguments, n => {
+      sum += n;
+      count += 1;
+    });
+    if (count === 0) {
+      throw new Error(`
+        Evaluation of function AVEDEV caused a divide by zero error.`);
+    }
+    const average = sum / count;
+    let dev = 0;
+    visitNumbers(arguments, n => {
+      dev += Math.abs(average - n);
+    });
+    return dev / count;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // AVERAGE
 // -----------------------------------------------------------------------------
 export const AVERAGE: FunctionDescription = {
@@ -107,6 +137,48 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
       throw new Error(`
           Evaluation of function AVERAGE.WEIGHTED caused a divide by zero error.
         `);
+    }
+    return sum / count;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// AVERAGEA
+// -----------------------------------------------------------------------------
+export const AVERAGEA: FunctionDescription = {
+  description: `Numerical average value in a dataset.`,
+  args: args`
+      value1 (number, range<number>) The first value or range to consider when calculating the average value.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the average value.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let sum = 0;
+    let count = 0;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            // null == undefined => true
+            // undefined == undefined => true
+            if (j != undefined) {
+              if (typeof j == "number") {
+                sum += j;
+              } else if (typeof j === "boolean") {
+                sum += toNumber(j);
+              }
+              count++;
+            }
+          }
+        }
+      } else {
+        sum += toNumber(n);
+        count++;
+      }
+    }
+    if (count === 0) {
+      throw new Error(`
+        Evaluation of function AVERAGEA caused a divide by zero error.`);
     }
     return sum / count;
   }

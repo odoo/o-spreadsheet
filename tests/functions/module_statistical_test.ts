@@ -1,6 +1,64 @@
 import { evaluateCell, evaluateGrid } from "../helpers";
 
+// prettier-ignor
 describe("statistical", () => {
+  //----------------------------------------------------------------------------
+  // AVEDEV
+  //----------------------------------------------------------------------------
+
+  test("AVEDEV: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AVEDEV()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AVEDEV(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(1, 2)" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: "=AVEDEV( , 2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(1, 2, 3,  )" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(1.5, 2.5)" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(-10, 20)" })).toBe(15);
+  });
+
+  test("AVEDEV: casting tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: '=AVEDEV("2", "-6")' })).toBe(4);
+    expect(evaluateCell("A1", { A1: '=AVEDEV("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=AVEDEV("2", " -6 ")' })).toBe(4);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(TRUE, FALSE)" })).toBe(0.5);
+  });
+
+  test("AVEDEV: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "1", A3: "2" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3, A4)", A2: "1", A3: "", A4: "2" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3, A4)", A2: "", A3: "1", A4: "2" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "1.5", A3: "2.5" })).toBe(0.5);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "-10", A3: "20" })).toBe(15);
+  });
+
+  test("AVEDEV: casting tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: '"2"', A3: '"6"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: '"2"', A3: "42" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "TRUE", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "TRUE", A3: "42" })).toBe(0);
+  });
+
+  test("AVEDEV: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=AVEDEV(B2:D4)",
+      A2: "=AVEDEV(B2:C3, B4:C4, D2:D3, D4)",
+      B2: "42.2",
+      C2: "TRUE",
+      D2: "FALSE",
+      B3: "",
+      C3: "-10.2",
+      D3: "kikou",
+      B4: '"111111"',
+      C4: "0",
+      D4: "0"
+    };
+    expect(evaluateCell("A1", grid)).toEqual(17.1);
+    expect(evaluateCell("A2", grid)).toEqual(17.1);
+  });
+
   //----------------------------------------------------------------------------
   // AVERAGE
   //----------------------------------------------------------------------------
@@ -270,6 +328,72 @@ describe("statistical", () => {
     expect(evaluateCell("A8", grid)).toBe(16);
     expect(evaluateCell("A9", grid)).toBe(16);
     expect(evaluateCell("A10", grid)).toBe(16);
+  });
+
+  //----------------------------------------------------------------------------
+  // AVERAGEA
+  //----------------------------------------------------------------------------
+
+  test("AVERAGEA: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AVERAGEA()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(1, 2)" })).toBe(1.5);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(1,  , 2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA( , 1, 2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(1.5, 2.5)" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(-10, 20)" })).toBe(5);
+  });
+
+  test("AVERAGEA: casting tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: '=AVERAGEA("")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=AVERAGEA(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=AVERAGEA("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=AVERAGEA("2", "-6")' })).toBe(-2);
+    expect(evaluateCell("A1", { A1: '=AVERAGEA("2", "")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=AVERAGEA("2", " -6 ")' })).toBe(-2);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(TRUE, FALSE)" })).toBe(0.5);
+  });
+
+  test("AVERAGEA: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: "1", A3: "2" })).toBe(1.5);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3, A4)", A2: "1", A3: "", A4: "2" })).toBe(1.5);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3, A4)", A2: "", A3: "1", A4: "3" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: "1.5", A3: "2.5" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: "-10", A3: "20" })).toBe(5);
+  });
+
+  test("AVERAGEA: casting tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '"42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: '"2"', A3: '"6"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: '"2"', A3: "42" })).toBe(21);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: "TRUE", A3: "FALSE" })).toBe(0.5); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: "TRUE", A3: "42" })).toBe(21.5);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '="42"' })).toBe(0);
+  });
+
+  test("AVERAGEA: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=AVERAGEA(B2:D4)",
+      A2: "=AVERAGEA(B2:C3, B4:C4, D2:D3, D4)",
+      B2: "10",
+      C2: "TRUE",
+      D2: "FALSE",
+      C3: "5",
+      D3: "kikou",
+      B4: '"111111"',
+      C4: "0",
+      D4: "0"
+    };
+    expect(evaluateCell("A1", grid)).toBe(2);
+    expect(evaluateCell("A2", grid)).toBe(2);
   });
 
   //----------------------------------------------------------------------------
