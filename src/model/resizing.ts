@@ -90,3 +90,37 @@ export function setColSize(state: Workbook, col: number, size: number) {
 export function setRowSize(state: Workbook, row: number, size: number) {
   updateRowSize(state, row, size - state.rows[row].size);
 }
+
+export function autoresizeCols(
+  state: Workbook,
+  col: number,
+  getMaxSize: (col: boolean, index: number) => number
+) {
+  let activeCols = getActiveCols(state);
+  if (!activeCols.has(col)) {
+    activeCols = new Set<number>([col]);
+  }
+  for (let elt of activeCols) {
+    const size = getMaxSize(true, elt);
+    if (size !== 0) {
+      setColSize(state, elt, size);
+    }
+  }
+}
+
+export function autoresizeRows(
+  state: Workbook,
+  row: number,
+  getMaxSize: (col: boolean, index: number) => number
+) {
+  let activeRows = getActiveRows(state);
+  if (!activeRows.has(row)) {
+    activeRows = new Set<number>([row]);
+  }
+  for (let elt of activeRows) {
+    const size = getMaxSize(false, elt);
+    if (size !== 0) {
+      setRowSize(state, elt, size);
+    }
+  }
+}

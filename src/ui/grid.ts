@@ -41,7 +41,7 @@ const TEMPLATE = xml/* xml */ `
       tabindex="-1"
       t-on-contextmenu="toggleContextMenu"
       t-on-wheel="onMouseWheel" />
-    <Overlay model="model" t-on-autoresize="onAutoresize"/>
+    <Overlay model="model"/>
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
       position="contextMenu.position"
@@ -223,33 +223,6 @@ export class Grid extends Component<any, any> {
     vScrollbar.scrollTop = vScrollbar.scrollTop + normalize(ev.deltaY);
     const hScrollbar = this.hScrollbar.el!;
     hScrollbar.scrollLeft = hScrollbar.scrollLeft + normalize(ev.deltaX);
-  }
-
-  onAutoresize(ev: CustomEvent) {
-    const index = ev.detail.index;
-    const col = ev.detail.type === "col";
-    const activeElements = col ? this.model.getActiveCols() : this.model.getActiveRows();
-    if (activeElements.has(index)) {
-      this._resizeElements(col, activeElements);
-    } else {
-      this._resizeElement(col, index);
-    }
-  }
-
-  _resizeElements(col, activeElts) {
-    for (let elt of activeElts) {
-      const size = this.model.getMaxSize(col, elt);
-      if (size !== 0) {
-        col ? this.model.setColSize(elt, size) : this.model.setRowSize(elt, size);
-      }
-    }
-  }
-
-  _resizeElement(col, index) {
-    const size = this.model.getMaxSize(col, index);
-    if (size !== 0) {
-      col ? this.model.setColSize(index, size) : this.model.setRowSize(index, size);
-    }
   }
 
   // ---------------------------------------------------------------------------
