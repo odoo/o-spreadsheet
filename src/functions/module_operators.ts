@@ -1,5 +1,6 @@
-import { args, toNumber } from "./arguments";
+import { args } from "./arguments";
 import { FunctionDescription } from "./index";
+import { toNumber } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // ADD

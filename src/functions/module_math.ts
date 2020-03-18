@@ -1,6 +1,6 @@
-import { args, toNumber, strictToNumber, visitNumbers, toString } from "./arguments";
+import { args } from "./arguments";
 import { FunctionDescription } from "./index";
-
+import { toNumber, strictToNumber, visitNumbers, toString } from "./helpers";
 // -----------------------------------------------------------------------------
 // CEILING
 // -----------------------------------------------------------------------------

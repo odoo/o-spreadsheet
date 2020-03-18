@@ -1,4 +1,5 @@
-import { args, toBoolean } from "./arguments";
+import { args } from "./arguments";
+import { toBoolean } from "./helpers";
 import { FunctionDescription } from "./index";
 
 // -----------------------------------------------------------------------------

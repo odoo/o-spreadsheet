@@ -1,9 +1,7 @@
 import { evaluateCell, evaluateGrid } from "../helpers";
-import { toNumber } from "../../src/functions/arguments";
+import { toNumber } from "../../src/functions/helpers";
 
-// prettier-ignore
 describe("math", () => {
-
   //----------------------------------------------------------------------------
   // CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING
   //----------------------------------------------------------------------------
@@ -17,10 +15,10 @@ describe("math", () => {
     ["-6.7", -6],
     ["-7.89", -7]
   ])("CEILING FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2)", A2: a})).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2)", A2: a})).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2)", A2: a})).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=CEILING(A2)", A2: a })).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2)", A2: a })).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2)", A2: a })).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2)", A2: a })).toBe(expected);
   });
 
   test.each([
@@ -35,12 +33,21 @@ describe("math", () => {
     ["6", "0.7", 6.3],
     ["-6", "0.7", -5.6],
     ["6.7", "0.2", 6.8],
-    ["-6.7", "0.2", -6.6],
+    ["-6.7", "0.2", -6.6]
   ])("CEILING FUNCTIONS(%s, %s) - %s: take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
-    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
-    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
+    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
+    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
   });
 
   test.each([
@@ -50,17 +57,29 @@ describe("math", () => {
     ["7.89", "-0.2", 8],
     ["-7.89", "0.2", -7.8],
     ["-7.89", "-0.2", -7.8]
-  ])("CEILING (MATH/PRECISE/ISO) FUNCTIONS(%s, %s) - %s: no effect with negative factor", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
-    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
-    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
-  });
+  ])(
+    "CEILING (MATH/PRECISE/ISO) FUNCTIONS(%s, %s) - %s: no effect with negative factor",
+    (a, b, expected) => {
+      expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+        expected,
+        9
+      );
+      expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+        expected,
+        9
+      );
+      expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+        expected,
+        9
+      );
+    }
+  );
 
   test.each([
     ["6", "-0.2"],
     ["7.89", "-0.2"]
   ])("CEILING(%s, %s) - error: if value positive, factor can't be negative", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b})).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBe("#ERROR");
   });
 
   test.each([
@@ -70,7 +89,7 @@ describe("math", () => {
     ["-7.89", "0.2", -7.8],
     ["-7.89", "-0.2", -8]
   ])("CEILING(%s, %s) - %s: if factor negative, rounds number down", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
 
   test.each([
@@ -86,53 +105,87 @@ describe("math", () => {
     ["-7.89", "-0.2", "0", -7.8],
     ["-7.89", "-0.2", "1", -8],
     ["-7.89", "-0.2", "2.2", -8],
-    ["-7.89", "-0.2", "-2.2", -8],
+    ["-7.89", "-0.2", "-2.2", -8]
   ])("CEILING.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3, A4)", A2: a, A3: b, A4: c})).toBeCloseTo(expected, 9);
+    expect(
+      evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })
+    ).toBeCloseTo(expected, 9);
   });
 
-  function evaluateCeilingFunction(functionName:string):void{
-    expect(evaluateCell("A1", { A1: "="+functionName+"()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "="+functionName+"( , )"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, 0.2)"})).toBeCloseTo(-7.8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"( , 0.2)"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, )"})).toBeCloseTo(-7, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, TRUE)"})).toBeCloseTo(-7, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, FALSE)"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(TRUE, 10)"})).toBeCloseTo(10, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(FALSE, 10)"})).toBeCloseTo(0, 9);
+  function evaluateCeilingFunction(functionName: string): void {
+    expect(evaluateCell("A1", { A1: "=" + functionName + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=" + functionName + "( , )" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, 0.2)" })).toBeCloseTo(-7.8, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "( , 0.2)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, )" })).toBeCloseTo(-7, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, TRUE)" })).toBeCloseTo(-7, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(10, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: '='+functionName+'("" , "")'})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: '='+functionName+'(" " , " ")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '='+functionName+'("-7.89", "0.2")'})).toBeCloseTo(-7.8, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=" + functionName + '("-7.89", "0.2")' })).toBeCloseTo(
+      -7.8,
+      9
+    );
 
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "", A3: ""})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: " ", A3: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: "0.2"})).toBeCloseTo(-7.8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "", A3: "0.2"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: ""})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: "TRUE"})).toBeCloseTo(-7, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: "FALSE"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "TRUE", A3: "10"})).toBeCloseTo(10, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "FALSE", A3: "10"})).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "" })).toBeCloseTo(
+      0,
+      9
+    );
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: " ", A3: " " })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "0.2" })
+    ).toBeCloseTo(-7.8, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "0.2" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "TRUE" })
+    ).toBeCloseTo(-7, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "FALSE" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "TRUE", A3: "10" })
+    ).toBeCloseTo(10, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "FALSE", A3: "10" })
+    ).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '""', A3: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '" "', A3: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '"-7.89"', A3: '"0.2"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '""', A3: '""' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '" "', A3: '" "' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '"-7.89"', A3: '"0.2"' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '=""', A3: '=""'})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '=" "', A3: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '="-7.89"', A3: '="0.2"'})).toBeCloseTo(-7.8, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=""', A3: '=""' })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=" "', A3: '=" "' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '="-7.89"', A3: '="0.2"' })
+    ).toBeCloseTo(-7.8, 9);
   }
 
-  test.each([
-    ["CEILING"],
-    ["CEILING.MATH"],
-    ["CEILING.PRECISE"],
-    ["ISO.CEILING"]
-  ])("%s: special value testing", (functionName) => {
-    evaluateCeilingFunction(functionName);
-  });
+  test.each([["CEILING"], ["CEILING.MATH"], ["CEILING.PRECISE"], ["ISO.CEILING"]])(
+    "%s: special value testing",
+    functionName => {
+      evaluateCeilingFunction(functionName);
+    }
+  );
 
   //----------------------------------------------------------------------------
   // COS
@@ -150,25 +203,25 @@ describe("math", () => {
   });
 
   test("COS: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=COS()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=COS(TRUE)"})).toBeCloseTo(0.54030230586814, 9);
-    expect(evaluateCell("A1", { A1: "=COS(FALSE)"})).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: "=COS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=COS(TRUE)" })).toBeCloseTo(0.54030230586814, 9);
+    expect(evaluateCell("A1", { A1: "=COS(FALSE)" })).toBeCloseTo(1, 9);
 
-    expect(evaluateCell("A1", { A1: '=COS("")'})).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: '=COS(" ")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=COS("0")'})).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: '=COS("")' })).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: '=COS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=COS("0")' })).toBeCloseTo(1, 9);
 
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: ""})).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: "0"})).toBeCloseTo(1, 9);
-    
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '"0"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: "" })).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: "0" })).toBeCloseTo(1, 9);
 
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=""'})).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '="0"'})).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=""' })).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '="0"' })).toBeCloseTo(1, 9);
   });
 
   //----------------------------------------------------------------------------
@@ -187,22 +240,23 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=COUNTBLANK(" ")' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=COUNTBLANK("hello there")' })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: ""})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: " "})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "0"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "42"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "TRUE"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "FALSE"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "42" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "TRUE" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "FALSE" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '""'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '" "'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '"42"'})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '"42"' })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=""'})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=" "'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '="42"'})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '="42"' })).toBe(0);
   });
 
+  // prettier-ignore
   test("COUNTBLANK: count blank on ranges ", () => {
     const grid = {
       
@@ -260,8 +314,17 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "," })).toBe(1);
     expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "0" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "1", A3: "2" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3, A4)", A2: "1.4", A3: "-1", A4: "Jean Peuxplus" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=countunique(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(
+      1
+    );
+    expect(
+      evaluateCell("A1", {
+        A1: "=countunique(A2, A3, A4)",
+        A2: "1.4",
+        A3: "-1",
+        A4: "Jean Peuxplus"
+      })
+    ).toBe(3);
     expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: "" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: '=" "' })).toBe(1);
@@ -371,7 +434,7 @@ describe("math", () => {
     ["-ABAB", "36", -481187], // @compatibility: return error on parameter 1 on google sheets
     ["zzzz", "36", 1679615]
   ])("DECIMAL(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
   test.each([
@@ -385,7 +448,7 @@ describe("math", () => {
     ["@ABAB", "36"],
     ["AB AB", "36"]
   ])("DECIMAL(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test.each([
@@ -402,41 +465,41 @@ describe("math", () => {
     ["ABAB.21@", "36"],
     ["AB AB", "36"]
   ])("DECIMAL(%s, %s) - error: take 2 parameter(s), return error on parameter 1", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("DECIMAL: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=DECIMAL( , )"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, 12)"})).toBe(50);
-    expect(evaluateCell("A1", { A1: "=DECIMAL( , 12)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, )"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, TRUE)"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, FALSE)"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(TRUE, 10)"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(FALSE, 10)"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=DECIMAL( , )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(42, 12)" })).toBe(50);
+    expect(evaluateCell("A1", { A1: "=DECIMAL( , 12)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DECIMAL(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(42, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(TRUE, 10)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(FALSE, 10)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
 
-    expect(evaluateCell("A1", { A1: '=DECIMAL("" , "")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=DECIMAL("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=DECIMAL(" " , 12)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=DECIMAL("42", 12)'})).toBe(50);
-    expect(evaluateCell("A1", { A1: '=DECIMAL("42", "12")'})).toBe(50);
-    expect(evaluateCell("A1", { A1: '=DECIMAL("42", "")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=DECIMAL("" , "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=DECIMAL("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=DECIMAL(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=DECIMAL("42", 12)' })).toBe(50);
+    expect(evaluateCell("A1", { A1: '=DECIMAL("42", "12")' })).toBe(50);
+    expect(evaluateCell("A1", { A1: '=DECIMAL("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
 
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: ""})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "12"})).toBe(50);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "12"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: ""})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "TRUE"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "TRUE", A3: "10"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "FALSE", A3: "10"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "12" })).toBe(50);
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "12" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "TRUE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "TRUE", A3: "10" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "FALSE", A3: "10" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
 
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '"42"', A3: '"12"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '="42"', A3: '="36"'})).toBe(146);
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(146);
   });
 
   //----------------------------------------------------------------------------
@@ -456,7 +519,7 @@ describe("math", () => {
     ["3.14159265358979", 179.99999999999983], // @compatibility: on google sheets return 180
     ["3.1415926535897", 179.99999999999466] // @compatibility: on google sheets return 179.99999999999(5) and not (466)
   ])("DEGREES(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: a })).toBe(expected);
   });
 
   test("DEGREES: functional tests on simple arguments", () => {
@@ -470,20 +533,20 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=DEGREES(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=DEGREES("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "0"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "=PI()"})).toBe(180);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "TRUE"})).toBeCloseTo(57.29577951, 8);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "FALSE"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "=PI()" })).toBe(180);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "TRUE" })).toBeCloseTo(57.29577951, 8);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "FALSE" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=""'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '="0"'})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '="0"' })).toBe(0);
   });
 
   //----------------------------------------------------------------------------
@@ -497,11 +560,11 @@ describe("math", () => {
     ["7.89", 7],
     ["-6", -6],
     ["-6.7", -7],
-    ["-7.89", -8],
+    ["-7.89", -8]
   ])("FLOOR FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2)", A2: a})).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2)", A2: a})).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=FLOOR(A2)", A2: a })).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2)", A2: a })).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2)", A2: a })).toBe(expected);
   });
 
   test.each([
@@ -516,11 +579,13 @@ describe("math", () => {
     ["6", "0.7", 5.6],
     ["-6", "0.7", -6.3],
     ["6.7", "0.2", 6.6],
-    ["-6.7", "0.2", -6.8],
+    ["-6.7", "0.2", -6.8]
   ])("FLOOR FUNCTIONS(%s, %s) - %s: take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected);
+    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
+    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
+    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected
+    );
   });
 
   test.each([
@@ -533,8 +598,10 @@ describe("math", () => {
   ])(
     "FLOOR (MATH/PRECISE) FUNCTIONS(%s, %s) - %s: no effect with negative factor",
     (a, b, expected) => {
-      expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected);
-      expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected);
+      expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
+      expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+        expected
+      );
     }
   );
 
@@ -542,7 +609,7 @@ describe("math", () => {
     ["6", "-0.2"],
     ["7.89", "-0.2"]
   ])("FLOOR(%s, %s) - error: if value positive, factor can't be negative", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test.each([
@@ -552,7 +619,7 @@ describe("math", () => {
     ["-7.89", "0.2", -8],
     ["-7.89", "-0.2", -7.8]
   ])("FLOOR(%s, %s) - %s: if factor negative, rouds number down", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
 
   test.each([
@@ -568,52 +635,85 @@ describe("math", () => {
     ["-7.89", "-0.2", "0", -8],
     ["-7.89", "-0.2", "1", -7.8],
     ["-7.89", "-0.2", "2.2", -7.8],
-    ["-7.89", "-0.2", "-2.2", -7.8],
+    ["-7.89", "-0.2", "-2.2", -7.8]
   ])("FLOOR.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3, A4)", A2: a, A3: b, A4: c})).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })).toBeCloseTo(
+      expected,
+      9
+    );
   });
 
-  function evaluateFloorFunction(functionName:string):void{
-    expect(evaluateCell("A1", { A1: "="+functionName+"()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "="+functionName+"( , )"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, 0.2)"})).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"( , 0.2)"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, )"})).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, TRUE)"})).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(-7.89, FALSE)"})).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
-    expect(evaluateCell("A1", { A1: "="+functionName+"(TRUE, 10)"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(FALSE, 10)"})).toBeCloseTo(0, 9);
+  function evaluateFloorFunction(functionName: string): void {
+    expect(evaluateCell("A1", { A1: "=" + functionName + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=" + functionName + "( , )" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, 0.2)" })).toBeCloseTo(-8, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "( , 0.2)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, )" })).toBeCloseTo(-8, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, TRUE)" })).toBeCloseTo(-8, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: '='+functionName+'("" , "")'})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: '='+functionName+'(" " , " ")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '='+functionName+'("-7.89", "0.2")'})).toBeCloseTo(-8, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=" + functionName + '("-7.89", "0.2")' })).toBeCloseTo(-8, 9);
 
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "", A3: ""})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: " ", A3: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: "0.2"})).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "", A3: "0.2"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: ""})).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: "TRUE"})).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "-7.89", A3: "FALSE"})).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "TRUE", A3: "10"})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: "FALSE", A3: "10"})).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "" })).toBeCloseTo(
+      0,
+      9
+    );
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: " ", A3: " " })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "0.2" })
+    ).toBeCloseTo(-8, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "0.2" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "" })
+    ).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "TRUE" })
+    ).toBeCloseTo(-8, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "FALSE" })
+    ).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "TRUE", A3: "10" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "FALSE", A3: "10" })
+    ).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '""', A3: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '" "', A3: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '"-7.89"', A3: '"0.2"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '""', A3: '""' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '" "', A3: '" "' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '"-7.89"', A3: '"0.2"' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '=""', A3: '=""'})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '=" "', A3: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "="+functionName+"(A2, A3)", A2: '="-7.89"', A3: '="0.2"'})).toBeCloseTo(-8, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=""', A3: '=""' })
+    ).toBeCloseTo(0, 9);
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=" "', A3: '=" "' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '="-7.89"', A3: '="0.2"' })
+    ).toBeCloseTo(-8, 9);
   }
 
-  test.each([
-    ["FLOOR"],
-    ["FLOOR.MATH"],
-    ["FLOOR.PRECISE"],
-  ])("%s: special value testing", (functionName) => {
-    evaluateFloorFunction(functionName);
-  });
+  test.each([["FLOOR"], ["FLOOR.MATH"], ["FLOOR.PRECISE"]])(
+    "%s: special value testing",
+    functionName => {
+      evaluateFloorFunction(functionName);
+    }
+  );
 
   //----------------------------------------------------------------------------
   // ISEVEN
@@ -628,7 +728,7 @@ describe("math", () => {
     ["2.3", true],
     ["3", false]
   ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: a })).toBe(expected);
   });
 
   test("ISEVEN: functional tests on simple arguments", () => {
@@ -642,20 +742,20 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=ISEVEN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=ISEVEN("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: ""})).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "0"})).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "1"})).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "TRUE"})).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "FALSE"})).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "0" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "1" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "TRUE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "FALSE" })).toBe(true);
 
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '="0"'})).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '="0"' })).toBe(true);
   });
 
   //----------------------------------------------------------------------------
@@ -669,9 +769,9 @@ describe("math", () => {
     ["0", false],
     ["2", false],
     ["2.3", false],
-    ["3", true],
+    ["3", true]
   ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: a })).toBe(expected);
   });
 
   test("ISODD: functional tests on simple arguments", () => {
@@ -685,20 +785,20 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=ISODD(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=ISODD("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: ""})).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "0"})).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "1"})).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "TRUE"})).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "FALSE"})).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "1" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "TRUE" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "FALSE" })).toBe(false);
 
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '="0"'})).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '="0"' })).toBe(false);
   });
 
   //----------------------------------------------------------------------------
@@ -723,9 +823,9 @@ describe("math", () => {
     ["2.2", "-2", -1.8],
     ["2.2", "2", 0.2],
     ["2.2", "2.2", 0],
-    ["2.2", "10", 2.2],
+    ["2.2", "10", 2.2]
   ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b})).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
 
   test.each([
@@ -733,40 +833,43 @@ describe("math", () => {
     ["0", "0"],
     ["2.2", "0"]
   ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("MOD: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=MOD()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=MOD( , )"})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=MOD(42, 12)"})).toBe(6);
-    expect(evaluateCell("A1", { A1: "=MOD( , 12)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(42, )"})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=MOD(42.42, TRUE)"})).toBeCloseTo(0.42, 9);
-    expect(evaluateCell("A1", { A1: "=MOD(42, FALSE)"})).toBe("#ERROR");// @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=MOD(TRUE, 10)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MOD(FALSE, 10)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MOD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MOD( , )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(42, 12)" })).toBe(6);
+    expect(evaluateCell("A1", { A1: "=MOD( , 12)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MOD(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(42.42, TRUE)" })).toBeCloseTo(0.42, 9);
+    expect(evaluateCell("A1", { A1: "=MOD(42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(TRUE, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MOD(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=MOD("" , "")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: '=MOD("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=MOD(" " , 12)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=MOD("42", 12)'})).toBe(6);
-    expect(evaluateCell("A1", { A1: '=MOD("42", "12")'})).toBe(6);
-    expect(evaluateCell("A1", { A1: '=MOD("42", "")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: '=MOD("" , "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: '=MOD("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=MOD(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=MOD("42", 12)' })).toBe(6);
+    expect(evaluateCell("A1", { A1: '=MOD("42", "12")' })).toBe(6);
+    expect(evaluateCell("A1", { A1: '=MOD("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
 
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: ""})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "12"})).toBe(6);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "12"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: ""})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "TRUE"})).toBeCloseTo(0.42, 9);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "FALSE"})).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "TRUE", A3: "10"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "FALSE", A3: "10"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "12" })).toBe(6);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "12" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "TRUE" })).toBeCloseTo(
+      0.42,
+      9
+    );
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '"42"', A3: '"12"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '="42"', A3: '="36"'})).toBe(6);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(6);
   });
 
   //----------------------------------------------------------------------------
@@ -788,7 +891,7 @@ describe("math", () => {
     ["3.1", 5],
     ["3.9", 5]
   ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: a })).toBe(expected);
   });
 
   test("ODD: functional tests on simple arguments", () => {
@@ -802,20 +905,20 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: '=ODD(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=ODD("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: ""})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "0"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "2"})).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "TRUE"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "FALSE"})).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "2" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "TRUE" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "FALSE" })).toBe(1);
 
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=""'})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '="42"'})).toBe(43);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=""' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '="42"' })).toBe(43);
   });
 
   //----------------------------------------------------------------------------
@@ -823,7 +926,7 @@ describe("math", () => {
   //----------------------------------------------------------------------------
 
   test("PI", () => {
-    expect(evaluateCell("A1", { A1: "=PI()"})).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
+    expect(evaluateCell("A1", { A1: "=PI()" })).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
   });
 
   //----------------------------------------------------------------------------
@@ -843,7 +946,7 @@ describe("math", () => {
     ["4", "-0.5", 0.5],
     ["4", "-2", 0.0625]
   ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
   test.each([
@@ -851,40 +954,40 @@ describe("math", () => {
     ["-4", "1.5"],
     ["-4", "0.2"]
   ])("POWER(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b})).toBe("#ERROR");  // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("POWER: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=POWER()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=POWER( , )"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(42, 2)"})).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=POWER( , 12)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(42, )"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(42.42, TRUE)"})).toBe(42.42);
-    expect(evaluateCell("A1", { A1: "=POWER(42.42, FALSE)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(TRUE, 10)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(FALSE, 10)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=POWER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=POWER( , )" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(42, 2)" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=POWER( , 12)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=POWER(42, )" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(42.42, TRUE)" })).toBe(42.42);
+    expect(evaluateCell("A1", { A1: "=POWER(42.42, FALSE)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(TRUE, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=POWER("" , "")'})).toBe(1); 
-    expect(evaluateCell("A1", { A1: '=POWER("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=POWER(" " , 12)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=POWER("42", 2)'})).toBe(1764);
-    expect(evaluateCell("A1", { A1: '=POWER("42", "2")'})).toBe(1764);
-    expect(evaluateCell("A1", { A1: '=POWER("42", "")'})).toBe(1);
+    expect(evaluateCell("A1", { A1: '=POWER("" , "")' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=POWER("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=POWER(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=POWER("42", 2)' })).toBe(1764);
+    expect(evaluateCell("A1", { A1: '=POWER("42", "2")' })).toBe(1764);
+    expect(evaluateCell("A1", { A1: '=POWER("42", "")' })).toBe(1);
 
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: ""})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "2"})).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "12"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: ""})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "TRUE"})).toBe(42.42);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "FALSE"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "TRUE", A3: "10"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "FALSE", A3: "10"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "2" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "12" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.42);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '"42"', A3: '"12"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '="42"', A3: '="2"'})).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '="42"', A3: '="2"' })).toBe(1764);
   });
 
   //----------------------------------------------------------------------------
@@ -892,8 +995,8 @@ describe("math", () => {
   //----------------------------------------------------------------------------
 
   test("RAND(): return a number", () => {
-    expect(evaluateCell("A1", { A1: "=RAND()"})).toBeGreaterThanOrEqual(0);
-    expect(evaluateCell("A1", { A1: "=RAND()"})).toBeLessThan(1);
+    expect(evaluateCell("A1", { A1: "=RAND()" })).toBeGreaterThanOrEqual(0);
+    expect(evaluateCell("A1", { A1: "=RAND()" })).toBeLessThan(1);
   });
 
   //----------------------------------------------------------------------------
@@ -906,7 +1009,7 @@ describe("math", () => {
     ["-42", "-42", -42],
     ["1.1", "2", 2]
   ])("RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
   test.each([
@@ -914,8 +1017,12 @@ describe("math", () => {
     ["24", "42"],
     ["-42", "-24"]
   ])("RANDBETWEEN(%s, %s): take 2 parameter(s), return a number", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b})).toBeGreaterThanOrEqual(toNumber(a));
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b})).toBeLessThanOrEqual(toNumber(b));
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeGreaterThanOrEqual(
+      toNumber(a)
+    );
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeLessThanOrEqual(
+      toNumber(b)
+    );
   });
 
   test.each([
@@ -923,40 +1030,46 @@ describe("math", () => {
     ["-24", "-42"],
     ["42", "24"]
   ])("RANDBETWEEN(%s, %s) - error: take 2 parameter(s), return an error", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 
   test("RANDBETWEEN: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , )"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(2, 2)"})).toBe(2);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , 0)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42, )"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, TRUE)"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, FALSE)"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(TRUE, 1)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(FALSE, 0)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , )" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(2, 2)" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , 0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(TRUE, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(FALSE, 0)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , "")'})).toBe(0); 
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , 0)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN(" " , 12)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", 42)'})).toBe(42);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", "42")'})).toBe(42);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", "")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , "")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , 0)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", 42)' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", "42")' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
 
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "2", A3: "2"})).toBe(2);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "0"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42", A3: ""})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "TRUE"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "FALSE"})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "TRUE", A3: "1"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "FALSE", A3: "0"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "2", A3: "2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "TRUE", A3: "1" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "FALSE", A3: "0" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '"42"', A3: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '=""', A3: '="0"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="42"', A3: '="42"'})).toBe(42);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '=""', A3: '="0"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(42);
   });
 
   //----------------------------------------------------------------------------
@@ -972,7 +1085,7 @@ describe("math", () => {
     ["1.5", 2],
     ["1.6", 2]
   ])("ROUND(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUND(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2)", A2: a })).toBe(expected);
   });
 
   test.each([
@@ -992,40 +1105,40 @@ describe("math", () => {
     ["5", "-1.9", 10],
     ["-5", "-1.9", -10]
   ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
   test("ROUND: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ROUND()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ROUND( , )"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(42, -1)"})).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUND( , 42)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(42, )"})).toBe(42) ;
-    expect(evaluateCell("A1", { A1: "=ROUND(42.42, TRUE)"})).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=ROUND(42.42, FALSE)"})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(TRUE, 10)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUND(FALSE, 10)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ROUND( , )" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND(42, -1)" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=ROUND( , 42)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND(42, )" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ROUND(42.42, TRUE)" })).toBe(42.4);
+    expect(evaluateCell("A1", { A1: "=ROUND(42.42, FALSE)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ROUND(TRUE, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROUND(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=ROUND("" , "")'})).toBe(0); 
-    expect(evaluateCell("A1", { A1: '=ROUND("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUND(" " , 0)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ROUND("42", -1)'})).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUND("42", "-1")'})).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUND("42", "")'})).toBe(42);
+    expect(evaluateCell("A1", { A1: '=ROUND("" , "")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=ROUND("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=ROUND(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=ROUND("42", -1)' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=ROUND("42", "-1")' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=ROUND("42", "")' })).toBe(42);
 
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "-1"})).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "42"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: ""})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "TRUE"})).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "FALSE"})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "TRUE", A3: "10"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "FALSE", A3: "10"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "-1" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "42" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.4);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '"42"', A3: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '"42"', A3: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '="42"', A3: '="-1"'})).toBe(40);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
   });
 
   //----------------------------------------------------------------------------
@@ -1041,7 +1154,7 @@ describe("math", () => {
     ["1.5", 1],
     ["1.9", 1]
   ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2)", A2: a })).toBe(expected);
   });
 
   test.each([
@@ -1061,40 +1174,40 @@ describe("math", () => {
     ["19", "-1.9", 10],
     ["-19", "-1.9", -10]
   ])("ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
   test("ROUNDDOWN: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN( , )"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49, -1)"})).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN( , 49)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49, )"})).toBe(49) ;
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, TRUE)"})).toBe(49.4);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, FALSE)"})).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(TRUE, 10)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(FALSE, 10)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN( , )" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49, -1)" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN( , 49)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49, )" })).toBe(49);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, TRUE)" })).toBe(49.4);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, FALSE)" })).toBe(49);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(TRUE, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("" , "")'})).toBe(0); 
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN(" " , 0)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", -1)'})).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", "-1")'})).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", "")'})).toBe(49);
+    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("" , "")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=ROUNDDOWN(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", -1)' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", "-1")' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", "")' })).toBe(49);
 
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "-1"})).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "49"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: ""})).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "TRUE"})).toBe(49.4);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "FALSE"})).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "TRUE", A3: "10"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "FALSE", A3: "10"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "-1" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "49" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "" })).toBe(49);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "TRUE" })).toBe(49.4);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "FALSE" })).toBe(49);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '"49"', A3: '"49"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '"49"', A3: '"49"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '="49"', A3: '="-1"'})).toBe(40);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '="49"', A3: '="-1"' })).toBe(40);
   });
 
   //----------------------------------------------------------------------------
@@ -1110,7 +1223,7 @@ describe("math", () => {
     ["1.5", 2],
     ["1.6", 2]
   ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2)", A2: a })).toBe(expected);
   });
 
   test.each([
@@ -1130,40 +1243,40 @@ describe("math", () => {
     ["11", "-1.9", 20],
     ["-11", "-1.9", -20]
   ])("ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
   test("ROUNDUP: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ROUNDUP()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ROUNDUP( , )"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42, -1)"})).toBe(50);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP( , 42)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42, )"})).toBe(42) ;
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42.42, TRUE)"})).toBe(42.5);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42.42, FALSE)"})).toBe(43);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(TRUE, 10)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(FALSE, 10)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ROUNDUP( , )" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(42, -1)" })).toBe(50);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP( , 42)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(42, )" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(42.42, TRUE)" })).toBe(42.5);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(42.42, FALSE)" })).toBe(43);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(TRUE, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("" , "")'})).toBe(0); 
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP(" " , 0)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", -1)'})).toBe(50);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", "-1")'})).toBe(50);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", "")'})).toBe(42);
+    expect(evaluateCell("A1", { A1: '=ROUNDUP("" , "")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=ROUNDUP("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=ROUNDUP(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", -1)' })).toBe(50);
+    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", "-1")' })).toBe(50);
+    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", "")' })).toBe(42);
 
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "-1"})).toBe(50);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "42"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: ""})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "TRUE"})).toBe(42.5);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "FALSE"})).toBe(43);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "TRUE", A3: "10"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "FALSE", A3: "10"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "-1" })).toBe(50);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "42" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.5);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(43);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '"42"', A3: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '"42"', A3: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '="42"', A3: '="-1"'})).toBe(50);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(50);
   });
 
   //----------------------------------------------------------------------------
@@ -1178,29 +1291,29 @@ describe("math", () => {
     ["=PI()/6", 0.5],
     ["=-PI()/2", -1]
   ])("SIN(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: a})).toBeCloseTo(expected, 9);
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 
   test("SIN: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=SIN()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=SIN(TRUE)"})).toBeCloseTo(0.841470984807897, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(FALSE)"})).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=SIN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SIN(TRUE)" })).toBeCloseTo(0.841470984807897, 9);
+    expect(evaluateCell("A1", { A1: "=SIN(FALSE)" })).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: '=SIN("")'})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: '=SIN(" ")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SIN("0")'})).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: '=SIN("")' })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: '=SIN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SIN("0")' })).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: ""})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: "0"})).toBeCloseTo(0, 9);
-    
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '"0"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: "" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: "0" })).toBeCloseTo(0, 9);
 
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '=""'})).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '="0"'})).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '=""' })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '="0"' })).toBeCloseTo(0, 9);
   });
 
   //----------------------------------------------------------------------------
@@ -1212,36 +1325,33 @@ describe("math", () => {
     ["4", 2],
     ["9", 3]
   ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe(expected);
   });
 
-  test.each([
-    ["-4"], 
-    ["-9"]
-  ])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a})).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!!
+  test.each([["-4"], ["-9"]])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!!
   });
 
   test("SQRT: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=SQRT()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=SQRT(TRUE)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=SQRT(FALSE)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SQRT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=SQRT(TRUE)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=SQRT(FALSE)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=SQRT("")'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=SQRT(" ")'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SQRT("49")'})).toBe(7);
+    expect(evaluateCell("A1", { A1: '=SQRT("")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=SQRT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=SQRT("49")' })).toBe(7);
 
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: " "})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: "49"})).toBe(7);
-    
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '""'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '"0"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: "49" })).toBe(7);
 
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=""'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=" "'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '="49"'})).toBe(7);
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '="49"' })).toBe(7);
   });
 
   //----------------------------------------------------------------------------
@@ -1272,7 +1382,9 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "1", A3: "2" })).toBe(3);
     expect(evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Vier"})).toBe(-8.5);
+    expect(
+      evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Vier" })
+    ).toBe(-8.5);
     expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
@@ -1372,7 +1484,7 @@ describe("math", () => {
     ["1.5", 1],
     ["1.6", 1]
   ])("TRUNC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a })).toBe(expected);
   });
 
   test.each([
@@ -1392,41 +1504,39 @@ describe("math", () => {
     ["12345", "-1.9", 12340],
     ["-12345", "-1.9", -12340]
   ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a, A3: b})).toBe(expected);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
-
 
   test("TRUNC: special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=TRUNC()"})).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=TRUNC( , )"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42, -1)"})).toBe(40);
-    expect(evaluateCell("A1", { A1: "=TRUNC( , 42)"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42, )"})).toBe(42) ;
-    expect(evaluateCell("A1", { A1: "=TRUNC(42.42, TRUE)"})).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42.42, FALSE)"})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(TRUE, 10)"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=TRUNC(FALSE, 10)"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=TRUNC( , )" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC(42, -1)" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=TRUNC( , 42)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC(42, )" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=TRUNC(42.42, TRUE)" })).toBe(42.4);
+    expect(evaluateCell("A1", { A1: "=TRUNC(42.42, FALSE)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=TRUNC(TRUE, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=TRUNC(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=TRUNC("" , "")'})).toBe(0); 
-    expect(evaluateCell("A1", { A1: '=TRUNC("" , 12)'})).toBe(0);
-    expect(evaluateCell("A1", { A1: '=TRUNC(" " , 0)'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=TRUNC("42", -1)'})).toBe(40);
-    expect(evaluateCell("A1", { A1: '=TRUNC("42", "-1")'})).toBe(40);
-    expect(evaluateCell("A1", { A1: '=TRUNC("42", "")'})).toBe(42);
+    expect(evaluateCell("A1", { A1: '=TRUNC("" , "")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=TRUNC("" , 12)' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=TRUNC(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=TRUNC("42", -1)' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=TRUNC("42", "-1")' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=TRUNC("42", "")' })).toBe(42);
 
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: ""})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "-1"})).toBe(40);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "42"})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: ""})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "TRUE"})).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "FALSE"})).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "TRUE", A3: "10"})).toBe(1);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "FALSE", A3: "10"})).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "-1" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "42" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.4);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '"42"', A3: '"42"'})).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '"42"', A3: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
 
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '=""', A3: '="2"'})).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '="42"', A3: '="-1"'})).toBe(40);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
   });
-
 });
