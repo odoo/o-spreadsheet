@@ -2,7 +2,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatNumber, formatValue } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile, tokenize } from "../formulas/index";
-import { isNumber } from "../functions/arguments";
+import { isNumber } from "../functions/helpers";
 import { toCartesian, toXC } from "../helpers";
 import { updateState } from "./history";
 import { Cell, Workbook, NewCell, Zone } from "./types";

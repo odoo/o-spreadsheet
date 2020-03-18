@@ -1,5 +1,36 @@
-import { args, toNumber, isNumber, visitNumbers } from "./arguments";
+import { args } from "./arguments";
 import { FunctionDescription } from "./index";
+import { toNumber, isNumber, visitNumbers, visitAny, dichotomicPredecessorSearch } from "./helpers";
+
+// -----------------------------------------------------------------------------
+// AVEDEV
+// -----------------------------------------------------------------------------
+export const AVEDEV: FunctionDescription = {
+  description: "Average magnitude of deviations from mean.",
+  args: args`
+    value1 (number, range<number>) The first value or range of the sample.
+    value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
+  `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let sum = 0;
+    let count = 0;
+    visitNumbers(arguments, n => {
+      sum += n;
+      count += 1;
+    });
+    if (count === 0) {
+      throw new Error(`
+        Evaluation of function AVEDEV caused a divide by zero error.`);
+    }
+    const average = sum / count;
+    let dev = 0;
+    visitNumbers(arguments, n => {
+      dev += Math.abs(average - n);
+    });
+    return dev / count;
+  }
+};
 
 // -----------------------------------------------------------------------------
 // AVERAGE
@@ -113,6 +144,46 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// AVERAGEA
+// -----------------------------------------------------------------------------
+export const AVERAGEA: FunctionDescription = {
+  description: `Numerical average value in a dataset.`,
+  args: args`
+      value1 (number, range<number>) The first value or range to consider when calculating the average value.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the average value.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let sum = 0;
+    let count = 0;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (j !== undefined && j !== null) {
+              if (typeof j === "number") {
+                sum += j;
+              } else if (typeof j === "boolean") {
+                sum += toNumber(j);
+              }
+              count++;
+            }
+          }
+        }
+      } else {
+        sum += toNumber(n);
+        count++;
+      }
+    }
+    if (count === 0) {
+      throw new Error(`
+        Evaluation of function AVERAGEA caused a divide by zero error.`);
+    }
+    return sum / count;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // COUNT
 // -----------------------------------------------------------------------------
 export const COUNT: FunctionDescription = {
@@ -142,6 +213,66 @@ export const COUNT: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// COUNTA
+// -----------------------------------------------------------------------------
+export const COUNTA: FunctionDescription = {
+  description: `The number of values in a dataset.`,
+  args: args`
+    value1 (any, range) The first value or range to consider when counting.
+    value2 (any, range, optional, repeating) Additional values or ranges to consider when counting.
+  `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let counta = 0;
+    for (let data of arguments) {
+      visitAny(data, d => {
+        if (d !== undefined && d !== null) {
+          counta += 1;
+        }
+      });
+    }
+    return counta;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// LARGE
+// -----------------------------------------------------------------------------
+export const LARGE: FunctionDescription = {
+  description: "Nth largest element from a data set.",
+  args: args`
+      data (any, range) Array or range containing the dataset to consider.
+      n (number) The rank from largest to smallest of the element to return.
+    `,
+  returns: ["NUMBER"],
+  compute: function(data: any, n: any): number {
+    n = Math.trunc(toNumber(n));
+    let largests: number[] = [];
+    let index: number;
+    let count = 0;
+    visitAny(data, d => {
+      if (typeof d === "number") {
+        index = dichotomicPredecessorSearch(largests, d);
+        largests.splice(index + 1, 0, d);
+        count++;
+        if (count > n) {
+          largests.shift();
+          count--;
+        }
+      }
+    });
+    const result = largests.shift();
+    if (result === undefined) {
+      throw new Error(`LARGE has no valid input data.`);
+    }
+    if (count < n) {
+      throw new Error(`Function LARGE parameter 2 value ${n} is out of range.`);
+    }
+    return result;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // MAX
 // -----------------------------------------------------------------------------
 export const MAX: FunctionDescription = {
@@ -163,6 +294,41 @@ export const MAX: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// MAXA
+// -----------------------------------------------------------------------------
+export const MAXA: FunctionDescription = {
+  description: "Maximum numeric value in a dataset.",
+  args: args`
+      value1 (any, range) The first value or range to consider when calculating the maximum value.
+      value2 (ant, range, optional, repeating) Additional values or ranges to consider when calculating the maximum value.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let maxa = -Infinity;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (j != undefined) {
+              j = typeof j === "number" ? j : 0;
+              if (maxa < j) {
+                maxa = j;
+              }
+            }
+          }
+        }
+      } else {
+        n = toNumber(n);
+        if (maxa < n) {
+          maxa = n;
+        }
+      }
+    }
+    return maxa === -Infinity ? 0 : maxa;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // MIN
 // -----------------------------------------------------------------------------
 export const MIN: FunctionDescription = {
@@ -180,5 +346,77 @@ export const MIN: FunctionDescription = {
       }
     });
     return min === Infinity ? 0 : min;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// MINA
+// -----------------------------------------------------------------------------
+export const MINA: FunctionDescription = {
+  description: "Minimum numeric value in a dataset.",
+  args: args`
+      value1 (number, range<number>) The first value or range to consider when calculating the minimum value.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the minimum value.
+    `,
+  returns: ["NUMBER"],
+  compute: function(): number {
+    let mina = Infinity;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (j != undefined) {
+              j = typeof j === "number" ? j : 0;
+              if (j < mina) {
+                mina = j;
+              }
+            }
+          }
+        }
+      } else {
+        n = toNumber(n);
+        if (n < mina) {
+          mina = n;
+        }
+      }
+    }
+    return mina === Infinity ? 0 : mina;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// SMALL
+// -----------------------------------------------------------------------------
+export const SMALL: FunctionDescription = {
+  description: "Nth smallest element in a data set.",
+  args: args`
+      data (any, range) The array or range containing the dataset to consider.
+      n (number) The rank from smallest to largest of the element to return.
+    `,
+  returns: ["NUMBER"],
+  compute: function(data: any, n: any): number {
+    n = Math.trunc(toNumber(n));
+    let largests: number[] = [];
+    let index: number;
+    let count = 0;
+    visitAny(data, d => {
+      if (typeof d === "number") {
+        index = dichotomicPredecessorSearch(largests, d);
+        largests.splice(index + 1, 0, d);
+        count++;
+        if (count > n) {
+          largests.pop();
+          count--;
+        }
+      }
+    });
+    const result = largests.pop();
+    if (result === undefined) {
+      throw new Error(`SMALL has no valid input data.`);
+    }
+    if (count < n) {
+      throw new Error(`Function SMALL parameter 2 value ${n} is out of range.`);
+    }
+    return result;
   }
 };

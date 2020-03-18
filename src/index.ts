@@ -6,7 +6,8 @@
  */
 
 import { toXC, numberToLetters } from "./helpers";
-import { args, toBoolean, toNumber, toString } from "./functions/arguments";
+import { args } from "./functions/arguments";
+import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { addFunction, FunctionDescription } from "./functions/index";
 import { sidePanelRegistry, contextMenuRegistry } from "./ui/registries";
 
