@@ -1,16 +1,19 @@
 import { Component, tags } from "@odoo/owl";
 import { GridModel } from "../model/index";
 import { SCROLLBAR_WIDTH } from "../constants";
+import { ContextMenuItem } from "./registries";
 
 const { xml, css } = tags;
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-context-menu" t-att-style="style" tabindex="-1" t-on-blur="trigger('close')">
         <t t-foreach="menuItems" t-as="menuItem" t-key="menuItem.name">
+          <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(model.state.selectedCell)"/>
           <div
             t-att-data-name="menuItem.name"
             t-on-click="activateMenu(menuItem.name)"
-            class="o-menuitem">
+            class="o-menuitem"
+            t-att-class="{disabled: !isEnabled}">
               <t t-esc="menuItem.description"/>
           </div>
         </t>
@@ -33,47 +36,13 @@ const CSS = css/* scss */ `
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
       }
+
+      &.disabled {
+        color: grey;
+      }
     }
   }
 `;
-
-interface MenuItem {
-  type: "separator" | "action";
-  name: string;
-  description: string;
-  action: (model: GridModel) => void;
-}
-
-export const menuItems: MenuItem[] = [
-  {
-    type: "action",
-    name: "cut",
-    description: "Cut",
-    action(model) {
-      model.dispatch({ type: "CUT", target: model.state.selection.zones });
-    }
-  },
-  {
-    type: "action",
-    name: "copy",
-    description: "Copy",
-    action(model) {
-      model.dispatch({ type: "COPY", target: model.state.selection.zones });
-    }
-  },
-  {
-    type: "action",
-    name: "paste",
-    description: "Paste",
-    action(model) {
-      model.dispatch({
-        type: "PASTE",
-        target: model.state.selection.zones,
-        onlyFormat: false
-      });
-    }
-  }
-];
 
 export class ContextMenu extends Component<any, any> {
   static template = TEMPLATE;
@@ -81,7 +50,7 @@ export class ContextMenu extends Component<any, any> {
 
   model: GridModel = this.props.model;
 
-  menuItems: MenuItem[] = menuItems;
+  menuItems: ContextMenuItem[] = this.props.menuItems;
 
   mounted() {
     this.el!.focus();
@@ -100,7 +69,7 @@ export class ContextMenu extends Component<any, any> {
 
   activateMenu(name) {
     const menu = this.menuItems.find(m => m.name === name);
-    if (menu) {
+    if (menu && (!menu.isEnabled || menu.isEnabled(this.model.state.selectedCell))) {
       menu.action(this.model);
     }
   }

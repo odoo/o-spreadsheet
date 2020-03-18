@@ -11,6 +11,7 @@ import { Composer } from "./composer";
 import { ContextMenu } from "./context_menu";
 import { drawGrid } from "./grid_renderer";
 import { Overlay } from "./overlay";
+import { ContextMenuItem, contextMenuRegistry } from "./registries";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -45,6 +46,7 @@ const TEMPLATE = xml/* xml */ `
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
       position="contextMenu.position"
+      menuItems="contextMenu.items"
       t-on-close.stop="contextMenu.isOpen=false"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{state.height}}px"/>
@@ -105,9 +107,10 @@ export class Grid extends Component<any, any> {
   static style = CSS;
   static components = { Composer, Overlay, ContextMenu };
 
-  contextMenu = useState({ isOpen: false, position: null } as {
+  contextMenu = useState({ isOpen: false, position: null, items: [] } as {
     isOpen: boolean;
     position: null | { x: number; y: number };
+    items: ContextMenuItem[];
   });
 
   composer = useRef("composer");
@@ -407,5 +410,8 @@ export class Grid extends Component<any, any> {
     ev.preventDefault();
     this.contextMenu.isOpen = true;
     this.contextMenu.position = { x: ev.offsetX, y: ev.offsetY };
+    this.contextMenu.items = contextMenuRegistry
+      .getAll()
+      .filter(item => !item.isVisible || item.isVisible("CELL"));
   }
 }
