@@ -1,6 +1,7 @@
 import { AST, parse, ASTFuncall, ASTAsyncFuncall } from "./parser";
 import { functions } from "../functions/index";
 import { Arg } from "../functions/arguments";
+import { CompiledFormula } from "../model";
 
 const OPERATOR_MAP = {
   "=": "EQ",
@@ -24,7 +25,7 @@ const UNARY_OPERATOR_MAP = {
 // -----------------------------------------------------------------------------
 export const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
 
-export function compile(str: string, sheet: string = "Sheet1"): Function {
+export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
