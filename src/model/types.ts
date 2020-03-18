@@ -133,7 +133,6 @@ export interface Workbook {
   cells: { [key: string]: Cell };
   styles: { [key: number]: Style };
   borders: { [key: number]: Border };
-  entities: { [key: string]: { [key: string]: any } };
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
 
@@ -251,15 +250,15 @@ export interface Viewport {
   activeRows: Set<number>;
 }
 
+// -----------------------------------------------------------------------------
+// Conditional Formatting
+// -----------------------------------------------------------------------------
+
 export interface ConditionalFormat {
   formatRule: ConditionalFormattingRule; // the rules to apply, in order
   ranges: string[]; // the cells/ranges on which to apply this conditional formatting
   style: Style;
 }
-
-// -----------------------------------------------------------------------------
-// Conditional Formatting
-// -----------------------------------------------------------------------------
 
 /**
  * https://docs.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/025ea6e4-ad42-43ea-a016-16f4e4688ac8
@@ -419,11 +418,26 @@ export interface CommandPasteFromOSClipboard {
   text: string;
 }
 
+export interface CommandAddEntity {
+  type: "ADD_ENTITY";
+  kind: string;
+  key: string;
+  value: any;
+}
+
+export interface CommandRemoveEntity {
+  type: "REMOVE_ENTITY";
+  kind: string;
+  key: string;
+}
+
 export type GridCommand =
   | CommandCopy
   | CommandCut
   | CommandPaste
   | CommandPasteFromOSClipboard
-  | CommandActivatePaintFormat;
+  | CommandActivatePaintFormat
+  | CommandAddEntity
+  | CommandRemoveEntity;
 
 export type CommandResult = "CANCELLED";
