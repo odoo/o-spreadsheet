@@ -1,10 +1,7 @@
-import { Component, hooks, tags, useState } from "@odoo/owl";
+import { Component, hooks, tags } from "@odoo/owl";
 import { functionMap, functions } from "../src/functions/index";
 import { GridModel } from "../src/model";
 import { Grid } from "../src/ui/grid";
-import { SidePanel } from "../src/ui/side_panel/side_panel";
-import { SidePanelRegistry } from "../src/ui/side_panel/registry";
-import { fillPanelRegistry } from "../src/ui/side_panel/import_registry";
 import "./canvas.mock";
 
 const { xml } = tags;
@@ -63,26 +60,14 @@ export class GridParent extends Component<any, any> {
   static template = xml`
     <div class="parent">
       <Grid model="model" t-ref="grid"/>
-      <SidePanel t-if="sidePanel.isOpen"
-             t-on-closeSidePanel="sidePanel.isOpen = false"
-             model="model"
-             title="sidePanel.title"
-             Body="sidePanel.Body"
-             Footer="sidePanel.Footer"/>
     </div>`;
 
-  static components = { Grid, SidePanel };
+  static components = { Grid };
   model: GridModel;
   grid: any = useRef("grid");
-  sidePanel = useState({ isOpen: false } as {
-    isOpen: boolean;
-    title?: string;
-    Body?: any;
-    Footer?: any;
-  });
   constructor(model: GridModel) {
     super();
-    fillPanelRegistry();
+
     const uvz = model.updateVisibleZone;
     model.updateVisibleZone = function(width?: number, height?: number) {
       // we simulate here a vizible zone of 1000x1000px
@@ -97,20 +82,10 @@ export class GridParent extends Component<any, any> {
 
   mounted() {
     this.model.on("update", this, this.render);
-    this.model.on("openSidePanel", this, this.openSidePanel);
   }
 
   willUnmount() {
     this.model.off("update", this);
-    this.model.off("openSidePanel", this);
-  }
-
-  openSidePanel(ev) {
-    const component = SidePanelRegistry.get(ev.panelName);
-    this.sidePanel.title = component.title;
-    this.sidePanel.Body = component.Body;
-    this.sidePanel.Footer = component.Footer;
-    this.sidePanel.isOpen = true;
   }
 }
 
