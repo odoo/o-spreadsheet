@@ -57,7 +57,7 @@ describe("Grid component", () => {
   });
 
   test("Can open the Conditional Format side panel", async () => {
-    model.trigger("openSidePanel", { panelName: "ConditionalFormattingPanel" });
+    parent.env.spreadsheet.openSidePanel("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });

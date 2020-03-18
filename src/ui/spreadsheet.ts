@@ -12,7 +12,7 @@ import { sidePanelRegistry } from "./registries";
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
-
+const { useSubEnv } = owl.hooks;
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ const TEMPLATE = xml/* xml */ `
     <Grid model="model" t-ref="grid"/>
     <BottomBar model="model" />
     <SidePanel t-if="sidePanel.isOpen"
-           t-on-closeSidePanel="sidePanel.isOpen = false"
+           t-on-close-side-panel="sidePanel.isOpen = false"
            model="model"
            title="sidePanel.title"
            Body="sidePanel.Body"
@@ -72,24 +72,27 @@ export class Spreadsheet extends Component<Props> {
   });
   constructor() {
     super(...arguments);
+    useSubEnv({
+      spreadsheet: {
+        openSidePanel: (panel: string) => this.openSidePanel(panel)
+      }
+    });
     useExternalListener(window as any, "resize", this.render);
   }
 
   mounted() {
     this.model.on("update", this, this.render);
-    this.model.on("openSidePanel", this, this.openSidePanel);
   }
 
   willUnmount() {
     this.model.off("update", this);
-    this.model.off("openSidePanel", this);
   }
 
-  openSidePanel(ev) {
-    const component = sidePanelRegistry.get(ev.panelName);
-    this.sidePanel.title = component.title;
-    this.sidePanel.Body = component.Body;
-    this.sidePanel.Footer = component.Footer;
+  openSidePanel(panel: string) {
+    const panelComponent = sidePanelRegistry.get(panel);
+    this.sidePanel.title = panelComponent.title;
+    this.sidePanel.Body = panelComponent.Body;
+    this.sidePanel.Footer = panelComponent.Footer;
     this.sidePanel.isOpen = true;
   }
   focusGrid() {

@@ -9,7 +9,7 @@ interface SidePanelContent {
 
 export const sidePanelRegistry = new Registry<SidePanelContent>();
 
-sidePanelRegistry.add("ConditionalFormattingPanel", {
+sidePanelRegistry.add("ConditionalFormatting", {
   title: "Conditional Formatting",
   Body: ConditionalFormattingPanel
 });

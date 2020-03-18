@@ -7,7 +7,7 @@ import { sidePanelRegistry } from "../src/ui/registries";
 import "./canvas.mock";
 
 const { xml } = tags;
-const { useRef } = hooks;
+const { useRef, useSubEnv } = hooks;
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -63,7 +63,7 @@ export class GridParent extends Component<any, any> {
     <div class="parent">
       <Grid model="model" t-ref="grid"/>
       <SidePanel t-if="sidePanel.isOpen"
-             t-on-closeSidePanel="sidePanel.isOpen = false"
+             t-on-close-side-panel="sidePanel.isOpen = false"
              model="model"
              title="sidePanel.title"
              Body="sidePanel.Body"
@@ -81,6 +81,12 @@ export class GridParent extends Component<any, any> {
   });
   constructor(model: GridModel) {
     super();
+    useSubEnv({
+      spreadsheet: {
+        openSidePanel: (panel: string) => this.openSidePanel(panel)
+      }
+    });
+
     const uvz = model.updateVisibleZone;
     model.updateVisibleZone = function(width?: number, height?: number) {
       // we simulate here a vizible zone of 1000x1000px
@@ -95,19 +101,17 @@ export class GridParent extends Component<any, any> {
 
   mounted() {
     this.model.on("update", this, this.render);
-    this.model.on("openSidePanel", this, this.openSidePanel);
   }
 
   willUnmount() {
     this.model.off("update", this);
-    this.model.off("openSidePanel", this);
   }
 
-  openSidePanel(ev) {
-    const component = sidePanelRegistry.get(ev.panelName);
-    this.sidePanel.title = component.title;
-    this.sidePanel.Body = component.Body;
-    this.sidePanel.Footer = component.Footer;
+  openSidePanel(panel: string) {
+    const panelComponent = sidePanelRegistry.get(panel);
+    this.sidePanel.title = panelComponent.title;
+    this.sidePanel.Body = panelComponent.Body;
+    this.sidePanel.Footer = panelComponent.Footer;
     this.sidePanel.isOpen = true;
   }
 }
