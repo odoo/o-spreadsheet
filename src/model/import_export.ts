@@ -130,7 +130,9 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     isSelectingRange: false,
     isCopyingFormat: false,
     loadingCells: 0,
+    isStale: true,
     sheets: [],
+    // please remove this next line
     // @ts-ignore
     activeSheet: {}
   };

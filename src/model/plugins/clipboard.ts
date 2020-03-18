@@ -9,7 +9,6 @@ import {
   setValue,
   activateCell
 } from "../core";
-import { evaluateCells } from "../evaluation";
 import { updateSelection } from "../selection";
 import { Cell, NewCell, Zone, GridCommand, CommandResult } from "../types";
 import { updateCell } from "../history";
@@ -167,8 +166,6 @@ export class ClipboardPlugin extends BasePlugin {
         this.pasteZone(width, height, col + x * width, row + y * height);
       }
     }
-
-    evaluateCells(workbook);
 
     if (height > 1 || width > 1) {
       const anchor = Object.assign({}, workbook.selection.anchor);

@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import * as core from "./core";
-import { _evaluateCells } from "./evaluation";
+import { _evaluateCells, evaluateCells } from "./evaluation";
 import * as formatting from "./formatting";
 import * as history from "./history";
 import {
@@ -26,21 +26,19 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { toXC, overlap } from "../helpers";
-import { BasePlugin } from "./base_plugin";
+import { Plugin } from "./base_plugin";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
-
 
 // -----------------------------------------------------------------------------
 // GridModel
 // -----------------------------------------------------------------------------
 export class GridModel extends owl.core.EventBus {
-  private plugins: BasePlugin[];
+  private plugins: Plugin[];
 
   workbook: Workbook;
   state: UI;
-
 
   private ctx: CanvasRenderingContext2D;
 
@@ -53,6 +51,7 @@ export class GridModel extends owl.core.EventBus {
     (window as any).gridmodel = this; // to debug. remove this someday
 
     this.workbook = importData(data);
+    evaluateCells(this.workbook);
     // plugins
     this.plugins = [new ClipboardPlugin(this.workbook)];
 
@@ -76,6 +75,9 @@ export class GridModel extends owl.core.EventBus {
       let result = (f as any).call(null, this.workbook, ...args);
       history.stop(this.workbook);
       Object.assign(this.state, this.computeDerivedState());
+      if (this.workbook.isStale) {
+        evaluateCells(this.workbook);
+      }
       this.trigger("update");
       if (this.workbook.loadingCells > 0) {
         this.startScheduler();
@@ -95,6 +97,9 @@ export class GridModel extends owl.core.EventBus {
     }
     history.stop(this.workbook);
     Object.assign(this.state, this.computeDerivedState());
+    if (this.workbook.isStale) {
+      evaluateCells(this.workbook);
+    }
     this.trigger("update");
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();

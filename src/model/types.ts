@@ -170,6 +170,7 @@ export interface Workbook {
   isSelectingRange: boolean;
 
   loadingCells: number;
+  isStale: boolean; // to indicate if we should reevaluate the formulas
 
   // sheets
   sheets: Sheet[];

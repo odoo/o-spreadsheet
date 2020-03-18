@@ -32,6 +32,7 @@ const WAITING: Set<Cell> = new Set();
 const COMPUTED: Set<Cell> = new Set();
 
 export function evaluateCells(state: Workbook) {
+  state.isStale = false;
   _evaluateCells(state, false);
 }
 

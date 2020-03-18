@@ -1,7 +1,6 @@
 import { Workbook, Sheet, Col, Row } from ".";
 import { updateState } from "./history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { evaluateCells } from "./evaluation";
 import { selectCell } from "./core";
 import { numberToLetters } from "../helpers";
 
@@ -82,6 +81,5 @@ export function activateSheet(state: Workbook, name: string) {
 
   // cells
   updateState(state, ["cells"], sheet.cells);
-  evaluateCells(state);
   selectCell(state, 0, 0);
 }

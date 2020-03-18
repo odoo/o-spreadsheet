@@ -1,5 +1,4 @@
 import { Cell, Workbook, HistoryChange, HistoryStep } from "./types";
-import { evaluateCells } from "./evaluation";
 
 /**
  * History Management System
@@ -62,7 +61,7 @@ export function undo(state: Workbook) {
     let change = step.batch[i];
     applyChange(change, "before");
   }
-  evaluateCells(state);
+  state.isStale = true;
 }
 
 export function redo(state: Workbook) {
@@ -76,7 +75,7 @@ export function redo(state: Workbook) {
   for (let change of step.batch) {
     applyChange(change, "after");
   }
-  evaluateCells(state);
+  state.isStale = true;
 }
 
 function applyChange(change: HistoryChange, target: "before" | "after") {

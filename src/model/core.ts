@@ -4,7 +4,6 @@ import { AsyncFunction } from "../formulas/compiler";
 import { compile, tokenize } from "../formulas/index";
 import { isNumber } from "../functions/arguments";
 import { toCartesian, toXC } from "../helpers";
-import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
 import { Cell, Workbook, NewCell, Zone } from "./types";
 
@@ -54,7 +53,6 @@ export function formatCell(state: Workbook, cell: Cell): string {
  */
 export function setValue(state: Workbook, xc: string, text: string) {
   addCell(state, xc, { content: text });
-  evaluateCells(state);
 }
 
 interface AddCellOptions {
@@ -130,6 +128,7 @@ export function addCell(
     updateState(state, ["cells", xc], cell);
     updateState(state, ["rows", cell.row, "cells", cell.col], cell);
   }
+  state.isStale = true;
 }
 
 /**
@@ -156,6 +155,7 @@ export function deleteCell(state: Workbook, xc: string, force: boolean = false) 
       updateState(state, ["cells", xc], undefined);
       updateState(state, ["rows", cell.row, "cells", cell.col], undefined);
     }
+    state.isStale = true;
   }
 }
 
@@ -312,7 +312,6 @@ export function deleteSelection(state: Workbook) {
       }
     }
   });
-  evaluateCells(state);
 }
 
 export function startEditing(state: Workbook, str?: string) {
@@ -373,7 +372,6 @@ export function stopEditing(state: Workbook) {
       deleteCell(state, xc);
     }
 
-    evaluateCells(state);
     cancelEdition(state);
   }
 }

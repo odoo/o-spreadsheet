@@ -1,7 +1,6 @@
 import { toXC, toCartesian } from "../helpers";
 import { Workbook } from "./types";
 import { deleteCell } from "./core";
-import { evaluateCells } from "./evaluation";
 import { updateState } from "./history";
 
 // ---------------------------------------------------------------------------
@@ -21,13 +20,11 @@ export function addMerge(state: Workbook, m: string) {
     bottom,
     topLeft: tl
   });
-  let isDestructive = false;
   let previousMerges: Set<number> = new Set();
   for (let row = top; row <= bottom; row++) {
     for (let col = left; col <= right; col++) {
       const xc = toXC(col, row);
       if (col !== left || row !== top) {
-        isDestructive = true;
         deleteCell(state, xc);
       }
       if (state.mergeCellMap[xc]) {
@@ -38,9 +35,6 @@ export function addMerge(state: Workbook, m: string) {
   }
   for (let m of previousMerges) {
     updateState(state, ["merges", m], undefined);
-  }
-  if (isDestructive) {
-    evaluateCells(state);
   }
 }
 

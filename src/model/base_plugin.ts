@@ -1,6 +1,10 @@
 import { Workbook, GridCommand, CommandResult } from "./types";
 
-export class BasePlugin {
+export interface Plugin {
+  dispatch(command: GridCommand): CommandResult | void;
+}
+
+export class BasePlugin implements Plugin {
   workbook: Workbook;
 
   constructor(workbook: Workbook) {
