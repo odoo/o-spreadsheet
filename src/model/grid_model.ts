@@ -141,7 +141,8 @@ export class GridModel extends owl.core.EventBus {
       canRedo: this.workbook.redoStack.length > 0,
       currentContent: this.workbook.currentContent,
       sheets: this.workbook.sheets.map(s => s.name),
-      activeSheet: this.workbook.activeSheet.name
+      activeSheet: this.workbook.activeSheet.name,
+      conditionalFormats: this.workbook.activeSheet.conditionalFormats
     };
   }
 

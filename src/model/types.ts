@@ -205,6 +205,8 @@ export interface UI {
   sheets: string[];
   activeSheet: string;
 
+  conditionalFormats: ConditionalFormat[];
+
   clipboard: Zone[];
   highlights: Highlight[];
   isSelectingRange: boolean;

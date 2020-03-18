@@ -56,6 +56,12 @@ describe("Grid component", () => {
     });
   });
 
+  test("Can open the Conditional Format side panel", async () => {
+    model.trigger("openSidePanel", { panelName: "ConditionalFormattingPanel" });
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+  });
+
   describe("keybindings", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behavious is not like excel. Maybe someone will want to
