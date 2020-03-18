@@ -360,7 +360,7 @@ export class TopBar extends Component<any, any> {
   }
 
   setConditionalFormatting() {
-    this.model.trigger("openSidePanel", { panelName: "ConditionalFormattingPanel" });
+    this.env.spreadsheet.openSidePanel("ConditionalFormatting");
   }
 
   toggleTool(tool) {

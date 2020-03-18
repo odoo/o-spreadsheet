@@ -9,7 +9,7 @@ const TEMPLATE = xml/* xml */ `
       <div class="o-sidePanelTitle">
           <t t-esc="props.title" />
       </div>
-      <div class="o-sidePanelClose" t-on-click="trigger('closeSidePanel')">x</div>
+      <div class="o-sidePanelClose" t-on-click="trigger('close-side-panel')">x</div>
   </div>
   <div class="o-sidePanelBody">
      <t t-component="props.Body" model="props.model"/>
