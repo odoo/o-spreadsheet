@@ -3,8 +3,7 @@ import { functionMap, functions } from "../src/functions/index";
 import { GridModel } from "../src/model";
 import { Grid } from "../src/ui/grid";
 import { SidePanel } from "../src/ui/side_panel/side_panel";
-import { SidePanelRegistry } from "../src/ui/side_panel/registry";
-import { fillPanelRegistry } from "../src/ui/side_panel/import_registry";
+import { sidePanelRegistry } from "../src/ui/registries";
 import "./canvas.mock";
 
 const { xml } = tags;
@@ -82,7 +81,6 @@ export class GridParent extends Component<any, any> {
   });
   constructor(model: GridModel) {
     super();
-    fillPanelRegistry();
     const uvz = model.updateVisibleZone;
     model.updateVisibleZone = function(width?: number, height?: number) {
       // we simulate here a vizible zone of 1000x1000px
@@ -106,7 +104,7 @@ export class GridParent extends Component<any, any> {
   }
 
   openSidePanel(ev) {
-    const component = SidePanelRegistry.get(ev.panelName);
+    const component = sidePanelRegistry.get(ev.panelName);
     this.sidePanel.title = component.title;
     this.sidePanel.Body = component.Body;
     this.sidePanel.Footer = component.Footer;

@@ -39,10 +39,10 @@ export class GridModel extends owl.core.EventBus {
   static setTimeout = window.setTimeout.bind(window);
 
   private plugins: Plugin[];
-  private workbook: Workbook;
   private evalContext: any;
   private ctx: CanvasRenderingContext2D;
   private isStarted: boolean = false;
+  workbook: Workbook;
   state: UI;
 
   getters: { [key: string]: Function } = {};
