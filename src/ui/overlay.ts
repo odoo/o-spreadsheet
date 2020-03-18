@@ -265,7 +265,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _fitElementSize(index: number): void {
-    this.trigger("autoresize", { index, type: "col" });
+    this.model.autoresizeCols(index);
   }
 }
 
@@ -370,7 +370,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _fitElementSize(index: number): void {
-    this.trigger("autoresize", { index, type: "row" });
+    this.model.autoresizeRows(index);
   }
 }
 

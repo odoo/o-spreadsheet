@@ -241,10 +241,62 @@ describe("Resizer component", () => {
     expect(model.workbook.cols[1].size).toBe(1000);
   });
 
+  test("Double click on column then undo, then redo", async () => {
+    model.setValue("C2", "C2");
+    model.setValue("D2", "D2");
+    selectColumn("C");
+    selectColumn("D", { ctrlKey: true });
+    await dblClickColumn("D");
+    const initialSize = model.state.cols[0].size;
+    expect(model.state.cols[1].size).toBe(initialSize);
+    expect(model.state.cols[2].size).toBe(1000);
+    expect(model.state.cols[3].size).toBe(1000);
+    expect(model.state.cols[4].size).toBe(initialSize);
+    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2000);
+    model.undo();
+    expect(model.state.cols[1].size).toBe(initialSize);
+    expect(model.state.cols[2].size).toBe(initialSize);
+    expect(model.state.cols[3].size).toBe(initialSize);
+    expect(model.state.cols[4].size).toBe(initialSize);
+    expect(model.state.cols[4].left).toBe(initialSize * 4);
+    model.redo();
+    expect(model.state.cols[1].size).toBe(initialSize);
+    expect(model.state.cols[2].size).toBe(1000);
+    expect(model.state.cols[3].size).toBe(1000);
+    expect(model.state.cols[4].size).toBe(initialSize);
+    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2000);
+  });
+
   test("Double click: Modify the size of a row", async () => {
     model.setValue("B2", "b2");
     await dblClickRow(1);
     expect(model.workbook.rows[1].size).toBe(1000);
+  });
+
+  test("Double click on rows then undo, then redo", async () => {
+    model.setValue("C3", "C3");
+    model.setValue("C4", "C4");
+    selectRow(2);
+    selectRow(3, { ctrlKey: true });
+    await dblClickRow(2);
+    const initialSize = model.state.rows[0].size;
+    expect(model.state.rows[1].size).toBe(initialSize);
+    expect(model.state.rows[2].size).toBe(1000);
+    expect(model.state.rows[3].size).toBe(1000);
+    expect(model.state.rows[4].size).toBe(initialSize);
+    expect(model.state.rows[4].top).toBe(initialSize * 2 + 2000);
+    model.undo();
+    expect(model.state.rows[1].size).toBe(initialSize);
+    expect(model.state.rows[2].size).toBe(initialSize);
+    expect(model.state.rows[3].size).toBe(initialSize);
+    expect(model.state.rows[4].size).toBe(initialSize);
+    expect(model.state.rows[4].top).toBe(initialSize * 4);
+    model.redo();
+    expect(model.state.rows[1].size).toBe(initialSize);
+    expect(model.state.rows[2].size).toBe(1000);
+    expect(model.state.rows[3].size).toBe(1000);
+    expect(model.state.rows[4].size).toBe(initialSize);
+    expect(model.state.rows[4].top).toBe(initialSize * 2 + 2000);
   });
 
   test("Select B, shift D then BCD selected", () => {

@@ -257,6 +257,17 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   addConditionalFormat = this.makeMutation(conditionalFormat.addConditionalFormat);
 
+  _autoresizeCols = this.makeMutation(resizing.autoresizeCols);
+  _autoresizeRows = this.makeMutation(resizing.autoresizeRows);
+
+  autoresizeCols(col: number) {
+    this._autoresizeCols(col, this.getMaxSize.bind(this));
+  }
+
+  autoresizeRows(row: number) {
+    this._autoresizeRows(row, this.getMaxSize.bind(this));
+  }
+
   getCellWidth(cell: Cell): number {
     const style = this.state.styles[cell ? cell.style || 0 : 0];
     const italic = style.italic ? "italic " : "";
@@ -269,8 +280,6 @@ export class GridModel extends owl.core.EventBus {
 
   /**
    * Return the max size of the text in a row/col
-   * @param context Canvas context
-   * @param _model Model
    * @param col True if the size it's a column, false otherwise
    * @param index Index of the row/col
    *
