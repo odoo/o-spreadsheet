@@ -1,33 +1,26 @@
 import * as owl from "@odoo/owl";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { functionMap } from "../functions/index";
+import { overlap, toXC } from "../helpers";
+import { Plugin } from "./base_plugin";
+import * as conditionalFormat from "./conditional_format";
 import * as core from "./core";
-import { _evaluateCells, evaluateCells } from "./evaluation";
+import { evaluateCells, _evaluateCells } from "./evaluation";
 import * as formatting from "./formatting";
 import * as history from "./history";
 import {
+  CURRENT_VERSION,
   exportData,
   importData,
-  PartialWorkbookDataWithVersion,
-  CURRENT_VERSION
+  PartialWorkbookDataWithVersion
 } from "./import_export";
 import * as merges from "./merges";
-import * as entity from "./plugins/entity";
-import * as resizing from "./resizing";
-import * as selection from "./selection";
 import { ClipboardPlugin } from "./plugins/clipboard";
+import * as entity from "./plugins/entity";
+import { GridPlugin } from "./plugins/grid";
+import * as selection from "./selection";
 import * as sheet from "./sheet";
-import * as conditionalFormat from "./conditional_format";
-import { Cell, Workbook, Box, Rect, Viewport, GridCommand, UI, CommandResult } from "./types";
-import {
-  DEFAULT_FONT_WEIGHT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT,
-  HEADER_WIDTH,
-  HEADER_HEIGHT
-} from "../constants";
-import { fontSizeMap } from "../fonts";
-import { toXC, overlap } from "../helpers";
-import { Plugin } from "./base_plugin";
-import { functionMap } from "../functions/index";
+import { Box, CommandResult, GridCommand, Rect, UI, Viewport, Workbook } from "./types";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
@@ -40,7 +33,6 @@ export class GridModel extends owl.core.EventBus {
 
   private plugins: Plugin[];
   private evalContext: any;
-  private ctx: CanvasRenderingContext2D;
   private isStarted: boolean = false;
   workbook: Workbook;
   state: UI;
@@ -57,9 +49,12 @@ export class GridModel extends owl.core.EventBus {
     // Plugins
     const clipboardPlugin = new ClipboardPlugin(workbook, data);
     const entityPlugin = new entity.EntityPlugin(workbook, data);
-    this.plugins = [clipboardPlugin, entityPlugin];
+    const gridPlugin = new GridPlugin(workbook, data);
+    this.plugins = [clipboardPlugin, entityPlugin, gridPlugin];
     for (let p of this.plugins) {
-      Object.assign(this.getters, p.getters);
+      for (let f in p.getters) {
+        this.getters[f] = p.getters[f].bind(p);
+      }
     }
 
     // Evaluation context
@@ -75,7 +70,6 @@ export class GridModel extends owl.core.EventBus {
     evaluateCells(workbook, this.evalContext);
 
     // misc
-    this.ctx = document.createElement("canvas").getContext("2d")!;
     this.state = this.computeDerivedState();
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
@@ -260,15 +254,6 @@ export class GridModel extends owl.core.EventBus {
   merge = this.makeMutation(merges.merge);
   unmerge = this.makeMutation(merges.unmerge);
 
-  // resizing
-  // ---------------------------------------------------------------------------
-  updateColSize = this.makeMutation(resizing.updateColSize);
-  updateColsSize = this.makeMutation(resizing.updateColsSize);
-  updateRowSize = this.makeMutation(resizing.updateRowSize);
-  updateRowsSize = this.makeMutation(resizing.updateRowsSize);
-  setColSize = this.makeMutation(resizing.setColSize);
-  setRowSize = this.makeMutation(resizing.setRowSize);
-
   // export
   // ---------------------------------------------------------------------------
   exportData() {
@@ -282,54 +267,6 @@ export class GridModel extends owl.core.EventBus {
   // conditional formatting
   // ---------------------------------------------------------------------------
   addConditionalFormat = this.makeMutation(conditionalFormat.addConditionalFormat);
-
-  _autoresizeCols = this.makeMutation(resizing.autoresizeCols);
-  _autoresizeRows = this.makeMutation(resizing.autoresizeRows);
-
-  autoresizeCols(col: number) {
-    this._autoresizeCols(col, this.getMaxSize.bind(this));
-  }
-
-  autoresizeRows(row: number) {
-    this._autoresizeRows(row, this.getMaxSize.bind(this));
-  }
-
-  getCellWidth(cell: Cell): number {
-    const style = this.state.styles[cell ? cell.style || 0 : 0];
-    const italic = style.italic ? "italic " : "";
-    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    const size = fontSizeMap[sizeInPt];
-    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-    return this.ctx.measureText(this.formatCell(cell)).width;
-  }
-
-  /**
-   * Return the max size of the text in a row/col
-   * @param col True if the size it's a column, false otherwise
-   * @param index Index of the row/col
-   *
-   * @returns Max size of the row/col
-   */
-  getMaxSize(col: boolean, index: number): number {
-    let size = 0;
-    const state = this.state;
-    const headers = state[col ? "rows" : "cols"];
-    for (let i = 0; i < headers.length; i++) {
-      const cell = state.rows[col ? i : index].cells[col ? index : i];
-      if (cell) {
-        if (col) {
-          size = Math.max(size, this.getCellWidth(cell));
-        } else {
-          const style = state.styles[cell ? cell.style || 0 : 0];
-          const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-          const fontSize = fontSizeMap[sizeInPt];
-          size = Math.max(size, fontSize);
-        }
-      }
-    }
-    return size ? size + 6 : 0;
-  }
 
   getViewport(width: number, height: number, offsetX: number, offsetY: number): Viewport {
     return {
@@ -361,7 +298,7 @@ export class GridModel extends owl.core.EventBus {
         if (cell && !(cell.xc in mergeCellMap)) {
           let col = cols[colNumber];
           const text = this.formatCell(cell);
-          const textWidth = this.getCellWidth(cell);
+          const textWidth = this.getters.getCellWidth(cell);
           let style = cell.style ? this.workbook.styles[cell.style] : null;
           if (cell.conditionalStyle) {
             style = Object.assign({}, style, cell.conditionalStyle);
@@ -417,7 +354,7 @@ export class GridModel extends owl.core.EventBus {
         let text, textWidth, style, align, border;
         if (refCell) {
           text = refCell ? this.formatCell(refCell) : "";
-          textWidth = this.getCellWidth(refCell);
+          textWidth = this.getters.getCellWidth(refCell);
           style = refCell.style ? this.workbook.styles[refCell.style] : {};
           align = text
             ? (style && style.align) || (refCell.type === "text" ? "left" : "right")

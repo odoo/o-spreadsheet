@@ -82,7 +82,12 @@ describe("Export", () => {
         }
       ]
     });
-    model.setColSize(1, 150);
+    model.dispatch({
+      type: "RESIZE_COLUMNS",
+      sheet: "Sheet1",
+      cols: [1],
+      size: 150
+    });
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
@@ -96,7 +101,12 @@ describe("Export", () => {
         }
       ]
     });
-    model.setRowSize(1, 150);
+    model.dispatch({
+      type: "RESIZE_ROWS",
+      sheet: "Sheet1",
+      rows: [1],
+      size: 150
+    });
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
   });

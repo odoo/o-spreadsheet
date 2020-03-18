@@ -9,8 +9,13 @@ describe("Model resizer", () => {
     const initialSize = model.workbook.cols[1].size;
     const initialTop = model.workbook.cols[2].left;
 
-    model.updateColSize(1, 100);
-    expect(model.workbook.cols[1].size).toBe(initialSize + 100);
+    model.dispatch({
+      type: "RESIZE_COLUMNS",
+      sheet: "Sheet1",
+      cols: [1],
+      size: model.workbook.cols[1].size + 100
+    });
+    expect(model.workbook.cols[1].size).toBe(196);
     expect(model.workbook.cols[2].left).toBe(initialTop + 100);
 
     model.undo();
@@ -29,7 +34,12 @@ describe("Model resizer", () => {
     const initialSize = model.workbook.rows[1].size;
     const initialTop = model.workbook.rows[2].top;
 
-    model.updateRowSize(1, 100);
+    model.dispatch({
+      type: "RESIZE_ROWS",
+      sheet: "Sheet1",
+      rows: [1],
+      size: initialSize + 100
+    });
     expect(model.workbook.rows[1].size).toBe(initialSize + 100);
     expect(model.workbook.rows[2].top).toBe(initialTop + 100);
 
@@ -44,24 +54,17 @@ describe("Model resizer", () => {
 
     const size = model.workbook.cols[0].size;
 
-    model.workbook.selection.zones[0] = {
-      top: 0,
-      bottom: 99,
-      left: 1,
-      right: 1
-    };
-    model.workbook.selection.zones[1] = {
-      top: 0,
-      bottom: 99,
-      left: 3,
-      right: 4
-    };
-    model.updateColsSize(1, 100);
-
-    expect(model.workbook.cols[1].size).toBe(size + 100);
-    expect(model.workbook.cols[3].size).toBe(size + 100);
-    expect(model.workbook.cols[4].size).toBe(size + 100);
-    expect(model.workbook.cols[5].left).toBe(size * 5 + 100 * 3);
+    model.dispatch({
+      type: "RESIZE_COLUMNS",
+      sheet: "Sheet1",
+      cols: [1, 3, 4],
+      size: 100
+    });
+    expect(model.workbook.cols[1].size).toBe(100);
+    expect(model.workbook.cols[2].size).toBe(size);
+    expect(model.workbook.cols[3].size).toBe(100);
+    expect(model.workbook.cols[4].size).toBe(100);
+    expect(model.workbook.cols[5].left).toBe(size * 2 + 100 * 3);
   });
 
   test("Can resize multiple rows", async () => {
@@ -70,24 +73,18 @@ describe("Model resizer", () => {
 
     const size = model.workbook.rows[0].size;
 
-    model.workbook.selection.zones[0] = {
-      top: 1,
-      bottom: 1,
-      left: 0,
-      right: 25
-    };
-    model.workbook.selection.zones[1] = {
-      top: 3,
-      bottom: 4,
-      left: 0,
-      right: 25
-    };
-    model.updateRowsSize(1, 100);
+    model.dispatch({
+      type: "RESIZE_ROWS",
+      sheet: "Sheet1",
+      rows: [1, 3, 4],
+      size: 100
+    });
 
-    expect(model.workbook.rows[1].size).toBe(size + 100);
-    expect(model.workbook.rows[3].size).toBe(size + 100);
-    expect(model.workbook.rows[4].size).toBe(size + 100);
-    expect(model.workbook.rows[5].top).toBe(size * 5 + 100 * 3);
+    expect(model.workbook.rows[1].size).toBe(100);
+    expect(model.workbook.rows[2].size).toBe(size);
+    expect(model.workbook.rows[3].size).toBe(100);
+    expect(model.workbook.rows[4].size).toBe(100);
+    expect(model.workbook.rows[5].top).toBe(2 * size + 100 * 3);
   });
 
   test("resizing cols/rows update the total width/height", async () => {
@@ -97,10 +94,20 @@ describe("Model resizer", () => {
     const initialWidth = model.workbook.width;
     const initialHeight = model.workbook.height;
 
-    model.updateColSize(1, 100);
+    model.dispatch({
+      type: "RESIZE_COLUMNS",
+      sheet: "Sheet1",
+      cols: [1],
+      size: model.workbook.cols[1].size + 100
+    });
     expect(model.workbook.width).toBe(initialWidth + 100);
 
-    model.updateRowSize(1, 42);
+    model.dispatch({
+      type: "RESIZE_ROWS",
+      sheet: "Sheet1",
+      rows: [1],
+      size: model.workbook.rows[1].size + 42
+    });
     expect(model.workbook.height).toBe(initialHeight + 42);
   });
 });

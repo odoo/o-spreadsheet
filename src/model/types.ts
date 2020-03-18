@@ -397,53 +397,83 @@ export type ConditionalFormattingOperatorValues =
 // -----------------------------------------------------------------------------
 type Target = Zone[];
 
-export interface CommandCopy {
+export interface CopyCommand {
   type: "COPY";
   target: Target;
 }
 
-export interface CommandCut {
+export interface CutCommand {
   type: "CUT";
   target: Target;
 }
 
-export interface CommandActivatePaintFormat {
-  type: "ACTIVATE_PAINT_FORMAT";
-  target: Target;
-}
-
-export interface CommandPaste {
+export interface PasteCommand {
   type: "PASTE";
   target: Target;
   onlyFormat?: boolean;
 }
 
-export interface CommandPasteFromOSClipboard {
+export interface ActivatePaintFormatCommand {
+  type: "ACTIVATE_PAINT_FORMAT";
+  target: Target;
+}
+
+export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Target;
   text: string;
 }
 
-export interface CommandAddEntity {
+export interface AddEntityCommand {
   type: "ADD_ENTITY";
   kind: string;
   key: string;
   value: any;
 }
 
-export interface CommandRemoveEntity {
+export interface RemoveEntityCommand {
   type: "REMOVE_ENTITY";
   kind: string;
   key: string;
 }
 
+export interface ResizeColumnsCommand {
+  type: "RESIZE_COLUMNS";
+  sheet: string;
+  cols: number[];
+  size: number;
+}
+
+export interface ResizeRowsCommand {
+  type: "RESIZE_ROWS";
+  sheet: string;
+  rows: number[];
+  size: number;
+}
+
+export interface AutoresizeColumnsCommand {
+  type: "AUTORESIZE_COLUMNS";
+  sheet: string;
+  cols: number[];
+}
+
+export interface AutoresizeRowsCommand {
+  type: "AUTORESIZE_ROWS";
+  sheet: string;
+  rows: number[];
+}
+
 export type GridCommand =
-  | CommandCopy
-  | CommandCut
-  | CommandPaste
-  | CommandPasteFromOSClipboard
-  | CommandActivatePaintFormat
-  | CommandAddEntity
-  | CommandRemoveEntity;
+  | CopyCommand
+  | CutCommand
+  | PasteCommand
+  | PasteFromOSClipboardCommand
+  | ActivatePaintFormatCommand
+  | AddEntityCommand
+  | RemoveEntityCommand
+  | ResizeRowsCommand
+  | ResizeColumnsCommand
+  | AutoresizeColumnsCommand
+  | AutoresizeRowsCommand;
 
 export type CommandResult = "CANCELLED";

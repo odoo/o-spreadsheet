@@ -19,7 +19,7 @@ Object.assign(HTMLCanvasElement.prototype, {getContext: jest.fn(function() {
       restore() {},
       setLineDash() {},
       measureText() {
-        return { width: 1 };
+        return { width: 1000 };
       }
     };
   })});

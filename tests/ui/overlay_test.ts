@@ -6,14 +6,21 @@ import {
   DEFAULT_CELL_WIDTH,
   DEFAULT_CELL_HEIGHT
 } from "../../src/constants";
-import { lettersToNumber } from "../../src/helpers";
+import { lettersToNumber, toXC } from "../../src/helpers";
 import { ColResizer, RowResizer } from "../../src/ui/overlay";
+import "../canvas.mock";
 
 let fixture: HTMLElement;
 let model: GridModel;
 
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
+
+function fillData() {
+  for (let i = 0; i < 8; i++) {
+    model.setValue(toXC(i, i), "i");
+  }
+}
 
 beforeEach(async () => {
   fixture = makeTestFixture();
@@ -71,7 +78,6 @@ async function resizeColumn(letter: string, delta: number) {
  * @param letter Name of the column to double click on (Starts at 'A')
  */
 async function dblClickColumn(letter: string) {
-  GridModel.prototype.getMaxSize = () => 1000;
   const index = lettersToNumber(letter);
   const x = model.workbook.cols[index].right;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
@@ -111,7 +117,6 @@ async function resizeRow(index: number, delta: number) {
  * @param letter Number of the row to double click on (Starts at 0)
  */
 async function dblClickRow(index: number) {
-  GridModel.prototype.getMaxSize = () => 1000;
   const y = model.workbook.rows[index].bottom;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
@@ -238,7 +243,7 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a column", async () => {
     model.setValue("B2", "b2");
     await dblClickColumn("B");
-    expect(model.workbook.cols[1].size).toBe(1000);
+    expect(model.workbook.cols[1].size).toBe(1006);
   });
 
   test("Double click on column then undo, then redo", async () => {
@@ -249,10 +254,10 @@ describe("Resizer component", () => {
     await dblClickColumn("D");
     const initialSize = model.state.cols[0].size;
     expect(model.state.cols[1].size).toBe(initialSize);
-    expect(model.state.cols[2].size).toBe(1000);
-    expect(model.state.cols[3].size).toBe(1000);
+    expect(model.state.cols[2].size).toBe(1006);
+    expect(model.state.cols[3].size).toBe(1006);
     expect(model.state.cols[4].size).toBe(initialSize);
-    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2000);
+    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2012);
     model.undo();
     expect(model.state.cols[1].size).toBe(initialSize);
     expect(model.state.cols[2].size).toBe(initialSize);
@@ -261,19 +266,20 @@ describe("Resizer component", () => {
     expect(model.state.cols[4].left).toBe(initialSize * 4);
     model.redo();
     expect(model.state.cols[1].size).toBe(initialSize);
-    expect(model.state.cols[2].size).toBe(1000);
-    expect(model.state.cols[3].size).toBe(1000);
+    expect(model.state.cols[2].size).toBe(1006);
+    expect(model.state.cols[3].size).toBe(1006);
     expect(model.state.cols[4].size).toBe(initialSize);
-    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2000);
+    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2012);
   });
 
   test("Double click: Modify the size of a row", async () => {
     model.setValue("B2", "b2");
     await dblClickRow(1);
-    expect(model.workbook.rows[1].size).toBe(1000);
+    expect(model.workbook.rows[1].size).toBe(19);
   });
 
   test("Double click on rows then undo, then redo", async () => {
+    fillData();
     model.setValue("C3", "C3");
     model.setValue("C4", "C4");
     selectRow(2);
@@ -281,10 +287,10 @@ describe("Resizer component", () => {
     await dblClickRow(2);
     const initialSize = model.state.rows[0].size;
     expect(model.state.rows[1].size).toBe(initialSize);
-    expect(model.state.rows[2].size).toBe(1000);
-    expect(model.state.rows[3].size).toBe(1000);
+    expect(model.state.rows[2].size).toBe(19);
+    expect(model.state.rows[3].size).toBe(19);
     expect(model.state.rows[4].size).toBe(initialSize);
-    expect(model.state.rows[4].top).toBe(initialSize * 2 + 2000);
+    expect(model.state.rows[4].top).toBe(initialSize * 2 + 19 * 2);
     model.undo();
     expect(model.state.rows[1].size).toBe(initialSize);
     expect(model.state.rows[2].size).toBe(initialSize);
@@ -293,10 +299,10 @@ describe("Resizer component", () => {
     expect(model.state.rows[4].top).toBe(initialSize * 4);
     model.redo();
     expect(model.state.rows[1].size).toBe(initialSize);
-    expect(model.state.rows[2].size).toBe(1000);
-    expect(model.state.rows[3].size).toBe(1000);
+    expect(model.state.rows[2].size).toBe(19);
+    expect(model.state.rows[3].size).toBe(19);
     expect(model.state.rows[4].size).toBe(initialSize);
-    expect(model.state.rows[4].top).toBe(initialSize * 2 + 2000);
+    expect(model.state.rows[4].top).toBe(initialSize * 2 + 19 * 2);
   });
 
   test("Select B, shift D then BCD selected", () => {
@@ -393,18 +399,20 @@ describe("Resizer component", () => {
   });
 
   test("Select ABC E, dblclick E then resize all", async () => {
+    fillData();
     selectColumn("A");
     selectColumn("C", { shiftKey: true });
     selectColumn("E", { ctrlKey: true });
     await dblClickColumn("E");
-    expect(model.workbook.cols[0].size).toBe(1000);
-    expect(model.workbook.cols[1].size).toBe(1000);
-    expect(model.workbook.cols[2].size).toBe(1000);
+    expect(model.workbook.cols[0].size).toBe(1006);
+    expect(model.workbook.cols[1].size).toBe(1006);
+    expect(model.workbook.cols[2].size).toBe(1006);
     expect(model.workbook.cols[3].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[4].size).toBe(1000);
+    expect(model.workbook.cols[4].size).toBe(1006);
   });
 
   test("Select ABC E, dblclick F then resize only F", async () => {
+    fillData();
     selectColumn("A");
     selectColumn("C", { shiftKey: true });
     selectColumn("E", { ctrlKey: true });
@@ -414,22 +422,24 @@ describe("Resizer component", () => {
     expect(model.workbook.cols[2].size).toBe(DEFAULT_CELL_WIDTH);
     expect(model.workbook.cols[3].size).toBe(DEFAULT_CELL_WIDTH);
     expect(model.workbook.cols[4].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[5].size).toBe(1000);
+    expect(model.workbook.cols[5].size).toBe(1006);
   });
 
   test("Select 123 5, dblclick 5 then resize all", async () => {
+    fillData();
     selectRow(0);
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
-    expect(model.workbook.rows[0].size).toBe(1000);
-    expect(model.workbook.rows[1].size).toBe(1000);
-    expect(model.workbook.rows[2].size).toBe(1000);
+    expect(model.workbook.rows[0].size).toBe(19);
+    expect(model.workbook.rows[1].size).toBe(19);
+    expect(model.workbook.rows[2].size).toBe(19);
     expect(model.workbook.rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[4].size).toBe(1000);
+    expect(model.workbook.rows[4].size).toBe(19);
   });
 
   test("Select 123 5, dblclick 6 then resize only 6", async () => {
+    fillData();
     selectRow(0);
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
@@ -439,7 +449,7 @@ describe("Resizer component", () => {
     expect(model.workbook.rows[2].size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.workbook.rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.workbook.rows[4].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[5].size).toBe(1000);
+    expect(model.workbook.rows[5].size).toBe(19);
   });
 
   test("Select A, drag to C then ABC selected", async () => {
