@@ -6,9 +6,8 @@ import { PartialWorkbookDataWithVersion } from "../model/import_export";
 import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
 import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";
-import { fillPanelRegistry } from "./side_panel/import_registry";
 import { SidePanel } from "./side_panel/side_panel";
-import { SidePanelRegistry } from "./side_panel/registry";
+import { sidePanelRegistry } from "./registries";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -87,7 +86,7 @@ export class Spreadsheet extends Component<Props> {
   }
 
   openSidePanel(ev) {
-    const component = SidePanelRegistry.get(ev.panelName);
+    const component = sidePanelRegistry.get(ev.panelName);
     this.sidePanel.title = component.title;
     this.sidePanel.Body = component.Body;
     this.sidePanel.Footer = component.Footer;
@@ -97,5 +96,3 @@ export class Spreadsheet extends Component<Props> {
     (<any>this.grid.comp).focus();
   }
 }
-
-fillPanelRegistry();

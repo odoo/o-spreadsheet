@@ -8,7 +8,7 @@
 import { toXC, numberToLetters } from "./helpers";
 import { args, toBoolean, toNumber, toString } from "./functions/arguments";
 import { addFunction } from "./functions/index";
-import { SidePanelRegistry } from "./ui/side_panel/registry";
+import { sidePanelRegistry } from "./ui/registries";
 
 export const __info__ = {};
 export { Spreadsheet } from "./ui/spreadsheet";
@@ -20,5 +20,5 @@ export const utils = {
   toNumber,
   toString,
   addFunction,
-  addSidePanel: SidePanelRegistry.add
+  sidePanelRegistry
 };
