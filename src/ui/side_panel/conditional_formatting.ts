@@ -12,7 +12,7 @@ const { xml, css } = owl.tags;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-cf">
-    <div class="o-cf-preview-list" t-foreach="model.state.activeSheet.conditionalFormats" t-as="cf" t-key="cf_index">
+    <div class="o-cf-preview-list" t-foreach="model.workbook.activeSheet.conditionalFormats" t-as="cf" t-key="cf_index">
         <div t-on-click="onRuleClick(cf)">
             <t t-call="${PREVIEW_TEMPLATE}">
                 <t t-set="currentStyle" t-value="cf.style"/>
