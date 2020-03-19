@@ -200,8 +200,6 @@ export class GridModel extends owl.core.EventBus {
   // core
   // ---------------------------------------------------------------------------
   movePosition = this.makeMutation(core.movePosition);
-  getColSize = this.makeFn(core.getColSize);
-  getRowSize = this.makeFn(core.getRowSize);
   deleteSelection = this.makeMutation(core.deleteSelection);
   setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
@@ -218,7 +216,6 @@ export class GridModel extends owl.core.EventBus {
     Object.assign(this.state, this.computeDerivedState());
     return result; //= this.makeFn(core.updateScroll);
   }
-  getRow = this.makeFn(core.getRow);
   formatCell = this.makeFn(core.formatCell);
 
   // sheets

@@ -4,7 +4,8 @@ import {
   DEFAULT_FONT_WEIGHT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT,
-  HEADER_WIDTH
+  HEADER_WIDTH,
+  HEADER_HEIGHT
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { formatCell } from "../core";
@@ -13,7 +14,7 @@ import { updateState } from "../history";
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
-  static getters = ["getCellWidth", "getCol"];
+  static getters = ["getCellWidth", "getCol", "getRow", "getColSize", "getRowSize"];
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -87,6 +88,29 @@ export class GridPlugin extends BasePlugin {
       }
     }
     return -1;
+  }
+
+   getRow( y: number): number {
+    if (y <= HEADER_HEIGHT) {
+      return -1;
+    }
+    const { rows, offsetY, viewport } = this.workbook;
+    const { top, bottom } = viewport;
+    for (let i = top; i <= bottom; i++) {
+      let r = rows[i];
+      if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  getColSize(index: number) {
+    return this.workbook.cols[index].size;
+  }
+
+  getRowSize(index: number) {
+    return this.workbook.rows[index].size;
   }
 
   // ---------------------------------------------------------------------------

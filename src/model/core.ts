@@ -213,30 +213,6 @@ export function movePosition(state: Workbook, deltaX: number, deltaY: number) {
   }
 }
 
-export function getRow(state: Workbook, y: number): number {
-  if (y <= HEADER_HEIGHT) {
-    return -1;
-  }
-  const { rows, offsetY, viewport } = state;
-  const { top, bottom } = viewport;
-  for (let i = top; i <= bottom; i++) {
-    let r = rows[i];
-    if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-export function getColSize(state: Workbook, index: number) {
-  const { cols } = state;
-  return cols[index].size;
-}
-
-export function getRowSize(state: Workbook, index: number) {
-  const { rows } = state;
-  return rows[index].size;
-}
 
 export function updateScroll(state: Workbook, scrollTop: number, scrollLeft: number): boolean {
   scrollTop = Math.round(scrollTop);
