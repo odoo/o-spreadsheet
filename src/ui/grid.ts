@@ -238,7 +238,7 @@ export class Grid extends Component<any, any> {
       return;
     }
     const col = this.model.getters.getCol(ev.offsetX);
-    const row = this.model.getRow(ev.offsetY);
+    const row = this.model.getters.getRow(ev.offsetY);
     if (col < 0 || row < 0) {
       return;
     }
@@ -254,7 +254,7 @@ export class Grid extends Component<any, any> {
     let prevRow = row;
     const onMouseMove = ev => {
       const col = this.model.getters.getCol(ev.offsetX);
-      const row = this.model.getRow(ev.offsetY);
+      const row = this.model.getters.getRow(ev.offsetY);
       if (col < 0 || row < 0) {
         return;
       }
@@ -285,7 +285,7 @@ export class Grid extends Component<any, any> {
 
   onDoubleClick(ev) {
     const col = this.model.getters.getCol(ev.offsetX);
-    const row = this.model.getRow(ev.offsetY);
+    const row = this.model.getters.getRow(ev.offsetY);
     if (this.clickedCol === col && this.clickedRow === row) {
       this.model.startEditing();
     }
@@ -398,7 +398,7 @@ export class Grid extends Component<any, any> {
   }
   toggleContextMenu(ev) {
     const col = this.model.getters.getCol(ev.offsetX);
-    const row = this.model.getRow(ev.offsetY);
+    const row = this.model.getters.getRow(ev.offsetY);
     if (col < 0 || row < 0) {
       return;
     }

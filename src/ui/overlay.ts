@@ -233,7 +233,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementSize(index: number): number {
-    return this.model.getColSize(index);
+    return this.model.getters.getColSize(index);
   }
 
   _getTopLeftValue(element: Col): number {
@@ -343,7 +343,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getRow(index);
+    return this.model.getters.getRow(index);
   }
 
   _getElement(index: number): Row {
@@ -351,7 +351,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementSize(index: number): number {
-    return this.model.getRowSize(index);
+    return this.model.getters.getRowSize(index);
   }
 
   _getTopLeftValue(element: Row): number {

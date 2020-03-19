@@ -402,7 +402,10 @@ export type ConditionalFormattingOperatorValues =
 export interface Getters {
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   getCellWidth: GridPlugin["getCellWidth"];
+  getColSize: GridPlugin["getColSize"];
+  getRowSize: GridPlugin["getRowSize"];
   getCol: GridPlugin["getCol"];
+  getRow: GridPlugin["getRow"];
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
 }
