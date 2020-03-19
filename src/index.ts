@@ -7,8 +7,16 @@
 
 import { toXC, numberToLetters } from "./helpers";
 import { args, toBoolean, toNumber, toString } from "./functions/arguments";
-import { addFunction } from "./functions/index";
+import { addFunction, FunctionDescription } from "./functions/index";
 import { sidePanelRegistry, contextMenuRegistry } from "./ui/registries";
+
+class FunctionRegistry {
+  add(name: string, descr: FunctionDescription, replace: boolean = false) {
+    addFunction(name, descr, replace);
+  }
+}
+
+const functionRegistry = new FunctionRegistry();
 
 export const __info__ = {};
 export { Spreadsheet } from "./ui/spreadsheet";
@@ -27,6 +35,6 @@ export const helpers = {
   registry: {
     sidePanelRegistry,
     contextMenuRegistry,
-    newFunction: addFunction
+    functionRegistry
   }
 };
