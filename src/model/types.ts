@@ -8,6 +8,10 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
+import { GridPlugin } from "./plugins/grid";
+import { ClipboardPlugin } from "./plugins/clipboard";
+import { EntityPlugin } from "./plugins/entity";
+
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
@@ -396,9 +400,11 @@ export type ConditionalFormattingOperatorValues =
 // Getters
 // -----------------------------------------------------------------------------
 export interface Getters {
-  getClipboardContent(): string;
-  getCellWidth(cell: Cell): number;
-  getCol(x: number): number;
+  getClipboardContent: ClipboardPlugin["getClipboardContent"];
+  getCellWidth: GridPlugin["getCellWidth"];
+  getCol: GridPlugin["getCol"];
+  getEntity: EntityPlugin["getEntity"];
+  getEntities: EntityPlugin["getEntities"];
 }
 
 // -----------------------------------------------------------------------------
