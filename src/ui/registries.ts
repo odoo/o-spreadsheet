@@ -2,6 +2,7 @@ import { Registry } from "../registry";
 import { ConditionalFormattingPanel } from "./side_panel/conditional_formatting";
 import { Cell } from "../model/types";
 import { GridModel } from "../model/grid_model";
+import { SpreadsheetEnv } from "./spreadsheet";
 
 //------------------------------------------------------------------------------
 // Side Panel
@@ -30,7 +31,7 @@ export interface ContextMenuItem {
   description: string;
   isEnabled?: (cell: Cell | null) => boolean;
   isVisible?: (type: ContextMenuType) => boolean;
-  action: (model: GridModel) => void;
+  action: (model: GridModel, subEnv: SpreadsheetEnv) => void;
 }
 
 export const contextMenuRegistry = new Registry<ContextMenuItem>();
@@ -81,7 +82,7 @@ contextMenuRegistry.add("conditional_formatting", {
   type: "action",
   name: "conditional_formatting",
   description: "Conditional Format",
-  action(model) {
-    model.trigger("openSidePanel", { panelName: "ConditionalFormatting" });
+  action(model, subEnv: SpreadsheetEnv) {
+    subEnv.openSidePanel("ConditionalFormatting");
   }
 });
