@@ -18,6 +18,8 @@ import { BasePlugin } from "../base_plugin";
 // ClipboardPlugin
 // -----------------------------------------------------------------------------
 export class ClipboardPlugin extends BasePlugin {
+  static getters = ["getClipboardContent"];
+
   // internal state
   status: "empty" | "visible" | "invisible" = "empty";
   shouldCut?: boolean;
@@ -25,10 +27,6 @@ export class ClipboardPlugin extends BasePlugin {
   cells?: (Cell | null)[][];
   isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
-
-  getters = {
-    getClipboardContent: this.getClipboardContent
-  };
 
   dispatch(cmd: GridCommand): CommandResult | void {
     switch (cmd.type) {

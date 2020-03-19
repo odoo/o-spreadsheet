@@ -1,6 +1,11 @@
 import { BasePlugin } from "../base_plugin";
 import { Cell, GridCommand } from "../types";
-import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../../constants";
+import {
+  DEFAULT_FONT_WEIGHT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT,
+  HEADER_WIDTH
+} from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { formatCell } from "../core";
 import { updateState } from "../history";
@@ -8,11 +13,13 @@ import { updateState } from "../history";
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
+  static getters = ["getCellWidth", "getCol"];
+
   private ctx = document.createElement("canvas").getContext("2d")!;
 
-  getters = {
-    getCellWidth: this.getCellWidth
-  };
+  // ---------------------------------------------------------------------------
+  // Actions
+  // ---------------------------------------------------------------------------
 
   dispatch(cmd: GridCommand) {
     switch (cmd.type) {
@@ -45,6 +52,10 @@ export class GridPlugin extends BasePlugin {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
   getCellWidth(cell: Cell): number {
     // todo: use a getters here, exported by future style plugin
     const style = this.workbook.styles[cell ? cell.style || 0 : 0];
@@ -56,7 +67,33 @@ export class GridPlugin extends BasePlugin {
     return this.ctx.measureText(formatCell(this.workbook, cell)).width;
   }
 
-  getCellHeight(cell: Cell): number {
+  /**
+   * Return the index of a column given an offset x.
+   * It returns -1 if no column is found.
+   */
+  getCol(x: number): number {
+    if (x <= HEADER_WIDTH) {
+      return -1;
+    }
+    const {
+      cols,
+      offsetX,
+      viewport: { left, right }
+    } = this.workbook;
+    for (let i = left; i <= right; i++) {
+      let c = cols[i];
+      if (c.left - offsetX <= x && x <= c.right - offsetX) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private stuff
+  // ---------------------------------------------------------------------------
+
+  private getCellHeight(cell: Cell): number {
     const style = this.workbook.styles[cell ? cell.style || 0 : 0];
     const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
     return fontSizeMap[sizeInPt];

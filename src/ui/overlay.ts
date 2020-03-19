@@ -225,7 +225,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getCol(index);
+    return this.model.getters.getCol(index);
   }
 
   _getElement(index: number): Col {

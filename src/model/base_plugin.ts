@@ -1,25 +1,19 @@
-import { Workbook, GridCommand, CommandResult } from "./types";
-import { PartialWorkbookDataWithVersion, WorkbookData } from "./import_export";
+import { Workbook, GridCommand, CommandResult, Getters } from "./types";
+import { WorkbookData } from "./import_export";
 
-export interface Plugin {
-  dispatch(command: GridCommand): CommandResult | void;
+export class BasePlugin {
+  static getters: string[] = [];
 
-  export(data: Partial<WorkbookData>): void;
-
-  getters: {
-    [key: string]: Function;
-  };
-}
-
-export class BasePlugin implements Plugin {
   workbook: Workbook;
-  getters = {};
+  getters: Getters;
 
-  constructor(workbook: Workbook, data: PartialWorkbookDataWithVersion) {
+  constructor(workbook: Workbook, getters: Getters) {
     this.workbook = workbook;
+    this.getters = getters;
   }
 
   dispatch(command: GridCommand): CommandResult | void {}
 
+  import(data: WorkbookData) {}
   export(data: Partial<WorkbookData>) {}
 }

@@ -1,20 +1,20 @@
 import { BasePlugin } from "../base_plugin";
-import { Workbook, GridCommand } from "../types";
-import { PartialWorkbookDataWithVersion, WorkbookData } from "../import_export";
+import { WorkbookData } from "../import_export";
+import { GridCommand } from "../types";
 
 export class EntityPlugin extends BasePlugin {
-  entities: { [key: string]: { [key: string]: any } } = {};
+  static getters = ["getEntity", "getEntities"];
 
-  getters = {
-    getEntity: this.getEntity,
-    getEntities: this.getEntities
-  };
+  entities: { [kind: string]: { [key: string]: any } } = {};
 
-  constructor(workbook: Workbook, data: PartialWorkbookDataWithVersion) {
-    super(workbook, data);
+  import(data: WorkbookData) {
     if (data.entities) {
       this.entities = JSON.parse(JSON.stringify(data.entities));
     }
+  }
+
+  export(data: WorkbookData) {
+    data.entities = JSON.parse(JSON.stringify(this.entities));
   }
 
   dispatch(cmd: GridCommand) {
@@ -33,10 +33,6 @@ export class EntityPlugin extends BasePlugin {
         delete this.entities[cmd.kind][cmd.key];
         break;
     }
-  }
-
-  export(data: WorkbookData) {
-    data.entities = JSON.parse(JSON.stringify(this.entities));
   }
 
   getEntity(kind: string, key: string): any {

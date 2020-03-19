@@ -213,21 +213,6 @@ export function movePosition(state: Workbook, deltaX: number, deltaY: number) {
   }
 }
 
-export function getCol(state: Workbook, x: number): number {
-  if (x <= HEADER_WIDTH) {
-    return -1;
-  }
-  const { cols, offsetX, viewport } = state;
-  const { left, right } = viewport;
-  for (let i = left; i <= right; i++) {
-    let c = cols[i];
-    if (c.left - offsetX <= x && x <= c.right - offsetX) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 export function getRow(state: Workbook, y: number): number {
   if (y <= HEADER_HEIGHT) {
     return -1;

@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { functionMap } from "../functions/index";
 import { overlap, toXC } from "../helpers";
-import { Plugin } from "./base_plugin";
+import { BasePlugin } from "./base_plugin";
 import * as conditionalFormat from "./conditional_format";
 import * as core from "./core";
 import { evaluateCells, _evaluateCells } from "./evaluation";
@@ -16,11 +16,11 @@ import {
 } from "./import_export";
 import * as merges from "./merges";
 import { ClipboardPlugin } from "./plugins/clipboard";
-import * as entity from "./plugins/entity";
+import { EntityPlugin } from "./plugins/entity";
 import { GridPlugin } from "./plugins/grid";
 import * as selection from "./selection";
 import * as sheet from "./sheet";
-import { Box, CommandResult, GridCommand, Rect, UI, Viewport, Workbook } from "./types";
+import { Box, CommandResult, GridCommand, Rect, UI, Viewport, Workbook, Getters } from "./types";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
@@ -31,13 +31,13 @@ type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...arg
 export class GridModel extends owl.core.EventBus {
   static setTimeout = window.setTimeout.bind(window);
 
-  private plugins: Plugin[];
+  private plugins: BasePlugin[];
   private evalContext: any;
   private isStarted: boolean = false;
   workbook: Workbook;
   state: UI;
 
-  getters: { [key: string]: Function } = {};
+  getters: Getters;
 
   constructor(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
     super();
@@ -47,17 +47,24 @@ export class GridModel extends owl.core.EventBus {
     this.workbook = workbook;
 
     // Plugins
-    const clipboardPlugin = new ClipboardPlugin(workbook, data);
-    const entityPlugin = new entity.EntityPlugin(workbook, data);
-    const gridPlugin = new GridPlugin(workbook, data);
-    this.plugins = [clipboardPlugin, entityPlugin, gridPlugin];
-    for (let p of this.plugins) {
-      for (let f in p.getters) {
-        this.getters[f] = p.getters[f].bind(p);
+    this.getters = {} as Getters;
+    this.plugins = [];
+
+    const Plugins = [ClipboardPlugin, EntityPlugin, GridPlugin];
+    for (let Plugin of Plugins) {
+      const plugin = new Plugin(workbook, this.getters);
+      plugin.import(data);
+      for (let name of Plugin.getters) {
+        if (!(name in plugin)) {
+          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+        }
+        this.getters[name] = plugin[name].bind(plugin);
       }
+      this.plugins.push(plugin);
     }
 
     // Evaluation context
+    const entityPlugin = this.plugins.find(p => p instanceof EntityPlugin) as EntityPlugin;
     this.evalContext = Object.assign(Object.create(functionMap), {
       getEntity(type: string, key: string): any {
         return entityPlugin.getEntity(type, key);
@@ -211,7 +218,6 @@ export class GridModel extends owl.core.EventBus {
     Object.assign(this.state, this.computeDerivedState());
     return result; //= this.makeFn(core.updateScroll);
   }
-  getCol = this.makeFn(core.getCol);
   getRow = this.makeFn(core.getRow);
   formatCell = this.makeFn(core.formatCell);
 

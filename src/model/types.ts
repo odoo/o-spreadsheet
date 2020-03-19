@@ -393,6 +393,15 @@ export type ConditionalFormattingOperatorValues =
   | "NotEqual";
 
 // -----------------------------------------------------------------------------
+// Getters
+// -----------------------------------------------------------------------------
+export interface Getters {
+  getClipboardContent(): string;
+  getCellWidth(cell: Cell): number;
+  getCol(x: number): number;
+}
+
+// -----------------------------------------------------------------------------
 // Grid commands
 // -----------------------------------------------------------------------------
 type Target = Zone[];
