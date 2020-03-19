@@ -56,6 +56,10 @@ interface Props {
   data: PartialWorkbookDataWithVersion;
 }
 
+export interface SpreadsheetEnv {
+  openSidePanel: (panel: string) => void;
+}
+
 export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
@@ -72,11 +76,10 @@ export class Spreadsheet extends Component<Props> {
   });
   constructor() {
     super(...arguments);
-    useSubEnv({
-      spreadsheet: {
-        openSidePanel: (panel: string) => this.openSidePanel(panel)
-      }
-    });
+    const spreadsheetEnv: SpreadsheetEnv = {
+      openSidePanel: (panel: string) => this.openSidePanel(panel)
+    };
+    useSubEnv({ spreadsheet: spreadsheetEnv });
     useExternalListener(window as any, "resize", this.render);
   }
 

@@ -44,7 +44,13 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class ContextMenu extends Component<any, any> {
+interface Props {
+  model: GridModel;
+  menuItems: ContextMenuItem[];
+  position: { x: number; y: number };
+}
+
+export class ContextMenu extends Component<Props, any> {
   static template = TEMPLATE;
   static style = CSS;
 
@@ -67,10 +73,10 @@ export class ContextMenu extends Component<any, any> {
     return `${vStyle}px;${hStyle}px`;
   }
 
-  activateMenu(name) {
+  activateMenu(name: string) {
     const menu = this.menuItems.find(m => m.name === name);
     if (menu && (!menu.isEnabled || menu.isEnabled(this.model.state.selectedCell))) {
-      menu.action(this.model);
+      menu.action(this.model, this.env.spreadsheet);
     }
   }
 }
