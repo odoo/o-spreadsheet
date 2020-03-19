@@ -6,7 +6,8 @@ export class EntityPlugin extends BasePlugin {
   entities: { [key: string]: { [key: string]: any } } = {};
 
   getters = {
-    getEntity: (kind: string, key: string) => this.getEntity(kind, key)
+    getEntity: (kind: string, key: string) => this.getEntity(kind, key),
+    getEntities: (kind: string) => this.getEntities(kind)
   };
 
   constructor(workbook: Workbook, data: PartialWorkbookDataWithVersion) {
