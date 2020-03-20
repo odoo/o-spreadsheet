@@ -1,6 +1,6 @@
 import { Token, tokenize } from "./tokenizer";
 import { functionRegistry } from "../functions/index";
-import { toCartesian, toXC } from "../helpers/index";
+import { toCartesian, toXC, sanitizeSheet } from "../helpers/index";
 
 const functions = functionRegistry.content;
 
@@ -131,9 +131,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     if (cellReference.test(current.value)) {
       if (current.value.includes("!")) {
         let [sheet, val] = current.value.split("!");
-        if (sheet.startsWith("'")) {
-          sheet = sheet.slice(1, -1).replace(/''/g, "'");
-        }
+        sheet = sanitizeSheet(sheet);
         return {
           type: "REFERENCE",
           value: val.replace(/\$/g, "").toUpperCase(),

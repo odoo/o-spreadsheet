@@ -39,3 +39,14 @@ export function uuidv4(): string {
     });
   }
 }
+
+/**
+ * Sanitize the name of a sheet, by eventually removing quotes
+ * @param sheet name of the sheet
+ */
+export function sanitizeSheet(sheet: string): string {
+  if (sheet && sheet.startsWith("'")) {
+    sheet = sheet.slice(1, -1).replace(/''/g, "'");
+  }
+  return sheet;
+}
