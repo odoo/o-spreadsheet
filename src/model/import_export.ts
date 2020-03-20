@@ -1,8 +1,6 @@
-import { Style, Border, Workbook, Col, Row, Sheet, Merge, ConditionalFormat } from "./types";
-import { addCell } from "./core";
-import { numberToLetters, toXC, toCartesian } from "../helpers";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
-import { addSheet, activateSheet } from "./sheet";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { toXC } from "../helpers";
+import { Border, Col, ConditionalFormat, Merge, Row, Style, Workbook } from "./types";
 
 /**
  * This is the current state version number. It should be incremented each time
@@ -34,11 +32,11 @@ interface CellData {
   format?: string;
 }
 
-interface HeaderData {
+export interface HeaderData {
   size?: number;
 }
 
-interface SheetData {
+export interface SheetData {
   name?: string;
   colNumber: number;
   rowNumber: number;
@@ -135,109 +133,7 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     activeSheet: {}
   };
 
-  // sheets
-  const sheets = data.sheets || [];
-  if (sheets.length === 0) {
-    sheets.push({ name: "Sheet1", colNumber: 26, rowNumber: 100 });
-  }
-  for (let sheet of sheets) {
-    importSheet(state, sheet);
-  }
-
-  activateSheet(state, state.sheets[0].name);
-
   return state;
-}
-
-function addCols(
-  state: Workbook,
-  savedCols: { [key: number]: HeaderData },
-  colNumber: number
-): Col[] {
-  const cols: Col[] = [];
-  let current = 0;
-  for (let i = 0; i < colNumber; i++) {
-    const size = savedCols[i] ? savedCols[i].size || DEFAULT_CELL_WIDTH : DEFAULT_CELL_WIDTH;
-    const col = {
-      left: current,
-      right: current + size,
-      size: size,
-      name: numberToLetters(i)
-    };
-    cols.push(col);
-    current = col.right;
-  }
-  return cols;
-}
-
-function addRows(
-  state: Workbook,
-  savedRows: { [key: number]: HeaderData },
-  rowNumber: number
-): Row[] {
-  const rows: Row[] = [];
-  let current = 0;
-  for (let i = 0; i < rowNumber; i++) {
-    const size = savedRows[i] ? savedRows[i].size || DEFAULT_CELL_HEIGHT : DEFAULT_CELL_HEIGHT;
-    const row = {
-      top: current,
-      bottom: current + size,
-      size: size,
-      name: String(i + 1),
-      cells: {}
-    };
-    rows.push(row);
-    current = row.bottom;
-  }
-  return rows;
-}
-
-function addMerges(state: Workbook, sheet: Sheet, merges: string[]) {
-  for (let m of merges) {
-    let id = state.nextId++;
-    const [tl, br] = m.split(":");
-    const [left, top] = toCartesian(tl);
-    const [right, bottom] = toCartesian(br);
-    sheet.merges[id] = {
-      id,
-      left,
-      top,
-      right,
-      bottom,
-      topLeft: tl
-    };
-    for (let row = top; row <= bottom; row++) {
-      for (let col = left; col <= right; col++) {
-        const xc = toXC(col, row);
-        sheet.mergeCellMap[xc] = id;
-      }
-    }
-  }
-}
-
-function importSheet(state: Workbook, data: SheetData) {
-  const name = data.name || `Sheet${state.sheets.length + 1}`;
-  const sheet: Sheet = {
-    name: name,
-    cells: {},
-    colNumber: data.colNumber,
-    rowNumber: data.rowNumber,
-    cols: addCols(state, data.cols || {}, data.colNumber),
-    rows: addRows(state, data.rows || {}, data.rowNumber),
-    merges: {},
-    mergeCellMap: {},
-    conditionalFormats: data.conditionalFormats || []
-  };
-  if (data.merges) {
-    addMerges(state, sheet, data.merges);
-  }
-  addSheet(state, sheet);
-  // cells
-  for (let xc in data.cells) {
-    addCell(state, xc, data.cells[xc], { sheet: name });
-    const cell = sheet.cells[xc];
-    sheet.rows[cell.row].cells[cell.col] = cell;
-  }
 }
 
 // -----------------------------------------------------------------------------

@@ -133,8 +133,8 @@ export class Grid extends Component<any, any> {
   // down itself
   keyDownMapping: { [key: string]: Function } = {
     ENTER: this.model.startEditing,
-    TAB: () => this.model.movePosition(1, 0),
-    "SHIFT+TAB": () => this.model.movePosition(-1, 0),
+    TAB: () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 }),
+    "SHIFT+TAB": () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: -1, deltaY: 0 }),
     F2: this.model.startEditing,
     DELETE: this.model.deleteSelection,
     "CTRL+A": this.model.selectAll,
@@ -298,7 +298,7 @@ export class Grid extends Component<any, any> {
   processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     const deltaX = ev.shiftKey ? -1 : 1;
-    this.model.movePosition(deltaX, 0);
+    this.model.dispatch({ type: "MOVE_POSITION", deltaX, deltaY: 0 });
     return;
   }
 
@@ -315,7 +315,7 @@ export class Grid extends Component<any, any> {
     if (ev.shiftKey) {
       this.model.moveSelection(delta[0], delta[1]);
     } else {
-      this.model.movePosition(delta[0], delta[1]);
+      this.model.dispatch({ type: "MOVE_POSITION", deltaX: delta[0], deltaY: delta[1] });
     }
 
     if (this.model.state.isSelectingRange && this.composer.comp) {
@@ -377,12 +377,11 @@ export class Grid extends Component<any, any> {
       const content = clipboardData.getData("text/plain");
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        const results = this.model.dispatch({
+        const result = this.model.dispatch({
           type: "PASTE",
           target: this.model.state.selection.zones
         });
-        const didPaste = !results.find(r => r === "CANCELLED");
-        if (!didPaste) {
+        if (result === "CANCELLED") {
           this.trigger("notify-user", {
             content: "This operation is not allowed with multiple selections."
           });

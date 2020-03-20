@@ -121,7 +121,7 @@ describe("merges", () => {
     model.selectCell(2, 3);
     expect(model.workbook.activeXc).toBe("C4");
     expect(model.state.selectedCell).toBeNull(); // no active cell in C4
-    model.movePosition(0, -1);
+    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
     expect(model.workbook.activeXc).toBe("C3");
     expect(model.state.selectedCell!.xc).toBe("B2");
   });

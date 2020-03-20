@@ -18,9 +18,10 @@ import * as merges from "./merges";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { EntityPlugin } from "./plugins/entity";
 import { GridPlugin } from "./plugins/grid";
+import { SelectionPlugin } from "./plugins/selection";
 import * as selection from "./selection";
-import * as sheet from "./sheet";
-import { Box, CommandResult, GridCommand, Rect, UI, Viewport, Workbook, Getters } from "./types";
+import { Box, CommandResult, Getters, GridCommand, Rect, UI, Viewport, Workbook } from "./types";
+import { CorePlugin } from "./plugins/core";
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
@@ -50,7 +51,7 @@ export class GridModel extends owl.core.EventBus {
     this.getters = {} as Getters;
     this.plugins = [];
 
-    const Plugins = [ClipboardPlugin, EntityPlugin, GridPlugin];
+    const Plugins = [CorePlugin, ClipboardPlugin, EntityPlugin, GridPlugin, SelectionPlugin];
     for (let Plugin of Plugins) {
       const plugin = new Plugin(workbook, this.getters);
       plugin.import(data);
@@ -106,13 +107,23 @@ export class GridModel extends owl.core.EventBus {
     }) as any;
   }
 
-  dispatch(command: GridCommand): CommandResult[] {
-    history.start(this.workbook);
-    const results: CommandResult[] = [];
+  dispatch(command: GridCommand): CommandResult {
     for (let plugin of this.plugins) {
-      let result = plugin.dispatch(command);
-      if (result) {
-        results.push(result);
+      let result = plugin.predispatch(command);
+      if (result === "CANCELLED") {
+        return result;
+      }
+    }
+
+    history.start(this.workbook);
+    const commands: GridCommand[] = [command];
+    while (commands.length) {
+      const current = commands.shift()!;
+      for (let plugin of this.plugins) {
+        let result = plugin.dispatch(current);
+        if (result) {
+          commands.push(...result);
+        }
       }
     }
     history.stop(this.workbook);
@@ -124,12 +135,12 @@ export class GridModel extends owl.core.EventBus {
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
     }
-    return results;
+    return "COMPLETED";
   }
 
   computeDerivedState(): UI {
     const { viewport, cols, rows } = this.workbook;
-    const clipboard = this.plugins[0] as ClipboardPlugin;
+    const clipboard = this.plugins.find(p => p instanceof ClipboardPlugin) as ClipboardPlugin;
     const clipboardZones = clipboard.status === "visible" ? clipboard.zones : [];
     return {
       rows: this.workbook.rows,
@@ -152,7 +163,7 @@ export class GridModel extends owl.core.EventBus {
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.workbook.isEditing,
-      isPaintingFormat: (this.plugins[0] as ClipboardPlugin).isPaintingFormat,
+      isPaintingFormat: clipboard.isPaintingFormat,
       selectedCell: core.selectedCell(this.workbook),
       style: formatting.getStyle(this.workbook),
       isMergeDestructive: merges.isMergeDestructive(this.workbook),
@@ -199,7 +210,6 @@ export class GridModel extends owl.core.EventBus {
 
   // core
   // ---------------------------------------------------------------------------
-  movePosition = this.makeMutation(core.movePosition);
   deleteSelection = this.makeMutation(core.deleteSelection);
   setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
@@ -217,11 +227,6 @@ export class GridModel extends owl.core.EventBus {
     return result; //= this.makeFn(core.updateScroll);
   }
   formatCell = this.makeFn(core.formatCell);
-
-  // sheets
-  // ---------------------------------------------------------------------------
-  createSheet = this.makeMutation(sheet.createSheet);
-  activateSheet = this.makeMutation(sheet.activateSheet);
 
   // formatting
   // ---------------------------------------------------------------------------
