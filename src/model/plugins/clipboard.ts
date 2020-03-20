@@ -1,18 +1,18 @@
 import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers";
+import { BasePlugin } from "../base_plugin";
 import {
+  activateCell,
   addCell,
   deleteCell,
   formatCell,
   getCell,
   selectCell,
-  setValue,
-  activateCell
+  setValue
 } from "../core";
-import { updateSelection } from "../selection";
-import { Cell, NewCell, Zone, GridCommand, CommandResult } from "../types";
 import { updateCell } from "../history";
-import { BasePlugin } from "../base_plugin";
+import { updateSelection } from "../selection";
+import { Cell, CommandResult, GridCommand, NewCell, Zone } from "../types";
 
 // -----------------------------------------------------------------------------
 // ClipboardPlugin
@@ -28,7 +28,17 @@ export class ClipboardPlugin extends BasePlugin {
   isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
-  dispatch(cmd: GridCommand): CommandResult | void {
+  predispatch(cmd: GridCommand): CommandResult | void {
+    switch (cmd.type) {
+      case "PASTE":
+        if (!this.isPasteAllowed(cmd.target)) {
+          return "CANCELLED";
+        }
+        break;
+    }
+  }
+
+  dispatch(cmd: GridCommand) {
     switch (cmd.type) {
       case "COPY":
         this.cutOrCopy(cmd.target, false);
@@ -40,10 +50,7 @@ export class ClipboardPlugin extends BasePlugin {
         const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this.isPaintingFormat;
         this.isPaintingFormat = false;
         this.onlyFormat = onlyFormat;
-        const isAllowed = this.pasteFromModel(cmd.target);
-        if (!isAllowed) {
-          return "CANCELLED";
-        }
+        this.pasteFromModel(cmd.target);
         break;
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
@@ -131,24 +138,23 @@ export class ClipboardPlugin extends BasePlugin {
     }
   }
 
-  private pasteFromModel(target: Zone[]): boolean {
+  private isPasteAllowed(target: Zone[]): boolean {
+    const cells = this.cells;
+    // cannot paste if we have a clipped zone larger than a cell and multiple
+    // zones selected
+    return !(cells && target.length > 1 && (cells.length > 1 || cells[0].length > 1));
+  }
+
+  private pasteFromModel(target: Zone[]) {
     const { zones, cells, shouldCut, status, workbook } = this;
-    if (!zones || !cells) {
-      return true;
-    }
-    if (status === "empty") {
-      return true;
+    if (!zones || !cells || status === "empty") {
+      return;
     }
     this.status = shouldCut ? "empty" : "invisible";
 
     const height = cells.length;
     const width = cells[0].length;
     if (target.length > 1) {
-      if (width > 1 || height > 1) {
-        // cannot paste if we have a clipped zone larger than a cell and multiple
-        // zones selected
-        return false;
-      }
       for (let zone of target) {
         for (let i = zone.left; i <= zone.right; i++) {
           for (let j = zone.top; j <= zone.bottom; j++) {
@@ -156,7 +162,7 @@ export class ClipboardPlugin extends BasePlugin {
           }
         }
       }
-      return true;
+      return;
     }
     const selection = target[target.length - 1];
     let col = selection.left;
@@ -179,7 +185,6 @@ export class ClipboardPlugin extends BasePlugin {
       workbook.selection.anchor.row = newRow;
       activateCell(workbook, newCol, newRow);
     }
-    return true;
   }
 
   private pasteZone(width: number, height: number, col: number, row: number) {

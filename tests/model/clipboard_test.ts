@@ -319,7 +319,7 @@ describe("clipboard", () => {
 
     const result = model.dispatch({ type: "PASTE", target: target("C1,E1") });
 
-    expect(result).toEqual(["CANCELLED"]);
+    expect(result).toEqual("CANCELLED");
   });
 
   test("can copy and paste a cell with STRING content", () => {

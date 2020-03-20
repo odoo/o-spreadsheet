@@ -90,7 +90,7 @@ export class GridPlugin extends BasePlugin {
     return -1;
   }
 
-   getRow( y: number): number {
+  getRow(y: number): number {
     if (y <= HEADER_HEIGHT) {
       return -1;
     }

@@ -166,54 +166,6 @@ export function deleteCell(state: Workbook, xc: string, force: boolean = false) 
   }
 }
 
-/**
- * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
- */
-export function movePosition(state: Workbook, deltaX: number, deltaY: number) {
-  const { activeCol, activeRow, cols, rows, viewport, selection } = state;
-
-  const moveReferenceRow = state.isSelectingRange ? selection.anchor.row : activeRow;
-  const moveReferenceCol = state.isSelectingRange ? selection.anchor.col : activeCol;
-  const activeReference = toXC(moveReferenceCol, moveReferenceRow);
-
-  const invalidMove =
-    (deltaY < 0 && moveReferenceRow === 0) ||
-    (deltaY > 0 && moveReferenceRow === rows.length - 1) ||
-    (deltaX < 0 && moveReferenceCol === 0) ||
-    (deltaX > 0 && moveReferenceCol === cols.length - 1);
-  if (invalidMove) {
-    return;
-  }
-  let mergeId = state.mergeCellMap[activeReference];
-  if (mergeId) {
-    let targetCol = moveReferenceCol;
-    let targetRow = moveReferenceRow;
-    while (state.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
-      targetCol += deltaX;
-      targetRow += deltaY;
-    }
-    if (targetCol >= 0 && targetRow >= 0) {
-      selectCell(state, targetCol, targetRow);
-    }
-  } else {
-    selectCell(state, moveReferenceCol + deltaX, moveReferenceRow + deltaY);
-  }
-  // keep current cell in the viewport, if possible
-  while (state.activeCol >= viewport.right && state.activeCol !== cols.length - 1) {
-    updateScroll(state, state.scrollTop, cols[viewport.left].right);
-  }
-  while (state.activeCol < viewport.left) {
-    updateScroll(state, state.scrollTop, cols[viewport.left - 1].left);
-  }
-  while (state.activeRow >= viewport.bottom && state.activeRow !== rows.length - 1) {
-    updateScroll(state, rows[viewport.top].bottom, state.scrollLeft);
-  }
-  while (state.activeRow < viewport.top) {
-    updateScroll(state, rows[viewport.top - 1].top, state.scrollLeft);
-  }
-}
-
-
 export function updateScroll(state: Workbook, scrollTop: number, scrollLeft: number): boolean {
   scrollTop = Math.round(scrollTop);
   scrollLeft = Math.round(scrollLeft);

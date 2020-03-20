@@ -7,7 +7,7 @@ describe("sheets", () => {
     expect(model.workbook.sheets.length).toBe(1);
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.createSheet();
+    model.dispatch({ type: "CREATE_SHEET" });
     expect(model.workbook.sheets.length).toBe(2);
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
 
@@ -35,7 +35,7 @@ describe("sheets", () => {
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.setValue("A1", "3");
-    model.createSheet();
+    model.dispatch({ type: "CREATE_SHEET" });
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
     model.setValue("A1", "=Sheet1!A1");
     expect(model.workbook.cells.A1.value).toBe(3);

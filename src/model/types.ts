@@ -162,11 +162,11 @@ export interface Workbook {
   scrollLeft: number;
 
   viewport: Zone;
-  selection: Selection;
 
   activeCol: number;
   activeRow: number;
   activeXc: string;
+  selection: Selection;
 
   isEditing: boolean;
   currentContent: string;
@@ -481,6 +481,21 @@ export interface AutoresizeRowsCommand {
   rows: number[];
 }
 
+export interface MovePositionCommand {
+  type: "MOVE_POSITION";
+  deltaX: number;
+  deltaY: number;
+}
+
+export interface CreateSheetCommand {
+  type: "CREATE_SHEET";
+}
+
+export interface ActivateSheetCommand {
+  type: "ACTIVATE_SHEET";
+  sheet: string;
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -492,6 +507,9 @@ export type GridCommand =
   | ResizeRowsCommand
   | ResizeColumnsCommand
   | AutoresizeColumnsCommand
-  | AutoresizeRowsCommand;
+  | AutoresizeRowsCommand
+  | MovePositionCommand
+  | CreateSheetCommand
+  | ActivateSheetCommand;
 
-export type CommandResult = "CANCELLED";
+export type CommandResult = "COMPLETED" | "CANCELLED";

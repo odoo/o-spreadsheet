@@ -244,7 +244,7 @@ export class Composer extends Component<any, any> {
 
     const deltaX = ev.shiftKey ? -1 : 1;
     this.isDone = true;
-    this.model.movePosition(deltaX, 0);
+    this.model.dispatch({ type: "MOVE_POSITION", deltaX, deltaY: 0 });
   }
 
   processEnterKey(ev: KeyboardEvent) {
@@ -259,7 +259,7 @@ export class Composer extends Component<any, any> {
       }
     }
     this.model.stopEditing();
-    this.model.movePosition(0, ev.shiftKey ? -1 : 1);
+    this.model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: ev.shiftKey ? -1 : 1 });
     this.isDone = true;
   }
 

@@ -63,9 +63,9 @@ describe("Import", () => {
     });
     model.selectRow(1, false);
     model.merge();
-    model.activateSheet("Sheet2");
+    model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet2" });
     expect(Object.keys(model.state.merges)).toHaveLength(0);
-    model.activateSheet("Sheet1");
+    model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet1" });
     expect(Object.keys(model.state.merges)).toHaveLength(1);
     expect(Object.values(model.state.merges)[0].topLeft).toBe("A2");
   });
@@ -175,7 +175,7 @@ describe("complete import, then export", () => {
       }
     }
   };
-  const model = new GridModel();
-  model.load(modelData);
+  const model = new GridModel(modelData);
+  // model.load(modelData);
   expect(model.exportData()).toEqual(modelData);
 });

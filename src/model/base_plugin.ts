@@ -12,7 +12,8 @@ export class BasePlugin {
     this.getters = getters;
   }
 
-  dispatch(command: GridCommand): CommandResult | void {}
+  predispatch(command: GridCommand): CommandResult | void {}
+  dispatch(command: GridCommand): GridCommand[] | void {}
 
   import(data: WorkbookData) {}
   export(data: Partial<WorkbookData>) {}
