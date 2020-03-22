@@ -84,12 +84,6 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  load(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
-    this.workbook = importData(data);
-    Object.assign(this.state, this.computeDerivedState());
-    this.trigger("update");
-  }
-
   private makeMutation<T>(f: T): OmitFirstArg<T> {
     return ((...args) => {
       history.start(this.workbook);
