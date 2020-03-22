@@ -12,6 +12,9 @@ export class SelectionPlugin extends BasePlugin {
 
   dispatch(cmd: GridCommand) {
     switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        selectCell(this.workbook, 0, 0);
+        break;
       case "MOVE_POSITION":
         this.movePosition(cmd.deltaX, cmd.deltaY);
         break;
@@ -101,5 +104,8 @@ export class SelectionPlugin extends BasePlugin {
     while (this.workbook.activeRow < viewport.top) {
       updateScroll(this.workbook, rows[viewport.top - 1].top, this.workbook.scrollLeft);
     }
+  }
+  import() {
+    selectCell(this.workbook, 0, 0);
   }
 }
