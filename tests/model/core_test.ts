@@ -1,5 +1,4 @@
 import { GridModel, CURRENT_VERSION } from "../../src/model/index";
-import { formatCell } from "../../src/model/core";
 import { waitForRecompute } from "../helpers";
 
 describe("core", () => {
@@ -57,7 +56,7 @@ describe("core", () => {
     const model = new GridModel();
     model.setValue("A1", "=A2");
 
-    expect(formatCell(model.workbook, model.workbook.cells.A1)).toBe("0");
+    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("0");
   });
 
   test("format cell without content: empty string", () => {
@@ -65,7 +64,7 @@ describe("core", () => {
     model.selectCell(1, 1); // B2
     model.setBorder("bottom");
 
-    expect(formatCell(model.workbook, model.workbook.cells.B2)).toBe("");
+    expect(model.getters.getCellText(model.workbook.cells.B2)).toBe("");
   });
 
   test("format cell to a boolean value", () => {
@@ -73,8 +72,8 @@ describe("core", () => {
     model.setValue("A1", "=false");
     model.setValue("A2", "=true");
 
-    expect(formatCell(model.workbook, model.workbook.cells.A1)).toBe("FALSE");
-    expect(formatCell(model.workbook, model.workbook.cells.A2)).toBe("TRUE");
+    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("FALSE");
+    expect(model.getters.getCellText(model.workbook.cells.A2)).toBe("TRUE");
   });
 
   test("detect and format percentage values automatically", () => {
@@ -82,9 +81,9 @@ describe("core", () => {
     model.setValue("A1", "3%");
     model.setValue("A2", "3.4%");
 
-    expect(formatCell(model.workbook, model.workbook.cells.A1)).toBe("3%");
+    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("3%");
     expect(model.workbook.cells.A1.format).toBe("0%");
-    expect(formatCell(model.workbook, model.workbook.cells.A2)).toBe("3.40%");
+    expect(model.getters.getCellText(model.workbook.cells.A2)).toBe("3.40%");
     expect(model.workbook.cells.A2.format).toBe("0.00%");
   });
 

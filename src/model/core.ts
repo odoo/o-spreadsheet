@@ -1,11 +1,11 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { formatNumber, formatValue } from "../formatters";
+import { formatNumber } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile, tokenize } from "../formulas/index";
 import { isNumber } from "../functions/helpers";
 import { toCartesian, toXC } from "../helpers";
 import { updateState } from "./history";
-import { Cell, Workbook, NewCell, Zone } from "./types";
+import { Cell, NewCell, Workbook, Zone } from "./types";
 
 export function getCell(state: Workbook, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -18,31 +18,6 @@ export function selectedCell(state: Workbook): Cell | null {
   } else {
     return getCell(state, state.activeCol, state.activeRow);
   }
-}
-
-export function formatCell(state: Workbook, cell: Cell): string {
-  if (cell.value === "") {
-    return "";
-  }
-  if (cell.value === false) {
-    return "FALSE";
-  }
-  if (cell.value === true) {
-    return "TRUE";
-  }
-  if (cell.error) {
-    return cell.value;
-  }
-
-  const value = cell.value || 0;
-
-  if (cell.type === "text") {
-    return value.toString();
-  }
-  if (cell.format) {
-    return formatValue(cell.value, cell.format);
-  }
-  return formatNumber(value);
 }
 
 /**
