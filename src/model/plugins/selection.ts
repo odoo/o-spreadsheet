@@ -4,6 +4,8 @@ import { toXC } from "../../helpers";
 import { selectCell, updateScroll } from "../core";
 
 export class SelectionPlugin extends BasePlugin {
+  static getters = ["getActiveCols", "getActiveRows"];
+
   // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
@@ -15,6 +17,38 @@ export class SelectionPlugin extends BasePlugin {
         break;
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
+  getActiveCols(): Set<number> {
+    const activeCols = new Set<number>();
+    for (let zone of this.workbook.selection.zones) {
+      if (zone.top === 0 && zone.bottom === this.workbook.rows.length - 1) {
+        for (let i = zone.left; i <= zone.right; i++) {
+          activeCols.add(i);
+        }
+      }
+    }
+    return activeCols;
+  }
+
+  getActiveRows(): Set<number> {
+    const activeRows = new Set<number>();
+    for (let zone of this.workbook.selection.zones) {
+      if (zone.left === 0 && zone.right === this.workbook.cols.length - 1) {
+        for (let i = zone.top; i <= zone.bottom; i++) {
+          activeRows.add(i);
+        }
+      }
+    }
+    return activeRows;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Other
+  // ---------------------------------------------------------------------------
 
   /**
    * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta

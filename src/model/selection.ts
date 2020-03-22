@@ -165,38 +165,6 @@ export function increaseSelectRow(state: Workbook, row: number) {
   state.selection.zones[state.selection.zones.length - 1] = zone;
 }
 
-export function zoneIsEntireColumn(state: Workbook, zone: Zone) {
-  return zone.top === 0 && zone.bottom === state.rows.length - 1;
-}
-
-export function zoneIsEntireRow(state: Workbook, zone: Zone) {
-  return zone.left === 0 && zone.right === state.cols.length - 1;
-}
-
-export function getActiveCols(state: Workbook): Set<number> {
-  const activeCols = new Set<number>();
-  for (let zone of state.selection.zones) {
-    if (zoneIsEntireColumn(state, zone)) {
-      for (let i = zone.left; i <= zone.right; i++) {
-        activeCols.add(i);
-      }
-    }
-  }
-  return activeCols;
-}
-
-export function getActiveRows(state: Workbook): Set<number> {
-  const activeRows = new Set<number>();
-  for (let zone of state.selection.zones) {
-    if (zoneIsEntireRow(state, zone)) {
-      for (let i = zone.top; i <= zone.bottom; i++) {
-        activeRows.add(i);
-      }
-    }
-  }
-  return activeRows;
-}
-
 export function startNewComposerSelection(state: Workbook): void {
   state.selection.anchor = { row: state.activeRow, col: state.activeCol };
 }
