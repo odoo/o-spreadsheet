@@ -2,7 +2,7 @@ import { BasePlugin } from "../base_plugin";
 import { GridCommand, Col, Row, Workbook, Sheet, Cell } from "../types";
 import { updateState } from "../history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { selectCell, addCell } from "../core";
+import { addCell } from "../core";
 import { numberToLetters, toCartesian, toXC } from "../../helpers";
 import { SheetData, WorkbookData, HeaderData } from "../import_export";
 import { formatValue, formatNumber } from "../../formatters";
@@ -81,7 +81,6 @@ export class CorePlugin extends BasePlugin {
 
     // cells
     updateState(this.workbook, ["cells"], sheet.cells);
-    selectCell(this.workbook, 0, 0);
   }
 
   private createSheet(): string {
