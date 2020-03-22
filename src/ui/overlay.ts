@@ -255,7 +255,7 @@ export class ColResizer extends AbstractResizer {
   _updateSize(): void {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
-    const cols = this.model.getActiveCols();
+    const cols = this.model.getters.getActiveCols();
     this.model.dispatch({
       type: "RESIZE_COLUMNS",
       sheet: this.model.state.activeSheet,
@@ -273,7 +273,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _fitElementSize(index: number): void {
-    const cols = this.model.getActiveCols();
+    const cols = this.model.getters.getActiveCols();
     this.model.dispatch({
       type: "AUTORESIZE_COLUMNS",
       sheet: this.model.state.activeSheet,
@@ -373,7 +373,7 @@ export class RowResizer extends AbstractResizer {
   _updateSize(): void {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
-    const rows = this.model.getActiveRows();
+    const rows = this.model.getters.getActiveRows();
     this.model.dispatch({
       type: "RESIZE_ROWS",
       sheet: this.model.state.activeSheet,
@@ -391,7 +391,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _fitElementSize(index: number): void {
-    const rows = this.model.getActiveRows();
+    const rows = this.model.getters.getActiveRows();
     this.model.dispatch({
       type: "AUTORESIZE_ROWS",
       sheet: this.model.state.activeSheet,

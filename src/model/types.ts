@@ -11,6 +11,7 @@
 import { GridPlugin } from "./plugins/grid";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { EntityPlugin } from "./plugins/entity";
+import { SelectionPlugin } from "./plugins/selection";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -408,6 +409,8 @@ export interface Getters {
   getRow: GridPlugin["getRow"];
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
+  getActiveCols: SelectionPlugin["getActiveCols"];
+  getActiveRows: SelectionPlugin["getActiveRows"];
 }
 
 // -----------------------------------------------------------------------------

@@ -242,10 +242,6 @@ export class GridModel extends owl.core.EventBus {
   }
   increaseSelectColumn = this.makeMutation(selection.increaseSelectColumn);
   increaseSelectRow = this.makeMutation(selection.increaseSelectRow);
-  zoneIsEntireColumn = this.makeFn(selection.zoneIsEntireColumn);
-  zoneIsEntireRow = this.makeFn(selection.zoneIsEntireRow);
-  getActiveCols = this.makeFn(selection.getActiveCols);
-  getActiveRows = this.makeFn(selection.getActiveRows);
   startNewComposerSelection = this.makeMutation(selection.startNewComposerSelection);
   selectionZoneXC = this.makeFn(selection.selectionZoneXC);
   zoneToXC = this.makeFn(selection.zoneToXC);
@@ -277,8 +273,8 @@ export class GridModel extends owl.core.EventBus {
       offsetX,
       offsetY,
       boxes: this.getGridBoxes(),
-      activeCols: selection.getActiveCols(this.workbook),
-      activeRows: selection.getActiveRows(this.workbook)
+      activeCols: this.getters.getActiveCols(),
+      activeRows: this.getters.getActiveRows()
     };
   }
   private hasContent(col: number, row: number): boolean {
