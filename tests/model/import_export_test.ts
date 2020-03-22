@@ -176,6 +176,5 @@ describe("complete import, then export", () => {
     }
   };
   const model = new GridModel(modelData);
-  // model.load(modelData);
   expect(model.exportData()).toEqual(modelData);
 });

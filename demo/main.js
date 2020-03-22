@@ -9,8 +9,10 @@ let start;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
+
   constructor() {
     super();
+    this.key = 1;
     this.data = demoData;
     // this.data = makeLargeDataset();
   }
@@ -60,7 +62,8 @@ class App extends Component {
       fr.onload = e => {
         data = JSON.parse(e.target.result);
         this.data = data;
-        ev.detail.loadData(this.data);
+        this.key++;
+        this.render();
         uploadAnchorNode.remove();
       };
       fr.readAsText(files.item(0));
@@ -71,7 +74,7 @@ class App extends Component {
 
 App.template = xml`
   <div>
-    <Spreadsheet data="data"
+    <Spreadsheet data="data" t-key="key"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-save-content="onSave"

@@ -458,8 +458,6 @@ export class TopBar extends Component<any, any> {
     });
   }
   onLoad() {
-    this.trigger("load-content", {
-      loadData: data => this.model.load(data)
-    });
+    this.trigger("load-content");
   }
 }
