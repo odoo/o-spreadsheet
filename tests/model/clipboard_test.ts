@@ -129,12 +129,12 @@ describe("clipboard", () => {
     model.setValue("B2", "0.451");
     model.selectCell(1, 1);
     model.setFormat("0.00%");
-    expect(model.formatCell(model.workbook.cells.B2)).toBe("45.10%");
+    expect(model.getters.getCellText(model.workbook.cells.B2)).toBe("45.10%");
 
     model.dispatch({ type: "COPY", target: target("B2") });
     model.dispatch({ type: "PASTE", target: target("C2") });
 
-    expect(model.formatCell(model.workbook.cells.C2)).toBe("45.10%");
+    expect(model.getters.getCellText(model.workbook.cells.C2)).toBe("45.10%");
   });
 
   test("cutting a cell with style remove the cell", () => {

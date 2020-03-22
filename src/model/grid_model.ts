@@ -220,7 +220,6 @@ export class GridModel extends owl.core.EventBus {
     Object.assign(this.state, this.computeDerivedState());
     return result; //= this.makeFn(core.updateScroll);
   }
-  formatCell = this.makeFn(core.formatCell);
 
   // formatting
   // ---------------------------------------------------------------------------
@@ -295,7 +294,7 @@ export class GridModel extends owl.core.EventBus {
         let cell = row.cells[colNumber];
         if (cell && !(cell.xc in mergeCellMap)) {
           let col = cols[colNumber];
-          const text = this.formatCell(cell);
+          const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
           let style = cell.style ? this.workbook.styles[cell.style] : null;
           if (cell.conditionalStyle) {
@@ -351,7 +350,7 @@ export class GridModel extends owl.core.EventBus {
         const width = cols[merge.right].right - cols[merge.left].left;
         let text, textWidth, style, align, border;
         if (refCell) {
-          text = refCell ? this.formatCell(refCell) : "";
+          text = refCell ? this.getters.getCellText(refCell) : "";
           textWidth = this.getters.getCellWidth(refCell);
           style = refCell.style ? this.workbook.styles[refCell.style] : {};
           align = text

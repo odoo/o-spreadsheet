@@ -12,6 +12,7 @@ import { GridPlugin } from "./plugins/grid";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { EntityPlugin } from "./plugins/entity";
 import { SelectionPlugin } from "./plugins/selection";
+import { CorePlugin } from "./plugins/core";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -401,6 +402,7 @@ export type ConditionalFormattingOperatorValues =
 // Getters
 // -----------------------------------------------------------------------------
 export interface Getters {
+  getCellText: CorePlugin["getCellText"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   getCellWidth: GridPlugin["getCellWidth"];
   getColSize: GridPlugin["getColSize"];

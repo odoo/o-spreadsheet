@@ -8,7 +8,6 @@ import {
   HEADER_HEIGHT
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { formatCell } from "../core";
 import { updateState } from "../history";
 
 const MIN_PADDING = 3;
@@ -65,7 +64,8 @@ export class GridPlugin extends BasePlugin {
     const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
     const size = fontSizeMap[sizeInPt];
     this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-    return this.ctx.measureText(formatCell(this.workbook, cell)).width;
+    const text = this.getters.getCellText(cell);
+    return this.ctx.measureText(text).width;
   }
 
   /**

@@ -1,12 +1,15 @@
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Col, Row, Workbook, Sheet } from "../types";
+import { GridCommand, Col, Row, Workbook, Sheet, Cell } from "../types";
 import { updateState } from "../history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { selectCell, addCell } from "../core";
 import { numberToLetters, toCartesian, toXC } from "../../helpers";
 import { SheetData, WorkbookData, HeaderData } from "../import_export";
+import { formatValue, formatNumber } from "../../formatters";
 
 export class CorePlugin extends BasePlugin {
+  static getters = ["getCellText"];
+
   // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
@@ -21,6 +24,38 @@ export class CorePlugin extends BasePlugin {
         return [{ type: "ACTIVATE_SHEET", sheet }];
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
+  getCellText(cell: Cell): string {
+    if (cell.value === "") {
+      return "";
+    }
+    if (cell.value === false) {
+      return "FALSE";
+    }
+    if (cell.value === true) {
+      return "TRUE";
+    }
+    if (cell.error) {
+      return cell.value;
+    }
+
+    const value = cell.value || 0;
+    if (cell.type === "text") {
+      return value.toString();
+    }
+    if (cell.format) {
+      return formatValue(cell.value, cell.format);
+    }
+    return formatNumber(value);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Other
+  // ---------------------------------------------------------------------------
 
   private activateSheet(name: string) {
     const sheet = this.workbook.sheets.find(s => s.name === name)!;

@@ -1,15 +1,7 @@
 import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import {
-  activateCell,
-  addCell,
-  deleteCell,
-  formatCell,
-  getCell,
-  selectCell,
-  setValue
-} from "../core";
+import { activateCell, addCell, deleteCell, getCell, selectCell, setValue } from "../core";
 import { updateCell } from "../history";
 import { updateSelection } from "../selection";
 import { Cell, CommandResult, GridCommand, NewCell, Zone } from "../types";
@@ -84,7 +76,7 @@ export class ClipboardPlugin extends BasePlugin {
     return (
       this.cells
         .map(cells => {
-          return cells.map(c => (c ? formatCell(this.workbook, c) : "")).join("\t");
+          return cells.map(c => (c ? this.getters.getCellText(c) : "")).join("\t");
         })
         .join("\n") || "\t"
     );
