@@ -66,7 +66,7 @@ describe("borders", () => {
 
     // select B2:C2
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 1);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 1] });
 
     // set a border top
     model.setBorder("top");
@@ -87,7 +87,7 @@ describe("borders", () => {
 
     // select A1:E6
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
-    model.updateSelection(5, 5);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [5, 5] });
 
     // clear all borders
     model.setBorder("clear");
@@ -100,7 +100,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
     // set all borders
     model.setBorder("all");
@@ -121,7 +121,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
     // set all borders
     model.setBorder("top");
@@ -153,7 +153,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(3, 3);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [3, 3] });
 
     // set external borders
     model.setBorder("external");
@@ -174,7 +174,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 3);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
 
     // set external borders
     model.setBorder("h");
@@ -192,7 +192,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 3);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
 
     // set external borders
     model.setBorder("v");
@@ -210,7 +210,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 3);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
 
     // set external borders
     model.setBorder("hv");
@@ -263,7 +263,7 @@ describe("borders", () => {
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new GridModel();
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
-    model.updateSelection(25, 99);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [25, 99] });
     expect(model.workbook.selection.zones[0]).toEqual({
       left: 0,
       top: 0,

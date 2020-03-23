@@ -22,7 +22,7 @@ describe("Grid component", () => {
   test("can render a sheet with a merge", async () => {
     // select B2:B3 and merge
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(1, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 2] });
     model.merge();
     expect(fixture.querySelector("canvas")).toBeDefined();
   });

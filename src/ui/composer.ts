@@ -443,7 +443,7 @@ export class Composer extends Component<any, any> {
   }
 
   addTextFromSelection() {
-    let selection = this.model.selectionZoneXC();
+    let selection = this.model.getters.getSelectionXC();
     if (this.refSelectionStart) {
       this.selectionStart = this.refSelectionStart;
     }

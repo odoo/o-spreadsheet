@@ -403,6 +403,7 @@ export type ConditionalFormattingOperatorValues =
 // -----------------------------------------------------------------------------
 export interface Getters {
   getCellText: CorePlugin["getCellText"];
+  zoneToXC: CorePlugin["zoneToXC"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   getCellWidth: GridPlugin["getCellWidth"];
   getColSize: GridPlugin["getColSize"];
@@ -413,6 +414,7 @@ export interface Getters {
   getEntities: EntityPlugin["getEntities"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
+  getSelectionXC: SelectionPlugin["getSelectionXC"];
 }
 
 // -----------------------------------------------------------------------------
@@ -530,6 +532,12 @@ export interface SelectAllCommand {
   type: "SELECT_ALL";
 }
 
+export interface AlterSelectionCommand {
+  type: "ALTER_SELECTION";
+  delta?: [number, number];
+  cell?: [number, number];
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -549,6 +557,7 @@ export type GridCommand =
   | SetSelectionCommand
   | SelectColumnCommand
   | SelectRowCommand
-  | SelectAllCommand;
+  | SelectAllCommand
+  | AlterSelectionCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

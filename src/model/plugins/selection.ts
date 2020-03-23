@@ -4,7 +4,7 @@ import { activateCell, stopEditing, updateScroll } from "../core";
 import { GridCommand, Zone } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
-  static getters = ["getActiveCols", "getActiveRows"];
+  static getters = ["getActiveCols", "getActiveRows", "getSelectionXC"];
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -30,6 +30,14 @@ export class SelectionPlugin extends BasePlugin {
         return this.selectRow(cmd.index, cmd.addToSelection);
       case "SELECT_ALL":
         return this.selectAll();
+      case "ALTER_SELECTION":
+        if (cmd.delta) {
+          return this.moveSelection(cmd.delta[0], cmd.delta[1]);
+        }
+        if (cmd.cell) {
+          return this.addCellToSelection(...cmd.cell);
+        }
+        break;
     }
   }
 
@@ -61,6 +69,9 @@ export class SelectionPlugin extends BasePlugin {
     return activeRows;
   }
 
+  getSelectionXC(): string {
+    return this.getters.zoneToXC(this.workbook.selection.zones[0]);
+  }
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
@@ -187,13 +198,10 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   setSelection(anchor: [number, number], zones: Zone[]) {
-    // const anchor = Object.assign({}, workbook.selection.anchor);
     this.selectCell(...anchor);
     this.workbook.selection.zones = zones.map(z => this.expandZone(z));
-    // updateSelection(this.workbook, col + repX * width - 1, row + repY * height - 1);
     this.workbook.selection.anchor.col = anchor[0];
     this.workbook.selection.anchor.row = anchor[1];
-    // activateCell(workbook, newCol, newRow);
   }
   /**
    * Add all necessary merge to the current selection to make it valid
@@ -210,5 +218,73 @@ export class SelectionPlugin extends BasePlugin {
       }
     }
     return isEqual(result, zone) ? result : this.expandZone(result);
+  }
+
+  private moveSelection(deltaX: number, deltaY: number): GridCommand[] {
+    const selection = this.workbook.selection;
+    const zones = selection.zones.slice();
+    const lastZone = zones[selection.zones.length - 1];
+    const anchorCol = selection.anchor.col;
+    const anchorRow = selection.anchor.row;
+    const { left, right, top, bottom } = lastZone;
+    let result: Zone | null = lastZone;
+    const expand = (z: Zone) => {
+      const { left, right, top, bottom } = this.expandZone(z);
+      return {
+        left: Math.max(0, left),
+        right: Math.min(this.workbook.cols.length - 1, right),
+        top: Math.max(0, top),
+        bottom: Math.min(this.workbook.rows.length - 1, bottom)
+      };
+    };
+
+    // check if we can shrink selection
+    let n = 0;
+    while (result !== null) {
+      n++;
+      if (deltaX < 0) {
+        result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
+      }
+      if (deltaX > 0) {
+        result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
+      }
+      if (deltaY < 0) {
+        result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
+      }
+      if (deltaY > 0) {
+        result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
+      }
+      if (result && !isEqual(result, lastZone)) {
+        zones[zones.length - 1] = result;
+        return [{ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] }];
+      }
+    }
+    const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
+    const zoneWithDelta = {
+      top: top + deltaY,
+      left: left + deltaX,
+      bottom: bottom + deltaY,
+      right: right + deltaX
+    };
+    result = expand(union(currentZone, zoneWithDelta));
+    if (!isEqual(result, lastZone)) {
+      zones[zones.length - 1] = result;
+      return [{ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] }];
+    }
+    return [];
+  }
+
+  private addCellToSelection(col: number, row: number): GridCommand[] {
+    const selection = this.workbook.selection;
+    const anchorCol = selection.anchor.col;
+    const anchorRow = selection.anchor.row;
+    const zone: Zone = {
+      left: Math.min(anchorCol, col),
+      top: Math.min(anchorRow, row),
+      right: Math.max(anchorCol, col),
+      bottom: Math.max(anchorRow, row)
+    };
+    const zones = selection.zones.slice(0, -1).concat(zone);
+    return [{ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] }];
   }
 }

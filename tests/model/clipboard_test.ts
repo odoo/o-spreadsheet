@@ -277,8 +277,10 @@ describe("clipboard", () => {
     model.setValue("A2", "2");
     model.dispatch({ type: "COPY", target: target("A1:A2") });
 
+    // select C1:C3
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 0 });
-    model.updateSelection(2, 2); // select C1:C3
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
+
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
     model.dispatch({ type: "PASTE", target: target("C1:C3") });
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });

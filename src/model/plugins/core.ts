@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Col, Row, Workbook, Sheet, Cell } from "../types";
+import { GridCommand, Col, Row, Workbook, Sheet, Cell, Zone } from "../types";
 import { updateState } from "../history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { addCell } from "../core";
@@ -8,7 +8,7 @@ import { SheetData, WorkbookData, HeaderData } from "../import_export";
 import { formatValue, formatNumber } from "../../formatters";
 
 export class CorePlugin extends BasePlugin {
-  static getters = ["getCellText"];
+  static getters = ["getCellText", "zoneToXC"];
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -51,6 +51,29 @@ export class CorePlugin extends BasePlugin {
       return formatValue(cell.value, cell.format);
     }
     return formatNumber(value);
+  }
+
+  /**
+   * Converts a zone to a XC coordinate system
+   *
+   * The conversion also treats merges a one single cell
+   *
+   * Examples:
+   * {top:0,left:0,right:0,bottom:0} ==> A1
+   * {top:0,left:0,right:1,bottom:1} ==> A1:B2
+   *
+   * if A1:B2 is a merge:
+   * {top:0,left:0,right:1,bottom:1} ==> A1
+   */
+  zoneToXC(zone: Zone): string {
+    const topLeft = toXC(zone.left, zone.top);
+    const botRight = toXC(zone.right, zone.bottom);
+
+    if (topLeft != botRight && !this.workbook.mergeCellMap[topLeft]) {
+      return topLeft + ":" + botRight;
+    }
+
+    return topLeft;
   }
 
   // ---------------------------------------------------------------------------
