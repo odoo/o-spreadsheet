@@ -11,7 +11,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, set its top border, then clear it
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("top");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
@@ -19,7 +19,7 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its left border, then clear it
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("left");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ left: ["thin", "#000"] });
@@ -27,7 +27,7 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its bottom border, then clear it
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("bottom");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ bottom: ["thin", "#000"] });
@@ -35,7 +35,7 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its right border, then clear it
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("right");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
@@ -48,7 +48,7 @@ describe("borders", () => {
 
     // select B2
     model.setValue("B2", "content");
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
 
     // set a border top
     model.setBorder("top");
@@ -65,7 +65,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2:C2
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 1);
 
     // set a border top
@@ -81,12 +81,12 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select C3 and add a border
-    model.selectCell(2, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     model.setBorder("top");
     expect(model.workbook.cells.C3.border).toBeDefined();
 
     // select A1:E6
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.updateSelection(5, 5);
 
     // clear all borders
@@ -99,7 +99,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then expand selection to B2:C3
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 2);
 
     // set all borders
@@ -120,7 +120,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then expand selection to B2:C3
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 2);
 
     // set all borders
@@ -138,12 +138,12 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then set its right border
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("right");
     expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
 
     // select C2 then clear it
-    model.selectCell(2, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 1 });
     model.setBorder("clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
   });
@@ -152,7 +152,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then expand selection to B2:D4
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(3, 3);
 
     // set external borders
@@ -173,7 +173,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then expand selection to B2:C4
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 3);
 
     // set external borders
@@ -191,7 +191,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then expand selection to B2:C4
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 3);
 
     // set external borders
@@ -209,7 +209,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2, then expand selection to B2:C4
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 3);
 
     // set external borders
@@ -228,7 +228,7 @@ describe("borders", () => {
 
     // select B2 and set its top border
     model.setValue("B2", "content");
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
@@ -239,7 +239,7 @@ describe("borders", () => {
   test("can undo and redo a setBorder operation on an non empty cell", () => {
     const model = new GridModel();
     model.setValue("B2", "some content");
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("all");
 
     expect(model.workbook.cells.B2.content).toBe("some content");
@@ -252,7 +252,7 @@ describe("borders", () => {
   test("can clear formatting (border)", () => {
     const model = new GridModel();
     model.setValue("B1", "b1");
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setBorder("all");
 
     expect(model.workbook.cells.B1.border).toBeDefined();
@@ -262,7 +262,7 @@ describe("borders", () => {
 
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new GridModel();
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.updateSelection(25, 99);
     expect(model.workbook.selection.zones[0]).toEqual({
       left: 0,

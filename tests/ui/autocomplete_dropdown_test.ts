@@ -216,7 +216,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(1,2)");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     //edit A1
     model.startEditing();
     await nextTick();
@@ -247,7 +247,7 @@ describe("Autocomplete parenthesis", () => {
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
     await typeInComposer("=sum(sum(1,2");
 
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await nextTick();
     expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
   });

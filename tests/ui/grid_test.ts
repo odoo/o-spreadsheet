@@ -21,7 +21,7 @@ afterEach(() => {
 describe("Grid component", () => {
   test("can render a sheet with a merge", async () => {
     // select B2:B3 and merge
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(1, 2);
     model.merge();
     expect(fixture.querySelector("canvas")).toBeDefined();
@@ -83,7 +83,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
-      model.selectCell(0, 1);
+      model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
       expect(model.workbook.activeXc).toBe("A2");
       model.startEditing("a");
       await nextTick();
@@ -112,7 +112,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
-      model.selectCell(1, 0);
+      model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
       expect(model.workbook.activeXc).toBe("B1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(model.workbook.activeXc).toBe("A1");
@@ -169,7 +169,7 @@ describe("Grid component", () => {
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
       model.setValue("B2", "b2");
-      model.selectCell(1, 1);
+      model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
       model.setStyle({ bold: true });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
@@ -181,7 +181,7 @@ describe("Grid component", () => {
 
     test("can paste format with key", async () => {
       model.setValue("B2", "b2");
-      model.selectCell(1, 1);
+      model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
       model.setStyle({ bold: true });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });

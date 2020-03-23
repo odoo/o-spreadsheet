@@ -34,7 +34,8 @@ describe("navigation", () => {
   test("move right from right row", () => {
     const model = new GridModel();
     const colNumber = model.workbook.cols.length;
-    model.selectCell(colNumber - 1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: colNumber - 1, row: 0 });
+
     expect(model.workbook.activeCol).toBe(colNumber - 1);
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
     expect(model.workbook.activeCol).toBe(colNumber - 1);
@@ -43,7 +44,7 @@ describe("navigation", () => {
   test("move bottom from bottom row", () => {
     const model = new GridModel();
     const rowNumber = model.workbook.rows.length;
-    model.selectCell(0, rowNumber - 1);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: rowNumber - 1 });
     expect(model.workbook.activeRow).toBe(rowNumber - 1);
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: 1 });
     expect(model.workbook.activeRow).toBe(rowNumber - 1);
@@ -93,7 +94,7 @@ describe("navigation", () => {
     expect(model.workbook.activeRow).toBe(0);
 
     // put selection below merge
-    model.selectCell(1, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 2 });
 
     // enter merge from below
     expect(model.workbook.activeXc).toBe("B3");
@@ -115,7 +116,8 @@ describe("navigation", () => {
     const model = new GridModel();
     model.updateVisibleZone(600, 300);
 
-    model.selectCell(4, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 4, row: 0 });
+
     expect(model.workbook.activeCol).toBe(4);
     expect(model.workbook.viewport.left).toBe(0);
     expect(model.workbook.viewport.right).toBe(5);
@@ -131,7 +133,8 @@ describe("navigation", () => {
     model.workbook.scrollLeft = 100;
     model.updateVisibleZone(600, 300);
 
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
+
     expect(model.workbook.activeCol).toBe(1);
     expect(model.workbook.viewport.left).toBe(1);
     expect(model.workbook.viewport.right).toBe(6);
@@ -145,7 +148,7 @@ describe("navigation", () => {
   test("move bottom from bottom row (of the viewport)", () => {
     const model = new GridModel();
     model.updateVisibleZone(600, 200);
-    model.selectCell(0, 6);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 6 });
     expect(model.workbook.activeRow).toBe(6);
     expect(model.workbook.viewport.top).toBe(0);
     expect(model.workbook.viewport.bottom).toBe(7);
@@ -160,7 +163,7 @@ describe("navigation", () => {
     const model = new GridModel();
     model.workbook.scrollTop = 40;
     model.updateVisibleZone(600, 200);
-    model.selectCell(0, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     expect(model.workbook.activeRow).toBe(1);
     expect(model.workbook.viewport.top).toBe(1);
     expect(model.workbook.viewport.bottom).toBe(8);

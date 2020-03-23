@@ -501,6 +501,19 @@ export interface ActivateSheetCommand {
   sheet: string;
 }
 
+export interface SelectCellCommand {
+  type: "SELECT_CELL";
+  col: number;
+  row: number;
+  createNewRange?: boolean;
+}
+
+export interface SetSelection {
+  type: "SET_SELECTION";
+  anchor: [number, number];
+  zones: Zone[];
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -515,6 +528,8 @@ export type GridCommand =
   | AutoresizeRowsCommand
   | MovePositionCommand
   | CreateSheetCommand
-  | ActivateSheetCommand;
+  | ActivateSheetCommand
+  | SelectCellCommand
+  | SetSelection;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

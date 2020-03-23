@@ -4,7 +4,7 @@ import "../canvas.mock";
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
     const model = new GridModel();
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
     expect(model.workbook.cells.B1.content).toBe("");
@@ -16,7 +16,7 @@ describe("styles", () => {
   test("can undo and redo a setStyle operation on an non empty cell", () => {
     const model = new GridModel();
     model.setValue("B1", "some content");
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
     expect(model.workbook.cells.B1.content).toBe("some content");
@@ -29,7 +29,7 @@ describe("styles", () => {
   test("can clear formatting (style)", () => {
     const model = new GridModel();
     model.setValue("B1", "b1");
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
     expect(model.workbook.cells.B1.style).toBeDefined();
@@ -40,7 +40,7 @@ describe("styles", () => {
 
   test("clearing format on a cell with no content actually remove it", () => {
     const model = new GridModel();
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
     expect(model.workbook.cells.B1.style).toBeDefined();
@@ -51,7 +51,7 @@ describe("styles", () => {
   test("clearing format operation can be undone", () => {
     const model = new GridModel();
     model.setValue("B1", "b1");
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
     expect(model.workbook.cells.B1.style).toBeDefined();
@@ -66,7 +66,7 @@ describe("styles", () => {
     model.setValue("A2", "3");
     // this simulates a rendering which adds the width
     model.workbook.cells.A2.width = 234;
-    model.selectCell(0, 1); // select B2
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     model.setStyle({ fontSize: 33 });
     expect(model.workbook.cells.A2.width).not.toBeDefined();
   });
