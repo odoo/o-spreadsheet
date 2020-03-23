@@ -44,7 +44,7 @@ describe("TopBar component", () => {
         confirm = ev.detail.confirm;
       }
     }
-    model.updateSelection(5, 5);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [5, 5] });
     const parent = new TestParent(model);
     await parent.mount(fixture);
 
@@ -93,7 +93,7 @@ describe("TopBar component", () => {
 
     // increase the selection to A2 (so, it is now A1:B2) => merge tool
     // shoul not be active
-    model.updateSelection(0, 1);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 1] });
     await nextTick();
     expect(mergeTool.classList.contains("active")).toBeFalsy();
   });
@@ -109,7 +109,7 @@ describe("TopBar component", () => {
     // should be disabled, because the selection is just one cell
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
 
-    model.updateSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
     await nextTick();
     // should be enabled, because two cells are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();

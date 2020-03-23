@@ -229,8 +229,6 @@ export class GridModel extends owl.core.EventBus {
 
   // selection
   // ---------------------------------------------------------------------------
-  updateSelection = this.makeMutation(selection.updateSelection);
-  moveSelection = this.makeMutation(selection.moveSelection);
   setSelectingRange(isSelecting: boolean) {
     selection.setSelectingRange(this.workbook, isSelecting);
     this.state.isSelectingRange = isSelecting;
@@ -238,8 +236,6 @@ export class GridModel extends owl.core.EventBus {
   increaseSelectColumn = this.makeMutation(selection.increaseSelectColumn);
   increaseSelectRow = this.makeMutation(selection.increaseSelectRow);
   startNewComposerSelection = this.makeMutation(selection.startNewComposerSelection);
-  selectionZoneXC = this.makeFn(selection.selectionZoneXC);
-  zoneToXC = this.makeFn(selection.zoneToXC);
   addHighlights = this.makeMutation(selection.addHighlights);
 
   // merges

@@ -12,7 +12,7 @@ describe("merges", () => {
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(1, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 2] });
     model.merge();
 
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
@@ -137,12 +137,12 @@ describe("merges", () => {
         }
       ]
     });
-    model.updateSelection(2, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
     // B2 is not top left, so it is destructive
     expect(model.state.isMergeDestructive).toBeTruthy();
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(2, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
     // B2 is top left, so it is not destructive
     expect(model.state.isMergeDestructive).toBeFalsy();
   });
@@ -187,7 +187,7 @@ describe("merges", () => {
       ]
     });
     expect(model.workbook.cells["A4"].value).toBe(6);
-    model.updateSelection(0, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 2] });
     model.merge();
     expect(model.workbook.cells["A1"].value).toBe(1);
     expect(model.workbook.cells["A2"]).toBeUndefined();
@@ -197,7 +197,7 @@ describe("merges", () => {
 
   test("merging => setting background color => unmerging", () => {
     const model = new GridModel();
-    model.updateSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
 
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
@@ -218,7 +218,7 @@ describe("merges", () => {
     });
     // selecting A3 and expanding selection one row up
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 2 });
-    model.updateSelection(0, 1);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 1] });
 
     //merging
     model.merge();
@@ -237,7 +237,7 @@ describe("merges", () => {
 
     // select B2:B3 and merge
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.updateSelection(1, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 2] });
     model.merge();
 
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);

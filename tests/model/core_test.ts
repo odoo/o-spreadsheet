@@ -13,7 +13,7 @@ describe("core", () => {
 
     expect(model.state.aggregate).toBe(null);
 
-    model.updateSelection(0, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 2] });
     expect(model.state.aggregate).toBe("57");
   });
 
@@ -28,11 +28,11 @@ describe("core", () => {
     expect(model.state.aggregate).toBe(null);
 
     // select A1:A2
-    model.updateSelection(0, 1);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 1] });
     expect(model.state.aggregate).toBe(null);
 
     // select A1:A3
-    model.updateSelection(0, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 2] });
     expect(model.state.aggregate).toBe("5");
   });
 
@@ -46,7 +46,7 @@ describe("core", () => {
     expect(model.state.aggregate).toBe(null);
 
     // select A1:A2
-    model.updateSelection(0, 1);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 1] });
     expect(model.state.aggregate).toBe(null);
 
     await waitForRecompute();

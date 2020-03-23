@@ -246,7 +246,7 @@ export class Grid extends Component<any, any> {
     this.clickedRow = row;
 
     if (ev.shiftKey) {
-      this.model.updateSelection(col, row);
+      this.model.dispatch({ type: "ALTER_SELECTION", cell: [col, row] });
     } else {
       this.model.dispatch({ type: "SELECT_CELL", col, row, createNewRange: ev.ctrlKey });
     }
@@ -261,7 +261,7 @@ export class Grid extends Component<any, any> {
       if (col !== prevCol || row !== prevRow) {
         prevCol = col;
         prevRow = row;
-        this.model.updateSelection(col, row);
+        this.model.dispatch({ type: "ALTER_SELECTION", cell: [col, row] });
       }
     };
     const onMouseUp = ev => {
@@ -313,7 +313,7 @@ export class Grid extends Component<any, any> {
     };
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
-      this.model.moveSelection(delta[0], delta[1]);
+      this.model.dispatch({ type: "ALTER_SELECTION", delta });
     } else {
       this.model.dispatch({ type: "MOVE_POSITION", deltaX: delta[0], deltaY: delta[1] });
     }

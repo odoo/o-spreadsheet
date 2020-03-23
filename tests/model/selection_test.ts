@@ -28,7 +28,7 @@ describe("selection", () => {
       ]
     });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.moveSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -36,9 +36,9 @@ describe("selection", () => {
     const model = new GridModel();
 
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.moveSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
-    model.moveSelection(-1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
   });
 
@@ -53,16 +53,16 @@ describe("selection", () => {
       ]
     });
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-    model.moveSelection(0, -1);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
-    model.moveSelection(0, -1);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
     model.dispatch({ type: "SELECT_CELL", col: 9, row: 0 });
-    model.moveSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 9 });
-    model.moveSelection(0, 1);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
@@ -78,7 +78,7 @@ describe("selection", () => {
       ]
     });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.updateSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -96,13 +96,13 @@ describe("selection", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
 
     // move to the right, inside the merge
-    model.moveSelection(1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
 
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(model.workbook.activeXc).toBe("B1");
 
     // move to the left, outside the merge
-    model.moveSelection(-1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(model.workbook.activeXc).toBe("B1");
   });
@@ -123,12 +123,12 @@ describe("selection", () => {
     expect(model.workbook.activeXc).toBe("B4");
 
     // move up, inside the merge
-    model.moveSelection(0, -1);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
 
     expect(model.workbook.selection.zones[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
-    model.moveSelection(-1, 0);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
     expect(model.workbook.selection.zones[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
@@ -148,7 +148,7 @@ describe("selection", () => {
     expect(model.workbook.activeXc).toBe("B3");
 
     // select right cell C3
-    model.updateSelection(2, 2);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
     expect(model.workbook.selection.zones[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
   });
@@ -238,7 +238,7 @@ describe("selection", () => {
 
     model.workbook.isSelectingRange = true;
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
-    model.updateSelection(4, 4);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [4, 4] });
 
     expect(model.workbook.activeXc).toBe("C3"); // active cell is not modified but the selection is
     expect(model.workbook.activeCol).toBe(2);
@@ -255,8 +255,8 @@ describe("selection", () => {
     model.workbook.isSelectingRange = true;
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
 
-    model.moveSelection(0, 1);
-    model.moveSelection(0, -1);
+    model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });
+    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
 
     expect(model.workbook.activeXc).toBe("A1"); // active cell is not modified but the selection is
     expect(model.workbook.activeCol).toBe(0);
@@ -283,7 +283,7 @@ describe("multiple selections", () => {
     const state = model.workbook;
     expect(state.selection.zones.length).toBe(1);
     expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
-    model.updateSelection(2, 3);
+    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
     expect(state.selection.zones.length).toBe(1);
     expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
 

@@ -186,7 +186,7 @@ export class ConditionalFormattingRuleEditor extends Component<props> {
       ranges:
         this.cf && this.cf.ranges
           ? this.cf.ranges.join(",")
-          : this.model.state.selection.zones.map(this.model.zoneToXC).join(","),
+          : this.model.state.selection.zones.map(this.model.getters.zoneToXC).join(","),
       operator:
         this.cf && (this.cf.formatRule.type as CellIsRule).operator
           ? (this.cf.formatRule.type as CellIsRule).operator

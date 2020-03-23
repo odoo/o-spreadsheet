@@ -19,75 +19,6 @@ function expandZone(state: Workbook, zone: Zone): Zone {
 }
 
 /**
- * Expand/contract the current selection by a given delta.
- * The anchor of the selection is used as reference
- */
-export function moveSelection(state: Workbook, deltaX: number, deltaY: number) {
-  const selection = state.selection.zones[state.selection.zones.length - 1];
-  const anchorCol = state.selection.anchor.col;
-  const anchorRow = state.selection.anchor.row;
-  const { left, right, top, bottom } = selection;
-  let result: Zone | null = selection;
-  function expand(z: Zone): Zone {
-    const { left, right, top, bottom } = expandZone(state, z);
-    return {
-      left: Math.max(0, left),
-      right: Math.min(state.cols.length - 1, right),
-      top: Math.max(0, top),
-      bottom: Math.min(state.rows.length - 1, bottom)
-    };
-  }
-
-  // check if we can shrink selection
-  let n = 0;
-  while (result !== null) {
-    n++;
-    if (deltaX < 0) {
-      result = anchorCol <= right - n ? expand({ top, left, bottom, right: right - n }) : null;
-    }
-    if (deltaX > 0) {
-      result = left + n <= anchorCol ? expand({ top, left: left + n, bottom, right }) : null;
-    }
-    if (deltaY < 0) {
-      result = anchorRow <= bottom - n ? expand({ top, left, bottom: bottom - n, right }) : null;
-    }
-    if (deltaY > 0) {
-      result = top + n <= anchorRow ? expand({ top: top + n, left, bottom, right }) : null;
-    }
-    if (result && !isEqual(result, selection)) {
-      state.selection.zones[state.selection.zones.length - 1] = result;
-      return;
-    }
-  }
-  const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
-  const zoneWithDelta = {
-    top: top + deltaY,
-    left: left + deltaX,
-    bottom: bottom + deltaY,
-    right: right + deltaX
-  };
-  result = expand(union(currentZone, zoneWithDelta));
-  if (!isEqual(result, selection)) {
-    state.selection.zones[state.selection.zones.length - 1] = result;
-  }
-}
-
-/**
- * Update the current selection to include the cell col/row.
- */
-export function updateSelection(state: Workbook, col: number, row: number) {
-  const anchorCol = state.selection.anchor.col;
-  const anchorRow = state.selection.anchor.row;
-  const zone: Zone = {
-    left: Math.min(anchorCol, col),
-    top: Math.min(anchorRow, row),
-    right: Math.max(anchorCol, col),
-    bottom: Math.max(anchorRow, row)
-  };
-  state.selection.zones[state.selection.zones.length - 1] = expandZone(state, zone);
-}
-
-/**
  * set the flag that allow the user to make a selection using the mouse and keyboard, this selection will be
  * reflected in the composer
  */
@@ -119,36 +50,6 @@ export function increaseSelectRow(state: Workbook, row: number) {
 
 export function startNewComposerSelection(state: Workbook): void {
   state.selection.anchor = { row: state.activeRow, col: state.activeCol };
-}
-/**
- * Converts the selection zone to a XC coordinate system
- */
-export function selectionZoneXC(state: Workbook): string {
-  const zone = state.selection.zones[0];
-  return zoneToXC(state, zone);
-}
-
-/**
- * Converts a zone to a XC coordinate system
- *
- * The conversion also treats merges a one single cell
- *
- * Examples:
- * {top:0,left:0,right:0,bottom:0} ==> A1
- * {top:0,left:0,right:1,bottom:1} ==> A1:B2
- *
- * if A1:B2 is a merge:
- * {top:0,left:0,right:1,bottom:1} ==> A1
- */
-export function zoneToXC(state: Workbook, zone: Zone): string {
-  const topLeft = toXC(zone.left, zone.top);
-  const botRight = toXC(zone.right, zone.bottom);
-
-  if (topLeft != botRight && !state.mergeCellMap[topLeft]) {
-    return topLeft + ":" + botRight;
-  }
-
-  return topLeft;
 }
 
 /**
