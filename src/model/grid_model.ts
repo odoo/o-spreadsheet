@@ -103,9 +103,9 @@ export class GridModel extends owl.core.EventBus {
 
   dispatch(command: GridCommand): CommandResult {
     for (let plugin of this.plugins) {
-      let result = plugin.predispatch(command);
-      if (result === "CANCELLED") {
-        return result;
+      let result = plugin.canDispatch(command);
+      if (!result) {
+        return "CANCELLED";
       }
     }
 
