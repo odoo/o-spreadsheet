@@ -1,9 +1,8 @@
 import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { activateCell, addCell, deleteCell, getCell, selectCell, setValue } from "../core";
+import { addCell, deleteCell, getCell, setValue } from "../core";
 import { updateCell } from "../history";
-import { updateSelection } from "../selection";
 import { Cell, CommandResult, GridCommand, NewCell, Zone } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -30,7 +29,7 @@ export class ClipboardPlugin extends BasePlugin {
     }
   }
 
-  dispatch(cmd: GridCommand) {
+  dispatch(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "COPY":
         this.cutOrCopy(cmd.target, false);
@@ -42,8 +41,7 @@ export class ClipboardPlugin extends BasePlugin {
         const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this.isPaintingFormat;
         this.isPaintingFormat = false;
         this.onlyFormat = onlyFormat;
-        this.pasteFromModel(cmd.target);
-        break;
+        return this.pasteFromModel(cmd.target);
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
         break;
@@ -137,7 +135,7 @@ export class ClipboardPlugin extends BasePlugin {
     return !(cells && target.length > 1 && (cells.length > 1 || cells[0].length > 1));
   }
 
-  private pasteFromModel(target: Zone[]) {
+  private pasteFromModel(target: Zone[]): GridCommand[] | void {
     const { zones, cells, shouldCut, status, workbook } = this;
     if (!zones || !cells || status === "empty") {
       return;
@@ -168,14 +166,22 @@ export class ClipboardPlugin extends BasePlugin {
     }
 
     if (height > 1 || width > 1) {
-      const anchor = Object.assign({}, workbook.selection.anchor);
-      selectCell(workbook, col, row);
-      updateSelection(workbook, col + repX * width - 1, row + repY * height - 1);
+      const newSelection = {
+        left: col,
+        top: row,
+        right: col + repX * width - 1,
+        bottom: row + repY * height - 1
+      };
+      const anchor = workbook.selection.anchor;
       const newCol = clip(anchor.col, col, col + repX * width - 1);
       const newRow = clip(anchor.row, row, row + repY * height - 1);
-      workbook.selection.anchor.col = newCol;
-      workbook.selection.anchor.row = newRow;
-      activateCell(workbook, newCol, newRow);
+      return [
+        {
+          type: "SET_SELECTION",
+          anchor: [newCol, newRow],
+          zones: [newSelection]
+        }
+      ];
     }
   }
 

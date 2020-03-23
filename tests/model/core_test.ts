@@ -9,7 +9,8 @@ describe("core", () => {
 
     expect(model.state.aggregate).toBe(null);
 
-    model.selectCell(0, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
+
     expect(model.state.aggregate).toBe(null);
 
     model.updateSelection(0, 2);
@@ -23,7 +24,7 @@ describe("core", () => {
     model.setValue("A3", "3");
 
     // select A1
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     expect(model.state.aggregate).toBe(null);
 
     // select A1:A2
@@ -41,7 +42,7 @@ describe("core", () => {
     model.setValue("A2", "44");
 
     // select A1
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     expect(model.state.aggregate).toBe(null);
 
     // select A1:A2
@@ -61,7 +62,7 @@ describe("core", () => {
 
   test("format cell without content: empty string", () => {
     const model = new GridModel();
-    model.selectCell(1, 1); // B2
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("bottom");
 
     expect(model.getters.getCellText(model.workbook.cells.B2)).toBe("");
@@ -157,7 +158,7 @@ describe("history", () => {
     model.setValue("A2", "3");
 
     expect(model.workbook.cells.A2.content).toBe("3");
-    model.selectCell(0, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     model.deleteSelection();
     expect(model.workbook.cells.A2).not.toBeDefined();
 

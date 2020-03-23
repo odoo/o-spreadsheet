@@ -43,7 +43,7 @@ describe("history", () => {
 
   test("two identical changes do not count as two undo steps", () => {
     const model = new GridModel();
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("all");
     model.setBorder("all");
 

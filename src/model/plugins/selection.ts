@@ -1,7 +1,7 @@
+import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand } from "../types";
-import { toXC } from "../../helpers";
-import { selectCell, updateScroll } from "../core";
+import { activateCell, stopEditing, updateScroll } from "../core";
+import { GridCommand, Zone } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
   static getters = ["getActiveCols", "getActiveRows"];
@@ -12,11 +12,17 @@ export class SelectionPlugin extends BasePlugin {
 
   dispatch(cmd: GridCommand) {
     switch (cmd.type) {
+      case "SET_SELECTION":
+        this.setSelection(cmd.anchor, cmd.zones);
+        break;
       case "ACTIVATE_SHEET":
-        selectCell(this.workbook, 0, 0);
+        this.selectCell(0, 0);
         break;
       case "MOVE_POSITION":
         this.movePosition(cmd.deltaX, cmd.deltaY);
+        break;
+      case "SELECT_CELL":
+        this.selectCell(cmd.col, cmd.row, cmd.createNewRange);
         break;
     }
   }
@@ -54,6 +60,48 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   /**
+   * Change the anchor of the selection active cell to an absolute col and row inded.
+   *
+   * This is a non trivial task. We need to stop the editing process and update
+   * properly the current selection.  Also, this method can optionally create a new
+   * range in the selection.
+   */
+  private selectCell(col: number, row: number, newRange: boolean = false) {
+    if (!this.workbook.isSelectingRange) {
+      stopEditing(this.workbook);
+    }
+    const xc = toXC(col, row);
+    let zone: Zone;
+    if (xc in this.workbook.mergeCellMap) {
+      const merge = this.workbook.merges[this.workbook.mergeCellMap[xc]];
+      zone = {
+        left: merge.left,
+        right: merge.right,
+        top: merge.top,
+        bottom: merge.bottom
+      };
+    } else {
+      zone = {
+        left: col,
+        right: col,
+        top: row,
+        bottom: row
+      };
+    }
+
+    if (newRange) {
+      this.workbook.selection.zones.push(zone);
+    } else {
+      this.workbook.selection.zones = [zone];
+    }
+    this.workbook.selection.anchor.col = col;
+    this.workbook.selection.anchor.row = row;
+    if (!this.workbook.isSelectingRange) {
+      activateCell(this.workbook, col, row);
+    }
+  }
+
+  /**
    * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
    */
   movePosition(deltaX: number, deltaY: number) {
@@ -80,10 +128,10 @@ export class SelectionPlugin extends BasePlugin {
         targetRow += deltaY;
       }
       if (targetCol >= 0 && targetRow >= 0) {
-        selectCell(this.workbook, targetCol, targetRow);
+        this.selectCell(targetCol, targetRow);
       }
     } else {
-      selectCell(this.workbook, moveReferenceCol + deltaX, moveReferenceRow + deltaY);
+      this.selectCell(moveReferenceCol + deltaX, moveReferenceRow + deltaY);
     }
     // keep current cell in the viewport, if possible
     while (
@@ -106,6 +154,32 @@ export class SelectionPlugin extends BasePlugin {
     }
   }
   import() {
-    selectCell(this.workbook, 0, 0);
+    this.selectCell(0, 0);
+  }
+
+  setSelection(anchor: [number, number], zones: Zone[]) {
+    // const anchor = Object.assign({}, workbook.selection.anchor);
+    this.selectCell(...anchor);
+    this.workbook.selection.zones = zones.map(z => this.expandZone(z));
+    // updateSelection(this.workbook, col + repX * width - 1, row + repY * height - 1);
+    this.workbook.selection.anchor.col = anchor[0];
+    this.workbook.selection.anchor.row = anchor[1];
+    // activateCell(workbook, newCol, newRow);
+  }
+  /**
+   * Add all necessary merge to the current selection to make it valid
+   */
+  expandZone(zone: Zone): Zone {
+    let { left, right, top, bottom } = zone;
+    let result: Zone = { left, right, top, bottom };
+    for (let i = left; i <= right; i++) {
+      for (let j = top; j <= bottom; j++) {
+        let mergeId = this.workbook.mergeCellMap[toXC(i, j)];
+        if (mergeId) {
+          result = union(this.workbook.merges[mergeId], result);
+        }
+      }
+    }
+    return isEqual(result, zone) ? result : this.expandZone(result);
   }
 }

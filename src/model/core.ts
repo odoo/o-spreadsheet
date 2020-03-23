@@ -5,7 +5,7 @@ import { compile, tokenize } from "../formulas/index";
 import { isNumber } from "../functions/helpers";
 import { toCartesian, toXC } from "../helpers";
 import { updateState } from "./history";
-import { Cell, NewCell, Workbook, Zone } from "./types";
+import { Cell, NewCell, Workbook } from "./types";
 
 export function getCell(state: Workbook, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
@@ -276,49 +276,6 @@ export function stopEditing(state: Workbook) {
  * */
 export function setCurrentContent(state: Workbook, content: string) {
   state.currentContent = content;
-}
-
-/**
- * Change the anchor of the selection active cell to an absolute col and row inded.
- *
- * This is a non trivial task. We need to stop the editing process and update
- * properly the current selection.  Also, this method can optionally create a new
- * range in the selection.
- */
-export function selectCell(state: Workbook, col: number, row: number, newRange: boolean = false) {
-  if (!state.isSelectingRange) {
-    stopEditing(state);
-  }
-  const xc = toXC(col, row);
-  let zone: Zone;
-  if (xc in state.mergeCellMap) {
-    const merge = state.merges[state.mergeCellMap[xc]];
-    zone = {
-      left: merge.left,
-      right: merge.right,
-      top: merge.top,
-      bottom: merge.bottom
-    };
-  } else {
-    zone = {
-      left: col,
-      right: col,
-      top: row,
-      bottom: row
-    };
-  }
-
-  if (newRange) {
-    state.selection.zones.push(zone);
-  } else {
-    state.selection.zones = [zone];
-  }
-  state.selection.anchor.col = col;
-  state.selection.anchor.row = row;
-
-  if (!state.isSelectingRange) {
-    activateCell(state, col, row);
-  }
 }
 
 export function computeAggregate(state: Workbook): string | null {

@@ -34,7 +34,7 @@ describe("edition", () => {
 
     // removing
     expect(model.workbook.cells["A2"].content).toBe("a2");
-    model.selectCell(0, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     model.deleteSelection();
     expect("A2" in model.workbook.cells).toBeTruthy();
     expect(model.workbook.cells["A2"].content).toBe("");

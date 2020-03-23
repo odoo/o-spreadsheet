@@ -11,7 +11,7 @@ describe("merges", () => {
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(1, 2);
     model.merge();
 
@@ -40,7 +40,7 @@ describe("merges", () => {
       "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.unmerge();
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
@@ -53,7 +53,7 @@ describe("merges", () => {
 
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.merge();
 
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
@@ -73,7 +73,7 @@ describe("merges", () => {
       ]
     });
 
-    model.selectCell(2, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.workbook.activeXc).toBe("C3");
     model.startEditing();
     expect(model.workbook.currentContent).toBe("b2");
@@ -95,7 +95,7 @@ describe("merges", () => {
       ]
     });
 
-    model.selectCell(2, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.workbook.activeXc).toBe("C3");
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(model.workbook.cells["B2"].style).not.toBeDefined();
@@ -118,7 +118,7 @@ describe("merges", () => {
       ]
     });
 
-    model.selectCell(2, 3);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 3 });
     expect(model.workbook.activeXc).toBe("C4");
     expect(model.state.selectedCell).toBeNull(); // no active cell in C4
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
@@ -141,7 +141,7 @@ describe("merges", () => {
     // B2 is not top left, so it is destructive
     expect(model.state.isMergeDestructive).toBeTruthy();
 
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(2, 2);
     // B2 is top left, so it is not destructive
     expect(model.state.isMergeDestructive).toBeFalsy();
@@ -217,7 +217,7 @@ describe("merges", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }]
     });
     // selecting A3 and expanding selection one row up
-    model.selectCell(0, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 2 });
     model.updateSelection(0, 1);
 
     //merging
@@ -236,7 +236,7 @@ describe("merges", () => {
     const model = new GridModel();
 
     // select B2:B3 and merge
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.updateSelection(1, 2);
     model.merge();
 

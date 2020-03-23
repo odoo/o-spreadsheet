@@ -52,16 +52,16 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectCell(0, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     model.moveSelection(0, -1);
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
     model.moveSelection(0, -1);
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
-    model.selectCell(9, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 9, row: 0 });
     model.moveSelection(1, 0);
     expect(model.workbook.selection.zones[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
-    model.selectCell(0, 9);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 9 });
     model.moveSelection(0, 1);
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
@@ -93,7 +93,7 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
 
     // move to the right, inside the merge
     model.moveSelection(1, 0);
@@ -119,7 +119,7 @@ describe("selection", () => {
       ]
     });
     // move sell to B4
-    model.selectCell(1, 3);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 3 });
     expect(model.workbook.activeXc).toBe("B4");
 
     // move up, inside the merge
@@ -144,7 +144,7 @@ describe("selection", () => {
       ]
     });
     // move sell to B4
-    model.selectCell(1, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 2 });
     expect(model.workbook.activeXc).toBe("B3");
 
     // select right cell C3
@@ -211,10 +211,10 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectCell(2, 2);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.workbook.activeXc).toBe("C3");
     model.workbook.isSelectingRange = true;
-    model.selectCell(3, 3);
+    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
     expect(model.workbook.activeXc).toBe("C3"); // active cell is not modified but the selection is
 
     expect(model.workbook.selection).toEqual({
@@ -233,10 +233,10 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectCell(2, 2); // select C3
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
 
     model.workbook.isSelectingRange = true;
-    model.selectCell(3, 3);
+    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
     model.updateSelection(4, 4);
 
     expect(model.workbook.activeXc).toBe("C3"); // active cell is not modified but the selection is
@@ -249,10 +249,10 @@ describe("selection", () => {
   });
   test("make selection works based on selection anchor, not active cell", () => {
     const model = new GridModel();
-    model.selectCell(0, 0); // select A1
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
 
     model.workbook.isSelectingRange = true;
-    model.selectCell(3, 3);
+    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
 
     model.moveSelection(0, 1);
     model.moveSelection(0, -1);
@@ -278,7 +278,7 @@ describe("multiple selections", () => {
         }
       ]
     });
-    model.selectCell(2, 2); // select C3
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     const state = model.workbook;
     expect(state.selection.zones.length).toBe(1);
     expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
@@ -287,7 +287,7 @@ describe("multiple selections", () => {
     expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
 
     // create new range
-    model.selectCell(5, 2, true);
+    model.dispatch({ type: "SELECT_CELL", col: 5, row: 2, createNewRange: true });
     expect(state.selection.zones.length).toBe(2);
     expect(state.selection.anchor).toEqual({ col: 5, row: 2 });
   });

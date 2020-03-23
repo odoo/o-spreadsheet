@@ -114,7 +114,8 @@ describe("TopBar component", () => {
     // should be enabled, because two cells are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
 
-    model.selectCell(3, 3, true);
+    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3, createNewRange: true });
+
     await nextTick();
     // should be disabled, because multiple zones are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
@@ -162,7 +163,7 @@ describe("TopBar component", () => {
 
   test("can clear formatting", async () => {
     const model = new GridModel();
-    model.selectCell(1, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setBorder("all");
 
     expect(model.workbook.cells.B1.border).toBeDefined();

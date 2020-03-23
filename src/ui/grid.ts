@@ -248,7 +248,7 @@ export class Grid extends Component<any, any> {
     if (ev.shiftKey) {
       this.model.updateSelection(col, row);
     } else {
-      this.model.selectCell(col, row, ev.ctrlKey);
+      this.model.dispatch({ type: "SELECT_CELL", col, row, createNewRange: ev.ctrlKey });
     }
     let prevCol = col;
     let prevRow = row;
@@ -404,7 +404,7 @@ export class Grid extends Component<any, any> {
     const zones = this.model.state.selection.zones;
     const lastZone = zones[zones.length - 1];
     if (!isInside(col, row, lastZone)) {
-      this.model.selectCell(col, row);
+      this.model.dispatch({ type: "SELECT_CELL", col, row });
     }
     ev.preventDefault();
     this.contextMenu.isOpen = true;

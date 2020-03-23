@@ -91,26 +91,26 @@ describe("ranges and highlights", () => {
     expect(model.workbook.currentContent).toBe("=B1");
   });
   test("=Key UP in B2, should select and highlight B1", async () => {
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowUp");
     expect(model.workbook.currentContent).toBe("=B1");
   });
   test("=Key LEFT in B2, should select and highlight A2", async () => {
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowLeft");
     expect(model.workbook.currentContent).toBe("=A2");
   });
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowUp");
     expect(model.workbook.currentContent).toBe("=B2");
   });
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowUp");
     await keydown("ArrowUp");
@@ -131,10 +131,10 @@ describe("ranges and highlights", () => {
     expect(model.workbook.currentContent).toBe("=A2");
   });
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
-    model.selectCell(1, 1);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.moveSelection(1, 1);
     model.merge(); // merges from B2 to C3
-    model.selectCell(2, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 0 });
     await typeInComposer("=");
     await keydown("ArrowDown");
     expect(model.workbook.currentContent).toBe("=B2");

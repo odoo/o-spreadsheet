@@ -6,7 +6,7 @@ describe("formatting values (with formatters)", () => {
     const model = new GridModel();
     model.setValue("A1", "3");
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("3");
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("0.00%");
     expect(model.workbook.cells.A1.format).toBe("0.00%");
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("300.00%");
@@ -14,7 +14,7 @@ describe("formatting values (with formatters)", () => {
 
   test("can set a format to an empty cell", () => {
     const model = new GridModel();
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("0.00%");
     expect(model.workbook.cells.A1.format).toBe("0.00%");
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("");
@@ -25,7 +25,7 @@ describe("formatting values (with formatters)", () => {
   test("can set the default format to a cell with value = 0", () => {
     const model = new GridModel();
     model.setValue("A1", "0");
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("");
     expect(model.workbook.cells.A1.format).not.toBeDefined();
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("0");
@@ -34,7 +34,7 @@ describe("formatting values (with formatters)", () => {
   test("can clear a format in a non empty cell", () => {
     const model = new GridModel();
     model.setValue("A1", "3");
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("0.00%");
     expect(model.workbook.cells.A1.format).toBeDefined();
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("300.00%");
@@ -45,7 +45,7 @@ describe("formatting values (with formatters)", () => {
 
   test("can clear a format in an empty cell", () => {
     const model = new GridModel();
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("0.00%");
     expect(model.workbook.cells.A1.format).toBe("0.00%");
     model.setFormat("");
@@ -54,7 +54,7 @@ describe("formatting values (with formatters)", () => {
 
   test("setting an empty format in an empty cell does nothing", () => {
     const model = new GridModel();
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("");
     expect(model.workbook.cells.A1).not.toBeDefined();
   });
@@ -62,7 +62,7 @@ describe("formatting values (with formatters)", () => {
   test("does not format errors", () => {
     const model = new GridModel();
     model.setValue("A1", "3");
-    model.selectCell(0, 0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.setFormat("0.00%");
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("300.00%");
     model.setValue("A1", "=A1");

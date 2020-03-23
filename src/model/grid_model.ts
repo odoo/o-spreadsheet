@@ -211,7 +211,6 @@ export class GridModel extends owl.core.EventBus {
   stopEditing = this.makeMutation(core.stopEditing);
   setCurrentContent = this.makeMutation(core.setCurrentContent);
   removeHighlights = this.makeMutation(core.removeHighlights);
-  selectCell = this.makeMutation(core.selectCell);
   // updateVisibleZone and updateScroll should not be a mutation
 
   updateVisibleZone = this.makeFn(core.updateVisibleZone);
