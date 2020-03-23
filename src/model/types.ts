@@ -538,6 +538,12 @@ export interface AlterSelectionCommand {
   cell?: [number, number];
 }
 
+export interface DeleteCommand {
+  type: "DELETE";
+  sheet: string;
+  target: Target;
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -558,6 +564,7 @@ export type GridCommand =
   | SelectColumnCommand
   | SelectRowCommand
   | SelectAllCommand
-  | AlterSelectionCommand;
+  | AlterSelectionCommand
+  | DeleteCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

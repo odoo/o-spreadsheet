@@ -136,7 +136,13 @@ export class Grid extends Component<any, any> {
     TAB: () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: -1, deltaY: 0 }),
     F2: this.model.startEditing,
-    DELETE: this.model.deleteSelection,
+    DELETE: () => {
+      this.model.dispatch({
+        type: "DELETE",
+        target: this.state.selection.zones,
+        sheet: this.state.activeSheet
+      });
+    },
     "CTRL+A": () => this.model.dispatch({ type: "SELECT_ALL" }),
     "CTRL+S": () => {
       this.trigger("save-content", {

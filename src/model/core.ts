@@ -196,19 +196,6 @@ export function updateVisibleZone(state: Workbook, width?: number, height?: numb
   state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
 }
 
-export function deleteSelection(state: Workbook) {
-  state.selection.zones.forEach(zone => {
-    for (let col = zone.left; col <= zone.right; col++) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        const xc = toXC(col, row);
-        if (xc in state.cells) {
-          deleteCell(state, xc);
-        }
-      }
-    }
-  });
-}
-
 export function startEditing(state: Workbook, str?: string) {
   if (!str) {
     const cell = selectedCell(state);

@@ -232,7 +232,11 @@ describe("borders", () => {
     model.setBorder("top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
-    model.deleteSelection();
+    model.dispatch({
+      type: "DELETE",
+      sheet: model.state.activeSheet,
+      target: model.state.selection.zones
+    });
     expect(model.workbook.cells.B2.border).toBeDefined();
   });
 
