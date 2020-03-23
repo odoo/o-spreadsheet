@@ -1,19 +1,35 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "./index";
-import { toNumber } from "./helpers";
+import { toNumber, toString } from "./helpers";
+import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
 // ADD
 // -----------------------------------------------------------------------------
 export const ADD: FunctionDescription = {
-  description: `Sum of two numbers`,
+  description: `Sum of two numbers.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (number) The first addend.
+      value2 (number) The second addend.
     `,
   returns: ["NUMBER"],
-  compute: function(a: number, b: number): number {
-    return toNumber(a) + toNumber(b);
+  compute: function(value1: any, value2: any): number {
+    return toNumber(value1) + toNumber(value2);
+  }
+};
+
+// -----------------------------------------------------------------------------
+// CONCAT
+// -----------------------------------------------------------------------------
+export const CONCAT: FunctionDescription = {
+  description: `Concatenation of two values.`,
+  args: args`
+      value1 (any) The value to which value2 will be appended.
+      value2 (any) The value to append to value1.
+    `,
+  returns: ["STRING"],
+  compute: function(value1: any, value2: any): string {
+    return toString(value1) + toString(value2);
   }
 };
 
@@ -21,48 +37,88 @@ export const ADD: FunctionDescription = {
 // DIVIDE
 // -----------------------------------------------------------------------------
 export const DIVIDE: FunctionDescription = {
-  description: `One number divided by another`,
+  description: `One number divided by another.`,
   args: args`
-      a (number)
-      b (number)
+      dividend (number) The number to be divided.
+      divisor (number) The number to divide by.
     `,
   returns: ["NUMBER"],
-  compute: function(a: number, b: number): number {
-    const denom = toNumber(b);
-    if (denom === 0) {
-      throw new Error("Cannot divide by 0");
+  compute: function(dividend: any, divisor: any): number {
+    const _divisor = toNumber(divisor);
+    if (_divisor === 0) {
+      throw new Error("Function DIVIDE parameter 2 cannot be zero.");
     }
-    return toNumber(a) / denom;
+    return toNumber(dividend) / _divisor;
   }
 };
 
 // -----------------------------------------------------------------------------
 // EQ
 // -----------------------------------------------------------------------------
+function isEmpty(value: any): boolean {
+  return value === null || value === undefined;
+}
+
+const getNeutral = { number: 0, string: "", boolean: false };
+
 export const EQ: FunctionDescription = {
-  description: `Equality of two numbers`,
+  description: `Equal.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (any) The first value.
+      value2 (any) The value to test against value1 for equality.
     `,
   returns: ["BOOLEAN"],
-  compute: function(a: number, b: number): boolean {
-    return toNumber(a) === toNumber(b);
+  compute: function(value1: any, value2: any): boolean {
+    value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
+    value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
+    if (typeof value1 === "string") {
+      value1 = value1.toUpperCase();
+    }
+    if (typeof value2 === "string") {
+      value2 = value2.toUpperCase();
+    }
+    return value1 === value2;
   }
 };
 
 // -----------------------------------------------------------------------------
 // GT
 // -----------------------------------------------------------------------------
+function applyRelationalOperator(
+  value1: any,
+  value2: any,
+  cb: (v1: any, v2: any) => boolean
+): boolean {
+  value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
+  value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
+  if (typeof value1 !== "number") {
+    value1 = toString(value1).toUpperCase();
+  }
+  if (typeof value2 !== "number") {
+    value2 = toString(value2).toUpperCase();
+  }
+  const tV1 = typeof value1;
+  const tV2 = typeof value2;
+  if (tV1 === "string" && tV2 === "number") {
+    return true;
+  }
+  if (tV2 === "string" && tV1 === "number") {
+    return false;
+  }
+  return cb(value1, value2);
+}
+
 export const GT: FunctionDescription = {
-  description: `Strictly greater than`,
+  description: `Strictly greater than.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (any) The value to test as being greater than value2.
+      value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(a: number, b: number): boolean {
-    return toNumber(a) > toNumber(b);
+  compute: function(value1: any, value2: any): boolean {
+    return applyRelationalOperator(value1, value2, (v1, v2) => {
+      return v1 > v2;
+    });
   }
 };
 
@@ -70,14 +126,16 @@ export const GT: FunctionDescription = {
 // GTE
 // -----------------------------------------------------------------------------
 export const GTE: FunctionDescription = {
-  description: `Greater than or equal to`,
+  description: `Greater than or equal to.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (any) The value to test as being greater than or equal to value2.
+      value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(a: number, b: number): boolean {
-    return toNumber(a) >= toNumber(b);
+  compute: function(value1: any, value2: any): boolean {
+    return applyRelationalOperator(value1, value2, (v1, v2) => {
+      return v1 >= v2;
+    });
   }
 };
 
@@ -85,14 +143,14 @@ export const GTE: FunctionDescription = {
 // LT
 // -----------------------------------------------------------------------------
 export const LT: FunctionDescription = {
-  description: `Less than`,
+  description: `Less than.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (any) The value to test as being less than value2.
+      value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(a: number, b: number): boolean {
-    return toNumber(a) < toNumber(b);
+  compute: function(value1: any, value2: any): boolean {
+    return !GTE.compute(value1, value2);
   }
 };
 
@@ -100,14 +158,14 @@ export const LT: FunctionDescription = {
 // LTE
 // -----------------------------------------------------------------------------
 export const LTE: FunctionDescription = {
-  description: `Less than or equal to`,
+  description: `Less than or equal to.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (any) The value to test as being less than or equal to value2.
+      value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(a: number, b: number): boolean {
-    return toNumber(a) <= toNumber(b);
+  compute: function(value1: any, value2: any): boolean {
+    return !GT.compute(value1, value2);
   }
 };
 
@@ -115,14 +173,14 @@ export const LTE: FunctionDescription = {
 // MINUS
 // -----------------------------------------------------------------------------
 export const MINUS: FunctionDescription = {
-  description: `Difference of two numbers`,
+  description: `Difference of two numbers.`,
   args: args`
-      a (number)
-      b (number)
+      value1 (number) The minuend, or number to be subtracted from.
+      value2 (number) The subtrahend, or number to subtract from value1.
     `,
   returns: ["NUMBER"],
-  compute: function(a: number, b: number): number {
-    return toNumber(a) - toNumber(b);
+  compute: function(value1: any, value2: any): number {
+    return toNumber(value1) - toNumber(value2);
   }
 };
 
@@ -132,12 +190,42 @@ export const MINUS: FunctionDescription = {
 export const MULTIPLY: FunctionDescription = {
   description: `Product of two numbers`,
   args: args`
-      a (number)
-      b (number)
+      factor1 (number) The first multiplicand.
+      factor2 (number) The second multiplicand.
     `,
   returns: ["NUMBER"],
-  compute: function(a: number, b: number): number {
-    return toNumber(a) * toNumber(b);
+  compute: function(factor1: any, factor2: any): number {
+    return toNumber(factor1) * toNumber(factor2);
+  }
+};
+
+// -----------------------------------------------------------------------------
+// NE
+// -----------------------------------------------------------------------------
+export const NE: FunctionDescription = {
+  description: `Not equal.`,
+  args: args`
+      value1 (any) The first value.
+      value2 (any) The value to test against value1 for inequality.
+    `,
+  returns: ["BOOLEAN"],
+  compute: function(value1: any, value2: any): boolean {
+    return !EQ.compute(value1, value2);
+  }
+};
+
+// -----------------------------------------------------------------------------
+// POW
+// -----------------------------------------------------------------------------
+export const POW: FunctionDescription = {
+  description: `A number raised to a power.`,
+  args: args`
+      base (number) The number to raise to the exponent power.
+      exponent (number) The exponent to raise base to.
+    `,
+  returns: ["BOOLEAN"],
+  compute: function(base: any, exponent: any): number {
+    return POWER.compute(base, exponent);
   }
 };
 
@@ -145,12 +233,40 @@ export const MULTIPLY: FunctionDescription = {
 // UMINUS
 // -----------------------------------------------------------------------------
 export const UMINUS: FunctionDescription = {
-  description: `A number with the sign reversed`,
+  description: `A number with the sign reversed.`,
   args: args`
-      n (number)
+      value (number) The number to have its sign reversed. Equivalently, the number to multiply by -1.
     `,
   returns: ["NUMBER"],
-  compute: function(n: number): number {
-    return -toNumber(n);
+  compute: function(value: any): number {
+    return -toNumber(value);
+  }
+};
+
+// -----------------------------------------------------------------------------
+// UNARY_PERCENT
+// -----------------------------------------------------------------------------
+export const UNARY_PERCENT: FunctionDescription = {
+  description: `Value interpreted as a percentage.`,
+  args: args`
+      percentage (number) The value to interpret as a percentage.
+    `,
+  returns: ["NUMBER"],
+  compute: function(percentage: any): number {
+    return toNumber(percentage) / 100;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// UPLUS
+// -----------------------------------------------------------------------------
+export const UPLUS: FunctionDescription = {
+  description: `A specified number, unchanged.`,
+  args: args`
+      value (any) The number to return.
+    `,
+  returns: ["ANY"],
+  compute: function(value: any): any {
+    return value;
   }
 };
