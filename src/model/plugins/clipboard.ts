@@ -3,7 +3,7 @@ import { toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
 import { addCell, deleteCell, getCell, setValue } from "../core";
 import { updateCell } from "../history";
-import { Cell, CommandResult, GridCommand, NewCell, Zone } from "../types";
+import { Cell, GridCommand, NewCell, Zone } from "../types";
 
 // -----------------------------------------------------------------------------
 // ClipboardPlugin
@@ -19,14 +19,8 @@ export class ClipboardPlugin extends BasePlugin {
   isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
-  predispatch(cmd: GridCommand): CommandResult | void {
-    switch (cmd.type) {
-      case "PASTE":
-        if (!this.isPasteAllowed(cmd.target)) {
-          return "CANCELLED";
-        }
-        break;
-    }
+  canDispatch(cmd: GridCommand): boolean {
+    return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 
   dispatch(cmd: GridCommand): GridCommand[] | void {

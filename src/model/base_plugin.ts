@@ -1,4 +1,4 @@
-import { Workbook, GridCommand, CommandResult, Getters } from "./types";
+import { Workbook, GridCommand, Getters } from "./types";
 import { WorkbookData } from "./import_export";
 
 export class BasePlugin {
@@ -12,7 +12,9 @@ export class BasePlugin {
     this.getters = getters;
   }
 
-  predispatch(command: GridCommand): CommandResult | void {}
+  canDispatch(command: GridCommand): boolean {
+    return true;
+  }
   dispatch(command: GridCommand): GridCommand[] | void {}
 
   import(data: WorkbookData) {}
