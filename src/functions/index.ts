@@ -4,7 +4,6 @@ import * as lookup from "./module_lookup";
 import * as math from "./module_math";
 import * as operators from "./module_operators";
 import * as statistical from "./module_statistical";
-import * as string_fns from "./module_string";
 
 //------------------------------------------------------------------------------
 // Types
@@ -43,7 +42,6 @@ importFunctions(math, "math");
 importFunctions(logical, "logical");
 importFunctions(operators, "operators");
 importFunctions(statistical, "statistical");
-importFunctions(string_fns, "string");
 
 function importFunctions(mapping: FunctionMap, category: string) {
   for (let name in mapping) {
