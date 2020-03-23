@@ -159,7 +159,11 @@ describe("history", () => {
 
     expect(model.workbook.cells.A2.content).toBe("3");
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-    model.deleteSelection();
+    model.dispatch({
+      type: "DELETE",
+      sheet: model.state.activeSheet,
+      target: model.state.selection.zones
+    });
     expect(model.workbook.cells.A2).not.toBeDefined();
 
     model.undo();

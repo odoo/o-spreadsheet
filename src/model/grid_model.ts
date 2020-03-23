@@ -204,7 +204,6 @@ export class GridModel extends owl.core.EventBus {
 
   // core
   // ---------------------------------------------------------------------------
-  deleteSelection = this.makeMutation(core.deleteSelection);
   setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
   startEditing = this.makeMutation(core.startEditing);

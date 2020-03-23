@@ -2,7 +2,7 @@ import { BasePlugin } from "../base_plugin";
 import { GridCommand, Col, Row, Workbook, Sheet, Cell, Zone } from "../types";
 import { updateState } from "../history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { addCell } from "../core";
+import { addCell, deleteCell } from "../core";
 import { numberToLetters, toCartesian, toXC } from "../../helpers";
 import { SheetData, WorkbookData, HeaderData } from "../import_export";
 import { formatValue, formatNumber } from "../../formatters";
@@ -22,6 +22,9 @@ export class CorePlugin extends BasePlugin {
       case "CREATE_SHEET":
         const sheet = this.createSheet();
         return [{ type: "ACTIVATE_SHEET", sheet }];
+      case "DELETE":
+        this.deleteContent(cmd.sheet, cmd.target);
+        break;
     }
   }
 
@@ -158,6 +161,21 @@ export class CorePlugin extends BasePlugin {
       addCell(this.workbook, xc, data.cells[xc], { sheet: name });
       const cell = sheet.cells[xc];
       sheet.rows[cell.row].cells[cell.col] = cell;
+    }
+  }
+
+  private deleteContent(sheet: string, zones: Zone[]) {
+    // TODO: get cells from the actual sheet
+    const cells = this.workbook.activeSheet.cells;
+    for (let zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const xc = toXC(col, row);
+          if (xc in cells) {
+            deleteCell(this.workbook, xc);
+          }
+        }
+      }
     }
   }
 }
