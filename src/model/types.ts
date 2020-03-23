@@ -508,10 +508,26 @@ export interface SelectCellCommand {
   createNewRange?: boolean;
 }
 
-export interface SetSelection {
+export interface SetSelectionCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
   zones: Zone[];
+}
+
+export interface SelectColumnCommand {
+  type: "SELECT_COLUMN";
+  index: number;
+  addToSelection?: boolean;
+}
+
+export interface SelectRowCommand {
+  type: "SELECT_ROW";
+  index: number;
+  addToSelection?: boolean;
+}
+
+export interface SelectAllCommand {
+  type: "SELECT_ALL";
 }
 
 export type GridCommand =
@@ -530,6 +546,9 @@ export type GridCommand =
   | CreateSheetCommand
   | ActivateSheetCommand
   | SelectCellCommand
-  | SetSelection;
+  | SetSelectionCommand
+  | SelectColumnCommand
+  | SelectRowCommand
+  | SelectAllCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

@@ -61,7 +61,7 @@ describe("Import", () => {
         }
       ]
     });
-    model.selectRow(1, false);
+    model.dispatch({ type: "SELECT_ROW", index: 1 });
     model.merge();
     model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet2" });
     expect(Object.keys(model.state.merges)).toHaveLength(0);

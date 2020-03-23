@@ -265,7 +265,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.selectColumn(index, ctrlKey);
+    this.model.dispatch({ type: "SELECT_COLUMN", index, addToSelection: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
@@ -383,7 +383,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.selectRow(index, ctrlKey);
+    this.model.dispatch({ type: "SELECT_ROW", index, addToSelection: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
@@ -426,6 +426,6 @@ export class Overlay extends Component<any, any> {
   model: GridModel = this.props.model;
 
   selectAll() {
-    this.model.selectAll();
+    this.model.dispatch({ type: "SELECT_ALL" });
   }
 }

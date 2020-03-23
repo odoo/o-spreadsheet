@@ -163,7 +163,7 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectColumn(4, false);
+    model.dispatch({ type: "SELECT_COLUMN", index: 4 });
     expect(model.workbook.activeXc).toBe("E1");
 
     expect(model.workbook.selection.zones[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
@@ -179,7 +179,8 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectRow(4, false);
+
+    model.dispatch({ type: "SELECT_ROW", index: 4 });
     expect(model.workbook.activeXc).toBe("A5");
 
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
@@ -195,7 +196,7 @@ describe("selection", () => {
         }
       ]
     });
-    model.selectAll();
+    model.dispatch({ type: "SELECT_ALL" });
     expect(model.workbook.activeXc).toBe("A1");
 
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
