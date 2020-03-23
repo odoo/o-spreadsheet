@@ -1,6 +1,5 @@
-import { isEqual, toZone, toXC, union } from "../helpers";
-import { Zone, Workbook } from "./types";
-import { stopEditing, activateCell } from "./core";
+import { isEqual, toXC, toZone, union } from "../helpers";
+import { Workbook, Zone } from "./types";
 
 /**
  * Add all necessary merge to the current selection to make it valid
@@ -71,53 +70,6 @@ export function moveSelection(state: Workbook, deltaX: number, deltaY: number) {
   if (!isEqual(result, selection)) {
     state.selection.zones[state.selection.zones.length - 1] = result;
   }
-}
-
-export function selectColumn(state: Workbook, col: number, addToCurrent: boolean) {
-  stopEditing(state);
-  activateCell(state, col, 0);
-  const selection = {
-    top: 0,
-    left: col,
-    right: col,
-    bottom: state.rows.length - 1
-  };
-  state.selection.anchor = { col: state.activeCol, row: state.activeRow };
-  if (addToCurrent) {
-    state.selection.zones.push(selection);
-  } else {
-    state.selection.zones = [selection];
-  }
-}
-
-export function selectRow(state: Workbook, row: number, addToCurrent: boolean) {
-  stopEditing(state);
-  activateCell(state, 0, row);
-  const selection = {
-    top: row,
-    left: 0,
-    right: state.cols.length - 1,
-    bottom: row
-  };
-  state.selection.anchor = { col: state.activeCol, row: state.activeRow };
-  if (addToCurrent) {
-    state.selection.zones.push(selection);
-  } else {
-    state.selection.zones = [selection];
-  }
-}
-
-export function selectAll(state: Workbook) {
-  stopEditing(state);
-  activateCell(state, 0, 0);
-  const selection = {
-    top: 0,
-    left: 0,
-    right: state.cols.length - 1,
-    bottom: state.rows.length - 1
-  };
-  state.selection.anchor = { col: state.activeCol, row: state.activeRow };
-  state.selection.zones = [selection];
 }
 
 /**

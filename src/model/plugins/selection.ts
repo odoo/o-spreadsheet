@@ -10,7 +10,7 @@ export class SelectionPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  dispatch(cmd: GridCommand) {
+  dispatch(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones);
@@ -24,6 +24,12 @@ export class SelectionPlugin extends BasePlugin {
       case "SELECT_CELL":
         this.selectCell(cmd.col, cmd.row, cmd.createNewRange);
         break;
+      case "SELECT_COLUMN":
+        return this.selectColumn(cmd.index, cmd.addToSelection);
+      case "SELECT_ROW":
+        return this.selectRow(cmd.index, cmd.addToSelection);
+      case "SELECT_ALL":
+        return this.selectAll();
     }
   }
 
@@ -58,6 +64,29 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
+
+  private selectColumn(index: number, addToSelection: boolean = false): GridCommand[] {
+    const bottom = this.workbook.rows.length - 1;
+    const column = { left: index, right: index, top: 0, bottom };
+    const current = this.workbook.selection.zones;
+    const zones = addToSelection ? current.concat(column) : [column];
+    return [{ type: "SET_SELECTION", zones, anchor: [index, 0] }];
+  }
+
+  private selectRow(index: number, addToSelection: boolean = false): GridCommand[] {
+    const right = this.workbook.cols.length - 1;
+    const row = { top: index, bottom: index, left: 0, right };
+    const current = this.workbook.selection.zones;
+    const zones = addToSelection ? current.concat(row) : [row];
+    return [{ type: "SET_SELECTION", zones, anchor: [0, index] }];
+  }
+
+  private selectAll(): GridCommand[] {
+    const bottom = this.workbook.rows.length - 1;
+    const right = this.workbook.cols.length - 1;
+    const zone = { left: 0, top: 0, bottom, right };
+    return [{ type: "SET_SELECTION", zones: [zone], anchor: [0, 0] }];
+  }
 
   /**
    * Change the anchor of the selection active cell to an absolute col and row inded.
