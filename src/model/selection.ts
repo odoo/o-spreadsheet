@@ -26,28 +26,6 @@ export function setSelectingRange(state: Workbook, isSelecting: boolean) {
   state.isSelectingRange = isSelecting;
 }
 
-export function increaseSelectColumn(state: Workbook, col: number) {
-  const anchorCol = state.selection.anchor.col;
-  const zone: Zone = {
-    left: Math.min(anchorCol, col),
-    top: 0,
-    right: Math.max(anchorCol, col),
-    bottom: state.rows.length - 1
-  };
-  state.selection.zones[state.selection.zones.length - 1] = zone;
-}
-
-export function increaseSelectRow(state: Workbook, row: number) {
-  const anchorRow = state.selection.anchor.row;
-  const zone: Zone = {
-    left: 0,
-    top: Math.min(anchorRow, row),
-    right: state.cols.length - 1,
-    bottom: Math.max(anchorRow, row)
-  };
-  state.selection.zones[state.selection.zones.length - 1] = zone;
-}
-
 export function startNewComposerSelection(state: Workbook): void {
   state.selection.anchor = { row: state.activeRow, col: state.activeCol };
 }
