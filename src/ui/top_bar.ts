@@ -187,6 +187,7 @@ export class TopBar extends Component<any, any> {
           </span>
           <div t-if="state.alignTool" class="o-dropdown-content">
             <div class="o-dropdown-item" t-on-click="useTool('align', 'left')">${icons.ALIGN_LEFT_ICON}</div>
+            <div class="o-dropdown-item" t-on-click="useTool('align', 'center')">${icons.ALIGN_CENTER_ICON}</div>
             <div class="o-dropdown-item" t-on-click="useTool('align', 'right')">${icons.ALIGN_RIGHT_ICON}</div>
           </div>
         </div>

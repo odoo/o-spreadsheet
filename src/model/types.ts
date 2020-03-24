@@ -47,7 +47,7 @@ export interface Style {
   bold?: boolean;
   italic?: boolean;
   strikethrough?: boolean;
-  align?: "left" | "right";
+  align?: "left" | "right" | "center";
   fillColor?: string;
   textColor?: string;
   fontSize?: number; // in pt, not in px!
@@ -202,7 +202,7 @@ export interface Box {
   textWidth: number;
   style: Style | null;
   border: Border | null;
-  align: "left" | "right" | null;
+  align: "left" | "right" | "center" | null;
   clipRect: Rect | null;
   isError?: boolean;
 }
