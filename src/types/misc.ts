@@ -21,7 +21,7 @@ export interface Style {
   bold?: boolean;
   italic?: boolean;
   strikethrough?: boolean;
-  align?: "left" | "right";
+  align?: "left" | "right" | "center";
   fillColor?: string;
   textColor?: string;
   fontSize?: number; // in pt, not in px!
