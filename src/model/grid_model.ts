@@ -1,11 +1,8 @@
 import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { functionMap } from "../functions/index";
 import { overlap, toXC } from "../helpers";
 import { BasePlugin } from "./base_plugin";
-import * as conditionalFormat from "./conditional_format";
 import * as core from "./core";
-import { evaluateCells, _evaluateCells } from "./evaluation";
 import * as formatting from "./formatting";
 import * as history from "./history";
 import {
@@ -16,12 +13,24 @@ import {
 } from "./import_export";
 import * as merges from "./merges";
 import { ClipboardPlugin } from "./plugins/clipboard";
+import { CorePlugin } from "./plugins/core";
 import { EntityPlugin } from "./plugins/entity";
+import { EvaluationPlugin } from "./plugins/evaluation";
 import { GridPlugin } from "./plugins/grid";
 import { SelectionPlugin } from "./plugins/selection";
 import * as selection from "./selection";
 import { Box, CommandResult, Getters, GridCommand, Rect, UI, Viewport, Workbook } from "./types";
-import { CorePlugin } from "./plugins/core";
+import { ConditionalFormatPlugin } from "./plugins/conditional_format";
+
+const PLUGINS = [
+  CorePlugin,
+  EvaluationPlugin,
+  ClipboardPlugin,
+  EntityPlugin,
+  GridPlugin,
+  SelectionPlugin,
+  ConditionalFormatPlugin
+];
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
@@ -34,7 +43,6 @@ export class GridModel extends owl.core.EventBus {
 
   private plugins: BasePlugin[];
   private clipboard: ClipboardPlugin;
-  private evalContext: any;
   private isStarted: boolean = false;
   workbook: Workbook;
   state: UI;
@@ -52,8 +60,7 @@ export class GridModel extends owl.core.EventBus {
     this.getters = {} as Getters;
     this.plugins = [];
 
-    const Plugins = [CorePlugin, ClipboardPlugin, EntityPlugin, GridPlugin, SelectionPlugin];
-    for (let Plugin of Plugins) {
+    for (let Plugin of PLUGINS) {
       const plugin = new Plugin(workbook, this.getters);
       plugin.import(data);
       for (let name of Plugin.getters) {
@@ -66,19 +73,6 @@ export class GridModel extends owl.core.EventBus {
     }
 
     this.clipboard = this.plugins.find(p => p instanceof ClipboardPlugin) as ClipboardPlugin;
-
-    // Evaluation context
-    const entityPlugin = this.plugins.find(p => p instanceof EntityPlugin) as EntityPlugin;
-    this.evalContext = Object.assign(Object.create(functionMap), {
-      getEntity(type: string, key: string): any {
-        return entityPlugin.getEntity(type, key);
-      },
-      getEntities(type: string): { [key: string]: any } {
-        return entityPlugin.getEntities(type);
-      }
-    });
-
-    evaluateCells(workbook, this.evalContext);
 
     // misc
     this.state = this.computeDerivedState();
@@ -94,9 +88,10 @@ export class GridModel extends owl.core.EventBus {
       history.stop(this.workbook);
       Object.assign(this.state, this.computeDerivedState());
       if (this.workbook.isStale) {
-        evaluateCells(this.workbook, this.evalContext);
+        this.dispatch({ type: "EVALUATE_CELLS" });
+      } else {
+        this.trigger("update");
       }
-      this.trigger("update");
       if (this.workbook.loadingCells > 0) {
         this.startScheduler();
       }
@@ -114,6 +109,9 @@ export class GridModel extends owl.core.EventBus {
 
     history.start(this.workbook);
     const commands: GridCommand[] = [command];
+    if (command.type !== "EVALUATE_CELLS") {
+      commands.push({ type: "EVALUATE_CELLS" });
+    }
     while (commands.length) {
       const current = commands.shift()!;
       for (let plugin of this.plugins) {
@@ -125,9 +123,6 @@ export class GridModel extends owl.core.EventBus {
     }
     history.stop(this.workbook);
     Object.assign(this.state, this.computeDerivedState());
-    if (this.workbook.isStale) {
-      evaluateCells(this.workbook, this.evalContext);
-    }
     this.trigger("update");
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
@@ -168,8 +163,7 @@ export class GridModel extends owl.core.EventBus {
       canRedo: this.workbook.redoStack.length > 0,
       currentContent: this.workbook.currentContent,
       sheets: this.workbook.sheets.map(s => s.name),
-      activeSheet: this.workbook.activeSheet.name,
-      conditionalFormats: this.workbook.activeSheet.conditionalFormats
+      activeSheet: this.workbook.activeSheet.name
     };
   }
 
@@ -177,19 +171,22 @@ export class GridModel extends owl.core.EventBus {
     return ((...args) => (f as any).call(null, this.workbook, ...args)) as any;
   }
 
+  /**
+   * todo: move this into evaluation plugin
+   */
   private startScheduler() {
     if (!this.isStarted) {
       this.isStarted = true;
       let current = this.workbook.loadingCells;
       const recomputeCells = () => {
         if (this.workbook.loadingCells !== current) {
-          _evaluateCells(this.workbook, this.evalContext, true);
+          this.dispatch({ type: "EVALUATE_CELLS", onlyWaiting: true });
           current = this.workbook.loadingCells;
           if (current === 0) {
             this.isStarted = false;
           }
           Object.assign(this.state, this.computeDerivedState());
-          this.trigger("update");
+          // this.trigger("update");
         }
         if (current > 0) {
           GridModel.setTimeout(recomputeCells, 15);
@@ -251,10 +248,6 @@ export class GridModel extends owl.core.EventBus {
     }
     return data;
   }
-
-  // conditional formatting
-  // ---------------------------------------------------------------------------
-  addConditionalFormat = this.makeMutation(conditionalFormat.addConditionalFormat);
 
   getViewport(width: number, height: number, offsetX: number, offsetY: number): Viewport {
     return {
