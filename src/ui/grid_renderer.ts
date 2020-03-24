@@ -149,6 +149,8 @@ function drawTexts(ctx: CanvasRenderingContext2D, boxes: Box[]) {
       if (style.strikethrough) {
         if (align === "right") {
           x = x - box.textWidth;
+        } else if (align === "center") {
+          x = x - box.textWidth / 2;
         }
         ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
       }
