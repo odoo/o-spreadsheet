@@ -10,6 +10,20 @@ export class SelectionPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
+  canDispatch(cmd: GridCommand): boolean {
+    if (cmd.type === "MOVE_POSITION") {
+      const [refCol, refRow] = this.getReferenceCoords();
+      const { cols, rows } = this.workbook;
+      return !(
+        (cmd.deltaY < 0 && refRow === 0) ||
+        (cmd.deltaY > 0 && refRow === rows.length - 1) ||
+        (cmd.deltaX < 0 && refCol === 0) ||
+        (cmd.deltaX > 0 && refCol === cols.length - 1)
+      );
+    }
+    return true;
+  }
+
   dispatch(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "SET_SELECTION":
@@ -75,6 +89,14 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
+
+  /**
+   * Return [col, row]
+   */
+  private getReferenceCoords(): [number, number] {
+    const { isSelectingRange, selection, activeCol, activeRow } = this.workbook;
+    return isSelectingRange ? [selection.anchor.col, selection.anchor.row] : [activeCol, activeRow];
+  }
 
   private selectColumn(index: number, addToSelection: boolean = false): GridCommand[] {
     const bottom = this.workbook.rows.length - 1;
@@ -145,24 +167,15 @@ export class SelectionPlugin extends BasePlugin {
    * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
    */
   movePosition(deltaX: number, deltaY: number) {
-    const { activeCol, activeRow, cols, rows, viewport, selection } = this.workbook;
+    const { cols, rows, viewport } = this.workbook;
 
-    const moveReferenceRow = this.workbook.isSelectingRange ? selection.anchor.row : activeRow;
-    const moveReferenceCol = this.workbook.isSelectingRange ? selection.anchor.col : activeCol;
-    const activeReference = toXC(moveReferenceCol, moveReferenceRow);
+    const [refCol, refRow] = this.getReferenceCoords();
+    const activeReference = toXC(refCol, refRow);
 
-    const invalidMove =
-      (deltaY < 0 && moveReferenceRow === 0) ||
-      (deltaY > 0 && moveReferenceRow === rows.length - 1) ||
-      (deltaX < 0 && moveReferenceCol === 0) ||
-      (deltaX > 0 && moveReferenceCol === cols.length - 1);
-    if (invalidMove) {
-      return;
-    }
     let mergeId = this.workbook.mergeCellMap[activeReference];
     if (mergeId) {
-      let targetCol = moveReferenceCol;
-      let targetRow = moveReferenceRow;
+      let targetCol = refCol;
+      let targetRow = refRow;
       while (this.workbook.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
         targetCol += deltaX;
         targetRow += deltaY;
@@ -171,9 +184,10 @@ export class SelectionPlugin extends BasePlugin {
         this.selectCell(targetCol, targetRow);
       }
     } else {
-      this.selectCell(moveReferenceCol + deltaX, moveReferenceRow + deltaY);
+      this.selectCell(refCol + deltaX, refRow + deltaY);
     }
     // keep current cell in the viewport, if possible
+    // todo: move this in a viewport/layout plugin
     while (
       this.workbook.activeCol >= viewport.right &&
       this.workbook.activeCol !== cols.length - 1
@@ -193,6 +207,7 @@ export class SelectionPlugin extends BasePlugin {
       updateScroll(this.workbook, rows[viewport.top - 1].top, this.workbook.scrollLeft);
     }
   }
+
   import() {
     this.selectCell(0, 0);
   }
