@@ -33,6 +33,7 @@ export class GridModel extends owl.core.EventBus {
   static setTimeout = window.setTimeout.bind(window);
 
   private plugins: BasePlugin[];
+  private clipboard: ClipboardPlugin;
   private evalContext: any;
   private isStarted: boolean = false;
   workbook: Workbook;
@@ -63,6 +64,8 @@ export class GridModel extends owl.core.EventBus {
       }
       this.plugins.push(plugin);
     }
+
+    this.clipboard = this.plugins.find(p => p instanceof ClipboardPlugin) as ClipboardPlugin;
 
     // Evaluation context
     const entityPlugin = this.plugins.find(p => p instanceof EntityPlugin) as EntityPlugin;
@@ -134,8 +137,7 @@ export class GridModel extends owl.core.EventBus {
 
   computeDerivedState(): UI {
     const { viewport, cols, rows } = this.workbook;
-    const clipboard = this.plugins.find(p => p instanceof ClipboardPlugin) as ClipboardPlugin;
-    const clipboardZones = clipboard.status === "visible" ? clipboard.zones : [];
+    const clipboardZones = this.clipboard.status === "visible" ? this.clipboard.zones : [];
     return {
       rows: this.workbook.rows,
       cols: this.workbook.cols,
@@ -157,7 +159,7 @@ export class GridModel extends owl.core.EventBus {
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.workbook.isEditing,
-      isPaintingFormat: clipboard.isPaintingFormat,
+      isPaintingFormat: this.clipboard.isPaintingFormat,
       selectedCell: core.selectedCell(this.workbook),
       style: formatting.getStyle(this.workbook),
       isMergeDestructive: merges.isMergeDestructive(this.workbook),
