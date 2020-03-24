@@ -555,13 +555,15 @@ export interface SetSelectionCommand {
 export interface SelectColumnCommand {
   type: "SELECT_COLUMN";
   index: number;
-  addToSelection?: boolean;
+  createRange?: boolean;
+  updateRange?: boolean;
 }
 
 export interface SelectRowCommand {
   type: "SELECT_ROW";
   index: number;
-  addToSelection?: boolean;
+  createRange?: boolean;
+  updateRange?: boolean;
 }
 
 export interface SelectAllCommand {

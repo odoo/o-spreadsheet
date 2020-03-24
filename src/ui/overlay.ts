@@ -265,11 +265,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.dispatch({ type: "SELECT_COLUMN", index, addToSelection: ctrlKey });
+    this.model.dispatch({ type: "SELECT_COLUMN", index, createRange: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
-    this.model.increaseSelectColumn(index);
+    this.model.dispatch({ type: "SELECT_COLUMN", index, updateRange: true });
   }
 
   _fitElementSize(index: number): void {
@@ -383,11 +383,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.dispatch({ type: "SELECT_ROW", index, addToSelection: ctrlKey });
+    this.model.dispatch({ type: "SELECT_ROW", index, createRange: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
-    this.model.increaseSelectRow(index);
+    this.model.dispatch({ type: "SELECT_ROW", index, updateRange: true });
   }
 
   _fitElementSize(index: number): void {

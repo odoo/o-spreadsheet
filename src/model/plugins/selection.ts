@@ -1,7 +1,7 @@
 import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
 import { activateCell, stopEditing, updateScroll } from "../core";
-import { GridCommand, Zone } from "../types";
+import { GridCommand, SelectColumnCommand, Zone, SelectRowCommand } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
   static getters = ["getActiveCols", "getActiveRows", "getSelectionXC"];
@@ -39,9 +39,9 @@ export class SelectionPlugin extends BasePlugin {
         this.selectCell(cmd.col, cmd.row, cmd.createNewRange);
         break;
       case "SELECT_COLUMN":
-        return this.selectColumn(cmd.index, cmd.addToSelection);
+        return this.selectColumn(cmd);
       case "SELECT_ROW":
-        return this.selectRow(cmd.index, cmd.addToSelection);
+        return this.selectRow(cmd);
       case "SELECT_ALL":
         return this.selectAll();
       case "ALTER_SELECTION":
@@ -98,20 +98,38 @@ export class SelectionPlugin extends BasePlugin {
     return isSelectingRange ? [selection.anchor.col, selection.anchor.row] : [activeCol, activeRow];
   }
 
-  private selectColumn(index: number, addToSelection: boolean = false): GridCommand[] {
+  private selectColumn(cmd: SelectColumnCommand): GridCommand[] {
     const bottom = this.workbook.rows.length - 1;
-    const column = { left: index, right: index, top: 0, bottom };
+    const zone = { left: cmd.index, right: cmd.index, top: 0, bottom };
     const current = this.workbook.selection.zones;
-    const zones = addToSelection ? current.concat(column) : [column];
-    return [{ type: "SET_SELECTION", zones, anchor: [index, 0] }];
+    let zones: Zone[], anchor: [number, number];
+    if (cmd.updateRange) {
+      const { col, row } = this.workbook.selection.anchor;
+      const updatedZone = union(zone, { left: col, right: col, top: 0, bottom });
+      zones = current.slice(0, -1).concat(updatedZone);
+      anchor = [col, row];
+    } else {
+      zones = cmd.createRange ? current.concat(zone) : [zone];
+      anchor = [cmd.index, 0];
+    }
+    return [{ type: "SET_SELECTION", zones, anchor }];
   }
 
-  private selectRow(index: number, addToSelection: boolean = false): GridCommand[] {
+  private selectRow(cmd: SelectRowCommand): GridCommand[] {
     const right = this.workbook.cols.length - 1;
-    const row = { top: index, bottom: index, left: 0, right };
+    const zone = { top: cmd.index, bottom: cmd.index, left: 0, right };
     const current = this.workbook.selection.zones;
-    const zones = addToSelection ? current.concat(row) : [row];
-    return [{ type: "SET_SELECTION", zones, anchor: [0, index] }];
+    let zones: Zone[], anchor: [number, number];
+    if (cmd.updateRange) {
+      const { col, row } = this.workbook.selection.anchor;
+      const updatedZone = union(zone, { left: 0, right, top: row, bottom: row });
+      zones = current.slice(0, -1).concat(updatedZone);
+      anchor = [col, row];
+    } else {
+      zones = cmd.createRange ? current.concat(zone) : [zone];
+      anchor = [0, cmd.index];
+    }
+    return [{ type: "SET_SELECTION", zones, anchor }];
   }
 
   private selectAll(): GridCommand[] {
