@@ -420,8 +420,75 @@ export interface Getters {
 // -----------------------------------------------------------------------------
 // Grid commands
 // -----------------------------------------------------------------------------
+
+/**
+ * There are two kinds of commands: Primitive and Local
+ *
+ * - Primitive commands are commands that
+ *    1. manipulate the imported/exported spreadsheet state
+ *    2. are "low level" => cannot be converted into lower level commands
+ *    3. make sense when sent by the network to another user
+ *
+ * - Local commands: every other command.
+ *    1. manipulate the local state (such as the selection, or the clipboard)
+ *    2. can often be converted into primitive commands
+ *    3. do not make sense to send by network to another user.
+ *
+ * For example, "RESIZE_COLUMNS" is a primitive command. "AUTORESIZE_COLUMNS"
+ * can be (locally) converted into a "RESIZE_COLUMNS", and therefore, is not a
+ * primitive command.
+ *
+ * Primitive commands should be "device agnostic". This means that they should
+ * contain all the information necessary to perform their job. Local commands
+ * can use inferred information from the local internal state, such as the
+ * active sheet.
+ */
 type Target = Zone[];
 
+// Primitive Commands
+// ------------------------------------------------
+export interface ResizeColumnsCommand {
+  type: "RESIZE_COLUMNS";
+  sheet: string;
+  cols: number[];
+  size: number;
+}
+
+export interface ResizeRowsCommand {
+  type: "RESIZE_ROWS";
+  sheet: string;
+  rows: number[];
+  size: number;
+}
+
+export interface AddEntityCommand {
+  type: "ADD_ENTITY";
+  kind: string;
+  key: string;
+  value: any;
+}
+
+export interface RemoveEntityCommand {
+  type: "REMOVE_ENTITY";
+  kind: string;
+  key: string;
+}
+
+/**
+ * Todo: add a string "id" field, and change the code to use internally a uuid.
+ */
+export interface CreateSheetCommand {
+  type: "CREATE_SHEET";
+}
+
+export interface DeleteCommand {
+  type: "DELETE";
+  sheet: string;
+  target: Target;
+}
+
+// Local Commands
+// ------------------------------------------------
 export interface CopyCommand {
   type: "COPY";
   target: Target;
@@ -449,33 +516,6 @@ export interface PasteFromOSClipboardCommand {
   text: string;
 }
 
-export interface AddEntityCommand {
-  type: "ADD_ENTITY";
-  kind: string;
-  key: string;
-  value: any;
-}
-
-export interface RemoveEntityCommand {
-  type: "REMOVE_ENTITY";
-  kind: string;
-  key: string;
-}
-
-export interface ResizeColumnsCommand {
-  type: "RESIZE_COLUMNS";
-  sheet: string;
-  cols: number[];
-  size: number;
-}
-
-export interface ResizeRowsCommand {
-  type: "RESIZE_ROWS";
-  sheet: string;
-  rows: number[];
-  size: number;
-}
-
 export interface AutoresizeColumnsCommand {
   type: "AUTORESIZE_COLUMNS";
   sheet: string;
@@ -492,10 +532,6 @@ export interface MovePositionCommand {
   type: "MOVE_POSITION";
   deltaX: number;
   deltaY: number;
-}
-
-export interface CreateSheetCommand {
-  type: "CREATE_SHEET";
 }
 
 export interface ActivateSheetCommand {
@@ -536,12 +572,6 @@ export interface AlterSelectionCommand {
   type: "ALTER_SELECTION";
   delta?: [number, number];
   cell?: [number, number];
-}
-
-export interface DeleteCommand {
-  type: "DELETE";
-  sheet: string;
-  target: Target;
 }
 
 export type GridCommand =
