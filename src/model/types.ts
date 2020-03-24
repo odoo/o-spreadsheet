@@ -13,6 +13,7 @@ import { ClipboardPlugin } from "./plugins/clipboard";
 import { EntityPlugin } from "./plugins/entity";
 import { SelectionPlugin } from "./plugins/selection";
 import { CorePlugin } from "./plugins/core";
+import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -216,8 +217,6 @@ export interface UI {
   sheets: string[];
   activeSheet: string;
 
-  conditionalFormats: ConditionalFormat[];
-
   clipboard: Zone[];
   highlights: Highlight[];
   isSelectingRange: boolean;
@@ -415,6 +414,7 @@ export interface Getters {
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
   getSelectionXC: SelectionPlugin["getSelectionXC"];
+  getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
 }
 
 // -----------------------------------------------------------------------------
@@ -485,6 +485,17 @@ export interface DeleteCommand {
   type: "DELETE";
   sheet: string;
   target: Target;
+}
+
+/**
+ * todo: add sheet argument...
+ * todo: use id instead of a list. this is not safe to serialize and send to
+ * another user
+ */
+export interface AddConditionalFormatCommand {
+  type: "ADD_CONDITIONAL_FORMAT";
+  cf: ConditionalFormat;
+  replace?: ConditionalFormat;
 }
 
 // Local Commands
@@ -576,6 +587,11 @@ export interface AlterSelectionCommand {
   cell?: [number, number];
 }
 
+export interface EvaluateCellsCommand {
+  type: "EVALUATE_CELLS";
+  onlyWaiting?: boolean;
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -597,6 +613,8 @@ export type GridCommand =
   | SelectRowCommand
   | SelectAllCommand
   | AlterSelectionCommand
-  | DeleteCommand;
+  | DeleteCommand
+  | EvaluateCellsCommand
+  | AddConditionalFormatCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

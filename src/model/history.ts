@@ -20,11 +20,10 @@ export const MAX_HISTORY_STEPS = 99;
  */
 export function start(state: Workbook) {
   const step: HistoryStep = { batch: [] };
+  // todo: when this is converted to a stateful plugin, keep the current batch
+  // out of the undo stack
   state.undoStack.push(step);
   state.trackChanges = true;
-  if (state.undoStack.length > MAX_HISTORY_STEPS) {
-    state.undoStack.shift();
-  }
 }
 
 /**
@@ -38,6 +37,9 @@ export function stop(state: Workbook) {
     state.undoStack.pop();
   } else {
     state.redoStack = [];
+  }
+  if (state.undoStack.length > MAX_HISTORY_STEPS) {
+    state.undoStack.shift();
   }
 }
 
