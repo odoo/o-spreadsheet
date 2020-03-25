@@ -72,7 +72,7 @@ describe("Grid component", () => {
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
-      model.startEditing("a");
+      model.dispatch({ type: "START_EDITION", text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
@@ -85,7 +85,7 @@ describe("Grid component", () => {
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
       expect(model.workbook.activeXc).toBe("A2");
-      model.startEditing("a");
+      model.dispatch({ type: "START_EDITION", text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
@@ -96,7 +96,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
-      model.startEditing("a");
+      model.dispatch({ type: "START_EDITION", text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!

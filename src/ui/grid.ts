@@ -132,10 +132,10 @@ export class Grid extends Component<any, any> {
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   keyDownMapping: { [key: string]: Function } = {
-    ENTER: this.model.startEditing,
+    ENTER: () => this.model.dispatch({ type: "START_EDITION" }),
     TAB: () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: -1, deltaY: 0 }),
-    F2: this.model.startEditing,
+    F2: () => this.model.dispatch({ type: "START_EDITION" }),
     DELETE: () => {
       this.model.dispatch({
         type: "DELETE",
@@ -293,7 +293,7 @@ export class Grid extends Component<any, any> {
     const col = this.model.getters.getCol(ev.offsetX);
     const row = this.model.getters.getRow(ev.offsetY);
     if (this.clickedCol === col && this.clickedRow === row) {
-      this.model.startEditing();
+      this.model.dispatch({ type: "START_EDITION" });
     }
   }
 
@@ -357,7 +357,7 @@ export class Grid extends Component<any, any> {
         // character
         ev.preventDefault();
         ev.stopPropagation();
-        this.model.startEditing(ev.key);
+        this.model.dispatch({ type: "START_EDITION", text: ev.key });
       }
     }
   }

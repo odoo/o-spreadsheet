@@ -196,16 +196,6 @@ export function updateVisibleZone(state: Workbook, width?: number, height?: numb
   state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
 }
 
-export function startEditing(state: Workbook, str?: string) {
-  if (!str) {
-    const cell = selectedCell(state);
-    str = cell ? cell.content || "" : "";
-  }
-  state.isEditing = true;
-  state.currentContent = str;
-  state.highlights = [];
-}
-
 export function cancelEdition(state: Workbook) {
   state.isEditing = false;
   state.isSelectingRange = false;
