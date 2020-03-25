@@ -347,7 +347,7 @@ export class Composer extends Component<any, any> {
       this.saveSelection();
       this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.model.removeHighlights(); //cleanup highlights for references
+      this.model.dispatch({type: "REMOVE_HIGHLIGHTS"}); //cleanup highlights for references
 
       const refUsed = {};
       let lastUsedColorIndex = 0;
@@ -404,7 +404,9 @@ export class Composer extends Component<any, any> {
 
       // Put the cursor back where it was
       this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
-      this.model.addHighlights(refUsed);
+      if (Object.keys(refUsed).length) {
+        this.model.dispatch({type: "ADD_HIGHLIGHTS", ranges: refUsed});
+      }
     }
     this.shouldProcessInputEvents = true;
   }

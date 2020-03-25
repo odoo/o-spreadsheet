@@ -206,9 +206,6 @@ export function startEditing(state: Workbook, str?: string) {
   state.highlights = [];
 }
 
-export function removeHighlights(state: Workbook) {
-  state.highlights = [];
-}
 
 export function cancelEdition(state: Workbook) {
   state.isEditing = false;

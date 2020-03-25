@@ -1,14 +1,14 @@
-import { BasePlugin } from "../base_plugin";
-import { GridCommand, Col, Row, Workbook, Sheet, Cell, Zone } from "../types";
-import { updateState } from "../history";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { formatNumber, formatValue } from "../../formatters";
+import { isEqual, numberToLetters, toCartesian, toXC, union } from "../../helpers";
+import { BasePlugin } from "../base_plugin";
 import { addCell, deleteCell } from "../core";
-import { numberToLetters, toCartesian, toXC } from "../../helpers";
-import { SheetData, WorkbookData, HeaderData } from "../import_export";
-import { formatValue, formatNumber } from "../../formatters";
+import { updateState } from "../history";
+import { HeaderData, SheetData, WorkbookData } from "../import_export";
+import { Cell, Col, GridCommand, Row, Sheet, Workbook, Zone } from "../types";
 
 export class CorePlugin extends BasePlugin {
-  static getters = ["getCellText", "zoneToXC"];
+  static getters = ["getCellText", "zoneToXC", "expandZone"];
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -77,6 +77,24 @@ export class CorePlugin extends BasePlugin {
     }
 
     return topLeft;
+  }
+
+  /**
+   * Add all necessary merge to the current selection to make it valid
+   * Todo: move this to merge plugin
+   */
+  expandZone(zone: Zone): Zone {
+    let { left, right, top, bottom } = zone;
+    let result: Zone = { left, right, top, bottom };
+    for (let i = left; i <= right; i++) {
+      for (let j = top; j <= bottom; j++) {
+        let mergeId = this.workbook.mergeCellMap[toXC(i, j)];
+        if (mergeId) {
+          result = union(this.workbook.merges[mergeId], result);
+        }
+      }
+    }
+    return isEqual(result, zone) ? result : this.expandZone(result);
   }
 
   // ---------------------------------------------------------------------------
