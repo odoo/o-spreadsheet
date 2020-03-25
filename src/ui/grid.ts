@@ -220,7 +220,7 @@ export class Grid extends Component<any, any> {
     context.translate(-0.5, -0.5);
     context.scale(dpr, dpr);
 
-    const viewport = this.model.getViewport(width, height, offsetX, offsetY);
+    const viewport = this.model.getters.getViewport(width, height, offsetX, offsetY);
     drawGrid(context, this.model.state, viewport);
   }
 

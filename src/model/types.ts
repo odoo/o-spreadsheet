@@ -14,6 +14,7 @@ import { EntityPlugin } from "./plugins/entity";
 import { SelectionPlugin } from "./plugins/selection";
 import { CorePlugin } from "./plugins/core";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
+import { LayouPlugin } from "./plugins/layout";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -416,6 +417,7 @@ export interface Getters {
   getActiveRows: SelectionPlugin["getActiveRows"];
   getSelectionXC: SelectionPlugin["getSelectionXC"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
+  getViewport: LayouPlugin["getViewport"];
 }
 
 // -----------------------------------------------------------------------------
