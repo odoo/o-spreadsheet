@@ -91,9 +91,8 @@ export class GridModel extends owl.core.EventBus {
       Object.assign(this.state, this.computeDerivedState());
       if (this.workbook.isStale) {
         this.dispatch({ type: "EVALUATE_CELLS" });
-      } else {
-        this.trigger("update");
       }
+      this.trigger("update");
       if (this.workbook.loadingCells > 0) {
         this.startScheduler();
       }
@@ -110,10 +109,21 @@ export class GridModel extends owl.core.EventBus {
     }
 
     history.start(this.workbook);
-    const commands: GridCommand[] = [command];
-    if (command.type !== "EVALUATE_CELLS") {
-      commands.push({ type: "EVALUATE_CELLS" });
+    this._dispatch(command);
+    if (this.workbook.isStale) {
+      this._dispatch({ type: "EVALUATE_CELLS" });
     }
+    history.stop(this.workbook);
+    Object.assign(this.state, this.computeDerivedState());
+    this.trigger("update");
+    if (this.workbook.loadingCells > 0) {
+      this.startScheduler();
+    }
+    return "COMPLETED";
+  }
+
+  private _dispatch(command: GridCommand) {
+    const commands: GridCommand[] = [command];
     while (commands.length) {
       const current = commands.shift()!;
       for (let plugin of this.plugins) {
@@ -123,13 +133,6 @@ export class GridModel extends owl.core.EventBus {
         }
       }
     }
-    history.stop(this.workbook);
-    Object.assign(this.state, this.computeDerivedState());
-    this.trigger("update");
-    if (this.workbook.loadingCells > 0) {
-      this.startScheduler();
-    }
-    return "COMPLETED";
   }
 
   computeDerivedState(): UI {
@@ -207,7 +210,6 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   setValue = this.makeMutation(core.setValue);
   cancelEdition = this.makeMutation(core.cancelEdition);
-  startEditing = this.makeMutation(core.startEditing);
   stopEditing = this.makeMutation(core.stopEditing);
   setCurrentContent = this.makeMutation(core.setCurrentContent);
   // updateVisibleZone and updateScroll should not be a mutation

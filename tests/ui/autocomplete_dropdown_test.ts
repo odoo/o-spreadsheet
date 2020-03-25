@@ -218,7 +218,7 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     //edit A1
-    model.startEditing();
+    model.dispatch({ type: "START_EDITION" });
     await nextTick();
     const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
     // select SUM

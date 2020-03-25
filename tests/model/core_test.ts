@@ -95,7 +95,7 @@ describe("core", () => {
     expect(model.workbook.cells.A1.value).toBeDefined();
     const val = model.workbook.cells.A1.value;
 
-    model.startEditing();
+    model.dispatch({ type: "START_EDITION" });
     model.stopEditing();
     expect(model.workbook.cells.A1.value).toBe(val);
   });
@@ -108,7 +108,7 @@ describe("history", () => {
     expect(model.workbook.undoStack.length).toBe(0);
     expect(model.workbook.redoStack.length).toBe(0);
 
-    model.startEditing("abc");
+    model.dispatch({ type: "START_EDITION", text: "abc" });
     model.stopEditing();
 
     expect(model.workbook.cells.A1.content).toBe("abc");
@@ -135,7 +135,7 @@ describe("history", () => {
     expect(model.workbook.undoStack.length).toBe(0);
     expect(model.workbook.redoStack.length).toBe(0);
 
-    model.startEditing("abc");
+    model.dispatch({ type: "START_EDITION", text: "abc" });
     model.stopEditing();
 
     expect(model.workbook.cells.A1.content).toBe("abc");

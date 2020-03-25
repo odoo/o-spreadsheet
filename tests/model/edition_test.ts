@@ -5,13 +5,13 @@ describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
     const model = new GridModel();
     // adding
-    model.startEditing("a");
+    model.dispatch({ type: "START_EDITION", text: "a" });
     model.stopEditing();
     expect(Object.keys(model.workbook.cells)).toEqual(["A1"]);
     expect(model.workbook.cells["A1"].content).toBe("a");
 
     // removing
-    model.startEditing();
+    model.dispatch({ type: "START_EDITION" });
     model.workbook.currentContent = "";
     model.stopEditing();
     expect(model.workbook.cells).toEqual({});

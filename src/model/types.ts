@@ -612,6 +612,16 @@ export interface StopComposerSelectionCommand {
   type: "STOP_COMPOSER_SELECTION";
 }
 
+export interface StartEditionCommand {
+  type: "START_EDITION";
+  text?: string;
+}
+
+export interface StopEditionCommand {
+  type: "STOP_EDITION";
+  cancel?: boolean;
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -639,6 +649,8 @@ export type GridCommand =
   | AddHighlightsCommand
   | RemoveHighlightsCommand
   | StartComposerSelectionCommand
-  | StopComposerSelectionCommand;
+  | StopComposerSelectionCommand
+  | StartEditionCommand
+  | StopEditionCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

@@ -1,6 +1,8 @@
 import { BasePlugin } from "../base_plugin";
 import { GridCommand, Zone } from "../types";
-import { toZone } from "../../helpers";
+import { toZone, toXC } from "../../helpers";
+import { selectedCell, addCell, deleteCell } from "../core";
+import { tokenize } from "../../formulas/index";
 
 export class EditionPlugin extends BasePlugin {
   dispatch(cmd: GridCommand): void | GridCommand[] {
@@ -22,6 +24,17 @@ export class EditionPlugin extends BasePlugin {
         ];
       case "STOP_COMPOSER_SELECTION":
         this.workbook.isSelectingRange = false;
+        break;
+      case "START_EDITION":
+        this.startEdition(cmd.text);
+        break;
+      case "STOP_EDITION":
+        if (cmd.cancel) {
+          this.cancelEdition();
+        } else {
+          this.stopEdition();
+        }
+        break;
     }
   }
 
@@ -40,5 +53,62 @@ export class EditionPlugin extends BasePlugin {
       );
 
     this.workbook.highlights = this.workbook.highlights.concat(highlights);
+  }
+
+  private startEdition(str?: string) {
+    if (!str) {
+      const cell = selectedCell(this.workbook);
+      str = cell ? cell.content || "" : "";
+    }
+    this.workbook.isEditing = true;
+    this.workbook.currentContent = str;
+    this.workbook.highlights = [];
+  }
+
+  private stopEdition() {
+    if (this.workbook.isEditing) {
+      let xc = toXC(this.workbook.activeCol, this.workbook.activeRow);
+      if (xc in this.workbook.mergeCellMap) {
+        const mergeId = this.workbook.mergeCellMap[xc];
+        xc = this.workbook.merges[mergeId].topLeft;
+      }
+      let content = this.workbook.currentContent;
+      this.workbook.currentContent = "";
+      const cell = this.workbook.cells[xc];
+      const didChange = cell ? cell.content !== content : content !== "";
+      if (!didChange) {
+        this.cancelEdition();
+        return;
+      }
+      if (content) {
+        if (content.startsWith("=")) {
+          const tokens = tokenize(content);
+          const left = tokens.filter(t => t.type === "LEFT_PAREN").length;
+          const right = tokens.filter(t => t.type === "RIGHT_PAREN").length;
+          const missing = left - right;
+          if (missing > 0) {
+            content += new Array(missing).fill(")").join("");
+          }
+        }
+        addCell(this.workbook, xc, { content: content });
+      } else {
+        deleteCell(this.workbook, xc);
+      }
+      this.cancelEdition();
+    }
+  }
+
+  private cancelEdition() {
+    this.workbook.isEditing = false;
+    this.workbook.isSelectingRange = false;
+    this.workbook.selection.zones = [
+      {
+        top: this.workbook.activeRow,
+        bottom: this.workbook.activeRow,
+        left: this.workbook.activeCol,
+        right: this.workbook.activeCol
+      }
+    ];
+    this.workbook.highlights = [];
   }
 }

@@ -75,7 +75,7 @@ describe("merges", () => {
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.workbook.activeXc).toBe("C3");
-    model.startEditing();
+    model.dispatch({ type: "START_EDITION" });
     expect(model.workbook.currentContent).toBe("b2");
     model.workbook.currentContent = "new value";
     model.stopEditing();

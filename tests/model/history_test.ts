@@ -56,12 +56,12 @@ describe("history", () => {
     const model = new GridModel();
     expect(model.workbook.undoStack.length).toBe(0);
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
-      model.startEditing(String(i));
+      model.dispatch({ type: "START_EDITION", text: String(i) });
       model.stopEditing();
       expect(model.workbook.cells.A1.content).toBe(String(i));
     }
     expect(model.workbook.undoStack.length).toBe(MAX_HISTORY_STEPS);
-    model.startEditing("abc");
+    model.dispatch({ type: "START_EDITION", text: "abc" });
     model.stopEditing();
     expect(model.workbook.undoStack.length).toBe(MAX_HISTORY_STEPS);
     expect(model.workbook.cells.A1.content).toBe("abc");
