@@ -21,6 +21,7 @@ import { SelectionPlugin } from "./plugins/selection";
 import * as selection from "./selection";
 import { Box, CommandResult, Getters, GridCommand, Rect, UI, Viewport, Workbook } from "./types";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
+import { EditionPlugin } from "./plugins/edition";
 
 const PLUGINS = [
   CorePlugin,
@@ -29,7 +30,8 @@ const PLUGINS = [
   EntityPlugin,
   GridPlugin,
   SelectionPlugin,
-  ConditionalFormatPlugin
+  ConditionalFormatPlugin,
+  EditionPlugin
 ];
 
 // https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
@@ -208,7 +210,6 @@ export class GridModel extends owl.core.EventBus {
   startEditing = this.makeMutation(core.startEditing);
   stopEditing = this.makeMutation(core.stopEditing);
   setCurrentContent = this.makeMutation(core.setCurrentContent);
-  removeHighlights = this.makeMutation(core.removeHighlights);
   // updateVisibleZone and updateScroll should not be a mutation
 
   updateVisibleZone = this.makeFn(core.updateVisibleZone);
@@ -232,7 +233,6 @@ export class GridModel extends owl.core.EventBus {
     this.state.isSelectingRange = isSelecting;
   }
   startNewComposerSelection = this.makeMutation(selection.startNewComposerSelection);
-  addHighlights = this.makeMutation(selection.addHighlights);
 
   // merges
   // ---------------------------------------------------------------------------

@@ -232,25 +232,9 @@ export class SelectionPlugin extends BasePlugin {
 
   setSelection(anchor: [number, number], zones: Zone[]) {
     this.selectCell(...anchor);
-    this.workbook.selection.zones = zones.map(z => this.expandZone(z));
+    this.workbook.selection.zones = zones.map(this.getters.expandZone);
     this.workbook.selection.anchor.col = anchor[0];
     this.workbook.selection.anchor.row = anchor[1];
-  }
-  /**
-   * Add all necessary merge to the current selection to make it valid
-   */
-  expandZone(zone: Zone): Zone {
-    let { left, right, top, bottom } = zone;
-    let result: Zone = { left, right, top, bottom };
-    for (let i = left; i <= right; i++) {
-      for (let j = top; j <= bottom; j++) {
-        let mergeId = this.workbook.mergeCellMap[toXC(i, j)];
-        if (mergeId) {
-          result = union(this.workbook.merges[mergeId], result);
-        }
-      }
-    }
-    return isEqual(result, zone) ? result : this.expandZone(result);
   }
 
   private moveSelection(deltaX: number, deltaY: number): GridCommand[] {
@@ -262,7 +246,7 @@ export class SelectionPlugin extends BasePlugin {
     const { left, right, top, bottom } = lastZone;
     let result: Zone | null = lastZone;
     const expand = (z: Zone) => {
-      const { left, right, top, bottom } = this.expandZone(z);
+      const { left, right, top, bottom } = this.getters.expandZone(z);
       return {
         left: Math.max(0, left),
         right: Math.min(this.workbook.cols.length - 1, right),

@@ -403,6 +403,7 @@ export type ConditionalFormattingOperatorValues =
 export interface Getters {
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
+  expandZone: CorePlugin["expandZone"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   getCellWidth: GridPlugin["getCellWidth"];
   getColSize: GridPlugin["getColSize"];
@@ -592,6 +593,15 @@ export interface EvaluateCellsCommand {
   onlyWaiting?: boolean;
 }
 
+export interface AddHighlightsCommand {
+  type: "ADD_HIGHLIGHTS";
+  ranges: { [range: string]: string };
+}
+
+export interface RemoveHighlightsCommand {
+  type: "REMOVE_HIGHLIGHTS";
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -615,6 +625,8 @@ export type GridCommand =
   | AlterSelectionCommand
   | DeleteCommand
   | EvaluateCellsCommand
-  | AddConditionalFormatCommand;
+  | AddConditionalFormatCommand
+  | AddHighlightsCommand
+  | RemoveHighlightsCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
