@@ -3,7 +3,7 @@ import { GridCommand, Zone } from "../types";
 import { toZone } from "../../helpers";
 
 export class EditionPlugin extends BasePlugin {
-  dispatch(cmd: GridCommand) {
+  dispatch(cmd: GridCommand): void | GridCommand[] {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
         this.addHighlights(cmd.ranges);
@@ -11,6 +11,17 @@ export class EditionPlugin extends BasePlugin {
       case "REMOVE_HIGHLIGHTS":
         this.workbook.highlights = [];
         break;
+      case "START_COMPOSER_SELECTION":
+        this.workbook.isSelectingRange = true;
+        return [
+          {
+            type: "SET_SELECTION",
+            zones: this.workbook.selection.zones,
+            anchor: [this.workbook.activeCol, this.workbook.activeRow]
+          }
+        ];
+      case "STOP_COMPOSER_SELECTION":
+        this.workbook.isSelectingRange = false;
     }
   }
 

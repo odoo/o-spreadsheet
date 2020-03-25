@@ -602,6 +602,14 @@ export interface RemoveHighlightsCommand {
   type: "REMOVE_HIGHLIGHTS";
 }
 
+export interface StartComposerSelectionCommand {
+  type: "START_COMPOSER_SELECTION";
+}
+
+export interface StopComposerSelectionCommand {
+  type: "STOP_COMPOSER_SELECTION";
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -627,6 +635,8 @@ export type GridCommand =
   | EvaluateCellsCommand
   | AddConditionalFormatCommand
   | AddHighlightsCommand
-  | RemoveHighlightsCommand;
+  | RemoveHighlightsCommand
+  | StartComposerSelectionCommand
+  | StopComposerSelectionCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

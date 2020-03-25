@@ -239,7 +239,8 @@ export class Composer extends Component<any, any> {
     } else {
       // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
       // we can't let the model think that it is for a ref selection.
-      this.model.setSelectingRange(false);
+      // todo: check if this can be removed someday
+      this.model.dispatch({ type: "STOP_COMPOSER_SELECTION" });
     }
 
     const deltaX = ev.shiftKey ? -1 : 1;
@@ -317,7 +318,7 @@ export class Composer extends Component<any, any> {
     // They will be set correctly if needed in `processTokenAtCursor`
     this.autoCompleteState.showProvider = false;
     this.autoCompleteState.search = "";
-    this.model.setSelectingRange(false);
+    this.model.dispatch({ type: "STOP_COMPOSER_SELECTION" });
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.showProvider = true;
     } else {
@@ -347,7 +348,7 @@ export class Composer extends Component<any, any> {
       this.saveSelection();
       this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.model.dispatch({type: "REMOVE_HIGHLIGHTS"}); //cleanup highlights for references
+      this.model.dispatch({ type: "REMOVE_HIGHLIGHTS" }); //cleanup highlights for references
 
       const refUsed = {};
       let lastUsedColorIndex = 0;
@@ -405,7 +406,7 @@ export class Composer extends Component<any, any> {
       // Put the cursor back where it was
       this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
       if (Object.keys(refUsed).length) {
-        this.model.dispatch({type: "ADD_HIGHLIGHTS", ranges: refUsed});
+        this.model.dispatch({ type: "ADD_HIGHLIGHTS", ranges: refUsed });
       }
     }
     this.shouldProcessInputEvents = true;
@@ -428,8 +429,7 @@ export class Composer extends Component<any, any> {
     } else if (["COMMA", "LEFT_PAREN", "OPERATOR"].includes(this.tokenAtCursor.type)) {
       // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
       // is relative the to the cell we edit
-      this.model.startNewComposerSelection();
-      this.model.setSelectingRange(true);
+      this.model.dispatch({ type: "START_COMPOSER_SELECTION" });
       // We set this variable to store the start of the selection, to allow
       // to replace selections (ex: select twice a cell should only be added
       // once)

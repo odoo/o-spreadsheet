@@ -18,7 +18,6 @@ import { EntityPlugin } from "./plugins/entity";
 import { EvaluationPlugin } from "./plugins/evaluation";
 import { GridPlugin } from "./plugins/grid";
 import { SelectionPlugin } from "./plugins/selection";
-import * as selection from "./selection";
 import { Box, CommandResult, Getters, GridCommand, Rect, UI, Viewport, Workbook } from "./types";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { EditionPlugin } from "./plugins/edition";
@@ -225,14 +224,6 @@ export class GridModel extends owl.core.EventBus {
   setStyle = this.makeMutation(formatting.setStyle);
   clearFormatting = this.makeMutation(formatting.clearFormatting);
   setFormat = this.makeMutation(formatting.setFormat);
-
-  // selection
-  // ---------------------------------------------------------------------------
-  setSelectingRange(isSelecting: boolean) {
-    selection.setSelectingRange(this.workbook, isSelecting);
-    this.state.isSelectingRange = isSelecting;
-  }
-  startNewComposerSelection = this.makeMutation(selection.startNewComposerSelection);
 
   // merges
   // ---------------------------------------------------------------------------
