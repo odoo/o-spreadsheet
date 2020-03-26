@@ -36,7 +36,7 @@ export class EvaluationPlugin extends BasePlugin {
     super(workbook, getters);
     this.evaluateCells();
   }
-  dispatch(cmd: GridCommand) {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "EVALUATE_CELLS":
         this.evaluateCells(cmd.onlyWaiting);

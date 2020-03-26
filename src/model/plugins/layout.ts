@@ -6,7 +6,7 @@ import { updateScroll } from "../core";
 export class LayouPlugin extends BasePlugin {
   static getters = ["getViewport"];
 
-  dispatch(cmd: GridCommand) {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "MOVE_POSITION":
         this.updateScrollPosition();

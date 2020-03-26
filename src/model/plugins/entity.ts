@@ -17,7 +17,7 @@ export class EntityPlugin extends BasePlugin {
     data.entities = JSON.parse(JSON.stringify(this.entities));
   }
 
-  dispatch(cmd: GridCommand) {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ADD_ENTITY":
         if (!(cmd.kind in this.entities)) {

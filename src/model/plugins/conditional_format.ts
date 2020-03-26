@@ -28,7 +28,7 @@ let ruleExecutor = {
 export class ConditionalFormatPlugin extends BasePlugin {
   static getters = ["getConditionalFormats"];
 
-  dispatch(cmd: GridCommand) {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ADD_CONDITIONAL_FORMAT":
         this.addConditionalFormatting(cmd);

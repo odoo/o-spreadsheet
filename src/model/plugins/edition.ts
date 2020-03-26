@@ -8,7 +8,7 @@ export class EditionPlugin extends BasePlugin {
   col: number = 0;
   row: number = 0;
 
-  dispatch(cmd: GridCommand): void | GridCommand[] {
+  handle(cmd: GridCommand): void | GridCommand[] {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
         this.addHighlights(cmd.ranges);

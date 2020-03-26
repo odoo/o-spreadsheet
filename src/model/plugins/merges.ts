@@ -7,7 +7,7 @@ import { deleteCell } from "../core";
 export class MergePlugin extends BasePlugin {
   static getters = ["isMergeDestructive"];
 
-  dispatch(cmd: GridCommand): void | GridCommand[] {
+  handle(cmd: GridCommand): void | GridCommand[] {
     switch (cmd.type) {
       case "ADD_MERGE":
         this.addMerge(cmd.sheet, cmd.zone);

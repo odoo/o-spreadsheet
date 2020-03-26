@@ -14,7 +14,7 @@ export class CorePlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  dispatch(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.activateSheet(cmd.sheet);
