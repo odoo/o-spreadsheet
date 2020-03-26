@@ -169,6 +169,22 @@ describe("selection", () => {
     expect(model.workbook.selection.zones[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
   });
 
+  test("can select a whole column with a merged cell", () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["A1:B1"]
+        }
+      ]
+    });
+    model.dispatch({ type: "SELECT_COLUMN", index: 0 });
+    expect(model.workbook.activeXc).toBe("A1");
+    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
+  });
+
   test("can select a whole row", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
@@ -184,6 +200,23 @@ describe("selection", () => {
     expect(model.workbook.activeXc).toBe("A5");
 
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
+  });
+
+  test("can select a whole row with a merged cell", () => {
+    const model = new GridModel({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["A1:A2"]
+        }
+      ]
+    });
+
+    model.dispatch({ type: "SELECT_ROW", index: 0 });
+    expect(model.workbook.activeXc).toBe("A1");
+    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
 
   test("can select the whole sheet", () => {
