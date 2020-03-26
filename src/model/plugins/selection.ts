@@ -1,6 +1,5 @@
 import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { activateCell, updateScroll } from "../core";
 import { GridCommand, SelectColumnCommand, SelectRowCommand, Zone } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
@@ -178,7 +177,9 @@ export class SelectionPlugin extends BasePlugin {
     this.workbook.selection.anchor.col = col;
     this.workbook.selection.anchor.row = row;
     if (!this.workbook.isSelectingRange) {
-      activateCell(this.workbook, col, row);
+      this.workbook.activeCol = col;
+      this.workbook.activeRow = row;
+      this.workbook.activeXc = xc;
     }
   }
 
@@ -186,8 +187,6 @@ export class SelectionPlugin extends BasePlugin {
    * Moves the position of either the active cell of the anchor of the current selection by a number of rows / cols delta
    */
   movePosition(deltaX: number, deltaY: number) {
-    const { cols, rows, viewport } = this.workbook;
-
     const [refCol, refRow] = this.getReferenceCoords();
     const activeReference = toXC(refCol, refRow);
 
@@ -204,26 +203,6 @@ export class SelectionPlugin extends BasePlugin {
       }
     } else {
       this.selectCell(refCol + deltaX, refRow + deltaY);
-    }
-    // keep current cell in the viewport, if possible
-    // todo: move this in a viewport/layout plugin
-    while (
-      this.workbook.activeCol >= viewport.right &&
-      this.workbook.activeCol !== cols.length - 1
-    ) {
-      updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left].right);
-    }
-    while (this.workbook.activeCol < viewport.left) {
-      updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left - 1].left);
-    }
-    while (
-      this.workbook.activeRow >= viewport.bottom &&
-      this.workbook.activeRow !== rows.length - 1
-    ) {
-      updateScroll(this.workbook, rows[viewport.top].bottom, this.workbook.scrollLeft);
-    }
-    while (this.workbook.activeRow < viewport.top) {
-      updateScroll(this.workbook, rows[viewport.top - 1].top, this.workbook.scrollLeft);
     }
   }
 

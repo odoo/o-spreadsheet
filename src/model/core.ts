@@ -3,7 +3,7 @@ import { formatNumber } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile } from "../formulas/index";
 import { isNumber } from "../functions/helpers";
-import { toCartesian, toXC } from "../helpers";
+import { toCartesian } from "../helpers";
 import { updateState } from "./history";
 import { Cell, NewCell, Workbook } from "./types";
 
@@ -212,14 +212,4 @@ export function computeAggregate(state: Workbook): string | null {
     }
   }
   return n < 2 ? null : formatNumber(aggregate);
-}
-
-/**
- * Set the active cell to col/row. Basically, it makes sure that activeXC is
- * properly set as well.
- */
-export function activateCell(state: Workbook, col: number, row: number) {
-  state.activeCol = col;
-  state.activeRow = row;
-  state.activeXc = toXC(col, row);
 }
