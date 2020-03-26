@@ -6,14 +6,14 @@ describe("edition", () => {
     const model = new GridModel();
     // adding
     model.dispatch({ type: "START_EDITION", text: "a" });
-    model.stopEditing();
+    model.dispatch({ type: "STOP_EDITION" });
     expect(Object.keys(model.workbook.cells)).toEqual(["A1"]);
     expect(model.workbook.cells["A1"].content).toBe("a");
 
     // removing
     model.dispatch({ type: "START_EDITION" });
     model.workbook.currentContent = "";
-    model.stopEditing();
+    model.dispatch({ type: "STOP_EDITION" });
     expect(model.workbook.cells).toEqual({});
   });
 

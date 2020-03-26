@@ -209,8 +209,6 @@ export class GridModel extends owl.core.EventBus {
   // core
   // ---------------------------------------------------------------------------
   setValue = this.makeMutation(core.setValue);
-  cancelEdition = this.makeMutation(core.cancelEdition);
-  stopEditing = this.makeMutation(core.stopEditing);
   setCurrentContent = this.makeMutation(core.setCurrentContent);
   // updateVisibleZone and updateScroll should not be a mutation
 

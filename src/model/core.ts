@@ -1,7 +1,7 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatNumber } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
-import { compile, tokenize } from "../formulas/index";
+import { compile } from "../formulas/index";
 import { isNumber } from "../functions/helpers";
 import { toCartesian, toXC } from "../helpers";
 import { updateState } from "./history";
@@ -194,54 +194,6 @@ export function updateVisibleZone(state: Workbook, width?: number, height?: numb
   }
   state.offsetX = cols[viewport.left].left - HEADER_WIDTH;
   state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
-}
-
-export function cancelEdition(state: Workbook) {
-  state.isEditing = false;
-  state.isSelectingRange = false;
-  state.selection.zones = [
-    {
-      top: state.activeRow,
-      bottom: state.activeRow,
-      left: state.activeCol,
-      right: state.activeCol
-    }
-  ];
-  state.highlights = [];
-}
-
-export function stopEditing(state: Workbook) {
-  if (state.isEditing) {
-    let xc = toXC(state.activeCol, state.activeRow);
-    if (xc in state.mergeCellMap) {
-      const mergeId = state.mergeCellMap[xc];
-      xc = state.merges[mergeId].topLeft;
-    }
-    let content = state.currentContent;
-    state.currentContent = "";
-    const cell = state.cells[xc];
-    const didChange = cell ? cell.content !== content : content !== "";
-    if (!didChange) {
-      cancelEdition(state);
-      return;
-    }
-    if (content) {
-      if (content.startsWith("=")) {
-        const tokens = tokenize(content);
-        const left = tokens.filter(t => t.type === "LEFT_PAREN").length;
-        const right = tokens.filter(t => t.type === "RIGHT_PAREN").length;
-        const missing = left - right;
-        if (missing > 0) {
-          content += new Array(missing).fill(")").join("");
-        }
-      }
-      addCell(state, xc, { content: content });
-    } else {
-      deleteCell(state, xc);
-    }
-
-    cancelEdition(state);
-  }
 }
 
 /**

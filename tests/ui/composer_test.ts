@@ -85,23 +85,27 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(model.workbook.currentContent).toBe("=A3");
   });
+
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     await typeInComposer("=");
     await keydown("ArrowRight");
     expect(model.workbook.currentContent).toBe("=B1");
   });
+
   test("=Key UP in B2, should select and highlight B1", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowUp");
     expect(model.workbook.currentContent).toBe("=B1");
   });
+
   test("=Key LEFT in B2, should select and highlight A2", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowLeft");
     expect(model.workbook.currentContent).toBe("=A2");
   });
+
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
@@ -109,6 +113,7 @@ describe("ranges and highlights", () => {
     await keydown("ArrowUp");
     expect(model.workbook.currentContent).toBe("=B2");
   });
+
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
@@ -117,6 +122,7 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(model.workbook.currentContent).toBe("=B2");
   });
+
   test("While selecting a ref, Shift+UP/DOWN/LEFT/RIGHT extend the range selection and updates the composer", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
@@ -130,6 +136,7 @@ describe("ranges and highlights", () => {
     await keydown("ArrowLeft", { shiftKey: true });
     expect(model.workbook.currentContent).toBe("=A2");
   });
+
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 1] });
@@ -168,6 +175,7 @@ describe("composer", () => {
     await startComposition("b");
     expect(composerEl.textContent).toBe("b");
   });
+
   test("type '=', backspace and select a cell should not add it", async () => {
     await typeInComposer("=");
     model.workbook.currentContent = "";
@@ -179,6 +187,7 @@ describe("composer", () => {
     expect(model.workbook.activeXc).toBe("C8");
     expect(fixture.getElementsByClassName("o-composer")).toHaveLength(0);
   });
+
   test("type '=', select twice a cell", async () => {
     await typeInComposer("=");
     expect(model.workbook.isSelectingRange).toBeTruthy();
@@ -191,12 +200,26 @@ describe("composer", () => {
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
   });
+
+  test("type '=', select a cell, press enter", async () => {
+    await typeInComposer("=");
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composerEl.textContent).toBe("=C8");
+    expect(model.workbook.isSelectingRange).toBeTruthy();
+    await keydown("Enter");
+    expect(model.workbook.isSelectingRange).toBeFalsy();
+    expect(model.workbook.cells.A1.content).toBe("=C8");
+  });
+
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
     await typeInComposer("a");
     composerEl.dispatchEvent(new MouseEvent("click"));
     await nextTick();
     expect(composerEl.textContent).toBe("a");
   });
+
   test("typing incorrect formula then enter exits the edit mode and moves to the next cell down", async () => {
     await startComposition();
     await typeInComposer("=qsdf");
@@ -204,6 +227,7 @@ describe("composer", () => {
     expect(model.workbook.cells["A1"].content).toBe("=qsdf");
     expect(model.workbook.cells["A1"].value).toBe("#BAD_EXPR");
   });
+
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
     await startComposition();
     await typeInComposer("qsdf");
@@ -211,6 +235,7 @@ describe("composer", () => {
     expect(model.workbook.cells["A1"].content).toBe("qsdf");
     expect(model.workbook.cells["A1"].value).toBe("qsdf");
   });
+
   test("typing CTRL+C does not type C in the cell", async () => {
     canvasEl.dispatchEvent(
       new KeyboardEvent("keydown", { key: "c", ctrlKey: true, bubbles: true })
@@ -245,6 +270,7 @@ describe("composer highlights color", () => {
     expect(model.workbook.highlights[0].color).toBe(colors[0]);
     expect(model.workbook.highlights[1].color).toBe(colors[1]);
   });
+
   test("highlight do not duplicate", async () => {
     model.setValue("A1", "=a1+a1");
     await startComposition();

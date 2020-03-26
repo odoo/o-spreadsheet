@@ -57,12 +57,12 @@ describe("history", () => {
     expect(model.workbook.undoStack.length).toBe(0);
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
       model.dispatch({ type: "START_EDITION", text: String(i) });
-      model.stopEditing();
+      model.dispatch({ type: "STOP_EDITION" });
       expect(model.workbook.cells.A1.content).toBe(String(i));
     }
     expect(model.workbook.undoStack.length).toBe(MAX_HISTORY_STEPS);
     model.dispatch({ type: "START_EDITION", text: "abc" });
-    model.stopEditing();
+    model.dispatch({ type: "STOP_EDITION" });
     expect(model.workbook.undoStack.length).toBe(MAX_HISTORY_STEPS);
     expect(model.workbook.cells.A1.content).toBe("abc");
     model.undo();

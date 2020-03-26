@@ -5,6 +5,9 @@ import { selectedCell, addCell, deleteCell } from "../core";
 import { tokenize } from "../../formulas/index";
 
 export class EditionPlugin extends BasePlugin {
+  col: number = 0;
+  row: number = 0;
+
   dispatch(cmd: GridCommand): void | GridCommand[] {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
@@ -35,6 +38,11 @@ export class EditionPlugin extends BasePlugin {
           this.stopEdition();
         }
         break;
+      case "SELECT_CELL":
+      case "MOVE_POSITION":
+        if (!this.workbook.isSelectingRange && this.workbook.isEditing) {
+          this.stopEdition();
+        }
     }
   }
 
@@ -63,11 +71,13 @@ export class EditionPlugin extends BasePlugin {
     this.workbook.isEditing = true;
     this.workbook.currentContent = str;
     this.workbook.highlights = [];
+    this.col = this.workbook.activeCol;
+    this.row = this.workbook.activeRow;
   }
 
   private stopEdition() {
     if (this.workbook.isEditing) {
-      let xc = toXC(this.workbook.activeCol, this.workbook.activeRow);
+      let xc = toXC(this.col, this.row);
       if (xc in this.workbook.mergeCellMap) {
         const mergeId = this.workbook.mergeCellMap[xc];
         xc = this.workbook.merges[mergeId].topLeft;
@@ -101,14 +111,6 @@ export class EditionPlugin extends BasePlugin {
   private cancelEdition() {
     this.workbook.isEditing = false;
     this.workbook.isSelectingRange = false;
-    this.workbook.selection.zones = [
-      {
-        top: this.workbook.activeRow,
-        bottom: this.workbook.activeRow,
-        left: this.workbook.activeCol,
-        right: this.workbook.activeCol
-      }
-    ];
     this.workbook.highlights = [];
   }
 }
