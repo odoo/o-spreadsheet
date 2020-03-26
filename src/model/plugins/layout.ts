@@ -1,9 +1,44 @@
 import { BasePlugin } from "../base_plugin";
-import { Viewport, Box, Rect } from "../types";
+import { Viewport, Box, Rect, GridCommand } from "../types";
 import { toXC, overlap } from "../../helpers";
+import { updateScroll } from "../core";
 
 export class LayouPlugin extends BasePlugin {
   static getters = ["getViewport"];
+
+  dispatch(cmd: GridCommand) {
+    switch (cmd.type) {
+      case "MOVE_POSITION":
+        this.updateScrollPosition();
+        break;
+    }
+  }
+
+  /**
+   *  keep current cell in the viewport, if possible
+   */
+  updateScrollPosition() {
+    const { cols, rows, viewport } = this.workbook;
+
+    while (
+      this.workbook.activeCol >= viewport.right &&
+      this.workbook.activeCol !== cols.length - 1
+    ) {
+      updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left].right);
+    }
+    while (this.workbook.activeCol < viewport.left) {
+      updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left - 1].left);
+    }
+    while (
+      this.workbook.activeRow >= viewport.bottom &&
+      this.workbook.activeRow !== rows.length - 1
+    ) {
+      updateScroll(this.workbook, rows[viewport.top].bottom, this.workbook.scrollLeft);
+    }
+    while (this.workbook.activeRow < viewport.top) {
+      updateScroll(this.workbook, rows[viewport.top - 1].top, this.workbook.scrollLeft);
+    }
+  }
 
   getViewport(width: number, height: number, offsetX: number, offsetY: number): Viewport {
     return {
@@ -16,6 +51,7 @@ export class LayouPlugin extends BasePlugin {
       activeRows: this.getters.getActiveRows()
     };
   }
+
   private hasContent(col: number, row: number): boolean {
     const { cells, mergeCellMap } = this.workbook;
     const xc = toXC(col, row);
