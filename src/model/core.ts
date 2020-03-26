@@ -26,8 +26,8 @@ export function selectedCell(state: Workbook): Cell | null {
  * Todo: maybe the composer should use this and we could remove the startEditing
  * stopediting/current string logic...
  */
-export function setValue(state: Workbook, xc: string, text: string) {
-  addCell(state, xc, { content: text });
+export function setValue(state: Workbook, xc: string, text: string, sheetName?: string) {
+  addCell(state, xc, { content: text }, { sheet: sheetName });
 }
 
 interface AddCellOptions {

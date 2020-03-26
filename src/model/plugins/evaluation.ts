@@ -2,8 +2,16 @@ import { BasePlugin } from "../base_plugin";
 import { toCartesian } from "../../helpers";
 import { Cell, GridCommand, Sheet } from "../types";
 import { functionMap } from "../../functions/index";
+import { compile } from "../../formulas";
+
+type EvalContext = { [key: string]: any };
+type ReadCell = (xc: string, sheet: string) => any;
+type Range = (v1: string, v2: string, sheetName: string) => any[];
+type FormulaParameters = [ReadCell, Range, EvalContext];
 
 export class EvaluationPlugin extends BasePlugin {
+  static getters = ["evaluateFormula"];
+
   /**
    * For all cells that are being currently computed (asynchronously).
    *
@@ -32,6 +40,8 @@ export class EvaluationPlugin extends BasePlugin {
    */
   COMPUTED: Set<Cell> = new Set();
 
+  cache: { [key: string]: Function } = {};
+
   constructor(workbook, getters) {
     super(workbook, getters);
     this.evaluateCells();
@@ -46,18 +56,22 @@ export class EvaluationPlugin extends BasePlugin {
     }
   }
 
+  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.name): any {
+    const cacheKey = `${sheet}#${formula}`;
+    let compiledFormula;
+    if (cacheKey in this.cache) {
+      compiledFormula = this.cache[cacheKey];
+    } else {
+      compiledFormula = compile(formula, sheet);
+      this.cache[cacheKey] = compiledFormula;
+    }
+    const params = this.getFormulaParameters(() => {});
+    return compiledFormula(...params);
+  }
+
   private evaluateCells(onlyWaiting: boolean = false) {
     const { COMPUTED, PENDING, WAITING, workbook } = this;
-
-    const sheets: { [name: string]: Sheet } = {};
-    for (let sheet of this.workbook.sheets) {
-      sheets[sheet.name] = sheet;
-    }
-
-    const evalContext = Object.assign(Object.create(functionMap), {
-      getEntity: this.getters.getEntity,
-      getEntities: this.getters.getEntities
-    });
+    const params = this.getFormulaParameters(computeValue);
 
     if (!onlyWaiting) {
       COMPUTED.clear();
@@ -102,7 +116,7 @@ export class EvaluationPlugin extends BasePlugin {
           cell.value = "#LOADING";
           PENDING.add(cell);
           cell
-            .formula(readCell, range, evalContext)
+            .formula(...params)
             .then(val => {
               cell.value = val;
               workbook.loadingCells--;
@@ -114,7 +128,7 @@ export class EvaluationPlugin extends BasePlugin {
             .catch((e: Error) => handleError(e, cell));
           workbook.loadingCells++;
         } else {
-          cell.value = cell.formula(readCell, range, evalContext);
+          cell.value = cell.formula(...params);
         }
         cell.error = false;
       } catch (e) {
@@ -122,6 +136,37 @@ export class EvaluationPlugin extends BasePlugin {
       }
       visited[xc] = true;
     }
+
+    if (onlyWaiting) {
+      const clone: Set<Cell> = new Set(WAITING);
+      WAITING.clear();
+      for (let cell of clone) {
+        computeValue(cell);
+      }
+    } else {
+      for (let xc in cells) {
+        const cell = cells[xc];
+        computeValue(cell);
+      }
+    }
+  }
+
+  /**
+   * Return all functions necessary to properly evaluate a formula:
+   * - a readCell function to read the value of a cell
+   * - a range function to convert a range description into a proper value array
+   * - an evaluation context
+   */
+  private getFormulaParameters(computeValue: Function): FormulaParameters {
+    const sheets: { [name: string]: Sheet } = {};
+    for (let sheet of this.workbook.sheets) {
+      sheets[sheet.name] = sheet;
+    }
+
+    const evalContext = Object.assign(Object.create(functionMap), {
+      getEntity: this.getters.getEntity,
+      getEntities: this.getters.getEntities
+    });
 
     function readCell(xc: string, sheet: string): any {
       let cell;
@@ -172,17 +217,6 @@ export class EvaluationPlugin extends BasePlugin {
       return result;
     }
 
-    if (onlyWaiting) {
-      const clone: Set<Cell> = new Set(WAITING);
-      WAITING.clear();
-      for (let cell of clone) {
-        computeValue(cell);
-      }
-    } else {
-      for (let xc in cells) {
-        const cell = cells[xc];
-        computeValue(cell);
-      }
-    }
+    return [readCell, range, evalContext];
   }
 }

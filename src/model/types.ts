@@ -15,6 +15,7 @@ import { SelectionPlugin } from "./plugins/selection";
 import { CorePlugin } from "./plugins/core";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { LayouPlugin } from "./plugins/layout";
+import { EvaluationPlugin } from "./plugins/evaluation";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -405,6 +406,7 @@ export interface Getters {
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
   expandZone: CorePlugin["expandZone"];
+  evaluateFormula: EvaluationPlugin["evaluateFormula"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   getCellWidth: GridPlugin["getCellWidth"];
   getColSize: GridPlugin["getColSize"];
