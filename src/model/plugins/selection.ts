@@ -1,7 +1,7 @@
 import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { activateCell, stopEditing, updateScroll } from "../core";
-import { GridCommand, SelectColumnCommand, Zone, SelectRowCommand } from "../types";
+import { activateCell, updateScroll } from "../core";
+import { GridCommand, SelectColumnCommand, SelectRowCommand, Zone } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
   static getters = ["getActiveCols", "getActiveRows", "getSelectionXC"];
@@ -147,9 +147,6 @@ export class SelectionPlugin extends BasePlugin {
    * range in the selection.
    */
   private selectCell(col: number, row: number, newRange: boolean = false) {
-    if (!this.workbook.isSelectingRange) {
-      stopEditing(this.workbook);
-    }
     const xc = toXC(col, row);
     let zone: Zone;
     if (xc in this.workbook.mergeCellMap) {

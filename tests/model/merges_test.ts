@@ -78,7 +78,7 @@ describe("merges", () => {
     model.dispatch({ type: "START_EDITION" });
     expect(model.workbook.currentContent).toBe("b2");
     model.workbook.currentContent = "new value";
-    model.stopEditing();
+    model.dispatch({ type: "STOP_EDITION" });
     expect(model.workbook.cells["B2"].content).toBe("new value");
   });
 

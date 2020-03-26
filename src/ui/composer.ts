@@ -259,13 +259,17 @@ export class Composer extends Component<any, any> {
         return;
       }
     }
-    this.model.stopEditing();
-    this.model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: ev.shiftKey ? -1 : 1 });
+    this.model.dispatch({ type: "STOP_EDITION" });
+    this.model.dispatch({
+      type: "MOVE_POSITION",
+      deltaX: 0,
+      deltaY: ev.shiftKey ? -1 : 1
+    });
     this.isDone = true;
   }
 
   processEscapeKey() {
-    this.model.cancelEdition();
+    this.model.dispatch({ type: "STOP_EDITION", cancel: true });
     this.isDone = true;
   }
 
