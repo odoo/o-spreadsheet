@@ -15,7 +15,7 @@ export class BasePlugin {
   canDispatch(command: GridCommand): boolean {
     return true;
   }
-  dispatch(command: GridCommand): GridCommand[] | void {}
+  handle(command: GridCommand): GridCommand[] | void {}
 
   import(data: WorkbookData) {}
   export(data: Partial<WorkbookData>) {}

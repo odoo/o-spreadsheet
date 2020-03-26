@@ -23,7 +23,7 @@ export class ClipboardPlugin extends BasePlugin {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 
-  dispatch(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "COPY":
         this.cutOrCopy(cmd.target, false);

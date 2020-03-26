@@ -128,7 +128,7 @@ export class GridModel extends owl.core.EventBus {
     while (commands.length) {
       const current = commands.shift()!;
       for (let plugin of this.plugins) {
-        let result = plugin.dispatch(current);
+        let result = plugin.handle(current);
         if (result) {
           commands.push(...result);
         }

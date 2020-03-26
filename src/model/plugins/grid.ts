@@ -21,7 +21,7 @@ export class GridPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  dispatch(cmd: GridCommand) {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {

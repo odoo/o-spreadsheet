@@ -23,7 +23,7 @@ export class SelectionPlugin extends BasePlugin {
     return true;
   }
 
-  dispatch(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
