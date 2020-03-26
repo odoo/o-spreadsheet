@@ -292,11 +292,8 @@ export class Composer extends Component<any, any> {
     if (el.clientWidth !== el.scrollWidth) {
       el.style.width = (el.scrollWidth + 20) as any;
     }
-    if (el.childNodes.length) {
-      this.model.setCurrentContent(el.textContent!);
-    } else {
-      this.model.setCurrentContent("");
-    }
+    const content = el.childNodes.length ? el.textContent! : "";
+    this.model.dispatch({ type: "SET_CURRENT_CONTENT", content });
   }
 
   onKeyup(ev: KeyboardEvent) {

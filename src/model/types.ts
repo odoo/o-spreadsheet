@@ -637,6 +637,11 @@ export interface StopEditionCommand {
   cancel?: boolean;
 }
 
+export interface SetCurrentContentCommand {
+  type: "SET_CURRENT_CONTENT";
+  content: string;
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -668,6 +673,7 @@ export type GridCommand =
   | StartEditionCommand
   | StopEditionCommand
   | AddMergeCommand
-  | RemoveMergeCommand;
+  | RemoveMergeCommand
+  | SetCurrentContentCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
