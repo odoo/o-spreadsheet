@@ -1,5 +1,6 @@
 import { GridModel } from "../../src/model";
 import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
+import { toZone } from "../../src/helpers";
 jest.mock("../../src/ui/content_editable_helper");
 
 let fixture: HTMLElement;
@@ -20,10 +21,8 @@ afterEach(() => {
 
 describe("Grid component", () => {
   test("can render a sheet with a merge", async () => {
-    // select B2:B3 and merge
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 2] });
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
+
     expect(fixture.querySelector("canvas")).toBeDefined();
   });
 

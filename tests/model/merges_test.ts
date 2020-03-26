@@ -1,5 +1,6 @@
 import { GridModel, Workbook, CURRENT_VERSION } from "../../src/model/index";
 import "../canvas.mock";
+import { toZone } from "../../src/helpers";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -11,9 +12,7 @@ describe("merges", () => {
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 2] });
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
 
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(model.workbook.cells.B2.content).toBe("b2");
@@ -41,7 +40,7 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.unmerge();
+    model.dispatch({ type: "REMOVE_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.workbook.merges)).toEqual([]);
@@ -53,8 +52,7 @@ describe("merges", () => {
 
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B2") });
 
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.workbook.merges)).toEqual([]);
@@ -137,14 +135,11 @@ describe("merges", () => {
         }
       ]
     });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
     // B2 is not top left, so it is destructive
-    expect(model.state.isMergeDestructive).toBeTruthy();
+    expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeTruthy();
 
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
     // B2 is top left, so it is not destructive
-    expect(model.state.isMergeDestructive).toBeFalsy();
+    expect(model.getters.isMergeDestructive(toZone("B2:C4"))).toBeFalsy();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -167,10 +162,10 @@ describe("merges", () => {
         bottom: 2
       }
     ];
-    expect(model.state.isMergeDestructive).toBeFalsy();
+    expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeFalsy();
   });
 
-  test("a merge with only style should not be considered destructive", () => {
+  test("merging cells with values remove them", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
       sheets: [
@@ -187,8 +182,8 @@ describe("merges", () => {
       ]
     });
     expect(model.workbook.cells["A4"].value).toBe(6);
-    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 2] });
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:A3") });
+
     expect(model.workbook.cells["A1"].value).toBe(1);
     expect(model.workbook.cells["A2"]).toBeUndefined();
     expect(model.workbook.cells["A3"]).toBeUndefined();
@@ -201,12 +196,12 @@ describe("merges", () => {
 
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
     model.setStyle({ fillColor: "red" });
     expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
 
-    model.unmerge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
     expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
   });
@@ -216,18 +211,15 @@ describe("merges", () => {
       version: CURRENT_VERSION,
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }]
     });
-    // selecting A3 and expanding selection one row up
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 2 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 1] });
 
     //merging
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:A3") });
     const mergeId = model.workbook.mergeCellMap.A1;
     expect(mergeId).toBeGreaterThan(0);
     expect(model.workbook.mergeCellMap.A2).toBe(mergeId);
 
     // unmerge. there should not be any merge left
-    model.unmerge();
+    model.dispatch({ type: "REMOVE_MERGE", sheet: "Sheet1", zone: toZone("A1:A3") });
     expect(model.workbook.mergeCellMap).toEqual({});
     expect(model.workbook.merges).toEqual({});
   });
@@ -236,9 +228,7 @@ describe("merges", () => {
     const model = new GridModel();
 
     // select B2:B3 and merge
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 2] });
-    model.merge();
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
 
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.workbook.merges).toEqual({

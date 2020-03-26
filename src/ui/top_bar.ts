@@ -411,16 +411,19 @@ export class TopBar extends Component<any, any> {
   }
 
   toggleMerge() {
+    const zones = this.model.getters.getSelectedZones();
+    const zone = zones[zones.length - 1];
+    const sheet = this.model.state.activeSheet;
     if (this.inMerge) {
-      this.model.unmerge();
+      this.model.dispatch({ type: "REMOVE_MERGE", sheet, zone });
     } else {
-      if (this.model.state.isMergeDestructive) {
+      if (this.model.getters.isMergeDestructive(zone)) {
         this.trigger("ask-confirmation", {
           content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
-          confirm: () => this.model.merge()
+          confirm: () => this.model.dispatch({ type: "ADD_MERGE", sheet, zone })
         });
       } else {
-        this.model.merge();
+        this.model.dispatch({ type: "ADD_MERGE", sheet, zone });
       }
     }
   }
