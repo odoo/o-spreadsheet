@@ -10,7 +10,6 @@ import {
   importData,
   PartialWorkbookDataWithVersion
 } from "./import_export";
-import * as merges from "./merges";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { CorePlugin } from "./plugins/core";
@@ -21,10 +20,12 @@ import { GridPlugin } from "./plugins/grid";
 import { SelectionPlugin } from "./plugins/selection";
 import { CommandResult, Getters, GridCommand, UI, Workbook } from "./types";
 import { LayouPlugin } from "./plugins/layout";
+import { MergePlugin } from "./plugins/merges";
 
 const PLUGINS = [
   CorePlugin,
   EvaluationPlugin,
+  MergePlugin,
   ClipboardPlugin,
   EntityPlugin,
   GridPlugin,
@@ -162,7 +163,6 @@ export class GridModel extends owl.core.EventBus {
       isPaintingFormat: this.clipboard.isPaintingFormat,
       selectedCell: core.selectedCell(this.workbook),
       style: formatting.getStyle(this.workbook),
-      isMergeDestructive: merges.isMergeDestructive(this.workbook),
       aggregate: core.computeAggregate(this.workbook),
       canUndo: this.workbook.undoStack.length > 0,
       canRedo: this.workbook.redoStack.length > 0,
@@ -225,11 +225,6 @@ export class GridModel extends owl.core.EventBus {
   setStyle = this.makeMutation(formatting.setStyle);
   clearFormatting = this.makeMutation(formatting.clearFormatting);
   setFormat = this.makeMutation(formatting.setFormat);
-
-  // merges
-  // ---------------------------------------------------------------------------
-  merge = this.makeMutation(merges.merge);
-  unmerge = this.makeMutation(merges.unmerge);
 
   // export
   // ---------------------------------------------------------------------------

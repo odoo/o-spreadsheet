@@ -15,6 +15,7 @@ import { SelectionPlugin } from "./plugins/selection";
 import { CorePlugin } from "./plugins/core";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { LayouPlugin } from "./plugins/layout";
+import { MergePlugin } from "./plugins/merges";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -224,7 +225,6 @@ export interface UI {
 
   selectedCell: Cell | null;
   style: Style;
-  isMergeDestructive: boolean;
   aggregate: string | null;
 
   isEditing: boolean;
@@ -416,8 +416,10 @@ export interface Getters {
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
   getSelectionXC: SelectionPlugin["getSelectionXC"];
+  getSelectedZones: SelectionPlugin["getSelectedZones"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getViewport: LayouPlugin["getViewport"];
+  isMergeDestructive: MergePlugin["isMergeDestructive"];
 }
 
 // -----------------------------------------------------------------------------
@@ -488,6 +490,18 @@ export interface DeleteCommand {
   type: "DELETE";
   sheet: string;
   target: Target;
+}
+
+export interface AddMergeCommand {
+  type: "ADD_MERGE";
+  sheet: string;
+  zone: Zone;
+}
+
+export interface RemoveMergeCommand {
+  type: "REMOVE_MERGE";
+  sheet: string;
+  zone: Zone;
 }
 
 /**
@@ -652,6 +666,8 @@ export type GridCommand =
   | StartComposerSelectionCommand
   | StopComposerSelectionCommand
   | StartEditionCommand
-  | StopEditionCommand;
+  | StopEditionCommand
+  | AddMergeCommand
+  | RemoveMergeCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

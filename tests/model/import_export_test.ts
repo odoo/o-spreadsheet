@@ -47,6 +47,7 @@ describe("Import", () => {
     expect(model.state.rows[0].size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.state.rows[1].size).toBe(13);
   });
+
   test("Import 2 sheets with merges", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
@@ -62,7 +63,11 @@ describe("Import", () => {
       ]
     });
     model.dispatch({ type: "SELECT_ROW", index: 1 });
-    model.merge();
+    model.dispatch({
+      type: "ADD_MERGE",
+      sheet: "Sheet1",
+      zone: { left: 0, top: 1, right: 5, bottom: 1 }
+    });
     model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet2" });
     expect(Object.keys(model.state.merges)).toHaveLength(0);
     model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet1" });
@@ -91,6 +96,7 @@ describe("Export", () => {
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
+
   test("Can export row size", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
@@ -110,6 +116,7 @@ describe("Export", () => {
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
   });
+
   test("Can export merges", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,
@@ -124,6 +131,7 @@ describe("Export", () => {
     const exp = model.exportData();
     expect(exp.sheets![0].merges).toHaveLength(3);
   });
+
   test("Can export format", () => {
     const model = new GridModel({
       version: CURRENT_VERSION,

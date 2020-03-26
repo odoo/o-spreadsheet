@@ -4,7 +4,7 @@ import { activateCell, updateScroll } from "../core";
 import { GridCommand, SelectColumnCommand, SelectRowCommand, Zone } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
-  static getters = ["getActiveCols", "getActiveRows", "getSelectionXC"];
+  static getters = ["getActiveCols", "getActiveRows", "getSelectionXC", "getSelectedZones"];
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -85,6 +85,10 @@ export class SelectionPlugin extends BasePlugin {
 
   getSelectionXC(): string {
     return this.getters.zoneToXC(this.workbook.selection.zones[0]);
+  }
+
+  getSelectedZones(): Zone[] {
+    return this.workbook.selection.zones;
   }
   // ---------------------------------------------------------------------------
   // Other
