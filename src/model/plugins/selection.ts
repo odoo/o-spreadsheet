@@ -27,7 +27,7 @@ export class SelectionPlugin extends BasePlugin {
   dispatch(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "SET_SELECTION":
-        this.setSelection(cmd.anchor, cmd.zones);
+        this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
         break;
       case "ACTIVATE_SHEET":
         this.selectCell(0, 0);
@@ -112,7 +112,7 @@ export class SelectionPlugin extends BasePlugin {
       zones = cmd.createRange ? current.concat(zone) : [zone];
       anchor = [cmd.index, 0];
     }
-    return [{ type: "SET_SELECTION", zones, anchor }];
+    return [{ type: "SET_SELECTION", zones, anchor, strict: true }];
   }
 
   private selectRow(cmd: SelectRowCommand): GridCommand[] {
@@ -129,7 +129,7 @@ export class SelectionPlugin extends BasePlugin {
       zones = cmd.createRange ? current.concat(zone) : [zone];
       anchor = [0, cmd.index];
     }
-    return [{ type: "SET_SELECTION", zones, anchor }];
+    return [{ type: "SET_SELECTION", zones, anchor, strict: true }];
   }
 
   private selectAll(): GridCommand[] {
@@ -230,9 +230,13 @@ export class SelectionPlugin extends BasePlugin {
     this.selectCell(0, 0);
   }
 
-  setSelection(anchor: [number, number], zones: Zone[]) {
+  setSelection(anchor: [number, number], zones: Zone[], strict: boolean = false) {
     this.selectCell(...anchor);
-    this.workbook.selection.zones = zones.map(this.getters.expandZone);
+    if (strict) {
+      this.workbook.selection.zones = zones;
+    } else {
+      this.workbook.selection.zones = zones.map(this.getters.expandZone);
+    }
     this.workbook.selection.anchor.col = anchor[0];
     this.workbook.selection.anchor.row = anchor[1];
   }

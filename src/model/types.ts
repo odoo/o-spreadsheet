@@ -564,6 +564,7 @@ export interface SetSelectionCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
   zones: Zone[];
+  strict?: boolean;
 }
 
 export interface SelectColumnCommand {
