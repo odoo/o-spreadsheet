@@ -38,6 +38,9 @@ export class EditionPlugin extends BasePlugin {
           this.stopEdition();
         }
         break;
+      case "SET_CURRENT_CONTENT":
+        this.workbook.currentContent = cmd.content;
+        break;
       case "SELECT_CELL":
       case "MOVE_POSITION":
         if (!this.workbook.isSelectingRange && this.workbook.isEditing) {

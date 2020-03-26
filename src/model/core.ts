@@ -196,13 +196,6 @@ export function updateVisibleZone(state: Workbook, width?: number, height?: numb
   state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
 }
 
-/**
- * set the current content
- * */
-export function setCurrentContent(state: Workbook, content: string) {
-  state.currentContent = content;
-}
-
 export function computeAggregate(state: Workbook): string | null {
   let aggregate = 0;
   let n = 0;
