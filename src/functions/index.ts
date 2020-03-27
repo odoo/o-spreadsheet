@@ -5,6 +5,7 @@ import * as lookup from "./module_lookup";
 import * as math from "./module_math";
 import * as operators from "./module_operators";
 import * as statistical from "./module_statistical";
+import * as text from "./module_text";
 
 export { Arg, ArgType, args } from "./arguments";
 
@@ -22,7 +23,8 @@ const functions: { [category: string]: { [name: string]: FunctionDescription } }
   math,
   logical,
   operators,
-  statistical
+  statistical,
+  text
 };
 
 //------------------------------------------------------------------------------

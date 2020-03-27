@@ -56,7 +56,7 @@ export function visitNumbers(args: IArguments, cb: (arg: number) => void): void 
   }
 }
 
-export function visitAny(arg: any, cb: (arg: any) => void): void {
+export function visitAny(arg: any, cb: (a: any) => void): void {
   if (Array.isArray(arg)) {
     for (let col of arg) {
       for (let cell of col) {
@@ -66,6 +66,20 @@ export function visitAny(arg: any, cb: (arg: any) => void): void {
   } else {
     cb(arg);
   }
+}
+
+export function reduceArgs<T>(
+  args: IArguments | any[],
+  cb: (acc: T, a: any) => T,
+  initialValue: T
+): T {
+  let val = initialValue;
+  for (let arg of args) {
+    visitAny(arg, a => {
+      val = cb(val, a);
+    });
+  }
+  return val;
 }
 
 export function toString(value: any): string {
