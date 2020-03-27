@@ -98,7 +98,13 @@ describe("merges", () => {
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(model.workbook.cells["B2"].style).not.toBeDefined();
 
-    model.setStyle({ fillColor: "#333" });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: model.getters.getSelectedZones(),
+      style: { fillColor: "#333" }
+    });
+
     expect(Object.keys(model.workbook.cells)).toEqual(["B2", "B3", "C2", "C3"]);
     expect(model.workbook.cells["B2"].style).toBeDefined();
   });
@@ -197,7 +203,13 @@ describe("merges", () => {
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
     model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
-    model.setStyle({ fillColor: "red" });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
+      style: { fillColor: "red" }
+    });
+
     expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
 

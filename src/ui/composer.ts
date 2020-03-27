@@ -176,7 +176,8 @@ export class Composer extends Component<any, any> {
   }
 
   get containerStyle() {
-    const { cols, rows, offsetX, offsetY, style } = this.model.state;
+    const { cols, rows, offsetX, offsetY } = this.model.state;
+    const style = this.model.getters.getCurrentStyle();
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 3;
@@ -195,7 +196,7 @@ export class Composer extends Component<any, any> {
   }
 
   get composerStyle() {
-    const style = this.model.state.style;
+    const style = this.model.getters.getCurrentStyle();
     const cell = this.model.state.selectedCell || { type: "text" };
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     return `text-align:${align};`;

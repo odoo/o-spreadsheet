@@ -132,7 +132,12 @@ describe("TopBar component", () => {
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
 
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+      style: { bold: true }
+    });
     await nextTick();
 
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
@@ -164,8 +169,12 @@ describe("TopBar component", () => {
   test("can clear formatting", async () => {
     const model = new GridModel();
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
-    model.setBorder("all");
-
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones(),
+      border: "all"
+    });
     expect(model.workbook.cells.B1.border).toBeDefined();
     const parent = new Parent(model);
     await parent.mount(fixture);

@@ -1,9 +1,18 @@
-import { GridModel, Workbook } from "../../src/model/index";
+import { GridModel, Workbook, BorderCommand } from "../../src/model/index";
 import "../helpers"; // to have getcontext mocks
 
 function getBorder(state: Workbook, xc: string) {
   const cell = state.cells[xc];
   return cell && cell.border ? state.borders[cell.border] : null;
+}
+
+function setBorder(model: GridModel, command: BorderCommand) {
+  model.dispatch({
+    type: "SET_FORMATTING",
+    sheet: model.state.activeSheet,
+    target: model.getters.getSelectedZones(),
+    border: command
+  });
 }
 
 describe("borders", () => {
@@ -12,34 +21,35 @@ describe("borders", () => {
 
     // select B2, set its top border, then clear it
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("top");
+    setBorder(model, "top");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
-    model.setBorder("clear");
+    setBorder(model, "clear");
+
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its left border, then clear it
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("left");
+    setBorder(model, "left");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ left: ["thin", "#000"] });
-    model.setBorder("clear");
+    setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its bottom border, then clear it
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("bottom");
+    setBorder(model, "bottom");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ bottom: ["thin", "#000"] });
-    model.setBorder("clear");
+    setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its right border, then clear it
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("right");
+    setBorder(model, "right");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
-    model.setBorder("clear");
+    setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
   });
 
@@ -51,13 +61,13 @@ describe("borders", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
 
     // set a border top
-    model.setBorder("top");
+    setBorder(model, "top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
 
     // clear borders
-    model.setBorder("clear");
+    setBorder(model, "clear");
     expect(model.workbook.cells.B2.border).not.toBeDefined();
   });
 
@@ -69,7 +79,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 1] });
 
     // set a border top
-    model.setBorder("top");
+    setBorder(model, "top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
@@ -82,7 +92,7 @@ describe("borders", () => {
 
     // select C3 and add a border
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    model.setBorder("top");
+    setBorder(model, "top");
     expect(model.workbook.cells.C3.border).toBeDefined();
 
     // select A1:E6
@@ -90,7 +100,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [5, 5] });
 
     // clear all borders
-    model.setBorder("clear");
+    setBorder(model, "clear");
 
     expect(model.workbook.cells.C3).not.toBeDefined();
   });
@@ -103,7 +113,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
     // set all borders
-    model.setBorder("all");
+    setBorder(model, "all");
     const all = {
       left: ["thin", "#000"],
       top: ["thin", "#000"],
@@ -124,7 +134,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
     // set all borders
-    model.setBorder("top");
+    setBorder(model, "top");
     const border = {
       top: ["thin", "#000"]
     };
@@ -139,12 +149,12 @@ describe("borders", () => {
 
     // select B2, then set its right border
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("right");
+    setBorder(model, "right");
     expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
 
     // select C2 then clear it
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 1 });
-    model.setBorder("clear");
+    setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
   });
 
@@ -156,7 +166,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [3, 3] });
 
     // set external borders
-    model.setBorder("external");
+    setBorder(model, "external");
     const s = ["thin", "#000"];
     expect(getBorder(model.workbook, "B2")).toEqual({ top: s, left: s });
     expect(getBorder(model.workbook, "C2")).toEqual({ top: s });
@@ -177,7 +187,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
 
     // set external borders
-    model.setBorder("h");
+    setBorder(model, "h");
     const s = ["thin", "#000"];
     expect(model.workbook.cells.B2).not.toBeDefined();
     expect(model.workbook.cells.C2).not.toBeDefined();
@@ -195,7 +205,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
 
     // set external borders
-    model.setBorder("v");
+    setBorder(model, "v");
     const s = ["thin", "#000"];
     expect(model.workbook.cells.B2).not.toBeDefined();
     expect(model.workbook.cells.B3).not.toBeDefined();
@@ -213,7 +223,7 @@ describe("borders", () => {
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
 
     // set external borders
-    model.setBorder("hv");
+    setBorder(model, "hv");
     const s = ["thin", "#000"];
     expect(model.workbook.cells.B2).not.toBeDefined();
     expect(getBorder(model.workbook, "C2")).toEqual({ left: s });
@@ -229,7 +239,7 @@ describe("borders", () => {
     // select B2 and set its top border
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("top");
+    setBorder(model, "top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
     model.dispatch({
@@ -244,7 +254,7 @@ describe("borders", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "some content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("all");
+    setBorder(model, "all");
 
     expect(model.workbook.cells.B2.content).toBe("some content");
     expect(model.workbook.cells.B2.border).toBeDefined();
@@ -257,10 +267,14 @@ describe("borders", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
-    model.setBorder("all");
+    setBorder(model, "all");
 
     expect(model.workbook.cells.B1.border).toBeDefined();
-    model.clearFormatting();
+    model.dispatch({
+      type: "CLEAR_FORMATTING",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones()
+    });
     expect(model.workbook.cells.B1.border).not.toBeDefined();
   });
 
@@ -274,9 +288,9 @@ describe("borders", () => {
       right: model.workbook.cols.length - 1,
       bottom: model.workbook.rows.length - 1
     });
-    model.setBorder("all");
+    setBorder(model, "all");
     expect(model.workbook.cells.B1.border).toBeDefined();
-    model.setBorder("clear");
+    setBorder(model, "clear");
     expect(model.workbook.cells.B1).not.toBeDefined();
   });
 });

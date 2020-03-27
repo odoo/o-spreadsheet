@@ -9,14 +9,14 @@ import { Cell, GridCommand, NewCell, Zone } from "../types";
 // ClipboardPlugin
 // -----------------------------------------------------------------------------
 export class ClipboardPlugin extends BasePlugin {
-  static getters = ["getClipboardContent"];
+  static getters = ["getClipboardContent", "isPaintingFormat"];
 
   // internal state
   status: "empty" | "visible" | "invisible" = "empty";
   shouldCut?: boolean;
   zones: Zone[] = [];
   cells?: (Cell | null)[][];
-  isPaintingFormat: boolean = false;
+  private _isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
   canDispatch(cmd: GridCommand): boolean {
@@ -32,14 +32,14 @@ export class ClipboardPlugin extends BasePlugin {
         this.cutOrCopy(cmd.target, true);
         break;
       case "PASTE":
-        const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this.isPaintingFormat;
-        this.isPaintingFormat = false;
+        const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this._isPaintingFormat;
+        this._isPaintingFormat = false;
         this.onlyFormat = onlyFormat;
         return this.pasteFromModel(cmd.target);
       case "PASTE_FROM_OS_CLIPBOARD":
         return this.pasteFromClipboard(cmd.target, cmd.text);
       case "ACTIVATE_PAINT_FORMAT":
-        this.isPaintingFormat = true;
+        this._isPaintingFormat = true;
         this.cutOrCopy(cmd.target, false);
         break;
     }
@@ -71,6 +71,10 @@ export class ClipboardPlugin extends BasePlugin {
         })
         .join("\n") || "\t"
     );
+  }
+
+  isPaintingFormat(): boolean {
+    return this._isPaintingFormat;
   }
 
   // ---------------------------------------------------------------------------
