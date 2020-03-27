@@ -641,6 +641,12 @@ export interface SetCurrentContentCommand {
   content: string;
 }
 
+export interface SetValueCommand {
+  type: "SET_VALUE";
+  xc: string;
+  text: string;
+}
+
 export type GridCommand =
   | CopyCommand
   | CutCommand
@@ -673,6 +679,7 @@ export type GridCommand =
   | StopEditionCommand
   | AddMergeCommand
   | RemoveMergeCommand
-  | SetCurrentContentCommand;
+  | SetCurrentContentCommand
+  | SetValueCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

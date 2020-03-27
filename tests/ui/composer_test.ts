@@ -248,7 +248,7 @@ describe("composer", () => {
 
 describe("composer highlights color", () => {
   test("colors start with first color", async () => {
-    model.setValue("A1", "=a1+a2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=a1+a2" });
     await startComposition();
     expect(model.workbook.highlights.length).toBe(2);
     expect(model.workbook.highlights[0].color).toBe(colors[0]);
@@ -256,8 +256,8 @@ describe("composer highlights color", () => {
   });
 
   test("colors always start with first color", async () => {
-    model.setValue("A1", "=b1+b2");
-    model.setValue("A2", "=b1+b3");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=b1+b2" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=b1+b3" });
     await startComposition();
     expect(model.workbook.highlights.length).toBe(2);
     expect(model.workbook.highlights[0].color).toBe(colors[0]);
@@ -273,14 +273,14 @@ describe("composer highlights color", () => {
   });
 
   test("highlight do not duplicate", async () => {
-    model.setValue("A1", "=a1+a1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=a1+a1" });
     await startComposition();
     expect(model.workbook.highlights.length).toBe(1);
     expect(model.workbook.highlights[0].color).toBe(colors[0]);
   });
 
   test("highlight range", async () => {
-    model.setValue("A1", "=sum(a1:a10)");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(a1:a10)" });
     await startComposition();
     expect(model.workbook.highlights.length).toBe(1);
     expect(model.workbook.highlights[0].color).toBe(colors[0]);
@@ -288,13 +288,13 @@ describe("composer highlights color", () => {
   });
 
   test("highlight 'reverse' ranges", async () => {
-    model.setValue("A1", "=sum(B3:a1)");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(B3:a1)" });
     await startComposition();
     expect(model.workbook.highlights[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
   test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async ref => {
-    model.setValue("A1", ref);
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: ref });
     await startComposition();
     expect(model.workbook.highlights.length).toBe(0);
     expect(composerEl.textContent).toBe(ref);

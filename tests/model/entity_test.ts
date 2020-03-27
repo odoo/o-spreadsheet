@@ -99,7 +99,7 @@ describe("Entity functions", () => {
       returns: ["ANY"]
     });
     const model = new GridModel();
-    model.setValue("A1", "=TEST()");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=TEST()" });
   });
 
   test("Can call getEntity from a function with one arg", () => {
@@ -118,6 +118,6 @@ describe("Entity functions", () => {
       returns: ["ANY"]
     });
     const model = new GridModel();
-    model.setValue("A1", "=TEST(3)");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=TEST(3)" });
   });
 });

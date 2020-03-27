@@ -4,8 +4,8 @@ import { waitForRecompute } from "../helpers";
 describe("core", () => {
   test("properly compute sum of current cells", () => {
     const model = new GridModel();
-    model.setValue("A2", "3");
-    model.setValue("A3", "54");
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3" });
+    model.dispatch({ type: "SET_VALUE", xc: "A3", text: "54" });
 
     expect(model.state.aggregate).toBe(null);
 
@@ -19,9 +19,9 @@ describe("core", () => {
 
   test("ignore cells with an error", () => {
     const model = new GridModel();
-    model.setValue("A1", "2");
-    model.setValue("A2", "=A2");
-    model.setValue("A3", "3");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A2" });
+    model.dispatch({ type: "SET_VALUE", xc: "A3", text: "3" });
 
     // select A1
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
@@ -38,8 +38,8 @@ describe("core", () => {
 
   test("ignore async cells while they are not ready", async () => {
     const model = new GridModel();
-    model.setValue("A1", "=Wait(1000)");
-    model.setValue("A2", "44");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=Wait(1000)" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "44" });
 
     // select A1
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
@@ -55,7 +55,7 @@ describe("core", () => {
 
   test("format cell that point to an empty cell properly", () => {
     const model = new GridModel();
-    model.setValue("A1", "=A2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A2" });
 
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("0");
   });
@@ -70,8 +70,8 @@ describe("core", () => {
 
   test("format cell to a boolean value", () => {
     const model = new GridModel();
-    model.setValue("A1", "=false");
-    model.setValue("A2", "=true");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=false" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=true" });
 
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("FALSE");
     expect(model.getters.getCellText(model.workbook.cells.A2)).toBe("TRUE");
@@ -79,8 +79,8 @@ describe("core", () => {
 
   test("detect and format percentage values automatically", () => {
     const model = new GridModel();
-    model.setValue("A1", "3%");
-    model.setValue("A2", "3.4%");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3%" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3.4%" });
 
     expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("3%");
     expect(model.workbook.cells.A1.format).toBe("0%");
@@ -90,7 +90,7 @@ describe("core", () => {
 
   test("does not reevaluate cells if edition does not change content", () => {
     const model = new GridModel();
-    model.setValue("A1", "=rand()");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=rand()" });
 
     expect(model.workbook.cells.A1.value).toBeDefined();
     const val = model.workbook.cells.A1.value;
@@ -155,7 +155,7 @@ describe("history", () => {
 
   test("can undo and redo a delete cell operation", () => {
     const model = new GridModel();
-    model.setValue("A2", "3");
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3" });
 
     expect(model.workbook.cells.A2.content).toBe("3");
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });

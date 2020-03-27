@@ -36,7 +36,7 @@ afterEach(() => {
 describe("TopBar component", () => {
   test("merging destructively a selection ask for confirmation", async () => {
     const model = new GridModel();
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
 
     let confirm;
     class TestParent extends Parent {
@@ -57,7 +57,7 @@ describe("TopBar component", () => {
 
   test("opening a second menu closes the first one", async () => {
     const model = new GridModel();
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -100,7 +100,7 @@ describe("TopBar component", () => {
 
   test("multiple selection zones => merge tools is disabled", async () => {
     const model = new GridModel();
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
 
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -209,7 +209,7 @@ describe("TopBar component", () => {
 
   test("opening, then closing same menu", async () => {
     const model = new GridModel();
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 

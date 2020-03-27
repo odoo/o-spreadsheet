@@ -15,7 +15,7 @@ describe("styles", () => {
 
   test("can undo and redo a setStyle operation on an non empty cell", () => {
     const model = new GridModel();
-    model.setValue("B1", "some content");
+    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "some content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
@@ -28,7 +28,7 @@ describe("styles", () => {
 
   test("can clear formatting (style)", () => {
     const model = new GridModel();
-    model.setValue("B1", "b1");
+    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
@@ -50,7 +50,7 @@ describe("styles", () => {
 
   test("clearing format operation can be undone", () => {
     const model = new GridModel();
-    model.setValue("B1", "b1");
+    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setStyle({ fillColor: "red" });
 
@@ -63,7 +63,7 @@ describe("styles", () => {
 
   test("adding a style to a cell remove cell width cache", () => {
     const model = new GridModel();
-    model.setValue("A2", "3");
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3" });
     // this simulates a rendering which adds the width
     model.workbook.cells.A2.width = 234;
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });

@@ -47,7 +47,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2
-    model.setValue("B2", "content");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
 
     // set a border top
@@ -227,7 +227,7 @@ describe("borders", () => {
     const model = new GridModel();
 
     // select B2 and set its top border
-    model.setValue("B2", "content");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("top");
 
@@ -242,7 +242,7 @@ describe("borders", () => {
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
     const model = new GridModel();
-    model.setValue("B2", "some content");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "some content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     model.setBorder("all");
 
@@ -255,7 +255,7 @@ describe("borders", () => {
 
   test("can clear formatting (border)", () => {
     const model = new GridModel();
-    model.setValue("B1", "b1");
+    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.setBorder("all");
 

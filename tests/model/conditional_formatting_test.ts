@@ -17,10 +17,10 @@ beforeEach(() => {
 
 describe("conditional format", () => {
   test("works", () => {
-    model.setValue("A1", "1");
-    model.setValue("A2", "2");
-    model.setValue("A3", "3");
-    model.setValue("A4", "4");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
+    model.dispatch({ type: "SET_VALUE", xc: "A3", text: "3" });
+    model.dispatch({ type: "SET_VALUE", xc: "A4", text: "4" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" })
@@ -64,8 +64,8 @@ describe("conditional format", () => {
   });
 
   test("works on multiple ranges", () => {
-    model.setValue("A1", "1");
-    model.setValue("A2", "1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "1" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" })
@@ -75,8 +75,8 @@ describe("conditional format", () => {
   });
 
   test("can be undo/redo", () => {
-    model.setValue("A1", "1");
-    model.setValue("A2", "1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "1" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" })
@@ -103,23 +103,23 @@ describe("conditional format", () => {
   });
 
   test("works after value update", () => {
-    model.setValue("A1", "1");
-    model.setValue("A2", "2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" })
     });
     expect(model.workbook.cells["A1"].conditionalStyle).toBeUndefined();
-    model.setValue("A1", "2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
     expect(model.workbook.cells["A1"].conditionalStyle).toEqual({ fillColor: "#FF0000" });
-    model.setValue("A1", "1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     expect(model.workbook.cells["A1"].conditionalStyle).toBeUndefined();
-    model.setValue("A1", "=A2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A2" });
     expect(model.workbook.cells["A1"].conditionalStyle).toEqual({ fillColor: "#FF0000" });
   });
 
   test.skip("works when cells are in error", () => {
-    model.setValue("A1", "=BLA");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=BLA" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" })
@@ -128,7 +128,7 @@ describe("conditional format", () => {
   });
 
   test("multiple conditional formats for one cell", () => {
-    model.setValue("A1", "2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" })
@@ -144,7 +144,7 @@ describe("conditional format", () => {
   });
 
   test("multiple conditional formats with same style", () => {
-    model.setValue("A1", "2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" })
@@ -157,7 +157,7 @@ describe("conditional format", () => {
   });
 
   test.skip("multiple conditional formats using stopIfTrue flag", () => {
-    model.setValue("A1", "2");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
 
     model.dispatch({
       type: "ADD_CONDITIONAL_FORMAT",

@@ -7,8 +7,8 @@ import "../helpers"; // to have getcontext mocks
 describe("history", () => {
   test("can undo and redo two consecutive operations", () => {
     const model = new GridModel();
-    model.setValue("A2", "3");
-    model.setValue("A2", "5");
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "5" });
 
     expect(model.workbook.cells.A2.content).toBe("5");
 
@@ -26,7 +26,7 @@ describe("history", () => {
 
   test("redo stack is nuked when new operation is performed", () => {
     const model = new GridModel();
-    model.setValue("A2", "3");
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3" });
 
     expect(model.workbook.cells.A2.content).toBe("3");
 
@@ -36,7 +36,7 @@ describe("history", () => {
     expect(model.workbook.undoStack.length).toBe(0);
     expect(model.workbook.redoStack.length).toBe(1);
 
-    model.setValue("A4", "5");
+    model.dispatch({ type: "SET_VALUE", xc: "A4", text: "5" });
     expect(model.workbook.undoStack.length).toBe(1);
     expect(model.workbook.redoStack.length).toBe(0);
   });
@@ -71,8 +71,8 @@ describe("history", () => {
 
   test("undo recomputes the cells", () => {
     const model = new GridModel();
-    model.setValue("A1", "=A2");
-    model.setValue("A2", "11");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A2" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "11" });
     expect(model.workbook.cells.A1.value).toBe(11);
     model.undo();
     expect(model.workbook.cells.A1.value).toBe(null);

@@ -19,16 +19,6 @@ export function selectedCell(state: Workbook): Cell | null {
   }
 }
 
-/**
- * Set the text value for a given cell.
- *
- * Todo: maybe the composer should use this and we could remove the startEditing
- * stopediting/current string logic...
- */
-export function setValue(state: Workbook, xc: string, text: string) {
-  addCell(state, xc, { content: text });
-}
-
 interface AddCellOptions {
   sheet?: string;
   preserveFormatting?: boolean;
