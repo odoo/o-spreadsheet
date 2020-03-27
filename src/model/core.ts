@@ -1,4 +1,3 @@
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { formatNumber } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile } from "../formulas/index";
@@ -139,61 +138,6 @@ export function deleteCell(state: Workbook, xc: string, force: boolean = false) 
     }
     state.isStale = true;
   }
-}
-
-export function updateScroll(state: Workbook, scrollTop: number, scrollLeft: number): boolean {
-  scrollTop = Math.round(scrollTop);
-  scrollLeft = Math.round(scrollLeft);
-  if (state.scrollTop === scrollTop && state.scrollLeft === scrollLeft) {
-    return false;
-  }
-  state.scrollTop = scrollTop;
-  state.scrollLeft = scrollLeft;
-  const { offsetX, offsetY } = state;
-  updateVisibleZone(state);
-  return offsetX !== state.offsetX || offsetY !== state.offsetY;
-}
-
-/**
- * Here:
- * - width is the clientWidth, the actual width of the visible zone
- * - height is the clientHeight, the actual height of the visible zone
- */
-export function updateVisibleZone(state: Workbook, width?: number, height?: number) {
-  const { rows, cols, viewport, scrollLeft, scrollTop } = state;
-  state.clientWidth = width || state.clientWidth;
-  state.clientHeight = height || state.clientHeight;
-
-  viewport.bottom = rows.length - 1;
-  let effectiveTop = scrollTop;
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i].top <= effectiveTop) {
-      if (rows[i].bottom > effectiveTop) {
-        effectiveTop = rows[i].top;
-      }
-      viewport.top = i;
-    }
-    if (effectiveTop + state.clientHeight < rows[i].bottom + HEADER_HEIGHT) {
-      viewport.bottom = i;
-      break;
-    }
-  }
-  viewport.right = cols.length - 1;
-  let effectiveLeft = scrollLeft;
-  for (let i = 0; i < cols.length; i++) {
-    if (cols[i].left <= effectiveLeft) {
-      if (cols[i].right > effectiveLeft) {
-        effectiveLeft = cols[i].left;
-      }
-      viewport.left = i;
-    }
-    if (effectiveLeft + state.clientWidth < cols[i].right + HEADER_WIDTH) {
-      viewport.right = i;
-      break;
-    }
-  }
-  state.offsetX = cols[viewport.left].left - HEADER_WIDTH;
-  state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
 }
 
 export function computeAggregate(state: Workbook): string | null {

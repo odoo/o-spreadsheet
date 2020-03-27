@@ -19,7 +19,7 @@ import { EvaluationPlugin } from "./plugins/evaluation";
 import { GridPlugin } from "./plugins/grid";
 import { SelectionPlugin } from "./plugins/selection";
 import { CommandResult, Getters, GridCommand, UI, Workbook } from "./types";
-import { LayouPlugin } from "./plugins/layout";
+import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { MergePlugin } from "./plugins/merges";
 
 const PLUGINS = [
@@ -211,9 +211,9 @@ export class GridModel extends owl.core.EventBus {
   setValue = this.makeMutation(core.setValue);
   // updateVisibleZone and updateScroll should not be a mutation
 
-  updateVisibleZone = this.makeFn(core.updateVisibleZone);
+  updateVisibleZone = this.makeFn(updateVisibleZone);
   updateScroll(scrollTop, scrollLeft) {
-    const result = core.updateScroll(this.workbook, scrollTop, scrollLeft);
+    const result = updateScroll(this.workbook, scrollTop, scrollLeft);
     Object.assign(this.state, this.computeDerivedState());
     return result; //= this.makeFn(core.updateScroll);
   }
