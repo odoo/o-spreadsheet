@@ -63,7 +63,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     model.dispatch({ type: "COPY", target: target("B2") });
@@ -78,7 +83,12 @@ describe("clipboard", () => {
     // set value and style in B2
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     // set value in A1, select and copy it
@@ -98,7 +108,12 @@ describe("clipboard", () => {
     // set value and style in B2
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     // set value in A1, select and copy it
@@ -114,7 +129,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("bottom");
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones(),
+      border: "bottom"
+    });
     expect(model.workbook.cells.B2.border).toBe(2);
 
     model.dispatch({ type: "COPY", target: target("B2") });
@@ -128,7 +148,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "0.451" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setFormat("0.00%");
+    model.dispatch({
+      type: "SET_FORMATTER",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones(),
+      formatter: "0.00%"
+    });
     expect(model.getters.getCellText(model.workbook.cells.B2)).toBe("45.10%");
 
     model.dispatch({ type: "COPY", target: target("B2") });
@@ -141,7 +166,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
 
     model.dispatch({ type: "CUT", target: target("B2") });
     model.dispatch({ type: "PASTE", target: target("C2") });
@@ -355,7 +385,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     model.dispatch({ type: "COPY", target: target("B2") });
@@ -368,7 +403,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     model.dispatch({ type: "COPY", target: target("B2") });
@@ -382,7 +422,12 @@ describe("clipboard", () => {
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SET_VALUE", xc: "C2", text: "c2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     model.dispatch({ type: "COPY", target: target("B2") });
@@ -396,7 +441,12 @@ describe("clipboard", () => {
     const model = new GridModel();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     model.dispatch({ type: "COPY", target: [zone("B2:B2")] });
     model.dispatch({ type: "PASTE", target: target("C2"), onlyFormat: true });
 
@@ -433,7 +483,12 @@ describe("clipboard", () => {
     // write something in B2 and set its format
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setStyle({ bold: true });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true }
+    });
     expect(model.workbook.cells.B2.style).toBe(2);
 
     // select A1 and copy format

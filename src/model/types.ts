@@ -16,6 +16,7 @@ import { CorePlugin } from "./plugins/core";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { LayouPlugin } from "./plugins/layout";
 import { MergePlugin } from "./plugins/merges";
+import { FormattingPlugin } from "./plugins/formatting";
 
 // -----------------------------------------------------------------------------
 // WorkBook
@@ -224,7 +225,6 @@ export interface UI {
   isSelectingRange: boolean;
 
   selectedCell: Cell | null;
-  style: Style;
   aggregate: string | null;
 
   isEditing: boolean;
@@ -232,7 +232,6 @@ export interface UI {
   canUndo: boolean;
   canRedo: boolean;
 
-  isPaintingFormat: boolean;
   // to remove someday
   currentContent: string;
   rows: Row[];
@@ -406,6 +405,7 @@ export interface Getters {
   zoneToXC: CorePlugin["zoneToXC"];
   expandZone: CorePlugin["expandZone"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
+  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
   getCellWidth: GridPlugin["getCellWidth"];
   getColSize: GridPlugin["getColSize"];
   getRowSize: GridPlugin["getRowSize"];
@@ -419,6 +419,7 @@ export interface Getters {
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getViewport: LayouPlugin["getViewport"];
   isMergeDestructive: MergePlugin["isMergeDestructive"];
+  getCurrentStyle: FormattingPlugin["getCurrentStyle"];
 }
 
 // -----------------------------------------------------------------------------
@@ -447,7 +448,6 @@ export interface Getters {
  * can use inferred information from the local internal state, such as the
  * active sheet.
  */
-type Target = Zone[];
 
 // Primitive Commands
 // ------------------------------------------------
@@ -488,7 +488,7 @@ export interface CreateSheetCommand {
 export interface DeleteCommand {
   type: "DELETE";
   sheet: string;
-  target: Target;
+  target: Zone[];
 }
 
 export interface AddMergeCommand {
@@ -501,6 +501,27 @@ export interface RemoveMergeCommand {
   type: "REMOVE_MERGE";
   sheet: string;
   zone: Zone;
+}
+
+export interface AddFormattingCommand {
+  type: "SET_FORMATTING";
+  sheet: string;
+  target: Zone[];
+  style?: Style;
+  border?: BorderCommand;
+}
+
+export interface ClearFormattingCommand {
+  type: "CLEAR_FORMATTING";
+  sheet: string;
+  target: Zone[];
+}
+
+export interface SetFormatterCommand {
+  type: "SET_FORMATTER";
+  sheet: string;
+  target: Zone[];
+  formatter: string;
 }
 
 /**
@@ -518,28 +539,28 @@ export interface AddConditionalFormatCommand {
 // ------------------------------------------------
 export interface CopyCommand {
   type: "COPY";
-  target: Target;
+  target: Zone[];
 }
 
 export interface CutCommand {
   type: "CUT";
-  target: Target;
+  target: Zone[];
 }
 
 export interface PasteCommand {
   type: "PASTE";
-  target: Target;
+  target: Zone[];
   onlyFormat?: boolean;
 }
 
 export interface ActivatePaintFormatCommand {
   type: "ACTIVATE_PAINT_FORMAT";
-  target: Target;
+  target: Zone[];
 }
 
 export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
-  target: Target;
+  target: Zone[];
   text: string;
 }
 
@@ -680,6 +701,9 @@ export type GridCommand =
   | AddMergeCommand
   | RemoveMergeCommand
   | SetCurrentContentCommand
-  | SetValueCommand;
+  | SetValueCommand
+  | AddFormattingCommand
+  | ClearFormattingCommand
+  | SetFormatterCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

@@ -2,7 +2,6 @@ import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { BasePlugin } from "./base_plugin";
 import * as core from "./core";
-import * as formatting from "./formatting";
 import * as history from "./history";
 import {
   CURRENT_VERSION,
@@ -21,6 +20,7 @@ import { SelectionPlugin } from "./plugins/selection";
 import { CommandResult, Getters, GridCommand, UI, Workbook } from "./types";
 import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { MergePlugin } from "./plugins/merges";
+import { FormattingPlugin } from "./plugins/formatting";
 
 const PLUGINS = [
   CorePlugin,
@@ -29,6 +29,7 @@ const PLUGINS = [
   ClipboardPlugin,
   EntityPlugin,
   GridPlugin,
+  FormattingPlugin,
   SelectionPlugin,
   ConditionalFormatPlugin,
   EditionPlugin,
@@ -160,9 +161,7 @@ export class GridModel extends owl.core.EventBus {
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.workbook.isEditing,
-      isPaintingFormat: this.clipboard.isPaintingFormat,
       selectedCell: core.selectedCell(this.workbook),
-      style: formatting.getStyle(this.workbook),
       aggregate: core.computeAggregate(this.workbook),
       canUndo: this.workbook.undoStack.length > 0,
       canRedo: this.workbook.redoStack.length > 0,
@@ -216,13 +215,6 @@ export class GridModel extends owl.core.EventBus {
     Object.assign(this.state, this.computeDerivedState());
     return result; //= this.makeFn(core.updateScroll);
   }
-
-  // formatting
-  // ---------------------------------------------------------------------------
-  setBorder = this.makeMutation(formatting.setBorder);
-  setStyle = this.makeMutation(formatting.setStyle);
-  clearFormatting = this.makeMutation(formatting.clearFormatting);
-  setFormat = this.makeMutation(formatting.setFormat);
 
   // export
   // ---------------------------------------------------------------------------

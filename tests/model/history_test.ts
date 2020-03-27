@@ -44,8 +44,18 @@ describe("history", () => {
   test("two identical changes do not count as two undo steps", () => {
     const model = new GridModel();
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("all");
-    model.setBorder("all");
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones(),
+      border: "all"
+    });
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones(),
+      border: "all"
+    });
 
     expect(model.workbook.cells.B2.border).toBeDefined();
     model.undo();

@@ -63,8 +63,12 @@ describe("core", () => {
   test("format cell without content: empty string", () => {
     const model = new GridModel();
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.setBorder("bottom");
-
+    model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: model.state.activeSheet,
+      target: model.getters.getSelectedZones(),
+      border: "bottom"
+    });
     expect(model.getters.getCellText(model.workbook.cells.B2)).toBe("");
   });
 

@@ -154,7 +154,7 @@ export class Grid extends Component<any, any> {
   };
 
   private processCopyFormat() {
-    if (this.model.state.isPaintingFormat) {
+    if (this.model.getters.isPaintingFormat()) {
       this.model.dispatch({
         type: "PASTE",
         target: this.model.state.selection.zones
@@ -277,7 +277,7 @@ export class Grid extends Component<any, any> {
         }
       }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-      if (this.model.state.isPaintingFormat) {
+      if (this.model.getters.isPaintingFormat()) {
         this.model.dispatch({
           type: "PASTE",
           target: this.model.state.selection.zones

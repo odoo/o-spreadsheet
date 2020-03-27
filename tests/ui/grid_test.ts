@@ -118,7 +118,12 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard", async () => {
-      model.setStyle({ fillColor: "red" });
+      model.dispatch({
+        type: "SET_FORMATTING",
+        sheet: "Sheet1",
+        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+        style: { fillColor: "red" }
+      });
       expect(model.workbook.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
@@ -132,7 +137,12 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
-      model.setStyle({ fillColor: "red" });
+      model.dispatch({
+        type: "SET_FORMATTING",
+        sheet: "Sheet1",
+        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+        style: { fillColor: "red" }
+      });
       expect(model.workbook.cells.A1.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
@@ -169,7 +179,12 @@ describe("Grid component", () => {
     test("can paste format with mouse", async () => {
       model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
       model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-      model.setStyle({ bold: true });
+      model.dispatch({
+        type: "SET_FORMATTING",
+        sheet: "Sheet1",
+        target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+        style: { bold: true }
+      });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
       triggerMouseEvent("canvas", "mousedown", 300, 200);
@@ -181,7 +196,12 @@ describe("Grid component", () => {
     test("can paste format with key", async () => {
       model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
       model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-      model.setStyle({ bold: true });
+      model.dispatch({
+        type: "SET_FORMATTING",
+        sheet: "Sheet1",
+        target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+        style: { bold: true }
+      });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
       expect(model.workbook.cells.C2).not.toBeDefined();

@@ -121,7 +121,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
         <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
         <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
-        <div class="o-tool" title="Clear Format" t-on-click="model.clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
+        <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool o-dropdown" title="Format">
           <div class="o-text-icon" t-on-click.stop="toggleMenu('formatTool')">Format ${icons.TRIANGLE_DOWN_ICON}</div>
@@ -368,7 +368,14 @@ export class TopBar extends Component<any, any> {
     this.useTool(tool, value);
   }
   useTool(tool, value) {
-    this.model.setStyle({ [tool]: value });
+    const style = { [tool]: value };
+    this.model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: this.model.state.activeSheet,
+      target: this.model.getters.getSelectedZones(),
+      style
+    });
+    // this.model.setStyle({ [tool]: value });
   }
 
   toggleMenu(tool) {
@@ -387,7 +394,7 @@ export class TopBar extends Component<any, any> {
 
   updateCellState() {
     const state = this.model.state;
-    this.style = state.style;
+    this.style = this.model.getters.getCurrentStyle();
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
     const selection = state.selection;
@@ -400,7 +407,7 @@ export class TopBar extends Component<any, any> {
     }
     this.undoTool = state.canUndo;
     this.redoTool = state.canRedo;
-    this.paintFormatTool = state.isPaintingFormat;
+    this.paintFormatTool = this.model.getters.isPaintingFormat();
     const cell = state.selectedCell;
     if (cell && cell.format) {
       const format = this.formats.find(f => f.value === cell.format);
@@ -430,19 +437,35 @@ export class TopBar extends Component<any, any> {
   setColor(target, ev) {
     const color = ev.target.dataset.color;
     if (color) {
-      this.model.setStyle({ [target]: color });
+      const style = { [target]: color };
+      this.model.dispatch({
+        type: "SET_FORMATTING",
+        sheet: this.model.state.activeSheet,
+        target: this.model.getters.getSelectedZones(),
+        style
+      });
       this.closeMenus();
     }
   }
   setBorder(command) {
-    this.model.setBorder(command);
+    this.model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: this.model.state.activeSheet,
+      target: this.model.getters.getSelectedZones(),
+      border: command
+    });
   }
   setFormat(ev: MouseEvent) {
     const format = (ev.target as HTMLElement).dataset.format;
     if (format) {
       const formatter = FORMATS.find(f => f.name === format);
       const value = (formatter && formatter.value) || "";
-      this.model.setFormat(value);
+      this.model.dispatch({
+        type: "SET_FORMATTER",
+        sheet: this.model.state.activeSheet,
+        target: this.model.getters.getSelectedZones(),
+        formatter: value
+      });
     }
   }
   paintFormat() {
@@ -451,9 +474,21 @@ export class TopBar extends Component<any, any> {
       target: this.model.state.selection.zones
     });
   }
+  clearFormatting() {
+    this.model.dispatch({
+      type: "CLEAR_FORMATTING",
+      sheet: this.model.state.activeSheet,
+      target: this.model.getters.getSelectedZones()
+    });
+  }
   setSize(ev) {
     const fontSize = parseFloat(ev.target.dataset.size);
-    this.model.setStyle({ fontSize });
+    this.model.dispatch({
+      type: "SET_FORMATTING",
+      sheet: this.model.state.activeSheet,
+      target: this.model.getters.getSelectedZones(),
+      style: { fontSize }
+    });
   }
   onSave() {
     this.trigger("save-content", {
