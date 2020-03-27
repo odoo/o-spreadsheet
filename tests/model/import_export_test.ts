@@ -1,6 +1,6 @@
-import { GridModel, CURRENT_VERSION, BorderDescr } from "../../src/model/index";
-import { DEFAULT_STYLE, importData } from "../../src/model/import_export";
-import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { importData } from "../../src/model/import_export";
+import { BorderDescr, CURRENT_VERSION, GridModel } from "../../src/model/index";
 import "../helpers"; // to have getcontext mocks
 
 describe("data", () => {
@@ -10,12 +10,6 @@ describe("data", () => {
     // 96 is default cell width
     expect(model.state.cols[0].size).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.state.cols[1].size).toEqual(DEFAULT_CELL_WIDTH);
-  });
-
-  test("get default values in style 0", () => {
-    const model = new GridModel();
-
-    expect(model.state.styles[0].fillColor).toEqual(DEFAULT_STYLE.fillColor);
   });
 
   test("importing data with no version number should fail", () => {

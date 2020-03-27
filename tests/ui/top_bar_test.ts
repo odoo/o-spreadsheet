@@ -211,8 +211,7 @@ describe("TopBar component", () => {
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
     expect(fontSizeTool.textContent!.trim()).toBe("8");
-    const styleId = model.workbook.cells.A1.style!;
-    const style = model.workbook.styles[styleId];
+    const style = model.getters.getCellStyle(model.workbook.cells.A1);
     expect(style.fontSize).toBe(8);
   });
 

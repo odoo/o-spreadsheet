@@ -143,7 +143,6 @@ export class GridModel extends owl.core.EventBus {
     return {
       rows: this.workbook.rows,
       cols: this.workbook.cols,
-      styles: this.workbook.styles,
       merges: this.workbook.merges,
       mergeCellMap: this.workbook.mergeCellMap,
       width: this.workbook.width,

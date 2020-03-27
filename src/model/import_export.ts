@@ -78,7 +78,7 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     throw new Error("Missing version number");
   }
   // styles and borders
-  const styles: Workbook["styles"] = data.styles || {};
+  const styles = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
   const borders: Workbook["borders"] = data.borders || {};
 
@@ -170,7 +170,6 @@ function exportMerges(merges: { [key: number]: Merge }): string[] {
 
 export function exportData(state: Workbook): WorkbookData {
   // styles and borders
-  const styles: WorkbookData["styles"] = state.styles || {};
   const borders: WorkbookData["borders"] = state.borders || {};
 
   const sheets: SheetData[] = [];
@@ -200,7 +199,6 @@ export function exportData(state: Workbook): WorkbookData {
   return {
     version: CURRENT_VERSION,
     sheets,
-    styles,
     borders
   };
 }
