@@ -3,7 +3,7 @@ import { BasePlugin } from "../base_plugin";
 import { GridCommand, SelectColumnCommand, SelectRowCommand, Zone } from "../types";
 
 export class SelectionPlugin extends BasePlugin {
-  static getters = ["getActiveCols", "getActiveRows", "getSelectionXC", "getSelectedZones"];
+  static getters = ["getActiveCols", "getActiveRows", "getSelectedZones"];
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -80,10 +80,6 @@ export class SelectionPlugin extends BasePlugin {
       }
     }
     return activeRows;
-  }
-
-  getSelectionXC(): string {
-    return this.getters.zoneToXC(this.workbook.selection.zones[0]);
   }
 
   getSelectedZones(): Zone[] {
