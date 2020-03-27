@@ -1,6 +1,6 @@
-import { GridModel, Workbook, CURRENT_VERSION } from "../../src/model/index";
-import "../canvas.mock";
 import { toZone } from "../../src/helpers";
+import { CURRENT_VERSION, GridModel, Style } from "../../src/model/index";
+import "../canvas.mock";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -210,12 +210,12 @@ describe("merges", () => {
       style: { fillColor: "red" }
     });
 
-    expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
-    expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
     model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
-    expect(getStyle(model.workbook, "A1")).toEqual({ fillColor: "red" });
-    expect(getStyle(model.workbook, "B1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
+    expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
@@ -261,7 +261,7 @@ describe("merges", () => {
   });
 });
 
-function getStyle(state: Workbook, xc: string) {
-  const cell = state.cells[xc];
-  return cell && cell.style && state.styles[cell.style];
+function getStyle(model: GridModel, xc: string): Style {
+  const cell = model.workbook.cells[xc];
+  return cell && model.getters.getCellStyle(cell);
 }

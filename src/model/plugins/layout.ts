@@ -72,7 +72,7 @@ export class LayouPlugin extends BasePlugin {
           let col = cols[colNumber];
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
-          let style = cell.style ? this.workbook.styles[cell.style] : null;
+          let style = this.getters.getCellStyle(cell);
           if (cell.conditionalStyle) {
             style = Object.assign({}, style, cell.conditionalStyle);
           }
@@ -128,7 +128,7 @@ export class LayouPlugin extends BasePlugin {
         if (refCell) {
           text = refCell ? this.getters.getCellText(refCell) : "";
           textWidth = this.getters.getCellWidth(refCell);
-          style = refCell.style ? this.workbook.styles[refCell.style] : {};
+          style = this.getters.getCellStyle(refCell);
           align = text
             ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
             : null;

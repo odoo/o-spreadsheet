@@ -15,7 +15,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Vie
   // 1. initial setup, clear canvas, collect info
   dpr = window.devicePixelRatio || 1;
   thinLineWidth = 0.4 * dpr;
-  ctx.fillStyle = state.styles[0].fillColor || "white";
+  ctx.fillStyle = "white";
   ctx.fillRect(0, 0, viewport.width, viewport.height);
 
   // 2. draw grid content

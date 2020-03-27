@@ -5,6 +5,7 @@ import { stringify, toXC } from "../../helpers";
 import { updateCell } from "../history";
 import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
+import { WorkbookData, DEFAULT_STYLE } from "../import_export";
 
 /**
  * Manage:
@@ -22,8 +23,10 @@ const commandToSides = {
 };
 
 export class FormattingPlugin extends BasePlugin {
-  static getters = ["getCurrentStyle", "getCellWidth", "getCellHeight"];
+  static getters = ["getCurrentStyle", "getCellWidth", "getCellHeight", "getCellStyle"];
   private ctx = document.createElement("canvas").getContext("2d")!;
+
+  styles: { [key: number]: Style } = {};
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -51,7 +54,7 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   getCellWidth(cell: Cell): number {
-    const style = this.workbook.styles[cell.style || 0];
+    const style = this.styles[cell.style || 0];
     const italic = style.italic ? "italic " : "";
     const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
     const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
@@ -62,9 +65,13 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   getCellHeight(cell: Cell): number {
-    const style = this.workbook.styles[cell ? cell.style || 0 : 0];
+    const style = this.styles[cell ? cell.style || 0 : 0];
     const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
     return fontSizeMap[sizeInPt];
+  }
+
+  getCellStyle(cell: Cell): Style {
+    return cell.style ? this.styles[cell.style] : {};
   }
   // ---------------------------------------------------------------------------
   // Styles
@@ -72,7 +79,7 @@ export class FormattingPlugin extends BasePlugin {
 
   getCurrentStyle(): Style {
     const cell = selectedCell(this.workbook);
-    return cell && cell.style ? this.workbook.styles[cell.style] : {};
+    return cell && cell.style ? this.styles[cell.style] : {};
   }
 
   setStyle(sheet: string, target: Zone[], style: Style) {
@@ -87,7 +94,7 @@ export class FormattingPlugin extends BasePlugin {
 
   private setStyleToCell(col: number, row: number, style) {
     const cell = getCell(this.workbook, col, row);
-    const currentStyle = cell && cell.style ? this.workbook.styles[cell.style] : {};
+    const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
     const xc = toXC(col, row);
@@ -101,13 +108,13 @@ export class FormattingPlugin extends BasePlugin {
 
   private registerStyle(style) {
     const strStyle = stringify(style);
-    for (let k in this.workbook.styles) {
-      if (stringify(this.workbook.styles[k]) === strStyle) {
+    for (let k in this.styles) {
+      if (stringify(this.styles[k]) === strStyle) {
         return parseInt(k, 10);
       }
     }
     const id = this.workbook.nextId++;
-    this.workbook.styles[id] = style;
+    this.styles[id] = style;
     return id;
   }
 
@@ -279,6 +286,21 @@ export class FormattingPlugin extends BasePlugin {
         }
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
+  import(data: WorkbookData) {
+    if (data.styles) {
+      this.styles = data.styles;
+    }
+    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
+  }
+
+  export(data: WorkbookData) {
+    data.styles = this.styles;
   }
 }
 
