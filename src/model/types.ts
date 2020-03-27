@@ -406,7 +406,8 @@ export interface Getters {
   expandZone: CorePlugin["expandZone"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
-  getCellWidth: GridPlugin["getCellWidth"];
+  getCellWidth: FormattingPlugin["getCellWidth"];
+  getCellHeight: FormattingPlugin["getCellHeight"];
   getColSize: GridPlugin["getColSize"];
   getRowSize: GridPlugin["getRowSize"];
   getCol: GridPlugin["getCol"];
