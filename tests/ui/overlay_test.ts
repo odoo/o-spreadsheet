@@ -18,7 +18,7 @@ RowResizer.prototype._getMaxSize = () => 1000;
 
 function fillData() {
   for (let i = 0; i < 8; i++) {
-    model.setValue(toXC(i, i), "i");
+    model.dispatch({ type: "SET_VALUE", xc: toXC(i, i), text: "i" });
   }
 }
 
@@ -241,14 +241,14 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a column", async () => {
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     await dblClickColumn("B");
     expect(model.workbook.cols[1].size).toBe(1006);
   });
 
   test("Double click on column then undo, then redo", async () => {
-    model.setValue("C2", "C2");
-    model.setValue("D2", "D2");
+    model.dispatch({ type: "SET_VALUE", xc: "C2", text: "C2" });
+    model.dispatch({ type: "SET_VALUE", xc: "D2", text: "D2" });
     selectColumn("C");
     selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
@@ -273,15 +273,15 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a row", async () => {
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     await dblClickRow(1);
     expect(model.workbook.rows[1].size).toBe(19);
   });
 
   test("Double click on rows then undo, then redo", async () => {
     fillData();
-    model.setValue("C3", "C3");
-    model.setValue("C4", "C4");
+    model.dispatch({ type: "SET_VALUE", xc: "C3", text: "C3" });
+    model.dispatch({ type: "SET_VALUE", xc: "C4", text: "C4" });
     selectRow(2);
     selectRow(3, { ctrlKey: true });
     await dblClickRow(2);

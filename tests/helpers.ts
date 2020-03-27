@@ -130,7 +130,7 @@ type GridResult = { [xc: string]: any };
 export function evaluateGrid(grid: GridDescr): GridResult {
   const model = new GridModel();
   for (let xc in grid) {
-    model.setValue(xc, grid[xc]);
+    model.dispatch({ type: "SET_VALUE", xc, text: grid[xc] });
   }
   const result = {};
   for (let xc in grid) {

@@ -1,7 +1,7 @@
 import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { addCell, deleteCell, getCell, setValue } from "../core";
+import { addCell, deleteCell, getCell } from "../core";
 import { updateCell } from "../history";
 import { Cell, GridCommand, NewCell, Zone } from "../types";
 
@@ -37,8 +37,7 @@ export class ClipboardPlugin extends BasePlugin {
         this.onlyFormat = onlyFormat;
         return this.pasteFromModel(cmd.target);
       case "PASTE_FROM_OS_CLIPBOARD":
-        this.pasteFromClipboard(cmd.target, cmd.text);
-        break;
+        return this.pasteFromClipboard(cmd.target, cmd.text);
       case "ACTIVATE_PAINT_FORMAT":
         this.isPaintingFormat = true;
         this.cutOrCopy(cmd.target, false);
@@ -106,8 +105,8 @@ export class ClipboardPlugin extends BasePlugin {
     this.cells = cells;
   }
 
-  private pasteFromClipboard(target: Zone[], content: string) {
-    const workbook = this.workbook;
+  private pasteFromClipboard(target: Zone[], content: string): GridCommand[] {
+    const result: GridCommand[] = [];
     this.status = "invisible";
     const values = content
       .replace(/\r/g, "")
@@ -117,9 +116,10 @@ export class ClipboardPlugin extends BasePlugin {
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         const xc = toXC(activeCol + j, activeRow + i);
-        setValue(workbook, xc, values[i][j]);
+        result.push({ type: "SET_VALUE", xc, text: values[i][j] });
       }
     }
+    return result;
   }
 
   private isPasteAllowed(target: Zone[]): boolean {

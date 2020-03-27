@@ -27,15 +27,15 @@ describe("Grid component", () => {
   });
 
   test("can click on a cell to select it", async () => {
-    model.setValue("B2", "b2");
-    model.setValue("B3", "b3");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     expect(model.workbook.activeXc).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
-    model.setValue("B2", "b2");
-    model.setValue("B3", "b3");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
     triggerMouseEvent(".o-overlay", "click", 300, 20);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
@@ -44,8 +44,8 @@ describe("Grid component", () => {
   });
 
   test("can shift-click on a cell to update selection", async () => {
-    model.setValue("B2", "b2");
-    model.setValue("B3", "b3");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
     expect(model.workbook.selection.zones[0]).toEqual({
       top: 0,
@@ -167,7 +167,7 @@ describe("Grid component", () => {
 
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
-      model.setValue("B2", "b2");
+      model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
       model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
       model.setStyle({ bold: true });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
@@ -179,7 +179,7 @@ describe("Grid component", () => {
     });
 
     test("can paste format with key", async () => {
-      model.setValue("B2", "b2");
+      model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
       model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
       model.setStyle({ bold: true });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];

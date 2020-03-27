@@ -25,6 +25,9 @@ export class CorePlugin extends BasePlugin {
       case "DELETE":
         this.deleteContent(cmd.sheet, cmd.target);
         break;
+      case "SET_VALUE":
+        addCell(this.workbook, cmd.xc, { content: cmd.text });
+        break;
     }
   }
 

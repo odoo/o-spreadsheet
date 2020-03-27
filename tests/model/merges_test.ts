@@ -5,8 +5,8 @@ import { toZone } from "../../src/helpers";
 describe("merges", () => {
   test("can merge two cells", () => {
     const model = new GridModel();
-    model.setValue("B2", "b2");
-    model.setValue("B3", "b3");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
 
     expect(Object.keys(model.workbook.cells)).toEqual(["B2", "B3"]);
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
@@ -48,7 +48,7 @@ describe("merges", () => {
 
   test("a single cell is not merged", () => {
     const model = new GridModel();
-    model.setValue("B2", "b2");
+    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
 
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 

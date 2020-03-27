@@ -69,7 +69,7 @@ contextMenuRegistry.add("clear_cell", {
   name: "clear_cell",
   description: "Clear cell",
   action(model: GridModel) {
-    model.setValue(model.state.activeXc, "");
+    model.dispatch({ type: "SET_VALUE", xc: model.state.activeXc, text: "" });
   },
   isVisible: (type: ContextMenuType): boolean => {
     return type === "CELL";

@@ -24,8 +24,8 @@ describe("sheets", () => {
     const model = new GridModel();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.setValue("A1", "3");
-    model.setValue("A2", "=Sheet1!A1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=Sheet1!A1" });
 
     expect(model.workbook.cells.A2.value).toBe(3);
   });
@@ -34,16 +34,16 @@ describe("sheets", () => {
     const model = new GridModel();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.setValue("A1", "3");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
     model.dispatch({ type: "CREATE_SHEET" });
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
-    model.setValue("A1", "=Sheet1!A1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=Sheet1!A1" });
     expect(model.workbook.cells.A1.value).toBe(3);
   });
 
   test("throw if invalid sheet name", () => {
     const model = new GridModel();
-    model.setValue("A1", "=Sheet133!A1");
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=Sheet133!A1" });
 
     expect(model.workbook.cells.A1.value).toBe("#ERROR");
   });
