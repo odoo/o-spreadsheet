@@ -23,10 +23,17 @@ const commandToSides = {
 };
 
 export class FormattingPlugin extends BasePlugin {
-  static getters = ["getCurrentStyle", "getCellWidth", "getCellHeight", "getCellStyle"];
+  static getters = [
+    "getCurrentStyle",
+    "getCellWidth",
+    "getCellHeight",
+    "getCellStyle",
+    "getCellBorder"
+  ];
   private ctx = document.createElement("canvas").getContext("2d")!;
 
   styles: { [key: number]: Style } = {};
+  borders: { [key: number]: Border } = {};
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -73,6 +80,11 @@ export class FormattingPlugin extends BasePlugin {
   getCellStyle(cell: Cell): Style {
     return cell.style ? this.styles[cell.style] : {};
   }
+
+  getCellBorder(cell: Cell): Border | null {
+    return cell.border ? this.borders[cell.border] : null;
+  }
+
   // ---------------------------------------------------------------------------
   // Styles
   // ---------------------------------------------------------------------------
@@ -195,7 +207,7 @@ export class FormattingPlugin extends BasePlugin {
   private clearSide(sheet: string, col: number, row: number, side: string) {
     const cell = getCell(this.workbook, col, row);
     if (cell && cell.border) {
-      const border = this.workbook.borders[cell.border];
+      const border = this.borders[cell.border];
       if (side in border) {
         const newBorder = Object.assign({}, border);
         delete newBorder[side];
@@ -211,7 +223,7 @@ export class FormattingPlugin extends BasePlugin {
 
   private setBorderToCell(sheet: string, col: number, row: number, border: Border) {
     const cell = getCell(this.workbook, col, row);
-    const currentBorder = cell && cell.border ? this.workbook.borders[cell.border] : {};
+    const currentBorder = cell && cell.border ? this.borders[cell.border] : {};
     const nextBorder = Object.assign({}, currentBorder, border);
     const id = this.registerBorder(nextBorder);
     if (cell) {
@@ -224,13 +236,13 @@ export class FormattingPlugin extends BasePlugin {
 
   private registerBorder(border: Border) {
     const strBorder = stringify(border);
-    for (let k in this.workbook.borders) {
-      if (stringify(this.workbook.borders[k]) === strBorder) {
+    for (let k in this.borders) {
+      if (stringify(this.borders[k]) === strBorder) {
         return parseInt(k, 10);
       }
     }
     const id = this.workbook.nextId++;
-    this.workbook.borders[id] = border;
+    this.borders[id] = border;
     return id;
   }
 
@@ -296,11 +308,15 @@ export class FormattingPlugin extends BasePlugin {
     if (data.styles) {
       this.styles = data.styles;
     }
+    if (data.borders) {
+      this.borders = data.borders;
+    }
     this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
   }
 
   export(data: WorkbookData) {
     data.styles = this.styles;
+    data.borders = this.borders;
   }
 }
 

@@ -109,7 +109,7 @@ export class LayouPlugin extends BasePlugin {
             height: row.size,
             text,
             textWidth,
-            border: cell.border ? this.workbook.borders[cell.border] : null,
+            border: this.getters.getCellBorder(cell),
             style,
             align,
             clipRect,
@@ -132,7 +132,7 @@ export class LayouPlugin extends BasePlugin {
           align = text
             ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
             : null;
-          border = refCell.border ? this.workbook.borders[refCell.border] : null;
+          border = this.getters.getCellBorder(refCell);
         }
         style = style || {};
         if (!style.fillColor) {

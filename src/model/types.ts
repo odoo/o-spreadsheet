@@ -147,7 +147,6 @@ export interface Workbook {
   rows: Row[];
   cols: Col[];
   cells: { [key: string]: Cell };
-  borders: { [key: number]: Border };
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
 
@@ -420,6 +419,7 @@ export interface Getters {
   isMergeDestructive: MergePlugin["isMergeDestructive"];
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
+  getCellBorder: FormattingPlugin["getCellBorder"];
 }
 
 // -----------------------------------------------------------------------------
