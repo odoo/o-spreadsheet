@@ -1,8 +1,10 @@
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Style, Zone, BorderCommand, Border } from "../types";
+import { GridCommand, Style, Zone, BorderCommand, Border, Cell } from "../types";
 import { selectedCell, getCell, addCell, deleteCell } from "../core";
 import { stringify, toXC } from "../../helpers";
 import { updateCell } from "../history";
+import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../../constants";
+import { fontSizeMap } from "../../fonts";
 
 /**
  * Manage:
@@ -20,7 +22,8 @@ const commandToSides = {
 };
 
 export class FormattingPlugin extends BasePlugin {
-  static getters = ["getCurrentStyle"];
+  static getters = ["getCurrentStyle", "getCellWidth", "getCellHeight"];
+  private ctx = document.createElement("canvas").getContext("2d")!;
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -47,6 +50,22 @@ export class FormattingPlugin extends BasePlugin {
     }
   }
 
+  getCellWidth(cell: Cell): number {
+    const style = this.workbook.styles[cell.style || 0];
+    const italic = style.italic ? "italic " : "";
+    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+    const size = fontSizeMap[sizeInPt];
+    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+    const text = this.getters.getCellText(cell);
+    return this.ctx.measureText(text).width;
+  }
+
+  getCellHeight(cell: Cell): number {
+    const style = this.workbook.styles[cell ? cell.style || 0 : 0];
+    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+    return fontSizeMap[sizeInPt];
+  }
   // ---------------------------------------------------------------------------
   // Styles
   // ---------------------------------------------------------------------------

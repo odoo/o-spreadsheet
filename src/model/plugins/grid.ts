@@ -1,21 +1,12 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { BasePlugin } from "../base_plugin";
-import { Cell, GridCommand } from "../types";
-import {
-  DEFAULT_FONT_WEIGHT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT,
-  HEADER_WIDTH,
-  HEADER_HEIGHT
-} from "../../constants";
-import { fontSizeMap } from "../../fonts";
 import { updateState } from "../history";
+import { Cell, GridCommand } from "../types";
 
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
-  static getters = ["getCellWidth", "getCol", "getRow", "getColSize", "getRowSize"];
-
-  private ctx = document.createElement("canvas").getContext("2d")!;
+  static getters = ["getCol", "getRow", "getColSize", "getRowSize"];
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -55,18 +46,6 @@ export class GridPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  getCellWidth(cell: Cell): number {
-    // todo: use a getters here, exported by future style plugin
-    const style = this.workbook.styles[cell ? cell.style || 0 : 0];
-    const italic = style.italic ? "italic " : "";
-    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    const size = fontSizeMap[sizeInPt];
-    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-    const text = this.getters.getCellText(cell);
-    return this.ctx.measureText(text).width;
-  }
 
   /**
    * Return the index of a column given an offset x.
@@ -117,24 +96,18 @@ export class GridPlugin extends BasePlugin {
   // Private stuff
   // ---------------------------------------------------------------------------
 
-  private getCellHeight(cell: Cell): number {
-    const style = this.workbook.styles[cell ? cell.style || 0 : 0];
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    return fontSizeMap[sizeInPt];
-  }
-
   private getColMaxWidth(index: number): number {
     const cells = this.workbook.rows.reduce(
       (acc: Cell[], cur) => (cur.cells[index] ? acc.concat(cur.cells[index]) : acc),
       []
     );
-    const sizes = cells.map(c => this.getCellWidth(c));
+    const sizes = cells.map(this.getters.getCellWidth);
     return Math.max(0, ...sizes);
   }
 
   private getRowMaxHeight(index: number): number {
     const cells = Object.values(this.workbook.rows[index].cells);
-    const sizes = cells.map(c => this.getCellHeight(c));
+    const sizes = cells.map(this.getters.getCellHeight);
     return Math.max(0, ...sizes);
   }
 
