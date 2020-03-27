@@ -446,7 +446,8 @@ export class Composer extends Component<any, any> {
   }
 
   addTextFromSelection() {
-    let selection = this.model.getters.getSelectionXC();
+    const zone = this.model.getters.getSelectedZones()[0];
+    let selection = this.model.getters.zoneToXC(zone);
     if (this.refSelectionStart) {
       this.selectionStart = this.refSelectionStart;
     }

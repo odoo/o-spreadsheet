@@ -415,7 +415,6 @@ export interface Getters {
   getEntities: EntityPlugin["getEntities"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
-  getSelectionXC: SelectionPlugin["getSelectionXC"];
   getSelectedZones: SelectionPlugin["getSelectedZones"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getViewport: LayouPlugin["getViewport"];
