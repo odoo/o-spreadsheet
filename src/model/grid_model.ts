@@ -188,8 +188,6 @@ export class GridModel extends owl.core.EventBus {
           if (current === 0) {
             this.isStarted = false;
           }
-          Object.assign(this.state, this.computeDerivedState());
-          // this.trigger("update");
         }
         if (current > 0) {
           GridModel.setTimeout(recomputeCells, 15);

@@ -1,9 +1,9 @@
-import { GridModel, Workbook, BorderCommand } from "../../src/model/index";
+import { BorderCommand, GridModel } from "../../src/model/index";
 import "../helpers"; // to have getcontext mocks
 
-function getBorder(state: Workbook, xc: string) {
-  const cell = state.cells[xc];
-  return cell && cell.border ? state.borders[cell.border] : null;
+function getBorder(model: GridModel, xc: string) {
+  const cell = model.workbook.cells[xc];
+  return model.getters.getCellBorder(cell);
 }
 
 function setBorder(model: GridModel, command: BorderCommand) {
@@ -23,7 +23,7 @@ describe("borders", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     setBorder(model, "top");
     expect(model.workbook.cells.B2.border).toBeDefined();
-    expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
     setBorder(model, "clear");
 
     expect(model.workbook.cells.B2).not.toBeDefined();
@@ -32,7 +32,7 @@ describe("borders", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     setBorder(model, "left");
     expect(model.workbook.cells.B2.border).toBeDefined();
-    expect(getBorder(model.workbook, "B2")).toEqual({ left: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ left: ["thin", "#000"] });
     setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
 
@@ -40,7 +40,7 @@ describe("borders", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     setBorder(model, "bottom");
     expect(model.workbook.cells.B2.border).toBeDefined();
-    expect(getBorder(model.workbook, "B2")).toEqual({ bottom: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
     setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
 
@@ -48,7 +48,7 @@ describe("borders", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     setBorder(model, "right");
     expect(model.workbook.cells.B2.border).toBeDefined();
-    expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ right: ["thin", "#000"] });
     setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
   });
@@ -64,7 +64,7 @@ describe("borders", () => {
     setBorder(model, "top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
-    expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
 
     // clear borders
     setBorder(model, "clear");
@@ -82,9 +82,9 @@ describe("borders", () => {
     setBorder(model, "top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
-    expect(getBorder(model.workbook, "B2")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
     expect(model.workbook.cells.C2.border).toBeDefined();
-    expect(getBorder(model.workbook, "C2")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "C2")).toEqual({ top: ["thin", "#000"] });
   });
 
   test("can clear a zone", () => {
@@ -120,10 +120,10 @@ describe("borders", () => {
       bottom: ["thin", "#000"],
       right: ["thin", "#000"]
     };
-    expect(getBorder(model.workbook, "B2")).toEqual(all);
-    expect(getBorder(model.workbook, "B3")).toEqual(all);
-    expect(getBorder(model.workbook, "C2")).toEqual(all);
-    expect(getBorder(model.workbook, "C3")).toEqual(all);
+    expect(getBorder(model, "B2")).toEqual(all);
+    expect(getBorder(model, "B3")).toEqual(all);
+    expect(getBorder(model, "C2")).toEqual(all);
+    expect(getBorder(model, "C3")).toEqual(all);
   });
 
   test("setting top border in a zone only set top row", () => {
@@ -138,8 +138,8 @@ describe("borders", () => {
     const border = {
       top: ["thin", "#000"]
     };
-    expect(getBorder(model.workbook, "B2")).toEqual(border);
-    expect(getBorder(model.workbook, "C2")).toEqual(border);
+    expect(getBorder(model, "B2")).toEqual(border);
+    expect(getBorder(model, "C2")).toEqual(border);
     expect(model.workbook.cells.B3).not.toBeDefined();
     expect(model.workbook.cells.C3).not.toBeDefined();
   });
@@ -150,7 +150,7 @@ describe("borders", () => {
     // select B2, then set its right border
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     setBorder(model, "right");
-    expect(getBorder(model.workbook, "B2")).toEqual({ right: ["thin", "#000"] });
+    expect(getBorder(model, "B2")).toEqual({ right: ["thin", "#000"] });
 
     // select C2 then clear it
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 1 });
@@ -168,15 +168,15 @@ describe("borders", () => {
     // set external borders
     setBorder(model, "external");
     const s = ["thin", "#000"];
-    expect(getBorder(model.workbook, "B2")).toEqual({ top: s, left: s });
-    expect(getBorder(model.workbook, "C2")).toEqual({ top: s });
-    expect(getBorder(model.workbook, "D2")).toEqual({ top: s, right: s });
-    expect(getBorder(model.workbook, "B3")).toEqual({ left: s });
+    expect(getBorder(model, "B2")).toEqual({ top: s, left: s });
+    expect(getBorder(model, "C2")).toEqual({ top: s });
+    expect(getBorder(model, "D2")).toEqual({ top: s, right: s });
+    expect(getBorder(model, "B3")).toEqual({ left: s });
     expect(model.workbook.cells.C3).not.toBeDefined();
-    expect(getBorder(model.workbook, "D3")).toEqual({ right: s });
-    expect(getBorder(model.workbook, "B4")).toEqual({ bottom: s, left: s });
-    expect(getBorder(model.workbook, "C4")).toEqual({ bottom: s });
-    expect(getBorder(model.workbook, "D4")).toEqual({ bottom: s, right: s });
+    expect(getBorder(model, "D3")).toEqual({ right: s });
+    expect(getBorder(model, "B4")).toEqual({ bottom: s, left: s });
+    expect(getBorder(model, "C4")).toEqual({ bottom: s });
+    expect(getBorder(model, "D4")).toEqual({ bottom: s, right: s });
   });
 
   test("setting internal horizontal borders in a zone works", () => {
@@ -191,10 +191,10 @@ describe("borders", () => {
     const s = ["thin", "#000"];
     expect(model.workbook.cells.B2).not.toBeDefined();
     expect(model.workbook.cells.C2).not.toBeDefined();
-    expect(getBorder(model.workbook, "B3")).toEqual({ top: s });
-    expect(getBorder(model.workbook, "C3")).toEqual({ top: s });
-    expect(getBorder(model.workbook, "B4")).toEqual({ top: s });
-    expect(getBorder(model.workbook, "C4")).toEqual({ top: s });
+    expect(getBorder(model, "B3")).toEqual({ top: s });
+    expect(getBorder(model, "C3")).toEqual({ top: s });
+    expect(getBorder(model, "B4")).toEqual({ top: s });
+    expect(getBorder(model, "C4")).toEqual({ top: s });
   });
 
   test("setting internal vertical borders in a zone works", () => {
@@ -210,9 +210,9 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
     expect(model.workbook.cells.B3).not.toBeDefined();
     expect(model.workbook.cells.B4).not.toBeDefined();
-    expect(getBorder(model.workbook, "C2")).toEqual({ left: s });
-    expect(getBorder(model.workbook, "C3")).toEqual({ left: s });
-    expect(getBorder(model.workbook, "C4")).toEqual({ left: s });
+    expect(getBorder(model, "C2")).toEqual({ left: s });
+    expect(getBorder(model, "C3")).toEqual({ left: s });
+    expect(getBorder(model, "C4")).toEqual({ left: s });
   });
 
   test("setting internal  borders in a zone works", () => {
@@ -226,11 +226,11 @@ describe("borders", () => {
     setBorder(model, "hv");
     const s = ["thin", "#000"];
     expect(model.workbook.cells.B2).not.toBeDefined();
-    expect(getBorder(model.workbook, "C2")).toEqual({ left: s });
-    expect(getBorder(model.workbook, "B3")).toEqual({ top: s });
-    expect(getBorder(model.workbook, "C3")).toEqual({ top: s, left: s });
-    expect(getBorder(model.workbook, "B4")).toEqual({ top: s });
-    expect(getBorder(model.workbook, "C4")).toEqual({ top: s, left: s });
+    expect(getBorder(model, "C2")).toEqual({ left: s });
+    expect(getBorder(model, "B3")).toEqual({ top: s });
+    expect(getBorder(model, "C3")).toEqual({ top: s, left: s });
+    expect(getBorder(model, "B4")).toEqual({ top: s });
+    expect(getBorder(model, "C4")).toEqual({ top: s, left: s });
   });
 
   test("deleting a cell with a border does not remove the border", () => {

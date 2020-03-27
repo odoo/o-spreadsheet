@@ -80,7 +80,7 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
   // styles and borders
   const styles = data.styles || {};
   styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
-  const borders: Workbook["borders"] = data.borders || {};
+  const borders = data.borders || {};
 
   // compute next id
   let nextId = 1;
@@ -96,8 +96,6 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     rows: [],
     cols: [],
     cells: {},
-    styles,
-    borders,
     merges: {},
     mergeCellMap: {},
     width: 0,
@@ -169,9 +167,6 @@ function exportMerges(merges: { [key: number]: Merge }): string[] {
 }
 
 export function exportData(state: Workbook): WorkbookData {
-  // styles and borders
-  const borders: WorkbookData["borders"] = state.borders || {};
-
   const sheets: SheetData[] = [];
   for (let sheetName in state.sheets) {
     const sheet = state.sheets[sheetName];
@@ -198,7 +193,6 @@ export function exportData(state: Workbook): WorkbookData {
 
   return {
     version: CURRENT_VERSION,
-    sheets,
-    borders
+    sheets
   };
 }
