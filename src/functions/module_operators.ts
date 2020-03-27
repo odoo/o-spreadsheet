@@ -24,8 +24,8 @@ export const ADD: FunctionDescription = {
 export const CONCAT: FunctionDescription = {
   description: `Concatenation of two values.`,
   args: args`
-      value1 (any) The value to which value2 will be appended.
-      value2 (any) The value to append to value1.
+      value1 (string) The value to which value2 will be appended.
+      value2 (string) The value to append to value1.
     `,
   returns: ["STRING"],
   compute: function(value1: any, value2: any): string {
