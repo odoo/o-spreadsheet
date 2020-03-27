@@ -108,7 +108,7 @@ export const COUNTBLANK: FunctionDescription = {
             }
           }
         }
-      } else if (element === undefined || element === "") {
+      } else if (element === null || element === "") {
         blanks++;
       }
     }
