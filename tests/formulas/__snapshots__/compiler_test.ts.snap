@@ -74,7 +74,7 @@ exports[`expression compiler function call 3`] = `
 "function anonymous(cell,range,ctx
 ) {
 // =sum(1,,2)
-let _1 = ctx['SUM'](1,undefined,2)
+let _1 = ctx['SUM'](1,null,2)
 return _1;
 }"
 `;

@@ -131,7 +131,7 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
         }
         break;
       case "UNKNOWN":
-        return "undefined";
+        return "null";
     }
     return `_${id}`;
   }
