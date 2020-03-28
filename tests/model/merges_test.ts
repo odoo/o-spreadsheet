@@ -18,7 +18,7 @@ describe("merges", () => {
     expect(model.workbook.cells.B2.content).toBe("b2");
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.workbook.merges).toEqual({
-      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
 
@@ -36,7 +36,7 @@ describe("merges", () => {
     });
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.workbook.merges).toEqual({
-      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -244,7 +244,7 @@ describe("merges", () => {
 
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.workbook.merges).toEqual({
-      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     // undo
@@ -256,7 +256,7 @@ describe("merges", () => {
     model.redo();
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.workbook.merges).toEqual({
-      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
 });

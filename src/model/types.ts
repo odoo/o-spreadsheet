@@ -177,7 +177,6 @@ export interface Workbook {
   trackChanges: boolean;
   undoStack: HistoryStep[];
   redoStack: HistoryStep[];
-  nextId: number;
   highlights: Highlight[];
   isSelectingRange: boolean;
 

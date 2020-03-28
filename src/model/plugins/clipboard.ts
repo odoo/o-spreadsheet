@@ -6,12 +6,22 @@ import { updateCell } from "../history";
 import { Cell, GridCommand, NewCell, Zone } from "../types";
 
 // -----------------------------------------------------------------------------
-// ClipboardPlugin
+// Helpers
 // -----------------------------------------------------------------------------
+
+function clip(val: number, min: number, max: number): number {
+  return val < min ? min : val > max ? max : val;
+}
+
+/**
+ * Clipboard Plugin
+ *
+ * This clipboard manage all cut/copy/paste interactions internal to the
+ * application, and with the OS clipboard as well.
+ */
 export class ClipboardPlugin extends BasePlugin {
   static getters = ["getClipboardContent", "isPaintingFormat"];
 
-  // internal state
   status: "empty" | "visible" | "invisible" = "empty";
   shouldCut?: boolean;
   zones: Zone[] = [];
@@ -228,12 +238,4 @@ export class ClipboardPlugin extends BasePlugin {
       }
     }
   }
-}
-
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
-function clip(val: number, min: number, max: number): number {
-  return val < min ? min : val > max ? max : val;
 }

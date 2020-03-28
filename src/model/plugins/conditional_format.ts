@@ -10,6 +10,10 @@ import {
 import { toZone } from "../../helpers";
 import { updateState } from "../history";
 
+// -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
+
 let ruleExecutor = {
   CellIsRule: (cell: Cell, rule: CellIsRule): boolean => {
     switch (rule.operator) {
@@ -25,6 +29,12 @@ let ruleExecutor = {
   }
 };
 
+/**
+ * ConditionalFormatPlugin
+ *
+ * The functional scope of this plugin is everything related to conditional
+ * formatting.
+ */
 export class ConditionalFormatPlugin extends BasePlugin {
   static getters = ["getConditionalFormats"];
 
@@ -39,9 +49,18 @@ export class ConditionalFormatPlugin extends BasePlugin {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
   getConditionalFormats(): ConditionalFormat[] {
     return this.workbook.activeSheet.conditionalFormats;
   }
+
+  // ---------------------------------------------------------------------------
+  // Private
+  // ---------------------------------------------------------------------------
+
   private addConditionalFormatting(cmd: AddConditionalFormatCommand) {
     const currentCF = this.workbook.activeSheet.conditionalFormats.slice();
     if (cmd.replace) {

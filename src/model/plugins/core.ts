@@ -1,18 +1,20 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { formatNumber, formatValue } from "../../formatters";
-import { isEqual, numberToLetters, toCartesian, toXC, union } from "../../helpers";
+import { isEqual, numberToLetters, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
 import { addCell, deleteCell } from "../core";
 import { updateState } from "../history";
 import { HeaderData, SheetData, WorkbookData } from "../import_export";
-import { Cell, Col, GridCommand, Row, Sheet, Workbook, Zone } from "../types";
+import { Cell, Col, GridCommand, Row, Sheet, Zone } from "../types";
 
+/**
+ * Core Plugin
+ *
+ * This is the most fundamental of all plugins. It defines how to interact with
+ * cell and sheet content.
+ */
 export class CorePlugin extends BasePlugin {
   static getters = ["getCellText", "zoneToXC", "expandZone"];
-
-  // ---------------------------------------------------------------------------
-  // Actions
-  // ---------------------------------------------------------------------------
 
   handle(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
@@ -145,9 +147,12 @@ export class CorePlugin extends BasePlugin {
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
     updateState(this.workbook, ["sheets"], sheets);
-    // activateSheet(this.workbook, sheet.name);
     return sheet.name;
   }
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
     const sheets = data.sheets || [];
@@ -173,10 +178,9 @@ export class CorePlugin extends BasePlugin {
       mergeCellMap: {},
       conditionalFormats: data.conditionalFormats || []
     };
-    if (data.merges) {
-      addMerges(this.workbook, sheet, data.merges);
-    }
-    addSheet(this.workbook, sheet);
+    const sheets = this.workbook.sheets.slice();
+    sheets.push(sheet);
+    updateState(this.workbook, ["sheets"], sheets);
     // cells
     for (let xc in data.cells) {
       addCell(this.workbook, xc, data.cells[xc], { sheet: name });
@@ -196,35 +200,6 @@ export class CorePlugin extends BasePlugin {
             deleteCell(this.workbook, xc);
           }
         }
-      }
-    }
-  }
-}
-
-function addSheet(state: Workbook, sheet: Sheet) {
-  const sheets = state.sheets.slice();
-  sheets.push(sheet);
-  updateState(state, ["sheets"], sheets);
-}
-
-function addMerges(state: Workbook, sheet: Sheet, merges: string[]) {
-  for (let m of merges) {
-    let id = state.nextId++;
-    const [tl, br] = m.split(":");
-    const [left, top] = toCartesian(tl);
-    const [right, bottom] = toCartesian(br);
-    sheet.merges[id] = {
-      id,
-      left,
-      top,
-      right,
-      bottom,
-      topLeft: tl
-    };
-    for (let row = top; row <= bottom; row++) {
-      for (let col = left; col <= right; col++) {
-        const xc = toXC(col, row);
-        sheet.mergeCellMap[xc] = id;
       }
     }
   }

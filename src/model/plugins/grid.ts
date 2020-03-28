@@ -1,14 +1,17 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
+import { isEqual, toCartesian, toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { updateState } from "../history";
-import { Cell, GridCommand, Zone } from "../types";
-import { toXC, isEqual } from "../../helpers";
 import { deleteCell } from "../core";
+import { updateState } from "../history";
+import { WorkbookData } from "../import_export";
+import { Cell, GridCommand, Sheet, Zone } from "../types";
 
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
   static getters = ["getCol", "getRow", "getColSize", "getRowSize", "isMergeDestructive"];
+
+  nextId: number = 1;
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -184,7 +187,7 @@ export class GridPlugin extends BasePlugin {
       return;
     }
 
-    let id = this.workbook.nextId++;
+    let id = this.nextId++;
     updateState(this.workbook, ["merges", id], {
       id,
       left,
@@ -224,6 +227,43 @@ export class GridPlugin extends BasePlugin {
       for (let c = left; c <= right; c++) {
         const xc = toXC(c, r);
         updateState(this.workbook, ["mergeCellMap", xc], undefined);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
+  import(data: WorkbookData) {
+    const sheets = data.sheets || [];
+    for (let [i, sheetData] of sheets.entries()) {
+      const sheet = this.workbook.sheets[i];
+      if (sheet && sheetData.merges) {
+        this.importSheet(sheet, sheetData.merges);
+      }
+    }
+  }
+
+  importSheet(sheet: Sheet, merges: string[]) {
+    for (let m of merges) {
+      let id = this.nextId++;
+      const [tl, br] = m.split(":");
+      const [left, top] = toCartesian(tl);
+      const [right, bottom] = toCartesian(br);
+      sheet.merges[id] = {
+        id,
+        left,
+        top,
+        right,
+        bottom,
+        topLeft: tl
+      };
+      for (let row = top; row <= bottom; row++) {
+        for (let col = left; col <= right; col++) {
+          const xc = toXC(col, row);
+          sheet.mergeCellMap[xc] = id;
+        }
       }
     }
   }
