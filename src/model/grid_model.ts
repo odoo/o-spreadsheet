@@ -1,25 +1,21 @@
 import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { load } from "../data";
 import { BasePlugin } from "./base_plugin";
 import * as core from "./core";
 import * as history from "./history";
-import {
-  CURRENT_VERSION,
-  exportData,
-  importData,
-  PartialWorkbookDataWithVersion
-} from "./import_export";
+import { exportData, importData } from "./import_export";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { CorePlugin } from "./plugins/core";
 import { EditionPlugin } from "./plugins/edition";
 import { EntityPlugin } from "./plugins/entity";
 import { EvaluationPlugin } from "./plugins/evaluation";
+import { FormattingPlugin } from "./plugins/formatting";
 import { GridPlugin } from "./plugins/grid";
+import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
 import { CommandResult, Getters, GridCommand, UI, Workbook } from "./types";
-import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
-import { FormattingPlugin } from "./plugins/formatting";
 
 const PLUGINS = [
   CorePlugin,
@@ -51,11 +47,12 @@ export class GridModel extends owl.core.EventBus {
 
   getters: Getters;
 
-  constructor(data: PartialWorkbookDataWithVersion = { version: CURRENT_VERSION }) {
+  constructor(data?: any) {
     super();
     (window as any).gridmodel = this; // to debug. remove this someday
 
-    const workbook = importData(data);
+    const workbookData = load(data);
+    const workbook = importData(workbookData);
     this.workbook = workbook;
 
     // Plugins
@@ -64,7 +61,7 @@ export class GridModel extends owl.core.EventBus {
 
     for (let Plugin of PLUGINS) {
       const plugin = new Plugin(workbook, this.getters);
-      plugin.import(data);
+      plugin.import(workbookData);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);

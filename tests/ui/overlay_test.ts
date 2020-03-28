@@ -1,4 +1,4 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model";
+import { GridModel } from "../../src/model";
 import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
 import {
   MIN_COL_WIDTH,
@@ -25,7 +25,6 @@ function fillData() {
 beforeEach(async () => {
   fixture = makeTestFixture();
   model = new GridModel({
-    version: CURRENT_VERSION,
     sheets: [
       {
         colNumber: 10,

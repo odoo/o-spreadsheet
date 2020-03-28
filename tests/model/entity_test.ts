@@ -1,17 +1,14 @@
 import { addFunction } from "../../src/functions";
 import { args } from "../../src/functions/arguments";
-import { CURRENT_VERSION, GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
 import "../canvas.mock";
 import { resetFunctions } from "../helpers";
 
 describe("Entity", () => {
   test("Add an entity", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
-          colNumber: 10,
-          rowNumber: 10,
           merges: ["A1:B3"]
         }
       ]
@@ -28,7 +25,6 @@ describe("Entity", () => {
 
   test("Add multiple entities", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -48,7 +44,6 @@ describe("Entity", () => {
 
   test("Remove entities", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,

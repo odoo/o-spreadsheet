@@ -1,14 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { toXC } from "../helpers";
 import { Border, Col, ConditionalFormat, Merge, Row, Style, Workbook } from "./types";
-
-/**
- * This is the current state version number. It should be incremented each time
- * a breaking change is made in the way the state is handled, and an upgrade
- * function should be defined
- */
-export const CURRENT_VERSION = 1;
-
+import { CURRENT_VERSION } from "../data";
 /**
  * Data
  *
@@ -20,10 +13,6 @@ export const CURRENT_VERSION = 1;
  * - function importData: convert from WorkbookData -> Workbook
  * - function exportData: convert from Workbook -> WorkbookData
  */
-
-export interface PartialWorkbookDataWithVersion extends Partial<WorkbookData> {
-  version: WorkbookData["version"];
-}
 
 interface CellData {
   content?: string;
@@ -37,43 +26,29 @@ export interface HeaderData {
 }
 
 export interface SheetData {
-  name?: string;
+  name: string;
   colNumber: number;
   rowNumber: number;
-  cells?: { [key: string]: CellData };
-  merges?: string[];
-  cols?: { [key: number]: HeaderData };
-  rows?: { [key: number]: HeaderData };
-  conditionalFormats?: ConditionalFormat[];
+  cells: { [key: string]: CellData };
+  merges: string[];
+  cols: { [key: number]: HeaderData };
+  rows: { [key: number]: HeaderData };
+  conditionalFormats: ConditionalFormat[];
 }
 
 export interface WorkbookData {
   version: number;
-  sheets?: SheetData[];
-  styles?: { [key: number]: Style };
-  borders?: { [key: number]: Border };
-  entities?: { [key: string]: { [key: string]: any } };
+  sheets: SheetData[];
+  styles: { [key: number]: Style };
+  borders: { [key: number]: Border };
+  entities: { [key: string]: { [key: string]: any } };
 }
 
 // -----------------------------------------------------------------------------
 // Import
 // -----------------------------------------------------------------------------
 
-// TODO: use this code in importData function
-// const UPGRADES = {
-//   1: function (state) {
-//     // return here a state upgraded to version 2
-//     return state;
-//   }
-// };
-
-export const DEFAULT_STYLE: Style = {
-  fillColor: "white",
-  textColor: "black",
-  fontSize: 10
-};
-
-export function importData(data: PartialWorkbookDataWithVersion): Workbook {
+export function importData(data: WorkbookData): Workbook {
   if (!data.version) {
     throw new Error("Missing version number");
   }
@@ -151,7 +126,7 @@ function exportMerges(merges: { [key: number]: Merge }): string[] {
   );
 }
 
-export function exportData(state: Workbook): WorkbookData {
+export function exportData(state: Workbook): Partial<WorkbookData> {
   const sheets: SheetData[] = [];
   for (let sheetName in state.sheets) {
     const sheet = state.sheets[sheetName];

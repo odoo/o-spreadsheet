@@ -1,4 +1,4 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
 import { makeTestFixture, nextTick } from "../helpers";
 import { TopBar } from "../../src/ui/top_bar";
 import { Component, tags } from "@odoo/owl";
@@ -76,7 +76,6 @@ describe("TopBar component", () => {
 
   test("merging cell button state is correct", async () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,

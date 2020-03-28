@@ -170,11 +170,7 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    const sheets = data.sheets || [];
-    if (sheets.length === 0) {
-      sheets.push({ name: "Sheet1", colNumber: 26, rowNumber: 100 });
-    }
-    for (let sheet of sheets) {
+    for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
     this.activateSheet(this.workbook.sheets[0].name);

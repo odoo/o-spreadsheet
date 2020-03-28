@@ -1,4 +1,4 @@
-import { CURRENT_VERSION, GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
 import { patch, waitForRecompute } from "../helpers";
 
 describe("evaluateCells, async formulas", () => {
@@ -20,7 +20,6 @@ describe("evaluateCells, async formulas", () => {
 
   test("async formulas in base data", async () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
