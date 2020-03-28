@@ -1,0 +1,36 @@
+import { GridPlugin } from "../model/plugins/grid";
+import { ClipboardPlugin } from "../model/plugins/clipboard";
+import { EntityPlugin } from "../model/plugins/entity";
+import { SelectionPlugin } from "../model/plugins/selection";
+import { CorePlugin } from "../model/plugins/core";
+import { ConditionalFormatPlugin } from "../model/plugins/conditional_format";
+import { LayouPlugin } from "../model/plugins/layout";
+import { FormattingPlugin } from "../model/plugins/formatting";
+
+// -----------------------------------------------------------------------------
+// Getters
+// -----------------------------------------------------------------------------
+export interface Getters {
+  getCellText: CorePlugin["getCellText"];
+  zoneToXC: CorePlugin["zoneToXC"];
+  expandZone: CorePlugin["expandZone"];
+  getClipboardContent: ClipboardPlugin["getClipboardContent"];
+  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
+  getCellWidth: FormattingPlugin["getCellWidth"];
+  getCellHeight: FormattingPlugin["getCellHeight"];
+  getColSize: GridPlugin["getColSize"];
+  getRowSize: GridPlugin["getRowSize"];
+  getCol: GridPlugin["getCol"];
+  getRow: GridPlugin["getRow"];
+  getEntity: EntityPlugin["getEntity"];
+  getEntities: EntityPlugin["getEntities"];
+  getActiveCols: SelectionPlugin["getActiveCols"];
+  getActiveRows: SelectionPlugin["getActiveRows"];
+  getSelectedZones: SelectionPlugin["getSelectedZones"];
+  getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
+  getViewport: LayouPlugin["getViewport"];
+  isMergeDestructive: GridPlugin["isMergeDestructive"];
+  getCurrentStyle: FormattingPlugin["getCurrentStyle"];
+  getCellStyle: FormattingPlugin["getCellStyle"];
+  getCellBorder: FormattingPlugin["getCellBorder"];
+}

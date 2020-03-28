@@ -1,11 +1,18 @@
-import { BasePlugin } from "../base_plugin";
-import { GridCommand, Style, Zone, BorderCommand, Border, Cell } from "../types";
-import { selectedCell, getCell, addCell, deleteCell } from "../core";
-import { stringify, toXC } from "../../helpers";
-import { updateCell } from "../history";
-import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../../constants";
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { WorkbookData } from "../import_export";
+import { stringify, toXC } from "../../helpers";
+import {
+  Border,
+  BorderCommand,
+  Cell,
+  GridCommand,
+  Style,
+  WorkbookData,
+  Zone
+} from "../../types/index";
+import { BasePlugin } from "../base_plugin";
+import { addCell, deleteCell, getCell, selectedCell } from "../core";
+import { updateCell } from "../history";
 
 // -----------------------------------------------------------------------------
 // Constants

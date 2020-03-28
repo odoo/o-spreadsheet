@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 
-import { GridModel, Zone } from "../model";
+import { Zone } from "../types/index";
+import { GridModel } from "../model";
 import { fontSizeMap } from "../fonts";
 import { ComposerToken, composerTokenize } from "../formulas/composer_tokenizer";
 import { rangeReference } from "../formulas/parser";

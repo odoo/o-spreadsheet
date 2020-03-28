@@ -1,5 +1,6 @@
 import * as owl from "@odoo/owl";
-import { ConditionalFormat, GridModel } from "../../model";
+import { GridModel } from "../../model";
+import { ConditionalFormat } from "../../types/index";
 import {
   ConditionalFormattingRuleEditor,
   PREVIEW_TEMPLATE

@@ -1,4 +1,4 @@
-import { WorkbookData, SheetData } from "./model/import_export";
+import { WorkbookData, SheetData } from "./types/index";
 
 /**
  * This is the current state version number. It should be incremented each time

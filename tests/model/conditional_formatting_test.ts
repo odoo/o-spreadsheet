@@ -1,4 +1,5 @@
-import { GridModel, ConditionalFormat, Style } from "../../src/model";
+import { GridModel } from "../../src/model";
+import { ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
 
 let model: GridModel;

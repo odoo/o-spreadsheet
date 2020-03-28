@@ -1,4 +1,4 @@
-import { Zone } from "./model/types";
+import { Zone } from "./types/index";
 
 /**
  * This files contains a small collection of useful helpers. They are mostly

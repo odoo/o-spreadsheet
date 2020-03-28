@@ -6,7 +6,7 @@ import {
   HEADER_WIDTH
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { Box, Rect, UI, Viewport, Zone } from "../model/index";
+import { Box, Rect, UI, Viewport, Zone } from "../types/index";
 
 let dpr = window.devicePixelRatio || 1;
 let thinLineWidth = 0.4 * dpr;

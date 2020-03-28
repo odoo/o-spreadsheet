@@ -3,7 +3,7 @@ import { toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
 import { addCell, deleteCell, getCell } from "../core";
 import { updateCell } from "../history";
-import { Cell, GridCommand, NewCell, Zone } from "../types";
+import { Cell, GridCommand, NewCell, Zone } from "../../types/index";
 
 // -----------------------------------------------------------------------------
 // Helpers

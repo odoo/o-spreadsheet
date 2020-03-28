@@ -4,7 +4,7 @@ import { compile } from "../formulas/index";
 import { isNumber } from "../functions/helpers";
 import { toCartesian } from "../helpers";
 import { updateState } from "./history";
-import { Cell, NewCell, Workbook } from "./types";
+import { Cell, NewCell, Workbook } from "../types/index";
 
 export function getCell(state: Workbook, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;

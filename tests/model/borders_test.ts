@@ -1,4 +1,5 @@
-import { BorderCommand, GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
+import { BorderCommand } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 
 function getBorder(model: GridModel, xc: string) {

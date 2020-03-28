@@ -1,5 +1,6 @@
 import { toZone } from "../../src/helpers";
-import { GridModel, Style } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
+import { Style } from "../../src/types/index";
 import "../canvas.mock";
 
 describe("merges", () => {

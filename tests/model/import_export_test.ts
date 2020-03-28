@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { importData } from "../../src/model/import_export";
-import { BorderDescr, GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
+import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 
 describe("data", () => {
