@@ -150,6 +150,21 @@ export class CorePlugin extends BasePlugin {
     return sheet.name;
   }
 
+  private deleteContent(sheet: string, zones: Zone[]) {
+    // TODO: get cells from the actual sheet
+    const cells = this.workbook.activeSheet.cells;
+    for (let zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const xc = toXC(col, row);
+          if (xc in cells) {
+            deleteCell(this.workbook, xc);
+          }
+        }
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
@@ -186,21 +201,6 @@ export class CorePlugin extends BasePlugin {
       addCell(this.workbook, xc, data.cells[xc], { sheet: name });
       const cell = sheet.cells[xc];
       sheet.rows[cell.row].cells[cell.col] = cell;
-    }
-  }
-
-  private deleteContent(sheet: string, zones: Zone[]) {
-    // TODO: get cells from the actual sheet
-    const cells = this.workbook.activeSheet.cells;
-    for (let zone of zones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const xc = toXC(col, row);
-          if (xc in cells) {
-            deleteCell(this.workbook, xc);
-          }
-        }
-      }
     }
   }
 }
