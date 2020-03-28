@@ -1,7 +1,7 @@
 import { Workbook, GridCommand, Getters } from "./types";
 import { WorkbookData } from "./import_export";
 
-export class BasePlugin {
+export abstract class BasePlugin {
   static getters: string[] = [];
 
   workbook: Workbook;

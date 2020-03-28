@@ -34,6 +34,7 @@ export class FormattingPlugin extends BasePlugin {
 
   styles: { [key: number]: Style } = {};
   borders: { [key: number]: Border } = {};
+  nextId: number = 1;
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -125,7 +126,7 @@ export class FormattingPlugin extends BasePlugin {
         return parseInt(k, 10);
       }
     }
-    const id = this.workbook.nextId++;
+    const id = this.nextId++;
     this.styles[id] = style;
     return id;
   }
@@ -241,7 +242,7 @@ export class FormattingPlugin extends BasePlugin {
         return parseInt(k, 10);
       }
     }
-    const id = this.workbook.nextId++;
+    const id = this.nextId++;
     this.borders[id] = border;
     return id;
   }
@@ -308,10 +309,18 @@ export class FormattingPlugin extends BasePlugin {
     if (data.styles) {
       this.styles = data.styles;
     }
+    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
     if (data.borders) {
       this.borders = data.borders;
     }
-    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
+    let nextId = 1;
+    for (let k in this.styles) {
+      nextId = Math.max(k as any, nextId);
+    }
+    for (let k in this.borders) {
+      nextId = Math.max(k as any, nextId);
+    }
+    this.nextId = nextId + 1;
   }
 
   export(data: WorkbookData) {
