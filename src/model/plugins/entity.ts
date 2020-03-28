@@ -6,16 +6,6 @@ export class EntityPlugin extends BasePlugin {
 
   entities: { [kind: string]: { [key: string]: any } } = {};
 
-  import(data: WorkbookData) {
-    if (data.entities) {
-      this.entities = JSON.parse(JSON.stringify(data.entities));
-    }
-  }
-
-  export(data: WorkbookData) {
-    data.entities = JSON.parse(JSON.stringify(this.entities));
-  }
-
   handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ADD_ENTITY":
@@ -46,5 +36,19 @@ export class EntityPlugin extends BasePlugin {
       throw new Error(`Could not find ${kind} in entities.`);
     }
     return this.entities[kind];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
+  import(data: WorkbookData) {
+    if (data.entities) {
+      this.entities = JSON.parse(JSON.stringify(data.entities));
+    }
+  }
+
+  export(data: WorkbookData) {
+    data.entities = JSON.parse(JSON.stringify(this.entities));
   }
 }

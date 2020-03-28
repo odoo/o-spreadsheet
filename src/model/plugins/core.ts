@@ -13,7 +13,9 @@ import {
   Zone,
   HeaderData,
   SheetData,
-  WorkbookData
+  WorkbookData,
+  CellData,
+  Merge
 } from "../../types/index";
 
 /**
@@ -208,6 +210,36 @@ export class CorePlugin extends BasePlugin {
       sheet.rows[cell.row].cells[cell.col] = cell;
     }
   }
+
+  export(): Partial<WorkbookData> {
+    const sheets: SheetData[] = [];
+    for (let sheetName in this.workbook.sheets) {
+      const sheet = this.workbook.sheets[sheetName];
+      const cells: { [key: string]: CellData } = {};
+      for (let [key, cell] of Object.entries(sheet.cells)) {
+        cells[key] = {
+          content: cell.content,
+          border: cell.border,
+          style: cell.style,
+          format: cell.format
+        };
+      }
+      sheets.push({
+        name: sheet.name,
+        colNumber: sheet.colNumber,
+        rowNumber: sheet.rowNumber,
+        rows: exportRows(sheet.rows),
+        cols: exportCols(sheet.cols),
+        merges: exportMerges(sheet.merges),
+        cells: cells,
+        conditionalFormats: sheet.conditionalFormats
+      });
+    }
+
+    return {
+      sheets
+    };
+  }
 }
 
 function createDefaultCols(colNumber: number): Col[] {
@@ -278,4 +310,32 @@ function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: number)
     current = row.bottom;
   }
   return rows;
+}
+
+function exportCols(cols: Col[]): { [key: number]: HeaderData } {
+  const exportedCols: { [key: number]: HeaderData } = {};
+  for (let i in cols) {
+    const col = cols[i];
+    if (col.size !== DEFAULT_CELL_WIDTH) {
+      exportedCols[i] = { size: col.size };
+    }
+  }
+  return exportedCols;
+}
+
+function exportRows(rows: Row[]): { [key: number]: HeaderData } {
+  const exportedRows: { [key: number]: HeaderData } = {};
+  for (let i in rows) {
+    const row = rows[i];
+    if (row.size !== DEFAULT_CELL_HEIGHT) {
+      exportedRows[i] = { size: row.size };
+    }
+  }
+  return exportedRows;
+}
+
+function exportMerges(merges: { [key: number]: Merge }): string[] {
+  return Object.values(merges).map(
+    merge => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom)
+  );
 }

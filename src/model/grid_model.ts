@@ -1,10 +1,10 @@
 import * as owl from "@odoo/owl";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { load } from "../data";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { load, CURRENT_VERSION } from "../data";
+import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 import * as core from "./core";
 import * as history from "./history";
-import { exportData, importData } from "./import_export";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { CorePlugin } from "./plugins/core";
@@ -15,7 +15,10 @@ import { FormattingPlugin } from "./plugins/formatting";
 import { GridPlugin } from "./plugins/grid";
 import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
-import { CommandResult, Getters, GridCommand, UI, Workbook } from "../types/index";
+
+// -----------------------------------------------------------------------------
+// Plugins
+// -----------------------------------------------------------------------------
 
 const PLUGINS = [
   CorePlugin,
@@ -52,15 +55,14 @@ export class GridModel extends owl.core.EventBus {
     (window as any).gridmodel = this; // to debug. remove this someday
 
     const workbookData = load(data);
-    const workbook = importData(workbookData);
-    this.workbook = workbook;
+    this.workbook = createEmptyWorkbook();
 
     // Plugins
     this.getters = {} as Getters;
     this.plugins = [];
 
     for (let Plugin of PLUGINS) {
-      const plugin = new Plugin(workbook, this.getters);
+      const plugin = new Plugin(this.workbook, this.getters);
       plugin.import(workbookData);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -210,11 +212,53 @@ export class GridModel extends owl.core.EventBus {
 
   // export
   // ---------------------------------------------------------------------------
-  exportData() {
-    const data = exportData(this.workbook);
-    for (let plugin of this.plugins) {
+  exportData(): WorkbookData {
+    const data = (this.plugins[0] as CorePlugin).export();
+    for (let plugin of this.plugins.slice(1)) {
       plugin.export(data);
     }
-    return data;
+    data.version = CURRENT_VERSION;
+    return data as WorkbookData;
   }
+}
+
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function createEmptyWorkbook(): Workbook {
+  return {
+    rows: [],
+    cols: [],
+    cells: {},
+    merges: {},
+    mergeCellMap: {},
+    width: 0,
+    height: 0,
+    clientWidth: DEFAULT_CELL_WIDTH + HEADER_WIDTH,
+    clientHeight: DEFAULT_CELL_HEIGHT + HEADER_HEIGHT,
+    offsetX: 0,
+    offsetY: 0,
+    scrollTop: 0,
+    scrollLeft: 0,
+    viewport: { top: 0, left: 0, bottom: 0, right: 0 },
+    selection: {
+      zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
+      anchor: { col: 0, row: 0 }
+    },
+    activeCol: 0,
+    activeRow: 0,
+    activeXc: "A1",
+    isEditing: false,
+    currentContent: "",
+    trackChanges: false,
+    undoStack: [],
+    redoStack: [],
+    highlights: [],
+    isSelectingRange: false,
+    loadingCells: 0,
+    isStale: true,
+    sheets: [],
+    activeSheet: null as any
+  };
 }
