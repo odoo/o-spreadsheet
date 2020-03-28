@@ -19,13 +19,11 @@ import { GridPlugin } from "./plugins/grid";
 import { SelectionPlugin } from "./plugins/selection";
 import { CommandResult, Getters, GridCommand, UI, Workbook } from "./types";
 import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
-import { MergePlugin } from "./plugins/merges";
 import { FormattingPlugin } from "./plugins/formatting";
 
 const PLUGINS = [
   CorePlugin,
   EvaluationPlugin,
-  MergePlugin,
   ClipboardPlugin,
   EntityPlugin,
   GridPlugin,

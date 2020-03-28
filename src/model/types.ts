@@ -15,7 +15,6 @@ import { SelectionPlugin } from "./plugins/selection";
 import { CorePlugin } from "./plugins/core";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { LayouPlugin } from "./plugins/layout";
-import { MergePlugin } from "./plugins/merges";
 import { FormattingPlugin } from "./plugins/formatting";
 
 // -----------------------------------------------------------------------------
@@ -416,7 +415,7 @@ export interface Getters {
   getSelectedZones: SelectionPlugin["getSelectedZones"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getViewport: LayouPlugin["getViewport"];
-  isMergeDestructive: MergePlugin["isMergeDestructive"];
+  isMergeDestructive: GridPlugin["isMergeDestructive"];
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
