@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
-import { CURRENT_VERSION, GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
 import "../canvas.mock";
 
 describe("navigation", () => {
@@ -52,7 +52,6 @@ describe("navigation", () => {
 
   test("move in and out of a merge", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -81,7 +80,6 @@ describe("navigation", () => {
 
   test("do nothing if moving out of merge is out of grid", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,

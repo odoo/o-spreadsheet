@@ -1,4 +1,4 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
 import { waitForRecompute } from "../helpers";
 
 describe("core", () => {
@@ -132,7 +132,6 @@ describe("history", () => {
 
   test("can undo and redo a cell update", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }]
     });
 

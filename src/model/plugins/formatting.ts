@@ -5,14 +5,11 @@ import { stringify, toXC } from "../../helpers";
 import { updateCell } from "../history";
 import { DEFAULT_FONT_WEIGHT, DEFAULT_FONT_SIZE, DEFAULT_FONT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { WorkbookData, DEFAULT_STYLE } from "../import_export";
+import { WorkbookData } from "../import_export";
 
-/**
- * Manage:
- * - styles
- * - borders
- * - value formatters
- */
+// -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
 
 const commandToSides = {
   top: ["top"],
@@ -22,6 +19,20 @@ const commandToSides = {
   all: ["top", "left", "bottom", "right"]
 };
 
+const DEFAULT_STYLE: Style = {
+  fillColor: "white",
+  textColor: "black",
+  fontSize: 10
+};
+
+/**
+ * Formatting plugin.
+ *
+ * This plugin manages all things related to a cell look:
+ * - styles
+ * - borders
+ * - value formatters
+ */
 export class FormattingPlugin extends BasePlugin {
   static getters = [
     "getCurrentStyle",

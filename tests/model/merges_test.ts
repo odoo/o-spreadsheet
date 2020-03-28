@@ -1,5 +1,5 @@
 import { toZone } from "../../src/helpers";
-import { CURRENT_VERSION, GridModel, Style } from "../../src/model/index";
+import { GridModel, Style } from "../../src/model/index";
 import "../canvas.mock";
 
 describe("merges", () => {
@@ -24,7 +24,6 @@ describe("merges", () => {
 
   test("can unmerge two cells", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -60,7 +59,6 @@ describe("merges", () => {
 
   test("editing a merge cell actually edits the top left", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -82,7 +80,6 @@ describe("merges", () => {
 
   test("setting a style to a merge edit all the cells", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -111,7 +108,6 @@ describe("merges", () => {
 
   test("when moving in a merge, selected cell is topleft", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -132,7 +128,6 @@ describe("merges", () => {
 
   test("properly compute if a merge is destructive or not", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -150,7 +145,6 @@ describe("merges", () => {
 
   test("a merge with only style should not be considered destructive", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -173,7 +167,6 @@ describe("merges", () => {
 
   test("merging cells with values remove them", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -220,7 +213,6 @@ describe("merges", () => {
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }]
     });
 

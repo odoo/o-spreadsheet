@@ -1,4 +1,4 @@
-import { GridModel, CURRENT_VERSION } from "../../src/model/index";
+import { GridModel } from "../../src/model/index";
 import "../helpers"; // to have getcontext mocks
 
 describe("sheets", () => {
@@ -50,7 +50,6 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           name: "ABC",
@@ -73,7 +72,6 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets, 2", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           name: "ABC",
@@ -99,7 +97,6 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets, 3 (with range)", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           name: "ABC",
@@ -126,7 +123,6 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets: cycles", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           name: "ABC",

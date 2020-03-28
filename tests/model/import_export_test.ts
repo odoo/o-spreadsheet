@@ -1,6 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { importData } from "../../src/model/import_export";
-import { BorderDescr, CURRENT_VERSION, GridModel } from "../../src/model/index";
+import { BorderDescr, GridModel } from "../../src/model/index";
 import "../helpers"; // to have getcontext mocks
 
 describe("data", () => {
@@ -22,7 +22,6 @@ describe("data", () => {
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 2,
@@ -44,7 +43,6 @@ describe("Import", () => {
 
   test("Import 2 sheets with merges", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 2,
@@ -73,7 +71,6 @@ describe("Import", () => {
 describe("Export", () => {
   test("Can export col size", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -93,7 +90,6 @@ describe("Export", () => {
 
   test("Can export row size", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -113,7 +109,6 @@ describe("Export", () => {
 
   test("Can export merges", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -128,7 +123,6 @@ describe("Export", () => {
 
   test("Can export format", () => {
     const model = new GridModel({
-      version: CURRENT_VERSION,
       sheets: [
         {
           colNumber: 10,
@@ -146,7 +140,6 @@ describe("Export", () => {
 
 describe("complete import, then export", () => {
   const modelData = {
-    version: CURRENT_VERSION,
     sheets: [
       {
         colNumber: 10,
