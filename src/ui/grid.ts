@@ -6,7 +6,8 @@ import {
   SCROLLBAR_WIDTH
 } from "../constants";
 import { isInside } from "../helpers";
-import { GridModel, UI } from "../model/index";
+import { GridModel } from "../model/index";
+import { UI } from "../types/index";
 import { Composer } from "./composer";
 import { ContextMenu } from "./context_menu";
 import { drawGrid } from "./grid_renderer";

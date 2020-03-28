@@ -1,7 +1,7 @@
 import { AST, parse, ASTFuncall, ASTAsyncFuncall } from "./parser";
 import { functions } from "../functions/index";
 import { Arg } from "../functions/arguments";
-import { CompiledFormula } from "../model";
+import { CompiledFormula } from "../types/index";
 
 const OPERATOR_MAP = {
   "=": "EQ",

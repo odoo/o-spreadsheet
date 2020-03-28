@@ -4,8 +4,17 @@ import { isEqual, numberToLetters, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
 import { addCell, deleteCell } from "../core";
 import { updateState } from "../history";
-import { HeaderData, SheetData, WorkbookData } from "../import_export";
-import { Cell, Col, GridCommand, Row, Sheet, Zone } from "../types";
+import {
+  Cell,
+  Col,
+  GridCommand,
+  Row,
+  Sheet,
+  Zone,
+  HeaderData,
+  SheetData,
+  WorkbookData
+} from "../../types/index";
 
 /**
  * Core Plugin

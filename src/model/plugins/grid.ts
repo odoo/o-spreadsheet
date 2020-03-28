@@ -3,8 +3,7 @@ import { isEqual, toCartesian, toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
 import { deleteCell } from "../core";
 import { updateState } from "../history";
-import { WorkbookData } from "../import_export";
-import { Cell, GridCommand, Sheet, Zone } from "../types";
+import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../../types/index";
 
 const MIN_PADDING = 3;
 

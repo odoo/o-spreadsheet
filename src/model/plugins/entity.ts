@@ -1,6 +1,5 @@
+import { GridCommand, WorkbookData } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
-import { WorkbookData } from "../import_export";
-import { GridCommand } from "../types";
 
 export class EntityPlugin extends BasePlugin {
   static getters = ["getEntity", "getEntities"];

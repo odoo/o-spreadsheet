@@ -1,7 +1,8 @@
 import * as owl from "@odoo/owl";
 import * as icons from "../icons";
 import { COLOR_PICKER, COLORS } from "../top_bar";
-import { GridModel, CellIsRule, Style, ConditionalFormat } from "../../model";
+import { GridModel } from "../../model";
+import { CellIsRule, Style, ConditionalFormat } from "../../types/index";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;

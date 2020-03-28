@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { toCartesian } from "../../helpers";
-import { Cell, GridCommand, Sheet } from "../types";
+import { Cell, GridCommand, Sheet } from "../../types/index";
 import { functionMap } from "../../functions/index";
 
 export class EvaluationPlugin extends BasePlugin {

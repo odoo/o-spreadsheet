@@ -15,7 +15,7 @@ import { FormattingPlugin } from "./plugins/formatting";
 import { GridPlugin } from "./plugins/grid";
 import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
-import { CommandResult, Getters, GridCommand, UI, Workbook } from "./types";
+import { CommandResult, Getters, GridCommand, UI, Workbook } from "../types/index";
 
 const PLUGINS = [
   CorePlugin,

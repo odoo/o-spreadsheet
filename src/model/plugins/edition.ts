@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone } from "../types";
+import { GridCommand, Zone } from "../../types/index";
 import { toZone, toXC } from "../../helpers";
 import { selectedCell, addCell, deleteCell } from "../core";
 import { tokenize } from "../../formulas/index";

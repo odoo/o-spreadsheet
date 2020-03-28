@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { Viewport, Box, Rect, GridCommand, Workbook } from "../types";
+import { Viewport, Box, Rect, GridCommand, Workbook } from "../../types/index";
 import { toXC, overlap } from "../../helpers";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 

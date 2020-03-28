@@ -1,4 +1,4 @@
-import { Cell, Workbook, HistoryChange, HistoryStep } from "./types";
+import { Cell, Workbook, HistoryChange, HistoryStep } from "../types/index";
 
 /**
  * History Management System

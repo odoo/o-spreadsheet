@@ -1,6 +1,6 @@
 import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone } from "../types";
+import { GridCommand, Zone } from "../../types/index";
 
 /**
  * SelectionPlugin

@@ -1,5 +1,4 @@
-import { Workbook, GridCommand, Getters } from "./types";
-import { WorkbookData } from "./import_export";
+import { Workbook, GridCommand, Getters, WorkbookData } from "../types/index";
 
 export abstract class BasePlugin {
   static getters: string[] = [];

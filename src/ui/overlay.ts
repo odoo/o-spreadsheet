@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 
-import { GridModel, Col, Row } from "../model/index";
+import { GridModel } from "../model/index";
+import { Col, Row } from "../types/index";
 import { MIN_ROW_HEIGHT, MIN_COL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 const { Component } = owl;

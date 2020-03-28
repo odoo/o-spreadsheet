@@ -1,6 +1,15 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { toXC } from "../helpers";
-import { Border, Col, ConditionalFormat, Merge, Row, Style, Workbook } from "./types";
+import {
+  WorkbookData,
+  Col,
+  Merge,
+  Row,
+  Workbook,
+  HeaderData,
+  SheetData,
+  CellData
+} from "../types/index";
 import { CURRENT_VERSION } from "../data";
 /**
  * Data
@@ -13,36 +22,6 @@ import { CURRENT_VERSION } from "../data";
  * - function importData: convert from WorkbookData -> Workbook
  * - function exportData: convert from Workbook -> WorkbookData
  */
-
-interface CellData {
-  content?: string;
-  style?: number;
-  border?: number;
-  format?: string;
-}
-
-export interface HeaderData {
-  size?: number;
-}
-
-export interface SheetData {
-  name: string;
-  colNumber: number;
-  rowNumber: number;
-  cells: { [key: string]: CellData };
-  merges: string[];
-  cols: { [key: number]: HeaderData };
-  rows: { [key: number]: HeaderData };
-  conditionalFormats: ConditionalFormat[];
-}
-
-export interface WorkbookData {
-  version: number;
-  sheets: SheetData[];
-  styles: { [key: number]: Style };
-  borders: { [key: number]: Border };
-  entities: { [key: string]: { [key: string]: any } };
-}
 
 // -----------------------------------------------------------------------------
 // Import
