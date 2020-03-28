@@ -77,20 +77,6 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
   if (!data.version) {
     throw new Error("Missing version number");
   }
-  // styles and borders
-  const styles = data.styles || {};
-  styles[0] = Object.assign({}, DEFAULT_STYLE, styles[0]);
-  const borders = data.borders || {};
-
-  // compute next id
-  let nextId = 1;
-  for (let k in styles) {
-    nextId = Math.max(k as any, nextId);
-  }
-  for (let k in borders) {
-    nextId = Math.max(k as any, nextId);
-  }
-  nextId++;
 
   const state: Workbook = {
     rows: [],
@@ -119,7 +105,6 @@ export function importData(data: PartialWorkbookDataWithVersion): Workbook {
     trackChanges: false,
     undoStack: [],
     redoStack: [],
-    nextId,
     highlights: [],
     isSelectingRange: false,
     isCopyingFormat: false,
