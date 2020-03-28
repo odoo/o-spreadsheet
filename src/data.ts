@@ -1,4 +1,4 @@
-import { WorkbookData, SheetData } from "./types/index";
+import { SheetData, WorkbookData } from "./types/index";
 
 /**
  * This is the current state version number. It should be incremented each time
@@ -16,7 +16,7 @@ export const CURRENT_VERSION = 1;
  */
 export function load(data?: any): WorkbookData {
   if (!data) {
-    return createEmptyWorkbook();
+    return createEmptyWorkbookData();
   }
 
   if ("version" in data) {
@@ -28,7 +28,7 @@ export function load(data?: any): WorkbookData {
     // this is a data object which may or may not be valid. We will try to fill
     // all the known missing data with sensible default values
     data.version = CURRENT_VERSION;
-    data = Object.assign(createEmptyWorkbook(), data);
+    data = Object.assign(createEmptyWorkbookData(), data);
     data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
   }
 
@@ -83,7 +83,7 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
   };
 }
 
-function createEmptyWorkbook(): WorkbookData {
+function createEmptyWorkbookData(): WorkbookData {
   return {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet()],

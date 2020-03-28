@@ -1,5 +1,4 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { importData } from "../../src/model/import_export";
 import { GridModel } from "../../src/model/index";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
@@ -11,12 +10,6 @@ describe("data", () => {
     // 96 is default cell width
     expect(model.state.cols[0].size).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.state.cols[1].size).toEqual(DEFAULT_CELL_WIDTH);
-  });
-
-  test("importing data with no version number should fail", () => {
-    expect(() => {
-      importData({ some: "state" } as any);
-    }).toThrow("Missing version number");
   });
 });
 
