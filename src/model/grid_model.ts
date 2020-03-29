@@ -33,9 +33,6 @@ const PLUGINS = [
   LayouPlugin
 ];
 
-// https://stackoverflow.com/questions/58764853/typescript-remove-first-argument-from-a-function
-type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never;
-
 // -----------------------------------------------------------------------------
 // GridModel
 // -----------------------------------------------------------------------------
@@ -80,23 +77,6 @@ export class GridModel extends owl.core.EventBus {
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
     }
-  }
-
-  private makeMutation<T>(f: T): OmitFirstArg<T> {
-    return ((...args) => {
-      history.start(this.workbook);
-      let result = (f as any).call(null, this.workbook, ...args);
-      history.stop(this.workbook);
-      Object.assign(this.state, this.computeDerivedState());
-      if (this.workbook.isStale) {
-        this.dispatch({ type: "EVALUATE_CELLS" });
-      }
-      this.trigger("update");
-      if (this.workbook.loadingCells > 0) {
-        this.startScheduler();
-      }
-      return result;
-    }) as any;
   }
 
   dispatch(command: GridCommand): CommandResult {
@@ -167,10 +147,6 @@ export class GridModel extends owl.core.EventBus {
     };
   }
 
-  private makeFn<T>(f: T): OmitFirstArg<T> {
-    return ((...args) => (f as any).call(null, this.workbook, ...args)) as any;
-  }
-
   /**
    * todo: move this into evaluation plugin
    */
@@ -196,18 +172,31 @@ export class GridModel extends owl.core.EventBus {
 
   // history
   // ---------------------------------------------------------------------------
-  undo = this.makeMutation(history.undo);
-  redo = this.makeMutation(history.redo);
+  undo() {
+    history.undo(this.workbook);
+    this._dispatch({ type: "EVALUATE_CELLS" });
+    Object.assign(this.state, this.computeDerivedState());
+    this.trigger("update");
+  }
+
+  redo() {
+    history.redo(this.workbook);
+    this._dispatch({ type: "EVALUATE_CELLS" });
+    Object.assign(this.state, this.computeDerivedState());
+    this.trigger("update");
+  }
 
   // core
   // ---------------------------------------------------------------------------
-  // updateVisibleZone and updateScroll should not be a mutation
+  updateVisibleZone(width, height) {
+    updateVisibleZone(this.workbook, width, height);
+    Object.assign(this.state, this.computeDerivedState());
+  }
 
-  updateVisibleZone = this.makeFn(updateVisibleZone);
   updateScroll(scrollTop, scrollLeft) {
     const result = updateScroll(this.workbook, scrollTop, scrollLeft);
     Object.assign(this.state, this.computeDerivedState());
-    return result; //= this.makeFn(core.updateScroll);
+    return result;
   }
 
   // export
