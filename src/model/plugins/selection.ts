@@ -1,12 +1,20 @@
 import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone } from "../../types/index";
+import { GridCommand, Zone, Cell } from "../../types/index";
+import { getCell } from "../core";
+import { formatNumber } from "../../formatters";
 
 /**
  * SelectionPlugin
  */
 export class SelectionPlugin extends BasePlugin {
-  static getters = ["getActiveCols", "getActiveRows", "getSelectedZones"];
+  static getters = [
+    "getActiveCell",
+    "getActiveCols",
+    "getActiveRows",
+    "getSelectedZones",
+    "getAggregate"
+  ];
 
   canDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
@@ -57,6 +65,16 @@ export class SelectionPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
+  getActiveCell(): Cell | null {
+    const workbook = this.workbook;
+    let mergeId = workbook.mergeCellMap[workbook.activeXc];
+    if (mergeId) {
+      return workbook.cells[workbook.merges[mergeId].topLeft];
+    } else {
+      return getCell(workbook, workbook.activeCol, workbook.activeRow);
+    }
+  }
+
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
     for (let zone of this.workbook.selection.zones) {
@@ -84,6 +102,25 @@ export class SelectionPlugin extends BasePlugin {
   getSelectedZones(): Zone[] {
     return this.workbook.selection.zones;
   }
+
+  getAggregate(): string | null {
+    let aggregate = 0;
+    let n = 0;
+    for (let zone of this.getSelectedZones()) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        const r = this.workbook.rows[row];
+        for (let col = zone.left; col <= zone.right; col++) {
+          const cell = r.cells[col];
+          if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
+            n++;
+            aggregate += cell.value;
+          }
+        }
+      }
+    }
+    return n < 2 ? null : formatNumber(aggregate);
+  }
+
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------

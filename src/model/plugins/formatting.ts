@@ -11,7 +11,7 @@ import {
   Zone
 } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
-import { addCell, deleteCell, getCell, selectedCell } from "../core";
+import { addCell, deleteCell, getCell } from "../core";
 import { updateCell } from "../history";
 
 // -----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ export class FormattingPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getCurrentStyle(): Style {
-    const cell = selectedCell(this.workbook);
+    const cell = this.getters.getActiveCell();
     return cell && cell.style ? this.styles[cell.style] : {};
   }
 
