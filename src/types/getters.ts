@@ -24,9 +24,11 @@ export interface Getters {
   getRow: GridPlugin["getRow"];
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
+  getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
   getSelectedZones: SelectionPlugin["getSelectedZones"];
+  getAggregate: SelectionPlugin["getAggregate"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getViewport: LayouPlugin["getViewport"];
   isMergeDestructive: GridPlugin["isMergeDestructive"];

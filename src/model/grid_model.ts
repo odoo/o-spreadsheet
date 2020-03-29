@@ -1,9 +1,8 @@
 import * as owl from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { load, CURRENT_VERSION } from "../data";
+import { CURRENT_VERSION, load } from "../data";
 import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "../types/index";
 import { BasePlugin } from "./base_plugin";
-import * as core from "./core";
 import * as history from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
@@ -137,8 +136,8 @@ export class GridModel extends owl.core.EventBus {
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.workbook.isEditing,
-      selectedCell: core.selectedCell(this.workbook),
-      aggregate: core.computeAggregate(this.workbook),
+      selectedCell: this.getters.getActiveCell(),
+      aggregate: this.getters.getAggregate(),
       canUndo: this.workbook.undoStack.length > 0,
       canRedo: this.workbook.redoStack.length > 0,
       currentContent: this.workbook.currentContent,

@@ -1,22 +1,12 @@
-import { formatNumber } from "../formatters";
 import { AsyncFunction } from "../formulas/compiler";
 import { compile } from "../formulas/index";
 import { isNumber } from "../functions/helpers";
 import { toCartesian } from "../helpers";
-import { updateState } from "./history";
 import { Cell, NewCell, Workbook } from "../types/index";
+import { updateState } from "./history";
 
 export function getCell(state: Workbook, col: number, row: number): Cell | null {
   return state.rows[row].cells[col] || null;
-}
-
-export function selectedCell(state: Workbook): Cell | null {
-  let mergeId = state.mergeCellMap[state.activeXc];
-  if (mergeId) {
-    return state.cells[state.merges[mergeId].topLeft];
-  } else {
-    return getCell(state, state.activeCol, state.activeRow);
-  }
 }
 
 interface AddCellOptions {
@@ -128,22 +118,4 @@ export function deleteCell(state: Workbook, xc: string, force: boolean = false) 
     }
     state.isStale = true;
   }
-}
-
-export function computeAggregate(state: Workbook): string | null {
-  let aggregate = 0;
-  let n = 0;
-  for (let zone of state.selection.zones) {
-    for (let row = zone.top; row <= zone.bottom; row++) {
-      const r = state.rows[row];
-      for (let col = zone.left; col <= zone.right; col++) {
-        const cell = r.cells[col];
-        if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
-          n++;
-          aggregate += cell.value;
-        }
-      }
-    }
-  }
-  return n < 2 ? null : formatNumber(aggregate);
 }
