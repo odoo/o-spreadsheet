@@ -45,16 +45,10 @@ export function stop(state: Workbook) {
 
 /**
  * undo method. This basically undo the last step of the undo stack.
- *
- * Note that this method assumes that it was called from the main Model, and so,
- * it cannot be called from inside the model, because it has to pop the last
- * step in the undo
  * @param state
  */
 export function undo(state: Workbook) {
-  const prev = state.undoStack.pop()!; // need to remove empty step created in model undo
   const step = state.undoStack.pop();
-  state.undoStack.push(prev);
   if (!step) {
     return;
   }
@@ -63,7 +57,6 @@ export function undo(state: Workbook) {
     let change = step.batch[i];
     applyChange(change, "before");
   }
-  state.isStale = true;
 }
 
 export function redo(state: Workbook) {
@@ -71,13 +64,10 @@ export function redo(state: Workbook) {
   if (!step) {
     return;
   }
-  const prev = state.undoStack.pop()!; // need to remove empty step created in undo
   state.undoStack.push(step);
-  state.undoStack.push(prev);
   for (let change of step.batch) {
     applyChange(change, "after");
   }
-  state.isStale = true;
 }
 
 function applyChange(change: HistoryChange, target: "before" | "after") {
