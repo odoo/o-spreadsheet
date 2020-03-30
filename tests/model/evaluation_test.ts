@@ -241,7 +241,7 @@ describe("evaluateCells", () => {
     model.dispatch({ type: "SET_VALUE", xc: "D7", text: "=COUNT( 43 ,     )" });
     model.dispatch({ type: "SET_VALUE", xc: "D8", text: "=COUNT( 44   45  )" });
 
-    expect(model.workbook.cells.A1.value).toBe("");
+    expect(model.workbook.cells.A1).toBe(undefined);
     expect(model.workbook.cells.A2.value).toBe(",");
     expect(model.workbook.cells.A3.value).toBe(" ");
     expect(model.workbook.cells.A4.value).toBe(" , ");

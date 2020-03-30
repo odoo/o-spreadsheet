@@ -1,13 +1,13 @@
 import { tokenize } from "../../formulas/index";
 import { toXC, toZone, toCartesian } from "../../helpers";
-import { GridCommand, Zone } from "../../types/index";
+import { GridCommand, Zone, HandleReturnType } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
   col: number = 0;
   row: number = 0;
 
-  handle(cmd: GridCommand): void | GridCommand[] {
+  handle(cmd: GridCommand): HandleReturnType {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
         this.addHighlights(cmd.ranges);
@@ -115,9 +115,11 @@ export class EditionPlugin extends BasePlugin {
       } else {
         return [
           {
-            type: "DELETE",
+            type: "UPDATE_CELL",
             sheet: this.workbook.activeSheet.name,
-            target: [{ left: col, right: col, top: row, bottom: row }]
+            content: "",
+            col,
+            row
           }
         ];
       }

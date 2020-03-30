@@ -139,9 +139,9 @@ export class Grid extends Component<any, any> {
     F2: () => this.model.dispatch({ type: "START_EDITION" }),
     DELETE: () => {
       this.model.dispatch({
-        type: "DELETE",
-        target: this.state.selection.zones,
-        sheet: this.state.activeSheet
+        type: "DELETE_CONTENT",
+        sheet: this.state.activeSheet,
+        target: this.state.selection.zones
       });
     },
     "CTRL+A": () => this.model.dispatch({ type: "SELECT_ALL" }),

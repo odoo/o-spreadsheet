@@ -1,4 +1,4 @@
-import { Cell, Workbook, HistoryChange, HistoryStep } from "../types/index";
+import { Cell, Workbook, HistoryChange, HistoryStep, Sheet } from "../types/index";
 
 /**
  * History Management System
@@ -119,4 +119,8 @@ export function updateCell<T extends keyof Cell>(
   value: Cell[T]
 ) {
   _updateState(state, cell, [key], value);
+}
+
+export function updateSheet(state: Workbook, sheet: Sheet, path: (string | number)[], value: any) {
+  _updateState(state, sheet, path, value);
 }

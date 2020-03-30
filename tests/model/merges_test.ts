@@ -207,7 +207,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
+    model.dispatch({ type: "REMOVE_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });

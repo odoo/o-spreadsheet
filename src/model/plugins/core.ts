@@ -1,9 +1,8 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { formatNumber, formatValue } from "../../formatters";
-import { isEqual, numberToLetters, toXC, union } from "../../helpers";
+import { isEqual, numberToLetters, toXC, union, toCartesian } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { addCell, deleteCell } from "../core";
-import { updateState } from "../history";
+import { updateState, updateSheet } from "../history";
 import {
   Cell,
   Col,
@@ -15,8 +14,14 @@ import {
   SheetData,
   WorkbookData,
   CellData,
-  Merge
+  Merge,
+  HandleReturnType
 } from "../../types/index";
+import { isNumber } from "../../functions/helpers";
+import { compile } from "../../formulas/index";
+import { AsyncFunction } from "../../formulas/compiler";
+
+const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 /**
  * Core Plugin
@@ -25,9 +30,9 @@ import {
  * cell and sheet content.
  */
 export class CorePlugin extends BasePlugin {
-  static getters = ["getCellText", "zoneToXC", "expandZone"];
+  static getters = ["getCell", "getCellText", "zoneToXC", "expandZone"];
 
-  handle(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): HandleReturnType {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.activateSheet(cmd.sheet);
@@ -35,21 +40,46 @@ export class CorePlugin extends BasePlugin {
       case "CREATE_SHEET":
         const sheet = this.createSheet();
         return [{ type: "ACTIVATE_SHEET", sheet }];
-      case "DELETE":
-        this.deleteContent(cmd.sheet, cmd.target);
-        break;
+      case "DELETE_CONTENT":
+        return this.clearZones(cmd.sheet, cmd.target);
       case "SET_VALUE":
-        addCell(this.workbook, cmd.xc, { content: cmd.text });
-        break;
+        const [col, row] = toCartesian(cmd.xc);
+        return [
+          {
+            type: "UPDATE_CELL",
+            sheet: this.workbook.activeSheet.name,
+            col,
+            row,
+            content: cmd.text
+          }
+        ];
       case "UPDATE_CELL":
-        addCell(this.workbook, toXC(cmd.col, cmd.row), cmd);
+        this.updateCell(cmd.sheet, cmd.col, cmd.row, cmd);
+        this.workbook.isStale = true;
         break;
+      case "CLEAR_CELL":
+        return [
+          {
+            type: "UPDATE_CELL",
+            sheet: this.workbook.activeSheet.name,
+            col: cmd.col,
+            row: cmd.row,
+            content: "",
+            border: 0,
+            style: 0,
+            format: ""
+          }
+        ];
     }
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  getCell(col: number, row: number): Cell | null {
+    return this.workbook.rows[row].cells[col] || null;
+  }
 
   getCellText(cell: Cell): string {
     if (cell.value === "") {
@@ -120,6 +150,90 @@ export class CorePlugin extends BasePlugin {
   // Other
   // ---------------------------------------------------------------------------
 
+  private updateCell(sheet: string, col: number, row: number, data: CellData) {
+    const _sheet = this.workbook.sheets.find(s => s.name === sheet)!;
+    const current = _sheet.rows[row].cells[col];
+    const xc = (current && current.xc) || toXC(col, row);
+
+    // Compute the new cell properties
+    const dataContent = data.content ? data.content.replace(nbspRegexp, "") : "";
+    const content = "content" in data ? dataContent : (current && current.content) || "";
+    const style = "style" in data ? data.style : (current && current.style) || 0;
+    const border = "border" in data ? data.border : (current && current.border) || 0;
+    let format = "format" in data ? data.format : (current && current.format) || "";
+
+    // if all are empty, we need to delete the underlying cell object
+    if (!content && !style && !border && !format) {
+      if (current) {
+        // todo: make this work on other sheets
+        updateSheet(this.workbook, _sheet, ["cells", xc], undefined);
+        updateSheet(this.workbook, _sheet, ["rows", row, "cells", col], undefined);
+      }
+      return;
+    }
+
+    // compute the new cell value
+    const didContentChange =
+      (!current && dataContent) || (current && current.content !== dataContent);
+    let cell: Cell;
+    if (current && !didContentChange) {
+      cell = { col, row, xc, content, value: current.value, type: current.type };
+      if (cell.type === "formula") {
+        cell.error = current.error;
+        cell.formula = current.formula;
+        if (current.async) {
+          cell.async = true;
+        }
+      }
+    } else {
+      // the current content cannot be reused, so we need to recompute the
+      // derived values
+      let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
+      let value: Cell["value"] = content;
+      if (isNumber(content)) {
+        type = "number";
+        value = parseFloat(content);
+        if (content.includes("%")) {
+          value = value / 100;
+          format = content.includes(".") ? "0.00%" : "0%";
+        }
+      }
+      const contentUpperCase = content.toUpperCase();
+      if (contentUpperCase === "TRUE") {
+        value = true;
+      }
+      if (contentUpperCase === "FALSE") {
+        value = false;
+      }
+      cell = { col, row, xc, content, value, type };
+      if (cell.type === "formula") {
+        cell.error = false;
+        try {
+          cell.formula = compile(content, sheet);
+
+          if (cell.formula instanceof AsyncFunction) {
+            cell.async = true;
+          }
+        } catch (e) {
+          cell.value = "#BAD_EXPR";
+          cell.error = true;
+        }
+      }
+    }
+    if (style) {
+      cell.style = style;
+    }
+    if (border) {
+      cell.border = border;
+    }
+    if (format) {
+      cell.format = format;
+    }
+    // todo: make this work on other sheets
+    updateSheet(this.workbook, _sheet, ["cells", xc], cell);
+    updateSheet(this.workbook, _sheet, ["rows", row, "cells", col], cell);
+  }
+
   private activateSheet(name: string) {
     const sheet = this.workbook.sheets.find(s => s.name === name)!;
     updateState(this.workbook, ["activeSheet"], sheet);
@@ -164,7 +278,8 @@ export class CorePlugin extends BasePlugin {
     return sheet.name;
   }
 
-  private deleteContent(sheet: string, zones: Zone[]) {
+  private clearZones(sheet: string, zones: Zone[]): GridCommand[] {
+    const commands: GridCommand[] = [];
     // TODO: get cells from the actual sheet
     const cells = this.workbook.activeSheet.cells;
     for (let zone of zones) {
@@ -172,11 +287,18 @@ export class CorePlugin extends BasePlugin {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);
           if (xc in cells) {
-            deleteCell(this.workbook, xc);
+            commands.push({
+              type: "UPDATE_CELL",
+              sheet,
+              content: "",
+              col,
+              row
+            });
           }
         }
       }
     }
+    return commands;
   }
 
   // ---------------------------------------------------------------------------
@@ -208,9 +330,9 @@ export class CorePlugin extends BasePlugin {
     updateState(this.workbook, ["sheets"], sheets);
     // cells
     for (let xc in data.cells) {
-      addCell(this.workbook, xc, data.cells[xc], { sheet: name });
-      const cell = sheet.cells[xc];
-      sheet.rows[cell.row].cells[cell.col] = cell;
+      const cell = data.cells[xc];
+      const [col, row] = toCartesian(xc);
+      this.updateCell(name, col, row, cell);
     }
   }
 

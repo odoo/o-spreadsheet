@@ -93,19 +93,4 @@ describe("styles", () => {
     model.undo();
     expect(model.workbook.cells.B1.style).toBeDefined();
   });
-
-  test("adding a style to a cell remove cell width cache", () => {
-    const model = new GridModel();
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "3" });
-    // this simulates a rendering which adds the width
-    model.workbook.cells.A2.width = 234;
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-    model.dispatch({
-      type: "SET_FORMATTING",
-      sheet: "Sheet1",
-      target: model.getters.getSelectedZones(),
-      style: { fontSize: 33 }
-    });
-    expect(model.workbook.cells.A2.width).not.toBeDefined();
-  });
 });

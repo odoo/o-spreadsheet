@@ -244,7 +244,7 @@ describe("borders", () => {
 
     expect(model.workbook.cells.B2.border).toBeDefined();
     model.dispatch({
-      type: "DELETE",
+      type: "DELETE_CONTENT",
       sheet: model.state.activeSheet,
       target: model.state.selection.zones
     });

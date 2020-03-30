@@ -1,18 +1,17 @@
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { stringify, toXC } from "../../helpers";
+import { stringify, toCartesian, toXC } from "../../helpers";
 import {
   Border,
   BorderCommand,
   Cell,
   GridCommand,
+  HandleReturnType,
   Style,
   WorkbookData,
   Zone
 } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
-import { addCell, deleteCell, getCell } from "../core";
-import { updateCell } from "../history";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -58,24 +57,20 @@ export class FormattingPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): HandleReturnType {
     switch (cmd.type) {
       case "SET_FORMATTING":
         if (cmd.style) {
           return this.setStyle(cmd.sheet, cmd.target, cmd.style);
         }
         if (cmd.border) {
-          for (let zone of cmd.target) {
-            this.setBorder(cmd.sheet, zone, cmd.border);
-          }
+          return this.setBorder(cmd.sheet, cmd.target, cmd.border);
         }
         break;
       case "CLEAR_FORMATTING":
-        this.clearFormatting(cmd.target);
-        break;
+        return this.clearFormatting(cmd.target);
       case "SET_FORMATTER":
-        this.setFormatter(cmd.sheet, cmd.target, cmd.formatter);
-        break;
+        return this.setFormatter(cmd.sheet, cmd.target, cmd.formatter);
     }
   }
 
@@ -126,26 +121,19 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   private setStyleToCell(col: number, row: number, style): GridCommand[] {
-    const cell = getCell(this.workbook, col, row);
+    const cell = this.getters.getCell(col, row);
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
-    if (cell) {
-      updateCell(this.workbook, cell, "style", id);
-      delete cell.width;
-      return [];
-    } else {
-      return [
-        {
-          type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.name,
-          col,
-          row,
-          style: id,
-          content: ""
-        }
-      ];
-    }
+    return [
+      {
+        type: "UPDATE_CELL",
+        sheet: this.workbook.activeSheet.name,
+        col,
+        row,
+        style: id
+      }
+    ];
   }
 
   private registerStyle(style) {
@@ -163,37 +151,65 @@ export class FormattingPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Borders
   // ---------------------------------------------------------------------------
-  setBorder(sheet: string, zone: Zone, command: BorderCommand) {
+  setBorder(sheet: string, zones: Zone[], command: BorderCommand): GridCommand[] {
+    // this object aggregate the desired final border command for a cell
+    const borderMap: { [xc: string]: number } = {};
+    for (let zone of zones) {
+      this.aggregateBorderCommands(sheet, zone, command, borderMap);
+    }
+    const commands: GridCommand[] = [];
+    for (let [xc, borderId] of Object.entries(borderMap)) {
+      const [col, row] = toCartesian(xc);
+      const cell = this.getters.getCell(col, row);
+      const current = (cell && cell.border) || 0;
+      if (current !== borderId) {
+        commands.push({
+          type: "UPDATE_CELL",
+          sheet: sheet,
+          col,
+          row,
+          border: borderId
+        });
+      }
+    }
+    return commands;
+  }
+  aggregateBorderCommands(
+    sheet: string,
+    zone: Zone,
+    command: BorderCommand,
+    borderMap: { [xc: string]: number }
+  ) {
     if (command === "clear") {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
-          this.clearBorder(sheet, col, row);
+          this.clearBorder(sheet, col, row, borderMap);
         }
       }
       return;
     }
     if (command === "external") {
-      this.setBorder(sheet, zone, "left");
-      this.setBorder(sheet, zone, "right");
-      this.setBorder(sheet, zone, "top");
-      this.setBorder(sheet, zone, "bottom");
+      this.aggregateBorderCommands(sheet, zone, "left", borderMap);
+      this.aggregateBorderCommands(sheet, zone, "right", borderMap);
+      this.aggregateBorderCommands(sheet, zone, "top", borderMap);
+      this.aggregateBorderCommands(sheet, zone, "bottom", borderMap);
       return;
     }
     if (command === "hv") {
-      this.setBorder(sheet, zone, "h");
-      this.setBorder(sheet, zone, "v");
+      this.aggregateBorderCommands(sheet, zone, "h", borderMap);
+      this.aggregateBorderCommands(sheet, zone, "v", borderMap);
       return;
     }
     const { left, top, right, bottom } = zone;
     if (command === "h") {
       for (let r = top + 1; r <= bottom; r++) {
-        this.setBorder(sheet, { left, top: r, right, bottom: r }, "top");
+        this.aggregateBorderCommands(sheet, { left, top: r, right, bottom: r }, "top", borderMap);
       }
       return;
     }
     if (command === "v") {
       for (let c = left + 1; c <= right; c++) {
-        this.setBorder(sheet, { left: c, top, right: c, bottom }, "left");
+        this.aggregateBorderCommands(sheet, { left: c, top, right: c, bottom }, "left", borderMap);
       }
       return;
     }
@@ -206,65 +222,68 @@ export class FormattingPlugin extends BasePlugin {
     const target = getTargetZone(zone, command);
     for (let row = target.top; row <= target.bottom; row++) {
       for (let col = target.left; col <= target.right; col++) {
-        this.setBorderToCell(sheet, col, row, border);
+        this.setBorderToMap(sheet, col, row, border, borderMap);
       }
     }
   }
 
-  clearBorder(sheet: string, col: number, row: number) {
-    const cell = getCell(this.workbook, col, row);
-    if (cell) {
-      if (!cell.content && !cell.style) {
-        deleteCell(this.workbook, cell.xc, true);
-      } else {
-        updateCell(this.workbook, cell, "border", undefined);
-      }
-    }
+  clearBorder(sheet: string, col: number, row: number, borderMap: { [xc: string]: number }) {
+    const cell = this.getters.getCell(col, row);
+    const xc = cell ? cell.xc : toXC(col, row);
+    borderMap[xc] = 0;
+
     if (col > 0) {
-      this.clearSide(sheet, col - 1, row, "right");
+      this.clearSide(sheet, col - 1, row, "right", borderMap);
     }
     if (row > 0) {
-      this.clearSide(sheet, col, row - 1, "bottom");
+      this.clearSide(sheet, col, row - 1, "bottom", borderMap);
     }
     if (col < this.workbook.cols.length - 1) {
-      this.clearSide(sheet, col + 1, row, "left");
+      this.clearSide(sheet, col + 1, row, "left", borderMap);
     }
     if (row < this.workbook.rows.length - 1) {
-      this.clearSide(sheet, col, row + 1, "top");
+      this.clearSide(sheet, col, row + 1, "top", borderMap);
     }
   }
 
-  private clearSide(sheet: string, col: number, row: number, side: string) {
-    const cell = getCell(this.workbook, col, row);
-    if (cell && cell.border) {
-      const border = this.borders[cell.border];
-      if (side in border) {
-        const newBorder = Object.assign({}, border);
-        delete newBorder[side];
-        if (!cell.content && !cell.style && Object.keys(newBorder).length === 0) {
-          deleteCell(this.workbook, cell.xc, true);
-        } else {
-          const id = this.registerBorder(newBorder);
-          updateCell(this.workbook, cell, "border", id);
-        }
-      }
+  private clearSide(
+    sheet: string,
+    col: number,
+    row: number,
+    side: string,
+    borderMap: { [xc: string]: number }
+  ) {
+    const cell = this.getters.getCell(col, row);
+    const xc = cell ? cell.xc : toXC(col, row);
+    const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
+    const currentBorder = this.borders[currentBorderId] || {};
+    if (side in currentBorder) {
+      const newBorder = Object.assign({}, currentBorder);
+      delete newBorder[side];
+      borderMap[xc] = this.registerBorder(newBorder);
     }
   }
 
-  private setBorderToCell(sheet: string, col: number, row: number, border: Border) {
-    const cell = getCell(this.workbook, col, row);
-    const currentBorder = cell && cell.border ? this.borders[cell.border] : {};
+  private setBorderToMap(
+    sheet: string,
+    col: number,
+    row: number,
+    border: Border,
+    borderMap: { [xc: string]: number }
+  ) {
+    const cell = this.getters.getCell(col, row);
+    const xc = cell ? cell.xc : toXC(col, row);
+    const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
+    const currentBorder = this.borders[currentBorderId] || {};
     const nextBorder = Object.assign({}, currentBorder, border);
     const id = this.registerBorder(nextBorder);
-    if (cell) {
-      updateCell(this.workbook, cell, "border", id);
-    } else {
-      const xc = toXC(col, row);
-      addCell(this.workbook, xc, { border: id });
-    }
+    borderMap[xc] = id;
   }
 
-  private registerBorder(border: Border) {
+  private registerBorder(border: Border): number {
+    if (!Object.keys(border).length) {
+      return 0;
+    }
     const strBorder = stringify(border);
     for (let k in this.borders) {
       if (stringify(this.borders[k]) === strBorder) {
@@ -283,51 +302,45 @@ export class FormattingPlugin extends BasePlugin {
   /**
    * Note that here, formatting refers to styles+border, not value formatters
    */
-  private clearFormatting(zones: Zone[]) {
+  private clearFormatting(zones: Zone[]): GridCommand[] {
+    const commands: GridCommand[] = [];
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.removeFormatting(col, row);
+          commands.push({
+            type: "UPDATE_CELL",
+            sheet: this.workbook.activeSheet.name,
+            col,
+            row,
+            style: 0,
+            border: 0
+          });
         }
       }
     }
-  }
-
-  private removeFormatting(col: number, row: number) {
-    const cell = getCell(this.workbook, col, row);
-    if (cell) {
-      if (cell.content) {
-        addCell(this.workbook, cell.xc, { content: cell.content }, { preserveFormatting: false });
-      } else {
-        deleteCell(this.workbook, cell.xc, true);
-      }
-    }
+    return commands;
   }
 
   // ---------------------------------------------------------------------------
   // Formatters
   // ---------------------------------------------------------------------------
 
-  private setFormatter(sheet: string, zones: Zone[], format: string) {
+  private setFormatter(sheet: string, zones: Zone[], format: string): GridCommand[] {
+    const commands: GridCommand[] = [];
     for (let zone of zones) {
-      for (let rowIndex = zone.top; rowIndex <= zone.bottom; rowIndex++) {
-        const row = this.workbook.rows[rowIndex];
-        for (let colIndex = zone.left; colIndex <= zone.right; colIndex++) {
-          const cell = row.cells[colIndex];
-          if (cell) {
-            // the undefined fallback is there to make updateCell delete the key
-            if (!format && cell.value === "" && !cell.border && !cell.style) {
-              deleteCell(this.workbook, cell.xc, true);
-            } else {
-              updateCell(this.workbook, cell, "format", format || undefined);
-            }
-          } else if (format) {
-            const xc = toXC(colIndex, rowIndex);
-            addCell(this.workbook, xc, { format: format });
-          }
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          commands.push({
+            type: "UPDATE_CELL",
+            sheet,
+            col,
+            row,
+            format
+          });
         }
       }
     }
+    return commands;
   }
 
   // ---------------------------------------------------------------------------

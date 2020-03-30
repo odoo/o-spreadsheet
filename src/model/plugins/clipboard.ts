@@ -1,8 +1,7 @@
 import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers";
-import { Cell, GridCommand, NewCell, Zone } from "../../types/index";
+import { Cell, GridCommand, NewCell, Zone, HandleReturnType } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
-import { deleteCell, getCell } from "../core";
 import { updateCell } from "../history";
 
 // -----------------------------------------------------------------------------
@@ -33,7 +32,7 @@ export class ClipboardPlugin extends BasePlugin {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 
-  handle(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): HandleReturnType {
     switch (cmd.type) {
       case "COPY":
         this.cutOrCopy(cmd.target, false);
@@ -92,7 +91,6 @@ export class ClipboardPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private cutOrCopy(zones: Zone[], cut: boolean) {
-    const workbook = this.workbook;
     const tops = new Set(zones.map(z => z.top));
     const bottoms = new Set(zones.map(z => z.bottom));
     const areZonesCompatible = tops.size === 1 && bottoms.size === 1;
@@ -107,7 +105,7 @@ export class ClipboardPlugin extends BasePlugin {
       for (let zone of clippedZones) {
         let { left, right } = zone;
         for (let c = left; c <= right; c++) {
-          const cell = getCell(workbook, c, r);
+          const cell = this.getters.getCell(c, r);
           row.push(cell ? Object.assign({}, cell) : null);
         }
       }
@@ -198,9 +196,8 @@ export class ClipboardPlugin extends BasePlugin {
     for (let r = 0; r < height; r++) {
       const rowCells = this.cells![r];
       for (let c = 0; c < width; c++) {
-        const xc = toXC(col + c, row + r);
         const originCell = rowCells[c];
-        const targetCell = getCell(this.workbook, col + c, row + r);
+        const targetCell = this.getters.getCell(col + c, row + r);
         if (originCell) {
           let content = originCell.content || "";
           if (originCell.type === "formula") {
@@ -229,7 +226,12 @@ export class ClipboardPlugin extends BasePlugin {
             ...newCell
           });
           if (this.shouldCut) {
-            deleteCell(this.workbook, originCell.xc, true);
+            result.push({
+              type: "CLEAR_CELL",
+              sheet: this.workbook.activeSheet.name,
+              col: originCell.col,
+              row: originCell.row
+            });
           }
         }
         if (!originCell && targetCell) {
@@ -239,7 +241,12 @@ export class ClipboardPlugin extends BasePlugin {
               updateCell(this.workbook, targetCell, "border", undefined);
             }
           } else {
-            deleteCell(this.workbook, xc, true);
+            result.push({
+              type: "CLEAR_CELL",
+              sheet: this.workbook.activeSheet.name,
+              col: col + c,
+              row: row + r
+            });
           }
         }
       }
