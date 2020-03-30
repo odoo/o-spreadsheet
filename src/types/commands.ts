@@ -29,6 +29,17 @@ import { Zone, Style, BorderCommand, ConditionalFormat } from "./index";
 
 // Primitive Commands
 // ------------------------------------------------
+export interface UpdateCellCommand {
+  type: "UPDATE_CELL";
+  sheet: string;
+  col: number;
+  row: number;
+  content?: string;
+  style?: number;
+  border?: number;
+  format?: string;
+}
+
 export interface ResizeColumnsCommand {
   type: "RESIZE_COLUMNS";
   sheet: string;
@@ -247,6 +258,7 @@ export interface SetValueCommand {
 }
 
 export type GridCommand =
+  | UpdateCellCommand
   | CopyCommand
   | CutCommand
   | PasteCommand

@@ -41,6 +41,9 @@ export class CorePlugin extends BasePlugin {
       case "SET_VALUE":
         addCell(this.workbook, cmd.xc, { content: cmd.text });
         break;
+      case "UPDATE_CELL":
+        addCell(this.workbook, toXC(cmd.col, cmd.row), cmd);
+        break;
     }
   }
 

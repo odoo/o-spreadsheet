@@ -1,8 +1,7 @@
-import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone } from "../../types/index";
-import { toZone, toXC } from "../../helpers";
-import { addCell, deleteCell } from "../core";
 import { tokenize } from "../../formulas/index";
+import { toXC, toZone, toCartesian } from "../../helpers";
+import { GridCommand, Zone } from "../../types/index";
+import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
   col: number = 0;
@@ -35,7 +34,7 @@ export class EditionPlugin extends BasePlugin {
         if (cmd.cancel) {
           this.cancelEdition();
         } else {
-          this.stopEdition();
+          return this.stopEdition();
         }
         break;
       case "SET_CURRENT_CONTENT":
@@ -44,7 +43,7 @@ export class EditionPlugin extends BasePlugin {
       case "SELECT_CELL":
       case "MOVE_POSITION":
         if (!this.workbook.isSelectingRange && this.workbook.isEditing) {
-          this.stopEdition();
+          return this.stopEdition();
         }
     }
   }
@@ -78,8 +77,9 @@ export class EditionPlugin extends BasePlugin {
     this.row = this.workbook.activeRow;
   }
 
-  private stopEdition() {
+  private stopEdition(): GridCommand[] | void {
     if (this.workbook.isEditing) {
+      this.cancelEdition();
       let xc = toXC(this.col, this.row);
       if (xc in this.workbook.mergeCellMap) {
         const mergeId = this.workbook.mergeCellMap[xc];
@@ -90,9 +90,9 @@ export class EditionPlugin extends BasePlugin {
       const cell = this.workbook.cells[xc];
       const didChange = cell ? cell.content !== content : content !== "";
       if (!didChange) {
-        this.cancelEdition();
         return;
       }
+      const [col, row] = toCartesian(xc);
       if (content) {
         if (content.startsWith("=")) {
           const tokens = tokenize(content);
@@ -103,11 +103,24 @@ export class EditionPlugin extends BasePlugin {
             content += new Array(missing).fill(")").join("");
           }
         }
-        addCell(this.workbook, xc, { content: content });
+        return [
+          {
+            type: "UPDATE_CELL",
+            sheet: this.workbook.activeSheet.name,
+            col,
+            row,
+            content
+          }
+        ];
       } else {
-        deleteCell(this.workbook, xc);
+        return [
+          {
+            type: "DELETE",
+            sheet: this.workbook.activeSheet.name,
+            target: [{ left: col, right: col, top: row, bottom: row }]
+          }
+        ];
       }
-      this.cancelEdition();
     }
   }
 
