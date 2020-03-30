@@ -1,4 +1,4 @@
-import { Workbook, GridCommand, Getters, WorkbookData } from "../types/index";
+import { Workbook, GridCommand, Getters, WorkbookData, HandleReturnType } from "../types/index";
 
 export abstract class BasePlugin {
   static getters: string[] = [];
@@ -14,7 +14,7 @@ export abstract class BasePlugin {
   canDispatch(command: GridCommand): boolean {
     return true;
   }
-  handle(command: GridCommand): GridCommand[] | void {}
+  handle(command: GridCommand): HandleReturnType {}
 
   import(data: WorkbookData) {}
   export(data: Partial<WorkbookData>) {}

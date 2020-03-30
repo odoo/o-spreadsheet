@@ -83,7 +83,6 @@ export interface Cell extends NewCell {
   formula?: CompiledFormula;
   async?: boolean;
   type: "formula" | "text" | "number";
-  width?: number;
   conditionalStyle?: Style;
 }
 

@@ -74,12 +74,6 @@ export interface CreateSheetCommand {
   type: "CREATE_SHEET";
 }
 
-export interface DeleteCommand {
-  type: "DELETE";
-  sheet: string;
-  target: Zone[];
-}
-
 export interface AddMergeCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -257,6 +251,19 @@ export interface SetValueCommand {
   text: string;
 }
 
+export interface DeleteContentCommand {
+  type: "DELETE_CONTENT";
+  sheet: string;
+  target: Zone[];
+}
+
+export interface ClearCellCommand {
+  type: "CLEAR_CELL";
+  sheet: string;
+  col: number;
+  row: number;
+}
+
 export type GridCommand =
   | UpdateCellCommand
   | CopyCommand
@@ -279,7 +286,7 @@ export type GridCommand =
   | SelectRowCommand
   | SelectAllCommand
   | AlterSelectionCommand
-  | DeleteCommand
+  | DeleteContentCommand
   | EvaluateCellsCommand
   | AddConditionalFormatCommand
   | AddHighlightsCommand
@@ -294,6 +301,9 @@ export type GridCommand =
   | SetValueCommand
   | AddFormattingCommand
   | ClearFormattingCommand
-  | SetFormatterCommand;
+  | SetFormatterCommand
+  | ClearCellCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
+
+export type HandleReturnType = GridCommand[] | void;

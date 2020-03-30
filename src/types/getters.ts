@@ -11,6 +11,7 @@ import { FormattingPlugin } from "../model/plugins/formatting";
 // Getters
 // -----------------------------------------------------------------------------
 export interface Getters {
+  getCell: CorePlugin["getCell"];
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
   expandZone: CorePlugin["expandZone"];

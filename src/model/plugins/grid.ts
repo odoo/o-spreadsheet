@@ -1,9 +1,8 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { isEqual, toCartesian, toXC } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { deleteCell } from "../core";
 import { updateState } from "../history";
-import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../../types/index";
+import { Cell, GridCommand, Sheet, Zone, WorkbookData, HandleReturnType } from "../../types/index";
 
 const MIN_PADDING = 3;
 
@@ -16,7 +15,7 @@ export class GridPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand) {
+  handle(cmd: GridCommand): HandleReturnType {
     switch (cmd.type) {
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
@@ -45,8 +44,7 @@ export class GridPlugin extends BasePlugin {
         }
         break;
       case "ADD_MERGE":
-        this.addMerge(cmd.sheet, cmd.zone);
-        break;
+        return this.addMerge(cmd.sheet, cmd.zone);
       case "REMOVE_MERGE":
         this.removeMerge(cmd.sheet, cmd.zone);
         break;
@@ -178,12 +176,13 @@ export class GridPlugin extends BasePlugin {
    *   merges)
    * - it does nothing if the merge is trivial: A1:A1
    */
-  private addMerge(sheet: string, zone: Zone) {
+  private addMerge(sheet: string, zone: Zone): GridCommand[] {
+    const commands: GridCommand[] = [];
     const { left, right, top, bottom } = zone;
     let tl = toXC(left, top);
     let br = toXC(right, bottom);
     if (tl === br) {
-      return;
+      return commands;
     }
 
     let id = this.nextId++;
@@ -200,7 +199,12 @@ export class GridPlugin extends BasePlugin {
       for (let col = left; col <= right; col++) {
         const xc = toXC(col, row);
         if (col !== left || row !== top) {
-          deleteCell(this.workbook, xc);
+          commands.push({
+            type: "CLEAR_CELL",
+            sheet,
+            col,
+            row
+          });
         }
         if (this.workbook.mergeCellMap[xc]) {
           previousMerges.add(this.workbook.mergeCellMap[xc]);
@@ -211,6 +215,7 @@ export class GridPlugin extends BasePlugin {
     for (let m of previousMerges) {
       updateState(this.workbook, ["merges", m], undefined);
     }
+    return commands;
   }
 
   private removeMerge(sheet: string, zone: Zone) {

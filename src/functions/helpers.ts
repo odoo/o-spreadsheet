@@ -40,6 +40,7 @@ export function strictToNumber(value: any): number {
 
 const numberRegexp = /^-?\d+(,\d+)*(\.\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
 
+// todo: move this in helpers
 export function isNumber(value: any): boolean {
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
   // TO DO: add regexp for exp format (ex match: "42E10")

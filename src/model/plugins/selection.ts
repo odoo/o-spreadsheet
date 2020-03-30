@@ -1,7 +1,6 @@
 import { isEqual, toXC, union } from "../../helpers";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone, Cell } from "../../types/index";
-import { getCell } from "../core";
+import { GridCommand, Zone, Cell, HandleReturnType } from "../../types/index";
 import { formatNumber } from "../../formatters";
 
 /**
@@ -30,7 +29,7 @@ export class SelectionPlugin extends BasePlugin {
     return true;
   }
 
-  handle(cmd: GridCommand): GridCommand[] | void {
+  handle(cmd: GridCommand): HandleReturnType {
     switch (cmd.type) {
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
@@ -71,7 +70,7 @@ export class SelectionPlugin extends BasePlugin {
     if (mergeId) {
       return workbook.cells[workbook.merges[mergeId].topLeft];
     } else {
-      return getCell(workbook, workbook.activeCol, workbook.activeRow);
+      return this.getters.getCell(workbook.activeCol, workbook.activeRow);
     }
   }
 
