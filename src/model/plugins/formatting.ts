@@ -58,11 +58,11 @@ export class FormattingPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand) {
+  handle(cmd: GridCommand): GridCommand[] | void {
     switch (cmd.type) {
       case "SET_FORMATTING":
         if (cmd.style) {
-          this.setStyle(cmd.sheet, cmd.target, cmd.style);
+          return this.setStyle(cmd.sheet, cmd.target, cmd.style);
         }
         if (cmd.border) {
           for (let zone of cmd.target) {
@@ -113,27 +113,38 @@ export class FormattingPlugin extends BasePlugin {
     return cell && cell.style ? this.styles[cell.style] : {};
   }
 
-  setStyle(sheet: string, target: Zone[], style: Style) {
+  setStyle(sheet: string, target: Zone[], style: Style): GridCommand[] {
+    const commands: GridCommand[] = [];
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.setStyleToCell(col, row, style);
+          commands.push(...this.setStyleToCell(col, row, style));
         }
       }
     }
+    return commands;
   }
 
-  private setStyleToCell(col: number, row: number, style) {
+  private setStyleToCell(col: number, row: number, style): GridCommand[] {
     const cell = getCell(this.workbook, col, row);
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
-    const xc = toXC(col, row);
     if (cell) {
       updateCell(this.workbook, cell, "style", id);
       delete cell.width;
+      return [];
     } else {
-      addCell(this.workbook, xc, { style: id, content: "" });
+      return [
+        {
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col,
+          row,
+          style: id,
+          content: ""
+        }
+      ];
     }
   }
 
