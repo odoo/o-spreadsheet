@@ -1,6 +1,6 @@
-import { functionMap } from "../../src/functions/index";
+import { functionRegistry } from "../../src/functions/index";
 
-const { AND, OR, XOR, NOT, IF } = functionMap;
+const { AND, OR, XOR, NOT, IF } = functionRegistry.mapping;
 
 describe("bool", () => {
   test("AND", () => {

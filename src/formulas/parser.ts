@@ -1,6 +1,8 @@
 import { Token, tokenize } from "./tokenizer";
-import { functions } from "../functions/index";
+import { functionRegistry } from "../functions/index";
 import { toCartesian, toXC } from "../helpers/index";
+
+const functions = functionRegistry.content;
 
 const UNARY_OPERATORS = ["-"];
 

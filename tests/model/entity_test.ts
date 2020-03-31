@@ -1,5 +1,4 @@
-import { addFunction } from "../../src/functions";
-import { args } from "../../src/functions/arguments";
+import { functionRegistry, args } from "../../src/functions/index";
 import { GridModel } from "../../src/model/index";
 import "../canvas.mock";
 import { resetFunctions } from "../helpers";
@@ -81,7 +80,7 @@ describe("Entity functions", () => {
   test("Can call getEntity from a function", () => {
     expect.assertions(2);
     resetFunctions();
-    addFunction("TEST", {
+    functionRegistry.add("TEST", {
       description: "test with getEntity",
       args: [],
       compute: function() {
@@ -100,7 +99,7 @@ describe("Entity functions", () => {
   test("Can call getEntity from a function with one arg", () => {
     expect.assertions(2);
     resetFunctions();
-    addFunction("TEST", {
+    functionRegistry.add("TEST", {
       description: "test with getEntity",
       args: args`n (number) some number`,
       compute: function() {

@@ -1,8 +1,9 @@
 import * as owl from "@odoo/owl";
-import { functions } from "../functions/index";
+import { functionRegistry } from "../functions/index";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
+const functions = functionRegistry.content;
 
 // -----------------------------------------------------------------------------
 // Autocomplete Value Providers

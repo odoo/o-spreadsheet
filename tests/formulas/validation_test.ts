@@ -1,5 +1,5 @@
 import { validate } from "../../src/formulas/validation";
-import { addFunction } from "../../src/functions";
+import { functionRegistry } from "../../src/functions/index";
 
 describe("constants", () => {
   test("should always validate constants to true", () => {
@@ -19,7 +19,7 @@ describe("constants", () => {
 
 describe("formula with no parameters should not allow parameters", () => {
   beforeAll(() => {
-    addFunction("NOARGS", {
+    functionRegistry.add("NOARGS", {
       description: "function with no arguments",
       compute: () => 0,
       args: [],
@@ -81,7 +81,7 @@ describe("formula with no parameters should not allow parameters", () => {
 });
 describe("formula with exactly 1 parameter of any type", () => {
   beforeAll(() => {
-    addFunction("ONE", {
+    functionRegistry.add("ONE", {
       description: "function with exactly 1 argument",
       compute: arg => arg,
       args: [{ name: "arg", description: "", type: ["ANY"] }],
@@ -143,7 +143,7 @@ describe("formula with exactly 1 parameter of any type", () => {
 });
 describe("formula with exactly 1 parameter of type number", () => {
   beforeAll(() => {
-    addFunction("ONENUM", {
+    functionRegistry.add("ONENUM", {
       description: "function with exactly 1 argument number",
       compute: arg => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"] }],
@@ -205,7 +205,7 @@ describe("formula with exactly 1 parameter of type number", () => {
 });
 describe("formula with 1 optional parameter of type number", () => {
   beforeAll(() => {
-    addFunction("ONENUMOPT", {
+    functionRegistry.add("ONENUMOPT", {
       description: "function with exactly 1 argument number",
       compute: arg => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"], optional: true }],
@@ -270,7 +270,7 @@ describe("formula with 1 optional parameter of type number", () => {
 });
 describe("formula with 1 mandatory and 1 optional parameter of type number", () => {
   beforeAll(() => {
-    addFunction("NUMNUMOPT", {
+    functionRegistry.add("NUMNUMOPT", {
       description: "function with exactly 1 argument number",
       compute: arg => arg,
       args: [
@@ -350,7 +350,7 @@ describe("formula with 1 mandatory and 1 optional parameter of type number", () 
 });
 describe("formula with repeating number of args", () => {
   beforeAll(() => {
-    addFunction("REPA", {
+    functionRegistry.add("REPA", {
       description: "function with exactly 1 argument number",
       compute: arg => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"], repeating: true }],
@@ -431,7 +431,7 @@ describe("formula with repeating number of args", () => {
 });
 describe("formula with optional repeating  number of args", () => {
   beforeAll(() => {
-    addFunction("REPAOPT", {
+    functionRegistry.add("REPAOPT", {
       description: "function with exactly 1 argument number",
       compute: arg => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"], repeating: true, optional: true }],
@@ -458,7 +458,7 @@ describe("formula with optional repeating  number of args", () => {
 
 describe("formula with bool", () => {
   beforeAll(() => {
-    addFunction("BOOLARG", {
+    functionRegistry.add("BOOLARG", {
       description: "",
       compute: () => 0,
       args: [{ type: ["BOOLEAN"], description: "", name: "" }],
@@ -501,7 +501,7 @@ describe("formula with bool", () => {
 });
 describe("formula with string", () => {
   beforeAll(() => {
-    addFunction("STRINGY", {
+    functionRegistry.add("STRINGY", {
       description: "",
       compute: () => 0,
       args: [{ type: ["STRING"], description: "", name: "" }],

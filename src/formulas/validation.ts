@@ -1,5 +1,7 @@
-import { ArgType, functions } from "../functions/index";
+import { ArgType, functionRegistry } from "../functions/index";
 import { AST, parse } from "./parser";
+
+const functions = functionRegistry.content;
 
 export function validate(formula: string): boolean {
   if (!formula) return true;

@@ -1,5 +1,6 @@
-import { functions } from "../functions/index";
+import { functionRegistry } from "../functions/index";
 
+const functions = functionRegistry.content;
 // -----------------------------------------------------------------------------
 // Tokenizer
 // -----------------------------------------------------------------------------
