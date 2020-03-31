@@ -1,5 +1,5 @@
 import { tokenize } from "./tokenizer";
-import { toCartesian, numberToLetters } from "../helpers";
+import { toCartesian, numberToLetters } from "../helpers/index";
 import { cellReference } from "./parser";
 
 // -----------------------------------------------------------------------------

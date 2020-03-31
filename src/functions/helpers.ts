@@ -1,5 +1,7 @@
 // HELPERS
 
+import { isNumber } from "../helpers/index";
+
 const expectNumberValueError = (value: string) => `
   The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a 
   string, and cannot be coerced to a number.
@@ -36,18 +38,6 @@ export function strictToNumber(value: any): number {
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value);
-}
-
-const numberRegexp = /^-?\d+(,\d+)*(\.\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
-
-// todo: move this in helpers
-export function isNumber(value: any): boolean {
-  // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
-  // TO DO: add regexp for exp format (ex match: "42E10")
-  if (typeof value === "string" && !value.trim().match(numberRegexp)) {
-    return false;
-  }
-  return true;
 }
 
 export function visitNumbers(args: IArguments, cb: (arg: number) => void): void {

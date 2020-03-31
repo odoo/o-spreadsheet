@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { Viewport, Box, Rect, GridCommand, Workbook } from "../../types/index";
-import { toXC, overlap } from "../../helpers";
+import { toXC, overlap } from "../../helpers/index";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 
 export class LayouPlugin extends BasePlugin {

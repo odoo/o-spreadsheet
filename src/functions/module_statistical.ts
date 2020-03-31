@@ -1,6 +1,7 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "./index";
-import { toNumber, isNumber, visitNumbers, visitAny, dichotomicPredecessorSearch } from "./helpers";
+import { toNumber, visitNumbers, visitAny, dichotomicPredecessorSearch } from "./helpers";
+import { isNumber } from "../helpers/index";
 
 // -----------------------------------------------------------------------------
 // AVEDEV

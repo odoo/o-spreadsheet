@@ -1,6 +1,6 @@
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { stringify, toCartesian, toXC } from "../../helpers";
+import { stringify, toCartesian, toXC } from "../../helpers/index";
 import {
   Border,
   BorderCommand,

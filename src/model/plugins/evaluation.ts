@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { toCartesian } from "../../helpers";
+import { toCartesian } from "../../helpers/index";
 import { Cell, GridCommand, Sheet } from "../../types/index";
 import { functionMap } from "../../functions/index";
 

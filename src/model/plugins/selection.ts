@@ -1,4 +1,4 @@
-import { isEqual, toXC, union } from "../../helpers";
+import { isEqual, toXC, union } from "../../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { GridCommand, Zone, Cell, HandleReturnType } from "../../types/index";
 import { formatNumber } from "../../formatters";
@@ -9,6 +9,7 @@ import { formatNumber } from "../../formatters";
 export class SelectionPlugin extends BasePlugin {
   static getters = [
     "getActiveCell",
+
     "getActiveCols",
     "getActiveRows",
     "getSelectedZones",

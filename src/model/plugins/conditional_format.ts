@@ -7,7 +7,7 @@ import {
   AddConditionalFormatCommand,
   ConditionalFormat
 } from "../../types/index";
-import { toZone } from "../../helpers";
+import { toZone } from "../../helpers/index";
 import { updateState } from "../history";
 
 // -----------------------------------------------------------------------------

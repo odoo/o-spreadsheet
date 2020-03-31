@@ -1,5 +1,5 @@
 import { applyOffset } from "../../formulas/index";
-import { toXC } from "../../helpers";
+import { toXC } from "../../helpers/index";
 import { Cell, GridCommand, NewCell, Zone, HandleReturnType } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
 import { updateCell } from "../history";
