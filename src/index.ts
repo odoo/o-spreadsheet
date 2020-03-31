@@ -5,7 +5,7 @@
  * the rollup.config.js file)
  */
 
-import { toXC, numberToLetters } from "./helpers";
+import { toXC, numberToLetters } from "./helpers/index";
 import { args } from "./functions/arguments";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { addFunction, FunctionDescription } from "./functions/index";

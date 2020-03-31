@@ -5,7 +5,7 @@ import { GridModel } from "../model/index";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
-import { isEqual } from "../helpers";
+import { isEqual } from "../helpers/index";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;

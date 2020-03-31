@@ -1,25 +1,24 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { formatNumber, formatValue } from "../../formatters";
-import { isEqual, numberToLetters, toXC, union, toCartesian } from "../../helpers";
-import { BasePlugin } from "../base_plugin";
-import { updateState, updateSheet } from "../history";
+import { AsyncFunction } from "../../formulas/compiler";
+import { compile } from "../../formulas/index";
+import { isEqual, isNumber, numberToLetters, toCartesian, toXC, union } from "../../helpers/index";
 import {
   Cell,
+  CellData,
   Col,
   GridCommand,
+  HandleReturnType,
+  HeaderData,
+  Merge,
   Row,
   Sheet,
-  Zone,
-  HeaderData,
   SheetData,
   WorkbookData,
-  CellData,
-  Merge,
-  HandleReturnType
+  Zone
 } from "../../types/index";
-import { isNumber } from "../../functions/helpers";
-import { compile } from "../../formulas/index";
-import { AsyncFunction } from "../../formulas/compiler";
+import { BasePlugin } from "../base_plugin";
+import { updateSheet, updateState } from "../history";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 

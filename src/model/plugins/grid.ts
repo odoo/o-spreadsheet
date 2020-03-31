@@ -1,5 +1,5 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { isEqual, toCartesian, toXC } from "../../helpers";
+import { isEqual, toCartesian, toXC } from "../../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { updateState } from "../history";
 import { Cell, GridCommand, Sheet, Zone, WorkbookData, HandleReturnType } from "../../types/index";

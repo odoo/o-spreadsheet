@@ -5,7 +5,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH
 } from "../constants";
-import { isInside } from "../helpers";
+import { isInside } from "../helpers/index";
 import { GridModel } from "../model/index";
 import { UI } from "../types/index";
 import { Composer } from "./composer";

@@ -1,5 +1,5 @@
 import { tokenize } from "../../formulas/index";
-import { toXC, toZone, toCartesian } from "../../helpers";
+import { toXC, toZone, toCartesian } from "../../helpers/index";
 import { GridCommand, Zone, HandleReturnType } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
 

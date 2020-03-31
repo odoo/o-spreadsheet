@@ -1,6 +1,6 @@
 import { Token, tokenize } from "./tokenizer";
 import { functions } from "../functions/index";
-import { toCartesian, toXC } from "../helpers";
+import { toCartesian, toXC } from "../helpers/index";
 
 const UNARY_OPERATORS = ["-"];
 
