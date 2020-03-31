@@ -5,11 +5,11 @@
  * the rollup.config.js file)
  */
 
-import { toXC, numberToLetters } from "./helpers/index";
 import { args } from "./functions/arguments";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { addFunction, FunctionDescription } from "./functions/index";
-import { sidePanelRegistry, contextMenuRegistry } from "./ui/registries";
+import { numberToLetters, toXC } from "./helpers/index";
+import { contextMenuRegistry, sidePanelRegistry } from "./ui/index";
 
 class FunctionRegistry {
   add(name: string, descr: FunctionDescription) {
@@ -20,7 +20,7 @@ class FunctionRegistry {
 const functionRegistry = new FunctionRegistry();
 
 export const __info__ = {};
-export { Spreadsheet } from "./ui/spreadsheet";
+export { Spreadsheet } from "./ui/index";
 
 export const helpers = {
   functions: {

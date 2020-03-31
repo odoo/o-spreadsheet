@@ -1,7 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { formatNumber, formatValue } from "../../formatters";
-import { AsyncFunction } from "../../formulas/compiler";
-import { compile } from "../../formulas/index";
+import { AsyncFunction, compile } from "../../formulas/index";
 import { isEqual, isNumber, numberToLetters, toCartesian, toXC, union } from "../../helpers/index";
 import {
   Cell,

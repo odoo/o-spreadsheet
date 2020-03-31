@@ -1,12 +1,10 @@
 import * as owl from "@odoo/owl";
-
-import { Zone } from "../types/index";
-import { GridModel } from "../model";
 import { fontSizeMap } from "../fonts";
-import { ComposerToken, composerTokenize } from "../formulas/composer_tokenizer";
-import { rangeReference } from "../formulas/parser";
-import { ContentEditableHelper } from "./content_editable_helper";
+import { ComposerToken, composerTokenize, rangeReference } from "../formulas/index";
+import { GridModel } from "../model";
+import { Zone } from "../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
+import { ContentEditableHelper } from "./content_editable_helper";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;

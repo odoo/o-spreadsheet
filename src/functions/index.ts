@@ -5,6 +5,7 @@ import * as math from "./module_math";
 import * as operators from "./module_operators";
 import * as statistical from "./module_statistical";
 
+export { Arg } from "./arguments";
 //------------------------------------------------------------------------------
 // Types
 //------------------------------------------------------------------------------
