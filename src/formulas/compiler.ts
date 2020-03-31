@@ -1,6 +1,8 @@
-import { functions, Arg } from "../functions/index";
+import { Arg, functionRegistry } from "../functions/index";
 import { CompiledFormula } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
+
+const functions = functionRegistry.content;
 
 const OPERATOR_MAP = {
   "=": "EQ",

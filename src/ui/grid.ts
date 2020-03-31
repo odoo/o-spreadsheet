@@ -12,7 +12,6 @@ import { Composer } from "./composer";
 import { ContextMenu } from "./context_menu";
 import { drawGrid } from "./grid_renderer";
 import { Overlay } from "./overlay";
-import { ContextMenuItem, contextMenuRegistry } from "./registries";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -111,7 +110,6 @@ export class Grid extends Component<any, any> {
   contextMenu = useState({ isOpen: false, position: null, items: [] } as {
     isOpen: boolean;
     position: null | { x: number; y: number };
-    items: ContextMenuItem[];
   });
 
   composer = useRef("composer");
@@ -416,8 +414,5 @@ export class Grid extends Component<any, any> {
     ev.preventDefault();
     this.contextMenu.isOpen = true;
     this.contextMenu.position = { x: ev.offsetX, y: ev.offsetY };
-    this.contextMenu.items = contextMenuRegistry
-      .getAll()
-      .filter(item => !item.isVisible || item.isVisible("CELL"));
   }
 }

@@ -1,7 +1,9 @@
 import { BasePlugin } from "../base_plugin";
 import { toCartesian } from "../../helpers/index";
 import { Cell, GridCommand, Sheet } from "../../types/index";
-import { functionMap } from "../../functions/index";
+import { functionRegistry } from "../../functions/index";
+
+const functionMap = functionRegistry.mapping;
 
 export class EvaluationPlugin extends BasePlugin {
   /**

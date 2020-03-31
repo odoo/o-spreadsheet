@@ -1,9 +1,82 @@
 import { Component, tags } from "@odoo/owl";
 import { GridModel } from "../model/index";
 import { SCROLLBAR_WIDTH } from "../constants";
-import { ContextMenuItem } from "./registries";
+import { Cell } from "../types";
+import { SpreadsheetEnv } from "./spreadsheet";
+import { Registry } from "../registry";
 
 const { xml, css } = tags;
+
+//------------------------------------------------------------------------------
+// Context Menu Registry
+//------------------------------------------------------------------------------
+
+export type ContextMenuType = "COLUMN" | "ROW" | "CELL";
+
+export interface ContextMenuItem {
+  type: "separator" | "action";
+  name: string;
+  description: string;
+  isEnabled?: (cell: Cell | null) => boolean;
+  isVisible?: (type: ContextMenuType) => boolean;
+  action: (model: GridModel, subEnv: SpreadsheetEnv) => void;
+}
+
+export const contextMenuRegistry = new Registry<ContextMenuItem>()
+  .add("cut", {
+    type: "action",
+    name: "cut",
+    description: "Cut",
+    action(model) {
+      model.dispatch({ type: "CUT", target: model.state.selection.zones });
+    }
+  })
+  .add("copy", {
+    type: "action",
+    name: "copy",
+    description: "Copy",
+    action(model) {
+      model.dispatch({ type: "COPY", target: model.state.selection.zones });
+    }
+  })
+  .add("paste", {
+    type: "action",
+    name: "paste",
+    description: "Paste",
+    action(model) {
+      model.dispatch({
+        type: "PASTE",
+        target: model.state.selection.zones,
+        onlyFormat: false
+      });
+    }
+  })
+  .add("clear_cell", {
+    type: "action",
+    name: "clear_cell",
+    description: "Clear cell",
+    action(model: GridModel) {
+      model.dispatch({ type: "SET_VALUE", xc: model.state.activeXc, text: "" });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "CELL";
+    },
+    isEnabled: (cell: Cell | null) => {
+      return Boolean(cell && cell.content);
+    }
+  })
+  .add("conditional_formatting", {
+    type: "action",
+    name: "conditional_formatting",
+    description: "Conditional Format",
+    action(model, subEnv: SpreadsheetEnv) {
+      subEnv.openSidePanel("ConditionalFormatting");
+    }
+  });
+
+//------------------------------------------------------------------------------
+// Context Menu Component
+//------------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
     <div class="o-context-menu" t-att-style="style" tabindex="-1" t-on-blur="trigger('close')">
@@ -46,7 +119,6 @@ const CSS = css/* scss */ `
 
 interface Props {
   model: GridModel;
-  menuItems: ContextMenuItem[];
   position: { x: number; y: number };
 }
 
@@ -56,7 +128,9 @@ export class ContextMenu extends Component<Props, any> {
 
   model: GridModel = this.props.model;
 
-  menuItems: ContextMenuItem[] = this.props.menuItems;
+  menuItems: ContextMenuItem[] = contextMenuRegistry
+    .getAll()
+    .filter(item => !item.isVisible || item.isVisible("CELL"));
 
   mounted() {
     this.el!.focus();

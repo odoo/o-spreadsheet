@@ -1,8 +1,9 @@
 export class Registry<T> {
-  private content: { [key: string]: T } = {};
+  content: { [key: string]: T } = {};
 
-  add(key: string, value: T) {
+  add(key: string, value: T): Registry<T> {
     this.content[key] = value;
+    return this;
   }
 
   get(key: string): T {

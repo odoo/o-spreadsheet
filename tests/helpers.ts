@@ -1,11 +1,13 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
-import { functionMap, functions } from "../src/functions/index";
 import { GridModel } from "../src/model";
 import { Grid } from "../src/ui/grid";
 import { SidePanel } from "../src/ui/side_panel/side_panel";
-import { sidePanelRegistry } from "../src/ui/registries";
+import { sidePanelRegistry } from "../src/ui/index";
+import { functionRegistry } from "../src/functions/index";
 import "./canvas.mock";
 
+const functions = functionRegistry.content;
+const functionMap = functionRegistry.mapping;
 const { xml } = tags;
 const { useRef, useSubEnv } = hooks;
 

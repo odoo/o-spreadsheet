@@ -6,12 +6,30 @@ import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
 import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";
 import { SidePanel } from "./side_panel/side_panel";
-import { sidePanelRegistry } from "./registries";
+import { Registry } from "../registry";
+import { ConditionalFormattingPanel } from "./side_panel/conditional_formatting";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
+
+//------------------------------------------------------------------------------
+// Side Panel Registry
+//------------------------------------------------------------------------------
+interface SidePanelContent {
+  title: string;
+  Body: any;
+  Footer?: any;
+}
+
+export const sidePanelRegistry = new Registry<SidePanelContent>();
+
+sidePanelRegistry.add("ConditionalFormatting", {
+  title: "Conditional Formatting",
+  Body: ConditionalFormattingPanel
+});
+
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------

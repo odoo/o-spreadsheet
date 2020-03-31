@@ -1,7 +1,6 @@
 import { GridModel } from "../../src/model";
 import { GridParent, makeTestFixture, nextTick, resetFunctions } from "../helpers";
-import { addFunction } from "../../src/functions";
-import { args } from "../../src/functions/arguments";
+import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/ui/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -38,9 +37,19 @@ afterEach(() => {
 describe("Functions autocomplete", () => {
   beforeEach(() => {
     resetFunctions();
-    addFunction("IF", { description: "do if", args: args``, compute: () => 1, returns: ["ANY"] });
-    addFunction("SUM", { description: "do sum", args: args``, compute: () => 1, returns: ["ANY"] });
-    addFunction("SZZ", {
+    functionRegistry.add("IF", {
+      description: "do if",
+      args: args``,
+      compute: () => 1,
+      returns: ["ANY"]
+    });
+    functionRegistry.add("SUM", {
+      description: "do sum",
+      args: args``,
+      compute: () => 1,
+      returns: ["ANY"]
+    });
+    functionRegistry.add("SZZ", {
       description: "do something",
       args: args``,
       compute: () => 1,
@@ -136,7 +145,7 @@ describe("Functions autocomplete", () => {
 
     test("autocomplete restrict number of proposition to 10", async () => {
       for (let i = 0; i < 20; i++) {
-        addFunction(`SUM${i + 1}`, {
+        functionRegistry.add(`SUM${i + 1}`, {
           description: "do sum",
           args: args``,
           compute: () => 1,
@@ -196,9 +205,19 @@ describe("Functions autocomplete", () => {
 describe("Autocomplete parenthesis", () => {
   beforeAll(() => {
     resetFunctions();
-    addFunction("IF", { description: "do if", args: args``, compute: () => 1, returns: ["ANY"] });
-    addFunction("SUM", { description: "do sum", args: args``, compute: () => 1, returns: ["ANY"] });
-    addFunction("SZZ", {
+    functionRegistry.add("IF", {
+      description: "do if",
+      args: args``,
+      compute: () => 1,
+      returns: ["ANY"]
+    });
+    functionRegistry.add("SUM", {
+      description: "do sum",
+      args: args``,
+      compute: () => 1,
+      returns: ["ANY"]
+    });
+    functionRegistry.add("SZZ", {
       description: "do something",
       args: args``,
       compute: () => 1,
