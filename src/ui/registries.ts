@@ -1,7 +1,7 @@
 import { Registry } from "../registry";
 import { ConditionalFormattingPanel } from "./side_panel/conditional_formatting";
 import { Cell } from "../types/index";
-import { GridModel } from "../model/grid_model";
+import { GridModel } from "../model/index";
 import { SpreadsheetEnv } from "./spreadsheet";
 
 //------------------------------------------------------------------------------
