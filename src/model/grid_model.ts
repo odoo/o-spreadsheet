@@ -15,6 +15,12 @@ import { GridPlugin } from "./plugins/grid";
 import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
 
+interface CommandStack {
+  current: GridCommand;
+  handlerIndex: 0;
+  next: CommandStack | null;
+}
+
 // -----------------------------------------------------------------------------
 // Plugins
 // -----------------------------------------------------------------------------
@@ -101,13 +107,26 @@ export class GridModel extends owl.core.EventBus {
   }
 
   private _dispatch(command: GridCommand) {
-    const commands: GridCommand[] = [command];
-    while (commands.length) {
-      const current = commands.shift()!;
-      for (let plugin of this.plugins) {
-        let result = plugin.handle(current);
-        if (result) {
-          commands.push(...result);
+    let stack: CommandStack = {
+      current: command,
+      handlerIndex: 0,
+      next: null
+    };
+    const n = this.plugins.length;
+    while (stack.handlerIndex < n) {
+      const handler = this.plugins[stack.handlerIndex];
+      const result = handler.handle(stack.current);
+      stack.handlerIndex++;
+      if (stack.next && stack.handlerIndex === n) {
+        stack = stack.next;
+      }
+      if (result) {
+        for (let cmd of result.reverse()) {
+          stack = {
+            current: cmd,
+            handlerIndex: 0,
+            next: stack
+          };
         }
       }
     }
