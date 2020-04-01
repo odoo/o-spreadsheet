@@ -1,4 +1,5 @@
 import { Workbook, GridCommand, Getters, WorkbookData, HandleReturnType } from "../types/index";
+import { WorkbookHistory } from "./history";
 
 export interface CommandHandler {
   start(command: GridCommand): boolean;
@@ -11,10 +12,12 @@ export abstract class BasePlugin implements CommandHandler {
 
   workbook: Workbook;
   getters: Getters;
+  history: WorkbookHistory;
 
-  constructor(workbook: Workbook, getters: Getters) {
+  constructor(workbook: Workbook, getters: Getters, history: WorkbookHistory) {
     this.workbook = workbook;
     this.getters = getters;
+    this.history = history;
   }
 
   start(command: GridCommand): boolean {

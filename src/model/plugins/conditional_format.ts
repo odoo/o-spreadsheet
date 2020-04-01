@@ -8,7 +8,6 @@ import {
   ConditionalFormat
 } from "../../types/index";
 import { toZone } from "../../helpers/index";
-import { updateState } from "../history";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -69,7 +68,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     } else {
       currentCF.push(cmd.cf);
     }
-    updateState(this.workbook, ["activeSheet", "conditionalFormats"], currentCF);
+    this.history.updateState(["activeSheet", "conditionalFormats"], currentCF);
     this.computeStyles();
   }
 

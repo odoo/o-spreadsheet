@@ -109,25 +109,25 @@ describe("history", () => {
   test("can undo and redo a add cell operation", () => {
     const model = new GridModel();
 
-    expect(model.workbook.undoStack.length).toBe(0);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(false);
+    expect(model.getters.canRedo()).toBe(false);
 
     model.dispatch({ type: "START_EDITION", text: "abc" });
     model.dispatch({ type: "STOP_EDITION" });
 
     expect(model.workbook.cells.A1.content).toBe("abc");
-    expect(model.workbook.undoStack.length).toBe(1);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(true);
+    expect(model.getters.canRedo()).toBe(false);
 
     model.undo();
     expect(model.workbook.cells.A1).not.toBeDefined();
-    expect(model.workbook.undoStack.length).toBe(0);
-    expect(model.workbook.redoStack.length).toBe(1);
+    expect(model.getters.canUndo()).toBe(false);
+    expect(model.getters.canRedo()).toBe(true);
 
     model.redo();
     expect(model.workbook.cells.A1.content).toBe("abc");
-    expect(model.workbook.undoStack.length).toBe(1);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(true);
+    expect(model.getters.canRedo()).toBe(false);
   });
 
   test("can undo and redo a cell update", () => {
@@ -135,25 +135,25 @@ describe("history", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }]
     });
 
-    expect(model.workbook.undoStack.length).toBe(0);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(false);
+    expect(model.getters.canRedo()).toBe(false);
 
     model.dispatch({ type: "START_EDITION", text: "abc" });
     model.dispatch({ type: "STOP_EDITION" });
 
     expect(model.workbook.cells.A1.content).toBe("abc");
-    expect(model.workbook.undoStack.length).toBe(1);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(true);
+    expect(model.getters.canRedo()).toBe(false);
 
     model.undo();
     expect(model.workbook.cells.A1.content).toBe("1");
-    expect(model.workbook.undoStack.length).toBe(0);
-    expect(model.workbook.redoStack.length).toBe(1);
+    expect(model.getters.canUndo()).toBe(false);
+    expect(model.getters.canRedo()).toBe(true);
 
     model.redo();
     expect(model.workbook.cells.A1.content).toBe("abc");
-    expect(model.workbook.undoStack.length).toBe(1);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(true);
+    expect(model.getters.canRedo()).toBe(false);
   });
 
   test("can undo and redo a delete cell operation", () => {

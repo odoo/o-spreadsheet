@@ -33,12 +33,12 @@ describe("history", () => {
     model.undo();
     expect(model.workbook.cells.A2).not.toBeDefined();
 
-    expect(model.workbook.undoStack.length).toBe(0);
-    expect(model.workbook.redoStack.length).toBe(1);
+    expect(model.getters.canUndo()).toBe(false);
+    expect(model.getters.canRedo()).toBe(true);
 
     model.dispatch({ type: "SET_VALUE", xc: "A4", text: "5" });
-    expect(model.workbook.undoStack.length).toBe(1);
-    expect(model.workbook.redoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(true);
+    expect(model.getters.canRedo()).toBe(false);
   });
 
   test("two identical changes do not count as two undo steps", () => {
@@ -64,16 +64,14 @@ describe("history", () => {
 
   test("undo steps are dropped at some point", () => {
     const model = new GridModel();
-    expect(model.workbook.undoStack.length).toBe(0);
+    expect(model.getters.canUndo()).toBe(false);
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
       model.dispatch({ type: "START_EDITION", text: String(i) });
       model.dispatch({ type: "STOP_EDITION" });
       expect(model.workbook.cells.A1.content).toBe(String(i));
     }
-    expect(model.workbook.undoStack.length).toBe(MAX_HISTORY_STEPS);
     model.dispatch({ type: "START_EDITION", text: "abc" });
     model.dispatch({ type: "STOP_EDITION" });
-    expect(model.workbook.undoStack.length).toBe(MAX_HISTORY_STEPS);
     expect(model.workbook.cells.A1.content).toBe("abc");
     model.undo();
     expect(model.workbook.cells.A1.content).toBe(String(MAX_HISTORY_STEPS - 1));

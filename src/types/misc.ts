@@ -2,17 +2,6 @@ import { ConditionalFormat } from "./conditional_formatting";
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
-export interface HistoryChange {
-  root: any;
-  path: (string | number)[];
-  before: any;
-  after: any;
-}
-
-export interface HistoryStep {
-  batch: HistoryChange[];
-}
-
 export interface Zone {
   left: number;
   right: number;
@@ -155,9 +144,6 @@ export interface Workbook {
   isEditing: boolean;
   currentContent: string;
 
-  trackChanges: boolean;
-  undoStack: HistoryStep[];
-  redoStack: HistoryStep[];
   highlights: Highlight[];
   isSelectingRange: boolean;
 
