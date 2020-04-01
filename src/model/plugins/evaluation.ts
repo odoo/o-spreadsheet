@@ -34,10 +34,6 @@ export class EvaluationPlugin extends BasePlugin {
    */
   COMPUTED: Set<Cell> = new Set();
 
-  constructor(workbook, getters) {
-    super(workbook, getters);
-    this.evaluateCells();
-  }
   handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "EVALUATE_CELLS":
