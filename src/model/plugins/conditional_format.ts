@@ -37,16 +37,26 @@ let ruleExecutor = {
 export class ConditionalFormatPlugin extends BasePlugin {
   static getters = ["getConditionalFormats"];
 
+  private isStale: boolean = true;
+
   handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ADD_CONDITIONAL_FORMAT":
         this.addConditionalFormatting(cmd);
         break;
       case "EVALUATE_CELLS":
+      case "UPDATE_CELL":
       case "UNDO":
       case "REDO":
-        this.computeStyles();
+        this.isStale = true;
         break;
+    }
+  }
+
+  finalize() {
+    if (this.isStale) {
+      this.computeStyles();
+      this.isStale = false;
     }
   }
 

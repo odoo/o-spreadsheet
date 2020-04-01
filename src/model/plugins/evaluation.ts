@@ -6,12 +6,14 @@ import { functionRegistry } from "../../functions/index";
 const functionMap = functionRegistry.mapping;
 
 export class EvaluationPlugin extends BasePlugin {
+  private isStale: boolean = true;
+
   /**
    * For all cells that are being currently computed (asynchronously).
    *
    * For example: =Wait(3)
    */
-  PENDING: Set<Cell> = new Set();
+  private PENDING: Set<Cell> = new Set();
 
   /**
    * For all cells that are NOT being currently computed, but depend on another
@@ -21,7 +23,7 @@ export class EvaluationPlugin extends BasePlugin {
    *   A1: =Wait(3)
    *   A2: =A1
    */
-  WAITING: Set<Cell> = new Set();
+  private WAITING: Set<Cell> = new Set();
 
   /**
    * For all cells that have been async computed.
@@ -32,20 +34,30 @@ export class EvaluationPlugin extends BasePlugin {
    *
    * When A1 is computed, A1 is moved in COMPUTED
    */
-  COMPUTED: Set<Cell> = new Set();
+  private COMPUTED: Set<Cell> = new Set();
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
+      case "UPDATE_CELL":
+        this.isStale = this.isStale || "content" in cmd;
+        break;
       case "EVALUATE_CELLS":
         this.evaluateCells(cmd.onlyWaiting);
-        if (this.workbook.isStale) {
-          this.workbook.isStale = false;
+        if (this.isStale) {
+          this.isStale = false;
         }
         break;
       case "UNDO":
       case "REDO":
-        this.evaluateCells();
+        this.isStale = true;
         break;
+    }
+  }
+
+  finalize() {
+    if (this.isStale) {
+      this.isStale = false;
+      this.evaluateCells();
     }
   }
 

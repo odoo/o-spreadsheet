@@ -97,9 +97,6 @@ export class GridModel extends owl.core.EventBus {
 
     // handling
     this._dispatch(command);
-    if (this.workbook.isStale) {
-      this._dispatch({ type: "EVALUATE_CELLS" });
-    }
 
     // finalizing
     for (let handler of this.handlers) {
