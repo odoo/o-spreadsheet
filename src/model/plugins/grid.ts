@@ -1,7 +1,6 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { isEqual, toCartesian, toXC } from "../../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { updateState } from "../history";
 import { Cell, GridCommand, Sheet, Zone, WorkbookData, HandleReturnType } from "../../types/index";
 
 const MIN_PADDING = 3;
@@ -143,12 +142,12 @@ export class GridPlugin extends BasePlugin {
   private setColSize(index: number, size: number) {
     const col = this.workbook.cols[index];
     const delta = size - col.size;
-    updateState(this.workbook, ["cols", index, "size"], size);
-    updateState(this.workbook, ["cols", index, "right"], col.right + delta);
+    this.history.updateState(["cols", index, "size"], size);
+    this.history.updateState(["cols", index, "right"], col.right + delta);
     for (let i = index + 1; i < this.workbook.cols.length; i++) {
       const col = this.workbook.cols[i];
-      updateState(this.workbook, ["cols", i, "left"], col.left + delta);
-      updateState(this.workbook, ["cols", i, "right"], col.right + delta);
+      this.history.updateState(["cols", i, "left"], col.left + delta);
+      this.history.updateState(["cols", i, "right"], col.right + delta);
     }
     this.workbook.width += delta;
   }
@@ -156,12 +155,12 @@ export class GridPlugin extends BasePlugin {
   private setRowSize(index: number, size: number) {
     const row = this.workbook.rows[index];
     const delta = size - row.size;
-    updateState(this.workbook, ["rows", index, "size"], size);
-    updateState(this.workbook, ["rows", index, "bottom"], row.bottom + delta);
+    this.history.updateState(["rows", index, "size"], size);
+    this.history.updateState(["rows", index, "bottom"], row.bottom + delta);
     for (let i = index + 1; i < this.workbook.rows.length; i++) {
       const row = this.workbook.rows[i];
-      updateState(this.workbook, ["rows", i, "top"], row.top + delta);
-      updateState(this.workbook, ["rows", i, "bottom"], row.bottom + delta);
+      this.history.updateState(["rows", i, "top"], row.top + delta);
+      this.history.updateState(["rows", i, "bottom"], row.bottom + delta);
     }
     this.workbook.height += delta;
   }
@@ -186,7 +185,7 @@ export class GridPlugin extends BasePlugin {
     }
 
     let id = this.nextId++;
-    updateState(this.workbook, ["merges", id], {
+    this.history.updateState(["merges", id], {
       id,
       left,
       top,
@@ -209,11 +208,11 @@ export class GridPlugin extends BasePlugin {
         if (this.workbook.mergeCellMap[xc]) {
           previousMerges.add(this.workbook.mergeCellMap[xc]);
         }
-        updateState(this.workbook, ["mergeCellMap", xc], id);
+        this.history.updateState(["mergeCellMap", xc], id);
       }
     }
     for (let m of previousMerges) {
-      updateState(this.workbook, ["merges", m], undefined);
+      this.history.updateState(["merges", m], undefined);
     }
     return commands;
   }
@@ -226,11 +225,11 @@ export class GridPlugin extends BasePlugin {
     if (!isEqual(zone, mergeZone)) {
       throw new Error("Invalid merge zone");
     }
-    updateState(this.workbook, ["merges", mergeId], undefined);
+    this.history.updateState(["merges", mergeId], undefined);
     for (let r = top; r <= bottom; r++) {
       for (let c = left; c <= right; c++) {
         const xc = toXC(c, r);
-        updateState(this.workbook, ["mergeCellMap", xc], undefined);
+        this.history.updateState(["mergeCellMap", xc], undefined);
       }
     }
   }

@@ -2,7 +2,6 @@ import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers/index";
 import { Cell, GridCommand, NewCell, Zone, HandleReturnType } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
-import { updateCell } from "../history";
 
 // -----------------------------------------------------------------------------
 // Helpers
@@ -241,8 +240,8 @@ export class ClipboardPlugin extends BasePlugin {
         if (!originCell && targetCell) {
           if (this.onlyFormat) {
             if (targetCell.style || targetCell.border) {
-              updateCell(this.workbook, targetCell, "style", undefined);
-              updateCell(this.workbook, targetCell, "border", undefined);
+              this.history.updateCell(targetCell, "style", undefined);
+              this.history.updateCell(targetCell, "border", undefined);
             }
           } else {
             result.push({

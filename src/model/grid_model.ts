@@ -1,8 +1,8 @@
 import * as owl from "@odoo/owl";
-import { CURRENT_VERSION, load, createEmptyWorkbook } from "../data";
+import { createEmptyWorkbook, CURRENT_VERSION, load } from "../data";
 import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "../types/index";
 import { BasePlugin, CommandHandler } from "./base_plugin";
-import * as history from "./history";
+import { WHistory } from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
 import { CorePlugin } from "./plugins/core";
@@ -46,6 +46,7 @@ export class GridModel extends owl.core.EventBus {
   private handlers: CommandHandler[];
   private isStarted: boolean = false;
   workbook: Workbook;
+  history: WHistory;
   state: UI;
 
   getters: Getters;
@@ -56,13 +57,17 @@ export class GridModel extends owl.core.EventBus {
 
     const workbookData = load(data);
     this.workbook = createEmptyWorkbook();
+    this.history = new WHistory(this.workbook);
+
+    this.getters = {
+      canUndo: this.history.canUndo.bind(this.history),
+      canRedo: this.history.canRedo.bind(this.history)
+    } as Getters;
+    this.handlers = [this.history];
 
     // Plugins
-    this.getters = {} as Getters;
-    this.handlers = [];
-
     for (let Plugin of PLUGINS) {
-      const plugin = new Plugin(this.workbook, this.getters);
+      const plugin = new Plugin(this.workbook, this.getters, this.history);
       plugin.import(workbookData);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -91,12 +96,10 @@ export class GridModel extends owl.core.EventBus {
     }
 
     // handling
-    history.start(this.workbook);
     this._dispatch(command);
     if (this.workbook.isStale) {
       this._dispatch({ type: "EVALUATE_CELLS" });
     }
-    history.stop(this.workbook);
 
     // finalizing
     for (let handler of this.handlers) {
@@ -162,14 +165,14 @@ export class GridModel extends owl.core.EventBus {
   // history
   // ---------------------------------------------------------------------------
   undo() {
-    history.undo(this.workbook);
+    this.history.undo();
     this._dispatch({ type: "EVALUATE_CELLS" });
     Object.assign(this.state, this.getters.getUI());
     this.trigger("update");
   }
 
   redo() {
-    history.redo(this.workbook);
+    this.history.redo();
     this._dispatch({ type: "EVALUATE_CELLS" });
     Object.assign(this.state, this.getters.getUI());
     this.trigger("update");
@@ -191,8 +194,8 @@ export class GridModel extends owl.core.EventBus {
   // export
   // ---------------------------------------------------------------------------
   exportData(): WorkbookData {
-    const data = (this.handlers[0] as CorePlugin).export();
-    for (let handler of this.handlers.slice(1)) {
+    const data = (this.handlers[1] as CorePlugin).export();
+    for (let handler of this.handlers.slice(2)) {
       if (handler instanceof BasePlugin) {
         handler.export(data);
       }

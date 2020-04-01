@@ -195,8 +195,8 @@ export class LayouPlugin extends BasePlugin {
       isEditing: this.workbook.isEditing,
       selectedCell: this.getters.getActiveCell(),
       aggregate: this.getters.getAggregate(),
-      canUndo: this.workbook.undoStack.length > 0,
-      canRedo: this.workbook.redoStack.length > 0,
+      canUndo: this.getters.canUndo(),
+      canRedo: this.getters.canRedo(),
       currentContent: this.workbook.currentContent,
       sheets: this.workbook.sheets.map(s => s.name),
       activeSheet: this.workbook.activeSheet.name

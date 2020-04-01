@@ -17,7 +17,6 @@ import {
   Zone
 } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
-import { updateSheet, updateState } from "../history";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
@@ -164,8 +163,8 @@ export class CorePlugin extends BasePlugin {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        updateSheet(this.workbook, _sheet, ["cells", xc], undefined);
-        updateSheet(this.workbook, _sheet, ["rows", row, "cells", col], undefined);
+        this.history.updateSheet(_sheet, ["cells", xc], undefined);
+        this.history.updateSheet(_sheet, ["rows", row, "cells", col], undefined);
       }
       return;
     }
@@ -228,34 +227,32 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    updateSheet(this.workbook, _sheet, ["cells", xc], cell);
-    updateSheet(this.workbook, _sheet, ["rows", row, "cells", col], cell);
+    this.history.updateSheet(_sheet, ["cells", xc], cell);
+    this.history.updateSheet(_sheet, ["rows", row, "cells", col], cell);
   }
 
   private activateSheet(name: string) {
     const sheet = this.workbook.sheets.find(s => s.name === name)!;
-    updateState(this.workbook, ["activeSheet"], sheet);
+    this.history.updateState(["activeSheet"], sheet);
 
     // setting up rows and columns
-    updateState(this.workbook, ["rows"], sheet.rows);
-    updateState(
-      this.workbook,
+    this.history.updateState(["rows"], sheet.rows);
+    this.history.updateState(
       ["height"],
       this.workbook.rows[this.workbook.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5
     );
-    updateState(this.workbook, ["cols"], sheet.cols);
-    updateState(
-      this.workbook,
+    this.history.updateState(["cols"], sheet.cols);
+    this.history.updateState(
       ["width"],
       this.workbook.cols[this.workbook.cols.length - 1].right + DEFAULT_CELL_WIDTH
     );
 
     // merges
-    updateState(this.workbook, ["merges"], sheet.merges);
-    updateState(this.workbook, ["mergeCellMap"], sheet.mergeCellMap);
+    this.history.updateState(["merges"], sheet.merges);
+    this.history.updateState(["mergeCellMap"], sheet.mergeCellMap);
 
     // cells
-    updateState(this.workbook, ["cells"], sheet.cells);
+    this.history.updateState(["cells"], sheet.cells);
   }
 
   private createSheet(): string {
@@ -272,7 +269,7 @@ export class CorePlugin extends BasePlugin {
     };
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
-    updateState(this.workbook, ["sheets"], sheets);
+    this.history.updateState(["sheets"], sheets);
     return sheet.name;
   }
 
@@ -325,7 +322,7 @@ export class CorePlugin extends BasePlugin {
     };
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
-    updateState(this.workbook, ["sheets"], sheets);
+    this.history.updateState(["sheets"], sheets);
     // cells
     for (let xc in data.cells) {
       const cell = data.cells[xc];

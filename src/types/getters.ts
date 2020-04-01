@@ -6,6 +6,7 @@ import { CorePlugin } from "../model/plugins/core";
 import { ConditionalFormatPlugin } from "../model/plugins/conditional_format";
 import { LayouPlugin } from "../model/plugins/layout";
 import { FormattingPlugin } from "../model/plugins/formatting";
+import { WHistory } from "../model/history";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -38,4 +39,6 @@ export interface Getters {
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
+  canUndo: WHistory["canUndo"];
+  canRedo: WHistory["canRedo"];
 }

@@ -1,4 +1,5 @@
-import { Cell, Workbook, HistoryChange, HistoryStep, Sheet } from "../types/index";
+import { Cell, Workbook, Sheet } from "../types/index";
+import { CommandHandler } from "./base_plugin";
 
 /**
  * History Management System
@@ -7,120 +8,142 @@ import { Cell, Workbook, HistoryChange, HistoryStep, Sheet } from "../types/inde
  * as expected.
  */
 
+interface HistoryChange {
+  root: any;
+  path: (string | number)[];
+  before: any;
+  after: any;
+}
+
+interface HistoryStep {
+  batch: HistoryChange[];
+}
+
 /**
  * Max Number of history steps kept in memory
  */
 export const MAX_HISTORY_STEPS = 99;
 
-/**
- * The history system needs to be activated before a model mutation. This is
- * required to create a new history step.
- *
- * @see stop method
- */
-export function start(state: Workbook) {
-  const step: HistoryStep = { batch: [] };
-  // todo: when this is converted to a stateful plugin, keep the current batch
-  // out of the undo stack
-  state.undoStack.push(step);
-  state.trackChanges = true;
+export interface WorkbookHistory {
+  updateState(path: (string | number)[], val: any): void;
+  updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void;
+  updateSheet(sheet: Sheet, path: (string | number)[], value: any): void;
 }
 
-/**
- * After each mutation, we need to stop tracking changes. This is the purpose
- * of this method.
- */
-export function stop(state: Workbook) {
-  const lastStep = state.undoStack[state.undoStack.length - 1];
-  state.trackChanges = false;
-  if (lastStep.batch.length === 0) {
-    state.undoStack.pop();
-  } else {
-    state.redoStack = [];
-  }
-  if (state.undoStack.length > MAX_HISTORY_STEPS) {
-    state.undoStack.shift();
-  }
-}
+export class WHistory implements WorkbookHistory, CommandHandler {
+  workbook: Workbook;
 
-/**
- * undo method. This basically undo the last step of the undo stack.
- * @param state
- */
-export function undo(state: Workbook) {
-  const step = state.undoStack.pop();
-  if (!step) {
-    return;
-  }
-  state.redoStack.push(step);
-  for (let i = step.batch.length - 1; i >= 0; i--) {
-    let change = step.batch[i];
-    applyChange(change, "before");
-  }
-}
+  private trackChanges: boolean = false;
+  private undoStack: HistoryStep[] = [];
+  private redoStack: HistoryStep[] = [];
 
-export function redo(state: Workbook) {
-  const step = state.redoStack.pop();
-  if (!step) {
-    return;
+  constructor(workbook: Workbook) {
+    this.workbook = workbook;
   }
-  state.undoStack.push(step);
-  for (let change of step.batch) {
-    applyChange(change, "after");
-  }
-}
 
-function applyChange(change: HistoryChange, target: "before" | "after") {
-  let val = change.root as any;
-  let key = change.path[change.path.length - 1];
-  for (let p of change.path.slice(0, -1)) {
-    val = val[p];
+  // getters
+  canUndo(): boolean {
+    return this.undoStack.length > 0;
   }
-  if (change[target] === undefined) {
-    delete val[key];
-  } else {
-    val[key] = change[target];
-  }
-}
 
-export function updateState(state: Workbook, path: (string | number)[], val: any) {
-  _updateState(state, state, path, val);
-}
+  canRedo(): boolean {
+    return this.redoStack.length > 0;
+  }
 
-function _updateState(state: Workbook, root: any, path: (string | number)[], val: any) {
-  let value = root as any;
-  let key = path[path.length - 1];
-  for (let p of path.slice(0, -1)) {
-    value = value[p];
+  start() {
+    const step: HistoryStep = { batch: [] };
+    // todo: when this is converted to a stateful plugin, keep the current batch
+    // out of the undo stack
+    this.undoStack.push(step);
+    this.trackChanges = true;
+    return true;
   }
-  if (value[key] === val) {
-    return;
-  }
-  if (state.trackChanges) {
-    const step = state.undoStack[state.undoStack.length - 1];
-    step.batch.push({
-      root,
-      path,
-      before: value[key],
-      after: val
-    });
-  }
-  if (val === undefined) {
-    delete value[key];
-  } else {
-    value[key] = val;
-  }
-}
 
-export function updateCell<T extends keyof Cell>(
-  state: Workbook,
-  cell: Cell,
-  key: T,
-  value: Cell[T]
-) {
-  _updateState(state, cell, [key], value);
-}
+  handle() {}
 
-export function updateSheet(state: Workbook, sheet: Sheet, path: (string | number)[], value: any) {
-  _updateState(state, sheet, path, value);
+  finalize() {
+    const lastStep = this.undoStack[this.undoStack.length - 1];
+    this.trackChanges = false;
+    if (lastStep.batch.length === 0) {
+      this.undoStack.pop();
+    } else {
+      this.redoStack = [];
+    }
+    if (this.undoStack.length > MAX_HISTORY_STEPS) {
+      this.undoStack.shift();
+    }
+  }
+
+  undo() {
+    const step = this.undoStack.pop();
+    if (!step) {
+      return;
+    }
+    this.redoStack.push(step);
+    for (let i = step.batch.length - 1; i >= 0; i--) {
+      let change = step.batch[i];
+      this.applyChange(change, "before");
+    }
+  }
+
+  redo() {
+    const step = this.redoStack.pop();
+    if (!step) {
+      return;
+    }
+    this.undoStack.push(step);
+    for (let change of step.batch) {
+      this.applyChange(change, "after");
+    }
+  }
+
+  private applyChange(change: HistoryChange, target: "before" | "after") {
+    let val = change.root as any;
+    let key = change.path[change.path.length - 1];
+    for (let p of change.path.slice(0, -1)) {
+      val = val[p];
+    }
+    if (change[target] === undefined) {
+      delete val[key];
+    } else {
+      val[key] = change[target];
+    }
+  }
+
+  private _updateState(root: any, path: (string | number)[], val: any) {
+    let value = root as any;
+    let key = path[path.length - 1];
+    for (let p of path.slice(0, -1)) {
+      value = value[p];
+    }
+    if (value[key] === val) {
+      return;
+    }
+    if (this.trackChanges) {
+      const step = this.undoStack[this.undoStack.length - 1];
+      step.batch.push({
+        root,
+        path,
+        before: value[key],
+        after: val
+      });
+    }
+    if (val === undefined) {
+      delete value[key];
+    } else {
+      value[key] = val;
+    }
+  }
+
+  updateState(path: (string | number)[], val: any): void {
+    this._updateState(this.workbook, path, val);
+  }
+
+  updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void {
+    this._updateState(cell, [key], value);
+  }
+
+  updateSheet(sheet: Sheet, path: (string | number)[], value: any): void {
+    this._updateState(sheet, path, value);
+  }
 }
