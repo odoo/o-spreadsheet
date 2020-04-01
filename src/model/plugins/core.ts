@@ -52,7 +52,6 @@ export class CorePlugin extends BasePlugin {
         ];
       case "UPDATE_CELL":
         this.updateCell(cmd.sheet, cmd.col, cmd.row, cmd);
-        this.workbook.isStale = true;
         break;
       case "CLEAR_CELL":
         return [
