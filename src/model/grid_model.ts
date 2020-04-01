@@ -78,6 +78,7 @@ export class GridModel extends owl.core.EventBus {
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
     }
+    this.dispatch({ type: "EVALUATE_CELLS" });
   }
 
   dispatch(command: GridCommand): CommandResult {
