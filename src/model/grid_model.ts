@@ -162,22 +162,6 @@ export class GridModel extends owl.core.EventBus {
     }
   }
 
-  // history
-  // ---------------------------------------------------------------------------
-  undo() {
-    this.history.undo();
-    this._dispatch({ type: "EVALUATE_CELLS" });
-    Object.assign(this.state, this.getters.getUI());
-    this.trigger("update");
-  }
-
-  redo() {
-    this.history.redo();
-    this._dispatch({ type: "EVALUATE_CELLS" });
-    Object.assign(this.state, this.getters.getUI());
-    this.trigger("update");
-  }
-
   // core
   // ---------------------------------------------------------------------------
   updateVisibleZone(width, height) {

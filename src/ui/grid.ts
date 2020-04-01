@@ -148,8 +148,8 @@ export class Grid extends Component<any, any> {
         data: this.model.exportData()
       });
     },
-    "CTRL+Z": () => this.model.undo(),
-    "CTRL+Y": () => this.model.redo()
+    "CTRL+Z": () => this.model.dispatch({ type: "UNDO" }),
+    "CTRL+Y": () => this.model.dispatch({ type: "REDO" })
   };
 
   private processCopyFormat() {

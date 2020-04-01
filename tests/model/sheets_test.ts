@@ -11,11 +11,11 @@ describe("sheets", () => {
     expect(model.workbook.sheets.length).toBe(2);
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.sheets.length).toBe(1);
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.sheets.length).toBe(2);
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
   });

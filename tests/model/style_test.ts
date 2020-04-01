@@ -14,7 +14,7 @@ describe("styles", () => {
 
     expect(model.workbook.cells.B1.content).toBe("");
     expect(model.workbook.cells.B1.style).toBeDefined();
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.B1).not.toBeDefined();
   });
 
@@ -30,7 +30,7 @@ describe("styles", () => {
     });
     expect(model.workbook.cells.B1.content).toBe("some content");
     expect(model.workbook.cells.B1.style).toBeDefined();
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.B1.content).toBe("some content");
     expect(model.workbook.cells.B1.style).not.toBeDefined();
   });
@@ -90,7 +90,7 @@ describe("styles", () => {
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.B1.style).not.toBeDefined();
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.B1.style).toBeDefined();
   });
 });

@@ -264,6 +264,14 @@ export interface ClearCellCommand {
   row: number;
 }
 
+export interface UndoCommand {
+  type: "UNDO";
+}
+
+export interface RedoCommand {
+  type: "REDO";
+}
+
 export type GridCommand =
   | UpdateCellCommand
   | CopyCommand
@@ -302,7 +310,9 @@ export type GridCommand =
   | AddFormattingCommand
   | ClearFormattingCommand
   | SetFormatterCommand
-  | ClearCellCommand;
+  | ClearCellCommand
+  | UndoCommand
+  | RedoCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
 

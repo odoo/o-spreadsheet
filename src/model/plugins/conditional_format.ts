@@ -43,6 +43,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.addConditionalFormatting(cmd);
         break;
       case "EVALUATE_CELLS":
+      case "UNDO":
+      case "REDO":
         this.computeStyles();
         break;
     }

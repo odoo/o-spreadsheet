@@ -12,15 +12,15 @@ describe("history", () => {
 
     expect(model.workbook.cells.A2.content).toBe("5");
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A2.content).toBe("3");
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A2).not.toBeDefined();
 
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cells.A2.content).toBe("3");
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cells.A2.content).toBe("5");
   });
 
@@ -30,7 +30,7 @@ describe("history", () => {
 
     expect(model.workbook.cells.A2.content).toBe("3");
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A2).not.toBeDefined();
 
     expect(model.getters.canUndo()).toBe(false);
@@ -58,7 +58,7 @@ describe("history", () => {
     });
 
     expect(model.workbook.cells.B2.border).toBeDefined();
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.B2).not.toBeDefined();
   });
 
@@ -73,7 +73,7 @@ describe("history", () => {
     model.dispatch({ type: "START_EDITION", text: "abc" });
     model.dispatch({ type: "STOP_EDITION" });
     expect(model.workbook.cells.A1.content).toBe("abc");
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A1.content).toBe(String(MAX_HISTORY_STEPS - 1));
   });
 
@@ -82,9 +82,9 @@ describe("history", () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A2" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "11" });
     expect(model.workbook.cells.A1.value).toBe(11);
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A1.value).toBe(null);
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cells.A1.value).toBe(11);
   });
 });

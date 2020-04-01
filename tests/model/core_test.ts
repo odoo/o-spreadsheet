@@ -119,12 +119,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A1).not.toBeDefined();
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cells.A1.content).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -145,12 +145,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A1.content).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cells.A1.content).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -169,10 +169,10 @@ describe("history", () => {
     });
     expect(model.workbook.cells.A2).not.toBeDefined();
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.A2.content).toBe("3");
 
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cells.A2).not.toBeDefined();
   });
 });

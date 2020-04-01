@@ -241,12 +241,12 @@ describe("merges", () => {
     });
 
     // undo
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
     expect(Object.keys(model.workbook.merges)).toEqual([]);
 
     // redo
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model.workbook.merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }

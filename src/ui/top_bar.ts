@@ -119,8 +119,8 @@ export class TopBar extends Component<any, any> {
       <div class="o-tools">
         <div class="o-tool" title="Save" t-on-click="onSave" >SAVE</div>
         <div class="o-tool" title="Load" t-on-click="onLoad">LOAD</div>
-        <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="model.undo()" >${icons.UNDO_ICON}</div>
-        <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="model.redo()">${icons.REDO_ICON}</div>
+        <div class="o-tool" title="Undo" t-att-class="{'o-disabled': !undoTool}" t-on-click="undo" >${icons.UNDO_ICON}</div>
+        <div class="o-tool" t-att-class="{'o-disabled': !redoTool}" title="Redo"  t-on-click="redo">${icons.REDO_ICON}</div>
         <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
         <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
         <div class="o-divider"/>
@@ -498,5 +498,11 @@ export class TopBar extends Component<any, any> {
   }
   onLoad() {
     this.trigger("load-content");
+  }
+  undo() {
+    this.model.dispatch({ type: "UNDO" });
+  }
+  redo() {
+    this.model.dispatch({ type: "REDO" });
   }
 }

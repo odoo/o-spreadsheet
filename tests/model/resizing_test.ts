@@ -18,11 +18,11 @@ describe("Model resizer", () => {
     expect(model.workbook.cols[1].size).toBe(196);
     expect(model.workbook.cols[2].left).toBe(initialTop + 100);
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cols[1].size).toBe(initialSize);
     expect(model.workbook.cols[2].left).toBe(initialTop);
 
-    model.redo();
+    model.dispatch({ type: "REDO" });
     expect(model.workbook.cols[1].size).toBe(initialSize + 100);
     expect(model.workbook.cols[2].left).toBe(initialTop + 100);
   });
@@ -43,7 +43,7 @@ describe("Model resizer", () => {
     expect(model.workbook.rows[1].size).toBe(initialSize + 100);
     expect(model.workbook.rows[2].top).toBe(initialTop + 100);
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.rows[1].size).toBe(initialSize);
     expect(model.workbook.rows[2].top).toBe(initialTop);
   });
