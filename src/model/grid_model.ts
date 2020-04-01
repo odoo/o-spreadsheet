@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { CURRENT_VERSION, load } from "../data";
 import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "../types/index";
-import { BasePlugin } from "./base_plugin";
+import { BasePlugin, CommandHandler } from "./base_plugin";
 import * as history from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
@@ -44,8 +44,7 @@ const PLUGINS = [
 export class GridModel extends owl.core.EventBus {
   static setTimeout = window.setTimeout.bind(window);
 
-  private plugins: BasePlugin[];
-  private clipboard: ClipboardPlugin;
+  private handlers: CommandHandler[];
   private isStarted: boolean = false;
   workbook: Workbook;
   state: UI;
@@ -61,7 +60,7 @@ export class GridModel extends owl.core.EventBus {
 
     // Plugins
     this.getters = {} as Getters;
-    this.plugins = [];
+    this.handlers = [];
 
     for (let Plugin of PLUGINS) {
       const plugin = new Plugin(this.workbook, this.getters);
@@ -72,33 +71,38 @@ export class GridModel extends owl.core.EventBus {
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
-      this.plugins.push(plugin);
+      this.handlers.push(plugin);
     }
 
-    this.clipboard = this.plugins.find(p => p instanceof ClipboardPlugin) as ClipboardPlugin;
-
     // misc
-    this.state = this.computeDerivedState();
+    this.state = this.getters.getUI();
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
     }
   }
 
   dispatch(command: GridCommand): CommandResult {
-    for (let plugin of this.plugins) {
-      let result = plugin.canDispatch(command);
+    // starting
+    for (let handler of this.handlers) {
+      let result = handler.start(command);
       if (!result) {
         return "CANCELLED";
       }
     }
 
+    // handling
     history.start(this.workbook);
     this._dispatch(command);
     if (this.workbook.isStale) {
       this._dispatch({ type: "EVALUATE_CELLS" });
     }
     history.stop(this.workbook);
-    Object.assign(this.state, this.computeDerivedState());
+
+    // finalizing
+    for (let handler of this.handlers) {
+      handler.finalize();
+    }
+    Object.assign(this.state, this.getters.getUI());
     this.trigger("update");
     if (this.workbook.loadingCells > 0) {
       this.startScheduler();
@@ -112,9 +116,9 @@ export class GridModel extends owl.core.EventBus {
       handlerIndex: 0,
       next: null
     };
-    const n = this.plugins.length;
+    const n = this.handlers.length;
     while (stack.handlerIndex < n) {
-      const handler = this.plugins[stack.handlerIndex];
+      const handler = this.handlers[stack.handlerIndex];
       const result = handler.handle(stack.current);
       stack.handlerIndex++;
       if (stack.next && stack.handlerIndex === n) {
@@ -130,39 +134,6 @@ export class GridModel extends owl.core.EventBus {
         }
       }
     }
-  }
-
-  computeDerivedState(): UI {
-    const { viewport, cols, rows } = this.workbook;
-    const clipboardZones = this.clipboard.status === "visible" ? this.clipboard.zones : [];
-    return {
-      rows: this.workbook.rows,
-      cols: this.workbook.cols,
-      merges: this.workbook.merges,
-      mergeCellMap: this.workbook.mergeCellMap,
-      width: this.workbook.width,
-      height: this.workbook.height,
-      offsetX: cols[viewport.left].left - HEADER_WIDTH,
-      offsetY: rows[viewport.top].top - HEADER_HEIGHT,
-      scrollTop: this.workbook.scrollTop,
-      scrollLeft: this.workbook.scrollLeft,
-      viewport: this.workbook.viewport,
-      selection: this.workbook.selection,
-      activeCol: this.workbook.activeCol,
-      activeRow: this.workbook.activeRow,
-      activeXc: this.workbook.activeXc,
-      clipboard: clipboardZones,
-      highlights: this.workbook.highlights,
-      isSelectingRange: this.workbook.isSelectingRange,
-      isEditing: this.workbook.isEditing,
-      selectedCell: this.getters.getActiveCell(),
-      aggregate: this.getters.getAggregate(),
-      canUndo: this.workbook.undoStack.length > 0,
-      canRedo: this.workbook.redoStack.length > 0,
-      currentContent: this.workbook.currentContent,
-      sheets: this.workbook.sheets.map(s => s.name),
-      activeSheet: this.workbook.activeSheet.name
-    };
   }
 
   /**
@@ -193,14 +164,14 @@ export class GridModel extends owl.core.EventBus {
   undo() {
     history.undo(this.workbook);
     this._dispatch({ type: "EVALUATE_CELLS" });
-    Object.assign(this.state, this.computeDerivedState());
+    Object.assign(this.state, this.getters.getUI());
     this.trigger("update");
   }
 
   redo() {
     history.redo(this.workbook);
     this._dispatch({ type: "EVALUATE_CELLS" });
-    Object.assign(this.state, this.computeDerivedState());
+    Object.assign(this.state, this.getters.getUI());
     this.trigger("update");
   }
 
@@ -208,21 +179,23 @@ export class GridModel extends owl.core.EventBus {
   // ---------------------------------------------------------------------------
   updateVisibleZone(width, height) {
     updateVisibleZone(this.workbook, width, height);
-    Object.assign(this.state, this.computeDerivedState());
+    Object.assign(this.state, this.getters.getUI());
   }
 
   updateScroll(scrollTop, scrollLeft) {
     const result = updateScroll(this.workbook, scrollTop, scrollLeft);
-    Object.assign(this.state, this.computeDerivedState());
+    Object.assign(this.state, this.getters.getUI());
     return result;
   }
 
   // export
   // ---------------------------------------------------------------------------
   exportData(): WorkbookData {
-    const data = (this.plugins[0] as CorePlugin).export();
-    for (let plugin of this.plugins.slice(1)) {
-      plugin.export(data);
+    const data = (this.handlers[0] as CorePlugin).export();
+    for (let handler of this.handlers.slice(1)) {
+      if (handler instanceof BasePlugin) {
+        handler.export(data);
+      }
     }
     data.version = CURRENT_VERSION;
     return data as WorkbookData;
