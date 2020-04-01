@@ -1,6 +1,5 @@
 import * as owl from "@odoo/owl";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { CURRENT_VERSION, load } from "../data";
+import { CURRENT_VERSION, load, createEmptyWorkbook } from "../data";
 import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "../types/index";
 import { BasePlugin, CommandHandler } from "./base_plugin";
 import * as history from "./history";
@@ -200,45 +199,4 @@ export class GridModel extends owl.core.EventBus {
     data.version = CURRENT_VERSION;
     return data as WorkbookData;
   }
-}
-
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
-function createEmptyWorkbook(): Workbook {
-  return {
-    rows: [],
-    cols: [],
-    cells: {},
-    merges: {},
-    mergeCellMap: {},
-    width: 0,
-    height: 0,
-    clientWidth: DEFAULT_CELL_WIDTH + HEADER_WIDTH,
-    clientHeight: DEFAULT_CELL_HEIGHT + HEADER_HEIGHT,
-    offsetX: 0,
-    offsetY: 0,
-    scrollTop: 0,
-    scrollLeft: 0,
-    viewport: { top: 0, left: 0, bottom: 0, right: 0 },
-    selection: {
-      zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
-      anchor: { col: 0, row: 0 }
-    },
-    activeCol: 0,
-    activeRow: 0,
-    activeXc: "A1",
-    isEditing: false,
-    currentContent: "",
-    trackChanges: false,
-    undoStack: [],
-    redoStack: [],
-    highlights: [],
-    isSelectingRange: false,
-    loadingCells: 0,
-    isStale: true,
-    sheets: [],
-    activeSheet: null as any
-  };
 }
