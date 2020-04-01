@@ -85,7 +85,7 @@ describe("conditional format", () => {
     expect(model.workbook.cells["A1"].conditionalStyle).toEqual({ fillColor: "#FF0000" });
     expect(model.workbook.cells["A2"].conditionalStyle).toEqual({ fillColor: "#FF0000" });
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
 
     expect(model.workbook.cells["A1"].conditionalStyle).toBeUndefined();
     expect(model.workbook.cells["A2"].conditionalStyle).toBeUndefined();

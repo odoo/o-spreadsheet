@@ -1,4 +1,4 @@
-import { Cell, Workbook, Sheet } from "../types/index";
+import { Cell, Workbook, Sheet, GridCommand } from "../types/index";
 import { CommandHandler } from "./base_plugin";
 
 /**
@@ -50,27 +50,41 @@ export class WHistory implements WorkbookHistory, CommandHandler {
     return this.redoStack.length > 0;
   }
 
-  start() {
-    const step: HistoryStep = { batch: [] };
-    // todo: when this is converted to a stateful plugin, keep the current batch
-    // out of the undo stack
-    this.undoStack.push(step);
-    this.trackChanges = true;
+  start(cmd: GridCommand) {
+    this.trackChanges = cmd.type !== "REDO" && cmd.type !== "UNDO";
+    if (this.trackChanges) {
+      const step: HistoryStep = { batch: [] };
+      // todo: when this is converted to a stateful plugin, keep the current batch
+      // out of the undo stack
+      this.undoStack.push(step);
+      this.trackChanges = true;
+    }
     return true;
   }
 
-  handle() {}
+  handle(cmd: GridCommand) {
+    switch (cmd.type) {
+      case "UNDO":
+        this.undo();
+        break;
+      case "REDO":
+        this.redo();
+        break;
+    }
+  }
 
   finalize() {
-    const lastStep = this.undoStack[this.undoStack.length - 1];
-    this.trackChanges = false;
-    if (lastStep.batch.length === 0) {
-      this.undoStack.pop();
-    } else {
-      this.redoStack = [];
-    }
-    if (this.undoStack.length > MAX_HISTORY_STEPS) {
-      this.undoStack.shift();
+    if (this.trackChanges) {
+      const lastStep = this.undoStack[this.undoStack.length - 1];
+      this.trackChanges = false;
+      if (lastStep.batch.length === 0) {
+        this.undoStack.pop();
+      } else {
+        this.redoStack = [];
+      }
+      if (this.undoStack.length > MAX_HISTORY_STEPS) {
+        this.undoStack.shift();
+      }
     }
   }
 

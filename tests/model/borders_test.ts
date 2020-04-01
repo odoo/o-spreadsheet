@@ -259,7 +259,7 @@ describe("borders", () => {
 
     expect(model.workbook.cells.B2.content).toBe("some content");
     expect(model.workbook.cells.B2.border).toBeDefined();
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.B2.content).toBe("some content");
     expect(model.workbook.cells.B2.border).not.toBeDefined();
   });

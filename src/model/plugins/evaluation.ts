@@ -41,6 +41,11 @@ export class EvaluationPlugin extends BasePlugin {
         if (this.workbook.isStale) {
           this.workbook.isStale = false;
         }
+        break;
+      case "UNDO":
+      case "REDO":
+        this.evaluateCells();
+        break;
     }
   }
 

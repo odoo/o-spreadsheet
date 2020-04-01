@@ -378,7 +378,7 @@ describe("clipboard", () => {
     model.dispatch({ type: "COPY", target: target("B2") });
     model.dispatch({ type: "PASTE", target: target("D2") });
     expect(model.workbook.cells.D2).toBeDefined();
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.D2).not.toBeDefined();
   });
 
@@ -454,7 +454,7 @@ describe("clipboard", () => {
     expect(model.workbook.cells.C2.content).toBe("");
     expect(model.workbook.cells.C2.style).toBe(2);
 
-    model.undo();
+    model.dispatch({ type: "UNDO" });
     expect(model.workbook.cells.C2).not.toBeDefined();
   });
 
