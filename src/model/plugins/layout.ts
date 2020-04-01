@@ -1,17 +1,27 @@
 import { BasePlugin } from "../base_plugin";
-import { Viewport, Box, Rect, GridCommand, Workbook } from "../../types/index";
+import { Viewport, Box, Rect, GridCommand, Workbook, UI } from "../../types/index";
 import { toXC, overlap } from "../../helpers/index";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 
 export class LayouPlugin extends BasePlugin {
-  static getters = ["getViewport"];
+  static getters = ["getViewport", "getUI"];
+
+  ui: UI | null = null;
 
   handle(cmd: GridCommand) {
+    this.ui = null;
     switch (cmd.type) {
       case "MOVE_POSITION":
         this.updateScrollPosition();
         break;
     }
+  }
+
+  getUI(): UI {
+    if (!this.ui) {
+      this.ui = this.computeDerivedState();
+    }
+    return this.ui;
   }
 
   /**
@@ -159,6 +169,38 @@ export class LayouPlugin extends BasePlugin {
       }
     }
     return result;
+  }
+
+  computeDerivedState(): UI {
+    const { viewport, cols, rows } = this.workbook;
+    return {
+      rows: this.workbook.rows,
+      cols: this.workbook.cols,
+      merges: this.workbook.merges,
+      mergeCellMap: this.workbook.mergeCellMap,
+      width: this.workbook.width,
+      height: this.workbook.height,
+      offsetX: cols[viewport.left].left - HEADER_WIDTH,
+      offsetY: rows[viewport.top].top - HEADER_HEIGHT,
+      scrollTop: this.workbook.scrollTop,
+      scrollLeft: this.workbook.scrollLeft,
+      clipboard: this.getters.getClipboardZones(),
+      viewport: this.workbook.viewport,
+      selection: this.workbook.selection,
+      activeCol: this.workbook.activeCol,
+      activeRow: this.workbook.activeRow,
+      activeXc: this.workbook.activeXc,
+      highlights: this.workbook.highlights,
+      isSelectingRange: this.workbook.isSelectingRange,
+      isEditing: this.workbook.isEditing,
+      selectedCell: this.getters.getActiveCell(),
+      aggregate: this.getters.getAggregate(),
+      canUndo: this.workbook.undoStack.length > 0,
+      canRedo: this.workbook.redoStack.length > 0,
+      currentContent: this.workbook.currentContent,
+      sheets: this.workbook.sheets.map(s => s.name),
+      activeSheet: this.workbook.activeSheet.name
+    };
   }
 }
 

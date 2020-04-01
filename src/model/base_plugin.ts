@@ -1,6 +1,12 @@
 import { Workbook, GridCommand, Getters, WorkbookData, HandleReturnType } from "../types/index";
 
-export abstract class BasePlugin {
+export interface CommandHandler {
+  start(command: GridCommand): boolean;
+  handle(command: GridCommand): HandleReturnType;
+  finalize(): void;
+}
+
+export abstract class BasePlugin implements CommandHandler {
   static getters: string[] = [];
 
   workbook: Workbook;
@@ -11,10 +17,11 @@ export abstract class BasePlugin {
     this.getters = getters;
   }
 
-  canDispatch(command: GridCommand): boolean {
+  start(command: GridCommand): boolean {
     return true;
   }
   handle(command: GridCommand): HandleReturnType {}
+  finalize() {}
 
   import(data: WorkbookData) {}
   export(data: Partial<WorkbookData>) {}

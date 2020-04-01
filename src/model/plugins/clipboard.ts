@@ -19,16 +19,16 @@ function clip(val: number, min: number, max: number): number {
  * application, and with the OS clipboard as well.
  */
 export class ClipboardPlugin extends BasePlugin {
-  static getters = ["getClipboardContent", "isPaintingFormat"];
+  static getters = ["getClipboardContent", "isPaintingFormat", "getClipboardZones"];
 
-  status: "empty" | "visible" | "invisible" = "empty";
+  private status: "empty" | "visible" | "invisible" = "empty";
   shouldCut?: boolean;
   zones: Zone[] = [];
   cells?: (Cell | null)[][];
   private _isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
-  canDispatch(cmd: GridCommand): boolean {
+  start(cmd: GridCommand): boolean {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 
@@ -84,6 +84,10 @@ export class ClipboardPlugin extends BasePlugin {
 
   isPaintingFormat(): boolean {
     return this._isPaintingFormat;
+  }
+
+  getClipboardZones(): Zone[] {
+    return this.status === "visible" ? this.zones : [];
   }
 
   // ---------------------------------------------------------------------------

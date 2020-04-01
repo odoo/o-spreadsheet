@@ -9,14 +9,13 @@ import { formatNumber } from "../../formatters";
 export class SelectionPlugin extends BasePlugin {
   static getters = [
     "getActiveCell",
-
     "getActiveCols",
     "getActiveRows",
     "getSelectedZones",
     "getAggregate"
   ];
 
-  canDispatch(cmd: GridCommand): boolean {
+  start(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
       const [refCol, refRow] = this.getReferenceCoords();
       const { cols, rows } = this.workbook;

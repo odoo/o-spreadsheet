@@ -16,6 +16,7 @@ export interface Getters {
   zoneToXC: CorePlugin["zoneToXC"];
   expandZone: CorePlugin["expandZone"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
+  getClipboardZones: ClipboardPlugin["getClipboardZones"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
   getCellWidth: FormattingPlugin["getCellWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
@@ -32,6 +33,7 @@ export interface Getters {
   getAggregate: SelectionPlugin["getAggregate"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getViewport: LayouPlugin["getViewport"];
+  getUI: LayouPlugin["getUI"];
   isMergeDestructive: GridPlugin["isMergeDestructive"];
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
