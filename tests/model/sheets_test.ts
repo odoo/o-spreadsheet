@@ -1,9 +1,9 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
-    const model = new GridModel();
+    const model = new Model();
     expect(model.workbook.sheets.length).toBe(1);
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
@@ -21,7 +21,7 @@ describe("sheets", () => {
   });
 
   test("can read a value in same sheet", () => {
-    const model = new GridModel();
+    const model = new Model();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
@@ -31,7 +31,7 @@ describe("sheets", () => {
   });
 
   test("can read a value in another sheet", () => {
-    const model = new GridModel();
+    const model = new Model();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
@@ -42,14 +42,14 @@ describe("sheets", () => {
   });
 
   test("throw if invalid sheet name", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=Sheet133!A1" });
 
     expect(model.workbook.cells.A1.value).toBe("#ERROR");
   });
 
   test("evaluating multiple sheets", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           name: "ABC",
@@ -71,7 +71,7 @@ describe("sheets", () => {
   });
 
   test("evaluating multiple sheets, 2", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           name: "ABC",
@@ -96,7 +96,7 @@ describe("sheets", () => {
   });
 
   test("evaluating multiple sheets, 3 (with range)", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           name: "ABC",
@@ -122,7 +122,7 @@ describe("sheets", () => {
   });
 
   test("evaluating multiple sheets: cycles", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           name: "ABC",

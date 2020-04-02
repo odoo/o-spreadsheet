@@ -1,9 +1,9 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
-    const model = new GridModel();
+    const model = new Model();
     // adding
     model.dispatch({ type: "START_EDITION", text: "a" });
     model.dispatch({ type: "STOP_EDITION" });
@@ -18,7 +18,7 @@ describe("edition", () => {
   });
 
   test("deleting a cell with style does not remove it", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,

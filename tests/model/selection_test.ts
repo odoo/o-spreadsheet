@@ -1,9 +1,9 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import "../canvas.mock";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -16,7 +16,7 @@ describe("selection", () => {
   });
 
   test("can select selection with shift-arrow", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -31,7 +31,7 @@ describe("selection", () => {
   });
 
   test("can grow/shrink selection with shift-arrow", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
@@ -41,7 +41,7 @@ describe("selection", () => {
   });
 
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -64,7 +64,7 @@ describe("selection", () => {
   });
 
   test("can expand selection with mouse", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -79,7 +79,7 @@ describe("selection", () => {
   });
 
   test("move selection in and out of a merge (in opposite direction)", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -103,7 +103,7 @@ describe("selection", () => {
   });
 
   test("update selection in some different directions", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -127,7 +127,7 @@ describe("selection", () => {
   });
 
   test("expand selection when encountering a merge", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -147,7 +147,7 @@ describe("selection", () => {
   });
 
   test("can select a whole column", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -162,7 +162,7 @@ describe("selection", () => {
   });
 
   test("can select a whole column with a merged cell", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -177,7 +177,7 @@ describe("selection", () => {
   });
 
   test("can select a whole row", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -193,7 +193,7 @@ describe("selection", () => {
   });
 
   test("can select a whole row with a merged cell", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -209,7 +209,7 @@ describe("selection", () => {
   });
 
   test("can select the whole sheet", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -224,7 +224,7 @@ describe("selection", () => {
   });
 
   test("can select part of a formula", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -245,7 +245,7 @@ describe("selection", () => {
   });
 
   test("extend selection works based on selection anchor, not active cell", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -268,7 +268,7 @@ describe("selection", () => {
     });
   });
   test("make selection works based on selection anchor, not active cell", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
 
     model.workbook.isSelectingRange = true;
@@ -289,7 +289,7 @@ describe("selection", () => {
 
 describe("multiple selections", () => {
   test("can select a new range", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,

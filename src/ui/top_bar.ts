@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { Style } from "../types/index";
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
@@ -330,7 +330,7 @@ export class TopBar extends Component<any, any> {
   formats = FORMATS;
   currentFormat = "auto";
   fontSizes = fontSizes;
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
   style: Style = {};
   state = useState({
     formatTool: false,

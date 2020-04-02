@@ -1,5 +1,5 @@
 import { Component, tags } from "@odoo/owl";
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { SCROLLBAR_WIDTH } from "../constants";
 import { Cell } from "../types";
 import { SpreadsheetEnv } from "./spreadsheet";
@@ -19,7 +19,7 @@ export interface ContextMenuItem {
   description: string;
   isEnabled?: (cell: Cell | null) => boolean;
   isVisible?: (type: ContextMenuType) => boolean;
-  action: (model: GridModel, subEnv: SpreadsheetEnv) => void;
+  action: (model: Model, subEnv: SpreadsheetEnv) => void;
 }
 
 export const contextMenuRegistry = new Registry<ContextMenuItem>()
@@ -55,7 +55,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "clear_cell",
     description: "Clear cell",
-    action(model: GridModel) {
+    action(model: Model) {
       model.dispatch({ type: "SET_VALUE", xc: model.state.activeXc, text: "" });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -118,7 +118,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  model: GridModel;
+  model: Model;
   position: { x: number; y: number };
 }
 
@@ -126,7 +126,7 @@ export class ContextMenu extends Component<Props, any> {
   static template = TEMPLATE;
   static style = CSS;
 
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
 
   menuItems: ContextMenuItem[] = contextMenuRegistry
     .getAll()

@@ -1,11 +1,11 @@
 import { toZone } from "../../src/helpers";
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
 
 describe("merges", () => {
   test("can merge two cells", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
 
@@ -24,7 +24,7 @@ describe("merges", () => {
   });
 
   test("can unmerge two cells", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -47,7 +47,7 @@ describe("merges", () => {
   });
 
   test("a single cell is not merged", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
 
     expect(Object.keys(model.workbook.merges)).toEqual([]);
@@ -59,7 +59,7 @@ describe("merges", () => {
   });
 
   test("editing a merge cell actually edits the top left", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -80,7 +80,7 @@ describe("merges", () => {
   });
 
   test("setting a style to a merge edit all the cells", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -108,7 +108,7 @@ describe("merges", () => {
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -128,7 +128,7 @@ describe("merges", () => {
   });
 
   test("properly compute if a merge is destructive or not", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -145,7 +145,7 @@ describe("merges", () => {
   });
 
   test("a merge with only style should not be considered destructive", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -167,7 +167,7 @@ describe("merges", () => {
   });
 
   test("merging cells with values remove them", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -191,7 +191,7 @@ describe("merges", () => {
   });
 
   test("merging => setting background color => unmerging", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
 
     expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
@@ -213,7 +213,7 @@ describe("merges", () => {
   });
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }]
     });
 
@@ -230,7 +230,7 @@ describe("merges", () => {
   });
 
   test("can undo and redo a merge", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2:B3 and merge
     model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
@@ -254,7 +254,7 @@ describe("merges", () => {
   });
 });
 
-function getStyle(model: GridModel, xc: string): Style {
+function getStyle(model: Model, xc: string): Style {
   const cell = model.workbook.cells[xc];
   return cell && model.getters.getCellStyle(cell);
 }

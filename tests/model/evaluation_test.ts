@@ -1,9 +1,9 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import "../canvas.mock";
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "B1", text: "2" });
     model.dispatch({ type: "SET_VALUE", xc: "C1", text: "=SUM(A1,B1)" });
@@ -11,7 +11,7 @@ describe("evaluateCells", () => {
   });
 
   test("With empty content", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "B1", text: "" });
     model.dispatch({ type: "SET_VALUE", xc: "C1", text: "=SUM(A1,B1)" });
@@ -19,14 +19,14 @@ describe("evaluateCells", () => {
   });
 
   test("With empty cell", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "C1", text: "=SUM(A1,B1)" });
     expect(model.workbook.cells["C1"].value).toEqual(1);
   });
 
   test("handling some errors", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=+" });
@@ -40,7 +40,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in an addition", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=A1+A2" });
@@ -55,7 +55,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in an substraction", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=A1-A2" });
@@ -70,7 +70,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in a multiplication", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=A1*A2" });
@@ -85,7 +85,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in a division", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=A1/A2" });
@@ -100,7 +100,7 @@ describe("evaluateCells", () => {
   });
 
   test("range", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "D4", text: "42" });
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(A2:Z10)" });
 
@@ -108,7 +108,7 @@ describe("evaluateCells", () => {
   });
 
   test("misc math formulas", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "42" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
     model.dispatch({ type: "SET_VALUE", xc: "B3", text: "2.3" });
@@ -128,7 +128,7 @@ describe("evaluateCells", () => {
   });
 
   test("priority of operations", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=1 + 2 * 3" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=-2*-2" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=-2^2" });
@@ -143,7 +143,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with boolean", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "FALSE" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "TRUE" });
@@ -203,7 +203,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with whitespace", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "," });
@@ -279,7 +279,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with whitespace", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: '""' });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: '","' });
@@ -355,7 +355,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with dot", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "4.2" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "4." });
@@ -391,7 +391,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with dot", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: '"4.2"' });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: '"4."' });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: '".2"' });
@@ -426,7 +426,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with dot and whitespace", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "42 .24" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "42. 24" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "42 ." });
@@ -485,7 +485,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with dot and whitespace", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: '"42 .24"' });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: '"42. 24"' });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: '"42 ."' });
@@ -544,7 +544,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with percent, dot and whitespace", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "%" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: " %" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "40%" });
@@ -651,7 +651,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with percent, dot and whitespace", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: '"%"' });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: '" %"' });

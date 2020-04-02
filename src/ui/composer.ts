@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { fontSizeMap } from "../fonts";
 import { ComposerToken, composerTokenize, rangeReference } from "../formulas/index";
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { Zone } from "../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
@@ -101,7 +101,7 @@ export class Composer extends Component<any, any> {
   composerRef = useRef("o_composer");
   autoCompleteRef = useRef("o_autocomplete_provider");
 
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
   zone: Zone;
   selectionEnd: number = 0;
   selectionStart: number = 0;

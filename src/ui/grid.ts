@@ -6,7 +6,7 @@ import {
   SCROLLBAR_WIDTH
 } from "../constants";
 import { isInside } from "../helpers/index";
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { UI } from "../types/index";
 import { Composer } from "./composer";
 import { ContextMenu } from "./context_menu";
@@ -119,7 +119,7 @@ export class Grid extends Component<any, any> {
   canvas = useRef("canvas");
   context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
   state: UI = this.model.state;
   clickedCol = 0;
   clickedRow = 0;

@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import {
   GridParent,
   makeTestFixture,
@@ -27,7 +27,7 @@ function simulateContextMenu(x, y) {
 
 describe("Context Menu", () => {
   test("right click on a cell opens a context menu", async () => {
-    const model = new GridModel();
+    const model = new Model();
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -43,7 +43,7 @@ describe("Context Menu", () => {
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
-    const model = new GridModel();
+    const model = new Model();
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -61,7 +61,7 @@ describe("Context Menu", () => {
   });
 
   test("can copy/paste with context menu", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
 
     const parent = new GridParent(model);
@@ -92,7 +92,7 @@ describe("Context Menu", () => {
   });
 
   test("can cut/paste with context menu", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
 
     const parent = new GridParent(model);

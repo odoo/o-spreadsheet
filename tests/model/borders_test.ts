@@ -1,13 +1,13 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { BorderCommand } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 
-function getBorder(model: GridModel, xc: string) {
+function getBorder(model: Model, xc: string) {
   const cell = model.workbook.cells[xc];
   return model.getters.getCellBorder(cell);
 }
 
-function setBorder(model: GridModel, command: BorderCommand) {
+function setBorder(model: Model, command: BorderCommand) {
   model.dispatch({
     type: "SET_FORMATTING",
     sheet: model.state.activeSheet,
@@ -18,7 +18,7 @@ function setBorder(model: GridModel, command: BorderCommand) {
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, set its top border, then clear it
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -55,7 +55,7 @@ describe("borders", () => {
   });
 
   test("can add and remove a top border, on existing cell", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
@@ -73,7 +73,7 @@ describe("borders", () => {
   });
 
   test("can add and remove a top border, on a selection", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2:C2
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -89,7 +89,7 @@ describe("borders", () => {
   });
 
   test("can clear a zone", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select C3 and add a border
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
@@ -107,7 +107,7 @@ describe("borders", () => {
   });
 
   test("can set all borders in a zone", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then expand selection to B2:C3
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -128,7 +128,7 @@ describe("borders", () => {
   });
 
   test("setting top border in a zone only set top row", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then expand selection to B2:C3
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -146,7 +146,7 @@ describe("borders", () => {
   });
 
   test("clearing a common border in a neighbour cell", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then set its right border
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -160,7 +160,7 @@ describe("borders", () => {
   });
 
   test("setting external border in a zone works", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then expand selection to B2:D4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -181,7 +181,7 @@ describe("borders", () => {
   });
 
   test("setting internal horizontal borders in a zone works", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then expand selection to B2:C4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -199,7 +199,7 @@ describe("borders", () => {
   });
 
   test("setting internal vertical borders in a zone works", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then expand selection to B2:C4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -217,7 +217,7 @@ describe("borders", () => {
   });
 
   test("setting internal  borders in a zone works", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2, then expand selection to B2:C4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
@@ -235,7 +235,7 @@ describe("borders", () => {
   });
 
   test("deleting a cell with a border does not remove the border", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // select B2 and set its top border
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
@@ -252,7 +252,7 @@ describe("borders", () => {
   });
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "some content" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     setBorder(model, "all");
@@ -265,7 +265,7 @@ describe("borders", () => {
   });
 
   test("can clear formatting (border)", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     setBorder(model, "all");
@@ -280,7 +280,7 @@ describe("borders", () => {
   });
 
   test("can clear formatting (border) after selecting all cells", () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [25, 99] });
     expect(model.workbook.selection.zones[0]).toEqual({

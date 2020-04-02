@@ -1,11 +1,11 @@
 import { functionRegistry, args } from "../../src/functions/index";
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import "../canvas.mock";
 import { resetFunctions } from "../helpers";
 
 describe("Entity", () => {
   test("Add an entity", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           merges: ["A1:B3"]
@@ -23,7 +23,7 @@ describe("Entity", () => {
   });
 
   test("Add multiple entities", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -42,7 +42,7 @@ describe("Entity", () => {
   });
 
   test("Remove entities", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -92,7 +92,7 @@ describe("Entity functions", () => {
       },
       returns: ["ANY"]
     });
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=TEST()" });
   });
 
@@ -111,7 +111,7 @@ describe("Entity functions", () => {
       },
       returns: ["ANY"]
     });
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=TEST(3)" });
   });
 });

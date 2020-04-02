@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import * as icons from "../icons";
 import { COLOR_PICKER, COLORS } from "../top_bar";
-import { GridModel } from "../../model";
+import { Model } from "../../model";
 import { CellIsRule, Style, ConditionalFormat } from "../../types/index";
 
 const { Component, useState } = owl;
@@ -169,7 +169,7 @@ const cellIsOperators = {
 
 interface props {
   conditionalFormat: ConditionalFormat;
-  model: GridModel;
+  model: Model;
 }
 
 export class ConditionalFormattingRuleEditor extends Component<props> {
@@ -180,7 +180,7 @@ export class ConditionalFormattingRuleEditor extends Component<props> {
   private cellIsOperators = cellIsOperators;
   COLORS = COLORS;
 
-  model = this.props.model as GridModel;
+  model = this.props.model as Model;
   cf = this.props.conditionalFormat as ConditionalFormat;
   state = useState({
     condition: {
