@@ -82,7 +82,7 @@ function _getColumnLetter(number) {
 }
 
 const COL_NUMBER = 20;
-const ROW_NUMBER = 10_000;
+const ROW_NUMBER = 10 * 1000;
 
 function computeCells() {
   const cells = {};
