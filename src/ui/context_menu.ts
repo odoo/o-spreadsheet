@@ -72,6 +72,146 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     action(model, subEnv: SpreadsheetEnv) {
       subEnv.openSidePanel("ConditionalFormatting");
     }
+  })
+  .add("delete_column", {
+    type: "action",
+    name: "delete_column",
+    description: "Delete column(s)",
+    action(model) {
+      const columns = model.getters.getActiveCols();
+      model.dispatch({
+        type: "REMOVE_COLUMNS",
+        columns: [...columns],
+        sheet: model.state.activeSheet
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "COLUMN";
+    }
+  })
+  .add("clear_column", {
+    type: "action",
+    name: "clear_column",
+    description: "Clear column(s)",
+    action(model) {
+      const target = [...model.getters.getActiveCols()].map(index =>
+        model.getters.getColsZone(index, index)
+      );
+      model.dispatch({
+        type: "DELETE_CONTENT",
+        target,
+        sheet: model.workbook.activeSheet.name
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "COLUMN";
+    }
+  })
+  .add("add_column_before", {
+    type: "action",
+    name: "add_column_before",
+    description: "Add column before",
+    action(model) {
+      const column = Math.min(...model.getters.getActiveCols());
+      const quantity = model.getters.getActiveCols().size;
+      model.dispatch({
+        type: "ADD_COLUMNS",
+        sheet: model.state.activeSheet,
+        position: "before",
+        column,
+        quantity
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "COLUMN";
+    }
+  })
+  .add("add_column_after", {
+    type: "action",
+    name: "add_column_after",
+    description: "Add column after",
+    action(model) {
+      const column = Math.max(...model.getters.getActiveCols());
+      const quantity = model.getters.getActiveCols().size;
+      model.dispatch({
+        type: "ADD_COLUMNS",
+        sheet: model.state.activeSheet,
+        position: "after",
+        column,
+        quantity
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "COLUMN";
+    }
+  })
+  .add("delete_row", {
+    type: "action",
+    name: "delete_row",
+    description: "Delete row(s)",
+    action(model) {
+      const rows = model.getters.getActiveRows();
+      model.dispatch({ type: "REMOVE_ROWS", sheet: model.state.activeSheet, rows: [...rows] });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "ROW";
+    }
+  })
+  .add("clear_row", {
+    type: "action",
+    name: "clear_row",
+    description: "Clear row(s)",
+    action(model) {
+      const target = [...model.getters.getActiveRows()].map(index =>
+        model.getters.getRowsZone(index, index)
+      );
+      model.dispatch({
+        type: "DELETE_CONTENT",
+        target,
+        sheet: model.workbook.activeSheet.name
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "ROW";
+    }
+  })
+  .add("add_row_before", {
+    type: "action",
+    name: "add_row_before",
+    description: "Add row before",
+    action(model) {
+      const row = Math.min(...model.getters.getActiveRows());
+      const quantity = model.getters.getActiveRows().size;
+      model.dispatch({
+        type: "ADD_ROWS",
+        sheet: model.state.activeSheet,
+        position: "before",
+        row,
+        quantity
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "ROW";
+    }
+  })
+  .add("add_row_after", {
+    type: "action",
+    name: "add_row_after",
+    description: "Add row after",
+    action(model) {
+      const row = Math.max(...model.getters.getActiveRows());
+      const quantity = model.getters.getActiveRows().size;
+      model.dispatch({
+        type: "ADD_ROWS",
+        sheet: model.state.activeSheet,
+        position: "after",
+        row,
+        quantity
+      });
+    },
+    isVisible: (type: ContextMenuType): boolean => {
+      return type === "ROW";
+    }
   });
 
 //------------------------------------------------------------------------------
@@ -120,6 +260,7 @@ const CSS = css/* scss */ `
 interface Props {
   model: Model;
   position: { x: number; y: number };
+  type: ContextMenuType;
 }
 
 export class ContextMenu extends Component<Props, any> {
@@ -130,10 +271,16 @@ export class ContextMenu extends Component<Props, any> {
 
   menuItems: ContextMenuItem[] = contextMenuRegistry
     .getAll()
-    .filter(item => !item.isVisible || item.isVisible("CELL"));
+    .filter(item => !item.isVisible || item.isVisible(this.props.type));
 
   mounted() {
     this.el!.focus();
+  }
+
+  async willUpdateProps(newProps: Props) {
+    this.menuItems = contextMenuRegistry
+      .getAll()
+      .filter(item => !item.isVisible || item.isVisible(newProps.type));
   }
 
   get style() {

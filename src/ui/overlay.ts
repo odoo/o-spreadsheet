@@ -3,6 +3,7 @@ import * as owl from "@odoo/owl";
 import { Model } from "../model";
 import { Col, Row } from "../types/index";
 import { MIN_ROW_HEIGHT, MIN_COL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import { ContextMenuType } from "./context_menu";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -57,6 +58,12 @@ abstract class AbstractResizer extends Component<any, any> {
   abstract _increaseSelection(index: number): void;
 
   abstract _fitElementSize(index: number): void;
+
+  abstract _getType(): ContextMenuType;
+
+  abstract _getActiveElements(): Set<number>;
+
+  abstract _getXY(ev: MouseEvent): { x: number; y: number };
 
   _computeHandleDisplay(ev: MouseEvent) {
     const index = this._getEvOffset(ev);
@@ -131,6 +138,10 @@ abstract class AbstractResizer extends Component<any, any> {
   }
 
   select(ev: MouseEvent) {
+    if (ev.button > 0) {
+      // not main button, probably a context menu
+      return;
+    }
     const index = this._getElementIndex(this._getEvOffset(ev));
     if (index < 0) {
       return;
@@ -163,14 +174,26 @@ abstract class AbstractResizer extends Component<any, any> {
   onMouseUp(ev: MouseEvent) {
     this.lastElement = null;
   }
+
+  onContextMenu(ev: MouseEvent) {
+    ev.preventDefault();
+    const index = this._getElementIndex(this._getEvOffset(ev));
+    if (!this._getActiveElements().has(index)) {
+      this.lastSelectedElement = index;
+      this._selectElement(index, false);
+    }
+    const type = this._getType();
+    const { x, y } = this._getXY(ev);
+    this.trigger("open-contextmenu", { type, x, y });
+  }
 }
 
 export class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select"
-      t-on-mouseup.self="onMouseUp">
+      t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
       <t t-if="state.isActive">
-        <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick"
+        <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
           t-attf-style="left:{{state.styleValue - 2}}px;">
           <div class="dragging" t-if="state.isResizing"/>
         </div>
@@ -281,13 +304,29 @@ export class ColResizer extends AbstractResizer {
       cols: cols.has(index) ? [...cols] : [index]
     });
   }
+
+  _getType(): ContextMenuType {
+    return "COLUMN";
+  }
+
+  _getActiveElements(): Set<number> {
+    return this.model.getters.getActiveCols();
+  }
+
+  _getXY(ev: MouseEvent): { x: number; y: number } {
+    return {
+      x: ev.offsetX + HEADER_WIDTH,
+      y: ev.offsetY
+    };
+  }
 }
 
 export class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select">
+    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select"
+    t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
       <t t-if="state.isActive">
-        <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick"
+        <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
           t-attf-style="top:{{state.styleValue - 2}}px;">
           <div class="dragging" t-if="state.isResizing"/>
         </div>
@@ -398,6 +437,21 @@ export class RowResizer extends AbstractResizer {
       sheet: this.model.state.activeSheet,
       rows: rows.has(index) ? [...rows] : [index]
     });
+  }
+
+  _getType(): ContextMenuType {
+    return "ROW";
+  }
+
+  _getActiveElements(): Set<number> {
+    return this.model.getters.getActiveRows();
+  }
+
+  _getXY(ev: MouseEvent): { x: number; y: number } {
+    return {
+      x: ev.offsetX,
+      y: ev.offsetY + HEADER_HEIGHT
+    };
   }
 }
 
