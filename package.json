@@ -8,12 +8,12 @@
     "predev": "cpr demo dist/demo -o",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
     "build:js": "tsc --target esnext --module es6 --outDir dist/js --incremental",
-    "build:bundle": "rollup -c",
+    "build:bundle": "rollup -c -m",
     "build": "npm run build:js && npm run build:bundle",
     "test": "jest",
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write"
-  },
+ },
   "browserslist": [
     "last 1 Chrome versions"
   ],

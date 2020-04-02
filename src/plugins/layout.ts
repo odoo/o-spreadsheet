@@ -164,6 +164,7 @@ export class LayoutPlugin extends BasePlugin {
     const cell = cells[xc];
     return (cell && cell.content) || ((xc in mergeCellMap) as any);
   }
+
   private getGridBoxes(): Box[] {
     const result: Box[] = [];
     const { cols, rows, viewport, mergeCellMap, merges, cells } = this.workbook;
@@ -179,8 +180,9 @@ export class LayoutPlugin extends BasePlugin {
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
           let style = this.getters.getCellStyle(cell);
-          if (cell.conditionalStyle) {
-            style = Object.assign({}, style, cell.conditionalStyle);
+          const conditionalStyle = this.getters.getConditionalStyle(cell.xc);
+          if (conditionalStyle) {
+            style = Object.assign({}, style, conditionalStyle);
           }
           const align = text
             ? (style && style.align) || (typeof cell.value === "number" ? "right" : "left")
@@ -224,6 +226,7 @@ export class LayoutPlugin extends BasePlugin {
         }
       }
     }
+
     // process all visible merges
     for (let id in merges) {
       let merge = merges[id];

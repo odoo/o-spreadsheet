@@ -7,6 +7,7 @@ import { ConditionalFormatPlugin } from "../plugins/conditional_format";
 import { LayoutPlugin } from "../plugins/layout";
 import { FormattingPlugin } from "../plugins/formatting";
 import { WHistory } from "../history";
+import { EvaluationPlugin } from "../plugins/evaluation";
 import { EditionPlugin } from "../plugins/edition";
 
 // -----------------------------------------------------------------------------
@@ -35,6 +36,7 @@ export interface Getters {
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
+  getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
   getViewport: LayoutPlugin["getViewport"];
   getUI: LayoutPlugin["getUI"];
   getCol: LayoutPlugin["getCol"];
@@ -45,5 +47,6 @@ export interface Getters {
   getCellBorder: FormattingPlugin["getCellBorder"];
   canUndo: WHistory["canUndo"];
   canRedo: WHistory["canRedo"];
+  evaluateFormula: EvaluationPlugin["evaluateFormula"];
   isEditing: EditionPlugin["isEditing"];
 }

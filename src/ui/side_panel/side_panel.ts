@@ -27,9 +27,10 @@ const CSS = css/* scss */ `
     right: 25px;
     bottom: 57px;
     overflow-x: hidden;
-    width: 25%;
     background-color: white;
     box-shadow: -4px -4px 5px 0px rgba(0, 0, 0, 0.64);
+    min-width: 200px;
+    max-width: 350px;
     .o-sidePanelHeader {
       padding: 6px;
       height: 41px;

@@ -24,12 +24,12 @@ describe("evaluate formula getter", () => {
     expect(() => model.getters.evaluateFormula("=Sheet99!A1")).toThrow();
   });
 
-  test.skip("evaluate a cell in error", () => {
+  test("evaluate a cell in error", () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=mqsdlkjfqsdf(((--" });
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });
 
-  test.skip("evaluate a pending cell (async)", () => {
+  test("evaluate a pending cell (async)", () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=wait(99999)" });
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });

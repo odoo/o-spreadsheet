@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
