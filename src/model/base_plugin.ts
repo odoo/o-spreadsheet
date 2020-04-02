@@ -1,11 +1,14 @@
-import { Workbook, GridCommand, Getters, WorkbookData, HandleReturnType } from "../types/index";
+import { Workbook, GridCommand, Getters, WorkbookData } from "../types/index";
 import { WorkbookHistory } from "./history";
 
 export interface CommandHandler {
-  start(command: GridCommand): boolean;
-  handle(command: GridCommand): HandleReturnType;
-  finalize(): void;
+  canDispatch(command: GridCommand): boolean;
+  start(command: GridCommand): void;
+  handle(command: GridCommand): void;
+  finalize(command: GridCommand): void;
 }
+
+type DispatchFn = (command: GridCommand) => void;
 
 export abstract class BasePlugin implements CommandHandler {
   static getters: string[] = [];
@@ -13,18 +16,27 @@ export abstract class BasePlugin implements CommandHandler {
   workbook: Workbook;
   getters: Getters;
   history: WorkbookHistory;
+  dispatch: DispatchFn;
 
-  constructor(workbook: Workbook, getters: Getters, history: WorkbookHistory) {
+  constructor(
+    workbook: Workbook,
+    getters: Getters,
+    history: WorkbookHistory,
+    dispatch: DispatchFn
+  ) {
     this.workbook = workbook;
     this.getters = getters;
     this.history = history;
+    this.dispatch = dispatch;
   }
 
-  start(command: GridCommand): boolean {
+  canDispatch(command: GridCommand): boolean {
     return true;
   }
-  handle(command: GridCommand): HandleReturnType {}
-  finalize() {}
+
+  start(command: GridCommand): void {}
+  handle(command: GridCommand): void {}
+  finalize(command: GridCommand): void {}
 
   import(data: WorkbookData) {}
   export(data: Partial<WorkbookData>) {}

@@ -14,12 +14,6 @@ import { GridPlugin } from "./plugins/grid";
 import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
 
-interface CommandStack {
-  current: GridCommand;
-  handlerIndex: 0;
-  next: CommandStack | null;
-}
-
 // -----------------------------------------------------------------------------
 // Plugins
 // -----------------------------------------------------------------------------
@@ -45,6 +39,8 @@ export class GridModel extends owl.core.EventBus {
 
   private handlers: CommandHandler[];
   private isStarted: boolean = false;
+  private status: "ready" | "running" | "finalizing" = "ready";
+
   workbook: Workbook;
   history: WHistory;
   state: UI;
@@ -66,8 +62,9 @@ export class GridModel extends owl.core.EventBus {
     this.handlers = [this.history];
 
     // Plugins
+    const dispatch = this.dispatch.bind(this);
     for (let Plugin of PLUGINS) {
-      const plugin = new Plugin(this.workbook, this.getters, this.history);
+      const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch);
       plugin.import(workbookData);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -87,52 +84,44 @@ export class GridModel extends owl.core.EventBus {
   }
 
   dispatch(command: GridCommand): CommandResult {
-    // starting
-    for (let handler of this.handlers) {
-      let result = handler.start(command);
-      if (!result) {
-        return "CANCELLED";
-      }
-    }
+    switch (this.status) {
+      case "ready":
+        for (let handler of this.handlers) {
+          let result = handler.canDispatch(command);
+          if (!result) {
+            return "CANCELLED";
+          }
+        }
+        this.status = "running";
+        for (let handler of this.handlers) {
+          handler.start(command);
+        }
+        this._dispatch(command);
+        // finalizing
+        this.status = "finalizing";
+        for (let handler of this.handlers) {
+          handler.finalize(command);
+        }
+        this.status = "ready";
 
-    // handling
-    this._dispatch(command);
-
-    // finalizing
-    for (let handler of this.handlers) {
-      handler.finalize();
-    }
-    Object.assign(this.state, this.getters.getUI());
-    this.trigger("update");
-    if (this.workbook.loadingCells > 0) {
-      this.startScheduler();
+        Object.assign(this.state, this.getters.getUI());
+        this.trigger("update");
+        if (this.workbook.loadingCells > 0) {
+          this.startScheduler();
+        }
+        break;
+      case "running":
+        this._dispatch(command);
+        break;
+      case "finalizing":
+        throw new Error("Nope. Don't do that");
     }
     return "COMPLETED";
   }
 
   private _dispatch(command: GridCommand) {
-    let stack: CommandStack = {
-      current: command,
-      handlerIndex: 0,
-      next: null
-    };
-    const n = this.handlers.length;
-    while (stack.handlerIndex < n) {
-      const handler = this.handlers[stack.handlerIndex];
-      const result = handler.handle(stack.current);
-      stack.handlerIndex++;
-      if (stack.next && stack.handlerIndex === n) {
-        stack = stack.next;
-      }
-      if (result) {
-        for (let cmd of result.reverse()) {
-          stack = {
-            current: cmd,
-            handlerIndex: 0,
-            next: stack
-          };
-        }
-      }
+    for (let handler of this.handlers) {
+      handler.handle(command);
     }
   }
 

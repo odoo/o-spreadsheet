@@ -1,6 +1,6 @@
 import { applyOffset } from "../../formulas/index";
 import { toXC } from "../../helpers/index";
-import { Cell, GridCommand, NewCell, Zone, HandleReturnType } from "../../types/index";
+import { Cell, GridCommand, NewCell, Zone } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
 
 // -----------------------------------------------------------------------------
@@ -27,11 +27,11 @@ export class ClipboardPlugin extends BasePlugin {
   private _isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
-  start(cmd: GridCommand): boolean {
+  canDispatch(cmd: GridCommand): boolean {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 
-  handle(cmd: GridCommand): HandleReturnType {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "COPY":
         this.cutOrCopy(cmd.target, false);
@@ -43,9 +43,11 @@ export class ClipboardPlugin extends BasePlugin {
         const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this._isPaintingFormat;
         this._isPaintingFormat = false;
         this.onlyFormat = onlyFormat;
-        return this.pasteFromModel(cmd.target);
+        this.pasteFromModel(cmd.target);
+        break;
       case "PASTE_FROM_OS_CLIPBOARD":
-        return this.pasteFromClipboard(cmd.target, cmd.text);
+        this.pasteFromClipboard(cmd.target, cmd.text);
+        break;
       case "ACTIVATE_PAINT_FORMAT":
         this._isPaintingFormat = true;
         this.cutOrCopy(cmd.target, false);
@@ -120,8 +122,7 @@ export class ClipboardPlugin extends BasePlugin {
     this.cells = cells;
   }
 
-  private pasteFromClipboard(target: Zone[], content: string): GridCommand[] {
-    const result: GridCommand[] = [];
+  private pasteFromClipboard(target: Zone[], content: string) {
     this.status = "invisible";
     const values = content
       .replace(/\r/g, "")
@@ -131,10 +132,9 @@ export class ClipboardPlugin extends BasePlugin {
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         const xc = toXC(activeCol + j, activeRow + i);
-        result.push({ type: "SET_VALUE", xc, text: values[i][j] });
+        this.dispatch({ type: "SET_VALUE", xc, text: values[i][j] });
       }
     }
-    return result;
   }
 
   private isPasteAllowed(target: Zone[]): boolean {
@@ -144,7 +144,7 @@ export class ClipboardPlugin extends BasePlugin {
     return !(cells && target.length > 1 && (cells.length > 1 || cells[0].length > 1));
   }
 
-  private pasteFromModel(target: Zone[]): GridCommand[] | void {
+  private pasteFromModel(target: Zone[]) {
     const { zones, cells, shouldCut, status, workbook } = this;
     if (!zones || !cells || status === "empty") {
       return;
@@ -153,16 +153,15 @@ export class ClipboardPlugin extends BasePlugin {
 
     const height = cells.length;
     const width = cells[0].length;
-    const commands: GridCommand[] = [];
     if (target.length > 1) {
       for (let zone of target) {
         for (let i = zone.left; i <= zone.right; i++) {
           for (let j = zone.top; j <= zone.bottom; j++) {
-            commands.push(...this.pasteZone(width, height, i, j));
+            this.pasteZone(width, height, i, j);
           }
         }
       }
-      return commands;
+      return;
     }
     const selection = target[target.length - 1];
     let col = selection.left;
@@ -171,7 +170,7 @@ export class ClipboardPlugin extends BasePlugin {
     const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / height));
     for (let x = 0; x < repX; x++) {
       for (let y = 0; y < repY; y++) {
-        commands.push(...this.pasteZone(width, height, col + x * width, row + y * height));
+        this.pasteZone(width, height, col + x * width, row + y * height);
       }
     }
 
@@ -185,17 +184,15 @@ export class ClipboardPlugin extends BasePlugin {
       const anchor = workbook.selection.anchor;
       const newCol = clip(anchor.col, col, col + repX * width - 1);
       const newRow = clip(anchor.row, row, row + repY * height - 1);
-      commands.push({
+      this.dispatch({
         type: "SET_SELECTION",
         anchor: [newCol, newRow],
         zones: [newSelection]
       });
     }
-    return commands;
   }
 
-  private pasteZone(width: number, height: number, col: number, row: number): GridCommand[] {
-    const result: GridCommand[] = [];
+  private pasteZone(width: number, height: number, col: number, row: number) {
     for (let r = 0; r < height; r++) {
       const rowCells = this.cells![r];
       for (let c = 0; c < width; c++) {
@@ -221,7 +218,7 @@ export class ClipboardPlugin extends BasePlugin {
             newCell.content = content;
           }
 
-          result.push({
+          this.dispatch({
             type: "UPDATE_CELL",
             sheet: this.workbook.activeSheet.name,
             col: col + c,
@@ -229,7 +226,7 @@ export class ClipboardPlugin extends BasePlugin {
             ...newCell
           });
           if (this.shouldCut) {
-            result.push({
+            this.dispatch({
               type: "CLEAR_CELL",
               sheet: this.workbook.activeSheet.name,
               col: originCell.col,
@@ -244,7 +241,7 @@ export class ClipboardPlugin extends BasePlugin {
               this.history.updateCell(targetCell, "border", undefined);
             }
           } else {
-            result.push({
+            this.dispatch({
               type: "CLEAR_CELL",
               sheet: this.workbook.activeSheet.name,
               col: col + c,
@@ -254,6 +251,5 @@ export class ClipboardPlugin extends BasePlugin {
         }
       }
     }
-    return result;
   }
 }
