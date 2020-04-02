@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
 import {
   MIN_COL_WIDTH,
@@ -11,7 +11,7 @@ import { ColResizer, RowResizer } from "../../src/ui/overlay";
 import "../canvas.mock";
 
 let fixture: HTMLElement;
-let model: GridModel;
+let model: Model;
 
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
@@ -24,7 +24,7 @@ function fillData() {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new GridModel({
+  model = new Model({
     sheets: [
       {
         colNumber: 10,

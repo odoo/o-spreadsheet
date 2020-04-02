@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { Grid } from "./grid";
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
 import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";
@@ -82,7 +82,7 @@ export class Spreadsheet extends Component<Props> {
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };
 
-  model = new GridModel(this.props.data);
+  model = new Model(this.props.data);
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false } as {

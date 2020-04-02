@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { makeTestFixture, nextTick } from "../helpers";
 import { TopBar } from "../../src/ui/top_bar";
 import { Component, tags } from "@odoo/owl";
@@ -10,8 +10,8 @@ let fixture: HTMLElement;
 class Parent extends Component<any, any> {
   static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
   static components = { TopBar };
-  model: GridModel;
-  constructor(model: GridModel) {
+  model: Model;
+  constructor(model: Model) {
     super();
     this.model = model;
   }
@@ -35,7 +35,7 @@ afterEach(() => {
 
 describe("TopBar component", () => {
   test("merging destructively a selection ask for confirmation", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
 
     let confirm;
@@ -56,7 +56,7 @@ describe("TopBar component", () => {
   });
 
   test("opening a second menu closes the first one", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -75,7 +75,7 @@ describe("TopBar component", () => {
   });
 
   test("merging cell button state is correct", async () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -98,7 +98,7 @@ describe("TopBar component", () => {
   });
 
   test("multiple selection zones => merge tools is disabled", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
 
     const parent = new Parent(model);
@@ -121,7 +121,7 @@ describe("TopBar component", () => {
   });
 
   test("undo/redo tools", async () => {
-    const model = new GridModel();
+    const model = new Model();
 
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -151,7 +151,7 @@ describe("TopBar component", () => {
   });
 
   test("paint format tools", async () => {
-    const model = new GridModel();
+    const model = new Model();
 
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -166,7 +166,7 @@ describe("TopBar component", () => {
   });
 
   test("can clear formatting", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
     model.dispatch({
       type: "SET_FORMATTING",
@@ -183,7 +183,7 @@ describe("TopBar component", () => {
   });
 
   test("can set cell format", async () => {
-    const model = new GridModel();
+    const model = new Model();
     expect(model.workbook.cells.A1).not.toBeDefined();
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -198,7 +198,7 @@ describe("TopBar component", () => {
   });
 
   test("can set font size", async () => {
-    const model = new GridModel();
+    const model = new Model();
     const parent = new Parent(model);
     await parent.mount(fixture);
     const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
@@ -215,7 +215,7 @@ describe("TopBar component", () => {
   });
 
   test("opening, then closing same menu", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     const parent = new Parent(model);
     await parent.mount(fixture);

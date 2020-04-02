@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { Col, Row } from "../types/index";
 import { MIN_ROW_HEIGHT, MIN_COL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
@@ -13,7 +13,7 @@ const { useState } = owl.hooks;
 // -----------------------------------------------------------------------------
 
 abstract class AbstractResizer extends Component<any, any> {
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
@@ -424,7 +424,7 @@ export class Overlay extends Component<any, any> {
 
   static components = { ColResizer, RowResizer };
 
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
 
   selectAll() {
     this.model.dispatch({ type: "SELECT_ALL" });

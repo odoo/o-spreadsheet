@@ -1,15 +1,15 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
 import { toZone } from "../../src/helpers";
 jest.mock("../../src/ui/content_editable_helper");
 
 let fixture: HTMLElement;
-let model: GridModel;
+let model: Model;
 let parent: GridParent;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new GridModel();
+  model = new Model();
   model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
   parent = new GridParent(model);
   await parent.mount(fixture);

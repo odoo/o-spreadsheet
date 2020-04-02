@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { GridParent, makeTestFixture, nextTick, resetFunctions } from "../helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
@@ -6,7 +6,7 @@ jest.mock("../../src/ui/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
 
-let model: GridModel;
+let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: any;
@@ -19,7 +19,7 @@ async function typeInComposer(text: string) {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new GridModel();
+  model = new Model();
   parent = new GridParent(model);
   await parent.mount(fixture);
   model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };

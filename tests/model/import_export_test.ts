@@ -1,11 +1,11 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 
 describe("data", () => {
   test("give default col size if not specified", () => {
-    const model = new GridModel();
+    const model = new Model();
 
     // 96 is default cell width
     expect(model.state.cols[0].size).toEqual(DEFAULT_CELL_WIDTH);
@@ -15,7 +15,7 @@ describe("data", () => {
 
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 2,
@@ -36,7 +36,7 @@ describe("Import", () => {
   });
 
   test("Import 2 sheets with merges", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 2,
@@ -64,7 +64,7 @@ describe("Import", () => {
 
 describe("Export", () => {
   test("Can export col size", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -83,7 +83,7 @@ describe("Export", () => {
   });
 
   test("Can export row size", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -102,7 +102,7 @@ describe("Export", () => {
   });
 
   test("Can export merges", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -116,7 +116,7 @@ describe("Export", () => {
   });
 
   test("Can export format", () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -164,6 +164,6 @@ describe("complete import, then export", () => {
       }
     }
   };
-  const model = new GridModel(modelData);
+  const model = new Model(modelData);
   expect(model.exportData()).toEqual(modelData);
 });

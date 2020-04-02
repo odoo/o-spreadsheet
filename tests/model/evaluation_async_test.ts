@@ -1,9 +1,9 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { patch, waitForRecompute } from "../helpers";
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=3" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=WAIT(3)" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "= WAIT(1) + 1" });
@@ -19,7 +19,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formulas in base data", async () => {
-    const model = new GridModel({
+    const model = new Model({
       sheets: [
         {
           colNumber: 10,
@@ -40,7 +40,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula, on update", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=3" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=WAIT(33)" });
     expect(model.workbook.cells["A2"].async).toBe(true);
@@ -52,7 +52,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula (async function inside async function)", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=WAIT(WAIT(3))" });
     expect(model.workbook.cells["A2"].async).toBe(true);
     expect(model.workbook.cells["A2"].value).toEqual("#LOADING");
@@ -69,7 +69,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula, and value depending on it", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=WAIT(3)" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=1 + A1" });
     expect(model.workbook.cells["A2"].async).toBeUndefined();
@@ -84,7 +84,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula, and multiple values depending on it", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=WAIT(3)" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=WAIT(1)" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=A1 + A2" });
@@ -102,7 +102,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula, another configuration", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=WAIT(A1 + 3)" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=2 + Wait(3 + Wait(A2))" });
@@ -123,7 +123,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula, multi levels", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=WAIT(1)" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=SUM(A1)" });
     model.dispatch({ type: "SET_VALUE", xc: "A3", text: "=SUM(A2)" });
@@ -140,7 +140,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula, with another cell in sync error", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=WAIT(3)" });
     let updateNbr = 0;
@@ -159,7 +159,7 @@ describe("evaluateCells, async formulas", () => {
   });
 
   test("async formula and errors, scenario 1", async () => {
-    const model = new GridModel();
+    const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=WAIT(3)" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1 + 1/0" });
 

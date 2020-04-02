@@ -32,9 +32,9 @@ const PLUGINS = [
 ];
 
 // -----------------------------------------------------------------------------
-// GridModel
+// Model
 // -----------------------------------------------------------------------------
-export class GridModel extends owl.core.EventBus {
+export class Model extends owl.core.EventBus {
   private handlers: CommandHandler[];
   private status: "ready" | "running" | "finalizing" = "ready";
 

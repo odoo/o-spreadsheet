@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { GridModel } from "../model";
+import { Model } from "../model";
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, BOTTOMBAR_HEIGHT } from "../constants";
 import { PLUS } from "./icons";
 const { Component } = owl;
@@ -82,7 +82,7 @@ export class BottomBar extends Component<any, any> {
   static template = TEMPLATE;
   static style = CSS;
 
-  model: GridModel = this.props.model;
+  model: Model = this.props.model;
 
   addSheet() {
     this.model.dispatch({ type: "CREATE_SHEET" });

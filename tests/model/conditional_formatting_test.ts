@@ -1,8 +1,8 @@
-import { GridModel } from "../../src/model";
+import { Model } from "../../src/model";
 import { ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
 
-let model: GridModel;
+let model: Model;
 
 function createEqualCF(ranges: string[], value: string, style: Style): ConditionalFormat {
   return {
@@ -13,7 +13,7 @@ function createEqualCF(ranges: string[], value: string, style: Style): Condition
 }
 
 beforeEach(() => {
-  model = new GridModel();
+  model = new Model();
 });
 
 describe("conditional format", () => {
@@ -97,7 +97,7 @@ describe("conditional format", () => {
       cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" })
     });
     const workbookData = model.exportData();
-    const newModel = new GridModel(workbookData);
+    const newModel = new Model(workbookData);
     expect(newModel.workbook.activeSheet.conditionalFormats).toBe(
       model.workbook.activeSheet.conditionalFormats
     );

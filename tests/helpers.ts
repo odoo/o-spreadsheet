@@ -1,5 +1,5 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
-import { GridModel } from "../src/model";
+import { Model } from "../src/model";
 import { Grid } from "../src/ui/grid";
 import { SidePanel } from "../src/ui/side_panel/side_panel";
 import { sidePanelRegistry } from "../src/ui/index";
@@ -74,7 +74,7 @@ export class GridParent extends Component<any, any> {
     </div>`;
 
   static components = { Grid, SidePanel };
-  model: GridModel;
+  model: Model;
   grid: any = useRef("grid");
   sidePanel = useState({ isOpen: false } as {
     isOpen: boolean;
@@ -82,7 +82,7 @@ export class GridParent extends Component<any, any> {
     Body?: any;
     Footer?: any;
   });
-  constructor(model: GridModel) {
+  constructor(model: Model) {
     super();
     useSubEnv({
       spreadsheet: {
@@ -131,7 +131,7 @@ type GridResult = { [xc: string]: any };
  *   {B5: "5", D8: "2.6", W4: "=round(A2)"} => {B5: 5, D8: 2.6, W4: 3}
  */
 export function evaluateGrid(grid: GridDescr): GridResult {
-  const model = new GridModel();
+  const model = new Model();
   for (let xc in grid) {
     model.dispatch({ type: "SET_VALUE", xc, text: grid[xc] });
   }

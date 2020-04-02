@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { GridModel } from "../../model";
+import { Model } from "../../model";
 import { ConditionalFormat } from "../../types/index";
 import {
   ConditionalFormattingRuleEditor,
@@ -46,7 +46,7 @@ export class ConditionalFormattingPanel extends Component<any, any> {
   static style = CSS;
   static components = { ConditionalFormattingRuleEditor };
 
-  model = this.props.model as GridModel;
+  model = this.props.model as Model;
   conditionalFormats = this.model.getters.getConditionalFormats();
   state = useState({
     currentCF: undefined as undefined | ConditionalFormat,
