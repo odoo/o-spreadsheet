@@ -68,6 +68,24 @@ export function visitAny(arg: any, cb: (a: any) => void): void {
   }
 }
 
+export function visitAnys(
+  args: IArguments,
+  rangeCb: (a: any) => boolean,
+  argCb: (a: any) => boolean
+): void {
+  for (let arg of args) {
+    if (Array.isArray(arg)) {
+      for (let col of arg) {
+        for (let cell of col) {
+          if (!rangeCb(cell)) return;
+        }
+      }
+    } else {
+      if (!argCb(arg)) return;
+    }
+  }
+}
+
 export function reduceArgs<T>(
   args: IArguments | any[],
   cb: (acc: T, a: any) => T,
@@ -95,6 +113,11 @@ export function toString(value: any): string {
   }
 }
 
+const expectBooleanValueError = (value: string) => `
+  The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a 
+  text, and cannot be coerced to a number.
+`;
+
 export function toBoolean(value: any): boolean {
   switch (typeof value) {
     case "boolean":
@@ -108,9 +131,7 @@ export function toBoolean(value: any): boolean {
         if (uppercaseVal === "FALSE") {
           return false;
         }
-        throw new Error(
-          `The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a text, and cannot be coerced to a boolean.`
-        );
+        throw new Error(expectBooleanValueError(value));
       } else {
         return false;
       }
@@ -119,6 +140,34 @@ export function toBoolean(value: any): boolean {
     default:
       return false;
   }
+}
+
+export function strictToBoolean(value: any): boolean {
+  if (value === "") {
+    throw new Error(expectBooleanValueError(value));
+  }
+  return toBoolean(value);
+}
+
+export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): void {
+  visitAnys(
+    args,
+    cell => {
+      if (typeof cell === "boolean") {
+        return cb(cell);
+      }
+      if (typeof cell === "number") {
+        return cb(cell ? true : false);
+      }
+      return true;
+    },
+    arg => {
+      if (arg !== null) {
+        return cb(strictToBoolean(arg));
+      }
+      return true;
+    }
+  );
 }
 
 // COMMON FUNCTIONS
