@@ -140,7 +140,6 @@ export interface Workbook {
   activeRow: number;
   activeXc: string;
 
-  isEditing: boolean;
   currentContent: string;
 
   highlights: Highlight[];

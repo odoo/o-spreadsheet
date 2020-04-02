@@ -113,7 +113,6 @@ export function createEmptyWorkbook(): Workbook {
     activeCol: 0,
     activeRow: 0,
     activeXc: "A1",
-    isEditing: false,
     currentContent: "",
     highlights: [],
     isSelectingRange: false,

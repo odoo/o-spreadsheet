@@ -7,6 +7,7 @@ import { ConditionalFormatPlugin } from "../plugins/conditional_format";
 import { LayouPlugin } from "../plugins/layout";
 import { FormattingPlugin } from "../plugins/formatting";
 import { WHistory } from "../history";
+import { EditionPlugin } from "../plugins/edition";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -43,4 +44,5 @@ export interface Getters {
   getCellBorder: FormattingPlugin["getCellBorder"];
   canUndo: WHistory["canUndo"];
   canRedo: WHistory["canRedo"];
+  isEditing: EditionPlugin["isEditing"];
 }

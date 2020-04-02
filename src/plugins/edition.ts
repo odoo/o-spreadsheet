@@ -4,8 +4,11 @@ import { GridCommand, Zone } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
-  col: number = 0;
-  row: number = 0;
+  static getters = ["isEditing"];
+
+  private col: number = 0;
+  private row: number = 0;
+  private _isEditing: boolean = false;
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -41,11 +44,15 @@ export class EditionPlugin extends BasePlugin {
         break;
       case "SELECT_CELL":
       case "MOVE_POSITION":
-        if (!this.workbook.isSelectingRange && this.workbook.isEditing) {
+        if (!this.workbook.isSelectingRange && this._isEditing) {
           this.stopEdition();
         }
         break;
     }
+  }
+
+  isEditing(): boolean {
+    return this._isEditing;
   }
 
   private addHighlights(ranges: { [range: string]: string }) {
@@ -70,7 +77,7 @@ export class EditionPlugin extends BasePlugin {
       const cell = this.getters.getActiveCell();
       str = cell ? cell.content || "" : "";
     }
-    this.workbook.isEditing = true;
+    this._isEditing = true;
     this.workbook.currentContent = str || "";
     this.workbook.highlights = [];
     this.col = this.workbook.activeCol;
@@ -78,7 +85,7 @@ export class EditionPlugin extends BasePlugin {
   }
 
   private stopEdition() {
-    if (this.workbook.isEditing) {
+    if (this._isEditing) {
       this.cancelEdition();
       let xc = toXC(this.col, this.row);
       if (xc in this.workbook.mergeCellMap) {
@@ -123,7 +130,7 @@ export class EditionPlugin extends BasePlugin {
   }
 
   private cancelEdition() {
-    this.workbook.isEditing = false;
+    this._isEditing = false;
     this.workbook.isSelectingRange = false;
     this.workbook.highlights = [];
   }
