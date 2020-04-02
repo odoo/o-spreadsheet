@@ -9,7 +9,7 @@ import { isInside } from "../helpers/index";
 import { Model } from "../model";
 import { UI } from "../types/index";
 import { Composer } from "./composer";
-import { ContextMenu } from "./context_menu";
+import { ContextMenu, ContextMenuType } from "./context_menu";
 import { drawGrid } from "./grid_renderer";
 import { Overlay } from "./overlay";
 
@@ -40,13 +40,14 @@ const TEMPLATE = xml/* xml */ `
       t-on-mousedown="onMouseDown"
       t-on-dblclick="onDoubleClick"
       tabindex="-1"
-      t-on-contextmenu="toggleContextMenu"
+      t-on-contextmenu="onCanvasContextMenu"
       t-on-wheel="onMouseWheel" />
-    <Overlay model="model"/>
+
+    <Overlay model="model" t-on-open-contextmenu="onOverlayContextMenu"/>
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
+      type="contextMenu.type"
       position="contextMenu.position"
-      menuItems="contextMenu.items"
       t-on-close.stop="contextMenu.isOpen=false"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{state.height}}px"/>
@@ -107,9 +108,10 @@ export class Grid extends Component<any, any> {
   static style = CSS;
   static components = { Composer, Overlay, ContextMenu };
 
-  contextMenu = useState({ isOpen: false, position: null, items: [] } as {
+  contextMenu = useState({ isOpen: false, position: null, type: "CELL" } as {
     isOpen: boolean;
     position: null | { x: number; y: number };
+    type: ContextMenuType;
   });
 
   composer = useRef("composer");
@@ -400,7 +402,9 @@ export class Grid extends Component<any, any> {
       }
     }
   }
-  toggleContextMenu(ev) {
+
+  onCanvasContextMenu(ev: MouseEvent) {
+    ev.preventDefault();
     const col = this.model.getters.getCol(ev.offsetX);
     const row = this.model.getters.getRow(ev.offsetY);
     if (col < 0 || row < 0) {
@@ -408,11 +412,29 @@ export class Grid extends Component<any, any> {
     }
     const zones = this.model.state.selection.zones;
     const lastZone = zones[zones.length - 1];
+    let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
       this.model.dispatch({ type: "SELECT_CELL", col, row });
+    } else {
+      if (this.model.getters.getActiveCols().has(col)) {
+        type = "COLUMN";
+      } else if (this.model.getters.getActiveRows().has(row)) {
+        type = "ROW";
+      }
     }
-    ev.preventDefault();
+    this.toggleContextMenu(type, ev.offsetX, ev.offsetY);
+  }
+
+  onOverlayContextMenu(ev: CustomEvent) {
+    const type = ev.detail.type as ContextMenuType;
+    const x = ev.detail.x;
+    const y = ev.detail.y;
+    this.toggleContextMenu(type, x, y);
+  }
+
+  toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.contextMenu.isOpen = true;
-    this.contextMenu.position = { x: ev.offsetX, y: ev.offsetY };
+    this.contextMenu.position = { x, y };
+    this.contextMenu.type = type;
   }
 }
