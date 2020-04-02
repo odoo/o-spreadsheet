@@ -250,6 +250,7 @@ export interface SetValueCommand {
   type: "SET_VALUE";
   xc: string;
   text: string;
+  sheet?: string;
 }
 
 export interface DeleteContentCommand {

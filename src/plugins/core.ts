@@ -44,7 +44,7 @@ export class CorePlugin extends BasePlugin {
         const [col, row] = toCartesian(cmd.xc);
         this.dispatch({
           type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.name,
+          sheet: cmd.sheet ? cmd.sheet : this.workbook.activeSheet.name,
           col,
           row,
           content: cmd.text
