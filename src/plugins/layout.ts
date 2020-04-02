@@ -87,7 +87,7 @@ export class LayouPlugin extends BasePlugin {
             style = Object.assign({}, style, cell.conditionalStyle);
           }
           const align = text
-            ? (style && style.align) || (cell.type === "text" ? "left" : "right")
+            ? (style && style.align) || (typeof cell.value === "number" ? "right" : "left")
             : null;
           let clipRect: Rect | null = null;
           if (text && textWidth > cols[cell.col].size) {
@@ -140,7 +140,7 @@ export class LayouPlugin extends BasePlugin {
           textWidth = this.getters.getCellWidth(refCell);
           style = this.getters.getCellStyle(refCell);
           align = text
-            ? (style && style.align) || (refCell.type === "text" ? "left" : "right")
+            ? (style && style.align) || (typeof refCell.value === "number" ? "right" : "left")
             : null;
           border = this.getters.getCellBorder(refCell);
         }
