@@ -9,6 +9,7 @@ import { formatNumber } from "../formatters";
 export class SelectionPlugin extends BasePlugin {
   static getters = [
     "getActiveCell",
+    "getActiveXc",
     "getActiveCols",
     "getActiveRows",
     "getSelectedZones",
@@ -21,6 +22,9 @@ export class SelectionPlugin extends BasePlugin {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
     anchor: { col: 0, row: 0 }
   };
+  private activeCol: number = 0;
+  private activeRow: number = 0;
+  private activeXc: string = "A1";
 
   canDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
@@ -76,12 +80,16 @@ export class SelectionPlugin extends BasePlugin {
 
   getActiveCell(): Cell | null {
     const workbook = this.workbook;
-    let mergeId = workbook.mergeCellMap[workbook.activeXc];
+    let mergeId = workbook.mergeCellMap[this.activeXc];
     if (mergeId) {
       return workbook.cells[workbook.merges[mergeId].topLeft];
     } else {
-      return this.getters.getCell(workbook.activeCol, workbook.activeRow);
+      return this.getters.getCell(this.activeCol, this.activeRow);
     }
+  }
+
+  getActiveXc(): string {
+    return this.activeXc;
   }
 
   getActiveCols(): Set<number> {
@@ -117,7 +125,7 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   getPosition(): [number, number] {
-    return [this.workbook.activeCol, this.workbook.activeRow];
+    return [this.activeCol, this.activeRow];
   }
 
   getAggregate(): string | null {
@@ -146,8 +154,8 @@ export class SelectionPlugin extends BasePlugin {
    * Return [col, row]
    */
   private getReferenceCoords(): [number, number] {
-    const { isSelectingRange, activeCol, activeRow } = this.workbook;
-    const selection = this.selection;
+    const { isSelectingRange } = this.workbook;
+    const { selection, activeCol, activeRow } = this;
     return isSelectingRange ? [selection.anchor.col, selection.anchor.row] : [activeCol, activeRow];
   }
 
@@ -211,9 +219,9 @@ export class SelectionPlugin extends BasePlugin {
     this.selection.anchor.col = col;
     this.selection.anchor.row = row;
     if (!this.workbook.isSelectingRange) {
-      this.workbook.activeCol = col;
-      this.workbook.activeRow = row;
-      this.workbook.activeXc = xc;
+      this.activeCol = col;
+      this.activeRow = row;
+      this.activeXc = xc;
     }
   }
 

@@ -29,23 +29,18 @@ export class LayouPlugin extends BasePlugin {
    */
   updateScrollPosition() {
     const { cols, rows, viewport } = this.workbook;
+    const [col, row] = this.getters.getPosition();
 
-    while (
-      this.workbook.activeCol >= viewport.right &&
-      this.workbook.activeCol !== cols.length - 1
-    ) {
+    while (col >= viewport.right && col !== cols.length - 1) {
       updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left].right);
     }
-    while (this.workbook.activeCol < viewport.left) {
+    while (col < viewport.left) {
       updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left - 1].left);
     }
-    while (
-      this.workbook.activeRow >= viewport.bottom &&
-      this.workbook.activeRow !== rows.length - 1
-    ) {
+    while (row >= viewport.bottom && row !== rows.length - 1) {
       updateScroll(this.workbook, rows[viewport.top].bottom, this.workbook.scrollLeft);
     }
-    while (this.workbook.activeRow < viewport.top) {
+    while (row < viewport.top) {
       updateScroll(this.workbook, rows[viewport.top - 1].top, this.workbook.scrollLeft);
     }
   }
@@ -173,6 +168,7 @@ export class LayouPlugin extends BasePlugin {
 
   computeDerivedState(): UI {
     const { viewport, cols, rows } = this.workbook;
+    const [col, row] = this.getters.getPosition();
     return {
       rows: this.workbook.rows,
       cols: this.workbook.cols,
@@ -189,9 +185,9 @@ export class LayouPlugin extends BasePlugin {
       clipboard: this.getters.getClipboardZones(),
       viewport: this.workbook.viewport,
       selection: this.getters.getSelection(),
-      activeCol: this.workbook.activeCol,
-      activeRow: this.workbook.activeRow,
-      activeXc: this.workbook.activeXc,
+      activeCol: col,
+      activeRow: row,
+      activeXc: toXC(col, row),
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.getters.isEditing(),

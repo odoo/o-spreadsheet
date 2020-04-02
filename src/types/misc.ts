@@ -136,10 +136,6 @@ export interface Workbook {
 
   viewport: Zone;
 
-  activeCol: number;
-  activeRow: number;
-  activeXc: string;
-
   currentContent: string;
 
   highlights: Highlight[];

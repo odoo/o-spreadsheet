@@ -162,8 +162,7 @@ describe("composer", () => {
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
     expect(model.getters.isEditing()).toBe(true);
-    expect(model.workbook.activeRow).toBe(0);
-    expect(model.workbook.activeCol).toBe(0);
+    expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
   });
 
@@ -185,7 +184,7 @@ describe("composer", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     await nextTick();
-    expect(model.workbook.activeXc).toBe("C8");
+    expect(model.getters.getActiveXc()).toBe("C8");
     expect(fixture.getElementsByClassName("o-composer")).toHaveLength(0);
   });
 

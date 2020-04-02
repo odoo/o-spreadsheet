@@ -23,7 +23,7 @@ export class EditionPlugin extends BasePlugin {
         this.dispatch({
           type: "SET_SELECTION",
           zones: this.getters.getSelectedZones(),
-          anchor: [this.workbook.activeCol, this.workbook.activeRow]
+          anchor: this.getters.getPosition()
         });
         break;
       case "STOP_COMPOSER_SELECTION":
@@ -80,8 +80,9 @@ export class EditionPlugin extends BasePlugin {
     this._isEditing = true;
     this.workbook.currentContent = str || "";
     this.workbook.highlights = [];
-    this.col = this.workbook.activeCol;
-    this.row = this.workbook.activeRow;
+    const [col, row] = this.getters.getPosition();
+    this.col = col;
+    this.row = row;
   }
 
   private stopEdition() {
