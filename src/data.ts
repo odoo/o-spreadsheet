@@ -121,7 +121,6 @@ export function createEmptyWorkbook(): Workbook {
     currentContent: "",
     highlights: [],
     isSelectingRange: false,
-    loadingCells: 0,
     sheets: [],
     activeSheet: null as any
   };

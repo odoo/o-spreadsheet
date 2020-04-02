@@ -147,8 +147,6 @@ export interface Workbook {
   highlights: Highlight[];
   isSelectingRange: boolean;
 
-  loadingCells: number;
-
   // sheets
   sheets: Sheet[];
   activeSheet: Sheet;

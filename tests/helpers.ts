@@ -19,9 +19,10 @@ export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
 }
 
+const origSetTimeout = window.setTimeout;
 export async function nextTick(): Promise<void> {
   return new Promise(function(resolve) {
-    setTimeout(() => Component.scheduler.requestAnimationFrame(() => resolve()));
+    origSetTimeout(() => Component.scheduler.requestAnimationFrame(() => resolve()));
   });
 }
 
@@ -161,7 +162,7 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
 
 // modifies scheduler to make it faster to test components
 Component.scheduler.requestAnimationFrame = function(callback: FrameRequestCallback) {
-  setTimeout(callback, 1);
+  origSetTimeout(callback, 1);
   return 1;
 };
 
@@ -205,7 +206,7 @@ export function patchWaitFunction(): PatchResult {
 export const patch = patchWaitFunction();
 
 let timeHandlers: Function[] = [];
-GridModel.setTimeout = cb => {
+(window as any).setTimeout = cb => {
   timeHandlers.push(cb);
 };
 
