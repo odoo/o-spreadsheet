@@ -34,7 +34,7 @@ export class SelectionPlugin extends BasePlugin {
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
         break;
-      case "ACTIVATE_SHEET":
+      case "CREATE_SHEET":
         this.selectCell(0, 0);
         break;
       case "MOVE_POSITION":

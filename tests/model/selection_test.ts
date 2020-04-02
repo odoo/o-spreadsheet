@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
+import { toZone } from "../../src/helpers";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
@@ -309,5 +310,16 @@ describe("multiple selections", () => {
     model.dispatch({ type: "SELECT_CELL", col: 5, row: 2, createNewRange: true });
     expect(state.selection.zones.length).toBe(2);
     expect(state.selection.anchor).toEqual({ col: 5, row: 2 });
+  });
+});
+
+describe("multiple sheets", () => {
+  test("activating same sheet does not change selection", () => {
+    const model = new Model();
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
+
+    model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet1" });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
   });
 });
