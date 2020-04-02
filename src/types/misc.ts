@@ -72,7 +72,6 @@ export interface Cell extends NewCell {
   formula?: CompiledFormula;
   async?: boolean;
   type: "formula" | "text" | "number";
-  conditionalStyle?: Style;
 }
 
 export interface Row {

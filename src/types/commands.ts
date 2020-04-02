@@ -115,7 +115,6 @@ export interface SetFormatterCommand {
 export interface AddConditionalFormatCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: ConditionalFormat;
-  replace?: ConditionalFormat;
 }
 
 // Local Commands

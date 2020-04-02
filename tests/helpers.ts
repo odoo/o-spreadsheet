@@ -5,6 +5,7 @@ import { SidePanel } from "../src/ui/side_panel/side_panel";
 import { sidePanelRegistry } from "../src/ui/index";
 import { functionRegistry } from "../src/functions/index";
 import "./canvas.mock";
+import * as h from "../src/helpers/index";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -32,36 +33,7 @@ export function makeTestFixture() {
   return fixture;
 }
 
-export function simulateClick(selector: string, x: number = 10, y: number = 10) {
-  const target = document.querySelector(selector)! as HTMLElement;
-  triggerMouseEvent(selector, "mousedown", x, y);
-  target.focus();
-  triggerMouseEvent(selector, "mouseup", x, y);
-  triggerMouseEvent(selector, "click", x, y);
-}
-
-export function triggerMouseEvent(
-  selector: string | any,
-  type: string,
-  x: number,
-  y: number,
-  extra = {}
-) {
-  const ev = new MouseEvent(type, {
-    clientX: x,
-    clientY: y,
-    ...extra
-  });
-  (ev as any).offsetX = x;
-  (ev as any).offsetY = y;
-  if (typeof selector === "string") {
-    document.querySelector(selector)!.dispatchEvent(ev);
-  } else {
-    selector!.dispatchEvent(ev);
-  }
-}
-
-export class GridParent extends Component<any, any> {
+export class GridParent extends Component<any> {
   static template = xml`
     <div class="parent">
       <Grid model="model" t-ref="grid"/>
@@ -234,4 +206,10 @@ export function resetFunctions() {
   Object.keys(functions).forEach(k => {
     delete functions[k];
   });
+}
+
+export function mockUuidV4To(expectedId) {
+  let n = expectedId;
+  //@ts-ignore
+  h.uuidv4 = jest.fn(() => String(n++));
 }

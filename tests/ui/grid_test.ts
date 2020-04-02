@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
-import { toZone } from "../../src/helpers";
+import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { toZone } from "../../src/helpers/index";
+import { triggerMouseEvent } from "../dom_helper";
 jest.mock("../../src/ui/content_editable_helper");
 
 let fixture: HTMLElement;

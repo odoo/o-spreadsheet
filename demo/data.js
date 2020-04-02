@@ -17,6 +17,7 @@ export const demoData = {
       cells: {
         B2: { content: "Owl is awesome", style: 1 },
         B4: { content: "Numbers", style: 4 },
+        C1: { content: "CF =42" },
         C4: { content: "12.4" },
         C5: { content: "42" },
         C7: { content: "3" },
@@ -42,14 +43,35 @@ export const demoData = {
         G13: { content: "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16+A17+A18" },
         C23: { content: "0.43", format: "0.00%" },
         C24: { content: "10", format: "#,##0.00" },
-        C25: { content: "10.123", format: "#,##0.00" }
+        C25: { content: "10.123", format: "#,##0.00" },
+        G1: { content: "CF color scale:" },
+        G2: { content: "5" },
+        G3: { content: "8" },
+        G4: { content: "9" },
+        G5: { content: "15" },
+        G6: { content: "22" },
+        G8: { content: "30" }
       },
       merges: ["H2:I5", "K3:K8"],
       conditionalFormats: [
         {
+          id: "1",
           ranges: ["C1:C100"],
-          formatRule: { type: { values: ["42"], operator: "Equal", kind: "CellIsRule" } },
-          style: { fillColor: "orange" }
+          rule: {
+            values: ["42"],
+            operator: "Equal",
+            type: "CellIsRule",
+            style: { fillColor: "orange" }
+          }
+        },
+        {
+          id: "2",
+          ranges: ["G1:G100"],
+          rule: {
+            type: "ColorScaleRule",
+            minimum: { type: "value", color: 0xffffff },
+            maximum: { type: "value", color: 0x000000 }
+          }
         }
       ]
     }

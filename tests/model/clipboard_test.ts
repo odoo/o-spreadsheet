@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import { Zone } from "../../src/types/index";
 import "../canvas.mock";
-import { toCartesian } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/index";
 
 function zone(str: string): Zone {
   let [tl, br] = str.split(":");

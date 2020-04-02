@@ -1,14 +1,15 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, triggerMouseEvent, GridParent, nextTick } from "../helpers";
+import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_CELL_HEIGHT
 } from "../../src/constants";
-import { lettersToNumber, toXC } from "../../src/helpers";
+import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { ColResizer, RowResizer } from "../../src/ui/overlay";
 import "../canvas.mock";
+import { triggerMouseEvent } from "../dom_helper";
 
 let fixture: HTMLElement;
 let model: Model;

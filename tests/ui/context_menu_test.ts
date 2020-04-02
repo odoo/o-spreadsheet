@@ -1,11 +1,6 @@
 import { Model } from "../../src/model";
-import {
-  GridParent,
-  makeTestFixture,
-  triggerMouseEvent,
-  nextTick,
-  simulateClick
-} from "../helpers";
+import { GridParent, makeTestFixture, nextTick } from "../helpers";
+import { simulateClick, triggerMouseEvent } from "../dom_helper";
 
 let fixture: HTMLElement;
 

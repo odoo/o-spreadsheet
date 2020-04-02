@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
 import { Cell, GridCommand, Sheet } from "../types";
-import { compile } from "../formulas";
+import { compile } from "../formulas/index";
 import { toCartesian } from "../helpers/index";
 
 const functionMap = functionRegistry.mapping;
@@ -50,10 +50,6 @@ export class EvaluationPlugin extends BasePlugin {
 
   cache: { [key: string]: Function } = {};
 
-  constructor(workbook, getters, history, dispatch) {
-    super(workbook, getters, history, dispatch);
-    this.evaluateCells();
-  }
   handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "START":
