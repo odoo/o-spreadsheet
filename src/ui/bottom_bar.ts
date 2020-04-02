@@ -89,6 +89,6 @@ export class BottomBar extends Component<any, any> {
   }
 
   activateSheet(name: string) {
-    this.model.dispatch({ type: "ACTIVATE_SHEET", sheet: name });
+    this.model.dispatch({ type: "ACTIVATE_SHEET", from: this.model.state.activeSheet, to: name });
   }
 }
