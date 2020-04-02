@@ -30,6 +30,11 @@ const DEFAULT_STYLE: Style = {
   fontSize: 10
 };
 
+type FormatInfo = {
+  border?: number;
+  style?: number;
+};
+
 /**
  * Formatting plugin.
  *
@@ -71,6 +76,16 @@ export class FormattingPlugin extends BasePlugin {
         break;
       case "SET_FORMATTER":
         this.setFormatter(cmd.sheet, cmd.target, cmd.formatter);
+        break;
+      case "ADD_COLUMNS":
+        const start_col = cmd.position === "before" ? cmd.column - 1 : cmd.column;
+        const end_col = start_col + cmd.quantity + 1;
+        this.onAddElements(start_col, end_col, true, cmd.position === "before");
+        break;
+      case "ADD_ROWS":
+        const start_row = cmd.position === "before" ? cmd.row - 1 : cmd.row;
+        const end_row = start_row + cmd.quantity + 1;
+        this.onAddElements(start_row, end_row, false, cmd.position === "before");
         break;
     }
   }
@@ -332,6 +347,77 @@ export class FormattingPlugin extends BasePlugin {
         }
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid Manipulation
+  // ---------------------------------------------------------------------------
+  /**
+   * this function computes the style/border of a row/col based on the neighbours.
+   *
+   * @param index the index of the row/col of which we will change the style
+   * @param isColumn true if element is a column, false if row
+   * @param upper true if the style of the upper row/col should be used, false, if the lower should be used
+   */
+  private onAddElements(start: number, end: number, isColumn: boolean, upper: boolean) {
+    const length = isColumn ? this.workbook.rows.length : this.workbook.cols.length;
+    const index = start + 1;
+    for (let x = 0; x < length; x++) {
+      const xc = isColumn ? toXC(index, x) : toXC(x, index);
+      if (this.getters.isInMerge(xc)) {
+        continue;
+      }
+      const format: FormatInfo = {};
+      let lowerFormat: FormatInfo = isColumn
+        ? this.getFormat(toXC(start, x))
+        : this.getFormat(toXC(x, start));
+      let upperFormat: FormatInfo = isColumn
+        ? this.getFormat(toXC(end, x))
+        : this.getFormat(toXC(x, end));
+      if (upper) {
+        if (upperFormat.style) {
+          format["style"] = upperFormat.style;
+        }
+      } else {
+        if (lowerFormat.style) {
+          format["style"] = lowerFormat.style;
+        }
+      }
+      if (upperFormat.border && upperFormat.border === lowerFormat.border) {
+        format["border"] = upperFormat.border;
+      }
+      if (Object.keys(format).length !== 0) {
+        for (let i = index; i < end; i++) {
+          this.dispatch({
+            type: "UPDATE_CELL",
+            sheet: this.workbook.activeSheet.name,
+            col: isColumn ? i : x,
+            row: isColumn ? x : i,
+            style: format.style,
+            border: format.border
+          });
+        }
+      }
+    }
+  }
+  /**
+   * gets the currently used style/border of a cell based on it's coordinates
+   *
+   * @param x column number of a cell
+   * @param y row number of a cell
+   */
+  private getFormat(xc: string): FormatInfo {
+    const format: FormatInfo = {};
+    xc = this.getters.getMainCell(xc);
+    if (xc in this.workbook.cells) {
+      if (this.workbook.cells[xc].border) {
+        format["border"] = this.workbook.cells[xc].border;
+      }
+      if (this.workbook.cells[xc].style) {
+        format["style"] = this.workbook.cells[xc].style;
+      }
+    }
+    return format;
   }
 
   // ---------------------------------------------------------------------------
