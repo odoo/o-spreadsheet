@@ -1,5 +1,5 @@
-import { MAX_HISTORY_STEPS } from "../../src/model/history";
-import { GridModel } from "../../src/model/index";
+import { MAX_HISTORY_STEPS } from "../../src/history";
+import { GridModel } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 
 // we test here the undo/redo feature

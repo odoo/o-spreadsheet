@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
-import { createEmptyWorkbook, CURRENT_VERSION, load } from "../data";
-import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "../types/index";
+import { createEmptyWorkbook, CURRENT_VERSION, load } from "./data";
+import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "./types/index";
 import { BasePlugin, CommandHandler } from "./base_plugin";
 import { WHistory } from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";

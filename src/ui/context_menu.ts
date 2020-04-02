@@ -1,5 +1,5 @@
 import { Component, tags } from "@odoo/owl";
-import { GridModel } from "../model/index";
+import { GridModel } from "../model";
 import { SCROLLBAR_WIDTH } from "../constants";
 import { Cell } from "../types";
 import { SpreadsheetEnv } from "./spreadsheet";

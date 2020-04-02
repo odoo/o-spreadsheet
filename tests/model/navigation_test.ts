@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import "../canvas.mock";
 
 describe("navigation", () => {

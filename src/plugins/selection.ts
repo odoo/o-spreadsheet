@@ -1,7 +1,7 @@
-import { isEqual, toXC, union } from "../../helpers/index";
+import { isEqual, toXC, union } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone, Cell } from "../../types/index";
-import { formatNumber } from "../../formatters";
+import { GridCommand, Zone, Cell } from "../types/index";
+import { formatNumber } from "../formatters";
 
 /**
  * SelectionPlugin

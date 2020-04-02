@@ -1,6 +1,6 @@
-import { tokenize } from "../../formulas/index";
-import { toXC, toZone, toCartesian } from "../../helpers/index";
-import { GridCommand, Zone } from "../../types/index";
+import { tokenize } from "../formulas/index";
+import { toXC, toZone, toCartesian } from "../helpers/index";
+import { GridCommand, Zone } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
@@ -68,10 +68,10 @@ export class EditionPlugin extends BasePlugin {
   private startEdition(str?: string) {
     if (!str) {
       const cell = this.getters.getActiveCell();
-      str = cell ? cell.content || "" : "";
+      str = cell ? (cell.content || "") : "";
     }
     this.workbook.isEditing = true;
-    this.workbook.currentContent = str;
+    this.workbook.currentContent = str || "";
     this.workbook.highlights = [];
     this.col = this.workbook.activeCol;
     this.row = this.workbook.activeRow;

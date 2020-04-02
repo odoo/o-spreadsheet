@@ -1,4 +1,4 @@
-import { Workbook, GridCommand, Getters, WorkbookData } from "../types/index";
+import { Workbook, GridCommand, Getters, WorkbookData } from "./types/index";
 import { WorkbookHistory } from "./history";
 
 export interface CommandHandler {
