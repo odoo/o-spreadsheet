@@ -194,7 +194,7 @@ export class LayouPlugin extends BasePlugin {
       activeXc: this.workbook.activeXc,
       highlights: this.workbook.highlights,
       isSelectingRange: this.workbook.isSelectingRange,
-      isEditing: this.workbook.isEditing,
+      isEditing: this.getters.isEditing(),
       selectedCell: this.getters.getActiveCell(),
       aggregate: this.getters.getAggregate(),
       canUndo: this.getters.canUndo(),

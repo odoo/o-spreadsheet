@@ -67,7 +67,7 @@ describe("Grid component", () => {
       // change this
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(model.workbook.activeXc).toBe("A1");
-      expect(model.workbook.isEditing).toBe(true);
+      expect(model.getters.isEditing()).toBe(true);
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
@@ -77,7 +77,7 @@ describe("Grid component", () => {
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(model.workbook.activeXc).toBe("A2");
-      expect(model.workbook.isEditing).toBe(false);
+      expect(model.getters.isEditing()).toBe(false);
       expect(model.workbook.cells["A1"].content).toBe("a");
     });
 
@@ -90,7 +90,7 @@ describe("Grid component", () => {
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
       expect(model.workbook.activeXc).toBe("A1");
-      expect(model.workbook.isEditing).toBe(false);
+      expect(model.getters.isEditing()).toBe(false);
       expect(model.workbook.cells["A2"].content).toBe("a");
     });
 
@@ -101,7 +101,7 @@ describe("Grid component", () => {
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
       expect(model.workbook.activeXc).toBe("A1");
-      expect(model.workbook.isEditing).toBe(false);
+      expect(model.getters.isEditing()).toBe(false);
       expect(model.workbook.cells["A1"].content).toBe("a");
     });
 

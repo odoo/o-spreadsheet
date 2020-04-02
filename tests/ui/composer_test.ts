@@ -161,7 +161,7 @@ describe("ranges and highlights", () => {
 describe("composer", () => {
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
-    expect(model.workbook.isEditing).toBe(true);
+    expect(model.getters.isEditing()).toBe(true);
     expect(model.workbook.activeRow).toBe(0);
     expect(model.workbook.activeCol).toBe(0);
     expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
