@@ -272,6 +272,10 @@ export interface RedoCommand {
   type: "REDO";
 }
 
+export interface StartCommand {
+  type: "START";
+}
+
 export type GridCommand =
   | UpdateCellCommand
   | CopyCommand
@@ -312,6 +316,7 @@ export type GridCommand =
   | SetFormatterCommand
   | ClearCellCommand
   | UndoCommand
-  | RedoCommand;
+  | RedoCommand
+  | StartCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
