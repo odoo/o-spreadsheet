@@ -5,28 +5,28 @@ import "../canvas.mock";
 describe("navigation", () => {
   test("normal move to the right", () => {
     const model = new Model();
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.workbook.activeCol).toBe(0);
     expect(model.workbook.activeRow).toBe(0);
-    expect(model.workbook.selection.anchor.col).toBe(0);
-    expect(model.workbook.selection.anchor.row).toBe(0);
+    expect(model.getters.getSelection().anchor.col).toBe(0);
+    expect(model.getters.getSelection().anchor.row).toBe(0);
 
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
     expect(model.workbook.activeCol).toBe(1);
     expect(model.workbook.activeRow).toBe(0);
-    expect(model.workbook.selection.anchor.col).toBe(1);
-    expect(model.workbook.selection.anchor.row).toBe(0);
+    expect(model.getters.getSelection().anchor.col).toBe(1);
+    expect(model.getters.getSelection().anchor.row).toBe(0);
   });
 
   test("move up from top row", () => {
     const model = new Model();
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.workbook.activeCol).toBe(0);
     expect(model.workbook.activeRow).toBe(0);
 
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.workbook.activeCol).toBe(0);
     expect(model.workbook.activeRow).toBe(0);
   });
@@ -66,13 +66,13 @@ describe("navigation", () => {
     // move to the right, inside the merge
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.workbook.activeCol).toBe(1);
     expect(model.workbook.activeRow).toBe(0);
 
     // move to the right, outside the merge
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
     expect(model.workbook.activeCol).toBe(3);
     expect(model.workbook.activeRow).toBe(0);
     expect(model.workbook.activeXc).toBe("D1");
@@ -99,13 +99,13 @@ describe("navigation", () => {
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
     expect(model.workbook.activeXc).toBe("B2");
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.workbook.activeCol).toBe(1);
     expect(model.workbook.activeRow).toBe(1);
 
     // move to the top, outside the merge
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.workbook.activeCol).toBe(1);
     expect(model.workbook.activeRow).toBe(1);
   });

@@ -145,7 +145,7 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   private pasteFromModel(target: Zone[]) {
-    const { zones, cells, shouldCut, status, workbook } = this;
+    const { zones, cells, shouldCut, status } = this;
     if (!zones || !cells || status === "empty") {
       return;
     }
@@ -181,7 +181,7 @@ export class ClipboardPlugin extends BasePlugin {
         right: col + repX * width - 1,
         bottom: row + repY * height - 1
       };
-      const anchor = workbook.selection.anchor;
+      const anchor = this.getters.getSelection().anchor;
       const newCol = clip(anchor.col, col, col + repX * width - 1);
       const newRow = clip(anchor.row, row, row + repY * height - 1);
       this.dispatch({

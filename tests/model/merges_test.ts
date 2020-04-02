@@ -155,14 +155,7 @@ describe("merges", () => {
       ],
       styles: { 1: {} }
     });
-    model.workbook.selection.zones = [
-      {
-        left: 0,
-        top: 0,
-        right: 2,
-        bottom: 2
-      }
-    ];
+
     expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeFalsy();
   });
 
@@ -194,7 +187,7 @@ describe("merges", () => {
     const model = new Model();
     model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
     model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A1:B1") });
     model.dispatch({

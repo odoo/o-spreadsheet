@@ -139,7 +139,6 @@ export interface Workbook {
   activeCol: number;
   activeRow: number;
   activeXc: string;
-  selection: Selection;
 
   isEditing: boolean;
   currentContent: string;

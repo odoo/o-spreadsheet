@@ -188,7 +188,7 @@ export class LayouPlugin extends BasePlugin {
       scrollLeft: this.workbook.scrollLeft,
       clipboard: this.getters.getClipboardZones(),
       viewport: this.workbook.viewport,
-      selection: this.workbook.selection,
+      selection: this.getters.getSelection(),
       activeCol: this.workbook.activeCol,
       activeRow: this.workbook.activeRow,
       activeXc: this.workbook.activeXc,

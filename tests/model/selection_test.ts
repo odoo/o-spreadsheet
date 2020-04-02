@@ -13,7 +13,7 @@ describe("selection", () => {
         }
       ]
     });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
   });
 
   test("can select selection with shift-arrow", () => {
@@ -26,19 +26,19 @@ describe("selection", () => {
         }
       ]
     });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("can grow/shrink selection with shift-arrow", () => {
     const model = new Model();
 
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
   });
 
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
@@ -52,16 +52,16 @@ describe("selection", () => {
     });
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
     model.dispatch({ type: "SELECT_CELL", col: 9, row: 0 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 9 });
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
   test("can expand selection with mouse", () => {
@@ -74,9 +74,9 @@ describe("selection", () => {
         }
       ]
     });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("move selection in and out of a merge (in opposite direction)", () => {
@@ -94,12 +94,12 @@ describe("selection", () => {
     // move to the right, inside the merge
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(model.workbook.activeXc).toBe("B1");
 
     // move to the left, outside the merge
     model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(model.workbook.activeXc).toBe("B1");
   });
 
@@ -120,11 +120,11 @@ describe("selection", () => {
     // move up, inside the merge
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
     model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
   test("expand selection when encountering a merge", () => {
@@ -144,7 +144,7 @@ describe("selection", () => {
     // select right cell C3
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
   });
 
   test("can select a whole column", () => {
@@ -159,7 +159,7 @@ describe("selection", () => {
     model.dispatch({ type: "SELECT_COLUMN", index: 4 });
     expect(model.workbook.activeXc).toBe("E1");
 
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
   });
 
   test("can select a whole column with a merged cell", () => {
@@ -174,7 +174,7 @@ describe("selection", () => {
     });
     model.dispatch({ type: "SELECT_COLUMN", index: 0 });
     expect(model.workbook.activeXc).toBe("A1");
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
   });
 
   test("can select a whole row", () => {
@@ -190,7 +190,7 @@ describe("selection", () => {
     model.dispatch({ type: "SELECT_ROW", index: 4 });
     expect(model.workbook.activeXc).toBe("A5");
 
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
   });
 
   test("can select a whole row with a merged cell", () => {
@@ -206,7 +206,7 @@ describe("selection", () => {
 
     model.dispatch({ type: "SELECT_ROW", index: 0 });
     expect(model.workbook.activeXc).toBe("A1");
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
 
   test("can select the whole sheet", () => {
@@ -221,7 +221,7 @@ describe("selection", () => {
     model.dispatch({ type: "SELECT_ALL" });
     expect(model.workbook.activeXc).toBe("A1");
 
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
   });
 
   test("can select part of a formula", () => {
@@ -239,7 +239,7 @@ describe("selection", () => {
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
     expect(model.workbook.activeXc).toBe("C3"); // active cell is not modified but the selection is
 
-    expect(model.workbook.selection).toEqual({
+    expect(model.getters.getSelection()).toEqual({
       anchor: { col: 3, row: 3 },
       zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
     });
@@ -263,7 +263,7 @@ describe("selection", () => {
     expect(model.workbook.activeXc).toBe("C3"); // active cell is not modified but the selection is
     expect(model.workbook.activeCol).toBe(2);
     expect(model.workbook.activeRow).toBe(2);
-    expect(model.workbook.selection).toEqual({
+    expect(model.getters.getSelection()).toEqual({
       anchor: { col: 3, row: 3 },
       zones: [{ left: 3, top: 3, right: 4, bottom: 4 }]
     });
@@ -281,7 +281,7 @@ describe("selection", () => {
     expect(model.workbook.activeXc).toBe("A1"); // active cell is not modified but the selection is
     expect(model.workbook.activeCol).toBe(0);
     expect(model.workbook.activeRow).toBe(0);
-    expect(model.workbook.selection).toEqual({
+    expect(model.getters.getSelection()).toEqual({
       anchor: { col: 3, row: 3 },
       zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
     });
@@ -299,17 +299,19 @@ describe("multiple selections", () => {
       ]
     });
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    const state = model.workbook;
-    expect(state.selection.zones.length).toBe(1);
-    expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+    expect(selection.anchor).toEqual({ col: 2, row: 2 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
-    expect(state.selection.zones.length).toBe(1);
-    expect(state.selection.anchor).toEqual({ col: 2, row: 2 });
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+    expect(selection.anchor).toEqual({ col: 2, row: 2 });
 
     // create new range
     model.dispatch({ type: "SELECT_CELL", col: 5, row: 2, createNewRange: true });
-    expect(state.selection.zones.length).toBe(2);
-    expect(state.selection.anchor).toEqual({ col: 5, row: 2 });
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(2);
+    expect(selection.anchor).toEqual({ col: 5, row: 2 });
   });
 });
 
