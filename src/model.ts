@@ -123,9 +123,9 @@ export class Model extends owl.core.EventBus {
     Object.assign(this.state, this.getters.getUI());
   }
 
-  updateScroll(scrollTop, scrollLeft) {
+  updateScroll(scrollTop, scrollLeft): boolean {
     const result = updateScroll(this.workbook, scrollTop, scrollLeft);
-    Object.assign(this.state, this.getters.getUI());
+    Object.assign(this.state, this.getters.getUI(result));
     return result;
   }
 

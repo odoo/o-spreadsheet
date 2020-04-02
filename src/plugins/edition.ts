@@ -68,7 +68,7 @@ export class EditionPlugin extends BasePlugin {
   private startEdition(str?: string) {
     if (!str) {
       const cell = this.getters.getActiveCell();
-      str = cell ? (cell.content || "") : "";
+      str = cell ? cell.content || "" : "";
     }
     this.workbook.isEditing = true;
     this.workbook.currentContent = str || "";

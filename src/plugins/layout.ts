@@ -17,8 +17,8 @@ export class LayouPlugin extends BasePlugin {
     }
   }
 
-  getUI(): UI {
-    if (!this.ui) {
+  getUI(force?: boolean): UI {
+    if (!this.ui || force) {
       this.ui = this.computeDerivedState();
     }
     return this.ui;
