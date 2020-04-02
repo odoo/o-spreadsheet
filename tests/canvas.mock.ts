@@ -1,6 +1,11 @@
+let size = 1000;
+export function setMockSize(s) {
+  size = s;
+}
 
 /* js-ignore */
-Object.assign(HTMLCanvasElement.prototype, {getContext: jest.fn(function() {
+Object.assign(HTMLCanvasElement.prototype, {
+  getContext: jest.fn(function() {
     return {
       translate() {},
       scale() {},
@@ -19,7 +24,8 @@ Object.assign(HTMLCanvasElement.prototype, {getContext: jest.fn(function() {
       restore() {},
       setLineDash() {},
       measureText() {
-        return { width: 1000 };
+        return { width: size };
       }
     };
-  })});
+  })
+});
