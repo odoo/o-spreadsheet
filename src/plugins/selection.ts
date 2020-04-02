@@ -3,6 +3,12 @@ import { BasePlugin } from "../base_plugin";
 import { GridCommand, Zone, Cell, Selection } from "../types/index";
 import { formatNumber } from "../formatters";
 
+interface SheetInfo {
+  selection: Selection;
+  activeCol: number;
+  activeRow: number;
+  activeXc: string;
+}
 /**
  * SelectionPlugin
  */
@@ -25,6 +31,7 @@ export class SelectionPlugin extends BasePlugin {
   private activeCol: number = 0;
   private activeRow: number = 0;
   private activeXc: string = "A1";
+  private sheetsData: { [sheet: string]: SheetInfo } = {};
 
   canDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
@@ -42,6 +49,17 @@ export class SelectionPlugin extends BasePlugin {
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        this.sheetsData[cmd.from] = {
+          selection: JSON.parse(JSON.stringify(this.selection)),
+          activeCol: this.activeCol,
+          activeRow: this.activeRow,
+          activeXc: this.activeXc
+        };
+        if (cmd.to in this.sheetsData) {
+          Object.assign(this, this.sheetsData[cmd.to]);
+        }
+        break;
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
         break;

@@ -308,7 +308,7 @@ describe("multiple selections", () => {
     // create new range
     model.dispatch({ type: "SELECT_CELL", col: 5, row: 2, createNewRange: true });
     selection = model.getters.getSelection();
-    expect(selection.zones.length).toBe(2);
+    expect(selection.zones).toHaveLength(2);
     expect(selection.anchor).toEqual({ col: 5, row: 2 });
   });
 });
@@ -319,7 +319,22 @@ describe("multiple sheets", () => {
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet1" });
+    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet1", to: "Sheet1" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
+  });
+
+  test("selection is restored when coming back to previous sheet", () => {
+    const model = new Model();
+    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
+
+    model.dispatch({ type: "CREATE_SHEET" });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
+    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet2", to: "Sheet1" });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
+    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet1", to: "Sheet2" });
+    expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
   });
 });

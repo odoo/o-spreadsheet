@@ -54,9 +54,9 @@ describe("Import", () => {
       sheet: "Sheet1",
       zone: { left: 0, top: 1, right: 5, bottom: 1 }
     });
-    model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet2" });
+    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet1", to: "Sheet2" });
     expect(Object.keys(model.state.merges)).toHaveLength(0);
-    model.dispatch({ type: "ACTIVATE_SHEET", sheet: "Sheet1" });
+    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet2", to: "Sheet1" });
     expect(Object.keys(model.state.merges)).toHaveLength(1);
     expect(Object.values(model.state.merges)[0].topLeft).toBe("A2");
   });

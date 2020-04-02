@@ -31,11 +31,11 @@ export class CorePlugin extends BasePlugin {
   handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.activateSheet(cmd.sheet);
+        this.activateSheet(cmd.to);
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet();
-        this.dispatch({ type: "ACTIVATE_SHEET", sheet });
+        this.dispatch({ type: "ACTIVATE_SHEET", from: this.workbook.activeSheet.name, to: sheet });
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);

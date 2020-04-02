@@ -167,7 +167,8 @@ export interface MovePositionCommand {
 
 export interface ActivateSheetCommand {
   type: "ACTIVATE_SHEET";
-  sheet: string;
+  from: string;
+  to: string;
 }
 
 export interface SelectCellCommand {
