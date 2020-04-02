@@ -1,7 +1,7 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { isEqual, toCartesian, toXC } from "../../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { Cell, GridCommand, Sheet, Zone, WorkbookData, HandleReturnType } from "../../types/index";
+import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../../types/index";
 
 const MIN_PADDING = 3;
 
@@ -14,7 +14,7 @@ export class GridPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand): HandleReturnType {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
@@ -43,7 +43,8 @@ export class GridPlugin extends BasePlugin {
         }
         break;
       case "ADD_MERGE":
-        return this.addMerge(cmd.sheet, cmd.zone);
+        this.addMerge(cmd.sheet, cmd.zone);
+        break;
       case "REMOVE_MERGE":
         this.removeMerge(cmd.sheet, cmd.zone);
         break;
@@ -175,13 +176,12 @@ export class GridPlugin extends BasePlugin {
    *   merges)
    * - it does nothing if the merge is trivial: A1:A1
    */
-  private addMerge(sheet: string, zone: Zone): GridCommand[] {
-    const commands: GridCommand[] = [];
+  private addMerge(sheet: string, zone: Zone) {
     const { left, right, top, bottom } = zone;
     let tl = toXC(left, top);
     let br = toXC(right, bottom);
     if (tl === br) {
-      return commands;
+      return;
     }
 
     let id = this.nextId++;
@@ -198,7 +198,7 @@ export class GridPlugin extends BasePlugin {
       for (let col = left; col <= right; col++) {
         const xc = toXC(col, row);
         if (col !== left || row !== top) {
-          commands.push({
+          this.dispatch({
             type: "CLEAR_CELL",
             sheet,
             col,
@@ -214,7 +214,6 @@ export class GridPlugin extends BasePlugin {
     for (let m of previousMerges) {
       this.history.updateState(["merges", m], undefined);
     }
-    return commands;
   }
 
   private removeMerge(sheet: string, zone: Zone) {

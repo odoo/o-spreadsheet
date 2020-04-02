@@ -50,6 +50,10 @@ export class WHistory implements WorkbookHistory, CommandHandler {
     return this.redoStack.length > 0;
   }
 
+  canDispatch() {
+    return true;
+  }
+
   start(cmd: GridCommand) {
     this.trackChanges = cmd.type !== "REDO" && cmd.type !== "UNDO";
     if (this.trackChanges) {
@@ -59,7 +63,6 @@ export class WHistory implements WorkbookHistory, CommandHandler {
       this.undoStack.push(step);
       this.trackChanges = true;
     }
-    return true;
   }
 
   handle(cmd: GridCommand) {

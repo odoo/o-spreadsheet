@@ -1,13 +1,13 @@
 import { tokenize } from "../../formulas/index";
 import { toXC, toZone, toCartesian } from "../../helpers/index";
-import { GridCommand, Zone, HandleReturnType } from "../../types/index";
+import { GridCommand, Zone } from "../../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
   col: number = 0;
   row: number = 0;
 
-  handle(cmd: GridCommand): HandleReturnType {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
         this.addHighlights(cmd.ranges);
@@ -17,13 +17,12 @@ export class EditionPlugin extends BasePlugin {
         break;
       case "START_COMPOSER_SELECTION":
         this.workbook.isSelectingRange = true;
-        return [
-          {
-            type: "SET_SELECTION",
-            zones: this.workbook.selection.zones,
-            anchor: [this.workbook.activeCol, this.workbook.activeRow]
-          }
-        ];
+        this.dispatch({
+          type: "SET_SELECTION",
+          zones: this.workbook.selection.zones,
+          anchor: [this.workbook.activeCol, this.workbook.activeRow]
+        });
+        break;
       case "STOP_COMPOSER_SELECTION":
         this.workbook.isSelectingRange = false;
         break;
@@ -34,7 +33,7 @@ export class EditionPlugin extends BasePlugin {
         if (cmd.cancel) {
           this.cancelEdition();
         } else {
-          return this.stopEdition();
+          this.stopEdition();
         }
         break;
       case "SET_CURRENT_CONTENT":
@@ -43,8 +42,9 @@ export class EditionPlugin extends BasePlugin {
       case "SELECT_CELL":
       case "MOVE_POSITION":
         if (!this.workbook.isSelectingRange && this.workbook.isEditing) {
-          return this.stopEdition();
+          this.stopEdition();
         }
+        break;
     }
   }
 
@@ -77,7 +77,7 @@ export class EditionPlugin extends BasePlugin {
     this.row = this.workbook.activeRow;
   }
 
-  private stopEdition(): GridCommand[] | void {
+  private stopEdition() {
     if (this.workbook.isEditing) {
       this.cancelEdition();
       let xc = toXC(this.col, this.row);
@@ -103,25 +103,21 @@ export class EditionPlugin extends BasePlugin {
             content += new Array(missing).fill(")").join("");
           }
         }
-        return [
-          {
-            type: "UPDATE_CELL",
-            sheet: this.workbook.activeSheet.name,
-            col,
-            row,
-            content
-          }
-        ];
+        this.dispatch({
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col,
+          row,
+          content
+        });
       } else {
-        return [
-          {
-            type: "UPDATE_CELL",
-            sheet: this.workbook.activeSheet.name,
-            content: "",
-            col,
-            row
-          }
-        ];
+        this.dispatch({
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          content: "",
+          col,
+          row
+        });
       }
     }
   }

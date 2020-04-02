@@ -7,7 +7,6 @@ import {
   CellData,
   Col,
   GridCommand,
-  HandleReturnType,
   HeaderData,
   Merge,
   Row,
@@ -29,43 +28,43 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 export class CorePlugin extends BasePlugin {
   static getters = ["getCell", "getCellText", "zoneToXC", "expandZone"];
 
-  handle(cmd: GridCommand): HandleReturnType {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.activateSheet(cmd.sheet);
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet();
-        return [{ type: "ACTIVATE_SHEET", sheet }];
+        this.dispatch({ type: "ACTIVATE_SHEET", sheet });
+        break;
       case "DELETE_CONTENT":
-        return this.clearZones(cmd.sheet, cmd.target);
+        this.clearZones(cmd.sheet, cmd.target);
+        break;
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
-        return [
-          {
-            type: "UPDATE_CELL",
-            sheet: this.workbook.activeSheet.name,
-            col,
-            row,
-            content: cmd.text
-          }
-        ];
+        this.dispatch({
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col,
+          row,
+          content: cmd.text
+        });
+        break;
       case "UPDATE_CELL":
         this.updateCell(cmd.sheet, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
-        return [
-          {
-            type: "UPDATE_CELL",
-            sheet: this.workbook.activeSheet.name,
-            col: cmd.col,
-            row: cmd.row,
-            content: "",
-            border: 0,
-            style: 0,
-            format: ""
-          }
-        ];
+        this.dispatch({
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col: cmd.col,
+          row: cmd.row,
+          content: "",
+          border: 0,
+          style: 0,
+          format: ""
+        });
+        break;
     }
   }
 
@@ -272,8 +271,7 @@ export class CorePlugin extends BasePlugin {
     return sheet.name;
   }
 
-  private clearZones(sheet: string, zones: Zone[]): GridCommand[] {
-    const commands: GridCommand[] = [];
+  private clearZones(sheet: string, zones: Zone[]) {
     // TODO: get cells from the actual sheet
     const cells = this.workbook.activeSheet.cells;
     for (let zone of zones) {
@@ -281,7 +279,7 @@ export class CorePlugin extends BasePlugin {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);
           if (xc in cells) {
-            commands.push({
+            this.dispatch({
               type: "UPDATE_CELL",
               sheet,
               content: "",
@@ -292,7 +290,6 @@ export class CorePlugin extends BasePlugin {
         }
       }
     }
-    return commands;
   }
 
   // ---------------------------------------------------------------------------
