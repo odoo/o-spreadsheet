@@ -1,12 +1,12 @@
-import { GridPlugin } from "../model/plugins/grid";
-import { ClipboardPlugin } from "../model/plugins/clipboard";
-import { EntityPlugin } from "../model/plugins/entity";
-import { SelectionPlugin } from "../model/plugins/selection";
-import { CorePlugin } from "../model/plugins/core";
-import { ConditionalFormatPlugin } from "../model/plugins/conditional_format";
-import { LayouPlugin } from "../model/plugins/layout";
-import { FormattingPlugin } from "../model/plugins/formatting";
-import { WHistory } from "../model/history";
+import { GridPlugin } from "../plugins/grid";
+import { ClipboardPlugin } from "../plugins/clipboard";
+import { EntityPlugin } from "../plugins/entity";
+import { SelectionPlugin } from "../plugins/selection";
+import { CorePlugin } from "../plugins/core";
+import { ConditionalFormatPlugin } from "../plugins/conditional_format";
+import { LayouPlugin } from "../plugins/layout";
+import { FormattingPlugin } from "../plugins/formatting";
+import { WHistory } from "../history";
 
 // -----------------------------------------------------------------------------
 // Getters

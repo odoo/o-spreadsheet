@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
-import { toCartesian } from "../../helpers/index";
-import { Cell, GridCommand, Sheet } from "../../types/index";
-import { functionRegistry } from "../../functions/index";
+import { toCartesian } from "../helpers/index";
+import { Cell, GridCommand, Sheet } from "../types/index";
+import { functionRegistry } from "../functions/index";
 
 const functionMap = functionRegistry.mapping;
 

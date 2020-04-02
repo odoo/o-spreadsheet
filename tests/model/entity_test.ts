@@ -1,5 +1,5 @@
 import { functionRegistry, args } from "../../src/functions/index";
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import "../canvas.mock";
 import { resetFunctions } from "../helpers";
 

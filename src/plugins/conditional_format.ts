@@ -6,8 +6,8 @@ import {
   Zone,
   AddConditionalFormatCommand,
   ConditionalFormat
-} from "../../types/index";
-import { toZone } from "../../helpers/index";
+} from "../types/index";
+import { toZone } from "../helpers/index";
 
 // -----------------------------------------------------------------------------
 // Constants

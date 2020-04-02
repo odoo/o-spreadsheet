@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { GridModel } from "../model/index";
+import { GridModel } from "../model";
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, BOTTOMBAR_HEIGHT } from "../constants";
 import { PLUS } from "./icons";
 const { Component } = owl;

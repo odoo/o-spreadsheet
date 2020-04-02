@@ -1,7 +1,7 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { formatNumber, formatValue } from "../../formatters";
-import { AsyncFunction, compile } from "../../formulas/index";
-import { isEqual, isNumber, numberToLetters, toCartesian, toXC, union } from "../../helpers/index";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
+import { formatNumber, formatValue } from "../formatters";
+import { AsyncFunction, compile } from "../formulas/index";
+import { isEqual, isNumber, numberToLetters, toCartesian, toXC, union } from "../helpers/index";
 import {
   Cell,
   CellData,
@@ -14,7 +14,7 @@ import {
   SheetData,
   WorkbookData,
   Zone
-} from "../../types/index";
+} from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");

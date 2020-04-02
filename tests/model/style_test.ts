@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import "../canvas.mock";
 
 describe("styles", () => {

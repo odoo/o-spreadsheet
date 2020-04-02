@@ -1,6 +1,6 @@
-import { applyOffset } from "../../formulas/index";
-import { toXC } from "../../helpers/index";
-import { Cell, GridCommand, NewCell, Zone } from "../../types/index";
+import { applyOffset } from "../formulas/index";
+import { toXC } from "../helpers/index";
+import { Cell, GridCommand, NewCell, Zone } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 // -----------------------------------------------------------------------------

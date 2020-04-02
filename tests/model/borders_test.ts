@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import { BorderCommand } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 

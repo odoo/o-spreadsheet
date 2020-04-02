@@ -1,4 +1,4 @@
-import { Cell, Workbook, Sheet, GridCommand } from "../types/index";
+import { Cell, Workbook, Sheet, GridCommand } from "./types/index";
 import { CommandHandler } from "./base_plugin";
 
 /**

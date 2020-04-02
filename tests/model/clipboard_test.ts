@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import { Zone } from "../../src/types/index";
 import "../canvas.mock";
 import { toCartesian } from "../../src/helpers";

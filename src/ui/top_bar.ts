@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 
 import { Style } from "../types/index";
-import { GridModel } from "../model/index";
+import { GridModel } from "../model";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";

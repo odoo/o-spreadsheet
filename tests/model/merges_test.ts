@@ -1,5 +1,5 @@
 import { toZone } from "../../src/helpers";
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
 

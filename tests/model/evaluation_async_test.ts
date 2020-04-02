@@ -1,4 +1,4 @@
-import { GridModel } from "../../src/model/index";
+import { GridModel } from "../../src/model";
 import { patch, waitForRecompute } from "../helpers";
 
 describe("evaluateCells, async formulas", () => {

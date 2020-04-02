@@ -1,7 +1,7 @@
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { isEqual, toCartesian, toXC } from "../../helpers/index";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { isEqual, toCartesian, toXC } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../../types/index";
+import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../types/index";
 
 const MIN_PADDING = 3;
 

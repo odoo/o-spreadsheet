@@ -1,4 +1,4 @@
-import { GridCommand, WorkbookData } from "../../types/index";
+import { GridCommand, WorkbookData } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EntityPlugin extends BasePlugin {
