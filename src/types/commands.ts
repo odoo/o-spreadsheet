@@ -117,6 +117,34 @@ export interface AddConditionalFormatCommand {
   cf: ConditionalFormat;
 }
 
+export interface RemoveColumnsCommand {
+  type: "REMOVE_COLUMNS";
+  columns: number[];
+  sheet: string; //Not used for now
+}
+
+export interface RemoveRowsCommand {
+  type: "REMOVE_ROWS";
+  rows: number[];
+  sheet: string; //Not used for now
+}
+
+export interface AddColumnsCommand {
+  type: "ADD_COLUMNS";
+  column: number;
+  sheet: string; //Not used for now
+  quantity: number;
+  position: "before" | "after";
+}
+
+export interface AddRowsCommand {
+  type: "ADD_ROWS";
+  row: number;
+  sheet: string; //Not used for now
+  quantity: number;
+  position: "before" | "after";
+}
+
 // Local Commands
 // ------------------------------------------------
 export interface CopyCommand {
@@ -318,6 +346,10 @@ export type GridCommand =
   | ClearCellCommand
   | UndoCommand
   | RedoCommand
-  | StartCommand;
+  | StartCommand
+  | RemoveRowsCommand
+  | RemoveColumnsCommand
+  | AddRowsCommand
+  | AddColumnsCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";

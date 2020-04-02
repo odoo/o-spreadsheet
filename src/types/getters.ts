@@ -25,6 +25,9 @@ export interface Getters {
   getColSize: GridPlugin["getColSize"];
   getRowSize: GridPlugin["getRowSize"];
   expandZone: GridPlugin["expandZone"];
+  getColsZone: GridPlugin["getColsZone"];
+  getRowsZone: GridPlugin["getRowsZone"];
+  isZoneValid: GridPlugin["isZoneValid"];
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
   getActiveCell: SelectionPlugin["getActiveCell"];
@@ -42,6 +45,8 @@ export interface Getters {
   getCol: LayoutPlugin["getCol"];
   getRow: LayoutPlugin["getRow"];
   isMergeDestructive: GridPlugin["isMergeDestructive"];
+  isInMerge: GridPlugin["isInMerge"];
+  getMainCell: GridPlugin["getMainCell"];
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
