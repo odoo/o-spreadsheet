@@ -315,5 +315,3 @@ export type GridCommand =
   | RedoCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
-
-export type HandleReturnType = GridCommand[] | void;

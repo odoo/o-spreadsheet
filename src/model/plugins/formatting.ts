@@ -6,7 +6,6 @@ import {
   BorderCommand,
   Cell,
   GridCommand,
-  HandleReturnType,
   Style,
   WorkbookData,
   Zone
@@ -57,20 +56,22 @@ export class FormattingPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand): HandleReturnType {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "SET_FORMATTING":
         if (cmd.style) {
-          return this.setStyle(cmd.sheet, cmd.target, cmd.style);
+          this.setStyle(cmd.sheet, cmd.target, cmd.style);
         }
         if (cmd.border) {
-          return this.setBorder(cmd.sheet, cmd.target, cmd.border);
+          this.setBorder(cmd.sheet, cmd.target, cmd.border);
         }
         break;
       case "CLEAR_FORMATTING":
-        return this.clearFormatting(cmd.target);
+        this.clearFormatting(cmd.target);
+        break;
       case "SET_FORMATTER":
-        return this.setFormatter(cmd.sheet, cmd.target, cmd.formatter);
+        this.setFormatter(cmd.sheet, cmd.target, cmd.formatter);
+        break;
     }
   }
 
@@ -108,32 +109,28 @@ export class FormattingPlugin extends BasePlugin {
     return cell && cell.style ? this.styles[cell.style] : {};
   }
 
-  setStyle(sheet: string, target: Zone[], style: Style): GridCommand[] {
-    const commands: GridCommand[] = [];
+  setStyle(sheet: string, target: Zone[], style: Style) {
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          commands.push(...this.setStyleToCell(col, row, style));
+          this.setStyleToCell(col, row, style);
         }
       }
     }
-    return commands;
   }
 
-  private setStyleToCell(col: number, row: number, style): GridCommand[] {
+  private setStyleToCell(col: number, row: number, style) {
     const cell = this.getters.getCell(col, row);
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
-    return [
-      {
-        type: "UPDATE_CELL",
-        sheet: this.workbook.activeSheet.name,
-        col,
-        row,
-        style: id
-      }
-    ];
+    this.dispatch({
+      type: "UPDATE_CELL",
+      sheet: this.workbook.activeSheet.name,
+      col,
+      row,
+      style: id
+    });
   }
 
   private registerStyle(style) {
@@ -151,19 +148,18 @@ export class FormattingPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Borders
   // ---------------------------------------------------------------------------
-  setBorder(sheet: string, zones: Zone[], command: BorderCommand): GridCommand[] {
+  setBorder(sheet: string, zones: Zone[], command: BorderCommand) {
     // this object aggregate the desired final border command for a cell
     const borderMap: { [xc: string]: number } = {};
     for (let zone of zones) {
       this.aggregateBorderCommands(sheet, zone, command, borderMap);
     }
-    const commands: GridCommand[] = [];
     for (let [xc, borderId] of Object.entries(borderMap)) {
       const [col, row] = toCartesian(xc);
       const cell = this.getters.getCell(col, row);
       const current = (cell && cell.border) || 0;
       if (current !== borderId) {
-        commands.push({
+        this.dispatch({
           type: "UPDATE_CELL",
           sheet: sheet,
           col,
@@ -172,7 +168,6 @@ export class FormattingPlugin extends BasePlugin {
         });
       }
     }
-    return commands;
   }
   aggregateBorderCommands(
     sheet: string,
@@ -302,12 +297,11 @@ export class FormattingPlugin extends BasePlugin {
   /**
    * Note that here, formatting refers to styles+border, not value formatters
    */
-  private clearFormatting(zones: Zone[]): GridCommand[] {
-    const commands: GridCommand[] = [];
+  private clearFormatting(zones: Zone[]) {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          commands.push({
+          this.dispatch({
             type: "UPDATE_CELL",
             sheet: this.workbook.activeSheet.name,
             col,
@@ -318,19 +312,17 @@ export class FormattingPlugin extends BasePlugin {
         }
       }
     }
-    return commands;
   }
 
   // ---------------------------------------------------------------------------
   // Formatters
   // ---------------------------------------------------------------------------
 
-  private setFormatter(sheet: string, zones: Zone[], format: string): GridCommand[] {
-    const commands: GridCommand[] = [];
+  private setFormatter(sheet: string, zones: Zone[], format: string) {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
-          commands.push({
+          this.dispatch({
             type: "UPDATE_CELL",
             sheet,
             col,
@@ -340,7 +332,6 @@ export class FormattingPlugin extends BasePlugin {
         }
       }
     }
-    return commands;
   }
 
   // ---------------------------------------------------------------------------

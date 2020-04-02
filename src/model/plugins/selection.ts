@@ -1,6 +1,6 @@
 import { isEqual, toXC, union } from "../../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone, Cell, HandleReturnType } from "../../types/index";
+import { GridCommand, Zone, Cell } from "../../types/index";
 import { formatNumber } from "../../formatters";
 
 /**
@@ -15,7 +15,7 @@ export class SelectionPlugin extends BasePlugin {
     "getAggregate"
   ];
 
-  start(cmd: GridCommand): boolean {
+  canDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
       const [refCol, refRow] = this.getReferenceCoords();
       const { cols, rows } = this.workbook;
@@ -29,7 +29,7 @@ export class SelectionPlugin extends BasePlugin {
     return true;
   }
 
-  handle(cmd: GridCommand): HandleReturnType {
+  handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
@@ -44,17 +44,20 @@ export class SelectionPlugin extends BasePlugin {
         this.selectCell(cmd.col, cmd.row, cmd.createNewRange);
         break;
       case "SELECT_COLUMN":
-        return this.selectColumn(cmd.index, cmd.createRange || false, cmd.updateRange || false);
+        this.selectColumn(cmd.index, cmd.createRange || false, cmd.updateRange || false);
+        break;
       case "SELECT_ROW":
-        return this.selectRow(cmd.index, cmd.createRange || false, cmd.updateRange || false);
+        this.selectRow(cmd.index, cmd.createRange || false, cmd.updateRange || false);
+        break;
       case "SELECT_ALL":
-        return this.selectAll();
+        this.selectAll();
+        break;
       case "ALTER_SELECTION":
         if (cmd.delta) {
-          return this.moveSelection(cmd.delta[0], cmd.delta[1]);
+          this.moveSelection(cmd.delta[0], cmd.delta[1]);
         }
         if (cmd.cell) {
-          return this.addCellToSelection(...cmd.cell);
+          this.addCellToSelection(...cmd.cell);
         }
         break;
     }
@@ -132,7 +135,7 @@ export class SelectionPlugin extends BasePlugin {
     return isSelectingRange ? [selection.anchor.col, selection.anchor.row] : [activeCol, activeRow];
   }
 
-  private selectColumn(index: number, createRange: boolean, updateRange: boolean): GridCommand[] {
+  private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
     const bottom = this.workbook.rows.length - 1;
     const zone = { left: index, right: index, top: 0, bottom };
     const current = this.workbook.selection.zones;
@@ -146,10 +149,10 @@ export class SelectionPlugin extends BasePlugin {
       zones = createRange ? current.concat(zone) : [zone];
       anchor = [index, 0];
     }
-    return [{ type: "SET_SELECTION", zones, anchor, strict: true }];
+    this.dispatch({ type: "SET_SELECTION", zones, anchor, strict: true });
   }
 
-  private selectRow(index: number, createRange: boolean, updateRange: boolean): GridCommand[] {
+  private selectRow(index: number, createRange: boolean, updateRange: boolean) {
     const right = this.workbook.cols.length - 1;
     const zone = { top: index, bottom: index, left: 0, right };
     const current = this.workbook.selection.zones;
@@ -163,14 +166,14 @@ export class SelectionPlugin extends BasePlugin {
       zones = createRange ? current.concat(zone) : [zone];
       anchor = [0, index];
     }
-    return [{ type: "SET_SELECTION", zones, anchor, strict: true }];
+    this.dispatch({ type: "SET_SELECTION", zones, anchor, strict: true });
   }
 
-  private selectAll(): GridCommand[] {
+  private selectAll() {
     const bottom = this.workbook.rows.length - 1;
     const right = this.workbook.cols.length - 1;
     const zone = { left: 0, top: 0, bottom, right };
-    return [{ type: "SET_SELECTION", zones: [zone], anchor: [0, 0] }];
+    this.dispatch({ type: "SET_SELECTION", zones: [zone], anchor: [0, 0] });
   }
 
   /**
@@ -248,7 +251,7 @@ export class SelectionPlugin extends BasePlugin {
     this.workbook.selection.anchor.row = anchor[1];
   }
 
-  private moveSelection(deltaX: number, deltaY: number): GridCommand[] {
+  private moveSelection(deltaX: number, deltaY: number) {
     const selection = this.workbook.selection;
     const zones = selection.zones.slice();
     const lastZone = zones[selection.zones.length - 1];
@@ -284,7 +287,8 @@ export class SelectionPlugin extends BasePlugin {
       }
       if (result && !isEqual(result, lastZone)) {
         zones[zones.length - 1] = result;
-        return [{ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] }];
+        this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
+        return;
       }
     }
     const currentZone = { top: anchorRow, bottom: anchorRow, left: anchorCol, right: anchorCol };
@@ -297,12 +301,11 @@ export class SelectionPlugin extends BasePlugin {
     result = expand(union(currentZone, zoneWithDelta));
     if (!isEqual(result, lastZone)) {
       zones[zones.length - 1] = result;
-      return [{ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] }];
+      this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
     }
-    return [];
   }
 
-  private addCellToSelection(col: number, row: number): GridCommand[] {
+  private addCellToSelection(col: number, row: number) {
     const selection = this.workbook.selection;
     const anchorCol = selection.anchor.col;
     const anchorRow = selection.anchor.row;
@@ -313,7 +316,7 @@ export class SelectionPlugin extends BasePlugin {
       bottom: Math.max(anchorRow, row)
     };
     const zones = selection.zones.slice(0, -1).concat(zone);
-    return [{ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] }];
+    this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
   }
 
   // ---------------------------------------------------------------------------
