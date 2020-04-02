@@ -1,7 +1,8 @@
+import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { formatNumber, formatValue } from "../formatters";
 import { AsyncFunction, compile } from "../formulas/index";
-import { isEqual, isNumber, numberToLetters, toCartesian, toXC, union } from "../helpers/index";
+import { isNumber, numberToLetters, toCartesian, toXC } from "../helpers/index";
 import {
   Cell,
   CellData,
@@ -15,7 +16,6 @@ import {
   WorkbookData,
   Zone
 } from "../types/index";
-import { BasePlugin } from "../base_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
@@ -26,7 +26,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
  * cell and sheet content.
  */
 export class CorePlugin extends BasePlugin {
-  static getters = ["getCell", "getCellText", "zoneToXC", "expandZone"];
+  static getters = ["getCell", "getCellText", "zoneToXC"];
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -121,24 +121,6 @@ export class CorePlugin extends BasePlugin {
     }
 
     return topLeft;
-  }
-
-  /**
-   * Add all necessary merge to the current selection to make it valid
-   * Todo: move this to merge plugin
-   */
-  expandZone(zone: Zone): Zone {
-    let { left, right, top, bottom } = zone;
-    let result: Zone = { left, right, top, bottom };
-    for (let i = left; i <= right; i++) {
-      for (let j = top; j <= bottom; j++) {
-        let mergeId = this.workbook.mergeCellMap[toXC(i, j)];
-        if (mergeId) {
-          result = union(this.workbook.merges[mergeId], result);
-        }
-      }
-    }
-    return isEqual(result, zone) ? result : this.expandZone(result);
   }
 
   // ---------------------------------------------------------------------------

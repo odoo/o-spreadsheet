@@ -1,6 +1,6 @@
 import { isEqual, toXC, union } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { GridCommand, Zone, Cell } from "../types/index";
+import { GridCommand, Zone, Cell, Selection } from "../types/index";
 import { formatNumber } from "../formatters";
 
 /**
@@ -12,7 +12,9 @@ export class SelectionPlugin extends BasePlugin {
     "getActiveCols",
     "getActiveRows",
     "getSelectedZones",
-    "getAggregate"
+    "getAggregate",
+    "getSelection",
+    "getPosition"
   ];
 
   canDispatch(cmd: GridCommand): boolean {
@@ -105,6 +107,14 @@ export class SelectionPlugin extends BasePlugin {
     return this.workbook.selection.zones;
   }
 
+  getSelection(): Selection {
+    return this.workbook.selection;
+  }
+
+  getPosition(): [number, number] {
+    return [this.workbook.activeCol, this.workbook.activeRow];
+  }
+
   getAggregate(): string | null {
     let aggregate = 0;
     let n = 0;
@@ -185,23 +195,7 @@ export class SelectionPlugin extends BasePlugin {
    */
   private selectCell(col: number, row: number, newRange: boolean = false) {
     const xc = toXC(col, row);
-    let zone: Zone;
-    if (xc in this.workbook.mergeCellMap) {
-      const merge = this.workbook.merges[this.workbook.mergeCellMap[xc]];
-      zone = {
-        left: merge.left,
-        right: merge.right,
-        top: merge.top,
-        bottom: merge.bottom
-      };
-    } else {
-      zone = {
-        left: col,
-        right: col,
-        top: row,
-        bottom: row
-      };
-    }
+    let zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
 
     if (newRange) {
       this.workbook.selection.zones.push(zone);

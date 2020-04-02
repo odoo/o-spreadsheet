@@ -1,12 +1,19 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
-import { isEqual, toCartesian, toXC } from "../helpers/index";
+import { isEqual, toCartesian, toXC, union } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../types/index";
 
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
-  static getters = ["getCol", "getRow", "getColSize", "getRowSize", "isMergeDestructive"];
+  static getters = [
+    "getCol",
+    "getRow",
+    "getColSize",
+    "getRowSize",
+    "isMergeDestructive",
+    "expandZone"
+  ];
 
   nextId: number = 1;
 
@@ -119,6 +126,23 @@ export class GridPlugin extends BasePlugin {
       }
     }
     return false;
+  }
+
+  /**
+   * Add all necessary merge to the current selection to make it valid
+   */
+  expandZone(zone: Zone): Zone {
+    let { left, right, top, bottom } = zone;
+    let result: Zone = { left, right, top, bottom };
+    for (let i = left; i <= right; i++) {
+      for (let j = top; j <= bottom; j++) {
+        let mergeId = this.workbook.mergeCellMap[toXC(i, j)];
+        if (mergeId) {
+          result = union(this.workbook.merges[mergeId], result);
+        }
+      }
+    }
+    return isEqual(result, zone) ? result : this.expandZone(result);
   }
 
   // ---------------------------------------------------------------------------
