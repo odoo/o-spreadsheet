@@ -35,10 +35,7 @@ const PLUGINS = [
 // GridModel
 // -----------------------------------------------------------------------------
 export class GridModel extends owl.core.EventBus {
-  static setTimeout = window.setTimeout.bind(window);
-
   private handlers: CommandHandler[];
-  private isStarted: boolean = false;
   private status: "ready" | "running" | "finalizing" = "ready";
 
   workbook: Workbook;
@@ -76,11 +73,8 @@ export class GridModel extends owl.core.EventBus {
     }
 
     // misc
-    this.state = this.getters.getUI();
-    if (this.workbook.loadingCells > 0) {
-      this.startScheduler();
-    }
-    this.dispatch({ type: "EVALUATE_CELLS" });
+    this.state = {} as UI;
+    this.dispatch({ type: "START" });
   }
 
   dispatch(command: GridCommand): CommandResult {
@@ -106,9 +100,6 @@ export class GridModel extends owl.core.EventBus {
 
         Object.assign(this.state, this.getters.getUI());
         this.trigger("update");
-        if (this.workbook.loadingCells > 0) {
-          this.startScheduler();
-        }
         break;
       case "running":
         this._dispatch(command);
@@ -122,29 +113,6 @@ export class GridModel extends owl.core.EventBus {
   private _dispatch(command: GridCommand) {
     for (let handler of this.handlers) {
       handler.handle(command);
-    }
-  }
-
-  /**
-   * todo: move this into evaluation plugin
-   */
-  private startScheduler() {
-    if (!this.isStarted) {
-      this.isStarted = true;
-      let current = this.workbook.loadingCells;
-      const recomputeCells = () => {
-        if (this.workbook.loadingCells !== current) {
-          this.dispatch({ type: "EVALUATE_CELLS", onlyWaiting: true });
-          current = this.workbook.loadingCells;
-          if (current === 0) {
-            this.isStarted = false;
-          }
-        }
-        if (current > 0) {
-          GridModel.setTimeout(recomputeCells, 15);
-        }
-      };
-      GridModel.setTimeout(recomputeCells, 5);
     }
   }
 

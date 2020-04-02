@@ -8,6 +8,10 @@ const functionMap = functionRegistry.mapping;
 export class EvaluationPlugin extends BasePlugin {
   private isStale: boolean = true;
 
+  private loadingCells: number = 0;
+
+  private isStarted: boolean = false;
+
   /**
    * For all cells that are being currently computed (asynchronously).
    *
@@ -38,6 +42,9 @@ export class EvaluationPlugin extends BasePlugin {
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
+      case "START":
+        this.evaluateCells();
+        break;
       case "UPDATE_CELL":
         this.isStale = this.isStale || "content" in cmd;
         break;
@@ -59,10 +66,44 @@ export class EvaluationPlugin extends BasePlugin {
       this.isStale = false;
       this.evaluateCells();
     }
+    if (this.loadingCells > 0) {
+      this.startScheduler();
+    }
   }
 
+  // ---------------------------------------------------------------------------
+  // Scheduler
+  // ---------------------------------------------------------------------------
+
+  /**
+   * todo: move this into evaluation plugin
+   */
+  private startScheduler() {
+    if (!this.isStarted) {
+      this.isStarted = true;
+      let current = this.loadingCells;
+      const recomputeCells = () => {
+        if (this.loadingCells !== current) {
+          this.dispatch({ type: "EVALUATE_CELLS", onlyWaiting: true });
+          current = this.loadingCells;
+          if (current === 0) {
+            this.isStarted = false;
+          }
+        }
+        if (current > 0) {
+          window.setTimeout(recomputeCells, 15);
+        }
+      };
+      window.setTimeout(recomputeCells, 5);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Evaluator
+  // ---------------------------------------------------------------------------
+
   private evaluateCells(onlyWaiting: boolean = false) {
-    const { COMPUTED, PENDING, WAITING, workbook } = this;
+    const { COMPUTED, PENDING, WAITING } = this;
 
     const sheets: { [name: string]: Sheet } = {};
     for (let sheet of this.workbook.sheets) {
@@ -80,10 +121,11 @@ export class EvaluationPlugin extends BasePlugin {
     const { cells } = this.workbook;
     const visited = {};
 
+    const self = this;
     function handleError(e: Error, cell: Cell) {
       if (PENDING.has(cell)) {
         PENDING.delete(cell);
-        workbook.loadingCells--;
+        self.loadingCells--;
       }
       if (e.message === "not ready") {
         WAITING.add(cell);
@@ -120,14 +162,14 @@ export class EvaluationPlugin extends BasePlugin {
             .formula(readCell, range, evalContext)
             .then(val => {
               cell.value = val;
-              workbook.loadingCells--;
+              self.loadingCells--;
               if (PENDING.has(cell)) {
                 PENDING.delete(cell);
                 COMPUTED.add(cell);
               }
             })
             .catch((e: Error) => handleError(e, cell));
-          workbook.loadingCells++;
+          self.loadingCells++;
         } else {
           cell.value = cell.formula(readCell, range, evalContext);
         }
