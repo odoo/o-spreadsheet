@@ -312,9 +312,9 @@ describe("clipboard", () => {
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 0 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
 
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 2, right: 2 });
     model.dispatch({ type: "PASTE", target: target("C1:C3") });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });
     expect(model.workbook.cells.C1.content).toBe("1");
     expect(model.workbook.cells.C2.content).toBe("2");
     expect(model.workbook.cells.C3).not.toBeDefined();
@@ -329,8 +329,8 @@ describe("clipboard", () => {
     model.dispatch({ type: "SELECT_CELL", col: 4, row: 0, createNewRange: true });
 
     model.dispatch({ type: "PASTE", target: target("C1,E1") });
-    expect(model.workbook.selection.zones[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
-    expect(model.workbook.selection.zones[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
+    expect(model.getters.getSelectedZones()[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
   });
 
   test("pasting a value in multiple zones", () => {

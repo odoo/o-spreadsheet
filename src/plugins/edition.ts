@@ -19,7 +19,7 @@ export class EditionPlugin extends BasePlugin {
         this.workbook.isSelectingRange = true;
         this.dispatch({
           type: "SET_SELECTION",
-          zones: this.workbook.selection.zones,
+          zones: this.getters.getSelectedZones(),
           anchor: [this.workbook.activeCol, this.workbook.activeRow]
         });
         break;

@@ -17,6 +17,11 @@ export class SelectionPlugin extends BasePlugin {
     "getPosition"
   ];
 
+  private selection: Selection = {
+    zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
+    anchor: { col: 0, row: 0 }
+  };
+
   canDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
       const [refCol, refRow] = this.getReferenceCoords();
@@ -81,7 +86,7 @@ export class SelectionPlugin extends BasePlugin {
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (let zone of this.workbook.selection.zones) {
+    for (let zone of this.selection.zones) {
       if (zone.top === 0 && zone.bottom === this.workbook.rows.length - 1) {
         for (let i = zone.left; i <= zone.right; i++) {
           activeCols.add(i);
@@ -93,7 +98,7 @@ export class SelectionPlugin extends BasePlugin {
 
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
-    for (let zone of this.workbook.selection.zones) {
+    for (let zone of this.selection.zones) {
       if (zone.left === 0 && zone.right === this.workbook.cols.length - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
@@ -104,11 +109,11 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   getSelectedZones(): Zone[] {
-    return this.workbook.selection.zones;
+    return this.selection.zones;
   }
 
   getSelection(): Selection {
-    return this.workbook.selection;
+    return this.selection;
   }
 
   getPosition(): [number, number] {
@@ -118,7 +123,7 @@ export class SelectionPlugin extends BasePlugin {
   getAggregate(): string | null {
     let aggregate = 0;
     let n = 0;
-    for (let zone of this.getSelectedZones()) {
+    for (let zone of this.selection.zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const r = this.workbook.rows[row];
         for (let col = zone.left; col <= zone.right; col++) {
@@ -141,17 +146,18 @@ export class SelectionPlugin extends BasePlugin {
    * Return [col, row]
    */
   private getReferenceCoords(): [number, number] {
-    const { isSelectingRange, selection, activeCol, activeRow } = this.workbook;
+    const { isSelectingRange, activeCol, activeRow } = this.workbook;
+    const selection = this.selection;
     return isSelectingRange ? [selection.anchor.col, selection.anchor.row] : [activeCol, activeRow];
   }
 
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
     const bottom = this.workbook.rows.length - 1;
     const zone = { left: index, right: index, top: 0, bottom };
-    const current = this.workbook.selection.zones;
+    const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
     if (updateRange) {
-      const { col, row } = this.workbook.selection.anchor;
+      const { col, row } = this.selection.anchor;
       const updatedZone = union(zone, { left: col, right: col, top: 0, bottom });
       zones = current.slice(0, -1).concat(updatedZone);
       anchor = [col, row];
@@ -165,10 +171,10 @@ export class SelectionPlugin extends BasePlugin {
   private selectRow(index: number, createRange: boolean, updateRange: boolean) {
     const right = this.workbook.cols.length - 1;
     const zone = { top: index, bottom: index, left: 0, right };
-    const current = this.workbook.selection.zones;
+    const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
     if (updateRange) {
-      const { col, row } = this.workbook.selection.anchor;
+      const { col, row } = this.selection.anchor;
       const updatedZone = union(zone, { left: 0, right, top: row, bottom: row });
       zones = current.slice(0, -1).concat(updatedZone);
       anchor = [col, row];
@@ -198,12 +204,12 @@ export class SelectionPlugin extends BasePlugin {
     let zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
 
     if (newRange) {
-      this.workbook.selection.zones.push(zone);
+      this.selection.zones.push(zone);
     } else {
-      this.workbook.selection.zones = [zone];
+      this.selection.zones = [zone];
     }
-    this.workbook.selection.anchor.col = col;
-    this.workbook.selection.anchor.row = row;
+    this.selection.anchor.col = col;
+    this.selection.anchor.row = row;
     if (!this.workbook.isSelectingRange) {
       this.workbook.activeCol = col;
       this.workbook.activeRow = row;
@@ -237,16 +243,16 @@ export class SelectionPlugin extends BasePlugin {
   setSelection(anchor: [number, number], zones: Zone[], strict: boolean = false) {
     this.selectCell(...anchor);
     if (strict) {
-      this.workbook.selection.zones = zones;
+      this.selection.zones = zones;
     } else {
-      this.workbook.selection.zones = zones.map(this.getters.expandZone);
+      this.selection.zones = zones.map(this.getters.expandZone);
     }
-    this.workbook.selection.anchor.col = anchor[0];
-    this.workbook.selection.anchor.row = anchor[1];
+    this.selection.anchor.col = anchor[0];
+    this.selection.anchor.row = anchor[1];
   }
 
   private moveSelection(deltaX: number, deltaY: number) {
-    const selection = this.workbook.selection;
+    const selection = this.selection;
     const zones = selection.zones.slice();
     const lastZone = zones[selection.zones.length - 1];
     const anchorCol = selection.anchor.col;
@@ -300,7 +306,7 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private addCellToSelection(col: number, row: number) {
-    const selection = this.workbook.selection;
+    const selection = this.selection;
     const anchorCol = selection.anchor.col;
     const anchorRow = selection.anchor.row;
     const zone: Zone = {

@@ -283,7 +283,7 @@ describe("borders", () => {
     const model = new Model();
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [25, 99] });
-    expect(model.workbook.selection.zones[0]).toEqual({
+    expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,
       right: model.workbook.cols.length - 1,

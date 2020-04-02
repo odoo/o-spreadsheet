@@ -126,34 +126,34 @@ async function dblClickRow(index: number) {
 describe("Resizer component", () => {
   test("can click on a header to select a column", async () => {
     selectColumn("C");
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(model.workbook.activeXc).toBe("C1");
   });
 
   test("can click on a row-header to select a row", async () => {
     selectRow(2);
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.workbook.activeXc).toBe("A3");
   });
 
   test("can select multiple rows/cols", async () => {
     selectRow(2);
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
 
     selectRow(3, { ctrlKey: true });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
-    expect(model.workbook.selection.zones[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
+    expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(model.workbook.activeXc).toBe("A4");
 
     selectColumn("C", { ctrlKey: true });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
-    expect(model.workbook.selection.zones[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
-    expect(model.workbook.selection.zones[2]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
+    expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
+    expect(model.getters.getSelectedZones()[2]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(model.workbook.activeXc).toBe("C1");
 
     selectColumn("C");
-    expect(model.workbook.selection.zones.length).toBe(1);
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
+    expect(model.getters.getSelectedZones().length).toBe(1);
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(model.workbook.activeXc).toBe("C1");
   });
 
@@ -172,8 +172,8 @@ describe("Resizer component", () => {
   test("Can resize multiples columns", async () => {
     selectColumn("C");
     selectColumn("D", { ctrlKey: true });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
-    expect(model.workbook.selection.zones[1]).toEqual({ left: 3, top: 0, right: 3, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
+    expect(model.getters.getSelectedZones()[1]).toEqual({ left: 3, top: 0, right: 3, bottom: 9 });
     expect(model.workbook.activeXc).toBe("D1");
 
     await resizeColumn("D", 50);
@@ -187,8 +187,8 @@ describe("Resizer component", () => {
   test("Can resize multiples rows", async () => {
     selectRow(2);
     selectRow(3, { ctrlKey: true });
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
-    expect(model.workbook.selection.zones[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
+    expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(model.workbook.activeXc).toBe("A4");
 
     await resizeRow(3, 50);
@@ -201,7 +201,7 @@ describe("Resizer component", () => {
 
   test("can select the entire sheet", async () => {
     triggerMouseEvent(".o-overlay .all", "mousedown", 5, 5);
-    expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
     expect(model.workbook.activeXc).toBe("A1");
   });
 

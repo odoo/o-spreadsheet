@@ -47,7 +47,7 @@ describe("Grid component", () => {
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
-    expect(model.workbook.selection.zones[0]).toEqual({
+    expect(model.getters.getSelectedZones()[0]).toEqual({
       top: 0,
       left: 0,
       bottom: 7,
@@ -160,7 +160,12 @@ describe("Grid component", () => {
         new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
       );
       expect(model.workbook.activeXc).toBe("A1");
-      expect(model.workbook.selection.zones[0]).toEqual({ left: 0, top: 0, right: 25, bottom: 99 });
+      expect(model.getters.getSelectedZones()[0]).toEqual({
+        left: 0,
+        top: 0,
+        right: 25,
+        bottom: 99
+      });
     });
 
     test("can save the sheet with CTRL+S", async () => {
