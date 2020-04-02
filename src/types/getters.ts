@@ -29,6 +29,7 @@ export interface Getters {
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
   getActiveCell: SelectionPlugin["getActiveCell"];
+  getActiveXc: SelectionPlugin["getActiveXc"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
   getSelectedZones: SelectionPlugin["getSelectedZones"];

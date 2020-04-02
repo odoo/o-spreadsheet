@@ -71,7 +71,7 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    expect(model.workbook.activeXc).toBe("C3");
+    expect(model.getters.getActiveXc()).toBe("C3");
     model.dispatch({ type: "START_EDITION" });
     expect(model.workbook.currentContent).toBe("b2");
     model.workbook.currentContent = "new value";
@@ -92,7 +92,7 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    expect(model.workbook.activeXc).toBe("C3");
+    expect(model.getters.getActiveXc()).toBe("C3");
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(model.workbook.cells["B2"].style).not.toBeDefined();
 
@@ -120,10 +120,10 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 3 });
-    expect(model.workbook.activeXc).toBe("C4");
+    expect(model.getters.getActiveXc()).toBe("C4");
     expect(model.state.selectedCell).toBeNull(); // no active cell in C4
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
-    expect(model.workbook.activeXc).toBe("C3");
+    expect(model.getters.getActiveXc()).toBe("C3");
     expect(model.state.selectedCell!.xc).toBe("B2");
   });
 
