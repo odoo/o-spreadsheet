@@ -1,6 +1,6 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "./index";
-import { toNumber, strictToNumber, visitNumbers, toString } from "./helpers";
+import { toNumber, strictToNumber, toString, reduceArgs, reduceNumbers } from "./helpers";
 // -----------------------------------------------------------------------------
 // CEILING
 // -----------------------------------------------------------------------------
@@ -98,21 +98,11 @@ export const COUNTBLANK: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let blanks = 0;
-    for (let element of arguments) {
-      if (Array.isArray(element)) {
-        for (let col of element) {
-          for (let cell of col) {
-            if (cell === null || cell === undefined || cell === "") {
-              blanks++;
-            }
-          }
-        }
-      } else if (element === null || element === "") {
-        blanks++;
-      }
-    }
-    return blanks;
+    return reduceArgs(
+      arguments,
+      (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc),
+      0
+    );
   }
 };
 
@@ -141,21 +131,7 @@ export const COUNTUNIQUE: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let values = new Set();
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (isDefined(j)) {
-              values.add(j);
-            }
-          }
-        }
-      } else if (isDefined(n)) {
-        values.add(n);
-      }
-    }
-    return values.size;
+    return reduceArgs(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
   }
 };
 
@@ -599,11 +575,7 @@ export const SUM: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let sum = 0;
-    visitNumbers(arguments, n => {
-      sum += n;
-    });
-    return sum;
+    return reduceNumbers(arguments, (acc, a) => acc + a, 0);
   }
 };
 
