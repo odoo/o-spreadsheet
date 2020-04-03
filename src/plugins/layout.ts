@@ -1,9 +1,9 @@
 import { BasePlugin } from "../base_plugin";
-import { Viewport, Box, Rect, GridCommand, Workbook, UI } from "../types/index";
-import { toXC, overlap } from "../helpers/index";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
+import { overlap, toXC } from "../helpers/index";
+import { Box, GridCommand, Rect, UI, Viewport } from "../types/index";
 
-export class LayouPlugin extends BasePlugin {
+export class LayoutPlugin extends BasePlugin {
   static getters = ["getViewport", "getUI"];
 
   ui: UI | null = null;
@@ -32,17 +32,72 @@ export class LayouPlugin extends BasePlugin {
     const [col, row] = this.getters.getPosition();
 
     while (col >= viewport.right && col !== cols.length - 1) {
-      updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left].right);
+      this.updateScroll(this.workbook.scrollTop, cols[viewport.left].right);
     }
     while (col < viewport.left) {
-      updateScroll(this.workbook, this.workbook.scrollTop, cols[viewport.left - 1].left);
+      this.updateScroll(this.workbook.scrollTop, cols[viewport.left - 1].left);
     }
     while (row >= viewport.bottom && row !== rows.length - 1) {
-      updateScroll(this.workbook, rows[viewport.top].bottom, this.workbook.scrollLeft);
+      this.updateScroll(rows[viewport.top].bottom, this.workbook.scrollLeft);
     }
     while (row < viewport.top) {
-      updateScroll(this.workbook, rows[viewport.top - 1].top, this.workbook.scrollLeft);
+      this.updateScroll(rows[viewport.top - 1].top, this.workbook.scrollLeft);
     }
+  }
+
+  updateScroll(scrollTop: number, scrollLeft: number): boolean {
+    scrollTop = Math.round(scrollTop);
+    scrollLeft = Math.round(scrollLeft);
+    if (this.workbook.scrollTop === scrollTop && this.workbook.scrollLeft === scrollLeft) {
+      return false;
+    }
+    this.workbook.scrollTop = scrollTop;
+    this.workbook.scrollLeft = scrollLeft;
+    const { offsetX, offsetY } = this.workbook;
+    this.updateVisibleZone();
+    return offsetX !== this.workbook.offsetX || offsetY !== this.workbook.offsetY;
+  }
+
+  /**
+   * Here:
+   * - width is the clientWidth, the actual width of the visible zone
+   * - height is the clientHeight, the actual height of the visible zone
+   */
+  updateVisibleZone(width?: number, height?: number) {
+    const { rows, cols, viewport, scrollLeft, scrollTop } = this.workbook;
+    this.workbook.clientWidth = width || this.workbook.clientWidth;
+    this.workbook.clientHeight = height || this.workbook.clientHeight;
+
+    viewport.bottom = rows.length - 1;
+    let effectiveTop = scrollTop;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].top <= effectiveTop) {
+        if (rows[i].bottom > effectiveTop) {
+          effectiveTop = rows[i].top;
+        }
+        viewport.top = i;
+      }
+      if (effectiveTop + this.workbook.clientHeight < rows[i].bottom + HEADER_HEIGHT) {
+        viewport.bottom = i;
+        break;
+      }
+    }
+    viewport.right = cols.length - 1;
+    let effectiveLeft = scrollLeft;
+    for (let i = 0; i < cols.length; i++) {
+      if (cols[i].left <= effectiveLeft) {
+        if (cols[i].right > effectiveLeft) {
+          effectiveLeft = cols[i].left;
+        }
+        viewport.left = i;
+      }
+      if (effectiveLeft + this.workbook.clientWidth < cols[i].right + HEADER_WIDTH) {
+        viewport.right = i;
+        break;
+      }
+    }
+    this.workbook.offsetX = cols[viewport.left].left - HEADER_WIDTH;
+    this.workbook.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
 
   getViewport(width: number, height: number, offsetX: number, offsetY: number): Viewport {
@@ -200,59 +255,4 @@ export class LayouPlugin extends BasePlugin {
       activeSheet: this.workbook.activeSheet.name
     };
   }
-}
-
-export function updateScroll(state: Workbook, scrollTop: number, scrollLeft: number): boolean {
-  scrollTop = Math.round(scrollTop);
-  scrollLeft = Math.round(scrollLeft);
-  if (state.scrollTop === scrollTop && state.scrollLeft === scrollLeft) {
-    return false;
-  }
-  state.scrollTop = scrollTop;
-  state.scrollLeft = scrollLeft;
-  const { offsetX, offsetY } = state;
-  updateVisibleZone(state);
-  return offsetX !== state.offsetX || offsetY !== state.offsetY;
-}
-
-/**
- * Here:
- * - width is the clientWidth, the actual width of the visible zone
- * - height is the clientHeight, the actual height of the visible zone
- */
-export function updateVisibleZone(state: Workbook, width?: number, height?: number) {
-  const { rows, cols, viewport, scrollLeft, scrollTop } = state;
-  state.clientWidth = width || state.clientWidth;
-  state.clientHeight = height || state.clientHeight;
-
-  viewport.bottom = rows.length - 1;
-  let effectiveTop = scrollTop;
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i].top <= effectiveTop) {
-      if (rows[i].bottom > effectiveTop) {
-        effectiveTop = rows[i].top;
-      }
-      viewport.top = i;
-    }
-    if (effectiveTop + state.clientHeight < rows[i].bottom + HEADER_HEIGHT) {
-      viewport.bottom = i;
-      break;
-    }
-  }
-  viewport.right = cols.length - 1;
-  let effectiveLeft = scrollLeft;
-  for (let i = 0; i < cols.length; i++) {
-    if (cols[i].left <= effectiveLeft) {
-      if (cols[i].right > effectiveLeft) {
-        effectiveLeft = cols[i].left;
-      }
-      viewport.left = i;
-    }
-    if (effectiveLeft + state.clientWidth < cols[i].right + HEADER_WIDTH) {
-      viewport.right = i;
-      break;
-    }
-  }
-  state.offsetX = cols[viewport.left].left - HEADER_WIDTH;
-  state.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
 }
