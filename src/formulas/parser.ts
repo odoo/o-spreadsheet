@@ -111,93 +111,94 @@ export const rangeReference = new RegExp(
 );
 
 function parsePrefix(current: Token, tokens: Token[]): AST {
-  if (current.type === "DEBUGGER") {
-    const next = parseExpression(tokens, 1000);
-    next.debug = true;
-    return next;
-  }
-  if (current.type === "NUMBER") {
-    let value = parseFloat(current.value);
-    if (tokens[0] && tokens[0].value === "%" && tokens[0].type === "OPERATOR") {
-      value = value / 100;
-      tokens.shift();
-    }
-    return { type: current.type, value } as AST;
-  }
-  if (current.type === "STRING") {
-    return { type: current.type, value: current.value } as AST;
-  }
-  if (current.type === "SYMBOL") {
-    if (cellReference.test(current.value)) {
-      if (current.value.includes("!")) {
-        let [sheet, val] = current.value.split("!");
-        sheet = sanitizeSheet(sheet);
-        return {
-          type: "REFERENCE",
-          value: val.replace(/\$/g, "").toUpperCase(),
-          sheet: sheet
-        };
-      } else {
-        return { type: "REFERENCE", value: current.value.replace(/\$/g, "").toUpperCase() } as AST;
-      }
-    } else {
-      if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
-        return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
-      } else {
-        if (current.value) {
-          throw new Error("Invalid formula");
-        }
-        return { type: "UNKNOWN", value: current.value } as AST;
-      }
-    }
-  }
-  if (current.type === "LEFT_PAREN") {
-    const result = parseExpression(tokens, 5);
-    if (!tokens.length || tokens[0].type !== "RIGHT_PAREN") {
-      throw new Error("unmatched left paren");
-    }
-    tokens.shift();
-    return result;
-  }
-  if (current.type === "OPERATOR" && UNARY_OPERATORS.includes(current.value)) {
-    return {
-      type: "UNARY_OPERATION",
-      value: current.value,
-      right: parseExpression(tokens, 15)
-    };
-  }
-  if (current.type === "FUNCTION") {
-    if (tokens.shift()!.type !== "LEFT_PAREN") {
-      throw new Error("wrong function call");
-    }
-    const args: AST[] = [];
-    if (tokens[0].type !== "RIGHT_PAREN") {
-      if (tokens[0].type === "COMMA") {
-        args.push({ type: "UNKNOWN", value: "" });
-      } else {
-        args.push(parseExpression(tokens, 10));
-      }
-      while (tokens[0].type === "COMMA") {
+  switch (current.type) {
+    case "DEBUGGER":
+      const next = parseExpression(tokens, 1000);
+      next.debug = true;
+      return next;
+    case "NUMBER":
+      let value = parseFloat(current.value);
+      if (tokens[0] && tokens[0].value === "%" && tokens[0].type === "OPERATOR") {
+        value = value / 100;
         tokens.shift();
-        if ((tokens as any)[0].type === "RIGHT_PAREN") {
-          args.push({ type: "UNKNOWN", value: "" });
-          break;
+      }
+      return { type: current.type, value } as AST;
+    case "STRING":
+      return { type: current.type, value: current.value } as AST;
+    case "FUNCTION":
+      if (tokens.shift()!.type !== "LEFT_PAREN") {
+        throw new Error("wrong function call");
+      } else {
+        const args: AST[] = [];
+        if (tokens[0].type !== "RIGHT_PAREN") {
+          if (tokens[0].type === "COMMA") {
+            args.push({ type: "UNKNOWN", value: "" });
+          } else {
+            args.push(parseExpression(tokens, 10));
+          }
+          while (tokens[0].type === "COMMA") {
+            tokens.shift();
+            if ((tokens as any)[0].type === "RIGHT_PAREN") {
+              args.push({ type: "UNKNOWN", value: "" });
+              break;
+            }
+            if ((tokens as any)[0].type === "COMMA") {
+              args.push({ type: "UNKNOWN", value: "" });
+            } else {
+              args.push(parseExpression(tokens, 10));
+            }
+          }
         }
-        if ((tokens as any)[0].type === "COMMA") {
-          args.push({ type: "UNKNOWN", value: "" });
+        if (tokens.shift()!.type !== "RIGHT_PAREN") {
+          throw new Error("wrong function call");
+        }
+        const isAsync = functions[current.value.toUpperCase()].async;
+        const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
+        return { type, value: current.value, args };
+      }
+    case "SYMBOL":
+      if (cellReference.test(current.value)) {
+        if (current.value.includes("!")) {
+          let [sheet, val] = current.value.split("!");
+          sheet = sanitizeSheet(sheet);
+          return {
+            type: "REFERENCE",
+            value: val.replace(/\$/g, "").toUpperCase(),
+            sheet: sheet
+          };
         } else {
-          args.push(parseExpression(tokens, 10));
+          return {
+            type: "REFERENCE",
+            value: current.value.replace(/\$/g, "").toUpperCase()
+          } as AST;
+        }
+      } else {
+        if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
+          return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
+        } else {
+          if (current.value) {
+            throw new Error("Invalid formula");
+          }
+          return { type: "UNKNOWN", value: current.value } as AST;
         }
       }
-    }
-    if (tokens.shift()!.type !== "RIGHT_PAREN") {
-      throw new Error("wrong function call");
-    }
-    const isAsync = functions[current.value.toUpperCase()].async;
-    const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
-    return { type, value: current.value, args };
+    case "LEFT_PAREN":
+      const result = parseExpression(tokens, 5);
+      if (!tokens.length || tokens[0].type !== "RIGHT_PAREN") {
+        throw new Error("unmatched left paren");
+      }
+      tokens.shift();
+      return result;
+    default:
+      if (current.type === "OPERATOR" && UNARY_OPERATORS.includes(current.value)) {
+        return {
+          type: "UNARY_OPERATION",
+          value: current.value,
+          right: parseExpression(tokens, 15)
+        };
+      }
+      throw new Error("nope");
   }
-  throw new Error("nope");
 }
 
 function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
