@@ -1,5 +1,4 @@
-import { SheetData, WorkbookData, Workbook } from "./types/index";
-import { DEFAULT_CELL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT, DEFAULT_CELL_HEIGHT } from "./constants";
+import { SheetData, Workbook, WorkbookData } from "./types/index";
 
 /**
  * This is the current state version number. It should be incremented each time
@@ -103,12 +102,6 @@ export function createEmptyWorkbook(): Workbook {
     mergeCellMap: {},
     width: 0,
     height: 0,
-    clientWidth: DEFAULT_CELL_WIDTH + HEADER_WIDTH,
-    clientHeight: DEFAULT_CELL_HEIGHT + HEADER_HEIGHT,
-    offsetX: 0,
-    offsetY: 0,
-    scrollTop: 0,
-    scrollLeft: 0,
     viewport: { top: 0, left: 0, bottom: 0, right: 0 },
     currentContent: "",
     highlights: [],

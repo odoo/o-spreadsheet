@@ -113,12 +113,12 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([5, 0]);
     expect(model.workbook.viewport.left).toBe(1);
     expect(model.workbook.viewport.right).toBe(6);
-    expect(model.workbook.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
+    expect(model.layout.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
   });
 
   test("move left from left row (of the viewport)", () => {
     const model = new Model();
-    model.workbook.scrollLeft = 100;
+    model.layout.scrollLeft = 100;
     model.updateVisibleZone(600, 300);
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
@@ -130,7 +130,7 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.workbook.viewport.left).toBe(0);
     expect(model.workbook.viewport.right).toBe(5);
-    expect(model.workbook.scrollLeft).toBe(0);
+    expect(model.layout.scrollLeft).toBe(0);
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
@@ -144,12 +144,12 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 7]);
     expect(model.workbook.viewport.top).toBe(1);
     expect(model.workbook.viewport.bottom).toBe(8);
-    expect(model.workbook.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model.layout.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
   });
 
   test("move top from top row (of the viewport)", () => {
     const model = new Model();
-    model.workbook.scrollTop = 40;
+    model.layout.scrollTop = 40;
     model.updateVisibleZone(600, 200);
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     expect(model.getters.getPosition()).toEqual([0, 1]);
@@ -159,6 +159,6 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.workbook.viewport.top).toBe(0);
     expect(model.workbook.viewport.bottom).toBe(7);
-    expect(model.workbook.scrollTop).toBe(0);
+    expect(model.layout.scrollTop).toBe(0);
   });
 });

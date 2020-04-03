@@ -1,4 +1,3 @@
-import { HEADER_HEIGHT, HEADER_WIDTH } from "../constants";
 import { isEqual, toCartesian, toXC, union } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../types/index";
@@ -6,14 +5,7 @@ import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../types/index";
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
-  static getters = [
-    "getCol",
-    "getRow",
-    "getColSize",
-    "getRowSize",
-    "isMergeDestructive",
-    "expandZone"
-  ];
+  static getters = ["getColSize", "getRowSize", "isMergeDestructive", "expandZone"];
 
   nextId: number = 1;
 
@@ -61,43 +53,6 @@ export class GridPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  /**
-   * Return the index of a column given an offset x.
-   * It returns -1 if no column is found.
-   */
-  getCol(x: number): number {
-    if (x <= HEADER_WIDTH) {
-      return -1;
-    }
-    const {
-      cols,
-      offsetX,
-      viewport: { left, right }
-    } = this.workbook;
-    for (let i = left; i <= right; i++) {
-      let c = cols[i];
-      if (c.left - offsetX <= x && x <= c.right - offsetX) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  getRow(y: number): number {
-    if (y <= HEADER_HEIGHT) {
-      return -1;
-    }
-    const { rows, offsetY, viewport } = this.workbook;
-    const { top, bottom } = viewport;
-    for (let i = top; i <= bottom; i++) {
-      let r = rows[i];
-      if (r.top - offsetY <= y && y <= r.bottom - offsetY) {
-        return i;
-      }
-    }
-    return -1;
-  }
 
   getColSize(index: number) {
     return this.workbook.cols[index].size;
