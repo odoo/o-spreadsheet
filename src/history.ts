@@ -26,11 +26,14 @@ export const MAX_HISTORY_STEPS = 99;
 
 export interface WorkbookHistory {
   updateState(path: (string | number)[], val: any): void;
+  updateLocalState(path: (string | number)[], val: any): void;
   updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void;
   updateSheet(sheet: Sheet, path: (string | number)[], value: any): void;
 }
 
-export class WHistory implements WorkbookHistory, CommandHandler {
+type WorkbookHistoryNonLocal = Omit<WorkbookHistory, "updateLocalState">;
+
+export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
   workbook: Workbook;
 
   private trackChanges: boolean = false;
@@ -127,7 +130,7 @@ export class WHistory implements WorkbookHistory, CommandHandler {
     }
   }
 
-  private _updateState(root: any, path: (string | number)[], val: any) {
+  updateStateFromRoot(root: any, path: (string | number)[], val: any) {
     let value = root as any;
     let key = path[path.length - 1];
     for (let p of path.slice(0, -1)) {
@@ -153,14 +156,14 @@ export class WHistory implements WorkbookHistory, CommandHandler {
   }
 
   updateState(path: (string | number)[], val: any): void {
-    this._updateState(this.workbook, path, val);
+    this.updateStateFromRoot(this.workbook, path, val);
   }
 
   updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void {
-    this._updateState(cell, [key], value);
+    this.updateStateFromRoot(cell, [key], value);
   }
 
   updateSheet(sheet: Sheet, path: (string | number)[], value: any): void {
-    this._updateState(sheet, path, value);
+    this.updateStateFromRoot(sheet, path, value);
   }
 }

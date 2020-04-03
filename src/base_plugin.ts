@@ -1,5 +1,5 @@
 import { Workbook, GridCommand, Getters, WorkbookData } from "./types/index";
-import { WorkbookHistory } from "./history";
+import { WorkbookHistory, WHistory } from "./history";
 
 export interface CommandHandler {
   canDispatch(command: GridCommand): boolean;
@@ -18,15 +18,12 @@ export abstract class BasePlugin implements CommandHandler {
   history: WorkbookHistory;
   dispatch: DispatchFn;
 
-  constructor(
-    workbook: Workbook,
-    getters: Getters,
-    history: WorkbookHistory,
-    dispatch: DispatchFn
-  ) {
+  constructor(workbook: Workbook, getters: Getters, history: WHistory, dispatch: DispatchFn) {
     this.workbook = workbook;
     this.getters = getters;
-    this.history = history;
+    this.history = Object.assign(Object.create(history), {
+      updateLocalState: history.updateStateFromRoot.bind(history, this)
+    });
     this.dispatch = dispatch;
   }
 
