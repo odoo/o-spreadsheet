@@ -202,6 +202,9 @@ export interface UI {
   width: number;
   height: number;
 
+  clientWidth: number;
+  clientHeight: number;
+
   offsetX: number;
   offsetY: number;
   scrollTop: number;

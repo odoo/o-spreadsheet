@@ -180,6 +180,8 @@ export class LayouPlugin extends BasePlugin {
       mergeCellMap: this.workbook.mergeCellMap,
       width: this.workbook.width,
       height: this.workbook.height,
+      clientWidth: this.workbook.clientWidth,
+      clientHeight: this.workbook.clientHeight,
       offsetX: cols[viewport.left].left - HEADER_WIDTH,
       offsetY: rows[viewport.top].top - HEADER_HEIGHT,
       scrollTop: this.workbook.scrollTop,

@@ -138,8 +138,8 @@ export class ContextMenu extends Component<Props, any> {
 
   get style() {
     const { x, y } = this.props.position;
-    const width = this.model.state.width;
-    const height = this.model.state.height;
+    const width = this.model.state.clientWidth;
+    const height = this.model.state.clientHeight;
     const hAlign = x < width - 220 ? "left" : "right";
     const hStyle = hAlign + ":" + (hAlign === "left" ? x : width - x + SCROLLBAR_WIDTH);
     const vAlign = y < height - 220 ? "top" : "bottom";
