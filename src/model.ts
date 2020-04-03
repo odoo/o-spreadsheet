@@ -11,7 +11,7 @@ import { EntityPlugin } from "./plugins/entity";
 import { EvaluationPlugin } from "./plugins/evaluation";
 import { FormattingPlugin } from "./plugins/formatting";
 import { GridPlugin } from "./plugins/grid";
-import { LayouPlugin, updateScroll, updateVisibleZone } from "./plugins/layout";
+import { LayoutPlugin } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
 
 // -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ const PLUGINS = [
   SelectionPlugin,
   ConditionalFormatPlugin,
   EditionPlugin,
-  LayouPlugin
+  LayoutPlugin
 ];
 
 // -----------------------------------------------------------------------------
@@ -41,6 +41,7 @@ export class Model extends owl.core.EventBus {
   workbook: Workbook;
   history: WHistory;
   state: UI;
+  layout: LayoutPlugin;
 
   getters: Getters;
 
@@ -73,6 +74,7 @@ export class Model extends owl.core.EventBus {
     }
 
     // misc
+    this.layout = this.handlers.find(h => h instanceof LayoutPlugin)! as LayoutPlugin;
     this.state = {} as UI;
     this.dispatch({ type: "START" });
   }
@@ -119,12 +121,12 @@ export class Model extends owl.core.EventBus {
   // core
   // ---------------------------------------------------------------------------
   updateVisibleZone(width, height) {
-    updateVisibleZone(this.workbook, width, height);
+    this.layout.updateVisibleZone(width, height);
     Object.assign(this.state, this.getters.getUI());
   }
 
   updateScroll(scrollTop, scrollLeft): boolean {
-    const result = updateScroll(this.workbook, scrollTop, scrollLeft);
+    const result = this.layout.updateScroll(scrollTop, scrollLeft);
     Object.assign(this.state, this.getters.getUI(result));
     return result;
   }
