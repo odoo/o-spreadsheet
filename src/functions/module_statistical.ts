@@ -1,6 +1,12 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "./index";
-import { toNumber, visitNumbers, visitAny, dichotomicPredecessorSearch } from "./helpers";
+import {
+  toNumber,
+  reduceNumbers,
+  visitAny,
+  reduceArgs,
+  dichotomicPredecessorSearch
+} from "./helpers";
 import { isNumber } from "../helpers/index";
 
 // -----------------------------------------------------------------------------
@@ -14,22 +20,21 @@ export const AVEDEV: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let sum = 0;
     let count = 0;
-    visitNumbers(arguments, n => {
-      sum += n;
-      count += 1;
-    });
+    const sum = reduceNumbers(
+      arguments,
+      (acc, a) => {
+        count += 1;
+        return acc + a;
+      },
+      0
+    );
     if (count === 0) {
       throw new Error(`
         Evaluation of function AVEDEV caused a divide by zero error.`);
     }
     const average = sum / count;
-    let dev = 0;
-    visitNumbers(arguments, n => {
-      dev += Math.abs(average - n);
-    });
-    return dev / count;
+    return reduceNumbers(arguments, (acc, a) => acc + Math.abs(average - a), 0) / count;
   }
 };
 
@@ -44,15 +49,18 @@ export const AVERAGE: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let sum = 0;
     let count = 0;
-    visitNumbers(arguments, n => {
-      sum += n;
-      count += 1;
-    });
+    const sum = reduceNumbers(
+      arguments,
+      (acc, a) => {
+        count += 1;
+        return acc + a;
+      },
+      0
+    );
     if (count === 0) {
       throw new Error(`
-        Evaluation of function AVERAGE caused a divide by zero error.`);
+        Evaluation of function AVEDEV caused a divide by zero error.`);
     }
     return sum / count;
   }
@@ -224,15 +232,7 @@ export const COUNTA: FunctionDescription = {
   `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let counta = 0;
-    for (let data of arguments) {
-      visitAny(data, d => {
-        if (d !== undefined && d !== null) {
-          counta += 1;
-        }
-      });
-    }
-    return counta;
+    return reduceArgs(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
   }
 };
 
@@ -284,13 +284,8 @@ export const MAX: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let max = -Infinity;
-    visitNumbers(arguments, n => {
-      if (max < n) {
-        max = n;
-      }
-    });
-    return max === -Infinity ? 0 : max;
+    const result = reduceNumbers(arguments, (acc, a) => (acc < a ? a : acc), -Infinity);
+    return result === -Infinity ? 0 : result;
   }
 };
 
@@ -340,13 +335,8 @@ export const MIN: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function(): number {
-    let min = Infinity;
-    visitNumbers(arguments, n => {
-      if (n < min) {
-        min = n;
-      }
-    });
-    return min === Infinity ? 0 : min;
+    const result = reduceNumbers(arguments, (acc, a) => (a < acc ? a : acc), Infinity);
+    return result === Infinity ? 0 : result;
   }
 };
 

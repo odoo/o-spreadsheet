@@ -40,7 +40,7 @@ export function strictToNumber(value: any): number {
   return toNumber(value);
 }
 
-export function visitNumbers(args: IArguments, cb: (arg: number) => void): void {
+export function visitNumbers(args: IArguments | any[], cb: (arg: number) => void): void {
   for (let n of args) {
     if (Array.isArray(n)) {
       for (let i of n) {
@@ -69,7 +69,7 @@ export function visitAny(arg: any, cb: (a: any) => void): void {
 }
 
 export function visitAnys(
-  args: IArguments,
+  args: IArguments | any[],
   rangeCb: (a: any) => boolean,
   argCb: (a: any) => boolean
 ): void {
@@ -97,6 +97,18 @@ export function reduceArgs<T>(
       val = cb(val, a);
     });
   }
+  return val;
+}
+
+export function reduceNumbers<T>(
+  args: IArguments | any[],
+  cb: (acc: T, a: any) => T,
+  initialValue: T
+): T {
+  let val = initialValue;
+  visitNumbers(args, a => {
+    val = cb(val, a);
+  });
   return val;
 }
 
@@ -161,12 +173,7 @@ export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): vo
       }
       return true;
     },
-    arg => {
-      if (arg !== null) {
-        return cb(strictToBoolean(arg));
-      }
-      return true;
-    }
+    arg => (arg !== null ? cb(strictToBoolean(arg)) : true)
   );
 }
 
