@@ -123,16 +123,6 @@ export interface Workbook {
   // the row and col headers)
   width: number;
   height: number;
-  // actual size of the visible grid, in pixel
-  clientWidth: number;
-  clientHeight: number;
-
-  // offset between the visible zone and the full zone (take into account
-  // headers)
-  offsetX: number;
-  offsetY: number;
-  scrollTop: number;
-  scrollLeft: number;
 
   viewport: Zone;
 
