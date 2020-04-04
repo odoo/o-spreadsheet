@@ -150,7 +150,7 @@ export interface Box {
   textWidth: number;
   style: Style | null;
   border: Border | null;
-  align: "left" | "right" | null;
+  align: "left" | "right" | "center" | null;
   clipRect: Rect | null;
   isError?: boolean;
 }

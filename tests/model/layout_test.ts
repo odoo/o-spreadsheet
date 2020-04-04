@@ -31,4 +31,31 @@ describe("layout", () => {
     expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[0].align).toBe("left");
     expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[1].align).toBe("left");
   });
+
+  test("formulas evaluating to a boolean are properly aligned", () => {
+    const model = new Model();
+    model.updateVisibleZone(1000, 1000);
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[0].align).toBe("right");
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[1].align).toBe("right");
+
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "true" });
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[0].align).toBe("center");
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[1].align).toBe("center");
+  });
+
+  test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
+    const model = new Model();
+    model.updateVisibleZone(1000, 1000);
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A2:B2") });
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[0].align).toBe("right");
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[1].align).toBe("right");
+
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "false" });
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[0].align).toBe("center");
+    expect(model.getters.getViewport(1000, 1000, 0, 0).boxes[1].align).toBe("center");
+  });
 });

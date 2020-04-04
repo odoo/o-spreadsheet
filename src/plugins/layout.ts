@@ -3,6 +3,17 @@ import { HEADER_HEIGHT, HEADER_WIDTH, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } 
 import { overlap, toXC } from "../helpers/index";
 import { Box, GridCommand, Rect, UI, Viewport } from "../types/index";
 
+function computeAlign(type: string): "right" | "center" | "left" {
+  switch (type) {
+    case "number":
+      return "right";
+    case "boolean":
+      return "center";
+    default:
+      return "left";
+  }
+}
+
 export class LayoutPlugin extends BasePlugin {
   static getters = ["getViewport", "getUI", "getCol", "getRow"];
   // actual size of the visible grid, in pixel
@@ -182,9 +193,7 @@ export class LayoutPlugin extends BasePlugin {
           if (cell.conditionalStyle) {
             style = Object.assign({}, style, cell.conditionalStyle);
           }
-          const align = text
-            ? (style && style.align) || (typeof cell.value === "number" ? "right" : "left")
-            : null;
+          const align = text ? (style && style.align) || computeAlign(typeof cell.value) : null;
           let clipRect: Rect | null = null;
           if (text && textWidth > cols[cell.col].size) {
             if (align === "left") {
@@ -235,9 +244,7 @@ export class LayoutPlugin extends BasePlugin {
           text = refCell ? this.getters.getCellText(refCell) : "";
           textWidth = this.getters.getCellWidth(refCell);
           style = this.getters.getCellStyle(refCell);
-          align = text
-            ? (style && style.align) || (typeof refCell.value === "number" ? "right" : "left")
-            : null;
+          align = text ? (style && style.align) || computeAlign(typeof refCell.value) : null;
           border = this.getters.getCellBorder(refCell);
         }
         style = style || {};
