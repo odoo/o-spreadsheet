@@ -94,7 +94,7 @@ export class Model extends owl.core.EventBus {
         for (let handler of this.handlers) {
           handler.start(command);
         }
-        this._dispatch(command);
+        this.handlers.forEach(h => h.handle(command))
         // finalizing
         this.status = "finalizing";
         for (let handler of this.handlers) {
@@ -106,18 +106,12 @@ export class Model extends owl.core.EventBus {
         this.trigger("update");
         break;
       case "running":
-        this._dispatch(command);
+        this.handlers.forEach(h => h.handle(command))
         break;
       case "finalizing":
         throw new Error("Nope. Don't do that");
     }
     return "COMPLETED";
-  }
-
-  private _dispatch(command: GridCommand) {
-    for (let handler of this.handlers) {
-      handler.handle(command);
-    }
   }
 
   // core
