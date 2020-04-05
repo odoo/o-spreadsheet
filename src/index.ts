@@ -9,24 +9,26 @@ import { args, functionRegistry } from "./functions/index";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { numberToLetters, toXC } from "./helpers/index";
 import { contextMenuRegistry, sidePanelRegistry } from "./ui/index";
+import { pluginRegistry } from "./model";
 
 export const __info__ = {};
 export { Spreadsheet } from "./ui/index";
 
+export const registries = {
+  sidePanelRegistry,
+  contextMenuRegistry,
+  functionRegistry,
+  pluginRegistry
+};
+
+export { Model } from "./model";
+export { BasePlugin } from "./base_plugin";
+
 export const helpers = {
-  functions: {
-    args,
-    toBoolean,
-    toNumber,
-    toString
-  },
-  utils: {
-    toXC,
-    numberToLetters
-  },
-  registry: {
-    sidePanelRegistry,
-    contextMenuRegistry,
-    functionRegistry
-  }
+  args,
+  toBoolean,
+  toNumber,
+  toString,
+  toXC,
+  numberToLetters
 };
