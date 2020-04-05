@@ -22,7 +22,6 @@ beforeEach(async () => {
   model = new Model();
   parent = new GridParent(model);
   await parent.mount(fixture);
-  model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
   // start composition
   parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
