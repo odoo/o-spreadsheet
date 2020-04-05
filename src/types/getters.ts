@@ -55,4 +55,5 @@ export interface Getters {
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   isEditing: EditionPlugin["isEditing"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
+  getHighlights: EditionPlugin["getHighlights"];
 }
