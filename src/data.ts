@@ -102,7 +102,6 @@ export function createEmptyWorkbook(): Workbook {
     mergeCellMap: {},
     width: 0,
     height: 0,
-    highlights: [],
     isSelectingRange: false,
     sheets: [],
     activeSheet: null as any

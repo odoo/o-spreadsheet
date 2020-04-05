@@ -124,7 +124,6 @@ export interface Workbook {
   width: number;
   height: number;
 
-  highlights: Highlight[];
   isSelectingRange: boolean;
 
   // sheets

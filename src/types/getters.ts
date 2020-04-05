@@ -47,4 +47,5 @@ export interface Getters {
   canRedo: WHistory["canRedo"];
   isEditing: EditionPlugin["isEditing"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
+  getHighlights: EditionPlugin["getHighlights"];
 }
