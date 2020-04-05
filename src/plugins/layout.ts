@@ -306,7 +306,6 @@ export class LayoutPlugin extends BasePlugin {
       aggregate: this.getters.getAggregate(),
       canUndo: this.getters.canUndo(),
       canRedo: this.getters.canRedo(),
-      currentContent: this.workbook.currentContent,
       sheets: this.workbook.sheets.map(s => s.name),
       activeSheet: this.workbook.activeSheet.name
     };

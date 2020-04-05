@@ -75,14 +75,14 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.workbook.currentContent).toBe("=SUM(");
+      expect(model.getters.getCurrentContent()).toBe("=SUM(");
     });
 
     test("=S+ENTER complete the function --> =sum(", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(model.workbook.currentContent).toBe("=SUM(");
+      expect(model.getters.getCurrentContent()).toBe("=SUM(");
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -197,7 +197,7 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.workbook.currentContent).toBe("=IF(");
+      expect(model.getters.getCurrentContent()).toBe("=IF(");
     });
   });
 });
@@ -249,7 +249,7 @@ describe("Autocomplete parenthesis", () => {
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new KeyboardEvent("keyup"));
     await nextTick();
-    expect(model.workbook.currentContent).toBe("=if(1,2)");
+    expect(model.getters.getCurrentContent()).toBe("=if(1,2)");
   });
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {

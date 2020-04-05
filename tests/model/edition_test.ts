@@ -12,7 +12,7 @@ describe("edition", () => {
 
     // removing
     model.dispatch({ type: "START_EDITION" });
-    model.workbook.currentContent = "";
+    model.dispatch({ type: "SET_CURRENT_CONTENT", content: "" });
     model.dispatch({ type: "STOP_EDITION" });
     expect(model.workbook.cells).toEqual({});
   });

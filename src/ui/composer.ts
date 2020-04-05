@@ -154,12 +154,10 @@ export class Composer extends Component<any, any> {
     const el = this.composerRef.el!;
 
     this.contentHelper.updateEl(el);
-    if (this.model.state.currentContent) {
-      this.contentHelper.insertText(this.model.state.currentContent);
-      this.contentHelper.selectRange(
-        this.model.state.currentContent.length,
-        this.model.state.currentContent.length
-      );
+    const currentContent = this.model.getters.getCurrentContent();
+    if (currentContent) {
+      this.contentHelper.insertText(currentContent);
+      this.contentHelper.selectRange(currentContent.length, currentContent.length);
     }
     this.processContent();
 
@@ -343,7 +341,7 @@ export class Composer extends Component<any, any> {
 
   processContent() {
     this.shouldProcessInputEvents = false;
-    let value = this.model.state.currentContent;
+    let value = this.model.getters.getCurrentContent();
     this.tokenAtCursor = undefined;
     if (value.startsWith("=")) {
       this.saveSelection();
