@@ -107,12 +107,12 @@ describe("navigation", () => {
     model.dispatch({ type: "SELECT_CELL", col: 4, row: 0 });
 
     expect(model.getters.getPosition()).toEqual([4, 0]);
-    expect(model.workbook.viewport.left).toBe(0);
-    expect(model.workbook.viewport.right).toBe(5);
+    expect(model.state.viewport.left).toBe(0);
+    expect(model.state.viewport.right).toBe(5);
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
     expect(model.getters.getPosition()).toEqual([5, 0]);
-    expect(model.workbook.viewport.left).toBe(1);
-    expect(model.workbook.viewport.right).toBe(6);
+    expect(model.state.viewport.left).toBe(1);
+    expect(model.state.viewport.right).toBe(6);
     expect(model.layout.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
   });
 
@@ -124,12 +124,12 @@ describe("navigation", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
 
     expect(model.getters.getPosition()).toEqual([1, 0]);
-    expect(model.workbook.viewport.left).toBe(1);
-    expect(model.workbook.viewport.right).toBe(6);
+    expect(model.state.viewport.left).toBe(1);
+    expect(model.state.viewport.right).toBe(6);
     model.dispatch({ type: "MOVE_POSITION", deltaX: -1, deltaY: 0 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(model.workbook.viewport.left).toBe(0);
-    expect(model.workbook.viewport.right).toBe(5);
+    expect(model.state.viewport.left).toBe(0);
+    expect(model.state.viewport.right).toBe(5);
     expect(model.layout.scrollLeft).toBe(0);
   });
 
@@ -138,12 +138,12 @@ describe("navigation", () => {
     model.updateVisibleZone(600, 200);
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 6 });
     expect(model.getters.getPosition()).toEqual([0, 6]);
-    expect(model.workbook.viewport.top).toBe(0);
-    expect(model.workbook.viewport.bottom).toBe(7);
+    expect(model.state.viewport.top).toBe(0);
+    expect(model.state.viewport.bottom).toBe(7);
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: 1 });
     expect(model.getters.getPosition()).toEqual([0, 7]);
-    expect(model.workbook.viewport.top).toBe(1);
-    expect(model.workbook.viewport.bottom).toBe(8);
+    expect(model.state.viewport.top).toBe(1);
+    expect(model.state.viewport.bottom).toBe(8);
     expect(model.layout.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
   });
 
@@ -153,12 +153,12 @@ describe("navigation", () => {
     model.updateVisibleZone(600, 200);
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     expect(model.getters.getPosition()).toEqual([0, 1]);
-    expect(model.workbook.viewport.top).toBe(1);
-    expect(model.workbook.viewport.bottom).toBe(8);
+    expect(model.state.viewport.top).toBe(1);
+    expect(model.state.viewport.bottom).toBe(8);
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(model.workbook.viewport.top).toBe(0);
-    expect(model.workbook.viewport.bottom).toBe(7);
+    expect(model.state.viewport.top).toBe(0);
+    expect(model.state.viewport.bottom).toBe(7);
     expect(model.layout.scrollTop).toBe(0);
   });
 });

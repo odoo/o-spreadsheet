@@ -4,7 +4,6 @@ import "../canvas.mock";
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
     const model = new Model();
-    model.workbook.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const initialSize = model.workbook.cols[1].size;
     const initialTop = model.workbook.cols[2].left;
@@ -29,7 +28,6 @@ describe("Model resizer", () => {
 
   test("Can resize one row, then undo", async () => {
     const model = new Model();
-    model.workbook.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const initialSize = model.workbook.rows[1].size;
     const initialTop = model.workbook.rows[2].top;
@@ -50,7 +48,6 @@ describe("Model resizer", () => {
 
   test("Can resize multiple columns", async () => {
     const model = new Model();
-    model.workbook.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const size = model.workbook.cols[0].size;
 
@@ -69,7 +66,6 @@ describe("Model resizer", () => {
 
   test("Can resize multiple rows", async () => {
     const model = new Model();
-    model.workbook.viewport = { left: 0, top: 0, right: 25, bottom: 99 };
 
     const size = model.workbook.rows[0].size;
 
@@ -89,7 +85,6 @@ describe("Model resizer", () => {
 
   test("resizing cols/rows update the total width/height", async () => {
     const model = new Model();
-    model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     const initialWidth = model.workbook.width;
     const initialHeight = model.workbook.height;

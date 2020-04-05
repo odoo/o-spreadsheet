@@ -42,7 +42,6 @@ beforeEach(async () => {
   model = new Model();
   parent = new GridParent(model);
   await parent.mount(fixture);
-  model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
   canvasEl = parent.grid.el;
 });
 
@@ -53,7 +52,6 @@ afterEach(() => {
 describe("ranges and highlights", () => {
   test("=+Click Cell, the cell ref should be colored", async () => {
     await typeInComposer("=");
-    model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
