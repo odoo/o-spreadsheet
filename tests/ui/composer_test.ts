@@ -145,8 +145,8 @@ describe("ranges and highlights", () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=B2");
-    expect(model.workbook.highlights).toHaveLength(1);
-    expect(model.workbook.highlights[0].zone).toMatchObject({
+    expect(model.getters.getHighlights()).toHaveLength(1);
+    expect(model.getters.getHighlights()[0].zone).toMatchObject({
       top: 1,
       bottom: 2,
       left: 1,
@@ -248,53 +248,53 @@ describe("composer highlights color", () => {
   test("colors start with first color", async () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=a1+a2" });
     await startComposition();
-    expect(model.workbook.highlights.length).toBe(2);
-    expect(model.workbook.highlights[0].color).toBe(colors[0]);
-    expect(model.workbook.highlights[1].color).toBe(colors[1]);
+    expect(model.getters.getHighlights().length).toBe(2);
+    expect(model.getters.getHighlights()[0].color).toBe(colors[0]);
+    expect(model.getters.getHighlights()[1].color).toBe(colors[1]);
   });
 
   test("colors always start with first color", async () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=b1+b2" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=b1+b3" });
     await startComposition();
-    expect(model.workbook.highlights.length).toBe(2);
-    expect(model.workbook.highlights[0].color).toBe(colors[0]);
-    expect(model.workbook.highlights[1].color).toBe(colors[1]);
+    expect(model.getters.getHighlights().length).toBe(2);
+    expect(model.getters.getHighlights()[0].color).toBe(colors[0]);
+    expect(model.getters.getHighlights()[1].color).toBe(colors[1]);
 
     document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
     canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.workbook.highlights.length).toBe(2);
-    expect(model.workbook.highlights[0].color).toBe(colors[0]);
-    expect(model.workbook.highlights[1].color).toBe(colors[1]);
+    expect(model.getters.getHighlights().length).toBe(2);
+    expect(model.getters.getHighlights()[0].color).toBe(colors[0]);
+    expect(model.getters.getHighlights()[1].color).toBe(colors[1]);
   });
 
   test("highlight do not duplicate", async () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=a1+a1" });
     await startComposition();
-    expect(model.workbook.highlights.length).toBe(1);
-    expect(model.workbook.highlights[0].color).toBe(colors[0]);
+    expect(model.getters.getHighlights().length).toBe(1);
+    expect(model.getters.getHighlights()[0].color).toBe(colors[0]);
   });
 
   test("highlight range", async () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(a1:a10)" });
     await startComposition();
-    expect(model.workbook.highlights.length).toBe(1);
-    expect(model.workbook.highlights[0].color).toBe(colors[0]);
+    expect(model.getters.getHighlights().length).toBe(1);
+    expect(model.getters.getHighlights()[0].color).toBe(colors[0]);
     expect(composerEl.textContent).toBe("=sum(a1:a10)");
   });
 
   test("highlight 'reverse' ranges", async () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(B3:a1)" });
     await startComposition();
-    expect(model.workbook.highlights[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
+    expect(model.getters.getHighlights()[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
   test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async ref => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: ref });
     await startComposition();
-    expect(model.workbook.highlights.length).toBe(0);
+    expect(model.getters.getHighlights().length).toBe(0);
     expect(composerEl.textContent).toBe(ref);
   });
 });

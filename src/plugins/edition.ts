@@ -1,15 +1,16 @@
 import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
-import { GridCommand, Zone } from "../types/index";
+import { GridCommand, Zone, Highlight } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
-  static getters = ["isEditing", "getCurrentContent"];
+  static getters = ["isEditing", "getCurrentContent", "getHighlights"];
 
   private col: number = 0;
   private row: number = 0;
   private _isEditing: boolean = false;
   private currentContent: string = "";
+  private highlights: Highlight[] = [];
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -17,7 +18,7 @@ export class EditionPlugin extends BasePlugin {
         this.addHighlights(cmd.ranges);
         break;
       case "REMOVE_HIGHLIGHTS":
-        this.workbook.highlights = [];
+        this.highlights = [];
         break;
       case "START_COMPOSER_SELECTION":
         this.workbook.isSelectingRange = true;
@@ -60,6 +61,10 @@ export class EditionPlugin extends BasePlugin {
     return this.currentContent;
   }
 
+  getHighlights(): Highlight[] {
+    return this.highlights;
+  }
+
   private addHighlights(ranges: { [range: string]: string }) {
     let highlights = Object.keys(ranges)
       .map(r1c1 => {
@@ -74,7 +79,7 @@ export class EditionPlugin extends BasePlugin {
           x.zone.right < this.workbook.cols.length
       );
 
-    this.workbook.highlights = this.workbook.highlights.concat(highlights);
+    this.highlights = this.highlights.concat(highlights);
   }
 
   private startEdition(str?: string) {
@@ -84,7 +89,7 @@ export class EditionPlugin extends BasePlugin {
     }
     this._isEditing = true;
     this.currentContent = str || "";
-    this.workbook.highlights = [];
+    this.highlights = [];
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
@@ -138,6 +143,6 @@ export class EditionPlugin extends BasePlugin {
   private cancelEdition() {
     this._isEditing = false;
     this.workbook.isSelectingRange = false;
-    this.workbook.highlights = [];
+    this.highlights = [];
   }
 }

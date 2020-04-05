@@ -301,7 +301,7 @@ export class LayoutPlugin extends BasePlugin {
       activeCol: col,
       activeRow: row,
       activeXc: toXC(col, row),
-      highlights: this.workbook.highlights,
+      highlights: this.getters.getHighlights(),
       isSelectingRange: this.workbook.isSelectingRange,
       isEditing: this.getters.isEditing(),
       selectedCell: this.getters.getActiveCell(),
