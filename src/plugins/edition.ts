@@ -4,11 +4,12 @@ import { GridCommand, Zone } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
-  static getters = ["isEditing"];
+  static getters = ["isEditing", "getCurrentContent"];
 
   private col: number = 0;
   private row: number = 0;
   private _isEditing: boolean = false;
+  private currentContent: string = "";
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -40,7 +41,7 @@ export class EditionPlugin extends BasePlugin {
         }
         break;
       case "SET_CURRENT_CONTENT":
-        this.workbook.currentContent = cmd.content;
+        this.currentContent = cmd.content;
         break;
       case "SELECT_CELL":
       case "MOVE_POSITION":
@@ -53,6 +54,10 @@ export class EditionPlugin extends BasePlugin {
 
   isEditing(): boolean {
     return this._isEditing;
+  }
+
+  getCurrentContent(): string {
+    return this.currentContent;
   }
 
   private addHighlights(ranges: { [range: string]: string }) {
@@ -78,7 +83,7 @@ export class EditionPlugin extends BasePlugin {
       str = cell ? cell.content || "" : "";
     }
     this._isEditing = true;
-    this.workbook.currentContent = str || "";
+    this.currentContent = str || "";
     this.workbook.highlights = [];
     const [col, row] = this.getters.getPosition();
     this.col = col;
@@ -93,8 +98,8 @@ export class EditionPlugin extends BasePlugin {
         const mergeId = this.workbook.mergeCellMap[xc];
         xc = this.workbook.merges[mergeId].topLeft;
       }
-      let content = this.workbook.currentContent;
-      this.workbook.currentContent = "";
+      let content = this.currentContent;
+      this.currentContent = "";
       const cell = this.workbook.cells[xc];
       const didChange = cell ? cell.content !== content : content !== "";
       if (!didChange) {

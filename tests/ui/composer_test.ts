@@ -56,7 +56,7 @@ describe("ranges and highlights", () => {
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    expect(model.workbook.currentContent).toBe("=C8");
+    expect(model.getters.getCurrentContent()).toBe("=C8");
     expect(
       (parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper).colors["C8"]
     ).toBe(colors[0]);
@@ -68,7 +68,7 @@ describe("ranges and highlights", () => {
     triggerMouseEvent("canvas", "mousemove", 200, 200);
     document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
     await nextTick();
-    expect(model.workbook.currentContent).toBe("=B8:C8");
+    expect(model.getters.getCurrentContent()).toBe("=B8:C8");
     expect(
       (parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper).colors["B8:C8"]
     ).toBe(colors[0]);
@@ -77,34 +77,34 @@ describe("ranges and highlights", () => {
   test("=Key DOWN in A1, should select and highlight A2", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.workbook.currentContent).toBe("=A2");
+    expect(model.getters.getCurrentContent()).toBe("=A2");
   });
 
   test("=Key DOWN+DOWN in A1, should select and highlight A3", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowDown");
-    expect(model.workbook.currentContent).toBe("=A3");
+    expect(model.getters.getCurrentContent()).toBe("=A3");
   });
 
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     await typeInComposer("=");
     await keydown("ArrowRight");
-    expect(model.workbook.currentContent).toBe("=B1");
+    expect(model.getters.getCurrentContent()).toBe("=B1");
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowUp");
-    expect(model.workbook.currentContent).toBe("=B1");
+    expect(model.getters.getCurrentContent()).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowLeft");
-    expect(model.workbook.currentContent).toBe("=A2");
+    expect(model.getters.getCurrentContent()).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
@@ -112,7 +112,7 @@ describe("ranges and highlights", () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowUp");
-    expect(model.workbook.currentContent).toBe("=B2");
+    expect(model.getters.getCurrentContent()).toBe("=B2");
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
@@ -121,21 +121,21 @@ describe("ranges and highlights", () => {
     await keydown("ArrowUp");
     await keydown("ArrowUp");
     await keydown("ArrowDown");
-    expect(model.workbook.currentContent).toBe("=B2");
+    expect(model.getters.getCurrentContent()).toBe("=B2");
   });
 
   test("While selecting a ref, Shift+UP/DOWN/LEFT/RIGHT extend the range selection and updates the composer", async () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.workbook.currentContent).toBe("=A2");
+    expect(model.getters.getCurrentContent()).toBe("=A2");
     await keydown("ArrowDown", { shiftKey: true });
-    expect(model.workbook.currentContent).toBe("=A2:A3");
+    expect(model.getters.getCurrentContent()).toBe("=A2:A3");
     await keydown("ArrowRight", { shiftKey: true });
-    expect(model.workbook.currentContent).toBe("=A2:B3");
+    expect(model.getters.getCurrentContent()).toBe("=A2:B3");
     await keydown("ArrowUp", { shiftKey: true });
-    expect(model.workbook.currentContent).toBe("=A2:B2");
+    expect(model.getters.getCurrentContent()).toBe("=A2:B2");
     await keydown("ArrowLeft", { shiftKey: true });
-    expect(model.workbook.currentContent).toBe("=A2");
+    expect(model.getters.getCurrentContent()).toBe("=A2");
   });
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
@@ -145,7 +145,7 @@ describe("ranges and highlights", () => {
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 0 });
     await typeInComposer("=");
     await keydown("ArrowDown");
-    expect(model.workbook.currentContent).toBe("=B2");
+    expect(model.getters.getCurrentContent()).toBe("=B2");
     expect(model.workbook.highlights).toHaveLength(1);
     expect(model.workbook.highlights[0].zone).toMatchObject({
       top: 1,
@@ -154,7 +154,7 @@ describe("ranges and highlights", () => {
       right: 2
     });
     await keydown("ArrowDown");
-    expect(model.workbook.currentContent).toBe("=C4");
+    expect(model.getters.getCurrentContent()).toBe("=C4");
   });
 });
 
@@ -178,7 +178,7 @@ describe("composer", () => {
 
   test("type '=', backspace and select a cell should not add it", async () => {
     await typeInComposer("=");
-    model.workbook.currentContent = "";
+    model.dispatch({ type: "SET_CURRENT_CONTENT", content: "" });
     const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("keyup"));
@@ -241,7 +241,7 @@ describe("composer", () => {
       new KeyboardEvent("keydown", { key: "c", ctrlKey: true, bubbles: true })
     );
     await nextTick();
-    expect(model.workbook.currentContent).toBe("");
+    expect(model.getters.getCurrentContent()).toBe("");
   });
 });
 

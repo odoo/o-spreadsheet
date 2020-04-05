@@ -126,8 +126,6 @@ export interface Workbook {
 
   viewport: Zone;
 
-  currentContent: string;
-
   highlights: Highlight[];
   isSelectingRange: boolean;
 
@@ -177,7 +175,6 @@ export interface UI {
   canRedo: boolean;
 
   // to remove someday
-  currentContent: string;
   rows: Row[];
   cols: Col[];
   merges: { [key: number]: Merge };

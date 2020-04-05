@@ -73,8 +73,8 @@ describe("merges", () => {
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.getters.getActiveXc()).toBe("C3");
     model.dispatch({ type: "START_EDITION" });
-    expect(model.workbook.currentContent).toBe("b2");
-    model.workbook.currentContent = "new value";
+    expect(model.getters.getCurrentContent()).toBe("b2");
+    model.dispatch({ type: "SET_CURRENT_CONTENT", content: "new value" });
     model.dispatch({ type: "STOP_EDITION" });
     expect(model.workbook.cells["B2"].content).toBe("new value");
   });
