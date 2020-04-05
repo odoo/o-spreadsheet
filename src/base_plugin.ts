@@ -1,6 +1,16 @@
 import { Workbook, GridCommand, Getters, WorkbookData } from "./types/index";
 import { WorkbookHistory } from "./history";
 
+/**
+ * BasePlugin
+ *
+ * Since the spreadsheet internal state is quite complex, it is split into
+ * multiple parts, each managing a specific concern.
+ *
+ * This file introduce the BasePlugin, which is the common class that defines
+ * how each of these model sub parts should interact with each other.
+ */
+
 export interface CommandHandler {
   canDispatch(command: GridCommand): boolean;
   start(command: GridCommand): void;
@@ -10,7 +20,7 @@ export interface CommandHandler {
 
 type DispatchFn = (command: GridCommand) => void;
 
-export abstract class BasePlugin implements CommandHandler {
+export class BasePlugin implements CommandHandler {
   static getters: string[] = [];
 
   workbook: Workbook;

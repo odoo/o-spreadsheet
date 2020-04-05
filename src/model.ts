@@ -13,23 +13,25 @@ import { FormattingPlugin } from "./plugins/formatting";
 import { GridPlugin } from "./plugins/grid";
 import { LayoutPlugin } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
+import { Registry } from "./registry";
 
 // -----------------------------------------------------------------------------
 // Plugins
 // -----------------------------------------------------------------------------
 
-const PLUGINS = [
-  CorePlugin,
-  EvaluationPlugin,
-  ClipboardPlugin,
-  EntityPlugin,
-  GridPlugin,
-  FormattingPlugin,
-  SelectionPlugin,
-  ConditionalFormatPlugin,
-  EditionPlugin,
-  LayoutPlugin
-];
+export const pluginRegistry = new Registry<typeof BasePlugin>();
+
+pluginRegistry
+  .add("core", CorePlugin)
+  .add("evaluation", EvaluationPlugin)
+  .add("clipboard", ClipboardPlugin)
+  .add("grid", GridPlugin)
+  .add("formatting", FormattingPlugin)
+  .add("selection", SelectionPlugin)
+  .add("conditional formatting", ConditionalFormatPlugin)
+  .add("edition", EditionPlugin)
+  .add("entities", EntityPlugin)
+  .add("layout", LayoutPlugin);
 
 // -----------------------------------------------------------------------------
 // Model
@@ -61,7 +63,7 @@ export class Model extends owl.core.EventBus {
 
     // Plugins
     const dispatch = this.dispatch.bind(this);
-    for (let Plugin of PLUGINS) {
+    for (let Plugin of pluginRegistry.getAll()) {
       const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch);
       plugin.import(workbookData);
       for (let name of Plugin.getters) {
