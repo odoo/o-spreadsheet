@@ -34,7 +34,6 @@ beforeEach(async () => {
   });
   const parent = new GridParent(model);
   await parent.mount(fixture);
-  model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 });
 
 afterEach(() => {

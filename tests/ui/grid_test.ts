@@ -10,7 +10,6 @@ let parent: GridParent;
 beforeEach(async () => {
   fixture = makeTestFixture();
   model = new Model();
-  model.workbook.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
   parent = new GridParent(model);
   await parent.mount(fixture);
 });

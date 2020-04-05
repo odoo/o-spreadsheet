@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { HEADER_HEIGHT, HEADER_WIDTH, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../constants";
 import { overlap, toXC } from "../helpers/index";
-import { Box, GridCommand, Rect, UI, Viewport } from "../types/index";
+import { Box, GridCommand, Rect, UI, Viewport, Zone } from "../types/index";
 
 function computeAlign(type: string): "right" | "center" | "left" {
   switch (type) {
@@ -19,13 +19,14 @@ export class LayoutPlugin extends BasePlugin {
   // actual size of the visible grid, in pixel
   private clientWidth: number = DEFAULT_CELL_WIDTH + HEADER_WIDTH;
   private clientHeight: number = DEFAULT_CELL_HEIGHT + HEADER_HEIGHT;
+  private viewport: Zone = { top: 0, left: 0, bottom: 0, right: 0 };
 
   // offset between the visible zone and the full zone (take into account
   // headers)
-  offsetX: number = 0;
-  offsetY: number = 0;
-  scrollTop: number = 0;
-  scrollLeft: number = 0;
+  private offsetX: number = 0;
+  private offsetY: number = 0;
+  private scrollTop: number = 0;
+  private scrollLeft: number = 0;
 
   ui: UI | null = null;
 
@@ -53,10 +54,8 @@ export class LayoutPlugin extends BasePlugin {
     if (x <= HEADER_WIDTH) {
       return -1;
     }
-    const {
-      cols,
-      viewport: { left, right }
-    } = this.workbook;
+    const cols = this.workbook.cols;
+    const { left, right } = this.viewport;
     for (let i = left; i <= right; i++) {
       let c = cols[i];
       if (c.left - this.offsetX <= x && x <= c.right - this.offsetX) {
@@ -70,8 +69,8 @@ export class LayoutPlugin extends BasePlugin {
     if (y <= HEADER_HEIGHT) {
       return -1;
     }
-    const { rows, viewport } = this.workbook;
-    const { top, bottom } = viewport;
+    const rows = this.workbook.rows;
+    const { top, bottom } = this.viewport;
     for (let i = top; i <= bottom; i++) {
       let r = rows[i];
       if (r.top - this.offsetY <= y && y <= r.bottom - this.offsetY) {
@@ -85,7 +84,8 @@ export class LayoutPlugin extends BasePlugin {
    *  keep current cell in the viewport, if possible
    */
   updateScrollPosition() {
-    const { cols, rows, viewport } = this.workbook;
+    const { cols, rows } = this.workbook;
+    const viewport = this.viewport;
     const [col, row] = this.getters.getPosition();
 
     while (col >= viewport.right && col !== cols.length - 1) {
@@ -121,7 +121,8 @@ export class LayoutPlugin extends BasePlugin {
    * - height is the clientHeight, the actual height of the visible zone
    */
   updateVisibleZone(width?: number, height?: number) {
-    const { rows, cols, viewport } = this.workbook;
+    const { rows, cols } = this.workbook;
+    const viewport = this.viewport;
     this.clientWidth = width || this.clientWidth;
     this.clientHeight = height || this.clientHeight;
 
@@ -177,9 +178,9 @@ export class LayoutPlugin extends BasePlugin {
   }
   private getGridBoxes(): Box[] {
     const result: Box[] = [];
-    const { cols, rows, viewport, mergeCellMap, merges, cells } = this.workbook;
+    const { cols, rows, mergeCellMap, merges, cells } = this.workbook;
     const { offsetX, offsetY } = this;
-    const { right, left, top, bottom } = viewport;
+    const { right, left, top, bottom } = this.viewport;
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
@@ -236,7 +237,7 @@ export class LayoutPlugin extends BasePlugin {
     // process all visible merges
     for (let id in merges) {
       let merge = merges[id];
-      if (overlap(merge, viewport)) {
+      if (overlap(merge, this.viewport)) {
         const refCell = cells[merge.topLeft];
         const width = cols[merge.right].right - cols[merge.left].left;
         let text, textWidth, style, align, border;
@@ -275,7 +276,8 @@ export class LayoutPlugin extends BasePlugin {
   }
 
   computeDerivedState(): UI {
-    const { viewport, cols, rows } = this.workbook;
+    const { cols, rows } = this.workbook;
+    const viewport = this.viewport;
     const [col, row] = this.getters.getPosition();
     return {
       rows: this.workbook.rows,
@@ -291,7 +293,7 @@ export class LayoutPlugin extends BasePlugin {
       scrollTop: this.scrollTop,
       scrollLeft: this.scrollLeft,
       clipboard: this.getters.getClipboardZones(),
-      viewport: this.workbook.viewport,
+      viewport: viewport,
       selection: this.getters.getSelection(),
       activeCol: col,
       activeRow: row,
