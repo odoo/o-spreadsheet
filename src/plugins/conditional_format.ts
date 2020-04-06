@@ -101,6 +101,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
   private addConditionalFormatting(cf: ConditionalFormat) {
     const currentCF = this.cfRules[this.workbook.activeSheet.name].slice();
     const replaceIndex = currentCF.findIndex(c => c.id === cf.id);
+
     if (replaceIndex > -1) {
       currentCF.splice(replaceIndex, 1, cf);
     } else {
@@ -160,6 +161,37 @@ export class ConditionalFormatPlugin extends BasePlugin {
   private rulePredicate: { CellIsRule: (cell: Cell, rule: CellIsRule) => boolean } = {
     CellIsRule: (cell: Cell, rule: CellIsRule): boolean => {
       switch (rule.operator) {
+        case "BeginsWith":
+          if (!cell && rule.values[0] === "") {
+            return false;
+          }
+          return cell && cell.value.startsWith(rule.values[0]);
+        case "EndsWith":
+          if (!cell && rule.values[0] === "") {
+            return false;
+          }
+          return cell && cell.value.endsWith(rule.values[0]);
+        case "Between":
+          return cell && cell.value >= rule.values[0] && cell.value <= rule.values[1];
+        case "NotBetween":
+          return !(cell && cell.value >= rule.values[0] && cell.value <= rule.values[1]);
+        case "ContainsText":
+          return cell && cell.value && cell.value.toString().indexOf(rule.values[0]) > -1;
+        case "NotContains":
+          return cell && cell.value && cell.value.toString().indexOf(rule.values[0]) == -1;
+        case "GreaterThan":
+          return cell && cell.value > rule.values[0];
+        case "GreaterThanOrEqual":
+          return cell && cell.value >= rule.values[0];
+        case "LessThan":
+          return cell && cell.value < rule.values[0];
+        case "LessThanOrEqual":
+          return cell && cell.value <= rule.values[0];
+        case "NotEqual":
+          if (!cell && rule.values[0] === "") {
+            return false;
+          }
+          return cell && cell.value != rule.values[0];
         case "Equal":
           if (!cell && rule.values[0] === "") {
             return true;
