@@ -21,7 +21,6 @@ export class GridPlugin extends BasePlugin {
     "getRowSize",
     "getColsZone",
     "getRowsZone",
-    "isZoneValid",
     "isMergeDestructive",
     "isInMerge",
     "getMainCell",
@@ -144,15 +143,6 @@ export class GridPlugin extends BasePlugin {
       left: 0,
       right: this.workbook.cols.length - 1
     };
-  }
-
-  isZoneValid(zone: Zone): boolean {
-    return !(
-      zone.top < 0 ||
-      zone.left < 0 ||
-      zone.bottom >= this.workbook.rows.length ||
-      zone.right >= this.workbook.cols.length
-    );
   }
 
   /**
