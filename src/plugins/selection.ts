@@ -89,6 +89,14 @@ export class SelectionPlugin extends BasePlugin {
           this.addCellToSelection(...cmd.cell);
         }
         break;
+      case "UNDO":
+      case "REDO":
+        this.dispatch({
+          type: "SET_SELECTION",
+          zones: this.selection.zones.map(z => this.getters.expandZone(z)),
+          anchor: [this.selection.anchor.col, this.selection.anchor.row]
+        });
+        break;
     }
   }
 

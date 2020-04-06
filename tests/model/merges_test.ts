@@ -245,6 +245,32 @@ describe("merges", () => {
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
+
+  test("merge, undo, select, redo: correct selection", () => {
+    const model = new Model();
+
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 }); // B2
+    expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
+    model.dispatch({ type: "UNDO" });
+    expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 }); // B2
+
+    expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
+    model.dispatch({ type: "REDO" });
+    expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
+  });
+
+  test("merge, unmerge, select, undo: correct selection", () => {
+    const model = new Model();
+
+    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
+    model.dispatch({ type: "REMOVE_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
+    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 }); // B2
+    expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
+    model.dispatch({ type: "UNDO" });
+    expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
+  });
 });
 
 function getStyle(model: Model, xc: string): Style {
