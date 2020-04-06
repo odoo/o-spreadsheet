@@ -19,6 +19,7 @@ export function load(data?: any): WorkbookData {
     return createEmptyWorkbookData();
   }
 
+  data = Object.assign({}, data);
   if ("version" in data) {
     // this is a properly formatted data object. We can apply migrations
     if (data.version < CURRENT_VERSION) {
@@ -27,8 +28,7 @@ export function load(data?: any): WorkbookData {
   } else {
     // this is a data object which may or may not be valid. We will try to fill
     // all the known missing data with sensible default values
-    data.version = CURRENT_VERSION;
-    data = Object.assign(createEmptyWorkbookData(), data);
+    data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
     data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
   }
 
