@@ -26,7 +26,7 @@ export class SelectionPlugin extends BasePlugin {
 
   private selection: Selection = {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
-    anchor: { col: 0, row: 0 }
+    anchor: [0, 0]
   };
   private activeCol: number = 0;
   private activeRow: number = 0;
@@ -190,7 +190,7 @@ export class SelectionPlugin extends BasePlugin {
   private getReferenceCoords(): [number, number] {
     const { isSelectingRange } = this.workbook;
     const { selection, activeCol, activeRow } = this;
-    return isSelectingRange ? [selection.anchor.col, selection.anchor.row] : [activeCol, activeRow];
+    return isSelectingRange ? selection.anchor : [activeCol, activeRow];
   }
 
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
@@ -199,7 +199,7 @@ export class SelectionPlugin extends BasePlugin {
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
     if (updateRange) {
-      const { col, row } = this.selection.anchor;
+      const [col, row] = this.selection.anchor;
       const updatedZone = union(zone, { left: col, right: col, top: 0, bottom });
       zones = current.slice(0, -1).concat(updatedZone);
       anchor = [col, row];
@@ -216,7 +216,7 @@ export class SelectionPlugin extends BasePlugin {
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
     if (updateRange) {
-      const { col, row } = this.selection.anchor;
+      const [col, row] = this.selection.anchor;
       const updatedZone = union(zone, { left: 0, right, top: row, bottom: row });
       zones = current.slice(0, -1).concat(updatedZone);
       anchor = [col, row];
@@ -250,8 +250,7 @@ export class SelectionPlugin extends BasePlugin {
     } else {
       this.selection.zones = [zone];
     }
-    this.selection.anchor.col = col;
-    this.selection.anchor.row = row;
+    this.selection.anchor = [col, row];
     if (!this.workbook.isSelectingRange) {
       this.activeCol = col;
       this.activeRow = row;
@@ -289,16 +288,14 @@ export class SelectionPlugin extends BasePlugin {
     } else {
       this.selection.zones = zones.map(this.getters.expandZone);
     }
-    this.selection.anchor.col = anchor[0];
-    this.selection.anchor.row = anchor[1];
+    this.selection.anchor = anchor;
   }
 
   private moveSelection(deltaX: number, deltaY: number) {
     const selection = this.selection;
     const zones = selection.zones.slice();
     const lastZone = zones[selection.zones.length - 1];
-    const anchorCol = selection.anchor.col;
-    const anchorRow = selection.anchor.row;
+    const [anchorCol, anchorRow] = selection.anchor;
     const { left, right, top, bottom } = lastZone;
     let result: Zone | null = lastZone;
     const expand = (z: Zone) => {
@@ -349,8 +346,7 @@ export class SelectionPlugin extends BasePlugin {
 
   private addCellToSelection(col: number, row: number) {
     const selection = this.selection;
-    const anchorCol = selection.anchor.col;
-    const anchorRow = selection.anchor.row;
+    const [anchorCol, anchorRow] = selection.anchor;
     const zone: Zone = {
       left: Math.min(anchorCol, col),
       top: Math.min(anchorRow, row),

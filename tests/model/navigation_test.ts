@@ -7,14 +7,12 @@ describe("navigation", () => {
     const model = new Model();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(model.getters.getSelection().anchor.col).toBe(0);
-    expect(model.getters.getSelection().anchor.row).toBe(0);
+    expect(model.getters.getSelection().anchor).toEqual([0, 0]);
 
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([1, 0]);
-    expect(model.getters.getSelection().anchor.col).toBe(1);
-    expect(model.getters.getSelection().anchor.row).toBe(0);
+    expect(model.getters.getSelection().anchor).toEqual([1, 0]);
   });
 
   test("move up from top row", () => {
@@ -113,12 +111,12 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([5, 0]);
     expect(model.state.viewport.left).toBe(1);
     expect(model.state.viewport.right).toBe(6);
-    expect(model.layout.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
+    expect(model.state.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
   });
 
   test("move left from left row (of the viewport)", () => {
     const model = new Model();
-    model.layout.scrollLeft = 100;
+    model.updateScroll(0, 100);
     model.updateVisibleZone(600, 300);
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
@@ -130,7 +128,7 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.state.viewport.left).toBe(0);
     expect(model.state.viewport.right).toBe(5);
-    expect(model.layout.scrollLeft).toBe(0);
+    expect(model.state.scrollLeft).toBe(0);
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
@@ -144,12 +142,12 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 7]);
     expect(model.state.viewport.top).toBe(1);
     expect(model.state.viewport.bottom).toBe(8);
-    expect(model.layout.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model.state.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
   });
 
   test("move top from top row (of the viewport)", () => {
     const model = new Model();
-    model.layout.scrollTop = 40;
+    model.updateScroll(40, 0);
     model.updateVisibleZone(600, 200);
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
     expect(model.getters.getPosition()).toEqual([0, 1]);
@@ -159,6 +157,6 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.state.viewport.top).toBe(0);
     expect(model.state.viewport.bottom).toBe(7);
-    expect(model.layout.scrollTop).toBe(0);
+    expect(model.state.scrollTop).toBe(0);
   });
 });
