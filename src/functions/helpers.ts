@@ -213,3 +213,37 @@ export function dichotomicPredecessorSearch(range: any[], target: any): number {
   }
   return avg;
 }
+
+/**
+ * Perform a dichotomic search and return the index of the nearest match more than
+ * or equal to the target. If all values in the range are smaller than the target,
+ * -1 is returned.
+ * If the range is not in sorted order, an incorrect value might be returned.
+ *
+ * Example:
+ * - [10, 6, 3], 3 => 2
+ * - [10, 6, 3], 6 => 1
+ * - [10, 6, 3], 9 => 0
+ * - [10, 6, 3], 42 => -1
+ * - [10, 6, 3], 2 => 2
+ */
+export function dichotomicSuccessorSearch(range: any[], target: any): number {
+  const typeofTarget = typeof target;
+  let min = 0;
+  let max = range.length - 1;
+  let avg = Math.floor((min + max) / 2);
+  let current = range[avg];
+  while (max - min > 0) {
+    if (typeofTarget === typeof current && target >= current) {
+      max = avg;
+    } else {
+      min = avg + 1;
+    }
+    avg = Math.floor((min + max) / 2);
+    current = range[avg];
+  }
+  if (target > current) {
+    return avg - 1;
+  }
+  return avg;
+}
