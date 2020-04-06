@@ -1,10 +1,11 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "./index";
-import { toNumber, toBoolean, dichotomicPredecessorSearch } from "./helpers";
-
-// -----------------------------------------------------------------------------
-// VLOOKUP
-// -----------------------------------------------------------------------------
+import {
+  toNumber,
+  toBoolean,
+  dichotomicPredecessorSearch,
+  dichotomicSuccessorSearch
+} from "./helpers";
 
 /**
  * Perform a linear search and return the index of the perfect match.
@@ -25,6 +26,51 @@ function linearSearch(range: any[], target: any): number {
   // no value is found, -1 is returned
   return -1;
 }
+
+// -----------------------------------------------------------------------------
+// MATCH
+// -----------------------------------------------------------------------------
+
+export const MATCH: FunctionDescription = {
+  description: `Position of item in range that matches value.`,
+  args: args`
+      search_key (any) The value to search for. For example, 42, "Cats", or I24.
+      range (any, range) The one-dimensional array to be searched.
+      search_type (number, optional, default=1) The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order.
+  `,
+  returns: ["ANY"],
+  compute: function(search_key: any, range: any[], search_type: any = 1): number {
+    let _searchType = toNumber(search_type);
+    const nbCol = range.length;
+    const nbRow = range[0].length;
+    if (nbCol > 1 && nbRow > 1) {
+      throw new Error(`MATCH range must be a single row or a single column.`);
+    }
+    let index = -1;
+    range = range.flat();
+    _searchType = Math.sign(_searchType);
+    switch (_searchType) {
+      case 1:
+        index = dichotomicPredecessorSearch(range, search_key);
+        break;
+      case 0:
+        index = linearSearch(range, search_key);
+        break;
+      case -1:
+        index = dichotomicSuccessorSearch(range, search_key);
+        break;
+    }
+    if (index > -1) {
+      return index + 1;
+    } else {
+      throw new Error(`Did not find value '${search_key}' in MATCH evaluation.`);
+    }
+  }
+};
+
+// -----------------------------------------------------------------------------
+// VLOOKUP
+// -----------------------------------------------------------------------------
 
 export const VLOOKUP: FunctionDescription = {
   description: `Vertical lookup.`,

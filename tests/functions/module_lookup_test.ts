@@ -266,4 +266,218 @@ describe("lookup", () => {
     expect(ssAsNss.C5).toEqual("100");   expect(ssAsNss.D5).toEqual("res 100");
     expect(nssAsNss.C5).toEqual("100");   expect(nssAsNss.D5).toEqual("res 100");
   });
+
+  //----------------------------------------------------------------------------
+  // MATCH
+  //----------------------------------------------------------------------------
+
+  // prettier-ignore
+  const rangeAscending = {
+    A1: "1", A2: "2", A3: "2", A4: "3",  A5: "5", A6: "6"
+  };
+
+  // prettier-ignore
+  const rangeUnsorted = {
+    A1: "1", A2: "5", A3: "3", A4: "3",  A5: "2", A6: "7"
+  };
+
+  // prettier-ignore
+  const rangeDescending = {
+    A1: "6", A2: "5", A3: "3", A4: "2",  A5: "2", A6: "1"
+  };
+
+  // prettier-ignore
+  const evAsAscending = {
+    B1: "=MATCH( 0, A1:A6, 1)", B2: "=MATCH( 1, A1:A6, 1)",
+    B3: "=MATCH( 2, A1:A6, 1)", B4: "=MATCH( 3, A1:A6, 1)",
+    B5: "=MATCH( 4, A1:A6, 1)", B6: "=MATCH( 5, A1:A6, 1)",
+    B7: "=MATCH( 6, A1:A6, 1)", B8: "=MATCH( 7, A1:A6, 1)"
+  };
+
+  // prettier-ignore
+  const evAsUnsorted = {
+    C1: "=MATCH( 0, A1:A6, 0)", C2: "=MATCH( 1, A1:A6, 0)",
+    C3: "=MATCH( 2, A1:A6, 0)", C4: "=MATCH( 3, A1:A6, 0)",
+    C5: "=MATCH( 4, A1:A6, 0)", C6: "=MATCH( 5, A1:A6, 0)",
+    C7: "=MATCH( 6, A1:A6, 0)", C8: "=MATCH( 7, A1:A6, 0)"
+  };
+
+  // prettier-ignore
+  const evAsDescending = {
+    D1: "=MATCH( 0, A1:A6, -1)", D2: "=MATCH( 1, A1:A6, -1)",
+    D3: "=MATCH( 2, A1:A6, -1)", D4: "=MATCH( 3, A1:A6, -1)",
+    D5: "=MATCH( 4, A1:A6, -1)", D6: "=MATCH( 5, A1:A6, -1)",
+    D7: "=MATCH( 6, A1:A6, -1)", D8: "=MATCH( 7, A1:A6, -1)"
+  };
+
+  test("MATCH: range evaluate sorted ascending", () => {
+    const ascendingAsAscending = { ...rangeAscending, ...evAsAscending };
+    const aAsA = evaluateGrid(ascendingAsAscending);
+
+    expect(aAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsA.B2).toBe(1);
+    expect(aAsA.B3).toBe(3);
+    expect(aAsA.B4).toBe(4);
+    expect(aAsA.B5).toBe(4);
+    expect(aAsA.B6).toBe(5);
+    expect(aAsA.B7).toBe(6);
+    expect(aAsA.B8).toBe(6);
+
+    const ascendingAsUnsorted = { ...rangeAscending, ...evAsUnsorted };
+    const aAsU = evaluateGrid(ascendingAsUnsorted);
+
+    expect(aAsU.C1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsU.C2).toBe(1);
+    expect(aAsU.C3).toBe(2);
+    expect(aAsU.C4).toBe(4);
+    expect(aAsU.C5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsU.C6).toBe(5);
+    expect(aAsU.C7).toBe(6);
+    expect(aAsU.C8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+
+    const ascendingAsDescending = { ...rangeAscending, ...evAsDescending };
+    const aAsD = evaluateGrid(ascendingAsDescending);
+
+    expect(aAsD.D1).toBe(6);
+    expect(aAsD.D2).toBe(6);
+    expect(aAsD.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(aAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+  });
+
+  test("MATCH: range evaluate unsorted", () => {
+    const unsortedAsAscending = { ...rangeUnsorted, ...evAsAscending };
+    const uAsA = evaluateGrid(unsortedAsAscending);
+
+    expect(uAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsA.B2).toBe(1);
+    expect(uAsA.B3).toBe(1);
+    expect(uAsA.B4).toBe(5);
+    expect(uAsA.B5).toBe(5);
+    expect(uAsA.B6).toBe(5);
+    expect(uAsA.B7).toBe(5);
+    expect(uAsA.B8).toBe(6);
+
+    const unsortedAsUnsorted = { ...rangeUnsorted, ...evAsUnsorted };
+    const uAsU = evaluateGrid(unsortedAsUnsorted);
+
+    expect(uAsU.C1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsU.C2).toBe(1);
+    expect(uAsU.C3).toBe(5);
+    expect(uAsU.C4).toBe(3);
+    expect(uAsU.C5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsU.C6).toBe(2);
+    expect(uAsU.C7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsU.C8).toBe(6);
+
+    const unsortedAsDescending = { ...rangeUnsorted, ...evAsDescending };
+    const uAsD = evaluateGrid(unsortedAsDescending);
+
+    expect(uAsD.D1).toBe(6);
+    expect(uAsD.D2).toBe(6);
+    expect(uAsD.D3).toBe(5); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D4).toBe(3);
+    expect(uAsD.D5).toBe(2);
+    expect(uAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
+    expect(uAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(uAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+  });
+
+  test("MATCH: range evaluate sorted descending", () => {
+    const descendingAsAscending = { ...rangeDescending, ...evAsAscending };
+    const dAsA = evaluateGrid(descendingAsAscending);
+
+    expect(dAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsA.B2).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsA.B3).toBe(6);
+    expect(dAsA.B4).toBe(6);
+    expect(dAsA.B5).toBe(6);
+    expect(dAsA.B6).toBe(6);
+    expect(dAsA.B7).toBe(6);
+    expect(dAsA.B8).toBe(6);
+
+    const descendingAsUnsorted = { ...rangeDescending, ...evAsUnsorted };
+    const dAsU = evaluateGrid(descendingAsUnsorted);
+
+    expect(dAsU.C1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsU.C2).toBe(6);
+    expect(dAsU.C3).toBe(4);
+    expect(dAsU.C4).toBe(3);
+    expect(dAsU.C5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(dAsU.C6).toBe(2);
+    expect(dAsU.C7).toBe(1);
+    expect(dAsU.C8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+
+    const descendingAsDescending = { ...rangeDescending, ...evAsDescending };
+    const dAsD = evaluateGrid(descendingAsDescending);
+
+    expect(dAsD.D1).toBe(6);
+    expect(dAsD.D2).toBe(6);
+    expect(dAsD.D3).toBe(4);
+    expect(dAsD.D4).toBe(3);
+    expect(dAsD.D5).toBe(2);
+    expect(dAsD.D6).toBe(2);
+    expect(dAsD.D7).toBe(1);
+    expect(dAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+  });
+
+  test("MATCH: grid of STRING ascending", () => {
+    // prettier-ignore
+    const ascendingStringEvAsAscending = {
+      A1: '="1"', A2: '="10"', A3: '="100"', A4: '="2"',  A5: '="2"',
+      B1: '=MATCH( "1",   A1:A5, 1)',
+      B2: '=MATCH( "2",   A1:A5, 1)',
+      B3: '=MATCH( "5",   A1:A5, 1)',
+      B4: '=MATCH( "10",  A1:A5, 1)',
+      B5: '=MATCH( "100", A1:A5, 1)',
+    };
+    const ascendingString = evaluateGrid(ascendingStringEvAsAscending);
+
+    expect(ascendingString.B1).toBe(1);
+    expect(ascendingString.B2).toBe(5);
+    expect(ascendingString.B3).toBe(5);
+    expect(ascendingString.B4).toBe(2);
+    expect(ascendingString.B5).toBe(3);
+  });
+
+  test("MATCH: grid of STRING unsorted", () => {
+    // prettier-ignore
+    const unsortedStringEvAsUnsorted = {
+      A1: '="1"', A2: '="2"', A3: '="2"', A4: '="10"',  A5: '="100"',
+      C1: '=MATCH( "1",   A1:A5, 0)',
+      C2: '=MATCH( "2",   A1:A5, 0)',
+      C3: '=MATCH( "5",   A1:A5, 0)',
+      C4: '=MATCH( "10",  A1:A5, 0)',
+      C5: '=MATCH( "100", A1:A5, 0)',
+    };
+    const unsortedString = evaluateGrid(unsortedStringEvAsUnsorted);
+
+    expect(unsortedString.C1).toBe(1);
+    expect(unsortedString.C2).toBe(2);
+    expect(unsortedString.C3).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(unsortedString.C4).toBe(4);
+    expect(unsortedString.C5).toBe(5);
+  });
+
+  test("MATCH: grid of STRING descending", () => {
+    // prettier-ignore
+    const descendingStringEvAsDescending = {
+      A1: '="2"', A2: '="2"', A3: '="100"', A4: '="10"',  A5: '="1"',
+      D1: '=MATCH( "1",   A1:A5, -1)',
+      D2: '=MATCH( "2",   A1:A5, -1)',
+      D3: '=MATCH( "5",   A1:A5, -1)',
+      D4: '=MATCH( "10",  A1:A5, -1)',
+      D5: '=MATCH( "100", A1:A5, -1)',
+    }
+    const descendingString = evaluateGrid(descendingStringEvAsDescending);
+
+    expect(descendingString.D1).toBe(5);
+    expect(descendingString.D2).toBe(1);
+    expect(descendingString.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+    expect(descendingString.D4).toBe(4);
+    expect(descendingString.D5).toBe(3);
+  });
 });
