@@ -1,4 +1,4 @@
-import { isEqual, toXC, union } from "../helpers/index";
+import { isEqual, toXC, union, clip } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { GridCommand, Zone, Cell, Selection } from "../types/index";
 import { formatNumber } from "../formatters";
@@ -93,7 +93,7 @@ export class SelectionPlugin extends BasePlugin {
       case "REDO":
       case "REMOVE_COLUMNS":
       case "REMOVE_ROWS":
-        this.replaceSelectionInWorkbook();
+        this.updateSelection();
         break;
       case "ADD_COLUMNS":
         if (cmd.position === "before") {
@@ -361,23 +361,15 @@ export class SelectionPlugin extends BasePlugin {
     this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
   }
 
-  private replaceSelectionInWorkbook() {
-    const invalidZones: Zone[] = [];
-    const zones: Zone[] = [];
-    for (let zone of this.selection.zones) {
-      if (this.getters.isZoneValid(zone)) {
-        zones.push(zone);
-      } else {
-        invalidZones.push(zone);
-      }
-    }
-    if (invalidZones.length === 0) {
-      return;
-    }
-    for (let zone of invalidZones) {
-      zone = this.validateZone(zone);
-      zones.push(zone);
-    }
+  private updateSelection() {
+    const cols = this.workbook.cols.length - 1;
+    const rows = this.workbook.rows.length - 1;
+    const zones = this.selection.zones.map(z => ({
+      left: clip(z.left, 0, cols),
+      right: clip(z.right, 0, cols),
+      top: clip(z.top, 0, rows),
+      bottom: clip(z.bottom, 0, rows)
+    }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
     this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
@@ -393,26 +385,6 @@ export class SelectionPlugin extends BasePlugin {
     const start = row + quantity;
     const zone = this.getters.getRowsZone(start, start + quantity - 1);
     this.dispatch({ type: "SET_SELECTION", zones: [zone], anchor: [0, start], strict: true });
-  }
-
-  private validateZone(zone: Zone): Zone {
-    const right = this.workbook.cols.length - 1;
-    const bottom = this.workbook.rows.length - 1;
-    for (let direction of ["top", "bottom"]) {
-      if (zone[direction] < 0) {
-        zone[direction] = 0;
-      } else if (zone[direction] > bottom) {
-        zone[direction] = bottom;
-      }
-    }
-    for (let direction of ["left", "right"]) {
-      if (zone[direction] < 0) {
-        zone[direction] = 0;
-      } else if (zone[direction] > right) {
-        zone[direction] = right;
-      }
-    }
-    return zone;
   }
 
   // ---------------------------------------------------------------------------

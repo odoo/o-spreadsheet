@@ -50,3 +50,7 @@ export function sanitizeSheet(sheet: string): string {
   }
   return sheet;
 }
+
+export function clip(val: number, min: number, max: number): number {
+  return val < min ? min : val > max ? max : val;
+}

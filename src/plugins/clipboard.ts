@@ -1,15 +1,7 @@
 import { applyOffset } from "../formulas/index";
-import { toXC } from "../helpers/index";
+import { toXC, clip } from "../helpers/index";
 import { Cell, GridCommand, NewCell, Zone } from "../types/index";
 import { BasePlugin } from "../base_plugin";
-
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
-
-function clip(val: number, min: number, max: number): number {
-  return val < min ? min : val > max ? max : val;
-}
 
 /**
  * Clipboard Plugin
