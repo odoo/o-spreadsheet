@@ -48,7 +48,7 @@ export function lettersToNumber(letters: string): number {
  */
 export function toCartesian(xc: string): [number, number] {
   xc = xc.toUpperCase();
-  const [m, letters, numbers] = xc.match(/([A-Z]*)([0-9]*)/)!;
+  const [m, letters, numbers] = xc.match(/\$?([A-Z]*)\$?([0-9]*)/)!;
   if (m !== xc) {
     throw new Error(`Invalid cell description: ${xc}`);
   }
