@@ -166,8 +166,8 @@ describe("complete import, then export", () => {
     }
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(Object.assign(modelData, {version: CURRENT_VERSION}));
+  expect(model.exportData()).toEqual(Object.assign(modelData, { version: CURRENT_VERSION }));
   // We test here a that two import with the same data give the same result.
   const model2 = new Model(modelData);
-  expect(model2.exportData()).toEqual(Object.assign(modelData, {version: CURRENT_VERSION}));
+  expect(model2.exportData()).toEqual(Object.assign(modelData, { version: CURRENT_VERSION }));
 });
