@@ -196,6 +196,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div>
         <div class="o-divider"/>
         <div class="o-tool" title="Conditional Formatting" t-on-click="setConditionalFormatting"><span>${icons.CONDITIONAL_FORMATTING}</span></div>
+        <div class="o-divider"/>
       </div>
       <div class="o-cell-content">
          <t t-esc="model.state.selectedCell and model.state.selectedCell.content"/>
