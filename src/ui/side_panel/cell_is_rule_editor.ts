@@ -119,8 +119,8 @@ export class CellIsRuleEditor extends Component<Props> {
   });
 
   toggleMenu(tool) {
-    this.state[tool] = !this.state[tool];
     this.closeMenus();
+    this.state[tool] = !this.state[tool];
   }
 
   toggleTool(tool: string) {
