@@ -217,15 +217,7 @@ export class CorePlugin extends BasePlugin {
 
     // setting up rows and columns
     this.history.updateState(["rows"], sheet.rows);
-    this.history.updateState(
-      ["height"],
-      this.workbook.rows[this.workbook.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5
-    );
     this.history.updateState(["cols"], sheet.cols);
-    this.history.updateState(
-      ["width"],
-      this.workbook.cols[this.workbook.cols.length - 1].right + DEFAULT_CELL_WIDTH
-    );
 
     // merges
     this.history.updateState(["merges"], sheet.merges);

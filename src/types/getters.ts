@@ -28,6 +28,7 @@ export interface Getters {
   getColsZone: GridPlugin["getColsZone"];
   getRowsZone: GridPlugin["getRowsZone"];
   isZoneValid: GridPlugin["isZoneValid"];
+  getGridSize: GridPlugin["getGridSize"];
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
   getActiveCell: SelectionPlugin["getActiveCell"];

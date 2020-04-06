@@ -11,6 +11,7 @@ import { BasePlugin } from "../base_plugin";
 import { Cell, GridCommand, Sheet, Zone, WorkbookData, Col, Row } from "../types/index";
 import { tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 
 const MIN_PADDING = 3;
 
@@ -24,10 +25,13 @@ export class GridPlugin extends BasePlugin {
     "isMergeDestructive",
     "isInMerge",
     "getMainCell",
-    "expandZone"
+    "expandZone",
+    "getGridSize"
   ];
 
   nextId: number = 1;
+  private width: number = 0;
+  private height: number = 0;
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -46,6 +50,9 @@ export class GridPlugin extends BasePlugin {
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        this.recomputeSizes();
+        break;
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(col);
@@ -198,6 +205,9 @@ export class GridPlugin extends BasePlugin {
     return this.workbook.merges[merge].topLeft;
   }
 
+  getGridSize(): [number, number] {
+    return [this.width, this.height];
+  }
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
@@ -227,7 +237,7 @@ export class GridPlugin extends BasePlugin {
       this.history.updateState(["cols", i, "left"], col.left + delta);
       this.history.updateState(["cols", i, "right"], col.right + delta);
     }
-    this.workbook.width += delta;
+    this.history.updateLocalState(["width"], this.width + delta);
   }
 
   private setRowSize(index: number, size: number) {
@@ -240,7 +250,15 @@ export class GridPlugin extends BasePlugin {
       this.history.updateState(["rows", i, "top"], row.top + delta);
       this.history.updateState(["rows", i, "bottom"], row.bottom + delta);
     }
-    this.workbook.height += delta;
+    this.history.updateLocalState(["height"], this.height + delta);
+  }
+
+  private recomputeSizes() {
+    const workbook = this.workbook;
+    const height = workbook.rows[workbook.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5;
+    const width = workbook.cols[workbook.cols.length - 1].right + DEFAULT_CELL_WIDTH;
+    this.history.updateLocalState(["width"], width);
+    this.history.updateLocalState(["height"], height);
   }
 
   // ---------------------------------------------------------------------------
@@ -331,6 +349,7 @@ export class GridPlugin extends BasePlugin {
         this.importMerges(sheetID, sheetData.merges);
       }
     }
+    this.recomputeSizes();
   }
 
   importMerges(sheetID: number, merges: string[]) {
@@ -700,7 +719,7 @@ export class GridPlugin extends BasePlugin {
     const cols: Col[] = [];
     let left = 0;
     let colIndex = 0;
-    let newWidth = this.workbook.width;
+    let newWidth = this.width;
     for (let i in this.workbook.cols) {
       if (parseInt(i) === base) {
         if (step !== -1) {
@@ -732,7 +751,7 @@ export class GridPlugin extends BasePlugin {
       left += size;
       colIndex++;
     }
-    this.history.updateState(["width"], newWidth);
+    this.history.updateLocalState(["width"], newWidth);
     this.history.updateState(["cols"], cols);
   }
 
@@ -759,7 +778,7 @@ export class GridPlugin extends BasePlugin {
       });
       top += size;
     }
-    this.history.updateState(["height"], this.workbook.height - sizeToDelete);
+    this.history.updateLocalState(["height"], this.height - sizeToDelete);
     this.history.updateState(["rows"], rows);
   }
 
@@ -784,7 +803,7 @@ export class GridPlugin extends BasePlugin {
       });
       top += size;
     }
-    this.history.updateState(["height"], top);
+    this.history.updateLocalState(["height"], top);
     this.history.updateState(["rows"], rows);
   }
 
@@ -801,7 +820,7 @@ export class GridPlugin extends BasePlugin {
       cells: {}
     });
     const sheetID = this.workbook.sheets.findIndex(s => s.name === this.workbook.activeSheet.name)!;
-    this.history.updateState(["height"], this.workbook.height + size);
+    this.history.updateLocalState(["height"], this.height + size);
     this.history.updateState(["rows"], newRows);
     this.history.updateState(["sheets", sheetID, "rows"], newRows);
   }
