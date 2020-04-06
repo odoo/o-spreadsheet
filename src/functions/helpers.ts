@@ -199,10 +199,10 @@ export function dichotomicPredecessorSearch(range: any[], target: any): number {
   let avg = Math.ceil((min + max) / 2);
   let current = range[avg];
   while (max - min > 0) {
-    if (typeofTarget === typeof current && target < current) {
-      max = avg - 1;
-    } else {
+    if (typeofTarget === typeof current && current <= target) {
       min = avg;
+    } else {
+      max = avg - 1;
     }
     avg = Math.ceil((min + max) / 2);
     current = range[avg];

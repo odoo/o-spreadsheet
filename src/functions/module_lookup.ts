@@ -28,6 +28,50 @@ function linearSearch(range: any[], target: any): number {
 }
 
 // -----------------------------------------------------------------------------
+// LOOKUP
+// -----------------------------------------------------------------------------
+
+export const LOOKUP: FunctionDescription = {
+  description: `Look up a value.`,
+  args: args`
+      search_key (any) The value to search for. For example, 42, "Cats", or I24.
+      search_array (any, range) One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned.
+      result_range (any, range, optional) The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method.
+  `,
+  returns: ["ANY"],
+  compute: function (search_key: any, search_array: any, result_range: any = undefined): any {
+    const verticalSearch = search_array[0].length >= search_array.length;
+    const searchRange = verticalSearch ? search_array[0] : search_array.map((c) => c[0]);
+
+    const index = dichotomicPredecessorSearch(searchRange, search_key);
+    if (index === -1) {
+      throw new Error(`Did not find value '${search_key}' in LOOKUP evaluation.`);
+    }
+    if (result_range === undefined) {
+      return verticalSearch ? search_array.pop()[index] : search_array[index].pop();
+    }
+
+    const nbCol = result_range.length;
+    const nbRow = result_range[0].length;
+    if (nbCol > 1 && nbRow > 1) {
+      throw new Error(`LOOKUP range must be a single row or a single column.`);
+    }
+
+    if (nbCol > 1) {
+      if (nbCol - 1 < index) {
+        throw new Error(`LOOKUP evaluates to an out of range row value ${index + 1}.`);
+      }
+      return result_range[index][0];
+    }
+
+    if (nbRow - 1 < index) {
+      throw new Error(`LOOKUP evaluates to an out of range column value ${index + 1}.`);
+    }
+    return result_range[0][index];
+  },
+};
+
+// -----------------------------------------------------------------------------
 // MATCH
 // -----------------------------------------------------------------------------
 
