@@ -173,9 +173,9 @@ export class ClipboardPlugin extends BasePlugin {
         right: col + repX * width - 1,
         bottom: row + repY * height - 1
       };
-      const anchor = this.getters.getSelection().anchor;
-      const newCol = clip(anchor.col, col, col + repX * width - 1);
-      const newRow = clip(anchor.row, row, row + repY * height - 1);
+      const [anchorCol, anchorRow] = this.getters.getSelection().anchor;
+      const newCol = clip(anchorCol, col, col + repX * width - 1);
+      const newRow = clip(anchorRow, row, row + repY * height - 1);
       this.dispatch({
         type: "SET_SELECTION",
         anchor: [newCol, newRow],

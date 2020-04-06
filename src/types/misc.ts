@@ -10,10 +10,7 @@ export interface Zone {
 }
 
 export interface Selection {
-  anchor: {
-    col: number;
-    row: number;
-  };
+  anchor: [number, number];
   zones: Zone[];
 }
 

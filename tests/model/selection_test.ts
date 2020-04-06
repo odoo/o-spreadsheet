@@ -240,7 +240,7 @@ describe("selection", () => {
     expect(model.getters.getActiveXc()).toBe("C3"); // active cell is not modified but the selection is
 
     expect(model.getters.getSelection()).toEqual({
-      anchor: { col: 3, row: 3 },
+      anchor: [3, 3],
       zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
     });
   });
@@ -263,7 +263,7 @@ describe("selection", () => {
     expect(model.getters.getActiveXc()).toBe("C3"); // active cell is not modified but the selection is
     expect(model.getters.getPosition()).toEqual([2, 2]);
     expect(model.getters.getSelection()).toEqual({
-      anchor: { col: 3, row: 3 },
+      anchor: [3, 3],
       zones: [{ left: 3, top: 3, right: 4, bottom: 4 }]
     });
   });
@@ -280,7 +280,7 @@ describe("selection", () => {
     expect(model.getters.getActiveXc()).toBe("A1"); // active cell is not modified but the selection is
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.getters.getSelection()).toEqual({
-      anchor: { col: 3, row: 3 },
+      anchor: [3, 3],
       zones: [{ left: 3, top: 3, right: 3, bottom: 3 }]
     });
   });
@@ -299,17 +299,17 @@ describe("multiple selections", () => {
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
-    expect(selection.anchor).toEqual({ col: 2, row: 2 });
+    expect(selection.anchor).toEqual([2, 2]);
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
     selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
-    expect(selection.anchor).toEqual({ col: 2, row: 2 });
+    expect(selection.anchor).toEqual([2, 2]);
 
     // create new range
     model.dispatch({ type: "SELECT_CELL", col: 5, row: 2, createNewRange: true });
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
-    expect(selection.anchor).toEqual({ col: 5, row: 2 });
+    expect(selection.anchor).toEqual([5, 2]);
   });
 });
 

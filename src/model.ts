@@ -116,12 +116,12 @@ export class Model extends owl.core.EventBus {
 
   // core
   // ---------------------------------------------------------------------------
-  updateVisibleZone(width, height) {
+  updateVisibleZone(width: number, height: number) {
     this.layout.updateVisibleZone(width, height);
     Object.assign(this.state, this.getters.getUI());
   }
 
-  updateScroll(scrollTop, scrollLeft): boolean {
+  updateScroll(scrollTop: number, scrollLeft: number): boolean {
     const result = this.layout.updateScroll(scrollTop, scrollLeft);
     Object.assign(this.state, this.getters.getUI(result));
     return result;
