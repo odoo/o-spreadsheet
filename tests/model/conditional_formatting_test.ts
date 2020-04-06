@@ -215,17 +215,278 @@ describe("conditional format", () => {
 
 describe("conditional formats types", () => {
   describe("CellIs condition", () => {
-    test.skip("Operator BeginsWith", () => {});
-    test.skip("Operator Between", () => {});
-    test.skip("Operator ContainsText", () => {});
-    test.skip("Operator EndsWith", () => {});
-    test.skip("Operator GreaterThan", () => {});
-    test.skip("Operator GreaterThanOrEqual", () => {});
-    test.skip("Operator LessThan", () => {});
-    test.skip("Operator LessThanOrEqual", () => {});
-    test.skip("Operator NotBetween", () => {});
-    test.skip("Operator NotContains", () => {});
-    test.skip("Operator NotEqual", () => {});
+    test("Operator BeginsWith", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "BeginsWith",
+            values: ["qsdf"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "aaa" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "qsdfmlkqjsdf" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator Between", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "Between",
+            values: ["1", "3"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "0" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1.5" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3.5" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    });
+
+    test("Operator ContainsText", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "ContainsText",
+            values: ["abc"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "helabclo" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator EndsWith", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "EndsWith",
+            values: ["qsdf"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "helloqsdf" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator GreaterThan", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThan",
+            values: ["12"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "5" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "12" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "13" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator GreaterThanOrEqual", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "GreaterThanOrEqual",
+            values: ["12"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "5" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "12" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "13" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator LessThan", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "LessThan",
+            values: ["10"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "11" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "9" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator LessThanOrEqual", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "LessThanOrEqual",
+            values: ["10"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "11" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "9" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator NotBetween", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "NotBetween",
+            values: ["5", "10"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "4" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "0" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "5" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10.1" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator NotContains", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "NotContains",
+            values: ["qsdf"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hellqsdfo" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+    });
+
+    test("Operator NotEqual", () => {
+      model.dispatch({
+        type: "ADD_CONDITIONAL_FORMAT",
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "NotEqual",
+            values: ["qsdf"],
+            style: { fillColor: "#ff0f0f" }
+          },
+          ranges: ["A1"],
+          id: "11"
+        }
+      });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hellqsdfo" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
+
+      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "qsdf" });
+      expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    });
   });
 
   describe("color scale", () => {
