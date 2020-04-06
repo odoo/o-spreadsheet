@@ -2,6 +2,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
+import { CURRENT_VERSION } from "../../src/data";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
@@ -165,5 +166,8 @@ describe("complete import, then export", () => {
     }
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(modelData);
+  expect(model.exportData()).toEqual(Object.assign(modelData, {version: CURRENT_VERSION}));
+  // We test here a that two import with the same data give the same result.
+  const model2 = new Model(modelData);
+  expect(model2.exportData()).toEqual(Object.assign(modelData, {version: CURRENT_VERSION}));
 });
