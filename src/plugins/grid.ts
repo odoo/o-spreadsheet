@@ -601,11 +601,6 @@ export class GridPlugin extends BasePlugin {
     }
   }
 
-  private toCartesianRef(value: string) {
-    const xc = value.replace(/\$/g, "");
-    return toCartesian(xc);
-  }
-
   private getNewRef(value: string, sheet: string | undefined, x: number, y: number): string {
     const fixedCol = value.startsWith("$");
     const fixedRow = value.includes("$", 1);
@@ -616,7 +611,7 @@ export class GridPlugin extends BasePlugin {
 
   private updateAllFormulasHorizontally(base: number, step: number) {
     return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      let [x, y] = this.toCartesianRef(value);
+      let [x, y] = toCartesian(value);
       if (x === base && step === -1) {
         return "#REF";
       }
@@ -629,7 +624,7 @@ export class GridPlugin extends BasePlugin {
 
   private updateAllFormulasVertically(base: number, step: number) {
     return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      let [x, y] = this.toCartesianRef(value);
+      let [x, y] = toCartesian(value);
       if (y === base && step === -1) {
         return "#REF";
       }

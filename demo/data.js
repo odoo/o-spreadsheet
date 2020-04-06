@@ -70,7 +70,7 @@ export const demoData = {
           rule: {
             type: "ColorScaleRule",
             minimum: { type: "value", color: 0xffffff },
-            maximum: { type: "value", color: 0x000000 }
+            maximum: { type: "value", color: 0xff0000 }
           }
         }
       ]
