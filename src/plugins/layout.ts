@@ -279,13 +279,14 @@ export class LayoutPlugin extends BasePlugin {
     const { cols, rows } = this.workbook;
     const viewport = this.viewport;
     const [col, row] = this.getters.getPosition();
+    const [width, height] = this.getters.getGridSize();
     return {
       rows: this.workbook.rows,
       cols: this.workbook.cols,
       merges: this.workbook.merges,
       mergeCellMap: this.workbook.mergeCellMap,
-      width: this.workbook.width,
-      height: this.workbook.height,
+      width: width,
+      height: height,
       clientWidth: this.clientWidth,
       clientHeight: this.clientHeight,
       offsetX: cols[viewport.left].left - HEADER_WIDTH,

@@ -1,13 +1,16 @@
 import { isEqual, toCartesian, toXC, union } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { Cell, GridCommand, Sheet, Zone, WorkbookData } from "../types/index";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 
 const MIN_PADDING = 3;
 
 export class GridPlugin extends BasePlugin {
-  static getters = ["getColSize", "getRowSize", "isMergeDestructive", "expandZone"];
+  static getters = ["getColSize", "getRowSize", "isMergeDestructive", "expandZone", "getGridSize"];
 
   nextId: number = 1;
+  private width: number = 0;
+  private height: number = 0;
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -15,6 +18,9 @@ export class GridPlugin extends BasePlugin {
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        this.recomputeSizes();
+        break;
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(col);
@@ -100,6 +106,9 @@ export class GridPlugin extends BasePlugin {
     return isEqual(result, zone) ? result : this.expandZone(result);
   }
 
+  getGridSize(): [number, number] {
+    return [this.width, this.height];
+  }
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
@@ -129,7 +138,7 @@ export class GridPlugin extends BasePlugin {
       this.history.updateState(["cols", i, "left"], col.left + delta);
       this.history.updateState(["cols", i, "right"], col.right + delta);
     }
-    this.workbook.width += delta;
+    this.history.updateLocalState(["width"], this.width + delta);
   }
 
   private setRowSize(index: number, size: number) {
@@ -142,7 +151,15 @@ export class GridPlugin extends BasePlugin {
       this.history.updateState(["rows", i, "top"], row.top + delta);
       this.history.updateState(["rows", i, "bottom"], row.bottom + delta);
     }
-    this.workbook.height += delta;
+    this.history.updateLocalState(["height"], this.height + delta);
+  }
+
+  private recomputeSizes() {
+    const workbook = this.workbook;
+    const height = workbook.rows[workbook.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5;
+    const width = workbook.cols[workbook.cols.length - 1].right + DEFAULT_CELL_WIDTH;
+    this.history.updateLocalState(["width"], width);
+    this.history.updateLocalState(["height"], height);
   }
 
   // ---------------------------------------------------------------------------
@@ -224,6 +241,7 @@ export class GridPlugin extends BasePlugin {
         this.importSheet(sheet, sheetData.merges);
       }
     }
+    this.recomputeSizes();
   }
 
   importSheet(sheet: Sheet, merges: string[]) {

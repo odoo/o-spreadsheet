@@ -119,11 +119,6 @@ export interface Workbook {
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
 
-  // width and height of the sheet zone (not just the visible part, and excluding
-  // the row and col headers)
-  width: number;
-  height: number;
-
   isSelectingRange: boolean;
 
   // sheets
