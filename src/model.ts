@@ -27,9 +27,9 @@ pluginRegistry
   .add("clipboard", ClipboardPlugin)
   .add("grid", GridPlugin)
   .add("formatting", FormattingPlugin)
+  .add("edition", EditionPlugin)
   .add("selection", SelectionPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
-  .add("edition", EditionPlugin)
   .add("entities", EntityPlugin)
   .add("layout", LayoutPlugin);
 
