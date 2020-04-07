@@ -21,6 +21,15 @@ function simulateContextMenu(x, y) {
 }
 
 describe("Context Menu", () => {
+  test("context menu simple rendering", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(300, 200);
+    await nextTick();
+    expect(fixture.querySelector(".o-context-menu")).toMatchSnapshot();
+  });
+
   test("right click on a cell opens a context menu", async () => {
     const model = new Model();
 

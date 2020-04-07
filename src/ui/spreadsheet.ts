@@ -70,7 +70,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  data: any;
+  data?: any;
 }
 
 export interface SpreadsheetEnv {

@@ -63,6 +63,11 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
+    test("simple snapshot with =S", async () => {
+      await typeInComposer("=S");
+      expect(fixture.querySelector(".o-autocomplete-dropdown")).toMatchSnapshot();
+    });
+
     test("=S show autocomplete functions starting with S", async () => {
       await typeInComposer("=S");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);

@@ -32,7 +32,7 @@ const { useRef, useExternalListener } = owl.hooks;
 // TEMPLATE
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet-sheet" t-on-click="focus" t-on-keydown="onKeydown">
+  <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown">
     <t t-if="state.editionMode !== 'inactive'">
       <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
     </t>
@@ -61,7 +61,7 @@ const TEMPLATE = xml/* xml */ `
 // STYLE
 // -----------------------------------------------------------------------------
 const CSS = css/* scss */ `
-  .o-spreadsheet-sheet {
+  .o-grid {
     position: relative;
     overflow: hidden;
     background-color: ${BACKGROUND_GRAY_COLOR};
