@@ -33,6 +33,7 @@ const DEFAULT_STYLE: Style = {
 type FormatInfo = {
   border?: number;
   style?: number;
+  format?: string;
 };
 
 /**
@@ -378,9 +379,15 @@ export class FormattingPlugin extends BasePlugin {
         if (upperFormat.style) {
           format["style"] = upperFormat.style;
         }
+        if (upperFormat.format) {
+          format["format"] = upperFormat.format;
+        }
       } else {
         if (lowerFormat.style) {
           format["style"] = lowerFormat.style;
+        }
+        if (lowerFormat.format) {
+          format["format"] = lowerFormat.format;
         }
       }
       if (upperFormat.border && upperFormat.border === lowerFormat.border) {
@@ -394,7 +401,8 @@ export class FormattingPlugin extends BasePlugin {
             col: isColumn ? i : x,
             row: isColumn ? x : i,
             style: format.style,
-            border: format.border
+            border: format.border,
+            format: format.format
           });
         }
       }
@@ -415,6 +423,9 @@ export class FormattingPlugin extends BasePlugin {
       }
       if (this.workbook.cells[xc].style) {
         format["style"] = this.workbook.cells[xc].style;
+      }
+      if (this.workbook.cells[xc].format) {
+        format["format"] = this.workbook.cells[xc].format;
       }
     }
     return format;
