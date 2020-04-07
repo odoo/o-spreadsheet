@@ -165,7 +165,7 @@ describe("history", () => {
     model.dispatch({
       type: "DELETE_CONTENT",
       sheet: model.state.activeSheet,
-      target: model.state.selection.zones
+      target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.A2).not.toBeDefined();
 

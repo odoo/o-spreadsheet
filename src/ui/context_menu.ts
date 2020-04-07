@@ -35,7 +35,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     name: "cut",
     description: "Cut",
     action(model) {
-      model.dispatch({ type: "CUT", target: model.state.selection.zones });
+      model.dispatch({ type: "CUT", target: model.getters.getSelectedZones() });
     }
   })
   .add("copy", {
@@ -43,7 +43,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     name: "copy",
     description: "Copy",
     action(model) {
-      model.dispatch({ type: "COPY", target: model.state.selection.zones });
+      model.dispatch({ type: "COPY", target: model.getters.getSelectedZones() });
     }
   })
   .add("paste", {
@@ -53,7 +53,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     action(model) {
       model.dispatch({
         type: "PASTE",
-        target: model.state.selection.zones,
+        target: model.getters.getSelectedZones(),
         onlyFormat: false
       });
     }

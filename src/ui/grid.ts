@@ -141,7 +141,7 @@ export class Grid extends Component<any, any> {
       this.model.dispatch({
         type: "DELETE_CONTENT",
         sheet: this.state.activeSheet,
-        target: this.state.selection.zones
+        target: this.model.getters.getSelectedZones()
       });
     },
     "CTRL+A": () => this.model.dispatch({ type: "SELECT_ALL" }),
@@ -158,7 +158,7 @@ export class Grid extends Component<any, any> {
     if (this.model.getters.isPaintingFormat()) {
       this.model.dispatch({
         type: "PASTE",
-        target: this.model.state.selection.zones
+        target: this.model.getters.getSelectedZones()
       });
     }
   }
@@ -281,7 +281,7 @@ export class Grid extends Component<any, any> {
       if (this.model.getters.isPaintingFormat()) {
         this.model.dispatch({
           type: "PASTE",
-          target: this.model.state.selection.zones
+          target: this.model.getters.getSelectedZones()
         });
       }
     };
@@ -368,7 +368,7 @@ export class Grid extends Component<any, any> {
       return;
     }
     const type = cut ? "CUT" : "COPY";
-    const target = this.model.state.selection.zones;
+    const target = this.model.getters.getSelectedZones();
     this.model.dispatch({ type, target });
     const content = this.model.getters.getClipboardContent();
     this.clipBoardString = content;
@@ -386,7 +386,7 @@ export class Grid extends Component<any, any> {
         // the paste actually comes from o-spreadsheet itself
         const result = this.model.dispatch({
           type: "PASTE",
-          target: this.model.state.selection.zones
+          target: this.model.getters.getSelectedZones()
         });
         if (result === "CANCELLED") {
           this.trigger("notify-user", {
@@ -396,7 +396,7 @@ export class Grid extends Component<any, any> {
       } else {
         this.model.dispatch({
           type: "PASTE_FROM_OS_CLIPBOARD",
-          target: this.model.state.selection.zones,
+          target: this.model.getters.getSelectedZones(),
           text: content
         });
       }
@@ -410,7 +410,7 @@ export class Grid extends Component<any, any> {
     if (col < 0 || row < 0) {
       return;
     }
-    const zones = this.model.state.selection.zones;
+    const zones = this.model.getters.getSelectedZones();
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {

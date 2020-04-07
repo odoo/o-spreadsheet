@@ -142,8 +142,6 @@ export interface Box {
 }
 
 export interface UI {
-  selection: Selection;
-
   activeCol: number;
   activeRow: number;
   activeXc: string;
@@ -182,6 +180,7 @@ export interface UI {
 
 export interface Viewport {
   boxes: Box[];
+  selection: Zone[];
   width: number;
   height: number;
   offsetX: number;

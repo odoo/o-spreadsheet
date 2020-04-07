@@ -166,7 +166,8 @@ export class LayoutPlugin extends BasePlugin {
       offsetY,
       boxes: this.getGridBoxes(),
       activeCols: this.getters.getActiveCols(),
-      activeRows: this.getters.getActiveRows()
+      activeRows: this.getters.getActiveRows(),
+      selection: this.getters.getSelectedZones()
     };
   }
 
@@ -298,7 +299,6 @@ export class LayoutPlugin extends BasePlugin {
       scrollLeft: this.scrollLeft,
       clipboard: this.getters.getClipboardZones(),
       viewport: viewport,
-      selection: this.getters.getSelection(),
       activeCol: col,
       activeRow: row,
       activeXc: toXC(col, row),
