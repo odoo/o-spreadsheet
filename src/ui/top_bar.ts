@@ -400,13 +400,13 @@ export class TopBar extends Component<any, any> {
     this.style = this.model.getters.getCurrentStyle();
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
-    const selection = state.selection;
-    const { top, left, right, bottom } = selection.zones[0];
-    this.cannotMerge = selection.zones.length > 1 || (top === bottom && left === right);
+    const zones = this.model.getters.getSelectedZones();
+    const { top, left, right, bottom } = zones[0];
+    this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
     this.inMerge = false;
     if (!this.cannotMerge) {
       const mergeId = state.mergeCellMap[state.activeXc];
-      this.inMerge = mergeId ? isEqual(selection.zones[0], state.merges[mergeId]) : false;
+      this.inMerge = mergeId ? isEqual(zones[0], state.merges[mergeId]) : false;
     }
     this.undoTool = state.canUndo;
     this.redoTool = state.canRedo;
@@ -474,7 +474,7 @@ export class TopBar extends Component<any, any> {
   paintFormat() {
     this.model.dispatch({
       type: "ACTIVATE_PAINT_FORMAT",
-      target: this.model.state.selection.zones
+      target: this.model.getters.getSelectedZones()
     });
   }
   clearFormatting() {

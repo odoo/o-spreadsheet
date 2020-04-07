@@ -27,7 +27,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Vie
   // 3. draw additional chrome: selection, clipboard, headers, ...
   drawHighlights(ctx, state);
   drawClipBoard(ctx, state);
-  drawSelection(ctx, state);
+  drawSelection(ctx, state, viewport);
   drawHeader(ctx, state, viewport);
   drawActiveZone(ctx, state);
 }
@@ -161,9 +161,8 @@ function drawTexts(ctx: CanvasRenderingContext2D, boxes: Box[]) {
   }
 }
 
-function drawSelection(ctx: CanvasRenderingContext2D, state: UI) {
-  const { selection } = state;
-  const { zones } = selection;
+function drawSelection(ctx: CanvasRenderingContext2D, state: UI, viewport: Viewport) {
+  const { selection: zones } = viewport;
   ctx.fillStyle = "#f3f7fe";
   const onlyOneCell =
     zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
@@ -242,8 +241,8 @@ function drawClipBoard(ctx: CanvasRenderingContext2D, state: UI) {
 }
 
 function drawHeader(ctx: CanvasRenderingContext2D, state: UI, viewportState: Viewport) {
-  const { activeCols, activeRows } = viewportState;
-  const { selection, viewport, width, height, cols, rows, offsetX, offsetY } = state;
+  const { activeCols, activeRows, selection } = viewportState;
+  const { viewport, width, height, cols, rows, offsetX, offsetY } = state;
   const { top, left, bottom, right } = viewport;
 
   ctx.fillStyle = "#f4f5f8";
@@ -258,7 +257,7 @@ function drawHeader(ctx: CanvasRenderingContext2D, state: UI, viewportState: Vie
   ctx.fillRect(0, 0, HEADER_WIDTH, height);
   // selection background
   ctx.fillStyle = "#dddddd";
-  for (let zone of selection.zones) {
+  for (let zone of selection) {
     const x1 = Math.max(HEADER_WIDTH, cols[zone.left].left - offsetX);
     const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
     const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
