@@ -13,14 +13,21 @@ const { xml, css } = tags;
 
 export type ContextMenuType = "COLUMN" | "ROW" | "CELL";
 
-export interface ContextMenuItem {
-  type: "separator" | "action";
+interface ActionContextMenuItem {
+  type: "action";
   name: string;
   description: string;
   isEnabled?: (cell: Cell | null) => boolean;
   isVisible?: (type: ContextMenuType) => boolean;
   action: (model: Model, subEnv: SpreadsheetEnv) => void;
 }
+
+interface SeparatorContextMenuItem {
+  type: "separator";
+  isVisible?: (type: ContextMenuType) => boolean;
+}
+
+export type ContextMenuItem = ActionContextMenuItem | SeparatorContextMenuItem;
 
 export const contextMenuRegistry = new Registry<ContextMenuItem>()
   .add("cut", {
@@ -50,6 +57,9 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
         onlyFormat: false
       });
     }
+  })
+  .add("separator1", {
+    type: "separator"
   })
   .add("clear_cell", {
     type: "action",
@@ -223,12 +233,14 @@ const TEMPLATE = xml/* xml */ `
         <t t-foreach="menuItems" t-as="menuItem" t-key="menuItem.name">
           <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(model.state.selectedCell)"/>
           <div
+            t-if="menuItem.type === 'action'"
             t-att-data-name="menuItem.name"
-            t-on-click="activateMenu(menuItem.name)"
+            t-on-click="activateMenu(menuItem)"
             class="o-menuitem"
             t-att-class="{disabled: !isEnabled}">
               <t t-esc="menuItem.description"/>
           </div>
+          <div t-else="" class="o-menuitem separator" />
         </t>
     </div>`;
 
@@ -252,6 +264,13 @@ const CSS = css/* scss */ `
 
       &.disabled {
         color: grey;
+      }
+
+      &.separator {
+        height: 1px;
+        background-color: rgba(0, 0, 0, 0.12);
+        margin: 0 8px;
+        padding: 0;
       }
     }
   }
@@ -294,9 +313,8 @@ export class ContextMenu extends Component<Props, any> {
     return `${vStyle}px;${hStyle}px`;
   }
 
-  activateMenu(name: string) {
-    const menu = this.menuItems.find(m => m.name === name);
-    if (menu && (!menu.isEnabled || menu.isEnabled(this.model.state.selectedCell))) {
+  activateMenu(menu: ActionContextMenuItem) {
+    if (!menu.isEnabled || menu.isEnabled(this.model.state.selectedCell)) {
       menu.action(this.model, this.env.spreadsheet);
     }
   }
