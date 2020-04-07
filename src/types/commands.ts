@@ -72,6 +72,9 @@ export interface RemoveEntityCommand {
  */
 export interface CreateSheetCommand {
   type: "CREATE_SHEET";
+  name?: string;
+  cols?: number;
+  rows?: number;
 }
 
 export interface AddMergeCommand {

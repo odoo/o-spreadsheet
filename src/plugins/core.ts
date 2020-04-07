@@ -28,13 +28,26 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 export class CorePlugin extends BasePlugin {
   static getters = ["getCell", "getCellText", "zoneToXC"];
 
+  canDispatch(cmd: GridCommand): boolean {
+    switch (cmd.type) {
+      case "CREATE_SHEET":
+        return !cmd.name || this.workbook.sheets.findIndex(sheet => sheet.name === cmd.name) === -1;
+      default:
+        return true;
+    }
+  }
+
   handle(cmd: GridCommand) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.activateSheet(cmd.to);
         break;
       case "CREATE_SHEET":
-        const sheet = this.createSheet();
+        const sheet = this.createSheet(
+          cmd.name || `Sheet${this.workbook.sheets.length + 1}`,
+          cmd.cols || 26,
+          cmd.rows || 100
+        );
         this.dispatch({ type: "ACTIVATE_SHEET", from: this.workbook.activeSheet.name, to: sheet });
         break;
       case "DELETE_CONTENT":
@@ -227,14 +240,14 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(["cells"], sheet.cells);
   }
 
-  private createSheet(): string {
+  private createSheet(name: string, cols: number, rows: number): string {
     const sheet: Sheet = {
-      name: `Sheet${this.workbook.sheets.length + 1}`,
+      name,
       cells: {},
-      colNumber: 26,
-      rowNumber: 100,
-      cols: createDefaultCols(26),
-      rows: createDefaultRows(100),
+      colNumber: cols,
+      rowNumber: rows,
+      cols: createDefaultCols(cols),
+      rows: createDefaultRows(rows),
       merges: {},
       mergeCellMap: {},
       conditionalFormats: []
