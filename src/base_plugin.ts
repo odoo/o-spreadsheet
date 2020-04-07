@@ -46,5 +46,5 @@ export class BasePlugin implements CommandHandler {
   finalize(command: GridCommand): void {}
 
   import(data: WorkbookData) {}
-  export(data: Partial<WorkbookData>) {}
+  export(data: WorkbookData) {}
 }

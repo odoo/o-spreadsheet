@@ -83,7 +83,7 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
   };
 }
 
-function createEmptyWorkbookData(): WorkbookData {
+export function createEmptyWorkbookData(): WorkbookData {
   return {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet()],
