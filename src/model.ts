@@ -1,7 +1,6 @@
 import * as owl from "@odoo/owl";
-import { createEmptyWorkbook, CURRENT_VERSION, load } from "./data";
-import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "./types/index";
 import { BasePlugin, CommandHandler } from "./base_plugin";
+import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";
 import { ConditionalFormatPlugin } from "./plugins/conditional_format";
@@ -14,6 +13,7 @@ import { GridPlugin } from "./plugins/grid";
 import { LayoutPlugin } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
 import { Registry } from "./registry";
+import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "./types/index";
 
 // -----------------------------------------------------------------------------
 // Plugins
@@ -130,13 +130,12 @@ export class Model extends owl.core.EventBus {
   // export
   // ---------------------------------------------------------------------------
   exportData(): WorkbookData {
-    const data = (this.handlers[1] as CorePlugin).export();
-    for (let handler of this.handlers.slice(2)) {
+    const data = createEmptyWorkbookData();
+    for (let handler of this.handlers) {
       if (handler instanceof BasePlugin) {
         handler.export(data);
       }
     }
-    data.version = CURRENT_VERSION;
-    return data as WorkbookData;
+    return data;
   }
 }

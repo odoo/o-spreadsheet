@@ -314,10 +314,8 @@ export class CorePlugin extends BasePlugin {
     }
   }
 
-  export(): Partial<WorkbookData> {
-    const sheets: SheetData[] = [];
-    for (let sheetName in this.workbook.sheets) {
-      const sheet = this.workbook.sheets[sheetName];
+  export(data: WorkbookData) {
+    data.sheets = this.workbook.sheets.map(sheet => {
       const cells: { [key: string]: CellData } = {};
       for (let [key, cell] of Object.entries(sheet.cells)) {
         cells[key] = {
@@ -327,7 +325,7 @@ export class CorePlugin extends BasePlugin {
           format: cell.format
         };
       }
-      sheets.push({
+      return {
         name: sheet.name,
         colNumber: sheet.colNumber,
         rowNumber: sheet.rowNumber,
@@ -336,12 +334,8 @@ export class CorePlugin extends BasePlugin {
         merges: exportMerges(sheet.merges),
         cells: cells,
         conditionalFormats: sheet.conditionalFormats
-      });
-    }
-
-    return {
-      sheets
-    };
+      };
+    });
   }
 }
 
