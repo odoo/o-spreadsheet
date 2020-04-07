@@ -676,7 +676,8 @@ export class GridPlugin extends BasePlugin {
           row: cell.row,
           content: cell.content,
           border: cell.border,
-          style: cell.style
+          style: cell.style,
+          format: cell.format
         };
       }
     );
@@ -694,7 +695,8 @@ export class GridPlugin extends BasePlugin {
           row: cell.row + step,
           content: cell.content,
           border: cell.border,
-          style: cell.style
+          style: cell.style,
+          format: cell.format
         };
       }
     );
