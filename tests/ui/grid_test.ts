@@ -20,6 +20,10 @@ afterEach(() => {
 });
 
 describe("Grid component", () => {
+  test("simple rendering snapshot", async () => {
+    expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
+  });
+
   test("can render a sheet with a merge", async () => {
     model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
 

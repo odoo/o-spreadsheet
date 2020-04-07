@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Context Menu context menu simple rendering 1`] = `
+<div
+  class="o-context-menu"
+  style="top:200px;left:300px"
+  tabindex="-1"
+>
+  <div
+    class="o-menuitem"
+    data-name="cut"
+  >
+    Cut
+  </div>
+  <div
+    class="o-menuitem"
+    data-name="copy"
+  >
+    Copy
+  </div>
+  <div
+    class="o-menuitem"
+    data-name="paste"
+  >
+    Paste
+  </div>
+  <div
+    class="o-menuitem separator"
+  />
+  <div
+    class="o-menuitem disabled"
+    data-name="clear_cell"
+  >
+    Clear cell
+  </div>
+  <div
+    class="o-menuitem"
+    data-name="conditional_formatting"
+  >
+    Conditional Format
+  </div>
+</div>
+`;

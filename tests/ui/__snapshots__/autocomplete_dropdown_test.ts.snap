@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
+<div
+  class="o-autocomplete-dropdown"
+>
+  <div
+    class="o-autocomplete-value-focus"
+  >
+    <div
+      class="o-autocomplete-value"
+    >
+      SUM
+    </div>
+    <div
+      class="o-autocomplete-description"
+    >
+      do sum
+    </div>
+  </div>
+  <div>
+    <div
+      class="o-autocomplete-value"
+    >
+      SZZ
+    </div>
+  </div>
+</div>
+`;

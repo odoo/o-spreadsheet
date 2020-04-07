@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UI of conditional formats simple snapshot 1`] = `
+<div
+  class="o-sidePanel"
+>
+  <div
+    class="o-sidePanelHeader"
+  >
+    <div
+      class="o-sidePanelTitle"
+    >
+      Conditional Formatting
+    </div>
+    <div
+      class="o-sidePanelClose"
+    >
+      x
+    </div>
+  </div>
+  <div
+    class="o-sidePanelBody"
+  >
+    <div
+      class="o-cf"
+    >
+      <h3>
+        Current sheet
+      </h3>
+      <div
+        class="o-cf-preview-list"
+      >
+        <div>
+          <div
+            class="o-cf-preview"
+            style="font-weight:normal;
+                     text-decoration:none;
+                     font-style:normal;
+                     color:undefined;
+                     background-color:#FF0000;"
+          >
+            A1:A2
+          </div>
+        </div>
+        <div>
+          <div
+            class="o-cf-preview"
+            style="background-image: linear-gradient(to right, #ff00ff, #123456)"
+          >
+            B1:B5
+          </div>
+        </div>
+      </div>
+      <button
+        class="o-cf-add"
+      >
+        Add
+      </button>
+    </div>
+  </div>
+</div>
+`;

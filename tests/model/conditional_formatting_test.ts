@@ -1,8 +1,8 @@
-import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
 import { Model } from "../../src/model";
 import { ColorScaleThreshold, ConditionalFormat, Style } from "../../src/types";
 import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
+import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
 
 let model: Model;
 
@@ -597,6 +597,10 @@ describe("UI of conditional formats", () => {
     buttonSave: ".o-cf-buttons .o-cf-save",
     buttonAdd: ".o-cf-add"
   };
+
+  test("simple snapshot", () => {
+    expect(fixture.querySelector(".o-sidePanel")!).toMatchSnapshot();
+  });
 
   test("the list of CF has a correct preview", () => {
     // check the html of the list (especially the colors)

@@ -34,6 +34,13 @@ afterEach(() => {
 });
 
 describe("TopBar component", () => {
+  test("simple rendering", async () => {
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+
+    expect(fixture.querySelector(".o-spreadsheet-topbar")).toMatchSnapshot();
+  });
+
   test("merging destructively a selection ask for confirmation", async () => {
     const model = new Model();
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
