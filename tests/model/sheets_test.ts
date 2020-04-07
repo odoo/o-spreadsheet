@@ -20,6 +20,22 @@ describe("sheets", () => {
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
   });
 
+  test("Can create a new sheet with given size and name", () => {
+    const model = new Model();
+    model.dispatch({ type: "CREATE_SHEET", rows: 2, cols: 4, name: "SheetTest" });
+    expect(model.workbook.activeSheet.colNumber).toBe(4);
+    expect(model.workbook.activeSheet.cols.length).toBe(4);
+    expect(model.workbook.activeSheet.rowNumber).toBe(2);
+    expect(model.workbook.activeSheet.rows.length).toBe(2);
+    expect(model.workbook.activeSheet.name).toBe("SheetTest");
+  });
+
+  test("Cannot create a sheet with a name already existent", () => {
+    const model = new Model();
+    const name = model.workbook.activeSheet.name;
+    expect(model.dispatch({ type: "CREATE_SHEET", name })).toBe("CANCELLED");
+  });
+
   test("can read a value in same sheet", () => {
     const model = new Model();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
