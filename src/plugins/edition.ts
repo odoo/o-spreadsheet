@@ -1,14 +1,14 @@
 import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
-import { GridCommand, Zone, Highlight } from "../types/index";
+import { GridCommand, Zone, Highlight, EditionMode } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
-  static getters = ["isEditing", "getCurrentContent", "getHighlights"];
+  static getters = ["getEditionMode", "getCurrentContent", "getHighlights"];
 
   private col: number = 0;
   private row: number = 0;
-  private _isEditing: boolean = false;
+  private mode: EditionMode = "inactive";
   private currentContent: string = "";
   private highlights: Highlight[] = [];
 
@@ -21,7 +21,7 @@ export class EditionPlugin extends BasePlugin {
         this.highlights = [];
         break;
       case "START_COMPOSER_SELECTION":
-        this.workbook.isSelectingRange = true;
+        this.mode = "selecting";
         this.dispatch({
           type: "SET_SELECTION",
           zones: this.getters.getSelectedZones(),
@@ -29,7 +29,7 @@ export class EditionPlugin extends BasePlugin {
         });
         break;
       case "STOP_COMPOSER_SELECTION":
-        this.workbook.isSelectingRange = false;
+        this.mode = "editing";
         break;
       case "START_EDITION":
         this.startEdition(cmd.text);
@@ -46,15 +46,15 @@ export class EditionPlugin extends BasePlugin {
         break;
       case "SELECT_CELL":
       case "MOVE_POSITION":
-        if (!this.workbook.isSelectingRange && this._isEditing) {
+        if (this.mode === "editing") {
           this.stopEdition();
         }
         break;
     }
   }
 
-  isEditing(): boolean {
-    return this._isEditing;
+  getEditionMode(): EditionMode {
+    return this.mode;
   }
 
   getCurrentContent(): string {
@@ -87,7 +87,7 @@ export class EditionPlugin extends BasePlugin {
       const cell = this.getters.getActiveCell();
       str = cell ? cell.content || "" : "";
     }
-    this._isEditing = true;
+    this.mode = "editing";
     this.currentContent = str || "";
     this.highlights = [];
     const [col, row] = this.getters.getPosition();
@@ -96,7 +96,7 @@ export class EditionPlugin extends BasePlugin {
   }
 
   private stopEdition() {
-    if (this._isEditing) {
+    if (this.mode !== "inactive") {
       this.cancelEdition();
       let xc = toXC(this.col, this.row);
       if (xc in this.workbook.mergeCellMap) {
@@ -141,8 +141,7 @@ export class EditionPlugin extends BasePlugin {
   }
 
   private cancelEdition() {
-    this._isEditing = false;
-    this.workbook.isSelectingRange = false;
+    this.mode = "inactive";
     this.highlights = [];
   }
 }

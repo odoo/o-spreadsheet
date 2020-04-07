@@ -235,7 +235,7 @@ describe("selection", () => {
     });
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
     expect(model.getters.getActiveXc()).toBe("C3");
-    model.workbook.isSelectingRange = true;
+    model.dispatch({ type: "START_COMPOSER_SELECTION" });
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
     expect(model.getters.getActiveXc()).toBe("C3"); // active cell is not modified but the selection is
 
@@ -256,7 +256,7 @@ describe("selection", () => {
     });
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
 
-    model.workbook.isSelectingRange = true;
+    model.dispatch({ type: "START_COMPOSER_SELECTION" });
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [4, 4] });
 
@@ -271,7 +271,7 @@ describe("selection", () => {
     const model = new Model();
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
 
-    model.workbook.isSelectingRange = true;
+    model.dispatch({ type: "START_COMPOSER_SELECTION" });
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
 
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });

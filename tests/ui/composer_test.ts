@@ -160,7 +160,7 @@ describe("ranges and highlights", () => {
 describe("composer", () => {
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
-    expect(model.getters.isEditing()).toBe(true);
+    expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
   });
@@ -189,11 +189,11 @@ describe("composer", () => {
 
   test("type '=', select twice a cell", async () => {
     await typeInComposer("=");
-    expect(model.workbook.isSelectingRange).toBeTruthy();
+    expect(model.getters.getEditionMode()).toBe("selecting");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
-    expect(model.workbook.isSelectingRange).toBeTruthy();
+    expect(model.getters.getEditionMode()).toBe("selecting");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -206,9 +206,9 @@ describe("composer", () => {
     document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
-    expect(model.workbook.isSelectingRange).toBeTruthy();
+    expect(model.getters.getEditionMode()).toBe("selecting");
     await keydown("Enter");
-    expect(model.workbook.isSelectingRange).toBeFalsy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
     expect(model.workbook.cells.A1.content).toBe("=C8");
   });
 

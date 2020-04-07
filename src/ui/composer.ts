@@ -204,7 +204,7 @@ export class Composer extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   processArrowKeys(ev: KeyboardEvent, delta: Array<number>) {
-    if (this.model.state.isSelectingRange) {
+    if (this.model.state.editionMode === "selecting") {
       ev.preventDefault();
       return;
     }

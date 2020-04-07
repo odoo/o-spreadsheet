@@ -188,9 +188,8 @@ export class SelectionPlugin extends BasePlugin {
    * Return [col, row]
    */
   private getReferenceCoords(): [number, number] {
-    const { isSelectingRange } = this.workbook;
-    const { selection, activeCol, activeRow } = this;
-    return isSelectingRange ? selection.anchor : [activeCol, activeRow];
+    const isSelectingRange = this.getters.getEditionMode() === "selecting";
+    return isSelectingRange ? this.selection.anchor : [this.activeCol, this.activeRow];
   }
 
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
@@ -251,7 +250,7 @@ export class SelectionPlugin extends BasePlugin {
       this.selection.zones = [zone];
     }
     this.selection.anchor = [col, row];
-    if (!this.workbook.isSelectingRange) {
+    if (this.getters.getEditionMode() !== "selecting") {
       this.activeCol = col;
       this.activeRow = row;
       this.activeXc = xc;

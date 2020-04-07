@@ -53,7 +53,7 @@ export interface Getters {
   canUndo: WHistory["canUndo"];
   canRedo: WHistory["canRedo"];
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  isEditing: EditionPlugin["isEditing"];
+  getEditionMode: EditionPlugin["getEditionMode"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
   getHighlights: EditionPlugin["getHighlights"];
 }

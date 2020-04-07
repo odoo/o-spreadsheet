@@ -115,12 +115,12 @@ export interface Workbook {
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
 
-  isSelectingRange: boolean;
-
   // sheets
   sheets: Sheet[];
   activeSheet: Sheet;
 }
+
+export type EditionMode = "editing" | "selecting" | "inactive";
 
 // -----------------------------------------------------------------------------
 // UIState
@@ -152,12 +152,10 @@ export interface UI {
 
   clipboard: Zone[];
   highlights: Highlight[];
-  isSelectingRange: boolean;
+  editionMode: EditionMode;
 
   selectedCell: Cell | null;
   aggregate: string | null;
-
-  isEditing: boolean;
 
   canUndo: boolean;
   canRedo: boolean;

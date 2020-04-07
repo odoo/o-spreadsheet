@@ -33,7 +33,7 @@ const { useRef, useExternalListener } = owl.hooks;
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-sheet" t-on-click="focus" t-on-keydown="onKeydown">
-    <t t-if="state.isEditing">
+    <t t-if="state.editionMode !== 'inactive'">
       <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
     </t>
     <canvas t-ref="canvas"
@@ -188,7 +188,7 @@ export class Grid extends Component<any, any> {
   }
 
   focus() {
-    if (!this.state.isSelectingRange) {
+    if (this.state.editionMode !== "selecting") {
       this.canvas.el!.focus();
     }
   }
@@ -272,7 +272,7 @@ export class Grid extends Component<any, any> {
       }
     };
     const onMouseUp = ev => {
-      if (this.model.state.isSelectingRange) {
+      if (this.model.state.editionMode === "selecting") {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
         }
@@ -325,7 +325,7 @@ export class Grid extends Component<any, any> {
       this.model.dispatch({ type: "MOVE_POSITION", deltaX: delta[0], deltaY: delta[1] });
     }
 
-    if (this.model.state.isSelectingRange && this.composer.comp) {
+    if (this.model.state.editionMode === "selecting" && this.composer.comp) {
       (this.composer.comp as Composer).addTextFromSelection();
     } else {
       this.processCopyFormat();

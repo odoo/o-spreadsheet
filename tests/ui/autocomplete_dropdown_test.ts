@@ -284,7 +284,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=s");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
     await nextTick();
-    expect(model.workbook.isSelectingRange).toBeTruthy();
+    expect(model.getters.getEditionMode()).toBe("selecting");
   });
 });
 
