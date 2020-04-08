@@ -5,10 +5,10 @@ exports[`Grid component simple rendering snapshot 1`] = `
   class="o-grid"
 >
   <canvas
-    height="150"
-    style="width:-15px;height:-15px;"
+    height="1000"
+    style="width:1000px;height:1000px;"
     tabindex="-1"
-    width="300"
+    width="1000"
   />
   <div
     class="o-overlay"
