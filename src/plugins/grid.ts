@@ -2,7 +2,6 @@ import {
   isEqual,
   toCartesian,
   toXC,
-  toZone,
   sanitizeSheet,
   numberToLetters,
   union
@@ -12,6 +11,12 @@ import { Cell, GridCommand, Sheet, Zone, WorkbookData, Col, Row } from "../types
 import { tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
+import {
+  updateRemoveColumns,
+  updateRemoveRows,
+  updateAddColumns,
+  updateAddRows
+} from "../helpers/grid_manipulation";
 
 const MIN_PADDING = 3;
 
@@ -395,7 +400,7 @@ export class GridPlugin extends BasePlugin {
       this.updateMergesStyles(sheetID, column, true);
       let merges: string[] = this.exportMerges(this.workbook.sheets[sheetID]);
       this.removeAllMerges(sheetID);
-      merges = this.updateMergesHorizontally(column, -1, merges);
+      merges = this.updateMerges(merges, (range: string) => updateRemoveColumns(range, [column]));
 
       // Update all the formulas.
       this.updateAllFormulasHorizontally(column, -1);
@@ -430,7 +435,7 @@ export class GridPlugin extends BasePlugin {
       this.updateMergesStyles(sheetID, row, false);
       let merges: string[] = this.exportMerges(this.workbook.sheets[sheetID]);
       this.removeAllMerges(sheetID);
-      merges = this.updateMergesVertically(row, -1, merges);
+      merges = this.updateMerges(merges, (range: string) => updateRemoveRows(range, [row]));
 
       // Update all the formulas.
       this.updateAllFormulasVertically(row, -1);
@@ -454,11 +459,8 @@ export class GridPlugin extends BasePlugin {
     // Remove the merges and adapt them.
     let merges: string[] = this.exportMerges(this.workbook.sheets[sheetID]);
     this.removeAllMerges(sheetID);
-    merges = this.updateMergesHorizontally(
-      position === "before" ? column : column + 1,
-      quantity,
-      merges
-    );
+    const col = position === "before" ? column : column + 1;
+    merges = this.updateMerges(merges, (range: string) => updateAddColumns(range, col, quantity));
 
     // Update all the formulas.
     this.updateAllFormulasHorizontally(position === "before" ? column - 1 : column, quantity);
@@ -479,7 +481,8 @@ export class GridPlugin extends BasePlugin {
     // Remove the merges and adapt them.
     let merges: string[] = this.exportMerges(this.workbook.sheets[sheetID]);
     this.removeAllMerges(sheetID);
-    merges = this.updateMergesVertically(position === "before" ? row : row + 1, quantity, merges);
+    const r = position === "before" ? row : row + 1;
+    merges = this.updateMerges(merges, (range: string) => updateAddRows(range, r, quantity));
 
     // Update all the formulas.
     this.updateAllFormulasVertically(position === "before" ? row - 1 : row, quantity);
@@ -519,46 +522,19 @@ export class GridPlugin extends BasePlugin {
     }
   }
 
-  private updateMergesHorizontally(base: number, step: number, merges: string[]): string[] {
-    const movedMerges: string[] = [];
+  private updateMerges(merges: string[], updateCb: (range: string) => string | null): string[] {
+    const updatedMerges: string[] = [];
     for (let merge of merges) {
-      let { top, left, bottom, right } = toZone(merge);
-      if (left >= base && step !== -1) {
-        left += step;
+      const updatedMerge = updateCb(merge);
+      if (updatedMerge) {
+        const [tl, br] = updatedMerge.split(":");
+        if (tl === br) {
+          continue;
+        }
+        updatedMerges.push(updatedMerge);
       }
-      if (left > base && step === -1) {
-        left += step;
-      }
-      if (left >= base || right >= base) {
-        right += step;
-      }
-      if ((right === left && top === bottom) || left > right) {
-        continue;
-      }
-      movedMerges.push(toXC(left, top) + ":" + toXC(right, bottom));
     }
-    return movedMerges;
-  }
-
-  private updateMergesVertically(base: number, step: number, merges: string[]): string[] {
-    const movedMerges: string[] = [];
-    for (let merge of merges) {
-      let { top, left, bottom, right } = toZone(merge);
-      if (top >= base && step !== -1) {
-        top += step;
-      }
-      if (top > base && step === -1) {
-        top += step;
-      }
-      if (top >= base || bottom >= base) {
-        bottom += step;
-      }
-      if ((right === left && top === bottom) || top > bottom) {
-        continue;
-      }
-      movedMerges.push(toXC(left, top) + ":" + toXC(right, bottom));
-    }
-    return movedMerges;
+    return updatedMerges;
   }
 
   /**
