@@ -1,4 +1,4 @@
-import { BasePlugin, LAYERS } from "../base_plugin";
+import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -10,7 +10,7 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, GridCommand, Rect, UI, Zone, Viewport, Highlight } from "../types/index";
+import { Box, GridCommand, Rect, UI, Zone, Viewport } from "../types/index";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
@@ -18,19 +18,6 @@ import { Box, GridCommand, Rect, UI, Zone, Viewport, Highlight } from "../types/
 
 let dpr = window.devicePixelRatio || 1;
 let thinLineWidth = 0.4 * dpr;
-
-export interface Grid {
-  boxes: Box[];
-  selection: Zone[];
-  width: number;
-  height: number;
-  offsetX: number;
-  offsetY: number;
-  activeCols: Set<number>;
-  activeRows: Set<number>;
-  clipboard: Zone[];
-  highlights: Highlight[];
-}
 
 function computeAlign(type: string): "right" | "center" | "left" {
   switch (type) {
@@ -44,20 +31,24 @@ function computeAlign(type: string): "right" | "center" | "left" {
 }
 
 export class RendererPlugin extends BasePlugin {
-  static layers = [LAYERS.Grid];
-  static getters = ["getViewport", "getUI", "getCol", "getRow"];
+  static layers = [LAYERS.Background, LAYERS.Misc, LAYERS.Headers];
+  static getters = ["getUI", "getCol", "getRow"];
 
   // actual size of the visible grid, in pixel
   private clientWidth: number = DEFAULT_CELL_WIDTH + HEADER_WIDTH;
   private clientHeight: number = DEFAULT_CELL_HEIGHT + HEADER_HEIGHT;
-  private viewport: Zone = { top: 0, left: 0, bottom: 0, right: 0 };
+
+  // todo: remove this
+  viewport: Zone = { top: 0, left: 0, bottom: 0, right: 0 };
 
   // offset between the visible zone and the full zone (take into account
   // headers)
-  private offsetX: number = 0;
-  private offsetY: number = 0;
+  offsetX: number = 0;
+  offsetY: number = 0;
   private scrollTop: number = 0;
   private scrollLeft: number = 0;
+
+  private boxes: Box[] = [];
 
   ui: UI | null = null;
 
@@ -80,7 +71,35 @@ export class RendererPlugin extends BasePlugin {
 
   getUI(force?: boolean): UI {
     if (!this.ui || force) {
-      this.ui = this.computeDerivedState();
+      const { cols, rows } = this.workbook;
+      const viewport = this.viewport;
+      const [col, row] = this.getters.getPosition();
+      const [width, height] = this.getters.getGridSize();
+      this.ui = {
+        rows: this.workbook.rows,
+        cols: this.workbook.cols,
+        merges: this.workbook.merges,
+        mergeCellMap: this.workbook.mergeCellMap,
+        width: width,
+        height: height,
+        clientWidth: this.clientWidth,
+        clientHeight: this.clientHeight,
+        offsetX: cols[viewport.left].left - HEADER_WIDTH,
+        offsetY: rows[viewport.top].top - HEADER_HEIGHT,
+        scrollTop: this.scrollTop,
+        scrollLeft: this.scrollLeft,
+        viewport: viewport,
+        activeCol: col,
+        activeRow: row,
+        activeXc: toXC(col, row),
+        editionMode: this.getters.getEditionMode(),
+        selectedCell: this.getters.getActiveCell(),
+        aggregate: this.getters.getAggregate(),
+        canUndo: this.getters.canUndo(),
+        canRedo: this.getters.canRedo(),
+        sheets: this.workbook.sheets.map(s => s.name),
+        activeSheet: this.workbook.activeSheet.name
+      };
     }
     return this.ui;
   }
@@ -97,7 +116,7 @@ export class RendererPlugin extends BasePlugin {
     const { left, right } = this.viewport;
     for (let i = left; i <= right; i++) {
       let c = cols[i];
-      if (c.left - this.offsetX <= x && x <= c.right - this.offsetX) {
+      if (c.left - this.offsetX + HEADER_WIDTH <= x && x <= c.right - this.offsetX + HEADER_WIDTH) {
         return i;
       }
     }
@@ -112,11 +131,27 @@ export class RendererPlugin extends BasePlugin {
     const { top, bottom } = this.viewport;
     for (let i = top; i <= bottom; i++) {
       let r = rows[i];
-      if (r.top - this.offsetY <= y && y <= r.bottom - this.offsetY) {
+      if (
+        r.top - this.offsetY + HEADER_HEIGHT <= y &&
+        y <= r.bottom - this.offsetY + HEADER_HEIGHT
+      ) {
         return i;
       }
     }
     return -1;
+  }
+
+  getRect(zone: Zone, viewport: Viewport): Rect {
+    const { left, top, right, bottom } = zone;
+    let { offsetY, offsetX } = viewport;
+    offsetX -= HEADER_WIDTH;
+    offsetY -= HEADER_HEIGHT;
+    const { cols, rows } = this.workbook;
+    const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
+    const width = cols[right].right - offsetX - x;
+    const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
+    const height = rows[bottom].bottom - offsetY - y;
+    return [x, y, width, height];
   }
 
   // ---------------------------------------------------------------------------
@@ -197,27 +232,315 @@ export class RendererPlugin extends BasePlugin {
         break;
       }
     }
-    this.offsetX = cols[viewport.left].left - HEADER_WIDTH;
-    this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
+    this.offsetX = cols[viewport.left].left;
+    this.offsetY = rows[viewport.top].top;
   }
 
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  getViewport(width: number, height: number, offsetX: number, offsetY: number): Grid {
-    return {
-      width,
-      height,
-      offsetX,
-      offsetY,
-      clipboard: this.getters.getClipboardZones(),
-      highlights: this.getters.getHighlights(),
-      boxes: this.getGridBoxes(),
-      activeCols: this.getters.getActiveCols(),
-      activeRows: this.getters.getActiveRows(),
-      selection: this.getters.getSelectedZones()
-    };
+  drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
+    switch (layer) {
+      case LAYERS.Background:
+        this.boxes = this.getGridBoxes(renderingContext);
+        this.drawBackground(renderingContext);
+        this.drawCellBackground(renderingContext);
+        this.drawBorders(renderingContext);
+        this.drawTexts(renderingContext);
+        break;
+      case LAYERS.Misc:
+        this.drawHighlights(renderingContext);
+        this.drawClipboard(renderingContext);
+        this.drawSelection(renderingContext);
+        this.drawActiveZone(renderingContext);
+        break;
+      case LAYERS.Headers:
+        this.drawHeaders(renderingContext);
+        break;
+    }
+  }
+
+  private drawBackground(renderingContext: GridRenderingContext) {
+    const { ctx, viewport, zone } = renderingContext;
+    const { rows, cols } = this.workbook;
+
+    // white background
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, viewport.width, viewport.height);
+
+    // background grid
+    let { width, height, offsetX, offsetY } = viewport;
+    const { top, left, bottom, right } = zone;
+    offsetX -= HEADER_WIDTH;
+    offsetY -= HEADER_HEIGHT;
+
+    ctx.lineWidth = 0.4 * thinLineWidth;
+    ctx.strokeStyle = "#222";
+    ctx.beginPath();
+
+    // vertical lines
+    const lineHeight = Math.min(height, rows[bottom].bottom - offsetY);
+    for (let i = left; i <= right; i++) {
+      const x = cols[i].right - offsetX;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, lineHeight);
+    }
+
+    // horizontal lines
+    const lineWidth = Math.min(width, cols[right].right - offsetX);
+    for (let i = top; i <= bottom; i++) {
+      const y = rows[i].bottom - offsetY;
+      ctx.moveTo(0, y);
+      ctx.lineTo(lineWidth, y);
+    }
+    ctx.stroke();
+  }
+
+  private drawCellBackground(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
+    ctx.lineWidth = 0.3 * thinLineWidth;
+    const inset = 0.1 * thinLineWidth;
+    ctx.strokeStyle = "#111";
+    for (let box of this.boxes) {
+      // fill color
+      let style = box.style;
+      if (style && style.fillColor) {
+        ctx.fillStyle = style.fillColor;
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+        ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
+      }
+      if (box.isError) {
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.moveTo(box.x + box.width - 5, box.y);
+        ctx.lineTo(box.x + box.width, box.y);
+        ctx.lineTo(box.x + box.width, box.y + 5);
+        ctx.fill();
+      }
+    }
+  }
+
+  private drawBorders(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
+    for (let box of this.boxes) {
+      // fill color
+      let border = box.border;
+      if (border) {
+        const { x, y, width, height } = box;
+        if (border.left) {
+          drawBorder(border.left, x, y, x, y + height);
+        }
+        if (border.top) {
+          drawBorder(border.top, x, y, x + width, y);
+        }
+        if (border.right) {
+          drawBorder(border.right, x + width, y, x + width, y + height);
+        }
+        if (border.bottom) {
+          drawBorder(border.bottom, x, y + height, x + width, y + height);
+        }
+      }
+    }
+    function drawBorder([style, color], x1, y1, x2, y2) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = (style === "thin" ? 2 : 3) * thinLineWidth;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+  }
+
+  private drawTexts(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
+    ctx.textBaseline = "middle";
+    let currentFont;
+    for (let box of this.boxes) {
+      if (box.text) {
+        const style = box.style || {};
+        const align = box.align!;
+        const italic = style.italic ? "italic " : "";
+        const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+        const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+        const size = fontSizeMap[sizeInPt];
+        const font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+        if (font !== currentFont) {
+          currentFont = font;
+          ctx.font = font;
+        }
+        ctx.fillStyle = style.textColor || "#000";
+        let x: number;
+        let y = box.y + box.height / 2 + 1;
+        if (align === "left") {
+          x = box.x + 3;
+        } else if (align === "right") {
+          x = box.x + box.width - 3;
+        } else {
+          x = box.x + box.width / 2;
+        }
+        ctx.textAlign = align;
+        if (box.clipRect) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(...box.clipRect);
+          ctx.clip();
+        }
+        ctx.fillText(box.text, Math.round(x), Math.round(y));
+        if (style.strikethrough) {
+          if (align === "right") {
+            x = x - box.textWidth;
+          } else if (align === "center") {
+            x = x - box.textWidth / 2;
+          }
+          ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
+        }
+        if (box.clipRect) {
+          ctx.restore();
+        }
+      }
+    }
+  }
+
+  private drawHighlights(renderingContext: GridRenderingContext) {
+    const { ctx, viewport } = renderingContext;
+    ctx.lineWidth = 3 * thinLineWidth;
+    const highlights = this.getters.getHighlights();
+    for (let h of highlights) {
+      const [x, y, width, height] = this.getRect(h.zone, viewport);
+      if (width > 0 && height > 0) {
+        ctx.strokeStyle = h.color!;
+        ctx.strokeRect(x, y, width, height);
+      }
+    }
+  }
+
+  private drawClipboard(renderingContext: GridRenderingContext) {
+    const { viewport, ctx } = renderingContext;
+    const clipboard = this.getters.getClipboardZones();
+    if (!clipboard.length) {
+      return;
+    }
+    ctx.save();
+    ctx.setLineDash([8, 5]);
+    ctx.strokeStyle = "#3266ca";
+    ctx.lineWidth = 3.3 * thinLineWidth;
+    for (const zone of clipboard) {
+      const [x, y, width, height] = this.getRect(zone, viewport);
+      if (width > 0 && height > 0) {
+        ctx.strokeRect(x, y, width, height);
+      }
+    }
+    ctx.restore();
+  }
+
+  private drawSelection(renderingContext: GridRenderingContext) {
+    const zones = this.getters.getSelectedZones();
+    const { ctx, viewport } = renderingContext;
+    ctx.fillStyle = "#f3f7fe";
+    const onlyOneCell =
+      zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
+    ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
+    ctx.strokeStyle = "#3266ca";
+    ctx.lineWidth = 1.5 * thinLineWidth;
+    ctx.globalCompositeOperation = "multiply";
+    for (const zone of zones) {
+      const [x, y, width, height] = this.getRect(zone, viewport);
+      if (width > 0 && height > 0) {
+        ctx.fillRect(x, y, width, height);
+        ctx.strokeRect(x, y, width, height);
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  private drawActiveZone(renderingContext: GridRenderingContext) {
+    const { mergeCellMap } = this.workbook;
+    const { ctx, viewport } = renderingContext;
+    const [col, row] = this.getters.getPosition();
+    const activeXc = toXC(col, row);
+
+    ctx.strokeStyle = "#3266ca";
+    ctx.lineWidth = 3 * thinLineWidth;
+    let zone: Zone;
+    if (activeXc in mergeCellMap) {
+      zone = this.workbook.merges[mergeCellMap[activeXc]];
+    } else {
+      zone = {
+        top: row,
+        bottom: row,
+        left: col,
+        right: col
+      };
+    }
+    const [x, y, width, height] = this.getRect(zone, viewport);
+    if (width > 0 && height > 0) {
+      ctx.strokeRect(x, y, width, height);
+    }
+  }
+
+  private drawHeaders(renderingContext: GridRenderingContext) {
+    const { ctx, viewport, zone } = renderingContext;
+    let { width, height, offsetX, offsetY } = viewport;
+    offsetX -= HEADER_WIDTH;
+    offsetY -= HEADER_HEIGHT;
+    const selection = this.getters.getSelectedZones();
+    const { cols, rows } = this.workbook;
+    const activeCols = this.getters.getActiveCols();
+    const activeRows = this.getters.getActiveRows();
+    const { left, top, right, bottom } = zone;
+
+    ctx.fillStyle = "#f4f5f8";
+    ctx.font = "400 12px Source Sans Pro";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = thinLineWidth;
+    ctx.strokeStyle = "#333";
+
+    // background
+    ctx.fillRect(0, 0, width, HEADER_HEIGHT);
+    ctx.fillRect(0, 0, HEADER_WIDTH, height);
+    // selection background
+    ctx.fillStyle = "#dddddd";
+    for (let zone of selection) {
+      const x1 = Math.max(HEADER_WIDTH, cols[zone.left].left - offsetX);
+      const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
+      const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
+      const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].bottom - offsetY);
+      ctx.fillStyle = activeCols.has(zone.left) ? "#595959" : "#dddddd";
+      ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
+      ctx.fillStyle = activeRows.has(zone.top) ? "#595959" : "#dddddd";
+      ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
+    }
+
+    // 2 main lines
+    ctx.beginPath();
+    ctx.moveTo(HEADER_WIDTH, 0);
+    ctx.lineTo(HEADER_WIDTH, height);
+    ctx.moveTo(0, HEADER_HEIGHT);
+    ctx.lineTo(width, HEADER_HEIGHT);
+    ctx.stroke();
+
+    ctx.beginPath();
+    // column text + separator
+    for (let i = left; i <= right; i++) {
+      const col = cols[i];
+      ctx.fillStyle = activeCols.has(i) ? "#fff" : "#111";
+      ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
+      ctx.moveTo(col.right - offsetX, 0);
+      ctx.lineTo(col.right - offsetX, HEADER_HEIGHT);
+    }
+    // row text + separator
+    for (let i = top; i <= bottom; i++) {
+      const row = rows[i];
+      ctx.fillStyle = activeRows.has(i) ? "#fff" : "#111";
+
+      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
+      ctx.moveTo(0, row.bottom - offsetY);
+      ctx.lineTo(HEADER_WIDTH, row.bottom - offsetY);
+    }
+
+    ctx.stroke();
   }
 
   private hasContent(col: number, row: number): boolean {
@@ -227,11 +550,15 @@ export class RendererPlugin extends BasePlugin {
     return (cell && cell.content) || ((xc in mergeCellMap) as any);
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
+    const { zone, viewport } = renderingContext;
+    const { right, left, top, bottom } = zone;
+    let { offsetX, offsetY } = viewport;
+    offsetX -= HEADER_WIDTH;
+    offsetY -= HEADER_HEIGHT;
+
     const result: Box[] = [];
     const { cols, rows, mergeCellMap, merges, cells } = this.workbook;
-    const { offsetX, offsetY } = this;
-    const { right, left, top, bottom } = this.viewport;
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
@@ -327,333 +654,4 @@ export class RendererPlugin extends BasePlugin {
     }
     return result;
   }
-
-  computeDerivedState(): UI {
-    const { cols, rows } = this.workbook;
-    const viewport = this.viewport;
-    const [col, row] = this.getters.getPosition();
-    const [width, height] = this.getters.getGridSize();
-    return {
-      rows: this.workbook.rows,
-      cols: this.workbook.cols,
-      merges: this.workbook.merges,
-      mergeCellMap: this.workbook.mergeCellMap,
-      width: width,
-      height: height,
-      clientWidth: this.clientWidth,
-      clientHeight: this.clientHeight,
-      offsetX: cols[viewport.left].left - HEADER_WIDTH,
-      offsetY: rows[viewport.top].top - HEADER_HEIGHT,
-      scrollTop: this.scrollTop,
-      scrollLeft: this.scrollLeft,
-      viewport: viewport,
-      activeCol: col,
-      activeRow: row,
-      activeXc: toXC(col, row),
-      editionMode: this.getters.getEditionMode(),
-      selectedCell: this.getters.getActiveCell(),
-      aggregate: this.getters.getAggregate(),
-      canUndo: this.getters.canUndo(),
-      canRedo: this.getters.canRedo(),
-      sheets: this.workbook.sheets.map(s => s.name),
-      activeSheet: this.workbook.activeSheet.name
-    };
-  }
-
-  // ---------------------------------------------------------------------------
-  // Grid rendering
-  // ---------------------------------------------------------------------------
-  drawGrid(ctx: CanvasRenderingContext2D, viewport: Viewport, layer: number) {
-    const { width, height, offsetX, offsetY } = viewport;
-    this.updateVisibleZone(viewport.width, viewport.height);
-    const grid = this.getViewport(width, height, offsetX, offsetY);
-    drawGrid(ctx, this.getUI(), grid);
-  }
-}
-
-export function drawGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Grid) {
-  // 1. initial setup, clear canvas, collect info
-  dpr = window.devicePixelRatio || 1;
-  thinLineWidth = 0.4 * dpr;
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, viewport.width, viewport.height);
-
-  // 2. draw grid content
-  drawBackgroundGrid(ctx, state, viewport);
-  drawBackgrounds(ctx, viewport.boxes);
-  drawBorders(ctx, viewport.boxes);
-  drawTexts(ctx, viewport.boxes);
-
-  // 3. draw additional chrome: selection, clipboard, headers, ...
-  drawHighlights(ctx, state, viewport);
-  drawClipBoard(ctx, state, viewport);
-  drawSelection(ctx, state, viewport);
-  drawHeader(ctx, state, viewport);
-  drawActiveZone(ctx, state);
-}
-
-function drawBackgroundGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Grid) {
-  const { viewport: _viewport, rows, cols, offsetX, offsetY } = state;
-  const { width, height } = viewport;
-  const { top, left, bottom, right } = _viewport;
-
-  ctx.lineWidth = 0.4 * thinLineWidth;
-  ctx.strokeStyle = "#222";
-  ctx.beginPath();
-
-  // vertical lines
-  const lineHeight = Math.min(height, rows[bottom].bottom - offsetY);
-  for (let i = left; i <= right; i++) {
-    const x = cols[i].right - offsetX;
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, lineHeight);
-  }
-
-  // horizontal lines
-  const lineWidth = Math.min(width, cols[right].right - offsetX);
-  for (let i = top; i <= bottom; i++) {
-    const y = rows[i].bottom - offsetY;
-    ctx.moveTo(0, y);
-    ctx.lineTo(lineWidth, y);
-  }
-  ctx.stroke();
-}
-
-function drawBackgrounds(ctx: CanvasRenderingContext2D, boxes: Box[]) {
-  ctx.lineWidth = 0.3 * thinLineWidth;
-  const inset = 0.1 * thinLineWidth;
-  ctx.strokeStyle = "#111";
-  for (let box of boxes) {
-    // fill color
-    let style = box.style;
-    if (style && style.fillColor) {
-      ctx.fillStyle = style.fillColor;
-      ctx.fillRect(box.x, box.y, box.width, box.height);
-      ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
-    }
-    if (box.isError) {
-      ctx.fillStyle = "red";
-      ctx.beginPath();
-      ctx.moveTo(box.x + box.width - 5, box.y);
-      ctx.lineTo(box.x + box.width, box.y);
-      ctx.lineTo(box.x + box.width, box.y + 5);
-      ctx.fill();
-    }
-  }
-}
-
-function drawBorders(ctx: CanvasRenderingContext2D, boxes: Box[]) {
-  for (let box of boxes) {
-    // fill color
-    let border = box.border;
-    if (border) {
-      const { x, y, width, height } = box;
-      if (border.left) {
-        drawBorder(border.left, x, y, x, y + height);
-      }
-      if (border.top) {
-        drawBorder(border.top, x, y, x + width, y);
-      }
-      if (border.right) {
-        drawBorder(border.right, x + width, y, x + width, y + height);
-      }
-      if (border.bottom) {
-        drawBorder(border.bottom, x, y + height, x + width, y + height);
-      }
-    }
-  }
-  function drawBorder([style, color], x1, y1, x2, y2) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = (style === "thin" ? 2 : 3) * thinLineWidth;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
-}
-
-function drawTexts(ctx: CanvasRenderingContext2D, boxes: Box[]) {
-  ctx.textBaseline = "middle";
-  let currentFont;
-  for (let box of boxes) {
-    if (box.text) {
-      const style = box.style || {};
-      const align = box.align!;
-      const italic = style.italic ? "italic " : "";
-      const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-      const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-      const size = fontSizeMap[sizeInPt];
-      const font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-      if (font !== currentFont) {
-        currentFont = font;
-        ctx.font = font;
-      }
-      ctx.fillStyle = style.textColor || "#000";
-      let x: number;
-      let y = box.y + box.height / 2 + 1;
-      if (align === "left") {
-        x = box.x + 3;
-      } else if (align === "right") {
-        x = box.x + box.width - 3;
-      } else {
-        x = box.x + box.width / 2;
-      }
-      ctx.textAlign = align;
-      if (box.clipRect) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(...box.clipRect);
-        ctx.clip();
-      }
-      ctx.fillText(box.text, Math.round(x), Math.round(y));
-      if (style.strikethrough) {
-        if (align === "right") {
-          x = x - box.textWidth;
-        } else if (align === "center") {
-          x = x - box.textWidth / 2;
-        }
-        ctx.fillRect(x, y, box.textWidth, 2.6 * thinLineWidth);
-      }
-      if (box.clipRect) {
-        ctx.restore();
-      }
-    }
-  }
-}
-
-function drawSelection(ctx: CanvasRenderingContext2D, state: UI, viewport: Grid) {
-  const { selection: zones } = viewport;
-  ctx.fillStyle = "#f3f7fe";
-  const onlyOneCell =
-    zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
-  ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
-  ctx.strokeStyle = "#3266ca";
-  ctx.lineWidth = 1.5 * thinLineWidth;
-  ctx.globalCompositeOperation = "multiply";
-  for (const zone of zones) {
-    const [x, y, width, height] = getRect(zone, state);
-    if (width > 0 && height > 0) {
-      ctx.fillRect(x, y, width, height);
-      ctx.strokeRect(x, y, width, height);
-    }
-  }
-  ctx.globalCompositeOperation = "source-over";
-}
-
-function drawActiveZone(ctx: CanvasRenderingContext2D, state: UI) {
-  const { mergeCellMap } = state;
-  ctx.strokeStyle = "#3266ca";
-  ctx.lineWidth = 3 * thinLineWidth;
-  let zone: Zone;
-  if (state.activeXc in mergeCellMap) {
-    zone = state.merges[mergeCellMap[state.activeXc]];
-  } else {
-    zone = {
-      top: state.activeRow,
-      bottom: state.activeRow,
-      left: state.activeCol,
-      right: state.activeCol
-    };
-  }
-  const [x, y, width, height] = getRect(zone, state);
-  if (width > 0 && height > 0) {
-    ctx.strokeRect(x, y, width, height);
-  }
-}
-
-function getRect(zone: Zone, state: UI): Rect {
-  const { left, top, right, bottom } = zone;
-  const { cols, rows, offsetY, offsetX } = state;
-  const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
-  const width = cols[right].right - offsetX - x;
-  const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
-  const height = rows[bottom].bottom - offsetY - y;
-  return [x, y, width, height];
-}
-
-function drawHighlights(ctx: CanvasRenderingContext2D, state: UI, grid: Grid) {
-  ctx.lineWidth = 3 * thinLineWidth;
-  for (let h of grid.highlights) {
-    const [x, y, width, height] = getRect(h.zone, state);
-    if (width > 0 && height > 0) {
-      ctx.strokeStyle = h.color!;
-      ctx.strokeRect(x, y, width, height);
-    }
-  }
-}
-
-function drawClipBoard(ctx: CanvasRenderingContext2D, state: UI, grid: Grid) {
-  const { clipboard } = grid;
-  if (!clipboard.length) {
-    return;
-  }
-  ctx.save();
-  ctx.setLineDash([8, 5]);
-  ctx.strokeStyle = "#3266ca";
-  ctx.lineWidth = 3.3 * thinLineWidth;
-  for (const zone of clipboard) {
-    const [x, y, width, height] = getRect(zone, state);
-    if (width > 0 && height > 0) {
-      ctx.strokeRect(x, y, width, height);
-    }
-  }
-  ctx.restore();
-}
-
-function drawHeader(ctx: CanvasRenderingContext2D, state: UI, viewportState: Grid) {
-  const { activeCols, activeRows, selection } = viewportState;
-  const { viewport, width, height, cols, rows, offsetX, offsetY } = state;
-  const { top, left, bottom, right } = viewport;
-
-  ctx.fillStyle = "#f4f5f8";
-  ctx.font = "400 12px Source Sans Pro";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.lineWidth = thinLineWidth;
-  ctx.strokeStyle = "#333";
-
-  // background
-  ctx.fillRect(0, 0, width, HEADER_HEIGHT);
-  ctx.fillRect(0, 0, HEADER_WIDTH, height);
-  // selection background
-  ctx.fillStyle = "#dddddd";
-  for (let zone of selection) {
-    const x1 = Math.max(HEADER_WIDTH, cols[zone.left].left - offsetX);
-    const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
-    const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
-    const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].bottom - offsetY);
-    ctx.fillStyle = activeCols.has(zone.left) ? "#595959" : "#dddddd";
-    ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-    ctx.fillStyle = activeRows.has(zone.top) ? "#595959" : "#dddddd";
-    ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
-  }
-
-  // 2 main lines
-  ctx.beginPath();
-  ctx.moveTo(HEADER_WIDTH, 0);
-  ctx.lineTo(HEADER_WIDTH, height);
-  ctx.moveTo(0, HEADER_HEIGHT);
-  ctx.lineTo(width, HEADER_HEIGHT);
-  ctx.stroke();
-
-  ctx.beginPath();
-  // column text + separator
-  for (let i = left; i <= right; i++) {
-    const col = cols[i];
-    ctx.fillStyle = activeCols.has(i) ? "#fff" : "#111";
-    ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
-    ctx.moveTo(col.right - offsetX, 0);
-    ctx.lineTo(col.right - offsetX, HEADER_HEIGHT);
-  }
-  // row text + separator
-  for (let i = top; i <= bottom; i++) {
-    const row = rows[i];
-    ctx.fillStyle = activeRows.has(i) ? "#fff" : "#111";
-
-    ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
-    ctx.moveTo(0, row.bottom - offsetY);
-    ctx.lineTo(HEADER_WIDTH, row.bottom - offsetY);
-  }
-
-  ctx.stroke();
 }

@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin, CommandHandler } from "./base_plugin";
+import { BasePlugin, CommandHandler, GridRenderingContext } from "./base_plugin";
 import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";
@@ -147,8 +147,25 @@ export class Model extends owl.core.EventBus {
     context.translate(-0.5, -0.5);
     context.scale(dpr, dpr);
 
+    // preparing the grid rendering context
+    this.renderer.updateVisibleZone(width, height);
+    const ajustedViewport = {
+      width: viewport.width,
+      height: viewport.height,
+      offsetX: this.renderer.offsetX,
+      offsetY: this.renderer.offsetY
+    };
+
+    const renderingContext: GridRenderingContext = {
+      ctx: context,
+      viewport: ajustedViewport,
+      zone: this.renderer.viewport,
+      dpr,
+      thinLineWidth: 0.4 * dpr
+    };
+
     for (let [renderer, layer] of this.renderers) {
-      renderer.drawGrid(context, viewport, layer);
+      renderer.drawGrid(renderingContext, layer);
     }
   }
 

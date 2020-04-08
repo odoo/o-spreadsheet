@@ -1,4 +1,4 @@
-import { Workbook, GridCommand, Getters, WorkbookData, Viewport } from "./types/index";
+import { Workbook, GridCommand, Getters, WorkbookData, Viewport, Zone } from "./types/index";
 import { WorkbookHistory, WHistory } from "./history";
 
 /**
@@ -18,9 +18,18 @@ export interface CommandHandler {
   finalize(command: GridCommand): void;
 }
 
+export interface GridRenderingContext {
+  ctx: CanvasRenderingContext2D;
+  viewport: Viewport;
+  zone: Zone;
+  dpr: number;
+  thinLineWidth: number;
+}
+
 export const enum LAYERS {
   Background,
-  Grid
+  Misc,
+  Headers
 }
 
 type DispatchFn = (command: GridCommand) => void;
@@ -59,7 +68,7 @@ export class BasePlugin implements CommandHandler {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(ctx: CanvasRenderingContext2D, viewport: Viewport, layer: LAYERS) {}
+  drawGrid(ctx: GridRenderingContext, layer: LAYERS) {}
 
   // ---------------------------------------------------------------------------
   // Import/Export
