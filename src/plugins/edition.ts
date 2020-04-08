@@ -1,10 +1,11 @@
 import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
 import { GridCommand, Zone, Highlight, EditionMode } from "../types/index";
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
 
 export class EditionPlugin extends BasePlugin {
-  static getters = ["getEditionMode", "getCurrentContent", "getHighlights"];
+  static layers = [LAYERS.Highlights];
+  static getters = ["getEditionMode", "getCurrentContent"];
 
   private col: number = 0;
   private row: number = 0;
@@ -59,10 +60,6 @@ export class EditionPlugin extends BasePlugin {
 
   getCurrentContent(): string {
     return this.currentContent;
-  }
-
-  getHighlights(): Highlight[] {
-    return this.highlights;
   }
 
   private addHighlights(ranges: { [range: string]: string }) {
@@ -143,5 +140,22 @@ export class EditionPlugin extends BasePlugin {
   private cancelEdition() {
     this.mode = "inactive";
     this.highlights = [];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid rendering
+  // ---------------------------------------------------------------------------
+
+  drawGrid(renderingContext: GridRenderingContext) {
+    // rendering selection highlights
+    const { ctx, viewport, thinLineWidth } = renderingContext;
+    ctx.lineWidth = 3 * thinLineWidth;
+    for (let h of this.highlights) {
+      const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
+      if (width > 0 && height > 0) {
+        ctx.strokeStyle = h.color!;
+        ctx.strokeRect(x, y, width, height);
+      }
+    }
   }
 }

@@ -32,7 +32,7 @@ function computeAlign(type: string): "right" | "center" | "left" {
 
 export class RendererPlugin extends BasePlugin {
   static layers = [LAYERS.Background, LAYERS.Misc, LAYERS.Headers];
-  static getters = ["getUI", "getCol", "getRow"];
+  static getters = ["getUI", "getCol", "getRow", "getRect"];
 
   // actual size of the visible grid, in pixel
   private clientWidth: number = DEFAULT_CELL_WIDTH + HEADER_WIDTH;
@@ -250,7 +250,6 @@ export class RendererPlugin extends BasePlugin {
         this.drawTexts(renderingContext);
         break;
       case LAYERS.Misc:
-        this.drawHighlights(renderingContext);
         this.drawClipboard(renderingContext);
         this.drawSelection(renderingContext);
         this.drawActiveZone(renderingContext);
@@ -398,19 +397,6 @@ export class RendererPlugin extends BasePlugin {
         if (box.clipRect) {
           ctx.restore();
         }
-      }
-    }
-  }
-
-  private drawHighlights(renderingContext: GridRenderingContext) {
-    const { ctx, viewport } = renderingContext;
-    ctx.lineWidth = 3 * thinLineWidth;
-    const highlights = this.getters.getHighlights();
-    for (let h of highlights) {
-      const [x, y, width, height] = this.getRect(h.zone, viewport);
-      if (width > 0 && height > 0) {
-        ctx.strokeStyle = h.color!;
-        ctx.strokeRect(x, y, width, height);
       }
     }
   }
