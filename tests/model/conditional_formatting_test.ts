@@ -211,6 +211,173 @@ describe("conditional format", () => {
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
   });
+
+  describe("Grid Manipulation", () => {
+    const rule = {
+      values: ["42"],
+      operator: "Equal",
+      type: "CellIsRule",
+      style: { fillColor: "orange" }
+    };
+    test("On row deletion", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 7,
+            rowNumber: 4,
+            cells: {
+              C3: { content: "42" }
+            },
+            conditionalFormats: [
+              { id: "1", ranges: ["A1:A1"], rule },
+              { id: "2", ranges: ["B2:B2"], rule },
+              { id: "3", ranges: ["C3:C3"], rule },
+              { id: "4", ranges: ["D1:D2"], rule },
+              { id: "5", ranges: ["E2:E3"], rule },
+              { id: "6", ranges: ["F1:F3"], rule },
+              { id: "7", ranges: ["G1:G4"], rule }
+            ]
+          }
+        ]
+      });
+      model.dispatch({
+        type: "REMOVE_ROWS",
+        sheet: model.state.activeSheet,
+        rows: [1, 3]
+      });
+      expect(model.getters.getConditionalFormats()).toEqual([
+        { id: "1", ranges: ["A1:A1"], rule },
+        { id: "3", ranges: ["C2:C2"], rule },
+        { id: "4", ranges: ["D1:D1"], rule },
+        { id: "5", ranges: ["E2:E2"], rule },
+        { id: "6", ranges: ["F1:F2"], rule },
+        { id: "7", ranges: ["G1:G2"], rule }
+      ]);
+      expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
+      expect(model.getters.getConditionalStyle("C2")!.fillColor).toBe("orange");
+      expect(model.getters.getConditionalStyle("C3")).toBeUndefined();
+    });
+    test("On column deletion", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 4,
+            rowNumber: 7,
+            cells: {
+              C3: { content: "42" }
+            },
+            conditionalFormats: [
+              { id: "1", ranges: ["A1:A1"], rule },
+              { id: "2", ranges: ["B2:B2"], rule },
+              { id: "3", ranges: ["C3:C3"], rule },
+              { id: "4", ranges: ["A4:B4"], rule },
+              { id: "5", ranges: ["B5:C5"], rule },
+              { id: "6", ranges: ["A6:C6"], rule },
+              { id: "7", ranges: ["A7:D7"], rule }
+            ]
+          }
+        ]
+      });
+      model.dispatch({
+        type: "REMOVE_COLUMNS",
+        sheet: model.state.activeSheet,
+        columns: [1, 3]
+      });
+      expect(model.getters.getConditionalFormats()).toEqual([
+        { id: "1", ranges: ["A1:A1"], rule },
+        { id: "3", ranges: ["B3:B3"], rule },
+        { id: "4", ranges: ["A4:A4"], rule },
+        { id: "5", ranges: ["B5:B5"], rule },
+        { id: "6", ranges: ["A6:B6"], rule },
+        { id: "7", ranges: ["A7:B7"], rule }
+      ]);
+      expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
+      expect(model.getters.getConditionalStyle("B3")!.fillColor).toBe("orange");
+      expect(model.getters.getConditionalStyle("C3")).toBeUndefined();
+    });
+    test("On column addition", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 4,
+            cells: {
+              B4: { content: "42" }
+            },
+            conditionalFormats: [
+              { id: "1", ranges: ["A1:C1"], rule },
+              { id: "2", ranges: ["A2:B2"], rule },
+              { id: "3", ranges: ["B3:C3"], rule },
+              { id: "4", ranges: ["B4:B4"], rule }
+            ]
+          }
+        ]
+      });
+      model.dispatch({
+        type: "ADD_COLUMNS",
+        sheet: model.state.activeSheet,
+        column: 1,
+        position: "before",
+        quantity: 1
+      });
+      model.dispatch({
+        type: "ADD_COLUMNS",
+        sheet: model.state.activeSheet,
+        column: 2,
+        position: "after",
+        quantity: 2
+      });
+      expect(model.getters.getConditionalFormats()).toEqual([
+        { id: "1", ranges: ["A1:F1"], rule },
+        { id: "2", ranges: ["A2:C2"], rule },
+        { id: "3", ranges: ["C3:F3"], rule },
+        { id: "4", ranges: ["C4:C4"], rule }
+      ]);
+      expect(model.getters.getConditionalStyle("B4")).toBeUndefined();
+      expect(model.getters.getConditionalStyle("C4")!.fillColor).toBe("orange");
+    });
+    test("On row addition", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 4,
+            rowNumber: 3,
+            cells: {
+              D2: { content: "42" }
+            },
+            conditionalFormats: [
+              { id: "1", ranges: ["A1:A3"], rule },
+              { id: "2", ranges: ["B1:B2"], rule },
+              { id: "3", ranges: ["C2:C3"], rule },
+              { id: "4", ranges: ["D2:D2"], rule }
+            ]
+          }
+        ]
+      });
+      model.dispatch({
+        type: "ADD_ROWS",
+        sheet: model.state.activeSheet,
+        row: 1,
+        position: "before",
+        quantity: 1
+      });
+      model.dispatch({
+        type: "ADD_ROWS",
+        sheet: model.state.activeSheet,
+        row: 2,
+        position: "after",
+        quantity: 2
+      });
+      expect(model.getters.getConditionalFormats()).toEqual([
+        { id: "1", ranges: ["A1:A6"], rule },
+        { id: "2", ranges: ["B1:B3"], rule },
+        { id: "3", ranges: ["C3:C6"], rule },
+        { id: "4", ranges: ["D3:D3"], rule }
+      ]);
+      expect(model.getters.getConditionalStyle("D2")).toBeUndefined();
+      expect(model.getters.getConditionalStyle("D3")!.fillColor).toBe("orange");
+    });
+  });
 });
 
 describe("conditional formats types", () => {

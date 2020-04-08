@@ -37,6 +37,26 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.addConditionalFormatting(cmd.cf);
         this.isStale = true;
         break;
+      case "REMOVE_COLUMNS":
+        this.onRemoveColumns(cmd.sheet, cmd.columns);
+        this.isStale = true;
+        break;
+      case "REMOVE_ROWS":
+        this.onRemoveRows(cmd.sheet, cmd.rows);
+        this.isStale = true;
+        break;
+      case "ADD_COLUMNS":
+        this.onAddColumns(
+          cmd.sheet,
+          cmd.position === "before" ? cmd.column : cmd.column + 1,
+          cmd.quantity
+        );
+        this.isStale = true;
+        break;
+      case "ADD_ROWS":
+        this.onAddRows(cmd.sheet, cmd.position === "before" ? cmd.row : cmd.row + 1, cmd.quantity);
+        this.isStale = true;
+        break;
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
       case "UNDO":
@@ -244,5 +264,93 @@ export class ConditionalFormatPlugin extends BasePlugin {
           break;
       }
     }
+  }
+
+  private adaptcfRules(sheet: string, updateCb: (range: string) => string | null) {
+    const currentCfs = this.cfRules[sheet];
+    const newCfs: ConditionalFormat[] = [];
+    for (let cf of currentCfs) {
+      const updatedRanges: string[] = [];
+      for (let range of cf.ranges) {
+        const updatedRange = updateCb(range);
+        if (updatedRange) {
+          updatedRanges.push(updatedRange);
+        }
+      }
+      if (updatedRanges.length === 0) {
+        continue;
+      }
+      cf.ranges = updatedRanges;
+      newCfs.push(cf);
+    }
+    this.history.updateLocalState(["cfRules", sheet], newCfs);
+  }
+
+  private onRemoveColumns(sheet: string, columns: number[]) {
+    this.adaptcfRules(sheet, (range: string): string | null => {
+      let { left, right, top, bottom } = toZone(range);
+      for (let column of columns) {
+        if (left > column) {
+          left -= 1;
+        }
+        if (left >= column || right >= column) {
+          right -= 1;
+        }
+      }
+      if (left > right) {
+        return null;
+      }
+      return toXC(left, top) + ":" + toXC(right, bottom);
+    });
+  }
+
+  private onRemoveRows(sheet: string, rows: number[]) {
+    this.adaptcfRules(sheet, (range: string): string | null => {
+      let { left, right, top, bottom } = toZone(range);
+      for (let row of rows) {
+        if (top > row) {
+          top -= 1;
+        }
+        if (top >= row || bottom >= row) {
+          bottom -= 1;
+        }
+      }
+      if (top > bottom) {
+        return null;
+      }
+      return toXC(left, top) + ":" + toXC(right, bottom);
+    });
+  }
+
+  private onAddColumns(sheet: string, column: number, step: number) {
+    this.adaptcfRules(sheet, (range: string): string | null => {
+      let { left, right, top, bottom } = toZone(range);
+      if (left >= column) {
+        left += step;
+      }
+      if (left >= column || right >= column) {
+        right += step;
+      }
+      if (left > right) {
+        return null;
+      }
+      return toXC(left, top) + ":" + toXC(right, bottom);
+    });
+  }
+
+  private onAddRows(sheet: string, row: number, step: number) {
+    this.adaptcfRules(sheet, (range: string): string | null => {
+      let { left, right, top, bottom } = toZone(range);
+      if (top >= row) {
+        top += step;
+      }
+      if (top >= row || bottom >= row) {
+        bottom += step;
+      }
+      if (top > bottom) {
+        return null;
+      }
+      return toXC(left, top) + ":" + toXC(right, bottom);
+    });
   }
 }
