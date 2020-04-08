@@ -29,6 +29,7 @@ export interface GridRenderingContext {
 export const enum LAYERS {
   Background,
   Highlights,
+  Clipboard,
   Misc,
   Headers
 }

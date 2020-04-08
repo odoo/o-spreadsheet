@@ -18,7 +18,6 @@ export interface Getters {
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
-  getClipboardZones: ClipboardPlugin["getClipboardZones"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
   getCellWidth: FormattingPlugin["getCellWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];

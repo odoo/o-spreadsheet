@@ -1,7 +1,7 @@
 import { applyOffset } from "../formulas/index";
 import { toXC, clip } from "../helpers/index";
 import { Cell, GridCommand, NewCell, Zone } from "../types/index";
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
 
 /**
  * Clipboard Plugin
@@ -10,7 +10,9 @@ import { BasePlugin } from "../base_plugin";
  * application, and with the OS clipboard as well.
  */
 export class ClipboardPlugin extends BasePlugin {
-  static getters = ["getClipboardContent", "isPaintingFormat", "getClipboardZones"];
+  static layers = [LAYERS.Clipboard];
+
+  static getters = ["getClipboardContent", "isPaintingFormat"];
 
   private status: "empty" | "visible" | "invisible" = "empty";
   shouldCut?: boolean;
@@ -77,10 +79,6 @@ export class ClipboardPlugin extends BasePlugin {
 
   isPaintingFormat(): boolean {
     return this._isPaintingFormat;
-  }
-
-  getClipboardZones(): Zone[] {
-    return this.status === "visible" ? this.zones : [];
   }
 
   // ---------------------------------------------------------------------------
@@ -243,5 +241,28 @@ export class ClipboardPlugin extends BasePlugin {
         }
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid rendering
+  // ---------------------------------------------------------------------------
+
+  drawGrid(renderingContext: GridRenderingContext) {
+    const { viewport, ctx, thinLineWidth } = renderingContext;
+    const zones = this.zones;
+    if (this.status !== "visible" || !zones.length) {
+      return;
+    }
+    ctx.save();
+    ctx.setLineDash([8, 5]);
+    ctx.strokeStyle = "#3266ca";
+    ctx.lineWidth = 3.3 * thinLineWidth;
+    for (const zone of zones) {
+      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      if (width > 0 && height > 0) {
+        ctx.strokeRect(x, y, width, height);
+      }
+    }
+    ctx.restore();
   }
 }
