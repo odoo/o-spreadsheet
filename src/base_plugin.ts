@@ -18,10 +18,15 @@ export interface CommandHandler {
   finalize(command: GridCommand): void;
 }
 
+export const enum LAYERS {
+  Background,
+  Grid
+}
+
 type DispatchFn = (command: GridCommand) => void;
 
 export class BasePlugin implements CommandHandler {
-  static layers: number[] = [];
+  static layers: LAYERS[] = [];
   static getters: string[] = [];
 
   workbook: Workbook;
@@ -54,7 +59,7 @@ export class BasePlugin implements CommandHandler {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport, layer: number) {}
+  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport, layer: LAYERS) {}
 
   // ---------------------------------------------------------------------------
   // Import/Export
