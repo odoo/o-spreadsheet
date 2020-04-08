@@ -10,7 +10,7 @@ import { EntityPlugin } from "./plugins/entity";
 import { EvaluationPlugin } from "./plugins/evaluation";
 import { FormattingPlugin } from "./plugins/formatting";
 import { GridPlugin } from "./plugins/grid";
-import { LayoutPlugin } from "./plugins/layout";
+import { RendererPlugin } from "./plugins/renderer";
 import { SelectionPlugin } from "./plugins/selection";
 import { Registry } from "./registry";
 import {
@@ -18,9 +18,9 @@ import {
   Getters,
   GridCommand,
   UI,
+  Viewport,
   Workbook,
-  WorkbookData,
-  Viewport
+  WorkbookData
 } from "./types/index";
 
 // -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ pluginRegistry
   .add("selection", SelectionPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("entities", EntityPlugin)
-  .add("layout", LayoutPlugin);
+  .add("grid renderer", RendererPlugin);
 
 // -----------------------------------------------------------------------------
 // Model
@@ -52,7 +52,7 @@ export class Model extends owl.core.EventBus {
   workbook: Workbook;
   history: WHistory;
   state: UI;
-  layout: LayoutPlugin;
+  renderer: RendererPlugin;
 
   getters: Getters;
 
@@ -95,7 +95,7 @@ export class Model extends owl.core.EventBus {
     this.renderers = indexedRenderers.sort((p1, p2) => p1[1] - p2[1]);
 
     // misc
-    this.layout = this.handlers.find(h => h instanceof LayoutPlugin)! as LayoutPlugin;
+    this.renderer = this.handlers.find(h => h instanceof RendererPlugin)! as RendererPlugin;
     this.state = {} as UI;
     this.dispatch({ type: "START" });
   }
@@ -142,12 +142,12 @@ export class Model extends owl.core.EventBus {
   // core
   // ---------------------------------------------------------------------------
   updateVisibleZone(width: number, height: number) {
-    this.layout.updateVisibleZone(width, height);
+    this.renderer.updateVisibleZone(width, height);
     Object.assign(this.state, this.getters.getUI());
   }
 
   updateScroll(scrollTop: number, scrollLeft: number): boolean {
-    const result = this.layout.updateScroll(scrollTop, scrollLeft);
+    const result = this.renderer.updateScroll(scrollTop, scrollLeft);
     Object.assign(this.state, this.getters.getUI(result));
     return result;
   }

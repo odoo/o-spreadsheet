@@ -180,17 +180,3 @@ export interface Viewport {
   offsetX: number;
   offsetY: number;
 }
-
-export interface Grid {
-  boxes: Box[];
-  selection: Zone[];
-  width: number;
-  height: number;
-  offsetX: number;
-  offsetY: number;
-  activeCols: Set<number>;
-  activeRows: Set<number>;
-  clipboard: Zone[];
-  highlights: Highlight[];
-
-}

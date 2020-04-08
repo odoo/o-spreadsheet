@@ -10,10 +10,27 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, Grid, GridCommand, Rect, UI, Zone, Viewport } from "../types/index";
+import { Box, GridCommand, Rect, UI, Zone, Viewport, Highlight } from "../types/index";
+
+// -----------------------------------------------------------------------------
+// Constants, types, helpers, ...
+// -----------------------------------------------------------------------------
 
 let dpr = window.devicePixelRatio || 1;
 let thinLineWidth = 0.4 * dpr;
+
+export interface Grid {
+  boxes: Box[];
+  selection: Zone[];
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+  activeCols: Set<number>;
+  activeRows: Set<number>;
+  clipboard: Zone[];
+  highlights: Highlight[];
+}
 
 function computeAlign(type: string): "right" | "center" | "left" {
   switch (type) {
@@ -26,7 +43,7 @@ function computeAlign(type: string): "right" | "center" | "left" {
   }
 }
 
-export class LayoutPlugin extends BasePlugin {
+export class RendererPlugin extends BasePlugin {
   static layers = [LAYERS.Grid];
   static getters = ["getViewport", "getUI", "getCol", "getRow"];
 
