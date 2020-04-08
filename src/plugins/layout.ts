@@ -178,6 +178,8 @@ export class LayoutPlugin extends BasePlugin {
       height,
       offsetX,
       offsetY,
+      clipboard: this.getters.getClipboardZones(),
+      highlights: this.getters.getHighlights(),
       boxes: this.getGridBoxes(),
       activeCols: this.getters.getActiveCols(),
       activeRows: this.getters.getActiveRows(),
@@ -311,12 +313,10 @@ export class LayoutPlugin extends BasePlugin {
       offsetY: rows[viewport.top].top - HEADER_HEIGHT,
       scrollTop: this.scrollTop,
       scrollLeft: this.scrollLeft,
-      clipboard: this.getters.getClipboardZones(),
       viewport: viewport,
       activeCol: col,
       activeRow: row,
       activeXc: toXC(col, row),
-      highlights: this.getters.getHighlights(),
       editionMode: this.getters.getEditionMode(),
       selectedCell: this.getters.getActiveCell(),
       aggregate: this.getters.getAggregate(),
@@ -364,8 +364,8 @@ export function drawGrid(ctx: CanvasRenderingContext2D, state: UI, viewport: Gri
   drawTexts(ctx, viewport.boxes);
 
   // 3. draw additional chrome: selection, clipboard, headers, ...
-  drawHighlights(ctx, state);
-  drawClipBoard(ctx, state);
+  drawHighlights(ctx, state, viewport);
+  drawClipBoard(ctx, state, viewport);
   drawSelection(ctx, state, viewport);
   drawHeader(ctx, state, viewport);
   drawActiveZone(ctx, state);
@@ -550,9 +550,9 @@ function getRect(zone: Zone, state: UI): Rect {
   return [x, y, width, height];
 }
 
-function drawHighlights(ctx: CanvasRenderingContext2D, state: UI) {
+function drawHighlights(ctx: CanvasRenderingContext2D, state: UI, grid: Grid) {
   ctx.lineWidth = 3 * thinLineWidth;
-  for (let h of state.highlights) {
+  for (let h of grid.highlights) {
     const [x, y, width, height] = getRect(h.zone, state);
     if (width > 0 && height > 0) {
       ctx.strokeStyle = h.color!;
@@ -561,8 +561,8 @@ function drawHighlights(ctx: CanvasRenderingContext2D, state: UI) {
   }
 }
 
-function drawClipBoard(ctx: CanvasRenderingContext2D, state: UI) {
-  const { clipboard } = state;
+function drawClipBoard(ctx: CanvasRenderingContext2D, state: UI, grid: Grid) {
+  const { clipboard } = grid;
   if (!clipboard.length) {
     return;
   }

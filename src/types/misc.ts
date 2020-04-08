@@ -146,8 +146,6 @@ export interface UI {
   sheets: string[];
   activeSheet: string;
 
-  clipboard: Zone[];
-  highlights: Highlight[];
   editionMode: EditionMode;
 
   selectedCell: Cell | null;
@@ -192,4 +190,7 @@ export interface Grid {
   offsetY: number;
   activeCols: Set<number>;
   activeRows: Set<number>;
+  clipboard: Zone[];
+  highlights: Highlight[];
+
 }
