@@ -16,9 +16,6 @@ import { Box, GridCommand, Rect, UI, Zone, Viewport } from "../types/index";
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
-let dpr = window.devicePixelRatio || 1;
-let thinLineWidth = 0.4 * dpr;
-
 function computeAlign(type: string): "right" | "center" | "left" {
   switch (type) {
     case "number":
@@ -250,7 +247,6 @@ export class RendererPlugin extends BasePlugin {
         this.drawTexts(renderingContext);
         break;
       case LAYERS.Misc:
-        this.drawClipboard(renderingContext);
         this.drawSelection(renderingContext);
         this.drawActiveZone(renderingContext);
         break;
@@ -261,7 +257,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawBackground(renderingContext: GridRenderingContext) {
-    const { ctx, viewport, zone } = renderingContext;
+    const { ctx, viewport, zone, thinLineWidth } = renderingContext;
     const { rows, cols } = this.workbook;
 
     // white background
@@ -297,7 +293,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawCellBackground(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
     ctx.lineWidth = 0.3 * thinLineWidth;
     const inset = 0.1 * thinLineWidth;
     ctx.strokeStyle = "#111";
@@ -321,7 +317,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawBorders(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
     for (let box of this.boxes) {
       // fill color
       let border = box.border;
@@ -352,7 +348,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawTexts(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
+    const { ctx, thinLineWidth } = renderingContext;
     ctx.textBaseline = "middle";
     let currentFont;
     for (let box of this.boxes) {
@@ -401,28 +397,9 @@ export class RendererPlugin extends BasePlugin {
     }
   }
 
-  private drawClipboard(renderingContext: GridRenderingContext) {
-    const { viewport, ctx } = renderingContext;
-    const clipboard = this.getters.getClipboardZones();
-    if (!clipboard.length) {
-      return;
-    }
-    ctx.save();
-    ctx.setLineDash([8, 5]);
-    ctx.strokeStyle = "#3266ca";
-    ctx.lineWidth = 3.3 * thinLineWidth;
-    for (const zone of clipboard) {
-      const [x, y, width, height] = this.getRect(zone, viewport);
-      if (width > 0 && height > 0) {
-        ctx.strokeRect(x, y, width, height);
-      }
-    }
-    ctx.restore();
-  }
-
   private drawSelection(renderingContext: GridRenderingContext) {
     const zones = this.getters.getSelectedZones();
-    const { ctx, viewport } = renderingContext;
+    const { ctx, viewport, thinLineWidth } = renderingContext;
     ctx.fillStyle = "#f3f7fe";
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
@@ -442,7 +419,7 @@ export class RendererPlugin extends BasePlugin {
 
   private drawActiveZone(renderingContext: GridRenderingContext) {
     const { mergeCellMap } = this.workbook;
-    const { ctx, viewport } = renderingContext;
+    const { ctx, viewport, thinLineWidth } = renderingContext;
     const [col, row] = this.getters.getPosition();
     const activeXc = toXC(col, row);
 
@@ -466,7 +443,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, viewport, zone } = renderingContext;
+    const { ctx, viewport, zone, thinLineWidth } = renderingContext;
     let { width, height, offsetX, offsetY } = viewport;
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
