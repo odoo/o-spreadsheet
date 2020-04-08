@@ -2,6 +2,7 @@ import { applyOffset } from "../formulas/index";
 import { toXC, clip } from "../helpers/index";
 import { Cell, GridCommand, NewCell, Zone } from "../types/index";
 import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
+import { Mode } from "../model";
 
 /**
  * Clipboard Plugin
@@ -13,6 +14,8 @@ export class ClipboardPlugin extends BasePlugin {
   static layers = [LAYERS.Clipboard];
 
   static getters = ["getClipboardContent", "isPaintingFormat"];
+
+  static modes: Mode[] = ["normal", "readonly"];
 
   private status: "empty" | "visible" | "invisible" = "empty";
   shouldCut?: boolean;

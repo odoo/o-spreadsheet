@@ -2,6 +2,7 @@ import { isEqual, toXC, union, clip } from "../helpers/index";
 import { BasePlugin, GridRenderingContext, LAYERS } from "../base_plugin";
 import { GridCommand, Zone, Cell, Selection } from "../types/index";
 import { formatNumber } from "../formatters";
+import { Mode } from "../model";
 
 interface SheetInfo {
   selection: Selection;
@@ -24,6 +25,8 @@ export class SelectionPlugin extends BasePlugin {
     "getSelection",
     "getPosition"
   ];
+
+  static modes: Mode[] = ["normal", "readonly"];
 
   private selection: Selection = {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],

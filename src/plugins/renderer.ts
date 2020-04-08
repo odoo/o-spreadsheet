@@ -11,6 +11,7 @@ import {
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
 import { Box, GridCommand, Rect, UI, Zone, Viewport } from "../types/index";
+import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
@@ -30,6 +31,8 @@ function computeAlign(type: string): "right" | "center" | "left" {
 export class RendererPlugin extends BasePlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = ["getUI", "getCol", "getRow", "getRect"];
+
+  static modes: Mode[] = ["normal", "readonly"];
 
   // actual size of the visible grid, in pixel
   private clientWidth: number = DEFAULT_CELL_WIDTH + HEADER_WIDTH;

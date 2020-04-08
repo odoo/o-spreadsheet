@@ -1,5 +1,6 @@
 import { Workbook, GridCommand, Getters, WorkbookData, Viewport, Zone } from "./types/index";
 import { WorkbookHistory, WHistory } from "./history";
+import { Mode } from "./model";
 
 /**
  * BasePlugin
@@ -39,19 +40,28 @@ type DispatchFn = (command: GridCommand) => void;
 export class BasePlugin implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
+  static modes: Mode[] = ["headless", "normal", "readonly"];
 
   workbook: Workbook;
   getters: Getters;
   history: WorkbookHistory;
   dispatch: DispatchFn;
+  currentMode: Mode;
 
-  constructor(workbook: Workbook, getters: Getters, history: WHistory, dispatch: DispatchFn) {
+  constructor(
+    workbook: Workbook,
+    getters: Getters,
+    history: WHistory,
+    dispatch: DispatchFn,
+    mode: Mode
+  ) {
     this.workbook = workbook;
     this.getters = getters;
     this.history = Object.assign(Object.create(history), {
       updateLocalState: history.updateStateFromRoot.bind(history, this)
     });
     this.dispatch = dispatch;
+    this.currentMode = mode;
   }
 
   // ---------------------------------------------------------------------------
