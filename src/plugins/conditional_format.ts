@@ -73,7 +73,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
   }
 
   finalize() {
-    if (this.isStale) {
+    if (this.isStale && this.currentMode !== "headless") {
       this.computeStyles();
       this.isStale = false;
     }

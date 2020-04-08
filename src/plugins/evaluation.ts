@@ -3,6 +3,7 @@ import { functionRegistry } from "../functions/index";
 import { Cell, GridCommand, Sheet } from "../types";
 import { compile } from "../formulas/index";
 import { toCartesian } from "../helpers/index";
+import { Mode } from "../model";
 
 const functionMap = functionRegistry.mapping;
 
@@ -19,6 +20,8 @@ export class EvaluationPlugin extends BasePlugin {
   private isStarted: boolean = false;
 
   static getters = ["evaluateFormula"];
+
+  static modes: Mode[] = ["normal", "readonly"];
 
   /**
    * For all cells that are being currently computed (asynchronously).

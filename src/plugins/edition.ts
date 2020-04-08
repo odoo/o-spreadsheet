@@ -2,10 +2,13 @@ import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
 import { GridCommand, Zone, Highlight, EditionMode } from "../types/index";
 import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
+import { Mode } from "../model";
 
 export class EditionPlugin extends BasePlugin {
   static layers = [LAYERS.Highlights];
   static getters = ["getEditionMode", "getCurrentContent"];
+
+  static modes: Mode[] = ["normal", "readonly"];
 
   private col: number = 0;
   private row: number = 0;

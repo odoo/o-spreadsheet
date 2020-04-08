@@ -41,6 +41,8 @@ pluginRegistry
   .add("entities", EntityPlugin)
   .add("grid renderer", RendererPlugin);
 
+export type Mode = "normal" | "headless" | "readonly";
+
 // -----------------------------------------------------------------------------
 // Model
 // -----------------------------------------------------------------------------
@@ -53,10 +55,11 @@ export class Model extends owl.core.EventBus {
   history: WHistory;
   state: UI;
   renderer: RendererPlugin;
+  mode: Mode;
 
   getters: Getters;
 
-  constructor(data?: any) {
+  constructor(data: any = {}, mode: Mode = "normal") {
     super();
     (window as any).gridmodel = this; // to debug. remove this someday
 
@@ -69,19 +72,22 @@ export class Model extends owl.core.EventBus {
       canRedo: this.history.canRedo.bind(this.history)
     } as Getters;
     this.handlers = [this.history];
+    this.mode = mode;
 
     // Plugins
     const dispatch = this.dispatch.bind(this);
     for (let Plugin of pluginRegistry.getAll()) {
-      const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch);
-      plugin.import(workbookData);
-      for (let name of Plugin.getters) {
-        if (!(name in plugin)) {
-          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+      if (Plugin.modes.includes(this.mode)) {
+        const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch, mode);
+        plugin.import(workbookData);
+        for (let name of Plugin.getters) {
+          if (!(name in plugin)) {
+            throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+          }
+          this.getters[name] = plugin[name].bind(plugin);
         }
-        this.getters[name] = plugin[name].bind(plugin);
+        this.handlers.push(plugin);
       }
-      this.handlers.push(plugin);
     }
 
     // setting up renderers
@@ -120,9 +126,10 @@ export class Model extends owl.core.EventBus {
           handler.finalize(command);
         }
         this.status = "ready";
-
-        Object.assign(this.state, this.getters.getUI());
-        this.trigger("update");
+        if (this.mode !== "headless") {
+          Object.assign(this.state, this.getters.getUI());
+          this.trigger("update");
+        }
         break;
       case "running":
         this.handlers.forEach(h => h.handle(command));
@@ -172,11 +179,17 @@ export class Model extends owl.core.EventBus {
   // core
   // ---------------------------------------------------------------------------
   updateVisibleZone(width: number, height: number) {
+    if (this.mode === "headless") {
+      return;
+    }
     this.renderer.updateVisibleZone(width, height);
     Object.assign(this.state, this.getters.getUI());
   }
 
   updateScroll(scrollTop: number, scrollLeft: number): boolean {
+    if (this.mode === "headless") {
+      return false;
+    }
     const result = this.renderer.updateScroll(scrollTop, scrollLeft);
     Object.assign(this.state, this.getters.getUI(result));
     return result;
