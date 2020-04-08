@@ -30,7 +30,7 @@ export const enum LAYERS {
   Background,
   Highlights,
   Clipboard,
-  Misc,
+  Selection,
   Headers
 }
 

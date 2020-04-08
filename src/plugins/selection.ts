@@ -1,5 +1,5 @@
 import { isEqual, toXC, union, clip } from "../helpers/index";
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin, GridRenderingContext, LAYERS } from "../base_plugin";
 import { GridCommand, Zone, Cell, Selection } from "../types/index";
 import { formatNumber } from "../formatters";
 
@@ -13,6 +13,7 @@ interface SheetInfo {
  * SelectionPlugin
  */
 export class SelectionPlugin extends BasePlugin {
+  static layers = [LAYERS.Selection];
   static getters = [
     "getActiveCell",
     "getActiveXc",
@@ -380,6 +381,55 @@ export class SelectionPlugin extends BasePlugin {
     const start = row + quantity;
     const zone = this.getters.getRowsZone(start, start + quantity - 1);
     this.dispatch({ type: "SET_SELECTION", zones: [zone], anchor: [0, start], strict: true });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid rendering
+  // ---------------------------------------------------------------------------
+
+  drawGrid(renderingContext: GridRenderingContext) {
+    const { viewport, ctx, thinLineWidth } = renderingContext;
+
+    // selection
+    const zones = this.getSelectedZones();
+    ctx.fillStyle = "#f3f7fe";
+    const onlyOneCell =
+      zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
+    ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
+    ctx.strokeStyle = "#3266ca";
+    ctx.lineWidth = 1.5 * thinLineWidth;
+    ctx.globalCompositeOperation = "multiply";
+    for (const zone of zones) {
+      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      if (width > 0 && height > 0) {
+        ctx.fillRect(x, y, width, height);
+        ctx.strokeRect(x, y, width, height);
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+
+    // active zone
+    const { mergeCellMap } = this.workbook;
+    const [col, row] = this.getPosition();
+    const activeXc = toXC(col, row);
+
+    ctx.strokeStyle = "#3266ca";
+    ctx.lineWidth = 3 * thinLineWidth;
+    let zone: Zone;
+    if (activeXc in mergeCellMap) {
+      zone = this.workbook.merges[mergeCellMap[activeXc]];
+    } else {
+      zone = {
+        top: row,
+        bottom: row,
+        left: col,
+        right: col
+      };
+    }
+    const [x, y, width, height] = this.getters.getRect(zone, viewport);
+    if (width > 0 && height > 0) {
+      ctx.strokeRect(x, y, width, height);
+    }
   }
 
   // ---------------------------------------------------------------------------
