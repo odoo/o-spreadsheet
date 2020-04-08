@@ -1,4 +1,3 @@
-import { ConditionalFormat } from "./conditional_formatting";
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
@@ -33,7 +32,6 @@ export interface Sheet {
   mergeCellMap: { [key: string]: number };
   cols: Col[];
   rows: Row[];
-  conditionalFormats: ConditionalFormat[];
 }
 
 // A border description is a pair [style, ]

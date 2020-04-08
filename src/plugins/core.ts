@@ -249,8 +249,7 @@ export class CorePlugin extends BasePlugin {
       cols: createDefaultCols(cols),
       rows: createDefaultRows(rows),
       merges: {},
-      mergeCellMap: {},
-      conditionalFormats: []
+      mergeCellMap: {}
     };
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
@@ -300,8 +299,7 @@ export class CorePlugin extends BasePlugin {
       cols: createCols(data.cols || {}, data.colNumber),
       rows: createRows(data.rows || {}, data.rowNumber),
       merges: {},
-      mergeCellMap: {},
-      conditionalFormats: data.conditionalFormats || []
+      mergeCellMap: {}
     };
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
@@ -333,7 +331,7 @@ export class CorePlugin extends BasePlugin {
         cols: exportCols(sheet.cols),
         merges: exportMerges(sheet.merges),
         cells: cells,
-        conditionalFormats: sheet.conditionalFormats
+        conditionalFormats: []
       };
     });
   }
