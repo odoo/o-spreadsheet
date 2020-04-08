@@ -40,7 +40,6 @@ export interface Getters {
   getAggregate: SelectionPlugin["getAggregate"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
-  getViewport: RendererPlugin["getViewport"];
   getUI: RendererPlugin["getUI"];
   getCol: RendererPlugin["getCol"];
   getRow: RendererPlugin["getRow"];
