@@ -2,7 +2,8 @@
  * Contains all method to update ranges with grid_manipulation
  */
 
-import { toZone, toXC } from ".";
+import { toZone } from "./zones";
+import { toXC } from "./coordinates";
 
 export function updateRemoveColumns(range: string, columns: number[]): string | null {
   let { left, right, top, bottom } = toZone(range);

@@ -62,14 +62,11 @@ async function resizeColumn(letter: string, delta: number) {
   const x = model.workbook.cols[index].left + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
-  const width = model.workbook.cols[8].right;
-  model.updateVisibleZone(width, 1000);
   Object.assign(model.state, model.getters.getUI());
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
   triggerMouseEvent(window, "mousemove", x + delta, 10);
   triggerMouseEvent(window, "mouseup", x + delta, 10);
   await nextTick();
-  model.updateVisibleZone(width, 1000);
   Object.assign(model.state, model.getters.getUI());
 }
 /**
@@ -81,7 +78,6 @@ async function dblClickColumn(letter: string) {
   const x = model.workbook.cols[index].right;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
-  model.updateVisibleZone(model.workbook.cols[8].right, 1000);
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "dblclick", x, 10);
 }
 /**
@@ -103,13 +99,10 @@ async function resizeRow(index: number, delta: number) {
   const y = model.workbook.rows[index].top + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
-  const height = model.workbook.rows[8].bottom;
-  model.updateVisibleZone(1000, height);
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "mousedown", 10, y);
   triggerMouseEvent(window, "mousemove", 10, y + delta);
   triggerMouseEvent(window, "mouseup", 10, y + delta);
   await nextTick();
-  model.updateVisibleZone(1000, height);
 }
 /**
  * Trigger a double click on a row
@@ -119,7 +112,6 @@ async function dblClickRow(index: number) {
   const y = model.workbook.rows[index].bottom;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
-  model.updateVisibleZone(1000, model.workbook.rows[8].bottom);
 
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "dblclick", 10, y);
 }

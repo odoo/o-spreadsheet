@@ -61,6 +61,10 @@ export class RendererPlugin extends BasePlugin {
 
   ui: UI | null = null;
 
+  // ---------------------------------------------------------------------------
+  // Command handling
+  // ---------------------------------------------------------------------------
+
   handle(cmd: GridCommand) {
     this.ui = null;
     switch (cmd.type) {
@@ -69,6 +73,10 @@ export class RendererPlugin extends BasePlugin {
         break;
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
 
   getUI(force?: boolean): UI {
     if (!this.ui || force) {
@@ -110,6 +118,10 @@ export class RendererPlugin extends BasePlugin {
     }
     return -1;
   }
+
+  // ---------------------------------------------------------------------------
+  // To remove
+  // ---------------------------------------------------------------------------
 
   /**
    *  keep current cell in the viewport, if possible
@@ -188,6 +200,10 @@ export class RendererPlugin extends BasePlugin {
     this.offsetX = cols[viewport.left].left - HEADER_WIDTH;
     this.offsetY = rows[viewport.top].top - HEADER_HEIGHT;
   }
+
+  // ---------------------------------------------------------------------------
+  // Grid rendering
+  // ---------------------------------------------------------------------------
 
   getViewport(width: number, height: number, offsetX: number, offsetY: number): Grid {
     return {
@@ -347,23 +363,11 @@ export class RendererPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
-  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport, layer: number) {
+  drawGrid(ctx: CanvasRenderingContext2D, viewport: Viewport, layer: number) {
     const { width, height, offsetX, offsetY } = viewport;
     this.updateVisibleZone(viewport.width, viewport.height);
-    // whenever the dimensions are changed, we need to reset the width/height
-    // of the canvas manually, and reset its scaling.
-    const dpr = window.devicePixelRatio || 1;
-    const context = canvas.getContext("2d", { alpha: false })!;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    context.translate(-0.5, -0.5);
-    context.scale(dpr, dpr);
-
     const grid = this.getViewport(width, height, offsetX, offsetY);
-    drawGrid(context, this.getUI(), grid);
+    drawGrid(ctx, this.getUI(), grid);
   }
 }
 

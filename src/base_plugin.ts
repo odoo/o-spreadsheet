@@ -59,7 +59,7 @@ export class BasePlugin implements CommandHandler {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport, layer: LAYERS) {}
+  drawGrid(ctx: CanvasRenderingContext2D, viewport: Viewport, layer: LAYERS) {}
 
   // ---------------------------------------------------------------------------
   // Import/Export

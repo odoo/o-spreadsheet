@@ -134,8 +134,21 @@ export class Model extends owl.core.EventBus {
   }
 
   drawGrid(canvas: HTMLCanvasElement, viewport: Viewport) {
+    const { width, height } = viewport;
+    // whenever the dimensions are changed, we need to reset the width/height
+    // of the canvas manually, and reset its scaling.
+    const dpr = window.devicePixelRatio || 1;
+    const context = canvas.getContext("2d", { alpha: false })!;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    context.translate(-0.5, -0.5);
+    context.scale(dpr, dpr);
+
     for (let [renderer, layer] of this.renderers) {
-      renderer.drawGrid(canvas, viewport, layer);
+      renderer.drawGrid(context, viewport, layer);
     }
   }
 
