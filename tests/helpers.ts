@@ -1,8 +1,8 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import { Model } from "../src/model";
-import { Grid } from "../src/ui/grid";
-import { SidePanel } from "../src/ui/side_panel/side_panel";
-import { sidePanelRegistry } from "../src/ui/index";
+import { Grid } from "../src/components/grid";
+import { SidePanel } from "../src/components/side_panel/side_panel";
+import { sidePanelRegistry } from "../src/components/index";
 import { functionRegistry } from "../src/functions/index";
 import "./canvas.mock";
 import * as h from "../src/helpers/index";

@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
-jest.mock("../../src/ui/content_editable_helper");
+jest.mock("../../src/components/content_editable_helper");
 
 let fixture: HTMLElement;
 let model: Model;
