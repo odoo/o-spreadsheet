@@ -1,4 +1,4 @@
-import { Workbook, GridCommand, Getters, WorkbookData } from "./types/index";
+import { Workbook, GridCommand, Getters, WorkbookData, Viewport } from "./types/index";
 import { WorkbookHistory, WHistory } from "./history";
 
 /**
@@ -21,6 +21,7 @@ export interface CommandHandler {
 type DispatchFn = (command: GridCommand) => void;
 
 export class BasePlugin implements CommandHandler {
+  static layers: number[] = [];
   static getters: string[] = [];
 
   workbook: Workbook;
@@ -37,6 +38,10 @@ export class BasePlugin implements CommandHandler {
     this.dispatch = dispatch;
   }
 
+  // ---------------------------------------------------------------------------
+  // Command handling
+  // ---------------------------------------------------------------------------
+
   canDispatch(command: GridCommand): boolean {
     return true;
   }
@@ -44,6 +49,16 @@ export class BasePlugin implements CommandHandler {
   start(command: GridCommand): void {}
   handle(command: GridCommand): void {}
   finalize(command: GridCommand): void {}
+
+  // ---------------------------------------------------------------------------
+  // Grid rendering
+  // ---------------------------------------------------------------------------
+
+  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport, layer: number) {}
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {}
   export(data: WorkbookData) {}

@@ -13,7 +13,15 @@ import { GridPlugin } from "./plugins/grid";
 import { LayoutPlugin } from "./plugins/layout";
 import { SelectionPlugin } from "./plugins/selection";
 import { Registry } from "./registry";
-import { CommandResult, Getters, GridCommand, UI, Workbook, WorkbookData } from "./types/index";
+import {
+  CommandResult,
+  Getters,
+  GridCommand,
+  UI,
+  Workbook,
+  WorkbookData,
+  Viewport
+} from "./types/index";
 
 // -----------------------------------------------------------------------------
 // Plugins
@@ -38,6 +46,7 @@ pluginRegistry
 // -----------------------------------------------------------------------------
 export class Model extends owl.core.EventBus {
   private handlers: CommandHandler[];
+  private renderers: [BasePlugin, number][];
   private status: "ready" | "running" | "finalizing" = "ready";
 
   workbook: Workbook;
@@ -74,6 +83,16 @@ export class Model extends owl.core.EventBus {
       }
       this.handlers.push(plugin);
     }
+
+    // setting up renderers
+    const indexedRenderers: [BasePlugin, number][] = [];
+    for (let p of this.handlers) {
+      if (p instanceof BasePlugin) {
+        const layers = (p.constructor as any).layers.map(l => [p, l]);
+        indexedRenderers.push(...layers);
+      }
+    }
+    this.renderers = indexedRenderers.sort((p1, p2) => p1[1] - p2[1]);
 
     // misc
     this.layout = this.handlers.find(h => h instanceof LayoutPlugin)! as LayoutPlugin;
@@ -112,6 +131,12 @@ export class Model extends owl.core.EventBus {
         throw new Error("Nope. Don't do that");
     }
     return "COMPLETED";
+  }
+
+  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport) {
+    for (let [renderer, layer] of this.renderers) {
+      renderer.drawGrid(canvas, viewport, layer);
+    }
   }
 
   // core
