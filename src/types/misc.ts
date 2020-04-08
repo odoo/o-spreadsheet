@@ -179,6 +179,13 @@ export interface UI {
 }
 
 export interface Viewport {
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+export interface Grid {
   boxes: Box[];
   selection: Zone[];
   width: number;
