@@ -1,4 +1,4 @@
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin, LAYERS } from "../base_plugin";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -27,7 +27,7 @@ function computeAlign(type: string): "right" | "center" | "left" {
 }
 
 export class LayoutPlugin extends BasePlugin {
-  static layers = [100];
+  static layers = [LAYERS.Grid];
   static getters = ["getViewport", "getUI", "getCol", "getRow"];
 
   // actual size of the visible grid, in pixel
