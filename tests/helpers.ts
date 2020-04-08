@@ -6,6 +6,7 @@ import { sidePanelRegistry } from "../src/ui/index";
 import { functionRegistry } from "../src/functions/index";
 import "./canvas.mock";
 import * as h from "../src/helpers/index";
+import { Viewport } from "../src/types/index";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -62,14 +63,9 @@ export class GridParent extends Component<any> {
       }
     });
 
-    const uvz = model.updateVisibleZone;
-    model.updateVisibleZone = function(width?: number, height?: number) {
-      // we simulate here a vizible zone of 1000x1000px
-      if (width !== undefined) {
-        uvz.call(this, 1000, 1000);
-      } else {
-        uvz.call(this);
-      }
+    const drawGrid = model.drawGrid;
+    model.drawGrid = function(canvas: HTMLCanvasElement, viewport: Viewport) {
+      drawGrid.call(this, canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
     };
     this.model = model;
   }

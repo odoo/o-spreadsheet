@@ -10,7 +10,6 @@ import { Model } from "../model";
 import { UI } from "../types/index";
 import { Composer } from "./composer";
 import { ContextMenu, ContextMenuType } from "./context_menu";
-import { drawGrid } from "./grid_renderer";
 import { Overlay } from "./overlay";
 
 /**
@@ -119,7 +118,6 @@ export class Grid extends Component<any, any> {
   vScrollbar = useRef("vscrollbar");
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
-  context: CanvasRenderingContext2D | null = null;
   hasFocus = false;
   model: Model = this.props.model;
   state: UI = this.model.state;
@@ -178,9 +176,11 @@ export class Grid extends Component<any, any> {
   willPatch() {
     this.hasFocus = this.el!.contains(document.activeElement);
   }
+
   async willUpdateProps() {
     this.state = this.model.state;
   }
+
   patched() {
     this.vScrollbar.el!.scrollTop = this.state.scrollTop;
     this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
@@ -206,23 +206,8 @@ export class Grid extends Component<any, any> {
     const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
     const offsetX = this.hScrollbar.el!.scrollLeft;
     const offsetY = this.vScrollbar.el!.scrollTop;
-    this.model.updateVisibleZone(width, height);
-    // whenever the dimensions are changed, we need to reset the width/height
-    // of the canvas manually, and reset its scaling.
-    const dpr = window.devicePixelRatio || 1;
-    const canvas = this.canvas.el as any;
-    const context = canvas.getContext("2d", { alpha: false });
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    this.context = context;
-    context.translate(-0.5, -0.5);
-    context.scale(dpr, dpr);
-
-    const viewport = this.model.getters.getViewport(width, height, offsetX, offsetY);
-    drawGrid(context, this.model.state, viewport);
+    const viewport = { width, height, offsetX, offsetY };
+    this.model.drawGrid(this.canvas.el as HTMLCanvasElement, viewport);
   }
 
   onMouseWheel(ev: WheelEvent) {
