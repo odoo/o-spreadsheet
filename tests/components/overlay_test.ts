@@ -7,7 +7,7 @@ import {
   DEFAULT_CELL_HEIGHT
 } from "../../src/constants";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
-import { ColResizer, RowResizer } from "../../src/ui/overlay";
+import { ColResizer, RowResizer } from "../../src/components/overlay";
 import "../canvas.mock";
 import { triggerMouseEvent } from "../dom_helper";
 

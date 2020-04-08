@@ -8,11 +8,11 @@
 import { args, functionRegistry } from "./functions/index";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { numberToLetters, toXC } from "./helpers/index";
-import { contextMenuRegistry, sidePanelRegistry } from "./ui/index";
+import { contextMenuRegistry, sidePanelRegistry } from "./components/index";
 import { pluginRegistry } from "./model";
 
 export const __info__ = {};
-export { Spreadsheet } from "./ui/index";
+export { Spreadsheet } from "./components/index";
 
 export const registries = {
   sidePanelRegistry,

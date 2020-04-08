@@ -1,5 +1,5 @@
 import { Component, tags } from "@odoo/owl";
-import { Spreadsheet } from "../../src/ui";
+import { Spreadsheet } from "../../src/components";
 import { makeTestFixture } from "../helpers";
 
 const { xml } = tags;

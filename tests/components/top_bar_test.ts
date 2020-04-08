@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { makeTestFixture, nextTick } from "../helpers";
-import { TopBar } from "../../src/ui/top_bar";
+import { TopBar } from "../../src/components/top_bar";
 import { Component, tags } from "@odoo/owl";
 
 const { xml } = tags;
