@@ -43,6 +43,7 @@ export interface Getters {
   getUI: RendererPlugin["getUI"];
   getCol: RendererPlugin["getCol"];
   getRow: RendererPlugin["getRow"];
+  getRect: RendererPlugin["getRect"];
   isMergeDestructive: GridPlugin["isMergeDestructive"];
   isInMerge: GridPlugin["isInMerge"];
   getMainCell: GridPlugin["getMainCell"];
@@ -54,5 +55,4 @@ export interface Getters {
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   getEditionMode: EditionPlugin["getEditionMode"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
-  getHighlights: EditionPlugin["getHighlights"];
 }
