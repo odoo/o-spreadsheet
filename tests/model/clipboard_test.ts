@@ -32,7 +32,7 @@ describe("clipboard", () => {
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
     });
-    expect(model.state.clipboard.length).toBe(0);
+    expect(model.getters.getClipboardZones().length).toBe(0);
   });
 
   test("can cut and paste a cell", () => {
@@ -52,7 +52,7 @@ describe("clipboard", () => {
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
     });
 
-    expect(model.state.clipboard.length).toBe(0);
+    expect(model.getters.getClipboardZones().length).toBe(0);
 
     // select D3 and paste. it should do nothing
     model.dispatch({ type: "PASTE", target: target("D3:D3") });
@@ -261,8 +261,7 @@ describe("clipboard", () => {
     model.dispatch({ type: "SET_VALUE", xc: "C1", text: "c1" });
     model.dispatch({ type: "COPY", target: target("A1:A2,C1") });
 
-    const clipboard = model.state.clipboard;
-    expect(clipboard.length).toBe(1);
+    expect(model.getters.getClipboardZones().length).toBe(1);
 
     model.dispatch({ type: "SELECT_CELL", col: 4, row: 0 });
     model.dispatch({ type: "PASTE", target: target("E1") });
@@ -278,8 +277,7 @@ describe("clipboard", () => {
     model.dispatch({ type: "SET_VALUE", xc: "C2", text: "c2" });
     model.dispatch({ type: "COPY", target: target("A1:A2,C1:C2") });
 
-    const clipboard = model.state.clipboard;
-    expect(clipboard.length).toBe(2);
+    expect(model.getters.getClipboardZones().length).toBe(2);
 
     model.dispatch({ type: "PASTE", target: target("E1") });
     expect(model.workbook.cells.E1.content).toBe("a1");
@@ -368,7 +366,7 @@ describe("clipboard", () => {
     expect(model.workbook.cells["B2"].value).toEqual("test");
     expect(model.workbook.cells["D2"].content).toEqual('="test"');
     expect(model.workbook.cells["D2"].value).toEqual("test");
-    expect(model.state.clipboard).toEqual([]);
+    expect(model.getters.getClipboardZones().length).toBe(0);
   });
 
   test("can undo a paste operation", () => {
