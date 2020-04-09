@@ -1,5 +1,4 @@
-import { Cell, Workbook, Sheet, GridCommand } from "./types/index";
-import { CommandHandler } from "./base_plugin";
+import { Cell, Workbook, Sheet, GridCommand, CommandHandler } from "./types/index";
 
 /**
  * History Management System
@@ -15,9 +14,7 @@ interface HistoryChange {
   after: any;
 }
 
-interface HistoryStep {
-  batch: HistoryChange[];
-}
+type Step = HistoryChange[];
 
 /**
  * Max Number of history steps kept in memory
@@ -34,11 +31,10 @@ export interface WorkbookHistory {
 type WorkbookHistoryNonLocal = Omit<WorkbookHistory, "updateLocalState">;
 
 export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
-  workbook: Workbook;
-
-  private trackChanges: boolean = false;
-  private undoStack: HistoryStep[] = [];
-  private redoStack: HistoryStep[] = [];
+  private workbook: Workbook;
+  private current: Step | null = null;
+  private undoStack: Step[] = [];
+  private redoStack: Step[] = [];
 
   constructor(workbook: Workbook) {
     this.workbook = workbook;
@@ -58,13 +54,8 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
   }
 
   start(cmd: GridCommand) {
-    this.trackChanges = cmd.type !== "REDO" && cmd.type !== "UNDO";
-    if (this.trackChanges) {
-      const step: HistoryStep = { batch: [] };
-      // todo: when this is converted to a stateful plugin, keep the current batch
-      // out of the undo stack
-      this.undoStack.push(step);
-      this.trackChanges = true;
+    if (cmd.type !== "REDO" && cmd.type !== "UNDO") {
+      this.current = [];
     }
   }
 
@@ -80,14 +71,10 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
   }
 
   finalize() {
-    if (this.trackChanges) {
-      const lastStep = this.undoStack[this.undoStack.length - 1];
-      this.trackChanges = false;
-      if (lastStep.batch.length === 0) {
-        this.undoStack.pop();
-      } else {
-        this.redoStack = [];
-      }
+    if (this.current && this.current.length) {
+      this.undoStack.push(this.current);
+      this.redoStack = [];
+      this.current = null;
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
       }
@@ -100,8 +87,8 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
       return;
     }
     this.redoStack.push(step);
-    for (let i = step.batch.length - 1; i >= 0; i--) {
-      let change = step.batch[i];
+    for (let i = step.length - 1; i >= 0; i--) {
+      let change = step[i];
       this.applyChange(change, "before");
     }
   }
@@ -112,7 +99,7 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
       return;
     }
     this.undoStack.push(step);
-    for (let change of step.batch) {
+    for (let change of step) {
       this.applyChange(change, "after");
     }
   }
@@ -139,9 +126,8 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     if (value[key] === val) {
       return;
     }
-    if (this.trackChanges) {
-      const step = this.undoStack[this.undoStack.length - 1];
-      step.batch.push({
+    if (this.current) {
+      this.current.push({
         root,
         path,
         before: value[key],

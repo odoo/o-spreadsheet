@@ -13,7 +13,7 @@ function addContextSetter(key, fn) {
   });
 }
 
-describe("layout", () => {
+describe("renderer", () => {
   test("formulas evaluating to a string are properly aligned", () => {
     const model = new Model();
 

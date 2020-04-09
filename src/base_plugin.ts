@@ -1,4 +1,12 @@
-import { Workbook, GridCommand, Getters, WorkbookData, Viewport, Zone } from "./types/index";
+import {
+  Workbook,
+  GridCommand,
+  Getters,
+  WorkbookData,
+  Viewport,
+  Zone,
+  CommandHandler
+} from "./types/index";
 import { WorkbookHistory, WHistory } from "./history";
 import { Mode } from "./model";
 
@@ -11,13 +19,6 @@ import { Mode } from "./model";
  * This file introduce the BasePlugin, which is the common class that defines
  * how each of these model sub parts should interact with each other.
  */
-
-export interface CommandHandler {
-  canDispatch(command: GridCommand): boolean;
-  start(command: GridCommand): void;
-  handle(command: GridCommand): void;
-  finalize(command: GridCommand): void;
-}
 
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;
