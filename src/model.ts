@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin, CommandHandler, GridRenderingContext } from "./base_plugin";
+import { BasePlugin, GridRenderingContext } from "./base_plugin";
 import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { ClipboardPlugin } from "./plugins/clipboard";
@@ -20,7 +20,8 @@ import {
   UI,
   Viewport,
   Workbook,
-  WorkbookData
+  WorkbookData,
+  CommandHandler
 } from "./types/index";
 
 // -----------------------------------------------------------------------------

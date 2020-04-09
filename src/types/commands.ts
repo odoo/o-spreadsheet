@@ -356,3 +356,10 @@ export type GridCommand =
   | AddColumnsCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
+
+export interface CommandHandler {
+  canDispatch(command: GridCommand): boolean;
+  start(command: GridCommand): void;
+  handle(command: GridCommand): void;
+  finalize(command: GridCommand): void;
+}
