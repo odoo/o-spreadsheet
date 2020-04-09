@@ -156,16 +156,9 @@ export interface UI {
   cols: Col[];
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
-
-  offsetX: number;
-  offsetY: number;
-  scrollTop: number;
-  scrollLeft: number;
-
-  viewport: Zone;
 }
 
-export interface Viewport {
+export interface Viewport extends Zone {
   width: number;
   height: number;
   offsetX: number;

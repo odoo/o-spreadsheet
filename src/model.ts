@@ -1,68 +1,35 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin, GridRenderingContext } from "./base_plugin";
+import { BasePlugin, GridRenderingContext, LAYERS } from "./base_plugin";
 import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
-import { ClipboardPlugin } from "./plugins/clipboard";
-import { ConditionalFormatPlugin } from "./plugins/conditional_format";
-import { CorePlugin } from "./plugins/core";
-import { EditionPlugin } from "./plugins/edition";
-import { EntityPlugin } from "./plugins/entity";
-import { EvaluationPlugin } from "./plugins/evaluation";
-import { FormattingPlugin } from "./plugins/formatting";
-import { GridPlugin } from "./plugins/grid";
-import { RendererPlugin } from "./plugins/renderer";
-import { SelectionPlugin } from "./plugins/selection";
-import { Registry } from "./registry";
+import { pluginRegistry } from "./plugins/index";
 import {
+  CommandHandler,
   CommandResult,
   Getters,
   GridCommand,
   UI,
-  Viewport,
   Workbook,
-  WorkbookData,
-  CommandHandler
+  WorkbookData
 } from "./types/index";
-
-// -----------------------------------------------------------------------------
-// Plugins
-// -----------------------------------------------------------------------------
-
-export const pluginRegistry = new Registry<typeof BasePlugin>();
-
-pluginRegistry
-  .add("core", CorePlugin)
-  .add("evaluation", EvaluationPlugin)
-  .add("clipboard", ClipboardPlugin)
-  .add("grid", GridPlugin)
-  .add("formatting", FormattingPlugin)
-  .add("edition", EditionPlugin)
-  .add("selection", SelectionPlugin)
-  .add("conditional formatting", ConditionalFormatPlugin)
-  .add("entities", EntityPlugin)
-  .add("grid renderer", RendererPlugin);
 
 export type Mode = "normal" | "headless" | "readonly";
 
-// -----------------------------------------------------------------------------
-// Model
-// -----------------------------------------------------------------------------
 export class Model extends owl.core.EventBus {
   private handlers: CommandHandler[];
-  private renderers: [BasePlugin, number][];
+  private renderers: [BasePlugin, LAYERS][] = [];
   private status: "ready" | "running" | "finalizing" = "ready";
 
   workbook: Workbook;
   history: WHistory;
   state: UI;
-  renderer: RendererPlugin;
   mode: Mode;
 
   getters: Getters;
 
   constructor(data: any = {}, mode: Mode = "normal") {
     super();
-    (window as any).gridmodel = this; // to debug. remove this someday
+    (window as any).model = this; // to debug. remove this someday
 
     const workbookData = load(data);
     this.workbook = createEmptyWorkbook();
@@ -75,37 +42,37 @@ export class Model extends owl.core.EventBus {
     this.handlers = [this.history];
     this.mode = mode;
 
-    // Plugins
-    const dispatch = this.dispatch.bind(this);
+    // registering plugins
     for (let Plugin of pluginRegistry.getAll()) {
-      if (Plugin.modes.includes(this.mode)) {
-        const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch, mode);
-        plugin.import(workbookData);
-        for (let name of Plugin.getters) {
-          if (!(name in plugin)) {
-            throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-          }
-          this.getters[name] = plugin[name].bind(plugin);
-        }
-        this.handlers.push(plugin);
-      }
+      this.setupPlugin(Plugin, workbookData);
     }
-
-    // setting up renderers
-    const indexedRenderers: [BasePlugin, number][] = [];
-    for (let p of this.handlers) {
-      if (p instanceof BasePlugin) {
-        const layers = (p.constructor as any).layers.map(l => [p, l]);
-        indexedRenderers.push(...layers);
-      }
-    }
-    this.renderers = indexedRenderers.sort((p1, p2) => p1[1] - p2[1]);
 
     // misc
-    this.renderer = this.handlers.find(h => h instanceof RendererPlugin)! as RendererPlugin;
     this.state = {} as UI;
     this.dispatch({ type: "START" });
   }
+
+  private setupPlugin(Plugin: typeof BasePlugin, data: WorkbookData) {
+    const dispatch = this.dispatch.bind(this);
+    if (Plugin.modes.includes(this.mode)) {
+      const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch, this.mode);
+      plugin.import(data);
+      for (let name of Plugin.getters) {
+        if (!(name in plugin)) {
+          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+        }
+        this.getters[name] = plugin[name].bind(plugin);
+      }
+      this.handlers.push(plugin);
+      const layers = Plugin.layers.map(l => [plugin, l] as [BasePlugin, LAYERS]);
+      this.renderers.push(...layers);
+      this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   dispatch(command: GridCommand): CommandResult {
     switch (this.status) {
@@ -141,63 +108,23 @@ export class Model extends owl.core.EventBus {
     return "COMPLETED";
   }
 
-  drawGrid(canvas: HTMLCanvasElement, viewport: Viewport) {
-    const { width, height } = viewport;
-    // whenever the dimensions are changed, we need to reset the width/height
-    // of the canvas manually, and reset its scaling.
-    const dpr = window.devicePixelRatio || 1;
-    const context = canvas.getContext("2d", { alpha: false })!;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
-    context.translate(-0.5, -0.5);
-    context.scale(dpr, dpr);
+  // ---------------------------------------------------------------------------
+  // Grid Rendering
+  // ---------------------------------------------------------------------------
 
-    // preparing the grid rendering context
-    this.renderer.updateVisibleZone(width, height);
-    const ajustedViewport = {
-      width: viewport.width,
-      height: viewport.height,
-      offsetX: this.renderer.offsetX,
-      offsetY: this.renderer.offsetY
-    };
-
-    const renderingContext: GridRenderingContext = {
-      ctx: context,
-      viewport: ajustedViewport,
-      zone: this.renderer.viewport,
-      dpr,
-      thinLineWidth: 0.4 * dpr
-    };
-
+  drawGrid(context: GridRenderingContext) {
+    // we make sure here that the viewport is properly positioned: the offsets
+    // correspond exactly to a cell
+    context.viewport = this.getters.getAdjustedViewport(context.viewport, "offsets");
     for (let [renderer, layer] of this.renderers) {
-      renderer.drawGrid(renderingContext, layer);
+      renderer.drawGrid(context, layer);
     }
   }
 
-  // core
   // ---------------------------------------------------------------------------
-  updateVisibleZone(width: number, height: number) {
-    if (this.mode === "headless") {
-      return;
-    }
-    this.renderer.updateVisibleZone(width, height);
-    Object.assign(this.state, this.getters.getUI());
-  }
-
-  updateScroll(scrollTop: number, scrollLeft: number): boolean {
-    if (this.mode === "headless") {
-      return false;
-    }
-    const result = this.renderer.updateScroll(scrollTop, scrollLeft);
-    Object.assign(this.state, this.getters.getUI(result));
-    return result;
-  }
-
-  // export
+  // Data Export
   // ---------------------------------------------------------------------------
+
   exportData(): WorkbookData {
     const data = createEmptyWorkbookData();
     for (let handler of this.handlers) {

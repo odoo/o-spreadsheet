@@ -15,12 +15,14 @@ afterEach(() => {
 Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
     return 1000;
-  }
+  },
+  configurable: true
 });
 Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
   get() {
     return 1000;
-  }
+  },
+  configurable: true
 });
 
 function simulateContextMenu(x, y) {
@@ -46,8 +48,6 @@ describe("Context Menu", () => {
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     expect(model.state.activeXc).toBe("A1");
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
@@ -62,8 +62,6 @@ describe("Context Menu", () => {
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     simulateContextMenu(300, 200);
     expect(model.state.activeXc).toBe("C8");
@@ -81,8 +79,6 @@ describe("Context Menu", () => {
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     // right click on B1
     simulateContextMenu(230, 30);
@@ -112,8 +108,6 @@ describe("Context Menu", () => {
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
-    // todo: find a way to have actual width/height instead of this
-    model.state.viewport = { left: 0, top: 0, right: 9, bottom: 9 };
 
     // right click on B1
     simulateContextMenu(230, 30);

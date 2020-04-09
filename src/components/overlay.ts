@@ -237,11 +237,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.model.state.offsetX;
+    return this.props.viewport.offsetX - HEADER_WIDTH;
   }
 
   _getViewportOffset(): number {
-    return this.model.state.viewport.left;
+    return this.props.viewport.left;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -249,7 +249,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getters.getCol(index);
+    return this.model.getters.getCol(index, this.props.viewport.left);
   }
 
   _getElement(index: number): Col {
@@ -371,11 +371,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getStateOffset(): number {
-    return this.model.state.offsetY;
+    return this.props.viewport.offsetY - HEADER_HEIGHT;
   }
 
   _getViewportOffset(): number {
-    return this.model.state.viewport.top;
+    return this.props.viewport.top;
   }
 
   _getClientPosition(ev: MouseEvent): number {
@@ -383,7 +383,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getters.getRow(index);
+    return this.model.getters.getRow(index, this.props.viewport.top);
   }
 
   _getElement(index: number): Row {
@@ -458,8 +458,8 @@ export class RowResizer extends AbstractResizer {
 export class Overlay extends Component<any, any> {
   static template = xml/* xml */ `
     <div class="o-overlay">
-      <ColResizer model="props.model"/>
-      <RowResizer model="props.model"/>
+      <ColResizer model="props.model" viewport="props.viewport"/>
+      <RowResizer model="props.model" viewport="props.viewport"/>
       <div class="all" t-on-mousedown.self="selectAll"/>
     </div>`;
 

@@ -4,6 +4,19 @@ import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
 jest.mock("../../src/components/content_editable_helper");
 
+Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
+  get() {
+    return 1000;
+  },
+  configurable: true
+});
+Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
+  get() {
+    return 1000;
+  },
+  configurable: true
+});
+
 let fixture: HTMLElement;
 let model: Model;
 let parent: GridParent;

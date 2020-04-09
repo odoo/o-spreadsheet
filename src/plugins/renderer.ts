@@ -1,7 +1,5 @@
 import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
 import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
@@ -10,7 +8,7 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, GridCommand, Rect, UI, Zone, Viewport } from "../types/index";
+import { Box, Rect, UI, Zone, Viewport } from "../types/index";
 import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------
@@ -30,104 +28,59 @@ function computeAlign(type: string): "right" | "center" | "left" {
 
 export class RendererPlugin extends BasePlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
-  static getters = ["getUI", "getCol", "getRow", "getRect"];
-
+  static getters = ["getUI", "getCol", "getRow", "getRect", "getAdjustedViewport"];
   static modes: Mode[] = ["normal", "readonly"];
 
-  // actual size of the visible grid, in pixel
-  private clientWidth: number = DEFAULT_CELL_WIDTH + HEADER_WIDTH;
-  private clientHeight: number = DEFAULT_CELL_HEIGHT + HEADER_HEIGHT;
-
-  // todo: remove this
-  viewport: Zone = { top: 0, left: 0, bottom: 0, right: 0 };
-
-  // offset between the visible zone and the full zone (take into account
-  // headers)
-  offsetX: number = 0;
-  offsetY: number = 0;
-  private scrollTop: number = 0;
-  private scrollLeft: number = 0;
-
   private boxes: Box[] = [];
-
-  ui: UI | null = null;
-
-  // ---------------------------------------------------------------------------
-  // Command handling
-  // ---------------------------------------------------------------------------
-
-  handle(cmd: GridCommand) {
-    this.ui = null;
-    switch (cmd.type) {
-      case "MOVE_POSITION":
-        this.updateScrollPosition();
-        break;
-    }
-  }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
 
-  getUI(force?: boolean): UI {
-    if (!this.ui || force) {
-      const { cols, rows } = this.workbook;
-      const viewport = this.viewport;
-      const [col, row] = this.getters.getPosition();
-      this.ui = {
-        rows: this.workbook.rows,
-        cols: this.workbook.cols,
-        merges: this.workbook.merges,
-        mergeCellMap: this.workbook.mergeCellMap,
-        offsetX: cols[viewport.left].left - HEADER_WIDTH,
-        offsetY: rows[viewport.top].top - HEADER_HEIGHT,
-        scrollTop: this.scrollTop,
-        scrollLeft: this.scrollLeft,
-        viewport: viewport,
-        activeCol: col,
-        activeRow: row,
-        activeXc: toXC(col, row),
-        editionMode: this.getters.getEditionMode(),
-        selectedCell: this.getters.getActiveCell(),
-        aggregate: this.getters.getAggregate(),
-        sheets: this.workbook.sheets.map(s => s.name),
-        activeSheet: this.workbook.activeSheet.name
-      };
-    }
-    return this.ui;
+  getUI(): UI {
+    const [col, row] = this.getters.getPosition();
+    return {
+      rows: this.workbook.rows,
+      cols: this.workbook.cols,
+      merges: this.workbook.merges,
+      mergeCellMap: this.workbook.mergeCellMap,
+      activeCol: col,
+      activeRow: row,
+      activeXc: toXC(col, row),
+      editionMode: this.getters.getEditionMode(),
+      selectedCell: this.getters.getActiveCell(),
+      aggregate: this.getters.getAggregate(),
+      sheets: this.workbook.sheets.map(s => s.name),
+      activeSheet: this.workbook.activeSheet.name
+    };
   }
 
   /**
-   * Return the index of a column given an offset x.
+   * Return the index of a column given an offset x and a visible left col index.
    * It returns -1 if no column is found.
    */
-  getCol(x: number): number {
-    if (x <= HEADER_WIDTH) {
+  getCol(x: number, left: number): number {
+    if (x < HEADER_WIDTH) {
       return -1;
     }
     const cols = this.workbook.cols;
-    const { left, right } = this.viewport;
-    for (let i = left; i <= right; i++) {
-      let c = cols[i];
-      if (c.left - this.offsetX + HEADER_WIDTH <= x && x <= c.right - this.offsetX + HEADER_WIDTH) {
+    const adjustedX = x - HEADER_WIDTH + cols[left].left + 1;
+    for (let i = left; i <= cols.length; i++) {
+      if (adjustedX <= cols[i].right) {
         return i;
       }
     }
     return -1;
   }
 
-  getRow(y: number): number {
-    if (y <= HEADER_HEIGHT) {
+  getRow(y: number, top: number): number {
+    if (y < HEADER_HEIGHT) {
       return -1;
     }
     const rows = this.workbook.rows;
-    const { top, bottom } = this.viewport;
-    for (let i = top; i <= bottom; i++) {
-      let r = rows[i];
-      if (
-        r.top - this.offsetY + HEADER_HEIGHT <= y &&
-        y <= r.bottom - this.offsetY + HEADER_HEIGHT
-      ) {
+    const adjustedY = y - HEADER_HEIGHT + rows[top].top + 1;
+    for (let i = top; i <= rows.length; i++) {
+      if (adjustedY <= rows[i].bottom) {
         return i;
       }
     }
@@ -147,86 +100,59 @@ export class RendererPlugin extends BasePlugin {
     return [x, y, width, height];
   }
 
-  // ---------------------------------------------------------------------------
-  // To remove
-  // ---------------------------------------------------------------------------
-
   /**
-   *  keep current cell in the viewport, if possible
+   * A viewport is a "physical" window into the data represented on a grid.
+   * This method returns the corresponding zone (so, pretty much the same data,
+   * but expressed in term of rows/cols)
    */
-  updateScrollPosition() {
+  getAdjustedViewport(viewport: Viewport, adjustment: "offsets" | "zone" | "position"): Viewport {
     const { cols, rows } = this.workbook;
-    const viewport = this.viewport;
-    const [col, row] = this.getters.getPosition();
-
-    while (col >= viewport.right && col !== cols.length - 1) {
-      this.updateScroll(this.scrollTop, cols[viewport.left].right);
+    viewport = Object.assign({}, viewport);
+    if (adjustment === "offsets") {
+      viewport.offsetX = cols[viewport.left].left;
+      viewport.offsetY = rows[viewport.top].top;
+      return viewport;
     }
-    while (col < viewport.left) {
-      this.updateScroll(this.scrollTop, cols[viewport.left - 1].left);
-    }
-    while (row >= viewport.bottom && row !== rows.length - 1) {
-      this.updateScroll(rows[viewport.top].bottom, this.scrollLeft);
-    }
-    while (row < viewport.top) {
-      this.updateScroll(rows[viewport.top - 1].top, this.scrollLeft);
-    }
-  }
-
-  updateScroll(scrollTop: number, scrollLeft: number): boolean {
-    scrollTop = Math.round(scrollTop);
-    scrollLeft = Math.round(scrollLeft);
-    if (this.scrollTop === scrollTop && this.scrollLeft === scrollLeft) {
-      return false;
-    }
-    this.scrollTop = scrollTop;
-    this.scrollLeft = scrollLeft;
-    const { offsetX, offsetY } = this;
-    this.updateVisibleZone();
-    return offsetX !== this.offsetX || offsetY !== this.offsetY;
-  }
-
-  /**
-   * Here:
-   * - width is the clientWidth, the actual width of the visible zone
-   * - height is the clientHeight, the actual height of the visible zone
-   */
-  updateVisibleZone(width?: number, height?: number) {
-    const { rows, cols } = this.workbook;
-    const viewport = this.viewport;
-    this.clientWidth = width || this.clientWidth;
-    this.clientHeight = height || this.clientHeight;
-
-    viewport.bottom = rows.length - 1;
-    let effectiveTop = this.scrollTop;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].top <= effectiveTop) {
-        if (rows[i].bottom > effectiveTop) {
-          effectiveTop = rows[i].top;
-        }
-        viewport.top = i;
+    if (adjustment === "position") {
+      const [col, row] = this.getters.getPosition();
+      while (col >= viewport.right && col !== cols.length - 1) {
+        viewport.offsetX = cols[viewport.left].right;
+        viewport = this.getAdjustedViewport(viewport, "zone");
       }
-      if (effectiveTop + this.clientHeight < rows[i].bottom + HEADER_HEIGHT) {
-        viewport.bottom = i;
+      while (col < viewport.left) {
+        viewport.offsetX = cols[viewport.left - 1].left;
+        viewport = this.getAdjustedViewport(viewport, "zone");
+      }
+      while (row >= viewport.bottom && row !== rows.length - 1) {
+        viewport.offsetY = rows[viewport.top].bottom;
+        viewport = this.getAdjustedViewport(viewport, "zone");
+      }
+      while (row < viewport.top) {
+        viewport.offsetY = rows[viewport.top - 1].top;
+        viewport = this.getAdjustedViewport(viewport, "zone");
+      }
+      return viewport;
+    }
+    const { width, height, offsetX, offsetY } = viewport;
+    const top = this.getRow(offsetY + HEADER_HEIGHT, 0);
+    const left = this.getCol(offsetX + HEADER_WIDTH, 0);
+    const x = width + offsetX - HEADER_WIDTH;
+    let right = cols.length - 1;
+    for (let i = left; i < cols.length; i++) {
+      if (x < cols[i].right) {
+        right = i;
         break;
       }
     }
-    viewport.right = cols.length - 1;
-    let effectiveLeft = this.scrollLeft;
-    for (let i = 0; i < cols.length; i++) {
-      if (cols[i].left <= effectiveLeft) {
-        if (cols[i].right > effectiveLeft) {
-          effectiveLeft = cols[i].left;
-        }
-        viewport.left = i;
-      }
-      if (effectiveLeft + this.clientWidth < cols[i].right + HEADER_WIDTH) {
-        viewport.right = i;
+    let y = height + offsetY - HEADER_HEIGHT;
+    let bottom = rows.length - 1;
+    for (let i = top; i < rows.length; i++) {
+      if (y < rows[i].bottom) {
+        bottom = i;
         break;
       }
     }
-    this.offsetX = cols[viewport.left].left;
-    this.offsetY = rows[viewport.top].top;
+    return { width, height, offsetX, offsetY, left, top, right, bottom };
   }
 
   // ---------------------------------------------------------------------------
@@ -249,7 +175,8 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawBackground(renderingContext: GridRenderingContext) {
-    const { ctx, viewport, zone, thinLineWidth } = renderingContext;
+    const { ctx, viewport, thinLineWidth } = renderingContext;
+    let { width, height, offsetX, offsetY, top, left, bottom, right } = viewport;
     const { rows, cols } = this.workbook;
 
     // white background
@@ -257,8 +184,6 @@ export class RendererPlugin extends BasePlugin {
     ctx.fillRect(0, 0, viewport.width, viewport.height);
 
     // background grid
-    let { width, height, offsetX, offsetY } = viewport;
-    const { top, left, bottom, right } = zone;
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
 
@@ -390,15 +315,14 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, viewport, zone, thinLineWidth } = renderingContext;
-    let { width, height, offsetX, offsetY } = viewport;
+    const { ctx, viewport, thinLineWidth } = renderingContext;
+    let { width, height, offsetX, offsetY, left, top, right, bottom } = viewport;
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
     const selection = this.getters.getSelectedZones();
     const { cols, rows } = this.workbook;
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
-    const { left, top, right, bottom } = zone;
 
     ctx.fillStyle = "#f4f5f8";
     ctx.font = "400 12px Source Sans Pro";
@@ -461,9 +385,8 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
-    const { zone, viewport } = renderingContext;
-    const { right, left, top, bottom } = zone;
-    let { offsetX, offsetY } = viewport;
+    const { viewport } = renderingContext;
+    let { right, left, top, bottom, offsetX, offsetY } = viewport;
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
 
@@ -527,7 +450,7 @@ export class RendererPlugin extends BasePlugin {
     // process all visible merges
     for (let id in merges) {
       let merge = merges[id];
-      if (overlap(merge, this.viewport)) {
+      if (overlap(merge, viewport)) {
         const refCell = cells[merge.topLeft];
         const width = cols[merge.right].right - cols[merge.left].left;
         let text, textWidth, style, align, border;

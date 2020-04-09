@@ -1,13 +1,13 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
-import { Model } from "../src/model";
+import { GridRenderingContext } from "../src/base_plugin";
 import { Grid } from "../src/components/grid";
-import { SidePanel } from "../src/components/side_panel/side_panel";
 import { sidePanelRegistry } from "../src/components/index";
+import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import "./canvas.mock";
 import * as h from "../src/helpers/index";
-import { Viewport } from "../src/types/index";
 import { toXC } from "../src/helpers/index";
+import { Model } from "../src/model";
+import "./canvas.mock";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -65,8 +65,10 @@ export class GridParent extends Component<any> {
     });
 
     const drawGrid = model.drawGrid;
-    model.drawGrid = function(canvas: HTMLCanvasElement, viewport: Viewport) {
-      drawGrid.call(this, canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    model.drawGrid = function(context: GridRenderingContext) {
+      context.viewport.width = 1000;
+      context.viewport.height = 1000;
+      drawGrid.call(this, context);
     };
     this.model = model;
   }

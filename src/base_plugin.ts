@@ -4,7 +4,6 @@ import {
   Getters,
   WorkbookData,
   Viewport,
-  Zone,
   CommandHandler
 } from "./types/index";
 import { WorkbookHistory, WHistory } from "./history";
@@ -23,7 +22,6 @@ import { Mode } from "./model";
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
-  zone: Zone;
   dpr: number;
   thinLineWidth: number;
 }
