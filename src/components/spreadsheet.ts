@@ -91,6 +91,12 @@ export class Spreadsheet extends Component<Props> {
     Body?: any;
     Footer?: any;
   });
+
+  // last string that was cut or copied. It is necessary so we can make the
+  // difference between a paste coming from the sheet itself, or from the
+  // os clipboard
+  private clipBoardString: string = "";
+
   constructor() {
     super(...arguments);
     const spreadsheetEnv: SpreadsheetEnv = {
@@ -98,6 +104,9 @@ export class Spreadsheet extends Component<Props> {
     };
     useSubEnv({ spreadsheet: spreadsheetEnv });
     useExternalListener(window as any, "resize", this.render);
+    useExternalListener(document.body, "cut", this.copy.bind(this, true));
+    useExternalListener(document.body, "copy", this.copy.bind(this, false));
+    useExternalListener(document.body, "paste", this.paste);
   }
 
   mounted() {
@@ -117,5 +126,46 @@ export class Spreadsheet extends Component<Props> {
   }
   focusGrid() {
     (<any>this.grid.comp).focus();
+  }
+
+  copy(cut: boolean, ev: ClipboardEvent) {
+    if (!this.grid.el!.contains(document.activeElement)) {
+      return;
+    }
+    const type = cut ? "CUT" : "COPY";
+    const target = this.model.getters.getSelectedZones();
+    this.model.dispatch({ type, target });
+    const content = this.model.getters.getClipboardContent();
+    this.clipBoardString = content;
+    ev.clipboardData!.setData("text/plain", content);
+    ev.preventDefault();
+  }
+
+  paste(ev: ClipboardEvent) {
+    if (!this.grid.el!.contains(document.activeElement)) {
+      return;
+    }
+    const clipboardData = ev.clipboardData!;
+    if (clipboardData.types.indexOf("text/plain") > -1) {
+      const content = clipboardData.getData("text/plain");
+      if (this.clipBoardString === content) {
+        // the paste actually comes from o-spreadsheet itself
+        const result = this.model.dispatch({
+          type: "PASTE",
+          target: this.model.getters.getSelectedZones()
+        });
+        if (result === "CANCELLED") {
+          this.trigger("notify-user", {
+            content: "This operation is not allowed with multiple selections."
+          });
+        }
+      } else {
+        this.model.dispatch({
+          type: "PASTE_FROM_OS_CLIPBOARD",
+          target: this.model.getters.getSelectedZones(),
+          text: content
+        });
+      }
+    }
   }
 }

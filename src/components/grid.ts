@@ -25,7 +25,7 @@ import { Overlay } from "./overlay";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef, useExternalListener } = owl.hooks;
+const { useRef } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // TEMPLATE
@@ -125,10 +125,6 @@ export class Grid extends Component<any, any> {
 
   clickedCol = 0;
   clickedRow = 0;
-  // last string that was cut or copied. It is necessary so we can make the
-  // difference between a paste coming from the sheet itself, or from the
-  // os clipboard
-  clipBoardString: string = "";
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
@@ -161,13 +157,6 @@ export class Grid extends Component<any, any> {
         target: this.model.getters.getSelectedZones()
       });
     }
-  }
-
-  constructor() {
-    super(...arguments);
-    useExternalListener(document.body, "cut", this.copy.bind(this, true));
-    useExternalListener(document.body, "copy", this.copy.bind(this, false));
-    useExternalListener(document.body, "paste", this.paste);
   }
 
   mounted() {
@@ -347,46 +336,6 @@ export class Grid extends Component<any, any> {
         ev.preventDefault();
         ev.stopPropagation();
         this.model.dispatch({ type: "START_EDITION", text: ev.key });
-      }
-    }
-  }
-
-  copy(cut: boolean, ev: ClipboardEvent) {
-    if (document.activeElement !== this.canvas.el) {
-      return;
-    }
-    const type = cut ? "CUT" : "COPY";
-    const target = this.model.getters.getSelectedZones();
-    this.model.dispatch({ type, target });
-    const content = this.model.getters.getClipboardContent();
-    this.clipBoardString = content;
-    ev.clipboardData!.setData("text/plain", content);
-    ev.preventDefault();
-  }
-  paste(ev: ClipboardEvent) {
-    if (document.activeElement !== this.canvas.el) {
-      return;
-    }
-    const clipboardData = ev.clipboardData!;
-    if (clipboardData.types.indexOf("text/plain") > -1) {
-      const content = clipboardData.getData("text/plain");
-      if (this.clipBoardString === content) {
-        // the paste actually comes from o-spreadsheet itself
-        const result = this.model.dispatch({
-          type: "PASTE",
-          target: this.model.getters.getSelectedZones()
-        });
-        if (result === "CANCELLED") {
-          this.trigger("notify-user", {
-            content: "This operation is not allowed with multiple selections."
-          });
-        }
-      } else {
-        this.model.dispatch({
-          type: "PASTE_FROM_OS_CLIPBOARD",
-          target: this.model.getters.getSelectedZones(),
-          text: content
-        });
       }
     }
   }
