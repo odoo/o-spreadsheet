@@ -408,8 +408,8 @@ export class TopBar extends Component<any, any> {
       const mergeId = state.mergeCellMap[state.activeXc];
       this.inMerge = mergeId ? isEqual(zones[0], state.merges[mergeId]) : false;
     }
-    this.undoTool = state.canUndo;
-    this.redoTool = state.canRedo;
+    this.undoTool = this.model.getters.canUndo();
+    this.redoTool = this.model.getters.canRedo();
     this.paintFormatTool = this.model.getters.isPaintingFormat();
     const cell = state.selectedCell;
     if (cell && cell.format) {

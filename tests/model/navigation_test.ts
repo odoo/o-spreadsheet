@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
 import { Model } from "../../src/model";
 import "../canvas.mock";
+import { getActiveXc } from "../helpers";
 
 describe("navigation", () => {
   test("normal move to the right", () => {
@@ -66,7 +67,7 @@ describe("navigation", () => {
     model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([3, 0]);
-    expect(model.getters.getActiveXc()).toBe("D1");
+    expect(getActiveXc(model)).toBe("D1");
   });
 
   test("do nothing if moving out of merge is out of grid", () => {
@@ -85,9 +86,9 @@ describe("navigation", () => {
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 2 });
 
     // enter merge from below
-    expect(model.getters.getActiveXc()).toBe("B3");
+    expect(getActiveXc(model)).toBe("B3");
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
-    expect(model.getters.getActiveXc()).toBe("B2");
+    expect(getActiveXc(model)).toBe("B2");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 1]);

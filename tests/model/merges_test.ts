@@ -2,6 +2,7 @@ import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
+import { getActiveXc } from "../helpers";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -71,7 +72,7 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    expect(model.getters.getActiveXc()).toBe("C3");
+    expect(getActiveXc(model)).toBe("C3");
     model.dispatch({ type: "START_EDITION" });
     expect(model.getters.getCurrentContent()).toBe("b2");
     model.dispatch({ type: "SET_CURRENT_CONTENT", content: "new value" });
@@ -92,7 +93,7 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    expect(model.getters.getActiveXc()).toBe("C3");
+    expect(getActiveXc(model)).toBe("C3");
     expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
     expect(model.workbook.cells["B2"].style).not.toBeDefined();
 
@@ -120,10 +121,10 @@ describe("merges", () => {
     });
 
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 3 });
-    expect(model.getters.getActiveXc()).toBe("C4");
+    expect(getActiveXc(model)).toBe("C4");
     expect(model.state.selectedCell).toBeNull(); // no active cell in C4
     model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
-    expect(model.getters.getActiveXc()).toBe("C3");
+    expect(getActiveXc(model)).toBe("C3");
     expect(model.state.selectedCell!.xc).toBe("B2");
   });
 

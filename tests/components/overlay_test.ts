@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
 import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
@@ -120,13 +120,13 @@ describe("Resizer component", () => {
   test("can click on a header to select a column", async () => {
     selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
-    expect(model.getters.getActiveXc()).toBe("C1");
+    expect(getActiveXc(model)).toBe("C1");
   });
 
   test("can click on a row-header to select a row", async () => {
     selectRow(2);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
-    expect(model.getters.getActiveXc()).toBe("A3");
+    expect(getActiveXc(model)).toBe("A3");
   });
 
   test("can select multiple rows/cols", async () => {
@@ -136,18 +136,18 @@ describe("Resizer component", () => {
     selectRow(3, { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
-    expect(model.getters.getActiveXc()).toBe("A4");
+    expect(getActiveXc(model)).toBe("A4");
 
     selectColumn("C", { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
     expect(model.getters.getSelectedZones()[2]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
-    expect(model.getters.getActiveXc()).toBe("C1");
+    expect(getActiveXc(model)).toBe("C1");
 
     selectColumn("C");
     expect(model.getters.getSelectedZones().length).toBe(1);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
-    expect(model.getters.getActiveXc()).toBe("C1");
+    expect(getActiveXc(model)).toBe("C1");
   });
 
   test("Can resize a column", async () => {
@@ -167,7 +167,7 @@ describe("Resizer component", () => {
     selectColumn("D", { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 3, top: 0, right: 3, bottom: 9 });
-    expect(model.getters.getActiveXc()).toBe("D1");
+    expect(getActiveXc(model)).toBe("D1");
 
     await resizeColumn("D", 50);
     expect(model.workbook.cols[1].size).toBe(model.workbook.cols[0].size);
@@ -182,7 +182,7 @@ describe("Resizer component", () => {
     selectRow(3, { ctrlKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(model.getters.getSelectedZones()[1]).toEqual({ left: 0, top: 3, right: 9, bottom: 3 });
-    expect(model.getters.getActiveXc()).toBe("A4");
+    expect(getActiveXc(model)).toBe("A4");
 
     await resizeRow(3, 50);
     expect(model.workbook.rows[1].size).toBe(model.workbook.rows[0].size);
@@ -195,7 +195,7 @@ describe("Resizer component", () => {
   test("can select the entire sheet", async () => {
     triggerMouseEvent(".o-overlay .all", "mousedown", 5, 5);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
-    expect(model.getters.getActiveXc()).toBe("A1");
+    expect(getActiveXc(model)).toBe("A1");
   });
 
   test("Mousemove hover something else than a header", async () => {

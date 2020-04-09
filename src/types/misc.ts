@@ -151,20 +151,11 @@ export interface UI {
   selectedCell: Cell | null;
   aggregate: string | null;
 
-  canUndo: boolean;
-  canRedo: boolean;
-
   // to remove someday
   rows: Row[];
   cols: Col[];
   merges: { [key: number]: Merge };
   mergeCellMap: { [key: string]: number };
-
-  width: number;
-  height: number;
-
-  clientWidth: number;
-  clientHeight: number;
 
   offsetX: number;
   offsetY: number;

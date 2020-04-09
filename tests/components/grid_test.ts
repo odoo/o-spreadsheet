@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
 jest.mock("../../src/components/content_editable_helper");
@@ -34,7 +34,7 @@ describe("Grid component", () => {
     model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
     model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
-    expect(model.getters.getActiveXc()).toBe("C8");
+    expect(getActiveXc(model)).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
@@ -44,7 +44,7 @@ describe("Grid component", () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
     );
-    expect(model.getters.getActiveXc()).toBe("A2");
+    expect(getActiveXc(model)).toBe("A2");
   });
 
   test("can shift-click on a cell to update selection", async () => {
@@ -70,7 +70,7 @@ describe("Grid component", () => {
       // note: this behavious is not like excel. Maybe someone will want to
       // change this
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      expect(model.getters.getActiveXc()).toBe("A1");
+      expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("editing");
     });
 
@@ -80,20 +80,20 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-      expect(model.getters.getActiveXc()).toBe("A2");
+      expect(getActiveXc(model)).toBe("A2");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(model.workbook.cells["A1"].content).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-      expect(model.getters.getActiveXc()).toBe("A2");
+      expect(getActiveXc(model)).toBe("A2");
       model.dispatch({ type: "START_EDITION", text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
-      expect(model.getters.getActiveXc()).toBe("A1");
+      expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(model.workbook.cells["A2"].content).toBe("a");
     });
@@ -104,21 +104,21 @@ describe("Grid component", () => {
       fixture
         .querySelector("div.o-composer")!
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
-      expect(model.getters.getActiveXc()).toBe("A1");
+      expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
       expect(model.workbook.cells["A1"].content).toBe("a");
     });
 
     test("pressing TAB move to next cell", async () => {
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-      expect(model.getters.getActiveXc()).toBe("B1");
+      expect(getActiveXc(model)).toBe("B1");
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
       model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
-      expect(model.getters.getActiveXc()).toBe("B1");
+      expect(getActiveXc(model)).toBe("B1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
-      expect(model.getters.getActiveXc()).toBe("A1");
+      expect(getActiveXc(model)).toBe("A1");
     });
 
     test("can undo/redo with keyboard", async () => {
@@ -163,7 +163,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "A", ctrlKey: true, bubbles: true })
       );
-      expect(model.getters.getActiveXc()).toBe("A1");
+      expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getSelectedZones()[0]).toEqual({
         left: 0,
         top: 0,

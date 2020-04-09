@@ -74,16 +74,11 @@ export class RendererPlugin extends BasePlugin {
       const { cols, rows } = this.workbook;
       const viewport = this.viewport;
       const [col, row] = this.getters.getPosition();
-      const [width, height] = this.getters.getGridSize();
       this.ui = {
         rows: this.workbook.rows,
         cols: this.workbook.cols,
         merges: this.workbook.merges,
         mergeCellMap: this.workbook.mergeCellMap,
-        width: width,
-        height: height,
-        clientWidth: this.clientWidth,
-        clientHeight: this.clientHeight,
         offsetX: cols[viewport.left].left - HEADER_WIDTH,
         offsetY: rows[viewport.top].top - HEADER_HEIGHT,
         scrollTop: this.scrollTop,
@@ -95,8 +90,6 @@ export class RendererPlugin extends BasePlugin {
         editionMode: this.getters.getEditionMode(),
         selectedCell: this.getters.getActiveCell(),
         aggregate: this.getters.getAggregate(),
-        canUndo: this.getters.canUndo(),
-        canRedo: this.getters.canRedo(),
         sheets: this.workbook.sheets.map(s => s.name),
         activeSheet: this.workbook.activeSheet.name
       };
