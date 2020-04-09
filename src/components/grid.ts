@@ -5,9 +5,9 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH
 } from "../constants";
-import { isInside } from "../helpers/index";
+import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
-import { UI } from "../types/index";
+import { UI, Viewport } from "../types/index";
 import { Composer } from "./composer";
 import { ContextMenu, ContextMenuType } from "./context_menu";
 import { Overlay } from "./overlay";
@@ -33,7 +33,7 @@ const { useRef } = owl.hooks;
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown">
     <t t-if="state.editionMode !== 'inactive'">
-      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" />
+      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" viewport="viewport"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -42,7 +42,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-contextmenu="onCanvasContextMenu"
       t-on-wheel="onMouseWheel" />
 
-    <Overlay model="model" t-on-open-contextmenu="onOverlayContextMenu"/>
+    <Overlay model="model" t-on-open-contextmenu="onOverlayContextMenu" viewport="viewport"/>
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
       type="contextMenu.type"
@@ -122,9 +122,20 @@ export class Grid extends Component<any, any> {
   model: Model = this.props.model;
   state: UI = this.model.state;
   gridSize: [number, number] = this.model.getters.getGridSize();
+  currentPosition = this.model.getters.getPosition();
 
   clickedCol = 0;
   clickedRow = 0;
+  viewport: Viewport = {
+    width: 0,
+    height: 0,
+    offsetX: 0,
+    offsetY: 0,
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0
+  };
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
@@ -174,8 +185,6 @@ export class Grid extends Component<any, any> {
   }
 
   patched() {
-    this.vScrollbar.el!.scrollTop = this.state.scrollTop;
-    this.hScrollbar.el!.scrollLeft = this.state.scrollLeft;
     this.drawGrid();
   }
 
@@ -186,20 +195,56 @@ export class Grid extends Component<any, any> {
   }
 
   onScroll() {
-    const scrollTop = this.vScrollbar.el!.scrollTop;
-    const scrollLeft = this.hScrollbar.el!.scrollLeft;
-    if (this.model.updateScroll(scrollTop, scrollLeft)) {
+    this.viewport.offsetX = this.hScrollbar.el!.scrollLeft;
+    this.viewport.offsetY = this.vScrollbar.el!.scrollTop;
+    const viewport = this.model.getters.getAdjustedViewport(this.viewport, "zone");
+    if (!isEqual(viewport, this.viewport)) {
+      this.viewport = viewport;
       this.render();
     }
   }
 
+  checkPosition(): boolean {
+    const [col, row] = this.model.getters.getPosition();
+    const [curCol, curRow] = this.currentPosition;
+    const didChange = col !== curCol || row !== curRow;
+    if (didChange) {
+      this.currentPosition = [col, row];
+    }
+    return didChange;
+  }
+
   drawGrid() {
-    const width = this.el!.clientWidth - SCROLLBAR_WIDTH;
-    const height = this.el!.clientHeight - SCROLLBAR_WIDTH;
-    const offsetX = this.hScrollbar.el!.scrollLeft;
-    const offsetY = this.vScrollbar.el!.scrollTop;
-    const viewport = { width, height, offsetX, offsetY };
-    this.model.drawGrid(this.canvas.el as HTMLCanvasElement, viewport);
+    // update viewport dimensions
+    this.viewport.width = this.el!.clientWidth - SCROLLBAR_WIDTH;
+    this.viewport.height = this.el!.clientHeight - SCROLLBAR_WIDTH;
+    this.viewport.offsetX = this.hScrollbar.el!.scrollLeft;
+    this.viewport.offsetY = this.vScrollbar.el!.scrollTop;
+
+    // check for position changes
+    if (this.checkPosition()) {
+      this.viewport = this.model.getters.getAdjustedViewport(this.viewport, "position");
+      this.hScrollbar.el!.scrollLeft = this.viewport.offsetX;
+      this.vScrollbar.el!.scrollTop = this.viewport.offsetY;
+    } else {
+      this.viewport = this.model.getters.getAdjustedViewport(this.viewport, "zone");
+    }
+
+    // drawing grid on canvas
+    const canvas = this.canvas.el as HTMLCanvasElement;
+    const dpr = window.devicePixelRatio || 1;
+    const ctx = canvas.getContext("2d", { alpha: false })!;
+    const thinLineWidth = 0.4 * dpr;
+    const renderingContext = { ctx, viewport: this.viewport, dpr, thinLineWidth };
+    const { width, height } = this.viewport;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    ctx.translate(-0.5, -0.5);
+    ctx.scale(dpr, dpr);
+    this.model.drawGrid(renderingContext);
   }
 
   onMouseWheel(ev: WheelEvent) {
@@ -221,8 +266,8 @@ export class Grid extends Component<any, any> {
       // not main button, probably a context menu
       return;
     }
-    const col = this.model.getters.getCol(ev.offsetX);
-    const row = this.model.getters.getRow(ev.offsetY);
+    const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
+    const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
     if (col < 0 || row < 0) {
       return;
     }
@@ -233,12 +278,13 @@ export class Grid extends Component<any, any> {
       this.model.dispatch({ type: "ALTER_SELECTION", cell: [col, row] });
     } else {
       this.model.dispatch({ type: "SELECT_CELL", col, row, createNewRange: ev.ctrlKey });
+      this.checkPosition();
     }
     let prevCol = col;
     let prevRow = row;
     const onMouseMove = ev => {
-      const col = this.model.getters.getCol(ev.offsetX);
-      const row = this.model.getters.getRow(ev.offsetY);
+      const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
+      const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
       if (col < 0 || row < 0) {
         return;
       }
@@ -268,8 +314,8 @@ export class Grid extends Component<any, any> {
   }
 
   onDoubleClick(ev) {
-    const col = this.model.getters.getCol(ev.offsetX);
-    const row = this.model.getters.getRow(ev.offsetY);
+    const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
+    const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
     if (this.clickedCol === col && this.clickedRow === row) {
       this.model.dispatch({ type: "START_EDITION" });
     }
@@ -342,8 +388,8 @@ export class Grid extends Component<any, any> {
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const col = this.model.getters.getCol(ev.offsetX);
-    const row = this.model.getters.getRow(ev.offsetY);
+    const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
+    const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
     if (col < 0 || row < 0) {
       return;
     }

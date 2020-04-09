@@ -1,4 +1,4 @@
-import { Model, Mode, pluginRegistry } from "../../src/model";
+import { Model, Mode } from "../../src/model";
 import "../canvas.mock";
 import { WHistory } from "../../src/history";
 import { CorePlugin } from "../../src/plugins/core";
@@ -7,11 +7,11 @@ import { FormattingPlugin } from "../../src/plugins/formatting";
 import { ConditionalFormatPlugin } from "../../src/plugins/conditional_format";
 import { EntityPlugin } from "../../src/plugins/entity";
 import { BasePlugin } from "../../src/base_plugin";
+import { pluginRegistry } from "../../src/plugins/index";
 
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, "headless");
-    expect(model.renderer).toBeUndefined();
     expect(model["handlers"]).toHaveLength(6);
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
     expect(model["handlers"][1]).toBeInstanceOf(CorePlugin);

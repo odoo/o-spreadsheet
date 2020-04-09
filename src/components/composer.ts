@@ -5,6 +5,7 @@ import { Model } from "../model";
 import { Zone } from "../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
+import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -173,18 +174,19 @@ export class Composer extends Component<any, any> {
   }
 
   get containerStyle() {
-    const { cols, rows, offsetX, offsetY } = this.model.state;
+    const { cols, rows } = this.model.state;
+    let { offsetX, offsetY } = this.props.viewport;
     const style = this.model.getters.getCurrentStyle();
     const col = cols[this.zone.left];
     const row = rows[this.zone.top];
     const height = rows[this.zone.bottom].bottom - row.top + 3;
-    const top = row.top - offsetY;
+    const top = row.top - offsetY + HEADER_HEIGHT;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const sizeInPt = style.fontSize || 10;
     const size = fontSizeMap[sizeInPt];
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    return `left: ${col.left - offsetX - 1}px;
+    return `left: ${col.left - offsetX + HEADER_WIDTH - 1}px;
     top:${top}px;
     height:${height}px;
     line-height:${height - 1.5}px;

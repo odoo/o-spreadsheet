@@ -1,35 +1,111 @@
 import { Model } from "../../src/model";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
+import { Viewport } from "../../src/types";
+import { GridRenderingContext } from "../../src/base_plugin";
 import { toZone } from "../../src/helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function() {
   return { width: 100 };
 };
 
-function addContextSetter(key, fn) {
-  Object.defineProperty(MockCanvasRenderingContext2D.prototype, key, {
-    set: fn,
-    configurable: true
-  });
+interface ContextObserver {
+  onSet?(key, val): void;
+  onGet?(key): void;
+  onFunctionCall?(fn: string, args: any[]): void;
+}
+
+class MockGridRenderingContext implements GridRenderingContext {
+  _context = document.createElement("canvas").getContext("2d");
+  ctx: CanvasRenderingContext2D;
+  viewport: Viewport;
+  dpr = 1;
+  thinLineWidth = 0.4;
+
+  constructor(model: Model, width: number, height: number, observer: ContextObserver) {
+    this.viewport = model.getters.getAdjustedViewport(
+      {
+        width,
+        height,
+        offsetX: 0,
+        offsetY: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0
+      },
+      "zone"
+    );
+
+    const handler = {
+      get: (target, val) => {
+        if (val in (this._context as any).__proto__) {
+          return (...args) => {
+            if (observer.onFunctionCall) {
+              observer.onFunctionCall(val, args);
+            }
+          };
+        } else {
+          if (observer.onGet) {
+            observer.onGet(val);
+          }
+        }
+        return target[val];
+      },
+      set: (target, key, val) => {
+        if (observer.onSet) {
+          observer.onSet(key, val);
+        }
+        target[key] = val;
+        return true;
+      }
+    };
+    this.ctx = new Proxy({}, handler);
+  }
 }
 
 describe("renderer", () => {
+  test("snapshot for a simple grid rendering", () => {
+    const model = new Model();
+
+    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    const instructions: string[] = [];
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        instructions.push(`context.${key}=${JSON.stringify(value)};`);
+      },
+      onGet: key => {
+        instructions.push(`GET:${key}`);
+      },
+      onFunctionCall: (key, args) => {
+        instructions.push(`context.${key}(${args.map(a => JSON.stringify(a)).join(", ")})`);
+      }
+    });
+
+    model.drawGrid(ctx);
+    expect(instructions).toMatchSnapshot();
+  });
+
   test("formulas evaluating to a string are properly aligned", () => {
     const model = new Model();
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
 
-    const canvas = document.createElement("canvas");
     let textAligns: string[] = [];
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      }
+    });
 
-    addContextSetter("textAlign", newvalue => textAligns.push(newvalue));
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    model.drawGrid(ctx);
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "asdf" });
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    model.drawGrid(ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
@@ -40,18 +116,23 @@ describe("renderer", () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
 
-    const canvas = document.createElement("canvas");
     let textAligns: string[] = [];
 
-    addContextSetter("textAlign", newvalue => textAligns.push(newvalue));
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      }
+    });
+    model.drawGrid(ctx);
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "asdf" });
 
     textAligns = [];
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    model.drawGrid(ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
@@ -61,16 +142,20 @@ describe("renderer", () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
 
-    const canvas = document.createElement("canvas");
     let textAligns: string[] = [];
-
-    addContextSetter("textAlign", newvalue => textAligns.push(newvalue));
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      }
+    });
+    model.drawGrid(ctx);
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "true" });
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    model.drawGrid(ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
 
@@ -81,18 +166,23 @@ describe("renderer", () => {
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
     model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
 
-    const canvas = document.createElement("canvas");
     let textAligns: string[] = [];
 
-    addContextSetter("textAlign", newvalue => textAligns.push(newvalue));
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      }
+    });
+    model.drawGrid(ctx);
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     model.dispatch({ type: "SET_VALUE", xc: "A1", text: "false" });
 
     textAligns = [];
-    model.drawGrid(canvas, { width: 1000, height: 1000, offsetX: 0, offsetY: 0 });
+    model.drawGrid(ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
 });

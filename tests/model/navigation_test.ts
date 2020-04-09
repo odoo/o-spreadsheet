@@ -1,7 +1,20 @@
-import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { getActiveXc } from "../helpers";
+import { Viewport } from "../../src/types";
+
+function getViewport(
+  model: Model,
+  width: number,
+  height: number,
+  offsetX: number,
+  offsetY: number
+): Viewport {
+  return model.getters.getAdjustedViewport(
+    { width, height, offsetX, offsetY, left: 0, right: 0, top: 0, bottom: 0 },
+    "zone"
+  );
+}
 
 describe("navigation", () => {
   test("normal move to the right", () => {
@@ -99,65 +112,71 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([1, 1]);
   });
 
-  test("move right from right row (of the viewport)", () => {
+  test("move right from right col (of the viewport)", () => {
     const model = new Model();
-    model.updateVisibleZone(600, 300);
+    let viewport = getViewport(model, 600, 300, 0, 0);
+    expect(viewport.left).toBe(0);
+    expect(viewport.right).toBe(5);
 
     model.dispatch({ type: "SELECT_CELL", col: 4, row: 0 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.left).toBe(0);
+    expect(viewport.right).toBe(5);
 
-    expect(model.getters.getPosition()).toEqual([4, 0]);
-    expect(model.state.viewport.left).toBe(0);
-    expect(model.state.viewport.right).toBe(5);
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
-    expect(model.getters.getPosition()).toEqual([5, 0]);
-    expect(model.state.viewport.left).toBe(1);
-    expect(model.state.viewport.right).toBe(6);
-    expect(model.state.scrollLeft).toBe(DEFAULT_CELL_WIDTH);
+    model.dispatch({ type: "SELECT_CELL", col: 5, row: 0 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.left).toBe(1);
+    expect(viewport.right).toBe(6);
   });
 
-  test("move left from left row (of the viewport)", () => {
+  test("move left from left col (of the viewport)", () => {
     const model = new Model();
-    model.updateScroll(0, 100);
-    model.updateVisibleZone(600, 300);
+    let viewport = getViewport(model, 600, 300, 100, 0);
+    expect(viewport.left).toBe(1);
+    expect(viewport.right).toBe(6);
 
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.left).toBe(1);
+    expect(viewport.right).toBe(6);
 
-    expect(model.getters.getPosition()).toEqual([1, 0]);
-    expect(model.state.viewport.left).toBe(1);
-    expect(model.state.viewport.right).toBe(6);
-    model.dispatch({ type: "MOVE_POSITION", deltaX: -1, deltaY: 0 });
-    expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(model.state.viewport.left).toBe(0);
-    expect(model.state.viewport.right).toBe(5);
-    expect(model.state.scrollLeft).toBe(0);
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.left).toBe(0);
+    expect(viewport.right).toBe(5);
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
     const model = new Model();
-    model.updateVisibleZone(600, 200);
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 6 });
-    expect(model.getters.getPosition()).toEqual([0, 6]);
-    expect(model.state.viewport.top).toBe(0);
-    expect(model.state.viewport.bottom).toBe(7);
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: 1 });
-    expect(model.getters.getPosition()).toEqual([0, 7]);
-    expect(model.state.viewport.top).toBe(1);
-    expect(model.state.viewport.bottom).toBe(8);
-    expect(model.state.scrollTop).toBe(DEFAULT_CELL_HEIGHT);
+    let viewport = getViewport(model, 600, 300, 0, 0);
+    expect(viewport.top).toBe(0);
+    expect(viewport.bottom).toBe(11);
+
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 10 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.top).toBe(0);
+    expect(viewport.bottom).toBe(11);
+
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 11 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.top).toBe(1);
+    expect(viewport.bottom).toBe(12);
   });
 
   test("move top from top row (of the viewport)", () => {
     const model = new Model();
-    model.updateScroll(40, 0);
-    model.updateVisibleZone(600, 200);
+    let viewport = getViewport(model, 600, 300, 0, 60);
+    expect(viewport.top).toBe(2);
+    expect(viewport.bottom).toBe(14);
+
+    model.dispatch({ type: "SELECT_CELL", col: 0, row: 2 });
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.top).toBe(2);
+    expect(viewport.bottom).toBe(14);
+
     model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-    expect(model.getters.getPosition()).toEqual([0, 1]);
-    expect(model.state.viewport.top).toBe(1);
-    expect(model.state.viewport.bottom).toBe(8);
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
-    expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(model.state.viewport.top).toBe(0);
-    expect(model.state.viewport.bottom).toBe(7);
-    expect(model.state.scrollTop).toBe(0);
+    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    expect(viewport.top).toBe(1);
+    expect(viewport.bottom).toBe(12);
   });
 });

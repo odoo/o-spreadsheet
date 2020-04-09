@@ -5,14 +5,16 @@
  * the rollup.config.js file)
  */
 
-import { args, functionRegistry } from "./functions/index";
-import { toBoolean, toNumber, toString } from "./functions/helpers";
-import { numberToLetters, toXC } from "./helpers/index";
 import { contextMenuRegistry, sidePanelRegistry } from "./components/index";
-import { pluginRegistry } from "./model";
+import { toBoolean, toNumber, toString } from "./functions/helpers";
+import { args, functionRegistry } from "./functions/index";
+import { numberToLetters, toXC } from "./helpers/index";
+import { pluginRegistry } from "./plugins/index";
 
 export const __info__ = {};
+export { BasePlugin } from "./base_plugin";
 export { Spreadsheet } from "./components/index";
+export { Model } from "./model";
 
 export const registries = {
   sidePanelRegistry,
@@ -20,9 +22,6 @@ export const registries = {
   functionRegistry,
   pluginRegistry
 };
-
-export { Model } from "./model";
-export { BasePlugin } from "./base_plugin";
 
 export const helpers = {
   args,

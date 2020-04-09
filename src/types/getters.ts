@@ -42,6 +42,7 @@ export interface Getters {
   getCol: RendererPlugin["getCol"];
   getRow: RendererPlugin["getRow"];
   getRect: RendererPlugin["getRect"];
+  getAdjustedViewport: RendererPlugin["getAdjustedViewport"];
   isMergeDestructive: GridPlugin["isMergeDestructive"];
   isInMerge: GridPlugin["isInMerge"];
   getMainCell: GridPlugin["getMainCell"];
