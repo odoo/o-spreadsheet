@@ -7,6 +7,7 @@ import { functionRegistry } from "../src/functions/index";
 import "./canvas.mock";
 import * as h from "../src/helpers/index";
 import { Viewport } from "../src/types/index";
+import { toXC } from "../src/helpers/index";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -208,4 +209,8 @@ export function mockUuidV4To(expectedId) {
   let n = expectedId;
   //@ts-ignore
   h.uuidv4 = jest.fn(() => String(n++));
+}
+
+export function getActiveXc(model: Model): string {
+  return toXC(...model.getters.getPosition());
 }

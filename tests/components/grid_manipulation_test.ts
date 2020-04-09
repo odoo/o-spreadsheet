@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 
 const COLUMN_D = { x: 340, y: 10 };
@@ -31,7 +31,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can open contextmenu for columns then click elsewhere to close it", async () => {
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
     simulateContextMenu(".o-col-resizer", COLUMN_D);
-    expect(model.getters.getActiveXc()).toBe("D1");
+    expect(getActiveXc(model)).toBe("D1");
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
     simulateClick("canvas", OUTSIDE_CM.x, OUTSIDE_CM.y);
@@ -42,7 +42,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can open contextmenu for rows then click elsewhere to close it", async () => {
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
     simulateContextMenu(".o-row-resizer", ROW_5);
-    expect(model.getters.getActiveXc()).toBe("A5");
+    expect(getActiveXc(model)).toBe("A5");
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
     simulateClick("canvas", OUTSIDE_CM.x, OUTSIDE_CM.y);

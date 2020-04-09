@@ -49,10 +49,10 @@ const TEMPLATE = xml/* xml */ `
       position="contextMenu.position"
       t-on-close.stop="contextMenu.isOpen=false"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
-      <div t-attf-style="width:1px;height:{{state.height}}px"/>
+      <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
     </div>
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
-      <div t-attf-style="height:1px;width:{{state.width}}px"/>
+      <div t-attf-style="height:1px;width:{{gridSize[0]}}px"/>
     </div>
   </div>`;
 
@@ -109,7 +109,7 @@ export class Grid extends Component<any, any> {
 
   contextMenu = useState({ isOpen: false, position: null, type: "CELL" } as {
     isOpen: boolean;
-    position: null | { x: number; y: number };
+    position: null | { x: number; y: number; width: number; height: number };
     type: ContextMenuType;
   });
 
@@ -121,6 +121,8 @@ export class Grid extends Component<any, any> {
   hasFocus = false;
   model: Model = this.props.model;
   state: UI = this.model.state;
+  gridSize: [number, number] = this.model.getters.getGridSize();
+
   clickedCol = 0;
   clickedRow = 0;
   // last string that was cut or copied. It is necessary so we can make the
@@ -178,6 +180,7 @@ export class Grid extends Component<any, any> {
   }
 
   async willUpdateProps() {
+    this.gridSize = this.model.getters.getGridSize();
     this.state = this.model.state;
   }
 
@@ -419,7 +422,12 @@ export class Grid extends Component<any, any> {
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
     this.contextMenu.isOpen = true;
-    this.contextMenu.position = { x, y };
+    this.contextMenu.position = {
+      x,
+      y,
+      width: this.el!.clientWidth,
+      height: this.el!.clientHeight
+    };
     this.contextMenu.type = type;
   }
 }

@@ -17,7 +17,6 @@ export class SelectionPlugin extends BasePlugin {
   static layers = [LAYERS.Selection];
   static getters = [
     "getActiveCell",
-    "getActiveXc",
     "getActiveCols",
     "getActiveRows",
     "getSelectedZones",
@@ -124,10 +123,6 @@ export class SelectionPlugin extends BasePlugin {
     } else {
       return this.getters.getCell(this.activeCol, this.activeRow);
     }
-  }
-
-  getActiveXc(): string {
-    return this.activeXc;
   }
 
   getActiveCols(): Set<number> {

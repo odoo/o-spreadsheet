@@ -278,7 +278,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   model: Model;
-  position: { x: number; y: number };
+  position: { x: number; y: number; width: number; height: number };
   type: ContextMenuType;
 }
 
@@ -288,24 +288,18 @@ export class ContextMenu extends Component<Props, any> {
 
   model: Model = this.props.model;
 
-  menuItems: ContextMenuItem[] = contextMenuRegistry
-    .getAll()
-    .filter(item => !item.isVisible || item.isVisible(this.props.type));
-
   mounted() {
     this.el!.focus();
   }
 
-  async willUpdateProps(newProps: Props) {
-    this.menuItems = contextMenuRegistry
+  get menuItems(): ContextMenuItem[] {
+    return contextMenuRegistry
       .getAll()
-      .filter(item => !item.isVisible || item.isVisible(newProps.type));
+      .filter(item => !item.isVisible || item.isVisible(this.props.type));
   }
 
   get style() {
-    const { x, y } = this.props.position;
-    const width = this.model.state.clientWidth;
-    const height = this.model.state.clientHeight;
+    const { x, y, width, height } = this.props.position;
     const hAlign = x < width - 220 ? "left" : "right";
     const hStyle = hAlign + ":" + (hAlign === "left" ? x : width - x + SCROLLBAR_WIDTH);
     const vAlign = y < height - 220 ? "top" : "bottom";

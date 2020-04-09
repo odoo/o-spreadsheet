@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { nextTick, makeTestFixture, GridParent } from "../helpers";
+import { nextTick, makeTestFixture, GridParent, getActiveXc } from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { colors } from "../../src/components/composer";
 import { toZone } from "../../src/helpers/index";
@@ -189,7 +189,7 @@ describe("composer", () => {
     composerEl.dispatchEvent(new Event("keyup"));
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     await nextTick();
-    expect(model.getters.getActiveXc()).toBe("C8");
+    expect(getActiveXc(model)).toBe("C8");
     expect(fixture.getElementsByClassName("o-composer")).toHaveLength(0);
   });
 

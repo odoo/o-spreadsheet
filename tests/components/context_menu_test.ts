@@ -12,6 +12,17 @@ afterEach(() => {
   fixture.remove();
 });
 
+Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
+  get() {
+    return 1000;
+  }
+});
+Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
+  get() {
+    return 1000;
+  }
+});
+
 function simulateContextMenu(x, y) {
   const target = document.querySelector("canvas")! as HTMLElement;
   triggerMouseEvent("canvas", "mousedown", x, y, { button: 1 });

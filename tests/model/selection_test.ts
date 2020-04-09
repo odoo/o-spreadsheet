@@ -1,6 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
+import { getActiveXc } from "../helpers";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
@@ -95,12 +96,12 @@ describe("selection", () => {
     model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
-    expect(model.getters.getActiveXc()).toBe("B1");
+    expect(getActiveXc(model)).toBe("B1");
 
     // move to the left, outside the merge
     model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
-    expect(model.getters.getActiveXc()).toBe("B1");
+    expect(getActiveXc(model)).toBe("B1");
   });
 
   test("update selection in some different directions", () => {
@@ -115,7 +116,7 @@ describe("selection", () => {
     });
     // move sell to B4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 3 });
-    expect(model.getters.getActiveXc()).toBe("B4");
+    expect(getActiveXc(model)).toBe("B4");
 
     // move up, inside the merge
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
@@ -139,7 +140,7 @@ describe("selection", () => {
     });
     // move sell to B4
     model.dispatch({ type: "SELECT_CELL", col: 1, row: 2 });
-    expect(model.getters.getActiveXc()).toBe("B3");
+    expect(getActiveXc(model)).toBe("B3");
 
     // select right cell C3
     model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
@@ -157,7 +158,7 @@ describe("selection", () => {
       ]
     });
     model.dispatch({ type: "SELECT_COLUMN", index: 4 });
-    expect(model.getters.getActiveXc()).toBe("E1");
+    expect(getActiveXc(model)).toBe("E1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
   });
@@ -173,7 +174,7 @@ describe("selection", () => {
       ]
     });
     model.dispatch({ type: "SELECT_COLUMN", index: 0 });
-    expect(model.getters.getActiveXc()).toBe("A1");
+    expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
   });
 
@@ -188,7 +189,7 @@ describe("selection", () => {
     });
 
     model.dispatch({ type: "SELECT_ROW", index: 4 });
-    expect(model.getters.getActiveXc()).toBe("A5");
+    expect(getActiveXc(model)).toBe("A5");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
   });
@@ -205,7 +206,7 @@ describe("selection", () => {
     });
 
     model.dispatch({ type: "SELECT_ROW", index: 0 });
-    expect(model.getters.getActiveXc()).toBe("A1");
+    expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
 
@@ -219,7 +220,7 @@ describe("selection", () => {
       ]
     });
     model.dispatch({ type: "SELECT_ALL" });
-    expect(model.getters.getActiveXc()).toBe("A1");
+    expect(getActiveXc(model)).toBe("A1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
   });
@@ -234,10 +235,10 @@ describe("selection", () => {
       ]
     });
     model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
-    expect(model.getters.getActiveXc()).toBe("C3");
+    expect(getActiveXc(model)).toBe("C3");
     model.dispatch({ type: "START_COMPOSER_SELECTION" });
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
-    expect(model.getters.getActiveXc()).toBe("C3"); // active cell is not modified but the selection is
+    expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
 
     expect(model.getters.getSelection()).toEqual({
       anchor: [3, 3],
@@ -260,7 +261,7 @@ describe("selection", () => {
     model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
     model.dispatch({ type: "ALTER_SELECTION", cell: [4, 4] });
 
-    expect(model.getters.getActiveXc()).toBe("C3"); // active cell is not modified but the selection is
+    expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
     expect(model.getters.getPosition()).toEqual([2, 2]);
     expect(model.getters.getSelection()).toEqual({
       anchor: [3, 3],
@@ -277,7 +278,7 @@ describe("selection", () => {
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });
     model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
 
-    expect(model.getters.getActiveXc()).toBe("A1"); // active cell is not modified but the selection is
+    expect(getActiveXc(model)).toBe("A1"); // active cell is not modified but the selection is
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.getters.getSelection()).toEqual({
       anchor: [3, 3],
