@@ -286,7 +286,7 @@ export class CorePlugin extends BasePlugin {
     for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
-    this.activateSheet(this.workbook.sheets[0].name);
+    this.activateSheet(data.activeSheet);
   }
 
   importSheet(data: SheetData) {
@@ -334,6 +334,7 @@ export class CorePlugin extends BasePlugin {
         conditionalFormats: []
       };
     });
+    data.activeSheet = this.workbook.activeSheet.name;
   }
 }
 

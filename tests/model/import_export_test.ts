@@ -14,6 +14,30 @@ describe("data", () => {
   });
 });
 
+describe("Migrations", () => {
+  test("Can upgrade from 1 to 2", () => {
+    const model = new Model({
+      version: 1,
+      sheets: [
+        {
+          colNumber: 2,
+          rowNumber: 2,
+          cols: {
+            0: { size: 42 }
+          },
+          rows: {
+            0: { size: 12 }
+          },
+          name: "My sheet",
+          conditionalFormats: []
+        }
+      ]
+    });
+    expect(model.exportData().activeSheet).toBe("My sheet");
+    expect(model.exportData().version).toBe(2);
+  });
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
@@ -155,6 +179,7 @@ describe("complete import, then export", () => {
         conditionalFormats: []
       }
     ],
+    activeSheet: "My sheet",
     entities: {},
     styles: {
       99: { bold: true, textColor: "#3A3791", fontSize: 12 }

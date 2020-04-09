@@ -3,7 +3,7 @@ import { load } from "../src/data";
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
     expect(load()).toEqual({
-      version: 1,
+      version: 2,
       borders: {},
       styles: {},
       entities: {},
@@ -18,11 +18,12 @@ describe("load data", () => {
           merges: [],
           conditionalFormats: []
         }
-      ]
+      ],
+      activeSheet: "Sheet1"
     });
 
     expect(load({})).toEqual({
-      version: 1,
+      version: 2,
       borders: {},
       styles: {},
       entities: {},
@@ -37,7 +38,8 @@ describe("load data", () => {
           merges: [],
           conditionalFormats: []
         }
-      ]
+      ],
+      activeSheet: "Sheet1"
     });
   });
 
@@ -47,7 +49,7 @@ describe("load data", () => {
         sheets: [{ merges: ["A1:B2"] }]
       })
     ).toEqual({
-      version: 1,
+      version: 2,
       borders: {},
       styles: {},
       entities: {},
@@ -62,7 +64,8 @@ describe("load data", () => {
           merges: ["A1:B2"],
           conditionalFormats: []
         }
-      ]
+      ],
+      activeSheet: "Sheet1"
     });
   });
 

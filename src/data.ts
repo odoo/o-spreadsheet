@@ -5,7 +5,7 @@ import { SheetData, Workbook, WorkbookData } from "./types/index";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 2;
 
 /**
  * This function tries to load anything that could look like a valid workbook
@@ -30,6 +30,9 @@ export function load(data?: any): WorkbookData {
     // all the known missing data with sensible default values
     data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
     data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
+    if (!data.sheets.map(s => s.name).includes(data.activeSheet)) {
+      data.activeSheet = data.sheets[0].name;
+    }
   }
 
   // Sanity check: we make sure that there is at least one sheet
@@ -59,10 +62,13 @@ function migrate(data: any): WorkbookData {
 
 const MIGRATIONS: Migration[] = [
   {
-    from: 0,
-    to: 1,
+    from: 1,
+    to: 2,
     applyMigration(data: any): any {
-      data.x = 1;
+      if (data.sheets && data.sheets[0]) {
+        data.activeSheet = data.sheets[0].name;
+      }
+      return data;
     }
   }
 ];
@@ -86,7 +92,8 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
 export function createEmptyWorkbookData(): WorkbookData {
   return {
     version: CURRENT_VERSION,
-    sheets: [createEmptySheet()],
+    sheets: [createEmptySheet("Sheet1")],
+    activeSheet: "Sheet1",
     entities: {},
     styles: {},
     borders: {}
