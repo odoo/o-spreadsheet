@@ -26,6 +26,7 @@ export interface SheetData {
 export interface WorkbookData {
   version: number;
   sheets: SheetData[];
+  activeSheet: string;
   styles: { [key: number]: Style };
   borders: { [key: number]: Border };
   entities: { [key: string]: { [key: string]: any } };
