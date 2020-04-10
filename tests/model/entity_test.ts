@@ -13,7 +13,7 @@ describe("Entity", () => {
       ]
     });
     expect(model.exportData().entities).toEqual({});
-    model.dispatch({ type: "ADD_ENTITY", kind: "A", key: "1", value: { name: "Name" } });
+    model.dispatch("ADD_ENTITY", { kind: "A", key: "1", value: { name: "Name" } });
 
     expect(model.exportData().entities).toEqual({
       A: { "1": { name: "Name" } }
@@ -33,8 +33,8 @@ describe("Entity", () => {
       ]
     });
 
-    model.dispatch({ type: "ADD_ENTITY", kind: "A", key: "1", value: { name: "Name" } });
-    model.dispatch({ type: "ADD_ENTITY", kind: "A", key: "2", value: { name: "Test" } });
+    model.dispatch("ADD_ENTITY", { kind: "A", key: "1", value: { name: "Name" } });
+    model.dispatch("ADD_ENTITY", { kind: "A", key: "2", value: { name: "Test" } });
 
     expect(model.exportData().entities).toEqual({
       A: { "1": { name: "Name" }, "2": { name: "Test" } }
@@ -61,14 +61,14 @@ describe("Entity", () => {
       A: { "1": { name: "Name" } }
     });
 
-    model.dispatch({ type: "REMOVE_ENTITY", kind: "A", key: "2" });
-    model.dispatch({ type: "REMOVE_ENTITY", kind: "B", key: "2" });
+    model.dispatch("REMOVE_ENTITY", { kind: "A", key: "2" });
+    model.dispatch("REMOVE_ENTITY", { kind: "B", key: "2" });
 
     expect(model.exportData().entities).toEqual({
       A: { "1": { name: "Name" } }
     });
 
-    model.dispatch({ type: "REMOVE_ENTITY", kind: "A", key: "1" });
+    model.dispatch("REMOVE_ENTITY", { kind: "A", key: "1" });
 
     expect(model.exportData().entities).toEqual({
       A: {}
@@ -93,7 +93,7 @@ describe("Entity functions", () => {
       returns: ["ANY"]
     });
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=TEST()" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=TEST()" });
   });
 
   test("Can call getEntity from a function with one arg", () => {
@@ -112,6 +112,6 @@ describe("Entity functions", () => {
       returns: ["ANY"]
     });
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=TEST(3)" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=TEST(3)" });
   });
 });

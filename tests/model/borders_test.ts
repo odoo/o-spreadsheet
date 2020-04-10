@@ -8,8 +8,7 @@ function getBorder(model: Model, xc: string) {
 }
 
 function setBorder(model: Model, command: BorderCommand) {
-  model.dispatch({
-    type: "SET_FORMATTING",
+  model.dispatch("SET_FORMATTING", {
     sheet: model.state.activeSheet,
     target: model.getters.getSelectedZones(),
     border: command
@@ -21,7 +20,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, set its top border, then clear it
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "top");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
@@ -30,7 +29,7 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its left border, then clear it
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "left");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ left: ["thin", "#000"] });
@@ -38,7 +37,7 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its bottom border, then clear it
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "bottom");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
@@ -46,7 +45,7 @@ describe("borders", () => {
     expect(model.workbook.cells.B2).not.toBeDefined();
 
     // select B2, set its right border, then clear it
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "right");
     expect(model.workbook.cells.B2.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ right: ["thin", "#000"] });
@@ -58,8 +57,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "content" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
 
     // set a border top
     setBorder(model, "top");
@@ -76,8 +75,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2:C2
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 1] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 1] });
 
     // set a border top
     setBorder(model, "top");
@@ -92,13 +91,13 @@ describe("borders", () => {
     const model = new Model();
 
     // select C3 and add a border
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     setBorder(model, "top");
     expect(model.workbook.cells.C3.border).toBeDefined();
 
     // select A1:E6
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [5, 5] });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
 
     // clear all borders
     setBorder(model, "clear");
@@ -110,8 +109,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C3
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
     // set all borders
     setBorder(model, "all");
@@ -131,8 +130,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C3
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
     // set all borders
     setBorder(model, "top");
@@ -149,12 +148,12 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then set its right border
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "right");
     expect(getBorder(model, "B2")).toEqual({ right: ["thin", "#000"] });
 
     // select C2 then clear it
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 1 });
     setBorder(model, "clear");
     expect(model.workbook.cells.B2).not.toBeDefined();
   });
@@ -163,8 +162,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:D4
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [3, 3] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
 
     // set external borders
     setBorder(model, "external");
@@ -184,8 +183,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C4
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
 
     // set external borders
     setBorder(model, "h");
@@ -202,8 +201,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C4
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
 
     // set external borders
     setBorder(model, "v");
@@ -220,8 +219,8 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C4
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
 
     // set external borders
     setBorder(model, "hv");
@@ -238,13 +237,12 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2 and set its top border
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "content" });
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "content" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "top");
 
     expect(model.workbook.cells.B2.border).toBeDefined();
-    model.dispatch({
-      type: "DELETE_CONTENT",
+    model.dispatch("DELETE_CONTENT", {
       sheet: model.state.activeSheet,
       target: model.getters.getSelectedZones()
     });
@@ -253,26 +251,25 @@ describe("borders", () => {
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "some content" });
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "some content" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "all");
 
     expect(model.workbook.cells.B2.content).toBe("some content");
     expect(model.workbook.cells.B2.border).toBeDefined();
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
     expect(model.workbook.cells.B2.content).toBe("some content");
     expect(model.workbook.cells.B2.border).not.toBeDefined();
   });
 
   test("can clear formatting (border)", () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
+    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     setBorder(model, "all");
 
     expect(model.workbook.cells.B1.border).toBeDefined();
-    model.dispatch({
-      type: "CLEAR_FORMATTING",
+    model.dispatch("CLEAR_FORMATTING", {
       sheet: model.state.activeSheet,
       target: model.getters.getSelectedZones()
     });
@@ -281,8 +278,8 @@ describe("borders", () => {
 
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new Model();
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [25, 99] });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    model.dispatch("ALTER_SELECTION", { cell: [25, 99] });
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,

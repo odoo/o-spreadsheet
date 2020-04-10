@@ -372,8 +372,7 @@ export class TopBar extends Component<any, any> {
   }
   useTool(tool, value) {
     const style = { [tool]: value };
-    this.model.dispatch({
-      type: "SET_FORMATTING",
+    this.model.dispatch("SET_FORMATTING", {
       sheet: this.model.state.activeSheet,
       target: this.model.getters.getSelectedZones(),
       style
@@ -425,15 +424,15 @@ export class TopBar extends Component<any, any> {
     const zone = zones[zones.length - 1];
     const sheet = this.model.state.activeSheet;
     if (this.inMerge) {
-      this.model.dispatch({ type: "REMOVE_MERGE", sheet, zone });
+      this.model.dispatch("REMOVE_MERGE", { sheet, zone });
     } else {
       if (this.model.getters.isMergeDestructive(zone)) {
         this.trigger("ask-confirmation", {
           content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
-          confirm: () => this.model.dispatch({ type: "ADD_MERGE", sheet, zone })
+          confirm: () => this.model.dispatch("ADD_MERGE", { sheet, zone })
         });
       } else {
-        this.model.dispatch({ type: "ADD_MERGE", sheet, zone });
+        this.model.dispatch("ADD_MERGE", { sheet, zone });
       }
     }
   }
@@ -441,8 +440,7 @@ export class TopBar extends Component<any, any> {
     const color = ev.target.dataset.color;
     if (color) {
       const style = { [target]: color };
-      this.model.dispatch({
-        type: "SET_FORMATTING",
+      this.model.dispatch("SET_FORMATTING", {
         sheet: this.model.state.activeSheet,
         target: this.model.getters.getSelectedZones(),
         style
@@ -451,8 +449,7 @@ export class TopBar extends Component<any, any> {
     }
   }
   setBorder(command) {
-    this.model.dispatch({
-      type: "SET_FORMATTING",
+    this.model.dispatch("SET_FORMATTING", {
       sheet: this.model.state.activeSheet,
       target: this.model.getters.getSelectedZones(),
       border: command
@@ -463,8 +460,7 @@ export class TopBar extends Component<any, any> {
     if (format) {
       const formatter = FORMATS.find(f => f.name === format);
       const value = (formatter && formatter.value) || "";
-      this.model.dispatch({
-        type: "SET_FORMATTER",
+      this.model.dispatch("SET_FORMATTER", {
         sheet: this.model.state.activeSheet,
         target: this.model.getters.getSelectedZones(),
         formatter: value
@@ -472,22 +468,19 @@ export class TopBar extends Component<any, any> {
     }
   }
   paintFormat() {
-    this.model.dispatch({
-      type: "ACTIVATE_PAINT_FORMAT",
+    this.model.dispatch("ACTIVATE_PAINT_FORMAT", {
       target: this.model.getters.getSelectedZones()
     });
   }
   clearFormatting() {
-    this.model.dispatch({
-      type: "CLEAR_FORMATTING",
+    this.model.dispatch("CLEAR_FORMATTING", {
       sheet: this.model.state.activeSheet,
       target: this.model.getters.getSelectedZones()
     });
   }
   setSize(ev) {
     const fontSize = parseFloat(ev.target.dataset.size);
-    this.model.dispatch({
-      type: "SET_FORMATTING",
+    this.model.dispatch("SET_FORMATTING", {
       sheet: this.model.state.activeSheet,
       target: this.model.getters.getSelectedZones(),
       style: { fontSize }
@@ -502,9 +495,9 @@ export class TopBar extends Component<any, any> {
     this.trigger("load-content");
   }
   undo() {
-    this.model.dispatch({ type: "UNDO" });
+    this.model.dispatch("UNDO");
   }
   redo() {
-    this.model.dispatch({ type: "REDO" });
+    this.model.dispatch("REDO");
   }
 }

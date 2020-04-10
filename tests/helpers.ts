@@ -104,7 +104,7 @@ type GridResult = { [xc: string]: any };
 export function evaluateGrid(grid: GridDescr): GridResult {
   const model = new Model();
   for (let xc in grid) {
-    model.dispatch({ type: "SET_VALUE", xc, text: grid[xc] });
+    model.dispatch("SET_VALUE", { xc, text: grid[xc] });
   }
   const result = {};
   for (let xc in grid) {

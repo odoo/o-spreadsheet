@@ -175,8 +175,7 @@ export class ConditionalFormattingPanel extends Component<any> {
 
   onSave(ev: CustomEvent) {
     if (this.state.currentCF) {
-      this.model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: ev.detail.rule,
           ranges: this.state.currentRanges.split(","),

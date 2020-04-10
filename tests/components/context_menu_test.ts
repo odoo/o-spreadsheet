@@ -75,7 +75,7 @@ describe("Context Menu", () => {
 
   test("can copy/paste with context menu", async () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
+    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -104,7 +104,7 @@ describe("Context Menu", () => {
 
   test("can cut/paste with context menu", async () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B1", text: "b1" });
+    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
 
     const parent = new GridParent(model);
     await parent.mount(fixture);

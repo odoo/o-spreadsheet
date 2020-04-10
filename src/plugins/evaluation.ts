@@ -97,7 +97,7 @@ export class EvaluationPlugin extends BasePlugin {
       let current = this.loadingCells;
       const recomputeCells = () => {
         if (this.loadingCells !== current) {
-          this.dispatch({ type: "EVALUATE_CELLS", onlyWaiting: true });
+          this.dispatch("EVALUATE_CELLS", { onlyWaiting: true });
           current = this.loadingCells;
           if (current === 0) {
             this.isStarted = false;

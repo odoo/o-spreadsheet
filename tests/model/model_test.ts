@@ -47,7 +47,7 @@ describe("Model", () => {
 
   test("Model in headless mode should not evaluate cells", () => {
     const model = new Model({}, "headless");
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=1" });
     expect(model.workbook.cells.A1.value).not.toBe("1");
   });
 

@@ -67,7 +67,7 @@ describe("renderer", () => {
   test("snapshot for a simple grid rendering", () => {
     const model = new Model();
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     const instructions: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onSet: (key, value) => {
@@ -88,8 +88,8 @@ describe("renderer", () => {
   test("formulas evaluating to a string are properly aligned", () => {
     const model = new Model();
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
 
     let textAligns: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -104,7 +104,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "asdf" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "asdf" });
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
@@ -112,9 +112,9 @@ describe("renderer", () => {
   test("formulas in a merge, evaluating to a string are properly aligned", () => {
     const model = new Model();
 
-    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A2:B2") });
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A2:B2") });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
 
     let textAligns: string[] = [];
 
@@ -129,7 +129,7 @@ describe("renderer", () => {
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "asdf" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "asdf" });
 
     textAligns = [];
     model.drawGrid(ctx);
@@ -139,8 +139,8 @@ describe("renderer", () => {
   test("formulas evaluating to a boolean are properly aligned", () => {
     const model = new Model();
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
 
     let textAligns: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -154,7 +154,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "true" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "true" });
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
@@ -162,9 +162,9 @@ describe("renderer", () => {
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
     const model = new Model();
 
-    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("A2:B2") });
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=A1" });
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A2:B2") });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
 
     let textAligns: string[] = [];
 
@@ -179,7 +179,7 @@ describe("renderer", () => {
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "false" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "false" });
 
     textAligns = [];
     model.drawGrid(ctx);

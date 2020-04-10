@@ -240,12 +240,12 @@ export class Composer extends Component<any, any> {
       // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
       // we can't let the model think that it is for a ref selection.
       // todo: check if this can be removed someday
-      this.model.dispatch({ type: "STOP_COMPOSER_SELECTION" });
+      this.model.dispatch("STOP_COMPOSER_SELECTION");
     }
 
     const deltaX = ev.shiftKey ? -1 : 1;
     this.isDone = true;
-    this.model.dispatch({ type: "MOVE_POSITION", deltaX, deltaY: 0 });
+    this.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
   }
 
   processEnterKey(ev: KeyboardEvent) {
@@ -259,9 +259,8 @@ export class Composer extends Component<any, any> {
         return;
       }
     }
-    this.model.dispatch({ type: "STOP_EDITION" });
-    this.model.dispatch({
-      type: "MOVE_POSITION",
+    this.model.dispatch("STOP_EDITION");
+    this.model.dispatch("MOVE_POSITION", {
       deltaX: 0,
       deltaY: ev.shiftKey ? -1 : 1
     });
@@ -269,7 +268,7 @@ export class Composer extends Component<any, any> {
   }
 
   processEscapeKey() {
-    this.model.dispatch({ type: "STOP_EDITION", cancel: true });
+    this.model.dispatch("STOP_EDITION", { cancel: true });
     this.isDone = true;
   }
 
@@ -293,7 +292,7 @@ export class Composer extends Component<any, any> {
       el.style.width = (el.scrollWidth + 20) as any;
     }
     const content = el.childNodes.length ? el.textContent! : "";
-    this.model.dispatch({ type: "SET_CURRENT_CONTENT", content });
+    this.model.dispatch("SET_CURRENT_CONTENT", { content });
   }
 
   onKeyup(ev: KeyboardEvent) {
@@ -319,7 +318,7 @@ export class Composer extends Component<any, any> {
     // They will be set correctly if needed in `processTokenAtCursor`
     this.autoCompleteState.showProvider = false;
     this.autoCompleteState.search = "";
-    this.model.dispatch({ type: "STOP_COMPOSER_SELECTION" });
+    this.model.dispatch("STOP_COMPOSER_SELECTION");
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.showProvider = true;
     } else {
@@ -349,7 +348,7 @@ export class Composer extends Component<any, any> {
       this.saveSelection();
       this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.model.dispatch({ type: "REMOVE_HIGHLIGHTS" }); //cleanup highlights for references
+      this.model.dispatch("REMOVE_HIGHLIGHTS"); //cleanup highlights for references
 
       const refUsed = {};
       let lastUsedColorIndex = 0;
@@ -407,7 +406,7 @@ export class Composer extends Component<any, any> {
       // Put the cursor back where it was
       this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
       if (Object.keys(refUsed).length) {
-        this.model.dispatch({ type: "ADD_HIGHLIGHTS", ranges: refUsed });
+        this.model.dispatch("ADD_HIGHLIGHTS", { ranges: refUsed });
       }
     }
     this.shouldProcessInputEvents = true;
@@ -430,7 +429,7 @@ export class Composer extends Component<any, any> {
     } else if (["COMMA", "LEFT_PAREN", "OPERATOR"].includes(this.tokenAtCursor.type)) {
       // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
       // is relative the to the cell we edit
-      this.model.dispatch({ type: "START_COMPOSER_SELECTION" });
+      this.model.dispatch("START_COMPOSER_SELECTION");
       // We set this variable to store the start of the selection, to allow
       // to replace selections (ex: select twice a cell should only be added
       // once)

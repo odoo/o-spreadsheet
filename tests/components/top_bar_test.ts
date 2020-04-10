@@ -43,7 +43,7 @@ describe("TopBar component", () => {
 
   test("merging destructively a selection ask for confirmation", async () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
     let confirm;
     class TestParent extends Parent {
@@ -51,7 +51,7 @@ describe("TopBar component", () => {
         confirm = ev.detail.confirm;
       }
     }
-    model.dispatch({ type: "ALTER_SELECTION", cell: [5, 5] });
+    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
     const parent = new TestParent(model);
     await parent.mount(fixture);
 
@@ -64,7 +64,7 @@ describe("TopBar component", () => {
 
   test("opening a second menu closes the first one", async () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -99,14 +99,14 @@ describe("TopBar component", () => {
 
     // increase the selection to A2 (so, it is now A1:B2) => merge tool
     // shoul not be active
-    model.dispatch({ type: "ALTER_SELECTION", cell: [0, 1] });
+    model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
     await nextTick();
     expect(mergeTool.classList.contains("active")).toBeFalsy();
   });
 
   test("multiple selection zones => merge tools is disabled", async () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -115,12 +115,12 @@ describe("TopBar component", () => {
     // should be disabled, because the selection is just one cell
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
 
-    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
+    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
     await nextTick();
     // should be enabled, because two cells are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
 
-    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3, createNewRange: true });
+    model.dispatch("SELECT_CELL", { col: 3, row: 3, createNewRange: true });
 
     await nextTick();
     // should be disabled, because multiple zones are selected
@@ -138,8 +138,7 @@ describe("TopBar component", () => {
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
 
-    model.dispatch({
-      type: "SET_FORMATTING",
+    model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
       style: { bold: true }
@@ -174,9 +173,8 @@ describe("TopBar component", () => {
 
   test("can clear formatting", async () => {
     const model = new Model();
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
-    model.dispatch({
-      type: "SET_FORMATTING",
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    model.dispatch("SET_FORMATTING", {
       sheet: model.state.activeSheet,
       target: model.getters.getSelectedZones(),
       border: "all"
@@ -223,7 +221,7 @@ describe("TopBar component", () => {
 
   test("opening, then closing same menu", async () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 

@@ -19,7 +19,7 @@ RowResizer.prototype._getMaxSize = () => 1000;
 
 function fillData() {
   for (let i = 0; i < 8; i++) {
-    model.dispatch({ type: "SET_VALUE", xc: toXC(i, i), text: "i" });
+    model.dispatch("SET_VALUE", { xc: toXC(i, i), text: "i" });
   }
 }
 
@@ -233,14 +233,14 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a column", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     await dblClickColumn("B");
     expect(model.workbook.cols[1].size).toBe(1006);
   });
 
   test("Double click on column then undo, then redo", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "C2", text: "C2" });
-    model.dispatch({ type: "SET_VALUE", xc: "D2", text: "D2" });
+    model.dispatch("SET_VALUE", { xc: "C2", text: "C2" });
+    model.dispatch("SET_VALUE", { xc: "D2", text: "D2" });
     selectColumn("C");
     selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
@@ -250,13 +250,13 @@ describe("Resizer component", () => {
     expect(model.state.cols[3].size).toBe(1006);
     expect(model.state.cols[4].size).toBe(initialSize);
     expect(model.state.cols[4].left).toBe(initialSize * 2 + 2012);
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
     expect(model.state.cols[1].size).toBe(initialSize);
     expect(model.state.cols[2].size).toBe(initialSize);
     expect(model.state.cols[3].size).toBe(initialSize);
     expect(model.state.cols[4].size).toBe(initialSize);
     expect(model.state.cols[4].left).toBe(initialSize * 4);
-    model.dispatch({ type: "REDO" });
+    model.dispatch("REDO");
     expect(model.state.cols[1].size).toBe(initialSize);
     expect(model.state.cols[2].size).toBe(1006);
     expect(model.state.cols[3].size).toBe(1006);
@@ -265,15 +265,15 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a row", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     await dblClickRow(1);
     expect(model.workbook.rows[1].size).toBe(19);
   });
 
   test("Double click on rows then undo, then redo", async () => {
     fillData();
-    model.dispatch({ type: "SET_VALUE", xc: "C3", text: "C3" });
-    model.dispatch({ type: "SET_VALUE", xc: "C4", text: "C4" });
+    model.dispatch("SET_VALUE", { xc: "C3", text: "C3" });
+    model.dispatch("SET_VALUE", { xc: "C4", text: "C4" });
     selectRow(2);
     selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
@@ -283,13 +283,13 @@ describe("Resizer component", () => {
     expect(model.state.rows[3].size).toBe(19);
     expect(model.state.rows[4].size).toBe(initialSize);
     expect(model.state.rows[4].top).toBe(initialSize * 2 + 19 * 2);
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
     expect(model.state.rows[1].size).toBe(initialSize);
     expect(model.state.rows[2].size).toBe(initialSize);
     expect(model.state.rows[3].size).toBe(initialSize);
     expect(model.state.rows[4].size).toBe(initialSize);
     expect(model.state.rows[4].top).toBe(initialSize * 4);
-    model.dispatch({ type: "REDO" });
+    model.dispatch("REDO");
     expect(model.state.rows[1].size).toBe(initialSize);
     expect(model.state.rows[2].size).toBe(19);
     expect(model.state.rows[3].size).toBe(19);

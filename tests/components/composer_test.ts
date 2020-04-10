@@ -99,21 +99,21 @@ describe("ranges and highlights", () => {
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowUp");
     expect(model.getters.getCurrentContent()).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowLeft");
     expect(model.getters.getCurrentContent()).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowDown");
     await keydown("ArrowUp");
@@ -121,7 +121,7 @@ describe("ranges and highlights", () => {
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await typeInComposer("=");
     await keydown("ArrowUp");
     await keydown("ArrowUp");
@@ -144,10 +144,10 @@ describe("ranges and highlights", () => {
   });
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 1] });
-    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:C3") });
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:C3") });
+    model.dispatch("SELECT_CELL", { col: 2, row: 0 });
     await typeInComposer("=");
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=B2");
@@ -183,7 +183,7 @@ describe("composer", () => {
 
   test("type '=', backspace and select a cell should not add it", async () => {
     await typeInComposer("=");
-    model.dispatch({ type: "SET_CURRENT_CONTENT", content: "" });
+    model.dispatch("SET_CURRENT_CONTENT", { content: "" });
     const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("keyup"));
@@ -252,7 +252,7 @@ describe("composer", () => {
 
 describe("composer highlights color", () => {
   test("colors start with first color", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=a1+a2" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=a1+a2" });
     await startComposition();
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
@@ -260,8 +260,8 @@ describe("composer highlights color", () => {
   });
 
   test("colors always start with first color", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=b1+b2" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=b1+b3" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=b1+b2" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=b1+b3" });
     await startComposition();
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
@@ -277,14 +277,14 @@ describe("composer highlights color", () => {
   });
 
   test("highlight do not duplicate", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=a1+a1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=a1+a1" });
     await startComposition();
     expect(getHighlights(model).length).toBe(1);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
   });
 
   test("highlight range", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(a1:a10)" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(a1:a10)" });
     await startComposition();
     expect(getHighlights(model).length).toBe(1);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
@@ -292,13 +292,13 @@ describe("composer highlights color", () => {
   });
 
   test("highlight 'reverse' ranges", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=sum(B3:a1)" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(B3:a1)" });
     await startComposition();
     expect(getHighlights(model)[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
   test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async ref => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: ref });
+    model.dispatch("SET_VALUE", { xc: "A1", text: ref });
     await startComposition();
     expect(getHighlights(model).length).toBe(0);
     expect(composerEl.textContent).toBe(ref);

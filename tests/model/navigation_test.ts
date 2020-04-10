@@ -23,7 +23,7 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
     expect(model.getters.getSelection().anchor).toEqual([0, 0]);
 
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([1, 0]);
     expect(model.getters.getSelection().anchor).toEqual([1, 0]);
@@ -34,7 +34,7 @@ describe("navigation", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
 
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([0, 0]);
   });
@@ -42,19 +42,19 @@ describe("navigation", () => {
   test("move right from right row", () => {
     const model = new Model();
     const colNumber = model.workbook.cols.length;
-    model.dispatch({ type: "SELECT_CELL", col: colNumber - 1, row: 0 });
+    model.dispatch("SELECT_CELL", { col: colNumber - 1, row: 0 });
 
     expect(model.getters.getPosition()).toEqual([colNumber - 1, 0]);
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getPosition()).toEqual([colNumber - 1, 0]);
   });
 
   test("move bottom from bottom row", () => {
     const model = new Model();
     const rowNumber = model.workbook.rows.length;
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: rowNumber - 1 });
+    model.dispatch("SELECT_CELL", { col: 0, row: rowNumber - 1 });
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: 1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
   });
 
@@ -71,13 +71,13 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
 
     // move to the right, inside the merge
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 0]);
 
     // move to the right, outside the merge
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 3, bottom: 0 });
     expect(model.getters.getPosition()).toEqual([3, 0]);
     expect(getActiveXc(model)).toBe("D1");
@@ -96,18 +96,18 @@ describe("navigation", () => {
     expect(model.getters.getPosition()).toEqual([0, 0]);
 
     // put selection below merge
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 2 });
 
     // enter merge from below
     expect(getActiveXc(model)).toBe("B3");
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(getActiveXc(model)).toBe("B2");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 1]);
 
     // move to the top, outside the merge
-    model.dispatch({ type: "MOVE_POSITION", deltaX: 0, deltaY: -1 });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 2, left: 1, bottom: 1 });
     expect(model.getters.getPosition()).toEqual([1, 1]);
   });
@@ -118,12 +118,12 @@ describe("navigation", () => {
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
 
-    model.dispatch({ type: "SELECT_CELL", col: 4, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 4, row: 0 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
 
-    model.dispatch({ type: "SELECT_CELL", col: 5, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 5, row: 0 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
@@ -135,12 +135,12 @@ describe("navigation", () => {
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
 
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
 
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
@@ -152,12 +152,12 @@ describe("navigation", () => {
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(11);
 
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 10 });
+    model.dispatch("SELECT_CELL", { col: 0, row: 10 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(11);
 
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 11 });
+    model.dispatch("SELECT_CELL", { col: 0, row: 11 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);
@@ -169,12 +169,12 @@ describe("navigation", () => {
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(14);
 
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 0, row: 2 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(14);
 
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     viewport = model.getters.getAdjustedViewport(viewport, "position");
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);

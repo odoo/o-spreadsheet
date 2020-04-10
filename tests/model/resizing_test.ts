@@ -9,8 +9,7 @@ describe("Model resizer", () => {
     const initialTop = model.workbook.cols[2].left;
     const initialWidth = model.getters.getGridSize()[0];
 
-    model.dispatch({
-      type: "RESIZE_COLUMNS",
+    model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1],
       size: model.workbook.cols[1].size + 100
@@ -19,12 +18,12 @@ describe("Model resizer", () => {
     expect(model.workbook.cols[2].left).toBe(initialTop + 100);
     expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
 
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
     expect(model.workbook.cols[1].size).toBe(initialSize);
     expect(model.workbook.cols[2].left).toBe(initialTop);
     expect(model.getters.getGridSize()[0]).toBe(initialWidth);
 
-    model.dispatch({ type: "REDO" });
+    model.dispatch("REDO");
     expect(model.workbook.cols[1].size).toBe(initialSize + 100);
     expect(model.workbook.cols[2].left).toBe(initialTop + 100);
     expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
@@ -37,8 +36,7 @@ describe("Model resizer", () => {
     const initialTop = model.workbook.rows[2].top;
     const initialHeight = model.getters.getGridSize()[1];
 
-    model.dispatch({
-      type: "RESIZE_ROWS",
+    model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1],
       size: initialSize + 100
@@ -47,7 +45,7 @@ describe("Model resizer", () => {
     expect(model.workbook.rows[2].top).toBe(initialTop + 100);
     expect(model.getters.getGridSize()[1]).toBe(initialHeight + 100);
 
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
     expect(model.workbook.rows[1].size).toBe(initialSize);
     expect(model.workbook.rows[2].top).toBe(initialTop);
     expect(model.getters.getGridSize()[1]).toBe(initialHeight);
@@ -55,12 +53,11 @@ describe("Model resizer", () => {
 
   test("changing sheets update the sizes", async () => {
     const model = new Model();
-    model.dispatch({ type: "CREATE_SHEET" });
+    model.dispatch("CREATE_SHEET");
 
     expect(model.state.activeSheet).toBe("Sheet2");
 
-    model.dispatch({
-      type: "RESIZE_COLUMNS",
+    model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet2",
       cols: [1],
       size: model.workbook.cols[1].size + 100
@@ -68,7 +65,7 @@ describe("Model resizer", () => {
 
     const initialWidth = model.getters.getGridSize()[0];
 
-    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet2", to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
     expect(model.getters.getGridSize()[0]).toBe(initialWidth - 100);
   });
 
@@ -77,8 +74,7 @@ describe("Model resizer", () => {
 
     const size = model.workbook.cols[0].size;
 
-    model.dispatch({
-      type: "RESIZE_COLUMNS",
+    model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1, 3, 4],
       size: 100
@@ -95,8 +91,7 @@ describe("Model resizer", () => {
 
     const size = model.workbook.rows[0].size;
 
-    model.dispatch({
-      type: "RESIZE_ROWS",
+    model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1, 3, 4],
       size: 100
@@ -114,16 +109,14 @@ describe("Model resizer", () => {
 
     const [initialWidth, initialHeight] = model.getters.getGridSize();
 
-    model.dispatch({
-      type: "RESIZE_COLUMNS",
+    model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1],
       size: model.workbook.cols[1].size + 100
     });
     expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
 
-    model.dispatch({
-      type: "RESIZE_ROWS",
+    model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1],
       size: model.workbook.rows[1].size + 42

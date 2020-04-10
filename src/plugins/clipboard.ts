@@ -125,7 +125,7 @@ export class ClipboardPlugin extends BasePlugin {
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         const xc = toXC(activeCol + j, activeRow + i);
-        this.dispatch({ type: "SET_VALUE", xc, text: values[i][j] });
+        this.dispatch("SET_VALUE", { xc, text: values[i][j] });
       }
     }
   }
@@ -177,8 +177,7 @@ export class ClipboardPlugin extends BasePlugin {
       const [anchorCol, anchorRow] = this.getters.getSelection().anchor;
       const newCol = clip(anchorCol, col, col + repX * width - 1);
       const newRow = clip(anchorRow, row, row + repY * height - 1);
-      this.dispatch({
-        type: "SET_SELECTION",
+      this.dispatch("SET_SELECTION", {
         anchor: [newCol, newRow],
         zones: [newSelection]
       });
@@ -211,16 +210,14 @@ export class ClipboardPlugin extends BasePlugin {
             newCell.content = content;
           }
 
-          this.dispatch({
-            type: "UPDATE_CELL",
+          this.dispatch("UPDATE_CELL", {
             sheet: this.workbook.activeSheet.name,
             col: col + c,
             row: row + r,
             ...newCell
           });
           if (this.shouldCut) {
-            this.dispatch({
-              type: "CLEAR_CELL",
+            this.dispatch("CLEAR_CELL", {
               sheet: this.workbook.activeSheet.name,
               col: originCell.col,
               row: originCell.row
@@ -234,8 +231,7 @@ export class ClipboardPlugin extends BasePlugin {
               this.history.updateCell(targetCell, "border", undefined);
             }
           } else {
-            this.dispatch({
-              type: "CLEAR_CELL",
+            this.dispatch("CLEAR_CELL", {
               sheet: this.workbook.activeSheet.name,
               col: col + c,
               row: row + r

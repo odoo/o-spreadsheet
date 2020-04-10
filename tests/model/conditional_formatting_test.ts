@@ -39,16 +39,14 @@ beforeEach(() => {
 
 describe("conditional format", () => {
   test("works", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
-    model.dispatch({ type: "SET_VALUE", xc: "A3", text: "3" });
-    model.dispatch({ type: "SET_VALUE", xc: "A4", text: "4" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: "3" });
+    model.dispatch("SET_VALUE", { xc: "A4", text: "4" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1")
     });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2")
     });
     expect(model.getters.getConditionalFormats()).toEqual([
@@ -84,10 +82,9 @@ describe("conditional format", () => {
   });
 
   test("works on multiple ranges", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "1" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1")
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
@@ -95,29 +92,27 @@ describe("conditional format", () => {
   });
 
   test("can be undo/redo", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "1" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1")
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
 
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
 
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
 
-    model.dispatch({ type: "REDO" });
+    model.dispatch("REDO");
 
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
   });
 
   test("is saved/restored", () => {
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1")
     });
     const workbookData = model.exportData();
@@ -126,39 +121,35 @@ describe("conditional format", () => {
   });
 
   test("works after value update", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "2" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1")
     });
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=A2" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=A2" });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
   });
 
   test("works when cells are in error", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1")
     });
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=BLA" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=BLA" });
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
   });
 
   test("multiple conditional formats for one cell", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1")
     });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { textColor: "#445566" }, "2")
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({
@@ -168,23 +159,20 @@ describe("conditional format", () => {
   });
 
   test("multiple conditional formats with same style", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "1")
     });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { fillColor: "#FF0000" }, "2")
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
   });
 
   test.skip("multiple conditional formats using stopIfTrue flag", () => {
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
 
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         ranges: ["A1"],
         rule: {
@@ -197,16 +185,14 @@ describe("conditional format", () => {
         stopIfTrue: true
       }
     });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "2", { fillColor: "#445566" }, "2")
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
   });
 
   test("Set conditionalFormat on empty cell", () => {
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1"], "", { fillColor: "#FF0000" }, "1")
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
@@ -240,8 +226,7 @@ describe("conditional format", () => {
           }
         ]
       });
-      model.dispatch({
-        type: "REMOVE_ROWS",
+      model.dispatch("REMOVE_ROWS", {
         sheet: model.state.activeSheet,
         rows: [1, 3]
       });
@@ -278,8 +263,7 @@ describe("conditional format", () => {
           }
         ]
       });
-      model.dispatch({
-        type: "REMOVE_COLUMNS",
+      model.dispatch("REMOVE_COLUMNS", {
         sheet: model.state.activeSheet,
         columns: [1, 3]
       });
@@ -313,15 +297,13 @@ describe("conditional format", () => {
           }
         ]
       });
-      model.dispatch({
-        type: "ADD_COLUMNS",
+      model.dispatch("ADD_COLUMNS", {
         sheet: model.state.activeSheet,
         column: 1,
         position: "before",
         quantity: 1
       });
-      model.dispatch({
-        type: "ADD_COLUMNS",
+      model.dispatch("ADD_COLUMNS", {
         sheet: model.state.activeSheet,
         column: 2,
         position: "after",
@@ -354,15 +336,13 @@ describe("conditional format", () => {
           }
         ]
       });
-      model.dispatch({
-        type: "ADD_ROWS",
+      model.dispatch("ADD_ROWS", {
         sheet: model.state.activeSheet,
         row: 1,
         position: "before",
         quantity: 1
       });
-      model.dispatch({
-        type: "ADD_ROWS",
+      model.dispatch("ADD_ROWS", {
         sheet: model.state.activeSheet,
         row: 2,
         position: "after",
@@ -383,8 +363,7 @@ describe("conditional format", () => {
 describe("conditional formats types", () => {
   describe("CellIs condition", () => {
     test("Operator BeginsWith", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -397,16 +376,15 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "aaa" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "aaa" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "qsdfmlkqjsdf" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "qsdfmlkqjsdf" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator Between", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -419,25 +397,24 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "0" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "1.5" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "1.5" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3.5" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "3.5" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     });
 
     test("Operator ContainsText", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -449,16 +426,15 @@ describe("conditional formats types", () => {
           id: "11"
         }
       });
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "hello" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "helabclo" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "helabclo" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator EndsWith", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -471,16 +447,15 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "hello" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "helloqsdf" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "helloqsdf" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator GreaterThan", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -492,19 +467,18 @@ describe("conditional formats types", () => {
           id: "11"
         }
       });
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "5" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "5" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "12" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "12" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "13" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "13" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator GreaterThanOrEqual", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -517,19 +491,18 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "5" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "5" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "12" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "12" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "13" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "13" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator LessThan", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -542,19 +515,18 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "11" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "11" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "9" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "9" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator LessThanOrEqual", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -567,19 +539,18 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "11" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "11" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "9" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "9" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator NotBetween", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -592,25 +563,24 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "4" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "4" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "0" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "5" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "5" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10.1" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10.1" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator NotContains", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -623,16 +593,15 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hellqsdfo" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "hellqsdfo" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "hello" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
     test("Operator NotEqual", () => {
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -645,27 +614,26 @@ describe("conditional formats types", () => {
         }
       });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hellqsdfo" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "hellqsdfo" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "hello" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "hello" });
       expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0f0f" });
 
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "qsdf" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "qsdf" });
       expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     });
   });
 
   describe("color scale", () => {
     test("2 points, value scale", () => {
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "10" });
-      model.dispatch({ type: "SET_VALUE", xc: "A2", text: "11" });
-      model.dispatch({ type: "SET_VALUE", xc: "A3", text: "17" });
-      model.dispatch({ type: "SET_VALUE", xc: "A4", text: "19" });
-      model.dispatch({ type: "SET_VALUE", xc: "A5", text: "20" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "11" });
+      model.dispatch("SET_VALUE", { xc: "A3", text: "17" });
+      model.dispatch("SET_VALUE", { xc: "A4", text: "19" });
+      model.dispatch("SET_VALUE", { xc: "A5", text: "20" });
 
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           ["A1:A5"],
@@ -682,14 +650,13 @@ describe("conditional formats types", () => {
     });
 
     test("2 points, value scale with other min and max", () => {
-      model.dispatch({ type: "SET_VALUE", xc: "A1", text: "100" });
-      model.dispatch({ type: "SET_VALUE", xc: "A2", text: "110" });
-      model.dispatch({ type: "SET_VALUE", xc: "A3", text: "170" });
-      model.dispatch({ type: "SET_VALUE", xc: "A4", text: "190" });
-      model.dispatch({ type: "SET_VALUE", xc: "A5", text: "200" });
+      model.dispatch("SET_VALUE", { xc: "A1", text: "100" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "110" });
+      model.dispatch("SET_VALUE", { xc: "A3", text: "170" });
+      model.dispatch("SET_VALUE", { xc: "A4", text: "190" });
+      model.dispatch("SET_VALUE", { xc: "A5", text: "200" });
 
-      model.dispatch({
-        type: "ADD_CONDITIONAL_FORMAT",
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           ["A1:A5"],
@@ -714,12 +681,10 @@ describe("UI of conditional formats", () => {
 
   beforeEach(async () => {
     fixture = makeTestFixture();
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A2"], "2", { fillColor: "#FF0000" }, "1")
     });
-    model.dispatch({
-      type: "ADD_CONDITIONAL_FORMAT",
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createColorScale(
         "2",
         ["B1:B5"],
@@ -803,7 +768,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith({
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         ranges: ["A1:A3"],
@@ -814,8 +779,7 @@ describe("UI of conditional formats", () => {
           type: "CellIsRule",
           values: ["3", ""]
         }
-      },
-      type: "ADD_CONDITIONAL_FORMAT"
+      }
     });
   });
 
@@ -843,7 +807,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith({
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "2",
         ranges: ["B2:B5"],
@@ -860,8 +824,7 @@ describe("UI of conditional formats", () => {
           },
           type: "ColorScaleRule"
         }
-      },
-      type: "ADD_CONDITIONAL_FORMAT"
+      }
     });
   });
 
@@ -885,7 +848,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith({
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "42",
         ranges: ["A1:A3"],
@@ -896,8 +859,7 @@ describe("UI of conditional formats", () => {
           type: "CellIsRule",
           values: ["3", ""]
         }
-      },
-      type: "ADD_CONDITIONAL_FORMAT"
+      }
     });
   });
 
@@ -933,7 +895,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith({
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "43",
         ranges: ["B2:B5"],
@@ -950,8 +912,7 @@ describe("UI of conditional formats", () => {
           },
           type: "ColorScaleRule"
         }
-      },
-      type: "ADD_CONDITIONAL_FORMAT"
+      }
     });
   });
   test("switching sheet changes the content of CF and cancels the edition", async () => {});

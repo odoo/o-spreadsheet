@@ -10,7 +10,8 @@ import {
   GridCommand,
   UI,
   Workbook,
-  WorkbookData
+  WorkbookData,
+  CommandTypes
 } from "./types/index";
 
 export type Mode = "normal" | "headless" | "readonly";
@@ -49,7 +50,7 @@ export class Model extends owl.core.EventBus {
 
     // misc
     this.state = {} as UI;
-    this.dispatch({ type: "START" });
+    this.dispatch("START");
   }
 
   private setupPlugin(Plugin: typeof BasePlugin, data: WorkbookData) {
@@ -74,7 +75,15 @@ export class Model extends owl.core.EventBus {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  dispatch(command: GridCommand): CommandResult {
+  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
+    type: {} extends Omit<C, "type"> ? T : never
+  ): CommandResult;
+  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): CommandResult;
+  dispatch(type: string, payload?: any): CommandResult {
+    const command: GridCommand = Object.assign({ type }, payload);
     switch (this.status) {
       case "ready":
         for (let handler of this.handlers) {

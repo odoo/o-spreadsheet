@@ -48,15 +48,14 @@ export class CorePlugin extends BasePlugin {
           cmd.cols || 26,
           cmd.rows || 100
         );
-        this.dispatch({ type: "ACTIVATE_SHEET", from: this.workbook.activeSheet.name, to: sheet });
+        this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.name, to: sheet });
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
         break;
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
-        this.dispatch({
-          type: "UPDATE_CELL",
+        this.dispatch("UPDATE_CELL", {
           sheet: cmd.sheet ? cmd.sheet : this.workbook.activeSheet.name,
           col,
           row,
@@ -67,8 +66,7 @@ export class CorePlugin extends BasePlugin {
         this.updateCell(cmd.sheet, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
-        this.dispatch({
-          type: "UPDATE_CELL",
+        this.dispatch("UPDATE_CELL", {
           sheet: this.workbook.activeSheet.name,
           col: cmd.col,
           row: cmd.row,
@@ -265,8 +263,7 @@ export class CorePlugin extends BasePlugin {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);
           if (xc in cells) {
-            this.dispatch({
-              type: "UPDATE_CELL",
+            this.dispatch("UPDATE_CELL", {
               sheet,
               content: "",
               col,

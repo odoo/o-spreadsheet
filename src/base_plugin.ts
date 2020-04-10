@@ -7,7 +7,7 @@ import {
   CommandHandler
 } from "./types/index";
 import { WorkbookHistory, WHistory } from "./history";
-import { Mode } from "./model";
+import { Mode, Model } from "./model";
 
 /**
  * BasePlugin
@@ -34,7 +34,7 @@ export const enum LAYERS {
   Headers
 }
 
-type DispatchFn = (command: GridCommand) => void;
+type DispatchFn = Model["dispatch"];
 
 export class BasePlugin implements CommandHandler {
   static layers: LAYERS[] = [];

@@ -288,8 +288,7 @@ export class GridPlugin extends BasePlugin {
       for (let col = left; col <= right; col++) {
         const xc = toXC(col, row);
         if (col !== left || row !== top) {
-          this.dispatch({
-            type: "CLEAR_CELL",
+          this.dispatch("CLEAR_CELL", {
             sheet,
             col,
             row
@@ -510,8 +509,7 @@ export class GridPlugin extends BasePlugin {
       if (!isColumn && merge.top !== merge.bottom) {
         y += 1;
       }
-      this.dispatch({
-        type: "UPDATE_CELL",
+      this.dispatch("UPDATE_CELL", {
         sheet: this.workbook.sheets[sheetID].name,
         col: x,
         row: y,
@@ -564,8 +562,7 @@ export class GridPlugin extends BasePlugin {
             .join("");
           if (content !== cell.content) {
             const [col, row] = toCartesian(xc);
-            this.dispatch({
-              type: "UPDATE_CELL",
+            this.dispatch("UPDATE_CELL", {
               sheet: sheet.name,
               col,
               row,
@@ -633,10 +630,10 @@ export class GridPlugin extends BasePlugin {
       }
     }
     for (let cmd of deleteCommands) {
-      this.dispatch(cmd);
+      this.dispatch(cmd.type, cmd);
     }
     for (let cmd of addCommands) {
-      this.dispatch(cmd);
+      this.dispatch(cmd.type, cmd);
     }
   }
 
