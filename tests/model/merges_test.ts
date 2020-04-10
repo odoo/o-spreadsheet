@@ -121,10 +121,10 @@ describe("merges", () => {
 
     model.dispatch("SELECT_CELL", { col: 2, row: 3 });
     expect(getActiveXc(model)).toBe("C4");
-    expect(model.state.selectedCell).toBeNull(); // no active cell in C4
+    expect(model.getters.getActiveCell()).toBeNull(); // no active cell in C4
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(getActiveXc(model)).toBe("C3");
-    expect(model.state.selectedCell!.xc).toBe("B2");
+    expect(model.getters.getActiveCell()!.xc).toBe("B2");
   });
 
   test("properly compute if a merge is destructive or not", () => {

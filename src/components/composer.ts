@@ -142,7 +142,7 @@ export class Composer extends Component<any, any> {
     if (model.state.activeXc in model.state.mergeCellMap) {
       this.zone = model.state.merges[model.state.mergeCellMap[model.state.activeXc]];
     } else {
-      const { activeCol, activeRow } = model.state;
+      const [activeCol, activeRow] = model.getters.getPosition();
       this.zone = { left: activeCol, top: activeRow, right: activeCol, bottom: activeRow };
     }
   }
@@ -196,7 +196,7 @@ export class Composer extends Component<any, any> {
 
   get composerStyle() {
     const style = this.model.getters.getCurrentStyle();
-    const cell = this.model.state.selectedCell || { type: "text" };
+    const cell = this.model.getters.getActiveCell() || { type: "text" };
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     return `text-align:${align};`;
   }
@@ -206,7 +206,7 @@ export class Composer extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   processArrowKeys(ev: KeyboardEvent, delta: Array<number>) {
-    if (this.model.state.editionMode === "selecting") {
+    if (this.model.getters.getEditionMode() === "selecting") {
       ev.preventDefault();
       return;
     }

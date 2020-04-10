@@ -107,7 +107,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       );
       model.dispatch("DELETE_CONTENT", {
         target,
-        sheet: model.workbook.activeSheet.name
+        sheet: model.state.activeSheet
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -172,7 +172,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       );
       model.dispatch("DELETE_CONTENT", {
         target,
-        sheet: model.workbook.activeSheet.name
+        sheet: model.state.activeSheet
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -223,7 +223,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
 const TEMPLATE = xml/* xml */ `
     <div class="o-context-menu" t-att-style="style" tabindex="-1" t-on-blur="trigger('close')">
         <t t-foreach="menuItems" t-as="menuItem" t-key="menuItem.name">
-          <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(model.state.selectedCell)"/>
+          <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(model.getters.getActiveCell())"/>
           <div
             t-if="menuItem.type === 'action'"
             t-att-data-name="menuItem.name"
@@ -300,7 +300,7 @@ export class ContextMenu extends Component<Props, any> {
   }
 
   activateMenu(menu: ActionContextMenuItem) {
-    if (!menu.isEnabled || menu.isEnabled(this.model.state.selectedCell)) {
+    if (!menu.isEnabled || menu.isEnabled(this.model.getters.getActiveCell())) {
       menu.action(this.model, this.env.spreadsheet);
     }
   }

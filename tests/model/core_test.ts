@@ -7,14 +7,14 @@ describe("core", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
     model.dispatch("SET_VALUE", { xc: "A3", text: "54" });
 
-    expect(model.state.aggregate).toBe(null);
+    expect(model.getters.getAggregate()).toBe(null);
 
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
 
-    expect(model.state.aggregate).toBe(null);
+    expect(model.getters.getAggregate()).toBe(null);
 
     model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
-    expect(model.state.aggregate).toBe("57");
+    expect(model.getters.getAggregate()).toBe("57");
   });
 
   test("ignore cells with an error", () => {
@@ -25,15 +25,15 @@ describe("core", () => {
 
     // select A1
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    expect(model.state.aggregate).toBe(null);
+    expect(model.getters.getAggregate()).toBe(null);
 
     // select A1:A2
     model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
-    expect(model.state.aggregate).toBe(null);
+    expect(model.getters.getAggregate()).toBe(null);
 
     // select A1:A3
     model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
-    expect(model.state.aggregate).toBe("5");
+    expect(model.getters.getAggregate()).toBe("5");
   });
 
   test("ignore async cells while they are not ready", async () => {
@@ -43,14 +43,14 @@ describe("core", () => {
 
     // select A1
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    expect(model.state.aggregate).toBe(null);
+    expect(model.getters.getAggregate()).toBe(null);
 
     // select A1:A2
     model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
-    expect(model.state.aggregate).toBe(null);
+    expect(model.getters.getAggregate()).toBe(null);
 
     await waitForRecompute();
-    expect(model.state.aggregate).toBe("1044");
+    expect(model.getters.getAggregate()).toBe("1044");
   });
 
   test("format cell that point to an empty cell properly", () => {
