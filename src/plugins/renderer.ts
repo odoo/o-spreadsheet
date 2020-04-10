@@ -44,12 +44,7 @@ export class RendererPlugin extends BasePlugin {
       cols: this.workbook.cols,
       merges: this.workbook.merges,
       mergeCellMap: this.workbook.mergeCellMap,
-      activeCol: col,
-      activeRow: row,
       activeXc: toXC(col, row),
-      editionMode: this.getters.getEditionMode(),
-      selectedCell: this.getters.getActiveCell(),
-      aggregate: this.getters.getAggregate(),
       sheets: this.workbook.sheets.map(s => s.name),
       activeSheet: this.workbook.activeSheet.name
     };

@@ -15,9 +15,10 @@ const TEMPLATE = xml/* xml */ `
     <t t-foreach="model.state.sheets" t-as="sheet" t-key="sheet">
       <span class="o-sheet" t-on-click="activateSheet(sheet)" t-att-class="{active: sheet === model.state.activeSheet}"><t t-esc="sheet"/></span>
     </t>
-    <t t-if="model.state.aggregate !== null">
+    <t t-set="aggregate" t-value="model.getters.getAggregate()"/>
+    <t t-if="aggregate !== null">
       <span class="o-space"/>
-      <span class="o-aggregate">Sum: <t t-esc="model.state.aggregate"/></span>
+      <span class="o-aggregate">Sum: <t t-esc="aggregate"/></span>
     </t>
   </div>`;
 

@@ -140,16 +140,9 @@ export interface Box {
 }
 
 export interface UI {
-  activeCol: number;
-  activeRow: number;
   activeXc: string;
   sheets: string[];
   activeSheet: string;
-
-  editionMode: EditionMode;
-
-  selectedCell: Cell | null;
-  aggregate: string | null;
 
   // to remove someday
   rows: Row[];

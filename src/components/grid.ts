@@ -32,7 +32,7 @@ const { useRef } = owl.hooks;
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown">
-    <t t-if="state.editionMode !== 'inactive'">
+    <t t-if="model.getters.getEditionMode() !== 'inactive'">
       <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" viewport="viewport"/>
     </t>
     <canvas t-ref="canvas"
@@ -187,7 +187,7 @@ export class Grid extends Component<any, any> {
   }
 
   focus() {
-    if (this.state.editionMode !== "selecting") {
+    if (this.model.getters.getEditionMode() !== "selecting") {
       this.canvas.el!.focus();
     }
   }
@@ -293,7 +293,7 @@ export class Grid extends Component<any, any> {
       }
     };
     const onMouseUp = ev => {
-      if (this.model.state.editionMode === "selecting") {
+      if (this.model.getters.getEditionMode() === "selecting") {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
         }
@@ -345,7 +345,7 @@ export class Grid extends Component<any, any> {
       this.model.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
     }
 
-    if (this.model.state.editionMode === "selecting" && this.composer.comp) {
+    if (this.model.getters.getEditionMode() === "selecting" && this.composer.comp) {
       (this.composer.comp as Composer).addTextFromSelection();
     } else {
       this.processCopyFormat();

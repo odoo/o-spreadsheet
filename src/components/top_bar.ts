@@ -199,7 +199,8 @@ export class TopBar extends Component<any, any> {
         <div class="o-divider"/>
       </div>
       <div class="o-cell-content">
-         <t t-esc="model.state.selectedCell and model.state.selectedCell.content"/>
+         <t t-set="cell" t-value="model.getters.getActiveCell()"/>
+         <t t-esc="cell and cell.content"/>
       </div>
     </div>`;
   static style = css/* scss */ `
@@ -410,7 +411,7 @@ export class TopBar extends Component<any, any> {
     this.undoTool = this.model.getters.canUndo();
     this.redoTool = this.model.getters.canRedo();
     this.paintFormatTool = this.model.getters.isPaintingFormat();
-    const cell = state.selectedCell;
+    const cell = this.model.getters.getActiveCell();
     if (cell && cell.format) {
       const format = this.formats.find(f => f.value === cell.format);
       this.currentFormat = format ? format.name : "";
