@@ -28,7 +28,7 @@ describe("selection", () => {
       ]
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
+    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -36,9 +36,9 @@ describe("selection", () => {
     const model = new Model();
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
+    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
+    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
   });
 
@@ -51,17 +51,17 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
-    model.dispatch({ type: "SELECT_CELL", col: 9, row: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
+    model.dispatch("SELECT_CELL", { col: 9, row: 0 });
+    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 9 });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });
+    model.dispatch("SELECT_CELL", { col: 0, row: 9 });
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
@@ -76,7 +76,7 @@ describe("selection", () => {
       ]
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [1, 0] });
+    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -90,16 +90,16 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
 
     // move to the right, inside the merge
-    model.dispatch({ type: "ALTER_SELECTION", delta: [1, 0] });
+    model.dispatch("ALTER_SELECTION", { delta: [1, 0] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(getActiveXc(model)).toBe("B1");
 
     // move to the left, outside the merge
-    model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
+    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(getActiveXc(model)).toBe("B1");
   });
@@ -115,16 +115,16 @@ describe("selection", () => {
       ]
     });
     // move sell to B4
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 3 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 3 });
     expect(getActiveXc(model)).toBe("B4");
 
     // move up, inside the merge
-    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
-    model.dispatch({ type: "ALTER_SELECTION", delta: [-1, 0] });
+    model.dispatch("ALTER_SELECTION", { delta: [-1, 0] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
@@ -139,11 +139,11 @@ describe("selection", () => {
       ]
     });
     // move sell to B4
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 2 });
     expect(getActiveXc(model)).toBe("B3");
 
     // select right cell C3
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 2] });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 2] });
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 3, left: 1, bottom: 2 });
   });
@@ -157,7 +157,7 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_COLUMN", index: 4 });
+    model.dispatch("SELECT_COLUMN", { index: 4 });
     expect(getActiveXc(model)).toBe("E1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 4, top: 0, right: 4, bottom: 9 });
@@ -173,7 +173,7 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_COLUMN", index: 0 });
+    model.dispatch("SELECT_COLUMN", { index: 0 });
     expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
   });
@@ -188,7 +188,7 @@ describe("selection", () => {
       ]
     });
 
-    model.dispatch({ type: "SELECT_ROW", index: 4 });
+    model.dispatch("SELECT_ROW", { index: 4 });
     expect(getActiveXc(model)).toBe("A5");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
@@ -205,7 +205,7 @@ describe("selection", () => {
       ]
     });
 
-    model.dispatch({ type: "SELECT_ROW", index: 0 });
+    model.dispatch("SELECT_ROW", { index: 0 });
     expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
@@ -219,7 +219,7 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_ALL" });
+    model.dispatch("SELECT_ALL");
     expect(getActiveXc(model)).toBe("A1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
@@ -234,10 +234,10 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(getActiveXc(model)).toBe("C3");
-    model.dispatch({ type: "START_COMPOSER_SELECTION" });
-    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
+    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
     expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
 
     expect(model.getters.getSelection()).toEqual({
@@ -255,11 +255,11 @@ describe("selection", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
 
-    model.dispatch({ type: "START_COMPOSER_SELECTION" });
-    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
-    model.dispatch({ type: "ALTER_SELECTION", cell: [4, 4] });
+    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
+    model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
 
     expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
     expect(model.getters.getPosition()).toEqual([2, 2]);
@@ -270,13 +270,13 @@ describe("selection", () => {
   });
   test("make selection works based on selection anchor, not active cell", () => {
     const model = new Model();
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 0 });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
 
-    model.dispatch({ type: "START_COMPOSER_SELECTION" });
-    model.dispatch({ type: "SELECT_CELL", col: 3, row: 3 });
+    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
 
-    model.dispatch({ type: "ALTER_SELECTION", delta: [0, 1] });
-    model.dispatch({ type: "ALTER_SELECTION", delta: [0, -1] });
+    model.dispatch("ALTER_SELECTION", { delta: [0, 1] });
+    model.dispatch("ALTER_SELECTION", { delta: [0, -1] });
 
     expect(getActiveXc(model)).toBe("A1"); // active cell is not modified but the selection is
     expect(model.getters.getPosition()).toEqual([0, 0]);
@@ -297,17 +297,17 @@ describe("multiple selections", () => {
         }
       ]
     });
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
-    model.dispatch({ type: "ALTER_SELECTION", cell: [2, 3] });
+    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
     selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor).toEqual([2, 2]);
 
     // create new range
-    model.dispatch({ type: "SELECT_CELL", col: 5, row: 2, createNewRange: true });
+    model.dispatch("SELECT_CELL", { col: 5, row: 2, createNewRange: true });
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
     expect(selection.anchor).toEqual([5, 2]);
@@ -317,25 +317,25 @@ describe("multiple selections", () => {
 describe("multiple sheets", () => {
   test("activating same sheet does not change selection", () => {
     const model = new Model();
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet1", to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet1" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
   });
 
   test("selection is restored when coming back to previous sheet", () => {
     const model = new Model();
-    model.dispatch({ type: "SELECT_CELL", col: 2, row: 2 });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch({ type: "CREATE_SHEET" });
+    model.dispatch("CREATE_SHEET");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
-    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet2", to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-    model.dispatch({ type: "ACTIVATE_SHEET", from: "Sheet1", to: "Sheet2" });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
   });
 });

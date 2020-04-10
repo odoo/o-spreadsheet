@@ -5,15 +5,15 @@ describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
     const model = new Model();
     // adding
-    model.dispatch({ type: "START_EDITION", text: "a" });
-    model.dispatch({ type: "STOP_EDITION" });
+    model.dispatch("START_EDITION", { text: "a" });
+    model.dispatch("STOP_EDITION");
     expect(Object.keys(model.workbook.cells)).toEqual(["A1"]);
     expect(model.workbook.cells["A1"].content).toBe("a");
 
     // removing
-    model.dispatch({ type: "START_EDITION" });
-    model.dispatch({ type: "SET_CURRENT_CONTENT", content: "" });
-    model.dispatch({ type: "STOP_EDITION" });
+    model.dispatch("START_EDITION");
+    model.dispatch("SET_CURRENT_CONTENT", { content: "" });
+    model.dispatch("STOP_EDITION");
     expect(model.workbook.cells).toEqual({});
   });
 
@@ -33,9 +33,8 @@ describe("edition", () => {
 
     // removing
     expect(model.workbook.cells["A2"].content).toBe("a2");
-    model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
-    model.dispatch({
-      type: "DELETE_CONTENT",
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    model.dispatch("DELETE_CONTENT", {
       sheet: model.state.activeSheet,
       target: model.getters.getSelectedZones()
     });

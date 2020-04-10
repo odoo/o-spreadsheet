@@ -4,19 +4,18 @@ import { makeTestFixture } from "../helpers";
 let model: Model;
 
 function undo() {
-  model.dispatch({ type: "UNDO" });
+  model.dispatch("UNDO");
 }
 
 function redo() {
-  model.dispatch({ type: "REDO" });
+  model.dispatch("REDO");
 }
 
 function clearColumns(indexes: number[]) {
   const target = indexes.map(index => {
     return model.getters.getColsZone(index, index);
   });
-  model.dispatch({
-    type: "DELETE_CONTENT",
+  model.dispatch("DELETE_CONTENT", {
     target,
     sheet: model.workbook.activeSheet.name
   });
@@ -26,24 +25,22 @@ function clearRows(indexes: number[]) {
   const target = indexes.map(index => {
     return model.getters.getRowsZone(index, index);
   });
-  model.dispatch({
-    type: "DELETE_CONTENT",
+  model.dispatch("DELETE_CONTENT", {
     target,
     sheet: model.workbook.activeSheet.name
   });
 }
 
 function removeColumns(columns: number[]) {
-  model.dispatch({ type: "REMOVE_COLUMNS", sheet: model.state.activeSheet, columns });
+  model.dispatch("REMOVE_COLUMNS", { sheet: model.state.activeSheet, columns });
 }
 
 function removeRows(rows: number[]) {
-  model.dispatch({ type: "REMOVE_ROWS", sheet: model.state.activeSheet, rows });
+  model.dispatch("REMOVE_ROWS", { sheet: model.state.activeSheet, rows });
 }
 
 function addColumns(column: number, position: "before" | "after", quantity: number) {
-  model.dispatch({
-    type: "ADD_COLUMNS",
+  model.dispatch("ADD_COLUMNS", {
     sheet: model.state.activeSheet,
     position,
     column,
@@ -52,8 +49,7 @@ function addColumns(column: number, position: "before" | "after", quantity: numb
 }
 
 function addRows(row: number, position: "before" | "after", quantity: number) {
-  model.dispatch({
-    type: "ADD_ROWS",
+  model.dispatch("ADD_ROWS", {
     sheet: model.state.activeSheet,
     position,
     row,

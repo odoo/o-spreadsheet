@@ -55,8 +55,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='clear_column']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "DELETE_CONTENT",
+    expect(model.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
         {
           top: 0,
@@ -74,8 +73,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='clear_row']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "DELETE_CONTENT",
+    expect(model.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
         {
           top: 4,
@@ -93,8 +91,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='delete_column']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "REMOVE_COLUMNS",
+    expect(model.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
       columns: [3],
       sheet: model.workbook.activeSheet.name
     });
@@ -105,8 +102,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='delete_row']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "REMOVE_ROWS",
+    expect(model.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
       rows: [4],
       sheet: model.workbook.activeSheet.name
     });
@@ -117,8 +113,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_column_before']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "ADD_COLUMNS",
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
       position: "before",
       column: 3,
       quantity: 1,
@@ -131,8 +126,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_row_before']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "ADD_ROWS",
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
       position: "before",
       row: 4,
       quantity: 1,
@@ -145,8 +139,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_column_after']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "ADD_COLUMNS",
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
       position: "after",
       column: 3,
       quantity: 1,
@@ -159,8 +152,7 @@ describe("Context Menu add/remove row/col", () => {
     await nextTick();
     model.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_row_after']");
-    expect(model.dispatch).toHaveBeenCalledWith({
-      type: "ADD_ROWS",
+    expect(model.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
       position: "after",
       row: 4,
       quantity: 1,

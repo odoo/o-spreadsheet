@@ -140,31 +140,29 @@ export class Grid extends Component<any, any> {
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   keyDownMapping: { [key: string]: Function } = {
-    ENTER: () => this.model.dispatch({ type: "START_EDITION" }),
-    TAB: () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: 1, deltaY: 0 }),
-    "SHIFT+TAB": () => this.model.dispatch({ type: "MOVE_POSITION", deltaX: -1, deltaY: 0 }),
-    F2: () => this.model.dispatch({ type: "START_EDITION" }),
+    ENTER: () => this.model.dispatch("START_EDITION"),
+    TAB: () => this.model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
+    "SHIFT+TAB": () => this.model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
+    F2: () => this.model.dispatch("START_EDITION"),
     DELETE: () => {
-      this.model.dispatch({
-        type: "DELETE_CONTENT",
+      this.model.dispatch("DELETE_CONTENT", {
         sheet: this.state.activeSheet,
         target: this.model.getters.getSelectedZones()
       });
     },
-    "CTRL+A": () => this.model.dispatch({ type: "SELECT_ALL" }),
+    "CTRL+A": () => this.model.dispatch("SELECT_ALL"),
     "CTRL+S": () => {
       this.trigger("save-content", {
         data: this.model.exportData()
       });
     },
-    "CTRL+Z": () => this.model.dispatch({ type: "UNDO" }),
-    "CTRL+Y": () => this.model.dispatch({ type: "REDO" })
+    "CTRL+Z": () => this.model.dispatch("UNDO"),
+    "CTRL+Y": () => this.model.dispatch("REDO")
   };
 
   private processCopyFormat() {
     if (this.model.getters.isPaintingFormat()) {
-      this.model.dispatch({
-        type: "PASTE",
+      this.model.dispatch("PASTE", {
         target: this.model.getters.getSelectedZones()
       });
     }
@@ -275,9 +273,9 @@ export class Grid extends Component<any, any> {
     this.clickedRow = row;
 
     if (ev.shiftKey) {
-      this.model.dispatch({ type: "ALTER_SELECTION", cell: [col, row] });
+      this.model.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {
-      this.model.dispatch({ type: "SELECT_CELL", col, row, createNewRange: ev.ctrlKey });
+      this.model.dispatch("SELECT_CELL", { col, row, createNewRange: ev.ctrlKey });
       this.checkPosition();
     }
     let prevCol = col;
@@ -291,7 +289,7 @@ export class Grid extends Component<any, any> {
       if (col !== prevCol || row !== prevRow) {
         prevCol = col;
         prevRow = row;
-        this.model.dispatch({ type: "ALTER_SELECTION", cell: [col, row] });
+        this.model.dispatch("ALTER_SELECTION", { cell: [col, row] });
       }
     };
     const onMouseUp = ev => {
@@ -302,8 +300,7 @@ export class Grid extends Component<any, any> {
       }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.model.getters.isPaintingFormat()) {
-        this.model.dispatch({
-          type: "PASTE",
+        this.model.dispatch("PASTE", {
           target: this.model.getters.getSelectedZones()
         });
       }
@@ -317,7 +314,7 @@ export class Grid extends Component<any, any> {
     const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
     const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
     if (this.clickedCol === col && this.clickedRow === row) {
-      this.model.dispatch({ type: "START_EDITION" });
+      this.model.dispatch("START_EDITION");
     }
   }
 
@@ -328,7 +325,7 @@ export class Grid extends Component<any, any> {
   processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     const deltaX = ev.shiftKey ? -1 : 1;
-    this.model.dispatch({ type: "MOVE_POSITION", deltaX, deltaY: 0 });
+    this.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
     return;
   }
 
@@ -343,9 +340,9 @@ export class Grid extends Component<any, any> {
     };
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
-      this.model.dispatch({ type: "ALTER_SELECTION", delta });
+      this.model.dispatch("ALTER_SELECTION", { delta });
     } else {
-      this.model.dispatch({ type: "MOVE_POSITION", deltaX: delta[0], deltaY: delta[1] });
+      this.model.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
     }
 
     if (this.model.state.editionMode === "selecting" && this.composer.comp) {
@@ -381,7 +378,7 @@ export class Grid extends Component<any, any> {
         // character
         ev.preventDefault();
         ev.stopPropagation();
-        this.model.dispatch({ type: "START_EDITION", text: ev.key });
+        this.model.dispatch("START_EDITION", { text: ev.key });
       }
     }
   }
@@ -397,7 +394,7 @@ export class Grid extends Component<any, any> {
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
-      this.model.dispatch({ type: "SELECT_CELL", col, row });
+      this.model.dispatch("SELECT_CELL", { col, row });
     } else {
       if (this.model.getters.getActiveCols().has(col)) {
         type = "COLUMN";

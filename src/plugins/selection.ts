@@ -205,7 +205,7 @@ export class SelectionPlugin extends BasePlugin {
       zones = createRange ? current.concat(zone) : [zone];
       anchor = [index, 0];
     }
-    this.dispatch({ type: "SET_SELECTION", zones, anchor, strict: true });
+    this.dispatch("SET_SELECTION", { zones, anchor, strict: true });
   }
 
   private selectRow(index: number, createRange: boolean, updateRange: boolean) {
@@ -222,14 +222,14 @@ export class SelectionPlugin extends BasePlugin {
       zones = createRange ? current.concat(zone) : [zone];
       anchor = [0, index];
     }
-    this.dispatch({ type: "SET_SELECTION", zones, anchor, strict: true });
+    this.dispatch("SET_SELECTION", { zones, anchor, strict: true });
   }
 
   private selectAll() {
     const bottom = this.workbook.rows.length - 1;
     const right = this.workbook.cols.length - 1;
     const zone = { left: 0, top: 0, bottom, right };
-    this.dispatch({ type: "SET_SELECTION", zones: [zone], anchor: [0, 0] });
+    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
   }
 
   /**
@@ -324,7 +324,7 @@ export class SelectionPlugin extends BasePlugin {
       }
       if (result && !isEqual(result, lastZone)) {
         zones[zones.length - 1] = result;
-        this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
+        this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
         return;
       }
     }
@@ -338,7 +338,7 @@ export class SelectionPlugin extends BasePlugin {
     result = expand(union(currentZone, zoneWithDelta));
     if (!isEqual(result, lastZone)) {
       zones[zones.length - 1] = result;
-      this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
+      this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
     }
   }
 
@@ -352,7 +352,7 @@ export class SelectionPlugin extends BasePlugin {
       bottom: Math.max(anchorRow, row)
     };
     const zones = selection.zones.slice(0, -1).concat(zone);
-    this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
+    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
   }
 
   private updateSelection() {
@@ -366,19 +366,19 @@ export class SelectionPlugin extends BasePlugin {
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
-    this.dispatch({ type: "SET_SELECTION", zones, anchor: [anchorCol, anchorRow] });
+    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
   }
 
   private onAddColumns(column: number, quantity: number) {
     let start = column + quantity;
     const zone = this.getters.getColsZone(start, start + quantity - 1);
-    this.dispatch({ type: "SET_SELECTION", zones: [zone], anchor: [start, 0], strict: true });
+    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [start, 0], strict: true });
   }
 
   private onAddRows(row: number, quantity: number) {
     const start = row + quantity;
     const zone = this.getters.getRowsZone(start, start + quantity - 1);
-    this.dispatch({ type: "SET_SELECTION", zones: [zone], anchor: [0, start], strict: true });
+    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, start], strict: true });
   }
 
   // ---------------------------------------------------------------------------

@@ -7,22 +7,22 @@ describe("sheets", () => {
     expect(model.workbook.sheets.length).toBe(1);
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.dispatch({ type: "CREATE_SHEET" });
+    model.dispatch("CREATE_SHEET");
     expect(model.workbook.sheets.length).toBe(2);
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
 
-    model.dispatch({ type: "UNDO" });
+    model.dispatch("UNDO");
     expect(model.workbook.sheets.length).toBe(1);
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.dispatch({ type: "REDO" });
+    model.dispatch("REDO");
     expect(model.workbook.sheets.length).toBe(2);
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
   });
 
   test("Can create a new sheet with given size and name", () => {
     const model = new Model();
-    model.dispatch({ type: "CREATE_SHEET", rows: 2, cols: 4, name: "SheetTest" });
+    model.dispatch("CREATE_SHEET", { rows: 2, cols: 4, name: "SheetTest" });
     expect(model.workbook.activeSheet.colNumber).toBe(4);
     expect(model.workbook.activeSheet.cols.length).toBe(4);
     expect(model.workbook.activeSheet.rowNumber).toBe(2);
@@ -33,15 +33,15 @@ describe("sheets", () => {
   test("Cannot create a sheet with a name already existent", () => {
     const model = new Model();
     const name = model.workbook.activeSheet.name;
-    expect(model.dispatch({ type: "CREATE_SHEET", name })).toBe("CANCELLED");
+    expect(model.dispatch("CREATE_SHEET", { name })).toBe("CANCELLED");
   });
 
   test("can read a value in same sheet", () => {
     const model = new Model();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
-    model.dispatch({ type: "SET_VALUE", xc: "A2", text: "=Sheet1!A1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=Sheet1!A1" });
 
     expect(model.workbook.cells.A2.value).toBe(3);
   });
@@ -50,16 +50,16 @@ describe("sheets", () => {
     const model = new Model();
     expect(model.workbook.activeSheet.name).toBe("Sheet1");
 
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "3" });
-    model.dispatch({ type: "CREATE_SHEET" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    model.dispatch("CREATE_SHEET");
     expect(model.workbook.activeSheet.name).toBe("Sheet2");
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=Sheet1!A1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=Sheet1!A1" });
     expect(model.workbook.cells.A1.value).toBe(3);
   });
 
   test("throw if invalid sheet name", () => {
     const model = new Model();
-    model.dispatch({ type: "SET_VALUE", xc: "A1", text: "=Sheet133!A1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=Sheet133!A1" });
 
     expect(model.workbook.cells.A1.value).toBe("#ERROR");
   });

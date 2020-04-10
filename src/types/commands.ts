@@ -363,3 +363,5 @@ export interface CommandHandler {
   handle(command: GridCommand): void;
   finalize(command: GridCommand): void;
 }
+
+export type CommandTypes = GridCommand["type"];

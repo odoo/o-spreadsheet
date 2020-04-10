@@ -140,8 +140,7 @@ export class FormattingPlugin extends BasePlugin {
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
-    this.dispatch({
-      type: "UPDATE_CELL",
+    this.dispatch("UPDATE_CELL", {
       sheet: this.workbook.activeSheet.name,
       col,
       row,
@@ -175,8 +174,7 @@ export class FormattingPlugin extends BasePlugin {
       const cell = this.getters.getCell(col, row);
       const current = (cell && cell.border) || 0;
       if (current !== borderId) {
-        this.dispatch({
-          type: "UPDATE_CELL",
+        this.dispatch("UPDATE_CELL", {
           sheet: sheet,
           col,
           row,
@@ -317,8 +315,7 @@ export class FormattingPlugin extends BasePlugin {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch({
-            type: "UPDATE_CELL",
+          this.dispatch("UPDATE_CELL", {
             sheet: this.workbook.activeSheet.name,
             col,
             row,
@@ -338,8 +335,7 @@ export class FormattingPlugin extends BasePlugin {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
-          this.dispatch({
-            type: "UPDATE_CELL",
+          this.dispatch("UPDATE_CELL", {
             sheet,
             col,
             row,
@@ -395,8 +391,7 @@ export class FormattingPlugin extends BasePlugin {
       }
       if (Object.keys(format).length !== 0) {
         for (let i = index; i < end; i++) {
-          this.dispatch({
-            type: "UPDATE_CELL",
+          this.dispatch("UPDATE_CELL", {
             sheet: this.workbook.activeSheet.name,
             col: isColumn ? i : x,
             row: isColumn ? x : i,

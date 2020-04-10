@@ -134,7 +134,7 @@ export class Spreadsheet extends Component<Props> {
     }
     const type = cut ? "CUT" : "COPY";
     const target = this.model.getters.getSelectedZones();
-    this.model.dispatch({ type, target });
+    this.model.dispatch(type, { target });
     const content = this.model.getters.getClipboardContent();
     this.clipBoardString = content;
     ev.clipboardData!.setData("text/plain", content);
@@ -150,8 +150,7 @@ export class Spreadsheet extends Component<Props> {
       const content = clipboardData.getData("text/plain");
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        const result = this.model.dispatch({
-          type: "PASTE",
+        const result = this.model.dispatch("PASTE", {
           target: this.model.getters.getSelectedZones()
         });
         if (result === "CANCELLED") {
@@ -160,8 +159,7 @@ export class Spreadsheet extends Component<Props> {
           });
         }
       } else {
-        this.model.dispatch({
-          type: "PASTE_FROM_OS_CLIPBOARD",
+        this.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
           target: this.model.getters.getSelectedZones(),
           text: content
         });

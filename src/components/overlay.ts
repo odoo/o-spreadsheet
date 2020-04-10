@@ -280,8 +280,7 @@ export class ColResizer extends AbstractResizer {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
     const cols = this.model.getters.getActiveCols();
-    this.model.dispatch({
-      type: "RESIZE_COLUMNS",
+    this.model.dispatch("RESIZE_COLUMNS", {
       sheet: this.model.state.activeSheet,
       cols: cols.has(index) ? [...cols] : [index],
       size
@@ -289,17 +288,16 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.dispatch({ type: "SELECT_COLUMN", index, createRange: ctrlKey });
+    this.model.dispatch("SELECT_COLUMN", { index, createRange: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
-    this.model.dispatch({ type: "SELECT_COLUMN", index, updateRange: true });
+    this.model.dispatch("SELECT_COLUMN", { index, updateRange: true });
   }
 
   _fitElementSize(index: number): void {
     const cols = this.model.getters.getActiveCols();
-    this.model.dispatch({
-      type: "AUTORESIZE_COLUMNS",
+    this.model.dispatch("AUTORESIZE_COLUMNS", {
       sheet: this.model.state.activeSheet,
       cols: cols.has(index) ? [...cols] : [index]
     });
@@ -414,8 +412,7 @@ export class RowResizer extends AbstractResizer {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
     const rows = this.model.getters.getActiveRows();
-    this.model.dispatch({
-      type: "RESIZE_ROWS",
+    this.model.dispatch("RESIZE_ROWS", {
       sheet: this.model.state.activeSheet,
       rows: rows.has(index) ? [...rows] : [index],
       size
@@ -423,17 +420,16 @@ export class RowResizer extends AbstractResizer {
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.dispatch({ type: "SELECT_ROW", index, createRange: ctrlKey });
+    this.model.dispatch("SELECT_ROW", { index, createRange: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
-    this.model.dispatch({ type: "SELECT_ROW", index, updateRange: true });
+    this.model.dispatch("SELECT_ROW", { index, updateRange: true });
   }
 
   _fitElementSize(index: number): void {
     const rows = this.model.getters.getActiveRows();
-    this.model.dispatch({
-      type: "AUTORESIZE_ROWS",
+    this.model.dispatch("AUTORESIZE_ROWS", {
       sheet: this.model.state.activeSheet,
       rows: rows.has(index) ? [...rows] : [index]
     });
@@ -481,6 +477,6 @@ export class Overlay extends Component<any, any> {
   model: Model = this.props.model;
 
   selectAll() {
-    this.model.dispatch({ type: "SELECT_ALL" });
+    this.model.dispatch("SELECT_ALL");
   }
 }

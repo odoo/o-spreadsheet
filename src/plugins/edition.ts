@@ -26,8 +26,7 @@ export class EditionPlugin extends BasePlugin {
         break;
       case "START_COMPOSER_SELECTION":
         this.mode = "selecting";
-        this.dispatch({
-          type: "SET_SELECTION",
+        this.dispatch("SET_SELECTION", {
           zones: this.getters.getSelectedZones(),
           anchor: this.getters.getPosition()
         });
@@ -121,16 +120,14 @@ export class EditionPlugin extends BasePlugin {
             content += new Array(missing).fill(")").join("");
           }
         }
-        this.dispatch({
-          type: "UPDATE_CELL",
+        this.dispatch("UPDATE_CELL", {
           sheet: this.workbook.activeSheet.name,
           col,
           row,
           content
         });
       } else {
-        this.dispatch({
-          type: "UPDATE_CELL",
+        this.dispatch("UPDATE_CELL", {
           sheet: this.workbook.activeSheet.name,
           content: "",
           col,

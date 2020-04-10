@@ -38,21 +38,21 @@ describe("Grid component", () => {
   });
 
   test("can render a sheet with a merge", async () => {
-    model.dispatch({ type: "ADD_MERGE", sheet: "Sheet1", zone: toZone("B2:B3") });
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
 
     expect(fixture.querySelector("canvas")).toBeDefined();
   });
 
   test("can click on a cell to select it", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
-    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     expect(getActiveXc(model)).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
-    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
     triggerMouseEvent(".o-overlay", "click", 300, 20);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
@@ -61,8 +61,8 @@ describe("Grid component", () => {
   });
 
   test("can shift-click on a cell to update selection", async () => {
-    model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
-    model.dispatch({ type: "SET_VALUE", xc: "B3", text: "b3" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({
       top: 0,
@@ -88,7 +88,7 @@ describe("Grid component", () => {
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
-      model.dispatch({ type: "START_EDITION", text: "a" });
+      model.dispatch("START_EDITION", { text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
@@ -99,9 +99,9 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
-      model.dispatch({ type: "SELECT_CELL", col: 0, row: 1 });
+      model.dispatch("SELECT_CELL", { col: 0, row: 1 });
       expect(getActiveXc(model)).toBe("A2");
-      model.dispatch({ type: "START_EDITION", text: "a" });
+      model.dispatch("START_EDITION", { text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
@@ -112,7 +112,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
-      model.dispatch({ type: "START_EDITION", text: "a" });
+      model.dispatch("START_EDITION", { text: "a" });
       await nextTick();
       fixture
         .querySelector("div.o-composer")!
@@ -128,15 +128,14 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
-      model.dispatch({ type: "SELECT_CELL", col: 1, row: 0 });
+      model.dispatch("SELECT_CELL", { col: 1, row: 0 });
       expect(getActiveXc(model)).toBe("B1");
       parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
     });
 
     test("can undo/redo with keyboard", async () => {
-      model.dispatch({
-        type: "SET_FORMATTING",
+      model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
         style: { fillColor: "red" }
@@ -154,8 +153,7 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
-      model.dispatch({
-        type: "SET_FORMATTING",
+      model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
         style: { fillColor: "red" }
@@ -199,16 +197,15 @@ describe("Grid component", () => {
 
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
-      model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
-      model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-      model.dispatch({
-        type: "SET_FORMATTING",
+      model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
         style: { bold: true }
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
-      model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
       triggerMouseEvent("canvas", "mousedown", 300, 200);
       expect(model.workbook.cells.C8).not.toBeDefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
@@ -216,16 +213,15 @@ describe("Grid component", () => {
     });
 
     test("can paste format with key", async () => {
-      model.dispatch({ type: "SET_VALUE", xc: "B2", text: "b2" });
-      model.dispatch({ type: "SELECT_CELL", col: 1, row: 1 });
-      model.dispatch({
-        type: "SET_FORMATTING",
+      model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
         style: { bold: true }
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
-      model.dispatch({ type: "ACTIVATE_PAINT_FORMAT", target });
+      model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
       expect(model.workbook.cells.C2).not.toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
