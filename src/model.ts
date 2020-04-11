@@ -4,19 +4,18 @@ import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { pluginRegistry } from "./plugins/index";
 import {
+  CommandDispatcher,
   CommandHandler,
-  CommandResult,
   Getters,
   GridCommand,
   UI,
   Workbook,
-  WorkbookData,
-  CommandTypes
+  WorkbookData
 } from "./types/index";
 
 export type Mode = "normal" | "headless" | "readonly";
 
-export class Model extends owl.core.EventBus {
+export class Model extends owl.core.EventBus implements CommandDispatcher {
   private handlers: CommandHandler[];
   private renderers: [BasePlugin, LAYERS][] = [];
   private status: "ready" | "running" | "finalizing" = "ready";
@@ -75,14 +74,7 @@ export class Model extends owl.core.EventBus {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
-    type: {} extends Omit<C, "type"> ? T : never
-  ): CommandResult;
-  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
-    type: T,
-    r: Omit<C, "type">
-  ): CommandResult;
-  dispatch(type: string, payload?: any): CommandResult {
+  dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: GridCommand = Object.assign({ type }, payload);
     switch (this.status) {
       case "ready":
@@ -115,7 +107,7 @@ export class Model extends owl.core.EventBus {
         throw new Error("Nope. Don't do that");
     }
     return "COMPLETED";
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Grid Rendering

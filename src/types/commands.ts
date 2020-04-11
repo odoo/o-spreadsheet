@@ -364,4 +364,14 @@ export interface CommandHandler {
   finalize(command: GridCommand): void;
 }
 
+export interface CommandDispatcher {
+  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
+    type: {} extends Omit<C, "type"> ? T : never
+  ): CommandResult;
+  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): CommandResult;
+}
+
 export type CommandTypes = GridCommand["type"];

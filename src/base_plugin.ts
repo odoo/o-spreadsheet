@@ -1,13 +1,14 @@
+import { WHistory, WorkbookHistory } from "./history";
+import { Mode } from "./model";
 import {
-  Workbook,
-  GridCommand,
+  CommandDispatcher,
+  CommandHandler,
   Getters,
-  WorkbookData,
+  GridCommand,
   Viewport,
-  CommandHandler
+  Workbook,
+  WorkbookData
 } from "./types/index";
-import { WorkbookHistory, WHistory } from "./history";
-import { Mode, Model } from "./model";
 
 /**
  * BasePlugin
@@ -34,8 +35,6 @@ export const enum LAYERS {
   Headers
 }
 
-type DispatchFn = Model["dispatch"];
-
 export class BasePlugin implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
@@ -44,14 +43,14 @@ export class BasePlugin implements CommandHandler {
   workbook: Workbook;
   getters: Getters;
   history: WorkbookHistory;
-  dispatch: DispatchFn;
+  dispatch: CommandDispatcher["dispatch"];
   currentMode: Mode;
 
   constructor(
     workbook: Workbook,
     getters: Getters,
     history: WHistory,
-    dispatch: DispatchFn,
+    dispatch: CommandDispatcher["dispatch"],
     mode: Mode
   ) {
     this.workbook = workbook;
