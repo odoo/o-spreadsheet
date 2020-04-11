@@ -44,7 +44,7 @@ describe("styles", () => {
     });
     expect(model.workbook.cells.B1.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.B1.content).toBe("b1");
@@ -61,7 +61,7 @@ describe("styles", () => {
     });
     expect(model.workbook.cells.B1.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.B1).not.toBeDefined();
@@ -78,7 +78,7 @@ describe("styles", () => {
     });
     expect(model.workbook.cells.B1.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.B1.style).not.toBeDefined();

@@ -374,7 +374,7 @@ export class TopBar extends Component<any, any> {
   useTool(tool, value) {
     const style = { [tool]: value };
     this.model.dispatch("SET_FORMATTING", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       target: this.model.getters.getSelectedZones(),
       style
     });
@@ -396,7 +396,6 @@ export class TopBar extends Component<any, any> {
   }
 
   updateCellState() {
-    const state = this.model.state;
     this.style = this.model.getters.getCurrentStyle();
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
@@ -405,8 +404,9 @@ export class TopBar extends Component<any, any> {
     this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
     this.inMerge = false;
     if (!this.cannotMerge) {
-      const mergeId = state.mergeCellMap[state.activeXc];
-      this.inMerge = mergeId ? isEqual(zones[0], state.merges[mergeId]) : false;
+      const [col, row] = this.model.getters.getPosition();
+      const zone = this.model.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+      this.inMerge = isEqual(zones[0], zone);
     }
     this.undoTool = this.model.getters.canUndo();
     this.redoTool = this.model.getters.canRedo();
@@ -423,7 +423,7 @@ export class TopBar extends Component<any, any> {
   toggleMerge() {
     const zones = this.model.getters.getSelectedZones();
     const zone = zones[zones.length - 1];
-    const sheet = this.model.state.activeSheet;
+    const sheet = this.model.getters.getActiveSheet();
     if (this.inMerge) {
       this.model.dispatch("REMOVE_MERGE", { sheet, zone });
     } else {
@@ -442,7 +442,7 @@ export class TopBar extends Component<any, any> {
     if (color) {
       const style = { [target]: color };
       this.model.dispatch("SET_FORMATTING", {
-        sheet: this.model.state.activeSheet,
+        sheet: this.model.getters.getActiveSheet(),
         target: this.model.getters.getSelectedZones(),
         style
       });
@@ -451,7 +451,7 @@ export class TopBar extends Component<any, any> {
   }
   setBorder(command) {
     this.model.dispatch("SET_FORMATTING", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       target: this.model.getters.getSelectedZones(),
       border: command
     });
@@ -462,7 +462,7 @@ export class TopBar extends Component<any, any> {
       const formatter = FORMATS.find(f => f.name === format);
       const value = (formatter && formatter.value) || "";
       this.model.dispatch("SET_FORMATTER", {
-        sheet: this.model.state.activeSheet,
+        sheet: this.model.getters.getActiveSheet(),
         target: this.model.getters.getSelectedZones(),
         formatter: value
       });
@@ -475,14 +475,14 @@ export class TopBar extends Component<any, any> {
   }
   clearFormatting() {
     this.model.dispatch("CLEAR_FORMATTING", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       target: this.model.getters.getSelectedZones()
     });
   }
   setSize(ev) {
     const fontSize = parseFloat(ev.target.dataset.size);
     this.model.dispatch("SET_FORMATTING", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       target: this.model.getters.getSelectedZones(),
       style: { fontSize }
     });

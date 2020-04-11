@@ -55,7 +55,7 @@ describe("Model resizer", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET");
 
-    expect(model.state.activeSheet).toBe("Sheet2");
+    expect(model.getters.getActiveSheet()).toBe("Sheet2");
 
     model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet2",

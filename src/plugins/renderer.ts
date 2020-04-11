@@ -8,7 +8,7 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, Rect, UI, Zone, Viewport } from "../types/index";
+import { Box, Rect, Zone, Viewport } from "../types/index";
 import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ function computeAlign(type: string): "right" | "center" | "left" {
 
 export class RendererPlugin extends BasePlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
-  static getters = ["getUI", "getCol", "getRow", "getRect", "getAdjustedViewport"];
+  static getters = ["getColIndex", "getRowIndex", "getRect", "getAdjustedViewport"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private boxes: Box[] = [];
@@ -37,24 +37,11 @@ export class RendererPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getUI(): UI {
-    const [col, row] = this.getters.getPosition();
-    return {
-      rows: this.workbook.rows,
-      cols: this.workbook.cols,
-      merges: this.workbook.merges,
-      mergeCellMap: this.workbook.mergeCellMap,
-      activeXc: toXC(col, row),
-      sheets: this.workbook.sheets.map(s => s.name),
-      activeSheet: this.workbook.activeSheet.name
-    };
-  }
-
   /**
    * Return the index of a column given an offset x and a visible left col index.
    * It returns -1 if no column is found.
    */
-  getCol(x: number, left: number): number {
+  getColIndex(x: number, left: number): number {
     if (x < HEADER_WIDTH) {
       return -1;
     }
@@ -68,7 +55,7 @@ export class RendererPlugin extends BasePlugin {
     return -1;
   }
 
-  getRow(y: number, top: number): number {
+  getRowIndex(y: number, top: number): number {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
@@ -129,8 +116,8 @@ export class RendererPlugin extends BasePlugin {
       return viewport;
     }
     const { width, height, offsetX, offsetY } = viewport;
-    const top = this.getRow(offsetY + HEADER_HEIGHT, 0);
-    const left = this.getCol(offsetX + HEADER_WIDTH, 0);
+    const top = this.getRowIndex(offsetY + HEADER_HEIGHT, 0);
+    const left = this.getColIndex(offsetX + HEADER_WIDTH, 0);
     const x = width + offsetX - HEADER_WIDTH;
     let right = cols.length - 1;
     for (let i = left; i < cols.length; i++) {

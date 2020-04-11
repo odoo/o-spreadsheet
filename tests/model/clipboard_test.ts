@@ -134,7 +134,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
       border: "bottom"
     });
@@ -152,7 +152,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "0.451" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
       formatter: "0.00%"
     });

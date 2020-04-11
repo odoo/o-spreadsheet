@@ -17,6 +17,10 @@ export interface Getters {
   getCell: CorePlugin["getCell"];
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
+  getActiveSheet: CorePlugin["getActiveSheet"];
+  getSheets: CorePlugin["getSheets"];
+  getCol: CorePlugin["getCol"];
+  getRow: CorePlugin["getRow"];
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
   getCellWidth: FormattingPlugin["getCellWidth"];
@@ -38,9 +42,8 @@ export interface Getters {
   getAggregate: SelectionPlugin["getAggregate"];
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
-  getUI: RendererPlugin["getUI"];
-  getCol: RendererPlugin["getCol"];
-  getRow: RendererPlugin["getRow"];
+  getColIndex: RendererPlugin["getColIndex"];
+  getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
   getAdjustedViewport: RendererPlugin["getAdjustedViewport"];
   isMergeDestructive: GridPlugin["isMergeDestructive"];

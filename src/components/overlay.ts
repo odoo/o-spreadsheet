@@ -249,11 +249,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getters.getCol(index, this.props.viewport.left);
+    return this.model.getters.getColIndex(index, this.props.viewport.left);
   }
 
   _getElement(index: number): Col {
-    return this.model.state.cols[index];
+    return this.model.getters.getCol(index);
   }
 
   _getElementSize(index: number): number {
@@ -281,7 +281,7 @@ export class ColResizer extends AbstractResizer {
     const size = this.state.delta + this._getElementSize(index);
     const cols = this.model.getters.getActiveCols();
     this.model.dispatch("RESIZE_COLUMNS", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       cols: cols.has(index) ? [...cols] : [index],
       size
     });
@@ -298,7 +298,7 @@ export class ColResizer extends AbstractResizer {
   _fitElementSize(index: number): void {
     const cols = this.model.getters.getActiveCols();
     this.model.dispatch("AUTORESIZE_COLUMNS", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       cols: cols.has(index) ? [...cols] : [index]
     });
   }
@@ -381,11 +381,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getters.getRow(index, this.props.viewport.top);
+    return this.model.getters.getRowIndex(index, this.props.viewport.top);
   }
 
   _getElement(index: number): Row {
-    return this.model.state.rows[index];
+    return this.model.getters.getRow(index);
   }
 
   _getElementSize(index: number): number {
@@ -413,7 +413,7 @@ export class RowResizer extends AbstractResizer {
     const size = this.state.delta + this._getElementSize(index);
     const rows = this.model.getters.getActiveRows();
     this.model.dispatch("RESIZE_ROWS", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       rows: rows.has(index) ? [...rows] : [index],
       size
     });
@@ -430,7 +430,7 @@ export class RowResizer extends AbstractResizer {
   _fitElementSize(index: number): void {
     const rows = this.model.getters.getActiveRows();
     this.model.dispatch("AUTORESIZE_ROWS", {
-      sheet: this.model.state.activeSheet,
+      sheet: this.model.getters.getActiveSheet(),
       rows: rows.has(index) ? [...rows] : [index]
     });
   }

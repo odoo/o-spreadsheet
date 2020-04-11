@@ -4,6 +4,7 @@ import { SCROLLBAR_WIDTH } from "../constants";
 import { Cell } from "../types";
 import { SpreadsheetEnv } from "./spreadsheet";
 import { Registry } from "../registry";
+import { toXC } from "../helpers/index";
 
 const { xml, css } = tags;
 
@@ -65,7 +66,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     name: "clear_cell",
     description: "Clear cell",
     action(model: Model) {
-      model.dispatch("SET_VALUE", { xc: model.state.activeXc, text: "" });
+      model.dispatch("SET_VALUE", { xc: toXC(...model.getters.getPosition()), text: "" });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "CELL";
@@ -90,7 +91,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       const columns = model.getters.getActiveCols();
       model.dispatch("REMOVE_COLUMNS", {
         columns: [...columns],
-        sheet: model.state.activeSheet
+        sheet: model.getters.getActiveSheet()
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -107,7 +108,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       );
       model.dispatch("DELETE_CONTENT", {
         target,
-        sheet: model.state.activeSheet
+        sheet: model.getters.getActiveSheet()
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -122,7 +123,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       const column = Math.min(...model.getters.getActiveCols());
       const quantity = model.getters.getActiveCols().size;
       model.dispatch("ADD_COLUMNS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         position: "before",
         column,
         quantity
@@ -140,7 +141,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       const column = Math.max(...model.getters.getActiveCols());
       const quantity = model.getters.getActiveCols().size;
       model.dispatch("ADD_COLUMNS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         position: "after",
         column,
         quantity
@@ -156,7 +157,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     description: "Delete row(s)",
     action(model) {
       const rows = model.getters.getActiveRows();
-      model.dispatch("REMOVE_ROWS", { sheet: model.state.activeSheet, rows: [...rows] });
+      model.dispatch("REMOVE_ROWS", { sheet: model.getters.getActiveSheet(), rows: [...rows] });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "ROW";
@@ -172,7 +173,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       );
       model.dispatch("DELETE_CONTENT", {
         target,
-        sheet: model.state.activeSheet
+        sheet: model.getters.getActiveSheet()
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -187,7 +188,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       const row = Math.min(...model.getters.getActiveRows());
       const quantity = model.getters.getActiveRows().size;
       model.dispatch("ADD_ROWS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         position: "before",
         row,
         quantity
@@ -205,7 +206,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       const row = Math.max(...model.getters.getActiveRows());
       const quantity = model.getters.getActiveRows().size;
       model.dispatch("ADD_ROWS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         position: "after",
         row,
         quantity

@@ -8,7 +8,6 @@ import {
   CommandHandler,
   Getters,
   GridCommand,
-  UI,
   Workbook,
   WorkbookData
 } from "./types/index";
@@ -22,7 +21,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   workbook: Workbook;
   history: WHistory;
-  state: UI;
   mode: Mode;
 
   getters: Getters;
@@ -47,8 +45,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.setupPlugin(Plugin, workbookData);
     }
 
-    // misc
-    this.state = {} as UI;
+    // starting plugins
     this.dispatch("START");
   }
 
@@ -96,7 +93,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         this.status = "ready";
         if (this.mode !== "headless") {
-          Object.assign(this.state, this.getters.getUI());
           this.trigger("update");
         }
         break;

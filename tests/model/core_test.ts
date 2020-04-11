@@ -64,7 +64,7 @@ describe("core", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
       border: "bottom"
     });
@@ -162,7 +162,7 @@ describe("history", () => {
     expect(model.workbook.cells.A2.content).toBe("3");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.A2).not.toBeDefined();

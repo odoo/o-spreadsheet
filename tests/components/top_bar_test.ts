@@ -175,7 +175,7 @@ describe("TopBar component", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
       border: "all"
     });

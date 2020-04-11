@@ -35,7 +35,7 @@ describe("edition", () => {
     expect(model.workbook.cells["A2"].content).toBe("a2");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect("A2" in model.workbook.cells).toBeTruthy();
