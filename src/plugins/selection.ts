@@ -36,7 +36,7 @@ export class SelectionPlugin extends BasePlugin {
   private activeXc: string = "A1";
   private sheetsData: { [sheet: string]: SheetInfo } = {};
 
-  canDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
       const [refCol, refRow] = this.getReferenceCoords();
       const { cols, rows } = this.workbook;

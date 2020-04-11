@@ -79,7 +79,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     switch (this.status) {
       case "ready":
         for (let handler of this.handlers) {
-          let result = handler.canDispatch(command);
+          let result = handler.allowDispatch(command);
           if (!result) {
             return "CANCELLED";
           }

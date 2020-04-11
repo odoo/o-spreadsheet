@@ -49,7 +49,7 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     return this.redoStack.length > 0;
   }
 
-  canDispatch() {
+  allowDispatch() {
     return true;
   }
 

@@ -28,7 +28,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 export class CorePlugin extends BasePlugin {
   static getters = ["getCell", "getCellText", "zoneToXC"];
 
-  canDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: GridCommand): boolean {
     switch (cmd.type) {
       case "CREATE_SHEET":
         return !cmd.name || this.workbook.sheets.findIndex(sheet => sheet.name === cmd.name) === -1;

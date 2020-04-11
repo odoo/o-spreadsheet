@@ -24,7 +24,7 @@ export class ClipboardPlugin extends BasePlugin {
   private _isPaintingFormat: boolean = false;
   onlyFormat: boolean = false;
 
-  canDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: GridCommand): boolean {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 

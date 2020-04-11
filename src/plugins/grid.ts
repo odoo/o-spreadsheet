@@ -41,7 +41,7 @@ export class GridPlugin extends BasePlugin {
   // Actions
   // ---------------------------------------------------------------------------
 
-  canDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: GridCommand): boolean {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
         return this.workbook.cols.length > cmd.columns.length;
