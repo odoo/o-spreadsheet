@@ -12,17 +12,15 @@ import { Mode } from "../model";
  */
 export class ClipboardPlugin extends BasePlugin {
   static layers = [LAYERS.Clipboard];
-
   static getters = ["getClipboardContent", "isPaintingFormat"];
-
   static modes: Mode[] = ["normal", "readonly"];
 
   private status: "empty" | "visible" | "invisible" = "empty";
-  shouldCut?: boolean;
-  zones: Zone[] = [];
-  cells?: (Cell | null)[][];
+  private shouldCut?: boolean;
+  private zones: Zone[] = [];
+  private cells?: (Cell | null)[][];
   private _isPaintingFormat: boolean = false;
-  onlyFormat: boolean = false;
+  private onlyFormat: boolean = false;
 
   allowDispatch(cmd: GridCommand): boolean {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;

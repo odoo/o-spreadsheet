@@ -4,7 +4,11 @@ import { BasePlugin } from "../base_plugin";
 export class EntityPlugin extends BasePlugin {
   static getters = ["getEntity", "getEntities"];
 
-  entities: { [kind: string]: { [key: string]: any } } = {};
+  private entities: { [kind: string]: { [key: string]: any } } = {};
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -23,6 +27,10 @@ export class EntityPlugin extends BasePlugin {
         break;
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
 
   getEntity(kind: string, key: string): any {
     if (!(kind in this.entities) || !(key in this.entities[kind])) {

@@ -40,11 +40,11 @@ export class BasePlugin implements CommandHandler {
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
-  workbook: Workbook;
-  getters: Getters;
-  history: WorkbookHistory;
-  dispatch: CommandDispatcher["dispatch"];
-  currentMode: Mode;
+  protected workbook: Workbook;
+  protected getters: Getters;
+  protected history: WorkbookHistory;
+  protected dispatch: CommandDispatcher["dispatch"];
+  protected currentMode: Mode;
 
   constructor(
     workbook: Workbook,

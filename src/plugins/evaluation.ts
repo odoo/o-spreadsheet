@@ -13,15 +13,13 @@ type Range = (v1: string, v2: string, sheetName: string) => any[];
 type FormulaParameters = [ReadCell, Range, EvalContext];
 
 export class EvaluationPlugin extends BasePlugin {
-  private isStale: boolean = true;
-
-  private loadingCells: number = 0;
-
-  private isStarted: boolean = false;
-
   static getters = ["evaluateFormula"];
-
   static modes: Mode[] = ["normal", "readonly"];
+
+  private isStale: boolean = true;
+  private loadingCells: number = 0;
+  private isStarted: boolean = false;
+  private cache: { [key: string]: Function } = {};
 
   /**
    * For all cells that are being currently computed (asynchronously).
@@ -51,7 +49,9 @@ export class EvaluationPlugin extends BasePlugin {
    */
   private COMPUTED: Set<Cell> = new Set();
 
-  cache: { [key: string]: Function } = {};
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -85,6 +85,23 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
+  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.name): any {
+    const cacheKey = `${sheet}#${formula}`;
+    let compiledFormula;
+    if (cacheKey in this.cache) {
+      compiledFormula = this.cache[cacheKey];
+    } else {
+      compiledFormula = compile(formula, sheet);
+      this.cache[cacheKey] = compiledFormula;
+    }
+    const params = this.getFormulaParameters(() => {});
+    return compiledFormula(...params);
+  }
+
+  // ---------------------------------------------------------------------------
   // Scheduler
   // ---------------------------------------------------------------------------
 
@@ -114,19 +131,6 @@ export class EvaluationPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Evaluator
   // ---------------------------------------------------------------------------
-
-  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.name): any {
-    const cacheKey = `${sheet}#${formula}`;
-    let compiledFormula;
-    if (cacheKey in this.cache) {
-      compiledFormula = this.cache[cacheKey];
-    } else {
-      compiledFormula = compile(formula, sheet);
-      this.cache[cacheKey] = compiledFormula;
-    }
-    const params = this.getFormulaParameters(() => {});
-    return compiledFormula(...params);
-  }
 
   private evaluateCells(onlyWaiting: boolean = false) {
     const { COMPUTED, PENDING, WAITING } = this;

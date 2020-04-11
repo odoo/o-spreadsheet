@@ -33,12 +33,12 @@ export class GridPlugin extends BasePlugin {
     "getGridSize"
   ];
 
-  nextId: number = 1;
+  private nextId: number = 1;
   private width: number = 0;
   private height: number = 0;
 
   // ---------------------------------------------------------------------------
-  // Actions
+  // Command Handling
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: GridCommand): boolean {
