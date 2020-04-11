@@ -66,7 +66,7 @@ export class BasePlugin implements CommandHandler {
   // Command handling
   // ---------------------------------------------------------------------------
 
-  canDispatch(command: GridCommand): boolean {
+  allowDispatch(command: GridCommand): boolean {
     return true;
   }
 
