@@ -13,7 +13,7 @@ import {
 import { BasePlugin } from "../base_plugin";
 
 // -----------------------------------------------------------------------------
-// Constants
+// Constants / Types / Helpers
 // -----------------------------------------------------------------------------
 
 const commandToSides = {
@@ -36,6 +36,21 @@ type FormatInfo = {
   format?: string;
 };
 
+function getTargetZone(zone: Zone, side: string): Zone {
+  const { left, right, top, bottom } = zone;
+  switch (side) {
+    case "left":
+      return { left, top, right: left, bottom };
+    case "top":
+      return { left, top, right, bottom: top };
+    case "right":
+      return { left: right, top, right, bottom };
+    case "bottom":
+      return { left, top: bottom, right, bottom };
+  }
+  return zone;
+}
+
 /**
  * Formatting plugin.
  *
@@ -54,12 +69,12 @@ export class FormattingPlugin extends BasePlugin {
   ];
   private ctx = document.createElement("canvas").getContext("2d")!;
 
-  styles: { [key: number]: Style } = {};
-  borders: { [key: number]: Border } = {};
-  nextId: number = 1;
+  private styles: { [key: number]: Style } = {};
+  private borders: { [key: number]: Border } = {};
+  private nextId: number = 1;
 
   // ---------------------------------------------------------------------------
-  // Actions
+  // Command Handling
   // ---------------------------------------------------------------------------
 
   handle(cmd: GridCommand) {
@@ -91,6 +106,10 @@ export class FormattingPlugin extends BasePlugin {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
   getCellWidth(cell: Cell): number {
     const style = this.styles[cell.style || 0];
     const italic = style.italic ? "italic " : "";
@@ -116,16 +135,16 @@ export class FormattingPlugin extends BasePlugin {
     return cell.border ? this.borders[cell.border] : null;
   }
 
-  // ---------------------------------------------------------------------------
-  // Styles
-  // ---------------------------------------------------------------------------
-
   getCurrentStyle(): Style {
     const cell = this.getters.getActiveCell();
     return cell && cell.style ? this.styles[cell.style] : {};
   }
 
-  setStyle(sheet: string, target: Zone[], style: Style) {
+  // ---------------------------------------------------------------------------
+  // Styles
+  // ---------------------------------------------------------------------------
+
+  private setStyle(sheet: string, target: Zone[], style: Style) {
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
@@ -163,7 +182,8 @@ export class FormattingPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Borders
   // ---------------------------------------------------------------------------
-  setBorder(sheet: string, zones: Zone[], command: BorderCommand) {
+
+  private setBorder(sheet: string, zones: Zone[], command: BorderCommand) {
     // this object aggregate the desired final border command for a cell
     const borderMap: { [xc: string]: number } = {};
     for (let zone of zones) {
@@ -183,7 +203,8 @@ export class FormattingPlugin extends BasePlugin {
       }
     }
   }
-  aggregateBorderCommands(
+
+  private aggregateBorderCommands(
     sheet: string,
     zone: Zone,
     command: BorderCommand,
@@ -236,7 +257,12 @@ export class FormattingPlugin extends BasePlugin {
     }
   }
 
-  clearBorder(sheet: string, col: number, row: number, borderMap: { [xc: string]: number }) {
+  private clearBorder(
+    sheet: string,
+    col: number,
+    row: number,
+    borderMap: { [xc: string]: number }
+  ) {
     const cell = this.getters.getCell(col, row);
     const xc = cell ? cell.xc : toXC(col, row);
     borderMap[xc] = 0;
@@ -349,8 +375,9 @@ export class FormattingPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Grid Manipulation
   // ---------------------------------------------------------------------------
+
   /**
-   * this function computes the style/border of a row/col based on the neighbours.
+   * This function computes the style/border of a row/col based on the neighbours.
    *
    * @param index the index of the row/col of which we will change the style
    * @param isColumn true if element is a column, false if row
@@ -403,6 +430,7 @@ export class FormattingPlugin extends BasePlugin {
       }
     }
   }
+
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    *
@@ -452,19 +480,4 @@ export class FormattingPlugin extends BasePlugin {
     data.styles = this.styles;
     data.borders = this.borders;
   }
-}
-
-function getTargetZone(zone: Zone, side: string): Zone {
-  const { left, right, top, bottom } = zone;
-  switch (side) {
-    case "left":
-      return { left, top, right: left, bottom };
-    case "top":
-      return { left, top, right, bottom: top };
-    case "right":
-      return { left: right, top, right, bottom };
-    case "bottom":
-      return { left, top: bottom, right, bottom };
-  }
-  return zone;
 }

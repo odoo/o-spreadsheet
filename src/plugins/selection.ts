@@ -1,8 +1,13 @@
 import { isEqual, toXC, union, clip } from "../helpers/index";
 import { BasePlugin, GridRenderingContext, LAYERS } from "../base_plugin";
-import { GridCommand, Zone, Cell, Selection } from "../types/index";
+import { GridCommand, Zone, Cell } from "../types/index";
 import { formatNumber } from "../formatters";
 import { Mode } from "../model";
+
+export interface Selection {
+  anchor: [number, number];
+  zones: Zone[];
+}
 
 interface SheetInfo {
   selection: Selection;
@@ -10,11 +15,13 @@ interface SheetInfo {
   activeRow: number;
   activeXc: string;
 }
+
 /**
  * SelectionPlugin
  */
 export class SelectionPlugin extends BasePlugin {
   static layers = [LAYERS.Selection];
+  static modes: Mode[] = ["normal", "readonly"];
   static getters = [
     "getActiveCell",
     "getActiveCols",
@@ -25,8 +32,6 @@ export class SelectionPlugin extends BasePlugin {
     "getPosition"
   ];
 
-  static modes: Mode[] = ["normal", "readonly"];
-
   private selection: Selection = {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
     anchor: [0, 0]
@@ -35,6 +40,10 @@ export class SelectionPlugin extends BasePlugin {
   private activeRow: number = 0;
   private activeXc: string = "A1";
   private sheetsData: { [sheet: string]: SheetInfo } = {};
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: GridCommand): boolean {
     if (cmd.type === "MOVE_POSITION") {
@@ -52,6 +61,9 @@ export class SelectionPlugin extends BasePlugin {
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
+      case "START":
+        this.selectCell(0, 0);
+        break;
       case "ACTIVATE_SHEET":
         this.sheetsData[cmd.from] = {
           selection: JSON.parse(JSON.stringify(this.selection)),
@@ -428,12 +440,5 @@ export class SelectionPlugin extends BasePlugin {
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Import/Export
-  // ---------------------------------------------------------------------------
-  import() {
-    this.selectCell(0, 0);
   }
 }

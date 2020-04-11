@@ -7,7 +7,6 @@ import { Mode } from "../model";
 export class EditionPlugin extends BasePlugin {
   static layers = [LAYERS.Highlights];
   static getters = ["getEditionMode", "getCurrentContent"];
-
   static modes: Mode[] = ["normal", "readonly"];
 
   private col: number = 0;
@@ -15,6 +14,10 @@ export class EditionPlugin extends BasePlugin {
   private mode: EditionMode = "inactive";
   private currentContent: string = "";
   private highlights: Highlight[] = [];
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   handle(cmd: GridCommand) {
     switch (cmd.type) {
@@ -56,6 +59,10 @@ export class EditionPlugin extends BasePlugin {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
   getEditionMode(): EditionMode {
     return this.mode;
   }
@@ -63,6 +70,10 @@ export class EditionPlugin extends BasePlugin {
   getCurrentContent(): string {
     return this.currentContent;
   }
+
+  // ---------------------------------------------------------------------------
+  // Misc
+  // ---------------------------------------------------------------------------
 
   private addHighlights(ranges: { [range: string]: string }) {
     let highlights = Object.keys(ranges)

@@ -18,10 +18,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private handlers: CommandHandler[];
   private renderers: [BasePlugin, LAYERS][] = [];
   private status: "ready" | "running" | "finalizing" = "ready";
-
+  private history: WHistory;
+  private mode: Mode;
   workbook: Workbook;
-  history: WHistory;
-  mode: Mode;
 
   getters: Getters;
 
@@ -76,21 +75,15 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     switch (this.status) {
       case "ready":
         for (let handler of this.handlers) {
-          let result = handler.allowDispatch(command);
-          if (!result) {
+          if (!handler.allowDispatch(command)) {
             return "CANCELLED";
           }
         }
         this.status = "running";
-        for (let handler of this.handlers) {
-          handler.start(command);
-        }
+        this.handlers.forEach(h => h.start(command));
         this.handlers.forEach(h => h.handle(command));
-        // finalizing
         this.status = "finalizing";
-        for (let handler of this.handlers) {
-          handler.finalize(command);
-        }
+        this.handlers.forEach(h => h.finalize(command));
         this.status = "ready";
         if (this.mode !== "headless") {
           this.trigger("update");

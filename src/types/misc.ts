@@ -8,11 +8,6 @@ export interface Zone {
   bottom: number;
 }
 
-export interface Selection {
-  anchor: [number, number];
-  zones: Zone[];
-}
-
 export interface Style {
   bold?: boolean;
   italic?: boolean;

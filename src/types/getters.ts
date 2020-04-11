@@ -21,18 +21,23 @@ export interface Getters {
   getSheets: CorePlugin["getSheets"];
   getCol: CorePlugin["getCol"];
   getRow: CorePlugin["getRow"];
+
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
+
   getCellWidth: FormattingPlugin["getCellWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
+
   getColSize: GridPlugin["getColSize"];
   getRowSize: GridPlugin["getRowSize"];
   expandZone: GridPlugin["expandZone"];
   getColsZone: GridPlugin["getColsZone"];
   getRowsZone: GridPlugin["getRowsZone"];
   getGridSize: GridPlugin["getGridSize"];
+
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
+
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
@@ -40,20 +45,26 @@ export interface Getters {
   getSelection: SelectionPlugin["getSelection"];
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
+
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
+
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
   getAdjustedViewport: RendererPlugin["getAdjustedViewport"];
+
   isMergeDestructive: GridPlugin["isMergeDestructive"];
   isInMerge: GridPlugin["isInMerge"];
   getMainCell: GridPlugin["getMainCell"];
+
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
+
   canUndo: WHistory["canUndo"];
   canRedo: WHistory["canRedo"];
+
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   getEditionMode: EditionPlugin["getEditionMode"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
