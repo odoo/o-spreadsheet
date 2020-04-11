@@ -139,18 +139,6 @@ export interface Box {
   isError?: boolean;
 }
 
-export interface UI {
-  activeXc: string;
-  sheets: string[];
-  activeSheet: string;
-
-  // to remove someday
-  rows: Row[];
-  cols: Col[];
-  merges: { [key: number]: Merge };
-  mergeCellMap: { [key: string]: number };
-}
-
 export interface Viewport extends Zone {
   width: number;
   height: number;

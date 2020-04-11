@@ -227,7 +227,7 @@ describe("conditional format", () => {
         ]
       });
       model.dispatch("REMOVE_ROWS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         rows: [1, 3]
       });
       expect(model.getters.getConditionalFormats()).toEqual([
@@ -264,7 +264,7 @@ describe("conditional format", () => {
         ]
       });
       model.dispatch("REMOVE_COLUMNS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         columns: [1, 3]
       });
       expect(model.getters.getConditionalFormats()).toEqual([
@@ -298,13 +298,13 @@ describe("conditional format", () => {
         ]
       });
       model.dispatch("ADD_COLUMNS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         column: 1,
         position: "before",
         quantity: 1
       });
       model.dispatch("ADD_COLUMNS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         column: 2,
         position: "after",
         quantity: 2
@@ -337,13 +337,13 @@ describe("conditional format", () => {
         ]
       });
       model.dispatch("ADD_ROWS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         row: 1,
         position: "before",
         quantity: 1
       });
       model.dispatch("ADD_ROWS", {
-        sheet: model.state.activeSheet,
+        sheet: model.getters.getActiveSheet(),
         row: 2,
         position: "after",
         quantity: 2

@@ -9,7 +9,7 @@ function getBorder(model: Model, xc: string) {
 
 function setBorder(model: Model, command: BorderCommand) {
   model.dispatch("SET_FORMATTING", {
-    sheet: model.state.activeSheet,
+    sheet: model.getters.getActiveSheet(),
     target: model.getters.getSelectedZones(),
     border: command
   });
@@ -243,7 +243,7 @@ describe("borders", () => {
 
     expect(model.workbook.cells.B2.border).toBeDefined();
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.B2.border).toBeDefined();
@@ -270,7 +270,7 @@ describe("borders", () => {
 
     expect(model.workbook.cells.B1.border).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.state.activeSheet,
+      sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
     expect(model.workbook.cells.B1.border).not.toBeDefined();

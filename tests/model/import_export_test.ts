@@ -9,8 +9,8 @@ describe("data", () => {
     const model = new Model();
 
     // 96 is default cell width
-    expect(model.state.cols[0].size).toEqual(DEFAULT_CELL_WIDTH);
-    expect(model.state.cols[1].size).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getCol(0).size).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getCol(1).size).toEqual(DEFAULT_CELL_WIDTH);
   });
 });
 
@@ -54,10 +54,10 @@ describe("Import", () => {
         }
       ]
     });
-    expect(model.state.cols[0].size).toBe(42);
-    expect(model.state.cols[1].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.state.rows[0].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.state.rows[1].size).toBe(13);
+    expect(model.getters.getCol(0).size).toBe(42);
+    expect(model.getters.getCol(1).size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getRow(0).size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRow(1).size).toBe(13);
   });
 
   test("Import 2 sheets with merges", () => {
@@ -79,10 +79,10 @@ describe("Import", () => {
       zone: { left: 0, top: 1, right: 5, bottom: 1 }
     });
     model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
-    expect(Object.keys(model.state.merges)).toHaveLength(0);
+    expect(Object.keys(model.workbook.merges)).toHaveLength(0);
     model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
-    expect(Object.keys(model.state.merges)).toHaveLength(1);
-    expect(Object.values(model.state.merges)[0].topLeft).toBe("A2");
+    expect(Object.keys(model.workbook.merges)).toHaveLength(1);
+    expect(Object.values(model.workbook.merges)[0].topLeft).toBe("A2");
   });
 });
 

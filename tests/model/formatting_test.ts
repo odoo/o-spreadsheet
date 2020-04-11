@@ -3,7 +3,7 @@ import "../canvas.mock";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
-    sheet: model.state.activeSheet,
+    sheet: model.getters.getActiveSheet(),
     target: model.getters.getSelectedZones(),
     formatter: format
   });

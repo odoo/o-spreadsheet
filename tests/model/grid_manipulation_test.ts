@@ -32,16 +32,16 @@ function clearRows(indexes: number[]) {
 }
 
 function removeColumns(columns: number[]) {
-  model.dispatch("REMOVE_COLUMNS", { sheet: model.state.activeSheet, columns });
+  model.dispatch("REMOVE_COLUMNS", { sheet: model.getters.getActiveSheet(), columns });
 }
 
 function removeRows(rows: number[]) {
-  model.dispatch("REMOVE_ROWS", { sheet: model.state.activeSheet, rows });
+  model.dispatch("REMOVE_ROWS", { sheet: model.getters.getActiveSheet(), rows });
 }
 
 function addColumns(column: number, position: "before" | "after", quantity: number) {
   model.dispatch("ADD_COLUMNS", {
-    sheet: model.state.activeSheet,
+    sheet: model.getters.getActiveSheet(),
     position,
     column,
     quantity
@@ -50,7 +50,7 @@ function addColumns(column: number, position: "before" | "after", quantity: numb
 
 function addRows(row: number, position: "before" | "after", quantity: number) {
   model.dispatch("ADD_ROWS", {
-    sheet: model.state.activeSheet,
+    sheet: model.getters.getActiveSheet(),
     position,
     row,
     quantity
@@ -235,7 +235,7 @@ describe("Columns", () => {
         10: { id: 10, topLeft: "B2", top: 1, bottom: 1, left: 1, right: 2 },
         11: { id: 11, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 }
       });
-      expect(model.state.mergeCellMap).toEqual({
+      expect(model.workbook.mergeCellMap).toEqual({
         A1: 9,
         B1: 9,
         C1: 9,
@@ -254,7 +254,7 @@ describe("Columns", () => {
         11: { id: 11, topLeft: "E3", top: 2, bottom: 2, left: 4, right: 6 },
         12: { id: 12, topLeft: "D4", top: 3, bottom: 3, left: 3, right: 5 }
       });
-      expect(model.state.mergeCellMap).toEqual({
+      expect(model.workbook.mergeCellMap).toEqual({
         A1: 9,
         B1: 9,
         C1: 9,
@@ -515,7 +515,7 @@ describe("Rows", () => {
         10: { id: 10, topLeft: "B2", top: 1, bottom: 2, left: 1, right: 1 },
         11: { id: 11, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 }
       });
-      expect(model.state.mergeCellMap).toEqual({
+      expect(model.workbook.mergeCellMap).toEqual({
         A1: 9,
         A2: 9,
         A3: 9,
@@ -534,7 +534,7 @@ describe("Rows", () => {
         11: { id: 11, topLeft: "C5", top: 4, bottom: 6, left: 2, right: 2 },
         12: { id: 12, topLeft: "D4", top: 3, bottom: 5, left: 3, right: 3 }
       });
-      expect(model.state.mergeCellMap).toEqual({
+      expect(model.workbook.mergeCellMap).toEqual({
         A1: 9,
         A2: 9,
         A3: 9,

@@ -7,7 +7,7 @@ import {
 } from "../constants";
 import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
-import { UI, Viewport } from "../types/index";
+import { Viewport } from "../types/index";
 import { Composer } from "./composer";
 import { ContextMenu, ContextMenuType } from "./context_menu";
 import { Overlay } from "./overlay";
@@ -120,7 +120,6 @@ export class Grid extends Component<any, any> {
   canvas = useRef("canvas");
   hasFocus = false;
   model: Model = this.props.model;
-  state: UI = this.model.state;
   gridSize: [number, number] = this.model.getters.getGridSize();
   currentPosition = this.model.getters.getPosition();
 
@@ -146,7 +145,7 @@ export class Grid extends Component<any, any> {
     F2: () => this.model.dispatch("START_EDITION"),
     DELETE: () => {
       this.model.dispatch("DELETE_CONTENT", {
-        sheet: this.state.activeSheet,
+        sheet: this.model.getters.getActiveSheet(),
         target: this.model.getters.getSelectedZones()
       });
     },
@@ -179,7 +178,6 @@ export class Grid extends Component<any, any> {
 
   async willUpdateProps() {
     this.gridSize = this.model.getters.getGridSize();
-    this.state = this.model.state;
   }
 
   patched() {
@@ -264,8 +262,8 @@ export class Grid extends Component<any, any> {
       // not main button, probably a context menu
       return;
     }
-    const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
-    const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
+    const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
+    const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
     if (col < 0 || row < 0) {
       return;
     }
@@ -281,8 +279,8 @@ export class Grid extends Component<any, any> {
     let prevCol = col;
     let prevRow = row;
     const onMouseMove = ev => {
-      const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
-      const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
+      const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
+      const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
       if (col < 0 || row < 0) {
         return;
       }
@@ -311,8 +309,8 @@ export class Grid extends Component<any, any> {
   }
 
   onDoubleClick(ev) {
-    const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
-    const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
+    const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
+    const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
     if (this.clickedCol === col && this.clickedRow === row) {
       this.model.dispatch("START_EDITION");
     }
@@ -385,8 +383,8 @@ export class Grid extends Component<any, any> {
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const col = this.model.getters.getCol(ev.offsetX, this.viewport.left);
-    const row = this.model.getters.getRow(ev.offsetY, this.viewport.top);
+    const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
+    const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
     if (col < 0 || row < 0) {
       return;
     }

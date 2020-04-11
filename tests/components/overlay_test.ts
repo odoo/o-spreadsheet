@@ -62,12 +62,10 @@ async function resizeColumn(letter: string, delta: number) {
   const x = model.workbook.cols[index].left + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
-  Object.assign(model.state, model.getters.getUI());
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
   triggerMouseEvent(window, "mousemove", x + delta, 10);
   triggerMouseEvent(window, "mouseup", x + delta, 10);
   await nextTick();
-  Object.assign(model.state, model.getters.getUI());
 }
 /**
  * Trigger a double click on a column
@@ -244,24 +242,24 @@ describe("Resizer component", () => {
     selectColumn("C");
     selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
-    const initialSize = model.state.cols[0].size;
-    expect(model.state.cols[1].size).toBe(initialSize);
-    expect(model.state.cols[2].size).toBe(1006);
-    expect(model.state.cols[3].size).toBe(1006);
-    expect(model.state.cols[4].size).toBe(initialSize);
-    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2012);
+    const initialSize = model.getters.getCol(0).size;
+    expect(model.getters.getCol(1).size).toBe(initialSize);
+    expect(model.getters.getCol(2).size).toBe(1006);
+    expect(model.getters.getCol(3).size).toBe(1006);
+    expect(model.getters.getCol(4).size).toBe(initialSize);
+    expect(model.getters.getCol(4).left).toBe(initialSize * 2 + 2012);
     model.dispatch("UNDO");
-    expect(model.state.cols[1].size).toBe(initialSize);
-    expect(model.state.cols[2].size).toBe(initialSize);
-    expect(model.state.cols[3].size).toBe(initialSize);
-    expect(model.state.cols[4].size).toBe(initialSize);
-    expect(model.state.cols[4].left).toBe(initialSize * 4);
+    expect(model.getters.getCol(1).size).toBe(initialSize);
+    expect(model.getters.getCol(2).size).toBe(initialSize);
+    expect(model.getters.getCol(3).size).toBe(initialSize);
+    expect(model.getters.getCol(4).size).toBe(initialSize);
+    expect(model.getters.getCol(4).left).toBe(initialSize * 4);
     model.dispatch("REDO");
-    expect(model.state.cols[1].size).toBe(initialSize);
-    expect(model.state.cols[2].size).toBe(1006);
-    expect(model.state.cols[3].size).toBe(1006);
-    expect(model.state.cols[4].size).toBe(initialSize);
-    expect(model.state.cols[4].left).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getCol(1).size).toBe(initialSize);
+    expect(model.getters.getCol(2).size).toBe(1006);
+    expect(model.getters.getCol(3).size).toBe(1006);
+    expect(model.getters.getCol(4).size).toBe(initialSize);
+    expect(model.getters.getCol(4).left).toBe(initialSize * 2 + 2012);
   });
 
   test("Double click: Modify the size of a row", async () => {
@@ -277,24 +275,24 @@ describe("Resizer component", () => {
     selectRow(2);
     selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
-    const initialSize = model.state.rows[0].size;
-    expect(model.state.rows[1].size).toBe(initialSize);
-    expect(model.state.rows[2].size).toBe(19);
-    expect(model.state.rows[3].size).toBe(19);
-    expect(model.state.rows[4].size).toBe(initialSize);
-    expect(model.state.rows[4].top).toBe(initialSize * 2 + 19 * 2);
+    const initialSize = model.getters.getRow(0).size;
+    expect(model.getters.getRow(1).size).toBe(initialSize);
+    expect(model.getters.getRow(2).size).toBe(19);
+    expect(model.getters.getRow(3).size).toBe(19);
+    expect(model.getters.getRow(4).size).toBe(initialSize);
+    expect(model.getters.getRow(4).top).toBe(initialSize * 2 + 19 * 2);
     model.dispatch("UNDO");
-    expect(model.state.rows[1].size).toBe(initialSize);
-    expect(model.state.rows[2].size).toBe(initialSize);
-    expect(model.state.rows[3].size).toBe(initialSize);
-    expect(model.state.rows[4].size).toBe(initialSize);
-    expect(model.state.rows[4].top).toBe(initialSize * 4);
+    expect(model.getters.getRow(1).size).toBe(initialSize);
+    expect(model.getters.getRow(2).size).toBe(initialSize);
+    expect(model.getters.getRow(3).size).toBe(initialSize);
+    expect(model.getters.getRow(4).size).toBe(initialSize);
+    expect(model.getters.getRow(4).top).toBe(initialSize * 4);
     model.dispatch("REDO");
-    expect(model.state.rows[1].size).toBe(initialSize);
-    expect(model.state.rows[2].size).toBe(19);
-    expect(model.state.rows[3].size).toBe(19);
-    expect(model.state.rows[4].size).toBe(initialSize);
-    expect(model.state.rows[4].top).toBe(initialSize * 2 + 19 * 2);
+    expect(model.getters.getRow(1).size).toBe(initialSize);
+    expect(model.getters.getRow(2).size).toBe(19);
+    expect(model.getters.getRow(3).size).toBe(19);
+    expect(model.getters.getRow(4).size).toBe(initialSize);
+    expect(model.getters.getRow(4).top).toBe(initialSize * 2 + 19 * 2);
   });
 
   test("Select B, shift D then BCD selected", () => {

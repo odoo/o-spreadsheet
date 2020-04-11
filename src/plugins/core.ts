@@ -26,7 +26,15 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
  * cell and sheet content.
  */
 export class CorePlugin extends BasePlugin {
-  static getters = ["getCell", "getCellText", "zoneToXC"];
+  static getters = [
+    "getCell",
+    "getCellText",
+    "zoneToXC",
+    "getActiveSheet",
+    "getSheets",
+    "getCol",
+    "getRow"
+  ];
 
   allowDispatch(cmd: GridCommand): boolean {
     switch (cmd.type) {
@@ -132,6 +140,22 @@ export class CorePlugin extends BasePlugin {
     }
 
     return topLeft;
+  }
+
+  getActiveSheet(): string {
+    return this.workbook.activeSheet.name;
+  }
+
+  getSheets(): string[] {
+    return this.workbook.sheets.map(s => s.name);
+  }
+
+  getCol(index: number): Col {
+    return this.workbook.cols[index];
+  }
+
+  getRow(index: number): Row {
+    return this.workbook.rows[index];
   }
 
   // ---------------------------------------------------------------------------

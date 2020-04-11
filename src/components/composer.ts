@@ -2,10 +2,9 @@ import * as owl from "@odoo/owl";
 import { fontSizeMap } from "../fonts";
 import { ComposerToken, composerTokenize, rangeReference } from "../formulas/index";
 import { Model } from "../model";
-import { Zone } from "../types/index";
+import { Rect, Zone } from "../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
-import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -104,6 +103,8 @@ export class Composer extends Component<any, any> {
 
   model: Model = this.props.model;
   zone: Zone;
+  rect: Rect;
+
   selectionEnd: number = 0;
   selectionStart: number = 0;
   contentHelper: ContentEditableHelper;
@@ -137,21 +138,16 @@ export class Composer extends Component<any, any> {
 
   constructor() {
     super(...arguments);
-    const model = this.model;
     this.contentHelper = new ContentEditableHelper(this.composerRef.el!);
-    if (model.state.activeXc in model.state.mergeCellMap) {
-      this.zone = model.state.merges[model.state.mergeCellMap[model.state.activeXc]];
-    } else {
-      const [activeCol, activeRow] = model.getters.getPosition();
-      this.zone = { left: activeCol, top: activeRow, right: activeCol, bottom: activeRow };
-    }
+    const [col, row] = this.model.getters.getPosition();
+    this.zone = this.model.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+    this.rect = this.model.getters.getRect(this.zone, this.props.viewport);
   }
 
   mounted() {
     // @ts-ignore
     window.composer = this;
 
-    const { cols, rows } = this.model.state;
     const el = this.composerRef.el!;
 
     this.contentHelper.updateEl(el);
@@ -162,11 +158,8 @@ export class Composer extends Component<any, any> {
     }
     this.processContent();
 
-    const width = cols[this.zone.right].right - cols[this.zone.left].left;
-    el.style.width = (Math.max(el.scrollWidth + 10, width + 1.5) + "px") as string;
-
-    const height = rows[this.zone.bottom].bottom - rows[this.zone.top].top + 1.5;
-    el.style.height = (height + "px") as string;
+    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 1.5) + "px") as string;
+    el.style.height = (this.rect[3] + 1.5 + "px") as string;
   }
 
   willUnmount(): void {
@@ -174,24 +167,18 @@ export class Composer extends Component<any, any> {
   }
 
   get containerStyle() {
-    const { cols, rows } = this.model.state;
-    let { offsetX, offsetY } = this.props.viewport;
     const style = this.model.getters.getCurrentStyle();
-    const col = cols[this.zone.left];
-    const row = rows[this.zone.top];
-    const height = rows[this.zone.bottom].bottom - row.top + 3;
-    const top = row.top - offsetY + HEADER_HEIGHT;
+    const [x, y, , height] = this.rect;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
-    const sizeInPt = style.fontSize || 10;
-    const size = fontSizeMap[sizeInPt];
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    return `left: ${col.left - offsetX + HEADER_WIDTH - 1}px;
-    top:${top}px;
-    height:${height}px;
-    line-height:${height - 1.5}px;
-    font-size:${size}px;
-    ${weight}${italic}${strikethrough}`;
+    return `
+        left: ${x - 1}px;
+        top:${y}px;
+        height:${height}px;
+        line-height:${height - 1.5}px;
+        font-size:${fontSizeMap[style.fontSize || 10]}px;
+        ${weight}${italic}${strikethrough}`;
   }
 
   get composerStyle() {
