@@ -1,4 +1,4 @@
-import { Cell, Workbook, Sheet, GridCommand, CommandHandler } from "./types/index";
+import { Cell, Workbook, Sheet, Command, CommandHandler } from "./types/index";
 
 /**
  * History Management System
@@ -53,13 +53,13 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     return true;
   }
 
-  start(cmd: GridCommand) {
+  start(cmd: Command) {
     if (cmd.type !== "REDO" && cmd.type !== "UNDO") {
       this.current = [];
     }
   }
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
         this.undo();

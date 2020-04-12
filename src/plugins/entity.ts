@@ -1,4 +1,4 @@
-import { GridCommand, WorkbookData } from "../types/index";
+import { Command, WorkbookData } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 export class EntityPlugin extends BasePlugin {
@@ -10,7 +10,7 @@ export class EntityPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_ENTITY":
         if (!(cmd.kind in this.entities)) {

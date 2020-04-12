@@ -4,7 +4,7 @@ import {
   CommandDispatcher,
   CommandHandler,
   Getters,
-  GridCommand,
+  Command,
   Viewport,
   Workbook,
   WorkbookData
@@ -66,13 +66,13 @@ export class BasePlugin implements CommandHandler {
   // Command handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(command: GridCommand): boolean {
+  allowDispatch(command: Command): boolean {
     return true;
   }
 
-  start(command: GridCommand): void {}
-  handle(command: GridCommand): void {}
-  finalize(command: GridCommand): void {}
+  start(command: Command): void {}
+  handle(command: Command): void {}
+  finalize(command: Command): void {}
 
   // ---------------------------------------------------------------------------
   // Grid rendering

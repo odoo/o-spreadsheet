@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
-import { Cell, GridCommand, Sheet } from "../types";
+import { Cell, Command, Sheet } from "../types";
 import { compile } from "../formulas/index";
 import { toCartesian } from "../helpers/index";
 import { Mode } from "../model";
@@ -53,7 +53,7 @@ export class EvaluationPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
         this.evaluateCells();

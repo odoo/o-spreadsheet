@@ -1,6 +1,6 @@
 import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
-import { GridCommand, Zone, Highlight, EditionMode } from "../types/index";
+import { Command, Zone, Highlight, EditionMode } from "../types/index";
 import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
 import { Mode } from "../model";
 
@@ -19,7 +19,7 @@ export class EditionPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
         this.addHighlights(cmd.ranges);

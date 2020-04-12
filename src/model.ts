@@ -7,7 +7,7 @@ import {
   CommandDispatcher,
   CommandHandler,
   Getters,
-  GridCommand,
+  Command,
   Workbook,
   WorkbookData
 } from "./types/index";
@@ -71,7 +71,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // ---------------------------------------------------------------------------
 
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    const command: GridCommand = Object.assign({ type }, payload);
+    const command: Command = Object.assign({ type }, payload);
     switch (this.status) {
       case "ready":
         for (let handler of this.handlers) {

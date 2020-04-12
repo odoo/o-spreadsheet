@@ -7,7 +7,7 @@ import {
   Cell,
   CellData,
   Col,
-  GridCommand,
+  Command,
   HeaderData,
   Merge,
   Row,
@@ -36,7 +36,7 @@ export class CorePlugin extends BasePlugin {
     "getRow"
   ];
 
-  allowDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: Command): boolean {
     switch (cmd.type) {
       case "CREATE_SHEET":
         return !cmd.name || this.workbook.sheets.findIndex(sheet => sheet.name === cmd.name) === -1;
@@ -45,7 +45,7 @@ export class CorePlugin extends BasePlugin {
     }
   }
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.activateSheet(cmd.to);
