@@ -1,6 +1,6 @@
 import { applyOffset } from "../formulas/index";
 import { toXC, clip } from "../helpers/index";
-import { Cell, GridCommand, NewCell, Zone } from "../types/index";
+import { Cell, Command, NewCell, Zone } from "../types/index";
 import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
 import { Mode } from "../model";
 
@@ -22,11 +22,11 @@ export class ClipboardPlugin extends BasePlugin {
   private _isPaintingFormat: boolean = false;
   private onlyFormat: boolean = false;
 
-  allowDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: Command): boolean {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "COPY":
         this.cutOrCopy(cmd.target, false);

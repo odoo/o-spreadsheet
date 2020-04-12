@@ -7,7 +7,7 @@ import {
   union
 } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { Cell, GridCommand, Sheet, Zone, WorkbookData, Col, Row } from "../types/index";
+import { Cell, Command, Sheet, Zone, WorkbookData, Col, Row } from "../types/index";
 import { tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
@@ -41,7 +41,7 @@ export class GridPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: Command): boolean {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
         return this.workbook.cols.length > cmd.columns.length;
@@ -52,7 +52,7 @@ export class GridPlugin extends BasePlugin {
     }
   }
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.recomputeSizes();
@@ -611,10 +611,10 @@ export class GridPlugin extends BasePlugin {
   private processCellsToMove(
     shouldDelete: (cell: Cell) => boolean,
     shouldAdd: (cell: Cell) => boolean,
-    buildCellToAdd: (cell: Cell) => GridCommand
+    buildCellToAdd: (cell: Cell) => Command
   ) {
-    const deleteCommands: GridCommand[] = [];
-    const addCommands: GridCommand[] = [];
+    const deleteCommands: Command[] = [];
+    const addCommands: Command[] = [];
     for (let [xc, cell] of Object.entries(this.workbook.cells)) {
       if (shouldDelete(cell)) {
         const [col, row] = toCartesian(xc);

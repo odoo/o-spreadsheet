@@ -308,7 +308,7 @@ export interface StartCommand {
   type: "START";
 }
 
-export type GridCommand =
+export type Command =
   | UpdateCellCommand
   | CopyCommand
   | CutCommand
@@ -358,20 +358,20 @@ export type GridCommand =
 export type CommandResult = "COMPLETED" | "CANCELLED";
 
 export interface CommandHandler {
-  allowDispatch(command: GridCommand): boolean;
-  start(command: GridCommand): void;
-  handle(command: GridCommand): void;
-  finalize(command: GridCommand): void;
+  allowDispatch(command: Command): boolean;
+  start(command: Command): void;
+  handle(command: Command): void;
+  finalize(command: Command): void;
 }
 
 export interface CommandDispatcher {
-  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
+  dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: {} extends Omit<C, "type"> ? T : never
   ): CommandResult;
-  dispatch<T extends CommandTypes, C extends Extract<GridCommand, { type: T }>>(
+  dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: T,
     r: Omit<C, "type">
   ): CommandResult;
 }
 
-export type CommandTypes = GridCommand["type"];
+export type CommandTypes = Command["type"];

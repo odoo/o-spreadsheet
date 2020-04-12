@@ -1,6 +1,6 @@
 import { isEqual, toXC, union, clip } from "../helpers/index";
 import { BasePlugin, GridRenderingContext, LAYERS } from "../base_plugin";
-import { GridCommand, Zone, Cell } from "../types/index";
+import { Command, Zone, Cell } from "../types/index";
 import { formatNumber } from "../formatters";
 import { Mode } from "../model";
 
@@ -45,7 +45,7 @@ export class SelectionPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: GridCommand): boolean {
+  allowDispatch(cmd: Command): boolean {
     if (cmd.type === "MOVE_POSITION") {
       const [refCol, refRow] = this.getReferenceCoords();
       const { cols, rows } = this.workbook;
@@ -59,7 +59,7 @@ export class SelectionPlugin extends BasePlugin {
     return true;
   }
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
         this.selectCell(0, 0);

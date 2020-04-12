@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import {
-  GridCommand,
+  Command,
   Cell,
   CellIsRule,
   Zone,
@@ -31,7 +31,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
 
   private cfRules: { [sheet: string]: ConditionalFormat[] } = {};
 
-  handle(cmd: GridCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         const activeSheet = cmd.to;
