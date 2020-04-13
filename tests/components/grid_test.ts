@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
 jest.mock("../../src/components/content_editable_helper");
@@ -95,7 +95,7 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(getActiveXc(model)).toBe("A2");
       expect(model.getters.getEditionMode()).toBe("inactive");
-      expect(model.workbook.cells["A1"].content).toBe("a");
+      expect(getCell(model, "A1")!.content).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
@@ -108,7 +108,7 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
-      expect(model.workbook.cells["A2"].content).toBe("a");
+      expect(getCell(model, "A2")!.content).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
@@ -119,7 +119,7 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
-      expect(model.workbook.cells["A1"].content).toBe("a");
+      expect(getCell(model, "A1")!.content).toBe("a");
     });
 
     test("pressing TAB move to next cell", async () => {
@@ -140,16 +140,16 @@ describe("Grid component", () => {
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
         style: { fillColor: "red" }
       });
-      expect(model.workbook.cells.A1.style).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
       );
-      expect(model.workbook.cells.A1).not.toBeDefined();
+      expect(getCell(model, "A1")).toBeNull();
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "y", ctrlKey: true, bubbles: true })
       );
-      expect(model.workbook.cells.A1.style).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
@@ -158,16 +158,16 @@ describe("Grid component", () => {
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
         style: { fillColor: "red" }
       });
-      expect(model.workbook.cells.A1.style).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
       );
-      expect(model.workbook.cells.A1).not.toBeDefined();
+      expect(getCell(model, "A1")).toBeNull();
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Y", ctrlKey: true, bubbles: true })
       );
-      expect(model.workbook.cells.A1.style).toBeDefined();
+      expect(getCell(model, "A1")!.style).toBeDefined();
     });
 
     test("can select all the sheet with CTRL+A", async () => {
@@ -207,9 +207,9 @@ describe("Grid component", () => {
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
       triggerMouseEvent("canvas", "mousedown", 300, 200);
-      expect(model.workbook.cells.C8).not.toBeDefined();
+      expect(getCell(model, "C8")).toBeNull();
       triggerMouseEvent("body", "mouseup", 300, 200);
-      expect(model.workbook.cells.C8.style).toBe(2);
+      expect(getCell(model, "C8")!.style).toBe(2);
     });
 
     test("can paste format with key", async () => {
@@ -222,11 +222,11 @@ describe("Grid component", () => {
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
-      expect(model.workbook.cells.C2).not.toBeDefined();
+      expect(getCell(model, "C2")).toBeNull();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
       );
-      expect(model.workbook.cells.C2.style).toBe(2);
+      expect(getCell(model, "C2")!.style).toBe(2);
     });
   });
 });

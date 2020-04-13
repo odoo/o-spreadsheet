@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
+import { getCell } from "../helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
@@ -11,10 +12,10 @@ describe("styles", () => {
       style: { fillColor: "red" }
     });
 
-    expect(model.workbook.cells.B1.content).toBe("");
-    expect(model.workbook.cells.B1.style).toBeDefined();
+    expect(getCell(model, "B1")!.content).toBe("");
+    expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("UNDO");
-    expect(model.workbook.cells.B1).not.toBeDefined();
+    expect(getCell(model, "B1")).toBeNull();
   });
 
   test("can undo and redo a setStyle operation on an non empty cell", () => {
@@ -26,11 +27,11 @@ describe("styles", () => {
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" }
     });
-    expect(model.workbook.cells.B1.content).toBe("some content");
-    expect(model.workbook.cells.B1.style).toBeDefined();
+    expect(getCell(model, "B1")!.content).toBe("some content");
+    expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("UNDO");
-    expect(model.workbook.cells.B1.content).toBe("some content");
-    expect(model.workbook.cells.B1.style).not.toBeDefined();
+    expect(getCell(model, "B1")!.content).toBe("some content");
+    expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 
   test("can clear formatting (style)", () => {
@@ -42,13 +43,13 @@ describe("styles", () => {
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" }
     });
-    expect(model.workbook.cells.B1.style).toBeDefined();
+    expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
-    expect(model.workbook.cells.B1.content).toBe("b1");
-    expect(model.workbook.cells.B1.style).not.toBeDefined();
+    expect(getCell(model, "B1")!.content).toBe("b1");
+    expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 
   test("clearing format on a cell with no content actually remove it", () => {
@@ -59,12 +60,12 @@ describe("styles", () => {
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" }
     });
-    expect(model.workbook.cells.B1.style).toBeDefined();
+    expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
-    expect(model.workbook.cells.B1).not.toBeDefined();
+    expect(getCell(model, "B1")).toBeNull();
   });
 
   test("clearing format operation can be undone", () => {
@@ -76,13 +77,13 @@ describe("styles", () => {
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" }
     });
-    expect(model.workbook.cells.B1.style).toBeDefined();
+    expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones()
     });
-    expect(model.workbook.cells.B1.style).not.toBeDefined();
+    expect(getCell(model, "B1")!.style).not.toBeDefined();
     model.dispatch("UNDO");
-    expect(model.workbook.cells.B1.style).toBeDefined();
+    expect(getCell(model, "B1")!.style).toBeDefined();
   });
 });

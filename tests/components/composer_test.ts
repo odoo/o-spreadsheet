@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { nextTick, makeTestFixture, GridParent, getActiveXc } from "../helpers";
+import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell } from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { colors } from "../../src/components/composer";
 import { toZone } from "../../src/helpers/index";
@@ -215,7 +215,7 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("selecting");
     await keydown("Enter");
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(model.workbook.cells.A1.content).toBe("=C8");
+    expect(getCell(model, "A1")!.content).toBe("=C8");
   });
 
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
@@ -229,16 +229,16 @@ describe("composer", () => {
     await startComposition();
     await typeInComposer("=qsdf");
     await keydown("Enter");
-    expect(model.workbook.cells["A1"].content).toBe("=qsdf");
-    expect(model.workbook.cells["A1"].value).toBe("#BAD_EXPR");
+    expect(getCell(model, "A1")!.content).toBe("=qsdf");
+    expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
   });
 
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
     await startComposition();
     await typeInComposer("qsdf");
     await keydown("Enter");
-    expect(model.workbook.cells["A1"].content).toBe("qsdf");
-    expect(model.workbook.cells["A1"].value).toBe("qsdf");
+    expect(getCell(model, "A1")!.content).toBe("qsdf");
+    expect(getCell(model, "A1")!.value).toBe("qsdf");
   });
 
   test("typing CTRL+C does not type C in the cell", async () => {

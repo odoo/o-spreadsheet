@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, nextTick } from "../helpers";
+import { makeTestFixture, nextTick, getCell } from "../helpers";
 import { TopBar } from "../../src/components/top_bar";
 import { Component, tags } from "@odoo/owl";
 
@@ -57,9 +57,9 @@ describe("TopBar component", () => {
 
     fixture.querySelector('.o-tool[title="Merge Cells"]')!.dispatchEvent(new Event("click"));
 
-    expect(model.workbook.merges).toEqual({});
+    expect(model["workbook"].merges).toEqual({});
     confirm();
-    expect(model.workbook.merges).not.toEqual({});
+    expect(model["workbook"].merges).not.toEqual({});
   });
 
   test("opening a second menu closes the first one", async () => {
@@ -147,13 +147,14 @@ describe("TopBar component", () => {
 
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
-    expect(model.workbook.cells.A1.style).toBeDefined();
+    expect(model["workbook"].cells.A1.style).toBeDefined();
 
     undoTool.dispatchEvent(new Event("click"));
     await nextTick();
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
-    expect(model.workbook.cells.A1).not.toBeDefined();
+
+    expect(getCell(model, "A1")).toBeNull();
   });
 
   test("paint format tools", async () => {
@@ -179,17 +180,17 @@ describe("TopBar component", () => {
       target: model.getters.getSelectedZones(),
       border: "all"
     });
-    expect(model.workbook.cells.B1.border).toBeDefined();
+    expect(model["workbook"].cells.B1.border).toBeDefined();
     const parent = new Parent(model);
     await parent.mount(fixture);
     const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
     clearFormatTool.dispatchEvent(new Event("click"));
-    expect(model.workbook.cells.B1).not.toBeDefined();
+    expect(getCell(model, "B1")).toBeNull();
   });
 
   test("can set cell format", async () => {
     const model = new Model();
-    expect(model.workbook.cells.A1).not.toBeDefined();
+    expect(getCell(model, "A1")).toBeNull();
     const parent = new Parent(model);
     await parent.mount(fixture);
     const formatTool = fixture.querySelector('.o-tool[title="Format"]')!;
@@ -199,7 +200,7 @@ describe("TopBar component", () => {
       .querySelector('[data-format="percent"]')!
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
-    expect(model.workbook.cells.A1.format).toEqual("0.00%");
+    expect(model["workbook"].cells.A1.format).toEqual("0.00%");
   });
 
   test("can set font size", async () => {
@@ -215,7 +216,7 @@ describe("TopBar component", () => {
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
     expect(fontSizeTool.textContent!.trim()).toBe("8");
-    const style = model.getters.getCellStyle(model.workbook.cells.A1);
+    const style = model.getters.getCellStyle(model["workbook"].cells.A1);
     expect(style.fontSize).toBe(8);
   });
 

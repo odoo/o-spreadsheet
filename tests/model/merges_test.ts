@@ -2,7 +2,7 @@ import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
-import { getActiveXc } from "../helpers";
+import { getActiveXc, getCell } from "../helpers";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -10,16 +10,16 @@ describe("merges", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
 
-    expect(Object.keys(model.workbook.cells)).toEqual(["B2", "B3"]);
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.workbook.merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].cells)).toEqual(["B2", "B3"]);
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].merges)).toEqual([]);
 
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
 
-    expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
-    expect(model.workbook.cells.B2.content).toBe("b2");
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.workbook.merges).toEqual({
+    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
+    expect(model["workbook"].cells.B2.content).toBe("b2");
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
@@ -35,28 +35,28 @@ describe("merges", () => {
         }
       ]
     });
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.workbook.merges).toEqual({
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("REMOVE_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
-    expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.workbook.merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].merges)).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
-    expect(Object.keys(model.workbook.merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].merges)).toEqual([]);
 
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B2") });
 
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.workbook.merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].merges)).toEqual([]);
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -77,7 +77,7 @@ describe("merges", () => {
     expect(model.getters.getCurrentContent()).toBe("b2");
     model.dispatch("SET_CURRENT_CONTENT", { content: "new value" });
     model.dispatch("STOP_EDITION");
-    expect(model.workbook.cells["B2"].content).toBe("new value");
+    expect(getCell(model, "B2")!.content).toBe("new value");
   });
 
   test("setting a style to a merge edit all the cells", () => {
@@ -94,8 +94,8 @@ describe("merges", () => {
 
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(getActiveXc(model)).toBe("C3");
-    expect(Object.keys(model.workbook.cells)).toEqual(["B2"]);
-    expect(model.workbook.cells["B2"].style).not.toBeDefined();
+    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
+    expect(getCell(model, "B2")!.style).not.toBeDefined();
 
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
@@ -103,8 +103,8 @@ describe("merges", () => {
       style: { fillColor: "#333" }
     });
 
-    expect(Object.keys(model.workbook.cells)).toEqual(["B2", "B3", "C2", "C3"]);
-    expect(model.workbook.cells["B2"].style).toBeDefined();
+    expect(Object.keys(model["workbook"].cells)).toEqual(["B2", "B3", "C2", "C3"]);
+    expect(getCell(model, "B2")!.style).toBeDefined();
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
@@ -174,13 +174,13 @@ describe("merges", () => {
         }
       ]
     });
-    expect(model.workbook.cells["A4"].value).toBe(6);
+    expect(getCell(model, "A4")!.value).toBe(6);
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
 
-    expect(model.workbook.cells["A1"].value).toBe(1);
-    expect(model.workbook.cells["A2"]).toBeUndefined();
-    expect(model.workbook.cells["A3"]).toBeUndefined();
-    expect(model.workbook.cells["A4"].value).toBe(1);
+    expect(getCell(model, "A1")!.value).toBe(1);
+    expect(getCell(model, "A2")).toBeNull();
+    expect(getCell(model, "A3")).toBeNull();
+    expect(getCell(model, "A4")!.value).toBe(1);
   });
 
   test("merging => setting background color => unmerging", () => {
@@ -211,14 +211,14 @@ describe("merges", () => {
 
     //merging
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
-    const mergeId = model.workbook.mergeCellMap.A1;
+    const mergeId = model["workbook"].mergeCellMap.A1;
     expect(mergeId).toBeGreaterThan(0);
-    expect(model.workbook.mergeCellMap.A2).toBe(mergeId);
+    expect(model["workbook"].mergeCellMap.A2).toBe(mergeId);
 
     // unmerge. there should not be any merge left
     model.dispatch("REMOVE_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
-    expect(model.workbook.mergeCellMap).toEqual({});
-    expect(model.workbook.merges).toEqual({});
+    expect(model["workbook"].mergeCellMap).toEqual({});
+    expect(model["workbook"].merges).toEqual({});
   });
 
   test("can undo and redo a merge", () => {
@@ -227,20 +227,20 @@ describe("merges", () => {
     // select B2:B3 and merge
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
 
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.workbook.merges).toEqual({
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
 
     // undo
     model.dispatch("UNDO");
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual([]);
-    expect(Object.keys(model.workbook.merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].merges)).toEqual([]);
 
     // redo
     model.dispatch("REDO");
-    expect(Object.keys(model.workbook.mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model.workbook.merges).toEqual({
+    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
     });
   });
@@ -273,6 +273,6 @@ describe("merges", () => {
 });
 
 function getStyle(model: Model, xc: string): Style {
-  const cell = model.workbook.cells[xc];
+  const cell = getCell(model, xc)!;
   return cell && model.getters.getCellStyle(cell);
 }

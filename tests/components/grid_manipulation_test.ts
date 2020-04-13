@@ -59,12 +59,12 @@ describe("Context Menu add/remove row/col", () => {
       target: [
         {
           top: 0,
-          bottom: model.workbook.rows.length - 1,
+          bottom: model["workbook"].rows.length - 1,
           left: 3,
           right: 3
         }
       ],
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -79,10 +79,10 @@ describe("Context Menu add/remove row/col", () => {
           top: 4,
           bottom: 4,
           left: 0,
-          right: model.workbook.cols.length - 1
+          right: model["workbook"].cols.length - 1
         }
       ],
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -93,7 +93,7 @@ describe("Context Menu add/remove row/col", () => {
     simulateClick(".o-context-menu div[data-name='delete_column']");
     expect(model.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
       columns: [3],
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -104,7 +104,7 @@ describe("Context Menu add/remove row/col", () => {
     simulateClick(".o-context-menu div[data-name='delete_row']");
     expect(model.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
       rows: [4],
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -117,7 +117,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "before",
       column: 3,
       quantity: 1,
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -130,7 +130,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "before",
       row: 4,
       quantity: 1,
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -143,7 +143,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "after",
       column: 3,
       quantity: 1,
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 
@@ -156,7 +156,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "after",
       row: 4,
       quantity: 1,
-      sheet: model.workbook.activeSheet.name
+      sheet: model["workbook"].activeSheet.name
     });
   });
 });

@@ -48,7 +48,7 @@ afterEach(() => {
  */
 function selectColumn(letter: string, extra: any = {}) {
   const index = lettersToNumber(letter);
-  const x = model.workbook.cols[index].start + 1;
+  const x = model["workbook"].cols[index].start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
   triggerMouseEvent(window, "mouseup", x, 10);
 }
@@ -59,7 +59,7 @@ function selectColumn(letter: string, extra: any = {}) {
  */
 async function resizeColumn(letter: string, delta: number) {
   const index = lettersToNumber(letter);
-  const x = model.workbook.cols[index].start + 1;
+  const x = model["workbook"].cols[index].start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
@@ -73,7 +73,7 @@ async function resizeColumn(letter: string, delta: number) {
  */
 async function dblClickColumn(letter: string) {
   const index = lettersToNumber(letter);
-  const x = model.workbook.cols[index].end;
+  const x = model["workbook"].cols[index].end;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "dblclick", x, 10);
@@ -84,7 +84,7 @@ async function dblClickColumn(letter: string) {
  * @param extra shiftKey, ctrlKey
  */
 function selectRow(index: number, extra: any = {}) {
-  const y = model.workbook.rows[index].start + 1;
+  const y = model["workbook"].rows[index].start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y, extra);
   triggerMouseEvent(window, "mouseup", 10, y);
 }
@@ -94,7 +94,7 @@ function selectRow(index: number, extra: any = {}) {
  * @param delta Size to add (or remove if delta < 0)
  */
 async function resizeRow(index: number, delta: number) {
-  const y = model.workbook.rows[index].start + 1;
+  const y = model["workbook"].rows[index].start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "mousedown", 10, y);
@@ -107,7 +107,7 @@ async function resizeRow(index: number, delta: number) {
  * @param letter Number of the row to double click on (Starts at 0)
  */
 async function dblClickRow(index: number) {
-  const y = model.workbook.rows[index].end;
+  const y = model["workbook"].rows[index].end;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
 
@@ -150,14 +150,14 @@ describe("Resizer component", () => {
 
   test("Can resize a column", async () => {
     await resizeColumn("C", 50);
-    expect(model.workbook.cols[1].size).toBe(model.workbook.cols[0].size + 50);
-    expect(model.workbook.cols[2].size).toBe(model.workbook.cols[0].size);
+    expect(model["workbook"].cols[1].size).toBe(model["workbook"].cols[0].size + 50);
+    expect(model["workbook"].cols[2].size).toBe(model["workbook"].cols[0].size);
   });
 
   test("Can resize a row", async () => {
     await resizeRow(2, 50);
-    expect(model.workbook.rows[1].size).toBe(model.workbook.rows[0].size + 50);
-    expect(model.workbook.rows[2].size).toBe(model.workbook.rows[0].size);
+    expect(model["workbook"].rows[1].size).toBe(model["workbook"].rows[0].size + 50);
+    expect(model["workbook"].rows[2].size).toBe(model["workbook"].rows[0].size);
   });
 
   test("Can resize multiples columns", async () => {
@@ -168,11 +168,11 @@ describe("Resizer component", () => {
     expect(getActiveXc(model)).toBe("D1");
 
     await resizeColumn("D", 50);
-    expect(model.workbook.cols[1].size).toBe(model.workbook.cols[0].size);
-    expect(model.workbook.cols[2].size).toBe(model.workbook.cols[0].size + 50);
-    expect(model.workbook.cols[3].size).toBe(model.workbook.cols[0].size + 50);
-    expect(model.workbook.cols[4].size).toBe(model.workbook.cols[0].size);
-    expect(model.workbook.cols[4].start).toBe(model.workbook.cols[0].size * 4 + 100);
+    expect(model["workbook"].cols[1].size).toBe(model["workbook"].cols[0].size);
+    expect(model["workbook"].cols[2].size).toBe(model["workbook"].cols[0].size + 50);
+    expect(model["workbook"].cols[3].size).toBe(model["workbook"].cols[0].size + 50);
+    expect(model["workbook"].cols[4].size).toBe(model["workbook"].cols[0].size);
+    expect(model["workbook"].cols[4].start).toBe(model["workbook"].cols[0].size * 4 + 100);
   });
 
   test("Can resize multiples rows", async () => {
@@ -183,11 +183,11 @@ describe("Resizer component", () => {
     expect(getActiveXc(model)).toBe("A4");
 
     await resizeRow(3, 50);
-    expect(model.workbook.rows[1].size).toBe(model.workbook.rows[0].size);
-    expect(model.workbook.rows[2].size).toBe(model.workbook.rows[0].size + 50);
-    expect(model.workbook.rows[3].size).toBe(model.workbook.rows[0].size + 50);
-    expect(model.workbook.rows[4].size).toBe(model.workbook.rows[0].size);
-    expect(model.workbook.rows[4].start).toBe(model.workbook.rows[0].size * 4 + 100);
+    expect(model["workbook"].rows[1].size).toBe(model["workbook"].rows[0].size);
+    expect(model["workbook"].rows[2].size).toBe(model["workbook"].rows[0].size + 50);
+    expect(model["workbook"].rows[3].size).toBe(model["workbook"].rows[0].size + 50);
+    expect(model["workbook"].rows[4].size).toBe(model["workbook"].rows[0].size);
+    expect(model["workbook"].rows[4].start).toBe(model["workbook"].rows[0].size * 4 + 100);
   });
 
   test("can select the entire sheet", async () => {
@@ -212,28 +212,28 @@ describe("Resizer component", () => {
 
   test("Min boundaries resizing columns", async () => {
     await resizeColumn("C", -10000000);
-    expect(model.workbook.cols[1].size).toBe(MIN_COL_WIDTH);
+    expect(model["workbook"].cols[1].size).toBe(MIN_COL_WIDTH);
   });
 
   test("Min boundaries resizing rows", async () => {
     await resizeRow(2, -10000000);
-    expect(model.workbook.rows[1].size).toBe(MIN_ROW_HEIGHT);
+    expect(model["workbook"].rows[1].size).toBe(MIN_ROW_HEIGHT);
   });
 
   test("Max boundaries resizing columns", async () => {
     await resizeColumn("C", 10000000);
-    expect(model.workbook.cols[1].size).toBe(904);
+    expect(model["workbook"].cols[1].size).toBe(904);
   });
 
   test("Max boundaries resizing rows", async () => {
     await resizeRow(2, 10000000);
-    expect(model.workbook.rows[1].size).toBe(977);
+    expect(model["workbook"].rows[1].size).toBe(977);
   });
 
   test("Double click: Modify the size of a column", async () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     await dblClickColumn("B");
-    expect(model.workbook.cols[1].size).toBe(1006);
+    expect(model["workbook"].cols[1].size).toBe(1006);
   });
 
   test("Double click on column then undo, then redo", async () => {
@@ -265,7 +265,7 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a row", async () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     await dblClickRow(1);
-    expect(model.workbook.rows[1].size).toBe(19);
+    expect(model["workbook"].rows[1].size).toBe(19);
   });
 
   test("Double click on rows then undo, then redo", async () => {
@@ -394,11 +394,11 @@ describe("Resizer component", () => {
     selectColumn("C", { shiftKey: true });
     selectColumn("E", { ctrlKey: true });
     await dblClickColumn("E");
-    expect(model.workbook.cols[0].size).toBe(1006);
-    expect(model.workbook.cols[1].size).toBe(1006);
-    expect(model.workbook.cols[2].size).toBe(1006);
-    expect(model.workbook.cols[3].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[4].size).toBe(1006);
+    expect(model["workbook"].cols[0].size).toBe(1006);
+    expect(model["workbook"].cols[1].size).toBe(1006);
+    expect(model["workbook"].cols[2].size).toBe(1006);
+    expect(model["workbook"].cols[3].size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model["workbook"].cols[4].size).toBe(1006);
   });
 
   test("Select ABC E, dblclick F then resize only F", async () => {
@@ -407,12 +407,12 @@ describe("Resizer component", () => {
     selectColumn("C", { shiftKey: true });
     selectColumn("E", { ctrlKey: true });
     await dblClickColumn("F");
-    expect(model.workbook.cols[0].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[1].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[2].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[3].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[4].size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.workbook.cols[5].size).toBe(1006);
+    expect(model["workbook"].cols[0].size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model["workbook"].cols[1].size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model["workbook"].cols[2].size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model["workbook"].cols[3].size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model["workbook"].cols[4].size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model["workbook"].cols[5].size).toBe(1006);
   });
 
   test("Select 123 5, dblclick 5 then resize all", async () => {
@@ -421,11 +421,11 @@ describe("Resizer component", () => {
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
-    expect(model.workbook.rows[0].size).toBe(19);
-    expect(model.workbook.rows[1].size).toBe(19);
-    expect(model.workbook.rows[2].size).toBe(19);
-    expect(model.workbook.rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[4].size).toBe(19);
+    expect(model["workbook"].rows[0].size).toBe(19);
+    expect(model["workbook"].rows[1].size).toBe(19);
+    expect(model["workbook"].rows[2].size).toBe(19);
+    expect(model["workbook"].rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model["workbook"].rows[4].size).toBe(19);
   });
 
   test("Select 123 5, dblclick 6 then resize only 6", async () => {
@@ -434,26 +434,26 @@ describe("Resizer component", () => {
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     await dblClickRow(5);
-    expect(model.workbook.rows[0].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[1].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[2].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[4].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.workbook.rows[5].size).toBe(19);
+    expect(model["workbook"].rows[0].size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model["workbook"].rows[1].size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model["workbook"].rows[2].size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model["workbook"].rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model["workbook"].rows[4].size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model["workbook"].rows[5].size).toBe(19);
   });
 
   test("Select A, drag to C then ABC selected", async () => {
-    let x = model.workbook.cols[0].start + 1;
+    let x = model["workbook"].cols[0].start + 1;
     triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
-    x = model.workbook.cols[2].start + 1;
+    x = model["workbook"].cols[2].start + 1;
     triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select 1, drag to 3 then 123 selected", async () => {
-    let y = model.workbook.rows[0].start + 1;
+    let y = model["workbook"].rows[0].start + 1;
     triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
-    y = model.workbook.rows[2].start + 1;
+    y = model["workbook"].rows[2].start + 1;
     triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });

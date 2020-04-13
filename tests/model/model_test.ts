@@ -48,7 +48,7 @@ describe("Model", () => {
   test("Model in headless mode should not evaluate cells", () => {
     const model = new Model({}, "headless");
     model.dispatch("SET_VALUE", { xc: "A1", text: "=1" });
-    expect(model.workbook.cells.A1.value).not.toBe("1");
+    expect(model["workbook"].cells.A1.value).not.toBe("1");
   });
 
   test("can add a Plugin only in headless mode", () => {
