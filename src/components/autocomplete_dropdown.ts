@@ -1,5 +1,6 @@
 import * as owl from "@odoo/owl";
 import { functionRegistry } from "../functions/index";
+import { Registry } from "../registry";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
@@ -16,16 +17,16 @@ interface AutocompleteValue {
 
 type AutocompleteProvider = () => Promise<AutocompleteValue[]>;
 
-export const providers: { [name: string]: AutocompleteProvider } = {
-  functions: async function() {
-    return Object.keys(functions).map(key => {
-      return {
-        text: key,
-        description: functions[key].description
-      };
-    });
-  }
-};
+const providerRegistry = new Registry<AutocompleteProvider>();
+
+providerRegistry.add("functions", async function() {
+  return Object.keys(functions).map(key => {
+    return {
+      text: key,
+      description: functions[key].description
+    };
+  });
+});
 
 // -----------------------------------------------------------------------------
 // Autocomplete DropDown component
@@ -95,7 +96,7 @@ export abstract class TextValueProvider extends Component<Props> {
   }
 
   async filter(searchTerm: string) {
-    const provider = providers[this.props.provider];
+    const provider = providerRegistry.get(this.props.provider);
     let values = await provider();
     if (this.props.filter) {
       values = this.props.filter(searchTerm, values);
