@@ -365,13 +365,13 @@ function createDefaultCols(colNumber: number): Col[] {
   for (let i = 0; i < colNumber; i++) {
     const size = DEFAULT_CELL_WIDTH;
     const col = {
-      left: current,
-      right: current + size,
+      start: current,
+      end: current + size,
       size: size,
       name: numberToLetters(i)
     };
     cols.push(col);
-    current = col.right;
+    current = col.end;
   }
   return cols;
 }
@@ -382,14 +382,14 @@ function createDefaultRows(rowNumber: number): Row[] {
   for (let i = 0; i < rowNumber; i++) {
     const size = DEFAULT_CELL_HEIGHT;
     const row = {
-      top: current,
-      bottom: current + size,
+      start: current,
+      end: current + size,
       size: size,
       name: String(i + 1),
       cells: {}
     };
     rows.push(row);
-    current = row.bottom;
+    current = row.end;
   }
   return rows;
 }
@@ -400,13 +400,13 @@ function createCols(savedCols: { [key: number]: HeaderData }, colNumber: number)
   for (let i = 0; i < colNumber; i++) {
     const size = savedCols[i] ? savedCols[i].size || DEFAULT_CELL_WIDTH : DEFAULT_CELL_WIDTH;
     const col = {
-      left: current,
-      right: current + size,
+      start: current,
+      end: current + size,
       size: size,
       name: numberToLetters(i)
     };
     cols.push(col);
-    current = col.right;
+    current = col.end;
   }
   return cols;
 }
@@ -417,14 +417,14 @@ function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: number)
   for (let i = 0; i < rowNumber; i++) {
     const size = savedRows[i] ? savedRows[i].size || DEFAULT_CELL_HEIGHT : DEFAULT_CELL_HEIGHT;
     const row = {
-      top: current,
-      bottom: current + size,
+      start: current,
+      end: current + size,
       size: size,
       name: String(i + 1),
       cells: {}
     };
     rows.push(row);
-    current = row.bottom;
+    current = row.end;
   }
   return rows;
 }

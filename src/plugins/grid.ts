@@ -226,11 +226,11 @@ export class GridPlugin extends BasePlugin {
     const col = this.workbook.cols[index];
     const delta = size - col.size;
     this.history.updateState(["cols", index, "size"], size);
-    this.history.updateState(["cols", index, "right"], col.right + delta);
+    this.history.updateState(["cols", index, "end"], col.end + delta);
     for (let i = index + 1; i < this.workbook.cols.length; i++) {
       const col = this.workbook.cols[i];
-      this.history.updateState(["cols", i, "left"], col.left + delta);
-      this.history.updateState(["cols", i, "right"], col.right + delta);
+      this.history.updateState(["cols", i, "start"], col.start + delta);
+      this.history.updateState(["cols", i, "end"], col.end + delta);
     }
     this.history.updateLocalState(["width"], this.width + delta);
   }
@@ -239,19 +239,19 @@ export class GridPlugin extends BasePlugin {
     const row = this.workbook.rows[index];
     const delta = size - row.size;
     this.history.updateState(["rows", index, "size"], size);
-    this.history.updateState(["rows", index, "bottom"], row.bottom + delta);
+    this.history.updateState(["rows", index, "end"], row.end + delta);
     for (let i = index + 1; i < this.workbook.rows.length; i++) {
       const row = this.workbook.rows[i];
-      this.history.updateState(["rows", i, "top"], row.top + delta);
-      this.history.updateState(["rows", i, "bottom"], row.bottom + delta);
+      this.history.updateState(["rows", i, "start"], row.start + delta);
+      this.history.updateState(["rows", i, "end"], row.end + delta);
     }
     this.history.updateLocalState(["height"], this.height + delta);
   }
 
   private recomputeSizes() {
     const workbook = this.workbook;
-    const height = workbook.rows[workbook.rows.length - 1].bottom + DEFAULT_CELL_HEIGHT + 5;
-    const width = workbook.cols[workbook.cols.length - 1].right + DEFAULT_CELL_WIDTH;
+    const height = workbook.rows[workbook.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
+    const width = workbook.cols[workbook.cols.length - 1].end + DEFAULT_CELL_WIDTH;
     this.history.updateLocalState(["width"], width);
     this.history.updateLocalState(["height"], height);
   }
@@ -677,7 +677,7 @@ export class GridPlugin extends BasePlugin {
 
   private manageColumnsHeaders(base: number, step: number) {
     const cols: Col[] = [];
-    let left = 0;
+    let start = 0;
     let colIndex = 0;
     let newWidth = this.width;
     for (let i in this.workbook.cols) {
@@ -688,11 +688,11 @@ export class GridPlugin extends BasePlugin {
             cols.push({
               name: numberToLetters(colIndex),
               size,
-              left,
-              right: left + size
+              start,
+              end: start + size
             });
             newWidth = newWidth + size;
-            left += size;
+            start += size;
             colIndex++;
           }
         } else {
@@ -705,10 +705,10 @@ export class GridPlugin extends BasePlugin {
       cols.push({
         name: numberToLetters(colIndex),
         size,
-        left,
-        right: left + size
+        start,
+        end: start + size
       });
-      left += size;
+      start += size;
       colIndex++;
     }
     this.history.updateLocalState(["width"], newWidth);
@@ -717,7 +717,7 @@ export class GridPlugin extends BasePlugin {
 
   private processRowsHeaderDelete(index: number) {
     const rows: Row[] = [];
-    let top = 0;
+    let start = 0;
     let rowIndex = 0;
     let sizeToDelete = 0;
     const cellsQueue = this.workbook.rows.map(row => row.cells);
@@ -730,13 +730,13 @@ export class GridPlugin extends BasePlugin {
       }
       rowIndex++;
       rows.push({
-        top,
-        bottom: top + size,
+        start,
+        end: start + size,
         size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex)
       });
-      top += size;
+      start += size;
     }
     this.history.updateLocalState(["height"], this.height - sizeToDelete);
     this.history.updateState(["rows"], rows);
@@ -744,7 +744,7 @@ export class GridPlugin extends BasePlugin {
 
   private processRowsHeaderAdd(index: number, quantity: number) {
     const rows: Row[] = [];
-    let top = 0;
+    let start = 0;
     let rowIndex = 0;
     let sizeIndex = 0;
     const cellsQueue = this.workbook.rows.map(row => row.cells);
@@ -755,26 +755,26 @@ export class GridPlugin extends BasePlugin {
       }
       rowIndex++;
       rows.push({
-        top,
-        bottom: top + size,
+        start,
+        end: start + size,
         size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex)
       });
-      top += size;
+      start += size;
     }
     this.history.updateLocalState(["height"], top);
     this.history.updateState(["rows"], rows);
   }
 
   private addEmptyRow() {
-    const lastBottom = this.workbook.rows[this.workbook.rows.length - 1].bottom;
+    const lastEnd = this.workbook.rows[this.workbook.rows.length - 1].end;
     const name = (this.workbook.rows.length + 1).toString();
     const newRows: Row[] = this.workbook.rows.slice();
     const size = 0;
     newRows.push({
-      top: lastBottom,
-      bottom: lastBottom + size,
+      start: lastEnd,
+      end: lastEnd + size,
       size,
       name,
       cells: {}

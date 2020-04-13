@@ -184,32 +184,32 @@ describe("Columns", () => {
     test("On deletion", () => {
       removeColumns([0, 2]);
       expect(model.workbook.cols).toEqual([
-        { left: 0, right: 10, size: 10, name: "A" },
-        { left: 10, right: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" }
+        { start: 0, end: 10, size: 10, name: "A" },
+        { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" }
       ]);
     });
     test("On addition before", () => {
       addColumns(1, "before", 2);
       const size = DEFAULT_CELL_WIDTH;
       expect(model.workbook.cols).toEqual([
-        { left: 0, right: size, size, name: "A" },
-        { left: size, right: size + 10, size: 10, name: "B" },
-        { left: size + 10, right: size + 20, size: 10, name: "C" },
-        { left: size + 20, right: size + 30, size: 10, name: "D" },
-        { left: size + 30, right: size + 50, size: 20, name: "E" },
-        { left: size + 50, right: 2 * size + 50, size, name: "F" }
+        { start: 0, end: size, size, name: "A" },
+        { start: size, end: size + 10, size: 10, name: "B" },
+        { start: size + 10, end: size + 20, size: 10, name: "C" },
+        { start: size + 20, end: size + 30, size: 10, name: "D" },
+        { start: size + 30, end: size + 50, size: 20, name: "E" },
+        { start: size + 50, end: 2 * size + 50, size, name: "F" }
       ]);
     });
     test("On addition after", () => {
       addColumns(2, "after", 2);
       const size = DEFAULT_CELL_WIDTH;
       expect(model.workbook.cols).toEqual([
-        { left: 0, right: size, size, name: "A" },
-        { left: size, right: size + 10, size: 10, name: "B" },
-        { left: size + 10, right: size + 30, size: 20, name: "C" },
-        { left: size + 30, right: size + 50, size: 20, name: "D" },
-        { left: size + 50, right: size + 70, size: 20, name: "E" },
-        { left: size + 70, right: 2 * size + 70, size, name: "F" }
+        { start: 0, end: size, size, name: "A" },
+        { start: size, end: size + 10, size: 10, name: "B" },
+        { start: size + 10, end: size + 30, size: 20, name: "C" },
+        { start: size + 30, end: size + 50, size: 20, name: "D" },
+        { start: size + 50, end: size + 70, size: 20, name: "E" },
+        { start: size + 70, end: 2 * size + 70, size, name: "F" }
       ]);
     });
   });
@@ -464,32 +464,32 @@ describe("Rows", () => {
       removeRows([0, 2]);
       const size = DEFAULT_CELL_HEIGHT;
       expect(model.workbook.rows).toEqual([
-        { top: 0, bottom: 10, size: 10, name: "1", cells: {} },
-        { top: 10, bottom: size + 10, size, name: "2", cells: {} }
+        { start: 0, end: 10, size: 10, name: "1", cells: {} },
+        { start: 10, end: size + 10, size, name: "2", cells: {} }
       ]);
     });
     test("On addition before", () => {
       addRows(1, "before", 2);
       const size = DEFAULT_CELL_HEIGHT;
       expect(model.workbook.rows).toEqual([
-        { top: 0, bottom: size, size, name: "1", cells: {} },
-        { top: size, bottom: size + 10, size: 10, name: "2", cells: {} },
-        { top: size + 10, bottom: size + 20, size: 10, name: "3", cells: {} },
-        { top: size + 20, bottom: size + 30, size: 10, name: "4", cells: {} },
-        { top: size + 30, bottom: size + 50, size: 20, name: "5", cells: {} },
-        { top: size + 50, bottom: 2 * size + 50, size, name: "6", cells: {} }
+        { start: 0, end: size, size, name: "1", cells: {} },
+        { start: size, end: size + 10, size: 10, name: "2", cells: {} },
+        { start: size + 10, end: size + 20, size: 10, name: "3", cells: {} },
+        { start: size + 20, end: size + 30, size: 10, name: "4", cells: {} },
+        { start: size + 30, end: size + 50, size: 20, name: "5", cells: {} },
+        { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} }
       ]);
     });
     test("On addition after", () => {
       addRows(2, "after", 2);
       const size = DEFAULT_CELL_HEIGHT;
       expect(model.workbook.rows).toEqual([
-        { top: 0, bottom: size, size, name: "1", cells: {} },
-        { top: size, bottom: size + 10, size: 10, name: "2", cells: {} },
-        { top: size + 10, bottom: size + 30, size: 20, name: "3", cells: {} },
-        { top: size + 30, bottom: size + 50, size: 20, name: "4", cells: {} },
-        { top: size + 50, bottom: size + 70, size: 20, name: "5", cells: {} },
-        { top: size + 70, bottom: 2 * size + 70, size, name: "6", cells: {} }
+        { start: 0, end: size, size, name: "1", cells: {} },
+        { start: size, end: size + 10, size: 10, name: "2", cells: {} },
+        { start: size + 10, end: size + 30, size: 20, name: "3", cells: {} },
+        { start: size + 30, end: size + 50, size: 20, name: "4", cells: {} },
+        { start: size + 50, end: size + 70, size: 20, name: "5", cells: {} },
+        { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} }
       ]);
     });
   });
