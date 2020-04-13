@@ -14,10 +14,16 @@ import {
 
 export type Mode = "normal" | "headless" | "readonly";
 
+const enum Status {
+  Ready,
+  Running,
+  Finalizing
+}
+
 export class Model extends owl.core.EventBus implements CommandDispatcher {
   private handlers: CommandHandler[];
   private renderers: [BasePlugin, LAYERS][] = [];
-  private status: "ready" | "running" | "finalizing" = "ready";
+  private status: Status = Status.Ready;
   private history: WHistory;
   private mode: Mode;
   private workbook: Workbook;
@@ -73,26 +79,26 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
     switch (this.status) {
-      case "ready":
+      case Status.Ready:
         for (let handler of this.handlers) {
           if (!handler.allowDispatch(command)) {
             return "CANCELLED";
           }
         }
-        this.status = "running";
+        this.status = Status.Running;
         this.handlers.forEach(h => h.start(command));
         this.handlers.forEach(h => h.handle(command));
-        this.status = "finalizing";
+        this.status = Status.Finalizing;
         this.handlers.forEach(h => h.finalize(command));
-        this.status = "ready";
+        this.status = Status.Ready;
         if (this.mode !== "headless") {
           this.trigger("update");
         }
         break;
-      case "running":
+      case Status.Running:
         this.handlers.forEach(h => h.handle(command));
         break;
-      case "finalizing":
+      case Status.Finalizing:
         throw new Error("Nope. Don't do that");
     }
     return "COMPLETED";
