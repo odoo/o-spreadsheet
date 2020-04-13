@@ -1,4 +1,4 @@
-import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
+import { BasePlugin } from "../base_plugin";
 import {
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
@@ -8,7 +8,7 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, Rect, Zone, Viewport } from "../types/index";
+import { Box, Rect, Zone, Viewport, LAYERS, GridRenderingContext } from "../types/index";
 import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------

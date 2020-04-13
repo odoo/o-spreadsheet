@@ -12,4 +12,5 @@ export * from "./commands";
 export * from "./getters";
 export * from "./misc";
 export * from "./conditional_formatting";
+export * from "./rendering";
 export * from "./workbook_data";
