@@ -3,7 +3,7 @@ import * as owl from "@odoo/owl";
 import { Model } from "../model";
 import { Col, Row } from "../types/index";
 import { MIN_ROW_HEIGHT, MIN_COL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
-import { ContextMenuType } from "./context_menu";
+import { ContextMenuType } from "./context_menu/context_menu_registry";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;

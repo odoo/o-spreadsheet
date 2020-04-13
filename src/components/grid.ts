@@ -8,8 +8,9 @@ import {
 import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
 import { Viewport } from "../types/index";
-import { Composer } from "./composer";
-import { ContextMenu, ContextMenuType } from "./context_menu";
+import { Composer } from "./composer/composer";
+import { ContextMenu } from "./context_menu/context_menu";
+import { ContextMenuType } from "./context_menu/context_menu_registry";
 import { Overlay } from "./overlay";
 
 /**

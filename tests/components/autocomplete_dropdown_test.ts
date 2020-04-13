@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { GridParent, makeTestFixture, nextTick, resetFunctions, getCell } from "../helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
-jest.mock("../../src/components/content_editable_helper", () =>
+jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
 

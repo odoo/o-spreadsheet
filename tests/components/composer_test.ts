@@ -1,11 +1,11 @@
 import { Model } from "../../src/model";
 import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell } from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
-import { colors } from "../../src/components/composer";
+import { colors } from "../../src/components/composer/composer";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
 import { EditionPlugin } from "../../src/plugins/edition";
-jest.mock("../../src/components/content_editable_helper", () =>
+jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
 

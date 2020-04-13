@@ -1,8 +1,8 @@
 import * as owl from "@odoo/owl";
-import { fontSizeMap } from "../fonts";
-import { ComposerToken, composerTokenize, rangeReference } from "../formulas/index";
-import { Model } from "../model";
-import { Rect, Zone } from "../types/index";
+import { fontSizeMap } from "../../fonts";
+import { ComposerToken, composerTokenize, rangeReference } from "../../formulas/index";
+import { Model } from "../../model";
+import { Rect, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 

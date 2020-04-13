@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
-jest.mock("../../src/components/content_editable_helper");
+jest.mock("../../src/components/composer/content_editable_helper");
 
 Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
