@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin, GridRenderingContext, LAYERS } from "./base_plugin";
+import { BasePlugin } from "./base_plugin";
 import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { pluginRegistry } from "./plugins/index";
@@ -9,7 +9,9 @@ import {
   Getters,
   Command,
   Workbook,
-  WorkbookData
+  WorkbookData,
+  GridRenderingContext,
+  LAYERS
 } from "./types/index";
 
 export type Mode = "normal" | "headless" | "readonly";

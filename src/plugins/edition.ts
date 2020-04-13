@@ -1,7 +1,14 @@
 import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
-import { Command, Zone, Highlight, EditionMode } from "../types/index";
-import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
+import {
+  Command,
+  Zone,
+  Highlight,
+  EditionMode,
+  LAYERS,
+  GridRenderingContext
+} from "../types/index";
+import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
 
 export class EditionPlugin extends BasePlugin {

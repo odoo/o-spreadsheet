@@ -1,11 +1,12 @@
 import { WHistory, WorkbookHistory } from "./history";
 import { Mode } from "./model";
 import {
+  Command,
   CommandDispatcher,
   CommandHandler,
   Getters,
-  Command,
-  Viewport,
+  GridRenderingContext,
+  LAYERS,
   Workbook,
   WorkbookData
 } from "./types/index";
@@ -19,21 +20,6 @@ import {
  * This file introduce the BasePlugin, which is the common class that defines
  * how each of these model sub parts should interact with each other.
  */
-
-export interface GridRenderingContext {
-  ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
-  dpr: number;
-  thinLineWidth: number;
-}
-
-export const enum LAYERS {
-  Background,
-  Highlights,
-  Clipboard,
-  Selection,
-  Headers
-}
 
 export class BasePlugin implements CommandHandler {
   static layers: LAYERS[] = [];

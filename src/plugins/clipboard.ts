@@ -1,13 +1,13 @@
 import { applyOffset } from "../formulas/index";
 import { toXC, clip } from "../helpers/index";
-import { Cell, Command, NewCell, Zone } from "../types/index";
-import { BasePlugin, LAYERS, GridRenderingContext } from "../base_plugin";
+import { Cell, Command, NewCell, Zone, LAYERS, GridRenderingContext } from "../types/index";
+import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
 
 /**
  * Clipboard Plugin
  *
- * This clipboard manage all cut/copy/paste interactions internal to the
+ * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
 export class ClipboardPlugin extends BasePlugin {

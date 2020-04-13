@@ -1,6 +1,6 @@
 import { isEqual, toXC, union, clip } from "../helpers/index";
-import { BasePlugin, GridRenderingContext, LAYERS } from "../base_plugin";
-import { Command, Zone, Cell } from "../types/index";
+import { BasePlugin } from "../base_plugin";
+import { Command, Zone, Cell, LAYERS, GridRenderingContext } from "../types/index";
 import { formatNumber } from "../formatters";
 import { Mode } from "../model";
 

@@ -1,7 +1,6 @@
 import { Model } from "../../src/model";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
-import { Viewport } from "../../src/types";
-import { GridRenderingContext } from "../../src/base_plugin";
+import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function() {

@@ -1,12 +1,11 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
-import { GridRenderingContext } from "../src/base_plugin";
 import { Grid } from "../src/components/grid";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { Cell } from "../src/types";
+import { Cell, GridRenderingContext } from "../src/types";
 import "./canvas.mock";
 
 const functions = functionRegistry.content;
