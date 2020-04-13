@@ -48,7 +48,7 @@ afterEach(() => {
  */
 function selectColumn(letter: string, extra: any = {}) {
   const index = lettersToNumber(letter);
-  const x = model.workbook.cols[index].left + 1;
+  const x = model.workbook.cols[index].start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
   triggerMouseEvent(window, "mouseup", x, 10);
 }
@@ -59,7 +59,7 @@ function selectColumn(letter: string, extra: any = {}) {
  */
 async function resizeColumn(letter: string, delta: number) {
   const index = lettersToNumber(letter);
-  const x = model.workbook.cols[index].left + 1;
+  const x = model.workbook.cols[index].start + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
@@ -73,7 +73,7 @@ async function resizeColumn(letter: string, delta: number) {
  */
 async function dblClickColumn(letter: string) {
   const index = lettersToNumber(letter);
-  const x = model.workbook.cols[index].right;
+  const x = model.workbook.cols[index].end;
   triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "dblclick", x, 10);
@@ -84,7 +84,7 @@ async function dblClickColumn(letter: string) {
  * @param extra shiftKey, ctrlKey
  */
 function selectRow(index: number, extra: any = {}) {
-  const y = model.workbook.rows[index].top + 1;
+  const y = model.workbook.rows[index].start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y, extra);
   triggerMouseEvent(window, "mouseup", 10, y);
 }
@@ -94,7 +94,7 @@ function selectRow(index: number, extra: any = {}) {
  * @param delta Size to add (or remove if delta < 0)
  */
 async function resizeRow(index: number, delta: number) {
-  const y = model.workbook.rows[index].top + 1;
+  const y = model.workbook.rows[index].start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "mousedown", 10, y);
@@ -107,7 +107,7 @@ async function resizeRow(index: number, delta: number) {
  * @param letter Number of the row to double click on (Starts at 0)
  */
 async function dblClickRow(index: number) {
-  const y = model.workbook.rows[index].bottom;
+  const y = model.workbook.rows[index].end;
   triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
   await nextTick();
 
@@ -172,7 +172,7 @@ describe("Resizer component", () => {
     expect(model.workbook.cols[2].size).toBe(model.workbook.cols[0].size + 50);
     expect(model.workbook.cols[3].size).toBe(model.workbook.cols[0].size + 50);
     expect(model.workbook.cols[4].size).toBe(model.workbook.cols[0].size);
-    expect(model.workbook.cols[4].left).toBe(model.workbook.cols[0].size * 4 + 100);
+    expect(model.workbook.cols[4].start).toBe(model.workbook.cols[0].size * 4 + 100);
   });
 
   test("Can resize multiples rows", async () => {
@@ -187,7 +187,7 @@ describe("Resizer component", () => {
     expect(model.workbook.rows[2].size).toBe(model.workbook.rows[0].size + 50);
     expect(model.workbook.rows[3].size).toBe(model.workbook.rows[0].size + 50);
     expect(model.workbook.rows[4].size).toBe(model.workbook.rows[0].size);
-    expect(model.workbook.rows[4].top).toBe(model.workbook.rows[0].size * 4 + 100);
+    expect(model.workbook.rows[4].start).toBe(model.workbook.rows[0].size * 4 + 100);
   });
 
   test("can select the entire sheet", async () => {
@@ -247,19 +247,19 @@ describe("Resizer component", () => {
     expect(model.getters.getCol(2).size).toBe(1006);
     expect(model.getters.getCol(3).size).toBe(1006);
     expect(model.getters.getCol(4).size).toBe(initialSize);
-    expect(model.getters.getCol(4).left).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getCol(4).start).toBe(initialSize * 2 + 2012);
     model.dispatch("UNDO");
     expect(model.getters.getCol(1).size).toBe(initialSize);
     expect(model.getters.getCol(2).size).toBe(initialSize);
     expect(model.getters.getCol(3).size).toBe(initialSize);
     expect(model.getters.getCol(4).size).toBe(initialSize);
-    expect(model.getters.getCol(4).left).toBe(initialSize * 4);
+    expect(model.getters.getCol(4).start).toBe(initialSize * 4);
     model.dispatch("REDO");
     expect(model.getters.getCol(1).size).toBe(initialSize);
     expect(model.getters.getCol(2).size).toBe(1006);
     expect(model.getters.getCol(3).size).toBe(1006);
     expect(model.getters.getCol(4).size).toBe(initialSize);
-    expect(model.getters.getCol(4).left).toBe(initialSize * 2 + 2012);
+    expect(model.getters.getCol(4).start).toBe(initialSize * 2 + 2012);
   });
 
   test("Double click: Modify the size of a row", async () => {
@@ -280,19 +280,19 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(2).size).toBe(19);
     expect(model.getters.getRow(3).size).toBe(19);
     expect(model.getters.getRow(4).size).toBe(initialSize);
-    expect(model.getters.getRow(4).top).toBe(initialSize * 2 + 19 * 2);
+    expect(model.getters.getRow(4).start).toBe(initialSize * 2 + 19 * 2);
     model.dispatch("UNDO");
     expect(model.getters.getRow(1).size).toBe(initialSize);
     expect(model.getters.getRow(2).size).toBe(initialSize);
     expect(model.getters.getRow(3).size).toBe(initialSize);
     expect(model.getters.getRow(4).size).toBe(initialSize);
-    expect(model.getters.getRow(4).top).toBe(initialSize * 4);
+    expect(model.getters.getRow(4).start).toBe(initialSize * 4);
     model.dispatch("REDO");
     expect(model.getters.getRow(1).size).toBe(initialSize);
     expect(model.getters.getRow(2).size).toBe(19);
     expect(model.getters.getRow(3).size).toBe(19);
     expect(model.getters.getRow(4).size).toBe(initialSize);
-    expect(model.getters.getRow(4).top).toBe(initialSize * 2 + 19 * 2);
+    expect(model.getters.getRow(4).start).toBe(initialSize * 2 + 19 * 2);
   });
 
   test("Select B, shift D then BCD selected", () => {
@@ -443,17 +443,17 @@ describe("Resizer component", () => {
   });
 
   test("Select A, drag to C then ABC selected", async () => {
-    let x = model.workbook.cols[0].left + 1;
+    let x = model.workbook.cols[0].start + 1;
     triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
-    x = model.workbook.cols[2].left + 1;
+    x = model.workbook.cols[2].start + 1;
     triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select 1, drag to 3 then 123 selected", async () => {
-    let y = model.workbook.rows[0].top + 1;
+    let y = model.workbook.rows[0].start + 1;
     triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
-    y = model.workbook.rows[2].top + 1;
+    y = model.workbook.rows[2].start + 1;
     triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });

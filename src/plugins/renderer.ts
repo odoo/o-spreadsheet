@@ -46,9 +46,9 @@ export class RendererPlugin extends BasePlugin {
       return -1;
     }
     const cols = this.workbook.cols;
-    const adjustedX = x - HEADER_WIDTH + cols[left].left + 1;
+    const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     for (let i = left; i <= cols.length; i++) {
-      if (adjustedX <= cols[i].right) {
+      if (adjustedX <= cols[i].end) {
         return i;
       }
     }
@@ -60,9 +60,9 @@ export class RendererPlugin extends BasePlugin {
       return -1;
     }
     const rows = this.workbook.rows;
-    const adjustedY = y - HEADER_HEIGHT + rows[top].top + 1;
+    const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     for (let i = top; i <= rows.length; i++) {
-      if (adjustedY <= rows[i].bottom) {
+      if (adjustedY <= rows[i].end) {
         return i;
       }
     }
@@ -75,10 +75,10 @@ export class RendererPlugin extends BasePlugin {
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
     const { cols, rows } = this.workbook;
-    const x = Math.max(cols[left].left - offsetX, HEADER_WIDTH);
-    const width = cols[right].right - offsetX - x;
-    const y = Math.max(rows[top].top - offsetY, HEADER_HEIGHT);
-    const height = rows[bottom].bottom - offsetY - y;
+    const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
+    const width = cols[right].end - offsetX - x;
+    const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
+    const height = rows[bottom].end - offsetY - y;
     return [x, y, width, height];
   }
 
@@ -91,26 +91,26 @@ export class RendererPlugin extends BasePlugin {
     const { cols, rows } = this.workbook;
     viewport = Object.assign({}, viewport);
     if (adjustment === "offsets") {
-      viewport.offsetX = cols[viewport.left].left;
-      viewport.offsetY = rows[viewport.top].top;
+      viewport.offsetX = cols[viewport.left].start;
+      viewport.offsetY = rows[viewport.top].start;
       return viewport;
     }
     if (adjustment === "position") {
       const [col, row] = this.getters.getPosition();
       while (col >= viewport.right && col !== cols.length - 1) {
-        viewport.offsetX = cols[viewport.left].right;
+        viewport.offsetX = cols[viewport.left].end;
         viewport = this.getAdjustedViewport(viewport, "zone");
       }
       while (col < viewport.left) {
-        viewport.offsetX = cols[viewport.left - 1].left;
+        viewport.offsetX = cols[viewport.left - 1].start;
         viewport = this.getAdjustedViewport(viewport, "zone");
       }
       while (row >= viewport.bottom && row !== rows.length - 1) {
-        viewport.offsetY = rows[viewport.top].bottom;
+        viewport.offsetY = rows[viewport.top].end;
         viewport = this.getAdjustedViewport(viewport, "zone");
       }
       while (row < viewport.top) {
-        viewport.offsetY = rows[viewport.top - 1].top;
+        viewport.offsetY = rows[viewport.top - 1].start;
         viewport = this.getAdjustedViewport(viewport, "zone");
       }
       return viewport;
@@ -121,7 +121,7 @@ export class RendererPlugin extends BasePlugin {
     const x = width + offsetX - HEADER_WIDTH;
     let right = cols.length - 1;
     for (let i = left; i < cols.length; i++) {
-      if (x < cols[i].right) {
+      if (x < cols[i].end) {
         right = i;
         break;
       }
@@ -129,7 +129,7 @@ export class RendererPlugin extends BasePlugin {
     let y = height + offsetY - HEADER_HEIGHT;
     let bottom = rows.length - 1;
     for (let i = top; i < rows.length; i++) {
-      if (y < rows[i].bottom) {
+      if (y < rows[i].end) {
         bottom = i;
         break;
       }
@@ -174,17 +174,17 @@ export class RendererPlugin extends BasePlugin {
     ctx.beginPath();
 
     // vertical lines
-    const lineHeight = Math.min(height, rows[bottom].bottom - offsetY);
+    const lineHeight = Math.min(height, rows[bottom].end - offsetY);
     for (let i = left; i <= right; i++) {
-      const x = cols[i].right - offsetX;
+      const x = cols[i].end - offsetX;
       ctx.moveTo(x, 0);
       ctx.lineTo(x, lineHeight);
     }
 
     // horizontal lines
-    const lineWidth = Math.min(width, cols[right].right - offsetX);
+    const lineWidth = Math.min(width, cols[right].end - offsetX);
     for (let i = top; i <= bottom; i++) {
-      const y = rows[i].bottom - offsetY;
+      const y = rows[i].end - offsetY;
       ctx.moveTo(0, y);
       ctx.lineTo(lineWidth, y);
     }
@@ -319,10 +319,10 @@ export class RendererPlugin extends BasePlugin {
     // selection background
     ctx.fillStyle = "#dddddd";
     for (let zone of selection) {
-      const x1 = Math.max(HEADER_WIDTH, cols[zone.left].left - offsetX);
-      const x2 = Math.max(HEADER_WIDTH, cols[zone.right].right - offsetX);
-      const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].top - offsetY);
-      const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].bottom - offsetY);
+      const x1 = Math.max(HEADER_WIDTH, cols[zone.left].start - offsetX);
+      const x2 = Math.max(HEADER_WIDTH, cols[zone.right].end - offsetX);
+      const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].start - offsetY);
+      const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].end - offsetY);
       ctx.fillStyle = activeCols.has(zone.left) ? "#595959" : "#dddddd";
       ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
       ctx.fillStyle = activeRows.has(zone.top) ? "#595959" : "#dddddd";
@@ -342,18 +342,18 @@ export class RendererPlugin extends BasePlugin {
     for (let i = left; i <= right; i++) {
       const col = cols[i];
       ctx.fillStyle = activeCols.has(i) ? "#fff" : "#111";
-      ctx.fillText(col.name, (col.left + col.right) / 2 - offsetX, HEADER_HEIGHT / 2);
-      ctx.moveTo(col.right - offsetX, 0);
-      ctx.lineTo(col.right - offsetX, HEADER_HEIGHT);
+      ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX, HEADER_HEIGHT / 2);
+      ctx.moveTo(col.end - offsetX, 0);
+      ctx.lineTo(col.end - offsetX, HEADER_HEIGHT);
     }
     // row text + separator
     for (let i = top; i <= bottom; i++) {
       const row = rows[i];
       ctx.fillStyle = activeRows.has(i) ? "#fff" : "#111";
 
-      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.top + row.bottom) / 2 - offsetY);
-      ctx.moveTo(0, row.bottom - offsetY);
-      ctx.lineTo(HEADER_WIDTH, row.bottom - offsetY);
+      ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY);
+      ctx.moveTo(0, row.end - offsetY);
+      ctx.lineTo(HEADER_WIDTH, row.end - offsetY);
     }
 
     ctx.stroke();
@@ -396,25 +396,25 @@ export class RendererPlugin extends BasePlugin {
               while (c < right && !this.hasContent(c + 1, cell.row)) {
                 c++;
               }
-              const width = cols[c].right - col.left;
+              const width = cols[c].end - col.start;
               if (width < textWidth) {
-                clipRect = [col.left - offsetX, row.top - offsetY, width, row.size];
+                clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
               }
             } else {
               let c = cell.col;
               while (c > left && !this.hasContent(c - 1, cell.row)) {
                 c--;
               }
-              const width = col.right - cols[c].left;
+              const width = col.end - cols[c].start;
               if (width < textWidth) {
-                clipRect = [cols[c].left - offsetX, row.top - offsetY, width, row.size];
+                clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
               }
             }
           }
 
           result.push({
-            x: col.left - offsetX,
-            y: row.top - offsetY,
+            x: col.start - offsetX,
+            y: row.start - offsetY,
             width: col.size,
             height: row.size,
             text,
@@ -434,7 +434,7 @@ export class RendererPlugin extends BasePlugin {
       let merge = merges[id];
       if (overlap(merge, viewport)) {
         const refCell = cells[merge.topLeft];
-        const width = cols[merge.right].right - cols[merge.left].left;
+        const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
         if (refCell) {
           text = refCell ? this.getters.getCellText(refCell) : "";
@@ -449,9 +449,9 @@ export class RendererPlugin extends BasePlugin {
           style.fillColor = "#fff";
         }
 
-        const x = cols[merge.left].left - offsetX;
-        const y = rows[merge.top].top - offsetY;
-        const height = rows[merge.bottom].bottom - rows[merge.top].top;
+        const x = cols[merge.left].start - offsetX;
+        const y = rows[merge.top].start - offsetY;
+        const height = rows[merge.bottom].end - rows[merge.top].start;
         result.push({
           x: x,
           y: y,

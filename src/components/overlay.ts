@@ -43,10 +43,6 @@ abstract class AbstractResizer extends Component<any, any> {
 
   abstract _getElementSize(index: number): number;
 
-  abstract _getTopLeftValue(element: Col | Row): number;
-
-  abstract _getBottomRightValue(element: Col | Row): number;
-
   abstract _getHeaderSize(): number;
 
   abstract _getMaxSize(): number;
@@ -74,15 +70,15 @@ abstract class AbstractResizer extends Component<any, any> {
     const element = this._getElement(elementIndex);
     const offset = this._getStateOffset();
     if (
-      index - (this._getTopLeftValue(element) - offset) < this.PADDING &&
+      index - (element.start - offset) < this.PADDING &&
       elementIndex !== this._getViewportOffset()
     ) {
       this.state.isActive = true;
-      this.state.styleValue = this._getTopLeftValue(element) - offset - this._getHeaderSize();
+      this.state.styleValue = element.start - offset - this._getHeaderSize();
       this.state.activeElement = elementIndex - 1;
-    } else if (this._getBottomRightValue(element) - offset - index < this.PADDING) {
+    } else if (element.end - offset - index < this.PADDING) {
       this.state.isActive = true;
-      this.state.styleValue = this._getBottomRightValue(element) - offset - this._getHeaderSize();
+      this.state.styleValue = element.end - offset - this._getHeaderSize();
       this.state.activeElement = elementIndex;
     } else {
       this.state.isActive = false;
@@ -260,12 +256,8 @@ export class ColResizer extends AbstractResizer {
     return this.model.getters.getColSize(index);
   }
 
-  _getTopLeftValue(element: Col): number {
-    return element.left;
-  }
-
   _getBottomRightValue(element: Col): number {
-    return element.right;
+    return element.end;
   }
 
   _getHeaderSize(): number {
@@ -390,14 +382,6 @@ export class RowResizer extends AbstractResizer {
 
   _getElementSize(index: number): number {
     return this.model.getters.getRowSize(index);
-  }
-
-  _getTopLeftValue(element: Row): number {
-    return element.top;
-  }
-
-  _getBottomRightValue(element: Row): number {
-    return element.bottom;
   }
 
   _getHeaderSize(): number {

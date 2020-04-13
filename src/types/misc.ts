@@ -64,20 +64,18 @@ export interface Cell extends NewCell {
   type: "formula" | "text" | "number";
 }
 
-export interface Row {
-  cells: { [col: number]: Cell };
-  bottom: number;
-  top: number;
+interface Header {
+  start: number;
+  end: number;
   name: string;
   size: number;
 }
 
-export interface Col {
-  left: number;
-  right: number;
-  name: string;
-  size: number;
+export interface Row extends Header {
+  cells: { [col: number]: Cell };
 }
+
+export type Col = Header;
 
 export interface Merge extends Zone {
   id: number;
