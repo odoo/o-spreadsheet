@@ -1,10 +1,9 @@
 import { Component, tags } from "@odoo/owl";
+import { toXC } from "../helpers/index";
 import { Model } from "../model";
-import { SCROLLBAR_WIDTH } from "../constants";
+import { Registry } from "../registry";
 import { Cell } from "../types";
 import { SpreadsheetEnv } from "./spreadsheet";
-import { Registry } from "../registry";
-import { toXC } from "../helpers/index";
 
 const { xml, css } = tags;
 
@@ -294,7 +293,7 @@ export class ContextMenu extends Component<Props, any> {
   get style() {
     const { x, y, width, height } = this.props.position;
     const hAlign = x < width - 220 ? "left" : "right";
-    const hStyle = hAlign + ":" + (hAlign === "left" ? x : width - x + SCROLLBAR_WIDTH);
+    const hStyle = hAlign + ":" + (hAlign === "left" ? x : width - x);
     const vAlign = y < height - 220 ? "top" : "bottom";
     const vStyle = vAlign + ":" + (vAlign === "top" ? y : height - y);
     return `${vStyle}px;${hStyle}px`;
