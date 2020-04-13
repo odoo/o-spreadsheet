@@ -1,14 +1,13 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import { GridRenderingContext } from "../src/base_plugin";
 import { Grid } from "../src/components/grid";
-import { sidePanelRegistry } from "../src/components/index";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
-import { toXC, toCartesian } from "../src/helpers/index";
+import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import "./canvas.mock";
 import { Cell } from "../src/types";
+import "./canvas.mock";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -43,9 +42,7 @@ export class GridParent extends Component<any> {
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
              model="model"
-             title="sidePanel.title"
-             Body="sidePanel.Body"
-             Footer="sidePanel.Footer"/>
+             component="sidePanel.component" />
     </div>`;
 
   static components = { Grid, SidePanel };
@@ -53,10 +50,9 @@ export class GridParent extends Component<any> {
   grid: any = useRef("grid");
   sidePanel = useState({ isOpen: false } as {
     isOpen: boolean;
-    title?: string;
-    Body?: any;
-    Footer?: any;
+    component?: string;
   });
+
   constructor(model: Model) {
     super();
     useSubEnv({
@@ -83,10 +79,7 @@ export class GridParent extends Component<any> {
   }
 
   openSidePanel(panel: string) {
-    const panelComponent = sidePanelRegistry.get(panel);
-    this.sidePanel.title = panelComponent.title;
-    this.sidePanel.Body = panelComponent.Body;
-    this.sidePanel.Footer = panelComponent.Footer;
+    this.sidePanel.component = panel;
     this.sidePanel.isOpen = true;
   }
 }

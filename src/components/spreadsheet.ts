@@ -6,29 +6,11 @@ import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
 import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";
 import { SidePanel } from "./side_panel/side_panel";
-import { Registry } from "../registry";
-import { ConditionalFormattingPanel } from "./side_panel/conditional_formatting";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
-
-//------------------------------------------------------------------------------
-// Side Panel Registry
-//------------------------------------------------------------------------------
-interface SidePanelContent {
-  title: string;
-  Body: any;
-  Footer?: any;
-}
-
-export const sidePanelRegistry = new Registry<SidePanelContent>();
-
-sidePanelRegistry.add("ConditionalFormatting", {
-  title: "Conditional Formatting",
-  Body: ConditionalFormattingPanel
-});
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -42,9 +24,7 @@ const TEMPLATE = xml/* xml */ `
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            model="model"
-           title="sidePanel.title"
-           Body="sidePanel.Body"
-           Footer="sidePanel.Footer"/>
+           component="sidePanel.component"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -87,9 +67,7 @@ export class Spreadsheet extends Component<Props> {
 
   sidePanel = useState({ isOpen: false } as {
     isOpen: boolean;
-    title?: string;
-    Body?: any;
-    Footer?: any;
+    component?: string;
   });
 
   // last string that was cut or copied. It is necessary so we can make the
@@ -118,10 +96,7 @@ export class Spreadsheet extends Component<Props> {
   }
 
   openSidePanel(panel: string) {
-    const panelComponent = sidePanelRegistry.get(panel);
-    this.sidePanel.title = panelComponent.title;
-    this.sidePanel.Body = panelComponent.Body;
-    this.sidePanel.Footer = panelComponent.Footer;
+    this.sidePanel.component = panel;
     this.sidePanel.isOpen = true;
   }
   focusGrid() {
