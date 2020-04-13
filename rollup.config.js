@@ -2,7 +2,7 @@ import { version } from "./package.json";
 import git from "git-rev-sync";
 
 export default {
-  input: "dist/js/index.js",
+  input: "dist/js/src/index.js",
   external: ["@odoo/owl"],
   output: {
     file: "dist/o_spreadsheet.js",

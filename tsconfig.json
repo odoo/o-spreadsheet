@@ -18,5 +18,5 @@
       "allowJs": true,
       "sourceMap": true
     },
-    "include": ["src/**/*.ts","src/*.ts"]
+    "include": ["src", "tests"]
   }
