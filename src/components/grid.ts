@@ -33,7 +33,7 @@ const { useRef } = owl.hooks;
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown">
     <t t-if="model.getters.getEditionMode() !== 'inactive'">
-      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" viewport="viewport"/>
+      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" viewport="snappedViewport"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -42,7 +42,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-contextmenu="onCanvasContextMenu"
       t-on-wheel="onMouseWheel" />
 
-    <Overlay model="model" t-on-open-contextmenu="onOverlayContextMenu" viewport="viewport"/>
+    <Overlay model="model" t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
     <ContextMenu t-if="contextMenu.isOpen"
       model="model"
       type="contextMenu.type"
@@ -135,6 +135,10 @@ export class Grid extends Component<any, any> {
     right: 0,
     bottom: 0
   };
+  // this viewport represent the same area as the previous one, but 'snapped' to
+  // the col/row structure, so, the offsets are correct for computations necessary
+  // to align elements to the grid.
+  snappedViewport: Viewport = this.viewport;
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
@@ -198,6 +202,7 @@ export class Grid extends Component<any, any> {
       this.viewport = viewport;
       this.render();
     }
+    this.snappedViewport = this.model.getters.getAdjustedViewport(this.viewport, "offsets");
   }
 
   checkPosition(): boolean {
@@ -225,6 +230,7 @@ export class Grid extends Component<any, any> {
     } else {
       this.viewport = this.model.getters.getAdjustedViewport(this.viewport, "zone");
     }
+    this.snappedViewport = this.model.getters.getAdjustedViewport(this.viewport, "offsets");
 
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;
@@ -262,8 +268,8 @@ export class Grid extends Component<any, any> {
       // not main button, probably a context menu
       return;
     }
-    const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
-    const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
+    const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+    const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
     if (col < 0 || row < 0) {
       return;
     }
@@ -279,8 +285,8 @@ export class Grid extends Component<any, any> {
     let prevCol = col;
     let prevRow = row;
     const onMouseMove = ev => {
-      const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
-      const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
+      const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+      const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
       if (col < 0 || row < 0) {
         return;
       }
@@ -309,8 +315,8 @@ export class Grid extends Component<any, any> {
   }
 
   onDoubleClick(ev) {
-    const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
-    const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
+    const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+    const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
     if (this.clickedCol === col && this.clickedRow === row) {
       this.model.dispatch("START_EDITION");
     }
@@ -383,8 +389,8 @@ export class Grid extends Component<any, any> {
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const col = this.model.getters.getColIndex(ev.offsetX, this.viewport.left);
-    const row = this.model.getters.getRowIndex(ev.offsetY, this.viewport.top);
+    const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+    const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
     if (col < 0 || row < 0) {
       return;
     }
