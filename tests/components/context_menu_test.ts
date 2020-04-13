@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { GridParent, makeTestFixture, nextTick } from "../helpers";
+import { GridParent, makeTestFixture, nextTick, getCell } from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { toXC } from "../../src/helpers";
 
@@ -102,9 +102,8 @@ describe("Context Menu", () => {
     // click on 'paste' menu item
     simulateClick(".o-context-menu div[data-name='paste']");
     await nextTick();
-
-    expect(model.workbook.cells.B1.content).toBe("b1");
-    expect(model.workbook.cells.B2.content).toBe("b1");
+    expect(getCell(model, "B1")!.content).toBe("b1");
+    expect(getCell(model, "B2")!.content).toBe("b1");
   });
 
   test("can cut/paste with context menu", async () => {
@@ -132,7 +131,7 @@ describe("Context Menu", () => {
     simulateClick(".o-context-menu div[data-name='paste']");
     await nextTick();
 
-    expect(model.workbook.cells.B1).not.toBeDefined();
-    expect(model.workbook.cells.B2.content).toBe("b1");
+    expect(getCell(model, "B1")).toBeNull();
+    expect(getCell(model, "B2")!.content).toBe("b1");
   });
 });

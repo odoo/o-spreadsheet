@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { GridParent, makeTestFixture, nextTick, resetFunctions } from "../helpers";
+import { GridParent, makeTestFixture, nextTick, resetFunctions, getCell } from "../helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/content_editable_helper", () =>
@@ -98,7 +98,7 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=SX");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.workbook.cells["A1"].content).toBe("=SX");
+      expect(getCell(model, "A1")!.content).toBe("=SX");
     });
 
     test("=S+UP cycle to the last item", async () => {
@@ -233,7 +233,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(1,2");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.workbook.cells["A1"].content).toBe("=sum(1,2)");
+    expect(getCell(model, "A1")!.content).toBe("=sum(1,2)");
   });
 
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
@@ -260,14 +260,14 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(sum(1,2");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
+    expect(getCell(model, "A1")!.content).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + enter add 1 closing parenthesis", async () => {
     await typeInComposer("=sum(sum(1,2");
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
+    expect(getCell(model, "A1")!.content).toBe("=sum(sum(1,2))");
   });
 
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
@@ -275,14 +275,14 @@ describe("Autocomplete parenthesis", () => {
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await nextTick();
-    expect(model.workbook.cells["A1"].content).toBe("=sum(sum(1,2))");
+    expect(getCell(model, "A1")!.content).toBe("=sum(sum(1,2))");
   });
 
   test('=sum("((((((((") + enter should not complete the parenthesis in the string', async () => {
     await typeInComposer('=sum("((((((((")');
     composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
-    expect(model.workbook.cells["A1"].content).toBe('=sum("((((((((")');
+    expect(getCell(model, "A1")!.content).toBe('=sum("((((((((")');
   });
 
   test("=s + tab should allow to select a ref", async () => {

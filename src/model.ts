@@ -20,7 +20,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private status: "ready" | "running" | "finalizing" = "ready";
   private history: WHistory;
   private mode: Mode;
-  workbook: Workbook;
+  private workbook: Workbook;
 
   getters: Getters;
 

@@ -5,9 +5,10 @@ import { sidePanelRegistry } from "../src/components/index";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
-import { toXC } from "../src/helpers/index";
+import { toXC, toCartesian } from "../src/helpers/index";
 import { Model } from "../src/model";
 import "./canvas.mock";
+import { Cell } from "../src/types";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -108,7 +109,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   }
   const result = {};
   for (let xc in grid) {
-    const cell = model.workbook.cells[xc];
+    const cell = getCell(model, xc);
     result[xc] = cell ? cell.value : "";
   }
   return result;
@@ -215,4 +216,8 @@ export function mockUuidV4To(expectedId) {
 
 export function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
+}
+
+export function getCell(model: Model, xc: string): Cell | null {
+  return model.getters.getCell(...toCartesian(xc));
 }

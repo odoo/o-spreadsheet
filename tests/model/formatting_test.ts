@@ -12,21 +12,21 @@ describe("formatting values (with formatters)", () => {
   test("can set a format to a cell", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("3");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("3");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
-    expect(model.workbook.cells.A1.format).toBe("0.00%");
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("300.00%");
+    expect(model["workbook"].cells.A1.format).toBe("0.00%");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("300.00%");
   });
 
   test("can set a format to an empty cell", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
-    expect(model.workbook.cells.A1.format).toBe("0.00%");
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("");
+    expect(model["workbook"].cells.A1.format).toBe("0.00%");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("");
     model.dispatch("SET_VALUE", { xc: "A1", text: "0.431" });
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("43.10%");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("43.10%");
   });
 
   test("can set the default format to a cell with value = 0", () => {
@@ -34,8 +34,8 @@ describe("formatting values (with formatters)", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "");
-    expect(model.workbook.cells.A1.format).not.toBeDefined();
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("0");
+    expect(model["workbook"].cells.A1.format).not.toBeDefined();
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("0");
   });
 
   test("can clear a format in a non empty cell", () => {
@@ -43,27 +43,27 @@ describe("formatting values (with formatters)", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
-    expect(model.workbook.cells.A1.format).toBeDefined();
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("300.00%");
+    expect(model["workbook"].cells.A1.format).toBeDefined();
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("300.00%");
     setFormat(model, "");
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("3");
-    expect(model.workbook.cells.A1.format).not.toBeDefined();
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("3");
+    expect(model["workbook"].cells.A1.format).not.toBeDefined();
   });
 
   test("can clear a format in an empty cell", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
-    expect(model.workbook.cells.A1.format).toBe("0.00%");
+    expect(model["workbook"].cells.A1.format).toBe("0.00%");
     setFormat(model, "");
-    expect(model.workbook.cells.A1).not.toBeDefined();
+    expect(model["workbook"].cells.A1).not.toBeDefined();
   });
 
   test("setting an empty format in an empty cell does nothing", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "");
-    expect(model.workbook.cells.A1).not.toBeDefined();
+    expect(model["workbook"].cells.A1).not.toBeDefined();
   });
 
   test("does not format errors", () => {
@@ -71,8 +71,8 @@ describe("formatting values (with formatters)", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("300.00%");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("300.00%");
     model.dispatch("SET_VALUE", { xc: "A1", text: "=A1" });
-    expect(model.getters.getCellText(model.workbook.cells.A1)).toBe("#CYCLE");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("#CYCLE");
   });
 });
