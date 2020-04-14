@@ -3,66 +3,54 @@ import * as icons from "../icons";
 
 import { COLOR_PICKER, COLORS } from "../top_bar";
 import { colorNumberString } from "../../helpers/index";
-import { ColorScaleRule, ConditionalFormat } from "../../types";
-import { Model } from "../../model";
+import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
-export const PREVIEW_TEMPLATE = xml/* xml */ `
-    <div class="o-cf-preview"
-         t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
-                       text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
-                       font-style:{{currentStyle.italic?'italic':'normal'}};
-                       color:{{currentStyle.textColor}};
-                       background-color:{{currentStyle.fillColor}};"
-         t-esc="previewText || 'Preview text'" />
-`;
-
 const THRESHOLD_TEMPLATE = xml/* xml */ `
-<div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
-    <div class="o-tools">
-      <div class="o-tool  o-dropdown o-with-color">
-      <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
-            t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
-            <div class="o-dropdown-content" t-if="state[thresholdType+'ColorTool']"
-                 t-on-click="setColor(thresholdType)">
-                <t t-call="${COLOR_PICKER}"/>
-            </div>
-        </div>
-    </div>
-    <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
-        <option value="value">Cell values</option>
-        <option value="number">Fixed number</option>
-        <option value="percentage">Percentage</option>
-        <option value="percentile">Percentile</option>
-        <option value="formula">Formula</option>
-    </select>
+  <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
+      <div class="o-tools">
+        <div class="o-tool  o-dropdown o-with-color">
+        <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
+              t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
+              <div class="o-dropdown-content" t-if="state[thresholdType+'ColorTool']"
+                  t-on-click="setColor(thresholdType)">
+                  <t t-call="${COLOR_PICKER}"/>
+              </div>
+          </div>
+      </div>
+      <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
+          <option value="value">Cell values</option>
+          <option value="number">Fixed number</option>
+          <option value="percentage">Percentage</option>
+          <option value="percentile">Percentile</option>
+          <option value="formula">Formula</option>
+      </select>
 
-    <input type="text" t-model="threshold.value" class="o-threshold-value"
-           t-att-disabled="threshold.type !== 'number'"/>
-</div>
-`;
+      <input type="text" t-model="threshold.value" class="o-threshold-value"
+            t-att-disabled="threshold.type !== 'number'"/>
+  </div>`;
+
 const TEMPLATE = xml/* xml */ `
-<div>
-    <h3>Condition</h3>
-    <span>Color Scale</span>
-    <h4>Minimum</h4>
-    <t t-call="${THRESHOLD_TEMPLATE}">
-        <t t-set="threshold" t-value="state.minimum" ></t> 
-        <t t-set="thresholdType" t-value="'minimum'" ></t> 
-    </t>
-    <h4>Maximum</h4>
-    <t t-call="${THRESHOLD_TEMPLATE}">
-        <t t-set="threshold" t-value="state.maximum" ></t> 
-        <t t-set="thresholdType" t-value="'maximum'" ></t> 
-    </t>
-    <div class="o-cf-buttons">
-        <button t-on-click="onCancel" class="o-cf-cancel">Cancel</button>
-        <button t-on-click="onSave" class="o-cf-save">Save</button>
-    </div>
-</div>
-`;
+  <div>
+      <h3>Condition</h3>
+      <span>Color Scale</span>
+      <h4>Minimum</h4>
+      <t t-call="${THRESHOLD_TEMPLATE}">
+          <t t-set="threshold" t-value="state.minimum" ></t>
+          <t t-set="thresholdType" t-value="'minimum'" ></t>
+      </t>
+      <h4>Maximum</h4>
+      <t t-call="${THRESHOLD_TEMPLATE}">
+          <t t-set="threshold" t-value="state.maximum" ></t>
+          <t t-set="thresholdType" t-value="'maximum'" ></t>
+      </t>
+      <div class="o-cf-buttons">
+          <button t-on-click="onCancel" class="o-cf-cancel">Cancel</button>
+          <button t-on-click="onSave" class="o-cf-save">Save</button>
+      </div>
+  </div>`;
 
 const CSS = css/* scss */ `
   .o-threshold {
@@ -79,16 +67,14 @@ const CSS = css/* scss */ `
 
 interface Props {
   conditionalFormat: ConditionalFormat;
-  model: Model;
 }
 
-export class ColorScaleRuleEditor extends Component<Props> {
+export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
   COLORS = COLORS;
 
-  model = this.props.model;
   cf = this.props.conditionalFormat;
   colorNumberString = colorNumberString;
   rule = this.cf ? (this.cf.rule as ColorScaleRule) : null;

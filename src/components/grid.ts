@@ -7,7 +7,7 @@ import {
 } from "../constants";
 import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
-import { Viewport } from "../types/index";
+import { Viewport, SpreadsheetEnv } from "../types/index";
 import { Composer } from "./composer/composer";
 import { ContextMenu } from "./context_menu/context_menu";
 import { ContextMenuType } from "./context_menu/context_menu_registry";
@@ -33,8 +33,8 @@ const { useRef } = owl.hooks;
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown">
-    <t t-if="model.getters.getEditionMode() !== 'inactive'">
-      <Composer model="model" t-ref="composer" t-on-composer-unmounted="focus" viewport="snappedViewport"/>
+    <t t-if="getters.getEditionMode() !== 'inactive'">
+      <Composer t-ref="composer" t-on-composer-unmounted="focus" viewport="snappedViewport"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -43,9 +43,8 @@ const TEMPLATE = xml/* xml */ `
       t-on-contextmenu="onCanvasContextMenu"
       t-on-wheel="onMouseWheel" />
 
-    <Overlay model="model" t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
+    <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
     <ContextMenu t-if="contextMenu.isOpen"
-      model="model"
       type="contextMenu.type"
       position="contextMenu.position"
       t-on-close.stop="contextMenu.isOpen=false"/>
@@ -103,7 +102,7 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 // JS
 
 // -----------------------------------------------------------------------------
-export class Grid extends Component<any, any> {
+export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { Composer, Overlay, ContextMenu };
@@ -120,9 +119,10 @@ export class Grid extends Component<any, any> {
   hScrollbar = useRef("hscrollbar");
   canvas = useRef("canvas");
   hasFocus = false;
-  model: Model = this.props.model;
-  gridSize: [number, number] = this.model.getters.getGridSize();
-  currentPosition = this.model.getters.getPosition();
+  getters = this.env.getters;
+  dispatch = this.env.dispatch;
+  gridSize: [number, number] = this.getters.getGridSize();
+  currentPosition = this.getters.getPosition();
 
   clickedCol = 0;
   clickedRow = 0;
@@ -144,30 +144,28 @@ export class Grid extends Component<any, any> {
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   keyDownMapping: { [key: string]: Function } = {
-    ENTER: () => this.model.dispatch("START_EDITION"),
-    TAB: () => this.model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
-    "SHIFT+TAB": () => this.model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
-    F2: () => this.model.dispatch("START_EDITION"),
+    ENTER: () => this.dispatch("START_EDITION"),
+    TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
+    "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
+    F2: () => this.dispatch("START_EDITION"),
     DELETE: () => {
-      this.model.dispatch("DELETE_CONTENT", {
-        sheet: this.model.getters.getActiveSheet(),
-        target: this.model.getters.getSelectedZones()
+      this.dispatch("DELETE_CONTENT", {
+        sheet: this.getters.getActiveSheet(),
+        target: this.getters.getSelectedZones()
       });
     },
-    "CTRL+A": () => this.model.dispatch("SELECT_ALL"),
+    "CTRL+A": () => this.dispatch("SELECT_ALL"),
     "CTRL+S": () => {
-      this.trigger("save-content", {
-        data: this.model.exportData()
-      });
+      this.trigger("save-requested");
     },
-    "CTRL+Z": () => this.model.dispatch("UNDO"),
-    "CTRL+Y": () => this.model.dispatch("REDO")
+    "CTRL+Z": () => this.dispatch("UNDO"),
+    "CTRL+Y": () => this.dispatch("REDO")
   };
 
   private processCopyFormat() {
-    if (this.model.getters.isPaintingFormat()) {
-      this.model.dispatch("PASTE", {
-        target: this.model.getters.getSelectedZones()
+    if (this.getters.isPaintingFormat()) {
+      this.dispatch("PASTE", {
+        target: this.getters.getSelectedZones()
       });
     }
   }
@@ -182,7 +180,7 @@ export class Grid extends Component<any, any> {
   }
 
   async willUpdateProps() {
-    this.gridSize = this.model.getters.getGridSize();
+    this.gridSize = this.getters.getGridSize();
   }
 
   patched() {
@@ -190,7 +188,7 @@ export class Grid extends Component<any, any> {
   }
 
   focus() {
-    if (this.model.getters.getEditionMode() !== "selecting") {
+    if (this.getters.getEditionMode() !== "selecting") {
       this.canvas.el!.focus();
     }
   }
@@ -198,16 +196,16 @@ export class Grid extends Component<any, any> {
   onScroll() {
     this.viewport.offsetX = this.hScrollbar.el!.scrollLeft;
     this.viewport.offsetY = this.vScrollbar.el!.scrollTop;
-    const viewport = this.model.getters.getAdjustedViewport(this.viewport, "zone");
+    const viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
     if (!isEqual(viewport, this.viewport)) {
       this.viewport = viewport;
       this.render();
     }
-    this.snappedViewport = this.model.getters.getAdjustedViewport(this.viewport, "offsets");
+    this.snappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
   }
 
   checkPosition(): boolean {
-    const [col, row] = this.model.getters.getPosition();
+    const [col, row] = this.getters.getPosition();
     const [curCol, curRow] = this.currentPosition;
     const didChange = col !== curCol || row !== curRow;
     if (didChange) {
@@ -225,13 +223,13 @@ export class Grid extends Component<any, any> {
 
     // check for position changes
     if (this.checkPosition()) {
-      this.viewport = this.model.getters.getAdjustedViewport(this.viewport, "position");
+      this.viewport = this.getters.getAdjustedViewport(this.viewport, "position");
       this.hScrollbar.el!.scrollLeft = this.viewport.offsetX;
       this.vScrollbar.el!.scrollTop = this.viewport.offsetY;
     } else {
-      this.viewport = this.model.getters.getAdjustedViewport(this.viewport, "zone");
+      this.viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
     }
-    this.snappedViewport = this.model.getters.getAdjustedViewport(this.viewport, "offsets");
+    this.snappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
 
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;
@@ -247,7 +245,7 @@ export class Grid extends Component<any, any> {
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
     ctx.translate(-0.5, -0.5);
     ctx.scale(dpr, dpr);
-    this.model.drawGrid(renderingContext);
+    this.props.model.drawGrid(renderingContext);
   }
 
   onMouseWheel(ev: WheelEvent) {
@@ -269,8 +267,8 @@ export class Grid extends Component<any, any> {
       // not main button, probably a context menu
       return;
     }
-    const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-    const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+    const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+    const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
     if (col < 0 || row < 0) {
       return;
     }
@@ -278,35 +276,35 @@ export class Grid extends Component<any, any> {
     this.clickedRow = row;
 
     if (ev.shiftKey) {
-      this.model.dispatch("ALTER_SELECTION", { cell: [col, row] });
+      this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {
-      this.model.dispatch("SELECT_CELL", { col, row, createNewRange: ev.ctrlKey });
+      this.dispatch("SELECT_CELL", { col, row, createNewRange: ev.ctrlKey });
       this.checkPosition();
     }
     let prevCol = col;
     let prevRow = row;
     const onMouseMove = ev => {
-      const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-      const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+      const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+      const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
       if (col < 0 || row < 0) {
         return;
       }
       if (col !== prevCol || row !== prevRow) {
         prevCol = col;
         prevRow = row;
-        this.model.dispatch("ALTER_SELECTION", { cell: [col, row] });
+        this.dispatch("ALTER_SELECTION", { cell: [col, row] });
       }
     };
     const onMouseUp = ev => {
-      if (this.model.getters.getEditionMode() === "selecting") {
+      if (this.getters.getEditionMode() === "selecting") {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
         }
       }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-      if (this.model.getters.isPaintingFormat()) {
-        this.model.dispatch("PASTE", {
-          target: this.model.getters.getSelectedZones()
+      if (this.getters.isPaintingFormat()) {
+        this.dispatch("PASTE", {
+          target: this.getters.getSelectedZones()
         });
       }
     };
@@ -316,10 +314,10 @@ export class Grid extends Component<any, any> {
   }
 
   onDoubleClick(ev) {
-    const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-    const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+    const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+    const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
     if (this.clickedCol === col && this.clickedRow === row) {
-      this.model.dispatch("START_EDITION");
+      this.dispatch("START_EDITION");
     }
   }
 
@@ -330,7 +328,7 @@ export class Grid extends Component<any, any> {
   processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     const deltaX = ev.shiftKey ? -1 : 1;
-    this.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
+    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
     return;
   }
 
@@ -345,12 +343,12 @@ export class Grid extends Component<any, any> {
     };
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
-      this.model.dispatch("ALTER_SELECTION", { delta });
+      this.dispatch("ALTER_SELECTION", { delta });
     } else {
-      this.model.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
+      this.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
     }
 
-    if (this.model.getters.getEditionMode() === "selecting" && this.composer.comp) {
+    if (this.getters.getEditionMode() === "selecting" && this.composer.comp) {
       (this.composer.comp as Composer).addTextFromSelection();
     } else {
       this.processCopyFormat();
@@ -383,27 +381,27 @@ export class Grid extends Component<any, any> {
         // character
         ev.preventDefault();
         ev.stopPropagation();
-        this.model.dispatch("START_EDITION", { text: ev.key });
+        this.dispatch("START_EDITION", { text: ev.key });
       }
     }
   }
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const col = this.model.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-    const row = this.model.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+    const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
+    const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
     if (col < 0 || row < 0) {
       return;
     }
-    const zones = this.model.getters.getSelectedZones();
+    const zones = this.getters.getSelectedZones();
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
-      this.model.dispatch("SELECT_CELL", { col, row });
+      this.dispatch("SELECT_CELL", { col, row });
     } else {
-      if (this.model.getters.getActiveCols().has(col)) {
+      if (this.getters.getActiveCols().has(col)) {
         type = "COLUMN";
-      } else if (this.model.getters.getActiveRows().has(row)) {
+      } else if (this.getters.getActiveRows().has(row)) {
         type = "ROW";
       }
     }

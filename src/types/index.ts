@@ -9,6 +9,7 @@
  */
 
 export * from "./commands";
+export * from "./env";
 export * from "./getters";
 export * from "./misc";
 export * from "./conditional_formatting";

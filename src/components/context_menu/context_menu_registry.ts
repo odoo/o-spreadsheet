@@ -1,8 +1,6 @@
 import { toXC } from "../../helpers/index";
 import { Registry } from "../../registry";
-import { Cell } from "../../types";
-import { SpreadsheetEnv } from "../spreadsheet";
-import { Model } from "../../model";
+import { Cell, SpreadsheetEnv } from "../../types/index";
 
 //------------------------------------------------------------------------------
 // Context Menu Registry
@@ -16,7 +14,7 @@ export interface ActionContextMenuItem {
   description: string;
   isEnabled?: (cell: Cell | null) => boolean;
   isVisible?: (type: ContextMenuType) => boolean;
-  action: (model: Model, subEnv: SpreadsheetEnv) => void;
+  action: (env: SpreadsheetEnv) => void;
 }
 
 interface SeparatorContextMenuItem {
@@ -31,25 +29,25 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "cut",
     description: "Cut",
-    action(model) {
-      model.dispatch("CUT", { target: model.getters.getSelectedZones() });
+    action(env: SpreadsheetEnv) {
+      env.dispatch("CUT", { target: env.getters.getSelectedZones() });
     }
   })
   .add("copy", {
     type: "action",
     name: "copy",
     description: "Copy",
-    action(model) {
-      model.dispatch("COPY", { target: model.getters.getSelectedZones() });
+    action(env: SpreadsheetEnv) {
+      env.dispatch("COPY", { target: env.getters.getSelectedZones() });
     }
   })
   .add("paste", {
     type: "action",
     name: "paste",
     description: "Paste",
-    action(model) {
-      model.dispatch("PASTE", {
-        target: model.getters.getSelectedZones(),
+    action(env: SpreadsheetEnv) {
+      env.dispatch("PASTE", {
+        target: env.getters.getSelectedZones(),
         onlyFormat: false
       });
     }
@@ -61,8 +59,8 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "clear_cell",
     description: "Clear cell",
-    action(model: Model) {
-      model.dispatch("SET_VALUE", { xc: toXC(...model.getters.getPosition()), text: "" });
+    action(env: SpreadsheetEnv) {
+      env.dispatch("SET_VALUE", { xc: toXC(...env.getters.getPosition()), text: "" });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "CELL";
@@ -75,19 +73,19 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "conditional_formatting",
     description: "Conditional Format",
-    action(model, subEnv: SpreadsheetEnv) {
-      subEnv.openSidePanel("ConditionalFormatting");
+    action(env: SpreadsheetEnv) {
+      env.openSidePanel("ConditionalFormatting");
     }
   })
   .add("delete_column", {
     type: "action",
     name: "delete_column",
     description: "Delete column(s)",
-    action(model) {
-      const columns = model.getters.getActiveCols();
-      model.dispatch("REMOVE_COLUMNS", {
+    action(env: SpreadsheetEnv) {
+      const columns = env.getters.getActiveCols();
+      env.dispatch("REMOVE_COLUMNS", {
         columns: [...columns],
-        sheet: model.getters.getActiveSheet()
+        sheet: env.getters.getActiveSheet()
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -98,13 +96,13 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "clear_column",
     description: "Clear column(s)",
-    action(model) {
-      const target = [...model.getters.getActiveCols()].map(index =>
-        model.getters.getColsZone(index, index)
+    action(env: SpreadsheetEnv) {
+      const target = [...env.getters.getActiveCols()].map(index =>
+        env.getters.getColsZone(index, index)
       );
-      model.dispatch("DELETE_CONTENT", {
+      env.dispatch("DELETE_CONTENT", {
         target,
-        sheet: model.getters.getActiveSheet()
+        sheet: env.getters.getActiveSheet()
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -115,11 +113,11 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "add_column_before",
     description: "Add column before",
-    action(model) {
-      const column = Math.min(...model.getters.getActiveCols());
-      const quantity = model.getters.getActiveCols().size;
-      model.dispatch("ADD_COLUMNS", {
-        sheet: model.getters.getActiveSheet(),
+    action(env: SpreadsheetEnv) {
+      const column = Math.min(...env.getters.getActiveCols());
+      const quantity = env.getters.getActiveCols().size;
+      env.dispatch("ADD_COLUMNS", {
+        sheet: env.getters.getActiveSheet(),
         position: "before",
         column,
         quantity
@@ -133,11 +131,11 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "add_column_after",
     description: "Add column after",
-    action(model) {
-      const column = Math.max(...model.getters.getActiveCols());
-      const quantity = model.getters.getActiveCols().size;
-      model.dispatch("ADD_COLUMNS", {
-        sheet: model.getters.getActiveSheet(),
+    action(env: SpreadsheetEnv) {
+      const column = Math.max(...env.getters.getActiveCols());
+      const quantity = env.getters.getActiveCols().size;
+      env.dispatch("ADD_COLUMNS", {
+        sheet: env.getters.getActiveSheet(),
         position: "after",
         column,
         quantity
@@ -151,9 +149,9 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "delete_row",
     description: "Delete row(s)",
-    action(model) {
-      const rows = model.getters.getActiveRows();
-      model.dispatch("REMOVE_ROWS", { sheet: model.getters.getActiveSheet(), rows: [...rows] });
+    action(env: SpreadsheetEnv) {
+      const rows = env.getters.getActiveRows();
+      env.dispatch("REMOVE_ROWS", { sheet: env.getters.getActiveSheet(), rows: [...rows] });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "ROW";
@@ -163,13 +161,13 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "clear_row",
     description: "Clear row(s)",
-    action(model) {
-      const target = [...model.getters.getActiveRows()].map(index =>
-        model.getters.getRowsZone(index, index)
+    action(env: SpreadsheetEnv) {
+      const target = [...env.getters.getActiveRows()].map(index =>
+        env.getters.getRowsZone(index, index)
       );
-      model.dispatch("DELETE_CONTENT", {
+      env.dispatch("DELETE_CONTENT", {
         target,
-        sheet: model.getters.getActiveSheet()
+        sheet: env.getters.getActiveSheet()
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
@@ -180,11 +178,11 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "add_row_before",
     description: "Add row before",
-    action(model) {
-      const row = Math.min(...model.getters.getActiveRows());
-      const quantity = model.getters.getActiveRows().size;
-      model.dispatch("ADD_ROWS", {
-        sheet: model.getters.getActiveSheet(),
+    action(env: SpreadsheetEnv) {
+      const row = Math.min(...env.getters.getActiveRows());
+      const quantity = env.getters.getActiveRows().size;
+      env.dispatch("ADD_ROWS", {
+        sheet: env.getters.getActiveSheet(),
         position: "before",
         row,
         quantity
@@ -198,11 +196,11 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "add_row_after",
     description: "Add row after",
-    action(model) {
-      const row = Math.max(...model.getters.getActiveRows());
-      const quantity = model.getters.getActiveRows().size;
-      model.dispatch("ADD_ROWS", {
-        sheet: model.getters.getActiveSheet(),
+    action(env: SpreadsheetEnv) {
+      const row = Math.max(...env.getters.getActiveRows());
+      const quantity = env.getters.getActiveRows().size;
+      env.dispatch("ADD_ROWS", {
+        sheet: env.getters.getActiveSheet(),
         position: "after",
         row,
         quantity

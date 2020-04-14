@@ -1,7 +1,6 @@
 import * as owl from "@odoo/owl";
 
-import { Style } from "../types/index";
-import { Model } from "../model";
+import { Style, SpreadsheetEnv } from "../types/index";
 import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
@@ -113,7 +112,7 @@ const FORMATS = [
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
-export class TopBar extends Component<any, any> {
+export class TopBar extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar">
       <div class="o-tools">
@@ -199,7 +198,7 @@ export class TopBar extends Component<any, any> {
         <div class="o-divider"/>
       </div>
       <div class="o-cell-content">
-         <t t-set="cell" t-value="model.getters.getActiveCell()"/>
+         <t t-set="cell" t-value="getters.getActiveCell()"/>
          <t t-esc="cell and cell.content"/>
       </div>
     </div>`;
@@ -333,7 +332,9 @@ export class TopBar extends Component<any, any> {
   formats = FORMATS;
   currentFormat = "auto";
   fontSizes = fontSizes;
-  model: Model = this.props.model;
+  dispatch = this.env.dispatch;
+  getters = this.env.getters;
+
   style: Style = {};
   state = useState({
     formatTool: false,
@@ -364,7 +365,7 @@ export class TopBar extends Component<any, any> {
   }
 
   setConditionalFormatting() {
-    this.env.spreadsheet.openSidePanel("ConditionalFormatting");
+    this.env.openSidePanel("ConditionalFormatting");
   }
 
   toggleTool(tool) {
@@ -373,12 +374,11 @@ export class TopBar extends Component<any, any> {
   }
   useTool(tool, value) {
     const style = { [tool]: value };
-    this.model.dispatch("SET_FORMATTING", {
-      sheet: this.model.getters.getActiveSheet(),
-      target: this.model.getters.getSelectedZones(),
+    this.dispatch("SET_FORMATTING", {
+      sheet: this.getters.getActiveSheet(),
+      target: this.getters.getSelectedZones(),
       style
     });
-    // this.model.setStyle({ [tool]: value });
   }
 
   toggleMenu(tool) {
@@ -396,22 +396,22 @@ export class TopBar extends Component<any, any> {
   }
 
   updateCellState() {
-    this.style = this.model.getters.getCurrentStyle();
+    this.style = this.getters.getCurrentStyle();
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
-    const zones = this.model.getters.getSelectedZones();
+    const zones = this.getters.getSelectedZones();
     const { top, left, right, bottom } = zones[0];
     this.cannotMerge = zones.length > 1 || (top === bottom && left === right);
     this.inMerge = false;
     if (!this.cannotMerge) {
-      const [col, row] = this.model.getters.getPosition();
-      const zone = this.model.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+      const [col, row] = this.getters.getPosition();
+      const zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
       this.inMerge = isEqual(zones[0], zone);
     }
-    this.undoTool = this.model.getters.canUndo();
-    this.redoTool = this.model.getters.canRedo();
-    this.paintFormatTool = this.model.getters.isPaintingFormat();
-    const cell = this.model.getters.getActiveCell();
+    this.undoTool = this.getters.canUndo();
+    this.redoTool = this.getters.canRedo();
+    this.paintFormatTool = this.getters.isPaintingFormat();
+    const cell = this.getters.getActiveCell();
     if (cell && cell.format) {
       const format = this.formats.find(f => f.value === cell.format);
       this.currentFormat = format ? format.name : "";
@@ -421,19 +421,19 @@ export class TopBar extends Component<any, any> {
   }
 
   toggleMerge() {
-    const zones = this.model.getters.getSelectedZones();
+    const zones = this.getters.getSelectedZones();
     const zone = zones[zones.length - 1];
-    const sheet = this.model.getters.getActiveSheet();
+    const sheet = this.getters.getActiveSheet();
     if (this.inMerge) {
-      this.model.dispatch("REMOVE_MERGE", { sheet, zone });
+      this.dispatch("REMOVE_MERGE", { sheet, zone });
     } else {
-      if (this.model.getters.isMergeDestructive(zone)) {
+      if (this.getters.isMergeDestructive(zone)) {
         this.trigger("ask-confirmation", {
           content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
-          confirm: () => this.model.dispatch("ADD_MERGE", { sheet, zone })
+          confirm: () => this.dispatch("ADD_MERGE", { sheet, zone })
         });
       } else {
-        this.model.dispatch("ADD_MERGE", { sheet, zone });
+        this.dispatch("ADD_MERGE", { sheet, zone });
       }
     }
   }
@@ -441,18 +441,18 @@ export class TopBar extends Component<any, any> {
     const color = ev.target.dataset.color;
     if (color) {
       const style = { [target]: color };
-      this.model.dispatch("SET_FORMATTING", {
-        sheet: this.model.getters.getActiveSheet(),
-        target: this.model.getters.getSelectedZones(),
+      this.dispatch("SET_FORMATTING", {
+        sheet: this.getters.getActiveSheet(),
+        target: this.getters.getSelectedZones(),
         style
       });
       this.closeMenus();
     }
   }
   setBorder(command) {
-    this.model.dispatch("SET_FORMATTING", {
-      sheet: this.model.getters.getActiveSheet(),
-      target: this.model.getters.getSelectedZones(),
+    this.dispatch("SET_FORMATTING", {
+      sheet: this.getters.getActiveSheet(),
+      target: this.getters.getSelectedZones(),
       border: command
     });
   }
@@ -461,44 +461,42 @@ export class TopBar extends Component<any, any> {
     if (format) {
       const formatter = FORMATS.find(f => f.name === format);
       const value = (formatter && formatter.value) || "";
-      this.model.dispatch("SET_FORMATTER", {
-        sheet: this.model.getters.getActiveSheet(),
-        target: this.model.getters.getSelectedZones(),
+      this.dispatch("SET_FORMATTER", {
+        sheet: this.getters.getActiveSheet(),
+        target: this.getters.getSelectedZones(),
         formatter: value
       });
     }
   }
   paintFormat() {
-    this.model.dispatch("ACTIVATE_PAINT_FORMAT", {
-      target: this.model.getters.getSelectedZones()
+    this.dispatch("ACTIVATE_PAINT_FORMAT", {
+      target: this.getters.getSelectedZones()
     });
   }
   clearFormatting() {
-    this.model.dispatch("CLEAR_FORMATTING", {
-      sheet: this.model.getters.getActiveSheet(),
-      target: this.model.getters.getSelectedZones()
+    this.dispatch("CLEAR_FORMATTING", {
+      sheet: this.getters.getActiveSheet(),
+      target: this.getters.getSelectedZones()
     });
   }
   setSize(ev) {
     const fontSize = parseFloat(ev.target.dataset.size);
-    this.model.dispatch("SET_FORMATTING", {
-      sheet: this.model.getters.getActiveSheet(),
-      target: this.model.getters.getSelectedZones(),
+    this.dispatch("SET_FORMATTING", {
+      sheet: this.getters.getActiveSheet(),
+      target: this.getters.getSelectedZones(),
       style: { fontSize }
     });
   }
   onSave() {
-    this.trigger("save-content", {
-      data: this.model.exportData()
-    });
+    this.trigger("save-requested");
   }
   onLoad() {
     this.trigger("load-content");
   }
   undo() {
-    this.model.dispatch("UNDO");
+    this.dispatch("UNDO");
   }
   redo() {
-    this.model.dispatch("REDO");
+    this.dispatch("REDO");
   }
 }

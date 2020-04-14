@@ -1,9 +1,10 @@
-import { Model } from "../../src/model";
-import { makeTestFixture, nextTick, getCell } from "../helpers";
+import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
-import { Component, tags } from "@odoo/owl";
+import { Model } from "../../src/model";
+import { getCell, makeTestFixture, nextTick } from "../helpers";
 
 const { xml } = tags;
+const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 
@@ -13,6 +14,11 @@ class Parent extends Component<any, any> {
   model: Model;
   constructor(model: Model) {
     super();
+    useSubEnv({
+      openSidePanel: (panel: string) => {},
+      dispatch: model.dispatch,
+      getters: model.getters
+    });
     this.model = model;
   }
   askConfirmation(ev) {}

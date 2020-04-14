@@ -1,10 +1,10 @@
 import { Component, tags } from "@odoo/owl";
-import { Model } from "../../model";
+import { SpreadsheetEnv } from "../../types";
 import {
-  ContextMenuType,
+  ActionContextMenuItem,
   ContextMenuItem,
   contextMenuRegistry,
-  ActionContextMenuItem
+  ContextMenuType
 } from "./context_menu_registry";
 
 const { xml, css } = tags;
@@ -16,7 +16,7 @@ const { xml, css } = tags;
 const TEMPLATE = xml/* xml */ `
     <div class="o-context-menu" t-att-style="style" tabindex="-1" t-on-blur="trigger('close')">
         <t t-foreach="menuItems" t-as="menuItem" t-key="menuItem.name">
-          <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(model.getters.getActiveCell())"/>
+          <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(env.getters.getActiveCell())"/>
           <div
             t-if="menuItem.type === 'action'"
             t-att-data-name="menuItem.name"
@@ -58,29 +58,23 @@ const CSS = css/* scss */ `
         padding: 0;
       }
     }
-  }
-`;
+  }`;
 
 interface Props {
-  model: Model;
   position: { x: number; y: number; width: number; height: number };
   type: ContextMenuType;
 }
 
-export class ContextMenu extends Component<Props, any> {
+export class ContextMenu extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
-  model: Model = this.props.model;
+  menuItems: ContextMenuItem[] = contextMenuRegistry
+    .getAll()
+    .filter(item => !item.isVisible || item.isVisible(this.props.type));
 
   mounted() {
     this.el!.focus();
-  }
-
-  get menuItems(): ContextMenuItem[] {
-    return contextMenuRegistry
-      .getAll()
-      .filter(item => !item.isVisible || item.isVisible(this.props.type));
   }
 
   get style() {
@@ -93,8 +87,8 @@ export class ContextMenu extends Component<Props, any> {
   }
 
   activateMenu(menu: ActionContextMenuItem) {
-    if (!menu.isEnabled || menu.isEnabled(this.model.getters.getActiveCell())) {
-      menu.action(this.model, this.env.spreadsheet);
+    if (!menu.isEnabled || menu.isEnabled(this.env.getters.getActiveCell())) {
+      menu.action(this.env);
     }
   }
 }

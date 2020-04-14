@@ -73,7 +73,7 @@ describe("Grid component", () => {
   });
 
   test("Can open the Conditional Format side panel", async () => {
-    parent.env.spreadsheet.openSidePanel("ConditionalFormatting");
+    parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });
@@ -185,7 +185,7 @@ describe("Grid component", () => {
 
     test("can save the sheet with CTRL+S", async () => {
       let saveContentCalled = false;
-      parent.el!.addEventListener("save-content", () => {
+      parent.el!.addEventListener("save-requested", () => {
         saveContentCalled = true;
       });
       document.activeElement!.dispatchEvent(

@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
-import { Model } from "../model";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, BOTTOMBAR_HEIGHT } from "../constants";
+import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
+import { SpreadsheetEnv } from "../types";
 import { PLUS } from "./icons";
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -12,10 +12,10 @@ const { xml, css } = owl.tags;
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
     <span class="o-add-sheet" t-on-click="addSheet">${PLUS}</span>
-    <t t-foreach="model.getters.getSheets()" t-as="sheet" t-key="sheet">
-      <span class="o-sheet" t-on-click="activateSheet(sheet)" t-att-class="{active: sheet === model.getters.getActiveSheet()}"><t t-esc="sheet"/></span>
+    <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet">
+      <span class="o-sheet" t-on-click="activateSheet(sheet)" t-att-class="{active: sheet === getters.getActiveSheet()}"><t t-esc="sheet"/></span>
     </t>
-    <t t-set="aggregate" t-value="model.getters.getAggregate()"/>
+    <t t-set="aggregate" t-value="getters.getAggregate()"/>
     <t t-if="aggregate !== null">
       <span class="o-space"/>
       <span class="o-aggregate">Sum: <t t-esc="aggregate"/></span>
@@ -79,17 +79,17 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class BottomBar extends Component<any, any> {
+export class BottomBar extends Component<{}, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
-  model: Model = this.props.model;
+  getters = this.env.getters;
 
   addSheet() {
-    this.model.dispatch("CREATE_SHEET");
+    this.env.dispatch("CREATE_SHEET");
   }
 
   activateSheet(name: string) {
-    this.model.dispatch("ACTIVATE_SHEET", { from: this.model.getters.getActiveSheet(), to: name });
+    this.env.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: name });
   }
 }

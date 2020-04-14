@@ -3,23 +3,23 @@ import { COLORS } from "../top_bar";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { colorNumberString, uuidv4 } from "../../helpers/index";
-import { ConditionalFormat } from "../../types";
+import { ConditionalFormat, SpreadsheetEnv } from "../../types";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
 // TODO vsc: add ordering of rules
-export const PREVIEW_TEMPLATE_SINGLE_COLOR = xml/* xml */ `
+const PREVIEW_TEMPLATE_SINGLE_COLOR = xml/* xml */ `
   <div class="o-cf-preview"
        t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                      text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
                      font-style:{{currentStyle.italic?'italic':'normal'}};
                      color:{{currentStyle.textColor}};
                      background-color:{{currentStyle.fillColor}};"
-       t-esc="previewText  || 'Preview text'" />
-`;
+       t-esc="previewText  || 'Preview text'" />`;
+
 const TEMPLATE = xml/* xml */ `
-<div class="o-cf">
+  <div class="o-cf">
     <h3>Current sheet</h3>
     <div class="o-cf-preview-list" >
         <div t-on-click="onRuleClick(cf)" t-foreach="state.conditionalFormats" t-as="cf" t-key="cf.id">
@@ -49,7 +49,7 @@ const TEMPLATE = xml/* xml */ `
                 </form>
             </t>
             <t t-component="editors[state.currentCF.rule.type]" 
-                t-key="state.currentCF.id" model="props.model"
+                t-key="state.currentCF.id"
                 conditionalFormat="state.currentCF"
                 t-on-cancel-edit="onCancel"
                 t-on-modify-rule="onSave" />
@@ -57,7 +57,7 @@ const TEMPLATE = xml/* xml */ `
         </div>
     </t>
     <button t-if="state.mode === 'list'" class="o-cf-add" t-on-click.prevent.stop="onAdd">Add</button>
-</div>`;
+  </div>`;
 
 const CSS = css/* scss */ `
   .o-cf {
@@ -68,7 +68,7 @@ const CSS = css/* scss */ `
     h4 {
       margin-bottom: 5px;
     }
-    
+
     .o-cf-ruleEditor {
       .o-dropdown {
         position: relative;
@@ -148,23 +148,21 @@ const CSS = css/* scss */ `
       }
     }
   }
-    
-  }
-`;
+  }`;
 
-export class ConditionalFormattingPanel extends Component<any> {
+export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { CellIsRuleEditor, ColorScaleRuleEditor };
   colorNumberString = colorNumberString;
   COLORS = COLORS;
+  getters = this.env.getters;
 
-  model = this.props.model;
   state = useState({
     currentCF: undefined as undefined | ConditionalFormat,
     currentRanges: "",
     mode: "list" as "list" | "edit" | "add",
-    conditionalFormats: this.model.getters.getConditionalFormats(),
+    conditionalFormats: this.getters.getConditionalFormats(),
     toRuleType: "CellIsRule"
   });
 
@@ -175,7 +173,7 @@ export class ConditionalFormattingPanel extends Component<any> {
 
   onSave(ev: CustomEvent) {
     if (this.state.currentCF) {
-      this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: ev.detail.rule,
           ranges: this.state.currentRanges.split(","),
@@ -184,7 +182,7 @@ export class ConditionalFormattingPanel extends Component<any> {
       });
     }
     this.state.mode = "list";
-    this.state.conditionalFormats = this.model.getters.getConditionalFormats();
+    this.state.conditionalFormats = this.getters.getConditionalFormats();
   }
 
   onCancel() {
@@ -206,9 +204,9 @@ export class ConditionalFormattingPanel extends Component<any> {
       style: { fillColor: "#FF0000" }
     },
     ranges: [
-      this.model.getters
+      this.getters
         .getSelectedZones()
-        .map(this.model.getters.zoneToXC)
+        .map(this.getters.zoneToXC)
         .join(",")
     ],
     id: uuidv4()
@@ -221,9 +219,9 @@ export class ConditionalFormattingPanel extends Component<any> {
       type: "ColorScaleRule"
     },
     ranges: [
-      this.model.getters
+      this.getters
         .getSelectedZones()
-        .map(this.model.getters.zoneToXC)
+        .map(this.getters.zoneToXC)
         .join(",")
     ],
     id: uuidv4()

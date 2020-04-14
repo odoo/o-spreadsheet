@@ -1,8 +1,7 @@
 import * as owl from "@odoo/owl";
 import { fontSizeMap } from "../../fonts";
 import { ComposerToken, composerTokenize, rangeReference } from "../../formulas/index";
-import { Model } from "../../model";
-import { Rect, Zone } from "../../types/index";
+import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 
@@ -93,7 +92,7 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class Composer extends Component<any, any> {
+export class Composer extends Component<any, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TextValueProvider };
@@ -101,7 +100,9 @@ export class Composer extends Component<any, any> {
   composerRef = useRef("o_composer");
   autoCompleteRef = useRef("o_autocomplete_provider");
 
-  model: Model = this.props.model;
+  getters = this.env.getters;
+  dispatch = this.env.dispatch;
+
   zone: Zone;
   rect: Rect;
 
@@ -139,9 +140,9 @@ export class Composer extends Component<any, any> {
   constructor() {
     super(...arguments);
     this.contentHelper = new ContentEditableHelper(this.composerRef.el!);
-    const [col, row] = this.model.getters.getPosition();
-    this.zone = this.model.getters.expandZone({ left: col, right: col, top: row, bottom: row });
-    this.rect = this.model.getters.getRect(this.zone, this.props.viewport);
+    const [col, row] = this.getters.getPosition();
+    this.zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+    this.rect = this.getters.getRect(this.zone, this.props.viewport);
   }
 
   mounted() {
@@ -151,7 +152,7 @@ export class Composer extends Component<any, any> {
     const el = this.composerRef.el!;
 
     this.contentHelper.updateEl(el);
-    const currentContent = this.model.getters.getCurrentContent();
+    const currentContent = this.getters.getCurrentContent();
     if (currentContent) {
       this.contentHelper.insertText(currentContent);
       this.contentHelper.selectRange(currentContent.length, currentContent.length);
@@ -167,7 +168,7 @@ export class Composer extends Component<any, any> {
   }
 
   get containerStyle() {
-    const style = this.model.getters.getCurrentStyle();
+    const style = this.getters.getCurrentStyle();
     const [x, y, , height] = this.rect;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
@@ -182,8 +183,8 @@ export class Composer extends Component<any, any> {
   }
 
   get composerStyle() {
-    const style = this.model.getters.getCurrentStyle();
-    const cell = this.model.getters.getActiveCell() || { type: "text" };
+    const style = this.getters.getCurrentStyle();
+    const cell = this.getters.getActiveCell() || { type: "text" };
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     return `text-align:${align};`;
   }
@@ -193,7 +194,7 @@ export class Composer extends Component<any, any> {
   // ---------------------------------------------------------------------------
 
   processArrowKeys(ev: KeyboardEvent, delta: Array<number>) {
-    if (this.model.getters.getEditionMode() === "selecting") {
+    if (this.getters.getEditionMode() === "selecting") {
       ev.preventDefault();
       return;
     }
@@ -227,12 +228,12 @@ export class Composer extends Component<any, any> {
       // when completing with tab, if there is no value to complete, the active cell will be moved to the right.
       // we can't let the model think that it is for a ref selection.
       // todo: check if this can be removed someday
-      this.model.dispatch("STOP_COMPOSER_SELECTION");
+      this.dispatch("STOP_COMPOSER_SELECTION");
     }
 
     const deltaX = ev.shiftKey ? -1 : 1;
     this.isDone = true;
-    this.model.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
+    this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
   }
 
   processEnterKey(ev: KeyboardEvent) {
@@ -246,8 +247,8 @@ export class Composer extends Component<any, any> {
         return;
       }
     }
-    this.model.dispatch("STOP_EDITION");
-    this.model.dispatch("MOVE_POSITION", {
+    this.dispatch("STOP_EDITION");
+    this.dispatch("MOVE_POSITION", {
       deltaX: 0,
       deltaY: ev.shiftKey ? -1 : 1
     });
@@ -255,7 +256,7 @@ export class Composer extends Component<any, any> {
   }
 
   processEscapeKey() {
-    this.model.dispatch("STOP_EDITION", { cancel: true });
+    this.dispatch("STOP_EDITION", { cancel: true });
     this.isDone = true;
   }
 
@@ -279,7 +280,7 @@ export class Composer extends Component<any, any> {
       el.style.width = (el.scrollWidth + 20) as any;
     }
     const content = el.childNodes.length ? el.textContent! : "";
-    this.model.dispatch("SET_CURRENT_CONTENT", { content });
+    this.dispatch("SET_CURRENT_CONTENT", { content });
   }
 
   onKeyup(ev: KeyboardEvent) {
@@ -305,7 +306,7 @@ export class Composer extends Component<any, any> {
     // They will be set correctly if needed in `processTokenAtCursor`
     this.autoCompleteState.showProvider = false;
     this.autoCompleteState.search = "";
-    this.model.dispatch("STOP_COMPOSER_SELECTION");
+    this.dispatch("STOP_COMPOSER_SELECTION");
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.showProvider = true;
     } else {
@@ -329,13 +330,13 @@ export class Composer extends Component<any, any> {
 
   processContent() {
     this.shouldProcessInputEvents = false;
-    let value = this.model.getters.getCurrentContent();
+    let value = this.getters.getCurrentContent();
     this.tokenAtCursor = undefined;
     if (value.startsWith("=")) {
       this.saveSelection();
       this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.model.dispatch("REMOVE_HIGHLIGHTS"); //cleanup highlights for references
+      this.dispatch("REMOVE_HIGHLIGHTS"); //cleanup highlights for references
 
       const refUsed = {};
       let lastUsedColorIndex = 0;
@@ -393,7 +394,7 @@ export class Composer extends Component<any, any> {
       // Put the cursor back where it was
       this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
       if (Object.keys(refUsed).length) {
-        this.model.dispatch("ADD_HIGHLIGHTS", { ranges: refUsed });
+        this.dispatch("ADD_HIGHLIGHTS", { ranges: refUsed });
       }
     }
     this.shouldProcessInputEvents = true;
@@ -416,7 +417,7 @@ export class Composer extends Component<any, any> {
     } else if (["COMMA", "LEFT_PAREN", "OPERATOR"].includes(this.tokenAtCursor.type)) {
       // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
       // is relative the to the cell we edit
-      this.model.dispatch("START_COMPOSER_SELECTION");
+      this.dispatch("START_COMPOSER_SELECTION");
       // We set this variable to store the start of the selection, to allow
       // to replace selections (ex: select twice a cell should only be added
       // once)
@@ -432,8 +433,8 @@ export class Composer extends Component<any, any> {
   }
 
   addTextFromSelection() {
-    const zone = this.model.getters.getSelectedZones()[0];
-    let selection = this.model.getters.zoneToXC(zone);
+    const zone = this.getters.getSelectedZones()[0];
+    let selection = this.getters.zoneToXC(zone);
     if (this.refSelectionStart) {
       this.selectionStart = this.refSelectionStart;
     }
