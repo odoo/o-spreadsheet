@@ -1,8 +1,7 @@
 import * as owl from "@odoo/owl";
 import * as icons from "../icons";
 import { COLOR_PICKER, COLORS } from "../top_bar";
-import { CellIsRule, ConditionalFormat, Style } from "../../types";
-import { Model } from "../../model";
+import { CellIsRule, ConditionalFormat, Style, SpreadsheetEnv } from "../../types";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
@@ -86,10 +85,9 @@ const cellIsOperators = {
 
 interface Props {
   conditionalFormat: ConditionalFormat;
-  model: Model;
 }
 
-export class CellIsRuleEditor extends Component<Props> {
+export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
@@ -97,7 +95,6 @@ export class CellIsRuleEditor extends Component<Props> {
   private cellIsOperators = cellIsOperators;
   COLORS = COLORS;
 
-  model = this.props.model as Model;
   cf = this.props.conditionalFormat as ConditionalFormat;
   rule = this.cf.rule as CellIsRule;
   state = useState({

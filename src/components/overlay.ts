@@ -1,8 +1,6 @@
 import * as owl from "@odoo/owl";
-
-import { Model } from "../model";
-import { Col, Row } from "../types/index";
-import { MIN_ROW_HEIGHT, MIN_COL_WIDTH, HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import { HEADER_HEIGHT, HEADER_WIDTH, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../constants";
+import { Col, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./context_menu/context_menu_registry";
 
 const { Component } = owl;
@@ -13,13 +11,14 @@ const { useState } = owl.hooks;
 // Resizer component
 // -----------------------------------------------------------------------------
 
-abstract class AbstractResizer extends Component<any, any> {
-  model: Model = this.props.model;
+abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
   lastSelectedElement: number | null = null;
   lastElement: number | null = null;
+  getters = this.env.getters;
+  dispatch = this.env.dispatch;
 
   state = useState({
     isActive: <boolean>false,
@@ -245,15 +244,15 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getters.getColIndex(index, this.props.viewport.left);
+    return this.getters.getColIndex(index, this.props.viewport.left);
   }
 
   _getElement(index: number): Col {
-    return this.model.getters.getCol(index);
+    return this.getters.getCol(index);
   }
 
   _getElementSize(index: number): number {
-    return this.model.getters.getColSize(index);
+    return this.getters.getColSize(index);
   }
 
   _getBottomRightValue(element: Col): number {
@@ -271,26 +270,26 @@ export class ColResizer extends AbstractResizer {
   _updateSize(): void {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
-    const cols = this.model.getters.getActiveCols();
-    this.model.dispatch("RESIZE_COLUMNS", {
-      sheet: this.model.getters.getActiveSheet(),
+    const cols = this.getters.getActiveCols();
+    this.dispatch("RESIZE_COLUMNS", {
+      sheet: this.getters.getActiveSheet(),
       cols: cols.has(index) ? [...cols] : [index],
       size
     });
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.dispatch("SELECT_COLUMN", { index, createRange: ctrlKey });
+    this.dispatch("SELECT_COLUMN", { index, createRange: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
-    this.model.dispatch("SELECT_COLUMN", { index, updateRange: true });
+    this.dispatch("SELECT_COLUMN", { index, updateRange: true });
   }
 
   _fitElementSize(index: number): void {
-    const cols = this.model.getters.getActiveCols();
-    this.model.dispatch("AUTORESIZE_COLUMNS", {
-      sheet: this.model.getters.getActiveSheet(),
+    const cols = this.getters.getActiveCols();
+    this.dispatch("AUTORESIZE_COLUMNS", {
+      sheet: this.getters.getActiveSheet(),
       cols: cols.has(index) ? [...cols] : [index]
     });
   }
@@ -300,7 +299,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getActiveElements(): Set<number> {
-    return this.model.getters.getActiveCols();
+    return this.getters.getActiveCols();
   }
 
   _getXY(ev: MouseEvent): { x: number; y: number } {
@@ -373,15 +372,15 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(index: number): number {
-    return this.model.getters.getRowIndex(index, this.props.viewport.top);
+    return this.getters.getRowIndex(index, this.props.viewport.top);
   }
 
   _getElement(index: number): Row {
-    return this.model.getters.getRow(index);
+    return this.getters.getRow(index);
   }
 
   _getElementSize(index: number): number {
-    return this.model.getters.getRowSize(index);
+    return this.getters.getRowSize(index);
   }
 
   _getHeaderSize(): number {
@@ -395,26 +394,26 @@ export class RowResizer extends AbstractResizer {
   _updateSize(): void {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
-    const rows = this.model.getters.getActiveRows();
-    this.model.dispatch("RESIZE_ROWS", {
-      sheet: this.model.getters.getActiveSheet(),
+    const rows = this.getters.getActiveRows();
+    this.dispatch("RESIZE_ROWS", {
+      sheet: this.getters.getActiveSheet(),
       rows: rows.has(index) ? [...rows] : [index],
       size
     });
   }
 
   _selectElement(index: number, ctrlKey: boolean): void {
-    this.model.dispatch("SELECT_ROW", { index, createRange: ctrlKey });
+    this.dispatch("SELECT_ROW", { index, createRange: ctrlKey });
   }
 
   _increaseSelection(index: number): void {
-    this.model.dispatch("SELECT_ROW", { index, updateRange: true });
+    this.dispatch("SELECT_ROW", { index, updateRange: true });
   }
 
   _fitElementSize(index: number): void {
-    const rows = this.model.getters.getActiveRows();
-    this.model.dispatch("AUTORESIZE_ROWS", {
-      sheet: this.model.getters.getActiveSheet(),
+    const rows = this.getters.getActiveRows();
+    this.dispatch("AUTORESIZE_ROWS", {
+      sheet: this.getters.getActiveSheet(),
       rows: rows.has(index) ? [...rows] : [index]
     });
   }
@@ -424,7 +423,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getActiveElements(): Set<number> {
-    return this.model.getters.getActiveRows();
+    return this.getters.getActiveRows();
   }
 
   _getXY(ev: MouseEvent): { x: number; y: number } {
@@ -435,11 +434,11 @@ export class RowResizer extends AbstractResizer {
   }
 }
 
-export class Overlay extends Component<any, any> {
+export class Overlay extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-overlay">
-      <ColResizer model="props.model" viewport="props.viewport"/>
-      <RowResizer model="props.model" viewport="props.viewport"/>
+      <ColResizer viewport="props.viewport"/>
+      <RowResizer viewport="props.viewport"/>
       <div class="all" t-on-mousedown.self="selectAll"/>
     </div>`;
 
@@ -458,9 +457,7 @@ export class Overlay extends Component<any, any> {
 
   static components = { ColResizer, RowResizer };
 
-  model: Model = this.props.model;
-
   selectAll() {
-    this.model.dispatch("SELECT_ALL");
+    this.env.dispatch("SELECT_ALL");
   }
 }

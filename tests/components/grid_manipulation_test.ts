@@ -8,11 +8,12 @@ const OUTSIDE_CM = { x: 50, y: 50 };
 
 let fixture: HTMLElement;
 let model: Model;
+let parent: GridParent;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
   model = new Model();
-  const parent = new GridParent(model);
+  parent = new GridParent(model);
   await parent.mount(fixture);
 });
 
@@ -53,9 +54,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can clear cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='clear_column']");
-    expect(model.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
         {
           top: 0,
@@ -71,9 +72,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can clear row with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='clear_row']");
-    expect(model.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
         {
           top: 4,
@@ -89,9 +90,10 @@ describe("Context Menu add/remove row/col", () => {
   test("can delete cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='delete_column']");
-    expect(model.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
       columns: [3],
       sheet: model["workbook"].activeSheet.name
     });
@@ -100,9 +102,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can delete rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='delete_row']");
-    expect(model.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
       rows: [4],
       sheet: model["workbook"].activeSheet.name
     });
@@ -111,9 +113,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can add before cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_column_before']");
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
       position: "before",
       column: 3,
       quantity: 1,
@@ -124,9 +126,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can add before rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_row_before']");
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
       position: "before",
       row: 4,
       quantity: 1,
@@ -137,9 +139,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can add after cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_column_after']");
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
       position: "after",
       column: 3,
       quantity: 1,
@@ -150,9 +152,9 @@ describe("Context Menu add/remove row/col", () => {
   test("can add after rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_row_after']");
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
       position: "after",
       row: 4,
       quantity: 1,

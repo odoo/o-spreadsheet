@@ -1,11 +1,10 @@
 import * as owl from "@odoo/owl";
-
-import { Grid } from "./grid";
+import { BOTTOMBAR_HEIGHT, TOPBAR_HEIGHT } from "../constants";
 import { Model } from "../model";
-import { TopBar } from "./top_bar";
 import { BottomBar } from "./bottom_bar";
-import { TOPBAR_HEIGHT, BOTTOMBAR_HEIGHT } from "../constants";
+import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
+import { TopBar } from "./top_bar";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -17,13 +16,12 @@ const { useSubEnv } = owl.hooks;
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet">
-    <TopBar model="model" t-on-click="focusGrid"/>
+  <div class="o-spreadsheet" t-on-save-requested="save">
+    <TopBar t-on-click="focusGrid"/>
     <Grid model="model" t-ref="grid"/>
-    <BottomBar model="model" />
+    <BottomBar />
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
-           model="model"
            component="sidePanel.component"/>
   </div>`;
 
@@ -53,10 +51,6 @@ interface Props {
   data?: any;
 }
 
-export interface SpreadsheetEnv {
-  openSidePanel: (panel: string) => void;
-}
-
 export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
@@ -77,10 +71,11 @@ export class Spreadsheet extends Component<Props> {
 
   constructor() {
     super(...arguments);
-    const spreadsheetEnv: SpreadsheetEnv = {
-      openSidePanel: (panel: string) => this.openSidePanel(panel)
-    };
-    useSubEnv({ spreadsheet: spreadsheetEnv });
+    useSubEnv({
+      openSidePanel: (panel: string) => this.openSidePanel(panel),
+      dispatch: this.model.dispatch,
+      getters: this.model.getters
+    });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
@@ -140,5 +135,11 @@ export class Spreadsheet extends Component<Props> {
         });
       }
     }
+  }
+
+  save() {
+    this.trigger("save-content", {
+      data: this.model.exportData()
+    });
   }
 }

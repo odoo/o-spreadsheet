@@ -1,4 +1,3 @@
-
 import { Style, Border, Zone } from "./misc";
 
 export type Rect = [number, number, number, number];

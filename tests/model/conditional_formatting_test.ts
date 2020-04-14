@@ -677,7 +677,7 @@ describe("conditional formats types", () => {
 
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
-  let parent: any;
+  let parent: GridParent;
 
   beforeEach(async () => {
     fixture = makeTestFixture();
@@ -695,7 +695,7 @@ describe("UI of conditional formats", () => {
     parent = new GridParent(model);
     await parent.mount(fixture);
 
-    parent.env.spreadsheet.openSidePanel("ConditionalFormatting");
+    parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
   });
 
@@ -750,7 +750,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can edit an existing CellIsRule", async () => {
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
 
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
     await nextTick();
@@ -768,7 +768,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         ranges: ["A1:A3"],
@@ -784,7 +784,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can edit an existing ColorScaleRule", async () => {
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
 
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
@@ -807,7 +807,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "2",
         ranges: ["B2:B5"],
@@ -829,7 +829,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new CellIsRule", async () => {
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     mockUuidV4To("42");
 
     triggerMouseEvent(selectors.buttonAdd, "click");
@@ -848,7 +848,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "42",
         ranges: ["A1:A3"],
@@ -864,7 +864,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule", async () => {
-    model.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn(command => "COMPLETED");
     mockUuidV4To("43");
 
     triggerMouseEvent(selectors.buttonAdd, "click");
@@ -895,7 +895,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
-    expect(model.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "43",
         ranges: ["B2:B5"],

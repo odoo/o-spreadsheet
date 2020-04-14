@@ -5,7 +5,7 @@ import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { Cell, GridRenderingContext } from "../src/types";
+import { Cell, GridRenderingContext, SpreadsheetEnv } from "../src/types";
 import "./canvas.mock";
 
 const functions = functionRegistry.content;
@@ -34,7 +34,7 @@ export function makeTestFixture() {
   return fixture;
 }
 
-export class GridParent extends Component<any> {
+export class GridParent extends Component<any, SpreadsheetEnv> {
   static template = xml`
     <div class="parent">
       <Grid model="model" t-ref="grid"/>
@@ -55,9 +55,9 @@ export class GridParent extends Component<any> {
   constructor(model: Model) {
     super();
     useSubEnv({
-      spreadsheet: {
-        openSidePanel: (panel: string) => this.openSidePanel(panel)
-      }
+      openSidePanel: (panel: string) => this.openSidePanel(panel),
+      dispatch: model.dispatch,
+      getters: model.getters
     });
 
     const drawGrid = model.drawGrid;
