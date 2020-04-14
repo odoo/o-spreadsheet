@@ -394,9 +394,9 @@ export class GridPlugin extends BasePlugin {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
+    this.updateMergesStyles(sheetID, true);
     for (let column of columns) {
       // Remove the merges and adapt them.
-      this.updateMergesStyles(sheetID, column, true);
       let merges: string[] = this.exportMerges(this.workbook.sheets[sheetID]);
       this.removeAllMerges(sheetID);
       merges = this.updateMerges(merges, (range: string) => updateRemoveColumns(range, [column]));
@@ -429,9 +429,9 @@ export class GridPlugin extends BasePlugin {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
+    this.updateMergesStyles(sheetID, false);
     for (let row of rows) {
       // Remove the merges and adapt them.
-      this.updateMergesStyles(sheetID, row, false);
       let merges: string[] = this.exportMerges(this.workbook.sheets[sheetID]);
       this.removeAllMerges(sheetID);
       merges = this.updateMerges(merges, (range: string) => updateRemoveRows(range, [row]));
@@ -495,7 +495,7 @@ export class GridPlugin extends BasePlugin {
     this.importMerges(sheetID, merges);
   }
 
-  private updateMergesStyles(sheetID: number, index: number, isColumn: boolean) {
+  private updateMergesStyles(sheetID: number, isColumn: boolean) {
     for (let merge of Object.values(this.workbook.merges)) {
       const xc = merge.topLeft;
       const topLeft = this.workbook.cells[xc];
