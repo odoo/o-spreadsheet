@@ -1,5 +1,6 @@
 import { Registry } from "../registry";
 import { Arg, ArgType, validateArguments } from "./arguments";
+import * as info from "./module_info";
 import * as logical from "./module_logical";
 import * as lookup from "./module_lookup";
 import * as math from "./module_math";
@@ -19,9 +20,10 @@ export interface FunctionDescription {
 }
 
 const functions: { [category: string]: { [name: string]: FunctionDescription } } = {
+  info,
   lookup,
-  math,
   logical,
+  math,
   operators,
   statistical,
   text,
