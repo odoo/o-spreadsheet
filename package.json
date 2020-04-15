@@ -41,7 +41,8 @@
     "@types/node": "^13.11.1"
   },
   "prettier": {
-    "printWidth": 100
+    "printWidth": 100,
+    "endOfLine": "auto"
   },
   "dependencies": {
     "@odoo/owl": "^1.0.5"
