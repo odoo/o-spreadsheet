@@ -1,7 +1,7 @@
 import { MAX_HISTORY_STEPS } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell } from "../helpers";
+import { getCell, waitForRecompute } from "../helpers";
 
 // we test here the undo/redo feature
 
@@ -85,5 +85,25 @@ describe("history", () => {
     expect(getCell(model, "A1")!.value).toBe(null);
     model.dispatch("REDO");
     expect(getCell(model, "A1")!.value).toBe(11);
+  });
+
+  test("undo when undo stack is empty does nothing", async () => {
+    const model = new Model({ sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
+    await waitForRecompute();
+
+    expect(getCell(model, "A1")!.value).toBe(10);
+
+    expect(model.dispatch("UNDO")).toBe("CANCELLED");
+    expect(getCell(model, "A1")!.value).toBe(10);
+  });
+
+  test("undo when redo stack is empty does nothing", async () => {
+    const model = new Model({ sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
+    await waitForRecompute();
+
+    expect(getCell(model, "A1")!.value).toBe(10);
+
+    expect(model.dispatch("REDO")).toBe("CANCELLED");
+    expect(getCell(model, "A1")!.value).toBe(10);
   });
 });
