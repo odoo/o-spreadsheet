@@ -226,25 +226,25 @@ describe("Columns", () => {
         ],
       });
     });
+
     test("On deletion", () => {
       removeColumns([1, 3]);
-      // As we remove columns by columns, the first ID is 9 because we
-      // compute merges two times (*4 merges)
       expect(model["workbook"].merges).toEqual({
-        9: { id: 9, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 2 },
-        10: { id: 10, topLeft: "B2", top: 1, bottom: 1, left: 1, right: 2 },
-        11: { id: 11, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 },
+        5: { id: 5, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 2 },
+        6: { id: 6, topLeft: "B2", top: 1, bottom: 1, left: 1, right: 2 },
+        7: { id: 7, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 },
       });
       expect(model["workbook"].mergeCellMap).toEqual({
-        A1: 9,
-        B1: 9,
-        C1: 9,
-        B2: 10,
-        C2: 10,
-        B3: 11,
-        C3: 11,
+        A1: 5,
+        B1: 5,
+        C1: 5,
+        B2: 6,
+        C2: 6,
+        B3: 7,
+        C3: 7,
       });
     });
+
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
@@ -508,21 +508,19 @@ describe("Rows", () => {
     });
     test("On deletion", () => {
       removeRows([1, 3]);
-      // As we remove rows by rows, the first ID is 9 because we
-      // compute merges two times (*4 merges)
       expect(model["workbook"].merges).toEqual({
-        9: { id: 9, topLeft: "A1", top: 0, bottom: 2, left: 0, right: 0 },
-        10: { id: 10, topLeft: "B2", top: 1, bottom: 2, left: 1, right: 1 },
-        11: { id: 11, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 },
+        5: { id: 5, topLeft: "A1", top: 0, bottom: 2, left: 0, right: 0 },
+        6: { id: 6, topLeft: "B2", top: 1, bottom: 2, left: 1, right: 1 },
+        7: { id: 7, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 },
       });
       expect(model["workbook"].mergeCellMap).toEqual({
-        A1: 9,
-        A2: 9,
-        A3: 9,
-        B2: 10,
-        B3: 10,
-        C2: 11,
-        C3: 11,
+        A1: 5,
+        A2: 5,
+        A3: 5,
+        B2: 6,
+        B3: 6,
+        C2: 7,
+        C3: 7,
       });
     });
     test("On addition", () => {

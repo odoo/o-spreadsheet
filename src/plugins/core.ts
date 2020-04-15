@@ -1,15 +1,15 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { formatNumber, formatValue } from "../formatters";
-import { AsyncFunction, compile } from "../formulas/index";
-import { isNumber, numberToLetters, toCartesian, toXC } from "../helpers/index";
+import { AsyncFunction, compile, tokenize } from "../formulas/index";
+import { cellReference } from "../formulas/parser";
+import { isNumber, numberToLetters, sanitizeSheet, toCartesian, toXC } from "../helpers/index";
 import {
   Cell,
   CellData,
   Col,
   Command,
   HeaderData,
-  Merge,
   Row,
   Sheet,
   SheetData,
@@ -18,6 +18,7 @@ import {
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
+const MIN_PADDING = 3;
 
 /**
  * Core Plugin
@@ -27,6 +28,8 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
  */
 export class CorePlugin extends BasePlugin {
   static getters = [
+    "getColsZone",
+    "getRowsZone",
     "getCell",
     "getCellText",
     "zoneToXC",
@@ -34,10 +37,22 @@ export class CorePlugin extends BasePlugin {
     "getSheets",
     "getCol",
     "getRow",
+    "getGridSize",
   ];
+
+  private width: number = 0;
+  private height: number = 0;
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): boolean {
     switch (cmd.type) {
+      case "REMOVE_COLUMNS":
+        return this.workbook.cols.length > cmd.columns.length;
+      case "REMOVE_ROWS":
+        return this.workbook.rows.length > cmd.rows.length;
       case "CREATE_SHEET":
         return (
           !cmd.name || this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.name) === -1
@@ -85,6 +100,60 @@ export class CorePlugin extends BasePlugin {
           style: 0,
           format: "",
         });
+        break;
+      case "AUTORESIZE_COLUMNS":
+        for (let col of cmd.cols) {
+          const size = this.getColMaxWidth(col);
+          if (size !== 0) {
+            this.setColSize(col, size + 2 * MIN_PADDING);
+          }
+        }
+        break;
+      case "AUTORESIZE_ROWS":
+        for (let col of cmd.rows) {
+          const size = this.getRowMaxHeight(col);
+          if (size !== 0) {
+            this.setRowSize(col, size + 2 * MIN_PADDING);
+          }
+        }
+        break;
+      case "RESIZE_COLUMNS":
+        for (let col of cmd.cols) {
+          this.setColSize(col, cmd.size);
+        }
+        break;
+      case "RESIZE_ROWS":
+        for (let row of cmd.rows) {
+          this.setRowSize(row, cmd.size);
+        }
+        break;
+      case "REMOVE_COLUMNS":
+        this.removeColumns(
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
+          cmd.columns
+        );
+        break;
+      case "REMOVE_ROWS":
+        this.removeRows(
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
+          cmd.rows
+        );
+        break;
+      case "ADD_COLUMNS":
+        this.addColumns(
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
+          cmd.column,
+          cmd.position,
+          cmd.quantity
+        );
+        break;
+      case "ADD_ROWS":
+        this.addRows(
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
+          cmd.row,
+          cmd.position,
+          cmd.quantity
+        );
         break;
     }
   }
@@ -160,8 +229,362 @@ export class CorePlugin extends BasePlugin {
     return this.workbook.rows[index];
   }
 
+  getColsZone(start: number, end: number): Zone {
+    return {
+      top: 0,
+      bottom: this.workbook.rows.length - 1,
+      left: start,
+      right: end,
+    };
+  }
+
+  getRowsZone(start: number, end: number): Zone {
+    return {
+      top: start,
+      bottom: end,
+      left: 0,
+      right: this.workbook.cols.length - 1,
+    };
+  }
+
+  getGridSize(): [number, number] {
+    return [this.width, this.height];
+  }
+
   // ---------------------------------------------------------------------------
-  // Other
+  // Row/Col manipulation
+  // ---------------------------------------------------------------------------
+
+  private getColMaxWidth(index: number): number {
+    const cells = this.workbook.rows.reduce(
+      (acc: Cell[], cur) => (cur.cells[index] ? acc.concat(cur.cells[index]) : acc),
+      []
+    );
+    const sizes = cells.map(this.getters.getCellWidth);
+    return Math.max(0, ...sizes);
+  }
+
+  private getRowMaxHeight(index: number): number {
+    const cells = Object.values(this.workbook.rows[index].cells);
+    const sizes = cells.map(this.getters.getCellHeight);
+    return Math.max(0, ...sizes);
+  }
+
+  private setColSize(index: number, size: number) {
+    const col = this.workbook.cols[index];
+    const delta = size - col.size;
+    this.history.updateState(["cols", index, "size"], size);
+    this.history.updateState(["cols", index, "end"], col.end + delta);
+    for (let i = index + 1; i < this.workbook.cols.length; i++) {
+      const col = this.workbook.cols[i];
+      this.history.updateState(["cols", i, "start"], col.start + delta);
+      this.history.updateState(["cols", i, "end"], col.end + delta);
+    }
+    this.history.updateLocalState(["width"], this.width + delta);
+  }
+
+  private setRowSize(index: number, size: number) {
+    const row = this.workbook.rows[index];
+    const delta = size - row.size;
+    this.history.updateState(["rows", index, "size"], size);
+    this.history.updateState(["rows", index, "end"], row.end + delta);
+    for (let i = index + 1; i < this.workbook.rows.length; i++) {
+      const row = this.workbook.rows[i];
+      this.history.updateState(["rows", i, "start"], row.start + delta);
+      this.history.updateState(["rows", i, "end"], row.end + delta);
+    }
+    this.history.updateLocalState(["height"], this.height + delta);
+  }
+
+  /**
+   * Delete column. This requires a lot of handling:
+   * - Update all the formulas in all sheets
+   * - Move the cells
+   * - Update the cols/rows (size, number, (cells), ...)
+   * - Reevaluate the cells
+   *
+   * @param sheetID ID of the sheet on which deletion should be applied
+   * @param columns Columns to delete
+   */
+  private removeColumns(sheetID: number, columns: number[]) {
+    // This is necessary because we have to delete elements in correct order:
+    // begin with the end.
+    columns.sort((a, b) => b - a);
+    for (let column of columns) {
+      // Update all the formulas.
+      this.updateAllFormulasHorizontally(column, -1);
+
+      // Move the cells.
+      this.moveCellsHorizontally(column, -1);
+
+      // Effectively delete the element and recompute the left-right.
+      this.manageColumnsHeaders(column, -1);
+    }
+  }
+
+  /**
+   * Delete row. This requires a lot of handling:
+   * - Update the merges
+   * - Update all the formulas in all sheets
+   * - Move the cells
+   * - Update the cols/rows (size, number, (cells), ...)
+   * - Reevaluate the cells
+   *
+   * @param sheetID ID of the sheet on which deletion should be applied
+   * @param rows Rows to delete
+   */
+  private removeRows(sheetID: number, rows: number[]) {
+    // This is necessary because we have to delete elements in correct order:
+    // begin with the end.
+    rows.sort((a, b) => b - a);
+    for (let row of rows) {
+      // Update all the formulas.
+      this.updateAllFormulasVertically(row, -1);
+
+      // Move the cells.
+      this.moveCellsVertically(row, -1);
+
+      // Effectively delete the element and recompute the left-right/top-bottom.
+      this.processRowsHeaderDelete(row);
+    }
+  }
+
+  private addColumns(
+    sheetID: number,
+    column: number,
+    position: "before" | "after",
+    quantity: number
+  ) {
+    // Update all the formulas.
+    this.updateAllFormulasHorizontally(position === "before" ? column - 1 : column, quantity);
+
+    // Move the cells.
+    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity);
+
+    // Recompute the left-right/top-bottom.
+    this.manageColumnsHeaders(column, quantity);
+  }
+
+  private addRows(sheetID: number, row: number, position: "before" | "after", quantity: number) {
+    for (let i = 0; i < quantity; i++) {
+      this.addEmptyRow();
+    }
+    // Update all the formulas.
+    this.updateAllFormulasVertically(position === "before" ? row - 1 : row, quantity);
+
+    // Move the cells.
+    this.moveCellsVertically(position === "before" ? row : row + 1, quantity);
+
+    // Recompute the left-right/top-bottom.
+    this.processRowsHeaderAdd(row, quantity);
+  }
+
+  private moveCellsHorizontally(base: number, step: number) {
+    return this.processCellsToMove(
+      (cell) => cell.col >= base,
+      (cell) => cell.col !== base || step !== -1,
+      (cell) => {
+        return {
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col: cell.col + step,
+          row: cell.row,
+          content: cell.content,
+          border: cell.border,
+          style: cell.style,
+          format: cell.format,
+        };
+      }
+    );
+  }
+
+  private moveCellsVertically(base: number, step: number) {
+    return this.processCellsToMove(
+      (cell) => cell.row >= base,
+      (cell) => cell.row !== base || step !== -1,
+      (cell) => {
+        return {
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col: cell.col,
+          row: cell.row + step,
+          content: cell.content,
+          border: cell.border,
+          style: cell.style,
+          format: cell.format,
+        };
+      }
+    );
+  }
+
+  private manageColumnsHeaders(base: number, step: number) {
+    const cols: Col[] = [];
+    let start = 0;
+    let colIndex = 0;
+    let newWidth = this.width;
+    for (let i in this.workbook.cols) {
+      if (parseInt(i) === base) {
+        if (step !== -1) {
+          const { size } = this.workbook.cols[colIndex];
+          for (let a = 0; a < step; a++) {
+            cols.push({
+              name: numberToLetters(colIndex),
+              size,
+              start,
+              end: start + size,
+            });
+            newWidth = newWidth + size;
+            start += size;
+            colIndex++;
+          }
+        } else {
+          const size = this.workbook.cols[colIndex].size;
+          newWidth = newWidth - size;
+          continue;
+        }
+      }
+      const { size } = this.workbook.cols[i];
+      cols.push({
+        name: numberToLetters(colIndex),
+        size,
+        start,
+        end: start + size,
+      });
+      start += size;
+      colIndex++;
+    }
+    this.history.updateLocalState(["width"], newWidth);
+    this.history.updateState(["cols"], cols);
+  }
+
+  private processRowsHeaderDelete(index: number) {
+    const rows: Row[] = [];
+    let start = 0;
+    let rowIndex = 0;
+    let sizeToDelete = 0;
+    const cellsQueue = this.workbook.rows.map((row) => row.cells);
+    for (let i in this.workbook.rows) {
+      const row = this.workbook.rows[i];
+      const { size } = row;
+      if (parseInt(i) === index) {
+        sizeToDelete = size;
+        continue;
+      }
+      rowIndex++;
+      rows.push({
+        start,
+        end: start + size,
+        size,
+        cells: cellsQueue.shift()!,
+        name: String(rowIndex),
+      });
+      start += size;
+    }
+    this.history.updateLocalState(["height"], this.height - sizeToDelete);
+    this.history.updateState(["rows"], rows);
+  }
+
+  private processRowsHeaderAdd(index: number, quantity: number) {
+    const rows: Row[] = [];
+    let start = 0;
+    let rowIndex = 0;
+    let sizeIndex = 0;
+    const cellsQueue = this.workbook.rows.map((row) => row.cells);
+    for (let i in this.workbook.rows) {
+      const { size } = this.workbook.rows[sizeIndex];
+      if (parseInt(i) < index || parseInt(i) >= index + quantity) {
+        sizeIndex++;
+      }
+      rowIndex++;
+      rows.push({
+        start,
+        end: start + size,
+        size,
+        cells: cellsQueue.shift()!,
+        name: String(rowIndex),
+      });
+      start += size;
+    }
+    this.history.updateLocalState(["height"], top);
+    this.history.updateState(["rows"], rows);
+  }
+
+  private addEmptyRow() {
+    const lastEnd = this.workbook.rows[this.workbook.rows.length - 1].end;
+    const name = (this.workbook.rows.length + 1).toString();
+    const newRows: Row[] = this.workbook.rows.slice();
+    const size = 0;
+    newRows.push({
+      start: lastEnd,
+      end: lastEnd + size,
+      size,
+      name,
+      cells: {},
+    });
+    const sheetID = this.workbook.sheets.findIndex(
+      (s) => s.name === this.workbook.activeSheet.name
+    )!;
+    this.history.updateLocalState(["height"], this.height + size);
+    this.history.updateState(["rows"], newRows);
+    this.history.updateState(["sheets", sheetID, "rows"], newRows);
+  }
+
+  private updateAllFormulasHorizontally(base: number, step: number) {
+    return this.visitFormulas((value: string, sheet: string | undefined): string => {
+      let [x, y] = toCartesian(value);
+      if (x === base && step === -1) {
+        return "#REF";
+      }
+      if (x > base) {
+        x += step;
+      }
+      return this.getNewRef(value, sheet, x, y);
+    });
+  }
+
+  private updateAllFormulasVertically(base: number, step: number) {
+    return this.visitFormulas((value: string, sheet: string | undefined): string => {
+      let [x, y] = toCartesian(value);
+      if (y === base && step === -1) {
+        return "#REF";
+      }
+      if (y > base) {
+        y += step;
+      }
+      return this.getNewRef(value, sheet, x, y);
+    });
+  }
+
+  private processCellsToMove(
+    shouldDelete: (cell: Cell) => boolean,
+    shouldAdd: (cell: Cell) => boolean,
+    buildCellToAdd: (cell: Cell) => Command
+  ) {
+    const deleteCommands: Command[] = [];
+    const addCommands: Command[] = [];
+    for (let [xc, cell] of Object.entries(this.workbook.cells)) {
+      if (shouldDelete(cell)) {
+        const [col, row] = toCartesian(xc);
+        deleteCommands.push({
+          type: "CLEAR_CELL",
+          sheet: this.workbook.activeSheet.name,
+          col,
+          row,
+        });
+        if (shouldAdd(cell)) {
+          addCommands.push(buildCellToAdd(cell));
+        }
+      }
+    }
+    for (let cmd of deleteCommands) {
+      this.dispatch(cmd.type, cmd);
+    }
+    for (let cmd of addCommands) {
+      this.dispatch(cmd.type, cmd);
+    }
+  }
+  // ---------------------------------------------------------------------------
+  // Cells
   // ---------------------------------------------------------------------------
 
   private updateCell(sheet: string, col: number, row: number, data: CellData) {
@@ -262,6 +685,13 @@ export class CorePlugin extends BasePlugin {
 
     // cells
     this.history.updateState(["cells"], sheet.cells);
+
+    // sizes
+    const workbook = this.workbook;
+    const height = workbook.rows[workbook.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
+    const width = workbook.cols[workbook.cols.length - 1].end + DEFAULT_CELL_WIDTH;
+    this.history.updateLocalState(["width"], width);
+    this.history.updateLocalState(["height"], height);
   }
 
   private createSheet(name: string, cols: number, rows: number): string {
@@ -299,6 +729,57 @@ export class CorePlugin extends BasePlugin {
         }
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Apply a function to update the formula on every cells of every sheets which
+   * contains a formula
+   * @param cb Update formula function to apply
+   */
+  private visitFormulas(cb: (value: string, sheet: string | undefined) => string) {
+    for (let sheet of this.workbook.sheets) {
+      for (let [xc, cell] of Object.entries(sheet.cells)) {
+        if (cell.type === "formula") {
+          const content = tokenize(cell.content!)
+            .map((t) => {
+              if (t.type === "SYMBOL" && cellReference.test(t.value)) {
+                let [value, sheetRef] = t.value.split("!").reverse();
+                if (sheetRef) {
+                  sheetRef = sanitizeSheet(sheetRef);
+                  if (sheetRef === this.workbook.activeSheet.name) {
+                    return cb(value, sheetRef);
+                  }
+                } else if (this.workbook.activeSheet.name === sheet.name) {
+                  return cb(value, undefined);
+                }
+              }
+              return t.value;
+            })
+            .join("");
+          if (content !== cell.content) {
+            const [col, row] = toCartesian(xc);
+            this.dispatch("UPDATE_CELL", {
+              sheet: sheet.name,
+              col,
+              row,
+              content,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  private getNewRef(value: string, sheet: string | undefined, x: number, y: number): string {
+    const fixedCol = value.startsWith("$");
+    const fixedRow = value.includes("$", 1);
+    return `${sheet ? sheet + "!" : ""}${fixedCol ? "$" : ""}${numberToLetters(x)}${
+      fixedRow ? "$" : ""
+    }${String(y + 1)}`;
   }
 
   // ---------------------------------------------------------------------------
@@ -352,7 +833,7 @@ export class CorePlugin extends BasePlugin {
         rowNumber: sheet.rowNumber,
         rows: exportRows(sheet.rows),
         cols: exportCols(sheet.cols),
-        merges: exportMerges(sheet.merges),
+        merges: [], //exportMerges(sheet.merges),
         cells: cells,
         conditionalFormats: [],
       };
@@ -451,10 +932,4 @@ function exportRows(rows: Row[]): { [key: number]: HeaderData } {
     }
   }
   return exportedRows;
-}
-
-function exportMerges(merges: { [key: number]: Merge }): string[] {
-  return Object.values(merges).map(
-    (merge) => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom)
-  );
 }
