@@ -49,7 +49,13 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     return this.redoStack.length > 0;
   }
 
-  allowDispatch() {
+  allowDispatch(cmd: Command) {
+    switch (cmd.type) {
+      case "UNDO":
+        return this.canUndo();
+      case "REDO":
+        return this.canRedo();
+    }
     return true;
   }
 
