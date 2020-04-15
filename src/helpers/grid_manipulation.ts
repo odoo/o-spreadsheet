@@ -7,6 +7,7 @@ import { toXC } from "./coordinates";
 
 export function updateRemoveColumns(range: string, columns: number[]): string | null {
   let { left, right, top, bottom } = toZone(range);
+  columns = columns.slice().sort((a, b) => b - a);
   for (let column of columns) {
     if (left > column) {
       left -= 1;
@@ -23,6 +24,7 @@ export function updateRemoveColumns(range: string, columns: number[]): string | 
 
 export function updateRemoveRows(range: string, rows: number[]): string | null {
   let { left, right, top, bottom } = toZone(range);
+  rows = rows.slice().sort((a, b) => b - a);
   for (let row of rows) {
     if (top > row) {
       top -= 1;

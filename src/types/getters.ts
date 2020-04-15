@@ -1,4 +1,4 @@
-import { GridPlugin } from "../plugins/grid";
+import { MergePlugin } from "../plugins/merge";
 import { ClipboardPlugin } from "../plugins/clipboard";
 import { EntityPlugin } from "../plugins/entity";
 import { SelectionPlugin } from "../plugins/selection";
@@ -21,6 +21,9 @@ export interface Getters {
   getSheets: CorePlugin["getSheets"];
   getCol: CorePlugin["getCol"];
   getRow: CorePlugin["getRow"];
+  getColsZone: CorePlugin["getColsZone"];
+  getRowsZone: CorePlugin["getRowsZone"];
+  getGridSize: CorePlugin["getGridSize"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
@@ -28,13 +31,10 @@ export interface Getters {
   getCellWidth: FormattingPlugin["getCellWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
 
-  getColSize: GridPlugin["getColSize"];
-  getRowSize: GridPlugin["getRowSize"];
-  expandZone: GridPlugin["expandZone"];
-  getColsZone: GridPlugin["getColsZone"];
-  getRowsZone: GridPlugin["getRowsZone"];
-  getGridSize: GridPlugin["getGridSize"];
-
+  expandZone: MergePlugin["expandZone"];
+  isMergeDestructive: MergePlugin["isMergeDestructive"];
+  isInMerge: MergePlugin["isInMerge"];
+  getMainCell: MergePlugin["getMainCell"];
   getEntity: EntityPlugin["getEntity"];
   getEntities: EntityPlugin["getEntities"];
 
@@ -53,10 +53,6 @@ export interface Getters {
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
   getAdjustedViewport: RendererPlugin["getAdjustedViewport"];
-
-  isMergeDestructive: GridPlugin["isMergeDestructive"];
-  isInMerge: GridPlugin["isInMerge"];
-  getMainCell: GridPlugin["getMainCell"];
 
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];

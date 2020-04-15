@@ -7,7 +7,7 @@ import { EditionPlugin } from "./edition";
 import { EntityPlugin } from "./entity";
 import { EvaluationPlugin } from "./evaluation";
 import { FormattingPlugin } from "./formatting";
-import { GridPlugin } from "./grid";
+import { MergePlugin } from "./merge";
 import { RendererPlugin } from "./renderer";
 import { SelectionPlugin } from "./selection";
 
@@ -15,7 +15,7 @@ export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("core", CorePlugin)
   .add("evaluation", EvaluationPlugin)
   .add("clipboard", ClipboardPlugin)
-  .add("grid", GridPlugin)
+  .add("merge", MergePlugin)
   .add("formatting", FormattingPlugin)
   .add("edition", EditionPlugin)
   .add("selection", SelectionPlugin)

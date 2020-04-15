@@ -40,8 +40,6 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
   abstract _getElement(index: number): Col | Row;
 
-  abstract _getElementSize(index: number): number;
-
   abstract _getHeaderSize(): number;
 
   abstract _getMaxSize(): number;
@@ -106,7 +104,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
     const initialIndex = this._getClientPosition(ev);
     const styleValue = this.state.styleValue;
-    const size = this._getElementSize(this.state.activeElement);
+    const size = this._getElement(this.state.activeElement).size;
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
     const onMouseUp = (ev) => {
@@ -251,10 +249,6 @@ export class ColResizer extends AbstractResizer {
     return this.getters.getCol(index);
   }
 
-  _getElementSize(index: number): number {
-    return this.getters.getColSize(index);
-  }
-
   _getBottomRightValue(element: Col): number {
     return element.end;
   }
@@ -269,7 +263,7 @@ export class ColResizer extends AbstractResizer {
 
   _updateSize(): void {
     const index = this.state.activeElement;
-    const size = this.state.delta + this._getElementSize(index);
+    const size = this.state.delta + this._getElement(index).size;
     const cols = this.getters.getActiveCols();
     this.dispatch("RESIZE_COLUMNS", {
       sheet: this.getters.getActiveSheet(),
@@ -379,10 +373,6 @@ export class RowResizer extends AbstractResizer {
     return this.getters.getRow(index);
   }
 
-  _getElementSize(index: number): number {
-    return this.getters.getRowSize(index);
-  }
-
   _getHeaderSize(): number {
     return HEADER_HEIGHT;
   }
@@ -393,7 +383,7 @@ export class RowResizer extends AbstractResizer {
 
   _updateSize(): void {
     const index = this.state.activeElement;
-    const size = this.state.delta + this._getElementSize(index);
+    const size = this.state.delta + this._getElement(index).size;
     const rows = this.getters.getActiveRows();
     this.dispatch("RESIZE_ROWS", {
       sheet: this.getters.getActiveSheet(),
