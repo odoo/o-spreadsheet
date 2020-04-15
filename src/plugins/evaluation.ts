@@ -16,7 +16,7 @@ export class EvaluationPlugin extends BasePlugin {
   static getters = ["evaluateFormula"];
   static modes: Mode[] = ["normal", "readonly"];
 
-  private isStale: boolean = true;
+  private isUptodate: Set<string> = new Set();
   private loadingCells: number = 0;
   private isStarted: boolean = false;
   private cache: { [key: string]: Function } = {};
@@ -59,25 +59,25 @@ export class EvaluationPlugin extends BasePlugin {
         this.evaluateCells();
         break;
       case "UPDATE_CELL":
-        this.isStale = this.isStale || "content" in cmd;
+        if ("content" in cmd) {
+          this.isUptodate.clear();
+        }
         break;
       case "EVALUATE_CELLS":
         this.evaluateCells(cmd.onlyWaiting);
-        if (this.isStale) {
-          this.isStale = false;
-        }
+        this.isUptodate.add(this.workbook.activeSheet.name);
         break;
       case "UNDO":
       case "REDO":
-        this.isStale = true;
+        this.isUptodate.clear();
         break;
     }
   }
 
   finalize() {
-    if (this.isStale) {
-      this.isStale = false;
+    if (!this.isUptodate.has(this.workbook.activeSheet.name)) {
       this.evaluateCells();
+      this.isUptodate.add(this.workbook.activeSheet.name);
     }
     if (this.loadingCells > 0) {
       this.startScheduler();
@@ -139,7 +139,6 @@ export class EvaluationPlugin extends BasePlugin {
     if (!onlyWaiting) {
       COMPUTED.clear();
     }
-    const { cells } = this.workbook;
     const visited = {};
 
     const self = this;
@@ -208,6 +207,7 @@ export class EvaluationPlugin extends BasePlugin {
         computeValue(cell);
       }
     } else {
+      const cells = this.workbook.cells;
       for (let xc in cells) {
         const cell = cells[xc];
         computeValue(cell);

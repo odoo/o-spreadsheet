@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
+import { toCartesian } from "../../src/helpers";
 
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
@@ -167,4 +168,24 @@ describe("sheets", () => {
     expect(getCell(model, "B1")!.value).toBe("#CYCLE");
     expect(getCell(model, "C3")!.value).toBe(42);
   });
+
+  test("cells are updated when dependency in other sheet is updated", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET");
+    expect(model.getters.getActiveSheet()).toEqual("Sheet2");
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+    expect(model.getters.getActiveSheet()).toEqual("Sheet1");
+    model.dispatch("SET_VALUE", { text: "=Sheet2!A1", xc: "A1" });
+    expect(getText(model, "A1")).toEqual("0");
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("SET_VALUE", { text: "3", xc: "A1" });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+    expect(model.getters.getActiveSheet()).toEqual("Sheet1");
+    expect(getText(model, "A1")).toEqual("3");
+  });
 });
+
+function getText(model: Model, xc: string): string {
+  const cell = model.getters.getCell(...toCartesian(xc));
+  return cell ? model.getters.getCellText(cell) : "";
+}
