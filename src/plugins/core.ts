@@ -186,7 +186,7 @@ export class CorePlugin extends BasePlugin {
 
     // compute the new cell value
     const didContentChange =
-      (!current && dataContent) || (current && current.content !== dataContent);
+      (!current && dataContent) || (dataContent && current && current.content !== dataContent);
     let cell: Cell;
     if (current && !didContentChange) {
       cell = { col, row, xc, content, value: current.value, type: current.type };
