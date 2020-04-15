@@ -20,7 +20,7 @@ export const COLORS = [
     "#a5a5a5",
     "#ffc001",
     "#4371c6",
-    "#71ae47"
+    "#71ae47",
   ],
   [
     "#f2f2f2",
@@ -32,7 +32,7 @@ export const COLORS = [
     "#ededed",
     "#fff2cd",
     "#d9e2f3",
-    "#e3efd9"
+    "#e3efd9",
   ],
   [
     "#d8d8d8",
@@ -44,7 +44,7 @@ export const COLORS = [
     "#dbdbdb",
     "#ffe59a",
     "#b3c6e7",
-    "#c5e0b3"
+    "#c5e0b3",
   ],
   [
     "#bfbfbf",
@@ -56,7 +56,7 @@ export const COLORS = [
     "#c9c9c9",
     "#fed964",
     "#8eaada",
-    "#a7d08c"
+    "#a7d08c",
   ],
   [
     "#a5a5a5",
@@ -68,7 +68,7 @@ export const COLORS = [
     "#7b7b7b",
     "#bf8e01",
     "#2f5596",
-    "#538136"
+    "#538136",
   ],
   [
     "#7f7f7f",
@@ -80,7 +80,7 @@ export const COLORS = [
     "#525252",
     "#7e6000",
     "#203864",
-    "#365624"
+    "#365624",
   ],
   [
     "#c00000",
@@ -92,8 +92,8 @@ export const COLORS = [
     "#01b0f1",
     "#0170c1",
     "#012060",
-    "#7030a0"
-  ]
+    "#7030a0",
+  ],
 ];
 
 export const COLOR_PICKER = xml/* xml */ `
@@ -106,7 +106,7 @@ export const COLOR_PICKER = xml/* xml */ `
 const FORMATS = [
   { name: "auto", text: "Automatic" },
   { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
-  { name: "percent", text: "Percent (10.12%)", value: "0.00%" }
+  { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
 ];
 
 // -----------------------------------------------------------------------------
@@ -342,7 +342,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     textColorTool: false,
     fillColorTool: false,
     borderTool: false,
-    fontSizeTool: false
+    fontSizeTool: false,
   });
   inMerge = false;
   cannotMerge = false;
@@ -377,7 +377,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.dispatch("SET_FORMATTING", {
       sheet: this.getters.getActiveSheet(),
       target: this.getters.getSelectedZones(),
-      style
+      style,
     });
   }
 
@@ -413,7 +413,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.paintFormatTool = this.getters.isPaintingFormat();
     const cell = this.getters.getActiveCell();
     if (cell && cell.format) {
-      const format = this.formats.find(f => f.value === cell.format);
+      const format = this.formats.find((f) => f.value === cell.format);
       this.currentFormat = format ? format.name : "";
     } else {
       this.currentFormat = "auto";
@@ -430,7 +430,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       if (this.getters.isMergeDestructive(zone)) {
         this.trigger("ask-confirmation", {
           content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
-          confirm: () => this.dispatch("ADD_MERGE", { sheet, zone })
+          confirm: () => this.dispatch("ADD_MERGE", { sheet, zone }),
         });
       } else {
         this.dispatch("ADD_MERGE", { sheet, zone });
@@ -444,7 +444,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       this.dispatch("SET_FORMATTING", {
         sheet: this.getters.getActiveSheet(),
         target: this.getters.getSelectedZones(),
-        style
+        style,
       });
       this.closeMenus();
     }
@@ -453,30 +453,30 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.dispatch("SET_FORMATTING", {
       sheet: this.getters.getActiveSheet(),
       target: this.getters.getSelectedZones(),
-      border: command
+      border: command,
     });
   }
   setFormat(ev: MouseEvent) {
     const format = (ev.target as HTMLElement).dataset.format;
     if (format) {
-      const formatter = FORMATS.find(f => f.name === format);
+      const formatter = FORMATS.find((f) => f.name === format);
       const value = (formatter && formatter.value) || "";
       this.dispatch("SET_FORMATTER", {
         sheet: this.getters.getActiveSheet(),
         target: this.getters.getSelectedZones(),
-        formatter: value
+        formatter: value,
       });
     }
   }
   paintFormat() {
     this.dispatch("ACTIVATE_PAINT_FORMAT", {
-      target: this.getters.getSelectedZones()
+      target: this.getters.getSelectedZones(),
     });
   }
   clearFormatting() {
     this.dispatch("CLEAR_FORMATTING", {
       sheet: this.getters.getActiveSheet(),
-      target: this.getters.getSelectedZones()
+      target: this.getters.getSelectedZones(),
     });
   }
   setSize(ev) {
@@ -484,7 +484,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.dispatch("SET_FORMATTING", {
       sheet: this.getters.getActiveSheet(),
       target: this.getters.getSelectedZones(),
-      style: { fontSize }
+      style: { fontSize },
     });
   }
   onSave() {

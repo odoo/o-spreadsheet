@@ -1,7 +1,7 @@
 export class ContentEditableHelper {
   currentState = {
     cursorStart: 0,
-    cursorEnd: 0
+    cursorEnd: 0,
   };
   colors = {};
   el: HTMLElement | null = null;
@@ -14,7 +14,7 @@ export class ContentEditableHelper {
     this.el.focus();
     this.currentState = {
       cursorStart: 0,
-      cursorEnd: 0
+      cursorEnd: 0,
     };
 
     this.colors = {};
@@ -67,7 +67,7 @@ export class ContentEditableHelper {
     const v = this.el!.textContent || "";
     return {
       start: v.length,
-      end: v.length
+      end: v.length,
     };
   }
 }

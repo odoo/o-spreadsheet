@@ -16,7 +16,7 @@ export function triggerMouseEvent(
   const ev = new MouseEvent(type, {
     clientX: x,
     clientY: y,
-    ...extra
+    ...extra,
   });
   (ev as any).offsetX = x;
   (ev as any).offsetY = y;

@@ -7,13 +7,13 @@ describe("tokenizer", () => {
   test("number with decimal token", () => {
     expect(tokenize("=1.5")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "NUMBER", value: "1.5" }
+      { type: "NUMBER", value: "1.5" },
     ]);
   });
   test("formula token", () => {
     expect(tokenize("=1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "NUMBER", value: "1" }
+      { type: "NUMBER", value: "1" },
     ]);
   });
   test("longer operators >=", () => {
@@ -24,14 +24,14 @@ describe("tokenizer", () => {
       { type: "SPACE", value: " " },
       { type: "OPERATOR", value: "<=" },
       { type: "SPACE", value: " " },
-      { type: "OPERATOR", value: "<" }
+      { type: "OPERATOR", value: "<" },
     ]);
   });
 
   test("can tokenize percent expression", () => {
     expect(tokenize("1%")).toEqual([
       { type: "NUMBER", value: "1" },
-      { type: "OPERATOR", value: "%" }
+      { type: "OPERATOR", value: "%" },
     ]);
   });
 
@@ -39,7 +39,7 @@ describe("tokenizer", () => {
     expect(tokenize("=?1")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "DEBUGGER", value: "?" },
-      { type: "NUMBER", value: "1" }
+      { type: "NUMBER", value: "1" },
     ]);
   });
   test("String", () => {
@@ -50,7 +50,7 @@ describe("tokenizer", () => {
     expect(tokenize("\"hel'l'o\"")).toEqual([{ type: "STRING", value: "\"hel'l'o\"" }]);
     expect(tokenize('"hello""test"')).toEqual([
       { type: "STRING", value: '"hello"' },
-      { type: "STRING", value: '"test"' }
+      { type: "STRING", value: '"test"' },
     ]);
   });
 
@@ -70,8 +70,8 @@ describe("tokenizer", () => {
     expect(tokenize("false")).toEqual([
       {
         type: "SYMBOL",
-        value: "false"
-      }
+        value: "false",
+      },
     ]);
     expect(tokenize("=AND(true,false)")).toEqual([
       { type: "OPERATOR", value: "=" },
@@ -80,59 +80,59 @@ describe("tokenizer", () => {
       { type: "SYMBOL", value: "true" },
       { type: "COMMA", value: "," },
       { type: "SYMBOL", value: "false" },
-      { type: "RIGHT_PAREN", value: ")" }
+      { type: "RIGHT_PAREN", value: ")" },
     ]);
     expect(tokenize("=trueee")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "trueee" }
+      { type: "SYMBOL", value: "trueee" },
     ]);
   });
 
   test("$references", () => {
     expect(tokenize("=$A$1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "$A$1" }
+      { type: "SYMBOL", value: "$A$1" },
     ]);
     expect(tokenize("=C$1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "C$1" }
+      { type: "SYMBOL", value: "C$1" },
     ]);
     expect(tokenize("=$C1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "$C1" }
+      { type: "SYMBOL", value: "$C1" },
     ]);
   });
 
   test("reference and sheets", () => {
     expect(tokenize("=Sheet1!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "Sheet1!A1" }
+      { type: "SYMBOL", value: "Sheet1!A1" },
     ]);
     expect(tokenize("='Sheet1'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "'Sheet1'!A1" }
+      { type: "SYMBOL", value: "'Sheet1'!A1" },
     ]);
     expect(tokenize("='Aryl Nibor Xela Nalim'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "'Aryl Nibor Xela Nalim'!A1" }
+      { type: "SYMBOL", value: "'Aryl Nibor Xela Nalim'!A1" },
     ]);
     expect(tokenize("=Sheet1!$A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "Sheet1!$A1" }
+      { type: "SYMBOL", value: "Sheet1!$A1" },
     ]);
     expect(tokenize("=Sheet1!A$1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "Sheet1!A$1" }
+      { type: "SYMBOL", value: "Sheet1!A$1" },
     ]);
     expect(tokenize("='a '' b'!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "SYMBOL", value: "'a '' b'!A1" }
+      { type: "SYMBOL", value: "'a '' b'!A1" },
     ]);
 
     // note the missing ' in the following test:
     expect(tokenize("='Sheet1!A1")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "UNKNOWN", value: "'Sheet1!A1" }
+      { type: "UNKNOWN", value: "'Sheet1!A1" },
     ]);
   });
 
@@ -140,7 +140,7 @@ describe("tokenizer", () => {
     expect(tokenize("=ù4")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "UNKNOWN", value: "ù" },
-      { type: "NUMBER", value: "4" }
+      { type: "NUMBER", value: "4" },
     ]);
   });
 });

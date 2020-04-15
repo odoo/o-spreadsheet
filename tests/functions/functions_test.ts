@@ -7,9 +7,9 @@ describe("addFunction", () => {
     expect(val).toBe("#BAD_EXPR");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: arg => 2 * arg,
+      compute: (arg) => 2 * arg,
       args: args`number (number) my number`,
-      returns: ["NUMBER"]
+      returns: ["NUMBER"],
     });
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
   });

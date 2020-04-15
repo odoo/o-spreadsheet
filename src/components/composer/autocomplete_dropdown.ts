@@ -19,11 +19,11 @@ type AutocompleteProvider = () => Promise<AutocompleteValue[]>;
 
 const providerRegistry = new Registry<AutocompleteProvider>();
 
-providerRegistry.add("functions", async function() {
-  return Object.keys(functions).map(key => {
+providerRegistry.add("functions", async function () {
+  return Object.keys(functions).map((key) => {
     return {
       text: key,
-      description: functions[key].description
+      description: functions[key].description,
     };
   });
 });
@@ -81,7 +81,7 @@ export abstract class TextValueProvider extends Component<Props> {
 
   state = useState({
     values: <AutocompleteValue[]>[],
-    selectedIndex: 0
+    selectedIndex: 0,
   });
 
   mounted() {
@@ -102,7 +102,7 @@ export abstract class TextValueProvider extends Component<Props> {
       values = this.props.filter(searchTerm, values);
     } else {
       values = values
-        .filter(t => t.text.toUpperCase().startsWith(searchTerm.toUpperCase()))
+        .filter((t) => t.text.toUpperCase().startsWith(searchTerm.toUpperCase()))
         .sort((l, r) => (l.text < r.text ? -1 : l.text > r.text ? 1 : 0));
     }
     this.state.values = values.slice(0, 10);

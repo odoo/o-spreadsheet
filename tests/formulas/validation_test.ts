@@ -23,7 +23,7 @@ describe("formula with no parameters should not allow parameters", () => {
       description: "function with no arguments",
       compute: () => 0,
       args: [],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -83,9 +83,9 @@ describe("formula with exactly 1 parameter of any type", () => {
   beforeAll(() => {
     functionRegistry.add("ONE", {
       description: "function with exactly 1 argument",
-      compute: arg => arg,
+      compute: (arg) => arg,
       args: [{ name: "arg", description: "", type: ["ANY"] }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -145,9 +145,9 @@ describe("formula with exactly 1 parameter of type number", () => {
   beforeAll(() => {
     functionRegistry.add("ONENUM", {
       description: "function with exactly 1 argument number",
-      compute: arg => arg,
+      compute: (arg) => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"] }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -207,9 +207,9 @@ describe("formula with 1 optional parameter of type number", () => {
   beforeAll(() => {
     functionRegistry.add("ONENUMOPT", {
       description: "function with exactly 1 argument number",
-      compute: arg => arg,
+      compute: (arg) => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"], optional: true }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -272,12 +272,12 @@ describe("formula with 1 mandatory and 1 optional parameter of type number", () 
   beforeAll(() => {
     functionRegistry.add("NUMNUMOPT", {
       description: "function with exactly 1 argument number",
-      compute: arg => arg,
+      compute: (arg) => arg,
       args: [
         { name: "arg", description: "", type: ["NUMBER"] },
-        { name: "arg", description: "", type: ["NUMBER"], optional: true }
+        { name: "arg", description: "", type: ["NUMBER"], optional: true },
       ],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -352,9 +352,9 @@ describe("formula with repeating number of args", () => {
   beforeAll(() => {
     functionRegistry.add("REPA", {
       description: "function with exactly 1 argument number",
-      compute: arg => arg,
+      compute: (arg) => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"], repeating: true }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -433,9 +433,9 @@ describe("formula with optional repeating  number of args", () => {
   beforeAll(() => {
     functionRegistry.add("REPAOPT", {
       description: "function with exactly 1 argument number",
-      compute: arg => arg,
+      compute: (arg) => arg,
       args: [{ name: "arg", description: "", type: ["NUMBER"], repeating: true, optional: true }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
 
@@ -462,7 +462,7 @@ describe("formula with bool", () => {
       description: "",
       compute: () => 0,
       args: [{ type: ["BOOLEAN"], description: "", name: "" }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
   test("true", () => {
@@ -505,7 +505,7 @@ describe("formula with string", () => {
       description: "",
       compute: () => 0,
       args: [{ type: ["STRING"], description: "", name: "" }],
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
   });
   test('"true"', () => {

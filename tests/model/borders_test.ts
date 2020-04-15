@@ -12,7 +12,7 @@ function setBorder(model: Model, command: BorderCommand) {
   model.dispatch("SET_FORMATTING", {
     sheet: model.getters.getActiveSheet(),
     target: model.getters.getSelectedZones(),
-    border: command
+    border: command,
   });
 }
 
@@ -119,7 +119,7 @@ describe("borders", () => {
       left: ["thin", "#000"],
       top: ["thin", "#000"],
       bottom: ["thin", "#000"],
-      right: ["thin", "#000"]
+      right: ["thin", "#000"],
     };
     expect(getBorder(model, "B2")).toEqual(all);
     expect(getBorder(model, "B3")).toEqual(all);
@@ -137,7 +137,7 @@ describe("borders", () => {
     // set all borders
     setBorder(model, "top");
     const border = {
-      top: ["thin", "#000"]
+      top: ["thin", "#000"],
     };
     expect(getBorder(model, "B2")).toEqual(border);
     expect(getBorder(model, "C2")).toEqual(border);
@@ -245,7 +245,7 @@ describe("borders", () => {
     expect(getCell(model, "B2")!.border).toBeDefined();
     model.dispatch("DELETE_CONTENT", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B2")!.border).toBeDefined();
   });
@@ -272,7 +272,7 @@ describe("borders", () => {
     expect(getCell(model, "B1")!.border).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.border).not.toBeDefined();
   });
@@ -285,7 +285,7 @@ describe("borders", () => {
       left: 0,
       top: 0,
       right: model["workbook"].cols.length - 1,
-      bottom: model["workbook"].rows.length - 1
+      bottom: model["workbook"].rows.length - 1,
     });
     setBorder(model, "all");
     expect(getCell(model, "B1")!.border).toBeDefined();

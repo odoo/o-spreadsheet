@@ -8,13 +8,13 @@ Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
     return 1000;
   },
-  configurable: true
+  configurable: true,
 });
 Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
   get() {
     return 1000;
   },
-  configurable: true
+  configurable: true,
 });
 
 let fixture: HTMLElement;
@@ -68,7 +68,7 @@ describe("Grid component", () => {
       top: 0,
       left: 0,
       bottom: 7,
-      right: 2
+      right: 2,
     });
   });
 
@@ -138,7 +138,7 @@ describe("Grid component", () => {
       model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-        style: { fillColor: "red" }
+        style: { fillColor: "red" },
       });
       expect(getCell(model, "A1")!.style).toBeDefined();
       document.activeElement!.dispatchEvent(
@@ -156,7 +156,7 @@ describe("Grid component", () => {
       model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-        style: { fillColor: "red" }
+        style: { fillColor: "red" },
       });
       expect(getCell(model, "A1")!.style).toBeDefined();
       document.activeElement!.dispatchEvent(
@@ -179,7 +179,7 @@ describe("Grid component", () => {
         left: 0,
         top: 0,
         right: 25,
-        bottom: 99
+        bottom: 99,
       });
     });
 
@@ -202,7 +202,7 @@ describe("Grid component", () => {
       model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-        style: { bold: true }
+        style: { bold: true },
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
@@ -218,7 +218,7 @@ describe("Grid component", () => {
       model.dispatch("SET_FORMATTING", {
         sheet: "Sheet1",
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-        style: { bold: true }
+        style: { bold: true },
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });

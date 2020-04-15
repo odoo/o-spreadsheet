@@ -4,7 +4,7 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
   HEADER_HEIGHT,
-  HEADER_WIDTH
+  HEADER_WIDTH,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
@@ -423,7 +423,7 @@ export class RendererPlugin extends BasePlugin {
             style,
             align,
             clipRect,
-            isError: cell.error
+            isError: cell.error,
           });
         }
       }
@@ -463,7 +463,7 @@ export class RendererPlugin extends BasePlugin {
           style,
           align,
           clipRect: [x, y, width, height],
-          isError: refCell ? refCell.error : false
+          isError: refCell ? refCell.error : false,
         });
       }
     }

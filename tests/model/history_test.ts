@@ -48,12 +48,12 @@ describe("history", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
-      border: "all"
+      border: "all",
     });
     model.dispatch("SET_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
-      border: "all"
+      border: "all",
     });
 
     expect(getCell(model, "B2")!.border).toBeDefined();

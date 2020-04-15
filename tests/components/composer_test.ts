@@ -16,7 +16,7 @@ let fixture: HTMLElement;
 let parent: GridParent;
 
 function getHighlights(model: Model): any[] {
-  const editionPlugin = (model as any).handlers.find(h => h instanceof EditionPlugin);
+  const editionPlugin = (model as any).handlers.find((h) => h instanceof EditionPlugin);
   return editionPlugin.highlights;
 }
 
@@ -156,7 +156,7 @@ describe("ranges and highlights", () => {
       top: 1,
       bottom: 2,
       left: 1,
-      right: 2
+      right: 2,
     });
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=C4");
@@ -297,7 +297,7 @@ describe("composer highlights color", () => {
     expect(getHighlights(model)[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
-  test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async ref => {
+  test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async (ref) => {
     model.dispatch("SET_VALUE", { xc: "A1", text: ref });
     await startComposition();
     expect(getHighlights(model).length).toBe(0);

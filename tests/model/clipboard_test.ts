@@ -6,7 +6,7 @@ import { ClipboardPlugin } from "../../src/plugins/clipboard";
 import { getCell } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
-  const clipboardPlugin = (model as any).handlers.find(h => h instanceof ClipboardPlugin);
+  const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
   return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
 }
 
@@ -30,14 +30,14 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
     expect(model["workbook"].cells).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
+      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
     });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
     expect(model["workbook"].cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
-      D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
+      D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" },
     });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
@@ -46,17 +46,17 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     expect(model["workbook"].cells).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
+      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
     });
 
     model.dispatch("CUT", { target: target("B2") });
     expect(model["workbook"].cells).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" }
+      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
     });
     model.dispatch("PASTE", { target: target("D2") });
 
     expect(model["workbook"].cells).toEqual({
-      D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" }
+      D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" },
     });
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
@@ -74,7 +74,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 
@@ -93,7 +93,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 
@@ -117,7 +117,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 
@@ -137,7 +137,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
-      border: "bottom"
+      border: "bottom",
     });
     expect(getCell(model, "B2")!.border).toBe(2);
 
@@ -155,7 +155,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTER", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
-      formatter: "0.00%"
+      formatter: "0.00%",
     });
     expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("45.10%");
 
@@ -172,14 +172,14 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
 
     model.dispatch("CUT", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2") });
 
     expect(model["workbook"].cells).toEqual({
-      C2: { col: 2, style: 2, row: 1, content: "b2", type: "text", value: "b2", xc: "C2" }
+      C2: { col: 2, style: 2, row: 1, content: "b2", type: "text", value: "b2", xc: "C2" },
     });
   });
 
@@ -388,7 +388,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 
@@ -405,7 +405,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 
@@ -423,7 +423,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 
@@ -441,7 +441,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     model.dispatch("COPY", { target: [zone("B2:B2")] });
     model.dispatch("PASTE", { target: target("C2"), onlyFormat: true });
@@ -464,7 +464,7 @@ describe("clipboard", () => {
   test.each([
     ["=SUM(C1:C2)", "=SUM(D2:D3)"],
     ["=$C1", "=$C2"],
-    ["=SUM($C1:D$1)", "=SUM($C2:E$1)"]
+    ["=SUM($C1:D$1)", "=SUM($C2:E$1)"],
   ])("can copy and paste formula with $refs", (value, expected) => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: value });
@@ -482,7 +482,7 @@ describe("clipboard", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(getCell(model, "B2")!.style).toBe(2);
 

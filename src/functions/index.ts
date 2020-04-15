@@ -24,7 +24,7 @@ const functions: { [category: string]: { [name: string]: FunctionDescription } }
   logical,
   operators,
   statistical,
-  text
+  text,
 };
 
 //------------------------------------------------------------------------------

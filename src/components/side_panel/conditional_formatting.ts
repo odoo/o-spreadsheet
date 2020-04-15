@@ -163,12 +163,12 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     currentRanges: "",
     mode: "list" as "list" | "edit" | "add",
     conditionalFormats: this.getters.getConditionalFormats(),
-    toRuleType: "CellIsRule"
+    toRuleType: "CellIsRule",
   });
 
   editors = {
     CellIsRule: CellIsRuleEditor,
-    ColorScaleRule: ColorScaleRuleEditor
+    ColorScaleRule: ColorScaleRuleEditor,
   };
 
   onSave(ev: CustomEvent) {
@@ -177,8 +177,8 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
         cf: {
           rule: ev.detail.rule,
           ranges: this.state.currentRanges.split(","),
-          id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4()
-        }
+          id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4(),
+        },
       });
     }
     this.state.mode = "list";
@@ -201,30 +201,20 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
       type: "CellIsRule",
       operator: "Equal",
       values: [],
-      style: { fillColor: "#FF0000" }
+      style: { fillColor: "#FF0000" },
     },
-    ranges: [
-      this.getters
-        .getSelectedZones()
-        .map(this.getters.zoneToXC)
-        .join(",")
-    ],
-    id: uuidv4()
+    ranges: [this.getters.getSelectedZones().map(this.getters.zoneToXC).join(",")],
+    id: uuidv4(),
   };
 
   defaultColorScaleRule: ConditionalFormat = {
     rule: {
       minimum: { type: "value", color: 0 },
       maximum: { type: "value", color: 0xeeffee },
-      type: "ColorScaleRule"
+      type: "ColorScaleRule",
     },
-    ranges: [
-      this.getters
-        .getSelectedZones()
-        .map(this.getters.zoneToXC)
-        .join(",")
-    ],
-    id: uuidv4()
+    ranges: [this.getters.getSelectedZones().map(this.getters.zoneToXC).join(",")],
+    id: uuidv4(),
   };
 
   onAdd() {

@@ -13,9 +13,9 @@ export const ADD: FunctionDescription = {
       value2 (number) The second addend.
     `,
   returns: ["NUMBER"],
-  compute: function(value1: any, value2: any): number {
+  compute: function (value1: any, value2: any): number {
     return toNumber(value1) + toNumber(value2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -28,9 +28,9 @@ export const CONCAT: FunctionDescription = {
       value2 (string) The value to append to value1.
     `,
   returns: ["STRING"],
-  compute: function(value1: any, value2: any): string {
+  compute: function (value1: any, value2: any): string {
     return toString(value1) + toString(value2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -43,13 +43,13 @@ export const DIVIDE: FunctionDescription = {
       divisor (number) The number to divide by.
     `,
   returns: ["NUMBER"],
-  compute: function(dividend: any, divisor: any): number {
+  compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
     if (_divisor === 0) {
       throw new Error("Function DIVIDE parameter 2 cannot be zero.");
     }
     return toNumber(dividend) / _divisor;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ export const EQ: FunctionDescription = {
       value2 (any) The value to test against value1 for equality.
     `,
   returns: ["BOOLEAN"],
-  compute: function(value1: any, value2: any): boolean {
+  compute: function (value1: any, value2: any): boolean {
     value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
     value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
     if (typeof value1 === "string") {
@@ -78,7 +78,7 @@ export const EQ: FunctionDescription = {
       value2 = value2.toUpperCase();
     }
     return value1 === value2;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -115,11 +115,11 @@ export const GT: FunctionDescription = {
       value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(value1: any, value2: any): boolean {
+  compute: function (value1: any, value2: any): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 > v2;
     });
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -132,11 +132,11 @@ export const GTE: FunctionDescription = {
       value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(value1: any, value2: any): boolean {
+  compute: function (value1: any, value2: any): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 >= v2;
     });
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -149,9 +149,9 @@ export const LT: FunctionDescription = {
       value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(value1: any, value2: any): boolean {
+  compute: function (value1: any, value2: any): boolean {
     return !GTE.compute(value1, value2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -164,9 +164,9 @@ export const LTE: FunctionDescription = {
       value2 (any) The second value.
     `,
   returns: ["BOOLEAN"],
-  compute: function(value1: any, value2: any): boolean {
+  compute: function (value1: any, value2: any): boolean {
     return !GT.compute(value1, value2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -179,9 +179,9 @@ export const MINUS: FunctionDescription = {
       value2 (number) The subtrahend, or number to subtract from value1.
     `,
   returns: ["NUMBER"],
-  compute: function(value1: any, value2: any): number {
+  compute: function (value1: any, value2: any): number {
     return toNumber(value1) - toNumber(value2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -194,9 +194,9 @@ export const MULTIPLY: FunctionDescription = {
       factor2 (number) The second multiplicand.
     `,
   returns: ["NUMBER"],
-  compute: function(factor1: any, factor2: any): number {
+  compute: function (factor1: any, factor2: any): number {
     return toNumber(factor1) * toNumber(factor2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -209,9 +209,9 @@ export const NE: FunctionDescription = {
       value2 (any) The value to test against value1 for inequality.
     `,
   returns: ["BOOLEAN"],
-  compute: function(value1: any, value2: any): boolean {
+  compute: function (value1: any, value2: any): boolean {
     return !EQ.compute(value1, value2);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -224,9 +224,9 @@ export const POW: FunctionDescription = {
       exponent (number) The exponent to raise base to.
     `,
   returns: ["BOOLEAN"],
-  compute: function(base: any, exponent: any): number {
+  compute: function (base: any, exponent: any): number {
     return POWER.compute(base, exponent);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -238,9 +238,9 @@ export const UMINUS: FunctionDescription = {
       value (number) The number to have its sign reversed. Equivalently, the number to multiply by -1.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any): number {
+  compute: function (value: any): number {
     return -toNumber(value);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -252,9 +252,9 @@ export const UNARY_PERCENT: FunctionDescription = {
       percentage (number) The value to interpret as a percentage.
     `,
   returns: ["NUMBER"],
-  compute: function(percentage: any): number {
+  compute: function (percentage: any): number {
     return toNumber(percentage) / 100;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -266,7 +266,7 @@ export const UPLUS: FunctionDescription = {
       value (any) The number to return.
     `,
   returns: ["ANY"],
-  compute: function(value: any): any {
+  compute: function (value: any): any {
     return value;
-  }
+  },
 };

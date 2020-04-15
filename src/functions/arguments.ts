@@ -30,7 +30,7 @@ const ARG_TYPES: ArgType[] = [
   "RANGE",
   "RANGE<BOOLEAN>",
   "RANGE<NUMBER>",
-  "RANGE<STRING>"
+  "RANGE<STRING>",
 ];
 
 /**
@@ -61,7 +61,7 @@ function makeArg(str: string): Arg {
 
   for (let param of parts[2].split(",")) {
     const key = param.trim().toUpperCase();
-    let type = ARG_TYPES.find(t => key === t);
+    let type = ARG_TYPES.find((t) => key === t);
     if (type) {
       types.push(type);
     } else if (key === "RANGE<ANY>") {
@@ -79,7 +79,7 @@ function makeArg(str: string): Arg {
   const result: Arg = {
     name,
     description,
-    type: types
+    type: types,
   };
   if (isOptional) {
     result.optional = true;

@@ -13,7 +13,7 @@ export const fonts: Font[] = [
   { key: "Helvetica", description: "Helvetica" },
   { key: "Courier New", description: "Courier New" },
   { key: "Verdana", description: "Verdana" },
-  { key: "Lato", description: "Lato" }
+  { key: "Lato", description: "Lato" },
 ];
 
 export const fontSizes: FontSize[] = [
@@ -31,7 +31,7 @@ export const fontSizes: FontSize[] = [
   { pt: 22, px: 29.3 },
   { pt: 24, px: 32 },
   { pt: 26, px: 34.7 },
-  { pt: 36, px: 48 }
+  { pt: 36, px: 48 },
 ];
 
 export const fontSizeMap: { [pt: number]: number } = {};

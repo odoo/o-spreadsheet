@@ -80,7 +80,7 @@ const cellIsOperators = {
   LessThanOrEqual: "Less than or equal",
   NotBetween: "Not between",
   NotContains: "Not contains",
-  NotEqual: "Not equal"
+  NotEqual: "Not equal",
 };
 
 interface Props {
@@ -101,7 +101,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
     condition: {
       operator: this.rule && this.rule.operator ? this.rule.operator : "Equal",
       value1: this.rule && this.rule.values.length > 0 ? this.rule.values[0] : "",
-      value2: this.cf && this.rule.values.length > 1 ? this.rule.values[1] : ""
+      value2: this.cf && this.rule.values.length > 1 ? this.rule.values[1] : "",
     },
 
     textColorTool: false,
@@ -111,8 +111,8 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
       textColor: this.cf && this.rule.style.textColor,
       bold: this.cf && this.rule.style.bold,
       italic: this.cf && this.rule.style.italic,
-      strikethrough: this.cf && this.rule.style.strikethrough
-    }
+      strikethrough: this.cf && this.rule.style.strikethrough,
+    },
   });
 
   toggleMenu(tool) {
@@ -161,8 +161,8 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
         operator: this.state.condition.operator,
         values: [this.state.condition.value1, this.state.condition.value2],
         stopIfTrue: false,
-        style: newStyle
-      }
+        style: newStyle,
+      },
     });
   }
   onCancel() {

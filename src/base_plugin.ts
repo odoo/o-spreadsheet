@@ -8,7 +8,7 @@ import {
   GridRenderingContext,
   LAYERS,
   Workbook,
-  WorkbookData
+  WorkbookData,
 } from "./types/index";
 
 /**
@@ -42,7 +42,7 @@ export class BasePlugin implements CommandHandler {
     this.workbook = workbook;
     this.getters = getters;
     this.history = Object.assign(Object.create(history), {
-      updateLocalState: history.updateStateFromRoot.bind(history, this)
+      updateLocalState: history.updateStateFromRoot.bind(history, this),
     });
     this.dispatch = dispatch;
     this.currentMode = mode;

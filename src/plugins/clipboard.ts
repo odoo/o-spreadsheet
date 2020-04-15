@@ -71,8 +71,8 @@ export class ClipboardPlugin extends BasePlugin {
     }
     return (
       this.cells
-        .map(cells => {
-          return cells.map(c => (c ? this.getters.getCellText(c) : "")).join("\t");
+        .map((cells) => {
+          return cells.map((c) => (c ? this.getters.getCellText(c) : "")).join("\t");
         })
         .join("\n") || "\t"
     );
@@ -87,11 +87,11 @@ export class ClipboardPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private cutOrCopy(zones: Zone[], cut: boolean) {
-    const tops = new Set(zones.map(z => z.top));
-    const bottoms = new Set(zones.map(z => z.bottom));
+    const tops = new Set(zones.map((z) => z.top));
+    const bottoms = new Set(zones.map((z) => z.bottom));
     const areZonesCompatible = tops.size === 1 && bottoms.size === 1;
     let clippedZones = areZonesCompatible ? zones : [zones[zones.length - 1]];
-    clippedZones = clippedZones.map(z => Object.assign({}, z));
+    clippedZones = clippedZones.map((z) => Object.assign({}, z));
 
     const cells: (Cell | null)[][] = [];
     let { top, bottom } = clippedZones[0];
@@ -118,7 +118,7 @@ export class ClipboardPlugin extends BasePlugin {
     const values = content
       .replace(/\r/g, "")
       .split("\n")
-      .map(vals => vals.split("\t"));
+      .map((vals) => vals.split("\t"));
     const { left: activeCol, top: activeRow } = target[0];
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
@@ -170,14 +170,14 @@ export class ClipboardPlugin extends BasePlugin {
         left: col,
         top: row,
         right: col + repX * width - 1,
-        bottom: row + repY * height - 1
+        bottom: row + repY * height - 1,
       };
       const [anchorCol, anchorRow] = this.getters.getSelection().anchor;
       const newCol = clip(anchorCol, col, col + repX * width - 1);
       const newRow = clip(anchorRow, row, row + repY * height - 1);
       this.dispatch("SET_SELECTION", {
         anchor: [newCol, newRow],
-        zones: [newSelection]
+        zones: [newSelection],
       });
     }
   }
@@ -200,7 +200,7 @@ export class ClipboardPlugin extends BasePlugin {
           let newCell: NewCell = {
             style: originCell.style,
             border: originCell.border,
-            format: originCell.format
+            format: originCell.format,
           };
           if (this.onlyFormat) {
             newCell.content = targetCell ? targetCell.content : "";
@@ -212,13 +212,13 @@ export class ClipboardPlugin extends BasePlugin {
             sheet: this.workbook.activeSheet.name,
             col: col + c,
             row: row + r,
-            ...newCell
+            ...newCell,
           });
           if (this.shouldCut) {
             this.dispatch("CLEAR_CELL", {
               sheet: this.workbook.activeSheet.name,
               col: originCell.col,
-              row: originCell.row
+              row: originCell.row,
             });
           }
         }
@@ -232,7 +232,7 @@ export class ClipboardPlugin extends BasePlugin {
             this.dispatch("CLEAR_CELL", {
               sheet: this.workbook.activeSheet.name,
               col: col + c,
-              row: row + r
+              row: row + r,
             });
           }
         }

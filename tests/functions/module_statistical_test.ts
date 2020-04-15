@@ -52,7 +52,7 @@ describe("statistical", () => {
       D3: "kikou",
       B4: '"111111"',
       C4: "0",
-      D4: "0"
+      D4: "0",
     };
     expect(evaluateCell("A1", grid)).toEqual(17.1);
     expect(evaluateCell("A2", grid)).toEqual(17.1);
@@ -108,7 +108,7 @@ describe("statistical", () => {
       D3: "kikou",
       B4: '"111111"',
       C4: "0",
-      D4: "0"
+      D4: "0",
     };
     expect(evaluateCell("A1", grid)).toEqual(8);
     expect(evaluateCell("A2", grid)).toEqual(8);
@@ -159,7 +159,7 @@ describe("statistical", () => {
         A2: "1",
         A3: "1",
         A4: "3",
-        A5: "3"
+        A5: "3",
       })
     ).toBe(2.5);
     expect(
@@ -168,7 +168,7 @@ describe("statistical", () => {
         A2: "",
         A3: "1",
         A4: "3",
-        A5: "3"
+        A5: "3",
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
@@ -177,7 +177,7 @@ describe("statistical", () => {
         A2: "1",
         A3: "1",
         A4: "3",
-        A5: ""
+        A5: "",
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
@@ -186,7 +186,7 @@ describe("statistical", () => {
         A2: "1.5",
         A3: "1",
         A4: "2.5",
-        A5: "4"
+        A5: "4",
       })
     ).toBe(2.3);
     expect(
@@ -195,7 +195,7 @@ describe("statistical", () => {
         A2: "4",
         A3: "1.5",
         A4: "2",
-        A5: "2.5"
+        A5: "2.5",
       })
     ).toBe(2.75);
     expect(
@@ -204,7 +204,7 @@ describe("statistical", () => {
         A2: "-10",
         A3: "1",
         A4: "20",
-        A5: "2"
+        A5: "2",
       })
     ).toBe(10);
     expect(
@@ -213,7 +213,7 @@ describe("statistical", () => {
         A2: "1",
         A3: "-1",
         A4: "3",
-        A5: "3"
+        A5: "3",
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -225,7 +225,7 @@ describe("statistical", () => {
         A2: '"2"',
         A3: '"1"',
         A4: '"6"',
-        A5: '"1"'
+        A5: '"1"',
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(
@@ -234,7 +234,7 @@ describe("statistical", () => {
         A2: '"2"',
         A3: '"1"',
         A4: "6",
-        A5: "1"
+        A5: "1",
       })
     ).toBe(6);
     expect(
@@ -243,7 +243,7 @@ describe("statistical", () => {
         A2: '"2"',
         A3: "1",
         A4: "6",
-        A5: "1"
+        A5: "1",
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
@@ -252,7 +252,7 @@ describe("statistical", () => {
         A2: "2",
         A3: '"1"',
         A4: "6",
-        A5: '"1"'
+        A5: '"1"',
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
@@ -261,7 +261,7 @@ describe("statistical", () => {
         A2: "FALSE",
         A3: "TRUE",
         A4: "FALSE",
-        A5: "TRUE"
+        A5: "TRUE",
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(
@@ -270,7 +270,7 @@ describe("statistical", () => {
         A2: "FALSE",
         A3: "TRUE",
         A4: "6",
-        A5: "TRUE"
+        A5: "TRUE",
       })
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
@@ -279,7 +279,7 @@ describe("statistical", () => {
         A2: "FALSE",
         A3: "TRUE",
         A4: "6",
-        A5: "1"
+        A5: "1",
       })
     ).toBe(6);
   });
@@ -315,7 +315,7 @@ describe("statistical", () => {
       C4: "2",
       D4: "Jean Bonbeurre",
       E4: "",
-      F4: "2"
+      F4: "2",
     };
     expect(evaluateCell("A1", grid)).toBe(16);
     expect(evaluateCell("A2", grid)).toBe(16);
@@ -389,7 +389,7 @@ describe("statistical", () => {
       D3: "kikou",
       B4: '"111111"',
       C4: "0",
-      D4: "0"
+      D4: "0",
     };
     expect(evaluateCell("A1", grid)).toBe(2);
     expect(evaluateCell("A2", grid)).toBe(2);
@@ -451,7 +451,7 @@ describe("statistical", () => {
       D3: "Jean Neypleinlenez",
       B4: '"111111"',
       C4: "0",
-      D4: "0"
+      D4: "0",
     };
     expect(evaluateCell("A1", grid)).toEqual(4);
     expect(evaluateCell("A2", grid)).toEqual(4);
@@ -515,7 +515,7 @@ describe("statistical", () => {
       D3: "Jean Ticonstitutionnalise",
       B4: '"111111"',
       C4: "0",
-      D4: "0"
+      D4: "0",
     };
     expect(evaluateCell("A1", grid)).toBe(8);
     expect(evaluateCell("A2", grid)).toBe(8);
@@ -586,7 +586,7 @@ describe("statistical", () => {
         A2: "lol",
         A3: "looool",
         A4: "xdtrololol",
-        A5: "1"
+        A5: "1",
       })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(
@@ -701,7 +701,7 @@ describe("statistical", () => {
       B4: " ",
       C4: '""',
       D4: '=""',
-      E4: '" "'
+      E4: '" "',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -820,7 +820,7 @@ describe("statistical", () => {
       B4: "3",
       C4: '""',
       D4: '=""',
-      E4: '" "'
+      E4: '" "',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -938,7 +938,7 @@ describe("statistical", () => {
       B4: " ",
       C4: '""',
       D4: '=""',
-      E4: '" "'
+      E4: '" "',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -1057,7 +1057,7 @@ describe("statistical", () => {
       B4: "-42",
       C4: '""',
       D4: '=""',
-      E4: '" "'
+      E4: '" "',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -1136,7 +1136,7 @@ describe("statistical", () => {
         A2: "lol",
         A3: "looool",
         A4: "xdtrololol",
-        A5: "1"
+        A5: "1",
       })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(

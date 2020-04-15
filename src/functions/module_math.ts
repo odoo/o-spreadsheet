@@ -11,7 +11,7 @@ export const CEILING: FunctionDescription = {
     factor (number, optional, default=1) The number to whose multiples value will be rounded.
   `,
   returns: ["NUMBER"],
-  compute: function(value: any, factor: any = 1): number {
+  compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
 
@@ -23,7 +23,7 @@ export const CEILING: FunctionDescription = {
         value.`);
     }
     return _factor ? Math.ceil(_value / _factor) * _factor : 0;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ export const CEILING_MATH: FunctionDescription = {
     mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero.
   `,
   returns: ["NUMBER"],
-  compute: function(number: any, significance: any = 1, mode: any = 0): number {
+  compute: function (number: any, significance: any = 1, mode: any = 0): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
       return 0;
@@ -55,7 +55,7 @@ export const CEILING_MATH: FunctionDescription = {
     }
 
     return -Math.ceil(Math.abs(_number) / _significance) * _significance;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -68,9 +68,9 @@ export const CEILING_PRECISE: FunctionDescription = {
     significance (number, optional, default=1) The number to whose multiples number will be rounded.
   `,
   returns: ["NUMBER"],
-  compute: function(number: any, significance: any): number {
+  compute: function (number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -82,9 +82,9 @@ export const COS: FunctionDescription = {
     angle (number) The angle to find the cosine of, in radians.
   `,
   returns: ["NUMBER"],
-  compute: function(angle: any): number {
+  compute: function (angle: any): number {
     return Math.cos(toNumber(angle));
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -97,13 +97,13 @@ export const COUNTBLANK: FunctionDescription = {
     value2 (any, range, optional, repeating) Additional values or ranges in which to count the number of blanks.
   `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     return reduceArgs(
       arguments,
       (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc),
       0
     );
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -130,9 +130,9 @@ export const COUNTUNIQUE: FunctionDescription = {
     value2 (any, range, optional, repeating) Additional values or ranges to consider for uniqueness.
   `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     return reduceArgs(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ export const DECIMAL: FunctionDescription = {
     base (number) The base to convert the value from.
   `,
   returns: ["NUMBER"],
-  compute: function(value: any, base: any): number {
+  compute: function (value: any, base: any): number {
     let _base = toNumber(base);
     _base = Math.floor(_base);
     if (_base < 2 || _base > 36) {
@@ -180,7 +180,7 @@ export const DECIMAL: FunctionDescription = {
       throw new Error(decimalErrorParameter2(DECIMAL.args[0].name, _base, _value));
     }
     return deci;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -192,9 +192,9 @@ export const DEGREES: FunctionDescription = {
     angle (number) The angle to convert from radians to degrees.
   `,
   returns: ["NUMBER"],
-  compute: function(angle: any): number {
+  compute: function (angle: any): number {
     return (toNumber(angle) * 180) / Math.PI;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ export const FLOOR: FunctionDescription = {
     factor (number, optional, default=1) The number to whose multiples value will be rounded.
   `,
   returns: ["NUMBER"],
-  compute: function(value: any, factor: any = 1): number {
+  compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
 
@@ -219,7 +219,7 @@ export const FLOOR: FunctionDescription = {
         value.`);
     }
     return _factor ? Math.floor(_value / _factor) * _factor : 0;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -233,7 +233,7 @@ export const FLOOR_MATH: FunctionDescription = {
     mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.
   `,
   returns: ["NUMBER"],
-  compute: function(number: any, significance: any = 1, mode: any = 0): number {
+  compute: function (number: any, significance: any = 1, mode: any = 0): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
       return 0;
@@ -250,7 +250,7 @@ export const FLOOR_MATH: FunctionDescription = {
       return -Math.ceil(Math.abs(_number) / _significance) * _significance;
     }
     return -Math.floor(Math.abs(_number) / _significance) * _significance;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -263,9 +263,9 @@ export const FLOOR_PRECISE: FunctionDescription = {
     significance (number, optional, default=1) The number to whose multiples number will be rounded.
   `,
   returns: ["NUMBER"],
-  compute: function(number: number, significance: number = 1): number {
+  compute: function (number: number, significance: number = 1): number {
     return FLOOR_MATH.compute(number, significance, 0);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -277,11 +277,11 @@ export const ISEVEN: FunctionDescription = {
     value (number) The value to be verified as even.
   `,
   returns: ["BOOLEAN"],
-  compute: function(value: any): boolean {
+  compute: function (value: any): boolean {
     const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -294,9 +294,9 @@ export const ISO_CEILING: FunctionDescription = {
       significance (number, optional, default=1) The number to whose multiples number will be rounded.
     `,
   returns: ["NUMBER"],
-  compute: function(number: any, significance: any): number {
+  compute: function (number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -308,11 +308,11 @@ export const ISODD: FunctionDescription = {
     value (number) The value to be verified as even.
   `,
   returns: ["BOOLEAN"],
-  compute: function(value: any): boolean {
+  compute: function (value: any): boolean {
     const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -325,7 +325,7 @@ export const MOD: FunctionDescription = {
       divisor (number) The number to divide by.
     `,
   returns: ["NUMBER"],
-  compute: function(dividend: any, divisor: any): number {
+  compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
 
     if (_divisor === 0) {
@@ -341,7 +341,7 @@ export const MOD: FunctionDescription = {
       return modulus + _divisor;
     }
     return modulus;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -353,13 +353,13 @@ export const ODD: FunctionDescription = {
       value (number) The value to round to the next greatest odd number.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any): number {
+  compute: function (value: any): number {
     const _value = toNumber(value);
 
     let temp = Math.ceil(Math.abs(_value));
     temp = temp & 1 ? temp : temp + 1;
     return _value < 0 ? -temp : temp;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -369,9 +369,9 @@ export const PI: FunctionDescription = {
   description: `The number pi.`,
   args: [],
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     return Math.PI;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -384,7 +384,7 @@ export const POWER: FunctionDescription = {
       exponent (number) The exponent to raise base to.
     `,
   returns: ["NUMBER"],
-  compute: function(base: any, exponent: any): number {
+  compute: function (base: any, exponent: any): number {
     const _base = toNumber(base);
     const _exponent = toNumber(exponent);
 
@@ -399,7 +399,7 @@ export const POWER: FunctionDescription = {
           from [${_exponent}] to an integer value.`);
     }
     return Math.pow(_base, _exponent);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -409,9 +409,9 @@ export const RAND: FunctionDescription = {
   description: "A random number between 0 inclusive and 1 exclusive.",
   args: [],
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     return Math.random();
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -424,7 +424,7 @@ export const RANDBETWEEN: FunctionDescription = {
       high (number) The high end of the random range.
     `,
   returns: ["NUMBER"],
-  compute: function(low: any, high: any): number {
+  compute: function (low: any, high: any): number {
     let _low = toNumber(low);
     if (!Number.isInteger(_low)) {
       _low = Math.ceil(_low);
@@ -441,7 +441,7 @@ export const RANDBETWEEN: FunctionDescription = {
           is ${_high}. It should be greater than or equal to [${_low}].`);
     }
     return _low + Math.ceil((_high - _low + 1) * Math.random()) - 1;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -454,7 +454,7 @@ export const ROUND: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any, places: any = 0): number {
+  compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -469,7 +469,7 @@ export const ROUND: FunctionDescription = {
       tempResult = Math.round(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
     return _value >= 0 ? tempResult : -tempResult;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -482,7 +482,7 @@ export const ROUNDDOWN: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any, places: any = 0): number {
+  compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -497,7 +497,7 @@ export const ROUNDDOWN: FunctionDescription = {
       tempResult = Math.floor(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
     return _value >= 0 ? tempResult : -tempResult;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -510,7 +510,7 @@ export const ROUNDUP: FunctionDescription = {
       places (number, optional, default=0) The number of decimal places to which to round.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any, places: any): number {
+  compute: function (value: any, places: any): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -525,7 +525,7 @@ export const ROUNDUP: FunctionDescription = {
       tempResult = Math.ceil(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
     return _value >= 0 ? tempResult : -tempResult;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -537,9 +537,9 @@ export const SIN: FunctionDescription = {
       angle (number) The angle to find the sine of, in radians.
     `,
   returns: ["NUMBER"],
-  compute: function(angle: number): number {
+  compute: function (angle: number): number {
     return Math.sin(toNumber(angle));
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -551,7 +551,7 @@ export const SQRT: FunctionDescription = {
       value (number) The number for which to calculate the positive square root.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any): number {
+  compute: function (value: any): number {
     const _value = toNumber(value);
 
     if (_value < 0) {
@@ -561,7 +561,7 @@ export const SQRT: FunctionDescription = {
           from [${_value}] to a positive value.`);
     }
     return Math.sqrt(_value);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -574,9 +574,9 @@ export const SUM: FunctionDescription = {
       value2 (number, range<number>, optional, repeating) Additional numbers or ranges to add to value1.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     return reduceNumbers(arguments, (acc, a) => acc + a, 0);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -589,7 +589,7 @@ export const TRUNC: FunctionDescription = {
       places (number, optional, default=0) The number of significant digits to the right of the decimal point to retain.
     `,
   returns: ["NUMBER"],
-  compute: function(value: any, places: any = 0): number {
+  compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
 
@@ -600,5 +600,5 @@ export const TRUNC: FunctionDescription = {
       _places = Math.trunc(_places);
     }
     return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
-  }
+  },
 };

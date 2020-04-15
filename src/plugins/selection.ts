@@ -29,12 +29,12 @@ export class SelectionPlugin extends BasePlugin {
     "getSelectedZones",
     "getAggregate",
     "getSelection",
-    "getPosition"
+    "getPosition",
   ];
 
   private selection: Selection = {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
-    anchor: [0, 0]
+    anchor: [0, 0],
   };
   private activeCol: number = 0;
   private activeRow: number = 0;
@@ -69,7 +69,7 @@ export class SelectionPlugin extends BasePlugin {
           selection: JSON.parse(JSON.stringify(this.selection)),
           activeCol: this.activeCol,
           activeRow: this.activeRow,
-          activeXc: this.activeXc
+          activeXc: this.activeXc,
         };
         if (cmd.to in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.to]);
@@ -314,7 +314,7 @@ export class SelectionPlugin extends BasePlugin {
         left: Math.max(0, left),
         right: Math.min(this.workbook.cols.length - 1, right),
         top: Math.max(0, top),
-        bottom: Math.min(this.workbook.rows.length - 1, bottom)
+        bottom: Math.min(this.workbook.rows.length - 1, bottom),
       };
     };
 
@@ -345,7 +345,7 @@ export class SelectionPlugin extends BasePlugin {
       top: top + deltaY,
       left: left + deltaX,
       bottom: bottom + deltaY,
-      right: right + deltaX
+      right: right + deltaX,
     };
     result = expand(union(currentZone, zoneWithDelta));
     if (!isEqual(result, lastZone)) {
@@ -361,7 +361,7 @@ export class SelectionPlugin extends BasePlugin {
       left: Math.min(anchorCol, col),
       top: Math.min(anchorRow, row),
       right: Math.max(anchorCol, col),
-      bottom: Math.max(anchorRow, row)
+      bottom: Math.max(anchorRow, row),
     };
     const zones = selection.zones.slice(0, -1).concat(zone);
     this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
@@ -370,11 +370,11 @@ export class SelectionPlugin extends BasePlugin {
   private updateSelection() {
     const cols = this.workbook.cols.length - 1;
     const rows = this.workbook.rows.length - 1;
-    const zones = this.selection.zones.map(z => ({
+    const zones = this.selection.zones.map((z) => ({
       left: clip(z.left, 0, cols),
       right: clip(z.right, 0, cols),
       top: clip(z.top, 0, rows),
-      bottom: clip(z.bottom, 0, rows)
+      bottom: clip(z.bottom, 0, rows),
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
@@ -433,7 +433,7 @@ export class SelectionPlugin extends BasePlugin {
         top: row,
         bottom: row,
         left: col,
-        right: col
+        right: col,
       };
     }
     const [x, y, width, height] = this.getters.getRect(zone, viewport);

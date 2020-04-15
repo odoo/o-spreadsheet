@@ -104,7 +104,7 @@ describe("bool", () => {
         A2: "False",
         A3: "ok1",
         A4: "TRUE",
-        A5: "ok2"
+        A5: "ok2",
       })
     ).toBe("ok2");
     expect(
@@ -113,7 +113,7 @@ describe("bool", () => {
         A2: "TRUE",
         A3: "ok1",
         A4: "TRUE",
-        A5: "ok2"
+        A5: "ok2",
       })
     ).toBe("ok1");
   });
@@ -133,7 +133,7 @@ describe("bool", () => {
         A2: "test",
         A3: "ok1",
         A4: "TRUE",
-        A5: "ok2"
+        A5: "ok2",
       })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });

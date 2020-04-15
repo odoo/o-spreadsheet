@@ -3,7 +3,7 @@ import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
   HEADER_WIDTH,
-  SCROLLBAR_WIDTH
+  SCROLLBAR_WIDTH,
 } from "../constants";
 import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
@@ -134,7 +134,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     left: 0,
     top: 0,
     right: 0,
-    bottom: 0
+    bottom: 0,
   };
   // this viewport represent the same area as the previous one, but 'snapped' to
   // the col/row structure, so, the offsets are correct for computations necessary
@@ -151,7 +151,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
         sheet: this.getters.getActiveSheet(),
-        target: this.getters.getSelectedZones()
+        target: this.getters.getSelectedZones(),
       });
     },
     "CTRL+A": () => this.dispatch("SELECT_ALL"),
@@ -159,13 +159,13 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.trigger("save-requested");
     },
     "CTRL+Z": () => this.dispatch("UNDO"),
-    "CTRL+Y": () => this.dispatch("REDO")
+    "CTRL+Y": () => this.dispatch("REDO"),
   };
 
   private processCopyFormat() {
     if (this.getters.isPaintingFormat()) {
       this.dispatch("PASTE", {
-        target: this.getters.getSelectedZones()
+        target: this.getters.getSelectedZones(),
       });
     }
   }
@@ -283,7 +283,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
     let prevCol = col;
     let prevRow = row;
-    const onMouseMove = ev => {
+    const onMouseMove = (ev) => {
       const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
       const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
       if (col < 0 || row < 0) {
@@ -295,7 +295,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         this.dispatch("ALTER_SELECTION", { cell: [col, row] });
       }
     };
-    const onMouseUp = ev => {
+    const onMouseUp = (ev) => {
       if (this.getters.getEditionMode() === "selecting") {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
@@ -304,7 +304,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.getters.isPaintingFormat()) {
         this.dispatch("PASTE", {
-          target: this.getters.getSelectedZones()
+          target: this.getters.getSelectedZones(),
         });
       }
     };
@@ -339,7 +339,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       ArrowDown: [0, 1],
       ArrowLeft: [-1, 0],
       ArrowRight: [1, 0],
-      ArrowUp: [0, -1]
+      ArrowUp: [0, -1],
     };
     const delta = deltaMap[ev.key];
     if (ev.shiftKey) {
@@ -421,7 +421,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       x,
       y,
       width: this.el!.clientWidth,
-      height: this.el!.clientHeight
+      height: this.el!.clientHeight,
     };
     this.contextMenu.type = type;
   }

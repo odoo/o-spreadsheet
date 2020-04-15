@@ -4,7 +4,7 @@ import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  DEFAULT_CELL_HEIGHT
+  DEFAULT_CELL_HEIGHT,
 } from "../../src/constants";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
@@ -29,9 +29,9 @@ beforeEach(async () => {
     sheets: [
       {
         colNumber: 10,
-        rowNumber: 10
-      }
-    ]
+        rowNumber: 10,
+      },
+    ],
   });
   const parent = new GridParent(model);
   await parent.mount(fixture);

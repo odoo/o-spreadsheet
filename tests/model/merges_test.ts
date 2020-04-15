@@ -20,7 +20,7 @@ describe("merges", () => {
     expect(model["workbook"].cells.B2.content).toBe("b2");
     expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model["workbook"].merges).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
   });
 
@@ -31,13 +31,13 @@ describe("merges", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
-          merges: ["B2:B3"]
-        }
-      ]
+          merges: ["B2:B3"],
+        },
+      ],
     });
     expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model["workbook"].merges).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
@@ -66,9 +66,9 @@ describe("merges", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
-          merges: ["B2:C3"]
-        }
-      ]
+          merges: ["B2:C3"],
+        },
+      ],
     });
 
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
@@ -87,9 +87,9 @@ describe("merges", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
-          merges: ["B2:C3"]
-        }
-      ]
+          merges: ["B2:C3"],
+        },
+      ],
     });
 
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
@@ -100,7 +100,7 @@ describe("merges", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: model.getters.getSelectedZones(),
-      style: { fillColor: "#333" }
+      style: { fillColor: "#333" },
     });
 
     expect(Object.keys(model["workbook"].cells)).toEqual(["B2", "B3", "C2", "C3"]);
@@ -114,9 +114,9 @@ describe("merges", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
-          merges: ["B2:C3"]
-        }
-      ]
+          merges: ["B2:C3"],
+        },
+      ],
     });
 
     model.dispatch("SELECT_CELL", { col: 2, row: 3 });
@@ -133,9 +133,9 @@ describe("merges", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "b2" } }
-        }
-      ]
+          cells: { B2: { content: "b2" } },
+        },
+      ],
     });
     // B2 is not top left, so it is destructive
     expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeTruthy();
@@ -150,10 +150,10 @@ describe("merges", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { style: 1 } }
-        }
+          cells: { B2: { style: 1 } },
+        },
       ],
-      styles: { 1: {} }
+      styles: { 1: {} },
     });
 
     expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeFalsy();
@@ -169,10 +169,10 @@ describe("merges", () => {
             A1: { content: "1" },
             A2: { content: "2" },
             A3: { content: "3" },
-            A4: { content: "=sum(A1:A3)" }
-          }
-        }
-      ]
+            A4: { content: "=sum(A1:A3)" },
+          },
+        },
+      ],
     });
     expect(getCell(model, "A4")!.value).toBe(6);
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
@@ -193,7 +193,7 @@ describe("merges", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
-      style: { fillColor: "red" }
+      style: { fillColor: "red" },
     });
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
@@ -206,7 +206,7 @@ describe("merges", () => {
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
     const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }]
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }],
     });
 
     //merging
@@ -229,7 +229,7 @@ describe("merges", () => {
 
     expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model["workbook"].merges).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
 
     // undo
@@ -241,7 +241,7 @@ describe("merges", () => {
     model.dispatch("REDO");
     expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model["workbook"].merges).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" }
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
   });
 

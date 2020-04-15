@@ -13,7 +13,7 @@ describe("math", () => {
     ["6.7", 7],
     ["7.89", 8],
     ["-6.7", -6],
-    ["-7.89", -7]
+    ["-7.89", -7],
   ])("CEILING FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=CEILING(A2)", A2: a })).toBe(expected);
     expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2)", A2: a })).toBe(expected);
@@ -33,7 +33,7 @@ describe("math", () => {
     ["6", "0.7", 6.3],
     ["-6", "0.7", -5.6],
     ["6.7", "0.2", 6.8],
-    ["-6.7", "0.2", -6.6]
+    ["-6.7", "0.2", -6.6],
   ])("CEILING FUNCTIONS(%s, %s) - %s: take 2 parameters, return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
     expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
@@ -56,7 +56,7 @@ describe("math", () => {
     ["7.89", "0.2", 8],
     ["7.89", "-0.2", 8],
     ["-7.89", "0.2", -7.8],
-    ["-7.89", "-0.2", -7.8]
+    ["-7.89", "-0.2", -7.8],
   ])(
     "CEILING (MATH/PRECISE/ISO) FUNCTIONS(%s, %s) - %s: no effect with negative factor",
     (a, b, expected) => {
@@ -77,7 +77,7 @@ describe("math", () => {
 
   test.each([
     ["6", "-0.2"],
-    ["7.89", "-0.2"]
+    ["7.89", "-0.2"],
   ])("CEILING(%s, %s) - error: if value positive, factor can't be negative", (a, b) => {
     expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBe("#ERROR");
   });
@@ -87,7 +87,7 @@ describe("math", () => {
     // if "a" is negative and "b" is negative, rounds a number down (and not up)
     // the nearest integer multiple of b
     ["-7.89", "0.2", -7.8],
-    ["-7.89", "-0.2", -8]
+    ["-7.89", "-0.2", -8],
   ])("CEILING(%s, %s) - %s: if factor negative, rounds number down", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
@@ -105,7 +105,7 @@ describe("math", () => {
     ["-7.89", "-0.2", "0", -7.8],
     ["-7.89", "-0.2", "1", -8],
     ["-7.89", "-0.2", "2.2", -8],
-    ["-7.89", "-0.2", "-2.2", -8]
+    ["-7.89", "-0.2", "-2.2", -8],
   ])("CEILING.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
     expect(
       evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })
@@ -182,7 +182,7 @@ describe("math", () => {
 
   test.each([["CEILING"], ["CEILING.MATH"], ["CEILING.PRECISE"], ["ISO.CEILING"]])(
     "%s: special value testing",
-    functionName => {
+    (functionName) => {
       evaluateCeilingFunction(functionName);
     }
   );
@@ -197,7 +197,7 @@ describe("math", () => {
     ["=PI()*2", 1],
     ["=PI()/2", 0],
     ["=PI()/3", 0.5],
-    ["=-PI()/2", 0]
+    ["=-PI()/2", 0],
   ])("COS(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=COS(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
@@ -322,7 +322,7 @@ describe("math", () => {
         A1: "=countunique(A2, A3, A4)",
         A2: "1.4",
         A3: "-1",
-        A4: "Jean Peuxplus"
+        A4: "Jean Peuxplus",
       })
     ).toBe(3);
     expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: "" })).toBe(0);
@@ -397,7 +397,7 @@ describe("math", () => {
       B4: " ",
       C4: '""',
       D4: '=""',
-      E4: '" "'
+      E4: '" "',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -432,7 +432,7 @@ describe("math", () => {
     ["a1a1", "36", 468217],
     ["-ABAB", "16", -43947], // @compatibility: return error on parameter 1 on google sheets
     ["-ABAB", "36", -481187], // @compatibility: return error on parameter 1 on google sheets
-    ["zzzz", "36", 1679615]
+    ["zzzz", "36", 1679615],
   ])("DECIMAL(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -446,7 +446,7 @@ describe("math", () => {
     ["-", "2"],
     ["A-", "36"],
     ["@ABAB", "36"],
-    ["AB AB", "36"]
+    ["AB AB", "36"],
   ])("DECIMAL(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
     expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -463,7 +463,7 @@ describe("math", () => {
     ["ABAB@", "36"],
     ["ABAB.2", "36"],
     ["ABAB.21@", "36"],
-    ["AB AB", "36"]
+    ["AB AB", "36"],
   ])("DECIMAL(%s, %s) - error: take 2 parameter(s), return error on parameter 1", (a, b) => {
     expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -517,7 +517,7 @@ describe("math", () => {
     ["=PI() * 3", 540],
     ["3.141592653589793", 180],
     ["3.14159265358979", 179.99999999999983], // @compatibility: on google sheets return 180
-    ["3.1415926535897", 179.99999999999466] // @compatibility: on google sheets return 179.99999999999(5) and not (466)
+    ["3.1415926535897", 179.99999999999466], // @compatibility: on google sheets return 179.99999999999(5) and not (466)
   ])("DEGREES(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: a })).toBe(expected);
   });
@@ -560,7 +560,7 @@ describe("math", () => {
     ["7.89", 7],
     ["-6", -6],
     ["-6.7", -7],
-    ["-7.89", -8]
+    ["-7.89", -8],
   ])("FLOOR FUNCTIONS(%s) - %s: take 1 parameters, return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=FLOOR(A2)", A2: a })).toBe(expected);
     expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2)", A2: a })).toBe(expected);
@@ -579,7 +579,7 @@ describe("math", () => {
     ["6", "0.7", 5.6],
     ["-6", "0.7", -6.3],
     ["6.7", "0.2", 6.6],
-    ["-6.7", "0.2", -6.8]
+    ["-6.7", "0.2", -6.8],
   ])("FLOOR FUNCTIONS(%s, %s) - %s: take 2 parameters, return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
     expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
@@ -594,7 +594,7 @@ describe("math", () => {
     ["7.89", "0.2", 7.8],
     ["7.89", "-0.2", 7.8],
     ["-7.89", "0.2", -8],
-    ["-7.89", "-0.2", -8]
+    ["-7.89", "-0.2", -8],
   ])(
     "FLOOR (MATH/PRECISE) FUNCTIONS(%s, %s) - %s: no effect with negative factor",
     (a, b, expected) => {
@@ -607,7 +607,7 @@ describe("math", () => {
 
   test.each([
     ["6", "-0.2"],
-    ["7.89", "-0.2"]
+    ["7.89", "-0.2"],
   ])("FLOOR(%s, %s) - error: if value positive, factor can't be negative", (a, b) => {
     expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -617,7 +617,7 @@ describe("math", () => {
     // if "a" is negative and "b" is negative, rounds a number up (and not down)
     // the nearest integer multiple of b
     ["-7.89", "0.2", -8],
-    ["-7.89", "-0.2", -7.8]
+    ["-7.89", "-0.2", -7.8],
   ])("FLOOR(%s, %s) - %s: if factor negative, rouds number down", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
@@ -635,7 +635,7 @@ describe("math", () => {
     ["-7.89", "-0.2", "0", -8],
     ["-7.89", "-0.2", "1", -7.8],
     ["-7.89", "-0.2", "2.2", -7.8],
-    ["-7.89", "-0.2", "-2.2", -7.8]
+    ["-7.89", "-0.2", "-2.2", -7.8],
   ])("FLOOR.MATH(%s, %s, %s) - %s: take 3 parameters, return a number", (a, b, c, expected) => {
     expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })).toBeCloseTo(
       expected,
@@ -710,7 +710,7 @@ describe("math", () => {
 
   test.each([["FLOOR"], ["FLOOR.MATH"], ["FLOOR.PRECISE"]])(
     "%s: special value testing",
-    functionName => {
+    (functionName) => {
       evaluateFloorFunction(functionName);
     }
   );
@@ -726,7 +726,7 @@ describe("math", () => {
     ["0", true],
     ["2", true],
     ["2.3", true],
-    ["3", false]
+    ["3", false],
   ])("ISEVEN(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: a })).toBe(expected);
   });
@@ -769,7 +769,7 @@ describe("math", () => {
     ["0", false],
     ["2", false],
     ["2.3", false],
-    ["3", true]
+    ["3", true],
   ])("ISODD(%s) - %s: take 1 parameter(s), return a boolean", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: a })).toBe(expected);
   });
@@ -823,7 +823,7 @@ describe("math", () => {
     ["2.2", "-2", -1.8],
     ["2.2", "2", 0.2],
     ["2.2", "2.2", 0],
-    ["2.2", "10", 2.2]
+    ["2.2", "10", 2.2],
   ])("MOD(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
@@ -831,7 +831,7 @@ describe("math", () => {
   test.each([
     ["-42", "0"],
     ["0", "0"],
-    ["2.2", "0"]
+    ["2.2", "0"],
   ])("MOD(%s, %s) - error: take 2 parameter(s), return error on parameter 2", (a, b) => {
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -889,7 +889,7 @@ describe("math", () => {
     ["2.9", 3],
     ["3", 3],
     ["3.1", 5],
-    ["3.9", 5]
+    ["3.9", 5],
   ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: a })).toBe(expected);
   });
@@ -944,7 +944,7 @@ describe("math", () => {
     ["-4", "3", -64],
     ["4", "0.5", 2],
     ["4", "-0.5", 0.5],
-    ["4", "-2", 0.0625]
+    ["4", "-2", 0.0625],
   ])("POWER(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -952,7 +952,7 @@ describe("math", () => {
   test.each([
     ["-4", "0.5"],
     ["-4", "1.5"],
-    ["-4", "0.2"]
+    ["-4", "0.2"],
   ])("POWER(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
     expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -1007,7 +1007,7 @@ describe("math", () => {
     ["0", "0", 0],
     ["42", "42", 42],
     ["-42", "-42", -42],
-    ["1.1", "2", 2]
+    ["1.1", "2", 2],
   ])("RANDBETWEEN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -1015,7 +1015,7 @@ describe("math", () => {
   test.each([
     ["-42", "42"],
     ["24", "42"],
-    ["-42", "-24"]
+    ["-42", "-24"],
   ])("RANDBETWEEN(%s, %s): take 2 parameter(s), return a number", (a, b) => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeGreaterThanOrEqual(
       toNumber(a)
@@ -1028,7 +1028,7 @@ describe("math", () => {
   test.each([
     ["1.1", "1.2"], // @compatibility: on google sheets, return 2
     ["-24", "-42"],
-    ["42", "24"]
+    ["42", "24"],
   ])("RANDBETWEEN(%s, %s) - error: take 2 parameter(s), return an error", (a, b) => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
@@ -1083,7 +1083,7 @@ describe("math", () => {
     ["0", 0],
     ["1.4", 1],
     ["1.5", 2],
-    ["1.6", 2]
+    ["1.6", 2],
   ])("ROUND(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ROUND(A2)", A2: a })).toBe(expected);
   });
@@ -1103,7 +1103,7 @@ describe("math", () => {
     ["-5", "-1", -10],
     ["-50", "-2", -100],
     ["5", "-1.9", 10],
-    ["-5", "-1.9", -10]
+    ["-5", "-1.9", -10],
   ])("ROUND(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -1152,7 +1152,7 @@ describe("math", () => {
     ["0", 0],
     ["1.4", 1],
     ["1.5", 1],
-    ["1.9", 1]
+    ["1.9", 1],
   ])("ROUNDDOWN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2)", A2: a })).toBe(expected);
   });
@@ -1172,7 +1172,7 @@ describe("math", () => {
     ["-19", "-1", -10],
     ["-599", "-2", -500],
     ["19", "-1.9", 10],
-    ["-19", "-1.9", -10]
+    ["-19", "-1.9", -10],
   ])("ROUNDDOWN(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -1221,7 +1221,7 @@ describe("math", () => {
     ["0", 0],
     ["1.1", 2],
     ["1.5", 2],
-    ["1.6", 2]
+    ["1.6", 2],
   ])("ROUNDUP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ROUNDUP(A2)", A2: a })).toBe(expected);
   });
@@ -1241,7 +1241,7 @@ describe("math", () => {
     ["-11", "-1", -20],
     ["1", "-2", 100],
     ["11", "-1.9", 20],
-    ["-11", "-1.9", -20]
+    ["-11", "-1.9", -20],
   ])("ROUNDUP(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -1289,7 +1289,7 @@ describe("math", () => {
     ["=PI()*2", 0],
     ["=PI()/2", 1],
     ["=PI()/6", 0.5],
-    ["=-PI()/2", -1]
+    ["=-PI()/2", -1],
   ])("SIN(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
@@ -1323,12 +1323,12 @@ describe("math", () => {
   test.each([
     ["0", 0],
     ["4", 2],
-    ["9", 3]
+    ["9", 3],
   ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe(expected);
   });
 
-  test.each([["-4"], ["-9"]])("SQRT(%s) - error: take 1 parameter(s), return an error ", a => {
+  test.each([["-4"], ["-9"]])("SQRT(%s) - error: take 1 parameter(s), return an error ", (a) => {
     expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!!
   });
 
@@ -1457,7 +1457,7 @@ describe("math", () => {
       B4: " ",
       C4: '""',
       D4: '=""',
-      E4: '" "'
+      E4: '" "',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -1482,7 +1482,7 @@ describe("math", () => {
     ["0", 0],
     ["1.4", 1],
     ["1.5", 1],
-    ["1.6", 1]
+    ["1.6", 1],
   ])("TRUNC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a })).toBe(expected);
   });
@@ -1502,7 +1502,7 @@ describe("math", () => {
     ["-123456", "-1", -123450],
     ["-12345", "-2", -12300],
     ["12345", "-1.9", 12340],
-    ["-12345", "-1.9", -12340]
+    ["-12345", "-1.9", -12340],
   ])("TRUNC(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a, A3: b })).toBe(expected);
   });

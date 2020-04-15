@@ -31,7 +31,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     description: "Cut",
     action(env: SpreadsheetEnv) {
       env.dispatch("CUT", { target: env.getters.getSelectedZones() });
-    }
+    },
   })
   .add("copy", {
     type: "action",
@@ -39,7 +39,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     description: "Copy",
     action(env: SpreadsheetEnv) {
       env.dispatch("COPY", { target: env.getters.getSelectedZones() });
-    }
+    },
   })
   .add("paste", {
     type: "action",
@@ -48,12 +48,12 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     action(env: SpreadsheetEnv) {
       env.dispatch("PASTE", {
         target: env.getters.getSelectedZones(),
-        onlyFormat: false
+        onlyFormat: false,
       });
-    }
+    },
   })
   .add("separator1", {
-    type: "separator"
+    type: "separator",
   })
   .add("clear_cell", {
     type: "action",
@@ -67,7 +67,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     },
     isEnabled: (cell: Cell | null) => {
       return Boolean(cell && cell.content);
-    }
+    },
   })
   .add("conditional_formatting", {
     type: "action",
@@ -75,7 +75,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     description: "Conditional Format",
     action(env: SpreadsheetEnv) {
       env.openSidePanel("ConditionalFormatting");
-    }
+    },
   })
   .add("delete_column", {
     type: "action",
@@ -85,29 +85,29 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       const columns = env.getters.getActiveCols();
       env.dispatch("REMOVE_COLUMNS", {
         columns: [...columns],
-        sheet: env.getters.getActiveSheet()
+        sheet: env.getters.getActiveSheet(),
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "COLUMN";
-    }
+    },
   })
   .add("clear_column", {
     type: "action",
     name: "clear_column",
     description: "Clear column(s)",
     action(env: SpreadsheetEnv) {
-      const target = [...env.getters.getActiveCols()].map(index =>
+      const target = [...env.getters.getActiveCols()].map((index) =>
         env.getters.getColsZone(index, index)
       );
       env.dispatch("DELETE_CONTENT", {
         target,
-        sheet: env.getters.getActiveSheet()
+        sheet: env.getters.getActiveSheet(),
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "COLUMN";
-    }
+    },
   })
   .add("add_column_before", {
     type: "action",
@@ -120,12 +120,12 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
         sheet: env.getters.getActiveSheet(),
         position: "before",
         column,
-        quantity
+        quantity,
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "COLUMN";
-    }
+    },
   })
   .add("add_column_after", {
     type: "action",
@@ -138,12 +138,12 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
         sheet: env.getters.getActiveSheet(),
         position: "after",
         column,
-        quantity
+        quantity,
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "COLUMN";
-    }
+    },
   })
   .add("delete_row", {
     type: "action",
@@ -155,24 +155,24 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "ROW";
-    }
+    },
   })
   .add("clear_row", {
     type: "action",
     name: "clear_row",
     description: "Clear row(s)",
     action(env: SpreadsheetEnv) {
-      const target = [...env.getters.getActiveRows()].map(index =>
+      const target = [...env.getters.getActiveRows()].map((index) =>
         env.getters.getRowsZone(index, index)
       );
       env.dispatch("DELETE_CONTENT", {
         target,
-        sheet: env.getters.getActiveSheet()
+        sheet: env.getters.getActiveSheet(),
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "ROW";
-    }
+    },
   })
   .add("add_row_before", {
     type: "action",
@@ -185,12 +185,12 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
         sheet: env.getters.getActiveSheet(),
         position: "before",
         row,
-        quantity
+        quantity,
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "ROW";
-    }
+    },
   })
   .add("add_row_after", {
     type: "action",
@@ -203,10 +203,10 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
         sheet: env.getters.getActiveSheet(),
         position: "after",
         row,
-        quantity
+        quantity,
       });
     },
     isVisible: (type: ContextMenuType): boolean => {
       return type === "ROW";
-    }
+    },
   });

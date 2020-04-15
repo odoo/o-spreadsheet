@@ -24,9 +24,9 @@ describe("evaluateCells, async formulas", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "=WAIT(3)" } }
-        }
-      ]
+          cells: { B2: { content: "=WAIT(3)" } },
+        },
+      ],
     });
 
     expect(model["workbook"].cells["B2"].async).toBe(true);

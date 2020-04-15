@@ -11,7 +11,7 @@ import {
   Workbook,
   WorkbookData,
   GridRenderingContext,
-  LAYERS
+  LAYERS,
 } from "./types/index";
 
 export type Mode = "normal" | "headless" | "readonly";
@@ -19,7 +19,7 @@ export type Mode = "normal" | "headless" | "readonly";
 const enum Status {
   Ready,
   Running,
-  Finalizing
+  Finalizing,
 }
 
 export class Model extends owl.core.EventBus implements CommandDispatcher {
@@ -42,7 +42,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     this.getters = {
       canUndo: this.history.canUndo.bind(this.history),
-      canRedo: this.history.canRedo.bind(this.history)
+      canRedo: this.history.canRedo.bind(this.history),
     } as Getters;
     this.handlers = [this.history];
     this.mode = mode;
@@ -68,7 +68,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.getters[name] = plugin[name].bind(plugin);
       }
       this.handlers.push(plugin);
-      const layers = Plugin.layers.map(l => [plugin, l] as [BasePlugin, LAYERS]);
+      const layers = Plugin.layers.map((l) => [plugin, l] as [BasePlugin, LAYERS]);
       this.renderers.push(...layers);
       this.renderers.sort((p1, p2) => p1[1] - p2[1]);
     }
@@ -88,17 +88,17 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           }
         }
         this.status = Status.Running;
-        this.handlers.forEach(h => h.start(command));
-        this.handlers.forEach(h => h.handle(command));
+        this.handlers.forEach((h) => h.start(command));
+        this.handlers.forEach((h) => h.handle(command));
         this.status = Status.Finalizing;
-        this.handlers.forEach(h => h.finalize(command));
+        this.handlers.forEach((h) => h.finalize(command));
         this.status = Status.Ready;
         if (this.mode !== "headless") {
           this.trigger("update");
         }
         break;
       case Status.Running:
-        this.handlers.forEach(h => h.handle(command));
+        this.handlers.forEach((h) => h.handle(command));
         break;
       case Status.Finalizing:
         throw new Error("Nope. Don't do that");

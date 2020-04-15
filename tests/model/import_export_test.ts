@@ -23,15 +23,15 @@ describe("Migrations", () => {
           colNumber: 2,
           rowNumber: 2,
           cols: {
-            0: { size: 42 }
+            0: { size: 42 },
           },
           rows: {
-            0: { size: 12 }
+            0: { size: 12 },
           },
           name: "My sheet",
-          conditionalFormats: []
-        }
-      ]
+          conditionalFormats: [],
+        },
+      ],
     });
     expect(model.exportData().activeSheet).toBe("My sheet");
     expect(model.exportData().version).toBe(2);
@@ -46,13 +46,13 @@ describe("Import", () => {
           colNumber: 2,
           rowNumber: 2,
           cols: {
-            0: { size: 42 }
+            0: { size: 42 },
           },
           rows: {
-            1: { size: 13 }
-          }
-        }
-      ]
+            1: { size: 13 },
+          },
+        },
+      ],
     });
     expect(model.getters.getCol(0).size).toBe(42);
     expect(model.getters.getCol(1).size).toBe(DEFAULT_CELL_WIDTH);
@@ -65,18 +65,18 @@ describe("Import", () => {
       sheets: [
         {
           colNumber: 2,
-          rowNumber: 2
+          rowNumber: 2,
         },
         {
           colNumber: 2,
-          rowNumber: 2
-        }
-      ]
+          rowNumber: 2,
+        },
+      ],
     });
     model.dispatch("SELECT_ROW", { index: 1 });
     model.dispatch("ADD_MERGE", {
       sheet: "Sheet1",
-      zone: { left: 0, top: 1, right: 5, bottom: 1 }
+      zone: { left: 0, top: 1, right: 5, bottom: 1 },
     });
     model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
     expect(Object.keys(model["workbook"].merges)).toHaveLength(0);
@@ -92,14 +92,14 @@ describe("Export", () => {
       sheets: [
         {
           colNumber: 10,
-          rowNumber: 10
-        }
-      ]
+          rowNumber: 10,
+        },
+      ],
     });
     model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1],
-      size: 150
+      size: 150,
     });
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
@@ -110,14 +110,14 @@ describe("Export", () => {
       sheets: [
         {
           colNumber: 10,
-          rowNumber: 10
-        }
-      ]
+          rowNumber: 10,
+        },
+      ],
     });
     model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1],
-      size: 150
+      size: 150,
     });
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
@@ -129,9 +129,9 @@ describe("Export", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          merges: ["A1:A2", "B1:C1", "D1:E2"]
-        }
-      ]
+          merges: ["A1:A2", "B1:C1", "D1:E2"],
+        },
+      ],
     });
     const exp = model.exportData();
     expect(exp.sheets![0].merges).toHaveLength(3);
@@ -144,10 +144,10 @@ describe("Export", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: {
-            A1: { content: "145", format: "0.00%" }
-          }
-        }
-      ]
+            A1: { content: "145", format: "0.00%" },
+          },
+        },
+      ],
     });
     const exp = model.exportData();
     expect(exp.sheets![0].cells!.A1.format).toBe("0.00%");
@@ -162,30 +162,30 @@ describe("complete import, then export", () => {
         rowNumber: 10,
         merges: ["A1:A2", "B1:C1"],
         cols: {
-          0: { size: 42 }
+          0: { size: 42 },
         },
         rows: {
-          1: { size: 13 }
+          1: { size: 13 },
         },
         cells: {
           A1: { content: "hello" },
           B1: { content: "=a1", style: 99, border: 8, format: "0.00%" },
-          C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" }
+          C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
         },
         name: "My sheet",
-        conditionalFormats: []
-      }
+        conditionalFormats: [],
+      },
     ],
     activeSheet: "My sheet",
     entities: {},
     styles: {
-      99: { bold: true, textColor: "#3A3791", fontSize: 12 }
+      99: { bold: true, textColor: "#3A3791", fontSize: 12 },
     },
     borders: {
       8: {
-        top: ["thin", "#000"] as BorderDescr
-      }
-    }
+        top: ["thin", "#000"] as BorderDescr,
+      },
+    },
   };
   const model = new Model(modelData);
   expect(model.exportData()).toEqual(Object.assign(modelData, { version: CURRENT_VERSION }));

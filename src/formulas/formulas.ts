@@ -14,7 +14,7 @@ export function applyOffset(
 ): string {
   const tokens = tokenize(formula);
   return tokens
-    .map(t => {
+    .map((t) => {
       if (t.type === "SYMBOL" && cellReference.test(t.value)) {
         const xc = t.value.replace(/\$/g, "");
         let [x, y] = toCartesian(xc);

@@ -12,7 +12,7 @@ describe("Model resizer", () => {
     model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1],
-      size: model.getters.getCol(1).size + 100
+      size: model.getters.getCol(1).size + 100,
     });
     expect(model.getters.getCol(1).size).toBe(196);
     expect(model.getters.getCol(2).start).toBe(initialTop + 100);
@@ -39,7 +39,7 @@ describe("Model resizer", () => {
     model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1],
-      size: initialSize + 100
+      size: initialSize + 100,
     });
     expect(model.getters.getRow(1).size).toBe(initialSize + 100);
     expect(model.getters.getRow(2).start).toBe(initialTop + 100);
@@ -60,7 +60,7 @@ describe("Model resizer", () => {
     model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet2",
       cols: [1],
-      size: model.getters.getCol(1).size + 100
+      size: model.getters.getCol(1).size + 100,
     });
 
     const initialWidth = model.getters.getGridSize()[0];
@@ -77,7 +77,7 @@ describe("Model resizer", () => {
     model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1, 3, 4],
-      size: 100
+      size: 100,
     });
     expect(model.getters.getCol(1).size).toBe(100);
     expect(model.getters.getCol(2).size).toBe(size);
@@ -94,7 +94,7 @@ describe("Model resizer", () => {
     model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1, 3, 4],
-      size: 100
+      size: 100,
     });
 
     expect(model.getters.getRow(1).size).toBe(100);
@@ -112,14 +112,14 @@ describe("Model resizer", () => {
     model.dispatch("RESIZE_COLUMNS", {
       sheet: "Sheet1",
       cols: [1],
-      size: model.getters.getCol(1).size + 100
+      size: model.getters.getCol(1).size + 100,
     });
     expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
 
     model.dispatch("RESIZE_ROWS", {
       sheet: "Sheet1",
       rows: [1],
-      size: model.getters.getRow(1).size + 42
+      size: model.getters.getRow(1).size + 42,
     });
     expect(model.getters.getGridSize()[1]).toBe(initialHeight + 42);
   });

@@ -23,7 +23,7 @@ export function nextMicroTick(): Promise<void> {
 
 const origSetTimeout = window.setTimeout;
 export async function nextTick(): Promise<void> {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     origSetTimeout(() => Component.scheduler.requestAnimationFrame(() => resolve()));
   });
 }
@@ -57,11 +57,11 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     useSubEnv({
       openSidePanel: (panel: string) => this.openSidePanel(panel),
       dispatch: model.dispatch,
-      getters: model.getters
+      getters: model.getters,
     });
 
     const drawGrid = model.drawGrid;
-    model.drawGrid = function(context: GridRenderingContext) {
+    model.drawGrid = function (context: GridRenderingContext) {
       context.viewport.width = 1000;
       context.viewport.height = 1000;
       drawGrid.call(this, context);
@@ -125,7 +125,7 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
 //------------------------------------------------------------------------------
 
 // modifies scheduler to make it faster to test components
-Component.scheduler.requestAnimationFrame = function(callback: FrameRequestCallback) {
+Component.scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
   origSetTimeout(callback, 1);
   return 1;
 };
@@ -154,11 +154,11 @@ export function patchWaitFunction(): PatchResult {
   const result: PatchResult = {
     calls: [],
     resolveAll() {
-      result.calls.forEach(c => c.def.resolve(c.val));
+      result.calls.forEach((c) => c.def.resolve(c.val));
       result.calls = [];
-    }
+    },
   };
-  functionMap["WAIT"] = arg => {
+  functionMap["WAIT"] = (arg) => {
     const def = makeDeferred();
     const call = { def, val: arg };
     result.calls.push(call);
@@ -170,7 +170,7 @@ export function patchWaitFunction(): PatchResult {
 export const patch = patchWaitFunction();
 
 let timeHandlers: Function[] = [];
-(window as any).setTimeout = cb => {
+(window as any).setTimeout = (cb) => {
   timeHandlers.push(cb);
 };
 
@@ -191,11 +191,11 @@ export async function waitForRecompute() {
  * Remove all functions from the internal function list.
  */
 export function resetFunctions() {
-  Object.keys(functionMap).forEach(k => {
+  Object.keys(functionMap).forEach((k) => {
     delete functionMap[k];
   });
 
-  Object.keys(functions).forEach(k => {
+  Object.keys(functions).forEach((k) => {
     delete functions[k];
   });
 }

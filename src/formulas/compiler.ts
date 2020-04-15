@@ -14,17 +14,17 @@ const OPERATOR_MAP = {
   ">": "GT",
   "<=": "LTE",
   "<": "LT",
-  "^": "POWER"
+  "^": "POWER",
 };
 
 const UNARY_OPERATOR_MAP = {
-  "-": "UMINUS"
+  "-": "UMINUS",
 };
 
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
-export const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+export const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula {
   const ast = parse(str);
@@ -60,7 +60,7 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
       if (arg.type === "REFERENCE") {
         const types = argDescr.type;
         const hasRange = types.find(
-          t =>
+          (t) =>
             t === "RANGE" ||
             t === "RANGE<BOOLEAN>" ||
             t === "RANGE<NUMBER>" ||

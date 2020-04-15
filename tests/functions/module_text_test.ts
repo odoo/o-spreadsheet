@@ -128,7 +128,7 @@ describe("text", () => {
         A2: "9",
         A3: '="1"',
         A4: '="2"',
-        A5: '="3"'
+        A5: '="3"',
       })
     ).toBe("19293");
     expect(
@@ -367,7 +367,7 @@ describe("text", () => {
         A1: "=SUBSTITUTE(A2, A3, A4)",
         A2: "Coquille",
         A3: "e",
-        A4: 'e sans "q"'
+        A4: 'e sans "q"',
       })
     ).toBe('Coquille sans "q"');
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE(A2, A3, A4)", A2: "ABAB", A3: "A" })).toBe("BB");
@@ -387,7 +387,7 @@ describe("text", () => {
         A2: "Hello there",
         A3: "e",
         A4: "E",
-        A5: "0"
+        A5: "0",
       })
     ).toBe("HEllo thErE");
     expect(
@@ -396,7 +396,7 @@ describe("text", () => {
         A2: "Hello there",
         A3: "e",
         A4: "E",
-        A5: "1"
+        A5: "1",
       })
     ).toBe("HEllo there");
     expect(
@@ -405,7 +405,7 @@ describe("text", () => {
         A2: "Hello there",
         A3: "e",
         A4: "E",
-        A5: "2"
+        A5: "2",
       })
     ).toBe("Hello thEre");
     expect(
@@ -414,7 +414,7 @@ describe("text", () => {
         A2: "Hello there",
         A3: "e",
         A4: "E",
-        A5: "-1"
+        A5: "-1",
       })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
@@ -429,7 +429,7 @@ describe("text", () => {
         A2: "2222",
         A3: "2",
         A4: "99",
-        A5: "3"
+        A5: "3",
       })
     ).toBe("22992");
     expect(
@@ -476,7 +476,7 @@ describe("text", () => {
         A2: "PINCE",
         A3: "FALSE",
         A5: "MI et ",
-        A6: "MOI sont dans un bateau"
+        A6: "MOI sont dans un bateau",
       })
     ).toBe("PINCEMI et PINCEMOI sont dans un bateau");
     expect(
@@ -485,7 +485,7 @@ describe("text", () => {
         A2: "PINCE",
         A3: "TRUE",
         A5: "MI et ",
-        A6: "MOI sont dans un bateau"
+        A6: "MOI sont dans un bateau",
       })
     ).toBe("MI et PINCEMOI sont dans un bateau");
     expect(evaluateCell("A1", { A1: "=TEXTJOIN(A2, A3, A4:A6)", A2: "COU", A3: "FALSE" })).toBe(
