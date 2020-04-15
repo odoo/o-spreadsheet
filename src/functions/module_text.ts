@@ -36,6 +36,55 @@ export const CONCATENATE: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// EXACT
+// -----------------------------------------------------------------------------
+export const EXACT: FunctionDescription = {
+  description: "Tests whether two strings are identical.",
+  args: args`
+      string1 (string) The first string to compare.
+      string2 (string) The second string to compare.
+    `,
+  returns: ["BOOLEAN"],
+  compute: function (string1: any, string2: any): boolean {
+    return toString(string1) === toString(string2);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// FIND
+// -----------------------------------------------------------------------------
+export const FIND: FunctionDescription = {
+  description: "First position of string found in text, case-sensitive.",
+  args: args`
+      search_for (string) The string to look for within text_to_search.
+      text_to_search (string) The text to search for the first occurrence of search_for.
+      starting_at (number, optional, default=1 ) The character within text_to_search at which to start the search.
+    `,
+  returns: ["NUMBER"],
+  compute: function (search_for: any, text_to_search: any, starting_at: any = 1): number {
+    const _textToSearch = toString(text_to_search);
+    if (_textToSearch === "") {
+      throw new Error(`
+        Function FIND parameter 2 value should be non-empty.`);
+    }
+
+    const _startingAt = toNumber(starting_at);
+    if (_startingAt === 0) {
+      throw new Error(`
+        Function FIND parameter 3 value is 0. It should be greater than or equal to 1.`);
+    }
+
+    const _searchFor = toString(search_for);
+    const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
+    if (result < 0) {
+      throw new Error(`
+        In FIND evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`);
+    }
+    return result + 1;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // JOIN
 // -----------------------------------------------------------------------------
 export const JOIN: FunctionDescription = {
@@ -101,6 +150,32 @@ export const LOWER: FunctionDescription = {
   returns: ["STRING"],
   compute: function (text: any): string {
     return toString(text).toLowerCase();
+  },
+};
+
+// -----------------------------------------------------------------------------
+// REPLACE
+// -----------------------------------------------------------------------------
+export const REPLACE: FunctionDescription = {
+  description: "Replaces part of a text string with different text.",
+  args: args`
+      text (string) The text, a part of which will be replaced.
+      position (number) The position where the replacement will begin (starting from 1).
+      length (number) The number of characters in the text to be replaced.
+      new_text (string) The text which will be inserted into the original text.
+    `,
+  returns: ["STRING"],
+  compute: function (text: any, position: any, length: any, new_text: any): string {
+    const _position = toNumber(position);
+    if (_position < 1) {
+      throw new Error(`
+        Function REPLACE parameter 2 value is ${_position}. It should be greater than or equal to 1.`);
+    }
+
+    const _text = toString(text);
+    const _length = toNumber(length);
+    const _newText = toString(new_text);
+    return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
 };
 
