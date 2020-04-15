@@ -3,7 +3,7 @@ import { Zone } from "../../src/types/index";
 import "../canvas.mock";
 import { toCartesian } from "../../src/helpers/index";
 import { ClipboardPlugin } from "../../src/plugins/clipboard";
-import { getCell } from "../helpers";
+import { getCell, getGrid } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
@@ -65,6 +65,18 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("D3:D3") });
 
     expect(getCell(model, "D3")).toBeNull();
+  });
+
+  test("can cut and paste a zone inside the cut zone", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "a2" });
+
+    model.dispatch("CUT", { target: target("A1:A2") });
+    expect(getGrid(model)).toEqual({ A1: "a1", A2: "a2" });
+
+    model.dispatch("PASTE", { target: target("A2") });
+    expect(getGrid(model)).toEqual({ A2: "a1", A3: "a2" });
   });
 
   test("can copy a cell with style", () => {

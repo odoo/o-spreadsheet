@@ -141,7 +141,9 @@ export class ClipboardPlugin extends BasePlugin {
       return;
     }
     this.status = shouldCut ? "empty" : "invisible";
-
+    if (shouldCut) {
+      this.clearCutZone();
+    }
     const height = cells.length;
     const width = cells[0].length;
     if (target.length > 1) {
@@ -182,6 +184,20 @@ export class ClipboardPlugin extends BasePlugin {
     }
   }
 
+  private clearCutZone() {
+    for (let row of this.cells!) {
+      for (let cell of row) {
+        if (cell) {
+          this.dispatch("CLEAR_CELL", {
+            sheet: this.workbook.activeSheet.name,
+            col: cell.col,
+            row: cell.row,
+          });
+        }
+      }
+    }
+  }
+
   private pasteZone(width: number, height: number, col: number, row: number) {
     for (let r = 0; r < height; r++) {
       const rowCells = this.cells![r];
@@ -214,13 +230,6 @@ export class ClipboardPlugin extends BasePlugin {
             row: row + r,
             ...newCell,
           });
-          if (this.shouldCut) {
-            this.dispatch("CLEAR_CELL", {
-              sheet: this.workbook.activeSheet.name,
-              col: originCell.col,
-              row: originCell.row,
-            });
-          }
         }
         if (!originCell && targetCell) {
           if (this.onlyFormat) {
