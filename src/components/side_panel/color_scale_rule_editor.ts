@@ -90,7 +90,7 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
         ? this.rule.midpoint
         : { color: 0xffffff, type: "value", value: null },
     maximumColorTool: false,
-    minimumColorTool: false
+    minimumColorTool: false,
   });
 
   toggleMenu(tool) {
@@ -119,8 +119,8 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
         type: "ColorScaleRule",
         minimum: this.state.minimum,
         maximum: this.state.maximum,
-        midpoint: this.state.midpoint
-      }
+        midpoint: this.state.midpoint,
+      },
     });
   }
   onCancel() {

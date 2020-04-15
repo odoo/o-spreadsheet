@@ -20,7 +20,7 @@ export const registries = {
   sidePanelRegistry,
   contextMenuRegistry,
   functionRegistry,
-  pluginRegistry
+  pluginRegistry,
 };
 
 export const helpers = {
@@ -29,5 +29,5 @@ export const helpers = {
   toNumber,
   toString,
   toXC,
-  numberToLetters
+  numberToLetters,
 };

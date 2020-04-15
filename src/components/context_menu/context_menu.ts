@@ -4,7 +4,7 @@ import {
   ActionContextMenuItem,
   ContextMenuItem,
   contextMenuRegistry,
-  ContextMenuType
+  ContextMenuType,
 } from "./context_menu_registry";
 
 const { xml, css } = tags;
@@ -72,7 +72,7 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
 
   menuItems: ContextMenuItem[] = contextMenuRegistry
     .getAll()
-    .filter(item => !item.isVisible || item.isVisible(this.props.type));
+    .filter((item) => !item.isVisible || item.isVisible(this.props.type));
 
   mounted() {
     this.el!.focus();

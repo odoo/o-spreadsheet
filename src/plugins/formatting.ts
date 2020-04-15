@@ -13,13 +13,13 @@ const commandToSides = {
   left: ["left"],
   right: ["right"],
   bottom: ["bottom"],
-  all: ["top", "left", "bottom", "right"]
+  all: ["top", "left", "bottom", "right"],
 };
 
 const DEFAULT_STYLE: Style = {
   fillColor: "white",
   textColor: "black",
-  fontSize: 10
+  fontSize: 10,
 };
 
 type FormatInfo = {
@@ -57,7 +57,7 @@ export class FormattingPlugin extends BasePlugin {
     "getCellWidth",
     "getCellHeight",
     "getCellStyle",
-    "getCellBorder"
+    "getCellBorder",
   ];
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -155,7 +155,7 @@ export class FormattingPlugin extends BasePlugin {
       sheet: this.workbook.activeSheet.name,
       col,
       row,
-      style: id
+      style: id,
     });
   }
 
@@ -190,7 +190,7 @@ export class FormattingPlugin extends BasePlugin {
           sheet: sheet,
           col,
           row,
-          border: borderId
+          border: borderId,
         });
       }
     }
@@ -338,7 +338,7 @@ export class FormattingPlugin extends BasePlugin {
             col,
             row,
             style: 0,
-            border: 0
+            border: 0,
           });
         }
       }
@@ -357,7 +357,7 @@ export class FormattingPlugin extends BasePlugin {
             sheet,
             col,
             row,
-            format
+            format,
           });
         }
       }
@@ -416,7 +416,7 @@ export class FormattingPlugin extends BasePlugin {
             row: isColumn ? x : i,
             style: format.style,
             border: format.border,
-            format: format.format
+            format: format.format,
           });
         }
       }

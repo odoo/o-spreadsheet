@@ -10,9 +10,9 @@ Here is a list of all official extension points:
 ```js
 o_spreadsheet.addFunction("myfunc", {
   description: "My custom Function",
-  compute: function(a, b) {
+  compute: function (a, b) {
     return 2 * (a + b);
-  }
+  },
 });
 ```
 

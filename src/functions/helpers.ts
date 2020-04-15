@@ -93,7 +93,7 @@ export function reduceArgs<T>(
 ): T {
   let val = initialValue;
   for (let arg of args) {
-    visitAny(arg, a => {
+    visitAny(arg, (a) => {
       val = cb(val, a);
     });
   }
@@ -106,7 +106,7 @@ export function reduceNumbers<T>(
   initialValue: T
 ): T {
   let val = initialValue;
-  visitNumbers(args, a => {
+  visitNumbers(args, (a) => {
     val = cb(val, a);
   });
   return val;
@@ -164,7 +164,7 @@ export function strictToBoolean(value: any): boolean {
 export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): void {
   visitAnys(
     args,
-    cell => {
+    (cell) => {
       if (typeof cell === "boolean") {
         return cb(cell);
       }
@@ -173,7 +173,7 @@ export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): vo
       }
       return true;
     },
-    arg => (arg !== null ? cb(strictToBoolean(arg)) : true)
+    (arg) => (arg !== null ? cb(strictToBoolean(arg)) : true)
   );
 }
 

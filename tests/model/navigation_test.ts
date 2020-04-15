@@ -64,9 +64,9 @@ describe("navigation", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          merges: ["B1:C2"]
-        }
-      ]
+          merges: ["B1:C2"],
+        },
+      ],
     });
     expect(model.getters.getPosition()).toEqual([0, 0]);
 
@@ -89,9 +89,9 @@ describe("navigation", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          merges: ["B1:C2"]
-        }
-      ]
+          merges: ["B1:C2"],
+        },
+      ],
     });
     expect(model.getters.getPosition()).toEqual([0, 0]);
 

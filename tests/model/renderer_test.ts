@@ -3,7 +3,7 @@ import { MockCanvasRenderingContext2D } from "../canvas.mock";
 import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
 
-MockCanvasRenderingContext2D.prototype.measureText = function() {
+MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };
 };
 
@@ -30,7 +30,7 @@ class MockGridRenderingContext implements GridRenderingContext {
         left: 0,
         right: 0,
         top: 0,
-        bottom: 0
+        bottom: 0,
       },
       "zone"
     );
@@ -56,7 +56,7 @@ class MockGridRenderingContext implements GridRenderingContext {
         }
         target[key] = val;
         return true;
-      }
+      },
     };
     this.ctx = new Proxy({}, handler);
   }
@@ -72,12 +72,12 @@ describe("renderer", () => {
       onSet: (key, value) => {
         instructions.push(`context.${key}=${JSON.stringify(value)};`);
       },
-      onGet: key => {
+      onGet: (key) => {
         instructions.push(`GET:${key}`);
       },
       onFunctionCall: (key, args) => {
-        instructions.push(`context.${key}(${args.map(a => JSON.stringify(a)).join(", ")})`);
-      }
+        instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+      },
     });
 
     model.drawGrid(ctx);
@@ -96,7 +96,7 @@ describe("renderer", () => {
         if (key === "textAlign") {
           textAligns.push(value);
         }
-      }
+      },
     });
 
     model.drawGrid(ctx);
@@ -122,7 +122,7 @@ describe("renderer", () => {
         if (key === "textAlign") {
           textAligns.push(value);
         }
-      }
+      },
     });
     model.drawGrid(ctx);
 
@@ -147,7 +147,7 @@ describe("renderer", () => {
         if (key === "textAlign") {
           textAligns.push(value);
         }
-      }
+      },
     });
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
@@ -172,7 +172,7 @@ describe("renderer", () => {
         if (key === "textAlign") {
           textAligns.push(value);
         }
-      }
+      },
     });
     model.drawGrid(ctx);
 

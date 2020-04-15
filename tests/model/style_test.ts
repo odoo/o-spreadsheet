@@ -9,7 +9,7 @@ describe("styles", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" }
+      style: { fillColor: "red" },
     });
 
     expect(getCell(model, "B1")!.content).toBe("");
@@ -25,7 +25,7 @@ describe("styles", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" }
+      style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.content).toBe("some content");
     expect(getCell(model, "B1")!.style).toBeDefined();
@@ -41,12 +41,12 @@ describe("styles", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" }
+      style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.content).toBe("b1");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
@@ -58,12 +58,12 @@ describe("styles", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" }
+      style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")).toBeNull();
   });
@@ -75,12 +75,12 @@ describe("styles", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" }
+      style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.style).not.toBeDefined();
     model.dispatch("UNDO");

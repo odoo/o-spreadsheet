@@ -66,7 +66,7 @@ describe("core", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
-      border: "bottom"
+      border: "bottom",
     });
     expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
   });
@@ -77,7 +77,7 @@ describe("core", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     expect(model.getters.getCellText(model.getters.getCell(0, 0)!)).toEqual("1");
   });
@@ -142,7 +142,7 @@ describe("history", () => {
 
   test("can undo and redo a cell update", () => {
     const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }]
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }],
     });
 
     expect(model.getters.canUndo()).toBe(false);
@@ -174,7 +174,7 @@ describe("history", () => {
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "A2")).toBeNull();
 

@@ -131,7 +131,7 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
         root,
         path,
         before: value[key],
-        after: val
+        after: val,
       });
     }
     if (val === undefined) {

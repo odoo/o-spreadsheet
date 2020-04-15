@@ -11,13 +11,13 @@ export const CHAR: FunctionDescription = {
       table_number (number) The number of the character to look up from the current Unicode table in decimal format.
     `,
   returns: ["STRING"],
-  compute: function(table_number: any): string {
+  compute: function (table_number: any): string {
     const _tableNumber = Math.trunc(toNumber(table_number));
     if (_tableNumber < 1) {
       throw new Error(`Function CHAR parameter 1 value ${_tableNumber} is out of range.`);
     }
     return String.fromCharCode(_tableNumber);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -30,9 +30,9 @@ export const CONCATENATE: FunctionDescription = {
       string2 (string, range<string>, optional, repeating) More strings to append in sequence..
     `,
   returns: ["STRING"],
-  compute: function(): string {
+  compute: function (): string {
     return reduceArgs(arguments, (acc, a) => acc + toString(a), "");
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -46,14 +46,14 @@ export const JOIN: FunctionDescription = {
       value_or_array2 (string, range<string>, optional, repeating) More values to be appended using delimiter.
     `,
   returns: ["STRING"],
-  compute: function(delimiter: any, ...values_or_arrays: any): string {
+  compute: function (delimiter: any, ...values_or_arrays: any): string {
     const _delimiter = toString(delimiter);
     return reduceArgs(
       values_or_arrays,
       (acc, a) => (acc ? acc + _delimiter : "") + toString(a),
       ""
     );
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -66,14 +66,14 @@ export const LEFT: FunctionDescription = {
       number_of_characters (number, optional, default=1) The number of characters to return from the left side of string.
     `,
   returns: ["STRING"],
-  compute: function(text: any, number_of_characters: any = 1): string {
+  compute: function (text: any, number_of_characters: any = 1): string {
     const _numberOfCharacters = toNumber(number_of_characters);
     if (_numberOfCharacters < 0) {
       throw new Error(`
           Function LEFT parameter 2 value is negative. It should be positive or zero.`);
     }
     return toString(text).substring(0, _numberOfCharacters);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -85,9 +85,9 @@ export const LEN: FunctionDescription = {
       text (string) The string whose length will be returned.
     `,
   returns: ["NUMBER"],
-  compute: function(text: any): number {
+  compute: function (text: any): number {
     return toString(text).length;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -99,9 +99,9 @@ export const LOWER: FunctionDescription = {
       text (string) The string to convert to lowercase.
     `,
   returns: ["STRING"],
-  compute: function(text: any): string {
+  compute: function (text: any): string {
     return toString(text).toLowerCase();
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ export const RIGHT: FunctionDescription = {
       number_of_characters (number, optional, default=1) The number of characters to return from the right side of string.
     `,
   returns: ["STRING"],
-  compute: function(text: any, number_of_characters: any = 1): string {
+  compute: function (text: any, number_of_characters: any = 1): string {
     const _numberOfCharacters = toNumber(number_of_characters);
     if (_numberOfCharacters < 0) {
       throw new Error(`
@@ -123,7 +123,7 @@ export const RIGHT: FunctionDescription = {
     const _text = toString(text);
     const stringLength = _text.length;
     return _text.substring(stringLength - _numberOfCharacters, stringLength);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -137,7 +137,7 @@ export const SEARCH: FunctionDescription = {
       starting_at (number, optional, default=1 )The character within text_to_search at which to start the search.
     `,
   returns: ["NUMBER"],
-  compute: function(search_for: any, text_to_search: any, starting_at: any = 1): number {
+  compute: function (search_for: any, text_to_search: any, starting_at: any = 1): number {
     const _textToSearch = toString(text_to_search).toLowerCase();
     if (_textToSearch === "") {
       throw new Error(`
@@ -157,7 +157,7 @@ export const SEARCH: FunctionDescription = {
         In SEARCH evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`);
     }
     return result + 1;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -172,7 +172,7 @@ export const SUBSTITUTE: FunctionDescription = {
       occurrence_number (number, optional) The instance of search_for within text_to_search to replace with replace_with. By default, all occurrences of search_for are replaced; however, if occurrence_number is specified, only the indicated instance of search_for is replaced.
     `,
   returns: ["NUMBER"],
-  compute: function(
+  compute: function (
     text_to_search: any,
     search_for: any,
     replace_with: any,
@@ -197,8 +197,8 @@ export const SUBSTITUTE: FunctionDescription = {
     }
 
     let n = 0;
-    return _textToSearch.replace(reg, text => (++n === _occurrenceNumber ? _replaceWith : text));
-  }
+    return _textToSearch.replace(reg, (text) => (++n === _occurrenceNumber ? _replaceWith : text));
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ export const TEXTJOIN: FunctionDescription = {
       text2 (string, range<string>, optional, repeating) Additional text item(s).
     `,
   returns: ["STRING"],
-  compute: function(delimiter: any, ignore_empty: any, ...texts_or_arrays: any): string {
+  compute: function (delimiter: any, ignore_empty: any, ...texts_or_arrays: any): string {
     const _delimiter = toString(delimiter);
     const _ignoreEmpty = toBoolean(ignore_empty);
     let n = 0;
@@ -223,7 +223,7 @@ export const TEXTJOIN: FunctionDescription = {
         !(_ignoreEmpty && toString(a) === "") ? (n++ ? acc + _delimiter : "") + toString(a) : acc,
       ""
     );
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -235,9 +235,9 @@ export const TRIM: FunctionDescription = {
       text (string) The text or reference to a cell containing text to be trimmed.
     `,
   returns: ["STRING"],
-  compute: function(text: any): string {
+  compute: function (text: any): string {
     return toString(text).trim();
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ export const UPPER: FunctionDescription = {
       text (string) The string to convert to uppercase.
     `,
   returns: ["STRING"],
-  compute: function(text: any): string {
+  compute: function (text: any): string {
     return toString(text).toUpperCase();
-  }
+  },
 };

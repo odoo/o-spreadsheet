@@ -4,7 +4,7 @@ import {
   toXC,
   sanitizeSheet,
   numberToLetters,
-  union
+  union,
 } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { Cell, Command, Sheet, Zone, WorkbookData, Col, Row } from "../types/index";
@@ -15,7 +15,7 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
   updateAddColumns,
-  updateAddRows
+  updateAddRows,
 } from "../helpers/grid_manipulation";
 
 const MIN_PADDING = 3;
@@ -30,7 +30,7 @@ export class GridPlugin extends BasePlugin {
     "isInMerge",
     "getMainCell",
     "expandZone",
-    "getGridSize"
+    "getGridSize",
   ];
 
   private nextId: number = 1;
@@ -85,19 +85,19 @@ export class GridPlugin extends BasePlugin {
         break;
       case "REMOVE_COLUMNS":
         this.removeColumns(
-          this.workbook.sheets.findIndex(sheet => sheet.name === cmd.sheet),
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
           cmd.columns
         );
         break;
       case "REMOVE_ROWS":
         this.removeRows(
-          this.workbook.sheets.findIndex(sheet => sheet.name === cmd.sheet),
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
           cmd.rows
         );
         break;
       case "ADD_COLUMNS":
         this.addColumns(
-          this.workbook.sheets.findIndex(sheet => sheet.name === cmd.sheet),
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
           cmd.column,
           cmd.position,
           cmd.quantity
@@ -105,7 +105,7 @@ export class GridPlugin extends BasePlugin {
         break;
       case "ADD_ROWS":
         this.addRows(
-          this.workbook.sheets.findIndex(sheet => sheet.name === cmd.sheet),
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
           cmd.row,
           cmd.position,
           cmd.quantity
@@ -137,7 +137,7 @@ export class GridPlugin extends BasePlugin {
       top: 0,
       bottom: this.workbook.rows.length - 1,
       left: start,
-      right: end
+      right: end,
     };
   }
 
@@ -146,7 +146,7 @@ export class GridPlugin extends BasePlugin {
       top: start,
       bottom: end,
       left: 0,
-      right: this.workbook.cols.length - 1
+      right: this.workbook.cols.length - 1,
     };
   }
 
@@ -281,7 +281,7 @@ export class GridPlugin extends BasePlugin {
       top,
       right,
       bottom,
-      topLeft: tl
+      topLeft: tl,
     });
     let previousMerges: Set<number> = new Set();
     for (let row = top; row <= bottom; row++) {
@@ -291,7 +291,7 @@ export class GridPlugin extends BasePlugin {
           this.dispatch("CLEAR_CELL", {
             sheet,
             col,
-            row
+            row,
           });
         }
         if (this.workbook.mergeCellMap[xc]) {
@@ -358,7 +358,7 @@ export class GridPlugin extends BasePlugin {
         top,
         right,
         bottom,
-        topLeft: tl
+        topLeft: tl,
       });
       for (let row = top; row <= bottom; row++) {
         for (let col = left; col <= right; col++) {
@@ -371,7 +371,7 @@ export class GridPlugin extends BasePlugin {
 
   private exportMerges(sheet: Sheet): string[] {
     return Object.values(Object.values(sheet.merges)).map(
-      merge => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom)
+      (merge) => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom)
     );
   }
 
@@ -515,7 +515,7 @@ export class GridPlugin extends BasePlugin {
         row: y,
         style: topLeft.style,
         border: topLeft.border,
-        format: topLeft.format
+        format: topLeft.format,
       });
     }
   }
@@ -545,7 +545,7 @@ export class GridPlugin extends BasePlugin {
       for (let [xc, cell] of Object.entries(sheet.cells)) {
         if (cell.type === "formula") {
           const content = tokenize(cell.content!)
-            .map(t => {
+            .map((t) => {
               if (t.type === "SYMBOL" && cellReference.test(t.value)) {
                 let [value, sheetRef] = t.value.split("!").reverse();
                 if (sheetRef) {
@@ -566,7 +566,7 @@ export class GridPlugin extends BasePlugin {
               sheet: sheet.name,
               col,
               row,
-              content
+              content,
             });
           }
         }
@@ -622,7 +622,7 @@ export class GridPlugin extends BasePlugin {
           type: "CLEAR_CELL",
           sheet: this.workbook.activeSheet.name,
           col,
-          row
+          row,
         });
         if (shouldAdd(cell)) {
           addCommands.push(buildCellToAdd(cell));
@@ -639,9 +639,9 @@ export class GridPlugin extends BasePlugin {
 
   private moveCellsHorizontally(base: number, step: number) {
     return this.processCellsToMove(
-      cell => cell.col >= base,
-      cell => cell.col !== base || step !== -1,
-      cell => {
+      (cell) => cell.col >= base,
+      (cell) => cell.col !== base || step !== -1,
+      (cell) => {
         return {
           type: "UPDATE_CELL",
           sheet: this.workbook.activeSheet.name,
@@ -650,7 +650,7 @@ export class GridPlugin extends BasePlugin {
           content: cell.content,
           border: cell.border,
           style: cell.style,
-          format: cell.format
+          format: cell.format,
         };
       }
     );
@@ -658,9 +658,9 @@ export class GridPlugin extends BasePlugin {
 
   private moveCellsVertically(base: number, step: number) {
     return this.processCellsToMove(
-      cell => cell.row >= base,
-      cell => cell.row !== base || step !== -1,
-      cell => {
+      (cell) => cell.row >= base,
+      (cell) => cell.row !== base || step !== -1,
+      (cell) => {
         return {
           type: "UPDATE_CELL",
           sheet: this.workbook.activeSheet.name,
@@ -669,7 +669,7 @@ export class GridPlugin extends BasePlugin {
           content: cell.content,
           border: cell.border,
           style: cell.style,
-          format: cell.format
+          format: cell.format,
         };
       }
     );
@@ -689,7 +689,7 @@ export class GridPlugin extends BasePlugin {
               name: numberToLetters(colIndex),
               size,
               start,
-              end: start + size
+              end: start + size,
             });
             newWidth = newWidth + size;
             start += size;
@@ -706,7 +706,7 @@ export class GridPlugin extends BasePlugin {
         name: numberToLetters(colIndex),
         size,
         start,
-        end: start + size
+        end: start + size,
       });
       start += size;
       colIndex++;
@@ -720,7 +720,7 @@ export class GridPlugin extends BasePlugin {
     let start = 0;
     let rowIndex = 0;
     let sizeToDelete = 0;
-    const cellsQueue = this.workbook.rows.map(row => row.cells);
+    const cellsQueue = this.workbook.rows.map((row) => row.cells);
     for (let i in this.workbook.rows) {
       const row = this.workbook.rows[i];
       const { size } = row;
@@ -734,7 +734,7 @@ export class GridPlugin extends BasePlugin {
         end: start + size,
         size,
         cells: cellsQueue.shift()!,
-        name: String(rowIndex)
+        name: String(rowIndex),
       });
       start += size;
     }
@@ -747,7 +747,7 @@ export class GridPlugin extends BasePlugin {
     let start = 0;
     let rowIndex = 0;
     let sizeIndex = 0;
-    const cellsQueue = this.workbook.rows.map(row => row.cells);
+    const cellsQueue = this.workbook.rows.map((row) => row.cells);
     for (let i in this.workbook.rows) {
       const { size } = this.workbook.rows[sizeIndex];
       if (parseInt(i) < index || parseInt(i) >= index + quantity) {
@@ -759,7 +759,7 @@ export class GridPlugin extends BasePlugin {
         end: start + size,
         size,
         cells: cellsQueue.shift()!,
-        name: String(rowIndex)
+        name: String(rowIndex),
       });
       start += size;
     }
@@ -777,9 +777,11 @@ export class GridPlugin extends BasePlugin {
       end: lastEnd + size,
       size,
       name,
-      cells: {}
+      cells: {},
     });
-    const sheetID = this.workbook.sheets.findIndex(s => s.name === this.workbook.activeSheet.name)!;
+    const sheetID = this.workbook.sheets.findIndex(
+      (s) => s.name === this.workbook.activeSheet.name
+    )!;
     this.history.updateLocalState(["height"], this.height + size);
     this.history.updateState(["rows"], newRows);
     this.history.updateState(["sheets", sheetID, "rows"], newRows);

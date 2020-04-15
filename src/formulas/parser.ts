@@ -84,7 +84,7 @@ const OP_PRIORITY = {
   "<": 10,
   "<=": 10,
   "=": 10,
-  "-": 7
+  "-": 7,
 };
 
 function bindingPower(token: Token): number {
@@ -164,12 +164,12 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           return {
             type: "REFERENCE",
             value: val.replace(/\$/g, "").toUpperCase(),
-            sheet: sheet
+            sheet: sheet,
           };
         } else {
           return {
             type: "REFERENCE",
-            value: current.value.replace(/\$/g, "").toUpperCase()
+            value: current.value.replace(/\$/g, "").toUpperCase(),
           } as AST;
         }
       } else {
@@ -194,7 +194,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         return {
           type: "UNARY_OPERATION",
           value: current.value,
-          right: parseExpression(tokens, 15)
+          right: parseExpression(tokens, 15),
         };
       }
       throw new Error("nope");
@@ -217,7 +217,7 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
       type: "BIN_OPERATION",
       value: current.value,
       left,
-      right
+      right,
     };
   }
   throw new Error("nope");
@@ -236,7 +236,7 @@ function parseExpression(tokens: Token[], bp: number): AST {
  * Parse an expression (as a string) into an AST.
  */
 export function parse(str: string): AST {
-  const tokens = tokenize(str).filter(x => x.type !== "SPACE");
+  const tokens = tokenize(str).filter((x) => x.type !== "SPACE");
   if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
     tokens.splice(0, 1);
   }

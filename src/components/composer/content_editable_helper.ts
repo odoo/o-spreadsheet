@@ -107,14 +107,14 @@ export class ContentEditableHelper {
       startElement,
       endElement,
       startSelectionOffset,
-      endSelectionOffset
+      endSelectionOffset,
     } = this.getStartAndEndSelection();
     let startSizeBefore = this.findSizeBeforeElement(startElement!);
     let endSizeBefore = this.findSizeBeforeElement(endElement!);
 
     return {
       start: startSizeBefore + startSelectionOffset,
-      end: endSizeBefore + endSelectionOffset
+      end: endSizeBefore + endSelectionOffset,
     };
   }
 
@@ -144,7 +144,7 @@ export class ContentEditableHelper {
       startElement: range.startContainer,
       startSelectionOffset: range.startOffset,
       endElement: range.endContainer,
-      endSelectionOffset: range.endOffset
+      endSelectionOffset: range.endOffset,
     };
   }
 }

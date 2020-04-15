@@ -30,7 +30,7 @@ export function load(data?: any): WorkbookData {
     // all the known missing data with sensible default values
     data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
     data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
-    if (!data.sheets.map(s => s.name).includes(data.activeSheet)) {
+    if (!data.sheets.map((s) => s.name).includes(data.activeSheet)) {
       data.activeSheet = data.sheets[0].name;
     }
   }
@@ -53,7 +53,7 @@ interface Migration {
 }
 
 function migrate(data: any): WorkbookData {
-  const index = MIGRATIONS.findIndex(m => m.from === data.version);
+  const index = MIGRATIONS.findIndex((m) => m.from === data.version);
   for (let i = index; i < MIGRATIONS.length; i++) {
     data = MIGRATIONS[i].applyMigration(data);
   }
@@ -69,8 +69,8 @@ const MIGRATIONS: Migration[] = [
         data.activeSheet = data.sheets[0].name;
       }
       return data;
-    }
-  }
+    },
+  },
 ];
 
 // -----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
     cols: {},
     rows: {},
     merges: [],
-    conditionalFormats: []
+    conditionalFormats: [],
   };
 }
 
@@ -96,7 +96,7 @@ export function createEmptyWorkbookData(): WorkbookData {
     activeSheet: "Sheet1",
     entities: {},
     styles: {},
-    borders: {}
+    borders: {},
   };
 }
 
@@ -108,6 +108,6 @@ export function createEmptyWorkbook(): Workbook {
     merges: {},
     mergeCellMap: {},
     sheets: [],
-    activeSheet: null as any
+    activeSheet: null as any,
   };
 }

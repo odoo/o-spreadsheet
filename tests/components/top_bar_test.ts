@@ -17,7 +17,7 @@ class Parent extends Component<any, any> {
     useSubEnv({
       openSidePanel: (panel: string) => {},
       dispatch: model.dispatch,
-      getters: model.getters
+      getters: model.getters,
     });
     this.model = model;
   }
@@ -94,9 +94,9 @@ describe("TopBar component", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
-          merges: ["A1:B1"]
-        }
-      ]
+          merges: ["A1:B1"],
+        },
+      ],
     });
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -147,7 +147,7 @@ describe("TopBar component", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: "Sheet1",
       target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-      style: { bold: true }
+      style: { bold: true },
     });
     await nextTick();
 
@@ -184,7 +184,7 @@ describe("TopBar component", () => {
     model.dispatch("SET_FORMATTING", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
-      border: "all"
+      border: "all",
     });
     expect(model["workbook"].cells.B1.border).toBeDefined();
     const parent = new Parent(model);

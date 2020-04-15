@@ -24,7 +24,7 @@ export const colors = [
   "#ff4136",
   "#aaaaaa",
   "#85144b",
-  "#001f3f"
+  "#001f3f",
 ];
 
 export const FunctionColor = "#4a4e4d";
@@ -41,7 +41,7 @@ const tokenColor = {
   FUNCTION: FunctionColor,
   DEBUGGER: OperatorColor,
   LEFT_PAREN: OperatorColor,
-  RIGHT_PAREN: OperatorColor
+  RIGHT_PAREN: OperatorColor,
 };
 
 const TEMPLATE = xml/* xml */ `
@@ -113,7 +113,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   autoCompleteState = useState({
     showProvider: false,
     provider: "functions",
-    search: ""
+    search: "",
   });
   tokenAtCursor: ComposerToken | void = undefined;
 
@@ -134,7 +134,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     ArrowUp: this.processArrowKeys,
     ArrowDown: this.processArrowKeys,
     ArrowLeft: this.processArrowKeys,
-    ArrowRight: this.processArrowKeys
+    ArrowRight: this.processArrowKeys,
   };
 
   constructor() {
@@ -250,7 +250,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     this.dispatch("STOP_EDITION");
     this.dispatch("MOVE_POSITION", {
       deltaX: 0,
-      deltaY: ev.shiftKey ? -1 : 1
+      deltaY: ev.shiftKey ? -1 : 1,
     });
     this.isDone = true;
   }
@@ -293,7 +293,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
         "ArrowLeft",
         "ArrowRight",
         "Tab",
-        "Enter"
+        "Enter",
       ].includes(ev.key)
     ) {
       // already processed in keydown
@@ -346,7 +346,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
         this.tokenAtCursor = undefined;
       } else {
         this.tokenAtCursor = this.tokens.find(
-          t => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
+          (t) => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
         );
       }
       for (let token of this.tokens) {

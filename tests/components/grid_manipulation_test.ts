@@ -54,7 +54,7 @@ describe("Context Menu add/remove row/col", () => {
   test("can clear cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='clear_column']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
@@ -62,17 +62,17 @@ describe("Context Menu add/remove row/col", () => {
           top: 0,
           bottom: model["workbook"].rows.length - 1,
           left: 3,
-          right: 3
-        }
+          right: 3,
+        },
       ],
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
   test("can clear row with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='clear_row']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
@@ -80,10 +80,10 @@ describe("Context Menu add/remove row/col", () => {
           top: 4,
           bottom: 4,
           left: 0,
-          right: model["workbook"].cols.length - 1
-        }
+          right: model["workbook"].cols.length - 1,
+        },
       ],
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
@@ -91,74 +91,74 @@ describe("Context Menu add/remove row/col", () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
 
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='delete_column']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
       columns: [3],
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
   test("can delete rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='delete_row']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
       rows: [4],
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
   test("can add before cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_column_before']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
       position: "before",
       column: 3,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
   test("can add before rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_row_before']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
       position: "before",
       row: 4,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
   test("can add after cols with contextmenu", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_column_after']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_COLUMNS", {
       position: "after",
       column: 3,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 
   test("can add after rows with contextmenu", async () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
-    parent.env.dispatch = jest.fn(command => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => "COMPLETED");
     simulateClick(".o-context-menu div[data-name='add_row_after']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_ROWS", {
       position: "after",
       row: 4,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name
+      sheet: model["workbook"].activeSheet.name,
     });
   });
 });

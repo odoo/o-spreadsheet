@@ -64,7 +64,7 @@ function tokenizeMisc(chars: string[]): Token | null {
   const misc = {
     ",": "COMMA",
     "(": "LEFT_PAREN",
-    ")": "RIGHT_PAREN"
+    ")": "RIGHT_PAREN",
   } as const;
   if (chars[0] in misc) {
     const value = chars[0];
@@ -100,7 +100,7 @@ function tokenizeNumber(chars: string[]): Token | null {
   if (digits.length) {
     return {
       type: "NUMBER",
-      value: digits.join("")
+      value: digits.join(""),
     };
   }
   return null;
@@ -119,7 +119,7 @@ function tokenizeString(chars: string[]): Token | null {
     }
     return {
       type: "STRING",
-      value: letters.join("")
+      value: letters.join(""),
     };
   }
   return null;
@@ -158,7 +158,7 @@ function tokenizeSymbol(chars: string[]): Token | null {
     if (result[result.length - 1] !== "'") {
       return {
         type: "UNKNOWN",
-        value: result.join("")
+        value: result.join(""),
       };
     }
   }

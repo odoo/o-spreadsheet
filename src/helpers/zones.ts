@@ -41,7 +41,7 @@ export function union(z1: Zone, z2: Zone): Zone {
     top: Math.min(z1.top, z2.top),
     left: Math.min(z1.left, z2.left),
     bottom: Math.max(z1.bottom, z2.bottom),
-    right: Math.max(z1.right, z2.right)
+    right: Math.max(z1.right, z2.right),
   };
 }
 

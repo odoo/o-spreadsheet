@@ -10,13 +10,13 @@ export const WAIT: FunctionDescription = {
   args: args`ms (number) wait time in milliseconds`,
   returns: ["ANY"],
   async: true,
-  compute: function(delay) {
-    return new Promise(function(resolve, reject) {
-      setTimeout(function() {
+  compute: function (delay) {
+    return new Promise(function (resolve, reject) {
+      setTimeout(function () {
         resolve(delay);
       }, delay);
     });
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -29,10 +29,10 @@ export const AND: FunctionDescription = {
       logical_expression1 (boolean, range<boolean>, optional, repeating) More expressions that represent logical values.
     `,
   returns: ["BOOLEAN"],
-  compute: function(): boolean {
+  compute: function (): boolean {
     let result = true;
     let foundBoolean = false;
-    visitBooleans(arguments, b => {
+    visitBooleans(arguments, (b) => {
       result = result && b;
       foundBoolean = true;
       return result;
@@ -41,7 +41,7 @@ export const AND: FunctionDescription = {
       throw new Error(`AND has no valid input data.`);
     }
     return result;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -55,10 +55,14 @@ export const IF: FunctionDescription = {
       value_if_false (any, optional, default=FALSE) The value the function returns if logical_expression is FALSE.
     `,
   returns: ["ANY"],
-  compute: function(logical_expression: any, value_if_true: any, value_if_false: any = false): any {
+  compute: function (
+    logical_expression: any,
+    value_if_true: any,
+    value_if_false: any = false
+  ): any {
     const result = toBoolean(logical_expression) ? value_if_true : value_if_false;
     return result === null ? "" : result;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -77,7 +81,7 @@ export const IFS: FunctionDescription = {
   // condition2 (boolean, optional, repeating) Additional conditions to be evaluated if the previous ones are FALSE.
   // value2 (any, optional, repeating) Additional values to be returned if their corresponding conditions are TRUE.
   returns: ["ANY"],
-  compute: function(): any {
+  compute: function (): any {
     if (arguments.length % 2 === 1) {
       throw new Error(`
           Wrong number of arguments. Expected an even number of arguments.
@@ -89,7 +93,7 @@ export const IFS: FunctionDescription = {
       }
     }
     throw new Error(`No match.`);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -99,9 +103,9 @@ export const NOT: FunctionDescription = {
   description: "Returns opposite of provided logical value.",
   args: args`logical_expression (boolean) An expression or reference to a cell holding an expression that represents some logical value.`,
   returns: ["BOOLEAN"],
-  compute: function(logical_expression: any): boolean {
+  compute: function (logical_expression: any): boolean {
     return !toBoolean(logical_expression);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -114,10 +118,10 @@ export const OR: FunctionDescription = {
       logical_expression2 (boolean, range<boolean>, optional, repeating) More expressions that evaluate to logical values.
     `,
   returns: ["BOOLEAN"],
-  compute: function(): boolean {
+  compute: function (): boolean {
     let result = false;
     let foundBoolean = false;
-    visitBooleans(arguments, b => {
+    visitBooleans(arguments, (b) => {
       result = result || b;
       foundBoolean = true;
       return !result;
@@ -126,7 +130,7 @@ export const OR: FunctionDescription = {
       throw new Error(`OR has no valid input data.`);
     }
     return result;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -139,10 +143,10 @@ export const XOR: FunctionDescription = {
       logical_expression2 (boolean, range<boolean>, optional, repeating) More expressions that evaluate to logical values.
     `,
   returns: ["BOOLEAN"],
-  compute: function(): boolean {
+  compute: function (): boolean {
     let result = false;
     let foundBoolean = false;
-    visitBooleans(arguments, b => {
+    visitBooleans(arguments, (b) => {
       result = result ? !b : b;
       foundBoolean = true;
       return true;
@@ -151,5 +155,5 @@ export const XOR: FunctionDescription = {
       throw new Error(`XOR has no valid input data.`);
     }
     return result;
-  }
+  },
 };

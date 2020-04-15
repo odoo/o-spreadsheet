@@ -8,15 +8,15 @@ describe("Entity", () => {
     const model = new Model({
       sheets: [
         {
-          merges: ["A1:B3"]
-        }
-      ]
+          merges: ["A1:B3"],
+        },
+      ],
     });
     expect(model.exportData().entities).toEqual({});
     model.dispatch("ADD_ENTITY", { kind: "A", key: "1", value: { name: "Name" } });
 
     expect(model.exportData().entities).toEqual({
-      A: { "1": { name: "Name" } }
+      A: { "1": { name: "Name" } },
     });
 
     expect(model.getters["getEntity"]("A", "1")).toEqual({ name: "Name" });
@@ -28,16 +28,16 @@ describe("Entity", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          merges: ["A1:B3"]
-        }
-      ]
+          merges: ["A1:B3"],
+        },
+      ],
     });
 
     model.dispatch("ADD_ENTITY", { kind: "A", key: "1", value: { name: "Name" } });
     model.dispatch("ADD_ENTITY", { kind: "A", key: "2", value: { name: "Test" } });
 
     expect(model.exportData().entities).toEqual({
-      A: { "1": { name: "Name" }, "2": { name: "Test" } }
+      A: { "1": { name: "Name" }, "2": { name: "Test" } },
     });
   });
 
@@ -47,31 +47,31 @@ describe("Entity", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          merges: ["A1:B3"]
-        }
+          merges: ["A1:B3"],
+        },
       ],
       entities: {
         A: {
-          "1": { name: "Name" }
-        }
-      }
+          "1": { name: "Name" },
+        },
+      },
     });
 
     expect(model.exportData().entities).toEqual({
-      A: { "1": { name: "Name" } }
+      A: { "1": { name: "Name" } },
     });
 
     model.dispatch("REMOVE_ENTITY", { kind: "A", key: "2" });
     model.dispatch("REMOVE_ENTITY", { kind: "B", key: "2" });
 
     expect(model.exportData().entities).toEqual({
-      A: { "1": { name: "Name" } }
+      A: { "1": { name: "Name" } },
     });
 
     model.dispatch("REMOVE_ENTITY", { kind: "A", key: "1" });
 
     expect(model.exportData().entities).toEqual({
-      A: {}
+      A: {},
     });
   });
 });
@@ -83,14 +83,14 @@ describe("Entity functions", () => {
     functionRegistry.add("TEST", {
       description: "test with getEntity",
       args: [],
-      compute: function() {
+      compute: function () {
         // @ts-ignore
         expect(this.getEntity).toBeDefined();
         // @ts-ignore
         expect(this.getEntities).toBeDefined();
         return 1;
       },
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=TEST()" });
@@ -102,14 +102,14 @@ describe("Entity functions", () => {
     functionRegistry.add("TEST", {
       description: "test with getEntity",
       args: args`n (number) some number`,
-      compute: function() {
+      compute: function () {
         // @ts-ignore
         expect(this.getEntity).toBeDefined();
         // @ts-ignore
         expect(this.getEntities).toBeDefined();
         return 1;
       },
-      returns: ["ANY"]
+      returns: ["ANY"],
     });
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=TEST(3)" });

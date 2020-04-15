@@ -16,10 +16,10 @@ describe("load data", () => {
           cols: {},
           rows: {},
           merges: [],
-          conditionalFormats: []
-        }
+          conditionalFormats: [],
+        },
       ],
-      activeSheet: "Sheet1"
+      activeSheet: "Sheet1",
     });
 
     expect(load({})).toEqual({
@@ -36,17 +36,17 @@ describe("load data", () => {
           cols: {},
           rows: {},
           merges: [],
-          conditionalFormats: []
-        }
+          conditionalFormats: [],
+        },
       ],
-      activeSheet: "Sheet1"
+      activeSheet: "Sheet1",
     });
   });
 
   test("assign sheet name if missing", () => {
     expect(
       load({
-        sheets: [{ merges: ["A1:B2"] }]
+        sheets: [{ merges: ["A1:B2"] }],
       })
     ).toEqual({
       version: 2,
@@ -62,17 +62,17 @@ describe("load data", () => {
           cols: {},
           rows: {},
           merges: ["A1:B2"],
-          conditionalFormats: []
-        }
+          conditionalFormats: [],
+        },
       ],
-      activeSheet: "Sheet1"
+      activeSheet: "Sheet1",
     });
   });
 
   test("assign two different sheet names if missing", () => {
     expect(
       load({
-        sheets: [{ merges: ["A1:B2"] }, { merges: ["C3:D4"] }]
+        sheets: [{ merges: ["A1:B2"] }, { merges: ["C3:D4"] }],
       }).sheets
     ).toEqual([
       {
@@ -83,7 +83,7 @@ describe("load data", () => {
         cols: {},
         rows: {},
         merges: ["A1:B2"],
-        conditionalFormats: []
+        conditionalFormats: [],
       },
       {
         name: "Sheet2",
@@ -93,8 +93,8 @@ describe("load data", () => {
         cols: {},
         rows: {},
         merges: ["C3:D4"],
-        conditionalFormats: []
-      }
+        conditionalFormats: [],
+      },
     ]);
   });
 });

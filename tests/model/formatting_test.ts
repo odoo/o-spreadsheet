@@ -5,7 +5,7 @@ function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
     sheet: model.getters.getActiveSheet(),
     target: model.getters.getSelectedZones(),
-    formatter: format
+    formatter: format,
   });
 }
 describe("formatting values (with formatters)", () => {

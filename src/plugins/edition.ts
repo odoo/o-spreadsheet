@@ -6,7 +6,7 @@ import {
   Highlight,
   EditionMode,
   LAYERS,
-  GridRenderingContext
+  GridRenderingContext,
 } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
@@ -38,7 +38,7 @@ export class EditionPlugin extends BasePlugin {
         this.mode = "selecting";
         this.dispatch("SET_SELECTION", {
           zones: this.getters.getSelectedZones(),
-          anchor: this.getters.getPosition()
+          anchor: this.getters.getPosition(),
         });
         break;
       case "STOP_COMPOSER_SELECTION":
@@ -84,12 +84,12 @@ export class EditionPlugin extends BasePlugin {
 
   private addHighlights(ranges: { [range: string]: string }) {
     let highlights = Object.keys(ranges)
-      .map(r1c1 => {
+      .map((r1c1) => {
         const zone: Zone = this.getters.expandZone(toZone(r1c1));
         return { zone, color: ranges[r1c1] };
       })
       .filter(
-        x =>
+        (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
           x.zone.bottom < this.workbook.rows.length &&
@@ -131,8 +131,8 @@ export class EditionPlugin extends BasePlugin {
       if (content) {
         if (content.startsWith("=")) {
           const tokens = tokenize(content);
-          const left = tokens.filter(t => t.type === "LEFT_PAREN").length;
-          const right = tokens.filter(t => t.type === "RIGHT_PAREN").length;
+          const left = tokens.filter((t) => t.type === "LEFT_PAREN").length;
+          const right = tokens.filter((t) => t.type === "RIGHT_PAREN").length;
           const missing = left - right;
           if (missing > 0) {
             content += new Array(missing).fill(")").join("");
@@ -142,14 +142,14 @@ export class EditionPlugin extends BasePlugin {
           sheet: this.workbook.activeSheet.name,
           col,
           row,
-          content
+          content,
         });
       } else {
         this.dispatch("UPDATE_CELL", {
           sheet: this.workbook.activeSheet.name,
           content: "",
           col,
-          row
+          row,
         });
       }
     }

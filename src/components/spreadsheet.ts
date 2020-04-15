@@ -74,7 +74,7 @@ export class Spreadsheet extends Component<Props> {
     useSubEnv({
       openSidePanel: (panel: string) => this.openSidePanel(panel),
       dispatch: this.model.dispatch,
-      getters: this.model.getters
+      getters: this.model.getters,
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -121,17 +121,17 @@ export class Spreadsheet extends Component<Props> {
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
         const result = this.model.dispatch("PASTE", {
-          target: this.model.getters.getSelectedZones()
+          target: this.model.getters.getSelectedZones(),
         });
         if (result === "CANCELLED") {
           this.trigger("notify-user", {
-            content: "This operation is not allowed with multiple selections."
+            content: "This operation is not allowed with multiple selections.",
           });
         }
       } else {
         this.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
           target: this.model.getters.getSelectedZones(),
-          text: content
+          text: content,
         });
       }
     }
@@ -139,7 +139,7 @@ export class Spreadsheet extends Component<Props> {
 
   save() {
     this.trigger("save-content", {
-      data: this.model.exportData()
+      data: this.model.exportData(),
     });
   }
 }

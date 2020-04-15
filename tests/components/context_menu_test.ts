@@ -17,13 +17,13 @@ Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
     return 1000;
   },
-  configurable: true
+  configurable: true,
 });
 Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
   get() {
     return 1000;
   },
-  configurable: true
+  configurable: true,
 });
 
 function getActiveXc(model: Model): string {

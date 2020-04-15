@@ -72,15 +72,15 @@ describe("sheets", () => {
           name: "ABC",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B1: { content: "=DEF!B2" } }
+          cells: { B1: { content: "=DEF!B2" } },
         },
         {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "3" } }
-        }
-      ]
+          cells: { B2: { content: "3" } },
+        },
+      ],
     });
 
     expect(model["workbook"].activeSheet.name).toBe("ABC");
@@ -94,7 +94,7 @@ describe("sheets", () => {
           name: "ABC",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B1: { content: "=DEF!B2" } }
+          cells: { B1: { content: "=DEF!B2" } },
         },
         {
           name: "DEF",
@@ -102,10 +102,10 @@ describe("sheets", () => {
           rowNumber: 10,
           cells: {
             B2: { content: "=A4" },
-            A4: { content: "3" }
-          }
-        }
-      ]
+            A4: { content: "3" },
+          },
+        },
+      ],
     });
 
     expect(model["workbook"].activeSheet.name).toBe("ABC");
@@ -119,7 +119,7 @@ describe("sheets", () => {
           name: "ABC",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B1: { content: "=DEF!B2" } }
+          cells: { B1: { content: "=DEF!B2" } },
         },
         {
           name: "DEF",
@@ -128,10 +128,10 @@ describe("sheets", () => {
           cells: {
             B2: { content: "=SUM(A1:A5)" },
             A1: { content: "2" },
-            A4: { content: "3" }
-          }
-        }
-      ]
+            A4: { content: "3" },
+          },
+        },
+      ],
     });
 
     expect(model["workbook"].activeSheet.name).toBe("ABC");
@@ -148,8 +148,8 @@ describe("sheets", () => {
           cells: {
             B1: { content: "=DEF!B2" },
             C3: { content: "=DEF!C5 + 1" },
-            C4: { content: "40" }
-          }
+            C4: { content: "40" },
+          },
         },
         {
           name: "DEF",
@@ -157,10 +157,10 @@ describe("sheets", () => {
           rowNumber: 10,
           cells: {
             B2: { content: "=ABC!B1" },
-            C5: { content: "=ABC!C4 + 1" }
-          }
-        }
-      ]
+            C5: { content: "=ABC!C4 + 1" },
+          },
+        },
+      ],
     });
 
     expect(model["workbook"].activeSheet.name).toBe("ABC");

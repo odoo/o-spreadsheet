@@ -5,7 +5,7 @@ import {
   reduceNumbers,
   visitAny,
   reduceArgs,
-  dichotomicPredecessorSearch
+  dichotomicPredecessorSearch,
 } from "./helpers";
 import { isNumber } from "../helpers/index";
 
@@ -19,7 +19,7 @@ export const AVEDEV: FunctionDescription = {
     value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
   `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let count = 0;
     const sum = reduceNumbers(
       arguments,
@@ -35,7 +35,7 @@ export const AVEDEV: FunctionDescription = {
     }
     const average = sum / count;
     return reduceNumbers(arguments, (acc, a) => acc + Math.abs(average - a), 0) / count;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ export const AVERAGE: FunctionDescription = {
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the average value.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let count = 0;
     const sum = reduceNumbers(
       arguments,
@@ -63,7 +63,7 @@ export const AVERAGE: FunctionDescription = {
         Evaluation of function AVEDEV caused a divide by zero error.`);
     }
     return sum / count;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
   // additional_values (number, range<number>, optional, repeating) Additional values to average.
   // additional_weights (number, range<number>, optional, repeating) Additional weights.
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let sum = 0;
     let count = 0;
     let value;
@@ -149,7 +149,7 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
         `);
     }
     return sum / count;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ export const AVERAGEA: FunctionDescription = {
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the average value.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let sum = 0;
     let count = 0;
     for (let n of arguments) {
@@ -189,7 +189,7 @@ export const AVERAGEA: FunctionDescription = {
         Evaluation of function AVERAGEA caused a divide by zero error.`);
     }
     return sum / count;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ export const COUNT: FunctionDescription = {
     value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when counting.
   `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let count = 0;
     for (let n of arguments) {
       if (Array.isArray(n)) {
@@ -218,7 +218,7 @@ export const COUNT: FunctionDescription = {
       }
     }
     return count;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -231,9 +231,9 @@ export const COUNTA: FunctionDescription = {
     value2 (any, range, optional, repeating) Additional values or ranges to consider when counting.
   `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     return reduceArgs(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -246,12 +246,12 @@ export const LARGE: FunctionDescription = {
       n (number) The rank from largest to smallest of the element to return.
     `,
   returns: ["NUMBER"],
-  compute: function(data: any, n: any): number {
+  compute: function (data: any, n: any): number {
     n = Math.trunc(toNumber(n));
     let largests: number[] = [];
     let index: number;
     let count = 0;
-    visitAny(data, d => {
+    visitAny(data, (d) => {
       if (typeof d === "number") {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);
@@ -270,7 +270,7 @@ export const LARGE: FunctionDescription = {
       throw new Error(`Function LARGE parameter 2 value ${n} is out of range.`);
     }
     return result;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -283,10 +283,10 @@ export const MAX: FunctionDescription = {
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the maximum value.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     const result = reduceNumbers(arguments, (acc, a) => (acc < a ? a : acc), -Infinity);
     return result === -Infinity ? 0 : result;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -299,7 +299,7 @@ export const MAXA: FunctionDescription = {
       value2 (ant, range, optional, repeating) Additional values or ranges to consider when calculating the maximum value.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let maxa = -Infinity;
     for (let n of arguments) {
       if (Array.isArray(n)) {
@@ -321,7 +321,7 @@ export const MAXA: FunctionDescription = {
       }
     }
     return maxa === -Infinity ? 0 : maxa;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -334,10 +334,10 @@ export const MIN: FunctionDescription = {
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the minimum value.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     const result = reduceNumbers(arguments, (acc, a) => (a < acc ? a : acc), Infinity);
     return result === Infinity ? 0 : result;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -350,7 +350,7 @@ export const MINA: FunctionDescription = {
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the minimum value.
     `,
   returns: ["NUMBER"],
-  compute: function(): number {
+  compute: function (): number {
     let mina = Infinity;
     for (let n of arguments) {
       if (Array.isArray(n)) {
@@ -372,7 +372,7 @@ export const MINA: FunctionDescription = {
       }
     }
     return mina === Infinity ? 0 : mina;
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -385,12 +385,12 @@ export const SMALL: FunctionDescription = {
       n (number) The rank from smallest to largest of the element to return.
     `,
   returns: ["NUMBER"],
-  compute: function(data: any, n: any): number {
+  compute: function (data: any, n: any): number {
     n = Math.trunc(toNumber(n));
     let largests: number[] = [];
     let index: number;
     let count = 0;
-    visitAny(data, d => {
+    visitAny(data, (d) => {
       if (typeof d === "number") {
         index = dichotomicPredecessorSearch(largests, d);
         largests.splice(index + 1, 0, d);
@@ -409,5 +409,5 @@ export const SMALL: FunctionDescription = {
       throw new Error(`Function SMALL parameter 2 value ${n} is out of range.`);
     }
     return result;
-  }
+  },
 };

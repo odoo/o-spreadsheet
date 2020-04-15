@@ -12,22 +12,22 @@ function redo() {
 }
 
 function clearColumns(indexes: number[]) {
-  const target = indexes.map(index => {
+  const target = indexes.map((index) => {
     return model.getters.getColsZone(index, index);
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model["workbook"].activeSheet.name
+    sheet: model["workbook"].activeSheet.name,
   });
 }
 
 function clearRows(indexes: number[]) {
-  const target = indexes.map(index => {
+  const target = indexes.map((index) => {
     return model.getters.getRowsZone(index, index);
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model["workbook"].activeSheet.name
+    sheet: model["workbook"].activeSheet.name,
   });
 }
 
@@ -44,7 +44,7 @@ function addColumns(column: number, position: "before" | "after", quantity: numb
     sheet: model.getters.getActiveSheet(),
     position,
     column,
-    quantity
+    quantity,
   });
 }
 
@@ -53,7 +53,7 @@ function addRows(row: number, position: "before" | "after", quantity: number) {
     sheet: model.getters.getActiveSheet(),
     position,
     row,
-    quantity
+    quantity,
   });
 }
 
@@ -71,15 +71,15 @@ const fullData = {
         B2: { content: "2", style: 1 },
         B3: { content: "3", border: 1 },
         C1: { content: "1" },
-        C3: { content: "3" }
+        C3: { content: "3" },
       },
       merges: ["A4:D4", "C1:D2"],
       cols: { 1: { size: 42 } },
-      rows: { 1: { size: 42 } }
-    }
+      rows: { 1: { size: 42 } },
+    },
   ],
   styles: { 1: { textColor: "#fe0000" } },
-  borders: { 1: { top: ["thin", "#000"] } }
+  borders: { 1: { top: ["thin", "#000"] } },
 };
 
 //------------------------------------------------------------------------------
@@ -100,13 +100,13 @@ describe("Clear columns", () => {
             B1: { content: "B1", style: 1, border: 1 },
             B2: { content: "B2" },
             C1: { content: "C1", style: 1 },
-            C2: { content: "C2", border: 1 }
-          }
-        }
+            C2: { content: "C2", border: 1 },
+          },
+        },
       ],
       styles: { 1: { textColor: "#fe0000" } },
       borders: { 1: { right: ["thin", "#000"] } },
-      merges: ["A3:B3"]
+      merges: ["A3:B3"],
     });
 
     clearColumns([1, 2]);
@@ -117,7 +117,7 @@ describe("Clear columns", () => {
       A3: { content: "A3" },
       B1: { content: "", style: 1, border: 1 },
       C1: { content: "", style: 1 },
-      C2: { content: "", border: 1 }
+      C2: { content: "", border: 1 },
     });
   });
 });
@@ -136,13 +136,13 @@ describe("Clear rows", () => {
             B1: { content: "B1" },
             B2: { content: "B2" },
             C1: { content: "C1" },
-            C2: { content: "C2", style: 1 }
-          }
-        }
+            C2: { content: "C2", style: 1 },
+          },
+        },
       ],
       styles: { 1: { textColor: "#fe0000" } },
       borders: { 1: { right: ["thin", "#000"] } },
-      merges: ["C1:C2"]
+      merges: ["C1:C2"],
     });
 
     clearRows([1, 2]);
@@ -153,7 +153,7 @@ describe("Clear rows", () => {
       A3: { content: "", border: 1 },
       B1: { content: "B1" },
       C1: { content: "C1" },
-      C2: { content: "", style: 1 }
+      C2: { content: "", style: 1 },
     });
   });
 });
@@ -175,17 +175,17 @@ describe("Columns", () => {
             rowNumber: 1,
             cols: {
               1: { size: 10 },
-              2: { size: 20 }
-            }
-          }
-        ]
+              2: { size: 20 },
+            },
+          },
+        ],
       });
     });
     test("On deletion", () => {
       removeColumns([0, 2]);
       expect(model["workbook"].cols).toEqual([
         { start: 0, end: 10, size: 10, name: "A" },
-        { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" }
+        { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" },
       ]);
     });
     test("On addition before", () => {
@@ -197,7 +197,7 @@ describe("Columns", () => {
         { start: size + 10, end: size + 20, size: 10, name: "C" },
         { start: size + 20, end: size + 30, size: 10, name: "D" },
         { start: size + 30, end: size + 50, size: 20, name: "E" },
-        { start: size + 50, end: 2 * size + 50, size, name: "F" }
+        { start: size + 50, end: 2 * size + 50, size, name: "F" },
       ]);
     });
     test("On addition after", () => {
@@ -209,7 +209,7 @@ describe("Columns", () => {
         { start: size + 10, end: size + 30, size: 20, name: "C" },
         { start: size + 30, end: size + 50, size: 20, name: "D" },
         { start: size + 50, end: size + 70, size: 20, name: "E" },
-        { start: size + 70, end: 2 * size + 70, size, name: "F" }
+        { start: size + 70, end: 2 * size + 70, size, name: "F" },
       ]);
     });
   });
@@ -221,9 +221,9 @@ describe("Columns", () => {
           {
             colNumber: 5,
             rowNumber: 4,
-            merges: ["A1:E1", "B2:E2", "C3:E3", "B4:D4"]
-          }
-        ]
+            merges: ["A1:E1", "B2:E2", "C3:E3", "B4:D4"],
+          },
+        ],
       });
     });
     test("On deletion", () => {
@@ -233,7 +233,7 @@ describe("Columns", () => {
       expect(model["workbook"].merges).toEqual({
         9: { id: 9, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 2 },
         10: { id: 10, topLeft: "B2", top: 1, bottom: 1, left: 1, right: 2 },
-        11: { id: 11, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 }
+        11: { id: 11, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 },
       });
       expect(model["workbook"].mergeCellMap).toEqual({
         A1: 9,
@@ -242,7 +242,7 @@ describe("Columns", () => {
         B2: 10,
         C2: 10,
         B3: 11,
-        C3: 11
+        C3: 11,
       });
     });
     test("On addition", () => {
@@ -252,7 +252,7 @@ describe("Columns", () => {
         9: { id: 9, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 6 },
         10: { id: 10, topLeft: "D2", top: 1, bottom: 1, left: 3, right: 6 },
         11: { id: 11, topLeft: "E3", top: 2, bottom: 2, left: 4, right: 6 },
-        12: { id: 12, topLeft: "D4", top: 3, bottom: 3, left: 3, right: 5 }
+        12: { id: 12, topLeft: "D4", top: 3, bottom: 3, left: 3, right: 5 },
       });
       expect(model["workbook"].mergeCellMap).toEqual({
         A1: 9,
@@ -271,7 +271,7 @@ describe("Columns", () => {
         G3: 11,
         D4: 12,
         E4: 12,
-        F4: 12
+        F4: 12,
       });
     });
   });
@@ -293,13 +293,13 @@ describe("Columns", () => {
               B4: { style: 1, border: 1 },
               D1: { style: 1 },
               D2: { border: 1 },
-              D3: { style: 1, border: 1 }
+              D3: { style: 1, border: 1 },
             },
-            merges: ["B4:C4"]
-          }
+            merges: ["B4:C4"],
+          },
         ],
         styles: { 1: { textColor: "#fe0000" } },
-        borders: { 1: { top: ["thin", "#000"] } }
+        borders: { 1: { top: ["thin", "#000"] } },
       });
     });
     test("On deletion", () => {
@@ -314,7 +314,7 @@ describe("Columns", () => {
         B4: { style: 1, border: 1 },
         C1: { style: 1 },
         C2: { border: 1 },
-        C3: { style: 1, border: 1 }
+        C3: { style: 1, border: 1 },
       });
     });
     test("On addition", () => {
@@ -332,12 +332,12 @@ describe("Columns", () => {
         C2: { border: 1 },
         C3: { style: 1, border: 1, format: "0.00%" },
         C4: { style: 1, border: 1 },
-        E1: { style: 1 }
+        E1: { style: 1 },
       });
       expect(Object.values(model["workbook"].merges)[0]).toMatchObject({
         left: 2,
         right: 5,
-        topLeft: "C4"
+        topLeft: "C4",
       });
     });
   });
@@ -356,8 +356,8 @@ describe("Columns", () => {
               D1: { content: "=A1" },
               D2: { content: "=B1" },
               D3: { content: "=$E1" },
-              D4: { content: "=D3" }
-            }
+              D4: { content: "=D3" },
+            },
           },
           {
             colNumber: 1,
@@ -365,10 +365,10 @@ describe("Columns", () => {
             cells: {
               A1: { content: "=B1" },
               A2: { content: "=Sheet1!B1" },
-              A3: { content: "=Sheet2!B1" }
-            }
-          }
-        ]
+              A3: { content: "=Sheet2!B1" },
+            },
+          },
+        ],
       });
     });
     test("On deletion", () => {
@@ -380,12 +380,12 @@ describe("Columns", () => {
         B1: { content: "=A1" },
         B2: { content: "=#REF" },
         B3: { content: "=$C1" },
-        B4: { content: "=B3" }
+        B4: { content: "=B3" },
       });
       expect(model["workbook"].sheets[1].cells).toMatchObject({
         A1: { content: "=B1" },
         A2: { content: "=#REF" },
-        A3: { content: "=Sheet2!B1" }
+        A3: { content: "=Sheet2!B1" },
       });
     });
     test("On addition", () => {
@@ -398,12 +398,12 @@ describe("Columns", () => {
         F1: { content: "=A1" },
         F2: { content: "=D1" },
         F3: { content: "=$G1" },
-        F4: { content: "=F3" }
+        F4: { content: "=F3" },
       });
       expect(model["workbook"].sheets[1].cells).toMatchObject({
         A1: { content: "=B1" },
         A2: { content: "=Sheet1!D1" },
-        A3: { content: "=Sheet2!B1" }
+        A3: { content: "=Sheet2!B1" },
       });
     });
   });
@@ -454,10 +454,10 @@ describe("Rows", () => {
             rowNumber: 4,
             rows: {
               1: { size: 10 },
-              2: { size: 20 }
-            }
-          }
-        ]
+              2: { size: 20 },
+            },
+          },
+        ],
       });
     });
     test("On deletion", () => {
@@ -465,7 +465,7 @@ describe("Rows", () => {
       const size = DEFAULT_CELL_HEIGHT;
       expect(model["workbook"].rows).toEqual([
         { start: 0, end: 10, size: 10, name: "1", cells: {} },
-        { start: 10, end: size + 10, size, name: "2", cells: {} }
+        { start: 10, end: size + 10, size, name: "2", cells: {} },
       ]);
     });
     test("On addition before", () => {
@@ -477,7 +477,7 @@ describe("Rows", () => {
         { start: size + 10, end: size + 20, size: 10, name: "3", cells: {} },
         { start: size + 20, end: size + 30, size: 10, name: "4", cells: {} },
         { start: size + 30, end: size + 50, size: 20, name: "5", cells: {} },
-        { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} }
+        { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} },
       ]);
     });
     test("On addition after", () => {
@@ -489,7 +489,7 @@ describe("Rows", () => {
         { start: size + 10, end: size + 30, size: 20, name: "3", cells: {} },
         { start: size + 30, end: size + 50, size: 20, name: "4", cells: {} },
         { start: size + 50, end: size + 70, size: 20, name: "5", cells: {} },
-        { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} }
+        { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} },
       ]);
     });
   });
@@ -501,9 +501,9 @@ describe("Rows", () => {
           {
             colNumber: 4,
             rowNumber: 5,
-            merges: ["A1:A5", "B2:B5", "C3:C5", "D2:D4"]
-          }
-        ]
+            merges: ["A1:A5", "B2:B5", "C3:C5", "D2:D4"],
+          },
+        ],
       });
     });
     test("On deletion", () => {
@@ -513,7 +513,7 @@ describe("Rows", () => {
       expect(model["workbook"].merges).toEqual({
         9: { id: 9, topLeft: "A1", top: 0, bottom: 2, left: 0, right: 0 },
         10: { id: 10, topLeft: "B2", top: 1, bottom: 2, left: 1, right: 1 },
-        11: { id: 11, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 }
+        11: { id: 11, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 },
       });
       expect(model["workbook"].mergeCellMap).toEqual({
         A1: 9,
@@ -522,7 +522,7 @@ describe("Rows", () => {
         B2: 10,
         B3: 10,
         C2: 11,
-        C3: 11
+        C3: 11,
       });
     });
     test("On addition", () => {
@@ -532,7 +532,7 @@ describe("Rows", () => {
         9: { id: 9, topLeft: "A1", top: 0, bottom: 6, left: 0, right: 0 },
         10: { id: 10, topLeft: "B4", top: 3, bottom: 6, left: 1, right: 1 },
         11: { id: 11, topLeft: "C5", top: 4, bottom: 6, left: 2, right: 2 },
-        12: { id: 12, topLeft: "D4", top: 3, bottom: 5, left: 3, right: 3 }
+        12: { id: 12, topLeft: "D4", top: 3, bottom: 5, left: 3, right: 3 },
       });
       expect(model["workbook"].mergeCellMap).toEqual({
         A1: 9,
@@ -551,7 +551,7 @@ describe("Rows", () => {
         C7: 11,
         D4: 12,
         D5: 12,
-        D6: 12
+        D6: 12,
       });
     });
   });
@@ -573,13 +573,13 @@ describe("Rows", () => {
               C1: { style: 1, border: 1 },
               C2: { style: 1, border: 1, format: "0.00%" },
               C4: { style: 1, border: 1 },
-              D2: { style: 1, border: 1 }
+              D2: { style: 1, border: 1 },
             },
-            merges: ["D2:D3"]
-          }
+            merges: ["D2:D3"],
+          },
         ],
         styles: { 1: { textColor: "#fe0000" } },
-        borders: { 1: { top: ["thin", "#000"] } }
+        borders: { 1: { top: ["thin", "#000"] } },
       });
     });
     test("On deletion", () => {
@@ -594,7 +594,7 @@ describe("Rows", () => {
         B3: { border: 1 },
         C1: { style: 1, border: 1 },
         C3: { style: 1, border: 1 },
-        D2: { style: 1, border: 1 }
+        D2: { style: 1, border: 1 },
       });
     });
 
@@ -613,12 +613,12 @@ describe("Rows", () => {
         B3: { border: 1 },
         C3: { style: 1, border: 1, format: "0.00%" },
         D3: { style: 1, border: 1 },
-        A5: { style: 1 }
+        A5: { style: 1 },
       });
       expect(Object.values(model["workbook"].merges)[0]).toMatchObject({
         top: 2,
         bottom: 5,
-        topLeft: "D3"
+        topLeft: "D3",
       });
     });
   });
@@ -637,8 +637,8 @@ describe("Rows", () => {
               B4: { content: "=B1" },
               C1: { content: "=Sheet2!A2" },
               C4: { content: "=A$5" },
-              D4: { content: "=C4" }
-            }
+              D4: { content: "=C4" },
+            },
           },
           {
             colNumber: 3,
@@ -646,10 +646,10 @@ describe("Rows", () => {
             cells: {
               A1: { content: "=A2" },
               B1: { content: "=Sheet1!A2" },
-              C1: { content: "=Sheet2!A2" }
-            }
-          }
-        ]
+              C1: { content: "=Sheet2!A2" },
+            },
+          },
+        ],
       });
     });
 
@@ -662,12 +662,12 @@ describe("Rows", () => {
         B2: { content: "=B1" },
         C1: { content: "=Sheet2!A2" },
         C2: { content: "=A$3" },
-        D2: { content: "=C2" }
+        D2: { content: "=C2" },
       });
       expect(model["workbook"].sheets[1].cells).toMatchObject({
         A1: { content: "=A2" },
         B1: { content: "=#REF" },
-        C1: { content: "=Sheet2!A2" }
+        C1: { content: "=Sheet2!A2" },
       });
     });
     test("On addition", () => {
@@ -680,12 +680,12 @@ describe("Rows", () => {
         B6: { content: "=B1" },
         C1: { content: "=Sheet2!A2" },
         C6: { content: "=A$7" },
-        D6: { content: "=C6" }
+        D6: { content: "=C6" },
       });
       expect(model["workbook"].sheets[1].cells).toMatchObject({
         A1: { content: "=A2" },
         B1: { content: "=Sheet1!A4" },
-        C1: { content: "=Sheet2!A2" }
+        C1: { content: "=Sheet2!A2" },
       });
     });
   });

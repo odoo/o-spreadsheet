@@ -647,7 +647,7 @@ describe("operators", () => {
     ["-4", "3", -64],
     ["4", "0.5", 2],
     ["4", "-0.5", 0.5],
-    ["4", "-2", 0.0625]
+    ["4", "-2", 0.0625],
   ])("POW(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=POW(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
@@ -655,7 +655,7 @@ describe("operators", () => {
   test.each([
     ["-4", "0.5"],
     ["-4", "1.5"],
-    ["-4", "0.2"]
+    ["-4", "0.2"],
   ])("POW(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
     expect(evaluateCell("A1", { A1: "=POW(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });

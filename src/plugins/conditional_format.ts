@@ -7,14 +7,14 @@ import {
   ConditionalFormat,
   ColorScaleRule,
   Style,
-  WorkbookData
+  WorkbookData,
 } from "../types/index";
 import { colorNumberString, toXC, toZone } from "../helpers/index";
 import {
   updateRemoveColumns,
   updateRemoveRows,
   updateAddColumns,
-  updateAddRows
+  updateAddRows,
 } from "../helpers/grid_manipulation";
 
 // -----------------------------------------------------------------------------
@@ -126,7 +126,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    */
   private addConditionalFormatting(cf: ConditionalFormat) {
     const currentCF = this.cfRules[this.workbook.activeSheet.name].slice();
-    const replaceIndex = currentCF.findIndex(c => c.id === cf.id);
+    const replaceIndex = currentCF.findIndex((c) => c.id === cf.id);
 
     if (replaceIndex > -1) {
       currentCF.splice(replaceIndex, 1, cf);
@@ -229,7 +229,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
           );
       }
       return false;
-    }
+    },
   };
 
   /**

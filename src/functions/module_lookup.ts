@@ -4,7 +4,7 @@ import {
   toNumber,
   toBoolean,
   dichotomicPredecessorSearch,
-  dichotomicSuccessorSearch
+  dichotomicSuccessorSearch,
 } from "./helpers";
 
 /**
@@ -39,7 +39,7 @@ export const MATCH: FunctionDescription = {
       search_type (number, optional, default=1) The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order.
   `,
   returns: ["ANY"],
-  compute: function(search_key: any, range: any[], search_type: any = 1): number {
+  compute: function (search_key: any, range: any[], search_type: any = 1): number {
     let _searchType = toNumber(search_type);
     const nbCol = range.length;
     const nbRow = range[0].length;
@@ -65,7 +65,7 @@ export const MATCH: FunctionDescription = {
     } else {
       throw new Error(`Did not find value '${search_key}' in MATCH evaluation.`);
     }
-  }
+  },
 };
 
 // -----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ export const VLOOKUP: FunctionDescription = {
       is_sorted (boolean, optional, default = TRUE) Indicates whether the column to be searched [the first column of the specified range] is sorted, in which case the closest match for search_key will be returned.
   `,
   returns: ["ANY"],
-  compute: function(search_key: any, range: any[], index: any, is_sorted: any = true): any {
+  compute: function (search_key: any, range: any[], index: any, is_sorted: any = true): any {
     const _index = Math.trunc(toNumber(index));
     if (_index < 1 || range.length < _index) {
       throw new Error(`VLOOKUP evaluates to an out of bounds range.`);
@@ -101,5 +101,5 @@ export const VLOOKUP: FunctionDescription = {
     } else {
       throw new Error(`Did not find value '${search_key}' in VLOOKUP evaluation.`);
     }
-  }
+  },
 };

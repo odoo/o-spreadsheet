@@ -23,12 +23,12 @@ describe("edition", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          cells: { A2: { style: 1, content: "a2" } }
-        }
+          cells: { A2: { style: 1, content: "a2" } },
+        },
       ],
       styles: {
-        1: { fillColor: "red" }
-      }
+        1: { fillColor: "red" },
+      },
     });
 
     // removing
@@ -36,7 +36,7 @@ describe("edition", () => {
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
       sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones()
+      target: model.getters.getSelectedZones(),
     });
     expect("A2" in model["workbook"].cells).toBeTruthy();
     expect(model["workbook"].cells["A2"].content).toBe("");

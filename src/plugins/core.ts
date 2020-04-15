@@ -14,7 +14,7 @@ import {
   Sheet,
   SheetData,
   WorkbookData,
-  Zone
+  Zone,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -33,13 +33,15 @@ export class CorePlugin extends BasePlugin {
     "getActiveSheet",
     "getSheets",
     "getCol",
-    "getRow"
+    "getRow",
   ];
 
   allowDispatch(cmd: Command): boolean {
     switch (cmd.type) {
       case "CREATE_SHEET":
-        return !cmd.name || this.workbook.sheets.findIndex(sheet => sheet.name === cmd.name) === -1;
+        return (
+          !cmd.name || this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.name) === -1
+        );
       default:
         return true;
     }
@@ -67,7 +69,7 @@ export class CorePlugin extends BasePlugin {
           sheet: cmd.sheet ? cmd.sheet : this.workbook.activeSheet.name,
           col,
           row,
-          content: cmd.text
+          content: cmd.text,
         });
         break;
       case "UPDATE_CELL":
@@ -81,7 +83,7 @@ export class CorePlugin extends BasePlugin {
           content: "",
           border: 0,
           style: 0,
-          format: ""
+          format: "",
         });
         break;
     }
@@ -147,7 +149,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   getSheets(): string[] {
-    return this.workbook.sheets.map(s => s.name);
+    return this.workbook.sheets.map((s) => s.name);
   }
 
   getCol(index: number): Col {
@@ -163,7 +165,7 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private updateCell(sheet: string, col: number, row: number, data: CellData) {
-    const _sheet = this.workbook.sheets.find(s => s.name === sheet)!;
+    const _sheet = this.workbook.sheets.find((s) => s.name === sheet)!;
     const current = _sheet.rows[row].cells[col];
     const xc = (current && current.xc) || toXC(col, row);
 
@@ -247,7 +249,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   private activateSheet(name: string) {
-    const sheet = this.workbook.sheets.find(s => s.name === name)!;
+    const sheet = this.workbook.sheets.find((s) => s.name === name)!;
     this.history.updateState(["activeSheet"], sheet);
 
     // setting up rows and columns
@@ -271,7 +273,7 @@ export class CorePlugin extends BasePlugin {
       cols: createDefaultCols(cols),
       rows: createDefaultRows(rows),
       merges: {},
-      mergeCellMap: {}
+      mergeCellMap: {},
     };
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
@@ -291,7 +293,7 @@ export class CorePlugin extends BasePlugin {
               sheet,
               content: "",
               col,
-              row
+              row,
             });
           }
         }
@@ -320,7 +322,7 @@ export class CorePlugin extends BasePlugin {
       cols: createCols(data.cols || {}, data.colNumber),
       rows: createRows(data.rows || {}, data.rowNumber),
       merges: {},
-      mergeCellMap: {}
+      mergeCellMap: {},
     };
     const sheets = this.workbook.sheets.slice();
     sheets.push(sheet);
@@ -334,14 +336,14 @@ export class CorePlugin extends BasePlugin {
   }
 
   export(data: WorkbookData) {
-    data.sheets = this.workbook.sheets.map(sheet => {
+    data.sheets = this.workbook.sheets.map((sheet) => {
       const cells: { [key: string]: CellData } = {};
       for (let [key, cell] of Object.entries(sheet.cells)) {
         cells[key] = {
           content: cell.content,
           border: cell.border,
           style: cell.style,
-          format: cell.format
+          format: cell.format,
         };
       }
       return {
@@ -352,7 +354,7 @@ export class CorePlugin extends BasePlugin {
         cols: exportCols(sheet.cols),
         merges: exportMerges(sheet.merges),
         cells: cells,
-        conditionalFormats: []
+        conditionalFormats: [],
       };
     });
     data.activeSheet = this.workbook.activeSheet.name;
@@ -368,7 +370,7 @@ function createDefaultCols(colNumber: number): Col[] {
       start: current,
       end: current + size,
       size: size,
-      name: numberToLetters(i)
+      name: numberToLetters(i),
     };
     cols.push(col);
     current = col.end;
@@ -386,7 +388,7 @@ function createDefaultRows(rowNumber: number): Row[] {
       end: current + size,
       size: size,
       name: String(i + 1),
-      cells: {}
+      cells: {},
     };
     rows.push(row);
     current = row.end;
@@ -403,7 +405,7 @@ function createCols(savedCols: { [key: number]: HeaderData }, colNumber: number)
       start: current,
       end: current + size,
       size: size,
-      name: numberToLetters(i)
+      name: numberToLetters(i),
     };
     cols.push(col);
     current = col.end;
@@ -421,7 +423,7 @@ function createRows(savedRows: { [key: number]: HeaderData }, rowNumber: number)
       end: current + size,
       size: size,
       name: String(i + 1),
-      cells: {}
+      cells: {},
     };
     rows.push(row);
     current = row.end;
@@ -453,6 +455,6 @@ function exportRows(rows: Row[]): { [key: number]: HeaderData } {
 
 function exportMerges(merges: { [key: number]: Merge }): string[] {
   return Object.values(merges).map(
-    merge => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom)
+    (merge) => toXC(merge.left, merge.top) + ":" + toXC(merge.right, merge.bottom)
   );
 }

@@ -7,8 +7,8 @@ describe("args", () => {
       {
         type: ["NUMBER"],
         description: "some number",
-        name: "test"
-      }
+        name: "test",
+      },
     ]);
 
     expect(args`
@@ -18,13 +18,13 @@ describe("args", () => {
       {
         type: ["NUMBER"],
         description: "some number",
-        name: "test"
+        name: "test",
       },
       {
         type: ["NUMBER"],
         description: "some other number",
-        name: "test2"
-      }
+        name: "test2",
+      },
     ]);
   });
 
@@ -33,8 +33,8 @@ describe("args", () => {
       {
         type: ["NUMBER"],
         name: "test",
-        description: ""
-      }
+        description: "",
+      },
     ]);
   });
 
@@ -44,8 +44,8 @@ describe("args", () => {
         type: ["NUMBER"],
         name: "test",
         description: "descr",
-        default: 10
-      }
+        default: 10,
+      },
     ]);
   });
 
@@ -55,8 +55,8 @@ describe("args", () => {
         type: ["NUMBER"],
         name: "test",
         description: "descr",
-        default: "asdf"
-      }
+        default: "asdf",
+      },
     ]);
   });
 
@@ -65,8 +65,8 @@ describe("args", () => {
       {
         type: ["NUMBER"],
         name: "test",
-        description: "descr( hahaha )"
-      }
+        description: "descr( hahaha )",
+      },
     ]);
   });
 
@@ -75,8 +75,8 @@ describe("args", () => {
       {
         type: ["NUMBER"],
         name: "test",
-        description: ""
-      }
+        description: "",
+      },
     ]);
   });
 
@@ -106,16 +106,16 @@ describe("args", () => {
         description: "",
         name: "test",
         type: ["BOOLEAN"],
-        optional: true
-      }
+        optional: true,
+      },
     ]);
     expect(args`test (boolean,optional,string)`).toEqual([
       {
         description: "",
         name: "test",
         type: ["BOOLEAN", "STRING"],
-        optional: true
-      }
+        optional: true,
+      },
     ]);
   });
   test("accept repeating flag", () => {
@@ -124,16 +124,16 @@ describe("args", () => {
         description: "",
         name: "test",
         type: ["BOOLEAN"],
-        repeating: true
-      }
+        repeating: true,
+      },
     ]);
     expect(args`test (boolean,repeating,number)`).toEqual([
       {
         description: "",
         name: "test",
         type: ["BOOLEAN", "NUMBER"],
-        repeating: true
-      }
+        repeating: true,
+      },
     ]);
   });
 });

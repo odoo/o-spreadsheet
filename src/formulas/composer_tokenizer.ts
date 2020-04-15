@@ -25,12 +25,12 @@ function mapLengthAndParents(tokens: Token[]): ComposerToken[] {
   let current = 0;
   let maxParen = 1;
   const stack: number[] = [];
-  return tokens.map(x => {
+  return tokens.map((x) => {
     const len = x.value.toString().length;
     const token: ComposerToken = Object.assign({}, x, {
       start: current,
       end: current + len,
-      length: len
+      length: len,
     });
     current = token.end;
     if (token.type === "LEFT_PAREN") {
@@ -82,8 +82,8 @@ function mergeSymbolsIntoRanges(result: ComposerToken[]): ComposerToken[] {
               length: result[i - 1].end - result[startIncludingSpaces].start,
               value: result
                 .slice(startIncludingSpaces, i)
-                .map(x => x.value)
-                .join("")
+                .map((x) => x.value)
+                .join(""),
             };
             result.splice(startIncludingSpaces, i - startIncludingSpaces, newToken);
             i = startIncludingSpaces + 1;
@@ -125,8 +125,8 @@ function mergeSymbolsIntoRanges(result: ComposerToken[]): ComposerToken[] {
       length: result[i].end - result[startIncludingSpaces].start,
       value: result
         .slice(startIncludingSpaces, i + 1)
-        .map(x => x.value)
-        .join("")
+        .map((x) => x.value)
+        .join(""),
     };
     result.splice(startIncludingSpaces, i - startIncludingSpaces + 1, newToken);
   }

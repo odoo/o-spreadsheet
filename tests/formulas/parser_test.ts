@@ -9,7 +9,7 @@ describe("parser", () => {
     expect(parse("SUM(1)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
-      args: [{ type: "NUMBER", value: 1 }]
+      args: [{ type: "NUMBER", value: 1 }],
     });
   });
 
@@ -19,24 +19,24 @@ describe("parser", () => {
       value: "SUM",
       args: [
         { type: "NUMBER", value: 1 },
-        { type: "UNKNOWN", value: "" }
-      ]
+        { type: "UNKNOWN", value: "" },
+      ],
     });
     expect(parse("SUM(,1)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
       args: [
         { type: "UNKNOWN", value: "" },
-        { type: "NUMBER", value: 1 }
-      ]
+        { type: "NUMBER", value: 1 },
+      ],
     });
     expect(parse("SUM(,)")).toEqual({
       type: "FUNCALL",
       value: "SUM",
       args: [
         { type: "UNKNOWN", value: "" },
-        { type: "UNKNOWN", value: "" }
-      ]
+        { type: "UNKNOWN", value: "" },
+      ],
     });
     expect(parse("SUM(,,)")).toEqual({
       type: "FUNCALL",
@@ -44,8 +44,8 @@ describe("parser", () => {
       args: [
         { type: "UNKNOWN", value: "" },
         { type: "UNKNOWN", value: "" },
-        { type: "UNKNOWN", value: "" }
-      ]
+        { type: "UNKNOWN", value: "" },
+      ],
     });
     expect(parse("SUM(,,,1)")).toEqual({
       type: "FUNCALL",
@@ -54,8 +54,8 @@ describe("parser", () => {
         { type: "UNKNOWN", value: "" },
         { type: "UNKNOWN", value: "" },
         { type: "UNKNOWN", value: "" },
-        { type: "NUMBER", value: 1 }
-      ]
+        { type: "NUMBER", value: 1 },
+      ],
     });
   });
 
@@ -63,7 +63,7 @@ describe("parser", () => {
     expect(parse("-1")).toEqual({
       type: "UNARY_OPERATION",
       value: "-",
-      right: { type: "NUMBER", value: 1 }
+      right: { type: "NUMBER", value: 1 },
     });
   });
   test("can parse numeric values", () => {
@@ -84,7 +84,7 @@ describe("parser", () => {
       type: "BIN_OPERATION",
       value: "-",
       left: { type: "NUMBER", value: 2 },
-      right: { type: "NUMBER", value: 3 }
+      right: { type: "NUMBER", value: 3 },
     });
   });
 
@@ -94,16 +94,16 @@ describe("parser", () => {
       value: "AND",
       args: [
         { type: "BOOLEAN", value: true },
-        { type: "BOOLEAN", value: false }
-      ]
+        { type: "BOOLEAN", value: false },
+      ],
     });
     expect(parse("=AND(0, tRuE)")).toEqual({
       type: "FUNCALL",
       value: "AND",
       args: [
         { type: "NUMBER", value: 0 },
-        { type: "BOOLEAN", value: true }
-      ]
+        { type: "BOOLEAN", value: true },
+      ],
     });
   });
 
@@ -111,7 +111,7 @@ describe("parser", () => {
     expect(parse("=WAIT(12)")).toEqual({
       type: "ASYNC_FUNCALL",
       value: "WAIT",
-      args: [{ type: "NUMBER", value: 12 }]
+      args: [{ type: "NUMBER", value: 12 }],
     });
   });
 });
@@ -120,42 +120,42 @@ describe("knows what's a reference and what's not", () => {
   test("lowercase cell reference", () => {
     expect(parse("=a1")).toEqual({
       type: "REFERENCE",
-      value: "A1"
+      value: "A1",
     });
   });
 
   test("single cell reference", () => {
     expect(parse("=AA1")).toEqual({
       type: "REFERENCE",
-      value: "AA1"
+      value: "AA1",
     });
   });
 
   test("large single cell reference", () => {
     expect(parse("=AA100")).toEqual({
       type: "REFERENCE",
-      value: "AA100"
+      value: "AA100",
     });
   });
 
   test("fixed cell", () => {
     expect(parse("=$a$1")).toEqual({
       type: "REFERENCE",
-      value: "A1"
+      value: "A1",
     });
   });
 
   test("fixed row", () => {
     expect(parse("=a$1")).toEqual({
       type: "REFERENCE",
-      value: "A1"
+      value: "A1",
     });
   });
 
   test("fixed column", () => {
     expect(parse("=$a1")).toEqual({
       type: "REFERENCE",
-      value: "A1"
+      value: "A1",
     });
   });
 
@@ -163,7 +163,7 @@ describe("knows what's a reference and what's not", () => {
     expect(parse("=Sheet3!a1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "Sheet3"
+      sheet: "Sheet3",
     });
   });
 
@@ -171,7 +171,7 @@ describe("knows what's a reference and what's not", () => {
     expect(parse("=Sheet3!$a$1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "Sheet3"
+      sheet: "Sheet3",
     });
   });
 
@@ -179,7 +179,7 @@ describe("knows what's a reference and what's not", () => {
     expect(parse("=Sheet3!a$1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "Sheet3"
+      sheet: "Sheet3",
     });
   });
 
@@ -187,7 +187,7 @@ describe("knows what's a reference and what's not", () => {
     expect(parse("=Sheet3!$a1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "Sheet3"
+      sheet: "Sheet3",
     });
   });
 
@@ -195,17 +195,17 @@ describe("knows what's a reference and what's not", () => {
     expect(parse("='Sheet3'!a1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "Sheet3"
+      sheet: "Sheet3",
     });
     expect(parse("='S h i t'!a1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "S h i t"
+      sheet: "S h i t",
     });
     expect(parse("='S ''h i t'!a1")).toEqual({
       type: "REFERENCE",
       value: "A1",
-      sheet: "S 'h i t"
+      sheet: "S 'h i t",
     });
   });
 });
@@ -217,12 +217,12 @@ describe("parsing ranges", () => {
       value: ":",
       left: {
         type: "REFERENCE",
-        value: "A1"
+        value: "A1",
       },
       right: {
         type: "REFERENCE",
-        value: "B2"
-      }
+        value: "B2",
+      },
     });
   });
 
@@ -232,12 +232,12 @@ describe("parsing ranges", () => {
       value: ":",
       left: {
         type: "REFERENCE",
-        value: "A1"
+        value: "A1",
       },
       right: {
         type: "REFERENCE",
-        value: "B2"
-      }
+        value: "B2",
+      },
     });
   });
 
@@ -247,12 +247,12 @@ describe("parsing ranges", () => {
       value: ":",
       left: {
         type: "REFERENCE",
-        value: "A"
+        value: "A",
       },
       right: {
         type: "REFERENCE",
-        value: "A"
-      }
+        value: "A",
+      },
     });
   });
   test.skip("row", () => {
@@ -261,12 +261,12 @@ describe("parsing ranges", () => {
       value: ":",
       left: {
         type: "REFERENCE",
-        value: "1"
+        value: "1",
       },
       right: {
         type: "REFERENCE",
-        value: "1"
-      }
+        value: "1",
+      },
     });
   });
 });

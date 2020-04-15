@@ -25,7 +25,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     isResizing: <boolean>false,
     activeElement: <number>0,
     styleValue: <number>0,
-    delta: <number>0
+    delta: <number>0,
   });
 
   abstract _getEvOffset(ev: MouseEvent): number;
@@ -109,14 +109,14 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     const size = this._getElementSize(this.state.activeElement);
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
-    const onMouseUp = ev => {
+    const onMouseUp = (ev) => {
       this.state.isResizing = false;
       window.removeEventListener("mousemove", onMouseMove);
       if (this.state.delta !== 0) {
         this._updateSize();
       }
     };
-    const onMouseMove = ev => {
+    const onMouseMove = (ev) => {
       this.state.delta = this._getClientPosition(ev) - initialIndex;
       this.state.styleValue = styleValue + this.state.delta;
       if (this.state.styleValue < minSize) {
@@ -274,7 +274,7 @@ export class ColResizer extends AbstractResizer {
     this.dispatch("RESIZE_COLUMNS", {
       sheet: this.getters.getActiveSheet(),
       cols: cols.has(index) ? [...cols] : [index],
-      size
+      size,
     });
   }
 
@@ -290,7 +290,7 @@ export class ColResizer extends AbstractResizer {
     const cols = this.getters.getActiveCols();
     this.dispatch("AUTORESIZE_COLUMNS", {
       sheet: this.getters.getActiveSheet(),
-      cols: cols.has(index) ? [...cols] : [index]
+      cols: cols.has(index) ? [...cols] : [index],
     });
   }
 
@@ -305,7 +305,7 @@ export class ColResizer extends AbstractResizer {
   _getXY(ev: MouseEvent): { x: number; y: number } {
     return {
       x: ev.offsetX + HEADER_WIDTH,
-      y: ev.offsetY
+      y: ev.offsetY,
     };
   }
 }
@@ -398,7 +398,7 @@ export class RowResizer extends AbstractResizer {
     this.dispatch("RESIZE_ROWS", {
       sheet: this.getters.getActiveSheet(),
       rows: rows.has(index) ? [...rows] : [index],
-      size
+      size,
     });
   }
 
@@ -414,7 +414,7 @@ export class RowResizer extends AbstractResizer {
     const rows = this.getters.getActiveRows();
     this.dispatch("AUTORESIZE_ROWS", {
       sheet: this.getters.getActiveSheet(),
-      rows: rows.has(index) ? [...rows] : [index]
+      rows: rows.has(index) ? [...rows] : [index],
     });
   }
 
@@ -429,7 +429,7 @@ export class RowResizer extends AbstractResizer {
   _getXY(ev: MouseEvent): { x: number; y: number } {
     return {
       x: ev.offsetX,
-      y: ev.offsetY + HEADER_HEIGHT
+      y: ev.offsetY + HEADER_HEIGHT,
     };
   }
 }

@@ -181,7 +181,7 @@ export class EvaluationPlugin extends BasePlugin {
           PENDING.add(cell);
           cell
             .formula(...params)
-            .then(val => {
+            .then((val) => {
               cell.value = val;
               self.loadingCells--;
               if (PENDING.has(cell)) {
@@ -229,7 +229,7 @@ export class EvaluationPlugin extends BasePlugin {
 
     const evalContext = Object.assign(Object.create(functionMap), {
       getEntity: this.getters.getEntity,
-      getEntities: this.getters.getEntities
+      getEntities: this.getters.getEntities,
     });
 
     function readCell(xc: string, sheet: string): any {
