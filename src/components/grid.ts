@@ -48,6 +48,7 @@ const TEMPLATE = xml/* xml */ `
       type="contextMenu.type"
       position="contextMenu.position"
       t-on-close.stop="contextMenu.isOpen=false"/>
+    <t t-set="gridSize" t-value="getters.getGridSize()"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
     </div>
@@ -107,26 +108,25 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static style = CSS;
   static components = { Composer, Overlay, ContextMenu };
 
-  contextMenu = useState({ isOpen: false, position: null, type: "CELL" } as {
+  private contextMenu = useState({ isOpen: false, position: null, type: "CELL" } as {
     isOpen: boolean;
     position: null | { x: number; y: number; width: number; height: number };
     type: ContextMenuType;
   });
 
-  composer = useRef("composer");
+  private composer = useRef("composer");
 
-  vScrollbar = useRef("vscrollbar");
-  hScrollbar = useRef("hscrollbar");
-  canvas = useRef("canvas");
-  hasFocus = false;
-  getters = this.env.getters;
-  dispatch = this.env.dispatch;
-  gridSize: [number, number] = this.getters.getGridSize();
-  currentPosition = this.getters.getPosition();
+  private vScrollbar = useRef("vscrollbar");
+  private hScrollbar = useRef("hscrollbar");
+  private canvas = useRef("canvas");
+  private getters = this.env.getters;
+  private dispatch = this.env.dispatch;
+  private currentPosition = this.getters.getPosition();
+  private currentSheet = this.getters.getActiveSheet();
 
-  clickedCol = 0;
-  clickedRow = 0;
-  viewport: Viewport = {
+  private clickedCol = 0;
+  private clickedRow = 0;
+  private viewport: Viewport = {
     width: 0,
     height: 0,
     offsetX: 0,
@@ -139,11 +139,11 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // this viewport represent the same area as the previous one, but 'snapped' to
   // the col/row structure, so, the offsets are correct for computations necessary
   // to align elements to the grid.
-  snappedViewport: Viewport = this.viewport;
+  private snappedViewport: Viewport = this.viewport;
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
-  keyDownMapping: { [key: string]: Function } = {
+  private keyDownMapping: { [key: string]: Function } = {
     ENTER: () => this.dispatch("START_EDITION"),
     TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
@@ -175,14 +175,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.drawGrid();
   }
 
-  willPatch() {
-    this.hasFocus = this.el!.contains(document.activeElement);
-  }
-
-  async willUpdateProps() {
-    this.gridSize = this.getters.getGridSize();
-  }
-
   patched() {
     this.drawGrid();
   }
@@ -204,12 +196,17 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.snappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
   }
 
-  checkPosition(): boolean {
+  checkChanges(): boolean {
     const [col, row] = this.getters.getPosition();
     const [curCol, curRow] = this.currentPosition;
     const didChange = col !== curCol || row !== curRow;
     if (didChange) {
       this.currentPosition = [col, row];
+    }
+    const currentSheet = this.getters.getActiveSheet();
+    if (currentSheet !== this.currentSheet) {
+      this.focus();
+      this.currentSheet = currentSheet;
     }
     return didChange;
   }
@@ -222,7 +219,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.viewport.offsetY = this.vScrollbar.el!.scrollTop;
 
     // check for position changes
-    if (this.checkPosition()) {
+    if (this.checkChanges()) {
       this.viewport = this.getters.getAdjustedViewport(this.viewport, "position");
       this.hScrollbar.el!.scrollLeft = this.viewport.offsetX;
       this.vScrollbar.el!.scrollTop = this.viewport.offsetY;
@@ -279,7 +276,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {
       this.dispatch("SELECT_CELL", { col, row, createNewRange: ev.ctrlKey });
-      this.checkPosition();
+      this.checkChanges();
     }
     let prevCol = col;
     let prevRow = row;
