@@ -58,7 +58,8 @@ const CSS = css/* scss */ `
         padding: 0;
       }
     }
-  }`;
+  }
+`;
 
 interface Props {
   position: { x: number; y: number; width: number; height: number };

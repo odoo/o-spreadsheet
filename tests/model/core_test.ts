@@ -71,6 +71,17 @@ describe("core", () => {
     expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
   });
 
+  test("evaluate properly a cell with a style just recently applied", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2) + 1" });
+    model.dispatch("SET_FORMATTING", {
+      sheet: "Sheet1",
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      style: { bold: true }
+    });
+    expect(model.getters.getCellText(model.getters.getCell(0, 0)!)).toEqual("1");
+  });
+
   test("format cell to a boolean value", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=false" });
