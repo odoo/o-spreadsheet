@@ -86,6 +86,15 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
 type GridDescr = { [xc: string]: string };
 type GridResult = { [xc: string]: any };
 
+export function getGrid(model: Model): GridResult {
+  const result = {};
+  for (let xc in model["workbook"].cells) {
+    const cell = model["workbook"].cells[xc];
+    result[xc] = cell.value;
+  }
+  return result;
+}
+
 /**
  * Evaluate the final state of a grid according to the different values ​​and
  * different functions submitted in the grid cells
