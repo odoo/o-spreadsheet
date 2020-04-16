@@ -196,4 +196,58 @@ describe("history", () => {
     model.dispatch("REDO");
     expect(getCell(model, "A2")).toBeNull();
   });
+
+  test("can delete a cell with a style", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    model.dispatch("SET_FORMATTING", {
+      sheet: "Sheet1",
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      style: { bold: true },
+    });
+
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
+
+    model.dispatch("DELETE_CONTENT", {
+      sheet: model.getters.getActiveSheet(),
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+    });
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
+  });
+
+  test("can delete a cell with a border", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    model.dispatch("SET_FORMATTING", {
+      sheet: model.getters.getActiveSheet(),
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      border: "bottom",
+    });
+
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
+
+    model.dispatch("DELETE_CONTENT", {
+      sheet: model.getters.getActiveSheet(),
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+    });
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
+  });
+
+  test("can delete a cell with a formatter", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    model.dispatch("SET_FORMATTER", {
+      sheet: model.getters.getActiveSheet(),
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+      formatter: "#,##0.00",
+    });
+
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3.00");
+
+    model.dispatch("DELETE_CONTENT", {
+      sheet: model.getters.getActiveSheet(),
+      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+    });
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
+  });
 });

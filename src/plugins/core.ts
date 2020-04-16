@@ -591,10 +591,11 @@ export class CorePlugin extends BasePlugin {
     const _sheet = this.workbook.sheets.find((s) => s.name === sheet)!;
     const current = _sheet.rows[row].cells[col];
     const xc = (current && current.xc) || toXC(col, row);
+    const hasContent = "content" in data;
 
     // Compute the new cell properties
     const dataContent = data.content ? data.content.replace(nbspRegexp, "") : "";
-    const content = "content" in data ? dataContent : (current && current.content) || "";
+    const content = hasContent ? dataContent : (current && current.content) || "";
     const style = "style" in data ? data.style : (current && current.style) || 0;
     const border = "border" in data ? data.border : (current && current.border) || 0;
     let format = "format" in data ? data.format : (current && current.format) || "";
@@ -611,7 +612,7 @@ export class CorePlugin extends BasePlugin {
 
     // compute the new cell value
     const didContentChange =
-      (!current && dataContent) || (dataContent && current && current.content !== dataContent);
+      (!current && dataContent) || (hasContent && current && current.content !== dataContent);
     let cell: Cell;
     if (current && !didContentChange) {
       cell = { col, row, xc, content, value: current.value, type: current.type };
