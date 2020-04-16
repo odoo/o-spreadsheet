@@ -13,7 +13,7 @@ export interface Box {
   border: Border | null;
   align: "left" | "right" | "center" | null;
   clipRect: Rect | null;
-  isError?: boolean;
+  error?: string;
 }
 
 export interface Viewport extends Zone {

@@ -71,6 +71,18 @@ describe("core", () => {
     expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
   });
 
+  test("format a pendingcell: should not apply formatter to #LOADING", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("SET_FORMATTER", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      formatter: "#,##0.00",
+    });
+    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("#LOADING");
+  });
+
   test("evaluate properly a cell with a style just recently applied", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2) + 1" });

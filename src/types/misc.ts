@@ -57,7 +57,8 @@ export interface Cell extends NewCell {
   col: number;
   row: number;
   xc: string;
-  error?: boolean;
+  error?: string;
+  pending?: boolean;
   value: any;
   formula?: CompiledFormula;
   async?: boolean;
