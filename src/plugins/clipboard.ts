@@ -224,12 +224,17 @@ export class ClipboardPlugin extends BasePlugin {
             newCell.content = content;
           }
 
-          this.dispatch("UPDATE_CELL", {
-            sheet: this.workbook.activeSheet.name,
-            col: col + c,
-            row: row + r,
-            ...newCell,
-          });
+          this.dispatch(
+            "UPDATE_CELL",
+            Object.assign(
+              {
+                sheet: this.workbook.activeSheet.name,
+                col: col + c,
+                row: row + r,
+              },
+              newCell
+            )
+          );
         }
         if (!originCell && targetCell) {
           if (this.onlyFormat) {
