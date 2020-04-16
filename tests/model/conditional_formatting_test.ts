@@ -671,6 +671,21 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
       expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
     });
+
+    test("async values do not crash the evaluation", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "=wait(100)" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "110" });
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1:A2"],
+          { type: "value", color: 0xff00ff },
+          { type: "value", color: 0x123456 }
+        ),
+      });
+      expect(true).toBeTruthy(); // no error
+    });
   });
   describe("icon scale", () => {});
 });

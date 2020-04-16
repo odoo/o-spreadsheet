@@ -243,31 +243,36 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
    */
   private computeStyles() {
-    this.computedStyles[this.workbook.activeSheet.name] = {};
-    for (let cf of this.cfRules[this.workbook.activeSheet.name]) {
-      switch (cf.rule.type) {
-        case "ColorScaleRule":
-          this.applyColorScale(cf);
-          break;
-        default:
-          for (let ref of cf.ranges) {
-            const zone: Zone = toZone(ref);
-            for (let row = zone.top; row <= zone.bottom; row++) {
-              for (let col = zone.left; col <= zone.right; col++) {
-                const pr = this.rulePredicate[cf.rule.type];
-                let cell = this.workbook.rows[row].cells[col];
-                let xc = toXC(col, row);
-                if (pr && pr(cell, cf.rule)) {
-                  // we must combine all the properties of all the CF rules applied to the given cell
-                  this.computedStyles[this.workbook.activeSheet.name][xc] = Object.assign(
-                    this.computedStyles[this.workbook.activeSheet.name][xc] || {},
-                    cf.rule.style
-                  );
+    const currentSheet = this.workbook.activeSheet.name;
+    this.computedStyles[currentSheet] = {};
+    for (let cf of this.cfRules[currentSheet]) {
+      try {
+        switch (cf.rule.type) {
+          case "ColorScaleRule":
+            this.applyColorScale(cf);
+            break;
+          default:
+            for (let ref of cf.ranges) {
+              const zone: Zone = toZone(ref);
+              for (let row = zone.top; row <= zone.bottom; row++) {
+                for (let col = zone.left; col <= zone.right; col++) {
+                  const pr = this.rulePredicate[cf.rule.type];
+                  let cell = this.workbook.rows[row].cells[col];
+                  let xc = toXC(col, row);
+                  if (pr && pr(cell, cf.rule)) {
+                    // we must combine all the properties of all the CF rules applied to the given cell
+                    this.computedStyles[currentSheet][xc] = Object.assign(
+                      this.computedStyles[currentSheet][xc] || {},
+                      cf.rule.style
+                    );
+                  }
                 }
               }
             }
-          }
-          break;
+            break;
+        }
+      } catch (_) {
+        // we don't care about the errors within the evaluation of a rule
       }
     }
   }
