@@ -149,10 +149,11 @@ export class EvaluationPlugin extends BasePlugin {
       }
       if (e.message === "not ready") {
         WAITING.add(cell);
+        cell.pending = true;
         cell.value = "#LOADING";
       } else if (!cell.error) {
         cell.value = "#ERROR";
-        cell.error = true;
+        cell.error = e.message;
       }
     }
 
@@ -164,7 +165,7 @@ export class EvaluationPlugin extends BasePlugin {
       if (xc in visited) {
         if (visited[xc] === null) {
           cell.value = "#CYCLE";
-          cell.error = true;
+          cell.error = "Circular reference";
         }
         return;
       }
@@ -172,11 +173,12 @@ export class EvaluationPlugin extends BasePlugin {
         return;
       }
       visited[xc] = null;
-      cell.error = false;
+      cell.error = undefined;
       try {
         // todo: move formatting in grid and formatters.js
         if (cell.async) {
           cell.value = "#LOADING";
+          cell.pending = true;
           PENDING.add(cell);
           cell
             .formula(...params)
@@ -185,6 +187,7 @@ export class EvaluationPlugin extends BasePlugin {
               self.loadingCells--;
               if (PENDING.has(cell)) {
                 PENDING.delete(cell);
+                cell.pending = false;
                 COMPUTED.add(cell);
               }
             })
@@ -192,8 +195,9 @@ export class EvaluationPlugin extends BasePlugin {
           self.loadingCells++;
         } else {
           cell.value = cell.formula(...params);
+          cell.pending = false;
         }
-        cell.error = false;
+        cell.error = undefined;
       } catch (e) {
         handleError(e, cell);
       }

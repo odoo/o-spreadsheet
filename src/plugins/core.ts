@@ -176,7 +176,7 @@ export class CorePlugin extends BasePlugin {
     if (cell.value === true) {
       return "TRUE";
     }
-    if (cell.error) {
+    if (cell.error || cell.pending) {
       return cell.value;
     }
 
@@ -617,6 +617,7 @@ export class CorePlugin extends BasePlugin {
       cell = { col, row, xc, content, value: current.value, type: current.type };
       if (cell.type === "formula") {
         cell.error = current.error;
+        cell.pending = current.pending;
         cell.formula = current.formula;
         if (current.async) {
           cell.async = true;
@@ -644,7 +645,7 @@ export class CorePlugin extends BasePlugin {
       }
       cell = { col, row, xc, content, value, type };
       if (cell.type === "formula") {
-        cell.error = false;
+        cell.error = undefined;
         try {
           cell.formula = compile(content, sheet);
 
@@ -653,7 +654,7 @@ export class CorePlugin extends BasePlugin {
           }
         } catch (e) {
           cell.value = "#BAD_EXPR";
-          cell.error = true;
+          cell.error = "Bad Expression";
         }
       }
     }
