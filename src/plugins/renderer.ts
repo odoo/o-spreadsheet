@@ -8,15 +8,18 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, Rect, Zone, Viewport, LAYERS, GridRenderingContext } from "../types/index";
+import { Box, Rect, Zone, Viewport, LAYERS, GridRenderingContext, Cell } from "../types/index";
 import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
-function computeAlign(type: string): "right" | "center" | "left" {
-  switch (type) {
+function computeAlign(cell: Cell): "right" | "center" | "left" {
+  if (cell.error || cell.pending) {
+    return "center";
+  }
+  switch (typeof cell.value) {
     case "number":
       return "right";
     case "boolean":
@@ -204,7 +207,7 @@ export class RendererPlugin extends BasePlugin {
         ctx.fillRect(box.x, box.y, box.width, box.height);
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
       }
-      if (box.isError) {
+      if (box.error) {
         ctx.fillStyle = "red";
         ctx.beginPath();
         ctx.moveTo(box.x + box.width - 5, box.y);
@@ -388,7 +391,7 @@ export class RendererPlugin extends BasePlugin {
           if (conditionalStyle) {
             style = Object.assign({}, style, conditionalStyle);
           }
-          const align = text ? (style && style.align) || computeAlign(typeof cell.value) : null;
+          const align = text ? (style && style.align) || computeAlign(cell) : null;
           let clipRect: Rect | null = null;
           if (text && textWidth > cols[cell.col].size) {
             if (align === "left") {
@@ -423,7 +426,7 @@ export class RendererPlugin extends BasePlugin {
             style,
             align,
             clipRect,
-            isError: cell.error,
+            error: cell.error,
           });
         }
       }
@@ -440,7 +443,7 @@ export class RendererPlugin extends BasePlugin {
           text = refCell ? this.getters.getCellText(refCell) : "";
           textWidth = this.getters.getCellWidth(refCell);
           style = this.getters.getCellStyle(refCell);
-          align = text ? (style && style.align) || computeAlign(typeof refCell.value) : null;
+          align = text ? (style && style.align) || computeAlign(refCell) : null;
           border = this.getters.getCellBorder(refCell);
         }
         style = style || {};
@@ -463,7 +466,7 @@ export class RendererPlugin extends BasePlugin {
           style,
           align,
           clipRect: [x, y, width, height],
-          isError: refCell ? refCell.error : false,
+          error: refCell ? refCell.error : undefined,
         });
       }
     }
