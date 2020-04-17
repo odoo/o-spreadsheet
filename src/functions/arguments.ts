@@ -1,21 +1,4 @@
-export type ArgType =
-  | "ANY"
-  | "BOOLEAN"
-  | "NUMBER"
-  | "STRING"
-  | "RANGE"
-  | "RANGE<BOOLEAN>"
-  | "RANGE<NUMBER>"
-  | "RANGE<STRING>";
-
-export interface Arg {
-  repeating?: boolean;
-  optional?: boolean;
-  description: string;
-  name: string;
-  type: ArgType[];
-  default?: any;
-}
+import { ArgType, Arg } from "../types";
 
 //------------------------------------------------------------------------------
 // Arg description DSL

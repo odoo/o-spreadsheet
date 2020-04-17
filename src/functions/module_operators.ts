@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "./index";
+import { FunctionDescription } from "../types";
 import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 

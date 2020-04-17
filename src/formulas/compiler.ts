@@ -1,5 +1,5 @@
-import { Arg, functionRegistry } from "../functions/index";
-import { CompiledFormula } from "../types/index";
+import { functionRegistry } from "../functions/index";
+import { CompiledFormula, Arg } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 
 const functions = functionRegistry.content;

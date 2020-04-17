@@ -1,6 +1,6 @@
 import { args } from "./arguments";
 import { toBoolean, visitBooleans } from "./helpers";
-import { FunctionDescription } from "./index";
+import { FunctionDescription } from "../types";
 
 // -----------------------------------------------------------------------------
 // WAIT

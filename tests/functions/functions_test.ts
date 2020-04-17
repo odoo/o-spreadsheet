@@ -8,7 +8,7 @@ describe("addFunction", () => {
     expect(val).toBe("#BAD_EXPR");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: (arg) => 2 * arg,
+      compute: (arg: number) => (2 * arg) as any,
       args: args`number (number) my number`,
       returns: ["NUMBER"],
     });

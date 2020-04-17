@@ -1,13 +1,12 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
-import { Cell, Command, Sheet } from "../types";
+import { Cell, Command, Sheet, EvalContext } from "../types";
 import { compile } from "../formulas/index";
 import { toCartesian } from "../helpers/index";
 import { Mode } from "../model";
 
 const functionMap = functionRegistry.mapping;
 
-type EvalContext = { [key: string]: any };
 type ReadCell = (xc: string, sheet: string) => any;
 type Range = (v1: string, v2: string, sheetName: string) => any[];
 type FormulaParameters = [ReadCell, Range, EvalContext];

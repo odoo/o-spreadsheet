@@ -1,5 +1,6 @@
 import { Registry } from "../registry";
-import { Arg, ArgType, validateArguments } from "./arguments";
+import { FunctionDescription } from "../types";
+import { validateArguments } from "./arguments";
 import * as info from "./module_info";
 import * as logical from "./module_logical";
 import * as lookup from "./module_lookup";
@@ -8,16 +9,7 @@ import * as operators from "./module_operators";
 import * as statistical from "./module_statistical";
 import * as text from "./module_text";
 
-export { Arg, ArgType, args } from "./arguments";
-
-export interface FunctionDescription {
-  description: string;
-  compute: Function;
-  async?: boolean;
-  category?: string;
-  args: Arg[];
-  returns: [ArgType];
-}
+export { args } from "./arguments";
 
 const functions: { [category: string]: { [name: string]: FunctionDescription } } = {
   info,

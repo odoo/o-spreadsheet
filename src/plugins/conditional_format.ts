@@ -25,11 +25,14 @@ export class ConditionalFormatPlugin extends BasePlugin {
   static getters = ["getConditionalFormats", "getConditionalStyle"];
 
   private isStale: boolean = true;
+  private cfRules: { [sheet: string]: ConditionalFormat[] } = {};
 
   // stores the computed styles in the format of computedStyles.sheetName.cellXC = Style
   private computedStyles: { [sheet: string]: { [cellXc: string]: Style } } = {};
 
-  private cfRules: { [sheet: string]: ConditionalFormat[] } = {};
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   handle(cmd: Command) {
     switch (cmd.type) {
