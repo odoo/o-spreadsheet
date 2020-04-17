@@ -4,8 +4,7 @@
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
-    "serve": "live-server dist --open=demo",
-    "predev": "cpr demo dist/demo -o",
+    "serve": "live-server --open=demo",
     "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
     "build:js": "tsc --target esnext --module es6 --outDir dist/js --incremental",
     "build:bundle": "rollup -c -m",
@@ -27,7 +26,6 @@
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "babel-eslint": "^10.1.0",
-    "cpr": "^3.0.1",
     "eslint": "^6.8.0",
     "git-rev-sync": "^2.0.0",
     "jest": "^25.3.0",
@@ -45,7 +43,7 @@
     "endOfLine": "auto"
   },
   "dependencies": {
-    "@odoo/owl": "^1.0.5"
+    "@odoo/owl": "^1.0.7"
   },
   "jest": {
     "roots": [
