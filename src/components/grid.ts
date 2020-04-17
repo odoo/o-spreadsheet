@@ -28,6 +28,11 @@ const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 const { useRef } = owl.hooks;
 
+// copy and paste are specific events that should not be managed by the keydown event,
+// but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
+// and also should not result in typing the character C or V in the composer
+const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
+
 // -----------------------------------------------------------------------------
 // TEMPLATE
 // -----------------------------------------------------------------------------
@@ -94,14 +99,8 @@ const CSS = css/* scss */ `
   }
 `;
 
-// copy and paste are specific events that should not be managed by the keydown event,
-// but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
-// and also should not result in typing the character C or V in the composer
-const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
-
 // -----------------------------------------------------------------------------
 // JS
-
 // -----------------------------------------------------------------------------
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
@@ -161,14 +160,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     "CTRL+Z": () => this.dispatch("UNDO"),
     "CTRL+Y": () => this.dispatch("REDO"),
   };
-
-  private processCopyFormat() {
-    if (this.getters.isPaintingFormat()) {
-      this.dispatch("PASTE", {
-        target: this.getters.getSelectedZones(),
-      });
-    }
-  }
 
   mounted() {
     this.focus();
@@ -326,7 +317,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     ev.preventDefault();
     const deltaX = ev.shiftKey ? -1 : 1;
     this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
-    return;
   }
 
   processArrows(ev: KeyboardEvent) {
@@ -347,8 +337,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
     if (this.getters.getEditionMode() === "selecting" && this.composer.comp) {
       (this.composer.comp as Composer).addTextFromSelection();
-    } else {
-      this.processCopyFormat();
+    } else if (this.getters.isPaintingFormat()) {
+      this.dispatch("PASTE", {
+        target: this.getters.getSelectedZones(),
+      });
     }
   }
 
@@ -382,6 +374,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       }
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Context Menu
+  // ---------------------------------------------------------------------------
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
