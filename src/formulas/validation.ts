@@ -1,4 +1,5 @@
-import { ArgType, functionRegistry } from "../functions/index";
+import { functionRegistry } from "../functions/index";
+import { ArgType } from "../types/index";
 import { AST, parse } from "./parser";
 
 const functions = functionRegistry.content;

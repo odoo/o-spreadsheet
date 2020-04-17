@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "./index";
+import { FunctionDescription } from "../types";
 import { toNumber, strictToNumber, toString, reduceArgs, reduceNumbers } from "./helpers";
 // -----------------------------------------------------------------------------
 // CEILING

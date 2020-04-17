@@ -1,8 +1,8 @@
-import { applyOffset } from "../formulas/index";
-import { toXC, clip } from "../helpers/index";
-import { Cell, Command, NewCell, Zone, LAYERS, GridRenderingContext } from "../types/index";
 import { BasePlugin } from "../base_plugin";
+import { applyOffset } from "../formulas/index";
+import { clip, toXC } from "../helpers/index";
 import { Mode } from "../model";
+import { Cell, Command, GridRenderingContext, LAYERS, Zone } from "../types/index";
 
 /**
  * Clipboard Plugin
@@ -205,7 +205,7 @@ export class ClipboardPlugin extends BasePlugin {
         const originCell = rowCells[c];
         const targetCell = this.getters.getCell(col + c, row + r);
         if (originCell) {
-          let content = originCell.content || "";
+          let content: string | undefined = originCell.content || "";
           if (originCell.type === "formula") {
             const offsetX = col + c - originCell.col;
             const offsetY = row + r - originCell.row;
@@ -213,28 +213,20 @@ export class ClipboardPlugin extends BasePlugin {
             const maxY = this.workbook.rows.length;
             content = applyOffset(content, offsetX, offsetY, maxX, maxY);
           }
-          let newCell: NewCell = {
+          if (this.onlyFormat) {
+            content = targetCell ? targetCell.content : "";
+          }
+          let newCell = {
             style: originCell.style,
             border: originCell.border,
             format: originCell.format,
+            sheet: this.workbook.activeSheet.name,
+            col: col + c,
+            row: row + r,
+            content,
           };
-          if (this.onlyFormat) {
-            newCell.content = targetCell ? targetCell.content : "";
-          } else {
-            newCell.content = content;
-          }
 
-          this.dispatch(
-            "UPDATE_CELL",
-            Object.assign(
-              {
-                sheet: this.workbook.activeSheet.name,
-                col: col + c,
-                row: row + r,
-              },
-              newCell
-            )
-          );
+          this.dispatch("UPDATE_CELL", newCell);
         }
         if (!originCell && targetCell) {
           if (this.onlyFormat) {

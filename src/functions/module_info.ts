@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "./index";
+import { FunctionDescription } from "../types";
 
 // -----------------------------------------------------------------------------
 // ISLOGICAL
