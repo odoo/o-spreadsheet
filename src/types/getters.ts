@@ -1,6 +1,5 @@
 import { MergePlugin } from "../plugins/merge";
 import { ClipboardPlugin } from "../plugins/clipboard";
-import { EntityPlugin } from "../plugins/entity";
 import { SelectionPlugin } from "../plugins/selection";
 import { CorePlugin } from "../plugins/core";
 import { ConditionalFormatPlugin } from "../plugins/conditional_format";
@@ -35,8 +34,6 @@ export interface Getters {
   isMergeDestructive: MergePlugin["isMergeDestructive"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
-  getEntity: EntityPlugin["getEntity"];
-  getEntities: EntityPlugin["getEntities"];
 
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];

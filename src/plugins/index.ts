@@ -4,7 +4,6 @@ import { ClipboardPlugin } from "./clipboard";
 import { ConditionalFormatPlugin } from "./conditional_format";
 import { CorePlugin } from "./core";
 import { EditionPlugin } from "./edition";
-import { EntityPlugin } from "./entity";
 import { EvaluationPlugin } from "./evaluation";
 import { FormattingPlugin } from "./formatting";
 import { MergePlugin } from "./merge";
@@ -20,5 +19,4 @@ export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("edition", EditionPlugin)
   .add("selection", SelectionPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
-  .add("entities", EntityPlugin)
   .add("grid renderer", RendererPlugin);
