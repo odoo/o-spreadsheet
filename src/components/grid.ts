@@ -7,7 +7,7 @@ import {
 } from "../constants";
 import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
-import { Viewport, SpreadsheetEnv } from "../types/index";
+import { SpreadsheetEnv, Viewport } from "../types/index";
 import { Composer } from "./composer/composer";
 import { ContextMenu } from "./context_menu/context_menu";
 import { ContextMenuType } from "./context_menu/context_menu_registry";
@@ -26,12 +26,89 @@ import { Overlay } from "./overlay";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-const { useRef } = owl.hooks;
+const { useRef, onMounted, onWillUnmount } = owl.hooks;
 
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
 // and also should not result in typing the character C or V in the composer
 const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
+
+// -----------------------------------------------------------------------------
+// Error Tooltip Hook
+// -----------------------------------------------------------------------------
+
+interface ErrorTooltip {
+  isOpen: boolean;
+  text: string;
+  style: string;
+}
+function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): ErrorTooltip {
+  const { browser, getters } = env;
+  const { Date, setInterval, clearInterval } = browser;
+  let x = 0;
+  let y = 0;
+  let lastMoved = 0;
+  let tooltipCol: number, tooltipRow: number;
+  const canvasRef = useRef("canvas");
+  const tooltip = useState({ isOpen: false, text: "", style: "" });
+  let interval;
+  function updateMousePosition(e: MouseEvent) {
+    x = e.offsetX;
+    y = e.offsetY;
+    lastMoved = Date.now();
+  }
+  function getPosition(): [number, number] {
+    const viewport = getViewPort();
+    const col = getters.getColIndex(x, viewport.left);
+    const row = getters.getRowIndex(y, viewport.top);
+    return [col, row];
+  }
+  function checkTiming() {
+    if (tooltip.isOpen) {
+      const [col, row] = getPosition();
+      if (col !== tooltipCol || row !== tooltipRow) {
+        tooltip.isOpen = false;
+      }
+    } else {
+      const delta = Date.now() - lastMoved;
+      if (400 < delta && delta < 600) {
+        // mouse did not move for a short while
+        const [col, row] = getPosition();
+        const cell = env.getters.getCell(col, row);
+        if (cell && cell.error) {
+          tooltip.isOpen = true;
+          tooltip.text = cell.error;
+          tooltipCol = col;
+          tooltipRow = row;
+          const viewport = getViewPort();
+          const [x, y, width, height] = env.getters.getRect(
+            { left: col, top: row, right: col, bottom: row },
+            viewport
+          );
+          const hAlign = x + width + 200 < viewport.width ? "left" : "right";
+          const hOffset =
+            hAlign === "left" ? x + width : viewport.width - x + (SCROLLBAR_WIDTH + 2);
+          const vAlign = y + 120 < viewport.height ? "top" : "bottom";
+          const vOffset =
+            vAlign === "top" ? y : viewport.height - y - height + (SCROLLBAR_WIDTH + 2);
+          tooltip.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
+        }
+      }
+    }
+  }
+
+  onMounted(() => {
+    canvasRef.el!.addEventListener("mousemove", updateMousePosition);
+    interval = setInterval(checkTiming, 200);
+  });
+
+  onWillUnmount(() => {
+    canvasRef.el!.removeEventListener("mousemove", updateMousePosition);
+    clearInterval(interval);
+  });
+
+  return tooltip;
+}
 
 // -----------------------------------------------------------------------------
 // TEMPLATE
@@ -47,7 +124,9 @@ const TEMPLATE = xml/* xml */ `
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
       t-on-wheel="onMouseWheel" />
-
+    <t t-if="errorTooltip.isOpen">
+      <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
+    </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
     <ContextMenu t-if="contextMenu.isOpen"
       type="contextMenu.type"
@@ -79,7 +158,16 @@ const CSS = css/* scss */ `
         outline: none;
       }
     }
-
+    .o-error-tooltip {
+      position: absolute;
+      font-size: 13px;
+      width: 180px;
+      height: 80px;
+      background-color: white;
+      box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
+      border-left: 3px solid red;
+      padding: 10px;
+    }
     .o-scrollbar {
       position: absolute;
       overflow: auto;
@@ -139,6 +227,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // the col/row structure, so, the offsets are correct for computations necessary
   // to align elements to the grid.
   private snappedViewport: Viewport = this.viewport;
+  errorTooltip = useErrorTooltip(this.env, () => this.snappedViewport);
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself

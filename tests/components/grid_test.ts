@@ -23,9 +23,6 @@ let parent: GridParent;
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  model = new Model();
-  parent = new GridParent(model);
-  await parent.mount(fixture);
 });
 
 afterEach(() => {
@@ -33,6 +30,12 @@ afterEach(() => {
 });
 
 describe("Grid component", () => {
+  beforeEach(async () => {
+    model = new Model();
+    parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
   test("simple rendering snapshot", async () => {
     expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
   });
@@ -228,5 +231,52 @@ describe("Grid component", () => {
       );
       expect(getCell(model, "C2")!.style).toBe(2);
     });
+  });
+});
+
+describe("error tooltip", () => {
+  let intervalCb: Function;
+  let currentTime = 0;
+
+  beforeEach(async () => {
+    model = new Model();
+    parent = new GridParent(model);
+
+    // mock setinterval and Date.now
+    parent.env.browser.setInterval = ((cb) => {
+      intervalCb = cb;
+    }) as any;
+    parent.env.browser.Date = {
+      now() {
+        return currentTime;
+      },
+    } as any;
+
+    await parent.mount(fixture);
+  });
+
+  test("can display error tooltip", async () => {
+    model.dispatch("SET_VALUE", { xc: "C8", text: "=1/0" });
+    await nextTick();
+    triggerMouseEvent("canvas", "mousemove", 300, 200);
+
+    currentTime = 250;
+    intervalCb();
+
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).toBeNull();
+
+    currentTime = 500;
+    intervalCb();
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+    expect(document.querySelector(".o-error-tooltip")).toMatchSnapshot();
+
+    // moving mouse await
+    triggerMouseEvent("canvas", "mousemove", 100, 200);
+    currentTime = 550;
+    intervalCb();
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 });
