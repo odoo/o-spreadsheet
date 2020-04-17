@@ -252,7 +252,7 @@ export class EvaluationPlugin extends BasePlugin {
     function getCellValue(cell: Cell): any {
       computeValue(cell);
       if (cell.error) {
-        throw new Error("boom");
+        throw new Error("This formula depends on invalid values");
       }
       if (cell.value === "#LOADING") {
         throw new Error("not ready");

@@ -655,7 +655,7 @@ export class CorePlugin extends BasePlugin {
           }
         } catch (e) {
           cell.value = "#BAD_EXPR";
-          cell.error = "Bad Expression";
+          cell.error = "Invalid Expression";
         }
       }
     }
