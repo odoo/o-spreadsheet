@@ -88,7 +88,7 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
     return result;
   }
   function compileAST(ast: AST): any {
-    let id, left, right, args;
+    let id, left, right, args, fnName;
     if (ast.debug) {
       code.push("debugger;");
     }
@@ -104,18 +104,24 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
       case "FUNCALL":
         id = nextId++;
         args = compileFunctionArgs(ast);
-        code.push(`let _${id} = ctx['${ast.value.toUpperCase()}'](${args})`);
+        fnName = ast.value.toUpperCase();
+        code.push(`ctx.__lastFnCalled = '${fnName}'`);
+        code.push(`let _${id} = ctx['${fnName}'](${args})`);
         break;
       case "ASYNC_FUNCALL":
         id = nextId++;
         isAsync = true;
         args = compileFunctionArgs(ast);
-        code.push(`let _${id} = await ctx['${ast.value.toUpperCase()}'](${args})`);
+        fnName = ast.value.toUpperCase();
+        code.push(`ctx.__lastFnCalled = '${fnName}'`);
+        code.push(`let _${id} = await ctx['${fnName}'](${args})`);
         break;
       case "UNARY_OPERATION":
         id = nextId++;
         right = compileAST(ast.right);
-        code.push(`let _${id} = ctx['${UNARY_OPERATOR_MAP[ast.value]}']( ${right})`);
+        fnName = UNARY_OPERATOR_MAP[ast.value];
+        code.push(`ctx.__lastFnCalled = '${fnName}'`);
+        code.push(`let _${id} = ctx['${fnName}']( ${right})`);
         break;
       case "BIN_OPERATION":
         id = nextId++;
@@ -127,7 +133,9 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
         } else {
           left = compileAST(ast.left);
           right = compileAST(ast.right);
-          code.push(`let _${id} = ctx['${OPERATOR_MAP[ast.value]}'](${left}, ${right})`);
+          fnName = OPERATOR_MAP[ast.value];
+          code.push(`ctx.__lastFnCalled = '${fnName}'`);
+          code.push(`let _${id} = ctx['${fnName}'](${left}, ${right})`);
         }
         break;
       case "UNKNOWN":

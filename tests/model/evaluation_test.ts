@@ -28,6 +28,22 @@ describe("evaluateCells", () => {
     expect(result.A5).toBe("#BAD_EXPR");
   });
 
+  test("error in some function calls", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: '=Sum("asdf")' });
+
+    expect(model["workbook"].cells.A1.value).toBe("#ERROR");
+    expect(model["workbook"].cells.A1.error).toBe(`
+  The function SUM expects a number value, but 'asdf' is a
+  string, and cannot be coerced to a number.`);
+
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=DECIMAL(1,100)" });
+    expect(model["workbook"].cells.A1.error).toBe(`
+        Function DECIMAL expects the parameter 'base' 
+        to be between 2 and 36 inclusive. Change 'base' 
+        from [100] to a value between 2 and 36.`);
+  });
+
   test("error in an addition", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
@@ -37,6 +53,9 @@ describe("evaluateCells", () => {
     expect(model["workbook"].cells.A3.value).toBe(3);
     model.dispatch("SET_VALUE", { xc: "A2", text: "asdf" });
     expect(model["workbook"].cells.A3.value).toBe("#ERROR");
+    expect(model["workbook"].cells.A3.error).toBe(`
+  The function ADD expects a number value, but 'asdf' is a
+  string, and cannot be coerced to a number.`);
     model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
     expect(model["workbook"].cells.A3.value).toBe("#ERROR");
     model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
@@ -54,6 +73,9 @@ describe("evaluateCells", () => {
     expect(model["workbook"].cells.A3.value).toBe("#ERROR");
     model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
     expect(model["workbook"].cells.A3.value).toBe("#ERROR");
+    expect(model["workbook"].cells.A3.error).toBe(`
+  The function MINUS expects a number value, but 'asdf' is a
+  string, and cannot be coerced to a number.`);
     model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
     expect(model["workbook"].cells.A3.value).toBe(23);
   });

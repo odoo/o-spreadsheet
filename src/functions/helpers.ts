@@ -3,9 +3,8 @@
 import { isNumber } from "../helpers/index";
 
 const expectNumberValueError = (value: string) => `
-  The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a 
-  string, and cannot be coerced to a number.
-`;
+  The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a
+  string, and cannot be coerced to a number.`;
 
 export function toNumber(value: any): number {
   switch (typeof value) {

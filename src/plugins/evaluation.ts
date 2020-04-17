@@ -153,7 +153,8 @@ export class EvaluationPlugin extends BasePlugin {
         cell.value = "#LOADING";
       } else if (!cell.error) {
         cell.value = "#ERROR";
-        cell.error = e.message;
+        const __lastFnCalled = params[2].__lastFnCalled || "";
+        cell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
       }
     }
 
