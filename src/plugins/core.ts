@@ -423,7 +423,7 @@ export class CorePlugin extends BasePlugin {
     let colIndex = 0;
     let newWidth = this.width;
     for (let i in this.workbook.cols) {
-      if (parseInt(i) === base) {
+      if (parseInt(i, 10) === base) {
         if (step !== -1) {
           const { size } = this.workbook.cols[colIndex];
           for (let a = 0; a < step; a++) {
@@ -466,7 +466,7 @@ export class CorePlugin extends BasePlugin {
     for (let i in this.workbook.rows) {
       const row = this.workbook.rows[i];
       const { size } = row;
-      if (parseInt(i) === index) {
+      if (parseInt(i, 10) === index) {
         sizeToDelete = size;
         continue;
       }
@@ -492,7 +492,7 @@ export class CorePlugin extends BasePlugin {
     const cellsQueue = this.workbook.rows.map((row) => row.cells);
     for (let i in this.workbook.rows) {
       const { size } = this.workbook.rows[sizeIndex];
-      if (parseInt(i) < index || parseInt(i) >= index + quantity) {
+      if (parseInt(i, 10) < index || parseInt(i, 10) >= index + quantity) {
         sizeIndex++;
       }
       rowIndex++;
