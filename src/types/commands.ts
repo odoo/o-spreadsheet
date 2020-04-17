@@ -54,19 +54,6 @@ export interface ResizeRowsCommand {
   size: number;
 }
 
-export interface AddEntityCommand {
-  type: "ADD_ENTITY";
-  kind: string;
-  key: string;
-  value: any;
-}
-
-export interface RemoveEntityCommand {
-  type: "REMOVE_ENTITY";
-  kind: string;
-  key: string;
-}
-
 /**
  * Todo: add a string "id" field, and change the code to use internally a uuid.
  */
@@ -315,8 +302,6 @@ export type Command =
   | PasteCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
-  | AddEntityCommand
-  | RemoveEntityCommand
   | ResizeRowsCommand
   | ResizeColumnsCommand
   | AutoresizeColumnsCommand
