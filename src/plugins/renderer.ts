@@ -8,7 +8,16 @@ import {
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
-import { Box, Rect, Zone, Viewport, LAYERS, GridRenderingContext, Cell } from "../types/index";
+import {
+  Box,
+  Rect,
+  Zone,
+  Viewport,
+  Header,
+  LAYERS,
+  GridRenderingContext,
+  Cell,
+} from "../types/index";
 import { Mode } from "../model";
 
 // -----------------------------------------------------------------------------
@@ -27,6 +36,23 @@ function computeAlign(cell: Cell): "right" | "center" | "left" {
     default:
       return "left";
   }
+}
+
+function searchIndex(headers: Header[], offset: number): number {
+  let left = 0;
+  let right = headers.length - 1;
+  while (left <= right) {
+    const index = Math.floor((left + right) / 2);
+    const header = headers[index];
+    if (offset < header.start) {
+      right = index - 1;
+    } else if (offset > header.end) {
+      left = index + 1;
+    } else {
+      return index;
+    }
+  }
+  return -1;
 }
 
 export class RendererPlugin extends BasePlugin {
@@ -50,12 +76,7 @@ export class RendererPlugin extends BasePlugin {
     }
     const cols = this.workbook.cols;
     const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
-    for (let i = left; i <= cols.length; i++) {
-      if (adjustedX <= cols[i].end) {
-        return i;
-      }
-    }
-    return -1;
+    return searchIndex(cols, adjustedX);
   }
 
   getRowIndex(y: number, top: number): number {
@@ -64,12 +85,7 @@ export class RendererPlugin extends BasePlugin {
     }
     const rows = this.workbook.rows;
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
-    for (let i = top; i <= rows.length; i++) {
-      if (adjustedY <= rows[i].end) {
-        return i;
-      }
-    }
-    return -1;
+    return searchIndex(rows, adjustedY);
   }
 
   getRect(zone: Zone, viewport: Viewport): Rect {
