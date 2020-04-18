@@ -18,12 +18,13 @@ export const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?(\s*%)?$|^-?\.\d+(\s*%
  */
 export function isNumber(value: string): boolean {
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
-  return Boolean(value.trim().match(numberRegexp));
+  return numberRegexp.test(value.trim());
 }
 
 const commaRegexp = /,/g;
 /**
- * Convert a string into a number.
+ * Convert a string into a number. It assumes that the string actually represents
+ * a number (as determined by the isNumber function)
  *
  * Note that it accepts "" (empty string), even though it does not count as a
  * number from the point of view of the isNumber function.

@@ -255,4 +255,12 @@ describe("history", () => {
     });
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
   });
+
+  test("setting a date to a cell will reformat it", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "03/2/2011" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: " 03/12/2011" });
+    expect(getCell(model, "A1")!.content).toBe("03/02/2011");
+    expect(getCell(model, "A2")!.content).toBe("03/12/2011");
+  });
 });

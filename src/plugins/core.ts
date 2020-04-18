@@ -4,13 +4,15 @@ import { formatValue } from "../formatters";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
+  formatNumber,
+  parseDate,
+  isNumber,
   numberToLetters,
+  parseNumber,
   sanitizeSheet,
   toCartesian,
   toXC,
-  parseNumber,
-  isNumber,
-  formatNumber,
+  formatDate,
 } from "../helpers/index";
 import {
   Cell,
@@ -178,27 +180,20 @@ export class CorePlugin extends BasePlugin {
   }
 
   getCellText(cell: Cell): string {
-    if (cell.value === "") {
-      return "";
-    }
-    if (cell.value === false) {
-      return "FALSE";
-    }
-    if (cell.value === true) {
-      return "TRUE";
-    }
-    if (cell.error || cell.pending) {
-      return cell.value;
-    }
-
-    const value = cell.value || 0;
-    if (cell.type === "text") {
-      return value.toString();
-    }
-    if (cell.format) {
+    if (cell.value && cell.format && !cell.error && !cell.pending) {
       return formatValue(cell.value, cell.format);
     }
-    return formatNumber(value);
+    switch (typeof cell.value) {
+      case "string":
+        return cell.value;
+      case "boolean":
+        return cell.value ? "TRUE" : "FALSE";
+      case "number":
+        return formatNumber(cell.value);
+      case "object":
+        return cell.value ? formatDate(cell.value) : "0";
+    }
+    return cell.value.toString();
   }
 
   /**
@@ -606,7 +601,7 @@ export class CorePlugin extends BasePlugin {
 
     // Compute the new cell properties
     const dataContent = data.content ? data.content.replace(nbspRegexp, "") : "";
-    const content = hasContent ? dataContent : (current && current.content) || "";
+    let content = hasContent ? dataContent : (current && current.content) || "";
     const style = "style" in data ? data.style : (current && current.style) || 0;
     const border = "border" in data ? data.border : (current && current.border) || 0;
     let format = "format" in data ? data.format : (current && current.format) || "";
@@ -646,6 +641,12 @@ export class CorePlugin extends BasePlugin {
         if (content.includes("%")) {
           format = content.includes(".") ? "0.00%" : "0%";
         }
+      }
+      let date = parseDate(content);
+      if (date) {
+        type = "date";
+        value = date;
+        content = formatDate(date);
       }
       const contentUpperCase = content.toUpperCase();
       if (contentUpperCase === "TRUE") {
