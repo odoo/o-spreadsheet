@@ -508,3 +508,29 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).not.toBeDefined();
   });
 });
+
+describe("clipboard: pasting outside of sheet", () => {
+  test("can copy and paste a full column", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "txt" });
+
+    const currentRowNumber = model["workbook"].rows.length;
+
+    model.dispatch("COPY", { target: [model.getters.getColsZone(0, 0)] });
+    model.dispatch("PASTE", { target: target("B2") });
+    expect(model["workbook"].rows.length).toBe(currentRowNumber + 1);
+    expect(getCell(model, "B2")!.content).toBe("txt");
+  });
+
+  test("can copy and paste a full row", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "txt" });
+
+    const currentColNumber = model["workbook"].cols.length;
+
+    model.dispatch("COPY", { target: [model.getters.getRowsZone(0, 0)] });
+    model.dispatch("PASTE", { target: target("B2") });
+    expect(model["workbook"].cols.length).toBe(currentColNumber + 1);
+    expect(getCell(model, "B2")!.content).toBe("txt");
+  });
+});
