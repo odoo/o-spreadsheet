@@ -29,6 +29,7 @@ function computeAlign(cell: Cell): "right" | "center" | "left" {
     return "center";
   }
   switch (typeof cell.value) {
+    case "object":
     case "number":
       return "right";
     case "boolean":

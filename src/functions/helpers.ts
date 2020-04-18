@@ -18,7 +18,7 @@ export function toNumber(value: any): number {
       }
       throw new Error(expectNumberValueError(value));
     default:
-      return 0;
+      return value || 0;
   }
 }
 

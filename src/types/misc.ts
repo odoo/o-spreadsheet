@@ -62,7 +62,7 @@ export interface Cell extends NewCell {
   value: any;
   formula?: CompiledFormula;
   async?: boolean;
-  type: "formula" | "text" | "number";
+  type: "formula" | "text" | "number" | "date";
 }
 
 export interface Header {

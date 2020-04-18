@@ -87,6 +87,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
 }
 
 type GridDescr = { [xc: string]: string };
+type FormattedGridDescr = GridDescr;
 type GridResult = { [xc: string]: any };
 
 export function getGrid(model: Model): GridResult {
@@ -119,6 +120,19 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   return result;
 }
 
+export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
+  const model = new Model();
+  for (let xc in grid) {
+    model.dispatch("SET_VALUE", { xc, text: grid[xc] });
+  }
+  const result = {};
+  for (let xc in grid) {
+    const cell = getCell(model, xc);
+    result[xc] = cell ? model.getters.getCellText(cell) : "";
+  }
+  return result;
+}
+
 /**
  * Evaluate the final state of a cell according to the different values ​​and
  * different functions submitted in a grid cells
@@ -129,6 +143,11 @@ export function evaluateGrid(grid: GridDescr): GridResult {
  */
 export function evaluateCell(xc: string, grid: GridDescr): any {
   const gridResult = evaluateGrid(grid);
+  return gridResult[xc];
+}
+
+export function evaluateCellText(xc: string, grid: GridDescr): string {
+  const gridResult = evaluateGridText(grid);
   return gridResult[xc];
 }
 
