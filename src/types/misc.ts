@@ -65,7 +65,7 @@ export interface Cell extends NewCell {
   type: "formula" | "text" | "number";
 }
 
-interface Header {
+export interface Header {
   start: number;
   end: number;
   name: string;
