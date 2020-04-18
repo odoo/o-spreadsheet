@@ -62,6 +62,7 @@ export interface CreateSheetCommand {
   name?: string;
   cols?: number;
   rows?: number;
+  activate?: boolean;
 }
 
 export interface AddMergeCommand {

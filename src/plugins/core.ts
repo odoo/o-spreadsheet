@@ -73,7 +73,9 @@ export class CorePlugin extends BasePlugin {
           cmd.cols || 26,
           cmd.rows || 100
         );
-        this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.name, to: sheet });
+        if (cmd.activate) {
+          this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.name, to: sheet });
+        }
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);

@@ -53,7 +53,7 @@ describe("Model resizer", () => {
 
   test("changing sheets update the sizes", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { activate: true });
 
     expect(model.getters.getActiveSheet()).toBe("Sheet2");
 

@@ -86,7 +86,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   getters = this.env.getters;
 
   addSheet() {
-    this.env.dispatch("CREATE_SHEET");
+    this.env.dispatch("CREATE_SHEET", { activate: true });
   }
 
   activateSheet(name: string) {

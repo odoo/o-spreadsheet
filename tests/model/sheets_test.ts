@@ -9,7 +9,7 @@ describe("sheets", () => {
     expect(model["workbook"].sheets.length).toBe(1);
     expect(model["workbook"].activeSheet.name).toBe("Sheet1");
 
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { activate: true });
     expect(model["workbook"].sheets.length).toBe(2);
     expect(model["workbook"].activeSheet.name).toBe("Sheet2");
 
@@ -22,9 +22,18 @@ describe("sheets", () => {
     expect(model["workbook"].activeSheet.name).toBe("Sheet2");
   });
 
+  test("Creating a new sheet does not activate it by default", () => {
+    const model = new Model();
+    expect(model.getters.getActiveSheet()).toBe("Sheet1");
+    expect(model.getters.getSheets()).toEqual(["Sheet1"]);
+    model.dispatch("CREATE_SHEET");
+    expect(model.getters.getActiveSheet()).toBe("Sheet1");
+    expect(model.getters.getSheets()).toEqual(["Sheet1", "Sheet2"]);
+  });
+
   test("Can create a new sheet with given size and name", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { rows: 2, cols: 4, name: "SheetTest" });
+    model.dispatch("CREATE_SHEET", { rows: 2, cols: 4, name: "SheetTest", activate: true });
     expect(model["workbook"].activeSheet.colNumber).toBe(4);
     expect(model["workbook"].activeSheet.cols.length).toBe(4);
     expect(model["workbook"].activeSheet.rowNumber).toBe(2);
@@ -53,7 +62,7 @@ describe("sheets", () => {
     expect(model["workbook"].activeSheet.name).toBe("Sheet1");
 
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { activate: true });
     expect(model["workbook"].activeSheet.name).toBe("Sheet2");
     model.dispatch("SET_VALUE", { xc: "A1", text: "=Sheet1!A1" });
     expect(getCell(model, "A1")!.value).toBe(3);
@@ -171,7 +180,7 @@ describe("sheets", () => {
 
   test("cells are updated when dependency in other sheet is updated", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { activate: true });
     expect(model.getters.getActiveSheet()).toEqual("Sheet2");
     model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
     expect(model.getters.getActiveSheet()).toEqual("Sheet1");
