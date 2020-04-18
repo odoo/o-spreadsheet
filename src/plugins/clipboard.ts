@@ -22,6 +22,10 @@ export class ClipboardPlugin extends BasePlugin {
   private _isPaintingFormat: boolean = false;
   private onlyFormat: boolean = false;
 
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
+
   allowDispatch(cmd: Command): boolean {
     return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
   }
@@ -199,6 +203,27 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   private pasteZone(width: number, height: number, col: number, row: number) {
+    const { cols, rows } = this.workbook;
+    // first, add missing cols/rows if needed
+    const missingRows = height + row - rows.length;
+    if (missingRows > 0) {
+      this.dispatch("ADD_ROWS", {
+        row: rows.length - 1,
+        sheet: this.workbook.activeSheet.name,
+        quantity: missingRows,
+        position: "after",
+      });
+    }
+    const missingCols = width + col - cols.length;
+    if (missingCols > 0) {
+      this.dispatch("ADD_COLUMNS", {
+        column: cols.length - 1,
+        sheet: this.workbook.activeSheet.name,
+        quantity: missingCols,
+        position: "after",
+      });
+    }
+    // then, perform the actual paste operation
     for (let r = 0; r < height; r++) {
       const rowCells = this.cells![r];
       for (let c = 0; c < width; c++) {
@@ -209,9 +234,7 @@ export class ClipboardPlugin extends BasePlugin {
           if (originCell.type === "formula") {
             const offsetX = col + c - originCell.col;
             const offsetY = row + r - originCell.row;
-            const maxX = this.workbook.cols.length;
-            const maxY = this.workbook.rows.length;
-            content = applyOffset(content, offsetX, offsetY, maxX, maxY);
+            content = applyOffset(content, offsetX, offsetY, cols.length, rows.length);
           }
           if (this.onlyFormat) {
             content = targetCell ? targetCell.content : "";
