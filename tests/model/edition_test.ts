@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
+import { getCell } from "../helpers";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
@@ -40,5 +41,16 @@ describe("edition", () => {
     });
     expect("A2" in model["workbook"].cells).toBeTruthy();
     expect(model["workbook"].cells["A2"].content).toBe("");
+  });
+
+  test("editing a cell, then activating a new sheet: edition should be stopped", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "a" });
+    expect(model.getters.getEditionMode()).toBe("editing");
+    model.dispatch("CREATE_SHEET", { activate: true });
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(getCell(model, "A1")).toBe(null);
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "Sheet1" });
+    expect(getCell(model, "A1")!.content).toBe("a");
   });
 });

@@ -1,15 +1,10 @@
 import { tokenize } from "../formulas/index";
 import { toXC, toZone, toCartesian } from "../helpers/index";
-import {
-  Command,
-  Zone,
-  Highlight,
-  EditionMode,
-  LAYERS,
-  GridRenderingContext,
-} from "../types/index";
+import { Command, Zone, Highlight, LAYERS, GridRenderingContext } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
+
+export type EditionMode = "editing" | "selecting" | "inactive";
 
 export class EditionPlugin extends BasePlugin {
   static layers = [LAYERS.Highlights];
@@ -25,6 +20,14 @@ export class EditionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+
+  beforeHandle(cmd: Command) {
+    switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        this.stopEdition();
+        break;
+    }
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {

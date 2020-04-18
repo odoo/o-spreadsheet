@@ -111,5 +111,3 @@ export interface Workbook {
   sheets: Sheet[];
   activeSheet: Sheet;
 }
-
-export type EditionMode = "editing" | "selecting" | "inactive";
