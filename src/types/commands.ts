@@ -344,7 +344,7 @@ export type CommandResult = "COMPLETED" | "CANCELLED";
 
 export interface CommandHandler {
   allowDispatch(command: Command): boolean;
-  start(command: Command): void;
+  beforeHandle(command: Command): void;
   handle(command: Command): void;
   finalize(command: Command): void;
 }

@@ -59,8 +59,8 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     return true;
   }
 
-  start(cmd: Command) {
-    if (cmd.type !== "REDO" && cmd.type !== "UNDO") {
+  beforeHandle(cmd: Command) {
+    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO") {
       this.current = [];
     }
   }

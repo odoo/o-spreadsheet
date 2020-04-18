@@ -23,7 +23,7 @@ export class MergePlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  start(cmd: Command) {
+  beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
         this.exportAndRemoveMerges(

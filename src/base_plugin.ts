@@ -52,12 +52,35 @@ export class BasePlugin implements CommandHandler {
   // Command handling
   // ---------------------------------------------------------------------------
 
+  /**
+   * Before a command is accepted, the model will ask each plugin if the command
+   * is allowed.  If all of then return true, then we can proceed. Otherwise,
+   * the command is cancelled.
+   *
+   * There should not be any side effects in this method.
+   */
   allowDispatch(command: Command): boolean {
     return true;
   }
 
-  start(command: Command): void {}
+  /**
+   * This method is useful when a plugin need to perform some action before a
+   * command is handled in another plugin. This should only be used if it is not
+   * possible to do the work in the handle method.
+   */
+  beforeHandle(command: Command): void {}
+
+  /**
+   * This is the standard place to handle any command. Most of the plugin
+   * command handling work should take place here.
+   */
   handle(command: Command): void {}
+
+  /**
+   * Sometimes, it is useful to perform some work after a command (and all its
+   * subcommands) has been completely handled.  For example, when we paste
+   * multiple cells, we only want to reevaluate the cell values once at the end.
+   */
   finalize(command: Command): void {}
 
   // ---------------------------------------------------------------------------
