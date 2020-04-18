@@ -88,7 +88,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           }
         }
         this.status = Status.Running;
-        this.handlers.forEach((h) => h.start(command));
+        this.handlers.forEach((h) => h.beforeHandle(command));
         this.handlers.forEach((h) => h.handle(command));
         this.status = Status.Finalizing;
         this.handlers.forEach((h) => h.finalize(command));
@@ -98,6 +98,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         break;
       case Status.Running:
+        this.handlers.forEach((h) => h.beforeHandle(command));
         this.handlers.forEach((h) => h.handle(command));
         break;
       case Status.Finalizing:
