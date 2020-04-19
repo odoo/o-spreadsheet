@@ -12,6 +12,9 @@ describe("evaluateCells", () => {
     const grid = {
       A1: "1",
       A2: "1.1",
+      A3: "1,234",
+      A4: "1,234.43",
+      A5: ".3",
       B1: "1%",
       B2: "1.5%",
       B3: "-3.3%",
@@ -23,6 +26,9 @@ describe("evaluateCells", () => {
     expect(evaluateGrid(grid)).toEqual({
       A1: 1,
       A2: 1.1,
+      A3: 1234,
+      A4: 1234.43,
+      A5: 0.3,
       B1: 0.01,
       B2: 0.015,
       B3: -0.033,
@@ -30,6 +36,37 @@ describe("evaluateCells", () => {
       C2: 100000,
       C3: -1000,
       D1: "1.1.1",
+    });
+  });
+
+  test("Various numbers representations in formulas", () => {
+    const grid = {
+      A1: "=1",
+      A2: "=1.1",
+      A3: "=1,234",
+      A4: "=1,234.43",
+      A5: "=.3",
+      B1: "=1%",
+      B2: "=1.5%",
+      B3: "=-3.3%",
+      C1: "=1.2e4",
+      C2: "=1e5",
+      C3: "=-1e3",
+      D1: "=1.1.1", // not a number
+    };
+    expect(evaluateGrid(grid)).toEqual({
+      A1: 1,
+      A2: 1.1,
+      A3: "#BAD_EXPR", // commas are not allowed as thousand separator in formulas
+      A4: "#BAD_EXPR",
+      A5: 0.3,
+      B1: 0.01,
+      B2: 0.015,
+      B3: -0.033,
+      C1: 12000,
+      C2: 100000,
+      C3: -1000,
+      D1: "#BAD_EXPR",
     });
   });
 
@@ -637,8 +674,8 @@ describe("evaluateCells", () => {
     expect(model["workbook"].cells.A2.value).toBe(" %");
     expect(model["workbook"].cells.A3.value).toBe(0.4);
     expect(model["workbook"].cells.A4.value).toBe(0.41);
-    expect(model["workbook"].cells.A5.value).toBe("42 %");
-    expect(model["workbook"].cells.A6.value).toBe(" 43 % ");
+    expect(model["workbook"].cells.A5.value).toBe(0.42);
+    expect(model["workbook"].cells.A6.value).toBe(0.43);
     expect(model["workbook"].cells.A7.value).toBeCloseTo(0.041, 3);
     expect(model["workbook"].cells.A8.value).toBe(0.042);
     expect(model["workbook"].cells.A9.value).toBe(0.001);
@@ -771,8 +808,8 @@ describe("evaluateCells", () => {
     expect(model["workbook"].cells.C2.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
     expect(model["workbook"].cells.C3.value).toBe(0.4);
     expect(model["workbook"].cells.C4.value).toBe(0.41);
-    expect(model["workbook"].cells.C5.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
-    expect(model["workbook"].cells.C6.value).toBe("#ERROR"); // @compatibility: on google sheet, return #VALUE!
+    expect(model["workbook"].cells.C5.value).toBe(0.42); // @compatibility: on google sheet, return #VALUE!
+    expect(model["workbook"].cells.C6.value).toBe(0.43); // @compatibility: on google sheet, return #VALUE!
     expect(model["workbook"].cells.C7.value).toBeCloseTo(0.041, 3);
     expect(model["workbook"].cells.C8.value).toBe(0.042); // @compatibility: on google sheet, return #VALUE!
     expect(model["workbook"].cells.C9.value).toBe(0.001);
@@ -785,8 +822,8 @@ describe("evaluateCells", () => {
     expect(model["workbook"].cells.D2.value).toBe(0);
     expect(model["workbook"].cells.D3.value).toBe(1);
     expect(model["workbook"].cells.D4.value).toBe(1);
-    expect(model["workbook"].cells.D5.value).toBe(0);
-    expect(model["workbook"].cells.D6.value).toBe(0);
+    expect(model["workbook"].cells.D5.value).toBe(1); // @compatibility: google sheet returns 0 and excel 1... Excel is right
+    expect(model["workbook"].cells.D6.value).toBe(1); // @compatibility: google sheet returns 0 and excel 1... Excel is right
     expect(model["workbook"].cells.D7.value).toBe(1);
     expect(model["workbook"].cells.D8.value).toBe(1);
     expect(model["workbook"].cells.D9.value).toBe(1);

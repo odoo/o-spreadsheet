@@ -1,6 +1,6 @@
 import { Token, tokenize } from "./tokenizer";
 import { functionRegistry } from "../functions/index";
-import { toCartesian, toXC, sanitizeSheet } from "../helpers/index";
+import { toCartesian, toXC, sanitizeSheet, parseNumber } from "../helpers/index";
 
 const functions = functionRegistry.content;
 
@@ -117,14 +117,9 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       next.debug = true;
       return next;
     case "NUMBER":
-      let value = parseFloat(current.value);
-      if (tokens[0] && tokens[0].value === "%" && tokens[0].type === "OPERATOR") {
-        value = value / 100;
-        tokens.shift();
-      }
-      return { type: current.type, value } as AST;
+      return { type: current.type, value: parseNumber(current.value) };
     case "STRING":
-      return { type: current.type, value: current.value } as AST;
+      return { type: current.type, value: current.value };
     case "FUNCTION":
       if (tokens.shift()!.type !== "LEFT_PAREN") {
         throw new Error("wrong function call");
@@ -170,7 +165,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           return {
             type: "REFERENCE",
             value: current.value.replace(/\$/g, "").toUpperCase(),
-          } as AST;
+          };
         }
       } else {
         if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
@@ -179,7 +174,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           if (current.value) {
             throw new Error("Invalid formula");
           }
-          return { type: "UNKNOWN", value: current.value } as AST;
+          return { type: "UNKNOWN", value: current.value };
         }
       }
     case "LEFT_PAREN":

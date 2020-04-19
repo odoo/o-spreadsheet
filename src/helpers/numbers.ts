@@ -1,4 +1,15 @@
-const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
+/**
+ * This regexp is supposed to be as close as possible as the numberRegexp, but
+ * its purpose is to be used by the tokenizer.
+ *
+ * - it tolerates extra characters at the end. This is useful because the tokenizer
+ *   only needs to find the number at the start of a string
+ * - it does not accept "," as thousand separator, because when we tokenize a
+ *   formula, commas are used to separate arguments
+ */
+export const formulaNumberRegexp = /^-?\d+(\.?\d*(e\d+)?)?(\s*%)?|^-?\.\d+(\s*%)?/;
+
+export const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?(\s*%)?$|^-?\.\d+(\s*%)?$/;
 
 /**
  * Return true if the argument is a "number string".
@@ -8,12 +19,10 @@ const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
 export function isNumber(value: string): boolean {
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
   // TO DO: add regexp for exp format (ex match: "42E10")
-  if (!value.trim().match(numberRegexp)) {
-    return false;
-  }
-  return true;
+  return Boolean(value.trim().match(numberRegexp));
 }
 
+const commaRegexp = /,/g;
 /**
  * Convert a string into a number.
  *
@@ -21,7 +30,7 @@ export function isNumber(value: string): boolean {
  * number from the point of view of the isNumber function.
  */
 export function parseNumber(str: string): number {
-  let n = Number(str);
+  let n = Number(str.replace(commaRegexp, ""));
   if (isNaN(n) && str.includes("%")) {
     n = Number(str.split("%")[0]);
     if (!isNaN(n)) {
