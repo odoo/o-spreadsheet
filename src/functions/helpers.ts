@@ -1,6 +1,6 @@
 // HELPERS
 
-import { isNumber } from "../helpers/index";
+import { parseNumber, isNumber } from "../helpers/index";
 
 const expectNumberValueError = (value: string) => `
   The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a
@@ -14,17 +14,7 @@ export function toNumber(value: any): number {
       return value ? 1 : 0;
     case "string":
       if (isNumber(value) || value === "") {
-        let n = Number(value);
-        if (isNaN(n)) {
-          if (value.includes("%")) {
-            n = Number(value.split("%")[0]);
-            if (!isNaN(n)) {
-              return n / 100;
-            }
-          }
-        } else {
-          return n;
-        }
+        return parseNumber(value);
       }
       throw new Error(expectNumberValueError(value));
     default:

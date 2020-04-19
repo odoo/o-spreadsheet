@@ -1,21 +1,23 @@
 import { BasePlugin } from "../base_plugin";
 import {
-  Command,
-  Cell,
-  CellIsRule,
-  Zone,
-  ConditionalFormat,
-  ColorScaleRule,
-  Style,
-  WorkbookData,
-} from "../types/index";
-import { colorNumberString, toXC, toZone } from "../helpers/index";
-import {
-  updateRemoveColumns,
-  updateRemoveRows,
+  colorNumberString,
+  toXC,
+  toZone,
   updateAddColumns,
   updateAddRows,
-} from "../helpers/grid_manipulation";
+  updateRemoveColumns,
+  updateRemoveRows,
+} from "../helpers/index";
+import {
+  Cell,
+  CellIsRule,
+  ColorScaleRule,
+  Command,
+  ConditionalFormat,
+  Style,
+  WorkbookData,
+  Zone,
+} from "../types/index";
 
 // -----------------------------------------------------------------------------
 // Constants
