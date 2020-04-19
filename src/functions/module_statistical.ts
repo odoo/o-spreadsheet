@@ -213,7 +213,7 @@ export const COUNT: FunctionDescription = {
             }
           }
         }
-      } else if (isNumber(n)) {
+      } else if (typeof n !== "string" || isNumber(n)) {
         count += 1;
       }
     }
