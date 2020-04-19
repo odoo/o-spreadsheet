@@ -125,6 +125,11 @@ describe("core", () => {
     model.dispatch("STOP_EDITION");
     expect(getCell(model, "A1")!.value).toBe(val);
   });
+
+  test("getCell getter does not crash if invalid col/row", () => {
+    const model = new Model();
+    expect(model.getters.getCell(-1, -1)).toBe(null);
+  });
 });
 
 describe("history", () => {
