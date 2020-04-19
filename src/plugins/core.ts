@@ -172,7 +172,8 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getCell(col: number, row: number): Cell | null {
-    return this.workbook.rows[row].cells[col] || null;
+    const r = this.workbook.rows[row];
+    return r ? r.cells[col] || null : null;
   }
 
   getCellText(cell: Cell): string {
