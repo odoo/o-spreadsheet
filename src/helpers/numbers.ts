@@ -1,4 +1,4 @@
-const numberRegexp = /^-?\d+(,\d+)*(\.\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
+const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?%?$|^-?\.\d+%?$/;
 
 /**
  * Return true if the argument is a "number string".
