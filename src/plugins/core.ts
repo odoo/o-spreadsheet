@@ -3,7 +3,14 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { formatNumber, formatValue } from "../formatters";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
-import { isNumber, numberToLetters, sanitizeSheet, toCartesian, toXC } from "../helpers/index";
+import {
+  numberToLetters,
+  sanitizeSheet,
+  toCartesian,
+  toXC,
+  parseNumber,
+  isNumber,
+} from "../helpers/index";
 import {
   Cell,
   CellData,
@@ -632,10 +639,9 @@ export class CorePlugin extends BasePlugin {
       let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
       let value: Cell["value"] = content;
       if (isNumber(content)) {
+        value = parseNumber(content);
         type = "number";
-        value = parseFloat(content);
         if (content.includes("%")) {
-          value = value / 100;
           format = content.includes(".") ? "0.00%" : "0%";
         }
       }
