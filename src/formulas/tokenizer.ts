@@ -1,4 +1,5 @@
 import { functionRegistry } from "../functions/index";
+import { formulaNumberRegexp } from "../helpers/index";
 
 const functions = functionRegistry.content;
 // -----------------------------------------------------------------------------
@@ -93,15 +94,10 @@ function tokenizeOperator(chars: string[]): Token | null {
 }
 
 function tokenizeNumber(chars: string[]): Token | null {
-  const digits: any[] = [];
-  while (chars[0] && chars[0].match(/\d|\./)) {
-    digits.push(chars.shift());
-  }
-  if (digits.length) {
-    return {
-      type: "NUMBER",
-      value: digits.join(""),
-    };
+  const match = chars.join("").match(formulaNumberRegexp);
+  if (match) {
+    chars.splice(0, match[0].length);
+    return { type: "NUMBER", value: match[0] };
   }
   return null;
 }
