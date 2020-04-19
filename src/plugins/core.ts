@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { formatNumber, formatValue } from "../formatters";
+import { formatValue } from "../formatters";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
@@ -10,6 +10,7 @@ import {
   toXC,
   parseNumber,
   isNumber,
+  formatNumber,
 } from "../helpers/index";
 import {
   Cell,
