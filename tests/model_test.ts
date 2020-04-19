@@ -1,12 +1,12 @@
-import { Model, Mode } from "../../src/model";
-import "../canvas.mock";
-import { WHistory } from "../../src/history";
-import { CorePlugin } from "../../src/plugins/core";
-import { MergePlugin } from "../../src/plugins/merge";
-import { FormattingPlugin } from "../../src/plugins/formatting";
-import { ConditionalFormatPlugin } from "../../src/plugins/conditional_format";
-import { BasePlugin } from "../../src/base_plugin";
-import { pluginRegistry } from "../../src/plugins/index";
+import { Model, Mode } from "../src/model";
+import "./canvas.mock";
+import { WHistory } from "../src/history";
+import { CorePlugin } from "../src/plugins/core";
+import { MergePlugin } from "../src/plugins/merge";
+import { FormattingPlugin } from "../src/plugins/formatting";
+import { ConditionalFormatPlugin } from "../src/plugins/conditional_format";
+import { BasePlugin } from "../src/base_plugin";
+import { pluginRegistry } from "../src/plugins/index";
 
 describe("Model", () => {
   test("can create model in headless mode", () => {
