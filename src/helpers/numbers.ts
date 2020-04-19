@@ -18,7 +18,6 @@ export const numberRegexp = /^-?\d+(,\d+)*(\.?\d*(e\d+)?)?(\s*%)?$|^-?\.\d+(\s*%
  */
 export function isNumber(value: string): boolean {
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
-  // TO DO: add regexp for exp format (ex match: "42E10")
   return Boolean(value.trim().match(numberRegexp));
 }
 
@@ -38,4 +37,31 @@ export function parseNumber(str: string): number {
     }
   }
   return n;
+}
+
+export function formatNumber(n: number): string {
+  if (Number.isInteger(n)) {
+    return n.toString();
+  }
+  return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 10 });
+}
+
+export function formatDecimal(n: number, decimals: number, sep: string = ""): string {
+  if (n < 0) {
+    return "-" + formatDecimal(-n, decimals);
+  }
+  const exponentString = `${n}e${decimals}`;
+  const value = Math.round(Number(exponentString));
+  let result = Number(`${value}e-${decimals}`).toFixed(decimals);
+  if (sep) {
+    let p: number = result.indexOf(".")!;
+    result = result.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, (m, i) =>
+      p < 0 || i < p ? `${m}${sep}` : m
+    );
+  }
+  return result;
+}
+
+export function formatPercent(n: number): string {
+  return formatDecimal(100 * n, 2) + "%";
 }
