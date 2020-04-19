@@ -8,6 +8,31 @@ describe("evaluateCells", () => {
     expect(evaluateCell("C1", grid)).toBe(3);
   });
 
+  test("Various numbers representations", () => {
+    const grid = {
+      A1: "1",
+      A2: "1.1",
+      B1: "1%",
+      B2: "1.5%",
+      B3: "-3.3%",
+      C1: "1.2e4",
+      C2: "1e5",
+      C3: "-1e3",
+      D1: "1.1.1", // not a number
+    };
+    expect(evaluateGrid(grid)).toEqual({
+      A1: 1,
+      A2: 1.1,
+      B1: 0.01,
+      B2: 0.015,
+      B3: -0.033,
+      C1: 12000,
+      C2: 100000,
+      C3: -1000,
+      D1: "1.1.1",
+    });
+  });
+
   test("With empty content", () => {
     const grid = { A1: "1", B1: "", C1: "=SUM(A1,B1)" };
     expect(evaluateCell("C1", grid)).toBe(1);

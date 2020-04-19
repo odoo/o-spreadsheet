@@ -1,4 +1,4 @@
-import { numberToLetters, toCartesian, toXC } from "../src/helpers/index";
+import { numberToLetters, toCartesian, toXC } from "../../src/helpers/index";
 
 describe("numberToLetter", () => {
   test("basic functionality", () => {
