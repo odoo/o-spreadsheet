@@ -14,6 +14,32 @@ import {
   LAYERS,
 } from "./types/index";
 
+/**
+ * Model
+ *
+ * The Model class is the owner of the state of the Spreadsheet. However, it
+ * has more a coordination role: it defers the actual state manipulation work to
+ * plugins.
+ *
+ * At creation, the Model instantiates all necessary plugins.  They each have
+ * a private state (for example, the Selection plugin has the current selection),
+ * and share a common core state (named workbook).
+ *
+ * State changes are then performed through commands.  Commands are dispatched
+ * to the model, which will then relay them to each plugins (and the history
+ * handler). Then, the model will trigger an 'update' event to notify whoever
+ * is concerned that the command was applied (if it was not cancelled).
+ *
+ * Also, the model has an unconventional responsability: it actually renders the
+ * visible viewport on a canvas. This is because each plugins actually manage a
+ * specific concern about the content of the spreadsheet, and it is more natural
+ * if they are able to read data from their internal state to represent it on the
+ * screen.
+ *
+ * Note that the Model can be used in a standalone way to manipulate
+ * programatically a spreadsheet.
+ */
+
 export type Mode = "normal" | "headless" | "readonly";
 
 const enum Status {
@@ -23,13 +49,42 @@ const enum Status {
 }
 
 export class Model extends owl.core.EventBus implements CommandDispatcher {
+  /**
+   * Handlers are classes that can handle a command. In practice, this is
+   * basically a list of all plugins and the history manager (not a plugin)
+   */
   private handlers: CommandHandler[];
+
+  /**
+   * A plugin can draw some contents on the canvas. But even better: it can do
+   * so multiple times.  The order of the render calls will determine a list of
+   * "layers" (i.e., earlier calls will be obviously drawn below later calls).
+   * This list simply keeps the renderers+layer information so the drawing code
+   * can just iterate on it
+   */
   private renderers: [BasePlugin, LAYERS][] = [];
+
+  /**
+   * Internal status of the model. Important for command handling coordination
+   */
   private status: Status = Status.Ready;
-  private history: WHistory;
+
+  /**
+   * The mode is a value that describe how the model was configured. Note that
+   * it is not supposed to change in the model lifetime.
+   */
   private mode: Mode;
+
+  /**
+   * The workbook is the core state, shared between all plugins.
+   */
   private workbook: Workbook;
 
+  /**
+   * Getters are the main way the rest of the UI read data from the model. Also,
+   * it is shared between all plugins, so they can also communicate with each
+   * other.
+   */
   getters: Getters;
 
   constructor(data: any = {}, mode: Mode = "normal") {
@@ -38,13 +93,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     const workbookData = load(data);
     this.workbook = createEmptyWorkbook();
-    this.history = new WHistory(this.workbook);
+    const history = new WHistory(this.workbook);
 
     this.getters = {
-      canUndo: this.history.canUndo.bind(this.history),
-      canRedo: this.history.canRedo.bind(this.history),
+      canUndo: history.canUndo.bind(history),
+      canRedo: history.canRedo.bind(history),
     } as Getters;
-    this.handlers = [this.history];
+    this.handlers = [history];
     this.mode = mode;
 
     // registering plugins
@@ -56,10 +111,17 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.dispatch("START");
   }
 
+  /**
+   * Initialise and properly configure a plugin.
+   *
+   * This method is private for now, but if the need arise, there is no deep
+   * reason why the model could not add dynamically a plugin while it is running.
+   */
   private setupPlugin(Plugin: typeof BasePlugin, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
+    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.mode)) {
-      const plugin = new Plugin(this.workbook, this.getters, this.history, dispatch, this.mode);
+      const plugin = new Plugin(this.workbook, this.getters, history, dispatch, this.mode);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -78,6 +140,18 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  /**
+   * The dispatch method is the only entry point to manipulate date in the model.
+   * This is through this method that commands are dispatched, most of the time
+   * recursively until no plugin want to react anymore.
+   *
+   * Small technical detail: it is defined as an arrow function.  There are two
+   * reasons for this:
+   * 1. this means that the dispatch method can be "detached" from the model,
+   *    which is done when it is put in the environment (see the Spreadsheet
+   *    component)
+   * 2. This allows us to define its type by using the interface CommandDispatcher
+   */
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
     switch (this.status) {
@@ -111,6 +185,16 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // Grid Rendering
   // ---------------------------------------------------------------------------
 
+  /**
+   * When the Grid component is ready (= mounted), it has a reference to its
+   * canvas and need to draw the grid on it.  This is then done by calling this
+   * method, which will dispatch the call to all registered plugins.
+   *
+   * Note that nothing prevent multiple grid components from calling this method
+   * each, or one grid component calling it multiple times with a different
+   * context. This is probably the way we should do if we want to be able to
+   * freeze a part of the grid (so, we would need to render different zones)
+   */
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
@@ -124,6 +208,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // Data Export
   // ---------------------------------------------------------------------------
 
+  /**
+   * As the name of this method strongly implies, it is useful when we need to
+   * export date out of the model.
+   */
   exportData(): WorkbookData {
     const data = createEmptyWorkbookData();
     for (let handler of this.handlers) {

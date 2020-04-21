@@ -1,10 +1,24 @@
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp } from "../helpers/index";
 
+/**
+ * Tokenizer
+ *
+ * A tokenizer is a piece of code whose job is to transform a string into a list
+ * of "tokens". For example, "(12+" is converted into:
+ *   [{type: "LEFT_PAREN", value: "("},
+ *    {type: "NUMBER", value: "12"},
+ *    {type: "OPERATOR", value: "+"}]
+ *
+ * As the example shows, a tokenizer does not care about the meaning behind those
+ * tokens. It only cares about the structure.
+ *
+ * The tokenizer is usually the first step in a compilation pipeline.  Also, it
+ * is useful for the composer, which needs to be able to work with incomplete
+ * formulas.
+ */
+
 const functions = functionRegistry.content;
-// -----------------------------------------------------------------------------
-// Tokenizer
-// -----------------------------------------------------------------------------
 const OPERATORS = "+,-,*,/,:,=,>=,>,<=,<,%,^".split(",");
 
 export type TokenType =
