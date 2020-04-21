@@ -2,7 +2,7 @@ import { BasePlugin } from "../base_plugin";
 import { applyOffset } from "../formulas/index";
 import { clip, toXC } from "../helpers/index";
 import { Mode } from "../model";
-import { Cell, Command, GridRenderingContext, LAYERS, Zone } from "../types/index";
+import { Cell, Command, GridRenderingContext, LAYERS, Zone, Merge } from "../types/index";
 
 /**
  * Clipboard Plugin
@@ -19,6 +19,7 @@ export class ClipboardPlugin extends BasePlugin {
   private shouldCut?: boolean;
   private zones: Zone[] = [];
   private cells?: (Cell | null)[][];
+  private merges: { [topLeft:string] : Merge} = {}; 
   private _isPaintingFormat: boolean = false;
   private onlyFormat: boolean = false;
 
@@ -106,7 +107,23 @@ export class ClipboardPlugin extends BasePlugin {
         let { left, right } = zone;
         for (let c = left; c <= right; c++) {
           const cell = this.getters.getCell(c, r);
-          row.push(cell ? Object.assign({}, cell) : null);
+          if(cell){
+            row.push(Object.assign({}, cell));
+          } else if(this.getters.isMainCell(toXC(c,r))){
+            const topleftCell = {
+              col: c,
+              row: r,
+              xc: toXC(c,r),
+              value:"",
+              type: "text" as const
+            };
+            row.push(topleftCell);
+          } else {
+            row.push(null);
+          }
+          if (this.getters.isMainCell(toXC(c,r))) {
+            this.merges[toXC(c,r)] = this.getters.getMerge(toXC(c,r));
+          }
         }
       }
     }
@@ -191,6 +208,11 @@ export class ClipboardPlugin extends BasePlugin {
   private clearCutZone() {
     for (let row of this.cells!) {
       for (let cell of row) {
+        if (cell && this.getters.isMainCell(cell.xc)){
+          const {left, right, top, bottom} = this.getters.getMerge(cell.xc)
+          const zone = {left, right, top, bottom}
+          this.dispatch("REMOVE_MERGE", { sheet: this.workbook.activeSheet.name, zone});
+        }
         if (cell) {
           this.dispatch("CLEAR_CELL", {
             sheet: this.workbook.activeSheet.name,
@@ -264,6 +286,13 @@ export class ClipboardPlugin extends BasePlugin {
               row: row + r,
             });
           }
+        }
+        if (originCell && originCell.xc in this.merges) {
+          const {left, right, top, bottom} = this.merges[originCell.xc]
+          const xMove = col + c - originCell.col
+          const yMove = row + r - originCell.row
+          const zone = {left : left + xMove,right: right + xMove,top : top + yMove, bottom : bottom + yMove}
+          this.dispatch("ADD_MERGE", { sheet: this.workbook.activeSheet.name, zone });
         }
       }
     }

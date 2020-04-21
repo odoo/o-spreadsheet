@@ -14,7 +14,7 @@ interface PendingMerges {
 }
 
 export class MergePlugin extends BasePlugin {
-  static getters = ["isMergeDestructive", "isInMerge", "getMainCell", "expandZone"];
+  static getters = ["isMergeDestructive", "isInMerge", "getMainCell", "expandZone", "getMerge","isMainCell"];
 
   private nextId: number = 1;
   private pending: PendingMerges | null = null;
@@ -115,12 +115,25 @@ export class MergePlugin extends BasePlugin {
     return xc in this.workbook.mergeCellMap;
   }
 
+  getMerge(xc: string) : Merge {
+    return this.workbook.merges[this.workbook.mergeCellMap[xc]];
+  }
+
   getMainCell(xc: string): string {
     if (!this.isInMerge(xc)) {
       return xc;
     }
     const merge = this.workbook.mergeCellMap[xc];
     return this.workbook.merges[merge].topLeft;
+  }
+
+  isMainCell(xc:string) : boolean {
+    for (let merge of Object.values(this.workbook.merges)) {
+      if (xc === merge.topLeft){
+        return true;
+      }
+    }
+    return false;
   }
 
   // ---------------------------------------------------------------------------

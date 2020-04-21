@@ -34,6 +34,8 @@ export interface Getters {
   isMergeDestructive: MergePlugin["isMergeDestructive"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
+  isMainCell: MergePlugin["isMainCell"];
+  getMerge: MergePlugin["getMerge"];
 
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];

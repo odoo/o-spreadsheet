@@ -177,6 +177,48 @@ describe("clipboard", () => {
     expect(model.getters.getCellText(getCell(model, "C2")!)).toBe("45.10%");
   });
 
+  test("can copy and paste merged content", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["B1:C2"]
+        }
+      ]
+    });
+    model.dispatch("COPY", {target: target("B1") });debugger;
+    model.dispatch("PASTE", { target: target("B4") });
+    expect(model.getters.isInMerge("B4")).toBe(true);
+    expect(model.getters.isInMerge("B5")).toBe(true);
+    expect(model.getters.isInMerge("C4")).toBe(true);
+    expect(model.getters.isInMerge("B5")).toBe(true);
+
+  });
+
+  test("can cut and paste merged content", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          merges: ["B1:C2"]
+        }
+      ]
+    });
+    model.dispatch("CUT", {target: target("B1") });debugger;
+    model.dispatch("PASTE", { target: target("B4") });
+    expect(model.getters.isInMerge("B1")).toBe(false);
+    expect(model.getters.isInMerge("B2")).toBe(false);
+    expect(model.getters.isInMerge("C1")).toBe(false);
+    expect(model.getters.isInMerge("B2")).toBe(false);
+    expect(model.getters.isInMerge("B4")).toBe(true);
+    expect(model.getters.isInMerge("B5")).toBe(true);
+    expect(model.getters.isInMerge("C4")).toBe(true);
+    expect(model.getters.isInMerge("B5")).toBe(true);
+
+  });
+
   test("cutting a cell with style remove the cell", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
