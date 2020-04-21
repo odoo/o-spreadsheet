@@ -6,8 +6,87 @@ import {
   visitAny,
   reduceArgs,
   dichotomicPredecessorSearch,
+  reduceNumbersTextAs0,
 } from "./helpers";
 import { isNumber } from "../helpers/index";
+
+// Note: dataY and dataX may not have the same dimension
+function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
+  let flatDataY: any[] = [];
+  let flatDataX: any[] = [];
+  let lenY = 0;
+  let lenX = 0;
+
+  visitAny(dataY, (y) => {
+    flatDataY.push(y);
+    lenY += 1;
+  });
+
+  visitAny(dataX, (x) => {
+    flatDataX.push(x);
+    lenX += 1;
+  });
+
+  if (lenY !== lenX) {
+    throw new Error(`[[FUNCTION_NAME]] has mismatched argument count ${lenY} vs ${lenX}.`);
+  }
+
+  let count = 0;
+  let sumY = 0;
+  let sumX = 0;
+  for (let i = 0; i < lenY; i++) {
+    const valueY = flatDataY[i];
+    const valueX = flatDataX[i];
+    if (typeof valueY === "number" && typeof valueX === "number") {
+      count += 1;
+      sumY += valueY;
+      sumX += valueX;
+    }
+  }
+
+  if (count === 0 || (isSample && count === 1)) {
+    throw new Error(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`);
+  }
+
+  const averageY = sumY / count;
+  const averageX = sumX / count;
+
+  let acc = 0;
+  for (let i = 0; i < lenY; i++) {
+    const valueY = flatDataY[i];
+    const valueX = flatDataX[i];
+    if (typeof valueY === "number" && typeof valueX === "number") {
+      acc += (valueY - averageY) * (valueX - averageX);
+    }
+  }
+
+  return acc / (count - (isSample ? 1 : 0));
+}
+
+function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean): number {
+  let count = 0;
+  let sum = 0;
+  const reduceFuction = textAs0 ? reduceNumbersTextAs0 : reduceNumbers;
+
+  sum = reduceFuction(
+    args,
+    (acc, a) => {
+      count += 1;
+      return acc + a;
+    },
+    0
+  );
+
+  if (count === 0 || (isSample && count === 1)) {
+    throw new Error(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`);
+  }
+
+  const average = sum / count;
+  return (
+    reduceFuction(args, (acc, a) => acc + Math.pow(a - average, 2), 0) /
+    (count - (isSample ? 1 : 0))
+  );
+}
 
 // -----------------------------------------------------------------------------
 // AVEDEV
@@ -60,7 +139,7 @@ export const AVERAGE: FunctionDescription = {
     );
     if (count === 0) {
       throw new Error(`
-        Evaluation of function AVEDEV caused a divide by zero error.`);
+        Evaluation of function AVERAGE caused a divide by zero error.`);
     }
     return sum / count;
   },
@@ -163,27 +242,15 @@ export const AVERAGEA: FunctionDescription = {
     `,
   returns: ["NUMBER"],
   compute: function (): number {
-    let sum = 0;
     let count = 0;
-    for (let n of arguments) {
-      if (Array.isArray(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (j !== undefined && j !== null) {
-              if (typeof j === "number") {
-                sum += j;
-              } else if (typeof j === "boolean") {
-                sum += toNumber(j);
-              }
-              count++;
-            }
-          }
-        }
-      } else {
-        sum += toNumber(n);
-        count++;
-      }
-    }
+    const sum = reduceNumbersTextAs0(
+      arguments,
+      (acc, a) => {
+        count += 1;
+        return acc + a;
+      },
+      0
+    );
     if (count === 0) {
       throw new Error(`
         Evaluation of function AVERAGEA caused a divide by zero error.`);
@@ -233,6 +300,54 @@ export const COUNTA: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceArgs(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COVAR
+// -----------------------------------------------------------------------------
+
+// Note: Unlike the VAR function which corresponds to the variance over a sample (VAR.S),
+// the COVAR function corresponds to the covariance over an entire population (COVAR.P)
+export const COVAR: FunctionDescription = {
+  description: `The covariance of a dataset.`,
+  args: args`
+    data_y (any, range) The range representing the array or matrix of dependent data.
+    data_x (any, range) The range representing the array or matrix of independent data.
+  `,
+  returns: ["NUMBER"],
+  compute: function (data_y: any[], data_x: any[]): number {
+    return covariance(data_y, data_x, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COVARIANCE.P
+// -----------------------------------------------------------------------------
+export const COVARIANCE_P: FunctionDescription = {
+  description: `The covariance of a dataset.`,
+  args: args`
+    data_y (any, range) The range representing the array or matrix of dependent data.
+    data_x (any, range) The range representing the array or matrix of independent data.
+  `,
+  returns: ["NUMBER"],
+  compute: function (data_y: any[], data_x: any[]): number {
+    return covariance(data_y, data_x, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COVARIANCE.S
+// -----------------------------------------------------------------------------
+export const COVARIANCE_S: FunctionDescription = {
+  description: `The sample covariance of a dataset.`,
+  args: args`
+    data_y (any, range) The range representing the array or matrix of dependent data.
+    data_x (any, range) The range representing the array or matrix of independent data.
+  `,
+  returns: ["NUMBER"],
+  compute: function (data_y: any[], data_x: any[]): number {
+    return covariance(data_y, data_x, true);
   },
 };
 
@@ -409,5 +524,96 @@ export const SMALL: FunctionDescription = {
       throw new Error(`Function SMALL parameter 2 value ${n} is out of range.`);
     }
     return result;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VAR
+// -----------------------------------------------------------------------------
+
+export const VAR: FunctionDescription = {
+  description: "Variance.",
+  args: args`
+      value1 (number, range<number>) The first value or range of the sample.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
+    `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return variance(arguments, true, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VAR.P
+// -----------------------------------------------------------------------------
+export const VAR_P: FunctionDescription = {
+  description: "Variance of entire population.",
+  args: args`
+      value1 (number, range<number>) The first value or range of the population.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the population.
+    `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return variance(arguments, false, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VAR.S
+// -----------------------------------------------------------------------------
+export const VAR_S: FunctionDescription = {
+  description: "Variance.",
+  args: args`
+      value1 (number, range<number>) The first value or range of the sample.
+      value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
+    `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return variance(arguments, true, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VARA
+// -----------------------------------------------------------------------------
+export const VARA: FunctionDescription = {
+  description: "Variance of sample (text as 0).",
+  args: args`
+    value1 (number, range<number>) The first value or range of the sample.
+    value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
+  `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return variance(arguments, true, true);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VARP
+// -----------------------------------------------------------------------------
+export const VARP: FunctionDescription = {
+  description: "Variance of entire population.",
+  args: args`
+    value1 (number, range<number>) The first value or range of the population.
+    value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the population.
+  `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return variance(arguments, false, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// VARPA
+// -----------------------------------------------------------------------------
+export const VARPA: FunctionDescription = {
+  description: "Variance of entire population (text as 0).",
+  args: args`
+    value1 (number, range<number>) The first value or range of the population.
+    value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the population.
+  `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return variance(arguments, false, true);
   },
 };
