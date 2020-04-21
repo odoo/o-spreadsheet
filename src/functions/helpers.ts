@@ -45,6 +45,28 @@ export function visitNumbers(args: IArguments | any[], cb: (arg: number) => void
   }
 }
 
+function visitNumbersTextAs0(args: IArguments | any[], cb: (arg: number) => void): void {
+  for (let n of args) {
+    if (Array.isArray(n)) {
+      for (let i of n) {
+        for (let j of i) {
+          if (j !== undefined && j !== null) {
+            if (typeof j === "number") {
+              cb(j);
+            } else if (typeof j === "boolean") {
+              cb(toNumber(j));
+            } else {
+              cb(0);
+            }
+          }
+        }
+      }
+    } else {
+      cb(toNumber(n));
+    }
+  }
+}
+
 export function visitAny(arg: any, cb: (a: any) => void): void {
   if (Array.isArray(arg)) {
     for (let col of arg) {
@@ -96,6 +118,18 @@ export function reduceNumbers<T>(
 ): T {
   let val = initialValue;
   visitNumbers(args, (a) => {
+    val = cb(val, a);
+  });
+  return val;
+}
+
+export function reduceNumbersTextAs0<T>(
+  args: IArguments | any[],
+  cb: (acc: T, a: any) => T,
+  initialValue: T
+): T {
+  let val = initialValue;
+  visitNumbersTextAs0(args, (a) => {
     val = cb(val, a);
   });
   return val;
