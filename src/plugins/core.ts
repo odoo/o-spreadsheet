@@ -1,10 +1,10 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { formatValue } from "../formatters";
+import { formatNumber, InternalDate } from "../helpers/index";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
-  formatNumber,
+  formatStandardNumber,
   parseDate,
   isNumber,
   numberToLetters,
@@ -181,7 +181,16 @@ export class CorePlugin extends BasePlugin {
 
   getCellText(cell: Cell): string {
     if (cell.value && cell.format && !cell.error && !cell.pending) {
-      return formatValue(cell.value, cell.format);
+      if (cell.format.match(/y|m|d/)) {
+        // format is for a date
+        const value: InternalDate =
+          typeof cell.value === "object" ? cell.value : { value: cell.value };
+        return formatDate(value, cell.format);
+      } else {
+        // we want a number
+        const value: number = typeof cell.value === "number" ? cell.value : cell.value.value;
+        return formatNumber(value, cell.format);
+      }
     }
     switch (typeof cell.value) {
       case "string":
@@ -189,7 +198,7 @@ export class CorePlugin extends BasePlugin {
       case "boolean":
         return cell.value ? "TRUE" : "FALSE";
       case "number":
-        return formatNumber(cell.value);
+        return formatStandardNumber(cell.value);
       case "object":
         return cell.value ? formatDate(cell.value) : "0";
     }

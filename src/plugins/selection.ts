@@ -1,4 +1,4 @@
-import { isEqual, toXC, union, clip, formatNumber } from "../helpers/index";
+import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import { Command, Zone, Cell, LAYERS, GridRenderingContext } from "../types/index";
 import { Mode } from "../model";
@@ -186,7 +186,7 @@ export class SelectionPlugin extends BasePlugin {
         }
       }
     }
-    return n < 2 ? null : formatNumber(aggregate);
+    return n < 2 ? null : formatStandardNumber(aggregate);
   }
 
   // ---------------------------------------------------------------------------

@@ -1,9 +1,10 @@
 import {
   parseNumber,
   isNumber,
-  formatNumber,
+  formatStandardNumber,
   formatDecimal,
   formatPercent,
+  formatNumber,
 } from "../../src/helpers/index";
 
 describe("isNumber", () => {
@@ -51,29 +52,29 @@ describe("parseNumber", () => {
 
 describe("formatNumber", () => {
   test("formatNumber", () => {
-    expect(formatNumber(1)).toBe("1");
-    expect(formatNumber(0)).toBe("0");
-    expect(formatNumber(-1)).toBe("-1");
-    expect(formatNumber(0.1)).toBe("0.1");
-    expect(formatNumber(0.01)).toBe("0.01");
-    expect(formatNumber(0.001)).toBe("0.001");
-    expect(formatNumber(0.0001)).toBe("0.0001");
-    expect(formatNumber(0.00001)).toBe("0.00001");
-    expect(formatNumber(0.000001)).toBe("0.000001");
-    expect(formatNumber(0.0000001)).toBe("0.0000001");
-    expect(formatNumber(0.00000001)).toBe("0.00000001");
-    expect(formatNumber(0.000000001)).toBe("0.000000001");
-    expect(formatNumber(0.0000000001)).toBe("0.0000000001");
-    expect(formatNumber(0.00000000001)).toBe("0");
-    expect(formatNumber(0.000000000001)).toBe("0");
+    expect(formatStandardNumber(1)).toBe("1");
+    expect(formatStandardNumber(0)).toBe("0");
+    expect(formatStandardNumber(-1)).toBe("-1");
+    expect(formatStandardNumber(0.1)).toBe("0.1");
+    expect(formatStandardNumber(0.01)).toBe("0.01");
+    expect(formatStandardNumber(0.001)).toBe("0.001");
+    expect(formatStandardNumber(0.0001)).toBe("0.0001");
+    expect(formatStandardNumber(0.00001)).toBe("0.00001");
+    expect(formatStandardNumber(0.000001)).toBe("0.000001");
+    expect(formatStandardNumber(0.0000001)).toBe("0.0000001");
+    expect(formatStandardNumber(0.00000001)).toBe("0.00000001");
+    expect(formatStandardNumber(0.000000001)).toBe("0.000000001");
+    expect(formatStandardNumber(0.0000000001)).toBe("0.0000000001");
+    expect(formatStandardNumber(0.00000000001)).toBe("0");
+    expect(formatStandardNumber(0.000000000001)).toBe("0");
 
     // @compatibility note: in Google Sheets, the next three tests result in 1234512345
-    expect(formatNumber(1234512345.1)).toBe("1234512345.1");
-    expect(formatNumber(1234512345.12)).toBe("1234512345.12");
-    expect(formatNumber(1234512345.123)).toBe("1234512345.123");
+    expect(formatStandardNumber(1234512345.1)).toBe("1234512345.1");
+    expect(formatStandardNumber(1234512345.12)).toBe("1234512345.12");
+    expect(formatStandardNumber(1234512345.123)).toBe("1234512345.123");
 
-    expect(formatNumber(123.10000000001)).toBe("123.1");
-    expect(formatNumber(123.10000000000000001)).toBe("123.1");
+    expect(formatStandardNumber(123.10000000001)).toBe("123.1");
+    expect(formatStandardNumber(123.10000000000000001)).toBe("123.1");
   });
 
   test("formatDecimal", () => {
@@ -125,5 +126,51 @@ describe("formatNumber", () => {
     expect(formatPercent(0)).toBe("0.00%");
     expect(formatPercent(0.123)).toBe("12.30%");
     expect(formatPercent(0.1234)).toBe("12.34%");
+  });
+});
+
+describe("formatNumber function", () => {
+  test("a normal number: #,##0.00", () => {
+    expect(formatNumber(0, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(1, "#,##0.00")).toBe("1.00");
+    expect(formatNumber(1.1, "#,##0.00")).toBe("1.10");
+    expect(formatNumber(5.1, "#,##0.00")).toBe("5.10");
+    expect(formatNumber(-1, "#,##0.00")).toBe("-1.00");
+    expect(formatNumber(10, "#,##0.00")).toBe("10.00");
+    expect(formatNumber(100, "#,##0.00")).toBe("100.00");
+    expect(formatNumber(-100, "#,##0.00")).toBe("-100.00");
+    expect(formatNumber(1000, "#,##0.00")).toBe("1,000.00");
+    expect(formatNumber(10000, "#,##0.00")).toBe("10,000.00");
+    expect(formatNumber(100000, "#,##0.00")).toBe("100,000.00");
+    expect(formatNumber(1000000, "#,##0.00")).toBe("1,000,000.00");
+    expect(formatNumber(-1000000, "#,##0.00")).toBe("-1,000,000.00");
+  });
+
+  test("formatPercent", () => {
+    expect(formatNumber(0, "0.00%")).toBe("0.00%");
+    expect(formatNumber(0.123, "0.00%")).toBe("12.30%");
+    expect(formatNumber(0.1234, "0.00%")).toBe("12.34%");
+    expect(formatNumber(0.12345, "0.00%")).toBe("12.35%");
+  });
+
+  test("formatPercent, with various number of decimals", () => {
+    expect(formatNumber(0.1234, "0%")).toBe("12%");
+    expect(formatNumber(0.1234, "0.0%")).toBe("12.3%");
+    expect(formatNumber(0.1234, "0.00%")).toBe("12.34%");
+    expect(formatNumber(0.1234, "0.000%")).toBe("12.340%");
+  });
+
+  test("can select different formatting for positive/negative", () => {
+    const format = "#,##0.00;0.00%";
+    expect(formatNumber(12345.54, format)).toBe("12,345.54");
+    expect(formatNumber(0, format)).toBe("0.00");
+    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
+  });
+
+  test("can select different formatting for positive/negative/zero", () => {
+    const format = "#,##0.0;0.00%;0.000";
+    expect(formatNumber(12345.54, format)).toBe("12,345.5");
+    expect(formatNumber(0, format)).toBe("0.000");
+    expect(formatNumber(-1.2, format)).toBe("120.00%"); // note the lack of - sign
   });
 });
