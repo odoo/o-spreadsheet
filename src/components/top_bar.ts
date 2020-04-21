@@ -107,6 +107,7 @@ const FORMATS = [
   { name: "auto", text: "Automatic" },
   { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
   { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
+  { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
 ];
 
 // -----------------------------------------------------------------------------

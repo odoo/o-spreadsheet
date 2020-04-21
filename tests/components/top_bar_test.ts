@@ -202,6 +202,7 @@ describe("TopBar component", () => {
     const formatTool = fixture.querySelector('.o-tool[title="Format"]')!;
     formatTool.querySelector(".o-text-icon")!.dispatchEvent(new Event("click"));
     await nextTick();
+    expect(parent.el).toMatchSnapshot();
     formatTool
       .querySelector('[data-format="percent"]')!
       .dispatchEvent(new Event("click", { bubbles: true }));
