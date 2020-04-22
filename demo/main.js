@@ -9,7 +9,6 @@ let start;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
-
   constructor() {
     super();
     this.key = 1;
@@ -30,55 +29,13 @@ class App extends Component {
   notifyUser(ev) {
     window.alert(ev.detail.content);
   }
-
-  onSave(ev) {
-    const data = ev.detail.data;
-    const downloadObjectAsJson = function(exportObj, exportName) {
-      const dataStr =
-        "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-      const downloadAnchorNode = document.createElement("a");
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", exportName + ".json");
-      document.body.appendChild(downloadAnchorNode); // required for firefox
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-    };
-    downloadObjectAsJson(data, "export");
-  }
-
-  onLoad(ev) {
-    // <input type="file" id="selectFiles" value="Import" /><br /> <button id="import">Import</button> <textarea id="result"></textarea>
-    let data = false;
-    const uploadAnchorNode = document.createElement("input");
-    uploadAnchorNode.setAttribute("type", "file");
-    uploadAnchorNode.setAttribute("id", "selectFiles");
-    document.body.appendChild(uploadAnchorNode);
-    uploadAnchorNode.addEventListener("change", () => {
-      const files = document.getElementById("selectFiles").files;
-      if (files.length <= 0) {
-        return false;
-      }
-      const fr = new FileReader();
-      fr.onload = e => {
-        data = JSON.parse(e.target.result);
-        this.data = data;
-        this.key++;
-        this.render();
-        uploadAnchorNode.remove();
-      };
-      fr.readAsText(files.item(0));
-    });
-    uploadAnchorNode.click();
-  }
 }
 
 App.template = xml`
   <div>
     <Spreadsheet data="data" t-key="key"
       t-on-ask-confirmation="askConfirmation"
-      t-on-notify-user="notifyUser"
-      t-on-save-content="onSave"
-      t-on-load-content="onLoad"/>
+      t-on-notify-user="notifyUser"/>
   </div>`;
 App.style = css`
   html {
