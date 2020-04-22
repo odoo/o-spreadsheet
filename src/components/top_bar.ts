@@ -5,103 +5,10 @@ import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
 import { isEqual } from "../helpers/index";
+import { ColorPicker } from "./color_picker";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
-
-export const COLORS = [
-  [
-    "#ffffff",
-    "#000100",
-    "#e7e5e6",
-    "#445569",
-    "#5b9cd6",
-    "#ed7d31",
-    "#a5a5a5",
-    "#ffc001",
-    "#4371c6",
-    "#71ae47",
-  ],
-  [
-    "#f2f2f2",
-    "#7f7f7f",
-    "#d0cecf",
-    "#d5dce4",
-    "#deeaf6",
-    "#fce5d5",
-    "#ededed",
-    "#fff2cd",
-    "#d9e2f3",
-    "#e3efd9",
-  ],
-  [
-    "#d8d8d8",
-    "#595959",
-    "#afabac",
-    "#adb8ca",
-    "#bdd7ee",
-    "#f7ccac",
-    "#dbdbdb",
-    "#ffe59a",
-    "#b3c6e7",
-    "#c5e0b3",
-  ],
-  [
-    "#bfbfbf",
-    "#3f3f3f",
-    "#756f6f",
-    "#8596b0",
-    "#9cc2e6",
-    "#f4b184",
-    "#c9c9c9",
-    "#fed964",
-    "#8eaada",
-    "#a7d08c",
-  ],
-  [
-    "#a5a5a5",
-    "#262626",
-    "#3a3839",
-    "#333f4f",
-    "#2e75b5",
-    "#c45a10",
-    "#7b7b7b",
-    "#bf8e01",
-    "#2f5596",
-    "#538136",
-  ],
-  [
-    "#7f7f7f",
-    "#0c0c0c",
-    "#171516",
-    "#222a35",
-    "#1f4e7a",
-    "#843c0a",
-    "#525252",
-    "#7e6000",
-    "#203864",
-    "#365624",
-  ],
-  [
-    "#c00000",
-    "#fe0000",
-    "#fdc101",
-    "#ffff01",
-    "#93d051",
-    "#00b04e",
-    "#01b0f1",
-    "#0170c1",
-    "#012060",
-    "#7030a0",
-  ],
-];
-
-export const COLOR_PICKER = xml/* xml */ `
-  <div class="o-dropdown-line" t-foreach="COLORS" t-as="colors" t-key="colors">
-    <t t-foreach="colors" t-as="color" t-key="color">
-      <div class="o-line-item" t-att-data-color="color" t-attf-style="background-color:{{color}};"></div>
-    </t>
-  </div>`;
 
 const FORMATS = [
   { name: "auto", text: "Automatic" },
@@ -146,16 +53,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}</div>
         <div class="o-tool o-dropdown o-with-color">
           <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="toggleMenu('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
-          <div class="o-dropdown-content" t-if="state.textColorTool" t-on-click="setColor('textColor')">
-            <t t-call="${COLOR_PICKER}"/>
-          </div>
+          <ColorPicker t-if="state.textColorTool" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
         </div>
         <div class="o-divider"/>
         <div class="o-tool  o-dropdown o-with-color">
           <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="toggleMenu('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
-          <div class="o-dropdown-content" t-if="state.fillColorTool" t-on-click="setColor('fillColor')">
-            <t t-call="${COLOR_PICKER}"/>
-          </div>
+          <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
         </div>
         <div class="o-tool o-dropdown">
           <span title="Borders" t-on-click.stop="toggleMenu('borderTool')">${icons.BORDERS_ICON}</span>
@@ -305,11 +208,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           height: 16px;
           margin-top: 2px;
         }
-        .o-with-color {
-          .o-line-item:hover {
-            outline: 1px solid gray;
-          }
-        }
         .o-border {
           .o-line-item {
             padding: 4px;
@@ -327,7 +225,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       }
     }
   `;
-  COLORS = COLORS;
+  static components = { ColorPicker };
   formats = FORMATS;
   currentFormat = "auto";
   fontSizes = fontSizes;
@@ -436,17 +334,15 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       }
     }
   }
-  setColor(target, ev) {
-    const color = ev.target.dataset.color;
-    if (color) {
-      const style = { [target]: color };
-      this.dispatch("SET_FORMATTING", {
-        sheet: this.getters.getActiveSheet(),
-        target: this.getters.getSelectedZones(),
-        style,
-      });
-      this.closeMenus();
-    }
+  setColor(target: string, ev: CustomEvent) {
+    const color = ev.detail.color;
+    const style = { [target]: color };
+    this.dispatch("SET_FORMATTING", {
+      sheet: this.getters.getActiveSheet(),
+      target: this.getters.getSelectedZones(),
+      style,
+    });
+    this.closeMenus();
   }
   setBorder(command) {
     this.dispatch("SET_FORMATTING", {

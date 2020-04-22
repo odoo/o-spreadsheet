@@ -1,5 +1,4 @@
 import * as owl from "@odoo/owl";
-import { COLORS } from "../top_bar";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { colorNumberString, uuidv4 } from "../../helpers/index";
@@ -155,7 +154,6 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
   static style = CSS;
   static components = { CellIsRuleEditor, ColorScaleRuleEditor };
   colorNumberString = colorNumberString;
-  COLORS = COLORS;
   getters = this.env.getters;
 
   state = useState({

@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import * as icons from "../icons";
 
-import { COLOR_PICKER, COLORS } from "../top_bar";
+import { ColorPicker } from "../color_picker";
 import { colorNumberString } from "../../helpers/index";
 import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
 
@@ -14,10 +14,7 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
         <div class="o-tool  o-dropdown o-with-color">
         <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
               t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
-              <div class="o-dropdown-content" t-if="state[thresholdType+'ColorTool']"
-                  t-on-click="setColor(thresholdType)">
-                  <t t-call="${COLOR_PICKER}"/>
-              </div>
+              <ColorPicker t-if="state[thresholdType+'ColorTool']" t-on-color-picked="setColor(thresholdType)"/>
           </div>
       </div>
       <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
@@ -72,8 +69,7 @@ interface Props {
 export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-
-  COLORS = COLORS;
+  static components = { ColorPicker };
 
   cf = this.props.conditionalFormat;
   colorNumberString = colorNumberString;
@@ -101,12 +97,10 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   toggleTool(tool: string) {
     this.closeMenus();
   }
-  setColor(target, ev) {
-    const colorString: string = ev.target.dataset.color;
-    if (colorString) {
-      this.state[target].color = Number.parseInt(colorString.substr(1), 16);
-      this.closeMenus();
-    }
+  setColor(target: string, ev: CustomEvent) {
+    const color: string = ev.detail.color;
+    this.state[target].color = Number.parseInt(color.substr(1), 16);
+    this.closeMenus();
   }
   closeMenus() {
     this.state.minimumColorTool = false;

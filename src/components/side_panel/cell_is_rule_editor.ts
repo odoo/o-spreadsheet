@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import * as icons from "../icons";
-import { COLOR_PICKER, COLORS } from "../top_bar";
+import { ColorPicker } from "../color_picker";
 import { CellIsRule, ConditionalFormat, Style, SpreadsheetEnv } from "../../types";
 
 const { Component, useState } = owl;
@@ -47,17 +47,13 @@ const TEMPLATE = xml/* xml */ `
         <div class="o-tool o-dropdown o-with-color">
               <span title="Text Color" t-attf-style="border-color:{{state.style.textColor}}"
                     t-on-click.stop="toggleMenu('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
-            <div class="o-dropdown-content" t-if="state.textColorTool" t-on-click="setColor('textColor')">
-                <t t-call="${COLOR_PICKER}"/>
-            </div>
+                    <ColorPicker t-if="state.textColorTool" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
         </div>
         <div class="o-divider"/>
         <div class="o-tool  o-dropdown o-with-color">
               <span title="Fill Color" t-attf-style="border-color:{{state.style.fillColor}}"
                     t-on-click.stop="toggleMenu('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
-            <div class="o-dropdown-content" t-if="state.fillColorTool" t-on-click="setColor('fillColor')">
-                <t t-call="${COLOR_PICKER}"/>
-            </div>
+                    <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
         </div>
     </div>
     <div class="o-cf-buttons">
@@ -90,10 +86,10 @@ interface Props {
 export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
+  static components = { ColorPicker };
 
   //@ts-ignore --> used in XML template
   private cellIsOperators = cellIsOperators;
-  COLORS = COLORS;
 
   cf = this.props.conditionalFormat as ConditionalFormat;
   rule = this.cf.rule as CellIsRule;
@@ -124,12 +120,10 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
     this.state.style[tool] = !this.state.style[tool];
     this.closeMenus();
   }
-  setColor(target, ev) {
-    const color = ev.target.dataset.color;
-    if (color) {
-      this.state.style[target] = color;
-      this.closeMenus();
-    }
+  setColor(target: string, ev: CustomEvent) {
+    const color = ev.detail.color;
+    this.state.style[target] = color;
+    this.closeMenus();
   }
   closeMenus() {
     this.state.textColorTool = false;
