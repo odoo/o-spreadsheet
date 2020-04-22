@@ -22,7 +22,8 @@ const TEMPLATE = xml/* xml */ `
     <BottomBar />
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
-           component="sidePanel.component"/>
+           component="sidePanel.component"
+           panelProps="sidePanel.panelProps"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -59,9 +60,10 @@ export class Spreadsheet extends Component<Props> {
   model = new Model(this.props.data);
   grid = useRef("grid");
 
-  sidePanel = useState({ isOpen: false } as {
+  sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;
     component?: string;
+    panelProps: any;
   });
 
   // last string that was cut or copied. It is necessary so we can make the
@@ -72,7 +74,7 @@ export class Spreadsheet extends Component<Props> {
   constructor() {
     super(...arguments);
     useSubEnv({
-      openSidePanel: (panel: string) => this.openSidePanel(panel),
+      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
     });
@@ -90,8 +92,9 @@ export class Spreadsheet extends Component<Props> {
     this.model.off("update", this);
   }
 
-  openSidePanel(panel: string) {
+  openSidePanel(panel: string, panelProps: any) {
     this.sidePanel.component = panel;
+    this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
   }
   focusGrid() {

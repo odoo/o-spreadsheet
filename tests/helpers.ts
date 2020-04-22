@@ -41,21 +41,23 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
              model="model"
-             component="sidePanel.component" />
+             component="sidePanel.component"
+             panelProps="sidePanel.panelProps" />
     </div>`;
 
   static components = { Grid, SidePanel };
   model: Model;
   grid: any = useRef("grid");
-  sidePanel = useState({ isOpen: false } as {
+  sidePanel = useState({ isOpen: false, panelProps: {} } as {
     isOpen: boolean;
     component?: string;
+    panelProps: any;
   });
 
   constructor(model: Model) {
     super();
     useSubEnv({
-      openSidePanel: (panel: string) => this.openSidePanel(panel),
+      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       dispatch: model.dispatch,
       getters: model.getters,
     });
@@ -77,8 +79,9 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     this.model.off("update", this);
   }
 
-  openSidePanel(panel: string) {
+  openSidePanel(panel: string, panelProps: any) {
     this.sidePanel.component = panel;
+    this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
   }
 }
