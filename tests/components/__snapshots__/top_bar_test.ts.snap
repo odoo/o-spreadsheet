@@ -384,18 +384,6 @@ exports[`TopBar component simple rendering 1`] = `
     class="o-tools"
   >
     <div
-      class="o-tool"
-      title="Save"
-    >
-      SAVE
-    </div>
-    <div
-      class="o-tool"
-      title="Load"
-    >
-      LOAD
-    </div>
-    <div
       class="o-tool o-disabled"
       title="Undo"
     >
