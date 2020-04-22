@@ -62,6 +62,12 @@ export class MergePlugin extends BasePlugin {
       case "REMOVE_MERGE":
         this.removeMerge(cmd.sheet, cmd.zone);
         break;
+      case "PASTE_CELL":
+        const xc = toXC(cmd.originCol, cmd.originRow);
+        if (this.isMainCell(xc, cmd.sheet)) {
+          this.pasteMerge(xc, cmd.col, cmd.row, cmd.sheet, cmd.cut);
+        }
+        break;
     }
     if (this.pending) {
       this.importMerges(this.pending.sheet, this.pending.merges);
@@ -113,6 +119,16 @@ export class MergePlugin extends BasePlugin {
 
   isInMerge(xc: string): boolean {
     return xc in this.workbook.mergeCellMap;
+  }
+
+  isMainCell(xc: string, sheet: string): boolean {
+    const sheetID = this.workbook.sheets.findIndex((s) => s.name === sheet);
+    for (let merge of Object.values(this.workbook.sheets[sheetID].merges)) {
+      if (xc === merge.topLeft) {
+        return true;
+      }
+    }
+    return false;
   }
 
   getMainCell(xc: string): string {
@@ -168,15 +184,30 @@ export class MergePlugin extends BasePlugin {
       }
     }
     for (let m of previousMerges) {
+      const { top, bottom, left, right } = this.workbook.merges[m];
+      for (let r = top; r <= bottom; r++) {
+        for (let c = left; c <= right; c++) {
+          const xc = toXC(c, r);
+          if (this.workbook.mergeCellMap[xc] !== id) {
+            this.history.updateState(["mergeCellMap", xc], undefined);
+            this.dispatch("CLEAR_CELL", {
+              sheet,
+              col: c,
+              row: r,
+            });
+          }
+        }
+      }
       this.history.updateState(["merges", m], undefined);
     }
   }
 
   private removeMerge(sheet: string, zone: Zone) {
+    const sheetID = this.workbook.sheets.findIndex((s) => s.name === sheet);
     const { left, top, bottom, right } = zone;
     let tl = toXC(left, top);
-    const mergeId = this.workbook.mergeCellMap[tl];
-    const mergeZone = this.workbook.merges[mergeId];
+    const mergeId = this.workbook.sheets[sheetID].mergeCellMap[tl];
+    const mergeZone = this.workbook.sheets[sheetID].merges[mergeId];
     if (!isEqual(zone, mergeZone)) {
       throw new Error("Invalid merge zone");
     }
@@ -249,6 +280,31 @@ export class MergePlugin extends BasePlugin {
         format: topLeft.format,
       });
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Copy/Cut/Paste and Merge
+  // ---------------------------------------------------------------------------
+  private pasteMerge(xc: string, col: number, row: number, sheet: string, cut?: boolean) {
+    const sheetID = this.workbook.sheets.findIndex((s) => s.name === sheet);
+    const mergeId = this.workbook.sheets[sheetID].mergeCellMap[xc];
+    const merge = this.workbook.sheets[sheetID].merges[mergeId];
+    const newMerge = {
+      left: col,
+      top: row,
+      right: col + merge.right - merge.left,
+      bottom: row + merge.bottom - merge.top,
+    };
+    if (cut) {
+      this.dispatch("REMOVE_MERGE", {
+        sheet: sheet,
+        zone: merge,
+      });
+    }
+    this.dispatch("ADD_MERGE", {
+      sheet: this.workbook.activeSheet.name,
+      zone: newMerge,
+    });
   }
 
   // ---------------------------------------------------------------------------

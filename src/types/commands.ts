@@ -1,4 +1,5 @@
 import { Zone, Style, BorderCommand, ConditionalFormat } from "./index";
+import { Cell } from "./misc";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -152,6 +153,17 @@ export interface PasteCommand {
   type: "PASTE";
   target: Zone[];
   onlyFormat?: boolean;
+}
+
+export interface PasteCellCommand {
+  type: "PASTE_CELL";
+  origin: Cell | null;
+  originCol: number;
+  originRow: number;
+  col: number;
+  row: number;
+  sheet: string;
+  cut?: boolean;
 }
 
 export interface ActivatePaintFormatCommand {
@@ -315,6 +327,7 @@ export type Command =
   | CopyCommand
   | CutCommand
   | PasteCommand
+  | PasteCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
   | ResizeRowsCommand

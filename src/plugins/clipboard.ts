@@ -4,6 +4,12 @@ import { clip, toXC } from "../helpers/index";
 import { Mode } from "../model";
 import { Cell, Command, GridRenderingContext, LAYERS, Zone } from "../types/index";
 
+interface ClipboardCell {
+  cell: Cell | null;
+  col: number;
+  row: number;
+}
+
 /**
  * Clipboard Plugin
  *
@@ -18,7 +24,8 @@ export class ClipboardPlugin extends BasePlugin {
   private status: "empty" | "visible" | "invisible" = "empty";
   private shouldCut?: boolean;
   private zones: Zone[] = [];
-  private cells?: (Cell | null)[][];
+  private cells?: ClipboardCell[][];
+  private originSheet: string = this.workbook.activeSheet.name;
   private _isPaintingFormat: boolean = false;
   private onlyFormat: boolean = false;
 
@@ -43,6 +50,9 @@ export class ClipboardPlugin extends BasePlugin {
         this._isPaintingFormat = false;
         this.onlyFormat = onlyFormat;
         this.pasteFromModel(cmd.target);
+        break;
+      case "PASTE_CELL":
+        this.pasteCell(cmd.origin, cmd.col, cmd.row, cmd.cut);
         break;
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
@@ -76,7 +86,7 @@ export class ClipboardPlugin extends BasePlugin {
     return (
       this.cells
         .map((cells) => {
-          return cells.map((c) => (c ? this.getters.getCellText(c) : "")).join("\t");
+          return cells.map((c) => (c.cell ? this.getters.getCellText(c.cell) : "")).join("\t");
         })
         .join("\n") || "\t"
     );
@@ -97,16 +107,20 @@ export class ClipboardPlugin extends BasePlugin {
     let clippedZones = areZonesCompatible ? zones : [zones[zones.length - 1]];
     clippedZones = clippedZones.map((z) => Object.assign({}, z));
 
-    const cells: (Cell | null)[][] = [];
+    const cells: ClipboardCell[][] = [];
     let { top, bottom } = clippedZones[0];
     for (let r = top; r <= bottom; r++) {
-      const row: (Cell | null)[] = [];
+      const row: ClipboardCell[] = [];
       cells.push(row);
       for (let zone of clippedZones) {
         let { left, right } = zone;
         for (let c = left; c <= right; c++) {
           const cell = this.getters.getCell(c, r);
-          row.push(cell ? Object.assign({}, cell) : null);
+          row.push({
+            cell: cell ? Object.assign({}, cell) : null,
+            col: c,
+            row: r,
+          });
         }
       }
     }
@@ -115,6 +129,7 @@ export class ClipboardPlugin extends BasePlugin {
     this.shouldCut = cut;
     this.zones = clippedZones;
     this.cells = cells;
+    this.originSheet = this.workbook.activeSheet.name;
   }
 
   private pasteFromClipboard(target: Zone[], content: string) {
@@ -228,43 +243,56 @@ export class ClipboardPlugin extends BasePlugin {
       const rowCells = this.cells![r];
       for (let c = 0; c < width; c++) {
         const originCell = rowCells[c];
-        const targetCell = this.getters.getCell(col + c, row + r);
-        if (originCell) {
-          let content: string | undefined = originCell.content || "";
-          if (originCell.type === "formula") {
-            const offsetX = col + c - originCell.col;
-            const offsetY = row + r - originCell.row;
-            content = applyOffset(content, offsetX, offsetY, cols.length, rows.length);
-          }
-          if (this.onlyFormat) {
-            content = targetCell ? targetCell.content : "";
-          }
-          let newCell = {
-            style: originCell.style,
-            border: originCell.border,
-            format: originCell.format,
-            sheet: this.workbook.activeSheet.name,
-            col: col + c,
-            row: row + r,
-            content,
-          };
+        this.dispatch("PASTE_CELL", {
+          origin: originCell.cell,
+          originCol: originCell.col,
+          originRow: originCell.row,
+          col: col + c,
+          row: row + r,
+          sheet: this.originSheet,
+          cut: this.shouldCut,
+        });
+      }
+    }
+  }
 
-          this.dispatch("UPDATE_CELL", newCell);
+  pasteCell(origin: Cell | null, col: number, row: number, cut?: boolean) {
+    const { cols, rows } = this.workbook;
+    const targetCell = this.getters.getCell(col, row);
+    if (origin) {
+      let content: string | undefined = origin.content || "";
+      if (origin.type === "formula") {
+        const offsetX = col - origin.col;
+        const offsetY = row - origin.row;
+        content = applyOffset(content, offsetX, offsetY, cols.length, rows.length);
+      }
+      if (this.onlyFormat) {
+        content = targetCell ? targetCell.content : "";
+      }
+      let newCell = {
+        style: origin.style,
+        border: origin.border,
+        format: origin.format,
+        sheet: this.workbook.activeSheet.name,
+        col: col,
+        row: row,
+        content,
+      };
+
+      this.dispatch("UPDATE_CELL", newCell);
+    }
+    if (!origin && targetCell) {
+      if (this.onlyFormat) {
+        if (targetCell.style || targetCell.border) {
+          this.history.updateCell(targetCell, "style", undefined);
+          this.history.updateCell(targetCell, "border", undefined);
         }
-        if (!originCell && targetCell) {
-          if (this.onlyFormat) {
-            if (targetCell.style || targetCell.border) {
-              this.history.updateCell(targetCell, "style", undefined);
-              this.history.updateCell(targetCell, "border", undefined);
-            }
-          } else {
-            this.dispatch("CLEAR_CELL", {
-              sheet: this.workbook.activeSheet.name,
-              col: col + c,
-              row: row + r,
-            });
-          }
-        }
+      } else {
+        this.dispatch("CLEAR_CELL", {
+          sheet: this.workbook.activeSheet.name,
+          col: col,
+          row: row,
+        });
       }
     }
   }
