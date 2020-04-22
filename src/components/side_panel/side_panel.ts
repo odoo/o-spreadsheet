@@ -9,15 +9,15 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-sidePanel" >
     <div class="o-sidePanelHeader">
         <div class="o-sidePanelTitle">
-            <t t-esc="title" />
+            <t t-esc="title"/>
         </div>
         <div class="o-sidePanelClose" t-on-click="trigger('close-side-panel')">x</div>
     </div>
     <div class="o-sidePanelBody">
-      <t t-component="Body"/>
+      <t t-component="Body" t-props="panelProps"/>
     </div>
     <div class="o-sidePanelFooter" t-if="Footer">
-      <t t-component="Footer"/>
+      <t t-component="Footer" t-props="panelProps"/>
     </div>
   </div>`;
 
@@ -63,7 +63,8 @@ export class SidePanel extends Component<any, SpreadsheetEnv> {
   static style = CSS;
 
   panel = sidePanelRegistry.get(this.props.component);
+  panelProps = this.props.panelProps;
   Body = this.panel.Body;
   Footer = this.panel.Footer;
-  title = this.panel.title;
+  title = typeof this.panel.title === "string" ? this.panel.title : this.panel.title(this.env);
 }
