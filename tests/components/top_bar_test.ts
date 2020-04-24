@@ -2,6 +2,8 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
 import { getCell, makeTestFixture, nextTick } from "../helpers";
+import { menuItemRegistry } from "../../src/menu_items_registry";
+import { triggerMouseEvent } from "../dom_helper";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -240,5 +242,43 @@ describe("TopBar component", () => {
     fixture.querySelector('span[title="Borders"]')!.dispatchEvent(new Event("click"));
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+  });
+
+  test("Can open a Topbar menu", async () => {
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
+    const items = menuItemRegistry.getAll();
+    const number = items.filter((item) => item.children.length !== 0).length;
+    expect(fixture.querySelectorAll(".o-topbar-menu")).toHaveLength(number);
+    triggerMouseEvent(".o-menu-dropdown[data-id='file']", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
+    const numberChild = menuItemRegistry
+      .get("file")
+      .children.filter((item) => item.children.length !== 0 || item.action).length;
+    expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
+    triggerMouseEvent(".o-spreadsheet-topbar", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
+  });
+
+  test("Can open a Topbar menu with mousemove", async () => {
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+    triggerMouseEvent(".o-menu-dropdown[data-id='file']", "click");
+    await nextTick();
+    let numberChild = menuItemRegistry
+      .get("file")
+      .children.filter((item) => item.children.length !== 0 || item.action).length;
+    expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
+    triggerMouseEvent(".o-menu-dropdown[data-id='insert']", "mouseover");
+    await nextTick();
+    numberChild = menuItemRegistry
+      .get("insert")
+      .children.filter((item) => item.children.length !== 0 || item.action).length;
+    expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
   });
 });

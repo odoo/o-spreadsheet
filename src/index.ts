@@ -1,4 +1,4 @@
-import { contextMenuRegistry, sidePanelRegistry } from "./components/index";
+import { contextMenuRegistry, sidePanelRegistry, menuItemRegistry } from "./components/index";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { numberToLetters, toXC } from "./helpers/index";
@@ -19,6 +19,7 @@ export { Model } from "./model";
 export const registries = {
   sidePanelRegistry,
   contextMenuRegistry,
+  menuItemRegistry,
   functionRegistry,
   pluginRegistry,
 };
