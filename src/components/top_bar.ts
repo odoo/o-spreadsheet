@@ -34,7 +34,7 @@ owl.QWeb.registerTemplate(
         <div t-if="child.separator and !child_last" class="o-separator"/>
       </t>
       <t t-elif="child.action">
-        <div class="o-menu-dropdown-item" t-esc="typeof child.name === 'string' ? child.name : child.name(env)" t-on-click="doAction(child.action)"/>
+        <div class="o-menu-dropdown-item" t-esc="typeof child.name === 'string' ? child.name : child.name(env)" t-on-click.stop="doAction(child.action)"/>
         <div t-if="child.separator and !child_last" class="o-separator"/>
       </t>
     </t>

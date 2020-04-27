@@ -26,6 +26,14 @@ function getName(path: string[], env: SpreadsheetEnv): string {
 }
 
 describe("Menu Item Registry", () => {
+  let menuDefinitions;
+  beforeEach(() => {
+    menuDefinitions = Object.assign({}, menuItemRegistry.content);
+  });
+
+  afterEach(() => {
+    menuItemRegistry.content = menuDefinitions;
+  });
   test("Can add children to menu Items", () => {
     menuItemRegistry.add("root", { name: "Root", sequence: 1 });
     menuItemRegistry.addChild("child1", ["root"], { name: "Child1", sequence: 1 });

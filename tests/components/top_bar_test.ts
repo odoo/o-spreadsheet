@@ -281,4 +281,24 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
   });
+
+  test("Can click on a menuItem do execute action and close menus", async () => {
+    const menuDefinitions = Object.assign({}, menuItemRegistry.content);
+    let number = 0;
+    menuItemRegistry.add("test", { name: "Test", sequence: 1 });
+    menuItemRegistry.addChild("testaction", ["test"], {
+      name: "TestAction",
+      sequence: 1,
+      action: () => number++,
+    });
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+    triggerMouseEvent(".o-menu-dropdown[data-id='test']", "click");
+    await nextTick();
+    triggerMouseEvent(".o-menu-dropdown-item", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
+    expect(number).toBe(1);
+    menuItemRegistry.content = menuDefinitions;
+  });
 });
