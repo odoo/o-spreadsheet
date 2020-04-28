@@ -7,6 +7,8 @@ import {
   updateAddRows,
   updateRemoveColumns,
   updateRemoveRows,
+  isInside,
+  recomputeZones,
 } from "../helpers/index";
 import {
   Cell,
@@ -45,7 +47,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
-        this.addConditionalFormatting(cmd.cf);
+        this.addConditionalFormatting(cmd.cf, this.workbook.activeSheet.name);
         this.isStale = true;
         break;
       case "REMOVE_COLUMNS":
@@ -67,6 +69,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
         const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
         this.adaptcfRules(cmd.sheet, (range: string) => updateAddRows(range, row, cmd.quantity));
         this.isStale = true;
+        break;
+      case "PASTE_CELL":
+        this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheet, cmd.cut);
         break;
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
@@ -129,8 +134,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
   /**
    * Add or replace a conditional format rule
    */
-  private addConditionalFormatting(cf: ConditionalFormat) {
-    const currentCF = this.cfRules[this.workbook.activeSheet.name].slice();
+  private addConditionalFormatting(cf: ConditionalFormat, sheet: string) {
+    const currentCF = this.cfRules[sheet].slice();
     const replaceIndex = currentCF.findIndex((c) => c.id === cf.id);
 
     if (replaceIndex > -1) {
@@ -138,16 +143,15 @@ export class ConditionalFormatPlugin extends BasePlugin {
     } else {
       currentCF.push(cf);
     }
-    this.history.updateLocalState(["cfRules", this.workbook.activeSheet.name], currentCF);
+    this.history.updateLocalState(["cfRules", sheet], currentCF);
   }
 
   /**
    * Execute the complete color scale for the range of the conditional format for a 2 colors rule
    */
-  private applyColorScale(cf: ConditionalFormat): void {
-    let rule = cf.rule as ColorScaleRule;
-    const minValue = Number(this.getters.evaluateFormula(`=min(${cf.ranges[0]})`));
-    const maxValue = Number(this.getters.evaluateFormula(`=max(${cf.ranges[0]})`));
+  private applyColorScale(range: string, rule: ColorScaleRule): void {
+    const minValue = Number(this.getters.evaluateFormula(`=min(${range})`));
+    const maxValue = Number(this.getters.evaluateFormula(`=max(${range})`));
     if (Number.isNaN(minValue) || Number.isNaN(maxValue)) {
       return;
     }
@@ -162,28 +166,25 @@ export class ConditionalFormatPlugin extends BasePlugin {
     const colorDiffUnitR = deltaColorR / deltaValue;
     const colorDiffUnitG = deltaColorG / deltaValue;
     const colorDiffUnitB = deltaColorB / deltaValue;
-
-    for (let ref of cf.ranges) {
-      const zone: Zone = toZone(ref);
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          const cell = this.workbook.rows[row].cells[col];
-          if (cell && cell.value && !Number.isNaN(Number.parseFloat(cell.value))) {
-            const r = Math.round(
-              ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
-            );
-            const g = Math.round(
-              ((rule.minimum.color >> 8) % 256) - colorDiffUnitG * (cell.value - minValue)
-            );
-            const b = Math.round(
-              (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
-            );
-            const color = (r << 16) | (g << 8) | b;
-            this.computedStyles[this.workbook.activeSheet.name][cell.xc] =
-              this.computedStyles[this.workbook.activeSheet.name][cell.xc] || {};
-            this.computedStyles[this.workbook.activeSheet.name][cell.xc].fillColor =
-              "#" + colorNumberString(color);
-          }
+    const zone: Zone = toZone(range);
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const cell = this.workbook.rows[row].cells[col];
+        if (cell && cell.value && !Number.isNaN(Number.parseFloat(cell.value))) {
+          const r = Math.round(
+            ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
+          );
+          const g = Math.round(
+            ((rule.minimum.color >> 8) % 256) - colorDiffUnitG * (cell.value - minValue)
+          );
+          const b = Math.round(
+            (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
+          );
+          const color = (r << 16) | (g << 8) | b;
+          this.computedStyles[this.workbook.activeSheet.name][cell.xc] =
+            this.computedStyles[this.workbook.activeSheet.name][cell.xc] || {};
+          this.computedStyles[this.workbook.activeSheet.name][cell.xc].fillColor =
+            "#" + colorNumberString(color);
         }
       }
     }
@@ -257,7 +258,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
       try {
         switch (cf.rule.type) {
           case "ColorScaleRule":
-            this.applyColorScale(cf);
+            for (let range of cf.ranges) {
+              this.applyColorScale(range, cf.rule);
+            }
             break;
           default:
             for (let ref of cf.ranges) {
@@ -303,5 +306,60 @@ export class ConditionalFormatPlugin extends BasePlugin {
       newCfs.push(cf);
     }
     this.history.updateLocalState(["cfRules", sheet], newCfs);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Copy/Cut/Paste and Merge
+  // ---------------------------------------------------------------------------
+  private pasteCf(
+    originCol: number,
+    originRow: number,
+    col: number,
+    row: number,
+    originSheet: string,
+    cut?: boolean
+  ) {
+    const xc = toXC(col, row);
+    for (let rule of this.cfRules[originSheet]) {
+      for (let range of rule.ranges) {
+        if (isInside(originCol, originRow, toZone(range))) {
+          const cf = rule;
+          const toRemoveRange: string[] = [];
+          if (cut) {
+            //remove from current rule
+            toRemoveRange.push(toXC(originCol, originRow));
+          }
+          if (originSheet === this.workbook.activeSheet.name) {
+            this.adaptRules(originSheet, cf, [xc], toRemoveRange);
+          } else {
+            this.adaptRules(this.workbook.activeSheet.name, cf, [xc], []);
+            this.adaptRules(originSheet, cf, [], toRemoveRange);
+          }
+        }
+      }
+    }
+  }
+
+  private adaptRules(sheet: string, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
+    if (toAdd.length === 0 && toRemove.length === 0) {
+      return;
+    }
+    const replaceIndex = this.cfRules[sheet].findIndex((c) => c.id === cf.id);
+    let currentRanges: string[] = [];
+    if (replaceIndex > -1) {
+      currentRanges = this.cfRules[sheet][replaceIndex].ranges;
+    }
+
+    currentRanges = currentRanges.concat(toAdd);
+    const newRange: string[] = recomputeZones(currentRanges, toRemove);
+    this.addConditionalFormatting(
+      {
+        id: cf.id,
+        rule: cf.rule,
+        stopIfTrue: cf.stopIfTrue,
+        ranges: newRange,
+      },
+      sheet
+    );
   }
 }

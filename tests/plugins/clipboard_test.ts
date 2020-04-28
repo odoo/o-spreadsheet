@@ -1,8 +1,8 @@
-import { toCartesian } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/clipboard";
-import { CancelledReason, Zone } from "../../src/types/index";
+import { CancelledReason, Zone, ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
+import { toCartesian } from "../../src/helpers/index";
+import { ClipboardPlugin } from "../../src/plugins/clipboard";
 import { getCell, getGrid } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
@@ -22,6 +22,19 @@ function zone(str: string): Zone {
 
 function target(str: string): Zone[] {
   return str.split(",").map(zone);
+}
+
+function createEqualCF(
+  ranges: string[],
+  value: string,
+  style: Style,
+  id: string
+): ConditionalFormat {
+  return {
+    ranges,
+    id,
+    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
+  };
 }
 
 describe("clipboard", () => {
@@ -712,6 +725,173 @@ describe("clipboard", () => {
 
     expect(getCell(model, "B2")!.content).toBe("b2");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
+  });
+
+  test("can copy and paste a conditional formatted cell", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "C1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C1") });
+    model.dispatch("COPY", { target: target("A2") });
+    model.dispatch("PASTE", { target: target("C2") });
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
+  });
+  test("can cut and paste a conditional formatted cell", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "C1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("CUT", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C1") });
+    model.dispatch("CUT", { target: target("A2") });
+    model.dispatch("PASTE", { target: target("C2") });
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
+  });
+
+  test("can copy and paste a conditional formatted zone", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("COPY", { target: target("A1:A2") });
+    model.dispatch("PASTE", { target: target("B1") });
+    model.dispatch("PASTE", { target: target("C1") });
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("B1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
+    model.dispatch("SET_VALUE", { xc: "C1", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "C2", text: "1" });
+    expect(model.getters.getConditionalStyle("C1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C2")).toEqual({ fillColor: "#FF0000" });
+  });
+
+  test("can cut and paste a conditional formatted zone", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("CUT", { target: target("A1:A2") });
+    model.dispatch("PASTE", { target: target("B1") });
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("B1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
+    model.dispatch("SET_VALUE", { xc: "B1", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "1" });
+    expect(model.getters.getConditionalStyle("B1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("B2")).toEqual({ fillColor: "#FF0000" });
+  });
+
+  test("can copy and paste a conditional formatted cell to another page", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("COPY", { target: target("A1:A2") });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("PASTE", { target: target("A1") });
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
+  });
+
+  test("can cut and paste a conditional formatted cell to another page", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("CUT", { target: target("A1:A2") });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("PASTE", { target: target("A1") });
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
+    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
   });
 });
 
