@@ -10,6 +10,7 @@ import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
 import "../canvas.mock";
 import { triggerMouseEvent } from "../dom_helper";
+import { SelectionMode } from "../../src/plugins/selection";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -119,6 +120,40 @@ describe("Resizer component", () => {
     selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getActiveXc(model)).toBe("C1");
+  });
+
+  test("click on a header to select a column changes the selection mode", async () => {
+    const index = lettersToNumber("C");
+    const x = model["workbook"].cols[index].start + 1;
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.selecting);
+    triggerMouseEvent(window, "mouseup", x, 10);
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+  });
+
+  test("click on a header with CTRL to select a column changes the selection mode", async () => {
+    const index = lettersToNumber("C");
+    const x = model["workbook"].cols[index].start + 1;
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, { ctrlKey: true });
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
+    triggerMouseEvent(window, "mouseup", x, 10, { ctrlKey: true });
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
+  });
+
+  test("resizing a column does not change the selection mode", async () => {
+    const index = lettersToNumber("C");
+    const x = model["workbook"].cols[index].start + 1;
+    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+    await nextTick();
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
+    triggerMouseEvent(window, "mousemove", x + 50, 10);
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    triggerMouseEvent(window, "mouseup", x + 50, 10);
+    await nextTick();
+    expect(model.getters.getSelectionMode()).toBe(SelectionMode.idle);
   });
 
   test("can click on a row-header to select a row", async () => {

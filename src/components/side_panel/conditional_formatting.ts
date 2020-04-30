@@ -1,6 +1,7 @@
 import * as owl from "@odoo/owl";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
+import { SelectionInput } from "../selection_input";
 import { colorNumberString, uuidv4 } from "../../helpers/index";
 import {
   ConditionalFormat,
@@ -60,7 +61,7 @@ const TEMPLATE = xml/* xml */ `
         <div class="o-cf-ruleEditor">
             <div class="o-cf-range">
               <div class="o-cf-range-title">Apply to range</div>
-              <input type="text" t-model="state.currentRanges" class="o-cf-range-input" placeholder="select range, ranges"/>
+              <SelectionInput ranges="state.currentRanges" class="o-range" t-on-selection-changed="onRangesChanged"/>
             </div>
             <div class="o-cf-editor">
               <t t-component="editors[state.currentCF.rule.type]"
@@ -149,12 +150,6 @@ const CSS = css/* scss */ `
           margin-bottom: 20px;
           margin-top: 20px;
         }
-      }
-      .o-cf-range-input{
-        border-radius: 4px;
-        border: 1px solid lightgrey;
-        padding: 5px;
-        width: 90%;
       }
       .o-cf-editor{
         padding:10px;
@@ -249,7 +244,7 @@ interface Props {
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { CellIsRuleEditor, ColorScaleRuleEditor };
+  static components = { CellIsRuleEditor, ColorScaleRuleEditor, SelectionInput };
   colorNumberString = colorNumberString;
   getters = this.env.getters;
 
@@ -257,7 +252,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   private cellIsOperators = cellIsOperators;
   state = useState({
     currentCF: undefined as undefined | ConditionalFormat,
-    currentRanges: "",
+    currentRanges: [] as string[],
     mode: "list" as "list" | "edit" | "add",
     toRuleType: "CellIsRule",
   });
@@ -284,7 +279,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   resetState() {
     this.state.currentCF = undefined;
-    this.state.currentRanges = "";
+    this.state.currentRanges = [];
     this.state.mode = "list";
     this.state.toRuleType = "CellIsRule";
   }
@@ -319,7 +314,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: ev.detail.rule,
-          ranges: this.state.currentRanges.split(","),
+          ranges: this.state.currentRanges,
           id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4(),
         },
         sheet: this.getters.getActiveSheet(),
@@ -343,7 +338,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     this.state.mode = "edit";
     this.state.currentCF = cf;
     this.state.toRuleType = cf.rule.type === "CellIsRule" ? "CellIsRule" : "ColorScaleRule";
-    this.state.currentRanges = this.state.currentCF!.ranges.join(",");
+    this.state.currentRanges = this.state.currentCF!.ranges;
   }
 
   openCf(cfId) {
@@ -354,7 +349,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       this.state.mode = "edit";
       this.state.currentCF = cf;
       this.state.toRuleType = cf.rule.type === "CellIsRule" ? "CellIsRule" : "ColorScaleRule";
-      this.state.currentRanges = this.state.currentCF!.ranges.join(",");
+      this.state.currentRanges = this.state.currentCF!.ranges;
     }
   }
 
@@ -382,7 +377,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   onAdd() {
     this.state.mode = "add";
     this.state.currentCF = Object.assign({}, this.defaultCellIsRule);
-    this.state.currentRanges = this.state.currentCF!.ranges.join(",");
+    this.state.currentRanges = this.state.currentCF!.ranges;
   }
 
   setRuleType(ruleType: string) {
@@ -393,5 +388,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       this.state.currentCF = Object.assign({}, this.defaultCellIsRule);
     }
     this.state.toRuleType = ruleType;
+  }
+
+  onRangesChanged({ detail }: { detail: { ranges: string[] } }) {
+    this.state.currentRanges = detail.ranges;
   }
 }

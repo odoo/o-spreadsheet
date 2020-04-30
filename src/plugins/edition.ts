@@ -85,7 +85,7 @@ export class EditionPlugin extends BasePlugin {
     }
     this.mode = "editing";
     this.currentContent = str || "";
-    this.dispatch("REMOVE_HIGHLIGHTS");
+    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
@@ -137,6 +137,6 @@ export class EditionPlugin extends BasePlugin {
 
   private cancelEdition() {
     this.mode = "inactive";
-    this.dispatch("REMOVE_HIGHLIGHTS");
+    this.dispatch("REMOVE_ALL_HIGHLIGHTS");
   }
 }

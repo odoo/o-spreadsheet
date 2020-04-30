@@ -5,6 +5,7 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
+import { SelectionMode } from "../plugins/selection";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -16,7 +17,7 @@ const { useSubEnv } = owl.hooks;
 // -----------------------------------------------------------------------------
 
 const TEMPLATE = xml/* xml */ `
-  <div class="o-spreadsheet" t-on-save-requested="save">
+  <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
     <TopBar t-on-click="focusGrid" class="o-two-columns"/>
     <Grid model="model" t-ref="grid" t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
@@ -98,6 +99,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
+    useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
   }
 
   mounted() {
@@ -154,5 +156,21 @@ export class Spreadsheet extends Component<Props> {
     this.trigger("save-content", {
       data: this.model.exportData(),
     });
+  }
+
+  onKeyup(ev: KeyboardEvent) {
+    if (ev.key === "Control" && this.model.getters.getSelectionMode() !== SelectionMode.expanding) {
+      this.model.dispatch("STOP_SELECTION");
+    }
+  }
+
+  onKeydown(ev: KeyboardEvent) {
+    if (ev.key === "Control" && !ev.repeat) {
+      this.model.dispatch(
+        this.model.getters.getSelectionMode() === SelectionMode.idle
+          ? "PREPARE_SELECTION_EXPANSION"
+          : "START_SELECTION_EXPANSION"
+      );
+    }
   }
 }

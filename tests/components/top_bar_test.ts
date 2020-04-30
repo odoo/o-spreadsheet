@@ -109,7 +109,8 @@ describe("TopBar component", () => {
     // should be enabled, because two cells are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
 
-    model.dispatch("SELECT_CELL", { col: 3, row: 3, createNewRange: true });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 3, row: 3 });
 
     await nextTick();
     // should be disabled, because multiple zones are selected

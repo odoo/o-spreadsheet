@@ -139,6 +139,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
       return;
     }
     this.lastElement = index;
+    this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
     if (ev.shiftKey) {
       this._increaseSelection(index);
     } else {
@@ -157,6 +158,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     };
     const onMouseUpSelect = () => {
       this.lastElement = null;
+      this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
     };
     startDnd(onMouseMoveSelect, onMouseUpSelect);
   }

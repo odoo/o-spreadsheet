@@ -837,7 +837,7 @@ describe("UI of conditional formats", () => {
   const selectors = {
     listPreview: ".o-cf .o-cf-preview",
     ruleEditor: {
-      range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-cf-range-input",
+      range: ".o-cf .o-cf-ruleEditor .o-cf-range input",
       editor: {
         operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
         valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
@@ -901,12 +901,11 @@ describe("UI of conditional formats", () => {
   });
 
   test("can edit an existing CellIsRule", async () => {
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
-
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
     await nextTick();
 
     // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "change");
     setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "input");
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
     setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
@@ -915,6 +914,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
     triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -936,12 +936,10 @@ describe("UI of conditional formats", () => {
   });
 
   test("can edit an existing ColorScaleRule", async () => {
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
-
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
     triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
     await nextTick();
@@ -952,6 +950,7 @@ describe("UI of conditional formats", () => {
 
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
 
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
@@ -1001,14 +1000,13 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new CellIsRule", async () => {
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     mockUuidV4To("42");
 
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "change");
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
     setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
 
@@ -1016,13 +1014,13 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
     triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
-
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "42",
+        id: "46",
         ranges: ["A1:A3"],
         rule: {
           operator: "BeginsWith",
@@ -1057,7 +1055,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule", async () => {
-    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     mockUuidV4To("43");
 
     triggerMouseEvent(selectors.buttonAdd, "click");
@@ -1067,7 +1064,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     // change every value
-    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
 
     triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
     await nextTick();
@@ -1078,13 +1075,14 @@ describe("UI of conditional formats", () => {
 
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
 
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "43",
+        id: "49",
         ranges: ["B2:B5"],
         rule: {
           maximum: {

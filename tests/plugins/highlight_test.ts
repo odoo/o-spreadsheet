@@ -1,0 +1,350 @@
+import { Model } from "../../src";
+import "../canvas.mock";
+import { HighlightPlugin } from "../../src/plugins/highlight";
+import { toZone } from "../../src/helpers";
+
+let model: Model;
+
+function getPendingHighlights(model: Model): string {
+  const highligthPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
+  return highligthPlugin.pendingHighlights;
+}
+
+function getColor(model: Model): string {
+  const highligthPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
+  return highligthPlugin.color;
+}
+
+beforeEach(async () => {
+  model = new Model();
+});
+
+describe("highlight", () => {
+  test("add highlight", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+
+  test("remove all highlight", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888", B6: "#999" },
+    });
+    expect(model.getters.getHighlights().length).toBe(2);
+    model.dispatch("REMOVE_ALL_HIGHLIGHTS");
+    expect(model.getters.getHighlights()).toEqual([]);
+  });
+
+  test("remove a single highlight", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888", B6: "#999" },
+    });
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { B6: "#999" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+
+  test("add no hightlight", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: {},
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([]);
+  });
+
+  test("remove highlight with another color", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { B2: "#999" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+
+  test("remove highlight with same range", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#999" },
+    });
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { B2: "#999" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+
+  test("highlight cell selection", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: getColor(model),
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+
+  test("highlight selection sequence", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION");
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
+    model.dispatch("STOP_SELECTION");
+    const firstColor = getColor(model);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: firstColor,
+        zone: zone1,
+      },
+    ]);
+    model.dispatch("START_SELECTION");
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
+    model.dispatch("STOP_SELECTION");
+    expect(getColor(model)).toBe(firstColor);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: firstColor,
+        zone: zone2,
+      },
+    ]);
+  });
+
+  test("expand selection highlights in a new color", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION");
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
+    model.dispatch("STOP_SELECTION");
+    const firstColor = getColor(model);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: firstColor,
+        zone: zone1,
+      },
+    ]);
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
+    model.dispatch("STOP_SELECTION");
+    expect(getColor(model)).not.toBe(firstColor);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: getColor(model),
+        zone: zone2,
+      },
+    ]);
+  });
+
+  test("selection highlights with previous selection and expand", () => {
+    model.dispatch("START_SELECTION");
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 10, row: 10 });
+    model.dispatch("STOP_SELECTION");
+    expect(model.getters.getHighlights().length).toBe(2);
+    const [firstColor, secondColor] = model.getters.getHighlights().map((h) => h.color);
+    expect(firstColor).not.toBe(secondColor);
+  });
+
+  test("set a color", () => {
+    model.dispatch("SET_HIGHLIGHT_COLOR", { color: "#999" });
+    expect(getColor(model)).toBe("#999");
+  });
+
+  test("color changes when manually changed", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION");
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
+    model.dispatch("STOP_SELECTION");
+    const firstColor = getColor(model);
+    expect(model.getters.getHighlights().map((h) => h.color)).toEqual([firstColor]);
+    model.dispatch("SET_HIGHLIGHT_COLOR", { color: "#999" });
+    model.dispatch("START_SELECTION");
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
+    model.dispatch("STOP_SELECTION");
+    expect(getColor(model)).not.toBe(firstColor);
+    expect(model.getters.getHighlights().map((h) => h.color)).toEqual(["#999"]);
+  });
+
+  test("select same range twice highlights once", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    const anchor: [number, number] = [1, 1];
+    const zone = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zones = [zone];
+    model.dispatch("START_SELECTION");
+    const color = getColor(model);
+    model.dispatch("SET_SELECTION", { anchor, zones });
+    model.dispatch("STOP_SELECTION");
+    expect(model.getters.getHighlights()).toStrictEqual([{ color, zone }]);
+    model.dispatch("START_SELECTION");
+    model.dispatch("SET_SELECTION", { anchor, zones });
+    expect(model.getters.getHighlights()).toStrictEqual([{ color, zone }]);
+  });
+
+  test("selection without pending highlight", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION");
+    const zone1 = { bottom: 5, left: 1, right: 5, top: 1 };
+    const zone2 = { bottom: 10, left: 6, right: 10, top: 6 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1],
+    });
+    const firstColor = getColor(model);
+    model.dispatch("STOP_SELECTION");
+    model.dispatch("RESET_PENDING_HIGHLIGHT");
+    model.dispatch("START_SELECTION");
+    model.dispatch("SET_SELECTION", {
+      anchor: [6, 6],
+      zones: [zone2],
+    });
+    model.dispatch("STOP_SELECTION");
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: firstColor,
+        zone: zone1,
+      },
+      {
+        color: getColor(model),
+        zone: zone2,
+      },
+    ]);
+  });
+
+  test("selection with manually set pending highlight", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B10: "#999" },
+    });
+    model.dispatch("ADD_PENDING_HIGHLIGHTS", {
+      ranges: { B10: "#999" },
+    });
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION");
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: getColor(model),
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+
+  test("expanding selection does not remove pending highlight from previous zones", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("START_SELECTION");
+    model.dispatch("SELECT_CELL", { col: 5, row: 5 });
+    const firstColor = getColor(model);
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 7, row: 7 });
+    expect(model.getters.getSelectedZones().length).toBe(2);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: firstColor,
+        zone: { bottom: 5, left: 5, right: 5, top: 5 },
+      },
+      {
+        color: getColor(model),
+        zone: { bottom: 7, left: 7, right: 7, top: 7 },
+      },
+    ]);
+  });
+
+  test("selecting cells in a merge expands the highlight", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("ADD_MERGE", { sheet, zone: toZone("A2:A4") });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SET_SELECTION", {
+      anchor: [0, 4],
+      zones: [toZone("A3:A5")],
+    });
+    const mergeColor = getColor(model);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: mergeColor,
+        zone: toZone("A2:A5"),
+      },
+    ]);
+  });
+
+  test("selecting cell in a merge does not reset pending highlights", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("ADD_MERGE", { sheet, zone: toZone("A2:A4") });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SET_SELECTION", {
+      anchor: [0, 4],
+      zones: [toZone("A3:A5")],
+    });
+    const mergeColor = getColor(model);
+    model.dispatch("ALTER_SELECTION", { cell: [0, 1] }); // TopLeft
+    model.dispatch("ALTER_SELECTION", { cell: [0, 0] }); // above merge
+    model.dispatch("STOP_SELECTION");
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: mergeColor,
+        zone: toZone("A1:A5"),
+      },
+    ]);
+  });
+
+  test("disabling selection highlighting resets pending highlights", () => {
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
+    model.dispatch("ADD_PENDING_HIGHLIGHTS", {
+      ranges: { B10: "#999" },
+    });
+    expect(getPendingHighlights(model).length).toBe(1);
+    model.dispatch("HIGHLIGHT_SELECTION", { enabled: false });
+    expect(getPendingHighlights(model).length).toBe(0);
+  });
+});
