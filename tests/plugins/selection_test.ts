@@ -346,7 +346,8 @@ describe("multiple selections", () => {
     expect(selection.anchor).toEqual([2, 2]);
 
     // create new range
-    model.dispatch("SELECT_CELL", { col: 5, row: 2, createNewRange: true });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 5, row: 2 });
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
     expect(selection.anchor).toEqual([5, 2]);

@@ -9,6 +9,8 @@ import { WHistory } from "../history";
 import { EvaluationPlugin } from "../plugins/evaluation";
 import { EditionPlugin } from "../plugins/edition";
 import { AutofillPlugin } from "../plugins/autofill";
+import { HighlightPlugin } from "../plugins/highlight";
+import { SelectionInputPlugin } from "../plugins/selection_inputs";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -50,6 +52,10 @@ export interface Getters {
   getSelection: SelectionPlugin["getSelection"];
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
+  getSelectionMode: SelectionPlugin["getSelectionMode"];
+  isSelected: SelectionPlugin["isSelected"];
+
+  getHighlights: HighlightPlugin["getHighlights"];
 
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
@@ -72,4 +78,7 @@ export interface Getters {
   getCurrentContent: EditionPlugin["getCurrentContent"];
 
   getLastValue: AutofillPlugin["getLastValue"];
+
+  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
+  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
 }

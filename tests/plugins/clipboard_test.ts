@@ -549,7 +549,8 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: [zone("A1:A1")] });
 
     model.dispatch("SELECT_CELL", { col: 2, row: 0 });
-    model.dispatch("SELECT_CELL", { col: 4, row: 0, createNewRange: true });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 4, row: 0 });
 
     model.dispatch("PASTE", { target: target("C1,E1") });
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
@@ -585,7 +586,8 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: target("A1:A2") });
 
     model.dispatch("SELECT_CELL", { col: 2, row: 3 });
-    model.dispatch("SELECT_CELL", { col: 4, row: 5, createNewRange: true });
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 4, row: 5 });
     model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
     expect(notifyUser).toHaveBeenCalled();
   });

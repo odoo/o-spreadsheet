@@ -230,7 +230,6 @@ export interface SelectCellCommand extends BaseCommand {
   type: "SELECT_CELL";
   col: number;
   row: number;
-  createNewRange?: boolean;
 }
 
 export interface SetSelectionCommand extends BaseCommand {
@@ -238,6 +237,76 @@ export interface SetSelectionCommand extends BaseCommand {
   anchor: [number, number];
   zones: Zone[];
   strict?: boolean;
+}
+
+/**
+ * Set the selection mode to `selecting`.
+ * The user is currently selecting some cells.
+ */
+export interface StartSelectionCommand extends BaseCommand {
+  type: "START_SELECTION";
+}
+
+/**
+ * Set the selection mode to `readyToExpand`.
+ * The user is ready to expand the selected zones with a new
+ * selection (i.e. add an other zone the to currently selected zones).
+ * In other words, the next selection will be added to the
+ * current selection if this mode is active.
+ */
+export interface PrepareExpansionCommand extends BaseCommand {
+  type: "PREPARE_SELECTION_EXPANSION";
+}
+
+/**
+ * Set the selection mode to `expanding`.
+ * This mode means that the user is currently selecting
+ * a new zone which will be added to the current selection.
+ */
+export interface StartExpansionCommand extends BaseCommand {
+  type: "START_SELECTION_EXPANSION";
+}
+
+/**
+ * Set the selection mode to `idle`.
+ */
+export interface StopSelectionCommand extends BaseCommand {
+  type: "STOP_SELECTION";
+}
+
+/**
+ * When selection highlight is enabled, every selection will
+ * be highlighted. Each selected zone have a different color.
+ */
+export interface HighlightSelectionCommand extends BaseCommand {
+  type: "HIGHLIGHT_SELECTION";
+  enabled: boolean;
+}
+
+/**
+ * Add some highlights as pending highlights.
+ * When highlight selection is enabled, pending highlights
+ * are removed at every new selection.
+ */
+export interface AddPendingHighlightCommand extends BaseCommand {
+  type: "ADD_PENDING_HIGHLIGHTS";
+  ranges: { [range: string]: string };
+}
+
+/**
+ * Removes all pending highlights.
+ */
+export interface ResetPendingHighlightCommand extends BaseCommand {
+  type: "RESET_PENDING_HIGHLIGHT";
+}
+
+/**
+ * Set a color to be used for the next selection to highlight.
+ * The color is only used when selection highlight is enabled.
+ */
+export interface SetColorCommand extends BaseCommand {
+  type: "SET_HIGHLIGHT_COLOR";
+  color: string;
 }
 
 export interface SelectColumnCommand extends BaseCommand {
@@ -274,8 +343,20 @@ export interface AddHighlightsCommand extends BaseCommand {
   ranges: { [range: string]: string };
 }
 
+/**
+ * Remove the given highlights.
+ */
 export interface RemoveHighlightsCommand extends BaseCommand {
   type: "REMOVE_HIGHLIGHTS";
+  /**
+   * Ranges to remove. Keys are ranges in XC format and values
+   * are the associated colors.
+   * e.g. { B4: "#e2e2e2" }
+   */
+  ranges: { [range: string]: string };
+}
+export interface RemoveAllHighlightsCommand extends BaseCommand {
+  type: "REMOVE_ALL_HIGHLIGHTS";
 }
 
 export interface StartComposerSelectionCommand extends BaseCommand {
@@ -347,7 +428,88 @@ export interface AutofillAutoCommand extends BaseCommand {
   type: "AUTOFILL_AUTO";
 }
 
+/**
+ * Create a new state for a SelectionInput component
+ */
+export interface NewInputCommand extends BaseCommand {
+  type: "ENABLE_NEW_SELECTION_INPUT";
+  /**
+   * Identifier to use to reference this state.
+   */
+  id: string;
+  /**
+   * Initial ranges for the state.
+   * e.g. ["B4", "A1:A3"]
+   */
+  initialRanges?: string[];
+}
+
+/**
+ * Delete an identified SelectionInput state.
+ */
+export interface RemoveInputCommand extends BaseCommand {
+  type: "DISABLE_SELECTION_INPUT";
+  /** SelectionComponent id */
+  id: string;
+}
+
+/**
+ * Set the focus on a given range of a SelectionComponent state.
+ */
+export interface FocusInputCommand extends BaseCommand {
+  type: "FOCUS_RANGE";
+  /** SelectionComponent id */
+  id: string;
+  /**
+   * Range to focus. If `null` is given, removes the focus entirely.
+   */
+  rangeId: string | null;
+}
+
+/**
+ * Add an empty range at the end of a SelectionComponent state
+ * and focus it.
+ */
+export interface AddEmptyRangeCommand extends BaseCommand {
+  type: "ADD_EMPTY_RANGE";
+  /** SelectionComponent id */
+  id: string;
+}
+
+/**
+ * Remove a given range in a SelectionComponent state
+ */
+export interface RemoveRangeCommand extends BaseCommand {
+  type: "REMOVE_RANGE";
+  /** SelectionComponent id */
+  id: string;
+  /** The range to be removed */
+  rangeId: string;
+}
+
+/**
+ * Set a new value for a given range of a SelectionComponent state.
+ */
+export interface ChangeRangeCommand extends BaseCommand {
+  type: "CHANGE_RANGE";
+  /** SelectionComponent id */
+  id: string;
+  /** The range to be changed */
+  rangeId: string;
+  /**
+   * Range to set in the input. Invalid ranges are also accepted.
+   * e.g. "B2:B3" or the invalid "A5:"
+   */
+  value: string;
+}
+
 export type Command =
+  | NewInputCommand
+  | RemoveInputCommand
+  | FocusInputCommand
+  | AddEmptyRangeCommand
+  | RemoveRangeCommand
+  | ChangeRangeCommand
   | UpdateCellCommand
   | CopyCommand
   | CutCommand
@@ -363,6 +525,10 @@ export type Command =
   | MovePositionCommand
   | CreateSheetCommand
   | ActivateSheetCommand
+  | StartSelectionCommand
+  | StartExpansionCommand
+  | PrepareExpansionCommand
+  | StopSelectionCommand
   | SelectCellCommand
   | SetSelectionCommand
   | SelectColumnCommand
@@ -375,6 +541,11 @@ export type Command =
   | RemoveConditionalFormatCommand
   | AddHighlightsCommand
   | RemoveHighlightsCommand
+  | RemoveAllHighlightsCommand
+  | HighlightSelectionCommand
+  | AddPendingHighlightCommand
+  | ResetPendingHighlightCommand
+  | SetColorCommand
   | StartComposerSelectionCommand
   | StopComposerSelectionCommand
   | StartEditionCommand
@@ -418,6 +589,8 @@ export const enum CancelledReason {
   SelectionOutOfBound,
   WrongPasteSelection,
   EmptyClipboard,
+  InvalidRange,
+  InputAlreadyFocused,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

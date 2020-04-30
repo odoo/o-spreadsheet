@@ -4,28 +4,11 @@ import { ComposerToken, composerTokenize, rangeReference } from "../../formulas/
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
+import { colors } from "../../helpers/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
 const { xml, css } = owl.tags;
-
-export const colors = [
-  "#ff851b",
-  "#0074d9",
-  "#ffdc00",
-  "#7fdbff",
-  "#b10dc9",
-  "#0ecc40",
-  "#39cccc",
-  "#f012be",
-  "#3d9970",
-  "#111111",
-  "#01ff70",
-  "#ff4136",
-  "#aaaaaa",
-  "#85144b",
-  "#001f3f",
-];
 
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
@@ -335,7 +318,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       this.saveSelection();
       this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.dispatch("REMOVE_HIGHLIGHTS"); //cleanup highlights for references
+      this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
 
       const refUsed = {};
       let lastUsedColorIndex = 0;

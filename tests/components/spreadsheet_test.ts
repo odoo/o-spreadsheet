@@ -1,8 +1,10 @@
 import { Component, hooks, tags } from "@odoo/owl";
-import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { makeTestFixture, nextTick, MockClipboard } from "../helpers";
+import { Model } from "../../src";
+import { SelectionMode } from "../../src/plugins/selection";
+import { triggerMouseEvent } from "../dom_helper";
 
 const { xml } = tags;
 const { useRef } = hooks;
@@ -106,5 +108,64 @@ describe("Spreadsheet", () => {
 
   test("Clipboard is in spreadsheet env", () => {
     expect((parent as any).spreadsheet.comp.env.clipboard).toBe(clipboard);
+  });
+
+  test("selection mode is changed with a simple select", async () => {
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.selecting);
+    triggerMouseEvent(window, "mouseup", 300, 200);
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+  });
+
+  test("selection mode is changed when selecting with CTRL pressed", async () => {
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true })
+    );
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
+    triggerMouseEvent("canvas", "mousedown", 300, 200, { ctrlKey: true });
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
+    triggerMouseEvent(window, "mouseup", 300, 200, { ctrlKey: true });
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keyup", { key: "Control", bubbles: true })
+    );
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+  });
+
+  test("selection mode is changed when releasing CTRL while selecting", async () => {
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true })
+    );
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
+    triggerMouseEvent("canvas", "mousedown", 300, 200, { ctrlKey: true });
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keyup", { key: "Control", bubbles: true })
+    );
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
+    triggerMouseEvent(window, "mouseup", 300, 200);
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+  });
+
+  test("selection mode is changed when pressing CTRL while selecting", async () => {
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.selecting);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true })
+    );
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.expanding);
+    triggerMouseEvent(window, "mouseup", 300, 200, { ctrlKey: true });
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.readyToExpand);
+  });
+
+  test("repeating CTRL keydown events does not trigger command", async () => {
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true, repeat: true })
+    );
+    expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
   });
 });

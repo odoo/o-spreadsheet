@@ -431,10 +431,11 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.clickedCol = col;
     this.clickedRow = row;
 
+    this.dispatch(ev.ctrlKey ? "START_SELECTION_EXPANSION" : "START_SELECTION");
     if (ev.shiftKey) {
       this.dispatch("ALTER_SELECTION", { cell: [col, row] });
     } else {
-      this.dispatch("SELECT_CELL", { col, row, createNewRange: ev.ctrlKey });
+      this.dispatch("SELECT_CELL", { col, row });
       this.checkChanges();
     }
     let prevCol = col;
@@ -452,6 +453,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       }
     };
     const onMouseUp = (ev: MouseEvent) => {
+      this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
       if (this.getters.getEditionMode() === "selecting") {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();

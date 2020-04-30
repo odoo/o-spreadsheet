@@ -23,6 +23,13 @@ interface SheetInfo {
   activeXc: string;
 }
 
+export enum SelectionMode {
+  idle,
+  selecting,
+  readyToExpand, //The next selection will add another zone to the current selection
+  expanding,
+}
+
 /**
  * SelectionPlugin
  */
@@ -38,6 +45,8 @@ export class SelectionPlugin extends BasePlugin {
     "getAggregate",
     "getSelection",
     "getPosition",
+    "getSelectionMode",
+    "isSelected",
   ];
 
   private selection: Selection = {
@@ -47,6 +56,7 @@ export class SelectionPlugin extends BasePlugin {
   private activeCol: number = 0;
   private activeRow: number = 0;
   private activeXc: string = "A1";
+  private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
 
   // ---------------------------------------------------------------------------
@@ -117,11 +127,23 @@ export class SelectionPlugin extends BasePlugin {
       case "SET_SELECTION":
         this.setSelection(cmd.anchor, cmd.zones, cmd.strict);
         break;
+      case "START_SELECTION":
+        this.mode = SelectionMode.selecting;
+        break;
+      case "PREPARE_SELECTION_EXPANSION":
+        this.mode = SelectionMode.readyToExpand;
+        break;
+      case "START_SELECTION_EXPANSION":
+        this.mode = SelectionMode.expanding;
+        break;
+      case "STOP_SELECTION":
+        this.mode = SelectionMode.idle;
+        break;
       case "MOVE_POSITION":
         this.movePosition(cmd.deltaX, cmd.deltaY);
         break;
       case "SELECT_CELL":
-        this.selectCell(cmd.col, cmd.row, cmd.createNewRange);
+        this.selectCell(cmd.col, cmd.row);
         break;
       case "SELECT_COLUMN":
         this.selectColumn(cmd.index, cmd.createRange || false, cmd.updateRange || false);
@@ -231,6 +253,14 @@ export class SelectionPlugin extends BasePlugin {
     return n < 2 ? null : formatStandardNumber(aggregate);
   }
 
+  getSelectionMode(): SelectionMode {
+    return this.mode;
+  }
+
+  isSelected(zone: Zone): boolean {
+    return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
+  }
+
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
@@ -291,11 +321,11 @@ export class SelectionPlugin extends BasePlugin {
    * properly the current selection.  Also, this method can optionally create a new
    * range in the selection.
    */
-  private selectCell(col: number, row: number, newRange: boolean = false) {
+  private selectCell(col: number, row: number) {
     const xc = toXC(col, row);
     let zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
 
-    if (newRange) {
+    if (this.mode === SelectionMode.expanding) {
       this.selection.zones.push(zone);
     } else {
       this.selection.zones = [zone];
