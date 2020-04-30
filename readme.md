@@ -4,6 +4,10 @@ a.k.a. "Owly Sheet"
 
 Spreadsheet component, written in Owl.
 
+## Prerequisites
+
+install nodejs 12.0 at least
+
 ## Scripts
 
 ```bash
