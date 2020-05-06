@@ -5,7 +5,7 @@ import { SpreadsheetEnv } from "../../types";
 //------------------------------------------------------------------------------
 // Side Panel Registry
 //------------------------------------------------------------------------------
-interface SidePanelContent {
+export interface SidePanelContent {
   title: string | ((env: SpreadsheetEnv) => string);
   Body: any;
   Footer?: any;
