@@ -1,23 +1,22 @@
 import * as owl from "@odoo/owl";
-import { sidePanelRegistry } from "./side_panel_registry";
+import { sidePanelRegistry, SidePanelContent } from "./side_panel_registry";
 import { SpreadsheetEnv } from "../../types";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
+const { useState } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-sidePanel" >
     <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle">
-            <t t-esc="title"/>
-        </div>
+        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
         <div class="o-sidePanelClose" t-on-click="trigger('close-side-panel')">x</div>
     </div>
     <div class="o-sidePanelBody">
-      <t t-component="Body" t-props="panelProps"/>
+      <t t-component="state.panel.Body" t-props="props.panelProps" t-key="'Body_' + props.component"/>
     </div>
-    <div class="o-sidePanelFooter" t-if="Footer">
-      <t t-component="Footer" t-props="panelProps"/>
+    <div class="o-sidePanelFooter" t-if="state.panel.Footer">
+      <t t-component="state.panel.Footer" t-props="props.panelProps" t-key="'Footer_' + props.component"/>
     </div>
   </div>`;
 
@@ -58,13 +57,26 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class SidePanel extends Component<any, SpreadsheetEnv> {
+interface Props {
+  component: string;
+  panelProps: any;
+}
+
+export class SidePanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
 
-  panel = sidePanelRegistry.get(this.props.component);
-  panelProps = this.props.panelProps;
-  Body = this.panel.Body;
-  Footer = this.panel.Footer;
-  title = typeof this.panel.title === "string" ? this.panel.title : this.panel.title(this.env);
+  state: { panel: SidePanelContent } = useState({
+    panel: sidePanelRegistry.get(this.props.component),
+  });
+
+  async willUpdateProps(nextProps: Props) {
+    this.state.panel = sidePanelRegistry.get(nextProps.component);
+  }
+
+  getTitle() {
+    return typeof this.state.panel.title === "string"
+      ? this.state.panel.title
+      : this.state.panel.title(this.env);
+  }
 }
