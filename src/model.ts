@@ -12,6 +12,7 @@ import {
   WorkbookData,
   GridRenderingContext,
   LAYERS,
+  CommandSuccess,
 } from "./types/index";
 
 /**
@@ -157,8 +158,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     switch (this.status) {
       case Status.Ready:
         for (let handler of this.handlers) {
-          if (!handler.allowDispatch(command)) {
-            return "CANCELLED";
+          const allowDispatch = handler.allowDispatch(command);
+          if (allowDispatch.status === "CANCELLED") {
+            return allowDispatch;
           }
         }
         this.status = Status.Running;
@@ -178,7 +180,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       case Status.Finalizing:
         throw new Error("Nope. Don't do that");
     }
-    return "COMPLETED";
+    return { status: "SUCCESS" } as CommandSuccess;
   };
 
   // ---------------------------------------------------------------------------

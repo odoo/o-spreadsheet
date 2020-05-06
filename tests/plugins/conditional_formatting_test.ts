@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { ColorScaleThreshold, ConditionalFormat, Style } from "../../src/types";
+import { ColorScaleThreshold, ConditionalFormat, Style, CommandResult } from "../../src/types";
 import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
@@ -765,7 +765,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can edit an existing CellIsRule", async () => {
-    parent.env.dispatch = jest.fn((command) => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
 
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
     await nextTick();
@@ -799,7 +799,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can edit an existing ColorScaleRule", async () => {
-    parent.env.dispatch = jest.fn((command) => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
 
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
@@ -844,7 +844,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new CellIsRule", async () => {
-    parent.env.dispatch = jest.fn((command) => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     mockUuidV4To("42");
 
     triggerMouseEvent(selectors.buttonAdd, "click");
@@ -879,7 +879,7 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule", async () => {
-    parent.env.dispatch = jest.fn((command) => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     mockUuidV4To("43");
 
     triggerMouseEvent(selectors.buttonAdd, "click");

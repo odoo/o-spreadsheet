@@ -2,7 +2,15 @@ import { BasePlugin } from "../base_plugin";
 import { applyOffset } from "../formulas/index";
 import { clip, toXC } from "../helpers/index";
 import { Mode } from "../model";
-import { Cell, Command, GridRenderingContext, LAYERS, Zone } from "../types/index";
+import {
+  Cell,
+  Command,
+  GridRenderingContext,
+  LAYERS,
+  Zone,
+  CancelledReason,
+  CommandResult,
+} from "../types/index";
 
 interface ClipboardCell {
   cell: Cell | null;
@@ -18,7 +26,7 @@ interface ClipboardCell {
  */
 export class ClipboardPlugin extends BasePlugin {
   static layers = [LAYERS.Clipboard];
-  static getters = ["getClipboardContent", "isPaintingFormat"];
+  static getters = ["getClipboardContent", "isPaintingFormat", "getPasteZones"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private status: "empty" | "visible" | "invisible" = "empty";
@@ -33,8 +41,14 @@ export class ClipboardPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): boolean {
-    return cmd.type === "PASTE" ? this.isPasteAllowed(cmd.target) : true;
+  allowDispatch(cmd: Command): CommandResult {
+    const force = "force" in cmd ? !!cmd.force : false;
+    if (cmd.type === "PASTE") {
+      return this.isPasteAllowed(cmd.target, force);
+    }
+    return {
+      status: "SUCCESS",
+    };
   }
 
   handle(cmd: Command) {
@@ -92,6 +106,28 @@ export class ClipboardPlugin extends BasePlugin {
     );
   }
 
+  getPasteZones(target: Zone[]): Zone[] {
+    const height = this.cells!.length;
+    const width = this.cells![0].length;
+    const selection = target[target.length - 1];
+    const pasteZones: Zone[] = [];
+    let col = selection.left;
+    let row = selection.top;
+    const repX = Math.max(1, Math.floor((selection.right + 1 - selection.left) / width));
+    const repY = Math.max(1, Math.floor((selection.bottom + 1 - selection.top) / height));
+    for (let x = 1; x <= repX; x++) {
+      for (let y = 1; y <= repY; y++) {
+        pasteZones.push({
+          left: col,
+          top: row,
+          right: col - 1 + x * width,
+          bottom: row - 1 + y * height,
+        });
+      }
+    }
+    return pasteZones;
+  }
+
   isPaintingFormat(): boolean {
     return this._isPaintingFormat;
   }
@@ -124,7 +160,6 @@ export class ClipboardPlugin extends BasePlugin {
         }
       }
     }
-
     this.status = "visible";
     this.shouldCut = cut;
     this.zones = clippedZones;
@@ -147,11 +182,14 @@ export class ClipboardPlugin extends BasePlugin {
     }
   }
 
-  private isPasteAllowed(target: Zone[]): boolean {
+  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
     const cells = this.cells;
     // cannot paste if we have a clipped zone larger than a cell and multiple
     // zones selected
-    return !(cells && target.length > 1 && (cells.length > 1 || cells[0].length > 1));
+    if (cells && target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
+      return { status: "CANCELLED", reason: CancelledReason.WrongPasteSelection };
+    }
+    return { status: "SUCCESS" };
   }
 
   private pasteFromModel(target: Zone[]) {

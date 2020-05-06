@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { isEqual, toCartesian, toXC, union } from "../helpers/index";
-import { Command, WorkbookData, Zone, Merge } from "../types/index";
+import { Command, WorkbookData, Zone, Merge, CommandResult, CancelledReason } from "../types/index";
 import {
   updateRemoveColumns,
   updateRemoveRows,
@@ -14,7 +14,13 @@ interface PendingMerges {
 }
 
 export class MergePlugin extends BasePlugin {
-  static getters = ["isMergeDestructive", "isInMerge", "getMainCell", "expandZone"];
+  static getters = [
+    "isMergeDestructive",
+    "isInMerge",
+    "getMainCell",
+    "expandZone",
+    "doesIntersectMerge",
+  ];
 
   private nextId: number = 1;
   private pending: PendingMerges | null = null;
@@ -22,6 +28,18 @@ export class MergePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+  allowDispatch(cmd: Command): CommandResult {
+    const force = "force" in cmd ? !!cmd.force : false;
+
+    switch (cmd.type) {
+      case "PASTE":
+        return this.isPasteAllowed(cmd.target, force);
+      case "ADD_MERGE":
+        return this.isMergeAllowed(cmd.zone, force);
+      default:
+        return { status: "SUCCESS" };
+    }
+  }
 
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
@@ -99,6 +117,22 @@ export class MergePlugin extends BasePlugin {
     }
     return false;
   }
+  /**
+   * Return true if the zone intersects an existing merge:
+   * if they have at least a common cell
+   */
+  doesIntersectMerge(zone: Zone): boolean {
+    const { left, right, top, bottom } = zone;
+    for (let row = top; row <= bottom; row++) {
+      for (let col = left; col <= right; col++) {
+        const cellXc = toXC(col, row);
+        if (this.workbook.mergeCellMap[cellXc]) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   /**
    * Add all necessary merge to the current selection to make it valid
@@ -142,6 +176,24 @@ export class MergePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Merges
   // ---------------------------------------------------------------------------
+
+  /**
+   * Verify that we can merge without losing content of other cells or
+   * because the user gave his permission
+   */
+  private isMergeAllowed(zone: Zone, force: boolean): CommandResult {
+    if (!force) {
+      if (this.isMergeDestructive(zone)) {
+        return {
+          status: "CANCELLED",
+          reason: CancelledReason.MergeIsDestructive,
+        };
+      }
+    }
+    return {
+      status: "SUCCESS",
+    };
+  }
 
   /**
    * Merge the current selection. Note that:
@@ -285,6 +337,24 @@ export class MergePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Copy/Cut/Paste and Merge
   // ---------------------------------------------------------------------------
+
+  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
+    if (!force) {
+      const pasteZones = this.getters.getPasteZones(target);
+      for (let zone of pasteZones) {
+        if (this.doesIntersectMerge(zone)) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.WillRemoveExistingMerge,
+          };
+        }
+      }
+    }
+    return {
+      status: "SUCCESS",
+    };
+  }
+
   private pasteMerge(xc: string, col: number, row: number, sheet: string, cut?: boolean) {
     const sheetID = this.workbook.sheets.findIndex((s) => s.name === sheet);
     const mergeId = this.workbook.sheets[sheetID].mergeCellMap[xc];

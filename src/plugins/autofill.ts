@@ -10,6 +10,8 @@ import {
   GridRenderingContext,
   LAYERS,
   Zone,
+  CancelledReason,
+  CommandResult,
 } from "../types/index";
 import { union, toCartesian, toXC } from "../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
@@ -89,13 +91,15 @@ export class AutofillPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "AUTOFILL_AUTO":
         const zone = this.getters.getSelectedZone();
-        return zone.top === zone.bottom;
+        return zone.top === zone.bottom
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.Unknown };
     }
-    return true;
+    return { status: "SUCCESS" };
   }
 
   handle(cmd: Command) {

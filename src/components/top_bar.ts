@@ -7,6 +7,7 @@ import * as icons from "./icons";
 import { isEqual } from "../helpers/index";
 import { ColorPicker } from "./color_picker";
 import { menuItemRegistry, FullActionMenuItem } from "../menu_items_registry";
+import { mergeAction } from "./context_menu/actions";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
@@ -483,14 +484,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     if (this.inMerge) {
       this.dispatch("REMOVE_MERGE", { sheet, zone });
     } else {
-      if (this.getters.isMergeDestructive(zone)) {
-        this.trigger("ask-confirmation", {
-          content: "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
-          confirm: () => this.dispatch("ADD_MERGE", { sheet, zone }),
-        });
-      } else {
-        this.dispatch("ADD_MERGE", { sheet, zone });
-      }
+      mergeAction(this.env)
     }
   }
   setColor(target: string, ev: CustomEvent) {

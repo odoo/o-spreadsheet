@@ -20,10 +20,10 @@ class Parent extends Component<any, any> {
       openSidePanel: (panel: string) => {},
       dispatch: model.dispatch,
       getters: model.getters,
+      askConfirmation: jest.fn()
     });
     this.model = model;
   }
-  askConfirmation(ev) {}
   mounted() {
     this.model.on("update", this, this.render);
   }
@@ -47,27 +47,6 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
 
     expect(fixture.querySelector(".o-spreadsheet-topbar")).toMatchSnapshot();
-  });
-
-  test("merging destructively a selection ask for confirmation", async () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-
-    let confirm;
-    class TestParent extends Parent {
-      askConfirmation(ev) {
-        confirm = ev.detail.confirm;
-      }
-    }
-    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
-    const parent = new TestParent(model);
-    await parent.mount(fixture);
-
-    fixture.querySelector('.o-tool[title="Merge Cells"]')!.dispatchEvent(new Event("click"));
-
-    expect(model["workbook"].merges).toEqual({});
-    confirm();
-    expect(model["workbook"].merges).not.toEqual({});
   });
 
   test("opening a second menu closes the first one", async () => {
@@ -289,7 +268,10 @@ describe("TopBar component", () => {
     menuItemRegistry.addChild("testaction", ["test"], {
       name: "TestAction",
       sequence: 1,
-      action: () => number++,
+      action: () => {
+        number++;
+        return { status: "SUCCESS" };
+      },
     });
     const parent = new Parent(new Model());
     await parent.mount(fixture);

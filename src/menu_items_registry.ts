@@ -3,6 +3,7 @@ import { SpreadsheetEnv } from "./types/env";
 import { numberToLetters } from "./helpers/index";
 import { Style } from "./types/misc";
 import { fontSizes } from "./fonts";
+import { pasteAction } from "./components/context_menu/actions";
 
 //------------------------------------------------------------------------------
 // Menu Item Registry
@@ -161,11 +162,7 @@ menuItemRegistry
   .addChild("paste", ["edit"], {
     name: "Paste",
     sequence: 50,
-    action: (env: SpreadsheetEnv) =>
-      env.dispatch("PASTE", {
-        target: env.getters.getSelectedZones(),
-        onlyFormat: false,
-      }),
+    action: pasteAction,
   })
   .addChild("paste_special", ["edit"], {
     name: "Paste special",

@@ -5,6 +5,8 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
+import { pasteAction } from "./context_menu/actions";
+import { SpreadsheetEnv } from "../types";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -77,6 +79,9 @@ export class Spreadsheet extends Component<Props> {
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
+      notifyUser: (content: string) => this.trigger("notify-user", { content }),
+      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+        this.trigger("ask-confirmation", { content, confirm, cancel }),
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -118,19 +123,13 @@ export class Spreadsheet extends Component<Props> {
     if (!this.grid.el!.contains(document.activeElement)) {
       return;
     }
+    const spreadsheetEnv = this.env as SpreadsheetEnv;
     const clipboardData = ev.clipboardData!;
     if (clipboardData.types.indexOf("text/plain") > -1) {
       const content = clipboardData.getData("text/plain");
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        const result = this.model.dispatch("PASTE", {
-          target: this.model.getters.getSelectedZones(),
-        });
-        if (result === "CANCELLED") {
-          this.trigger("notify-user", {
-            content: "This operation is not allowed with multiple selections.",
-          });
-        }
+        pasteAction(spreadsheetEnv);
       } else {
         this.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
           target: this.model.getters.getSelectedZones(),

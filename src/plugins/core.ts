@@ -25,6 +25,8 @@ import {
   SheetData,
   WorkbookData,
   Zone,
+  CommandResult,
+  CancelledReason,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -59,18 +61,23 @@ export class CorePlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): boolean {
+  allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
-        return this.workbook.cols.length > cmd.columns.length;
+        return this.workbook.cols.length > cmd.columns.length
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
       case "REMOVE_ROWS":
-        return this.workbook.rows.length > cmd.rows.length;
+        return this.workbook.rows.length > cmd.rows.length
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
-        return (
-          !cmd.name || this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.name) === -1
-        );
+        return !cmd.name ||
+          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.name) === -1
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       default:
-        return true;
+        return { status: "SUCCESS" };
     }
   }
 

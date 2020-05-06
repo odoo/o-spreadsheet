@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { triggerMouseEvent } from "../dom_helper";
+import { CommandResult } from "../../src/types/commands";
 
 Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
@@ -32,7 +33,7 @@ afterEach(() => {
 
 describe("Autofill component", () => {
   test("Can drag and drop autofill on columns", async () => {
-    parent.env.dispatch = jest.fn(() => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -45,7 +46,7 @@ describe("Autofill component", () => {
   });
 
   test("Can drag and drop autofill on rows", async () => {
-    parent.env.dispatch = jest.fn(() => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -58,7 +59,7 @@ describe("Autofill component", () => {
   });
 
   test("Can auto-autofill with dblclick", async () => {
-    parent.env.dispatch = jest.fn(() => "COMPLETED");
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "dblclick", 4, 4);
     await nextTick();

@@ -9,6 +9,7 @@ import {
   LAYERS,
   Workbook,
   WorkbookData,
+  CommandResult,
 } from "./types/index";
 
 /**
@@ -59,8 +60,8 @@ export class BasePlugin implements CommandHandler {
    *
    * There should not be any side effects in this method.
    */
-  allowDispatch(command: Command): boolean {
-    return true;
+  allowDispatch(command: Command): CommandResult {
+    return { status: "SUCCESS" };
   }
 
   /**

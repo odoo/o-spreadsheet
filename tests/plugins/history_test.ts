@@ -2,6 +2,7 @@ import { MAX_HISTORY_STEPS } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell, waitForRecompute } from "../helpers";
+import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
 
@@ -93,7 +94,10 @@ describe("history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(model.dispatch("UNDO")).toBe("CANCELLED");
+    expect(model.dispatch("UNDO")).toEqual({
+      reason: CancelledReason.EmptyUndoStack,
+      status: "CANCELLED",
+    });
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 
@@ -103,7 +107,10 @@ describe("history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(model.dispatch("REDO")).toBe("CANCELLED");
+    expect(model.dispatch("REDO")).toEqual({
+      reason: CancelledReason.EmptyRedoStack,
+      status: "CANCELLED",
+    });
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 });
