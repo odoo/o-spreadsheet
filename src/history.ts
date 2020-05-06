@@ -1,4 +1,12 @@
-import { Cell, Workbook, Sheet, Command, CommandHandler } from "./types/index";
+import {
+  Cell,
+  Workbook,
+  Sheet,
+  Command,
+  CommandHandler,
+  CommandResult,
+  CancelledReason,
+} from "./types/index";
 
 /**
  * History Management System
@@ -49,14 +57,18 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     return this.redoStack.length > 0;
   }
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "UNDO":
-        return this.canUndo();
+        return this.canUndo()
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
       case "REDO":
-        return this.canRedo();
+        return this.canRedo()
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
     }
-    return true;
+    return { status: "SUCCESS" };
   }
 
   beforeHandle(cmd: Command) {

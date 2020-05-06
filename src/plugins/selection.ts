@@ -1,6 +1,14 @@
 import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
-import { Command, Zone, Cell, LAYERS, GridRenderingContext } from "../types/index";
+import {
+  Command,
+  Zone,
+  Cell,
+  LAYERS,
+  GridRenderingContext,
+  CommandResult,
+  CancelledReason,
+} from "../types/index";
 import { Mode } from "../model";
 
 export interface Selection {
@@ -45,20 +53,26 @@ export class SelectionPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command): boolean {
+  allowDispatch(cmd: Command): CommandResult {
     if (cmd.type === "MOVE_POSITION") {
       const [refCol, refRow] = this.getReferenceCoords();
       const { cols, rows } = this.workbook;
-      return !(
+      const outOfBound =
         (cmd.deltaY < 0 && refRow === 0) ||
         (cmd.deltaY > 0 && refRow === rows.length - 1) ||
         (cmd.deltaX < 0 && refCol === 0) ||
-        (cmd.deltaX > 0 && refCol === cols.length - 1)
-      );
+        (cmd.deltaX > 0 && refCol === cols.length - 1);
+      if (outOfBound) {
+        return {
+          status: "CANCELLED",
+          reason: CancelledReason.SelectionOutOfBound,
+        };
+      }
     }
-    return true;
+    return {
+      status: "SUCCESS",
+    };
   }
-
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":

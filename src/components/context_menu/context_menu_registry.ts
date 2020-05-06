@@ -1,6 +1,7 @@
 import { toXC } from "../../helpers/index";
 import { Registry } from "../../registry";
 import { Cell, SpreadsheetEnv } from "../../types/index";
+import { pasteAction } from "./actions";
 
 //------------------------------------------------------------------------------
 // Context Menu Registry
@@ -45,12 +46,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     type: "action",
     name: "paste",
     description: "Paste",
-    action(env: SpreadsheetEnv) {
-      env.dispatch("PASTE", {
-        target: env.getters.getSelectedZones(),
-        onlyFormat: false,
-      });
-    },
+    action: pasteAction,
   })
   .add("separator1", {
     type: "separator",

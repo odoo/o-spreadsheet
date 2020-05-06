@@ -1,9 +1,32 @@
 import { Model } from "../../src/model";
-import { Zone } from "../../src/types/index";
+import { Zone, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
 import { toCartesian } from "../../src/helpers/index";
 import { ClipboardPlugin } from "../../src/plugins/clipboard";
-import { getCell, getGrid } from "../helpers";
+import { getCell, getGrid, makeTestFixture } from "../helpers";
+import { TopBar } from "../../src/components/top_bar";
+import { Component, hooks, tags } from "@odoo/owl";
+import { pasteAction } from "../../src/components/context_menu/actions";
+
+const { xml } = tags;
+const { useSubEnv } = hooks;
+
+class Parent extends Component<any, any> {
+  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
+  static components = { TopBar };
+  model: Model;
+  constructor(model: Model) {
+    super();
+    useSubEnv({
+      openSidePanel: (panel: string) => {},
+      dispatch: model.dispatch,
+      getters: model.getters,
+      askConfirmation: jest.fn(),
+      notifyUser: jest.fn(),
+    });
+    this.model = model;
+  }
+}
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
@@ -260,6 +283,91 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("B2")).toBe(true);
   });
 
+  test("Pasting content that will destroy a merge will ask for confirmation", async () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+          merges: ["B2:C3"],
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    const selection = model.getters.getSelection().zones;
+    model.dispatch("COPY", { target: selection });
+
+    const fixture = makeTestFixture();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    pasteAction(parent.env);
+    expect(parent.env.askConfirmation).toHaveBeenCalled();
+  });
+
+  test("Pasting content that will destroy a merge will fail if not forced", async () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+          merges: ["B2:C3"],
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    const selection = model.getters.getSelection().zones;
+    model.dispatch("COPY", { target: selection });
+    const result = model.dispatch("PASTE", { target: target("A1") });
+    expect(result).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WillRemoveExistingMerge,
+    });
+    expect(model.getters.isInMerge("A1")).toBe(false);
+    expect(model.getters.isInMerge("A2")).toBe(false);
+    expect(model.getters.isInMerge("B1")).toBe(false);
+    expect(model.getters.isInMerge("B2")).toBe(true);
+    expect(model.getters.isInMerge("B3")).toBe(true);
+    expect(model.getters.isInMerge("C2")).toBe(true);
+    expect(model.getters.isInMerge("C3")).toBe(true);
+  });
+
+  test("Pasting content that will destroy a merge will be applied if forced", async () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+          merges: ["B2:C3"],
+        },
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    const selection = model.getters.getSelection().zones;
+    model.dispatch("COPY", { target: selection });
+    model.dispatch("PASTE", { target: target("A1"), force: true });
+    expect(model.getters.isInMerge("A1")).toBe(true);
+    expect(model.getters.isInMerge("A2")).toBe(true);
+    expect(model.getters.isInMerge("B1")).toBe(true);
+    expect(model.getters.isInMerge("B2")).toBe(true);
+    expect(model.getters.isInMerge("B3")).toBe(false);
+    expect(model.getters.isInMerge("C2")).toBe(false);
+    expect(model.getters.isInMerge("C3")).toBe(false);
+  });
+
   test("cutting a cell with style remove the cell", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
@@ -443,10 +551,25 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("COPY", { target: target("A1:A2") });
-
     const result = model.dispatch("PASTE", { target: target("C1,E1") });
 
-    expect(result).toEqual("CANCELLED");
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.WrongPasteSelection });
+  });
+
+  test("pasting with multiple selection and more than one value will warn user", async () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("COPY", { target: target("A1:A2") });
+
+    const fixture = makeTestFixture();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    model.dispatch("SELECT_CELL", { col: 2, row: 3 });
+    model.dispatch("SELECT_CELL", { col: 4, row: 5, createNewRange: true });
+    pasteAction(parent.env);
+    expect(parent.env.notifyUser).toHaveBeenCalled();
   });
 
   test("can copy and paste a cell with STRING content", () => {

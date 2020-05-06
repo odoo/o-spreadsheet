@@ -2,15 +2,35 @@ import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
-import { getActiveXc, getCell } from "../helpers";
+import { getActiveXc, getCell, makeTestFixture } from "../helpers";
+import { TopBar } from "../../src/components/top_bar";
+import { Component, hooks,tags} from "@odoo/owl";
+
+const { xml } = tags;
+const { useSubEnv } = hooks;
+
+class Parent extends Component<any, any> {
+  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
+  static components = { TopBar };
+  model: Model;
+  constructor(model: Model) {
+    super();
+    useSubEnv({
+      openSidePanel: (panel: string) => {},
+      dispatch: model.dispatch,
+      getters: model.getters,
+      askConfirmation: jest.fn()
+    });
+    this.model = model;
+  }
+}
 
 describe("merges", () => {
   test("can merge two cells", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
 
-    expect(Object.keys(model["workbook"].cells)).toEqual(["B2", "B3"]);
+    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
     expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
     expect(Object.keys(model["workbook"].merges)).toEqual([]);
 
@@ -159,7 +179,20 @@ describe("merges", () => {
     expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeFalsy();
   });
 
-  test("merging cells with values remove them", () => {
+  test("merging destructively a selection ask for confirmation", async () => {
+    
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    const fixture = makeTestFixture();
+    const parent = new Parent(model)
+    await parent.mount(fixture);
+    model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
+
+    fixture.querySelector('.o-tool[title="Merge Cells"]')!.dispatchEvent(new Event("click"));
+    expect(parent.env.askConfirmation).toHaveBeenCalled();
+  });
+
+  test("merging cells with values will do nothing if not forced", () => {
     const model = new Model({
       sheets: [
         {
@@ -175,7 +208,31 @@ describe("merges", () => {
       ],
     });
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3")});
+
+    expect(getCell(model, "A1")!.value).toBe(1);
+    expect(getCell(model, "A2")!.value).toBe(2);
+    expect(getCell(model, "A3")!.value).toBe(3);
+    expect(getCell(model, "A4")!.value).toBe(6);
+  });
+
+  test("merging cells with values remove them if forced", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: { content: "1" },
+            A2: { content: "2" },
+            A3: { content: "3" },
+            A4: { content: "=sum(A1:A3)" },
+          },
+        },
+      ],
+    });
+    expect(getCell(model, "A4")!.value).toBe(6);
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3"),force: true });
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")).toBeNull();

@@ -2,7 +2,7 @@ import { menuItemRegistry } from "../src/components";
 import { FullActionMenuItem } from "../src/menu_items_registry";
 import { Model } from "../src";
 import { GridParent, makeTestFixture } from "./helpers";
-import { SpreadsheetEnv } from "../src/types";
+import { SpreadsheetEnv, CommandResult } from "../src/types";
 import { fontSizes } from "../src/fonts";
 
 function getNode(_path: string[]): FullActionMenuItem {
@@ -70,7 +70,7 @@ describe("Menu Item actions", () => {
     parent = new GridParent(model);
     env = parent.env;
     await parent.mount(fixture);
-    env.dispatch = jest.fn(() => "COMPLETED");
+    env.dispatch = jest.fn(() => ({ status: "SUCCESS" } as CommandResult));
   });
 
   test("Edit -> undo", () => {

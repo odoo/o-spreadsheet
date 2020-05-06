@@ -29,6 +29,7 @@ export interface Getters {
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
+  getPasteZones: ClipboardPlugin["getPasteZones"];
 
   getCellWidth: FormattingPlugin["getCellWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
@@ -37,6 +38,7 @@ export interface Getters {
   isMergeDestructive: MergePlugin["isMergeDestructive"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
+  doesIntersectMerge: MergePlugin["doesIntersectMerge"];
 
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];

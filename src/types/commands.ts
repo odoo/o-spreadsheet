@@ -70,6 +70,7 @@ export interface AddMergeCommand {
   type: "ADD_MERGE";
   sheet: string;
   zone: Zone;
+  force?: boolean;
 }
 
 export interface RemoveMergeCommand {
@@ -153,6 +154,7 @@ export interface PasteCommand {
   type: "PASTE";
   target: Zone[];
   onlyFormat?: boolean;
+  force?: boolean;
 }
 
 export interface PasteCellCommand {
@@ -371,10 +373,31 @@ export type Command =
   | AutofillSelectCommand
   | AutofillAutoCommand;
 
-export type CommandResult = "COMPLETED" | "CANCELLED";
+export interface CommandSuccess {
+  status: "SUCCESS";
+}
+export interface CommandCancelled {
+  status: "CANCELLED";
+  reason: CancelledReason;
+}
+
+export const enum CancelledReason {
+  Unknown,
+  WillRemoveExistingMerge,
+  MergeIsDestructive,
+  EmptyUndoStack,
+  EmptyRedoStack,
+  NotEnoughColumns,
+  NotEnoughRows,
+  WrongSheetName,
+  SelectionOutOfBound,
+  WrongPasteSelection,
+}
+
+export type CommandResult = CommandSuccess | CommandCancelled;
 
 export interface CommandHandler {
-  allowDispatch(command: Command): boolean;
+  allowDispatch(command: Command): CommandResult;
   beforeHandle(command: Command): void;
   handle(command: Command): void;
   finalize(command: Command): void;

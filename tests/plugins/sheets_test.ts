@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
 import { toCartesian } from "../../src/helpers";
+import { CancelledReason } from "../../src/types";
 
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
@@ -44,7 +45,10 @@ describe("sheets", () => {
   test("Cannot create a sheet with a name already existent", () => {
     const model = new Model();
     const name = model["workbook"].activeSheet.name;
-    expect(model.dispatch("CREATE_SHEET", { name })).toBe("CANCELLED");
+    expect(model.dispatch("CREATE_SHEET", { name })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
   });
 
   test("can read a value in same sheet", () => {
