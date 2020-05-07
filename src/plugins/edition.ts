@@ -1,6 +1,6 @@
 import { tokenize } from "../formulas/index";
-import { toXC, toZone, toCartesian } from "../helpers/index";
-import { Command, Zone, Highlight, LAYERS, GridRenderingContext } from "../types/index";
+import { toXC, toCartesian } from "../helpers/index";
+import { Command, LAYERS } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
 
@@ -15,7 +15,6 @@ export class EditionPlugin extends BasePlugin {
   private row: number = 0;
   private mode: EditionMode = "inactive";
   private currentContent: string = "";
-  private highlights: Highlight[] = [];
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -31,12 +30,6 @@ export class EditionPlugin extends BasePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ADD_HIGHLIGHTS":
-        this.addHighlights(cmd.ranges);
-        break;
-      case "REMOVE_HIGHLIGHTS":
-        this.highlights = [];
-        break;
       case "START_COMPOSER_SELECTION":
         this.mode = "selecting";
         this.dispatch("SET_SELECTION", {
@@ -85,23 +78,6 @@ export class EditionPlugin extends BasePlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
-  private addHighlights(ranges: { [range: string]: string }) {
-    let highlights = Object.keys(ranges)
-      .map((r1c1) => {
-        const zone: Zone = this.getters.expandZone(toZone(r1c1));
-        return { zone, color: ranges[r1c1] };
-      })
-      .filter(
-        (x) =>
-          x.zone.top >= 0 &&
-          x.zone.left >= 0 &&
-          x.zone.bottom < this.workbook.rows.length &&
-          x.zone.right < this.workbook.cols.length
-      );
-
-    this.highlights = this.highlights.concat(highlights);
-  }
-
   private startEdition(str?: string) {
     if (!str) {
       const cell = this.getters.getActiveCell();
@@ -109,7 +85,7 @@ export class EditionPlugin extends BasePlugin {
     }
     this.mode = "editing";
     this.currentContent = str || "";
-    this.highlights = [];
+    this.dispatch("REMOVE_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
@@ -161,23 +137,6 @@ export class EditionPlugin extends BasePlugin {
 
   private cancelEdition() {
     this.mode = "inactive";
-    this.highlights = [];
-  }
-
-  // ---------------------------------------------------------------------------
-  // Grid rendering
-  // ---------------------------------------------------------------------------
-
-  drawGrid(renderingContext: GridRenderingContext) {
-    // rendering selection highlights
-    const { ctx, viewport, thinLineWidth } = renderingContext;
-    ctx.lineWidth = 3 * thinLineWidth;
-    for (let h of this.highlights) {
-      const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
-      if (width > 0 && height > 0) {
-        ctx.strokeStyle = h.color!;
-        ctx.strokeRect(x, y, width, height);
-      }
-    }
+    this.dispatch("REMOVE_HIGHLIGHTS");
   }
 }
