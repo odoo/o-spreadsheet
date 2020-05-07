@@ -1,6 +1,14 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
-import { toNumber, strictToNumber, toString, reduceArgs, reduceNumbers } from "./helpers";
+import {
+  toNumber,
+  strictToNumber,
+  toString,
+  reduceArgs,
+  reduceNumbers,
+  visitMatchingRanges,
+} from "./helpers";
+
 // -----------------------------------------------------------------------------
 // CEILING
 // -----------------------------------------------------------------------------
@@ -107,6 +115,50 @@ export const COUNTBLANK: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// COUNTIF
+// -----------------------------------------------------------------------------
+export const COUNTIF: FunctionDescription = {
+  description: `A conditional count across a range.`,
+  args: args`
+    range (any, range) The range that is tested against criterion.
+    criterion (string) The pattern or test to apply to range.
+  `,
+  returns: ["NUMBER"],
+  compute: function (): number {
+    let count = 0;
+    visitMatchingRanges(arguments, (i, j) => {
+      count += 1;
+    });
+    return count;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUNTIFS
+// -----------------------------------------------------------------------------
+export const COUNTIFS: FunctionDescription = {
+  description: `Count values depending on multiple criteria.`,
+  args: args`
+    criteria_range (any, range) The range to check against criterion1.
+    criterion (string) The pattern or test to apply to criteria_range1.
+    additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
+  `,
+  // @compatibility: on google sheets, args definitions are next:
+  // criteria_range1 (any, range) The range to check against criterion1.
+  // criterion1 (string) The pattern or test to apply to criteria_range1.
+  // criteria_range2 (any, range, optional repeating) Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.
+  // criterion2 (string, optional repeating) Additional criteria to check.
+  returns: ["NUMBER"],
+  compute: function (): number {
+    let count = 0;
+    visitMatchingRanges(arguments, (i, j) => {
+      count += 1;
+    });
+    return count;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // COUNTUNIQUE
 // -----------------------------------------------------------------------------
 
@@ -132,6 +184,37 @@ export const COUNTUNIQUE: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceArgs(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COUNTUNIQUEIFS
+// -----------------------------------------------------------------------------
+
+export const COUNTUNIQUEIFS: FunctionDescription = {
+  description: "Counts number of unique values in a range, filtered by a set of criteria.",
+  args: args`
+    range (any, range) The range of cells from which the number of unique values will be counted.
+    criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
+    criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
+    additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
+  `,
+  // @compatibility: on google sheets, args definitions are next:
+  // range (any, range) The range of cells from which the number of unique values will be counted.
+  // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
+  // criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
+  // criteria_range2 (any, range, optional, repeating) Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.
+  // criterion2 (string, optional, repeating) The pattern or test to apply to criteria_range2.
+  returns: ["NUMBER"],
+  compute: function (range, ...args): number {
+    let uniqueValues = new Set();
+    visitMatchingRanges(args, (i, j) => {
+      const value = range[i][j];
+      if (isDefined(value)) {
+        uniqueValues.add(value);
+      }
+    });
+    return uniqueValues.size;
   },
 };
 
@@ -576,6 +659,62 @@ export const SUM: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceNumbers(arguments, (acc, a) => acc + a, 0);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// SUMIF
+// -----------------------------------------------------------------------------
+export const SUMIF: FunctionDescription = {
+  description: "A conditional sum across a range.",
+  args: args`
+      criteria_range (any, range) The range which is tested against criterion.
+      criterion (string) The pattern or test to apply to range.
+      sum_range (any, range, optional, default=criteria_range) The range to be summed, if different from range.
+    `,
+  returns: ["NUMBER"],
+  compute: function (criteria_range: any, criterion: any, sum_range: any = undefined): number {
+    if (sum_range === undefined) {
+      sum_range = criteria_range;
+    }
+    let sum = 0;
+    visitMatchingRanges([criteria_range, criterion], (i, j) => {
+      const value = sum_range[i][j];
+      if (typeof value === "number") {
+        sum += value;
+      }
+    });
+    return sum;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// SUMIFS
+// -----------------------------------------------------------------------------
+export const SUMIFS: FunctionDescription = {
+  description: "Sums a range depending on multiple criteria.",
+  args: args`
+      sum_range (any, range) The range to sum.
+      criteria_range1 (any, range) The range to check against criterion1.
+      criterion1 (string) The pattern or test to apply to criteria_range1.
+      additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
+    `,
+  // @compatibility: on google sheets, args definitions are next:
+  // sum_range (any, range) The range to sum.
+  // criteria_range1 (any, range) The range to check against criterion1.
+  // criterion1 (string) The pattern or test to apply to criteria_range1.
+  // criteria_range2 (any, range, optional, repeating) Additional ranges to check.
+  // criterion2 (string, optional, repeating) Additional criteria to check.
+  returns: ["NUMBER"],
+  compute: function (sum_range, ...args): number {
+    let sum = 0;
+    visitMatchingRanges(args, (i, j) => {
+      const value = sum_range[i][j];
+      if (typeof value === "number") {
+        sum += value;
+      }
+    });
+    return sum;
   },
 };
 

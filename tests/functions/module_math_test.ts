@@ -288,6 +288,328 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // COUNTIF
+  //----------------------------------------------------------------------------
+
+  // prettier-ignore
+  test("COUNTIF: operator tests on type number and type string", () => {
+    
+    const grid = {
+      A1 : "1" , B1 : '="1"',
+      A2 : "10", B2 : '="10"',
+      A3 : "2" , B3 : '="2"',
+      A4 : "20", B4 : '="20"',
+      A5 : "3" , B5 : '="3"',
+      A6 : "30", B6 : '="30"',
+      A7 : "4" , B7 : '="4"',
+      A8 : "40", B8 : '="40"',
+
+      A10: "=COUNTIF(A1:A8, 20)"      , B10: "=COUNTIF(B1:B8, 20)", 
+      A11: '=COUNTIF(A1:A8, "20")'    , B11: '=COUNTIF(B1:B8, "20")', 
+      A12: '=COUNTIF(A1:A8, "=20")'   , B12: '=COUNTIF(B1:B8, "=20")',
+
+      A14: '=COUNTIF(A1:A8, "2*")'    , B14: '=COUNTIF(B1:B8, "2*")',
+
+      A16: '=COUNTIF(A1:A8, "<20")'   , B16: '=COUNTIF(B1:B8, "<20")',
+      A17: '=COUNTIF(A1:A8, ">20")'   , B17: '=COUNTIF(B1:B8, ">20")',
+
+      A19: '=COUNTIF(A1:A8, "< 20 ")' , B19: '=COUNTIF(B1:B8, "< 20 ")',
+      A20: '=COUNTIF(A1:A8, "> 20 ")' , B20: '=COUNTIF(B1:B8, "> 20 ")',
+
+      A22: '=COUNTIF(A1:A8, "< 20% ")', B22: '=COUNTIF(B1:B8, "< 20% ")',
+      A23: '=COUNTIF(A1:A8, "> 20% ")', B23: '=COUNTIF(B1:B8, "> 20% ")',
+
+      A25: '=COUNTIF(A1:A8, "<a")'    , B25: '=COUNTIF(B1:B8, "<a")',
+      A26: '=COUNTIF(A1:A8, ">a")'    , B26: '=COUNTIF(B1:B8, ">a")',
+
+      A28: '=COUNTIF(A1:A8, "<20A")'  , B28: '=COUNTIF(B1:B8, "<20A")',
+      A29: '=COUNTIF(A1:A8, ">20A")'  , B29: '=COUNTIF(B1:B8, ">20A")',
+
+      A31: '=COUNTIF(A1:A8, "<2*")'   , B31: '=COUNTIF(B1:B8, "<2*")',
+      A32: '=COUNTIF(A1:A8, ">2*")'   , B32: '=COUNTIF(B1:B8, ">2*")',
+
+      A34: '=COUNTIF(A1:A8, "<2?")'   , B34: '=COUNTIF(B1:B8, "<2?")',
+      A35: '=COUNTIF(A1:A8, ">2?")'   , B35: '=COUNTIF(B1:B8, ">2?")',
+
+      A37: '=COUNTIF(A1:A8, "<>20")'  , B37: '=COUNTIF(B1:B8, "<>20")',
+    };
+
+    const gridResult = evaluateGrid(grid);
+
+    expect(gridResult.A10).toBe(1);  expect(gridResult.B10).toBe(1);
+    expect(gridResult.A11).toBe(1);  expect(gridResult.B11).toBe(1);
+    expect(gridResult.A12).toBe(1);  expect(gridResult.B12).toBe(1);
+
+    expect(gridResult.A14).toBe(0);  expect(gridResult.B14).toBe(2);
+
+    expect(gridResult.A16).toBe(5);  expect(gridResult.B16).toBe(0);
+    expect(gridResult.A17).toBe(2);  expect(gridResult.B17).toBe(0);
+
+    expect(gridResult.A19).toBe(5);  expect(gridResult.B19).toBe(0);
+    expect(gridResult.A20).toBe(2);  expect(gridResult.B20).toBe(0);
+
+    expect(gridResult.A22).toBe(0);  expect(gridResult.B22).toBe(0);
+    expect(gridResult.A23).toBe(8);  expect(gridResult.B23).toBe(0);
+
+    expect(gridResult.A25).toBe(0);  expect(gridResult.B25).toBe(8);
+    expect(gridResult.A26).toBe(0);  expect(gridResult.B26).toBe(0);
+
+    expect(gridResult.A28).toBe(0);  expect(gridResult.B28).toBe(4);
+    expect(gridResult.A29).toBe(0);  expect(gridResult.B29).toBe(4);
+
+    expect(gridResult.A31).toBe(0);  expect(gridResult.B31).toBe(3);
+    expect(gridResult.A32).toBe(0);  expect(gridResult.B32).toBe(5);
+
+    expect(gridResult.A34).toBe(0);  expect(gridResult.B34).toBe(4); // @compatibility: on google sheet, return 3
+    expect(gridResult.A35).toBe(0);  expect(gridResult.B35).toBe(4); // @compatibility: on google sheet, return 5
+
+    expect(gridResult.A37).toBe(7);  expect(gridResult.B37).toBe(8);
+  });
+
+  test("COUNTIF: operator tests on type boolean", () => {
+    expect(evaluateCell("A41", { A41: "=COUNTIF(A39, TRUE)", A39: "TRUE" })).toBe(1);
+    expect(evaluateCell("A42", { A42: '=COUNTIF(A39, "TRUE")', A39: "TRUE" })).toBe(1);
+    expect(evaluateCell("A43", { A43: '=COUNTIF(A39, "=TRUE")', A39: "TRUE" })).toBe(1);
+
+    expect(evaluateCell("B41", { B41: "=COUNTIF(B39, TRUE)", B39: '="TRUE"' })).toBe(0);
+    expect(evaluateCell("B42", { B42: '=COUNTIF(B39, "TRUE")', B39: '="TRUE"' })).toBe(0);
+    expect(evaluateCell("B43", { B43: '=COUNTIF(B39, "=TRUE")', B39: '="TRUE"' })).toBe(0);
+  });
+
+  test("COUNTIF: operator tests on criterion expression", () => {
+    const grid1 = {
+      A45: "abc",
+      A46: "abd",
+      A47: "bcd",
+      A48: "b~e",
+      A49: "x*y",
+      A50: "x?z",
+      A51: "zZz",
+      A52: "zzz",
+
+      C45: '=COUNTIF(A45:A52, "abd")',
+      C46: '=COUNTIF(A45:A52, "ab")',
+      C47: '=COUNTIF(A45:A52, "=abd")',
+      C48: '=COUNTIF(A45:A52, "<abd")',
+      C49: '=COUNTIF(A45:A52, ">abd")',
+      C50: '=COUNTIF(A45:A52, "<>abd")',
+      C51: '=COUNTIF(A45:A52, "><abd")',
+
+      D45: '=COUNTIF(A45:A52, "ab*")',
+      D46: '=COUNTIF(A45:A52, "a*")',
+      D47: '=COUNTIF(A45:A52, "a*c")',
+      D48: '=COUNTIF(A45:A52, "a?")',
+      D49: '=COUNTIF(A45:A52, "a?c")',
+      D50: '=COUNTIF(A45:A52, "zzz")',
+      D51: '=COUNTIF(A45:A52, "x*z")',
+      D52: '=COUNTIF(A45:A52, "x~*z")',
+      D53: '=COUNTIF(A45:A52, "x~*y")',
+      D54: '=COUNTIF(A45:A52, "x?y")',
+      D55: '=COUNTIF(A45:A52, "x~?y")',
+      D56: '=COUNTIF(A45:A52, "x~?z")',
+      D57: '=COUNTIF(A45:A52, "b~e")',
+    };
+
+    const grid1Result = evaluateGrid(grid1);
+
+    expect(grid1Result.C45).toBe(1);
+    expect(grid1Result.C46).toBe(0);
+    expect(grid1Result.C47).toBe(1);
+    expect(grid1Result.C48).toBe(1);
+    expect(grid1Result.C49).toBe(6);
+    expect(grid1Result.C50).toBe(7);
+    expect(grid1Result.C51).toBe(8);
+
+    expect(grid1Result.D45).toBe(2);
+    expect(grid1Result.D46).toBe(2);
+    expect(grid1Result.D47).toBe(1);
+    expect(grid1Result.D48).toBe(0);
+    expect(grid1Result.D49).toBe(1);
+    expect(grid1Result.D50).toBe(2);
+    expect(grid1Result.D51).toBe(1);
+    expect(grid1Result.D52).toBe(0);
+    expect(grid1Result.D53).toBe(1);
+    expect(grid1Result.D54).toBe(1);
+    expect(grid1Result.D55).toBe(0);
+    expect(grid1Result.D56).toBe(1);
+    expect(grid1Result.D57).toBe(1);
+
+    const grid2 = {
+      A59: "abc",
+      A60: "abd",
+      A61: "abe",
+      A62: "bcd",
+      A63: "bce",
+      A64: "b$f",
+      A65: "b",
+      A66: "cdf",
+      A67: "cdg",
+
+      C59: '=COUNTIF(A59:A67, "> bcf")',
+      C60: '=COUNTIF(A59:A67, ">bcf")',
+      C61: '=COUNTIF(A59:A67, ">b?f")',
+      C62: '=COUNTIF(A59:A67, ">c*")',
+
+      E59: '=COUNTIF(A59:A67, ">b?e")',
+      E60: '=COUNTIF(A59:A67, "<b?e")',
+
+      E62: '=COUNTIF(A59:A67, ">b*e")',
+      E63: '=COUNTIF(A59:A67, "<b*e")',
+
+      E65: '=COUNTIF(A59:A67, ">b*")',
+      E66: '=COUNTIF(A59:A67, "<b*")',
+
+      F65: '=COUNTIF(A59:A67, ">b")',
+      F66: '=COUNTIF(A59:A67, "<b")',
+    };
+
+    const grid2Result = evaluateGrid(grid2);
+
+    expect(grid2Result.C59).toBe(9);
+    expect(grid2Result.C60).toBe(2);
+    expect(grid2Result.C61).toBe(4);
+    expect(grid2Result.C62).toBe(2);
+
+    expect(grid2Result.E59).toBe(4);
+    expect(grid2Result.E60).toBe(5);
+
+    expect(grid2Result.E62).toBe(4);
+    expect(grid2Result.E63).toBe(5);
+
+    expect(grid2Result.E65).toBe(4);
+    expect(grid2Result.E66).toBe(5);
+
+    expect(grid2Result.F65).toBe(5);
+    expect(grid2Result.F66).toBe(3);
+
+    const grid3 = {
+      A69: "b$f",
+
+      C69: '=COUNTIF(A69, ">b?f")',
+      C70: '=COUNTIF(A69, ">b*f")',
+      C71: '=COUNTIF(A69, ">b#f")',
+      C72: '=COUNTIF(A69, ">b&f")',
+
+      D69: '=COUNTIF(A69, "<b?f")',
+      D70: '=COUNTIF(A69, "<b*f")',
+      D71: '=COUNTIF(A69, "<b#f")',
+      D72: '=COUNTIF(A69, "<b&f")',
+    };
+
+    const grid3Result = evaluateGrid(grid3);
+
+    expect(grid3Result.C69).toBe(0);
+    expect(grid3Result.C70).toBe(0);
+    expect(grid3Result.C71).toBe(1);
+    expect(grid3Result.C72).toBe(0);
+
+    expect(grid3Result.D69).toBe(1);
+    expect(grid3Result.D70).toBe(1);
+    expect(grid3Result.D71).toBe(0);
+    expect(grid3Result.D72).toBe(1);
+
+    const grid4 = {
+      A74: "ab",
+      A75: "abc",
+      A76: "abcd",
+      A77: "abcde",
+
+      C74: '=COUNTIF(A74:A77, "a")',
+      C75: '=COUNTIF(A74:A77, "ab")',
+
+      E74: '=COUNTIF(A74:A77, "*")',
+      E75: '=COUNTIF(A74:A77, "a*")',
+      E76: '=COUNTIF(A74:A77, "ab*")',
+      E77: '=COUNTIF(A74:A77, "abc*")',
+
+      G74: '=COUNTIF(A74:A77, "?")',
+      G75: '=COUNTIF(A74:A77, "a?")',
+      G76: '=COUNTIF(A74:A77, "ab?")',
+      G77: '=COUNTIF(A74:A77, "abc?")',
+    };
+
+    const grid4Result = evaluateGrid(grid4);
+
+    expect(grid4Result.C74).toBe(0);
+    expect(grid4Result.C75).toBe(1);
+
+    expect(grid4Result.E74).toBe(4);
+    expect(grid4Result.E75).toBe(4);
+    expect(grid4Result.E76).toBe(4);
+    expect(grid4Result.E77).toBe(3);
+
+    expect(grid4Result.G74).toBe(0);
+    expect(grid4Result.G75).toBe(1);
+    expect(grid4Result.G76).toBe(1);
+    expect(grid4Result.G77).toBe(1);
+
+    const grid5 = {
+      J73: "aslnlsngj",
+
+      J74: '=COUNTIF(J73, "a*d")',
+      J75: '=COUNTIF(J73, "a*j")',
+      J76: '=COUNTIF(J73, "a*g")',
+      J77: '=COUNTIF(J73, "a*gj")',
+      J78: '=COUNTIF(J73, "a*nl*")',
+      J79: '=COUNTIF(J73, "a*nl*?n*j")',
+
+      J80: '=COUNTIF(J73, "<>*")',
+      J81: '=COUNTIF(J73, "<>a*")',
+      J82: '=COUNTIF(J73, "<>a*b")',
+    };
+
+    const grid5Result = evaluateGrid(grid5);
+
+    expect(grid5Result.J74).toBe(0);
+    expect(grid5Result.J75).toBe(1);
+    expect(grid5Result.J76).toBe(0);
+    expect(grid5Result.J77).toBe(1);
+    expect(grid5Result.J78).toBe(1);
+    expect(grid5Result.J79).toBe(1);
+
+    expect(grid5Result.J80).toBe(0);
+    expect(grid5Result.J81).toBe(0);
+    expect(grid5Result.J82).toBe(1);
+  });
+
+  //----------------------------------------------------------------------------
+  // COUNTIFS
+  //----------------------------------------------------------------------------
+
+  test("COUNTIFS: functional tests on range", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Jim"  , B1: "MN", C1: "100",
+      A2: "Sarah", B2: "CA", C2: "125",
+      A3: "Jane" , B3: "GA", C3: "200",
+      A4: "Steve", B4: "CA", C4: "50" ,
+      A5: "Jim"  , B5: "WY", C5: "75" ,
+      A6: "Joan" , B6: "WA", C6: "150",
+      A7: "Jane" , B7: "GA", C7: "200",
+      A8: "Jim"  , B8: "WY", C8: "50" ,
+
+      D1: '=COUNTIFS(A1:A8, "JIM", B1:B8, "??" , C1:C8, ">=100")',
+      D2: '=COUNTIFS(A1:A8, "JIM", B1:B8, "??" , C1:C8, ">=50")',
+      D3: '=COUNTIFS(A1:A8, "JIM", B1:B8, "WY" , C1:C8, ">=50")',
+      D4: '=COUNTIFS(A1:A8, "J*" , B1:B8, "W?" , C1:C8, ">=50")',
+      D5: '=COUNTIFS(A1:A8, "J*" , B1:B8, "?A" , C1:C8, ">=50")',
+      D6: '=COUNTIFS(A1:A8, "J*" , B1:B8, "?A" , C1:C8, "<>200")',
+      D7: '=COUNTIFS(A1:A8, "J*" , B1:B8, "*"  , C1:C8, "50")',
+      D8: '=COUNTIFS(A1:A8, "*a*", B1:B8, "*a*", C1:C8, ">0")',
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.D1).toBe(1);
+    expect(gridResult.D2).toBe(3);
+    expect(gridResult.D3).toBe(2);
+    expect(gridResult.D4).toBe(3);
+    expect(gridResult.D5).toBe(3);
+    expect(gridResult.D6).toBe(1);
+    expect(gridResult.D7).toBe(1);
+    expect(gridResult.D8).toBe(4);
+  });
+
+  //----------------------------------------------------------------------------
   // COUNTUNIQUE
   //----------------------------------------------------------------------------
 
@@ -409,6 +731,36 @@ describe("math", () => {
     expect(gridResult.C1).toBe(3);
     expect(gridResult.D1).toBe(2);
     expect(gridResult.E1).toBe(3);
+  });
+
+  //----------------------------------------------------------------------------
+  // COUNTUNIQUEIFS
+  //----------------------------------------------------------------------------
+
+  test("COUNTUNIQUEIFS: functional tests on range", () => {
+    // prettier-ignore
+    const grid = {
+      A1:  "car"   , B1:  "4" , C1:  "14", D1:  "Yes",
+      A2:  "toy"   , B2:  "28", C2:  "30", D2:  "Yes",
+      A3:  "shirt" , B3:  "31", C3:  "47", D3:  "Yes",
+      A4:  "car"   , B4:  "12", C4:  "0" , D4:  "Yes",
+      A5:  "toy"   , B5:  "31", C5:  "47", D5:  "Yes",
+      A6:  "milk"  , B6:  "13", C6:  "5" , D6:  "No" ,
+      A7:  "butter", B7:  "18", C7:  "43", D7:  "No" ,
+      A8:  "shirt" , B8:  "24", C8:  "7" , D8:  "Yes",
+      A9:  "car"   , B9:  "44", C9:  "28", D9:  "No" ,
+      A10: '=""'   , B10: "22", C10: "23", D10: "No" ,
+                     B11: "9" , C11: "13", D11: "No" ,
+
+      A12: '=COUNTUNIQUEIFS(A1:A11, B1:B11, ">20")',
+      A13: '=COUNTUNIQUEIFS(A1:A11, B1:B11, ">20", C1:C11, "<30")',
+      A14: '=COUNTUNIQUEIFS(A1:A11, D1:D11, "No")',
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A12).toBe(3);
+    expect(gridResult.A13).toBe(2);
+    expect(gridResult.A14).toBe(3);
   });
 
   //----------------------------------------------------------------------------
@@ -1469,6 +1821,66 @@ describe("math", () => {
     expect(gridResult.C1).toBe(3);
     expect(gridResult.D1).toBe(0);
     expect(gridResult.E1).toBe(0);
+  });
+
+  //----------------------------------------------------------------------------
+  // SUMIF
+  //----------------------------------------------------------------------------
+
+  test("COUNTUNIQUEIFS: functional tests on range", () => {
+    // prettier-ignore
+    const grid = {
+      A1:  "Coffee"    , B1:  "4"  ,
+      A2:  "Newspaper" , B2:  "1"  ,
+      A3:  "Taxi"      , B3:  "10" , 
+      A4:  "Golf"      , B4:  "26" ,
+      A5:  "Taxi"      , B5:  "8"  ,
+      A6:  "Coffee"    , B6:  "3.5",
+      A7:  "Gas"       , B7:  "46" ,
+      A8:  "Restaurant", B8:  "31" , 
+
+
+      A12: '=SUMIF(A1:A8, "Taxi", B1:B8)',
+      A13: '=SUMIF(B1:B8, ">=10", B1:B8)',
+      A14: '=SUMIF(B1:B8, ">=10")',
+      A15: '=SUMIF(A1:A8, "G*", B1:B8)',
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A12).toBe(18);
+    expect(gridResult.A13).toBe(113);
+    expect(gridResult.A14).toBe(113);
+    expect(gridResult.A15).toBe(72);
+  });
+
+  //----------------------------------------------------------------------------
+  // SUMIFS
+  //----------------------------------------------------------------------------
+
+  test("COUNTUNIQUEIFS: functional tests on range", () => {
+    // prettier-ignore
+    const grid = {
+      B1:  "4" , C1:  "14", D1:  "Yes",
+      B2:  "28", C2:  "30", D2:  "Yes",
+      B3:  "31", C3:  "47", D3:  "Yes",
+      B4:  "12", C4:  "0" , D4:  "Yes",
+      B5:  "31", C5:  "47", D5:  "Yes",
+      B6:  "13", C6:  "5" , D6:  "No" ,
+      B7:  "18", C7:  "43", D7:  "No" ,
+      B8:  "24", C8:  "7" , D8:  "Yes",
+      B9:  "44", C9:  "28", D9:  "No" ,
+      B10: "22", C10: "23", D10: "No" ,
+      B11: "9" , C11: "13", D11: "No" ,
+
+      A12: '=SUMIFS(B1:B11, B1:B11, ">20")',
+      A13: '=SUMIFS(B1:B11, B1:B11, ">20", C1:C11, "<30")',
+      A14: '=SUMIFS(B1:B11, D1:D11, "No")',
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A12).toBe(180);
+    expect(gridResult.A13).toBe(90);
+    expect(gridResult.A14).toBe(106);
   });
 
   //----------------------------------------------------------------------------

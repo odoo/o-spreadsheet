@@ -7,6 +7,7 @@ import {
   reduceArgs,
   dichotomicPredecessorSearch,
   reduceNumbersTextAs0,
+  visitMatchingRanges,
 } from "./helpers";
 import { isNumber } from "../helpers/index";
 
@@ -260,6 +261,77 @@ export const AVERAGEA: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// AVERAGEIF
+// -----------------------------------------------------------------------------
+export const AVERAGEIF: FunctionDescription = {
+  description: `Average of values depending on criteria.`,
+  args: args`
+      criteria_range (any, range) The range to check against criterion.
+      criterion (string) The pattern or test to apply to criteria_range.
+      average_range (any, range, optional, default=criteria_range) The range to average. If not included, criteria_range is used for the average instead.
+    `,
+  returns: ["NUMBER"],
+  compute: function (criteria_range: any, criterion: any, average_range: any = undefined): number {
+    if (average_range === undefined) {
+      average_range = criteria_range;
+    }
+
+    let count = 0;
+    let sum = 0;
+
+    visitMatchingRanges([criteria_range, criterion], (i, j) => {
+      const value = average_range[i][j];
+      if (typeof value === "number") {
+        count += 1;
+        sum += value;
+      }
+    });
+
+    if (count === 0) {
+      throw new Error(`
+        Evaluation of function AVERAGEIF caused a divide by zero error.`);
+    }
+    return sum / count;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// AVERAGEIFS
+// -----------------------------------------------------------------------------
+export const AVERAGEIFS: FunctionDescription = {
+  description: `Average of values depending on multiple criteria.`,
+  args: args`
+      average_range (any, range) The range to average.
+      criteria_range1 (any, range) The range to check against criterion1.
+      criterion1 (string) The pattern or test to apply to criteria_range1.
+      additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
+    `,
+  // @compatibility: on google sheets, args definitions are next:
+  // average_range (any, range) The range to average.
+  // criteria_range1 (any, range) The range to check against criterion1.
+  // criterion1 (string) The pattern or test to apply to criteria_range1.
+  // criteria_range2 (any, range, optional, repeating) Additional ranges to check.
+  // criterion2 (string, optional, repeating) Additional criteria to check.
+  returns: ["NUMBER"],
+  compute: function (average_range, ...args): number {
+    let count = 0;
+    let sum = 0;
+    visitMatchingRanges(args, (i, j) => {
+      const value = average_range[i][j];
+      if (typeof value === "number") {
+        count += 1;
+        sum += value;
+      }
+    });
+    if (count === 0) {
+      throw new Error(`
+        Evaluation of function AVERAGEIFS caused a divide by zero error.`);
+    }
+    return sum / count;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // COUNT
 // -----------------------------------------------------------------------------
 export const COUNT: FunctionDescription = {
@@ -440,6 +512,36 @@ export const MAXA: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// MAXIFS
+// -----------------------------------------------------------------------------
+export const MAXIFS: FunctionDescription = {
+  description: "Returns the maximum value in a range of cells, filtered by a set of criteria.",
+  args: args`
+      range (any, range) The range of cells from which the maximum will be determined.
+      criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
+      criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
+      additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
+    `,
+  // @compatibility: on google sheets, args definitions are next:
+  // range (any, range) The range of cells from which the maximum will be determined.
+  // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
+  // criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
+  // criteria_range2 (any, range, optional, repeating) Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.
+  // criterion2 (string, optional, repeating) The pattern or test to apply to criteria_range2.
+  returns: ["NUMBER"],
+  compute: function (range, ...args): number {
+    let result = -Infinity;
+    visitMatchingRanges(args, (i, j) => {
+      const value = range[i][j];
+      if (typeof value === "number") {
+        result = result < value ? value : result;
+      }
+    });
+    return result === -Infinity ? 0 : result;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // MIN
 // -----------------------------------------------------------------------------
 export const MIN: FunctionDescription = {
@@ -487,6 +589,36 @@ export const MINA: FunctionDescription = {
       }
     }
     return mina === Infinity ? 0 : mina;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// MINIFS
+// -----------------------------------------------------------------------------
+export const MINIFS: FunctionDescription = {
+  description: "Returns the minimum value in a range of cells, filtered by a set of criteria.",
+  args: args`
+      range (any, range) The range of cells from which the minimum will be determined.
+      criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
+      criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
+      additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
+    `,
+  // @compatibility: on google sheets, args definitions are next:
+  // range (any, range) The range of cells from which the minimum will be determined.
+  // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
+  // criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
+  // criteria_range2 (any, range, optional, repeating) Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.
+  // criterion2 (string, optional, repeating) The pattern or test to apply to criteria_range2.
+  returns: ["NUMBER"],
+  compute: function (range, ...args): number {
+    let result = Infinity;
+    visitMatchingRanges(args, (i, j) => {
+      const value = range[i][j];
+      if (typeof value === "number") {
+        result = result > value ? value : result;
+      }
+    });
+    return result === Infinity ? 0 : result;
   },
 };
 

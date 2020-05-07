@@ -200,7 +200,177 @@ export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): vo
   );
 }
 
+// -----------------------------------------------------------------------------
+// CRITERION FUNCTIONS
+// -----------------------------------------------------------------------------
+
+type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
+interface Predicate {
+  operator: Operator;
+  operand: any;
+  regexp?: RegExp;
+}
+
+function getPredicate(descr: string): Predicate {
+  let operator: Operator;
+  let operand: any;
+
+  let subString = descr.substring(0, 2);
+
+  if (subString === "<=" || subString === ">=" || subString === "<>") {
+    operator = subString;
+    operand = descr.substring(2);
+  } else {
+    subString = descr.substring(0, 1);
+    if (subString === "<" || subString === ">" || subString === "=") {
+      operator = subString;
+      operand = descr.substring(1);
+    } else {
+      operator = "=";
+      operand = descr;
+    }
+  }
+
+  if (isNumber(operand)) {
+    operand = toNumber(operand);
+  } else if (operand === "TRUE" || operand === "FALSE") {
+    operand = toBoolean(operand);
+  }
+
+  const result: Predicate = { operator, operand };
+
+  if (typeof operand === "string") {
+    result.regexp = operandToRegExp(operand);
+  }
+
+  return result;
+}
+
+function operandToRegExp(operand: string): RegExp {
+  let exp = "";
+  let predecessor = "";
+  for (let char of operand) {
+    if (char === "?" && predecessor !== "~") {
+      exp += ".";
+    } else if (char === "*" && predecessor !== "~") {
+      exp += ".*";
+    } else {
+      if (char === "*" || char === "?") {
+        //remove "~"
+        exp = exp.slice(0, -1);
+      }
+      if (["^", ".", "[", "]", "$", "(", ")", "*", "+", "?", "|", "{", "}", "\\"].includes(char)) {
+        exp += "\\";
+      }
+      exp += char;
+    }
+    predecessor = char;
+  }
+  return new RegExp("^" + exp + "$", "i");
+}
+
+function evaluatePredicate(value: any, criterion: Predicate): boolean {
+  const { operator, operand } = criterion;
+
+  if (typeof operand === "number" && operator === "=") {
+    return toString(value) === toString(operand);
+  }
+
+  if (operator === "<>" || operator === "=") {
+    let result: boolean;
+    if (typeof value === typeof operand) {
+      if (criterion.regexp) {
+        result = criterion.regexp.test(value);
+      } else {
+        result = value === operand;
+      }
+    } else {
+      result = false;
+    }
+    return operator === "=" ? result : !result;
+  }
+
+  if (typeof value === typeof operand) {
+    switch (operator) {
+      case "<":
+        return value < operand;
+      case ">":
+        return value > operand;
+      case "<=":
+        return value <= operand;
+      case ">=":
+        return value >= operand;
+    }
+  }
+  return false;
+}
+
+/**
+ * Functions used especially for predicate evaluation on ranges.
+ *
+ * Take ranges with same dimensions and take predicates, one for each range.
+ * For (i, j) coordinates, if all elements with coordinates (i, j) of each
+ * range correspond to the associated predicate, then the function uses a callback
+ * function with the parameters "i" and "j".
+ *
+ * Syntax:
+ * visitMatchingRanges([range1, predicate1, range2, predicate2, ...], cb(i,j))
+ * - range1 (range): The range to check against criterion1.
+ * - predicate1 (string): The pattern or test to apply to range1.
+ * - range2: (range, optional, repeatable) ranges to check.
+ * - predicate2 (string, optional, repeatable): Additional pattern or test to apply to range2.
+ */
+export function visitMatchingRanges(
+  args: IArguments | any[],
+  cb: (i: number, j: number) => void
+): void {
+  const countArg = args.length;
+
+  if (countArg % 2 === 1) {
+    throw new Error(`
+      Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.
+    `);
+  }
+
+  const dimRow = args[0].length;
+  const dimCol = args[0][0].length;
+
+  let predicates: Predicate[] = [];
+
+  for (let i = 0; i < countArg - 1; i += 2) {
+    const criteriaRange = args[i];
+
+    if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
+      throw new Error(
+        `Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension`
+      );
+    }
+
+    const description = toString(args[i + 1]);
+    predicates.push(getPredicate(description));
+  }
+
+  for (let i = 0; i < dimRow; i++) {
+    for (let j = 0; j < dimCol; j++) {
+      let validatedPredicates = true;
+      for (let k = 0; k < countArg - 1; k += 2) {
+        const criteriaValue = args[k][i][j];
+        const criterion = predicates[k / 2];
+        validatedPredicates = evaluatePredicate(criteriaValue, criterion);
+        if (!validatedPredicates) {
+          break;
+        }
+      }
+      if (validatedPredicates) {
+        cb(i, j);
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
 // COMMON FUNCTIONS
+// -----------------------------------------------------------------------------
 
 /**
  * Perform a dichotomic search and return the index of the nearest match less than
