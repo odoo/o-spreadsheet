@@ -130,6 +130,43 @@ describe("core", () => {
     const model = new Model();
     expect(model.getters.getCell(-1, -1)).toBe(null);
   });
+
+  test("single cell XC conversion", () => {
+    const model = new Model({});
+    expect(model.getters.zoneToXC(/*A1*/ { top: 0, left: 0, right: 0, bottom: 0 })).toBe("A1");
+  });
+
+  test("multi cell zone XC conversion", () => {
+    const model = new Model({});
+    expect(model.getters.zoneToXC(/*A1:B2*/ { top: 0, left: 0, right: 1, bottom: 1 })).toBe(
+      "A1:B2"
+    );
+  });
+
+  test("xc is expanded to overlapping merges", () => {
+    const model = new Model({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
+    });
+    expect(model.getters.zoneToXC(/*A2:B3*/ { top: 1, bottom: 2, left: 0, right: 1 })).toBe(
+      "A1:B3"
+    );
+  });
+
+  test("zone is across two merges", () => {
+    const model = new Model({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2", "A4:B5"] }],
+    });
+    expect(model.getters.zoneToXC(/*A2:B4*/ { top: 1, bottom: 3, left: 0, right: 1 })).toBe(
+      "A1:B5"
+    );
+  });
+
+  test("merge is considered as one single cell", () => {
+    const model = new Model({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
+    });
+    expect(model.getters.zoneToXC(/*A2:B2*/ { top: 1, bottom: 1, left: 0, right: 1 })).toBe("A1");
+  });
 });
 
 describe("history", () => {
