@@ -111,3 +111,10 @@ export interface Workbook {
   sheets: Sheet[];
   activeSheet: Sheet;
 }
+
+export const enum DIRECTION {
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+}

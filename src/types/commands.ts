@@ -296,6 +296,20 @@ export interface StartCommand {
   type: "START";
 }
 
+export interface AutofillCommand {
+  type: "AUTOFILL";
+}
+
+export interface AutofillSelectCommand {
+  type: "AUTOFILL_SELECT";
+  col: number;
+  row: number;
+}
+
+export interface AutofillAutoCommand {
+  type: "AUTOFILL_AUTO";
+}
+
 export type Command =
   | UpdateCellCommand
   | CopyCommand
@@ -339,7 +353,10 @@ export type Command =
   | RemoveRowsCommand
   | RemoveColumnsCommand
   | AddRowsCommand
-  | AddColumnsCommand;
+  | AddColumnsCommand
+  | AutofillCommand
+  | AutofillSelectCommand
+  | AutofillAutoCommand;
 
 export type CommandResult = "COMPLETED" | "CANCELLED";
 

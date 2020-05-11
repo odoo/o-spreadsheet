@@ -8,6 +8,7 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
+export * from "./autofill";
 export * from "./commands";
 export * from "./env";
 export * from "./functions";

@@ -3,6 +3,7 @@ import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { numberToLetters, toXC } from "./helpers/index";
 import { pluginRegistry } from "./plugins/index";
+import { autofillModifiersRegistry, autofillRulesRegistry } from "./registries/index";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -22,6 +23,8 @@ export const registries = {
   menuItemRegistry,
   functionRegistry,
   pluginRegistry,
+  autofillModifiersRegistry,
+  autofillRulesRegistry,
 };
 
 export const helpers = {

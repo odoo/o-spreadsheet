@@ -59,7 +59,7 @@ describe("ranges and highlights", () => {
   test("=+Click Cell, the cell ref should be colored", async () => {
     await typeInComposer("=");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
-    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("=C8");
     expect(
@@ -71,7 +71,7 @@ describe("ranges and highlights", () => {
     await typeInComposer("=");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     triggerMouseEvent("canvas", "mousemove", 200, 200);
-    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 200, clientY: 200 }));
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("=B8:C8");
     expect(
@@ -197,11 +197,11 @@ describe("composer", () => {
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
-    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("selecting");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
-    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
   });
@@ -209,7 +209,7 @@ describe("composer", () => {
   test("type '=', select a cell, press enter", async () => {
     await typeInComposer("=");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
-    document.body.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
     expect(model.getters.getEditionMode()).toBe("selecting");

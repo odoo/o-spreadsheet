@@ -47,6 +47,8 @@ export class CorePlugin extends BasePlugin {
     "getSheets",
     "getCol",
     "getRow",
+    "getNumberCols",
+    "getNumberRows",
     "getGridSize",
   ];
 
@@ -249,6 +251,14 @@ export class CorePlugin extends BasePlugin {
 
   getRow(index: number): Row {
     return this.workbook.rows[index];
+  }
+
+  getNumberCols(): number {
+    return this.workbook.cols.length;
+  }
+
+  getNumberRows(): number {
+    return this.workbook.rows.length;
   }
 
   getColsZone(start: number, end: number): Zone {

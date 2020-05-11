@@ -8,6 +8,7 @@ import { FormattingPlugin } from "../plugins/formatting";
 import { WHistory } from "../history";
 import { EvaluationPlugin } from "../plugins/evaluation";
 import { EditionPlugin } from "../plugins/edition";
+import { AutofillPlugin } from "../plugins/autofill";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -20,6 +21,8 @@ export interface Getters {
   getSheets: CorePlugin["getSheets"];
   getCol: CorePlugin["getCol"];
   getRow: CorePlugin["getRow"];
+  getNumberCols: CorePlugin["getNumberCols"];
+  getNumberRows: CorePlugin["getNumberRows"];
   getColsZone: CorePlugin["getColsZone"];
   getRowsZone: CorePlugin["getRowsZone"];
   getGridSize: CorePlugin["getGridSize"];
@@ -39,6 +42,7 @@ export interface Getters {
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
   getSelectedZones: SelectionPlugin["getSelectedZones"];
+  getSelectedZone: SelectionPlugin["getSelectedZone"];
   getSelection: SelectionPlugin["getSelection"];
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
@@ -61,4 +65,6 @@ export interface Getters {
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   getEditionMode: EditionPlugin["getEditionMode"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
+
+  getLastValue: AutofillPlugin["getLastValue"];
 }
