@@ -26,6 +26,7 @@ export class SelectionPlugin extends BasePlugin {
     "getActiveCols",
     "getActiveRows",
     "getSelectedZones",
+    "getSelectedZone",
     "getAggregate",
     "getSelection",
     "getPosition",
@@ -161,6 +162,10 @@ export class SelectionPlugin extends BasePlugin {
 
   getSelectedZones(): Zone[] {
     return this.selection.zones;
+  }
+
+  getSelectedZone(): Zone {
+    return this.selection.zones[this.selection.zones.length - 1];
   }
 
   getSelection(): Selection {

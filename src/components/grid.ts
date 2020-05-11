@@ -4,6 +4,7 @@ import {
   DEFAULT_CELL_HEIGHT,
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
+  HEADER_HEIGHT,
 } from "../constants";
 import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
@@ -12,6 +13,8 @@ import { Composer } from "./composer/composer";
 import { ContextMenu } from "./context_menu/context_menu";
 import { ContextMenuType } from "./context_menu/context_menu_registry";
 import { Overlay } from "./overlay";
+import { Autofill } from "./autofill";
+import { startDnd } from "../helpers/drag_and_drop";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -127,6 +130,9 @@ const TEMPLATE = xml/* xml */ `
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
+    <t t-if="getters.getEditionMode() === 'inactive'">
+      <Autofill position="getAutofillPosition()" viewport="snappedViewport"/>
+    </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
     <ContextMenu t-if="contextMenu.isOpen"
       type="contextMenu.type"
@@ -193,7 +199,7 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Overlay, ContextMenu };
+  static components = { Composer, Overlay, ContextMenu, Autofill };
 
   private contextMenu = useState({ isOpen: false, position: null, type: "CELL" } as {
     isOpen: boolean;
@@ -291,6 +297,14 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     return didChange;
   }
 
+  getAutofillPosition() {
+    const zone = this.getters.getSelectedZone();
+    return {
+      left: this.getters.getCol(zone.right).end - 4 + HEADER_WIDTH - this.snappedViewport.offsetX,
+      top: this.getters.getRow(zone.bottom).end - 4 + HEADER_HEIGHT - this.snappedViewport.offsetY,
+    };
+  }
+
   drawGrid() {
     // update viewport dimensions
     this.viewport.width = this.el!.clientWidth - SCROLLBAR_WIDTH;
@@ -360,7 +374,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     }
     let prevCol = col;
     let prevRow = row;
-    const onMouseMove = (ev) => {
+    const onMouseMove = (ev: MouseEvent) => {
       const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
       const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
       if (col < 0 || row < 0) {
@@ -372,7 +386,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         this.dispatch("ALTER_SELECTION", { cell: [col, row] });
       }
     };
-    const onMouseUp = (ev) => {
+    const onMouseUp = (ev: MouseEvent) => {
       if (this.getters.getEditionMode() === "selecting") {
         if (this.composer.comp) {
           (this.composer.comp as Composer).addTextFromSelection();
@@ -386,8 +400,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       }
     };
 
-    this.canvas.el!.addEventListener("mousemove", onMouseMove);
-    document.body.addEventListener("mouseup", onMouseUp, { once: true });
+    startDnd(onMouseMove, onMouseUp);
   }
 
   onDoubleClick(ev) {

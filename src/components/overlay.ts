@@ -1,7 +1,8 @@
 import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../constants";
-import { Col, Row, SpreadsheetEnv } from "../types/index";
+import { Col, Row, SpreadsheetEnv, Viewport } from "../types/index";
 import { ContextMenuType } from "./context_menu/context_menu_registry";
+import { startDnd } from "../helpers/drag_and_drop";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -107,14 +108,13 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     const size = this._getElement(this.state.activeElement).size;
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
-    const onMouseUp = (ev) => {
+    const onMouseUp = (ev: MouseEvent) => {
       this.state.isResizing = false;
-      window.removeEventListener("mousemove", onMouseMove);
       if (this.state.delta !== 0) {
         this._updateSize();
       }
     };
-    const onMouseMove = (ev) => {
+    const onMouseMove = (ev: MouseEvent) => {
       this.state.delta = this._getClientPosition(ev) - initialIndex;
       this.state.styleValue = styleValue + this.state.delta;
       if (this.state.styleValue < minSize) {
@@ -126,8 +126,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
         this.state.delta = maxSize - styleValue;
       }
     };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp, { once: true });
+    startDnd(onMouseMove, onMouseUp);
   }
 
   select(ev: MouseEvent) {
@@ -424,7 +423,11 @@ export class RowResizer extends AbstractResizer {
   }
 }
 
-export class Overlay extends Component<any, SpreadsheetEnv> {
+interface Props {
+  viewport: Viewport;
+}
+
+export class Overlay extends Component<Props, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-overlay">
       <ColResizer viewport="props.viewport"/>

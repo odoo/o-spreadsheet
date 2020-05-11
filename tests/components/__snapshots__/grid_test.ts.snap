@@ -11,6 +11,15 @@ exports[`Grid component simple rendering snapshot 1`] = `
     width="985"
   />
   <div
+    class="o-autofill"
+    style="top:45px;left:152px"
+  >
+    <div
+      class="o-autofill-handler"
+      style="top:0px;left:0px;"
+    />
+  </div>
+  <div
     class="o-overlay"
   >
     <div
