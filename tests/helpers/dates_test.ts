@@ -1,4 +1,4 @@
-import { parseDate, toNativeDate, formatDate } from "../../src/helpers/index";
+import { parseDate, toNativeDate, formatDate } from "../../src/functions/dates";
 
 const CURRENT_YEAR = new Date().getFullYear();
 

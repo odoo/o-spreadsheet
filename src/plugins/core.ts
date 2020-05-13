@@ -1,18 +1,17 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { formatNumber, InternalDate } from "../helpers/index";
+import { parseDate, formatDate, InternalDate } from "../functions/dates";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
+  formatNumber,
   formatStandardNumber,
-  parseDate,
   isNumber,
   numberToLetters,
   parseNumber,
   sanitizeSheet,
   toCartesian,
   toXC,
-  formatDate,
 } from "../helpers/index";
 import {
   Cell,
