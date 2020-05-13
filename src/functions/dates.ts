@@ -1,3 +1,5 @@
+import { toNumber } from "./helpers";
+
 // -----------------------------------------------------------------------------
 // Date Type
 // -----------------------------------------------------------------------------
@@ -80,11 +82,15 @@ function inferYear(str: string): number {
 // -----------------------------------------------------------------------------
 // Conversion
 // -----------------------------------------------------------------------------
-export function toNativeDate(date: InternalDate): Date {
-  if (!date.jsDate) {
-    date.jsDate = new Date(date.value * 86400 * 1000 - DATE_JS_1900_OFFSET);
+export function toNativeDate(date: any): Date {
+  if (typeof date === "object") {
+    if (!date.jsDate) {
+      date.jsDate = new Date(date.value * 86400 * 1000 - DATE_JS_1900_OFFSET);
+    }
+    return date.jsDate;
   }
-  return date.jsDate;
+
+  return new Date(toNumber(date) * 86400 * 1000 - DATE_JS_1900_OFFSET);
 }
 
 // -----------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
-import { toNativeDate } from "../helpers/index";
+import { toNativeDate } from "../functions/dates";
 
 // -----------------------------------------------------------------------------
 // MONTH
@@ -8,15 +8,10 @@ import { toNativeDate } from "../helpers/index";
 export const MONTH: FunctionDescription = {
   description: "Month of the year a specific date falls in",
   args: args`
-      date (date) A date
+      date (date) The date from which to extract the month.
     `,
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    if (typeof date === "object") {
-      return toNativeDate(date).getMonth() + 1;
-    }
-    throw new Error(
-      `Function MONTH parameter 1 expects date values. But ${date} is a text and cannot be coerced to a date.`
-    );
+    return toNativeDate(date).getMonth() + 1;
   },
 };
