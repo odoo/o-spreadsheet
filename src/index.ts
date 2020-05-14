@@ -16,6 +16,7 @@ export const __info__ = {};
 export { BasePlugin } from "./base_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
+export { parse } from "./formulas/parser";
 
 export const registries = {
   sidePanelRegistry,
