@@ -83,7 +83,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             </div>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div>
+          <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
           <div class="o-tool o-dropdown" title="Font Size" t-on-click.stop="toggleDropdownTool('fontSizeTool')">
             <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options "  t-if="state.tools.fontSizeTool" t-on-click="setSize">
@@ -138,8 +138,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
               <div class="o-dropdown-item" t-on-click="useTool('align', 'right')">${icons.ALIGN_RIGHT_ICON}</div>
             </div>
           </div>
-          <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div>
-          <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div>
+          <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
+          <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
           <div class="o-divider"/>
         </div>
 
