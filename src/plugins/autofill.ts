@@ -260,12 +260,8 @@ export class AutofillPlugin extends BasePlugin {
     const newCell = generator.next();
     this.lastValue = newCell.content;
     if (apply) {
-      this.dispatch("UPDATE_CELL", {
-        sheet: this.getters.getActiveSheet(),
-        col,
-        row,
-        ...newCell,
-      });
+      const sheet = this.getters.getActiveSheet();
+      this.dispatch("UPDATE_CELL", Object.assign({ sheet, col, row }, newCell));
     }
   }
 
