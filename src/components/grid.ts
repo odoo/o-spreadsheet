@@ -10,8 +10,8 @@ import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
 import { SpreadsheetEnv, Viewport } from "../types/index";
 import { Composer } from "./composer/composer";
-import { ContextMenu } from "./context_menu/context_menu";
-import { ContextMenuType } from "./context_menu/context_menu_registry";
+import { ContextMenu, MenuState } from "./context_menu/context_menu";
+import { ContextMenuType, contextMenuRegistry } from "./context_menu/context_menu_registry";
 import { Overlay } from "./overlay";
 import { Autofill } from "./autofill";
 import { startDnd } from "../helpers/drag_and_drop";
@@ -135,7 +135,7 @@ const TEMPLATE = xml/* xml */ `
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
     <ContextMenu t-if="contextMenu.isOpen"
-      type="contextMenu.type"
+      menuItems="contextMenu.menuItems"
       position="contextMenu.position"
       t-on-close.stop="contextMenu.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridSize()"/>
@@ -201,10 +201,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static style = CSS;
   static components = { Composer, Overlay, ContextMenu, Autofill };
 
-  private contextMenu = useState({ isOpen: false, position: null, type: "CELL" } as {
-    isOpen: boolean;
-    position: null | { x: number; y: number; width: number; height: number };
-    type: ContextMenuType;
+  private contextMenu: MenuState = useState({
+    isOpen: false,
+    position: null,
+    menuItems: [],
   });
 
   private composer = useRef("composer");
@@ -518,6 +518,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       width: this.el!.clientWidth,
       height: this.el!.clientHeight,
     };
-    this.contextMenu.type = type;
+    this.contextMenu.menuItems = contextMenuRegistry
+      .getAll()
+      .filter((item) => !item.isVisible || item.isVisible(type));
   }
 }

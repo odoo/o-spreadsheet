@@ -8,13 +8,21 @@ import { Cell, SpreadsheetEnv } from "../../types/index";
 
 export type ContextMenuType = "COLUMN" | "ROW" | "CELL";
 
-export interface ActionContextMenuItem {
-  type: "action";
+interface BaseContextMenuItem {
   name: string;
   description: string;
   isEnabled?: (cell: Cell | null) => boolean;
   isVisible?: (type: ContextMenuType) => boolean;
+}
+
+export interface ActionContextMenuItem extends BaseContextMenuItem {
+  type: "action";
   action: (env: SpreadsheetEnv) => void;
+}
+
+export interface RootContextMenuItem extends BaseContextMenuItem {
+  type: "root";
+  subMenus: (env: SpreadsheetEnv) => ContextMenuItem[];
 }
 
 interface SeparatorContextMenuItem {
@@ -22,7 +30,10 @@ interface SeparatorContextMenuItem {
   isVisible?: (type: ContextMenuType) => boolean;
 }
 
-export type ContextMenuItem = ActionContextMenuItem | SeparatorContextMenuItem;
+export type ContextMenuItem =
+  | ActionContextMenuItem
+  | RootContextMenuItem
+  | SeparatorContextMenuItem;
 
 export const contextMenuRegistry = new Registry<ContextMenuItem>()
   .add("cut", {
