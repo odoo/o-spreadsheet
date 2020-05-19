@@ -1,7 +1,7 @@
 import { contextMenuRegistry, sidePanelRegistry, menuItemRegistry } from "./components/index";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { numberToLetters, toXC } from "./helpers/index";
+import { numberToLetters, toXC, toZone, toCartesian } from "./helpers/index";
 import { pluginRegistry } from "./plugins/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "./registries/index";
 
@@ -34,5 +34,7 @@ export const helpers = {
   toNumber,
   toString,
   toXC,
+  toZone,
+  toCartesian,
   numberToLetters,
 };
