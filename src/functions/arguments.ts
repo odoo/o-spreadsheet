@@ -10,6 +10,7 @@ const ARG_TYPES: ArgType[] = [
   "BOOLEAN",
   "NUMBER",
   "STRING",
+  "INTERNALDATE",
   "RANGE",
   "RANGE<BOOLEAN>",
   "RANGE<NUMBER>",

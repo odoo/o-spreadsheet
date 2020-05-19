@@ -83,11 +83,18 @@ function inferYear(str: string): number {
 // Conversion
 // -----------------------------------------------------------------------------
 export function toNativeDate(date: any): Date {
-  if (typeof date === "object") {
+  if (typeof date === "object" && date !== null) {
     if (!date.jsDate) {
       date.jsDate = new Date(date.value * 86400 * 1000 - DATE_JS_1900_OFFSET);
     }
     return date.jsDate;
+  }
+
+  if (typeof date === "string") {
+    const result = parseDate(date);
+    if (result !== null && result.jsDate) {
+      return result.jsDate;
+    }
   }
 
   return new Date(toNumber(date) * 86400 * 1000 - DATE_JS_1900_OFFSET);
