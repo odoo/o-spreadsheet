@@ -4,7 +4,6 @@ exports[`Context Menu context menu simple rendering 1`] = `
 <div
   class="o-context-menu"
   style="top:200px;left:300px"
-  tabindex="-1"
 >
   <div
     class="o-menuitem"
@@ -23,6 +22,21 @@ exports[`Context Menu context menu simple rendering 1`] = `
     data-name="paste"
   >
     Paste
+  </div>
+  <div
+    class="o-menuitem root-menu"
+    data-name="paste_special"
+  >
+    Paste special
+    <svg
+      class="o-icon"
+    >
+      <polygon
+        fill="#000000"
+        points="0 0 4 4 0 8"
+        transform="translate(5 3)"
+      />
+    </svg>
   </div>
   <div
     class="o-menuitem separator"
