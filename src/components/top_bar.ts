@@ -42,15 +42,6 @@ owl.QWeb.registerTemplate(
 `
 );
 
-const MENU_TEMPLATE = xml/* xml */ `
-  <div class="o-topbar-menu o-menu-dropdown" t-if="menu.children.length !== 0" t-on-click.stop="toggleDropdownMenu(menu.id)" t-on-mouseover="onMouseOver(menu.id)" t-att-data-id="menu.id">
-    <t t-esc="typeof menu.name === 'string' ? menu.name : menu.name(env)"/>
-    <div class="o-menu-dropdown-content" t-if="state.menu === menu.id">
-      <t t-call="spreadsheet_menu_child_template"/>
-    </div>
-  </div>
-`;
-
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
@@ -60,7 +51,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       <!-- Menus -->
       <div class="o-topbar-menus">
         <t t-foreach="menus" t-as="menu" t-key="menu_index">
-          <t t-call="${MENU_TEMPLATE}"/>
+          <div class="o-topbar-menu o-menu-dropdown" t-if="menu.children.length !== 0" t-on-click.stop="toggleDropdownMenu(menu.id)" t-on-mouseover="onMouseOver(menu.id)" t-att-data-id="menu.id">
+            <t t-esc="typeof menu.name === 'string' ? menu.name : menu.name(env)"/>
+            <div class="o-menu-dropdown-content" t-if="state.menu === menu.id">
+              <t t-call="spreadsheet_menu_child_template"/>
+            </div>
+          </div>
         </t>
       </div>
       <!-- Toolbar and Cell Content -->
