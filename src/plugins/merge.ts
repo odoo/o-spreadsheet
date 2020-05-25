@@ -1,12 +1,12 @@
 import { BasePlugin } from "../base_plugin";
-import { isEqual, toCartesian, toXC, union } from "../helpers/index";
-import { Command, WorkbookData, Zone, Merge, CommandResult, CancelledReason } from "../types/index";
 import {
-  updateRemoveColumns,
-  updateRemoveRows,
   updateAddColumns,
   updateAddRows,
+  updateRemoveColumns,
+  updateRemoveRows,
 } from "../helpers/grid_manipulation";
+import { isEqual, toCartesian, toXC, union } from "../helpers/index";
+import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
 
 interface PendingMerges {
   sheet: string;
@@ -75,7 +75,11 @@ export class MergePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_MERGE":
-        this.addMerge(cmd.sheet, cmd.zone);
+        if (cmd.interactive) {
+          this.interactiveMerge(cmd.sheet, cmd.zone);
+        } else {
+          this.addMerge(cmd.sheet, cmd.zone);
+        }
         break;
       case "REMOVE_MERGE":
         this.removeMerge(cmd.sheet, cmd.zone);
@@ -272,6 +276,20 @@ export class MergePlugin extends BasePlugin {
     }
   }
 
+  private interactiveMerge(sheet: string, zone: Zone) {
+    const result = this.dispatch("ADD_MERGE", { sheet, zone });
+
+    if (result.status === "CANCELLED") {
+      if (result.reason === CancelledReason.MergeIsDestructive) {
+        this.ui.askConfirmation(
+          "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
+          () => {
+            this.dispatch("ADD_MERGE", { sheet, zone, force: true });
+          }
+        );
+      }
+    }
+  }
   // ---------------------------------------------------------------------------
   // Add/Remove columns
   // ---------------------------------------------------------------------------

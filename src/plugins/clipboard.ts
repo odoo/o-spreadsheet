@@ -63,7 +63,11 @@ export class ClipboardPlugin extends BasePlugin {
         const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this._isPaintingFormat;
         this._isPaintingFormat = false;
         this.onlyFormat = onlyFormat;
-        this.pasteFromModel(cmd.target);
+        if (cmd.interactive) {
+          this.interactivePaste(cmd.target);
+        } else {
+          this.pasteFromModel(cmd.target);
+        }
         break;
       case "PASTE_CELL":
         this.pasteCell(cmd.origin, cmd.col, cmd.row, cmd.cut);
@@ -331,6 +335,21 @@ export class ClipboardPlugin extends BasePlugin {
           col: col,
           row: row,
         });
+      }
+    }
+  }
+
+  interactivePaste(target: Zone[]) {
+    const result = this.dispatch("PASTE", { target, onlyFormat: false });
+
+    if (result.status === "CANCELLED") {
+      if (result.reason === CancelledReason.WrongPasteSelection) {
+        this.ui.notifyUser("This operation is not allowed with multiple selections.");
+      }
+      if (result.reason === CancelledReason.WillRemoveExistingMerge) {
+        this.ui.askConfirmation("Pasting here will remove existing merge(s). Paste anyway?", () =>
+          this.dispatch("PASTE", { target, onlyFormat: false, force: true })
+        );
       }
     }
   }

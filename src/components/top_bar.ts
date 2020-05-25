@@ -7,7 +7,6 @@ import * as icons from "./icons";
 import { isEqual } from "../helpers/index";
 import { ColorPicker } from "./color_picker";
 import { menuItemRegistry, FullActionMenuItem } from "../menu_items_registry";
-import { mergeAction } from "./context_menu/actions";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
@@ -484,7 +483,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     if (this.inMerge) {
       this.dispatch("REMOVE_MERGE", { sheet, zone });
     } else {
-      mergeAction(this.env)
+      this.dispatch("ADD_MERGE", { sheet, zone, interactive: true });
     }
   }
   setColor(target: string, ev: CustomEvent) {

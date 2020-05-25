@@ -28,9 +28,13 @@ import { Cell } from "./misc";
  * active sheet.
  */
 
+interface BaseCommand {
+  interactive?: boolean;
+}
+
 // Primitive Commands
 // ------------------------------------------------
-export interface UpdateCellCommand {
+export interface UpdateCellCommand extends BaseCommand {
   type: "UPDATE_CELL";
   sheet: string;
   col: number;
@@ -41,14 +45,14 @@ export interface UpdateCellCommand {
   format?: string;
 }
 
-export interface ResizeColumnsCommand {
+export interface ResizeColumnsCommand extends BaseCommand {
   type: "RESIZE_COLUMNS";
   sheet: string;
   cols: number[];
   size: number;
 }
 
-export interface ResizeRowsCommand {
+export interface ResizeRowsCommand extends BaseCommand {
   type: "RESIZE_ROWS";
   sheet: string;
   rows: number[];
@@ -58,7 +62,7 @@ export interface ResizeRowsCommand {
 /**
  * Todo: add a string "id" field, and change the code to use internally a uuid.
  */
-export interface CreateSheetCommand {
+export interface CreateSheetCommand extends BaseCommand {
   type: "CREATE_SHEET";
   name?: string;
   cols?: number;
@@ -66,20 +70,20 @@ export interface CreateSheetCommand {
   activate?: boolean;
 }
 
-export interface AddMergeCommand {
+export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
   zone: Zone;
   force?: boolean;
 }
 
-export interface RemoveMergeCommand {
+export interface RemoveMergeCommand extends BaseCommand {
   type: "REMOVE_MERGE";
   sheet: string;
   zone: Zone;
 }
 
-export interface AddFormattingCommand {
+export interface AddFormattingCommand extends BaseCommand {
   type: "SET_FORMATTING";
   sheet: string;
   target: Zone[];
@@ -87,13 +91,13 @@ export interface AddFormattingCommand {
   border?: BorderCommand;
 }
 
-export interface ClearFormattingCommand {
+export interface ClearFormattingCommand extends BaseCommand {
   type: "CLEAR_FORMATTING";
   sheet: string;
   target: Zone[];
 }
 
-export interface SetFormatterCommand {
+export interface SetFormatterCommand extends BaseCommand {
   type: "SET_FORMATTER";
   sheet: string;
   target: Zone[];
@@ -105,24 +109,24 @@ export interface SetFormatterCommand {
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */
-export interface AddConditionalFormatCommand {
+export interface AddConditionalFormatCommand extends BaseCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: ConditionalFormat;
 }
 
-export interface RemoveColumnsCommand {
+export interface RemoveColumnsCommand extends BaseCommand {
   type: "REMOVE_COLUMNS";
   columns: number[];
   sheet: string; //Not used for now
 }
 
-export interface RemoveRowsCommand {
+export interface RemoveRowsCommand extends BaseCommand {
   type: "REMOVE_ROWS";
   rows: number[];
   sheet: string; //Not used for now
 }
 
-export interface AddColumnsCommand {
+export interface AddColumnsCommand extends BaseCommand {
   type: "ADD_COLUMNS";
   column: number;
   sheet: string; //Not used for now
@@ -130,7 +134,7 @@ export interface AddColumnsCommand {
   position: "before" | "after";
 }
 
-export interface AddRowsCommand {
+export interface AddRowsCommand extends BaseCommand {
   type: "ADD_ROWS";
   row: number;
   sheet: string; //Not used for now
@@ -140,24 +144,24 @@ export interface AddRowsCommand {
 
 // Local Commands
 // ------------------------------------------------
-export interface CopyCommand {
+export interface CopyCommand extends BaseCommand {
   type: "COPY";
   target: Zone[];
 }
 
-export interface CutCommand {
+export interface CutCommand extends BaseCommand {
   type: "CUT";
   target: Zone[];
 }
 
-export interface PasteCommand {
+export interface PasteCommand extends BaseCommand {
   type: "PASTE";
   target: Zone[];
   onlyFormat?: boolean;
   force?: boolean;
 }
 
-export interface PasteCellCommand {
+export interface PasteCellCommand extends BaseCommand {
   type: "PASTE_CELL";
   origin: Cell | null;
   originCol: number;
@@ -168,159 +172,159 @@ export interface PasteCellCommand {
   cut?: boolean;
 }
 
-export interface ActivatePaintFormatCommand {
+export interface ActivatePaintFormatCommand extends BaseCommand {
   type: "ACTIVATE_PAINT_FORMAT";
   target: Zone[];
 }
 
-export interface PasteFromOSClipboardCommand {
+export interface PasteFromOSClipboardCommand extends BaseCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
   text: string;
 }
 
-export interface AutoresizeColumnsCommand {
+export interface AutoresizeColumnsCommand extends BaseCommand {
   type: "AUTORESIZE_COLUMNS";
   sheet: string;
   cols: number[];
 }
 
-export interface AutoresizeRowsCommand {
+export interface AutoresizeRowsCommand extends BaseCommand {
   type: "AUTORESIZE_ROWS";
   sheet: string;
   rows: number[];
 }
 
-export interface MovePositionCommand {
+export interface MovePositionCommand extends BaseCommand {
   type: "MOVE_POSITION";
   deltaX: number;
   deltaY: number;
 }
 
-export interface ActivateSheetCommand {
+export interface ActivateSheetCommand extends BaseCommand {
   type: "ACTIVATE_SHEET";
   from: string;
   to: string;
 }
 
-export interface SelectCellCommand {
+export interface SelectCellCommand extends BaseCommand {
   type: "SELECT_CELL";
   col: number;
   row: number;
   createNewRange?: boolean;
 }
 
-export interface SetSelectionCommand {
+export interface SetSelectionCommand extends BaseCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
   zones: Zone[];
   strict?: boolean;
 }
 
-export interface SelectColumnCommand {
+export interface SelectColumnCommand extends BaseCommand {
   type: "SELECT_COLUMN";
   index: number;
   createRange?: boolean;
   updateRange?: boolean;
 }
 
-export interface SelectRowCommand {
+export interface SelectRowCommand extends BaseCommand {
   type: "SELECT_ROW";
   index: number;
   createRange?: boolean;
   updateRange?: boolean;
 }
 
-export interface SelectAllCommand {
+export interface SelectAllCommand extends BaseCommand {
   type: "SELECT_ALL";
 }
 
-export interface AlterSelectionCommand {
+export interface AlterSelectionCommand extends BaseCommand {
   type: "ALTER_SELECTION";
   delta?: [number, number];
   cell?: [number, number];
 }
 
-export interface EvaluateCellsCommand {
+export interface EvaluateCellsCommand extends BaseCommand {
   type: "EVALUATE_CELLS";
   onlyWaiting?: boolean;
 }
 
-export interface AddHighlightsCommand {
+export interface AddHighlightsCommand extends BaseCommand {
   type: "ADD_HIGHLIGHTS";
   ranges: { [range: string]: string };
 }
 
-export interface RemoveHighlightsCommand {
+export interface RemoveHighlightsCommand extends BaseCommand {
   type: "REMOVE_HIGHLIGHTS";
 }
 
-export interface StartComposerSelectionCommand {
+export interface StartComposerSelectionCommand extends BaseCommand {
   type: "START_COMPOSER_SELECTION";
 }
 
-export interface StopComposerSelectionCommand {
+export interface StopComposerSelectionCommand extends BaseCommand {
   type: "STOP_COMPOSER_SELECTION";
 }
 
-export interface StartEditionCommand {
+export interface StartEditionCommand extends BaseCommand {
   type: "START_EDITION";
   text?: string;
 }
 
-export interface StopEditionCommand {
+export interface StopEditionCommand extends BaseCommand {
   type: "STOP_EDITION";
   cancel?: boolean;
 }
 
-export interface SetCurrentContentCommand {
+export interface SetCurrentContentCommand extends BaseCommand {
   type: "SET_CURRENT_CONTENT";
   content: string;
 }
 
-export interface SetValueCommand {
+export interface SetValueCommand extends BaseCommand {
   type: "SET_VALUE";
   xc: string;
   text: string;
   sheet?: string;
 }
 
-export interface DeleteContentCommand {
+export interface DeleteContentCommand extends BaseCommand {
   type: "DELETE_CONTENT";
   sheet: string;
   target: Zone[];
 }
 
-export interface ClearCellCommand {
+export interface ClearCellCommand extends BaseCommand {
   type: "CLEAR_CELL";
   sheet: string;
   col: number;
   row: number;
 }
 
-export interface UndoCommand {
+export interface UndoCommand extends BaseCommand {
   type: "UNDO";
 }
 
-export interface RedoCommand {
+export interface RedoCommand extends BaseCommand {
   type: "REDO";
 }
 
-export interface StartCommand {
+export interface StartCommand extends BaseCommand {
   type: "START";
 }
 
-export interface AutofillCommand {
+export interface AutofillCommand extends BaseCommand {
   type: "AUTOFILL";
 }
 
-export interface AutofillSelectCommand {
+export interface AutofillSelectCommand extends BaseCommand {
   type: "AUTOFILL_SELECT";
   col: number;
   row: number;
 }
 
-export interface AutofillAutoCommand {
+export interface AutofillAutoCommand extends BaseCommand {
   type: "AUTOFILL_AUTO";
 }
 
