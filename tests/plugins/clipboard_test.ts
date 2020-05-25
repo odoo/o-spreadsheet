@@ -90,6 +90,30 @@ describe("clipboard", () => {
     expect(getCell(model, "D3")).toBeNull();
   });
 
+  test("can cut and paste a cell in differents sheets", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });
+    model.dispatch("CUT", { target: target("A1") });
+    const to = model.getters.getActiveSheet();
+    model.dispatch("CREATE_SHEET", { activate: true });
+    const from = model.getters.getActiveSheet();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "a1Sheet2" });
+    model.dispatch("PASTE", { target: target("B2") });
+    expect(model["workbook"].cells).toEqual({
+      A1: { col: 0, row: 0, content: "a1Sheet2", type: "text", value: "a1Sheet2", xc: "A1" },
+      B2: { col: 1, row: 1, content: "a1", type: "text", value: "a1", xc: "B2" },
+    });
+    model.dispatch("ACTIVATE_SHEET", { from, to });
+    expect(model["workbook"].cells).toEqual({});
+
+    expect(getClipboardVisibleZones(model).length).toBe(0);
+
+    // select D3 and paste. it should do nothing
+    model.dispatch("PASTE", { target: target("D3:D3") });
+
+    expect(getCell(model, "D3")).toBeNull();
+  });
+
   test("can cut and paste a zone inside the cut zone", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });

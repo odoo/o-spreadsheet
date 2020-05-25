@@ -113,7 +113,7 @@ export class CorePlugin extends BasePlugin {
         break;
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
-          sheet: this.workbook.activeSheet.name,
+          sheet: cmd.sheet,
           col: cmd.col,
           row: cmd.row,
           content: "",
