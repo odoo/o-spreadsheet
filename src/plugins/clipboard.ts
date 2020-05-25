@@ -342,7 +342,11 @@ export class ClipboardPlugin extends BasePlugin {
   drawGrid(renderingContext: GridRenderingContext) {
     const { viewport, ctx, thinLineWidth } = renderingContext;
     const zones = this.zones;
-    if (this.status !== "visible" || !zones.length) {
+    if (
+      this.status !== "visible" ||
+      !zones.length ||
+      this.originSheet !== this.getters.getActiveSheet()
+    ) {
       return;
     }
     ctx.save();
