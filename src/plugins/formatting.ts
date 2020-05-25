@@ -55,6 +55,7 @@ export class FormattingPlugin extends BasePlugin {
   static getters = [
     "getCurrentStyle",
     "getCellWidth",
+    "getTextWidth",
     "getCellHeight",
     "getCellStyle",
     "getCellBorder",
@@ -103,13 +104,18 @@ export class FormattingPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(cell: Cell): number {
-    const style = this.styles[cell.style || 0];
+    const styleId = cell.style || 0;
+    const text = this.getters.getCellText(cell);
+    return this.getTextWidth(text, styleId);
+  }
+
+  getTextWidth(text: string, styleId: number = 0): number {
+    const style = this.styles[styleId];
     const italic = style.italic ? "italic " : "";
     const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
     const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
     const size = fontSizeMap[sizeInPt];
     this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-    const text = this.getters.getCellText(cell);
     return this.ctx.measureText(text).width;
   }
 

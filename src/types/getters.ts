@@ -32,6 +32,7 @@ export interface Getters {
   getPasteZones: ClipboardPlugin["getPasteZones"];
 
   getCellWidth: FormattingPlugin["getCellWidth"];
+  getTextWidth: FormattingPlugin["getTextWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
 
   expandZone: MergePlugin["expandZone"];
