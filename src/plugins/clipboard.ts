@@ -246,7 +246,7 @@ export class ClipboardPlugin extends BasePlugin {
       for (let cell of row) {
         if (cell) {
           this.dispatch("CLEAR_CELL", {
-            sheet: this.workbook.activeSheet.name,
+            sheet: this.originSheet,
             col: cell.col,
             row: cell.row,
           });
