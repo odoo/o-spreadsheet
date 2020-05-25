@@ -10,7 +10,7 @@ import { pluginRegistry } from "../src/plugins/index";
 
 describe("Model", () => {
   test("can create model in headless mode", () => {
-    const model = new Model({}, "headless");
+    const model = new Model({}, { mode: "headless" });
     expect(model["handlers"]).toHaveLength(5);
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
     expect(model["handlers"][1]).toBeInstanceOf(CorePlugin);
@@ -28,7 +28,7 @@ describe("Model", () => {
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
-    const model = new Model({}, "headless");
+    const model = new Model({}, { mode: "headless" });
     const nbr = pluginRegistry
       .getAll()
       .reduce((acc, plugin) => (plugin.modes.includes("headless") ? acc + 1 : acc), 0);
@@ -36,7 +36,7 @@ describe("Model", () => {
   });
 
   test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
-    const model = new Model({}, "readonly");
+    const model = new Model({}, { mode: "readonly" });
     const nbr = pluginRegistry
       .getAll()
       .reduce((acc, plugin) => (plugin.modes.includes("readonly") ? acc + 1 : acc), 0);
@@ -44,7 +44,7 @@ describe("Model", () => {
   });
 
   test("Model in headless mode should not evaluate cells", () => {
-    const model = new Model({}, "headless");
+    const model = new Model({}, { mode: "headless" });
     model.dispatch("SET_VALUE", { xc: "A1", text: "=1" });
     expect(model["workbook"].cells.A1.value).not.toBe("1");
   });
@@ -66,11 +66,11 @@ describe("Model", () => {
     expect(modelNormal["handlers"][modelNormal["handlers"].length - 1]).toBeInstanceOf(
       NormalPlugin
     );
-    const modelHeadless = new Model({}, "headless");
+    const modelHeadless = new Model({}, { mode: "headless" });
     expect(modelHeadless["handlers"][modelHeadless["handlers"].length - 1]).toBeInstanceOf(
       HeadlessPlugin
     );
-    const modelReadonly = new Model({}, "readonly");
+    const modelReadonly = new Model({}, { mode: "readonly" });
     expect(modelReadonly["handlers"][modelReadonly["handlers"].length - 1]).toBeInstanceOf(
       ReadOnlyPlugin
     );

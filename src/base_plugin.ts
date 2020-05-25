@@ -1,5 +1,5 @@
 import { WHistory, WorkbookHistory } from "./history";
-import { Mode } from "./model";
+import { Mode, ModelConfig } from "./model";
 import {
   Command,
   CommandDispatcher,
@@ -12,6 +12,7 @@ import {
   CommandResult,
 } from "./types/index";
 
+type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel">;
 /**
  * BasePlugin
  *
@@ -32,13 +33,14 @@ export class BasePlugin implements CommandHandler {
   protected history: WorkbookHistory;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
+  protected ui: UIActions;
 
   constructor(
     workbook: Workbook,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
-    mode: Mode
+    config: ModelConfig
   ) {
     this.workbook = workbook;
     this.getters = getters;
@@ -46,7 +48,8 @@ export class BasePlugin implements CommandHandler {
       updateLocalState: history.updateStateFromRoot.bind(history, this),
     });
     this.dispatch = dispatch;
-    this.currentMode = mode;
+    this.currentMode = config.mode;
+    this.ui = config;
   }
 
   // ---------------------------------------------------------------------------

@@ -1,9 +1,9 @@
-import { menuItemRegistry } from "../src/components";
-import { FullActionMenuItem } from "../src/menu_items_registry";
 import { Model } from "../src";
-import { GridParent, makeTestFixture } from "./helpers";
-import { SpreadsheetEnv, CommandResult } from "../src/types";
+import { menuItemRegistry } from "../src/components";
 import { fontSizes } from "../src/fonts";
+import { FullActionMenuItem } from "../src/menu_items_registry";
+import { CommandResult, SpreadsheetEnv } from "../src/types";
+import { GridParent, makeTestFixture } from "./helpers";
 
 function getNode(_path: string[]): FullActionMenuItem {
   const path = [..._path];
@@ -99,9 +99,10 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste", () => {
     doAction(["edit", "paste"], env);
+
     expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
-      target: env.getters.getSelectedZones(),
-      onlyFormat: false,
+      interactive: true,
+      target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
     });
   });
 

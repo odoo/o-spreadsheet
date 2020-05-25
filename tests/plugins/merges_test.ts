@@ -2,28 +2,7 @@ import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
-import { getActiveXc, getCell, makeTestFixture } from "../helpers";
-import { TopBar } from "../../src/components/top_bar";
-import { Component, hooks,tags} from "@odoo/owl";
-
-const { xml } = tags;
-const { useSubEnv } = hooks;
-
-class Parent extends Component<any, any> {
-  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
-  static components = { TopBar };
-  model: Model;
-  constructor(model: Model) {
-    super();
-    useSubEnv({
-      openSidePanel: (panel: string) => {},
-      dispatch: model.dispatch,
-      getters: model.getters,
-      askConfirmation: jest.fn()
-    });
-    this.model = model;
-  }
-}
+import { getActiveXc, getCell } from "../helpers";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -180,16 +159,16 @@ describe("merges", () => {
   });
 
   test("merging destructively a selection ask for confirmation", async () => {
-    
-    const model = new Model();
+    const askConfirmation = jest.fn();
+    const model = new Model({}, { askConfirmation });
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    const fixture = makeTestFixture();
-    const parent = new Parent(model)
-    await parent.mount(fixture);
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
-
-    fixture.querySelector('.o-tool[title="Merge Cells"]')!.dispatchEvent(new Event("click"));
-    expect(parent.env.askConfirmation).toHaveBeenCalled();
+    model.dispatch("ADD_MERGE", {
+      sheet: model.getters.getActiveSheet(),
+      zone: model.getters.getSelectedZone(),
+      interactive: true,
+    });
+    expect(askConfirmation).toHaveBeenCalled();
   });
 
   test("merging cells with values will do nothing if not forced", () => {
@@ -208,7 +187,7 @@ describe("merges", () => {
       ],
     });
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3")});
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")!.value).toBe(2);
@@ -232,7 +211,7 @@ describe("merges", () => {
       ],
     });
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3"),force: true });
+    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3"), force: true });
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")).toBeNull();

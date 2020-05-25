@@ -42,11 +42,18 @@ import {
  */
 
 export type Mode = "normal" | "headless" | "readonly";
+export interface ModelConfig {
+  mode: Mode;
+  openSidePanel: (panel: string, panelProps?: any) => void;
+  notifyUser: (content: string) => any;
+  askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
+}
 
 const enum Status {
   Ready,
   Running,
   Finalizing,
+  Interactive,
 }
 
 export class Model extends owl.core.EventBus implements CommandDispatcher {
@@ -71,10 +78,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private status: Status = Status.Ready;
 
   /**
-   * The mode is a value that describe how the model was configured. Note that
-   * it is not supposed to change in the model lifetime.
+   * The config object contains some configuration flag and callbacks
    */
-  private mode: Mode;
+  private config: ModelConfig;
 
   /**
    * The workbook is the core state, shared between all plugins.
@@ -88,7 +94,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   getters: Getters;
 
-  constructor(data: any = {}, mode: Mode = "normal") {
+  constructor(data: any = {}, config: Partial<ModelConfig> = {}) {
     super();
     (window as any).model = this; // to debug. remove this someday
 
@@ -101,7 +107,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       canRedo: history.canRedo.bind(history),
     } as Getters;
     this.handlers = [history];
-    this.mode = mode;
+
+    this.config = {
+      mode: config.mode || "normal",
+      openSidePanel: config.openSidePanel || (() => {}),
+      notifyUser: config.notifyUser || (() => {}),
+      askConfirmation: config.askConfirmation || (() => {}),
+    };
 
     // registering plugins
     for (let Plugin of pluginRegistry.getAll()) {
@@ -121,8 +133,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private setupPlugin(Plugin: typeof BasePlugin, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
-    if (Plugin.modes.includes(this.mode)) {
-      const plugin = new Plugin(this.workbook, this.getters, history, dispatch, this.mode);
+    if (Plugin.modes.includes(this.config.mode)) {
+      const plugin = new Plugin(this.workbook, this.getters, history, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -155,7 +167,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
-    switch (this.status) {
+    let status: Status = command.interactive ? Status.Interactive : this.status;
+    switch (status) {
       case Status.Ready:
         for (let handler of this.handlers) {
           const allowDispatch = handler.allowDispatch(command);
@@ -169,11 +182,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.status = Status.Finalizing;
         this.handlers.forEach((h) => h.finalize(command));
         this.status = Status.Ready;
-        if (this.mode !== "headless") {
+        if (this.config.mode !== "headless") {
           this.trigger("update");
         }
         break;
       case Status.Running:
+      case Status.Interactive:
         this.handlers.forEach((h) => h.beforeHandle(command));
         this.handlers.forEach((h) => h.handle(command));
         break;

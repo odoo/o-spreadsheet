@@ -20,7 +20,7 @@ class Parent extends Component<any, any> {
       openSidePanel: (panel: string) => {},
       dispatch: model.dispatch,
       getters: model.getters,
-      askConfirmation: jest.fn()
+      askConfirmation: jest.fn(),
     });
     this.model = model;
   }

@@ -5,8 +5,6 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { pasteAction } from "./context_menu/actions";
-import { SpreadsheetEnv } from "../types";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -59,7 +57,12 @@ export class Spreadsheet extends Component<Props> {
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };
 
-  model = new Model(this.props.data);
+  model = new Model(this.props.data, {
+    notifyUser: (content: string) => this.trigger("notify-user", { content }),
+    askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+      this.trigger("ask-confirmation", { content, confirm, cancel }),
+    openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
+  });
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
@@ -79,9 +82,6 @@ export class Spreadsheet extends Component<Props> {
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
-      notifyUser: (content: string) => this.trigger("notify-user", { content }),
-      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-        this.trigger("ask-confirmation", { content, confirm, cancel }),
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -123,16 +123,16 @@ export class Spreadsheet extends Component<Props> {
     if (!this.grid.el!.contains(document.activeElement)) {
       return;
     }
-    const spreadsheetEnv = this.env as SpreadsheetEnv;
     const clipboardData = ev.clipboardData!;
     if (clipboardData.types.indexOf("text/plain") > -1) {
       const content = clipboardData.getData("text/plain");
+      const target = this.model.getters.getSelectedZones();
       if (this.clipBoardString === content) {
         // the paste actually comes from o-spreadsheet itself
-        pasteAction(spreadsheetEnv);
+        this.model.dispatch("PASTE", { target, interactive: true });
       } else {
         this.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-          target: this.model.getters.getSelectedZones(),
+          target,
           text: content,
         });
       }

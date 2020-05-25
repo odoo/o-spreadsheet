@@ -1,32 +1,9 @@
-import { Model } from "../../src/model";
-import { Zone, CancelledReason } from "../../src/types/index";
-import "../canvas.mock";
 import { toCartesian } from "../../src/helpers/index";
+import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/clipboard";
-import { getCell, getGrid, makeTestFixture } from "../helpers";
-import { TopBar } from "../../src/components/top_bar";
-import { Component, hooks, tags } from "@odoo/owl";
-import { pasteAction } from "../../src/components/context_menu/actions";
-
-const { xml } = tags;
-const { useSubEnv } = hooks;
-
-class Parent extends Component<any, any> {
-  static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
-  static components = { TopBar };
-  model: Model;
-  constructor(model: Model) {
-    super();
-    useSubEnv({
-      openSidePanel: (panel: string) => {},
-      dispatch: model.dispatch,
-      getters: model.getters,
-      askConfirmation: jest.fn(),
-      notifyUser: jest.fn(),
-    });
-    this.model = model;
-  }
-}
+import { CancelledReason, Zone } from "../../src/types/index";
+import "../canvas.mock";
+import { getCell, getGrid } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
@@ -308,29 +285,31 @@ describe("clipboard", () => {
   });
 
   test("Pasting content that will destroy a merge will ask for confirmation", async () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B2:C3"],
-        },
-        {
-          colNumber: 5,
-          rowNumber: 5,
-        },
-      ],
-    });
+    const askConfirmation = jest.fn();
+    const model = new Model(
+      {
+        sheets: [
+          {
+            colNumber: 5,
+            rowNumber: 5,
+            merges: ["B2:C3"],
+          },
+          {
+            colNumber: 5,
+            rowNumber: 5,
+          },
+        ],
+      },
+      { askConfirmation }
+    );
+
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
 
-    const fixture = makeTestFixture();
-    const parent = new Parent(model);
-    await parent.mount(fixture);
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    pasteAction(parent.env);
-    expect(parent.env.askConfirmation).toHaveBeenCalled();
+    model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
+    expect(askConfirmation).toHaveBeenCalled();
   });
 
   test("Pasting content that will destroy a merge will fail if not forced", async () => {
@@ -581,19 +560,16 @@ describe("clipboard", () => {
   });
 
   test("pasting with multiple selection and more than one value will warn user", async () => {
-    const model = new Model();
+    const notifyUser = jest.fn();
+    const model = new Model({}, { notifyUser });
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("COPY", { target: target("A1:A2") });
 
-    const fixture = makeTestFixture();
-    const parent = new Parent(model);
-    await parent.mount(fixture);
-
     model.dispatch("SELECT_CELL", { col: 2, row: 3 });
     model.dispatch("SELECT_CELL", { col: 4, row: 5, createNewRange: true });
-    pasteAction(parent.env);
-    expect(parent.env.notifyUser).toHaveBeenCalled();
+    model.dispatch("PASTE", { target: model.getters.getSelectedZones(), interactive: true });
+    expect(notifyUser).toHaveBeenCalled();
   });
 
   test("can copy and paste a cell with STRING content", () => {

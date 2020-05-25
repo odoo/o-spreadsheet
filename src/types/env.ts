@@ -6,6 +6,4 @@ export interface SpreadsheetEnv extends Env {
   openSidePanel: (panel: string, panelProps?: any) => void;
   dispatch: CommandDispatcher["dispatch"];
   getters: Getters;
-  notifyUser: (content: string) => any;
-  askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
 }
