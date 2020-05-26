@@ -67,10 +67,10 @@ class AutofillGenerator {
       return genCell.data;
     }
     const rule = genCell.rule;
-    const content = autofillModifiersRegistry
+    const data = autofillModifiersRegistry
       .get(rule.type)
       .apply(rule, genCell.data, this.getters, this.direction);
-    return Object.assign({}, genCell.data, { content });
+    return Object.assign({}, genCell.data, data);
   }
 }
 
