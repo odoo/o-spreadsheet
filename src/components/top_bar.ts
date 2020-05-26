@@ -72,8 +72,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
           <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="Format" t-on-click.stop="toggleDropdownTool('formatTool')">
-            <div class="o-text-icon">Format ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-tool o-dropdown" title="Format">
+            <div class="o-text-icon" t-on-click.stop="toggleDropdownTool('formatTool')">Format ${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.tools.formatTool" t-on-click="setFormat">
               <t t-foreach="formats" t-as="format" t-key="format.name">
                 <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
@@ -82,8 +82,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <div class="o-divider"/>
           <div class="o-tool" title="Font"><span>Arial</span> ${icons.TRIANGLE_DOWN_ICON}</div>
-          <div class="o-tool o-dropdown" title="Font Size" t-on-click.stop="toggleDropdownTool('fontSizeTool')">
-            <div class="o-text-icon"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-tool o-dropdown" title="Font Size">
+            <div class="o-text-icon" t-on-click.stop="toggleDropdownTool('fontSizeTool')"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options "  t-if="state.tools.fontSizeTool" t-on-click="setSize">
               <t t-foreach="fontSizes" t-as="font" t-key="font_index">
                 <div t-esc="font.pt" t-att-data-size="font.pt"/>
@@ -124,8 +124,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           </div>
           <div class="o-tool" title="Merge Cells"  t-att-class="{active:inMerge, 'o-disabled': cannotMerge}" t-on-click="toggleMerge">${icons.MERGE_CELL_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="Horizontal align" t-on-click.stop="toggleDropdownTool('alignTool')">
-            <span>
+          <div class="o-tool o-dropdown" title="Horizontal align">
+            <span t-on-click.stop="toggleDropdownTool('alignTool')">
               <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
               <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
               ${icons.TRIANGLE_DOWN_ICON}
