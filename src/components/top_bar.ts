@@ -1,12 +1,12 @@
 import * as owl from "@odoo/owl";
 
 import { Style, SpreadsheetEnv } from "../types/index";
-import { BACKGROUND_GRAY_COLOR } from "../constants";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
 import { isEqual } from "../helpers/index";
 import { ColorPicker } from "./color_picker";
 import { menuItemRegistry, FullActionMenuItem } from "../menu_items_registry";
+import { DEFAULT_FONT_SIZE } from "../constants";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
 const { useExternalListener } = hooks;
@@ -24,7 +24,9 @@ owl.QWeb.registerTemplate(
   <t t-foreach="menu.children" t-as="child" t-key="child.id">
     <t t-if="child.isVisible(env)">
       <t t-if="child.children.length !== 0">
-        <div class="o-menu-dropdown-item"><t t-esc="typeof child.name === 'string' ? child.name : child.name(env)"/>
+        <div class="o-menu-dropdown-item">
+          <div t-esc="typeof child.name === 'string' ? child.name : child.name(env)"/>
+          <div>${icons.TRIANGLE_RIGHT_ICON}</div>
           <div class="o-menu-dropdown-content o-menu-dropdown-submenu">
             <t t-call="spreadsheet_menu_child_template">
               <t t-set="menu" t-value="child"/>
@@ -81,9 +83,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             </div>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Font"><span>Arial</span> ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div>
           <div class="o-tool o-dropdown" title="Font Size" t-on-click.stop="toggleDropdownTool('fontSizeTool')">
-            <div class="o-text-icon"><t t-esc="style.fontSize || 10"/> ${icons.TRIANGLE_DOWN_ICON}</div>
+            <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options "  t-if="state.tools.fontSizeTool" t-on-click="setSize">
               <t t-foreach="fontSizes" t-as="font" t-key="font_index">
                 <div t-esc="font.pt" t-att-data-size="font.pt"/>
@@ -139,8 +141,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div>
           <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Conditional Formatting" t-on-click="setConditionalFormatting"><span>${icons.CONDITIONAL_FORMATTING}</span></div>
-          <div class="o-divider"/>
         </div>
 
         <!-- Cell content -->
@@ -153,27 +153,26 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     </div>`;
   static style = css/* scss */ `
     .o-spreadsheet-topbar {
-      background-color: ${BACKGROUND_GRAY_COLOR};
+      background-color: white;
       display: flex;
       flex-direction: column;
-      font-family: "Lato", "Source Sans Pro", Roboto, Helvetica, Arial, sans-serif;
       font-size: 13px;
 
       /* Menus */
       .o-topbar-menus {
         border-bottom: 1px solid #e0e2e4;
         display: flex;
-        padding: 3px;
+        padding: 2px 10px;
 
         .o-topbar-menu {
           padding: 4px 6px;
           margin: 0 2px;
+          cursor: pointer;
         }
 
         .o-topbar-menu:hover {
-          background-color: lightgrey;
+          background-color: #f1f3f4;
           border-radius: 2px;
-          cursor: hand;
         }
 
         .o-menu-dropdown {
@@ -181,22 +180,31 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
           .o-menu-dropdown-content {
             position: absolute;
+            padding: 5px 0px;
             top: 100%;
             left: 0;
             z-index: 10;
             box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-            background-color: #f6f6f6;
+            background-color: white;
             min-width: 200px;
 
             &.o-menu-dropdown-submenu {
               visibility: hidden;
-              top: 0%;
+              top: -5px;
               left: 100%;
             }
 
             .o-menu-dropdown-item {
+              cursor: pointer;
               position: relative;
               padding: 7px 20px;
+              padding-right: 2px;
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              .o-icon {
+                height: 14px;
+              }
             }
 
             .o-menu-dropdown-item:hover {
@@ -208,7 +216,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
             .o-separator {
               border-bottom: 1px solid #e0e2e4;
-              margin: 7px 15px;
             }
           }
         }
@@ -234,11 +241,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             margin: 2px;
             padding: 0 3px;
             border-radius: 2px;
+            cursor: pointer;
           }
 
           .o-tool.active,
           .o-tool:not(.o-disabled):hover {
-            background-color: rgba(0, 0, 0, 0.08);
+            background-color: #f1f3f4;
           }
 
           .o-with-color > span {
@@ -264,12 +272,11 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             display: inline-block;
             border-right: 1px solid #e0e2e4;
             width: 0;
-            margin: 0 3px 0;
+            margin: 0 6px;
           }
 
           .o-disabled {
             opacity: 0.6;
-            cursor: not-allowed;
           }
 
           .o-dropdown {
@@ -285,7 +292,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
             .o-text-options > div {
               line-height: 26px;
-              padding: 3 12px;
+              padding: 3px 12px;
               &:hover {
                 background-color: rgba(0, 0, 0, 0.08);
               }
@@ -297,7 +304,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
               left: 0;
               z-index: 10;
               box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-              background-color: #f6f6f6;
+              background-color: white;
 
               .o-dropdown-item {
                 padding: 7px 10px;
@@ -324,6 +331,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
               &.o-format-tool {
                 width: 180px;
+                padding: 7px 0;
                 > div {
                   padding-left: 25px;
 
@@ -341,7 +349,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
         /* Cell Content */
         .o-toolbar-cell-content {
-          font-family: monospace, arial, sans, sans-serif;
           font-size: 12px;
           font-weight: 500;
           padding: 0 12px;
@@ -390,10 +397,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
   async willUpdateProps() {
     this.updateCellState();
-  }
-
-  setConditionalFormatting() {
-    this.env.openSidePanel("ConditionalFormatting");
   }
 
   toggleTool(tool: string) {

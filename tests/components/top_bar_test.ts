@@ -4,6 +4,7 @@ import { Model } from "../../src/model";
 import { getCell, makeTestFixture, nextTick } from "../helpers";
 import { menuItemRegistry } from "../../src/menu_items_registry";
 import { triggerMouseEvent } from "../dom_helper";
+import { DEFAULT_FONT_SIZE } from "../../src/constants";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -196,7 +197,7 @@ describe("TopBar component", () => {
     const parent = new Parent(model);
     await parent.mount(fixture);
     const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
-    expect(fontSizeTool.textContent!.trim()).toBe("10");
+    expect(fontSizeTool.textContent!.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     fontSizeTool.dispatchEvent(new Event("click"));
     await nextTick();
     fontSizeTool

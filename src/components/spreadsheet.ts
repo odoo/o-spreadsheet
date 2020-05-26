@@ -29,9 +29,9 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-spreadsheet {
     display: grid;
-    grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT}px;
+    grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px;
     * {
-      font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+      font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
     }
     &,
     *,

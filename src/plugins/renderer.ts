@@ -5,6 +5,11 @@ import {
   DEFAULT_FONT_WEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  BACKGROUND_HEADER_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  TEXT_HEADER_COLOR,
+  HEADER_FONT_SIZE,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
@@ -326,8 +331,8 @@ export class RendererPlugin extends BasePlugin {
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
 
-    ctx.fillStyle = "#f4f5f8";
-    ctx.font = "400 12px Source Sans Pro";
+    ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+    ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
@@ -337,15 +342,19 @@ export class RendererPlugin extends BasePlugin {
     ctx.fillRect(0, 0, width, HEADER_HEIGHT);
     ctx.fillRect(0, 0, HEADER_WIDTH, height);
     // selection background
-    ctx.fillStyle = "#dddddd";
+    ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
     for (let zone of selection) {
       const x1 = Math.max(HEADER_WIDTH, cols[zone.left].start - offsetX);
       const x2 = Math.max(HEADER_WIDTH, cols[zone.right].end - offsetX);
       const y1 = Math.max(HEADER_HEIGHT, rows[zone.top].start - offsetY);
       const y2 = Math.max(HEADER_HEIGHT, rows[zone.bottom].end - offsetY);
-      ctx.fillStyle = activeCols.has(zone.left) ? "#595959" : "#dddddd";
+      ctx.fillStyle = activeCols.has(zone.left)
+        ? BACKGROUND_HEADER_ACTIVE_COLOR
+        : BACKGROUND_HEADER_SELECTED_COLOR;
       ctx.fillRect(x1, 0, x2 - x1, HEADER_HEIGHT);
-      ctx.fillStyle = activeRows.has(zone.top) ? "#595959" : "#dddddd";
+      ctx.fillStyle = activeRows.has(zone.top)
+        ? BACKGROUND_HEADER_ACTIVE_COLOR
+        : BACKGROUND_HEADER_SELECTED_COLOR;
       ctx.fillRect(0, y1, HEADER_WIDTH, y2 - y1);
     }
 
@@ -361,7 +370,7 @@ export class RendererPlugin extends BasePlugin {
     // column text + separator
     for (let i = left; i <= right; i++) {
       const col = cols[i];
-      ctx.fillStyle = activeCols.has(i) ? "#fff" : "#111";
+      ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
       ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX, HEADER_HEIGHT / 2);
       ctx.moveTo(col.end - offsetX, 0);
       ctx.lineTo(col.end - offsetX, HEADER_HEIGHT);
@@ -369,7 +378,7 @@ export class RendererPlugin extends BasePlugin {
     // row text + separator
     for (let i = top; i <= bottom; i++) {
       const row = rows[i];
-      ctx.fillStyle = activeRows.has(i) ? "#fff" : "#111";
+      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
       ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY);
       ctx.moveTo(0, row.end - offsetY);
