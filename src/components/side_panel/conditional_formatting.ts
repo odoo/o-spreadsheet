@@ -103,7 +103,6 @@ const CSS = css/* scss */ `
       .o-tools {
         color: #333;
         font-size: 13px;
-        font-family: "Lato", "Source Sans Pro", Roboto, Helvetica, Arial, sans-serif;
         cursor: default;
         display: flex;
 
@@ -138,7 +137,6 @@ const CSS = css/* scss */ `
         }
       }
       .o-cell-content {
-        font-family: monospace, arial, sans, sans-serif;
         font-size: 12px;
         font-weight: 500;
         padding: 0 12px;

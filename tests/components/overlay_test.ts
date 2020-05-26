@@ -265,7 +265,7 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a row", async () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     await dblClickRow(1);
-    expect(model["workbook"].rows[1].size).toBe(19);
+    expect(model["workbook"].rows[1].size).toBe(21);
   });
 
   test("Double click on rows then undo, then redo", async () => {
@@ -277,10 +277,10 @@ describe("Resizer component", () => {
     await dblClickRow(2);
     const initialSize = model.getters.getRow(0).size;
     expect(model.getters.getRow(1).size).toBe(initialSize);
-    expect(model.getters.getRow(2).size).toBe(19);
-    expect(model.getters.getRow(3).size).toBe(19);
+    expect(model.getters.getRow(2).size).toBe(21);
+    expect(model.getters.getRow(3).size).toBe(21);
     expect(model.getters.getRow(4).size).toBe(initialSize);
-    expect(model.getters.getRow(4).start).toBe(initialSize * 2 + 19 * 2);
+    expect(model.getters.getRow(4).start).toBe(initialSize * 2 + 21 * 2);
     model.dispatch("UNDO");
     expect(model.getters.getRow(1).size).toBe(initialSize);
     expect(model.getters.getRow(2).size).toBe(initialSize);
@@ -289,10 +289,10 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(4).start).toBe(initialSize * 4);
     model.dispatch("REDO");
     expect(model.getters.getRow(1).size).toBe(initialSize);
-    expect(model.getters.getRow(2).size).toBe(19);
-    expect(model.getters.getRow(3).size).toBe(19);
+    expect(model.getters.getRow(2).size).toBe(21);
+    expect(model.getters.getRow(3).size).toBe(21);
     expect(model.getters.getRow(4).size).toBe(initialSize);
-    expect(model.getters.getRow(4).start).toBe(initialSize * 2 + 19 * 2);
+    expect(model.getters.getRow(4).start).toBe(initialSize * 2 + 21 * 2);
   });
 
   test("Select B, shift D then BCD selected", () => {
@@ -421,11 +421,11 @@ describe("Resizer component", () => {
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
-    expect(model["workbook"].rows[0].size).toBe(19);
-    expect(model["workbook"].rows[1].size).toBe(19);
-    expect(model["workbook"].rows[2].size).toBe(19);
+    expect(model["workbook"].rows[0].size).toBe(21);
+    expect(model["workbook"].rows[1].size).toBe(21);
+    expect(model["workbook"].rows[2].size).toBe(21);
     expect(model["workbook"].rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model["workbook"].rows[4].size).toBe(19);
+    expect(model["workbook"].rows[4].size).toBe(21);
   });
 
   test("Select 123 5, dblclick 6 then resize only 6", async () => {
@@ -439,7 +439,7 @@ describe("Resizer component", () => {
     expect(model["workbook"].rows[2].size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model["workbook"].rows[3].size).toBe(DEFAULT_CELL_HEIGHT);
     expect(model["workbook"].rows[4].size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model["workbook"].rows[5].size).toBe(19);
+    expect(model["workbook"].rows[5].size).toBe(21);
   });
 
   test("Select A, drag to C then ABC selected", async () => {

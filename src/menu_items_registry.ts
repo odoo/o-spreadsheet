@@ -433,8 +433,16 @@ menuItemRegistry
     separator: true,
   })
   .addChild("format_font_size", ["format"], {
-    name: "Font-size",
+    name: "Font size",
     sequence: 50,
+    separator: true,
+  })
+  .addChild("format_cf", ["format"], {
+    name: "Conditional formatting",
+    sequence: 60,
+    action: (env: SpreadsheetEnv) => {
+      env.openSidePanel("ConditionalFormatting");
+    },
     separator: true,
   });
 

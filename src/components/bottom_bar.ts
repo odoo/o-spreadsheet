@@ -29,6 +29,7 @@ const CSS = css/* scss */ `
     display: flex;
     align-items: center;
     font-size: 15px;
+    border-top: 1px solid lightgrey;
 
     .o-space {
       flex-grow: 1;

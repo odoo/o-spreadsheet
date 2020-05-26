@@ -83,7 +83,6 @@ const CSS = css/* scss */ `
       padding-left: 2px;
       padding-right: 2px;
       border: 1.6px solid #3266ca;
-      font-family: arial;
       white-space: nowrap;
       &:focus {
         outline: none;

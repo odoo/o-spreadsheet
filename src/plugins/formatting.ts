@@ -19,7 +19,7 @@ const commandToSides = {
 const DEFAULT_STYLE: Style = {
   fillColor: "white",
   textColor: "black",
-  fontSize: 10,
+  fontSize: 11,
 };
 
 type FormatInfo = {
