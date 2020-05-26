@@ -219,7 +219,7 @@ export class RendererPlugin extends BasePlugin {
     for (let box of this.boxes) {
       // fill color
       let style = box.style;
-      if (style && style.fillColor) {
+      if (style && style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor;
         ctx.fillRect(box.x, box.y, box.width, box.height);
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
