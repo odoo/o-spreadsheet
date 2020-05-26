@@ -181,7 +181,7 @@ describe("TopBar component", () => {
     const parent = new Parent(model);
     await parent.mount(fixture);
     const formatTool = fixture.querySelector('.o-tool[title="Format"]')!;
-    formatTool.querySelector(".o-text-icon")!.dispatchEvent(new Event("click"));
+    formatTool.dispatchEvent(new Event("click"));
     await nextTick();
     expect(parent.el).toMatchSnapshot();
     formatTool
@@ -197,7 +197,7 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
     const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
     expect(fontSizeTool.textContent!.trim()).toBe("10");
-    fontSizeTool.querySelector(".o-text-icon")!.dispatchEvent(new Event("click"));
+    fontSizeTool.dispatchEvent(new Event("click"));
     await nextTick();
     fontSizeTool
       .querySelector('[data-size="8"]')!
