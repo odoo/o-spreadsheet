@@ -20,7 +20,7 @@ interface AutofillModifierImplementation {
     data: CellData,
     getters: Getters,
     direction: DIRECTION
-  ) => string | undefined;
+  ) => CellData;
 }
 
 export const autofillModifiersRegistry = new Registry<AutofillModifierImplementation>();
@@ -29,11 +29,13 @@ autofillModifiersRegistry
   .add("INCREMENT_MODIFIER", {
     apply: (rule: IncrementModifier, data: CellData) => {
       rule.current += rule.increment;
-      return (parseFloat(data.content!) + rule.current).toString();
+      return Object.assign({}, data, {
+        content: (parseFloat(data.content!) + rule.current).toString(),
+      });
     },
   })
   .add("COPY_MODIFIER", {
-    apply: (rule: CopyModifier, data: CellData) => data.content,
+    apply: (rule: CopyModifier, data: CellData) => data,
   })
   .add("FORMULA_MODIFIER", {
     apply: (rule: FormulaModifier, data: CellData, getters: Getters, direction: DIRECTION) => {
@@ -58,6 +60,8 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      return applyOffset(data.content!, x, y, getters.getNumberCols(), getters.getNumberRows());
+      return Object.assign({}, data, {
+        content: applyOffset(data.content!, x, y, getters.getNumberCols(), getters.getNumberRows()),
+      });
     },
   });
