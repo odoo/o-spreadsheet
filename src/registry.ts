@@ -41,4 +41,11 @@ export class Registry<T> {
   getAll(): T[] {
     return Object.values(this.content);
   }
+
+  /**
+   * Remove an item from the registry
+   */
+  remove(key: string) {
+    delete this.content[key];
+  }
 }
