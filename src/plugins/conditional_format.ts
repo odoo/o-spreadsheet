@@ -152,6 +152,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
       return;
     }
     const deltaValue = maxValue - minValue;
+    if (!deltaValue) {
+      return;
+    }
     const deltaColorR = ((rule.minimum.color >> 16) % 256) - ((rule.maximum.color >> 16) % 256);
     const deltaColorG = ((rule.minimum.color >> 8) % 256) - ((rule.maximum.color >> 8) % 256);
     const deltaColorB = (rule.minimum.color % 256) - (rule.maximum.color % 256);
