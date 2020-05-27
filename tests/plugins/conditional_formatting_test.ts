@@ -626,6 +626,19 @@ describe("conditional formats types", () => {
   });
 
   describe("color scale", () => {
+    test("1 point, value scale", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1"],
+          { type: "value", color: 0xff00ff },
+          { type: "value", color: 0x123456 }
+        ),
+      });
+      expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
+    });
+
     test("2 points, value scale", () => {
       model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
       model.dispatch("SET_VALUE", { xc: "A2", text: "11" });
@@ -670,6 +683,22 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
       expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
       expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+    });
+
+    test("2 points, value scale with same min/max", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1:A2"],
+          { type: "value", color: 0xff00ff },
+          { type: "value", color: 0x123456 }
+        ),
+      });
+
+      expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
+      expect(model.getters.getConditionalStyle("A2")).toEqual(undefined);
     });
 
     test("async values do not crash the evaluation", () => {
