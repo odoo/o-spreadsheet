@@ -1,13 +1,14 @@
 import { args } from "./arguments";
 import { toBoolean, visitBooleans } from "./helpers";
 import { FunctionDescription } from "../types";
+import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // WAIT
 // -----------------------------------------------------------------------------
 export const WAIT: FunctionDescription = {
   description: "Wait",
-  args: args`ms (number) wait time in milliseconds`,
+  args: args(`ms (number) wait time in milliseconds`),
   returns: ["ANY"],
   async: true,
   compute: function (delay) {
@@ -24,10 +25,10 @@ export const WAIT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AND: FunctionDescription = {
   description: "Logical `and` operator.",
-  args: args`
+  args: args(`
       logical_expression1 (boolean, range<boolean>) An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.
       logical_expression1 (boolean, range<boolean>, optional, repeating) More expressions that represent logical values.
-    `,
+    `),
   returns: ["BOOLEAN"],
   compute: function (): boolean {
     let result = true;
@@ -38,7 +39,7 @@ export const AND: FunctionDescription = {
       return result;
     });
     if (!foundBoolean) {
-      throw new Error(`AND has no valid input data.`);
+      throw new Error(_lt(`AND has no valid input data.`));
     }
     return result;
   },
@@ -49,11 +50,11 @@ export const AND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IF: FunctionDescription = {
   description: "Returns value depending on logical expression.",
-  args: args`
+  args: args(`
       logical_expression (boolean) An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE.
       value_if_true (any) The value the function returns if logical_expression is TRUE.
       value_if_false (any, optional, default=FALSE) The value the function returns if logical_expression is FALSE.
-    `,
+    `),
   returns: ["ANY"],
   compute: function (
     logical_expression: any,
@@ -70,11 +71,11 @@ export const IF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const IFS: FunctionDescription = {
   description: "Returns a value depending on multiple logical expressions.",
-  args: args`
+  args: args(`
       condition1 (boolean) The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those.
       value1 (any) The returned value if condition1 is TRUE.
       additional_values (any, optional, repeating) Additional conditions and values to be evaluated if the previous ones are FALSE.
-    `,
+    `),
   // @compatibility: on google sheets, args definitions are next:
   // condition1 (boolean) The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those.
   // value1 (any) The returned value if condition1 is TRUE.
@@ -92,7 +93,7 @@ export const IFS: FunctionDescription = {
         return arguments[n + 1];
       }
     }
-    throw new Error(`No match.`);
+    throw new Error(_lt(`No match.`));
   },
 };
 
@@ -101,7 +102,9 @@ export const IFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NOT: FunctionDescription = {
   description: "Returns opposite of provided logical value.",
-  args: args`logical_expression (boolean) An expression or reference to a cell holding an expression that represents some logical value.`,
+  args: args(
+    `logical_expression (boolean) An expression or reference to a cell holding an expression that represents some logical value.`
+  ),
   returns: ["BOOLEAN"],
   compute: function (logical_expression: any): boolean {
     return !toBoolean(logical_expression);
@@ -113,10 +116,10 @@ export const NOT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const OR: FunctionDescription = {
   description: "Logical `or` operator.",
-  args: args`
+  args: args(`
       logical_expression1 (boolean, range<boolean>) An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.
       logical_expression2 (boolean, range<boolean>, optional, repeating) More expressions that evaluate to logical values.
-    `,
+    `),
   returns: ["BOOLEAN"],
   compute: function (): boolean {
     let result = false;
@@ -127,7 +130,7 @@ export const OR: FunctionDescription = {
       return !result;
     });
     if (!foundBoolean) {
-      throw new Error(`OR has no valid input data.`);
+      throw new Error(_lt(`OR has no valid input data.`));
     }
     return result;
   },
@@ -138,10 +141,10 @@ export const OR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const XOR: FunctionDescription = {
   description: "Logical `xor` operator.",
-  args: args`
+  args: args(`
       logical_expression1 (boolean, range<boolean>) An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value.
       logical_expression2 (boolean, range<boolean>, optional, repeating) More expressions that evaluate to logical values.
-    `,
+    `),
   returns: ["BOOLEAN"],
   compute: function (): boolean {
     let result = false;
@@ -152,7 +155,7 @@ export const XOR: FunctionDescription = {
       return true;
     });
     if (!foundBoolean) {
-      throw new Error(`XOR has no valid input data.`);
+      throw new Error(_lt(`XOR has no valid input data.`));
     }
     return result;
   },

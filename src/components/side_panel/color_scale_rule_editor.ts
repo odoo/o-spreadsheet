@@ -25,10 +25,10 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
       </div>
       <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
           <option value="value">Cell values</option>
-          <option value="number">Fixed number</option>
-          <option value="percentage">Percentage</option>
-          <option value="percentile">Percentile</option>
-          <option value="formula">Formula</option>
+<!--          <option value="number">Fixed number</option>--> <!-- not yet implemented -->
+<!--          <option value="percentage">Percentage</option>-->
+<!--          <option value="percentile">Percentile</option>-->
+<!--          <option value="formula">Formula</option>-->
       </select>
 
       <input type="text" t-model="threshold.value" class="o-threshold-value"

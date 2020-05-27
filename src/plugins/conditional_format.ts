@@ -20,6 +20,7 @@ import {
   WorkbookData,
   Zone,
 } from "../types/index";
+import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -234,7 +235,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
           return cell && cell.value == rule.values[0];
         default:
           console.warn(
-            `Not implemented operator ${rule.operator} for kind of conditional formatting:  ${rule.type}`
+            _lt(
+              `Not implemented operator ${rule.operator} for kind of conditional formatting:  ${rule.type}`
+            )
           );
       }
       return false;

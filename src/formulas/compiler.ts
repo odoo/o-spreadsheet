@@ -1,6 +1,7 @@
 import { functionRegistry } from "../functions/index";
 import { CompiledFormula, Arg } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
+import { _lt } from "../translation";
 
 const functions = functionRegistry.content;
 
@@ -37,10 +38,10 @@ export function compile(
   let isAsync = false;
 
   if (ast.type === "BIN_OPERATION" && ast.value === ":") {
-    throw new Error("Invalid formula");
+    throw new Error(_lt("Invalid formula"));
   }
   if (ast.type === "UNKNOWN") {
-    throw new Error("Invalid formula");
+    throw new Error(_lt("Invalid formula"));
   }
 
   /**
@@ -85,9 +86,11 @@ export function compile(
       }
     }
     if (result.length < minArg || result.length > maxArg) {
-      throw new Error(`
+      throw new Error(
+        _lt(`
           Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-          Expected ${fn.args.length}, but got ${result.length} instead.`);
+          Expected ${fn.args.length}, but got ${result.length} instead.`)
+      );
     }
     return result;
   }

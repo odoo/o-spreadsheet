@@ -10,6 +10,7 @@
  * 2. it throws an error when the get operation fails
  * 3. it provides a chained API to add items to the registry.
  */
+import { _lt } from "./translation";
 
 export class Registry<T> {
   content: { [key: string]: T } = {};
@@ -30,7 +31,7 @@ export class Registry<T> {
    */
   get(key: string): T {
     if (!(key in this.content)) {
-      throw new Error(`Cannot find ${key} in this registry!`);
+      throw new Error(_lt(`Cannot find ${key} in this registry!`));
     }
     return this.content[key];
   }

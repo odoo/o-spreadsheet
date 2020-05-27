@@ -6,6 +6,7 @@ import {
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
 } from "./helpers";
+import { _lt } from "../translation";
 
 /**
  * Perform a linear search and return the index of the perfect match.
@@ -33,11 +34,11 @@ function linearSearch(range: any[], target: any): number {
 
 export const LOOKUP: FunctionDescription = {
   description: `Look up a value.`,
-  args: args`
+  args: args(`
       search_key (any) The value to search for. For example, 42, "Cats", or I24.
       search_array (any, range) One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned.
       result_range (any, range, optional) The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method.
-  `,
+  `),
   returns: ["ANY"],
   compute: function (search_key: any, search_array: any, result_range: any = undefined): any {
     const verticalSearch = search_array[0].length >= search_array.length;
@@ -45,7 +46,7 @@ export const LOOKUP: FunctionDescription = {
 
     const index = dichotomicPredecessorSearch(searchRange, search_key);
     if (index === -1) {
-      throw new Error(`Did not find value '${search_key}' in LOOKUP evaluation.`);
+      throw new Error(_lt(`Did not find value '${search_key}' in LOOKUP evaluation.`));
     }
     if (result_range === undefined) {
       return verticalSearch ? search_array.pop()[index] : search_array[index].pop();
@@ -54,18 +55,18 @@ export const LOOKUP: FunctionDescription = {
     const nbCol = result_range.length;
     const nbRow = result_range[0].length;
     if (nbCol > 1 && nbRow > 1) {
-      throw new Error(`LOOKUP range must be a single row or a single column.`);
+      throw new Error(_lt(`LOOKUP range must be a single row or a single column.`));
     }
 
     if (nbCol > 1) {
       if (nbCol - 1 < index) {
-        throw new Error(`LOOKUP evaluates to an out of range row value ${index + 1}.`);
+        throw new Error(_lt(`LOOKUP evaluates to an out of range row value ${index + 1}.`));
       }
       return result_range[index][0];
     }
 
     if (nbRow - 1 < index) {
-      throw new Error(`LOOKUP evaluates to an out of range column value ${index + 1}.`);
+      throw new Error(_lt(`LOOKUP evaluates to an out of range column value ${index + 1}.`));
     }
     return result_range[0][index];
   },
@@ -77,18 +78,18 @@ export const LOOKUP: FunctionDescription = {
 
 export const MATCH: FunctionDescription = {
   description: `Position of item in range that matches value.`,
-  args: args`
+  args: args(`
       search_key (any) The value to search for. For example, 42, "Cats", or I24.
       range (any, range) The one-dimensional array to be searched.
       search_type (number, optional, default=1) The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (search_key: any, range: any[], search_type: any = 1): number {
     let _searchType = toNumber(search_type);
     const nbCol = range.length;
     const nbRow = range[0].length;
     if (nbCol > 1 && nbRow > 1) {
-      throw new Error(`MATCH range must be a single row or a single column.`);
+      throw new Error(_lt(`MATCH range must be a single row or a single column.`));
     }
     let index = -1;
     range = range.flat();
@@ -107,7 +108,7 @@ export const MATCH: FunctionDescription = {
     if (index > -1) {
       return index + 1;
     } else {
-      throw new Error(`Did not find value '${search_key}' in MATCH evaluation.`);
+      throw new Error(_lt(`Did not find value '${search_key}' in MATCH evaluation.`));
     }
   },
 };
@@ -118,17 +119,17 @@ export const MATCH: FunctionDescription = {
 
 export const VLOOKUP: FunctionDescription = {
   description: `Vertical lookup.`,
-  args: args`
+  args: args(`
       search_key (any) The value to search for. For example, 42, "Cats", or I24.
       range (any, range) The range to consider for the search. The first column in the range is searched for the key specified in search_key.
       index (number) The column index of the value to be returned, where the first column in range is numbered 1.
       is_sorted (boolean, optional, default = TRUE) Indicates whether the column to be searched [the first column of the specified range] is sorted, in which case the closest match for search_key will be returned.
-  `,
+  `),
   returns: ["ANY"],
   compute: function (search_key: any, range: any[], index: any, is_sorted: any = true): any {
     const _index = Math.trunc(toNumber(index));
     if (_index < 1 || range.length < _index) {
-      throw new Error(`VLOOKUP evaluates to an out of bounds range.`);
+      throw new Error(_lt(`VLOOKUP evaluates to an out of bounds range.`));
     }
 
     const _isSorted = toBoolean(is_sorted);
@@ -143,7 +144,7 @@ export const VLOOKUP: FunctionDescription = {
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {
-      throw new Error(`Did not find value '${search_key}' in VLOOKUP evaluation.`);
+      throw new Error(_lt(`Did not find value '${search_key}' in VLOOKUP evaluation.`));
     }
   },
 };

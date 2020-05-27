@@ -22,7 +22,7 @@ function doAction(path: string[], env: SpreadsheetEnv): void {
 
 function getName(path: string[], env: SpreadsheetEnv): string {
   const node = getNode(path);
-  return typeof node.name === "string" ? node.name : node.name(env);
+  return typeof node.name === "function" ? node.name(env).toString() : node.name.toString();
 }
 
 describe("Menu Item Registry", () => {

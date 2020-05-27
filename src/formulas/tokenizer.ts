@@ -1,5 +1,6 @@
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp } from "../helpers/index";
+import { _lt } from "../translation";
 
 /**
  * Tokenizer
@@ -47,7 +48,11 @@ export function tokenize(str: string): Token[] {
   while (chars.length) {
     tokenCount++;
     if (tokenCount > 100) {
-      throw new Error("Wow that's big... (that's what she said)");
+      throw new Error(
+        _lt(
+          "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
+        )
+      );
     }
     let token =
       tokenizeDebugger(chars) ||

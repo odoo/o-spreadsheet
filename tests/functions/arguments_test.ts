@@ -2,8 +2,8 @@ import { args } from "../../src/functions/arguments";
 
 describe("args", () => {
   test("various", () => {
-    expect(args``).toEqual([]);
-    expect(args`test (number) some number`).toEqual([
+    expect(args(``)).toEqual([]);
+    expect(args(`test (number) some number`)).toEqual([
       {
         type: ["NUMBER"],
         description: "some number",
@@ -11,10 +11,12 @@ describe("args", () => {
       },
     ]);
 
-    expect(args`
+    expect(
+      args(`
        test (number) some number
        test2 (number) some other number
-      `).toEqual([
+      `)
+    ).toEqual([
       {
         type: ["NUMBER"],
         description: "some number",
@@ -29,7 +31,7 @@ describe("args", () => {
   });
 
   test("empty description", () => {
-    expect(args`test (number)`).toEqual([
+    expect(args(`test (number)`)).toEqual([
       {
         type: ["NUMBER"],
         name: "test",
@@ -39,7 +41,7 @@ describe("args", () => {
   });
 
   test("default number value", () => {
-    expect(args`test (number,default=10) descr`).toEqual([
+    expect(args(`test (number,default=10) descr`)).toEqual([
       {
         type: ["NUMBER"],
         name: "test",
@@ -50,7 +52,7 @@ describe("args", () => {
   });
 
   test("default string value", () => {
-    expect(args`test (number,default="asdf") descr`).toEqual([
+    expect(args(`test (number,default="asdf") descr`)).toEqual([
       {
         type: ["NUMBER"],
         name: "test",
@@ -61,7 +63,7 @@ describe("args", () => {
   });
 
   test("with parenthesis in the description", () => {
-    expect(args`test (number) descr( hahaha )`).toEqual([
+    expect(args(`test (number) descr( hahaha )`)).toEqual([
       {
         type: ["NUMBER"],
         name: "test",
@@ -71,7 +73,7 @@ describe("args", () => {
   });
 
   test("does not care if lower or uppercase", () => {
-    expect(args`test (NUMBER)`).toEqual([
+    expect(args(`test (NUMBER)`)).toEqual([
       {
         type: ["NUMBER"],
         name: "test",
@@ -81,27 +83,27 @@ describe("args", () => {
   });
 
   test("accept all basic types", () => {
-    expect(args`test (boolean)`[0].type).toEqual(["BOOLEAN"]);
-    expect(args`test (any)`[0].type).toEqual(["ANY"]);
-    expect(args`test (NumBer)`[0].type).toEqual(["NUMBER"]);
-    expect(args`test (string)`[0].type).toEqual(["STRING"]);
+    expect(args(`test (boolean)`)[0].type).toEqual(["BOOLEAN"]);
+    expect(args(`test (any)`)[0].type).toEqual(["ANY"]);
+    expect(args(`test (NumBer)`)[0].type).toEqual(["NUMBER"]);
+    expect(args(`test (string)`)[0].type).toEqual(["STRING"]);
   });
 
   test("accept all range types", () => {
-    expect(args`test (range)`[0].type).toEqual(["RANGE"]);
-    expect(args`test (range<any>)`[0].type).toEqual(["RANGE"]);
-    expect(args`test (range<boolean>)`[0].type).toEqual(["RANGE<BOOLEAN>"]);
-    expect(args`test (range<number>)`[0].type).toEqual(["RANGE<NUMBER>"]);
-    expect(args`test (range<string>)`[0].type).toEqual(["RANGE<STRING>"]);
+    expect(args(`test (range)`)[0].type).toEqual(["RANGE"]);
+    expect(args(`test (range<any>)`)[0].type).toEqual(["RANGE"]);
+    expect(args(`test (range<boolean>)`)[0].type).toEqual(["RANGE<BOOLEAN>"]);
+    expect(args(`test (range<number>)`)[0].type).toEqual(["RANGE<NUMBER>"]);
+    expect(args(`test (range<string>)`)[0].type).toEqual(["RANGE<STRING>"]);
   });
 
   test("accept multiple types", () => {
-    expect(args`test (boolean,string)`[0].type).toEqual(["BOOLEAN", "STRING"]);
-    expect(args`test (string,any)`[0].type).toEqual(["STRING", "ANY"]);
+    expect(args(`test (boolean,string)`)[0].type).toEqual(["BOOLEAN", "STRING"]);
+    expect(args(`test (string,any)`)[0].type).toEqual(["STRING", "ANY"]);
   });
 
   test("accept optional flag", () => {
-    expect(args`test (boolean,optional)`).toEqual([
+    expect(args(`test (boolean,optional)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -109,7 +111,7 @@ describe("args", () => {
         optional: true,
       },
     ]);
-    expect(args`test (boolean,optional,string)`).toEqual([
+    expect(args(`test (boolean,optional,string)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -119,7 +121,7 @@ describe("args", () => {
     ]);
   });
   test("accept repeating flag", () => {
-    expect(args`test (boolean,repeating)`).toEqual([
+    expect(args(`test (boolean,repeating)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -127,7 +129,7 @@ describe("args", () => {
         repeating: true,
       },
     ]);
-    expect(args`test (boolean,repeating,number)`).toEqual([
+    expect(args(`test (boolean,repeating,number)`)).toEqual([
       {
         description: "",
         name: "test",

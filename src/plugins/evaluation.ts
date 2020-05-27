@@ -5,6 +5,8 @@ import { toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
+import { _lt } from "../translation";
+
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -17,6 +19,7 @@ function* makeSetIterator(set: Set<any>) {
     yield elem;
   }
 }
+
 
 const functionMap = functionRegistry.mapping;
 
@@ -202,7 +205,7 @@ export class EvaluationPlugin extends BasePlugin {
       if (xc in visited) {
         if (visited[xc] === null) {
           cell.value = "#CYCLE";
-          cell.error = "Circular reference";
+          cell.error = _lt("Circular reference");
         }
         return;
       }
@@ -260,7 +263,7 @@ export class EvaluationPlugin extends BasePlugin {
       if (s) {
         cell = s.cells[xc];
       } else {
-        throw new Error("Invalid sheet name");
+        throw new Error(_lt("Invalid sheet name"));
       }
       if (!cell || cell.content === "") {
         return null;
@@ -271,10 +274,10 @@ export class EvaluationPlugin extends BasePlugin {
     function getCellValue(cell: Cell): any {
       computeValue(cell);
       if (cell.error) {
-        throw new Error("This formula depends on invalid values");
+        throw new Error(_lt("This formula depends on invalid values"));
       }
       if (cell.value === LOADING) {
-        throw new Error("not ready");
+        throw new Error(_lt("not ready"));
       }
       return cell.value;
     }

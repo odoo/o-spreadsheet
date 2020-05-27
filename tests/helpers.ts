@@ -34,6 +34,8 @@ export function makeTestFixture() {
   return fixture;
 }
 
+const t = (s: string): string => s;
+
 export class GridParent extends Component<any, SpreadsheetEnv> {
   static template = xml`
     <div class="parent">
@@ -46,6 +48,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     </div>`;
 
   static components = { Grid, SidePanel };
+  static _t = t;
   model: Model;
   grid: any = useRef("grid");
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
@@ -60,6 +63,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       dispatch: model.dispatch,
       getters: model.getters,
+      _t: GridParent._t,
     });
 
     const drawGrid = model.drawGrid;

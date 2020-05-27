@@ -2,6 +2,7 @@ import { args } from "./arguments";
 import { FunctionDescription } from "../types";
 import { toNativeDate, InternalDate, parseDate } from "../functions/dates";
 import { toNumber, toString, visitAny } from "./helpers";
+import { _lt } from "../translation";
 
 const INITIAL_1900_DAY = new Date(1899, 11, 30);
 
@@ -10,11 +11,11 @@ const INITIAL_1900_DAY = new Date(1899, 11, 30);
 // -----------------------------------------------------------------------------
 export const DATE: FunctionDescription = {
   description: "Converts year/month/day into a date.",
-  args: args`
-    year (number) The year component of the date.
-    month (number) The month component of the date.
-    day (number) The day component of the date.
-    `,
+  args: args(`
+    year (number) ${_lt("The year component of the date.")}")}
+    month (number) ${_lt("The month component of the date.")}")}
+    day (number) ${_lt("The day component of the date.")}")}
+    `),
   returns: ["DATE"],
   compute: function (year: any, month: any, day: any): InternalDate {
     let _year = Math.trunc(toNumber(year));
@@ -24,7 +25,7 @@ export const DATE: FunctionDescription = {
     // For years less than 0 or greater than 10000, return #ERROR.
     if (_year < 0 || 10000 <= _year) {
       throw new Error(
-        `function DATE parameter year sould be greater or equal to 0 and lesser than 10000.`
+        _lt(`function DATE parameter year sould be greater or equal to 0 and lesser than 10000.`)
       );
     }
 
@@ -37,7 +38,7 @@ export const DATE: FunctionDescription = {
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
     if (delta < 0) {
-      throw new Error(`function DATE result sould not be lesser than 01/01/1900`);
+      throw new Error(_lt(`function DATE result sould not be lesser than 01/01/1900`));
     }
 
     return {
@@ -53,15 +54,15 @@ export const DATE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DATEVALUE: FunctionDescription = {
   description: "Converts a date string to a date value.",
-  args: args`
-      date_string (string) The string representing the date.
-    `,
+  args: args(`
+      date_string (string) ${_lt("The string representing the date.")}
+    `),
   returns: ["NUMBER"],
   compute: function (date_string: any): number {
     const _dateString = toString(date_string);
     const result = parseDate(_dateString);
     if (result === null) {
-      throw new Error(`DATEVALUE parameter '${_dateString}' cannot be parsed to date/time.`);
+      throw new Error(_lt(`DATEVALUE parameter '${_dateString}' cannot be parsed to date/time.`));
     }
     return result.value;
   },
@@ -72,9 +73,9 @@ export const DATEVALUE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DAY: FunctionDescription = {
   description: "Day of the month that a specific date falls on.",
-  args: args`
-      date (string) The date from which to extract the day.
-    `,
+  args: args(`
+      date (string) ${_lt("The date from which to extract the day.")}
+    `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
     return toNativeDate(date).getDate();
@@ -86,10 +87,10 @@ export const DAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DAYS: FunctionDescription = {
   description: "Number of days between two dates.",
-  args: args`
-      end_date (date) The end of the date range.
-      start_date (date) The start of the date range.
-    `,
+  args: args(`
+      end_date (date) ${_lt("The end of the date range.")}
+      start_date (date) ${_lt("The start of the date range.")}
+    `),
   returns: ["NUMBER"],
   compute: function (end_date: any, start_date: any): number {
     const _endDate = toNativeDate(end_date);
@@ -104,10 +105,12 @@ export const DAYS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EDATE: FunctionDescription = {
   description: "Date a number of months before/after another date.",
-  args: args`
-    start_date (date) The date from which to calculate the result.
-    months (number) The number of months before (negative) or after (positive) 'start_date' to calculate.
-    `,
+  args: args(`
+    start_date (date) ${_lt("The date from which to calculate the result.")}
+    months (number) ${_lt(
+      "The number of months before (negative) or after (positive) 'start_date' to calculate."
+    )}
+    `),
   returns: ["DATE"],
   compute: function (start_date: any, months: any): InternalDate {
     const _startDate = toNativeDate(start_date);
@@ -132,10 +135,12 @@ export const EDATE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EOMONTH: FunctionDescription = {
   description: "Last day of a month before or after a date.",
-  args: args`
-    start_date (date) The date from which to calculate the result.
-    months (number) The number of months before (negative) or after (positive) 'start_date' to consider.
-    `,
+  args: args(`
+    start_date (date) ${_lt("The date from which to calculate the result.")}
+    months (number) ${_lt(
+      "The number of months before (negative) or after (positive) 'start_date' to consider."
+    )}
+    `),
   returns: ["DATE"],
   compute: function (start_date: any, months: any): InternalDate {
     const _startDate = toNativeDate(start_date);
@@ -159,9 +164,11 @@ export const EOMONTH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISOWEEKNUM: FunctionDescription = {
   description: "ISO week number of the year.",
-  args: args`
-    date (date) The date for which to determine the ISO week number. Must be a reference to a cell containing a date, a function returning a date type, or a number.
-    `,
+  args: args(`
+    date (date) ${_lt(
+      "The date for which to determine the ISO week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+    )}
+    `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
     const _date = toNativeDate(date);
@@ -242,9 +249,9 @@ export const ISOWEEKNUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MONTH: FunctionDescription = {
   description: "Month of the year a specific date falls in",
-  args: args`
-      date (date) The date from which to extract the month.
-    `,
+  args: args(`
+      date (date) ${_lt("The date from which to extract the month.")}
+    `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
     return toNativeDate(date).getMonth() + 1;
@@ -256,11 +263,17 @@ export const MONTH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const NETWORKDAYS: FunctionDescription = {
   description: "Net working days between two provided days.",
-  args: args`
-      start_date (date) The start date of the period from which to calculate the number of net working days.
-      end_date (date) The end date of the period from which to calculate the number of net working days.
-      holidays (date, range<date>, optional) A range or array constant containing the date serial numbers to consider holidays.
-    `,
+  args: args(`
+      start_date (date) ${_lt(
+        "The start date of the period from which to calculate the number of net working days."
+      )}
+      end_date (date) ${_lt(
+        "The end date of the period from which to calculate the number of net working days."
+      )}
+      holidays (date, range<date>, optional) ${_lt(
+        "A range or array constant containing the date serial numbers to consider holidays."
+      )}
+    `),
   returns: ["NUMBER"],
   compute: function (start_date: any, end_date: any, holidays: any): number {
     return NETWORKDAYS_INTL.compute(start_date, end_date, 1, holidays);
@@ -346,12 +359,20 @@ function weekendToDayNumber(weekend: any): number[] {
 
 export const NETWORKDAYS_INTL: FunctionDescription = {
   description: "Net working days between two dates (specifying weekends).",
-  args: args`
-      start_date (date) The start date of the period from which to calculate the number of net working days.
-      end_date (date) The end date of the period from which to calculate the number of net working days.
-      weekend (any, optional, default=1) A number or string representing which days of the week are considered weekends.
-      holidays (date, range<date>, optional) A range or array constant containing the dates to consider as holidays.
-    `,
+  args: args(`
+      start_date (date) ${_lt(
+        "The start date of the period from which to calculate the number of net working days."
+      )}
+      end_date (date) ${_lt(
+        "The end date of the period from which to calculate the number of net working days."
+      )}
+      weekend (any, optional, default=1) ${_lt(
+        "A number or string representing which days of the week are considered weekends."
+      )}
+      holidays (date, range<date>, optional) ${_lt(
+        "A range or array constant containing the dates to consider as holidays."
+      )}
+    `),
   returns: ["NUMBER"],
   compute: function (
     start_date: any,
@@ -415,10 +436,14 @@ export const TODAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WEEKDAY: FunctionDescription = {
   description: "Day of the week of the date provided (as number).",
-  args: args`
-    date (date) The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number.
-    type (number, optional, default=1) A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1.
-  `,
+  args: args(`
+    date (date) ${_lt(
+      "The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+    )}
+    type (number, optional, default=1) ${_lt(
+      "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
+    )}
+  `),
   returns: ["NUMBER"],
   compute: function (date: any, type: any = 1): number {
     const _date = toNativeDate(date);
@@ -432,7 +457,7 @@ export const WEEKDAY: FunctionDescription = {
       case 3:
         return m === 0 ? 6 : m - 1;
     }
-    throw new Error(`Function WEEKDAY parameter 2 value ${_type} is out of range.`);
+    throw new Error(_lt(`Function WEEKDAY parameter 2 value ${_type} is out of range.`));
   },
 };
 
@@ -441,10 +466,14 @@ export const WEEKDAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WEEKNUM: FunctionDescription = {
   description: "Week number of the year.",
-  args: args`
-    date (date) The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number.
-    type (number, optional, default=1) A number representing the day that a week starts on. Sunday = 1.
-    `,
+  args: args(`
+    date (date) ${_lt(
+      "The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
+    )}
+    type (number, optional, default=1) ${_lt(
+      "A number representing the day that a week starts on. Sunday = 1."
+    )}
+    `),
   returns: ["NUMBER"],
   compute: function (date: any, type: any = 1): number {
     const _date = toNativeDate(date);
@@ -459,7 +488,7 @@ export const WEEKNUM: FunctionDescription = {
     } else if (_type === 21) {
       return ISOWEEKNUM.compute(date);
     } else {
-      throw new Error(`Function WEEKNUM parameter 2 value ${_type} is out of range.`);
+      throw new Error(_lt(`Function WEEKNUM parameter 2 value ${_type} is out of range.`));
     }
 
     const y = _date.getFullYear();
@@ -486,11 +515,15 @@ export const WEEKNUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WORKDAY: FunctionDescription = {
   description: "Number of working days from start date.",
-  args: args`
-      start_date (date) The date from which to begin counting.
-      num_days (number) The number of working days to advance from start_date. If negative, counts backwards.
-      holidays (date, range<date>, optional) A range or array constant containing the dates to consider holidays.
-      `,
+  args: args(`
+      start_date (date) ${_lt("The date from which to begin counting.")}
+      num_days (number) ${_lt(
+        "The number of working days to advance from start_date. If negative, counts backwards."
+      )}
+      holidays (date, range<date>, optional) ${_lt(
+        "A range or array constant containing the dates to consider holidays."
+      )}
+      `),
   returns: ["NUMBER"],
   compute: function (start_date: any, num_days: any, holidays: any = undefined): number {
     return WORKDAY_INTL.compute(start_date, num_days, 1, holidays);
@@ -502,12 +535,18 @@ export const WORKDAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const WORKDAY_INTL: FunctionDescription = {
   description: "Net working days between two dates (specifying weekends).",
-  args: args`
-      start_date (date) The date from which to begin counting.
-      num_days (number) The number of working days to advance from start_date. If negative, counts backwards.
-      weekend (any, optional, default=1) A number or string representing which days of the week are considered weekends.
-      holidays (date, range<date>, optional) A range or array constant containing the dates to consider holidays.
-    `,
+  args: args(`
+      start_date (date) ${_lt("The date from which to begin counting.")}
+      num_days (number) ${_lt(
+        "The number of working days to advance from start_date. If negative, counts backwards."
+      )}
+      weekend (any, optional, default=1) ${_lt(
+        "A number or string representing which days of the week are considered weekends."
+      )}
+      holidays (date, range<date>, optional) ${_lt(
+        "A range or array constant containing the dates to consider holidays."
+      )}
+    `),
   returns: ["DATE"],
   compute: function (
     start_date: any,
@@ -519,7 +558,7 @@ export const WORKDAY_INTL: FunctionDescription = {
     let _numDays = Math.trunc(toNumber(num_days));
 
     if (weekend === "1111111") {
-      throw new Error(`Function WORKDAY.INTL parameter 3 cannot be equal to '1111111'.`);
+      throw new Error(_lt(`Function WORKDAY.INTL parameter 3 cannot be equal to '1111111'.`));
     }
     const daysWeekend = weekendToDayNumber(weekend);
 
@@ -560,9 +599,9 @@ export const WORKDAY_INTL: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const YEAR: FunctionDescription = {
   description: "Year specified by a given date.",
-  args: args`
-    date (date) The date from which to extract the year.
-    `,
+  args: args(`
+    date (date) ${_lt("The date from which to extract the year.")}
+    `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
     return toNativeDate(date).getFullYear();

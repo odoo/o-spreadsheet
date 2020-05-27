@@ -1,20 +1,21 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
 import { toNumber, toString, reduceArgs, toBoolean } from "./helpers";
+import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // CHAR
 // -----------------------------------------------------------------------------
 export const CHAR: FunctionDescription = {
   description: "Gets character associated with number.",
-  args: args`
+  args: args(`
       table_number (number) The number of the character to look up from the current Unicode table in decimal format.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (table_number: any): string {
     const _tableNumber = Math.trunc(toNumber(table_number));
     if (_tableNumber < 1) {
-      throw new Error(`Function CHAR parameter 1 value ${_tableNumber} is out of range.`);
+      throw new Error(_lt(`Function CHAR parameter 1 value ${_tableNumber} is out of range.`));
     }
     return String.fromCharCode(_tableNumber);
   },
@@ -25,10 +26,10 @@ export const CHAR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CONCATENATE: FunctionDescription = {
   description: "Appends strings to one another.",
-  args: args`
+  args: args(`
       string1 (string, range<string>) The initial string.
       string2 (string, range<string>, optional, repeating) More strings to append in sequence..
-    `,
+  `),
   returns: ["STRING"],
   compute: function (): string {
     return reduceArgs(arguments, (acc, a) => acc + toString(a), "");
@@ -40,10 +41,10 @@ export const CONCATENATE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const EXACT: FunctionDescription = {
   description: "Tests whether two strings are identical.",
-  args: args`
+  args: args(`
       string1 (string) The first string to compare.
       string2 (string) The second string to compare.
-    `,
+  `),
   returns: ["BOOLEAN"],
   compute: function (string1: any, string2: any): boolean {
     return toString(string1) === toString(string2);
@@ -55,11 +56,11 @@ export const EXACT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const FIND: FunctionDescription = {
   description: "First position of string found in text, case-sensitive.",
-  args: args`
+  args: args(`
       search_for (string) The string to look for within text_to_search.
       text_to_search (string) The text to search for the first occurrence of search_for.
       starting_at (number, optional, default=1 ) The character within text_to_search at which to start the search.
-    `,
+  `),
   returns: ["NUMBER"],
   compute: function (search_for: any, text_to_search: any, starting_at: any = 1): number {
     const _textToSearch = toString(text_to_search);
@@ -89,11 +90,11 @@ export const FIND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const JOIN: FunctionDescription = {
   description: "Concatenates elements of arrays with delimiter.",
-  args: args`
+  args: args(`
       delimiter (string) The character or string to place between each concatenated value.
       value_or_array1 (string, range<string>) The value or values to be appended using delimiter.
       value_or_array2 (string, range<string>, optional, repeating) More values to be appended using delimiter.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (delimiter: any, ...values_or_arrays: any): string {
     const _delimiter = toString(delimiter);
@@ -110,10 +111,10 @@ export const JOIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LEFT: FunctionDescription = {
   description: "Substring from beginning of specified string.",
-  args: args`
+  args: args(`
       text (string) The string from which the left portion will be returned.
       number_of_characters (number, optional, default=1) The number of characters to return from the left side of string.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (text: any, number_of_characters: any = 1): string {
     const _numberOfCharacters = toNumber(number_of_characters);
@@ -130,9 +131,9 @@ export const LEFT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LEN: FunctionDescription = {
   description: "Length of a string.",
-  args: args`
+  args: args(`
       text (string) The string whose length will be returned.
-    `,
+  `),
   returns: ["NUMBER"],
   compute: function (text: any): number {
     return toString(text).length;
@@ -144,9 +145,9 @@ export const LEN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LOWER: FunctionDescription = {
   description: "Converts a specified string to lowercase.",
-  args: args`
+  args: args(`
       text (string) The string to convert to lowercase.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (text: any): string {
     return toString(text).toLowerCase();
@@ -158,12 +159,12 @@ export const LOWER: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const REPLACE: FunctionDescription = {
   description: "Replaces part of a text string with different text.",
-  args: args`
+  args: args(`
       text (string) The text, a part of which will be replaced.
       position (number) The position where the replacement will begin (starting from 1).
       length (number) The number of characters in the text to be replaced.
       new_text (string) The text which will be inserted into the original text.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (text: any, position: any, length: any, new_text: any): string {
     const _position = toNumber(position);
@@ -184,10 +185,10 @@ export const REPLACE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const RIGHT: FunctionDescription = {
   description: "A substring from the end of a specified string.",
-  args: args`
+  args: args(`
       text (string) The string from which the right portion will be returned.
       number_of_characters (number, optional, default=1) The number of characters to return from the right side of string.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (text: any, number_of_characters: any = 1): string {
     const _numberOfCharacters = toNumber(number_of_characters);
@@ -206,11 +207,11 @@ export const RIGHT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SEARCH: FunctionDescription = {
   description: "First position of string found in text, ignoring case.",
-  args: args`
+  args: args(`
       search_for (string) The string to look for within text_to_search.
       text_to_search (string) The text to search for the first occurrence of search_for.
       starting_at (number, optional, default=1 )The character within text_to_search at which to start the search.
-    `,
+  `),
   returns: ["NUMBER"],
   compute: function (search_for: any, text_to_search: any, starting_at: any = 1): number {
     const _textToSearch = toString(text_to_search).toLowerCase();
@@ -240,12 +241,12 @@ export const SEARCH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SUBSTITUTE: FunctionDescription = {
   description: "Replaces existing text with new text in a string.",
-  args: args`
+  args: args(`
       text_to_search (string) The text within which to search and replace.
       search_for (string) The string to search for within text_to_search.
       replace_with (string) The string that will replace search_for.
       occurrence_number (number, optional) The instance of search_for within text_to_search to replace with replace_with. By default, all occurrences of search_for are replaced; however, if occurrence_number is specified, only the indicated instance of search_for is replaced.
-    `,
+  `),
   returns: ["NUMBER"],
   compute: function (
     text_to_search: any,
@@ -281,12 +282,12 @@ export const SUBSTITUTE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TEXTJOIN: FunctionDescription = {
   description: "Combines text from multiple strings and/or arrays.",
-  args: args`
+  args: args(`
       delimiter (string) A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated.
       ignore_empty (bollean) A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result.
       text1 (string, range<string>) Any text item. This could be a string, or an array of strings in a range.
       text2 (string, range<string>, optional, repeating) Additional text item(s).
-    `,
+  `),
   returns: ["STRING"],
   compute: function (delimiter: any, ignore_empty: any, ...texts_or_arrays: any): string {
     const _delimiter = toString(delimiter);
@@ -306,9 +307,9 @@ export const TEXTJOIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TRIM: FunctionDescription = {
   description: "Removes space characters.",
-  args: args`
+  args: args(`
       text (string) The text or reference to a cell containing text to be trimmed.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (text: any): string {
     return toString(text).trim();
@@ -320,9 +321,9 @@ export const TRIM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const UPPER: FunctionDescription = {
   description: "Converts a specified string to uppercase.",
-  args: args`
+  args: args(`
       text (string) The string to convert to uppercase.
-    `,
+  `),
   returns: ["STRING"],
   compute: function (text: any): string {
     return toString(text).toUpperCase();

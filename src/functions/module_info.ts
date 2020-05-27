@@ -1,12 +1,12 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
-
+import { _lt } from "../translation";
 // -----------------------------------------------------------------------------
 // ISLOGICAL
 // -----------------------------------------------------------------------------
 export const ISLOGICAL: FunctionDescription = {
-  description: "Whether a value is `true` or `false`.",
-  args: args`value (any) The value to be verified as a logical TRUE or FALSE.`,
+  description: _lt("Whether a value is `true` or `false`."),
+  args: args(`value (any) ${_lt("The value to be verified as a logical TRUE or FALSE.")}`),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
     return typeof value === "boolean";
@@ -17,8 +17,8 @@ export const ISLOGICAL: FunctionDescription = {
 // ISNONTEXT
 // -----------------------------------------------------------------------------
 export const ISNONTEXT: FunctionDescription = {
-  description: "Whether a value is non-textual.",
-  args: args`value (any) The value to be checked.`,
+  description: _lt("Whether a value is non-textual."),
+  args: args(`value (any) ${_lt("The value to be checked.")}`),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
     return typeof value !== "string";
@@ -28,9 +28,10 @@ export const ISNONTEXT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISNUMBER
 // -----------------------------------------------------------------------------
+
 export const ISNUMBER: FunctionDescription = {
-  description: "Whether a value is a number.",
-  args: args`value (any) The value to be verified as a number.`,
+  description: _lt("Whether a value is a number."),
+  args: args(`value (any) ${_lt("The value to be verified as a number.")}`),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
     return typeof value === "number";
@@ -41,8 +42,8 @@ export const ISNUMBER: FunctionDescription = {
 // ISTEXT
 // -----------------------------------------------------------------------------
 export const ISTEXT: FunctionDescription = {
-  description: "Whether a value is text.",
-  args: args`value (any) The value to be verified as text.`,
+  description: _lt("Whether a value is text."),
+  args: args(`value (any) ${_lt("The value to be verified as text.")}`),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
     return typeof value === "string";

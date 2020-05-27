@@ -4,6 +4,8 @@ import { toNumber } from "./helpers";
 // Date Type
 // -----------------------------------------------------------------------------
 
+import { _lt } from "../translation";
+
 /**
  * All Spreadsheet dates are internally stored as an object with two values:
  * - value (number), which represent the number of day till 30/12/1899
@@ -121,7 +123,7 @@ function formatJSDate(date: Date, format: string): string {
         case "yyyy":
           return date.getFullYear();
         default:
-          throw new Error("invalid format");
+          throw new Error(_lt("invalid format"));
       }
     })
     .join(sep);

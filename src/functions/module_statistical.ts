@@ -10,6 +10,7 @@ import {
   visitMatchingRanges,
 } from "./helpers";
 import { isNumber } from "../helpers/index";
+import { _lt } from "../translation";
 
 // Note: dataY and dataX may not have the same dimension
 function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
@@ -29,7 +30,7 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   });
 
   if (lenY !== lenX) {
-    throw new Error(`[[FUNCTION_NAME]] has mismatched argument count ${lenY} vs ${lenX}.`);
+    throw new Error(_lt(`[[FUNCTION_NAME]] has mismatched argument count ${lenY} vs ${lenX}.`));
   }
 
   let count = 0;
@@ -46,7 +47,7 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   }
 
   if (count === 0 || (isSample && count === 1)) {
-    throw new Error(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`);
+    throw new Error(_lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`));
   }
 
   const averageY = sumY / count;
@@ -79,7 +80,7 @@ function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean)
   );
 
   if (count === 0 || (isSample && count === 1)) {
-    throw new Error(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`);
+    throw new Error(_lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`));
   }
 
   const average = sum / count;
@@ -94,10 +95,10 @@ function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean)
 // -----------------------------------------------------------------------------
 export const AVEDEV: FunctionDescription = {
   description: "Average magnitude of deviations from mean.",
-  args: args`
+  args: args(`
     value1 (number, range<number>) The first value or range of the sample.
     value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     let count = 0;
@@ -123,10 +124,10 @@ export const AVEDEV: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGE: FunctionDescription = {
   description: `Numerical average value in a dataset, ignoring text.`,
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range to consider when calculating the average value.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the average value.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     let count = 0;
@@ -158,11 +159,11 @@ const negativeWeightError = `
 
 export const AVERAGE_WEIGHTED: FunctionDescription = {
   description: `Weighted average.`,
-  args: args`
+  args: args(`
       values (number, range<number>) Values to average.
       weights (number, range<number>) Weights for each corresponding value.
       additional_values (number, range<number>, optional, repeating) Additional values to average with weights.
-    `,
+    `),
   // @compatibility: on google sheets, args difinitions are next:
   // additional_values (number, range<number>, optional, repeating) Additional values to average.
   // additional_weights (number, range<number>, optional, repeating) Additional weights.
@@ -237,10 +238,10 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGEA: FunctionDescription = {
   description: `Numerical average value in a dataset.`,
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range to consider when calculating the average value.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the average value.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     let count = 0;
@@ -265,11 +266,11 @@ export const AVERAGEA: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGEIF: FunctionDescription = {
   description: `Average of values depending on criteria.`,
-  args: args`
+  args: args(`
       criteria_range (any, range) The range to check against criterion.
       criterion (string) The pattern or test to apply to criteria_range.
       average_range (any, range, optional, default=criteria_range) The range to average. If not included, criteria_range is used for the average instead.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (criteria_range: any, criterion: any, average_range: any = undefined): number {
     if (average_range === undefined) {
@@ -300,12 +301,12 @@ export const AVERAGEIF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const AVERAGEIFS: FunctionDescription = {
   description: `Average of values depending on multiple criteria.`,
-  args: args`
+  args: args(`
       average_range (any, range) The range to average.
       criteria_range1 (any, range) The range to check against criterion1.
       criterion1 (string) The pattern or test to apply to criteria_range1.
       additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
-    `,
+    `),
   // @compatibility: on google sheets, args definitions are next:
   // average_range (any, range) The range to average.
   // criteria_range1 (any, range) The range to check against criterion1.
@@ -336,10 +337,10 @@ export const AVERAGEIFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNT: FunctionDescription = {
   description: `The number of numeric values in dataset.`,
-  args: args`
+  args: args(`
     value1 (number, range<number>) The first value or range to consider when counting.
     value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when counting.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     let count = 0;
@@ -365,10 +366,10 @@ export const COUNT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNTA: FunctionDescription = {
   description: `The number of values in a dataset.`,
-  args: args`
+  args: args(`
     value1 (any, range) The first value or range to consider when counting.
     value2 (any, range, optional, repeating) Additional values or ranges to consider when counting.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceArgs(arguments, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
@@ -383,10 +384,10 @@ export const COUNTA: FunctionDescription = {
 // the COVAR function corresponds to the covariance over an entire population (COVAR.P)
 export const COVAR: FunctionDescription = {
   description: `The covariance of a dataset.`,
-  args: args`
+  args: args(`
     data_y (any, range) The range representing the array or matrix of dependent data.
     data_x (any, range) The range representing the array or matrix of independent data.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (data_y: any[], data_x: any[]): number {
     return covariance(data_y, data_x, false);
@@ -398,10 +399,10 @@ export const COVAR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COVARIANCE_P: FunctionDescription = {
   description: `The covariance of a dataset.`,
-  args: args`
+  args: args(`
     data_y (any, range) The range representing the array or matrix of dependent data.
     data_x (any, range) The range representing the array or matrix of independent data.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (data_y: any[], data_x: any[]): number {
     return covariance(data_y, data_x, false);
@@ -413,10 +414,10 @@ export const COVARIANCE_P: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COVARIANCE_S: FunctionDescription = {
   description: `The sample covariance of a dataset.`,
-  args: args`
+  args: args(`
     data_y (any, range) The range representing the array or matrix of dependent data.
     data_x (any, range) The range representing the array or matrix of independent data.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (data_y: any[], data_x: any[]): number {
     return covariance(data_y, data_x, true);
@@ -428,10 +429,10 @@ export const COVARIANCE_S: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const LARGE: FunctionDescription = {
   description: "Nth largest element from a data set.",
-  args: args`
+  args: args(`
       data (any, range) Array or range containing the dataset to consider.
       n (number) The rank from largest to smallest of the element to return.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (data: any, n: any): number {
     n = Math.trunc(toNumber(n));
@@ -451,10 +452,10 @@ export const LARGE: FunctionDescription = {
     });
     const result = largests.shift();
     if (result === undefined) {
-      throw new Error(`LARGE has no valid input data.`);
+      throw new Error(_lt(`LARGE has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(`Function LARGE parameter 2 value ${n} is out of range.`);
+      throw new Error(_lt(`Function LARGE parameter 2 value ${n} is out of range.`));
     }
     return result;
   },
@@ -465,10 +466,10 @@ export const LARGE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MAX: FunctionDescription = {
   description: "Maximum value in a numeric dataset.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range to consider when calculating the maximum value.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the maximum value.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     const result = reduceNumbers(arguments, (acc, a) => (acc < a ? a : acc), -Infinity);
@@ -481,10 +482,10 @@ export const MAX: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MAXA: FunctionDescription = {
   description: "Maximum numeric value in a dataset.",
-  args: args`
+  args: args(`
       value1 (any, range) The first value or range to consider when calculating the maximum value.
       value2 (ant, range, optional, repeating) Additional values or ranges to consider when calculating the maximum value.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     let maxa = -Infinity;
@@ -516,12 +517,12 @@ export const MAXA: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MAXIFS: FunctionDescription = {
   description: "Returns the maximum value in a range of cells, filtered by a set of criteria.",
-  args: args`
+  args: args(`
       range (any, range) The range of cells from which the maximum will be determined.
       criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
       criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
       additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
-    `,
+    `),
   // @compatibility: on google sheets, args definitions are next:
   // range (any, range) The range of cells from which the maximum will be determined.
   // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
@@ -546,10 +547,10 @@ export const MAXIFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MIN: FunctionDescription = {
   description: "Minimum value in a numeric dataset.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range to consider when calculating the minimum value.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the minimum value.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     const result = reduceNumbers(arguments, (acc, a) => (a < acc ? a : acc), Infinity);
@@ -562,10 +563,10 @@ export const MIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MINA: FunctionDescription = {
   description: "Minimum numeric value in a dataset.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range to consider when calculating the minimum value.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to consider when calculating the minimum value.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     let mina = Infinity;
@@ -597,12 +598,12 @@ export const MINA: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MINIFS: FunctionDescription = {
   description: "Returns the minimum value in a range of cells, filtered by a set of criteria.",
-  args: args`
+  args: args(`
       range (any, range) The range of cells from which the minimum will be determined.
       criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
       criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
       additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
-    `,
+    `),
   // @compatibility: on google sheets, args definitions are next:
   // range (any, range) The range of cells from which the minimum will be determined.
   // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
@@ -627,10 +628,10 @@ export const MINIFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SMALL: FunctionDescription = {
   description: "Nth smallest element in a data set.",
-  args: args`
+  args: args(`
       data (any, range) The array or range containing the dataset to consider.
       n (number) The rank from smallest to largest of the element to return.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (data: any, n: any): number {
     n = Math.trunc(toNumber(n));
@@ -650,10 +651,10 @@ export const SMALL: FunctionDescription = {
     });
     const result = largests.pop();
     if (result === undefined) {
-      throw new Error(`SMALL has no valid input data.`);
+      throw new Error(_lt(`SMALL has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(`Function SMALL parameter 2 value ${n} is out of range.`);
+      throw new Error(_lt(`Function SMALL parameter 2 value ${n} is out of range.`));
     }
     return result;
   },
@@ -665,10 +666,10 @@ export const SMALL: FunctionDescription = {
 
 export const VAR: FunctionDescription = {
   description: "Variance.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range of the sample.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     return variance(arguments, true, false);
@@ -680,10 +681,10 @@ export const VAR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VAR_P: FunctionDescription = {
   description: "Variance of entire population.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range of the population.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the population.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     return variance(arguments, false, false);
@@ -695,10 +696,10 @@ export const VAR_P: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VAR_S: FunctionDescription = {
   description: "Variance.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first value or range of the sample.
       value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     return variance(arguments, true, false);
@@ -710,10 +711,10 @@ export const VAR_S: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VARA: FunctionDescription = {
   description: "Variance of sample (text as 0).",
-  args: args`
+  args: args(`
     value1 (number, range<number>) The first value or range of the sample.
     value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the sample.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     return variance(arguments, true, true);
@@ -725,10 +726,10 @@ export const VARA: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VARP: FunctionDescription = {
   description: "Variance of entire population.",
-  args: args`
+  args: args(`
     value1 (number, range<number>) The first value or range of the population.
     value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the population.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     return variance(arguments, false, false);
@@ -740,10 +741,10 @@ export const VARP: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const VARPA: FunctionDescription = {
   description: "Variance of entire population (text as 0).",
-  args: args`
+  args: args(`
     value1 (number, range<number>) The first value or range of the population.
     value2 (number, range<number>, optional, repeating) Additional values or ranges to include in the population.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     return variance(arguments, false, true);
