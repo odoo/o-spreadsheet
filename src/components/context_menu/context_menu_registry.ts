@@ -60,6 +60,24 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
       env.dispatch("PASTE", { target: env.getters.getSelectedZones(), interactive: true });
     },
   })
+  .add("paste_special", {
+    type: "root",
+    name: "paste_special",
+    description: "Paste special",
+    subMenus: (env: SpreadsheetEnv) => [
+      {
+        type: "action",
+        name: "paste_special_format",
+        description: "Paste format only",
+        action(env: SpreadsheetEnv) {
+          env.dispatch("PASTE", {
+            target: env.getters.getSelectedZones(),
+            onlyFormat: true,
+          });
+        },
+      },
+    ],
+  })
   .add("separator1", {
     type: "separator",
   })
