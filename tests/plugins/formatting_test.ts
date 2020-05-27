@@ -105,4 +105,20 @@ describe("formatting values (with formatters)", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "=A1" });
     expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("#CYCLE");
   });
+
+  test("Can set number format to text value", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "Test" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    setFormat(model, "0.00%");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("Test");
+  });
+
+  test("Can set date format to text value", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "Test" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    setFormat(model, "mm/dd/yyyy");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("Test");
+  });
 });

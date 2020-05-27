@@ -188,26 +188,29 @@ export class CorePlugin extends BasePlugin {
   }
 
   getCellText(cell: Cell): string {
-    if (cell.value && cell.format && !cell.error && !cell.pending) {
-      if (cell.format.match(/y|m|d/)) {
-        // format is for a date
-        const value: InternalDate =
-          typeof cell.value === "object" ? cell.value : { value: cell.value };
-        return formatDate(value, cell.format);
-      } else {
-        // we want a number
-        const value: number = typeof cell.value === "number" ? cell.value : cell.value.value;
-        return formatNumber(value, cell.format);
-      }
-    }
+    const shouldFormat = cell.value && cell.format && !cell.error && !cell.pending;
+    const dateFormat = shouldFormat && cell.format!.match(/y|m|d/);
+    const numberFormat = shouldFormat && !dateFormat;
     switch (typeof cell.value) {
       case "string":
         return cell.value;
       case "boolean":
         return cell.value ? "TRUE" : "FALSE";
       case "number":
+        if (dateFormat) {
+          return formatDate({ value: cell.value } as InternalDate, cell.format);
+        }
+        if (numberFormat) {
+          return formatNumber(cell.value, cell.format!);
+        }
         return formatStandardNumber(cell.value);
       case "object":
+        if (dateFormat) {
+          return formatDate(cell.value as InternalDate, cell.format);
+        }
+        if (numberFormat) {
+          return formatNumber(cell.value.value, cell.format!);
+        }
         return cell.value ? formatDate(cell.value) : "0";
     }
     return cell.value.toString();
