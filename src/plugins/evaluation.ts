@@ -6,6 +6,18 @@ import { toCartesian } from "../helpers/index";
 import { Mode, ModelConfig } from "../model";
 import { WHistory } from "../history";
 
+function* makeObjectIterator(obj: Object) {
+  for (let i in obj) {
+    yield obj[i];
+  }
+}
+
+function* makeSetIterator(set: Set<any>) {
+  for (let elem of set) {
+    yield elem;
+  }
+}
+
 const functionMap = functionRegistry.mapping;
 
 type ReadCell = (xc: string, sheet: string) => any;
@@ -70,7 +82,7 @@ export class EvaluationPlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
-        this.evaluateCells();
+        this.evaluate();
         break;
       case "UPDATE_CELL":
         if ("content" in cmd) {
@@ -78,7 +90,10 @@ export class EvaluationPlugin extends BasePlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        this.evaluateCells(cmd.onlyWaiting);
+        const cells = new Set(this.WAITING);
+        this.WAITING.clear();
+
+        this.evaluateCells(makeSetIterator(cells));
         this.isUptodate.add(this.workbook.activeSheet.name);
         break;
       case "UNDO":
@@ -90,7 +105,7 @@ export class EvaluationPlugin extends BasePlugin {
 
   finalize() {
     if (!this.isUptodate.has(this.workbook.activeSheet.name)) {
-      this.evaluateCells();
+      this.evaluate();
       this.isUptodate.add(this.workbook.activeSheet.name);
     }
     if (this.loadingCells > 0) {
@@ -119,9 +134,6 @@ export class EvaluationPlugin extends BasePlugin {
   // Scheduler
   // ---------------------------------------------------------------------------
 
-  /**
-   * todo: move this into evaluation plugin
-   */
   private startScheduler() {
     if (!this.isStarted) {
       this.isStarted = true;
@@ -146,16 +158,21 @@ export class EvaluationPlugin extends BasePlugin {
   // Evaluator
   // ---------------------------------------------------------------------------
 
-  private evaluateCells(onlyWaiting: boolean = false) {
+  private evaluate() {
+    this.COMPUTED.clear();
+    this.evaluateCells(makeObjectIterator(this.workbook.cells));
+  }
+
+  private evaluateCells(cells: Generator<Cell>) {
+    const self = this;
     const { COMPUTED, PENDING, WAITING } = this;
     const params = this.getFormulaParameters(computeValue);
-
-    if (!onlyWaiting) {
-      COMPUTED.clear();
-    }
     const visited = {};
 
-    const self = this;
+    for (let cell of cells) {
+      computeValue(cell);
+    }
+
     function handleError(e: Error, cell: Cell) {
       if (PENDING.has(cell)) {
         PENDING.delete(cell);
@@ -217,20 +234,6 @@ export class EvaluationPlugin extends BasePlugin {
         handleError(e, cell);
       }
       visited[xc] = true;
-    }
-
-    if (onlyWaiting) {
-      const clone: Set<Cell> = new Set(WAITING);
-      WAITING.clear();
-      for (let cell of clone) {
-        computeValue(cell);
-      }
-    } else {
-      const cells = this.workbook.cells;
-      for (let xc in cells) {
-        const cell = cells[xc];
-        computeValue(cell);
-      }
     }
   }
 
