@@ -1,6 +1,7 @@
 import { Token, tokenize } from "./tokenizer";
 import { functionRegistry } from "../functions/index";
 import { toCartesian, toXC, sanitizeSheet, parseNumber } from "../helpers/index";
+import { _lt } from "../translation";
 
 const functions = functionRegistry.content;
 
@@ -101,7 +102,7 @@ function bindingPower(token: Token): number {
     case "OPERATOR":
       return OP_PRIORITY[token.value] || 15;
   }
-  throw new Error("?");
+  throw new Error(_lt("?"));
 }
 
 export const cellReference = new RegExp(/\$?[A-Z]+\$?[0-9]+/, "i");
@@ -122,7 +123,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       return { type: current.type, value: current.value };
     case "FUNCTION":
       if (tokens.shift()!.type !== "LEFT_PAREN") {
-        throw new Error("wrong function call");
+        throw new Error(_lt("wrong function call"));
       } else {
         const args: AST[] = [];
         if (tokens[0].type !== "RIGHT_PAREN") {
@@ -145,7 +146,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           }
         }
         if (tokens.shift()!.type !== "RIGHT_PAREN") {
-          throw new Error("wrong function call");
+          throw new Error(_lt("wrong function call"));
         }
         const isAsync = functions[current.value.toUpperCase()].async;
         const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
@@ -172,7 +173,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
         } else {
           if (current.value) {
-            throw new Error("Invalid formula");
+            throw new Error(_lt("Invalid formula"));
           }
           return { type: "UNKNOWN", value: current.value };
         }
@@ -180,7 +181,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     case "LEFT_PAREN":
       const result = parseExpression(tokens, 5);
       if (!tokens.length || tokens[0].type !== "RIGHT_PAREN") {
-        throw new Error("unmatched left paren");
+        throw new Error(_lt("unmatched left paren"));
       }
       tokens.shift();
       return result;
@@ -192,7 +193,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           right: parseExpression(tokens, 15),
         };
       }
-      throw new Error("nope");
+      throw new Error(_lt("nope")); //todo: provide explicit error
   }
 }
 
@@ -215,7 +216,7 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
       right,
     };
   }
-  throw new Error("nope");
+  throw new Error(_lt("nope")); //todo: provide explicit error
 }
 
 function parseExpression(tokens: Token[], bp: number): AST {
@@ -237,7 +238,7 @@ export function parse(str: string): AST {
   }
   const result = parseExpression(tokens, 0);
   if (tokens.length) {
-    throw new Error("invalid expression");
+    throw new Error(_lt("invalid expression"));
   }
   return result;
 }

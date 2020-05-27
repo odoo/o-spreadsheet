@@ -9,7 +9,7 @@ describe("addFunction", () => {
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: (arg: number) => (2 * arg) as any,
-      args: args`number (number) my number`,
+      args: args(`number (number) my number`),
       returns: ["NUMBER"],
     });
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
@@ -29,7 +29,7 @@ describe("addFunction", () => {
       compute: function () {
         return (this as any).coucou;
       },
-      args: args``,
+      args: args(``),
       returns: ["STRING"],
     });
     model.dispatch("SET_VALUE", { xc: "A1", text: "=GETCOUCOU()" });
@@ -43,7 +43,7 @@ describe("addFunction", () => {
       compute: function () {
         return (this as any).getters.getNumberCols();
       },
-      args: args``,
+      args: args(``),
       returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(model.getters.getNumberCols());

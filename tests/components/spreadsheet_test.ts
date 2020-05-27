@@ -59,7 +59,7 @@ describe("Spreadsheet", () => {
         env = this.env;
         return "Sheet";
       },
-      args: args``,
+      args: args(``),
       returns: ["STRING"],
     });
     parent.model.dispatch("SET_VALUE", { xc: "A1", text: "=GETACTIVESHEET()" });
@@ -74,7 +74,7 @@ describe("Spreadsheet", () => {
         env = this.env;
         return "Sheet";
       },
-      args: args``,
+      args: args(``),
       returns: ["STRING"],
     });
     const parent = new Parent({

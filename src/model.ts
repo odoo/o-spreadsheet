@@ -15,6 +15,7 @@ import {
   CommandSuccess,
   EvalContext,
 } from "./types/index";
+import { _lt } from "./translation";
 
 /**
  * Model
@@ -32,14 +33,14 @@ import {
  * handler). Then, the model will trigger an 'update' event to notify whoever
  * is concerned that the command was applied (if it was not cancelled).
  *
- * Also, the model has an unconventional responsability: it actually renders the
+ * Also, the model has an unconventional responsibility: it actually renders the
  * visible viewport on a canvas. This is because each plugins actually manage a
  * specific concern about the content of the spreadsheet, and it is more natural
  * if they are able to read data from their internal state to represent it on the
  * screen.
  *
  * Note that the Model can be used in a standalone way to manipulate
- * programatically a spreadsheet.
+ * programmatically a spreadsheet.
  */
 
 export type Mode = "normal" | "headless" | "readonly";
@@ -141,7 +142,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
-          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
@@ -195,7 +196,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.handlers.forEach((h) => h.handle(command));
         break;
       case Status.Finalizing:
-        throw new Error("Nope. Don't do that");
+        throw new Error(_lt("Nope. Don't do that"));
     }
     return { status: "SUCCESS" } as CommandSuccess;
   };

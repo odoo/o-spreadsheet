@@ -76,8 +76,8 @@ export class SidePanel extends Component<Props, SpreadsheetEnv> {
   }
 
   getTitle() {
-    return typeof this.state.panel.title === "string"
-      ? this.state.panel.title
-      : this.state.panel.title(this.env);
+    return typeof this.state.panel.title === "function"
+      ? this.state.panel.title(this.env)
+      : this.state.panel.title;
   }
 }

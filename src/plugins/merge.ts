@@ -7,6 +7,7 @@ import {
 } from "../helpers/grid_manipulation";
 import { isEqual, toCartesian, toXC, union } from "../helpers/index";
 import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
+import { _lt } from "../translation";
 
 interface PendingMerges {
   sheet: string;
@@ -267,7 +268,7 @@ export class MergePlugin extends BasePlugin {
     const mergeId = this.workbook.sheets[sheetId].mergeCellMap[tl];
     const mergeZone = this.workbook.sheets[sheetId].merges[mergeId];
     if (!isEqual(zone, mergeZone)) {
-      throw new Error("Invalid merge zone");
+      throw new Error(_lt("Invalid merge zone"));
     }
     this.history.updateState(["sheets", sheetId, "merges", mergeId], undefined);
     for (let r = top; r <= bottom; r++) {
@@ -284,7 +285,7 @@ export class MergePlugin extends BasePlugin {
     if (result.status === "CANCELLED") {
       if (result.reason === CancelledReason.MergeIsDestructive) {
         this.ui.askConfirmation(
-          "Merging these cells will only preserve the top-leftmost value. Merge anyway?",
+          _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
           () => {
             this.dispatch("ADD_MERGE", { sheet, zone, force: true });
           }

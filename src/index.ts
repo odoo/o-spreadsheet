@@ -17,6 +17,7 @@ export { BasePlugin } from "./base_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
 export { parse } from "./formulas/parser";
+export { setTranslationMethod } from "./translation";
 
 export const registries = {
   sidePanelRegistry,

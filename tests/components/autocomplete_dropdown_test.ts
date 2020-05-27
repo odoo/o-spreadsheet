@@ -38,19 +38,19 @@ describe("Functions autocomplete", () => {
     resetFunctions();
     functionRegistry.add("IF", {
       description: "do if",
-      args: args``,
+      args: args(``),
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SUM", {
       description: "do sum",
-      args: args``,
+      args: args(``),
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SZZ", {
       description: "do something",
-      args: args``,
+      args: args(``),
       compute: () => 1,
       returns: ["ANY"],
     });
@@ -151,7 +151,7 @@ describe("Functions autocomplete", () => {
       for (let i = 0; i < 20; i++) {
         functionRegistry.add(`SUM${i + 1}`, {
           description: "do sum",
-          args: args``,
+          args: args(``),
           compute: () => 1,
           returns: ["ANY"],
         });
@@ -211,19 +211,19 @@ describe("Autocomplete parenthesis", () => {
     resetFunctions();
     functionRegistry.add("IF", {
       description: "do if",
-      args: args``,
+      args: args(``),
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SUM", {
       description: "do sum",
-      args: args``,
+      args: args(``),
       compute: () => 1,
       returns: ["ANY"],
     });
     functionRegistry.add("SZZ", {
       description: "do something",
-      args: args``,
+      args: args(``),
       compute: () => 1,
       returns: ["ANY"],
     });

@@ -17,7 +17,7 @@ interface AutofillRule {
 export const autofillRulesRegistry = new Registry<AutofillRule>();
 
 /**
- * Get the consecutives xc that are of type "number".
+ * Get the consecutive xc that are of type "number".
  * Return the one which contains the given cell
  */
 function getGroup(cell: Cell, cells: (Cell | null)[]): string[] {

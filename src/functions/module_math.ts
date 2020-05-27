@@ -14,10 +14,10 @@ import {
 // -----------------------------------------------------------------------------
 export const CEILING: FunctionDescription = {
   description: `Rounds number up to nearest multiple of factor.`,
-  args: args`
+  args: args(`
     value (number) The value to round up to the nearest integer multiple of factor.
     factor (number, optional, default=1) The number to whose multiples value will be rounded.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
@@ -39,11 +39,11 @@ export const CEILING: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CEILING_MATH: FunctionDescription = {
   description: `Rounds number up to nearest multiple of factor.`,
-  args: args`
+  args: args(`
     number (number) The value to round up to the nearest integer multiple of significance.
     significance (number, optional, default=1) The number to whose multiples number will be rounded. The sign of significance will be ignored.
     mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (number: any, significance: any = 1, mode: any = 0): number {
     let _significance = toNumber(significance);
@@ -71,10 +71,10 @@ export const CEILING_MATH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const CEILING_PRECISE: FunctionDescription = {
   description: `Rounds number up to nearest multiple of factor.`,
-  args: args`
+  args: args(`
     number (number) The value to round up to the nearest integer multiple of significance.
     significance (number, optional, default=1) The number to whose multiples number will be rounded.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
@@ -86,9 +86,9 @@ export const CEILING_PRECISE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COS: FunctionDescription = {
   description: "Cosine of an angle provided in radians.",
-  args: args`
+  args: args(`
     angle (number) The angle to find the cosine of, in radians.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (angle: any): number {
     return Math.cos(toNumber(angle));
@@ -100,10 +100,10 @@ export const COS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNTBLANK: FunctionDescription = {
   description: "Number of empty values.",
-  args: args`
+  args: args(`
     value1 (any, range) The first value or range in which to count the number of blanks.
     value2 (any, range, optional, repeating) Additional values or ranges in which to count the number of blanks.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceArgs(
@@ -119,10 +119,10 @@ export const COUNTBLANK: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNTIF: FunctionDescription = {
   description: `A conditional count across a range.`,
-  args: args`
+  args: args(`
     range (any, range) The range that is tested against criterion.
     criterion (string) The pattern or test to apply to range.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     let count = 0;
@@ -138,11 +138,11 @@ export const COUNTIF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const COUNTIFS: FunctionDescription = {
   description: `Count values depending on multiple criteria.`,
-  args: args`
+  args: args(`
     criteria_range (any, range) The range to check against criterion1.
     criterion (string) The pattern or test to apply to criteria_range1.
     additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
-  `,
+  `),
   // @compatibility: on google sheets, args definitions are next:
   // criteria_range1 (any, range) The range to check against criterion1.
   // criterion1 (string) The pattern or test to apply to criteria_range1.
@@ -177,10 +177,10 @@ function isDefined(value: any): boolean {
 
 export const COUNTUNIQUE: FunctionDescription = {
   description: "Counts number of unique values in a range.",
-  args: args`
+  args: args(`
     value1 (any, range) The first value or range to consider for uniqueness.
     value2 (any, range, optional, repeating) Additional values or ranges to consider for uniqueness.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceArgs(arguments, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
@@ -193,12 +193,12 @@ export const COUNTUNIQUE: FunctionDescription = {
 
 export const COUNTUNIQUEIFS: FunctionDescription = {
   description: "Counts number of unique values in a range, filtered by a set of criteria.",
-  args: args`
+  args: args(`
     range (any, range) The range of cells from which the number of unique values will be counted.
     criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
     criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
     additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
-  `,
+  `),
   // @compatibility: on google sheets, args definitions are next:
   // range (any, range) The range of cells from which the number of unique values will be counted.
   // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
@@ -229,10 +229,10 @@ const decimalErrorParameter2 = (parameterName, base, value) => `
 
 export const DECIMAL: FunctionDescription = {
   description: `Converts from another base to decimal.`,
-  args: args`
+  args: args(`
     value (string) The number to convert.
     base (number) The base to convert the value from.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (value: any, base: any): number {
     let _base = toNumber(base);
@@ -271,9 +271,9 @@ export const DECIMAL: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const DEGREES: FunctionDescription = {
   description: `Converts an angle value in radians to degrees.`,
-  args: args`
+  args: args(`
     angle (number) The angle to convert from radians to degrees.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (angle: any): number {
     return (toNumber(angle) * 180) / Math.PI;
@@ -285,10 +285,10 @@ export const DEGREES: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const FLOOR: FunctionDescription = {
   description: `Rounds number down to nearest multiple of factor.`,
-  args: args`
+  args: args(`
     value (number) The value to round down to the nearest integer multiple of factor.
     factor (number, optional, default=1) The number to whose multiples value will be rounded.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
@@ -310,11 +310,11 @@ export const FLOOR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const FLOOR_MATH: FunctionDescription = {
   description: `Rounds number down to nearest multiple of factor.`,
-  args: args`
+  args: args(`
     number (number) The value to round down to the nearest integer multiple of significance.
     significance (number, optional, default=1) The number to whose multiples number will be rounded. The sign of significance will be ignored.
     mode (number, optional, default=0) If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (number: any, significance: any = 1, mode: any = 0): number {
     let _significance = toNumber(significance);
@@ -341,10 +341,10 @@ export const FLOOR_MATH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const FLOOR_PRECISE: FunctionDescription = {
   description: `Rounds number down to nearest multiple of factor.`,
-  args: args`
+  args: args(`
     number (number) The value to round down to the nearest integer multiple of significance.
     significance (number, optional, default=1) The number to whose multiples number will be rounded.
-  `,
+  `),
   returns: ["NUMBER"],
   compute: function (number: number, significance: number = 1): number {
     return FLOOR_MATH.compute(number, significance, 0);
@@ -356,9 +356,9 @@ export const FLOOR_PRECISE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISEVEN: FunctionDescription = {
   description: `Whether the provided value is even.`,
-  args: args`
+  args: args(`
     value (number) The value to be verified as even.
-  `,
+  `),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
     const _value = strictToNumber(value);
@@ -372,10 +372,10 @@ export const ISEVEN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISO_CEILING: FunctionDescription = {
   description: `Rounds number up to nearest multiple of factor.`,
-  args: args`
+  args: args(`
       number (number) The value to round up to the nearest integer multiple of significance.
       significance (number, optional, default=1) The number to whose multiples number will be rounded.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
@@ -387,9 +387,9 @@ export const ISO_CEILING: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ISODD: FunctionDescription = {
   description: `Whether the provided value is even.`,
-  args: args`
+  args: args(`
     value (number) The value to be verified as even.
-  `,
+  `),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
     const _value = strictToNumber(value);
@@ -403,10 +403,10 @@ export const ISODD: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const MOD: FunctionDescription = {
   description: `Modulo (remainder) operator.`,
-  args: args`
+  args: args(`
       dividend (number) The number to be divided to find the remainder.
       divisor (number) The number to divide by.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
@@ -432,9 +432,9 @@ export const MOD: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ODD: FunctionDescription = {
   description: `Rounds a number up to the nearest odd integer.`,
-  args: args`
+  args: args(`
       value (number) The value to round to the next greatest odd number.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
@@ -461,11 +461,11 @@ export const PI: FunctionDescription = {
 // POWER
 // -----------------------------------------------------------------------------
 export const POWER: FunctionDescription = {
-  description: `A number raised to a power`,
-  args: args`
+  description: `A number raised to a power.`,
+  args: args(`
       base (number) The number to raise to the exponent power.
       exponent (number) The exponent to raise base to.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (base: any, exponent: any): number {
     const _base = toNumber(base);
@@ -502,10 +502,10 @@ export const RAND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const RANDBETWEEN: FunctionDescription = {
   description: "Random integer between two values, inclusive.",
-  args: args`
+  args: args(`
       low (number) The low end of the random range.
       high (number) The high end of the random range.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (low: any, high: any): number {
     let _low = toNumber(low);
@@ -532,10 +532,10 @@ export const RANDBETWEEN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ROUND: FunctionDescription = {
   description: "Rounds a number according to standard rules.",
-  args: args`
+  args: args(`
       value (number) The value to round to places number of places.
       places (number, optional, default=0) The number of decimal places to which to round.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
@@ -560,10 +560,10 @@ export const ROUND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ROUNDDOWN: FunctionDescription = {
   description: `Rounds down a number.`,
-  args: args`
+  args: args(`
       value (number) The value to round to places number of places, always rounding down.
       places (number, optional, default=0) The number of decimal places to which to round.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
@@ -588,10 +588,10 @@ export const ROUNDDOWN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const ROUNDUP: FunctionDescription = {
   description: `Rounds up a number.`,
-  args: args`
+  args: args(`
       value (number) The value to round to places number of places, always rounding up.
       places (number, optional, default=0) The number of decimal places to which to round.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any): number {
     const _value = toNumber(value);
@@ -616,9 +616,9 @@ export const ROUNDUP: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SIN: FunctionDescription = {
   description: "Sine of an angle provided in radians.",
-  args: args`
+  args: args(`
       angle (number) The angle to find the sine of, in radians.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (angle: number): number {
     return Math.sin(toNumber(angle));
@@ -630,9 +630,9 @@ export const SIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SQRT: FunctionDescription = {
   description: "Positive square root of a positive number.",
-  args: args`
+  args: args(`
       value (number) The number for which to calculate the positive square root.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (value: any): number {
     const _value = toNumber(value);
@@ -652,10 +652,10 @@ export const SQRT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SUM: FunctionDescription = {
   description: "Sum of a series of numbers and/or cells.",
-  args: args`
+  args: args(`
       value1 (number, range<number>) The first number or range to add together.
       value2 (number, range<number>, optional, repeating) Additional numbers or ranges to add to value1.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (): number {
     return reduceNumbers(arguments, (acc, a) => acc + a, 0);
@@ -667,11 +667,11 @@ export const SUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SUMIF: FunctionDescription = {
   description: "A conditional sum across a range.",
-  args: args`
+  args: args(`
       criteria_range (any, range) The range which is tested against criterion.
       criterion (string) The pattern or test to apply to range.
       sum_range (any, range, optional, default=criteria_range) The range to be summed, if different from range.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (criteria_range: any, criterion: any, sum_range: any = undefined): number {
     if (sum_range === undefined) {
@@ -693,12 +693,12 @@ export const SUMIF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const SUMIFS: FunctionDescription = {
   description: "Sums a range depending on multiple criteria.",
-  args: args`
+  args: args(`
       sum_range (any, range) The range to sum.
       criteria_range1 (any, range) The range to check against criterion1.
       criterion1 (string) The pattern or test to apply to criteria_range1.
       additional_values (any, optional, repeating) Additional criteria_range and criterion to check.
-    `,
+    `),
   // @compatibility: on google sheets, args definitions are next:
   // sum_range (any, range) The range to sum.
   // criteria_range1 (any, range) The range to check against criterion1.
@@ -723,10 +723,10 @@ export const SUMIFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 export const TRUNC: FunctionDescription = {
   description: "Truncates a number.",
-  args: args`
+  args: args(`
       value (number) The value to be truncated.
       places (number, optional, default=0) The number of significant digits to the right of the decimal point to retain.
-    `,
+    `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);

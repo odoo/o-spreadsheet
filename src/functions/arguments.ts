@@ -1,4 +1,5 @@
 import { ArgType, Arg } from "../types";
+import { _lt } from "../translation";
 
 //------------------------------------------------------------------------------
 // Arg description DSL
@@ -23,8 +24,8 @@ const ARG_TYPES: ArgType[] = [
  * Its job is to convert a textual description of the list of arguments into an
  * actual array of Arg, suitable for consumption.
  */
-export function args(strings: TemplateStringsArray): Arg[] {
-  let lines = strings[0].split("\n");
+export function args(strings: string): Arg[] {
+  let lines = strings.split("\n");
   const result: Arg[] = [];
   for (let l of lines) {
     l = l.trim();
@@ -87,13 +88,17 @@ export function validateArguments(args: Arg[]) {
   for (let current of args) {
     if (previousArgRepeating) {
       throw new Error(
-        "Function ${name} has at least 2 arguments that are repeating. The maximum repeating arguments is 1."
+        _lt(
+          "Function ${name} has at least 2 arguments that are repeating. The maximum repeating arguments is 1."
+        )
       );
     }
 
     if (previousArgOptional && !current.optional) {
       throw new Error(
-        "Function ${name} has at mandatory arguments declared after optional ones. All optional arguments must be after all mandatory arguments."
+        _lt(
+          "Function ${name} has at mandatory arguments declared after optional ones. All optional arguments must be after all mandatory arguments."
+        )
       );
     }
     previousArgRepeating = current.repeating;

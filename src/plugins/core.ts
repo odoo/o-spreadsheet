@@ -28,6 +28,7 @@ import {
   CommandResult,
   CancelledReason,
 } from "../types/index";
+import { _lt } from "../translation";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -701,7 +702,7 @@ export class CorePlugin extends BasePlugin {
           }
         } catch (e) {
           cell.value = "#BAD_EXPR";
-          cell.error = "Invalid Expression";
+          cell.error = _lt("Invalid Expression");
         }
       }
     }

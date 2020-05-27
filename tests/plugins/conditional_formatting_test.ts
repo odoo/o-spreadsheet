@@ -863,9 +863,6 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentage", "change");
-
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
 
     //  click save
@@ -879,12 +876,12 @@ describe("UI of conditional formats", () => {
         rule: {
           maximum: {
             color: 0xffc001,
-            type: "percentage",
+            type: "value",
           },
           midpoint: undefined,
           minimum: {
             color: 0x445569,
-            type: "number",
+            type: "value",
             value: "33",
           },
           type: "ColorScaleRule",
@@ -948,9 +945,6 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentage", "change");
-
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
 
     //  click save
@@ -964,12 +958,12 @@ describe("UI of conditional formats", () => {
         rule: {
           maximum: {
             color: 0xffc001,
-            type: "percentage",
+            type: "value",
           },
           midpoint: undefined,
           minimum: {
             color: 0x445569,
-            type: "number",
+            type: "value",
             value: "33",
           },
           type: "ColorScaleRule",

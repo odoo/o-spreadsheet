@@ -57,10 +57,14 @@ interface Props {
   data?: any;
 }
 
+const t = (s: string): string => s;
+
 export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };
+  static _t = t;
+
   model = new Model(this.props.data, {
     notifyUser: (content: string) => this.trigger("notify-user", { content }),
     askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
@@ -87,6 +91,7 @@ export class Spreadsheet extends Component<Props> {
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
+      _t: Spreadsheet._t,
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));

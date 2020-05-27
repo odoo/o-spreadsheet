@@ -11,6 +11,7 @@ import {
   CancelledReason,
   CommandResult,
 } from "../types/index";
+import { _lt } from "../translation";
 
 interface ClipboardCell {
   cell: Cell | null;
@@ -344,11 +345,12 @@ export class ClipboardPlugin extends BasePlugin {
 
     if (result.status === "CANCELLED") {
       if (result.reason === CancelledReason.WrongPasteSelection) {
-        this.ui.notifyUser("This operation is not allowed with multiple selections.");
+        this.ui.notifyUser(_lt("This operation is not allowed with multiple selections."));
       }
       if (result.reason === CancelledReason.WillRemoveExistingMerge) {
-        this.ui.askConfirmation("Pasting here will remove existing merge(s). Paste anyway?", () =>
-          this.dispatch("PASTE", { target, onlyFormat: false, force: true })
+        this.ui.askConfirmation(
+          _lt("Pasting here will remove existing merge(s). Paste anyway?"),
+          () => this.dispatch("PASTE", { target, onlyFormat: false, force: true })
         );
       }
     }

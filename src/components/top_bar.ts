@@ -25,7 +25,7 @@ owl.QWeb.registerTemplate(
     <t t-if="child.isVisible(env)">
       <t t-if="child.children.length !== 0">
         <div class="o-menu-dropdown-item">
-          <div t-esc="typeof child.name === 'string' ? child.name : child.name(env)"/>
+          <div t-esc="typeof child.name === 'function' ? child.name(env) : child.name "/>
           <div>${icons.TRIANGLE_RIGHT_ICON}</div>
           <div class="o-menu-dropdown-content o-menu-dropdown-submenu">
             <t t-call="spreadsheet_menu_child_template">
@@ -36,7 +36,7 @@ owl.QWeb.registerTemplate(
         <div t-if="child.separator and !child_last" class="o-separator"/>
       </t>
       <t t-elif="child.action">
-        <div class="o-menu-dropdown-item" t-esc="typeof child.name === 'string' ? child.name : child.name(env)" t-on-click.stop="doAction(child.action)"/>
+        <div class="o-menu-dropdown-item" t-esc="typeof child.name === 'function' ? child.name(env) : child.name" t-on-click.stop="doAction(child.action)"/>
         <div t-if="child.separator and !child_last" class="o-separator"/>
       </t>
     </t>
@@ -46,7 +46,7 @@ owl.QWeb.registerTemplate(
 
 const MENU_TEMPLATE = xml/* xml */ `
   <div class="o-topbar-menu o-menu-dropdown" t-if="menu.children.length !== 0" t-on-click.stop="toggleDropdownMenu(menu.id)" t-on-mouseover="onMouseOver(menu.id)" t-att-data-id="menu.id">
-    <t t-esc="typeof menu.name === 'string' ? menu.name : menu.name(env)"/>
+    <t t-esc="typeof menu.name === 'function' ? menu.name(env) : menu.name"/>
     <div class="o-menu-dropdown-content" t-if="state.menu === menu.id">
       <t t-call="spreadsheet_menu_child_template"/>
     </div>
@@ -368,7 +368,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
   style: Style = {};
   state = useState({
-    menu: false as boolean | string,
+    menu: "" as string,
     tools: {
       formatTool: false,
       alignTool: false,
@@ -428,7 +428,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   toggleDropdownMenu(menu: string) {
     const isOpen = this.state.menu === menu;
     this.closeMenus();
-    this.state.menu = !isOpen && menu;
+    this.state.menu = !isOpen ? menu : "";
     this.isSelectingMenu = !isOpen;
   }
 
@@ -439,7 +439,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.state.tools.textColorTool = false;
     this.state.tools.borderTool = false;
     this.state.tools.fontSizeTool = false;
-    this.state.menu = false;
+    this.state.menu = "";
     this.isSelectingMenu = false;
   }
 
