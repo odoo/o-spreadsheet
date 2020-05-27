@@ -129,6 +129,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool o-dropdown" title="Horizontal align" t-on-click.stop="toggleDropdownTool('alignTool')">
             <span>
               <t t-if="style.align === 'right'">${icons.ALIGN_RIGHT_ICON}</t>
+              <t t-elif="style.align === 'center'">${icons.ALIGN_CENTER_ICON}</t>
               <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
               ${icons.TRIANGLE_DOWN_ICON}
             </span>
