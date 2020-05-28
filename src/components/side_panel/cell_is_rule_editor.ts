@@ -7,7 +7,7 @@ const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
 export const PREVIEW_TEMPLATE = xml/* xml */ `
-    <div class="o-cf-preview"
+    <div class="o-cf-preview-line"
          t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                        text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
@@ -18,18 +18,18 @@ export const PREVIEW_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
 <div>
-    <h3>Condition</h3>
-    <span>Cell</span>
+    <div class="o-cf-title-format">Format rules</div>
+    <div class="o-cf-title-text">Format cells if...</div>
     <select t-model="state.condition.operator" class="o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
         </t>
     </select>
-    <input type="text" t-model="state.condition.value1" class="o-cell-is-value"/>
+    <input type="text" placeholder="Value" t-model="state.condition.value1" class="o-cell-is-value"/>
     <t t-if="state.condition.operator === 'Between' || state.condition.operator === 'NotBetween'">
         <input type="text" t-model="state.condition.value2"/>
     </t>
-    <h3>Format</h3>
+    <div class="o-cf-title-text">Formatting style</div>
 
     <t t-call="${PREVIEW_TEMPLATE}">
         <t t-set="currentStyle" t-value="state.style"/>
@@ -57,13 +57,64 @@ const TEMPLATE = xml/* xml */ `
         </div>
     </div>
     <div class="o-cf-buttons">
-        <button t-on-click="onCancel" class="o-cf-cancel">Cancel</button>
-        <button t-on-click="onSave"  class="o-cf-save">Save</button>
+      <button t-on-click="onCancel" class="o-cf-button o-cf-cancel">Cancel</button>
+      <button t-on-click="onSave" class="o-cf-button o-cf-save">Save</button>
     </div>
 </div>
 `;
 
-const CSS = css/* scss */ ``;
+const CSS = css/* scss */ `
+  .o-cf-title-format {
+    margin: 10px 0px 18px 0px;
+  }
+  .o-cf-title-text {
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 6px;
+    margin-top: 18px;
+  }
+  .o-cell-is-operator {
+    background-color: white;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    border: 1px solid lightgrey;
+    padding: 5px;
+    text-align: left;
+    width: 90%;
+  }
+  .o-cell-is-value {
+    border-radius: 4px;
+    border: 1px solid lightgrey;
+    padding: 5px;
+    width: 90%;
+  }
+  .o-cf-preview-line {
+    border: 1px solid darkgrey;
+    padding: 10px;
+  }
+  .o-cf-buttons {
+    padding: 5px;
+    text-align: right;
+    border-bottom: 1px solid #ccc;
+    .o-cf-button {
+      border: 1px solid lightgrey;
+      padding: 0px 20px 0px 20px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 14px;
+      height: 36px;
+      line-height: 16px;
+      background: white;
+      cursor: pointer;
+      margin-right: 16px;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+    }
+  }
+`;
 const cellIsOperators = {
   BeginsWith: "Begins with",
   Between: "Between",

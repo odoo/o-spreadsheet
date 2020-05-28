@@ -10,7 +10,7 @@ exports[`UI of conditional formats simple snapshot 1`] = `
     <div
       class="o-sidePanelTitle"
     >
-      Conditional Formatting
+      Conditional format rules
     </div>
     <div
       class="o-sidePanelClose"
@@ -24,38 +24,87 @@ exports[`UI of conditional formats simple snapshot 1`] = `
     <div
       class="o-cf"
     >
-      <h3>
-        Current sheet
-      </h3>
       <div
         class="o-cf-preview-list"
       >
         <div>
           <div
             class="o-cf-preview"
-            style="font-weight:normal;
-                     text-decoration:none;
-                     font-style:normal;
-                     color:undefined;
-                     background-color:#FF0000;"
           >
-            A1:A2
+            <div
+              class="o-cf-preview-image"
+              style="font-weight:normal
+               text-decoration:none;
+               font-style:normal;
+               color:none;
+               background-color:#FF0000;"
+            >
+               123 
+            </div>
+            <div
+              class="o-cf-preview-description"
+            >
+              <div
+                class="o-cf-preview-ruletype"
+              >
+                <div
+                  class="o-cf-preview-description-rule"
+                >
+                  Is equal to
+                </div>
+                <div
+                  class="o-cf-preview-description-values"
+                >
+                  2
+                </div>
+              </div>
+              <div
+                class="o-cf-preview-range"
+              >
+                A1:A2
+              </div>
+            </div>
           </div>
         </div>
         <div>
           <div
             class="o-cf-preview"
-            style="background-image: linear-gradient(to right, #ff00ff, #123456)"
           >
-            B1:B5
+            <div
+              class="o-cf-preview-image"
+              style="background-image: linear-gradient(to right, #ff00ff, #123456)"
+            >
+               123 
+            </div>
+            <div
+              class="o-cf-preview-description"
+            >
+              <div
+                class="o-cf-preview-ruletype"
+              >
+                <div
+                  class="o-cf-preview-description-rule"
+                >
+                  Color scale
+                </div>
+                <div
+                  class="o-cf-preview-description-values"
+                />
+              </div>
+              <div
+                class="o-cf-preview-range"
+              >
+                B1:B5
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <button
+      <div
         class="o-cf-add"
       >
-        Add
-      </button>
+         + Add another rule 
+      </div>
     </div>
   </div>
 </div>

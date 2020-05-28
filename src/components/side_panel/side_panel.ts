@@ -40,12 +40,16 @@ const CSS = css/* scss */ `
       border-bottom: 1px solid darkgray;
       font-weight: bold;
       .o-sidePanelTitle {
+        font-weight: bold;
         padding: 10px;
         font-size: 1.2rem;
       }
       .o-sidePanelClose {
         padding: 11px 15px;
         cursor: pointer;
+        &:hover {
+          border-radius: 50%;
+          background-color: WhiteSmoke;
       }
     }
     .o-sidePanelBody {

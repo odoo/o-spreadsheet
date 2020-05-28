@@ -8,6 +8,12 @@ import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
+export const PREVIEW_TEMPLATE = xml/* xml */ `
+    <div class="o-cf-preview-gradient" t-attf-style="background-image: linear-gradient(to right, #{{colorNumberString(state.minimum.color)}}, #{{colorNumberString(state.maximum.color)}})">
+      <div t-esc="previewText">Preview text</div>
+    </div>
+`;
+
 const THRESHOLD_TEMPLATE = xml/* xml */ `
   <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
       <div class="o-tools">
@@ -31,25 +37,35 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
   <div>
-      <h3>Condition</h3>
-      <span>Color Scale</span>
-      <h4>Minimum</h4>
+      <div class="o-cf-title-format">Format rules</div>
+      <div class="o-cf-title-text">Preview</div>
+      <t t-call="${PREVIEW_TEMPLATE}"/>
+      <div class="o-cf-title-text">Minpoint</div>
       <t t-call="${THRESHOLD_TEMPLATE}">
           <t t-set="threshold" t-value="state.minimum" ></t>
           <t t-set="thresholdType" t-value="'minimum'" ></t>
       </t>
-      <h4>Maximum</h4>
+      <div class="o-cf-title-text">MaxPoint</div>
       <t t-call="${THRESHOLD_TEMPLATE}">
           <t t-set="threshold" t-value="state.maximum" ></t>
           <t t-set="thresholdType" t-value="'maximum'" ></t>
       </t>
       <div class="o-cf-buttons">
-          <button t-on-click="onCancel" class="o-cf-cancel">Cancel</button>
-          <button t-on-click="onSave" class="o-cf-save">Save</button>
+        <button t-on-click="onCancel" class="o-cf-button o-cf-cancel">Cancel</button>
+        <button t-on-click="onSave" class="o-cf-button o-cf-save">Save</button>
       </div>
   </div>`;
 
 const CSS = css/* scss */ `
+  .o-cf-title-format {
+    margin: 10px 0px 18px 0px;
+  }
+  .o-cf-title-text {
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 6px;
+    margin-top: 18px;
+  }
   .o-threshold {
     display: flex;
     flex-direction: horizontal;
@@ -58,6 +74,30 @@ const CSS = css/* scss */ `
       width: 5em;
       margin-left: 15px;
       margin-right: 15px;
+    }
+  }
+  .o-cf-preview-gradient {
+    border: 1px solid darkgrey;
+    padding: 10px;
+  }
+  .o-cf-buttons {
+    padding: 5px;
+    text-align: right;
+    border-bottom: 1px solid #ccc;
+    .o-cf-button {
+      border: 1px solid lightgrey;
+      padding: 0px 20px 0px 20px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 14px;
+      height: 36px;
+      line-height: 16px;
+      background: white;
+      cursor: pointer;
+      margin-right: 16px;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
     }
   }
 `;

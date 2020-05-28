@@ -2,73 +2,153 @@ import * as owl from "@odoo/owl";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { colorNumberString, uuidv4 } from "../../helpers/index";
-import { ConditionalFormat, SpreadsheetEnv } from "../../types";
+import { ConditionalFormat, SpreadsheetEnv, ColorScaleRule, SingleColorRules } from "../../types";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
+const cellIsOperators = {
+  BeginsWith: "Begins with",
+  Between: "Between",
+  ContainsText: "Contains text",
+  EndsWith: "Ends with",
+  Equal: "Is equal to",
+  GreaterThan: "Greater than",
+  GreaterThanOrEqual: "Greater than or equal",
+  LessThan: "Less than",
+  LessThanOrEqual: "Less than or equal",
+  NotBetween: "Not between",
+  NotContains: "Not contains",
+  NotEqual: "Not equal",
+};
+
 // TODO vsc: add ordering of rules
-const PREVIEW_TEMPLATE_SINGLE_COLOR = xml/* xml */ `
-  <div class="o-cf-preview"
-       t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
-                     text-decoration:{{currentStyle.strikethrough ? 'line-through':'none'}};
-                     font-style:{{currentStyle.italic?'italic':'normal'}};
-                     color:{{currentStyle.textColor}};
-                     background-color:{{currentStyle.fillColor}};"
-       t-esc="previewText  || 'Preview text'" />`;
+const PREVIEW_TEMPLATE = xml/* xml */ `
+<div class="o-cf-preview">
+  <div t-att-style="getStyle(cf.rule)" class="o-cf-preview-image">
+    123
+  </div>
+  <div class="o-cf-preview-description">
+    <div class="o-cf-preview-ruletype">
+      <div class="o-cf-preview-description-rule">
+        <t t-esc="getDescription(cf)" />
+      </div>
+      <div class="o-cf-preview-description-values">
+      <t t-if="cf.rule.values">
+        <t t-esc="cf.rule.values[0]" />
+        <t t-if="cf.rule.values[1]">
+          and <t t-esc="cf.rule.values[1]"/>
+        </t>
+      </t>
+      </div>
+    </div>
+    <div class="o-cf-preview-range" t-esc="cf.ranges"/>
+  </div>
+</div>`;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
-    <h3>Current sheet</h3>
-    <div class="o-cf-preview-list" >
-        <div t-on-click="onRuleClick(cf)" t-foreach="state.conditionalFormats" t-as="cf" t-key="cf.id">
-          <t t-if="cf.rule.type === 'CellIsRule'">
-              <t t-call="${PREVIEW_TEMPLATE_SINGLE_COLOR}">
-                  <t t-set="currentStyle" t-value="cf.rule.style"/>
-                  <t t-set="previewText" t-value="cf.ranges"/>
-              </t>
-          </t>
-          <t t-else="">
-            <div class="o-cf-preview" t-esc="cf.ranges  || 'Preview text'"
-            t-attf-style="background-image: linear-gradient(to right, #{{colorNumberString(cf.rule.minimum.color)}}, #{{colorNumberString(cf.rule.maximum.color)}})"></div>
-          </t>
-        </div>
-    </div>
-
+    <t t-if="state.mode === 'list'">
+      <div class="o-cf-preview-list" >
+          <div t-on-click="onRuleClick(cf)" t-foreach="state.conditionalFormats" t-as="cf" t-key="cf.id">
+              <t t-call="${PREVIEW_TEMPLATE}"/>
+          </div>
+      </div>
+    </t>
     <t t-if="state.mode === 'edit' || state.mode === 'add'" t-key="state.currentCF.id">
+        <div class="o-cf-type-selector">
+          <div class="o-cf-type-tab" t-att-class="{'o-cf-tab-selected': state.toRuleType === 'CellIsRule'}" t-on-click="setRuleType('CellIsRule')">Single Color</div>
+          <div class="o-cf-type-tab" t-att-class="{'o-cf-tab-selected': state.toRuleType === 'ColorScaleRule'}" t-on-click="setRuleType('ColorScaleRule')">Color Scale</div>
+        </div>
         <div class="o-cf-ruleEditor">
-            <h2 t-if="state.mode ==='edit'">Edit rule</h2>
-            <h2 t-if="state.mode ==='add'">Add a rule</h2>
-            <h3>On ranges</h3>
-            <input type="text" t-model="state.currentRanges" class="o-range" placeholder="select range, ranges"/>
-            <t t-if="state.mode ==='add'">
-                <form>
-                  <label>single color <input type="radio" name="ruleType" t-model="state.toRuleType" value="CellIsRule" t-on-change="onChangeRuleType"/></label>
-                  <label>color scale <input type="radio" name="ruleType"  t-model="state.toRuleType" value="ColorScaleRule" t-on-change="onChangeRuleType"/></label>
-                </form>
-            </t>
-            <t t-component="editors[state.currentCF.rule.type]" 
-                t-key="state.currentCF.id"
-                conditionalFormat="state.currentCF"
-                t-on-cancel-edit="onCancel"
-                t-on-modify-rule="onSave" />
-            <div>Delete ?</div>
+            <div class="o-cf-range">
+              <div class="o-cf-range-title">Apply to range</div>
+              <input type="text" t-model="state.currentRanges" class="o-cf-range-input" placeholder="select range, ranges"/>
+            </div>
+            <div class="o-cf-editor">
+              <t t-component="editors[state.currentCF.rule.type]"
+                  t-key="state.currentCF.id"
+                  conditionalFormat="state.currentCF"
+                  t-on-cancel-edit="onCancel"
+                  t-on-modify-rule="onSave" />
+            </div>
         </div>
     </t>
-    <button t-if="state.mode === 'list'" class="o-cf-add" t-on-click.prevent.stop="onAdd">Add</button>
+    <div class="o-cf-add" t-if="state.mode === 'list'" t-on-click.prevent.stop="onAdd">
+    + Add another rule
+    </div>
   </div>`;
 
 const CSS = css/* scss */ `
   .o-cf {
     min-width: 350px;
+    .o-cf-type-selector{
+      margin-top: 20px;
+      display: flex;
+      .o-cf-type-tab{
+        cursor:pointer;
+        flex-grow: 1;
+        text-align: center;
+      }
+      .o-cf-tab-selected{
+        text-decoration: underline;
+      }
+    }
     .o-cf-preview {
-      margin-bottom: 15px;
+      background-color: #fff;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+      display: flex;
+      height: 60px;
+      padding: 10px;
+      position: relative;
+      .o-cf-preview-image {
+        border: 1px solid lightgrey;
+        height: 50px;
+        line-height: 50px;
+        margin-right: 15px;
+        position: absolute;
+        text-align: center;
+        width: 50px;
+      }
+      .o-cf-preview-description {
+        left: 65px;
+        margin-bottom: auto;
+        margin-right: 8px;
+        margin-top: auto;
+        position: relative;
+        width: 142px;
+        .o-cf-preview-description-rule {
+          margin-bottom: 4px;
+          overflow: hidden;
+        }
+        .o-cf-preview-description-values{
+          overflow: hidden;
+        }
+        .o-cf-preview-range{
+          font-size: 12px;
+          overflow: hidden;
+        }
+      }
     }
-    h4 {
-      margin-bottom: 5px;
-    }
-
     .o-cf-ruleEditor {
+      .o-cf-range {
+        padding: 10px;
+        .o-cf-range-title{
+          font-size: 14px;
+          margin-bottom: 20px;
+          margin-top: 20px;
+        }
+      }
+      .o-cf-range-input{
+        border-radius: 4px;
+        border: 1px solid lightgrey;
+        padding: 5px;
+        width: 90%;
+      }
+      .o-cf-editor{
+        padding:10px;
+      }
       .o-dropdown {
         position: relative;
         .o-dropdown-content {
@@ -144,6 +224,13 @@ const CSS = css/* scss */ `
         line-height: 35px;
       }
     }
+    .o-cf-add {
+      font-size: 14px;
+      height: 36px;
+      padding: 20px 24px 11px 24px;
+      height: 44px;
+      cursor: pointer;
+    }
   }
   }`;
 
@@ -154,6 +241,8 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
   colorNumberString = colorNumberString;
   getters = this.env.getters;
 
+  //@ts-ignore --> used in XML template
+  private cellIsOperators = cellIsOperators;
   state = useState({
     currentCF: undefined as undefined | ConditionalFormat,
     currentRanges: "",
@@ -166,6 +255,31 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     CellIsRule: CellIsRuleEditor,
     ColorScaleRule: ColorScaleRuleEditor,
   };
+
+  getStyle(rule: SingleColorRules | ColorScaleRule): string {
+    if (rule.type === "CellIsRule") {
+      const cellRule = rule as SingleColorRules;
+      const fontWeight = cellRule.style.bold ? "bold" : "normal";
+      const fontDecoration = cellRule.style.strikethrough ? "line-through" : "none";
+      const fontStyle = cellRule.style.italic ? "italic" : "normal";
+      const color = cellRule.style.textColor || "none";
+      const backgroundColor = cellRule.style.fillColor || "none";
+      return `font-weight:${fontWeight}
+               text-decoration:${fontDecoration};
+               font-style:${fontStyle};
+               color:${color};
+               background-color:${backgroundColor};`;
+    } else {
+      const colorScale = rule as ColorScaleRule;
+      return `background-image: linear-gradient(to right, #${colorNumberString(
+        colorScale.minimum.color
+      )}, #${colorNumberString(colorScale.maximum.color)})`;
+    }
+  }
+
+  getDescription(cf: ConditionalFormat): string {
+    return cf.rule.type === "CellIsRule" ? cellIsOperators[cf.rule.operator] : "Color scale";
+  }
 
   onSave(ev: CustomEvent) {
     if (this.state.currentCF) {
@@ -189,6 +303,7 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
   onRuleClick(cf) {
     this.state.mode = "edit";
     this.state.currentCF = cf;
+    this.state.toRuleType = cf.rule.type === "CellIsRule" ? "CellIsRule" : "ColorScaleRule";
     this.state.currentRanges = this.state.currentCF!.ranges.join(",");
   }
 
@@ -218,12 +333,14 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     this.state.currentCF = Object.assign({}, this.defaultCellIsRule);
     this.state.currentRanges = this.state.currentCF!.ranges.join(",");
   }
-  onChangeRuleType(ev) {
-    if (this.state.toRuleType === "ColorScaleRule") {
+
+  setRuleType(ruleType: string) {
+    if (ruleType === "ColorScaleRule") {
       this.state.currentCF = Object.assign({}, this.defaultColorScaleRule);
     }
-    if (this.state.toRuleType === "CellIsRule") {
+    if (ruleType === "CellIsRule") {
       this.state.currentCF = Object.assign({}, this.defaultCellIsRule);
     }
+    this.state.toRuleType = ruleType;
   }
 }
