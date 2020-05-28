@@ -750,14 +750,26 @@ describe("UI of conditional formats", () => {
 
   const selectors = {
     listPreview: ".o-cf .o-cf-preview",
-    rangeInput: ".o-cf-ruleEditor .o-range",
-    cellIsEditor: {
-      operatorInput: ".o-cf-ruleEditor .o-cell-is-operator",
-      value1Input: ".o-cf-ruleEditor .o-cell-is-value",
-      bold: "div.o-tool[title='Bold']",
-      italic: "div.o-tool[title='Italic']",
-      strikethrough: "div.o-tool[title='Strikethrough']",
-      colorDropdown: ".o-tool o-dropdown .o-with-color",
+    ruleEditor: {
+      range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-cf-range-input",
+      editor: {
+        operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
+        valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
+        bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Bold']",
+        italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Italic']",
+        strikethrough:
+          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Strikethrough']",
+        colorDropdown:
+          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-tool o-dropdown .o-with-color",
+      },
+    },
+    previewImage: ".o-cf-preview-image",
+    description: {
+      ruletype: {
+        rule: ".o-cf-preview-description-rule",
+        values: ".o-cf-preview-description-values",
+      },
+      range: ".o-cf-preview-range",
     },
     colorScaleEditor: {
       minColor: ".o-threshold-minimum .o-tool.o-dropdown.o-with-color span",
@@ -769,7 +781,7 @@ describe("UI of conditional formats", () => {
       colorPickerBlue: ".o-color-picker div[data-color='#445569']",
       colorPickerYellow: ".o-color-picker div[data-color='#ffc001']",
     },
-    radioColorScale: "input[value=ColorScaleRule]",
+    cfTabSelector: ".o-cf-type-selector .o-cf-type-tab",
     buttonSave: ".o-cf-buttons .o-cf-save",
     buttonAdd: ".o-cf-add",
   };
@@ -784,12 +796,21 @@ describe("UI of conditional formats", () => {
     expect(previews).toHaveLength(2);
 
     // --> should be the style for CellIsRule
-    expect(previews[0].textContent).toBe("A1:A2");
-    expect(window.getComputedStyle(previews[0]).backgroundColor).toBe("rgb(255, 0, 0)");
+    expect(previews[0].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
+      "Is equal to"
+    );
+    expect(previews[0].querySelector(selectors.description.ruletype.values)!.textContent).toBe("2");
+    expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
+    debugger;
+    expect(
+      window.getComputedStyle(previews[0].querySelector(selectors.previewImage)!).backgroundColor
+    ).toBe("rgb(255, 0, 0)");
 
     // --> should be a nothing of color gradient for ColorScaleRule
-    expect(previews[1].textContent).toBe("B1:B5");
-    expect(window.getComputedStyle(previews[1]).backgroundColor).toBe("");
+    expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("B1:B5");
+    expect(
+      window.getComputedStyle(previews[1].querySelector(selectors.previewImage)!).backgroundColor
+    ).toBe("");
     // TODO VSC: see how we can test the gradient background image
   });
 
@@ -800,13 +821,13 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     // change every value
-    setInputValueAndTrigger(selectors.rangeInput, "A1:A3", "input");
-    setInputValueAndTrigger(selectors.cellIsEditor.operatorInput, "BeginsWith", "change");
-    setInputValueAndTrigger(selectors.cellIsEditor.value1Input, "3", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
 
-    triggerMouseEvent(selectors.cellIsEditor.bold, "click");
-    triggerMouseEvent(selectors.cellIsEditor.italic, "click");
-    triggerMouseEvent(selectors.cellIsEditor.strikethrough, "click");
+    triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
+    triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
+    triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
@@ -833,7 +854,7 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
     // change every value
-    setInputValueAndTrigger(selectors.rangeInput, "B2:B5", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
     triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
     await nextTick();
@@ -880,13 +901,13 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     // change every value
-    setInputValueAndTrigger(selectors.rangeInput, "A1:A3", "input");
-    setInputValueAndTrigger(selectors.cellIsEditor.operatorInput, "BeginsWith", "change");
-    setInputValueAndTrigger(selectors.cellIsEditor.value1Input, "3", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith", "change");
+    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3", "input");
 
-    triggerMouseEvent(selectors.cellIsEditor.bold, "click");
-    triggerMouseEvent(selectors.cellIsEditor.italic, "click");
-    triggerMouseEvent(selectors.cellIsEditor.strikethrough, "click");
+    triggerMouseEvent(selectors.ruleEditor.editor.bold, "click");
+    triggerMouseEvent(selectors.ruleEditor.editor.italic, "click");
+    triggerMouseEvent(selectors.ruleEditor.editor.strikethrough, "click");
 
     //  click save
     triggerMouseEvent(selectors.buttonSave, "click");
@@ -914,14 +935,11 @@ describe("UI of conditional formats", () => {
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
-    triggerMouseEvent(selectors.radioColorScale, "click");
-    document
-      .querySelector(selectors.radioColorScale)!
-      .dispatchEvent(new Event("change", { bubbles: true }));
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
     await nextTick();
 
     // change every value
-    setInputValueAndTrigger(selectors.rangeInput, "B2:B5", "input");
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "input");
 
     triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
     await nextTick();
