@@ -1,7 +1,6 @@
 import * as owl from "@odoo/owl";
 import { sidePanelRegistry, SidePanelContent } from "./side_panel_registry";
 import { SpreadsheetEnv } from "../../types";
-import { TOPBAR_HEIGHT, SCROLLBAR_WIDTH, BOTTOMBAR_HEIGHT } from "../../constants";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -23,15 +22,8 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-sidePanel {
-    position: absolute;
-    top: ${TOPBAR_HEIGHT}px;
-    right: ${SCROLLBAR_WIDTH}px;
-    bottom: ${BOTTOMBAR_HEIGHT}px;
     overflow-x: hidden;
     background-color: white;
-    min-width: 200px;
-    max-width: 350px;
-    border: 1px solid darkgray;
     .o-sidePanelHeader {
       padding: 6px;
       height: 41px;
