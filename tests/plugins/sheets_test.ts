@@ -196,6 +196,32 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheet()).toEqual("Sheet1");
     expect(getText(model, "A1")).toEqual("3");
   });
+
+  test("Cannot delete the last sheet", () => {
+    const model = new Model();
+    const result = model.dispatch("DELETE_SHEET", { sheet: model.getters.getActiveSheet() });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.NotEnoughSheets });
+  });
+
+  test("Can delete the active sheet", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET");
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("DELETE_SHEET", { sheet });
+    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheets()[0]).not.toBe(sheet);
+    expect(model.getters.getActiveSheet()).not.toBe(sheet);
+  });
+
+  test("Can delete a non-active sheet", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { name: "SheetTest" });
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("DELETE_SHEET", { sheet: "SheetTest" });
+    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheets()[0]).toBe(sheet);
+    expect(model.getters.getActiveSheet()).toBe(sheet);
+  });
 });
 
 function getText(model: Model, xc: string): string {

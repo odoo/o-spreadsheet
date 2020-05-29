@@ -75,6 +75,10 @@ export class CorePlugin extends BasePlugin {
           this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.name) === -1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      case "DELETE_SHEET":
+        return this.workbook.sheets.length > 1
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
       default:
         return { status: "SUCCESS" };
     }
@@ -93,6 +97,13 @@ export class CorePlugin extends BasePlugin {
         );
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.name, to: sheet });
+        }
+        break;
+      case "DELETE_SHEET":
+        if (cmd.interactive) {
+          this.interactiveDeleteSheet(cmd.sheet);
+        } else {
+          this.deleteSheet(cmd.sheet);
         }
         break;
       case "DELETE_CONTENT":
@@ -754,6 +765,20 @@ export class CorePlugin extends BasePlugin {
     sheets.push(sheet);
     this.history.updateState(["sheets"], sheets);
     return sheet.name;
+  }
+
+  private interactiveDeleteSheet(name: string) {
+    this.ui.askConfirmation(`Are you sure you want to delete the sheet "${name}"`, () => {
+      this.dispatch("DELETE_SHEET", { sheet: name });
+    });
+  }
+
+  private deleteSheet(name: string) {
+    const sheets = this.workbook.sheets.slice().filter((sheet) => sheet.name !== name);
+    if (this.getters.getActiveSheet() === name) {
+      this.activateSheet(sheets[0].name);
+    }
+    this.history.updateState(["sheets"], sheets);
   }
 
   private clearZones(sheet: string, zones: Zone[]) {
