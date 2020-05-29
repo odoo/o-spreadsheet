@@ -1,12 +1,9 @@
-import * as icons from "../icons";
+import * as icons from "./icons";
 import { Component, tags, useState, hooks } from "@odoo/owl";
-import { SpreadsheetEnv } from "../../types";
-import {
-  ActionContextMenuItem,
-  ContextMenuItem,
-  RootContextMenuItem,
-} from "./context_menu_registry";
-import { BOTTOMBAR_HEIGHT } from "../../constants";
+import { SpreadsheetEnv } from "../types";
+import { BOTTOMBAR_HEIGHT } from "../constants";
+import { FullMenuItem } from "../registries";
+import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 
 const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
@@ -21,50 +18,46 @@ const SEPARATOR_HEIGHT = 1;
 
 const TEMPLATE = xml/* xml */ `
     <div>
-      <div class="o-context-menu" t-att-style="style">
-        <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.name">
-          <t t-set="isEnabled" t-value="!menuItem.isEnabled or menuItem.isEnabled(env.getters.getActiveCell())"/>
+      <div class="o-menu" t-att-style="style">
+        <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
+          <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
+          <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
           <div
-            t-if="menuItem.type === 'action'"
-            t-att-data-name="menuItem.name"
-            t-att-title="menuItem.description"
-            t-on-click="activateMenu(menuItem)"
-            t-on-mouseover="subMenu.isOpen = false"
-            class="o-menuitem"
-            t-att-class="{disabled: !isEnabled}">
-              <t t-esc="menuItem.description"/>
-          </div>
-          <div
-            t-elif="menuItem.type === 'root'"
-            t-att-data-name="menuItem.name"
-            t-att-title="menuItem.description"
-            t-on-click="openSubMenu(menuItem, menuItem_index)"
-            t-on-mouseover="openSubMenu(menuItem, menuItem_index)"
-            class="o-menuitem root-menu"
-            t-att-class="{disabled: !isEnabled}">
-              <t t-esc="menuItem.description"/>
+            t-att-title="getName(menuItem)"
+            t-att-data-name="menuItem.id"
+            t-on-click="onClickMenu(menuItem, menuItem_index)"
+            t-on-mouseover="onMouseOver(menuItem, menuItem_index)"
+            class="o-menu-item"
+            t-att-class="{
+              'o-menu-root': isMenuRoot,
+              'o-separator': menuItem.separator and !menuItem_last,
+              'disabled': !isMenuEnabled,
+            }">
+            <t t-esc="getName(menuItem)"/>
+            <t t-if="isMenuRoot">
               ${icons.TRIANGLE_RIGHT_ICON}
+            </t>
           </div>
-          <div t-else="" class="o-menuitem separator" />
         </t>
       </div>
-      <ContextMenu t-if="subMenu.isOpen"
+      <Menu t-if="subMenu.isOpen"
         position="subMenu.position"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
-        t-ref="subContextMenu"
+        t-ref="subMenuRef"
         t-on-close="subMenu.isOpen=false"/>
     </div>`;
 
 const CSS = css/* scss */ `
-  .o-context-menu {
+  .o-menu {
     position: absolute;
     width: ${MENU_WIDTH}px;
     background-color: white;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     font-size: 13px;
     overflow-y: auto;
-    .o-menuitem {
+    z-index: 10;
+    .o-menu-item {
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
       padding: 7px 20px;
@@ -82,13 +75,11 @@ const CSS = css/* scss */ `
         color: grey;
       }
 
-      &.separator {
-        height: ${SEPARATOR_HEIGHT}px;
-        border-bottom: 1px solid #e0e2e4;
-        padding: 0;
+      &.o-separator {
+        border-bottom: ${SEPARATOR_HEIGHT}px solid #e0e2e4;
       }
 
-      &.root-menu {
+      &.o-menu-root {
         display: flex;
         justify-content: space-between;
       }
@@ -98,25 +89,25 @@ const CSS = css/* scss */ `
 
 interface Props {
   position: { x: number; y: number; width: number; height: number };
-  menuItems: ContextMenuItem[];
+  menuItems: FullMenuItem[];
   depth: number;
 }
 
 export interface MenuState {
   isOpen: boolean;
   position: null | { x: number; y: number; width: number; height: number };
-  menuItems: ContextMenuItem[];
+  menuItems: FullMenuItem[];
 }
 
-export class ContextMenu extends Component<Props, SpreadsheetEnv> {
+export class Menu extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
-  static components = { ContextMenu };
+  static components = { Menu };
   static style = CSS;
   static defaultProps = {
     depth: 1,
   };
   private subMenu: MenuState;
-  subContextMenu = useRef("subContextMenu");
+  subMenuRef = useRef("subMenuRef");
 
   constructor() {
     super(...arguments);
@@ -140,8 +131,8 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
   }
 
   private get menuHeight(): number {
-    const separators = this.props.menuItems.filter((m) => m.type === "separator");
-    const others = this.props.menuItems.filter((m) => m.type !== "separator");
+    const separators = this.props.menuItems.filter((m) => m.separator);
+    const others = this.props.menuItems;
     return MENU_ITEM_HEIGHT * others.length + separators.length * SEPARATOR_HEIGHT;
   }
 
@@ -153,11 +144,9 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
     return `${vStyle}px;${hStyle}px;${heightStyle}px`;
   }
 
-  activateMenu(menu: ActionContextMenuItem) {
-    if (!menu.isEnabled || menu.isEnabled(this.env.getters.getActiveCell())) {
-      menu.action(this.env);
-      this.close();
-    }
+  activateMenu(menu: FullMenuItem) {
+    menu.action(this.env);
+    this.close();
   }
 
   private close() {
@@ -194,13 +183,7 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
    * and the menu item at a given index.
    */
   private menuItemVerticalOffset(index: number): number {
-    return this.props.menuItems
-      .slice(0, index)
-      .reduce(
-        (offset, item) =>
-          offset + (item.type === "separator" ? SEPARATOR_HEIGHT : MENU_ITEM_HEIGHT),
-        0
-      );
+    return this.props.menuItems.slice(0, index).length * MENU_ITEM_HEIGHT;
   }
 
   /**
@@ -227,9 +210,21 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
     this.subMenu.isOpen = false;
   }
 
+  getName(menu: FullMenuItem) {
+    return cellMenuRegistry.getName(menu, this.env);
+  }
+
+  isRoot(menu: FullMenuItem) {
+    return !menu.action;
+  }
+
+  isEnabled(menu: FullMenuItem) {
+    return menu.isEnabled(this.env);
+  }
+
   closeSubMenus() {
-    if (this.subContextMenu.comp) {
-      (<ContextMenu>this.subContextMenu.comp).closeSubMenus();
+    if (this.subMenuRef.comp) {
+      (<Menu>this.subMenuRef.comp).closeSubMenus();
     }
     this.subMenu.isOpen = false;
   }
@@ -238,18 +233,36 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: RootContextMenuItem, position: number) {
+  openSubMenu(menu: FullMenuItem, position: number) {
     this.closeSubMenus();
-    if (!menu.isEnabled || menu.isEnabled(this.env.getters.getActiveCell())) {
-      this.subMenu.isOpen = true;
-      this.subMenu.menuItems = menu.subMenus(this.env);
-      const { width, height } = this.props.position;
-      this.subMenu.position = {
-        x: this.subMenuHorizontalPosition(),
-        y: this.subMenuVerticalPosition(this.subMenu.menuItems.length, position),
-        height,
-        width,
-      };
+    this.subMenu.isOpen = true;
+    this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
+    const { width, height } = this.props.position;
+    this.subMenu.position = {
+      x: this.subMenuHorizontalPosition(),
+      y: this.subMenuVerticalPosition(this.subMenu.menuItems.length, position),
+      height,
+      width,
+    };
+  }
+
+  onClickMenu(menu: FullMenuItem, position: number) {
+    if (menu.isEnabled(this.env)) {
+      if (this.isRoot(menu)) {
+        this.openSubMenu(menu, position);
+      } else {
+        this.activateMenu(menu);
+      }
+    }
+  }
+
+  onMouseOver(menu: FullMenuItem, position: number) {
+    if (menu.isEnabled(this.env)) {
+      if (this.isRoot(menu)) {
+        this.openSubMenu(menu, position);
+      } else {
+        this.subMenu.isOpen = false;
+      }
     }
   }
 }

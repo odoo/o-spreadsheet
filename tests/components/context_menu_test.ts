@@ -2,13 +2,11 @@ import { Model } from "../../src/model";
 import { GridParent, makeTestFixture, nextTick, getCell } from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { toXC } from "../../src/helpers";
-import { ContextMenu } from "../../src/components/context_menu/context_menu";
-import {
-  ContextMenuItem,
-  contextMenuRegistry,
-} from "../../src/components/context_menu/context_menu_registry";
+import { Menu } from "../../src/components/menu";
+import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { Component, tags, hooks } from "@odoo/owl";
 import { SpreadsheetEnv, ConditionalFormat } from "../../src/types";
+import { FullMenuItem, createFullMenuItem } from "../../src/registries";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -50,11 +48,11 @@ function getPosition(selector: string): { top: number; left: number } {
 }
 
 function getMenuPosition() {
-  return getPosition(".o-context-menu");
+  return getPosition(".o-menu");
 }
 
 function getSubMenuPosition() {
-  return getPosition(".o-context-menu + div .o-context-menu");
+  return getPosition(".o-menu + div .o-menu");
 }
 
 function getItemSize() {
@@ -69,20 +67,20 @@ function getSize(menuItemsCount: number): { width: number; height: number } {
 }
 
 function getMenuSize() {
-  const menu = fixture.querySelector(".o-context-menu");
-  const menuItems = menu!.querySelectorAll(".o-menuitem");
+  const menu = fixture.querySelector(".o-menu");
+  const menuItems = menu!.querySelectorAll(".o-menu-item");
   return getSize(menuItems.length);
 }
 
 function getSubMenuSize() {
-  const menu = fixture.querySelector(".o-context-menu + div .o-context-menu");
-  const menuItems = menu!.querySelectorAll(".o-menuitem");
+  const menu = fixture.querySelector(".o-menu + div .o-menu");
+  const menuItems = menu!.querySelectorAll(".o-menu-item");
   return getSize(menuItems.length);
 }
 
 interface ContextMenuTestConfig {
   onClose?: () => void;
-  menuItems?: ContextMenuItem[];
+  menuItems?: FullMenuItem[];
 }
 
 async function renderContextMenu(
@@ -96,38 +94,35 @@ async function renderContextMenu(
   return [x, y];
 }
 
-const subMenu: ContextMenuItem[] = [
-  {
-    type: "root",
+const subMenu: FullMenuItem[] = [
+  createFullMenuItem("root", {
     name: "root",
-    description: "Parent",
-    subMenus: () => [
-      {
-        type: "action",
+    sequence: 1,
+    children: () => [
+      createFullMenuItem("subMenu1", {
         name: "subMenu1",
-        description: "subMenu1",
+        sequence: 1,
         action() {},
-      },
-      {
-        type: "action",
+      }),
+      createFullMenuItem("subMenu2", {
         name: "subMenu2",
-        description: "subMenu2",
+        sequence: 1,
         action() {},
-      },
+      }),
     ],
-  },
+  }),
 ];
 
 class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
-      <ContextMenu
+      <Menu
         t-on-close="onClose"
         position="position"
         menuItems="menus"
       />
   `;
-  static components = { ContextMenu };
-  menus: ContextMenuItem[];
+  static components = { Menu };
+  menus: FullMenuItem[];
   position: { x: number; y: number; width: number; height: number };
   onClose: () => void;
 
@@ -144,12 +139,11 @@ class ContextMenuParent extends Component<any, SpreadsheetEnv> {
     this.onClose = onClose || (() => {});
     this.position = { x, y, width: 1000, height: 1000 };
     this.menus = menuItems || [
-      {
-        type: "action",
+      createFullMenuItem("Action", {
         name: "Action",
-        description: "Action",
+        sequence: 1,
         action() {},
-      },
+      }),
     ];
   }
 }
@@ -167,7 +161,7 @@ describe("Context Menu", () => {
     await parent.mount(fixture);
     simulateContextMenu(300, 200);
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu")).toMatchSnapshot();
+    expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
   });
 
   test("right click on a cell opens a context menu", async () => {
@@ -177,11 +171,11 @@ describe("Context Menu", () => {
     await parent.mount(fixture);
 
     expect(getActiveXc(model)).toBe("A1");
-    expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
     simulateContextMenu(300, 200);
     expect(getActiveXc(model)).toBe("C8");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
@@ -193,11 +187,11 @@ describe("Context Menu", () => {
     simulateContextMenu(300, 200);
     expect(getActiveXc(model)).toBe("C8");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
 
     simulateClick("canvas", 50, 50);
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
   test("can copy/paste with context menu", async () => {
@@ -213,7 +207,7 @@ describe("Context Menu", () => {
     await nextTick();
 
     // click on 'copy' menu item
-    simulateClick(".o-context-menu div[data-name='copy']");
+    simulateClick(".o-menu div[data-name='copy']");
     await nextTick();
 
     // right click on B2
@@ -222,7 +216,7 @@ describe("Context Menu", () => {
     expect(getActiveXc(model)).toBe("B2");
 
     // click on 'paste' menu item
-    simulateClick(".o-context-menu div[data-name='paste']");
+    simulateClick(".o-menu div[data-name='paste']");
     await nextTick();
     expect(getCell(model, "B1")!.content).toBe("b1");
     expect(getCell(model, "B2")!.content).toBe("b1");
@@ -241,7 +235,7 @@ describe("Context Menu", () => {
     await nextTick();
 
     // click on 'cut' menu item
-    simulateClick(".o-context-menu div[data-name='cut']");
+    simulateClick(".o-menu div[data-name='cut']");
     await nextTick();
 
     // right click on B2
@@ -250,7 +244,7 @@ describe("Context Menu", () => {
     expect(getActiveXc(model)).toBe("B2");
 
     // click on 'paste' menu item
-    simulateClick(".o-context-menu div[data-name='paste']");
+    simulateClick(".o-menu div[data-name='paste']");
     await nextTick();
 
     expect(getCell(model, "B1")).toBeNull();
@@ -264,27 +258,25 @@ describe("Context Menu", () => {
     await parent.mount(fixture);
     simulateContextMenu(100, 100);
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
     simulateContextMenu(300, 300);
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("menu can be hidden/displayed based on the env", async () => {
-    const menuDefinitions = Object.assign({}, contextMenuRegistry.content);
-    contextMenuRegistry
+    const menuDefinitions = Object.assign({}, cellMenuRegistry.content);
+    cellMenuRegistry
       .add("visible_action", {
-        type: "action",
         name: "visible_action",
-        description: "visible_action",
-        isVisible: (type, env) => env.getters.getCell(1, 0)!.value === "b1",
+        sequence: 1,
+        isVisible: (env) => env.getters.getCell(1, 0)!.value === "b1",
         action() {},
       })
       .add("hidden_action", {
-        type: "action",
         name: "hidden_action",
-        description: "hidden_action",
-        isVisible: (type, env) => env.getters.getCell(1, 0)!.value !== "b1",
+        sequence: 2,
+        isVisible: (env) => env.getters.getCell(1, 0)!.value !== "b1",
         action() {},
       });
     const model = new Model();
@@ -293,81 +285,77 @@ describe("Context Menu", () => {
     await parent.mount(fixture);
     simulateContextMenu(230, 30);
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='visible_action']")).toBeTruthy();
-    expect(fixture.querySelector(".o-context-menu div[data-name='hidden_action']")).toBeFalsy();
-    contextMenuRegistry.content = menuDefinitions;
+    expect(fixture.querySelector(".o-menu div[data-name='visible_action']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='hidden_action']")).toBeFalsy();
+    cellMenuRegistry.content = menuDefinitions;
   });
 
   test("submenu opens and close when (un)overed", async () => {
-    const menuItems: ContextMenuItem[] = [
-      {
-        type: "action",
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("action", {
         name: "action",
-        description: "action",
+        sequence: 1,
         action() {},
-      },
-      {
-        type: "root",
+      }),
+      createFullMenuItem("root", {
         name: "root",
-        description: "Parent",
-        subMenus: () => [
-          {
-            type: "action",
+        sequence: 2,
+        children: () => [
+          createFullMenuItem("subMenu", {
             name: "subMenu",
-            description: "subMenu",
+            sequence: 1,
             action() {},
-          },
+          }),
         ],
-      },
+      }),
     ];
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-context-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu']")).toBeTruthy();
-    triggerMouseEvent(".o-context-menu div[data-name='action']", "mouseover");
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
+    triggerMouseEvent(".o-menu div[data-name='action']", "mouseover");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu']")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
   test("submenu does not open when disabled", async () => {
-    const menuItems: ContextMenuItem[] = [
-      {
-        type: "root",
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("root", {
         name: "root",
-        description: "Parent",
+        sequence: 1,
         isEnabled: () => false,
-        subMenus: () => [
-          {
-            type: "action",
+        children: () => [
+          createFullMenuItem("subMenu", {
             name: "subMenu",
-            description: "subMenu",
+            sequence: 1,
             action() {},
-          },
+          }),
         ],
-      },
+      }),
     ];
     await renderContextMenu(300, 300, { menuItems });
-    simulateClick(".o-context-menu div[data-name='root']");
+    expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
+    simulateClick(".o-menu div[data-name='root']");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu']")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
   test("submenu does not close when sub item overed", async () => {
     await renderContextMenu(300, 300, { menuItems: subMenu });
-    triggerMouseEvent(".o-context-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu1']")).toBeTruthy();
-    triggerMouseEvent(".o-context-menu div[data-name='subMenu1']", "mouseover");
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
+    triggerMouseEvent(".o-menu div[data-name='subMenu1']", "mouseover");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu1']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
   });
 
   test("menu does not close when root menu is clicked", async () => {
     await renderContextMenu(300, 300, { menuItems: subMenu });
-    simulateClick(".o-context-menu div[data-name='root']");
+    simulateClick(".o-menu div[data-name='root']");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu1']")).toBeTruthy();
-    expect(fixture.querySelector(".o-context-menu div[data-name='root']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='root']")).toBeTruthy();
   });
 
   test("menu closed when sub menu item is clicked", async () => {
@@ -376,98 +364,89 @@ describe("Context Menu", () => {
       onClose: mockCallback,
       menuItems: subMenu,
     });
-    simulateClick(".o-context-menu div[data-name='root']");
+    simulateClick(".o-menu div[data-name='root']");
     await nextTick();
-    simulateClick(".o-context-menu div[data-name='subMenu1']");
+    simulateClick(".o-menu div[data-name='subMenu1']");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu1']")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeFalsy();
     expect(mockCallback).toHaveBeenCalled();
   });
 
   test("it renders subsubmenus", async () => {
-    const menuItems: ContextMenuItem[] = [
-      {
-        type: "root",
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("root1", {
         name: "root1",
-        description: "Parent1",
-        subMenus: () => [
-          {
-            type: "root",
+        sequence: 1,
+        children: () => [
+          createFullMenuItem("root2", {
             name: "root2",
-            description: "Parent2",
-            subMenus: () => [
-              {
-                type: "action",
+            sequence: 1,
+            children: () => [
+              createFullMenuItem("subMenu", {
                 name: "subMenu",
-                description: "subMenu",
+                sequence: 1,
                 action() {},
-              },
+              }),
             ],
-          },
+          }),
         ],
-      },
+      }),
     ];
     await renderContextMenu(300, 990, { menuItems });
     simulateClick("div[data-name='root1']");
     await nextTick();
     simulateClick("div[data-name='root2']");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
   });
 
   test("Submenus are correctly hidden", async () => {
-    const menuItems: ContextMenuItem[] = [
-      {
-        type: "root",
+    const menuItems: FullMenuItem[] = [
+      createFullMenuItem("root_1", {
         name: "root_1",
-        description: "root_1",
-        subMenus: () => [
-          {
-            type: "root",
+        sequence: 1,
+        children: () => [
+          createFullMenuItem("root_1_1", {
             name: "root_1_1",
-            description: "root_1_1",
-            subMenus: () => [
-              {
-                type: "action",
+            sequence: 1,
+            children: () => [
+              createFullMenuItem("subMenu_1", {
                 name: "subMenu_1",
-                description: "subMenu_1",
+                sequence: 1,
                 action() {},
-              },
+              }),
             ],
-          },
+          }),
         ],
-      },
-      {
-        type: "root",
+      }),
+      createFullMenuItem("root_2", {
         name: "root_2",
-        description: "root_2",
-        subMenus: () => [
-          {
-            type: "root",
+        sequence: 2,
+        children: () => [
+          createFullMenuItem("root_2_1", {
             name: "root_2_1",
-            description: "root_2_1",
-            subMenus: () => [
-              {
-                type: "action",
+            sequence: 1,
+            children: () => [
+              createFullMenuItem("subMenu_2", {
                 name: "subMenu_2",
-                description: "subMenu_2",
+                sequence: 1,
                 action() {},
-              },
+              }),
             ],
-          },
+          }),
         ],
-      },
+      }),
     ];
     await renderContextMenu(300, 300, { menuItems });
 
-    triggerMouseEvent(".o-context-menu div[data-name='root_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_1']", "mouseover");
     await nextTick();
-    triggerMouseEvent(".o-context-menu div[data-name='root_1_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_1_1']", "mouseover");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-context-menu div[data-name='root_2']", "mouseover");
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeTruthy();
+    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseover");
     await nextTick();
-    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu_1']")).toBeFalsy();
+    expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeFalsy();
   });
 });
 
@@ -561,34 +540,6 @@ describe("Context Menu position", () => {
     expect(top).toBe(clickY - rootHeight - height);
     expect(left).toBe(clickX + width);
   });
-
-  test("it renders submenu after separator", async () => {
-    const menuItems: ContextMenuItem[] = [
-      {
-        type: "separator",
-      },
-      {
-        type: "root",
-        name: "root",
-        description: "Parent",
-        subMenus: () => [
-          {
-            type: "action",
-            name: "subMenu",
-            description: "subMenu",
-            action() {},
-          },
-        ],
-      },
-    ];
-    const [clickX, clickY] = await renderContextMenu(300, 300, { menuItems });
-    simulateClick("div[data-name='root']");
-    await nextTick();
-    const { left, top } = getSubMenuPosition();
-    const { width } = getSubMenuSize();
-    expect(top).toBe(clickY + 1); // separator = 1px
-    expect(left).toBe(clickX + width);
-  });
 });
 
 describe("Context Menu - CF", () => {
@@ -598,7 +549,7 @@ describe("Context Menu - CF", () => {
     await parent.mount(fixture);
     simulateContextMenu(240, 110);
     await nextTick();
-    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    simulateClick(".o-menu div[data-name='conditional_formatting']");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -631,7 +582,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
-    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    simulateClick(".o-menu div[data-name='conditional_formatting']");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -678,7 +629,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
-    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    simulateClick(".o-menu div[data-name='conditional_formatting']");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -710,7 +661,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(80, 90);
     await nextTick();
-    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    simulateClick(".o-menu div[data-name='conditional_formatting']");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -723,7 +674,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [5, 5] });
     simulateContextMenu(530, 125);
     await nextTick();
-    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    simulateClick(".o-menu div[data-name='conditional_formatting']");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")

@@ -1,15 +1,32 @@
 import * as owl from "@odoo/owl";
 
-import { Style, SpreadsheetEnv } from "../types/index";
+import { Style, SpreadsheetEnv, BorderCommand, Align } from "../types/index";
 import { fontSizes } from "../fonts";
 import * as icons from "./icons";
 import { isEqual } from "../helpers/index";
 import { ColorPicker } from "./color_picker";
-import { menuItemRegistry, FullActionMenuItem } from "../menu_items_registry";
+import { FullMenuItem } from "../registries/menu_items_registry";
+import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { DEFAULT_FONT_SIZE } from "../constants";
+import { MenuState, Menu } from "./menu";
+import { setStyle, setFormatter } from "../registries/index";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
-const { useExternalListener } = hooks;
+const { useExternalListener, useRef } = hooks;
+
+type Tool =
+  | ""
+  | "formatTool"
+  | "alignTool"
+  | "textColorTool"
+  | "fillColorTool"
+  | "borderTool"
+  | "fontSizeTool";
+
+interface State {
+  menuState: MenuState;
+  activeTool: Tool;
+}
 
 const FORMATS = [
   { name: "auto", text: "Automatic" },
@@ -17,41 +34,6 @@ const FORMATS = [
   { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
   { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
 ];
-
-owl.QWeb.registerTemplate(
-  "spreadsheet_menu_child_template",
-  `
-  <t t-foreach="menu.children" t-as="child" t-key="child.id">
-    <t t-if="child.isVisible(env)">
-      <t t-if="child.children.length !== 0">
-        <div class="o-menu-dropdown-item">
-          <div t-esc="typeof child.name === 'function' ? child.name(env) : child.name "/>
-          <div>${icons.TRIANGLE_RIGHT_ICON}</div>
-          <div class="o-menu-dropdown-content o-menu-dropdown-submenu">
-            <t t-call="spreadsheet_menu_child_template">
-              <t t-set="menu" t-value="child"/>
-            </t>
-          </div>
-        </div>
-        <div t-if="child.separator and !child_last" class="o-separator"/>
-      </t>
-      <t t-elif="child.action">
-        <div class="o-menu-dropdown-item" t-esc="typeof child.name === 'function' ? child.name(env) : child.name" t-on-click.stop="doAction(child.action)"/>
-        <div t-if="child.separator and !child_last" class="o-separator"/>
-      </t>
-    </t>
-  </t>
-`
-);
-
-const MENU_TEMPLATE = xml/* xml */ `
-  <div class="o-topbar-menu o-menu-dropdown" t-if="menu.children.length !== 0" t-on-click.stop="toggleDropdownMenu(menu.id)" t-on-mouseover="onMouseOver(menu.id)" t-att-data-id="menu.id">
-    <t t-esc="typeof menu.name === 'function' ? menu.name(env) : menu.name"/>
-    <div class="o-menu-dropdown-content" t-if="state.menu === menu.id">
-      <t t-call="spreadsheet_menu_child_template"/>
-    </div>
-  </div>
-`;
 
 // -----------------------------------------------------------------------------
 // TopBar
@@ -62,8 +44,19 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       <!-- Menus -->
       <div class="o-topbar-menus">
         <t t-foreach="menus" t-as="menu" t-key="menu_index">
-          <t t-call="${MENU_TEMPLATE}"/>
+          <div t-if="menu.children.length !== 0"
+            class="o-topbar-menu"
+            t-on-click.stop="toggleContextMenu(menu)"
+            t-on-mouseover="onMenuMouseOver(menu)"
+            t-att-data-id="menu.id">
+          <t t-esc="getMenuName(menu)"/>
+        </div>
         </t>
+        <Menu t-if="state.menuState.isOpen"
+              position="state.menuState.position"
+              menuItems="state.menuState.menuItems"
+              t-ref="menuRef"
+              t-on-close="state.menuState.isOpen=false"/>
       </div>
       <!-- Toolbar and Cell Content -->
       <div class="o-topbar-toolbar">
@@ -76,7 +69,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-divider"/>
           <div class="o-tool o-dropdown" title="Format" t-on-click.stop="toggleDropdownTool('formatTool')">
             <div class="o-text-icon">Format ${icons.TRIANGLE_DOWN_ICON}</div>
-            <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.tools.formatTool" t-on-click="setFormat">
+            <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
               <t t-foreach="formats" t-as="format" t-key="format.name">
                 <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
               </t>
@@ -86,28 +79,28 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <!-- <div class="o-tool" title="Font"><span>Roboto</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
           <div class="o-tool o-dropdown" title="Font Size" t-on-click.stop="toggleDropdownTool('fontSizeTool')">
             <div class="o-text-icon"><t t-esc="style.fontSize || ${DEFAULT_FONT_SIZE}"/> ${icons.TRIANGLE_DOWN_ICON}</div>
-            <div class="o-dropdown-content o-text-options "  t-if="state.tools.fontSizeTool" t-on-click="setSize">
+            <div class="o-dropdown-content o-text-options "  t-if="state.activeTool === 'fontSizeTool'" t-on-click="setSize">
               <t t-foreach="fontSizes" t-as="font" t-key="font_index">
                 <div t-esc="font.pt" t-att-data-size="font.pt"/>
               </t>
             </div>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toggleTool('bold')">${icons.BOLD_ICON}</div>
-          <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleTool('italic')">${icons.ITALIC_ICON}</div>
-          <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}</div>
+          <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toggleFormat('bold')">${icons.BOLD_ICON}</div>
+          <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleFormat('italic')">${icons.ITALIC_ICON}</div>
+          <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleFormat('strikethrough')">${icons.STRIKE_ICON}</div>
           <div class="o-tool o-dropdown o-with-color">
             <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click.stop="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
-            <ColorPicker t-if="state.tools.textColorTool" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
+            <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
           </div>
           <div class="o-divider"/>
           <div class="o-tool  o-dropdown o-with-color">
             <span t-attf-style="border-color:{{fillColor}}" title="Fill Color" t-on-click.stop="toggleDropdownTool('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
-            <ColorPicker t-if="state.tools.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
+            <ColorPicker t-if="state.activeTool === 'fillColorTool'" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
           </div>
           <div class="o-tool o-dropdown">
             <span title="Borders" t-on-click.stop="toggleDropdownTool('borderTool')">${icons.BORDERS_ICON}</span>
-            <div class="o-dropdown-content o-border" t-if="state.tools.borderTool">
+            <div class="o-dropdown-content o-border" t-if="state.activeTool === 'borderTool'">
               <div class="o-dropdown-line">
                 <span class="o-line-item" t-on-click="setBorder('all')">${icons.BORDERS_ICON}</span>
                 <span class="o-line-item" t-on-click="setBorder('hv')">${icons.BORDER_HV}</span>
@@ -133,10 +126,10 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
               <t t-else="">${icons.ALIGN_LEFT_ICON}</t>
               ${icons.TRIANGLE_DOWN_ICON}
             </span>
-            <div t-if="state.tools.alignTool" class="o-dropdown-content">
-              <div class="o-dropdown-item" t-on-click="useTool('align', 'left')">${icons.ALIGN_LEFT_ICON}</div>
-              <div class="o-dropdown-item" t-on-click="useTool('align', 'center')">${icons.ALIGN_CENTER_ICON}</div>
-              <div class="o-dropdown-item" t-on-click="useTool('align', 'right')">${icons.ALIGN_RIGHT_ICON}</div>
+            <div t-if="state.activeTool === 'alignTool'" class="o-dropdown-content">
+              <div class="o-dropdown-item" t-on-click="toggleAlign('left')">${icons.ALIGN_LEFT_ICON}</div>
+              <div class="o-dropdown-item" t-on-click="toggleAlign('center')">${icons.ALIGN_CENTER_ICON}</div>
+              <div class="o-dropdown-item" t-on-click="toggleAlign('right')">${icons.ALIGN_RIGHT_ICON}</div>
             </div>
           </div>
           <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
@@ -174,51 +167,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         .o-topbar-menu:hover {
           background-color: #f1f3f4;
           border-radius: 2px;
-        }
-
-        .o-menu-dropdown {
-          position: relative;
-
-          .o-menu-dropdown-content {
-            position: absolute;
-            padding: 5px 0px;
-            top: 100%;
-            left: 0;
-            z-index: 10;
-            box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-            background-color: white;
-            min-width: 200px;
-
-            &.o-menu-dropdown-submenu {
-              visibility: hidden;
-              top: -5px;
-              left: 100%;
-            }
-
-            .o-menu-dropdown-item {
-              cursor: pointer;
-              position: relative;
-              padding: 7px 20px;
-              padding-right: 2px;
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              .o-icon {
-                height: 14px;
-              }
-            }
-
-            .o-menu-dropdown-item:hover {
-              background-color: rgba(0, 0, 0, 0.08);
-              .o-menu-dropdown-submenu {
-                visibility: visible;
-              }
-            }
-
-            .o-separator {
-              border-bottom: 1px solid #e0e2e4;
-            }
-          }
         }
       }
 
@@ -359,7 +307,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       }
     }
   `;
-  static components = { ColorPicker };
+  static components = { ColorPicker, Menu };
   formats = FORMATS;
   currentFormat = "auto";
   fontSizes = fontSizes;
@@ -367,16 +315,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   getters = this.env.getters;
 
   style: Style = {};
-  state = useState({
-    menu: "" as string,
-    tools: {
-      formatTool: false,
-      alignTool: false,
-      textColorTool: false,
-      fillColorTool: false,
-      borderTool: false,
-      fontSizeTool: false,
-    },
+  state: State = useState({
+    menuState: { isOpen: false, position: null, menuItems: [] },
+    activeTool: "",
   });
   isSelectingMenu = false;
   inMerge = false;
@@ -386,7 +327,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   paintFormatTool = false;
   fillColor: string = "white";
   textColor: string = "black";
-  menus: FullActionMenuItem[] = [];
+  menus: FullMenuItem[] = [];
+  menuRef = useRef("menuRef");
 
   constructor() {
     super(...arguments);
@@ -400,47 +342,47 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.updateCellState();
   }
 
-  toggleTool(tool: string) {
-    const value = !this.style[tool];
-    this.useTool(tool, value);
-  }
-  useTool(tool, value) {
-    const style = { [tool]: value };
-    this.dispatch("SET_FORMATTING", {
-      sheet: this.getters.getActiveSheet(),
-      target: this.getters.getSelectedZones(),
-      style,
-    });
+  toggleFormat(format: string) {
+    setStyle(this.env, { [format]: !this.style[format] });
   }
 
-  onMouseOver(menu: string) {
+  toggleAlign(align: Align) {
+    setStyle(this.env, { ["align"]: align });
+  }
+
+  onMenuMouseOver(menu: FullMenuItem, ev: MouseEvent) {
     if (this.isSelectingMenu) {
-      this.state.menu = menu;
+      this.toggleContextMenu(menu, ev);
     }
   }
 
-  toggleDropdownTool(tool: string) {
-    const isOpen = this.state.tools[tool];
+  toggleDropdownTool(tool: Tool) {
+    const isOpen = this.state.activeTool === tool;
     this.closeMenus();
-    this.state.tools[tool] = !isOpen;
+    this.state.activeTool = isOpen ? "" : tool;
   }
 
-  toggleDropdownMenu(menu: string) {
-    const isOpen = this.state.menu === menu;
+  toggleContextMenu(menu: FullMenuItem, ev: MouseEvent) {
     this.closeMenus();
-    this.state.menu = !isOpen ? menu : "";
-    this.isSelectingMenu = !isOpen;
+    const x = (ev.target as HTMLElement).offsetLeft;
+    const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
+    this.state.menuState.isOpen = true;
+    const width = this.el!.clientWidth;
+    const height = this.el!.parentElement!.clientHeight;
+    this.state.menuState.position = { x, y, width, height };
+    this.state.menuState.menuItems = topbarMenuRegistry
+      .getChildren(menu, this.env)
+      .sort((a, b) => a.sequence - b.sequence);
+    this.isSelectingMenu = true;
   }
 
   closeMenus() {
-    this.state.tools.formatTool = false;
-    this.state.tools.alignTool = false;
-    this.state.tools.fillColorTool = false;
-    this.state.tools.textColorTool = false;
-    this.state.tools.borderTool = false;
-    this.state.tools.fontSizeTool = false;
-    this.state.menu = "";
+    this.state.activeTool = "";
+    this.state.menuState.isOpen = false;
     this.isSelectingMenu = false;
+    if (this.menuRef.comp) {
+      (<Menu>this.menuRef.comp).closeSubMenus();
+    }
   }
 
   updateCellState() {
@@ -466,18 +408,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     } else {
       this.currentFormat = "auto";
     }
-    this.menus = menuItemRegistry.getAll();
+    this.menus = topbarMenuRegistry.getAll();
     this.menus.sort((a, b) => a.sequence - b.sequence);
-    for (let menu of this.menus) {
-      this.sortMenus(menu);
-    }
   }
 
-  sortMenus(menu: FullActionMenuItem) {
-    menu.children.sort((a, b) => a.sequence - b.sequence);
-    for (let child of menu.children) {
-      this.sortMenus(child);
-    }
+  getMenuName(menu: FullMenuItem) {
+    return topbarMenuRegistry.getName(menu, this.env);
   }
 
   toggleMerge() {
@@ -490,61 +426,55 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       this.dispatch("ADD_MERGE", { sheet, zone, interactive: true });
     }
   }
+
   setColor(target: string, ev: CustomEvent) {
-    const color = ev.detail.color;
-    const style = { [target]: color };
-    this.dispatch("SET_FORMATTING", {
-      sheet: this.getters.getActiveSheet(),
-      target: this.getters.getSelectedZones(),
-      style,
-    });
-    this.closeMenus();
+    setStyle(this.env, { [target]: ev.detail.color });
   }
-  setBorder(command) {
+
+  setBorder(command: BorderCommand) {
     this.dispatch("SET_FORMATTING", {
       sheet: this.getters.getActiveSheet(),
       target: this.getters.getSelectedZones(),
       border: command,
     });
   }
+
   setFormat(ev: MouseEvent) {
     const format = (ev.target as HTMLElement).dataset.format;
     if (format) {
       const formatter = FORMATS.find((f) => f.name === format);
       const value = (formatter && formatter.value) || "";
-      this.dispatch("SET_FORMATTER", {
-        sheet: this.getters.getActiveSheet(),
-        target: this.getters.getSelectedZones(),
-        formatter: value,
-      });
+      setFormatter(this.env, value);
     }
   }
+
   paintFormat() {
     this.dispatch("ACTIVATE_PAINT_FORMAT", {
       target: this.getters.getSelectedZones(),
     });
   }
+
   clearFormatting() {
     this.dispatch("CLEAR_FORMATTING", {
       sheet: this.getters.getActiveSheet(),
       target: this.getters.getSelectedZones(),
     });
   }
-  setSize(ev) {
-    const fontSize = parseFloat(ev.target.dataset.size);
-    this.dispatch("SET_FORMATTING", {
-      sheet: this.getters.getActiveSheet(),
-      target: this.getters.getSelectedZones(),
-      style: { fontSize },
-    });
+
+  setSize(ev: MouseEvent) {
+    const fontSize = parseFloat((ev.target as HTMLElement).dataset.size!);
+    setStyle(this.env, { fontSize });
   }
+
   doAction(action: (env: SpreadsheetEnv) => void) {
     action(this.env);
     this.closeMenus();
   }
+
   undo() {
     this.dispatch("UNDO");
   }
+
   redo() {
     this.dispatch("REDO");
   }

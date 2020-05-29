@@ -1,4 +1,4 @@
-import { Style, Border, Zone } from "./misc";
+import { Style, Border, Zone, Align } from "./misc";
 
 export type Rect = [number, number, number, number];
 
@@ -11,7 +11,7 @@ export interface Box {
   textWidth: number;
   style: Style | null;
   border: Border | null;
-  align: "left" | "right" | "center" | null;
+  align: Align;
   clipRect: Rect | null;
   error?: string;
 }

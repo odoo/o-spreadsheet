@@ -417,7 +417,7 @@ export class RendererPlugin extends BasePlugin {
           if (conditionalStyle) {
             style = Object.assign({}, style, conditionalStyle);
           }
-          const align = text ? (style && style.align) || computeAlign(cell) : null;
+          const align = text ? (style && style.align) || computeAlign(cell) : undefined;
           let clipRect: Rect | null = null;
           if (text && textWidth > cols[cell.col].size) {
             if (align === "left") {

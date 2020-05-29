@@ -1,16 +1,17 @@
 import { Model } from "../src";
-import { menuItemRegistry } from "../src/components";
 import { fontSizes } from "../src/fonts";
-import { FullActionMenuItem } from "../src/menu_items_registry";
+import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
 import { GridParent, makeTestFixture } from "./helpers";
 
-function getNode(_path: string[]): FullActionMenuItem {
+function getNode(_path: string[]): FullMenuItem {
   const path = [..._path];
   const root = path.splice(0, 1)[0];
-  let node = menuItemRegistry.get(root);
+  let node = topbarMenuRegistry.get(root);
   for (let p of path) {
-    node = node.children.find((child) => child.id === p)!;
+    if (typeof node.children !== "function") {
+      node = node.children.find((child) => child.id === p)!;
+    }
   }
   return node;
 }
@@ -28,17 +29,17 @@ function getName(path: string[], env: SpreadsheetEnv): string {
 describe("Menu Item Registry", () => {
   let menuDefinitions;
   beforeEach(() => {
-    menuDefinitions = Object.assign({}, menuItemRegistry.content);
+    menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
   });
 
   afterEach(() => {
-    menuItemRegistry.content = menuDefinitions;
+    topbarMenuRegistry.content = menuDefinitions;
   });
   test("Can add children to menu Items", () => {
-    menuItemRegistry.add("root", { name: "Root", sequence: 1 });
-    menuItemRegistry.addChild("child1", ["root"], { name: "Child1", sequence: 1 });
-    menuItemRegistry.addChild("child2", ["root", "child1"], { name: "Child2", sequence: 1 });
-    const item = menuItemRegistry.get("root");
+    topbarMenuRegistry.add("root", { name: "Root", sequence: 1 });
+    topbarMenuRegistry.addChild("child1", ["root"], { name: "Child1", sequence: 1 });
+    topbarMenuRegistry.addChild("child2", ["root", "child1"], { name: "Child2", sequence: 1 });
+    const item = topbarMenuRegistry.get("root");
     expect(item.children).toHaveLength(1);
     expect(item.children[0].name).toBe("Child1");
     expect(item.children[0].id).toBe("child1");
@@ -49,11 +50,14 @@ describe("Menu Item Registry", () => {
 
   test("Adding a child to non-existing item throws", () => {
     expect(() =>
-      menuItemRegistry.addChild("child", ["non-existing"], { name: "child", sequence: 1 })
+      topbarMenuRegistry.addChild("child", ["non-existing"], { name: "child", sequence: 1 })
     ).toThrow();
-    menuItemRegistry.add("root", { name: "Root", sequence: 1 });
+    topbarMenuRegistry.add("root", { name: "Root", sequence: 1 });
     expect(() =>
-      menuItemRegistry.addChild("child1", ["root", "non-existing"], { name: "Child1", sequence: 1 })
+      topbarMenuRegistry.addChild("child1", ["root", "non-existing"], {
+        name: "Child1",
+        sequence: 1,
+      })
     ).toThrow();
   });
 });

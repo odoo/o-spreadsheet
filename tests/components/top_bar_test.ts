@@ -2,7 +2,7 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
 import { getCell, makeTestFixture, nextTick, GridParent } from "../helpers";
-import { menuItemRegistry } from "../../src/menu_items_registry";
+import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { ConditionalFormat } from "../../src/types";
@@ -228,46 +228,49 @@ describe("TopBar component", () => {
   test("Can open a Topbar menu", async () => {
     const parent = new Parent(new Model());
     await parent.mount(fixture);
-    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
-    const items = menuItemRegistry.getAll();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    const items = topbarMenuRegistry.getAll();
     const number = items.filter((item) => item.children.length !== 0).length;
     expect(fixture.querySelectorAll(".o-topbar-menu")).toHaveLength(number);
-    triggerMouseEvent(".o-menu-dropdown[data-id='file']", "click");
+    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
     await nextTick();
-    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
-    const numberChild = menuItemRegistry
-      .get("file")
-      .children.filter((item) => item.children.length !== 0 || item.action).length;
-    expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    const file = topbarMenuRegistry.get("file");
+    const numberChild = topbarMenuRegistry
+      .getChildren(file, parent.env)
+      .filter((item) => item.children.length !== 0 || item.action).length;
+    expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     triggerMouseEvent(".o-spreadsheet-topbar", "click");
     await nextTick();
-    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
 
   test("Can open a Topbar menu with mousemove", async () => {
     const parent = new Parent(new Model());
     await parent.mount(fixture);
-    triggerMouseEvent(".o-menu-dropdown[data-id='file']", "click");
+    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
     await nextTick();
-    let numberChild = menuItemRegistry
-      .get("file")
-      .children.filter((item) => item.children.length !== 0 || item.action).length;
-    expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
-    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
-    triggerMouseEvent(".o-menu-dropdown[data-id='insert']", "mouseover");
+    const file = topbarMenuRegistry.get("file");
+    let numberChild = topbarMenuRegistry
+      .getChildren(file, parent.env)
+      .filter((item) => item.children.length !== 0 || item.action).length;
+    expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    triggerMouseEvent(".o-topbar-menu[data-id='insert']", "mouseover");
     await nextTick();
-    numberChild = menuItemRegistry
-      .get("insert")
-      .children.filter((item) => item.children.length !== 0 || item.action).length;
-    expect(fixture.querySelectorAll(".o-menu-dropdown-item")).toHaveLength(numberChild);
-    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(1);
+    const insert = topbarMenuRegistry.get("insert");
+    numberChild = topbarMenuRegistry
+      .getChildren(insert, parent.env)
+      .filter((item) => item.children.length !== 0 || item.action).length;
+    expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
   });
 
   test("Can click on a menuItem do execute action and close menus", async () => {
-    const menuDefinitions = Object.assign({}, menuItemRegistry.content);
+    const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
     let number = 0;
-    menuItemRegistry.add("test", { name: "Test", sequence: 1 });
-    menuItemRegistry.addChild("testaction", ["test"], {
+    topbarMenuRegistry.add("test", { name: "Test", sequence: 1 });
+    topbarMenuRegistry.addChild("testaction", ["test"], {
       name: "TestAction",
       sequence: 1,
       action: () => {
@@ -277,13 +280,13 @@ describe("TopBar component", () => {
     });
     const parent = new Parent(new Model());
     await parent.mount(fixture);
-    triggerMouseEvent(".o-menu-dropdown[data-id='test']", "click");
+    triggerMouseEvent(".o-topbar-menu[data-id='test']", "click");
     await nextTick();
-    triggerMouseEvent(".o-menu-dropdown-item", "click");
+    triggerMouseEvent(".o-menu-item", "click");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
     expect(number).toBe(1);
-    menuItemRegistry.content = menuDefinitions;
+    topbarMenuRegistry.content = menuDefinitions;
   });
 });
 describe("TopBar - CF", () => {
@@ -291,12 +294,10 @@ describe("TopBar - CF", () => {
     const model = new Model();
     const parent = new GridParent(model);
     await parent.mount(fixture);
-    triggerMouseEvent(".o-menu-dropdown[data-id='format']", "click");
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();
-    const cfButton = fixture.querySelectorAll(".o-menu-dropdown-item")[24];
-    triggerMouseEvent(cfButton, "click");
+    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
-    debugger;
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
@@ -327,11 +328,9 @@ describe("TopBar - CF", () => {
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
 
-    triggerMouseEvent(".o-menu-dropdown[data-id='format']", "click");
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();
-
-    const cfButton = fixture.querySelectorAll(".o-menu-dropdown-item")[24];
-    triggerMouseEvent(cfButton, "click");
+    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
@@ -377,11 +376,9 @@ describe("TopBar - CF", () => {
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
 
-    triggerMouseEvent(".o-menu-dropdown[data-id='format']", "click");
+    triggerMouseEvent(".o-topbar-menu[data-id='format']", "click");
     await nextTick();
-
-    const cfButton = fixture.querySelectorAll(".o-menu-dropdown-item")[24];
-    triggerMouseEvent(cfButton, "click");
+    triggerMouseEvent(".o-menu-item[data-name='format_cf']", "click");
     await nextTick();
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
