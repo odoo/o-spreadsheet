@@ -17,19 +17,20 @@ const { useSubEnv } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet" t-on-save-requested="save">
-    <TopBar t-on-click="focusGrid"/>
-    <Grid model="model" t-ref="grid"/>
-    <BottomBar />
+    <TopBar t-on-click="focusGrid" class="o-two-columns"/>
+    <Grid model="model" t-ref="grid" t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
+    <BottomBar class="o-two-columns"/>
   </div>`;
 
 const CSS = css/* scss */ `
   .o-spreadsheet {
     display: grid;
     grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px;
+    grid-template-columns: auto 350px;
     * {
       font-family: "Roboto", "RobotoDraft", Helvetica, Arial, sans-serif;
     }
@@ -39,6 +40,10 @@ const CSS = css/* scss */ `
     *:after {
       box-sizing: content-box;
     }
+  }
+
+  .o-two-columns {
+    grid-column: 1 / 3;
   }
 
   .o-icon {

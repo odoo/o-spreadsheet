@@ -5,7 +5,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
   class="o-spreadsheet"
 >
   <div
-    class="o-spreadsheet-topbar"
+    class="o-spreadsheet-topbar o-two-columns"
   >
     <!-- Menus -->
     <div
@@ -303,7 +303,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     </div>
   </div>
   <div
-    class="o-grid"
+    class="o-grid o-two-columns"
   >
     <canvas
       height="150"
@@ -349,7 +349,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     </div>
   </div>
   <div
-    class="o-spreadsheet-bottom-bar"
+    class="o-spreadsheet-bottom-bar o-two-columns"
   >
     <span
       class="o-add-sheet"
