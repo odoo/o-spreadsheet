@@ -204,6 +204,15 @@ describe("Menu Item actions", () => {
     });
   });
 
+  test("Edit -> edit_delete_sheet", () => {
+    model.dispatch("CREATE_SHEET");
+    doAction(["edit", "edit_delete_sheet"], env);
+    expect(env.dispatch).toHaveBeenCalledWith("DELETE_SHEET", {
+      interactive: true,
+      sheet: model.getters.getActiveSheet(),
+    });
+  });
+
   describe("Insert -> Row above", () => {
     const path = ["insert", "insert_row_before"];
 

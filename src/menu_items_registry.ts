@@ -255,6 +255,14 @@ menuItemRegistry
       });
     },
   })
+  .addChild("edit_delete_sheet", ["edit"], {
+    name: "Delete sheet",
+    sequence: 100,
+    action: (env: SpreadsheetEnv) => {
+      env.dispatch("DELETE_SHEET", { sheet: env.getters.getActiveSheet(), interactive: true });
+    },
+    isVisible: (env: SpreadsheetEnv) => env.getters.getSheets().length > 1,
+  })
   .addChild("insert_row_before", ["insert"], {
     name: (env: SpreadsheetEnv) => {
       const number = getRowsNumber(env);
