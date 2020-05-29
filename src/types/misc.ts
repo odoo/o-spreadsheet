@@ -8,11 +8,13 @@ export interface Zone {
   bottom: number;
 }
 
+export type Align = "left" | "right" | "center" | undefined;
+
 export interface Style {
   bold?: boolean;
   italic?: boolean;
   strikethrough?: boolean;
-  align?: "left" | "right" | "center";
+  align?: Align;
   fillColor?: string;
   textColor?: string;
   fontSize?: number; // in pt, not in px!

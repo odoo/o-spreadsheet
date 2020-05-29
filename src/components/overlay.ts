@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../constants";
 import { Col, Row, SpreadsheetEnv, Viewport } from "../types/index";
-import { ContextMenuType } from "./context_menu/context_menu_registry";
+import { ContextMenuType } from "./grid";
 import { startDnd } from "../helpers/drag_and_drop";
 
 const { Component } = owl;
@@ -288,7 +288,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getType(): ContextMenuType {
-    return "COLUMN";
+    return "COL";
   }
 
   _getActiveElements(): Set<number> {

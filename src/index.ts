@@ -1,9 +1,17 @@
-import { contextMenuRegistry, sidePanelRegistry, menuItemRegistry } from "./components/index";
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { numberToLetters, toXC, toZone, toCartesian } from "./helpers/index";
 import { pluginRegistry } from "./plugins/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "./registries/index";
+import {
+  autofillModifiersRegistry,
+  autofillRulesRegistry,
+  cellMenuRegistry,
+  colMenuRegistry,
+  createFullMenuItem,
+  rowMenuRegistry,
+  topbarMenuRegistry,
+  sidePanelRegistry,
+} from "./registries/index";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -20,13 +28,15 @@ export { parse } from "./formulas/parser";
 export { setTranslationMethod } from "./translation";
 
 export const registries = {
-  sidePanelRegistry,
-  contextMenuRegistry,
-  menuItemRegistry,
-  functionRegistry,
-  pluginRegistry,
   autofillModifiersRegistry,
   autofillRulesRegistry,
+  cellMenuRegistry,
+  colMenuRegistry,
+  functionRegistry,
+  pluginRegistry,
+  rowMenuRegistry,
+  sidePanelRegistry,
+  topbarMenuRegistry,
 };
 
 export const helpers = {
@@ -38,4 +48,5 @@ export const helpers = {
   toZone,
   toCartesian,
   numberToLetters,
+  createFullMenuItem,
 };

@@ -1,6 +1,6 @@
-import { Registry } from "../../registry";
-import { ConditionalFormattingPanel } from "./conditional_formatting";
-import { SpreadsheetEnv } from "../../types";
+import { Registry } from "../registry";
+import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting";
+import { SpreadsheetEnv } from "../types";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry

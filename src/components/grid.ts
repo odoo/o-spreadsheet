@@ -10,12 +10,14 @@ import { isEqual, isInside } from "../helpers/index";
 import { Model } from "../model";
 import { SpreadsheetEnv, Viewport } from "../types/index";
 import { Composer } from "./composer/composer";
-import { ContextMenu, MenuState } from "./context_menu/context_menu";
-import { ContextMenuType, contextMenuRegistry } from "./context_menu/context_menu_registry";
+import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { Autofill } from "./autofill";
 import { startDnd } from "../helpers/drag_and_drop";
 import { ScrollBar } from "./scrollbar";
+import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
+import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
+import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -31,6 +33,13 @@ import { ScrollBar } from "./scrollbar";
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 const { useRef, onMounted, onWillUnmount } = owl.hooks;
+export type ContextMenuType = "ROW" | "COL" | "CELL";
+
+const registries = {
+  ROW: rowMenuRegistry,
+  COL: colMenuRegistry,
+  CELL: cellMenuRegistry,
+};
 
 // copy and paste are specific events that should not be managed by the keydown event,
 // but they shouldn't be preventDefault and stopped (else copy and paste events will not trigger)
@@ -176,10 +185,10 @@ const TEMPLATE = xml/* xml */ `
       <Autofill position="getAutofillPosition()" viewport="snappedViewport"/>
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
-    <ContextMenu t-if="contextMenu.isOpen"
-      menuItems="contextMenu.menuItems"
-      position="contextMenu.position"
-      t-on-close.stop="contextMenu.isOpen=false"/>
+    <Menu t-if="menuState.isOpen"
+      menuItems="menuState.menuItems"
+      position="menuState.position"
+      t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridSize()"/>
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
@@ -241,9 +250,9 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Overlay, ContextMenu, Autofill };
+  static components = { Composer, Overlay, Menu, Autofill };
 
-  private contextMenu: MenuState = useState({
+  private menuState: MenuState = useState({
     isOpen: false,
     position: null,
     menuItems: [],
@@ -550,7 +559,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.dispatch("SELECT_CELL", { col, row });
     } else {
       if (this.getters.getActiveCols().has(col)) {
-        type = "COLUMN";
+        type = "COL";
       } else if (this.getters.getActiveRows().has(row)) {
         type = "ROW";
       }
@@ -566,15 +575,15 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   toggleContextMenu(type: ContextMenuType, x: number, y: number) {
-    this.contextMenu.isOpen = true;
-    this.contextMenu.position = {
+    this.menuState.isOpen = true;
+    this.menuState.position = {
       x,
       y,
       width: this.el!.clientWidth,
       height: this.el!.clientHeight,
     };
-    this.contextMenu.menuItems = contextMenuRegistry
+    this.menuState.menuItems = registries[type]
       .getAll()
-      .filter((item) => !item.isVisible || item.isVisible(type, this.env));
+      .filter((item) => !item.isVisible || item.isVisible(this.env));
   }
 }

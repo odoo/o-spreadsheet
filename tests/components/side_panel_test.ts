@@ -1,8 +1,8 @@
 import { Model } from "../../src/model";
 import { GridParent, makeTestFixture, nextTick } from "../helpers";
-import { sidePanelRegistry } from "../../src/components";
+import { sidePanelRegistry } from "../../src/registries/index";
 import { Component, tags } from "@odoo/owl";
-import { SidePanelContent } from "../../src/components/side_panel/side_panel_registry";
+import { SidePanelContent } from "../../src/registries/side_panel_registry";
 
 const { xml } = tags;
 
