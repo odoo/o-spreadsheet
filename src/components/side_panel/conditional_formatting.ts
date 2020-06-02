@@ -44,6 +44,11 @@ const PREVIEW_TEMPLATE = xml/* xml */ `
     </div>
     <div class="o-cf-preview-range" t-esc="cf.ranges"/>
   </div>
+  <div class="o-cf-delete">
+    <div class="o-cf-delete-button" t-on-click.stop="onDeleteClick(cf)" aria-label="Remove rule">
+      x
+    </div>
+  </div>
 </div>`;
 
 const TEMPLATE = xml/* xml */ `
@@ -102,6 +107,12 @@ const CSS = css/* scss */ `
       height: 60px;
       padding: 10px;
       position: relative;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
+      &:not(:hover) .o-cf-delete-button {
+        display: none;
+      }
       .o-cf-preview-image {
         border: 1px solid lightgrey;
         height: 50px;
@@ -129,6 +140,12 @@ const CSS = css/* scss */ `
           font-size: 12px;
           overflow: hidden;
         }
+      }
+      .o-cf-delete{
+        height: 56px;
+        left: 250px;
+        line-height: 56px;
+        position: absolute;
       }
     }
     .o-cf-ruleEditor {
@@ -300,6 +317,10 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     this.state.currentCF = undefined;
   }
 
+  onDeleteClick(cf: ConditionalFormat) {
+    this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id });
+    this.state.conditionalFormats = this.getters.getConditionalFormats();
+  }
   onRuleClick(cf) {
     this.state.mode = "edit";
     this.state.currentCF = cf;
