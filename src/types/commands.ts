@@ -114,6 +114,11 @@ export interface AddConditionalFormatCommand extends BaseCommand {
   cf: ConditionalFormat;
 }
 
+export interface RemoveConditionalFormatCommand extends BaseCommand {
+  type: "REMOVE_CONDITIONAL_FORMAT";
+  id: string;
+}
+
 export interface RemoveColumnsCommand extends BaseCommand {
   type: "REMOVE_COLUMNS";
   columns: number[];
@@ -352,6 +357,7 @@ export type Command =
   | DeleteContentCommand
   | EvaluateCellsCommand
   | AddConditionalFormatCommand
+  | RemoveConditionalFormatCommand
   | AddHighlightsCommand
   | RemoveHighlightsCommand
   | StartComposerSelectionCommand
