@@ -81,6 +81,56 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#0000FF" });
   });
 
+  test("remove a conditional format rule", () => {
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: "3" });
+    model.dispatch("SET_VALUE", { xc: "A4", text: "4" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1"),
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
+    });
+    expect(model.getters.getConditionalFormats()).toEqual([
+      {
+        rule: {
+          values: ["2"],
+          operator: "Equal",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+        id: "1",
+        ranges: ["A1:A4"],
+      },
+      {
+        rule: {
+          values: ["4"],
+          operator: "Equal",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#0000FF",
+          },
+        },
+        id: "2",
+        ranges: ["A1:A4"],
+      },
+    ]);
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A3")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#0000FF" });
+    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+      id: "2",
+    });
+    expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A3")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("A4")).toBeUndefined();
+  });
+
   test("works on multiple ranges", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
@@ -783,6 +833,7 @@ describe("UI of conditional formats", () => {
     },
     cfTabSelector: ".o-cf-type-selector .o-cf-type-tab",
     buttonSave: ".o-cf-buttons .o-cf-save",
+    buttonDelete: ".o-cf-delete-button",
     buttonAdd: ".o-cf-add",
   };
 
@@ -925,6 +976,15 @@ describe("UI of conditional formats", () => {
           values: ["3", ""],
         },
       },
+    });
+  });
+  test("can delete Rule", async () => {
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    const previews = document.querySelectorAll(selectors.listPreview);
+    triggerMouseEvent(previews[0].querySelector(selectors.buttonDelete), "click");
+    await nextTick();
+    expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
+      id: "1",
     });
   });
 

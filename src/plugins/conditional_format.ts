@@ -50,6 +50,10 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.addConditionalFormatting(cmd.cf, this.workbook.activeSheet.name);
         this.isStale = true;
         break;
+      case "REMOVE_CONDITIONAL_FORMAT":
+        this.removeConditionalFormatting(cmd.id, this.workbook.activeSheet.name);
+        this.isStale = true;
+        break;
       case "REMOVE_COLUMNS":
         this.adaptcfRules(cmd.sheet, (range: string) => updateRemoveColumns(range, cmd.columns));
         this.isStale = true;
@@ -306,6 +310,15 @@ export class ConditionalFormatPlugin extends BasePlugin {
       newCfs.push(cf);
     }
     this.history.updateLocalState(["cfRules", sheet], newCfs);
+  }
+
+  private removeConditionalFormatting(id: string, sheet: string) {
+    const cfIndex = this.cfRules[sheet].findIndex((s) => s.id === id);
+    if (cfIndex !== -1) {
+      const currentCF = this.cfRules[sheet].slice();
+      currentCF.splice(cfIndex, 1);
+      this.history.updateLocalState(["cfRules", sheet], currentCF);
+    }
   }
 
   // ---------------------------------------------------------------------------

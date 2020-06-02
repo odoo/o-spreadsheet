@@ -64,6 +64,16 @@ exports[`UI of conditional formats simple snapshot 1`] = `
                 A1:A2
               </div>
             </div>
+            <div
+              class="o-cf-delete"
+            >
+              <div
+                aria-label="Remove rule"
+                class="o-cf-delete-button"
+              >
+                 x 
+              </div>
+            </div>
           </div>
         </div>
         <div>
@@ -95,6 +105,16 @@ exports[`UI of conditional formats simple snapshot 1`] = `
                 class="o-cf-preview-range"
               >
                 B1:B5
+              </div>
+            </div>
+            <div
+              class="o-cf-delete"
+            >
+              <div
+                aria-label="Remove rule"
+                class="o-cf-delete-button"
+              >
+                 x 
               </div>
             </div>
           </div>
