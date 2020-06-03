@@ -22,6 +22,8 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-sidePanel {
+    display: flex;
+    flex-direction: column;
     overflow-x: hidden;
     background-color: white;
     .o-sidePanelHeader {
@@ -42,9 +44,12 @@ const CSS = css/* scss */ `
         &:hover {
           border-radius: 50%;
           background-color: WhiteSmoke;
+        }
       }
     }
     .o-sidePanelBody {
+      overflow: auto;
+      width: 100%;
       padding: 6px;
     }
     .o-sidePanelFooter {
