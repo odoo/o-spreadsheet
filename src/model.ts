@@ -41,6 +41,8 @@ import {
  * programatically a spreadsheet.
  */
 
+ let nextId = 1;
+
 export type Mode = "normal" | "headless" | "readonly";
 export interface ModelConfig {
   mode: Mode;
@@ -170,6 +172,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     let status: Status = command.interactive ? Status.Interactive : this.status;
     switch (status) {
       case Status.Ready:
+        const cmdDescr = `[${nextId++}]${type}`;
+        console.time(cmdDescr);
         for (let handler of this.handlers) {
           const allowDispatch = handler.allowDispatch(command);
           if (allowDispatch.status === "CANCELLED") {
@@ -185,6 +189,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         if (this.config.mode !== "headless") {
           this.trigger("update");
         }
+        console.timeEnd(cmdDescr)
         break;
       case Status.Running:
       case Status.Interactive:

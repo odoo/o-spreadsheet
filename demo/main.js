@@ -17,7 +17,7 @@ class App extends Component {
   }
 
   mounted() {
-    console.log("Mounted: ", Date.now() - start);
+    console.timeEnd("mounting");
   }
 
   askConfirmation(ev) {
@@ -54,7 +54,7 @@ App.components = { Spreadsheet };
 
 // Setup code
 function setup() {
-  start = Date.now();
+  console.time('mounting')
   const app = new App();
 
   app.mount(document.body);
