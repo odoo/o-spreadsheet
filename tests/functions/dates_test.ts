@@ -1,8 +1,18 @@
-import { parseDate, toNativeDate, formatDate } from "../../src/functions/dates";
+import {
+  parseDate,
+  parseTime,
+  toNativeDate,
+  formatDate,
+  formatTime,
+} from "../../src/functions/dates";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-describe("date helpers", () => {
+// -----------------------------------------------------------------------------
+// Test on date
+// -----------------------------------------------------------------------------
+
+describe("date helpers: can detect and parse various dates", () => {
   test("can properly convert various dates in a large time span", () => {
     expect(parseDate("1/1/1000")!.value).toBe(-328716);
     expect(parseDate("1/1/2000")!.value).toBe(36526);
@@ -242,5 +252,309 @@ describe("formatDate", () => {
   test("year month day, with ' ' as separator", () => {
     expect(formatDate(parseDate("01/02/1954")!, "yyyy m d")).toBe("1954 1 2");
     expect(formatDate(parseDate("01/02/1954")!, "yyyy mm dd")).toBe("1954 01 02");
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Test on time
+// -----------------------------------------------------------------------------
+
+describe("date helpers: can detect and parse various times", () => {
+  test("can detect and parse 'hh:mm' times", () => {
+    expect(parseTime("00:00")).toEqual({
+      value: 0,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 0, 0, 0),
+    });
+    expect(parseTime("6:00")).toEqual({
+      value: 0.25,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 6, 0, 0),
+    });
+    expect(parseTime("12:09")).toEqual({
+      value: 0.50625,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 12, 9, 0),
+    });
+    expect(parseTime("12:9")).toEqual({
+      // @compatibility: on google sheets, return string
+      value: 0.50625,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 12, 9, 0),
+    });
+    expect(parseTime("00012:09")).toEqual({
+      value: 0.50625,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 12, 9, 0),
+    });
+    expect(parseTime("12:00000009")).toEqual({
+      value: 0.50625,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 12, 9, 0),
+    });
+    expect(parseTime("11:69")).toEqual({
+      value: 0.50625,
+      format: "hh:mm",
+      jsDate: new Date(1899, 11, 30, 12, 9, 0),
+    });
+  });
+
+  test("can detect and parse 'hh:mm:ss' times", () => {
+    expect(parseTime("12:00:00")).toEqual({
+      value: 0.5,
+      format: "hh:mm:ss",
+      jsDate: new Date(1899, 11, 30, 12, 0, 0),
+    });
+    expect(parseTime("12:08:06")).toEqual({
+      value: 0.505625,
+      format: "hh:mm:ss",
+      jsDate: new Date(1899, 11, 30, 12, 8, 6),
+    });
+    expect(parseTime("12:8:6")).toEqual({
+      value: 0.505625,
+      format: "hh:mm:ss",
+      jsDate: new Date(1899, 11, 30, 12, 8, 6),
+    });
+    expect(parseTime("12:008:006")).toEqual({
+      value: 0.505625,
+      format: "hh:mm:ss",
+      jsDate: new Date(1899, 11, 30, 12, 8, 6),
+    });
+    expect(parseTime("11:59:546")).toEqual({
+      value: 0.505625,
+      format: "hh:mm:ss",
+      jsDate: new Date(1899, 11, 30, 12, 8, 6),
+    });
+  });
+
+  test("can detect and parse 'hh:mm a' times", () => {
+    expect(parseTime("0 AM")).toEqual({
+      value: 0,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 0, 0, 0),
+    });
+    expect(parseTime("12 AM")).toEqual({
+      value: 0,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 0, 0, 0),
+    });
+    expect(parseTime("24 AM")).toEqual({
+      // @compatibility: on google sheets, return string
+      value: 0.5,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 12, 0, 0),
+    });
+    expect(parseTime("6AM")).toEqual({
+      value: 0.25,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 6, 0, 0),
+    });
+    expect(parseTime("6   AM")).toEqual({
+      value: 0.25,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 6, 0, 0),
+    });
+
+    expect(parseTime("0 PM")).toEqual({
+      value: 0.5,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 12, 0, 0),
+    });
+    expect(parseTime("12 PM")).toEqual({
+      value: 0.5,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 12, 0, 0),
+    });
+    expect(parseTime("6PM")).toEqual({
+      value: 0.75,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 18, 0, 0),
+    });
+    expect(parseTime("6   PM")).toEqual({
+      value: 0.75,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 18, 0, 0),
+    });
+
+    expect(parseTime("0:09 AM")).toEqual({
+      value: 0.00625,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 0, 9, 0),
+    });
+    expect(parseTime("12:09 AM")).toEqual({
+      value: 0.00625,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 0, 9, 0),
+    });
+    expect(parseTime("00012:00000009    AM")).toEqual({
+      value: 0.00625,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 0, 9, 0),
+    });
+
+    expect(parseTime("11:69 AM")).toEqual({
+      value: 0.50625,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 12, 9, 0),
+    });
+    expect(parseTime("18:00 AM")).toEqual({
+      value: 0.25,
+      format: "hh:mm a",
+      jsDate: new Date(1899, 11, 30, 6, 0, 0),
+    });
+  });
+
+  test("can detect and parse 'hh:mm:ss a' times", () => {
+    expect(parseTime("12:00:00 AM")).toEqual({
+      value: 0,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 0, 0, 0),
+    });
+    expect(parseTime("00:00:00 AM")).toEqual({
+      value: 0,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 0, 0, 0),
+    });
+    expect(parseTime("12:00:00 PM")).toEqual({
+      value: 0.5,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 12, 0, 0),
+    });
+    expect(parseTime("0:00:00 PM")).toEqual({
+      value: 0.5,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 12, 0, 0),
+    });
+    expect(parseTime("12:08:06 AM")).toEqual({
+      value: 0.005625,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 0, 8, 6),
+    });
+    expect(parseTime("12:8:6 AM")).toEqual({
+      value: 0.005625,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 0, 8, 6),
+    });
+    expect(parseTime("12:008:006 AM")).toEqual({
+      value: 0.005625,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 0, 8, 6),
+    });
+    expect(parseTime("11:59:546   AM")).toEqual({
+      value: 0.505625,
+      format: "hh:mm:ss a",
+      jsDate: new Date(1899, 11, 30, 12, 8, 6),
+    });
+  });
+
+  test("can detect and parse 'hhhh:mm:ss' times", () => {
+    expect(parseTime("30:00")).toEqual({
+      value: 1.25,
+      format: "hhhh:mm:ss",
+      jsDate: new Date(1899, 11, 31, 6, 0, 0),
+    });
+    expect(parseTime("24:08:06")).toEqual({
+      value: 1.005625,
+      format: "hhhh:mm:ss",
+      jsDate: new Date(1899, 11, 31, 0, 8, 6),
+    });
+    expect(parseTime("36 AM")).toEqual({
+      value: 1,
+      format: "hhhh:mm:ss",
+      jsDate: new Date(1899, 11, 31, 0, 0, 0),
+    });
+    expect(parseTime("24 PM")).toEqual({
+      value: 1,
+      format: "hhhh:mm:ss",
+      jsDate: new Date(1899, 11, 31, 0, 0, 0),
+    });
+    expect(parseTime("36:09 AM")).toEqual({
+      value: 1.00625,
+      format: "hhhh:mm:ss",
+      jsDate: new Date(1899, 11, 31, 0, 9, 0),
+    });
+    expect(parseTime("23:59:60 PM")).toEqual({
+      value: 1,
+      format: "hhhh:mm:ss",
+      jsDate: new Date(1899, 11, 31, 0, 0, 0),
+    });
+  });
+});
+
+describe("formatTime", () => {
+  test("hours minutes 'hh:mm'", () => {
+    expect(formatTime(parseTime("0:0")!)).toBe("00:00");
+    expect(formatTime(parseTime("6:0")!)).toBe("06:00");
+    expect(formatTime(parseTime("12:9")!)).toBe("12:09");
+    expect(formatTime(parseTime("00012:09")!)).toBe("12:09");
+    expect(formatTime(parseTime("12:00000009")!)).toBe("12:09");
+    expect(formatTime(parseTime("11:69")!)).toBe("12:09");
+
+    expect(formatTime(parseTime("12:08:06")!, "hh:mm")).toBe("12:08");
+    expect(formatTime(parseTime("05:09 PM")!, "hh:mm")).toBe("17:09");
+    expect(formatTime(parseTime("012:008:006 AM")!, "hh:mm")).toBe("00:08");
+    expect(formatTime(parseTime("30:00:00")!, "hh:mm")).toBe("06:00");
+  });
+
+  test("hours minutes seconds 'hh:mm:ss'", () => {
+    expect(formatTime(parseTime("12:0:0")!)).toBe("12:00:00");
+    expect(formatTime(parseTime("12:8:6")!)).toBe("12:08:06");
+    expect(formatTime(parseTime("0012:008:006")!)).toBe("12:08:06");
+    expect(formatTime(parseTime("11:59:546")!)).toBe("12:08:06");
+
+    expect(formatTime(parseTime("12:08")!, "hh:mm:ss")).toBe("12:08:00");
+    expect(formatTime(parseTime("05:09 PM")!, "hh:mm:ss")).toBe("17:09:00");
+    expect(formatTime(parseTime("012:008:006 AM")!, "hh:mm:ss")).toBe("00:08:06");
+    expect(formatTime(parseTime("30:00:00")!, "hh:mm:ss")).toBe("06:00:00");
+  });
+
+  test("hours minutes meridian 'hh:mm a", () => {
+    expect(formatTime(parseTime("0 AM")!)).toBe("12:00 AM");
+    expect(formatTime(parseTime("0 PM")!)).toBe("12:00 PM");
+    expect(formatTime(parseTime("6AM")!)).toBe("06:00 AM");
+    expect(formatTime(parseTime("6    AM")!)).toBe("06:00 AM");
+    expect(formatTime(parseTime("7PM")!)).toBe("07:00 PM");
+    expect(formatTime(parseTime("7    PM")!)).toBe("07:00 PM");
+    expect(formatTime(parseTime("12 AM")!)).toBe("12:00 AM");
+    expect(formatTime(parseTime("12 PM")!)).toBe("12:00 PM");
+    expect(formatTime(parseTime("13 AM")!)).toBe("01:00 AM"); // @compatibility: on google sheets, parsing impposible
+    expect(formatTime(parseTime("13 PM")!)).toBe("01:00 PM"); // @compatibility: on google sheets, parsing impposible
+    expect(formatTime(parseTime("24 AM")!)).toBe("12:00 PM"); // @compatibility: on google sheets, parsing impposible
+    expect(formatTime(parseTime("0:09 AM")!)).toBe("12:09 AM");
+    expect(formatTime(parseTime("12:9 AM")!)).toBe("12:09 AM");
+    expect(formatTime(parseTime("00012:0009 AM")!)).toBe("12:09 AM");
+    expect(formatTime(parseTime("11:69 AM")!)).toBe("12:09 PM");
+    expect(formatTime(parseTime("18:00 AM")!)).toBe("06:00 AM");
+
+    expect(formatTime(parseTime("12:08")!, "hh:mm a")).toBe("12:08 PM");
+    expect(formatTime(parseTime("12:08:06")!, "hh:mm a")).toBe("12:08 PM");
+    expect(formatTime(parseTime("012:008:006 AM")!, "hh:mm a")).toBe("12:08 AM");
+    expect(formatTime(parseTime("30:00:00")!, "hh:mm a")).toBe("06:00 AM");
+  });
+
+  test("hours minutes seconds meridian 'hh:mm:ss a", () => {
+    expect(formatTime(parseTime("00:00:00 AM")!)).toBe("12:00:00 AM");
+    expect(formatTime(parseTime("00:00:00 PM")!)).toBe("12:00:00 PM");
+    expect(formatTime(parseTime("12:00:00 AM")!)).toBe("12:00:00 AM");
+    expect(formatTime(parseTime("012:008:006 AM")!)).toBe("12:08:06 AM");
+    expect(formatTime(parseTime("11:59:546   AM")!)).toBe("12:08:06 PM");
+
+    expect(formatTime(parseTime("12:08")!, "hh:mm:ss a")).toBe("12:08:00 PM");
+    expect(formatTime(parseTime("12:08:06")!, "hh:mm:ss a")).toBe("12:08:06 PM");
+    expect(formatTime(parseTime("05:09 PM")!, "hh:mm:ss a")).toBe("05:09:00 PM");
+    expect(formatTime(parseTime("30:00:00")!, "hh:mm:ss a")).toBe("06:00:00 AM");
+  });
+
+  test("duration 'hhhh:mm:ss", () => {
+    expect(formatTime(parseTime("30:00")!)).toBe("30:00:00");
+    expect(formatTime(parseTime("24:08:06")!)).toBe("24:08:06");
+    expect(formatTime(parseTime("36:09 AM")!)).toBe("24:09:00"); // @compatibility: on google sheets, parsing impposible
+    expect(formatTime(parseTime("24 PM")!)).toBe("24:00:00"); // @compatibility: on google sheets, parsing impposible
+    expect(formatTime(parseTime("11:59:546   PM")!)).toBe("24:08:06");
+
+    expect(formatTime(parseTime("12:08")!, "hhhh:mm:ss")).toBe("12:08:00");
+    expect(formatTime(parseTime("12:08:06")!, "hhhh:mm:ss")).toBe("12:08:06");
+    expect(formatTime(parseTime("05:09 PM")!, "hhhh:mm:ss")).toBe("17:09:00");
+    expect(formatTime(parseTime("012:008:006 AM")!, "hhhh:mm:ss")).toBe("0:08:06");
   });
 });
