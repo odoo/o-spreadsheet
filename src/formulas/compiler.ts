@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg } from "../types/index";
+import { CompiledFormula, Arg, Dependency } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 
 const functions = functionRegistry.content;
@@ -31,6 +31,7 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
   let nextId = 1;
   const code = [`// ${str}`];
   let isAsync = false;
+  const dependencies: Dependency[] = [];
 
   if (ast.type === "BIN_OPERATION" && ast.value === ":") {
     throw new Error("Invalid formula");
@@ -99,7 +100,9 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
         return ast.value;
       case "REFERENCE":
         id = nextId++;
-        code.push(`let _${id} = cell('${ast.value}', \`${ast.sheet || sheet}\`)`);
+        const sheetName = ast.sheet || sheet;
+        dependencies.push({ type: "cell", xc: ast.value, sheet: sheetName });
+        code.push(`let _${id} = cell('${ast.value}', \`${sheetName}\`)`);
         break;
       case "FUNCALL":
         id = nextId++;
@@ -130,6 +133,12 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
           code.push(
             `let _${id} = range('${ast.left.value}', '${ast.right.value}', \`${sheetName}\`);`
           );
+          dependencies.push({
+            type: "range",
+            left: ast.left.value,
+            right: ast.right.value,
+            sheet: sheetName,
+          });
         } else {
           left = compileAST(ast.left);
           right = compileAST(ast.right);
@@ -146,5 +155,7 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
 
   code.push(`return ${compileAST(ast)};`);
   const Constructor = isAsync ? AsyncFunction : Function;
-  return new Constructor("cell", "range", "ctx", code.join("\n"));
+  const result = new Constructor("cell", "range", "ctx", code.join("\n"));
+  result.deps = dependencies;
+  return result;
 }

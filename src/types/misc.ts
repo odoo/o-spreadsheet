@@ -47,11 +47,30 @@ export interface NewCell {
   format?: string;
 }
 
-export type CompiledFormula = (
+interface CellDependency {
+  type: "cell";
+  xc: string;
+  sheet: string;
+}
+
+interface RangeDependency {
+  type: "range";
+  left: string;
+  right: string;
+  sheet: string;
+}
+
+export type Dependency = CellDependency | RangeDependency;
+
+type Formula = (
   readCell: (xc: string, sheet: string) => any,
   range: (v1: string, v2: string, sheetName: string) => any[],
   ctx: {}
 ) => any;
+
+export interface CompiledFormula extends Formula {
+  deps: Dependency[];
+}
 
 export interface Cell extends NewCell {
   col: number;

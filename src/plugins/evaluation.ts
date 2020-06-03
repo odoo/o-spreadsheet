@@ -1,15 +1,11 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
-import { Cell, Command, Sheet, EvalContext } from "../types";
+import { Cell, Command, Sheet, EvalContext, Dependency, CommandResult } from "../types";
 import { compile } from "../formulas/index";
-import { toCartesian } from "../helpers/index";
+import { toCartesian, toXC } from "../helpers/index";
 import { Mode } from "../model";
 
-function* makeObjectIterator(obj: Object) {
-  for (let i in obj) {
-    yield obj[i];
-  }
-}
+type DependencyGraph = { [sheet: string]: { [xc: string]: { [sheet: string]: Set<string> } } };
 
 function* makeSetIterator(set: Set<any>) {
   for (let elem of set) {
@@ -27,10 +23,14 @@ export class EvaluationPlugin extends BasePlugin {
   static getters = ["evaluateFormula"];
   static modes: Mode[] = ["normal", "readonly"];
 
-  private isUptodate: Set<string> = new Set();
+  private upToDate: Set<Cell> = new Set();
+  private isDirty: boolean = false;
+
   private loadingCells: number = 0;
   private isStarted: boolean = false;
   private cache: { [key: string]: Function } = {};
+
+  private dependencyGraph: DependencyGraph = {};
 
   /**
    * For all cells that are being currently computed (asynchronously).
@@ -64,14 +64,34 @@ export class EvaluationPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  allowDispatch(): CommandResult {
+    this.isDirty = false;
+    return { status: "SUCCESS" };
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
+        this.buildDependencyGraph();
         this.evaluate();
+        break;
+      case "ACTIVATE_SHEET":
+        this.isDirty = true;
+        break;
+      case "CREATE_SHEET":
+        for (let sheet of this.workbook.sheets) {
+          this.dependencyGraph[sheet.name] = this.dependencyGraph[sheet.name] || {};
+        }
         break;
       case "UPDATE_CELL":
         if ("content" in cmd) {
-          this.isUptodate.clear();
+          this.isDirty = true;
+          const sheet = this.workbook.sheets.find((s) => s.name === cmd.sheet)!;
+          const cell = sheet.rows[cmd.row].cells[cmd.col];
+          if (cell) {
+            this.addCellToGraph(sheet.name, cell);
+          }
+          this.clearDependency(sheet.name, cell ? cell.xc : toXC(cmd.col, cmd.row));
         }
         break;
       case "EVALUATE_CELLS":
@@ -79,19 +99,18 @@ export class EvaluationPlugin extends BasePlugin {
         this.WAITING.clear();
 
         this.evaluateCells(makeSetIterator(cells));
-        this.isUptodate.add(this.workbook.activeSheet.name);
         break;
       case "UNDO":
       case "REDO":
-        this.isUptodate.clear();
+        this.isDirty = true;
+        this.upToDate.clear();
         break;
     }
   }
 
   finalize() {
-    if (!this.isUptodate.has(this.workbook.activeSheet.name)) {
+    if (this.isDirty) {
       this.evaluate();
-      this.isUptodate.add(this.workbook.activeSheet.name);
     }
     if (this.loadingCells > 0) {
       this.startScheduler();
@@ -145,12 +164,24 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(makeObjectIterator(this.workbook.cells));
+    const cells = this.workbook.cells;
+    const upToDateCells = this.upToDate;
+    this.evaluateCells(makeIterator());
+    function* makeIterator() {
+      for (let i in cells) {
+        const cell = cells[i];
+        if (!upToDateCells.has(cell)) {
+          yield cell;
+        }
+      }
+    }
+
+    // this.evaluateCells(makeObjectIterator(this.workbook.cells));
   }
 
   private evaluateCells(cells: Generator<Cell>) {
     const self = this;
-    const { COMPUTED, PENDING, WAITING } = this;
+    const { COMPUTED, PENDING, WAITING, upToDate } = this;
     const params = this.getFormulaParameters(computeValue);
     const visited = {};
 
@@ -186,6 +217,7 @@ export class EvaluationPlugin extends BasePlugin {
         }
         return;
       }
+      upToDate.add(cell);
       if (COMPUTED.has(cell) || PENDING.has(cell)) {
         return;
       }
@@ -289,4 +321,78 @@ export class EvaluationPlugin extends BasePlugin {
 
     return [readCell, range, evalContext];
   }
+
+  // ---------------------------------------------------------------------------
+  // Dependency Handling
+  // ---------------------------------------------------------------------------
+  private buildDependencyGraph() {
+    for (let sheet of this.workbook.sheets) {
+      this.dependencyGraph[sheet.name] = {};
+    }
+    for (let sheet of this.workbook.sheets) {
+      const { cells, name } = sheet;
+      for (let xc in cells) {
+        const cell = cells[xc];
+        this.addCellToGraph(name, cell);
+      }
+    }
+  }
+
+  private addCellToGraph(sheet: string, cell: Cell) {
+    if (cell.type === "formula" && cell.formula) {
+      const deps = cell.formula.deps;
+      for (let dep of deps) {
+        this.addToGraph(sheet, cell.xc, dep);
+      }
+    }
+  }
+
+  private addToGraph(sheet: string, xc: string, dep: Dependency) {
+    const depGraph = this.dependencyGraph[dep.sheet];
+    if (!depGraph) {
+      // invalid sheet name. nothing to do, it will be caught and handled
+      // when the origin cell is evaluated
+      return;
+    }
+    if (dep.type === "cell") {
+      depGraph[dep.xc] = depGraph[dep.xc] || {};
+      depGraph[dep.xc][sheet] = depGraph[dep.xc][sheet] || new Set();
+      depGraph[dep.xc][sheet].add(xc);
+    } else {
+      const [c1, r1] = toCartesian(dep.left);
+      const [c2, r2] = toCartesian(dep.right);
+      const left = Math.min(c1, c2);
+      const right = Math.max(c1, c2);
+      const top = Math.min(r1, r2);
+      const bottom = Math.max(r1, r2);
+      for (let col = left; col <= right; col++) {
+        for (let row = top; row <= bottom; row++) {
+          // need to add col,row dep
+          const depxc = toXC(col, row);
+          depGraph[depxc] = depGraph[depxc] || {};
+          depGraph[depxc][sheet] = depGraph[depxc][sheet] || new Set();
+          depGraph[depxc][sheet].add(xc);
+        }
+      }
+    }
+  }
+
+  clearDependency(sheet: string, xc: string) {
+    const depList: { [sheet: string]: Set<string> }[] = [this.dependencyGraph[sheet][xc]];
+    while (depList.length) {
+      const deps = depList.pop();
+      for (let sheetName in deps) {
+        const depSheet = this.workbook.sheets.find((s) => s.name === sheetName)!;
+        for (let xc of deps[sheetName]) {
+          const cell = depSheet.cells[xc];
+          if (cell && this.upToDate.has(cell)) {
+            this.upToDate.delete(cell);
+            depList.push(this.dependencyGraph[sheetName][xc]);
+          }
+        }
+      }
+    }
+  }
+
+
 }
