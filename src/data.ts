@@ -18,24 +18,23 @@ export function load(data?: any): WorkbookData {
   if (!data) {
     return createEmptyWorkbookData();
   }
-
   data = Object.assign({}, data);
+
+  // apply migrations, if needed
   if ("version" in data) {
-    // this is a properly formatted data object. We can apply migrations
     if (data.version < CURRENT_VERSION) {
       data = migrate(data);
     }
-  } else {
-    // this is a data object which may or may not be valid. We will try to fill
-    // all the known missing data with sensible default values
-    data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
-    data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
-    if (!data.sheets.map((s) => s.name).includes(data.activeSheet)) {
-      data.activeSheet = data.sheets[0].name;
-    }
   }
 
-  // Sanity check: we make sure that there is at least one sheet
+  // sanity check: try to fix missing fields/corrupted state by providing
+  // sensible default values
+  data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
+  data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
+  if (!data.sheets.map((s) => s.name).includes(data.activeSheet)) {
+    data.activeSheet = data.sheets[0].name;
+  }
+
   if (data.sheets.length === 0) {
     data.sheets.push(createEmptySheet());
   }
