@@ -97,4 +97,31 @@ describe("load data", () => {
       },
     ]);
   });
+
+  test("sanitize input data, even if versioned", () => {
+    expect(
+      load({
+        version: 2,
+        sheets: [{ merges: ["A1:B2"] }],
+      })
+    ).toEqual({
+      version: 2,
+      borders: {},
+      styles: {},
+      entities: {},
+      sheets: [
+        {
+          name: "Sheet1",
+          cells: {},
+          colNumber: 26,
+          rowNumber: 100,
+          cols: {},
+          rows: {},
+          merges: ["A1:B2"],
+          conditionalFormats: [],
+        },
+      ],
+      activeSheet: "Sheet1",
+    });
+  });
 });
