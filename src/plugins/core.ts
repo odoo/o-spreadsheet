@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { parseDate, formatDate, InternalDate } from "../functions/dates";
+import { parseDate, formatDate, InternalDate, parseTime, formatTime } from "../functions/dates";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
@@ -178,8 +178,9 @@ export class CorePlugin extends BasePlugin {
 
   getCellText(cell: Cell): string {
     const shouldFormat = cell.value && cell.format && !cell.error && !cell.pending;
-    const dateFormat = shouldFormat && cell.format!.match(/y|m|d/);
-    const numberFormat = shouldFormat && !dateFormat;
+    const timeFormat = shouldFormat && cell.format!.match(/:/);
+    const dateFormat = shouldFormat && !timeFormat && cell.format!.match(/y|m|d/);
+    const numberFormat = shouldFormat && !(timeFormat || dateFormat);
     switch (typeof cell.value) {
       case "string":
         return cell.value;
@@ -194,13 +195,26 @@ export class CorePlugin extends BasePlugin {
         }
         return formatStandardNumber(cell.value);
       case "object":
+        if (timeFormat) {
+          return formatTime(cell.value as InternalDate, cell.format);
+        }
         if (dateFormat) {
           return formatDate(cell.value as InternalDate, cell.format);
         }
         if (numberFormat) {
           return formatNumber(cell.value.value, cell.format!);
         }
-        return cell.value ? formatDate(cell.value) : "0";
+
+        if (cell.value) {
+          if (cell.value.format!.match(/:/)) {
+            return formatTime(cell.value);
+          }
+          if (cell.value.format!.match(/y|m|d/)) {
+            return formatDate(cell.value);
+          }
+        }
+
+        return "0";
     }
     return cell.value.toString();
   }
@@ -683,6 +697,12 @@ export class CorePlugin extends BasePlugin {
         type = "date";
         value = date;
         content = formatDate(date);
+      }
+      let time = parseTime(content);
+      if (time) {
+        type = "date";
+        value = time;
+        content = formatTime(time);
       }
       const contentUpperCase = content.toUpperCase();
       if (contentUpperCase === "TRUE") {

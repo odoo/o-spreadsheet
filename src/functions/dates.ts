@@ -81,6 +81,54 @@ function inferYear(str: string): number {
   return 0;
 }
 
+const timeRegexp = /^\d+(:\d+)?(:\d+)?\s*(AM|PM)?$/i;
+
+export function parseTime(str: string): InternalDate | null {
+  str = str.trim();
+  if (timeRegexp.test(str)) {
+    const isAM = /AM/i.test(str);
+    const isPM = /PM/i.test(str);
+    const strTime = isAM || isPM ? str.substring(0, str.length - 2).trim() : str;
+    const parts: string[] = strTime.split(/:/);
+    const isMinutes = parts.length >= 2;
+    const isSeconds = parts.length === 3;
+    let hours = Number(parts[0]);
+    let minutes = isMinutes ? Number(parts[1]) : 0;
+    let seconds = isSeconds ? Number(parts[2]) : 0;
+    let format = isSeconds ? "hh:mm:ss" : "hh:mm";
+
+    if (isAM || isPM) {
+      format += " a";
+    } else if (!isMinutes) {
+      return null;
+    }
+
+    if (hours >= 12 && isAM) {
+      hours -= 12;
+    } else if (hours < 12 && isPM) {
+      hours += 12;
+    }
+
+    minutes += Math.floor(seconds / 60);
+    seconds %= 60;
+    hours += Math.floor(minutes / 60);
+    minutes %= 60;
+
+    if (hours >= 24) {
+      format = "hhhh:mm:ss";
+    }
+
+    const jsDate = new Date(1899, 11, 30, hours, minutes, seconds);
+
+    return {
+      value: hours / 24 + minutes / 1440 + seconds / 86400,
+      format: format,
+      jsDate: jsDate,
+    };
+  }
+  return null;
+}
+
 // -----------------------------------------------------------------------------
 // Conversion
 // -----------------------------------------------------------------------------
@@ -93,7 +141,11 @@ export function toNativeDate(date: any): Date {
   }
 
   if (typeof date === "string") {
-    const result = parseDate(date);
+    let result = parseDate(date);
+    if (result !== null && result.jsDate) {
+      return result.jsDate;
+    }
+    result = parseTime(date);
     if (result !== null && result.jsDate) {
       return result.jsDate;
     }
@@ -131,4 +183,44 @@ function formatJSDate(date: Date, format: string): string {
 
 export function formatDate(date: InternalDate, format?: string): string {
   return formatJSDate(toNativeDate(date), format || date.format);
+}
+
+function formatJSTime(date: Date, format: string): string {
+  let parts = format.split(/:|\s/);
+
+  const dateHours = date.getHours();
+  const isMeridian = parts[parts.length - 1] === "a";
+  let hours = dateHours;
+  let meridian = "";
+  if (isMeridian) {
+    hours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    meridian = dateHours >= 12 ? " PM" : " AM";
+    parts.pop();
+  }
+
+  return (
+    parts
+      .map((p) => {
+        switch (p) {
+          case "hhhh":
+            const helapsedHours = Math.floor(
+              (date.getTime() - INITIAL_1900_DAY) / (60 * 60 * 1000)
+            );
+            return helapsedHours.toString();
+          case "hh":
+            return hours.toString().padStart(2, "0");
+          case "mm":
+            return date.getMinutes().toString().padStart(2, "0");
+          case "ss":
+            return date.getSeconds().toString().padStart(2, "0");
+          default:
+            throw new Error("invalid format");
+        }
+      })
+      .join(":") + meridian
+  );
+}
+
+export function formatTime(date: InternalDate, format?: string): string {
+  return formatJSTime(toNativeDate(date), format || date.format);
 }
