@@ -13,7 +13,7 @@ class App extends Component {
     super();
     this.key = 1;
     this.data = demoData;
-    // this.data = makeLargeDataset();
+    this.data = makeLargeDataset();
   }
 
   mounted() {

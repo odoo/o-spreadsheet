@@ -104,7 +104,7 @@ function _getColumnLetter(number) {
 }
 
 const COL_NUMBER = 20;
-const ROW_NUMBER = 10 * 1000;
+const ROW_NUMBER = 20 * 1000;
 
 function computeCells() {
   const cells = {};
@@ -141,14 +141,7 @@ export function makeLargeDataset() {
         cells: computeCells()
       }
     ],
-    styles: {
-      1: { bold: true, textColor: "#3A3791", fontSize: 12 },
-      2: { italic: true },
-      3: { strikethrough: true },
-      4: { fillColor: "#e3efd9" },
-      5: { fillColor: "#c5e0b3" },
-      6: { fillColor: "#a7d08c" }
-    },
+    styles: {},
     borders: {}
   };
 }
