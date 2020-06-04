@@ -55,7 +55,7 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">
       <div class="o-cf-preview-list" >
-          <div t-on-click="onRuleClick(cf)" t-foreach="state.conditionalFormats" t-as="cf" t-key="cf.id">
+          <div t-on-click="onRuleClick(cf)" t-foreach="getters.getConditionalFormats()" t-as="cf" t-key="cf.id">
               <t t-call="${PREVIEW_TEMPLATE}"/>
           </div>
       </div>
@@ -137,6 +137,7 @@ const CSS = css/* scss */ `
           overflow: hidden;
         }
         .o-cf-preview-range{
+          text-overflow: ellipsis;
           font-size: 12px;
           overflow: hidden;
         }
@@ -264,7 +265,6 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     currentCF: undefined as undefined | ConditionalFormat,
     currentRanges: "",
     mode: "list" as "list" | "edit" | "add",
-    conditionalFormats: this.getters.getConditionalFormats(),
     toRuleType: "CellIsRule",
   });
 
@@ -309,7 +309,6 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
       });
     }
     this.state.mode = "list";
-    this.state.conditionalFormats = this.getters.getConditionalFormats();
   }
 
   onCancel() {
@@ -319,7 +318,6 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
 
   onDeleteClick(cf: ConditionalFormat) {
     this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id });
-    this.state.conditionalFormats = this.getters.getConditionalFormats();
   }
   onRuleClick(cf) {
     this.state.mode = "edit";
