@@ -3,7 +3,10 @@ import { GridParent, makeTestFixture, nextTick, getCell } from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { toXC } from "../../src/helpers";
 import { ContextMenu } from "../../src/components/context_menu/context_menu";
-import { ContextMenuItem } from "../../src/components/context_menu/context_menu_registry";
+import {
+  ContextMenuItem,
+  contextMenuRegistry,
+} from "../../src/components/context_menu/context_menu_registry";
 import { Component, tags, hooks } from "@odoo/owl";
 import { SpreadsheetEnv } from "../../src/types";
 
@@ -265,6 +268,34 @@ describe("Context Menu", () => {
     simulateContextMenu(300, 300);
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeTruthy();
+  });
+
+  test("menu can be hidden/displayed based on the env", async () => {
+    const menuDefinitions = Object.assign({}, contextMenuRegistry.content);
+    contextMenuRegistry
+      .add("visible_action", {
+        type: "action",
+        name: "visible_action",
+        description: "visible_action",
+        isVisible: (type, env) => env.getters.getCell(1, 0)!.value === "b1",
+        action() {},
+      })
+      .add("hidden_action", {
+        type: "action",
+        name: "hidden_action",
+        description: "hidden_action",
+        isVisible: (type, env) => env.getters.getCell(1, 0)!.value !== "b1",
+        action() {},
+      });
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(230, 30);
+    await nextTick();
+    expect(fixture.querySelector(".o-context-menu div[data-name='visible_action']")).toBeTruthy();
+    expect(fixture.querySelector(".o-context-menu div[data-name='hidden_action']")).toBeFalsy();
+    contextMenuRegistry.content = menuDefinitions;
   });
 
   test("submenu opens and close when (un)overed", async () => {
