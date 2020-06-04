@@ -61,7 +61,7 @@ const CSS = css/* scss */ `
     font-size: 14px;
     .o-menuitem {
       box-sizing: border-box;
-      height: ${MENU_ITEM_HEIGHT};
+      height: ${MENU_ITEM_HEIGHT}px;
       padding: 10px 25px;
       overflow: hidden;
       white-space: nowrap;
