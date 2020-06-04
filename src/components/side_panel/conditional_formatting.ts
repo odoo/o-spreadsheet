@@ -306,6 +306,7 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
           ranges: this.state.currentRanges.split(","),
           id: this.state.mode === "edit" ? this.state.currentCF.id : uuidv4(),
         },
+        sheet: this.getters.getActiveSheet(),
       });
     }
     this.state.mode = "list";
@@ -317,7 +318,10 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
   }
 
   onDeleteClick(cf: ConditionalFormat) {
-    this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id });
+    this.env.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+      id: cf.id,
+      sheet: this.getters.getActiveSheet(),
+    });
   }
   onRuleClick(cf) {
     this.state.mode = "edit";
