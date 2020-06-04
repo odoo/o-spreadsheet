@@ -12,7 +12,7 @@ interface BaseContextMenuItem {
   name: string;
   description: string;
   isEnabled?: (cell: Cell | null) => boolean;
-  isVisible?: (type: ContextMenuType) => boolean;
+  isVisible?: (type: ContextMenuType, env: SpreadsheetEnv) => boolean;
 }
 
 export interface ActionContextMenuItem extends BaseContextMenuItem {

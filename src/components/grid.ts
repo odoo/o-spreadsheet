@@ -520,6 +520,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     };
     this.contextMenu.menuItems = contextMenuRegistry
       .getAll()
-      .filter((item) => !item.isVisible || item.isVisible(type));
+      .filter((item) => !item.isVisible || item.isVisible(type, this.env));
   }
 }
