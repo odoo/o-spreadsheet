@@ -69,7 +69,11 @@ const CSS = css/* scss */ `
       cursor: pointer;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+        background-color: #ebebeb;
+        overflow: visible;
+        display: inline-block;
+        min-width: 100%;
+        width: auto;
       }
 
       &.disabled {
