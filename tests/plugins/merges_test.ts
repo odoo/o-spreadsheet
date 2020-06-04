@@ -10,15 +10,15 @@ describe("merges", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
     expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
-    expect(Object.keys(model["workbook"].merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
 
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
 
     expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
     expect(model["workbook"].cells.B2.content).toBe("b2");
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model["workbook"].merges).toEqual({
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].activeSheet.merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
   });
@@ -34,28 +34,28 @@ describe("merges", () => {
         },
       ],
     });
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model["workbook"].merges).toEqual({
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].activeSheet.merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("REMOVE_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
     expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
-    expect(Object.keys(model["workbook"].merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
-    expect(Object.keys(model["workbook"].merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
 
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B2") });
 
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
-    expect(Object.keys(model["workbook"].merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -247,14 +247,14 @@ describe("merges", () => {
 
     //merging
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
-    const mergeId = model["workbook"].mergeCellMap.A1;
+    const mergeId = model["workbook"].activeSheet.mergeCellMap.A1;
     expect(mergeId).toBeGreaterThan(0);
-    expect(model["workbook"].mergeCellMap.A2).toBe(mergeId);
+    expect(model["workbook"].activeSheet.mergeCellMap.A2).toBe(mergeId);
 
     // unmerge. there should not be any merge left
     model.dispatch("REMOVE_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
-    expect(model["workbook"].mergeCellMap).toEqual({});
-    expect(model["workbook"].merges).toEqual({});
+    expect(model["workbook"].activeSheet.mergeCellMap).toEqual({});
+    expect(model["workbook"].activeSheet.merges).toEqual({});
   });
 
   test("can undo and redo a merge", () => {
@@ -263,20 +263,20 @@ describe("merges", () => {
     // select B2:B3 and merge
     model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
 
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model["workbook"].merges).toEqual({
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].activeSheet.merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
 
     // undo
     model.dispatch("UNDO");
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual([]);
-    expect(Object.keys(model["workbook"].merges)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
 
     // redo
     model.dispatch("REDO");
-    expect(Object.keys(model["workbook"].mergeCellMap)).toEqual(["B2", "B3"]);
-    expect(model["workbook"].merges).toEqual({
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual(["B2", "B3"]);
+    expect(model["workbook"].activeSheet.merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
   });

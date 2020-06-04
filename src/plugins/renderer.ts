@@ -389,10 +389,10 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private hasContent(col: number, row: number): boolean {
-    const { cells, mergeCellMap } = this.workbook;
+    const { cells, activeSheet } = this.workbook;
     const xc = toXC(col, row);
     const cell = cells[xc];
-    return (cell && cell.content) || ((xc in mergeCellMap) as any);
+    return (cell && cell.content) || ((xc in activeSheet.mergeCellMap) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -402,13 +402,13 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, mergeCellMap, merges, cells } = this.workbook;
+    const { cols, rows, activeSheet, cells } = this.workbook;
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cell = row.cells[colNumber];
-        if (cell && !(cell.xc in mergeCellMap)) {
+        if (cell && !(cell.xc in activeSheet.mergeCellMap)) {
           let col = cols[colNumber];
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
@@ -459,6 +459,7 @@ export class RendererPlugin extends BasePlugin {
     }
 
     // process all visible merges
+    const merges = activeSheet.merges;
     for (let id in merges) {
       let merge = merges[id];
       if (overlap(merge, viewport)) {

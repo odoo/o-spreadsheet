@@ -141,10 +141,10 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getActiveCell(): Cell | null {
-    const workbook = this.workbook;
-    let mergeId = workbook.mergeCellMap[this.activeXc];
+    const sheet = this.workbook.activeSheet;
+    let mergeId = sheet.mergeCellMap[this.activeXc];
     if (mergeId) {
-      return workbook.cells[workbook.merges[mergeId].topLeft];
+      return sheet.cells[sheet.merges[mergeId].topLeft];
     } else {
       return this.getters.getCell(this.activeCol, this.activeRow);
     }
@@ -292,11 +292,12 @@ export class SelectionPlugin extends BasePlugin {
     const [refCol, refRow] = this.getReferenceCoords();
     const activeReference = toXC(refCol, refRow);
 
-    let mergeId = this.workbook.mergeCellMap[activeReference];
+    const sheet = this.workbook.activeSheet;
+    let mergeId = sheet.mergeCellMap[activeReference];
     if (mergeId) {
       let targetCol = refCol;
       let targetRow = refRow;
-      while (this.workbook.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
+      while (sheet.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
@@ -436,7 +437,7 @@ export class SelectionPlugin extends BasePlugin {
     ctx.globalCompositeOperation = "source-over";
 
     // active zone
-    const { mergeCellMap } = this.workbook;
+    const { mergeCellMap, merges } = this.workbook.activeSheet;
     const [col, row] = this.getPosition();
     const activeXc = toXC(col, row);
 
@@ -444,7 +445,7 @@ export class SelectionPlugin extends BasePlugin {
     ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
     if (activeXc in mergeCellMap) {
-      zone = this.workbook.merges[mergeCellMap[activeXc]];
+      zone = merges[mergeCellMap[activeXc]];
     } else {
       zone = {
         top: row,

@@ -119,9 +119,10 @@ export class EditionPlugin extends BasePlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       let xc = toXC(this.col, this.row);
-      if (xc in this.workbook.mergeCellMap) {
-        const mergeId = this.workbook.mergeCellMap[xc];
-        xc = this.workbook.merges[mergeId].topLeft;
+      const sheet = this.workbook.activeSheet;
+      if (xc in sheet.mergeCellMap) {
+        const mergeId = sheet.mergeCellMap[xc];
+        xc = sheet.merges[mergeId].topLeft;
       }
       let content = this.currentContent;
       this.currentContent = "";
