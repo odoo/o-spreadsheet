@@ -103,32 +103,29 @@ function _getColumnLetter(number) {
     : "";
 }
 
-const COL_NUMBER = 20;
-const ROW_NUMBER = 10 * 1000;
-
-function computeCells() {
+function computeCells(cols, rows) {
   const cells = {};
-  for (let letter = 0; letter <= COL_NUMBER; letter++) {
+  for (let letter = 0; letter <= cols; letter++) {
     const x = _getColumnLetter(letter);
     if (letter === 0) {
       cells[x + 3] = { content: letter.toString() };
     } else {
       const prev = _getColumnLetter(letter - 1);
-      cells[x + 3] = { content: `=2*${prev}${ROW_NUMBER}` };
+      cells[x + 3] = { content: `=2*${prev}${rows}` };
     }
-    for (let index = 4; index <= ROW_NUMBER; index++) {
+    for (let index = 4; index <= rows; index++) {
       cells[x + index] = { content: `=${x}${index - 1}+1` };
     }
   }
-  const letter = _getColumnLetter(COL_NUMBER);
-  const nextLetter = _getColumnLetter(COL_NUMBER + 1);
-  for (let i = 3; i <= ROW_NUMBER; i++) {
+  const letter = _getColumnLetter(cols);
+  const nextLetter = _getColumnLetter(cols + 1);
+  for (let i = 3; i <= rows; i++) {
     cells[nextLetter + i] = { content: `=SUM(A${i}:${letter}${i})` };
   }
   return cells;
 }
 
-export function makeLargeDataset() {
+export function makeLargeDataset(cols, rows) {
   return {
     version: 1,
     sheets: [
@@ -138,7 +135,7 @@ export function makeLargeDataset() {
         rowNumber: 1000000,
         cols: { 1: {}, 3: {} },
         rows: {},
-        cells: computeCells()
+        cells: computeCells(cols, rows)
       }
     ],
     styles: {
