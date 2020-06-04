@@ -112,11 +112,13 @@ export interface SetFormatterCommand extends BaseCommand {
 export interface AddConditionalFormatCommand extends BaseCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: ConditionalFormat;
+  sheet: string;
 }
 
 export interface RemoveConditionalFormatCommand extends BaseCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
+  sheet: string;
 }
 
 export interface RemoveColumnsCommand extends BaseCommand {

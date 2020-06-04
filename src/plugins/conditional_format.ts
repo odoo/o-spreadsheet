@@ -48,11 +48,11 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
-        this.addConditionalFormatting(cmd.cf, this.workbook.activeSheet.id);
+        this.addConditionalFormatting(cmd.cf, cmd.sheet);
         this.isStale = true;
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
-        this.removeConditionalFormatting(cmd.id, this.workbook.activeSheet.name);
+        this.removeConditionalFormatting(cmd.id, cmd.sheet);
         this.isStale = true;
         break;
       case "REMOVE_COLUMNS":

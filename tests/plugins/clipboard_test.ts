@@ -731,6 +731,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
@@ -756,6 +757,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
     });
     model.dispatch("CUT", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
@@ -780,6 +782,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
     model.dispatch("PASTE", { target: target("B1") });
@@ -809,6 +812,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
     model.dispatch("PASTE", { target: target("B1") });
@@ -842,6 +846,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
     model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
@@ -873,6 +878,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
     model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
