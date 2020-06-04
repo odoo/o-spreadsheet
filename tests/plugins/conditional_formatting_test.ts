@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { ColorScaleThreshold, ConditionalFormat, Style, CommandResult } from "../../src/types";
 import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
-import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
+import { GridParent, makeTestFixture, mockUuidV4To, nextTick, target } from "../helpers";
 
 let model: Model;
 
@@ -852,7 +852,6 @@ describe("UI of conditional formats", () => {
     );
     expect(previews[0].querySelector(selectors.description.ruletype.values)!.textContent).toBe("2");
     expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
-    debugger;
     expect(
       window.getComputedStyle(previews[0].querySelector(selectors.previewImage)!).backgroundColor
     ).toBe("rgb(255, 0, 0)");
@@ -974,6 +973,15 @@ describe("UI of conditional formats", () => {
         },
       },
     });
+  });
+
+  test("displayed range is updated if range changes", async () => {
+    const previews = document.querySelectorAll(selectors.listPreview);
+    expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
+    model.dispatch("COPY", { target: target("A1:A2") });
+    model.dispatch("PASTE", { target: target("C1") });
+    await nextTick();
+    expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2,C1:C2");
   });
 
   test("can delete Rule", async () => {

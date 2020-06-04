@@ -5,7 +5,7 @@ import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { Cell, GridRenderingContext, SpreadsheetEnv, Sheet } from "../src/types";
+import { Cell, GridRenderingContext, SpreadsheetEnv, Sheet, Zone } from "../src/types";
 import "./canvas.mock";
 
 const functions = functionRegistry.content;
@@ -252,4 +252,18 @@ export function getCell(model: Model, xc: string): Cell | null {
 export function getSheet(model: Model, index: number = 0): Sheet {
   const id = model["workbook"].visibleSheets[index];
   return model["workbook"].sheets[id];
+}
+
+export function zone(str: string): Zone {
+  let [tl, br] = str.split(":");
+  if (!br) {
+    br = tl;
+  }
+  const [left, top] = toCartesian(tl);
+  const [right, bottom] = toCartesian(br);
+  return { left, top, right, bottom };
+}
+
+export function target(str: string): Zone[] {
+  return str.split(",").map(zone);
 }

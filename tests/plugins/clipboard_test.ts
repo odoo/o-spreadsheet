@@ -1,27 +1,12 @@
 import { Model } from "../../src/model";
 import { CancelledReason, Zone, ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
-import { toCartesian } from "../../src/helpers/index";
 import { ClipboardPlugin } from "../../src/plugins/clipboard";
-import { getCell, getGrid } from "../helpers";
+import { getCell, getGrid, target, zone } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
   return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
-}
-
-function zone(str: string): Zone {
-  let [tl, br] = str.split(":");
-  if (!br) {
-    br = tl;
-  }
-  const [left, top] = toCartesian(tl);
-  const [right, bottom] = toCartesian(br);
-  return { left, top, right, bottom };
-}
-
-function target(str: string): Zone[] {
-  return str.split(",").map(zone);
 }
 
 function createEqualCF(
