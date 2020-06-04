@@ -104,8 +104,6 @@ export interface Workbook {
   rows: Row[];
   cols: Col[];
   cells: { [key: string]: Cell };
-  merges: { [key: number]: Merge };
-  mergeCellMap: { [key: string]: number };
 
   // sheets
   sheets: Sheet[];

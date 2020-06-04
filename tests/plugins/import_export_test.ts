@@ -79,10 +79,10 @@ describe("Import", () => {
       zone: { left: 0, top: 1, right: 5, bottom: 1 },
     });
     model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
-    expect(Object.keys(model["workbook"].merges)).toHaveLength(0);
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toHaveLength(0);
     model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
-    expect(Object.keys(model["workbook"].merges)).toHaveLength(1);
-    expect(Object.values(model["workbook"].merges)[0].topLeft).toBe("A2");
+    expect(Object.keys(model["workbook"].activeSheet.merges)).toHaveLength(1);
+    expect(Object.values(model["workbook"].activeSheet.merges)[0].topLeft).toBe("A2");
   });
 });
 

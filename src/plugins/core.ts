@@ -738,10 +738,6 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(["rows"], sheet.rows);
     this.history.updateState(["cols"], sheet.cols);
 
-    // merges
-    this.history.updateState(["merges"], sheet.merges);
-    this.history.updateState(["mergeCellMap"], sheet.mergeCellMap);
-
     // cells
     this.history.updateState(["cells"], sheet.cells);
 

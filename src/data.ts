@@ -104,8 +104,6 @@ export function createEmptyWorkbook(): Workbook {
     rows: [],
     cols: [],
     cells: {},
-    merges: {},
-    mergeCellMap: {},
     sheets: [],
     activeSheet: null as any,
   };
