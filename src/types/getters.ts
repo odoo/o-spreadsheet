@@ -53,6 +53,7 @@ export interface Getters {
 
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
+  getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
 
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];

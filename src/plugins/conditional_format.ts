@@ -27,7 +27,7 @@ import { _lt } from "../translation";
 // -----------------------------------------------------------------------------
 
 export class ConditionalFormatPlugin extends BasePlugin {
-  static getters = ["getConditionalFormats", "getConditionalStyle"];
+  static getters = ["getConditionalFormats", "getConditionalStyle", "getRulesSelection"];
 
   private isStale: boolean = true;
   private cfRules: { [sheet: string]: ConditionalFormat[] } = {};
@@ -130,6 +130,47 @@ export class ConditionalFormatPlugin extends BasePlugin {
       this.computedStyles[this.workbook.activeSheet.id] &&
       this.computedStyles[this.workbook.activeSheet.id][xc]
     );
+  }
+
+  getRulesSelection(selection: [Zone]): string[] {
+    const ruleIds: Set<string> = new Set();
+    selection.forEach((zone) => {
+      const zoneRuleId = this.getRulesByZone(zone);
+      zoneRuleId.forEach((ruleId) => {
+        ruleIds.add(ruleId);
+      });
+    });
+    return Array.from(ruleIds);
+  }
+  getRulesByZone(zone: Zone): Set<string> {
+    const ruleIds: Set<string> = new Set();
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const cellRulesId = this.getRulesByCell(toXC(col, row));
+        cellRulesId.forEach((ruleId) => {
+          ruleIds.add(ruleId);
+        });
+      }
+    }
+    return ruleIds;
+  }
+  getRulesByCell(cellXc: string): Set<string> {
+    const currentSheet = this.workbook.activeSheet.id;
+    const rulesId: Set<string> = new Set();
+    for (let cf of this.cfRules[currentSheet]) {
+      for (let ref of cf.ranges) {
+        const zone: Zone = toZone(ref);
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            let xc = toXC(col, row);
+            if (cellXc == xc) {
+              rulesId.add(cf.id);
+            }
+          }
+        }
+      }
+    }
+    return rulesId;
   }
 
   // ---------------------------------------------------------------------------

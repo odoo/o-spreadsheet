@@ -101,7 +101,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
     name: "conditional_formatting",
     description: _lt("Conditional formatting"),
     action(env: SpreadsheetEnv) {
-      env.openSidePanel("ConditionalFormatting");
+      env.openSidePanel("ConditionalFormatting", { selection: env.getters.getSelectedZones() });
     },
   })
   .add("delete_column", {

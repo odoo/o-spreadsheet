@@ -2,7 +2,13 @@ import * as owl from "@odoo/owl";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { colorNumberString, uuidv4 } from "../../helpers/index";
-import { ConditionalFormat, SpreadsheetEnv, ColorScaleRule, SingleColorRules } from "../../types";
+import {
+  ConditionalFormat,
+  SpreadsheetEnv,
+  ColorScaleRule,
+  SingleColorRules,
+  Zone,
+} from "../../types";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
@@ -251,8 +257,10 @@ const CSS = css/* scss */ `
     }
   }
   }`;
-
-export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
+interface Props {
+  selection: Zone | undefined;
+}
+export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { CellIsRuleEditor, ColorScaleRuleEditor };
@@ -272,6 +280,28 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     CellIsRule: CellIsRuleEditor,
     ColorScaleRule: ColorScaleRuleEditor,
   };
+
+  constructor(parent, props) {
+    super(parent, props);
+    if (props.selection && this.getters.getRulesSelection(props.selection).length === 1) {
+      this.openCf(this.getters.getRulesSelection(props.selection)[0]);
+    }
+  }
+  async willUpdateProps(nextProps) {
+    if (nextProps.selection && nextProps.selection !== this.props.selection)
+      if (nextProps.selection && this.getters.getRulesSelection(nextProps.selection).length === 1) {
+        this.openCf(this.getters.getRulesSelection(nextProps.selection)[0]);
+      } else {
+        this.resetState();
+      }
+  }
+
+  resetState() {
+    this.state.currentCF = undefined;
+    this.state.currentRanges = "";
+    this.state.mode = "list";
+    this.state.toRuleType = "CellIsRule";
+  }
 
   getStyle(rule: SingleColorRules | ColorScaleRule): string {
     if (rule.type === "CellIsRule") {
@@ -328,6 +358,18 @@ export class ConditionalFormattingPanel extends Component<{}, SpreadsheetEnv> {
     this.state.currentCF = cf;
     this.state.toRuleType = cf.rule.type === "CellIsRule" ? "CellIsRule" : "ColorScaleRule";
     this.state.currentRanges = this.state.currentCF!.ranges.join(",");
+  }
+
+  openCf(cfId) {
+    const rules = this.getters.getConditionalFormats();
+    const cfIndex = rules.findIndex((c) => c.id === cfId);
+    const cf = rules[cfIndex];
+    if (cf) {
+      this.state.mode = "edit";
+      this.state.currentCF = cf;
+      this.state.toRuleType = cf.rule.type === "CellIsRule" ? "CellIsRule" : "ColorScaleRule";
+      this.state.currentRanges = this.state.currentCF!.ranges.join(",");
+    }
   }
 
   defaultCellIsRule: ConditionalFormat = {
