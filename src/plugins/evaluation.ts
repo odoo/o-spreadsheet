@@ -1,9 +1,10 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
-import { Cell, Command, Sheet, EvalContext } from "../types";
+import { Cell, Command, Sheet, EvalContext, Workbook, Getters, CommandDispatcher } from "../types";
 import { compile } from "../formulas/index";
 import { toCartesian } from "../helpers/index";
-import { Mode } from "../model";
+import { Mode, ModelConfig } from "../model";
+import { WHistory } from "../history";
 
 const functionMap = functionRegistry.mapping;
 
@@ -19,6 +20,7 @@ export class EvaluationPlugin extends BasePlugin {
   private loadingCells: number = 0;
   private isStarted: boolean = false;
   private cache: { [key: string]: Function } = {};
+  private evalContext: EvalContext;
 
   /**
    * For all cells that are being currently computed (asynchronously).
@@ -47,6 +49,17 @@ export class EvaluationPlugin extends BasePlugin {
    * When A1 is computed, A1 is moved in COMPUTED
    */
   private COMPUTED: Set<Cell> = new Set();
+
+  constructor(
+    workbook: Workbook,
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(workbook, getters, history, dispatch, config);
+    this.evalContext = config.evalContext;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -231,9 +244,7 @@ export class EvaluationPlugin extends BasePlugin {
       sheets[sheet.name] = sheet;
     }
 
-    const evalContext = Object.assign(Object.create(functionMap), {
-      getters: this.getters,
-    });
+    const evalContext = Object.assign(Object.create(functionMap), this.evalContext);
 
     function readCell(xc: string, sheet: string): any {
       let cell;

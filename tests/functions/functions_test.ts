@@ -1,5 +1,5 @@
 import { functionRegistry, args } from "../../src/functions/index";
-import { evaluateCell } from "../helpers";
+import { evaluateCell, getCell } from "../helpers";
 import { Model } from "../../src";
 
 describe("addFunction", () => {
@@ -15,16 +15,24 @@ describe("addFunction", () => {
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
   });
 
-  test("Can use a getter in a function", () => {
-    const model = new Model();
-    functionRegistry.add("GETACTIVESHEET", {
-      description: "Get the name of the current sheet",
+  test("Can use a custom evaluation context in a function", () => {
+    const model = new Model(
+      {},
+      {
+        evalContext: {
+          coucou: "Raoul",
+        },
+      }
+    );
+    functionRegistry.add("GETCOUCOU", {
+      description: "Get coucou's name",
       compute: function () {
-        return (this as any).getters.getActiveSheet();
+        return (this as any).coucou;
       },
       args: args``,
       returns: ["STRING"],
     });
-    expect(evaluateCell("A1", { A1: "=GETACTIVESHEET()" })).toBe(model.getters.getActiveSheet());
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=GETCOUCOU()" });
+    expect(getCell(model, "A1")!.value).toBe("Raoul");
   });
 });
