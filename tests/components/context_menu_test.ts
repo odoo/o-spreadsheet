@@ -8,7 +8,7 @@ import {
   contextMenuRegistry,
 } from "../../src/components/context_menu/context_menu_registry";
 import { Component, tags, hooks } from "@odoo/owl";
-import { SpreadsheetEnv } from "../../src/types";
+import { SpreadsheetEnv, ConditionalFormat } from "../../src/types";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -588,5 +588,148 @@ describe("Context Menu position", () => {
     const { width } = getSubMenuSize();
     expect(top).toBe(clickY + 1); // separator = 1px
     expect(left).toBe(clickX + width);
+  });
+});
+
+describe("Context Menu - CF", () => {
+  test("open sidepanel with no CF in selected zone", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(240, 110);
+    await nextTick();
+    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeTruthy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeFalsy();
+  });
+
+  test("open sidepanel with one CF in selected zone", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    const cfRule: ConditionalFormat = {
+      ranges: ["A1:C7"],
+      id: "1",
+      rule: {
+        values: ["2"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FF0000" },
+      },
+    };
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule,
+      sheet: model.getters.getActiveSheet(),
+    });
+    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    simulateContextMenu(240, 110); //click on C5
+    await nextTick();
+    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeFalsy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeTruthy();
+  });
+
+  test("open sidepanel with more then one CF in selected zone", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    const cfRule1: ConditionalFormat = {
+      ranges: ["A1:C7"],
+      id: "1",
+      rule: {
+        values: ["2"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FF0000" },
+      },
+    };
+    const cfRule2: ConditionalFormat = {
+      ranges: ["A1:C7"],
+      id: "2",
+      rule: {
+        values: ["3"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FE0001" },
+      },
+    };
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule2,
+      sheet: model.getters.getActiveSheet(),
+    });
+    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    simulateContextMenu(240, 110); //click on C5
+    await nextTick();
+    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeTruthy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeFalsy();
+  });
+  test("will update sidepanel if we reopen it from other cell", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    const cfRule1: ConditionalFormat = {
+      ranges: ["A1:A10"],
+      id: "1",
+      rule: {
+        values: ["2"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FF1200" },
+      },
+    };
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    let zone = { left: 0, top: 0, bottom: 10, right: 0 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+    simulateContextMenu(80, 90);
+    await nextTick();
+    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeFalsy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeTruthy();
+
+    zone = { left: 5, top: 5, bottom: 5, right: 5 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [5, 5] });
+    simulateContextMenu(530, 125);
+    await nextTick();
+    simulateClick(".o-context-menu div[data-name='conditional_formatting']");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeTruthy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeFalsy();
   });
 });
