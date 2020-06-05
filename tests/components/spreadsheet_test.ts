@@ -1,19 +1,27 @@
-import { Component, tags } from "@odoo/owl";
+import { Component, tags, hooks } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
-import { makeTestFixture, nextTick } from "../helpers";
+import { makeTestFixture, nextTick, getCell } from "../helpers";
+import { functionRegistry, args } from "../../src/functions";
+import { Model } from "../../src";
 
 const { xml } = tags;
+const { useRef } = hooks;
 
 let fixture: HTMLElement;
+let parent: Parent;
 
 class Parent extends Component<any> {
-  static template = xml`<Spreadsheet/>`;
+  static template = xml`<Spreadsheet t-ref="spreadsheet"/>`;
   static components = { Spreadsheet };
+  private spreadsheet: any = useRef("spreadsheet");
+  get model(): Model {
+    return this.spreadsheet.comp.model;
+  }
 }
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  const parent = new Parent();
+  parent = new Parent();
   await parent.mount(fixture);
 });
 
@@ -35,5 +43,18 @@ describe("Spreadsheet", () => {
     await nextTick();
     expect(document.querySelectorAll(".o-sheet").length).toBe(2);
     expect(document.activeElement!.tagName).toEqual("CANVAS");
+  });
+
+  test("Can use getters from the env in a function", () => {
+    functionRegistry.add("GETACTIVESHEET", {
+      description: "Get the name of the current sheet",
+      compute: function () {
+        return (this as any).env.getters.getActiveSheet();
+      },
+      args: args``,
+      returns: ["STRING"],
+    });
+    parent.model.dispatch("SET_VALUE", { xc: "A1", text: "=GETACTIVESHEET()" });
+    expect(getCell(parent.model, "A1")!.value).toBe(parent.model.getters.getActiveSheet());
   });
 });

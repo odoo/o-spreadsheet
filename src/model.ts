@@ -13,6 +13,7 @@ import {
   GridRenderingContext,
   LAYERS,
   CommandSuccess,
+  EvalContext,
 } from "./types/index";
 
 /**
@@ -47,6 +48,7 @@ export interface ModelConfig {
   openSidePanel: (panel: string, panelProps?: any) => void;
   notifyUser: (content: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
+  evalContext: EvalContext;
 }
 
 const enum Status {
@@ -113,6 +115,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       openSidePanel: config.openSidePanel || (() => {}),
       notifyUser: config.notifyUser || (() => {}),
       askConfirmation: config.askConfirmation || (() => {}),
+      evalContext: config.evalContext || {},
     };
 
     // registering plugins
