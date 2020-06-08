@@ -1,6 +1,6 @@
 import { Component, tags, hooks } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
-import { makeTestFixture, nextTick, getCell } from "../helpers";
+import { makeTestFixture, nextTick } from "../helpers";
 import { functionRegistry, args } from "../../src/functions";
 import { Model } from "../../src";
 
@@ -11,11 +11,17 @@ let fixture: HTMLElement;
 let parent: Parent;
 
 class Parent extends Component<any> {
-  static template = xml`<Spreadsheet t-ref="spreadsheet"/>`;
+  static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
   static components = { Spreadsheet };
   private spreadsheet: any = useRef("spreadsheet");
+  readonly data: any;
   get model(): Model {
     return this.spreadsheet.comp.model;
+  }
+
+  constructor(data?) {
+    super();
+    this.data = data;
   }
 }
 
@@ -45,16 +51,48 @@ describe("Spreadsheet", () => {
     expect(document.activeElement!.tagName).toEqual("CANVAS");
   });
 
-  test("Can use getters from the env in a function", () => {
+  test("Can use the env in a function", () => {
+    let env;
     functionRegistry.add("GETACTIVESHEET", {
       description: "Get the name of the current sheet",
       compute: function () {
-        return (this as any).env.getters.getActiveSheet();
+        env = this.env;
+        return "Sheet";
       },
       args: args``,
       returns: ["STRING"],
     });
     parent.model.dispatch("SET_VALUE", { xc: "A1", text: "=GETACTIVESHEET()" });
-    expect(getCell(parent.model, "A1")!.value).toBe(parent.model.getters.getActiveSheet());
+    expect(env).toBeTruthy();
+  });
+
+  test("Can use the env in a function at model start", async () => {
+    let env;
+    functionRegistry.add("GETACTIVESHEET", {
+      description: "Get the name of the current sheet",
+      compute: function () {
+        env = this.env;
+        return "Sheet";
+      },
+      args: args``,
+      returns: ["STRING"],
+    });
+    const parent = new Parent({
+      version: 2,
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 26,
+          rowNumber: 100,
+          cells: {
+            A1: { content: "=GETACTIVESHEET()" },
+          },
+          conditionalFormats: [],
+        },
+      ],
+      activeSheet: "Sheet1",
+    });
+    await parent.mount(fixture);
+    expect(env).toBeTruthy();
   });
 });

@@ -35,4 +35,17 @@ describe("addFunction", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "=GETCOUCOU()" });
     expect(getCell(model, "A1")!.value).toBe("Raoul");
   });
+
+  test("Can use a getter in a function", () => {
+    const model = new Model();
+    functionRegistry.add("GETACTIVESHEET", {
+      description: "Get the name of the current sheet",
+      compute: function () {
+        return (this as any).getters.getActiveSheet();
+      },
+      args: args``,
+      returns: ["STRING"],
+    });
+    expect(evaluateCell("A1", { A1: "=GETACTIVESHEET()" })).toBe(model.getters.getActiveSheet());
+  });
 });

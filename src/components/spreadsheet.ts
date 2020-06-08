@@ -5,7 +5,6 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { EvalContext } from "../types";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -62,13 +61,12 @@ export class Spreadsheet extends Component<Props> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };
-  private evalContext: EvalContext = {};
   model = new Model(this.props.data, {
     notifyUser: (content: string) => this.trigger("notify-user", { content }),
     askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
       this.trigger("ask-confirmation", { content, confirm, cancel }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-    evalContext: this.evalContext,
+    evalContext: { env: this.env },
   });
   grid = useRef("grid");
 
@@ -90,7 +88,6 @@ export class Spreadsheet extends Component<Props> {
       dispatch: this.model.dispatch,
       getters: this.model.getters,
     });
-    this.evalContext.env = this.env;
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));

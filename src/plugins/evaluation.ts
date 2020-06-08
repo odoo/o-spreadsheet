@@ -244,7 +244,9 @@ export class EvaluationPlugin extends BasePlugin {
       sheets[sheet.name] = sheet;
     }
 
-    const evalContext = Object.assign(Object.create(functionMap), this.evalContext);
+    const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
+      getters: this.getters,
+    });
 
     function readCell(xc: string, sheet: string): any {
       let cell;
