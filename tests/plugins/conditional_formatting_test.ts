@@ -845,7 +845,7 @@ describe("UI of conditional formats", () => {
         strikethrough:
           ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools div.o-tool[title='Strikethrough']",
         colorDropdown:
-          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-tool o-dropdown .o-with-color",
+          ".o-cf .o-cf-ruleEditor .o-cf-editor .o-tools .o-tool.o-dropdown.o-with-color span",
       },
     },
     previewImage: ".o-cf-preview-image",
@@ -975,6 +975,28 @@ describe("UI of conditional formats", () => {
       },
       sheet: model.getters.getActiveSheet(),
     });
+  });
+
+  test("toggle color-picker", async () => {
+    triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
+    await nextTick();
+    triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
+    triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
+  });
+
+  test.skip("color-picker closes when click elsewhere", async () => {
+    triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
+    await nextTick();
+    triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
+    triggerMouseEvent(".o-cf-preview-line", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
   });
 
   test("can create a new CellIsRule", async () => {
