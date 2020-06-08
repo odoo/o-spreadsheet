@@ -95,7 +95,7 @@ const CSS = css/* scss */ `
     padding: 10px;
   }
   .o-cf-buttons {
-    padding: 5px;
+    padding: 12px;
     text-align: right;
     border-bottom: 1px solid #ccc;
     .o-cf-button {
@@ -108,7 +108,7 @@ const CSS = css/* scss */ `
       line-height: 16px;
       background: white;
       cursor: pointer;
-      margin-right: 16px;
+      margin-left: 8px;
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
       }

@@ -14,6 +14,6 @@ export interface SidePanelContent {
 export const sidePanelRegistry = new Registry<SidePanelContent>();
 
 sidePanelRegistry.add("ConditionalFormatting", {
-  title: "Conditional format rules",
+  title: "Conditional formatting",
   Body: ConditionalFormattingPanel,
 });
