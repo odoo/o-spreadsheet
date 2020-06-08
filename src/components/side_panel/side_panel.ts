@@ -50,6 +50,7 @@ const CSS = css/* scss */ `
     .o-sidePanelBody {
       overflow: auto;
       width: 100%;
+      height: 100%;
       padding: 6px;
     }
     .o-sidePanelFooter {
