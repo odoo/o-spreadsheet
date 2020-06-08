@@ -26,6 +26,7 @@ const CSS = css/* scss */ `
     flex-direction: column;
     overflow-x: hidden;
     background-color: white;
+    border: 1px solid darkgray;
     .o-sidePanelHeader {
       padding: 6px;
       height: 41px;
@@ -42,7 +43,6 @@ const CSS = css/* scss */ `
         padding: 11px 15px;
         cursor: pointer;
         &:hover {
-          border-radius: 50%;
           background-color: WhiteSmoke;
         }
       }

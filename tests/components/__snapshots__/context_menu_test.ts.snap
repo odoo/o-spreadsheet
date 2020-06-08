@@ -51,7 +51,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     class="o-menuitem"
     data-name="conditional_formatting"
   >
-    Conditional Format
+    Conditional formatting
   </div>
 </div>
 `;

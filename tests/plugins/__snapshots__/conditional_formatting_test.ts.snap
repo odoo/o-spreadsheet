@@ -10,7 +10,7 @@ exports[`UI of conditional formats simple snapshot 1`] = `
     <div
       class="o-sidePanelTitle"
     >
-      Conditional format rules
+      Conditional formatting
     </div>
     <div
       class="o-sidePanelClose"

@@ -98,7 +98,7 @@ export const contextMenuRegistry = new Registry<ContextMenuItem>()
   .add("conditional_formatting", {
     type: "action",
     name: "conditional_formatting",
-    description: "Conditional Format",
+    description: "Conditional formatting",
     action(env: SpreadsheetEnv) {
       env.openSidePanel("ConditionalFormatting");
     },
