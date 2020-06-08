@@ -5,7 +5,8 @@ import { ColorPicker } from "../color_picker";
 import { colorNumberString } from "../../helpers/index";
 import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
 
-const { Component, useState } = owl;
+const { Component, useState, hooks } = owl;
+const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
 
 export const PREVIEW_TEMPLATE = xml/* xml */ `
@@ -128,10 +129,15 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     maximumColorTool: false,
     minimumColorTool: false,
   });
+  constructor() {
+    super(...arguments);
+    useExternalListener(window as any, "click", this.closeMenus);
+  }
 
   toggleMenu(tool) {
+    const current = this.state[tool];
     this.closeMenus();
-    this.state[tool] = !this.state[tool];
+    this.state[tool] = !current;
   }
 
   toggleTool(tool: string) {

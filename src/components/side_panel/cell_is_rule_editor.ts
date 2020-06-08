@@ -5,7 +5,8 @@ import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../type
 import { _lt } from "../../translation";
 import { terms } from "./translations_terms";
 
-const { Component, useState } = owl;
+const { Component, useState, hooks } = owl;
+const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
 
 export const PREVIEW_TEMPLATE = xml/* xml */ `
@@ -162,10 +163,15 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
       strikethrough: this.cf && this.rule.style.strikethrough,
     },
   });
+  constructor() {
+    super(...arguments);
+    useExternalListener(window as any, "click", this.closeMenus);
+  }
 
   toggleMenu(tool) {
+    const current = this.state[tool];
     this.closeMenus();
-    this.state[tool] = !this.state[tool];
+    this.state[tool] = !current;
   }
 
   toggleTool(tool: string) {
