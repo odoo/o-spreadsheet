@@ -13,6 +13,7 @@ export interface HeaderData {
 }
 
 export interface SheetData {
+  id: string;
   name: string;
   colNumber: number;
   rowNumber: number;

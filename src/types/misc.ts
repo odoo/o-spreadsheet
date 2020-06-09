@@ -19,6 +19,7 @@ export interface Style {
 }
 
 export interface Sheet {
+  id: string;
   name: string;
   cells: { [key: string]: Cell };
   colNumber: number;
