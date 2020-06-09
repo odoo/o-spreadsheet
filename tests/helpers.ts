@@ -1,5 +1,6 @@
 import { Component, hooks, tags, useState } from "@odoo/owl";
 import { Grid } from "../src/components/grid";
+import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
@@ -39,6 +40,7 @@ const t = (s: string): string => s;
 export class GridParent extends Component<any, SpreadsheetEnv> {
   static template = xml`
     <div class="parent">
+    <TopBar model="model" t-on-ask-confirmation="askConfirmation"/>
       <Grid model="model" t-ref="grid"/>
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
@@ -47,8 +49,8 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
              panelProps="sidePanel.panelProps" />
     </div>`;
 
-  static components = { Grid, SidePanel };
   static _t = t;
+  static components = { Grid, SidePanel, TopBar };
   model: Model;
   grid: any = useRef("grid");
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
