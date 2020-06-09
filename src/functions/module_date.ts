@@ -1,6 +1,6 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
-import { toNativeDate, InternalDate, parseDate } from "../functions/dates";
+import { toNativeDate, InternalDate, parseDateTime } from "../functions/dates";
 import { toNumber, toString, visitAny } from "./helpers";
 import { _lt } from "../translation";
 
@@ -60,7 +60,7 @@ export const DATEVALUE: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (date_string: any): number {
     const _dateString = toString(date_string);
-    const result = parseDate(_dateString);
+    const result = parseDateTime(_dateString);
     if (result === null) {
       throw new Error(_lt(`DATEVALUE parameter '${_dateString}' cannot be parsed to date/time.`));
     }
