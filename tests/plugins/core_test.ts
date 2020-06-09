@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import { waitForRecompute, getCell } from "../helpers";
+import { LOADING } from "../../src/plugins/evaluation";
 
 describe("core", () => {
   test("properly compute sum of current cells", () => {
@@ -71,7 +72,7 @@ describe("core", () => {
     expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
   });
 
-  test("format a pendingcell: should not apply formatter to #LOADING", () => {
+  test("format a pendingcell: should not apply formatter to Loading...", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
@@ -80,7 +81,7 @@ describe("core", () => {
       target: model.getters.getSelectedZones(),
       formatter: "#,##0.00",
     });
-    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("#LOADING");
+    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe(LOADING);
   });
 
   test("evaluate properly a cell with a style just recently applied", () => {

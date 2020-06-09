@@ -12,6 +12,8 @@ type ReadCell = (xc: string, sheet: string) => any;
 type Range = (v1: string, v2: string, sheetName: string) => any[];
 type FormulaParameters = [ReadCell, Range, EvalContext];
 
+export const LOADING = "Loading...";
+
 export class EvaluationPlugin extends BasePlugin {
   static getters = ["evaluateFormula"];
   static modes: Mode[] = ["normal", "readonly"];
@@ -162,7 +164,7 @@ export class EvaluationPlugin extends BasePlugin {
       if (e.message === "not ready") {
         WAITING.add(cell);
         cell.pending = true;
-        cell.value = "#LOADING";
+        cell.value = LOADING;
       } else if (!cell.error) {
         cell.value = "#ERROR";
         const __lastFnCalled = params[2].__lastFnCalled || "";
@@ -190,7 +192,7 @@ export class EvaluationPlugin extends BasePlugin {
       try {
         // todo: move formatting in grid and formatters.js
         if (cell.async) {
-          cell.value = "#LOADING";
+          cell.value = LOADING;
           cell.pending = true;
           PENDING.add(cell);
           cell
@@ -265,7 +267,7 @@ export class EvaluationPlugin extends BasePlugin {
       if (cell.error) {
         throw new Error("This formula depends on invalid values");
       }
-      if (cell.value === "#LOADING") {
+      if (cell.value === LOADING) {
         throw new Error("not ready");
       }
       return cell.value;
