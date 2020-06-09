@@ -1,14 +1,17 @@
 import { load } from "../src/data";
+import { mockUuidV4To } from "./helpers";
 
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
+    mockUuidV4To(123);
     expect(load()).toEqual({
-      version: 2,
+      version: 3,
       borders: {},
       styles: {},
       entities: {},
       sheets: [
         {
+          id: "123",
           name: "Sheet1",
           cells: {},
           colNumber: 26,
@@ -23,12 +26,13 @@ describe("load data", () => {
     });
 
     expect(load({})).toEqual({
-      version: 2,
+      version: 3,
       borders: {},
       styles: {},
       entities: {},
       sheets: [
         {
+          id: "124",
           name: "Sheet1",
           cells: {},
           colNumber: 26,
@@ -46,15 +50,44 @@ describe("load data", () => {
   test("assign sheet name if missing", () => {
     expect(
       load({
-        sheets: [{ merges: ["A1:B2"] }],
+        sheets: [{ id: "asdf", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 2,
+      version: 3,
       borders: {},
       styles: {},
       entities: {},
       sheets: [
         {
+          id: "asdf",
+          name: "Sheet1",
+          cells: {},
+          colNumber: 26,
+          rowNumber: 100,
+          cols: {},
+          rows: {},
+          merges: ["A1:B2"],
+          conditionalFormats: [],
+        },
+      ],
+      activeSheet: "Sheet1",
+    });
+  });
+
+  test("assign sheet id if missing", () => {
+    mockUuidV4To(12);
+    expect(
+      load({
+        sheets: [{ name: "Sheet1", merges: ["A1:B2"] }],
+      })
+    ).toEqual({
+      version: 3,
+      borders: {},
+      styles: {},
+      entities: {},
+      sheets: [
+        {
+          id: "13",
           name: "Sheet1",
           cells: {},
           colNumber: 26,
@@ -72,10 +105,14 @@ describe("load data", () => {
   test("assign two different sheet names if missing", () => {
     expect(
       load({
-        sheets: [{ merges: ["A1:B2"] }, { merges: ["C3:D4"] }],
+        sheets: [
+          { id: "1", merges: ["A1:B2"] },
+          { id: "asdf", merges: ["C3:D4"] },
+        ],
       }).sheets
     ).toEqual([
       {
+        id: "1",
         name: "Sheet1",
         cells: {},
         colNumber: 26,
@@ -86,6 +123,7 @@ describe("load data", () => {
         conditionalFormats: [],
       },
       {
+        id: "asdf",
         name: "Sheet2",
         cells: {},
         colNumber: 26,
@@ -99,18 +137,20 @@ describe("load data", () => {
   });
 
   test("sanitize input data, even if versioned", () => {
+    mockUuidV4To(133);
     expect(
       load({
-        version: 2,
+        version: 3,
         sheets: [{ merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 2,
+      version: 3,
       borders: {},
       styles: {},
       entities: {},
       sheets: [
         {
+          id: "134",
           name: "Sheet1",
           cells: {},
           colNumber: 26,

@@ -15,7 +15,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 2", () => {
+  test("Can upgrade from 1 to 3", () => {
     const model = new Model({
       version: 1,
       sheets: [
@@ -33,8 +33,10 @@ describe("Migrations", () => {
         },
       ],
     });
-    expect(model.exportData().activeSheet).toBe("My sheet");
-    expect(model.exportData().version).toBe(2);
+    const data = model.exportData();
+    expect(data.activeSheet).toBe("My sheet");
+    expect(data.version).toBe(3);
+    expect(data.sheets[0].id).toBeDefined();
   });
 });
 
@@ -154,10 +156,11 @@ describe("Export", () => {
   });
 });
 
-describe("complete import, then export", () => {
+test("complete import, then export", () => {
   const modelData = {
     sheets: [
       {
+        id: "someuuid",
         colNumber: 10,
         rowNumber: 10,
         merges: ["A1:A2", "B1:C1"],

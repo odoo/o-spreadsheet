@@ -12,6 +12,7 @@ import {
   sanitizeSheet,
   toCartesian,
   toXC,
+  uuidv4,
 } from "../helpers/index";
 import {
   Cell,
@@ -751,6 +752,7 @@ export class CorePlugin extends BasePlugin {
 
   private createSheet(name: string, cols: number, rows: number): string {
     const sheet: Sheet = {
+      id: uuidv4(),
       name,
       cells: {},
       colNumber: cols,
@@ -851,6 +853,7 @@ export class CorePlugin extends BasePlugin {
   importSheet(data: SheetData) {
     const name = data.name || `Sheet${this.workbook.sheets.length + 1}`;
     const sheet: Sheet = {
+      id: data.id,
       name: name,
       cells: {},
       colNumber: data.colNumber,
@@ -883,6 +886,7 @@ export class CorePlugin extends BasePlugin {
         };
       }
       return {
+        id: sheet.id,
         name: sheet.name,
         colNumber: sheet.colNumber,
         rowNumber: sheet.rowNumber,

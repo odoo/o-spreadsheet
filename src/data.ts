@@ -1,11 +1,12 @@
 import { SheetData, Workbook, WorkbookData } from "./types/index";
+import { uuidv4 } from "./helpers/index";
 
 /**
  * This is the current state version number. It should be incremented each time
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 2;
+export const CURRENT_VERSION = 3;
 
 /**
  * This function tries to load anything that could look like a valid workbook
@@ -61,11 +62,25 @@ function migrate(data: any): WorkbookData {
 
 const MIGRATIONS: Migration[] = [
   {
+    // add the `activeSheet` field on data
     from: 1,
     to: 2,
     applyMigration(data: any): any {
       if (data.sheets && data.sheets[0]) {
         data.activeSheet = data.sheets[0].name;
+      }
+      return data;
+    },
+  },
+  {
+    // add an id field in each sheet
+    from: 2,
+    to: 3,
+    applyMigration(data: any): any {
+      if (data.sheets && data.sheets.length) {
+        for (let sheet of data.sheets) {
+          sheet.id = sheet.id || uuidv4();
+        }
       }
       return data;
     },
@@ -77,6 +92,7 @@ const MIGRATIONS: Migration[] = [
 // -----------------------------------------------------------------------------
 function createEmptySheet(name: string = "Sheet1"): SheetData {
   return {
+    id: uuidv4(),
     name,
     colNumber: 26,
     rowNumber: 100,
