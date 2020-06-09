@@ -7,7 +7,6 @@ import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
 import { _lt } from "../translation";
 
-
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];
@@ -19,7 +18,6 @@ function* makeSetIterator(set: Set<any>) {
     yield elem;
   }
 }
-
 
 const functionMap = functionRegistry.mapping;
 

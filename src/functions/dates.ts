@@ -29,11 +29,64 @@ const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
 
 const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
+const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
 
-export function parseDate(str: string): InternalDate | null {
+export function parseDateTime(str: string): InternalDate | null {
   str = str.trim();
-  const isMDY = mdyDateRegexp.test(str);
-  const isYMD = !isMDY && ymdDateRegexp.test(str);
+
+  let time;
+  const timeMatch = str.match(timeRegexp);
+  if (timeMatch) {
+    time = parseTime(timeMatch[0]);
+    if (time === null) {
+      return null;
+    }
+    str = str.replace(timeMatch[0], "").trim();
+  }
+
+  let date;
+  const mdyDateMatch = str.match(mdyDateRegexp);
+  const ymdDateMatch = str.match(ymdDateRegexp);
+  if (mdyDateMatch || ymdDateMatch) {
+    let dateMatch;
+    if (mdyDateMatch) {
+      dateMatch = mdyDateMatch[0];
+      date = parseDate(dateMatch, "mdy");
+    } else {
+      dateMatch = ymdDateMatch![0];
+      date = parseDate(dateMatch, "ymd");
+    }
+    if (date === null) {
+      return null;
+    }
+    str = str.replace(dateMatch, "").trim();
+  }
+
+  if (str !== "" || !(date || time)) {
+    return null;
+  }
+
+  if (date && time) {
+    return {
+      value: date.value + time.value,
+      format: date.format + " " + (time.format === "hhhh:mm:ss" ? "hh:mm:ss" : time.format),
+      jsDate: new Date(
+        date.jsDate.getFullYear() + time.jsDate.getFullYear() - 1899,
+        date.jsDate.getMonth() + time.jsDate.getMonth() - 11,
+        date.jsDate.getDate() + time.jsDate.getDate() - 30,
+        date.jsDate.getHours() + time.jsDate.getHours(),
+        date.jsDate.getMinutes() + time.jsDate.getMinutes(),
+        date.jsDate.getSeconds() + time.jsDate.getSeconds()
+      ),
+    };
+  }
+
+  return date || time;
+}
+
+function parseDate(str: string, dateFormat: string): InternalDate | null {
+  const isMDY = dateFormat === "mdy";
+  const isYMD = dateFormat === "ymd";
   if (isMDY || isYMD) {
     const parts: string[] = str.split(/\/|-|\s/);
     const monthIndex = isMDY ? 0 : 1;
@@ -81,9 +134,7 @@ function inferYear(str: string): number {
   return 0;
 }
 
-const timeRegexp = /^\d+(:\d+)?(:\d+)?\s*(AM|PM)?$/i;
-
-export function parseTime(str: string): InternalDate | null {
+function parseTime(str: string): InternalDate | null {
   str = str.trim();
   if (timeRegexp.test(str)) {
     const isAM = /AM/i.test(str);
@@ -132,6 +183,7 @@ export function parseTime(str: string): InternalDate | null {
 // -----------------------------------------------------------------------------
 // Conversion
 // -----------------------------------------------------------------------------
+
 export function toNativeDate(date: any): Date {
   if (typeof date === "object" && date !== null) {
     if (!date.jsDate) {
@@ -139,24 +191,40 @@ export function toNativeDate(date: any): Date {
     }
     return date.jsDate;
   }
-
   if (typeof date === "string") {
-    let result = parseDate(date);
-    if (result !== null && result.jsDate) {
-      return result.jsDate;
-    }
-    result = parseTime(date);
+    let result = parseDateTime(date);
     if (result !== null && result.jsDate) {
       return result.jsDate;
     }
   }
-
   return new Date(toNumber(date) * 86400 * 1000 - DATE_JS_1900_OFFSET);
 }
 
 // -----------------------------------------------------------------------------
 // Formatting
 // -----------------------------------------------------------------------------
+
+export function formatDateTime(date: InternalDate, format?: string): string {
+  // TODO: unify the format functions for date and datetime
+  // This requires some code to 'parse' or 'tokenize' the format, keep it in a
+  // cache, and use it in a single mapping, that recognizes the special list
+  // of tokens dd,d,m,y,h, ... and preserves the rest
+
+  const dateTimeFormat = format || date.format;
+  const jsDate = toNativeDate(date);
+  const indexH = dateTimeFormat.indexOf("h");
+  let strDate = "";
+  let strTime = "";
+  if (indexH > 0) {
+    strDate = formatJSDate(jsDate, dateTimeFormat.substring(0, indexH - 1));
+    strTime = formatJSTime(jsDate, dateTimeFormat.substring(indexH));
+  } else if (indexH === 0) {
+    strTime = formatJSTime(jsDate, dateTimeFormat);
+  } else if (indexH < 0) {
+    strDate = formatJSDate(jsDate, dateTimeFormat);
+  }
+  return strDate + (strDate && strTime ? " " : "") + strTime;
+}
 
 function formatJSDate(date: Date, format: string): string {
   const sep = format.match(/\/|-|\s/)![0];
@@ -179,10 +247,6 @@ function formatJSDate(date: Date, format: string): string {
       }
     })
     .join(sep);
-}
-
-export function formatDate(date: InternalDate, format?: string): string {
-  return formatJSDate(toNativeDate(date), format || date.format);
 }
 
 function formatJSTime(date: Date, format: string): string {
@@ -219,8 +283,4 @@ function formatJSTime(date: Date, format: string): string {
       })
       .join(":") + meridian
   );
-}
-
-export function formatTime(date: InternalDate, format?: string): string {
-  return formatJSTime(toNativeDate(date), format || date.format);
 }

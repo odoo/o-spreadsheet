@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { parseDate, formatDate, InternalDate, parseTime, formatTime } from "../functions/dates";
+import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
 import { AsyncFunction, compile, tokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
@@ -178,42 +178,31 @@ export class CorePlugin extends BasePlugin {
 
   getCellText(cell: Cell): string {
     const shouldFormat = cell.value && cell.format && !cell.error && !cell.pending;
-    const timeFormat = shouldFormat && cell.format!.match(/:/);
-    const dateFormat = shouldFormat && !timeFormat && cell.format!.match(/y|m|d/);
-    const numberFormat = shouldFormat && !(timeFormat || dateFormat);
+    const dateTimeFormat = shouldFormat && cell.format!.match(/y|m|d|:/);
+    const numberFormat = shouldFormat && !dateTimeFormat;
     switch (typeof cell.value) {
       case "string":
         return cell.value;
       case "boolean":
         return cell.value ? "TRUE" : "FALSE";
       case "number":
-        if (dateFormat) {
-          return formatDate({ value: cell.value } as InternalDate, cell.format);
+        if (dateTimeFormat) {
+          return formatDateTime({ value: cell.value } as InternalDate, cell.format);
         }
         if (numberFormat) {
           return formatNumber(cell.value, cell.format!);
         }
         return formatStandardNumber(cell.value);
       case "object":
-        if (timeFormat) {
-          return formatTime(cell.value as InternalDate, cell.format);
-        }
-        if (dateFormat) {
-          return formatDate(cell.value as InternalDate, cell.format);
+        if (dateTimeFormat) {
+          return formatDateTime(cell.value as InternalDate, cell.format);
         }
         if (numberFormat) {
           return formatNumber(cell.value.value, cell.format!);
         }
-
-        if (cell.value) {
-          if (cell.value.format!.match(/:/)) {
-            return formatTime(cell.value);
-          }
-          if (cell.value.format!.match(/y|m|d/)) {
-            return formatDate(cell.value);
-          }
+        if (cell.value && cell.value.format!.match(/y|m|d|:/)) {
+          return formatDateTime(cell.value);
         }
-
         return "0";
     }
     return cell.value.toString();
@@ -692,17 +681,11 @@ export class CorePlugin extends BasePlugin {
           format = content.includes(".") ? "0.00%" : "0%";
         }
       }
-      let date = parseDate(content);
+      let date = parseDateTime(content);
       if (date) {
         type = "date";
         value = date;
-        content = formatDate(date);
-      }
-      let time = parseTime(content);
-      if (time) {
-        type = "date";
-        value = time;
-        content = formatTime(time);
+        content = formatDateTime(date);
       }
       const contentUpperCase = content.toUpperCase();
       if (contentUpperCase === "TRUE") {
