@@ -479,6 +479,8 @@ describe("Rows", () => {
         { start: size + 30, end: size + 50, size: 20, name: "5", cells: {} },
         { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} },
       ]);
+      const dimensions = model.getters.getGridSize();
+      expect(dimensions).toEqual([192, 96]);
     });
     test("On addition after", () => {
       addRows(2, "after", 2);
@@ -491,6 +493,8 @@ describe("Rows", () => {
         { start: size + 50, end: size + 70, size: 20, name: "5", cells: {} },
         { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} },
       ]);
+      const dimensions = model.getters.getGridSize();
+      expect(dimensions).toEqual([192, 116]);
     });
   });
 

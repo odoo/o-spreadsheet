@@ -546,7 +546,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["height"], top);
+    this.history.updateLocalState(["height"], start);
     this.history.updateState(["rows"], rows);
   }
 
