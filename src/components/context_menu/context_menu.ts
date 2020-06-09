@@ -10,8 +10,8 @@ import {
 const { xml, css } = tags;
 const { useExternalListener } = hooks;
 
-const MENU_WIDTH = 180;
-const MENU_ITEM_HEIGHT = 36;
+const MENU_WIDTH = 200;
+const MENU_ITEM_HEIGHT = 32;
 const SEPARATOR_HEIGHT = 1;
 
 //------------------------------------------------------------------------------
@@ -57,12 +57,13 @@ const CSS = css/* scss */ `
     position: absolute;
     width: ${MENU_WIDTH}px;
     background-color: white;
-    box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
-    font-size: 14px;
+    box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+    font-size: 13px;
     .o-menuitem {
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
-      padding: 10px 25px;
+      padding: 7px 20px;
+      padding-right: 2px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -82,8 +83,7 @@ const CSS = css/* scss */ `
 
       &.separator {
         height: ${SEPARATOR_HEIGHT}px;
-        background-color: rgba(0, 0, 0, 0.12);
-        margin: 0 8px;
+        border-bottom: 1px solid #e0e2e4;
         padding: 0;
       }
 

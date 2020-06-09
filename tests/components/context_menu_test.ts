@@ -58,12 +58,12 @@ function getSubMenuPosition() {
 }
 
 function getItemSize() {
-  return 36;
+  return 32;
 }
 
 function getSize(menuItemsCount: number): { width: number; height: number } {
   return {
-    width: 180,
+    width: 200,
     height: getItemSize() * menuItemsCount,
   };
 }
@@ -459,7 +459,7 @@ describe("Context Menu position", () => {
   });
 
   test("it renders submenu on the bottom left if not enough space", async () => {
-    const [clickX, clickY] = await renderContextMenu(800, 300, { menuItems: subMenu });
+    const [clickX, clickY] = await renderContextMenu(780, 300, { menuItems: subMenu });
     simulateClick("div[data-name='root']");
     await nextTick();
     const { left, top } = getSubMenuPosition();
