@@ -1,10 +1,11 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
-import { getCell, makeTestFixture, nextTick } from "../helpers";
+import { getCell, makeTestFixture, nextTick, GridParent } from "../helpers";
 import { menuItemRegistry } from "../../src/menu_items_registry";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
+import { ConditionalFormat } from "../../src/types";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -283,5 +284,110 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
     expect(number).toBe(1);
     menuItemRegistry.content = menuDefinitions;
+  });
+});
+describe("TopBar - CF", () => {
+  test("open sidepanel with no CF in selected zone", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    triggerMouseEvent(".o-menu-dropdown[data-id='format']", "click");
+    await nextTick();
+    const cfButton = fixture.querySelectorAll(".o-menu-dropdown-item")[24];
+    triggerMouseEvent(cfButton, "click");
+    await nextTick();
+    debugger;
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeTruthy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeFalsy();
+  });
+
+  test("open sidepanel with one CF in selected zone", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    const cfRule: ConditionalFormat = {
+      ranges: ["A1:C7"],
+      id: "1",
+      rule: {
+        values: ["2"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FF0000" },
+      },
+    };
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule,
+      sheet: model.getters.getActiveSheet(),
+    });
+    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+
+    triggerMouseEvent(".o-menu-dropdown[data-id='format']", "click");
+    await nextTick();
+
+    const cfButton = fixture.querySelectorAll(".o-menu-dropdown-item")[24];
+    triggerMouseEvent(cfButton, "click");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeFalsy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeTruthy();
+  });
+
+  test("open sidepanel with with more then one CF in selected zone", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    const cfRule1: ConditionalFormat = {
+      ranges: ["A1:C7"],
+      id: "1",
+      rule: {
+        values: ["2"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FF0000" },
+      },
+    };
+    const cfRule2: ConditionalFormat = {
+      ranges: ["A1:C7"],
+      id: "2",
+      rule: {
+        values: ["3"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: { fillColor: "#FE0001" },
+      },
+    };
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule1,
+      sheet: model.getters.getActiveSheet(),
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cfRule2,
+      sheet: model.getters.getActiveSheet(),
+    });
+    const zone = { left: 0, top: 0, bottom: 10, right: 10 };
+    model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
+
+    triggerMouseEvent(".o-menu-dropdown[data-id='format']", "click");
+    await nextTick();
+
+    const cfButton = fixture.querySelectorAll(".o-menu-dropdown-item")[24];
+    triggerMouseEvent(cfButton, "click");
+    await nextTick();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
+    ).toBeTruthy();
+    expect(
+      fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-ruleEditor")
+    ).toBeFalsy();
   });
 });

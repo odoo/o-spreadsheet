@@ -442,7 +442,7 @@ menuItemRegistry
     name: _lt("Conditional formatting"),
     sequence: 60,
     action: (env: SpreadsheetEnv) => {
-      env.openSidePanel("ConditionalFormatting");
+      env.openSidePanel("ConditionalFormatting", { selection: env.getters.getSelectedZones() });
     },
     separator: true,
   });
