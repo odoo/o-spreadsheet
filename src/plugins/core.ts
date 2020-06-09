@@ -546,8 +546,12 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["height"], start);
+    const sheetID = this.workbook.sheets.findIndex(
+      (s) => s.name === this.workbook.activeSheet.name
+    )!;
+    this.history.updateLocalState(["height"], start + DEFAULT_CELL_HEIGHT + 5);
     this.history.updateState(["rows"], rows);
+    this.history.updateState(["sheets", sheetID, "rows"], rows);
   }
 
   private addEmptyRow() {

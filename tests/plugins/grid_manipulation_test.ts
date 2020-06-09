@@ -480,7 +480,7 @@ describe("Rows", () => {
         { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} },
       ]);
       const dimensions = model.getters.getGridSize();
-      expect(dimensions).toEqual([192, 96]);
+      expect(dimensions).toEqual([192, 124]);
     });
     test("On addition after", () => {
       addRows(2, "after", 2);
@@ -494,7 +494,17 @@ describe("Rows", () => {
         { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} },
       ]);
       const dimensions = model.getters.getGridSize();
-      expect(dimensions).toEqual([192, 116]);
+      expect(dimensions).toEqual([192, 144]);
+    });
+
+    test("activate Sheet: same size", () => {
+      addRows(2, "after", 1);
+      let dimensions = model.getters.getGridSize();
+      expect(dimensions).toEqual([192, 124]);
+      model.dispatch("CREATE_SHEET", { activate: true });
+      model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+      dimensions = model.getters.getGridSize();
+      expect(dimensions).toEqual([192, 124]);
     });
   });
 
