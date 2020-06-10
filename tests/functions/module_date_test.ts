@@ -93,7 +93,7 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=DATEVALUE(40931)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: "=DATEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
-    //expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012 8:10:30")' })).toBe(40931);
+    expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012 8:10:30")' })).toBe(40931);
     expect(evaluateCell("A1", { A1: '=DATEVALUE("2012/1/23")' })).toBe(40931);
     expect(evaluateCell("A1", { A1: '=DATEVALUE("2012-1-23")' })).toBe(40931);
     expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
@@ -211,6 +211,26 @@ describe("date", () => {
   });
 
   //----------------------------------------------------------------------------
+  // HOUR
+  //----------------------------------------------------------------------------
+
+  test("HOUR: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: '=HOUR("11:23:13")' })).toBe(11);
+    expect(evaluateCell("A1", { A1: '=HOUR("2020 12 12 23:40:12")' })).toBe(23);
+    expect(evaluateCell("A1", { A1: '=HOUR("3:00")' })).toBe(3);
+    expect(evaluateCell("A1", { A1: '=HOUR("2015 01 01")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=HOUR(0.125)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=HOUR(12345.125)" })).toBe(3);
+  });
+
+  test("HOUR: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "11:23:13" })).toBe(11);
+    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "2020 12 12 23:40:12" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "0.25" })).toBe(6);
+    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "54321.5" })).toBe(12);
+  });
+
+  //----------------------------------------------------------------------------
   // ISOWEEKNUM
   //----------------------------------------------------------------------------
 
@@ -229,6 +249,26 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2021" })).toBe(53);
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2021" })).toBe(53);
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2021" })).toBe(1);
+  });
+
+  //----------------------------------------------------------------------------
+  // MINUTE
+  //----------------------------------------------------------------------------
+
+  test("MINUTE: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: '=MINUTE("11:23:13")' })).toBe(23);
+    expect(evaluateCell("A1", { A1: '=MINUTE("2020 12 12 23:40:12")' })).toBe(40);
+    expect(evaluateCell("A1", { A1: '=MINUTE("0:21")' })).toBe(21);
+    expect(evaluateCell("A1", { A1: '=MINUTE("2015 01 01")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MINUTE(0.126)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=MINUTE(12345.129)" })).toBe(5);
+  });
+
+  test("MINUTE: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "11:23:13" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "2020 12 12 23:40:12" })).toBe(40);
+    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "0.2532" })).toBe(4);
+    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "54321.789" })).toBe(56);
   });
 
   //----------------------------------------------------------------------------
@@ -430,13 +470,110 @@ describe("date", () => {
   });
 
   //----------------------------------------------------------------------------
+  // NOW
+  //----------------------------------------------------------------------------
+
+  test("NOW: functional tests on simple arguments", () => {
+    let timeNow = new Date();
+    timeNow.setSeconds(0);
+    timeNow.setMilliseconds(0);
+
+    const now = evaluateCell("A1", { A1: "=NOW()" });
+    expect(now.jsDate.getTime()).toBeGreaterThan(timeNow.getTime());
+    expect(now.jsDate.getTime()).toBeLessThan(new Date().getTime());
+  });
+
+  //----------------------------------------------------------------------------
+  // SECOND
+  //----------------------------------------------------------------------------
+
+  test("SECOND: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: '=SECOND("11:23:13")' })).toBe(13);
+    expect(evaluateCell("A1", { A1: '=SECOND("2020 12 12 23:40:12")' })).toBe(12);
+    expect(evaluateCell("A1", { A1: '=SECOND("0:21:42")' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=SECOND("2015 01 01")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SECOND(0.126)" })).toBe(26);
+    expect(evaluateCell("A1", { A1: "=SECOND(12345.129)" })).toBe(46);
+  });
+
+  test("SECOND: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "11:23:13" })).toBe(13);
+    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "2020 12 12 23:40:12" })).toBe(12);
+    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "0.2532" })).toBe(36);
+    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "54321.789" })).toBe(10);
+  });
+
+  //----------------------------------------------------------------------------
+  // TIME
+  //----------------------------------------------------------------------------
+  test("TIME: functional tests on cell arguments", () => {
+    // prettier-ignore
+    const grid = {
+      A1:   "=TIME(B1,  C1,   D1 )",  B1:  "9",  C1:  "11",  D1:  "31",
+      A2:   "=TIME(B2,  C2,   D2 )",  B2:  "14", C2:  "59",  D2:  "59",
+      A3:   "=TIME(B3,  C3,   D3 )",  B3:  "26", C3:  "0",   D3:  "0",
+      A4:   "=TIME(B4,  C4,   D4 )",  B4:  "26", C4:  "60",  D4:  "60",
+      A5:   "=TIME(B5,  C5,   D5 )",  B5:  "13", C5:  "61",  D5:  "20",
+      A6:   "=TIME(B6,  C6,   D6 )",  B6:  "16", C6:  "49",  D6:  "62",
+      A7:   "=TIME(B7,  C7,   D7 )",  B7:  "26", C7:  "61",  D7:  "62",
+      A8:   "=TIME(B8,  C8,   D8 )",  B8:  "26", C8:  "61",  D8:  "62",
+      A9:   "=TIME(B9,  C9,   D9 )",  B9:  "14", C9:  "59",  D9:  "-59",
+      A10:  "=TIME(B10, C10,  D10 )", B10: "14", C10: "-5",  D10: "-59",
+      A11:  "=TIME(B11, C11,  D11 )", B11: "1",  C11: "-61", D11: "-61",
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toEqual(parseDateTime("9:11:31 AM"));
+    expect(gridResult.A2).toEqual(parseDateTime("2:59:59 PM"));
+    expect(gridResult.A3).toEqual(parseDateTime("2:00:00 AM"));
+    expect(gridResult.A4).toEqual(parseDateTime("3:01:00 AM"));
+    expect(gridResult.A5).toEqual(parseDateTime("2:01:20 PM"));
+    expect(gridResult.A6).toEqual(parseDateTime("4:50:02 PM"));
+    expect(gridResult.A7).toEqual(parseDateTime("3:02:02 AM"));
+    expect(gridResult.A8).toEqual(parseDateTime("3:02:02 AM"));
+    expect(gridResult.A9).toEqual(parseDateTime("2:58:01 PM"));
+    expect(gridResult.A10).toEqual(parseDateTime("1:54:01 PM"));
+    expect(gridResult.A11).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
+  });
+
+  //----------------------------------------------------------------------------
+  // TIMEVALUE
+  //----------------------------------------------------------------------------
+
+  test("TIMEVALUE: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TIMEVALUE(40931.5678)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(evaluateCell("A1", { A1: "=TIMEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012")' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012 12:09:00")' })).toBeCloseTo(0.50625, 5);
+    expect(evaluateCell("A1", { A1: '=TIMEVALUE("1899 10 08 18:00")' })).toBe(0.75);
+  });
+
+  test("TIMEVALUE: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "36380.5678" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "8/8/1999 12:09:00" })).toBe("#ERROR"); // @compatibility, retrun 8/8/1999 on Google Sheet
+  });
+
+  //----------------------------------------------------------------------------
   // TODAY
   //----------------------------------------------------------------------------
 
   test("TODAY: functional tests on simple arguments", () => {
-    const grid = { A1: "=TODAY()" };
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A1.jsDate.getTime()).toBeLessThan(new Date().getTime());
+    let timeNow = new Date();
+    timeNow.setHours(0);
+    timeNow.setMinutes(0);
+    timeNow.setSeconds(0);
+    timeNow.setMilliseconds(0);
+
+    const today = evaluateCell("A1", { A1: "=TODAY()" });
+    expect(today.jsDate.getTime()).toBeGreaterThanOrEqual(timeNow.getTime());
+    expect(today.jsDate.getTime()).toBeLessThan(new Date().getTime());
+
+    expect(today.jsDate.getHours()).toBe(0);
+    expect(today.jsDate.getMinutes()).toBe(0);
+    expect(today.jsDate.getSeconds()).toBe(0);
+    expect(today.jsDate.getMilliseconds()).toBe(0);
+
+    expect(today.value - Math.abs(today.value)).toBe(0);
   });
 
   //----------------------------------------------------------------------------
