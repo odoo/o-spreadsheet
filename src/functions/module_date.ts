@@ -60,11 +60,11 @@ export const DATEVALUE: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (date_string: any): number {
     const _dateString = toString(date_string);
-    const result = parseDateTime(_dateString);
-    if (result === null) {
+    const datetime = parseDateTime(_dateString);
+    if (datetime === null) {
       throw new Error(_lt(`DATEVALUE parameter '${_dateString}' cannot be parsed to date/time.`));
     }
-    return result.value;
+    return Math.trunc(datetime.value);
   },
 };
 
@@ -160,6 +160,20 @@ export const EOMONTH: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// HOUR
+// -----------------------------------------------------------------------------
+export const HOUR: FunctionDescription = {
+  description: "Hour component of a specific time.",
+  args: args(`
+    time (date) ${_lt("The time from which to calculate the hour component.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (date: any): number {
+    return toNativeDate(date).getHours();
+  },
+};
+
+// -----------------------------------------------------------------------------
 // ISOWEEKNUM
 // -----------------------------------------------------------------------------
 export const ISOWEEKNUM: FunctionDescription = {
@@ -241,6 +255,20 @@ export const ISOWEEKNUM: FunctionDescription = {
 
     const dif = (_date.getTime() - firstDay.getTime()) / 86400000;
     return Math.floor(dif / 7) + 1;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// MINUTE
+// -----------------------------------------------------------------------------
+export const MINUTE: FunctionDescription = {
+  description: "Minute component of a specific time.",
+  args: args(`
+      time (date) ${_lt("The time from which to calculate the minute component.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (date: any): number {
+    return toNativeDate(date).getMinutes();
   },
 };
 
@@ -413,6 +441,100 @@ export const NETWORKDAYS_INTL: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// NOW
+// -----------------------------------------------------------------------------
+
+export const NOW: FunctionDescription = {
+  description: "Current date and time as a date value.",
+  args: [],
+  returns: ["DATE"],
+  compute: function (): InternalDate {
+    let today = new Date();
+    today.setMilliseconds(0);
+    const delta = today.getTime() - INITIAL_1900_DAY.getTime();
+    const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
+    return {
+      value: Math.floor(delta / 86400000) + time,
+      format: "m/d/yyyy hh:mm:ss",
+      jsDate: today,
+    };
+  },
+};
+
+// -----------------------------------------------------------------------------
+// SECOND
+// -----------------------------------------------------------------------------
+export const SECOND: FunctionDescription = {
+  description: "Minute component of a specific time.",
+  args: args(`
+      time (date) ${_lt("The time from which to calculate the second component.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (date: any): number {
+    return toNativeDate(date).getSeconds();
+  },
+};
+
+// -----------------------------------------------------------------------------
+// TIME
+// -----------------------------------------------------------------------------
+export const TIME: FunctionDescription = {
+  description: "Converts hour/minute/second into a time.",
+  args: args(`
+    hour (number) ${_lt("The hour component of the time.")}
+    minute (number) ${_lt("The minute component of the time.")}
+    second (number) ${_lt("The second component of the time.")}
+    `),
+  returns: ["DATE"],
+  compute: function (hour: any, minute: any, second: any): InternalDate {
+    let _hour = Math.trunc(toNumber(hour));
+    let _minute = Math.trunc(toNumber(minute));
+    let _second = Math.trunc(toNumber(second));
+
+    _minute += Math.floor(_second / 60);
+    _second = (_second % 60) + (_second < 0 ? 60 : 0);
+
+    _hour += Math.floor(_minute / 60);
+    _minute = (_minute % 60) + (_minute < 0 ? 60 : 0);
+
+    _hour %= 24;
+
+    if (_hour < 0) {
+      throw new Error(`function Time result sould not be negative`);
+    }
+
+    const jsDate = new Date(1899, 11, 30, _hour, _minute, _second);
+
+    return {
+      value: _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60),
+      format: "hh:mm:ss a",
+      jsDate: jsDate,
+    };
+  },
+};
+
+// -----------------------------------------------------------------------------
+// TIMEVALUE
+// -----------------------------------------------------------------------------
+export const TIMEVALUE: FunctionDescription = {
+  description: "Converts a time string into its serial number representation.",
+  args: args(`
+      time_string (string) ${_lt("The string that holds the time representation.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (time_string: any): number {
+    const _timeString = toString(time_string);
+    const datetime = parseDateTime(_timeString);
+    if (datetime === null) {
+      throw new Error(`TIMEVALUE parameter '${_timeString}' cannot be parsed to date/time.`);
+    }
+    const result = datetime.value - Math.trunc(datetime.value);
+
+    return result < 0 ? 1 + result : result;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // TODAY
 // -----------------------------------------------------------------------------
 export const TODAY: FunctionDescription = {
@@ -426,7 +548,7 @@ export const TODAY: FunctionDescription = {
     return {
       value: Math.round(delta / 86400000),
       format: "m/d/yyyy",
-      jsDate,
+      jsDate: jsDate,
     };
   },
 };

@@ -184,6 +184,24 @@ function parseTime(str: string): InternalDate | null {
 // Conversion
 // -----------------------------------------------------------------------------
 
+function numberToDate(value: number): Date {
+  const truncValue = Math.trunc(value);
+  let date = new Date(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
+
+  let time = value - truncValue;
+  time = time < 0 ? 1 + time : time;
+
+  const hours = Math.round(time * 24);
+  const minutes = Math.round((time - hours / 24) * 24 * 60);
+  const seconds = Math.round((time - hours / 24 - minutes / 24 / 60) * 24 * 60 * 60);
+
+  date.setHours(hours);
+  date.setMinutes(minutes);
+  date.setSeconds(seconds);
+
+  return date;
+}
+
 export function toNativeDate(date: any): Date {
   if (typeof date === "object" && date !== null) {
     if (!date.jsDate) {
@@ -197,7 +215,7 @@ export function toNativeDate(date: any): Date {
       return result.jsDate;
     }
   }
-  return new Date(toNumber(date) * 86400 * 1000 - DATE_JS_1900_OFFSET);
+  return numberToDate(toNumber(date));
 }
 
 // -----------------------------------------------------------------------------
