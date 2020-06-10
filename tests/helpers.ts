@@ -5,7 +5,7 @@ import { functionRegistry } from "../src/functions/index";
 import * as h from "../src/helpers/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { Cell, GridRenderingContext, SpreadsheetEnv } from "../src/types";
+import { Cell, GridRenderingContext, SpreadsheetEnv, Sheet } from "../src/types";
 import "./canvas.mock";
 
 const functions = functionRegistry.content;
@@ -243,4 +243,9 @@ export function getActiveXc(model: Model): string {
 
 export function getCell(model: Model, xc: string): Cell | null {
   return model.getters.getCell(...toCartesian(xc));
+}
+
+export function getSheet(model: Model, index: number = 0): Sheet {
+  const id = model["workbook"].visibleSheets[index];
+  return model["workbook"].sheets[id];
 }

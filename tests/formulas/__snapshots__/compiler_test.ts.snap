@@ -40,7 +40,7 @@ exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(cell,range,ctx
 ) {
 // =Sheet34!B3
-let _1 = cell('B3', \`Sheet34\`)
+let _1 = cell('B3', \`322\`)
 return _1;
 }"
 `;

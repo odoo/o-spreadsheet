@@ -1,10 +1,10 @@
 import { BasePlugin } from "../base_plugin";
-import { functionRegistry } from "../functions/index";
-import { Cell, Command, Sheet, EvalContext, Workbook, Getters, CommandDispatcher } from "../types";
 import { compile } from "../formulas/index";
+import { functionRegistry } from "../functions/index";
 import { toCartesian } from "../helpers/index";
-import { Mode, ModelConfig } from "../model";
 import { WHistory } from "../history";
+import { Mode, ModelConfig } from "../model";
+import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -94,7 +94,7 @@ export class EvaluationPlugin extends BasePlugin {
         this.WAITING.clear();
 
         this.evaluateCells(makeSetIterator(cells));
-        this.isUptodate.add(this.workbook.activeSheet.name);
+        this.isUptodate.add(this.workbook.activeSheet.id);
         break;
       case "UNDO":
       case "REDO":
@@ -104,9 +104,9 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
-    if (!this.isUptodate.has(this.workbook.activeSheet.name)) {
+    if (!this.isUptodate.has(this.workbook.activeSheet.id)) {
       this.evaluate();
-      this.isUptodate.add(this.workbook.activeSheet.name);
+      this.isUptodate.add(this.workbook.activeSheet.id);
     }
     if (this.loadingCells > 0) {
       this.startScheduler();
@@ -117,13 +117,18 @@ export class EvaluationPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.name): any {
+  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.id): any {
     const cacheKey = `${sheet}#${formula}`;
     let compiledFormula;
     if (cacheKey in this.cache) {
       compiledFormula = this.cache[cacheKey];
     } else {
-      compiledFormula = compile(formula, sheet);
+      let sheetIds: { [name: string]: string } = {};
+      const { sheets } = this.workbook;
+      for (let sheetId in sheets) {
+        sheetIds[sheets[sheetId].name] = sheetId;
+      }
+      compiledFormula = compile(formula, sheet, sheetIds);
       this.cache[cacheKey] = compiledFormula;
     }
     const params = this.getFormulaParameters(() => {});
@@ -244,14 +249,10 @@ export class EvaluationPlugin extends BasePlugin {
    * - an evaluation context
    */
   private getFormulaParameters(computeValue: Function): FormulaParameters {
-    const sheets: { [name: string]: Sheet } = {};
-    for (let sheet of this.workbook.sheets) {
-      sheets[sheet.name] = sheet;
-    }
-
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
+    const sheets = this.workbook.sheets;
 
     function readCell(xc: string, sheet: string): any {
       let cell;
@@ -284,8 +285,8 @@ export class EvaluationPlugin extends BasePlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(v1: string, v2: string, sheetName: string): any[] {
-      const sheet = sheets[sheetName];
+    function range(v1: string, v2: string, sheetId: string): any[] {
+      const sheet = sheets[sheetId];
       const [c1, r1] = toCartesian(v1);
       const [c2, r2] = toCartesian(v2);
       const result: any[] = new Array(c2 - c1 + 1);

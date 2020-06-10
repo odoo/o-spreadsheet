@@ -5,7 +5,7 @@ describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
     mockUuidV4To(123);
     expect(load()).toEqual({
-      version: 3,
+      version: 4,
       borders: {},
       styles: {},
       entities: {},
@@ -22,11 +22,11 @@ describe("load data", () => {
           conditionalFormats: [],
         },
       ],
-      activeSheet: "Sheet1",
+      activeSheet: "123",
     });
 
     expect(load({})).toEqual({
-      version: 3,
+      version: 4,
       borders: {},
       styles: {},
       entities: {},
@@ -43,7 +43,7 @@ describe("load data", () => {
           conditionalFormats: [],
         },
       ],
-      activeSheet: "Sheet1",
+      activeSheet: "124",
     });
   });
 
@@ -53,7 +53,7 @@ describe("load data", () => {
         sheets: [{ id: "asdf", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 3,
+      version: 4,
       borders: {},
       styles: {},
       entities: {},
@@ -70,7 +70,7 @@ describe("load data", () => {
           conditionalFormats: [],
         },
       ],
-      activeSheet: "Sheet1",
+      activeSheet: "asdf",
     });
   });
 
@@ -81,7 +81,7 @@ describe("load data", () => {
         sheets: [{ name: "Sheet1", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 3,
+      version: 4,
       borders: {},
       styles: {},
       entities: {},
@@ -98,7 +98,7 @@ describe("load data", () => {
           conditionalFormats: [],
         },
       ],
-      activeSheet: "Sheet1",
+      activeSheet: "13",
     });
   });
 
@@ -144,7 +144,7 @@ describe("load data", () => {
         sheets: [{ merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 3,
+      version: 4,
       borders: {},
       styles: {},
       entities: {},
@@ -161,7 +161,7 @@ describe("load data", () => {
           conditionalFormats: [],
         },
       ],
-      activeSheet: "Sheet1",
+      activeSheet: "134",
     });
   });
 });

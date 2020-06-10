@@ -3,6 +3,7 @@ import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { CURRENT_VERSION } from "../../src/data";
+import { mockUuidV4To } from "../helpers";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
@@ -15,7 +16,8 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 3", () => {
+  test("Can upgrade from 1 to 4", () => {
+    mockUuidV4To(333);
     const model = new Model({
       version: 1,
       sheets: [
@@ -35,7 +37,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.activeSheet).toBe("My sheet");
-    expect(data.version).toBe(3);
+    expect(data.version).toBe(4);
     expect(data.sheets[0].id).toBeDefined();
   });
 });
@@ -75,14 +77,16 @@ describe("Import", () => {
         },
       ],
     });
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
     model.dispatch("SELECT_ROW", { index: 1 });
     model.dispatch("ADD_MERGE", {
-      sheet: "Sheet1",
+      sheet: sheet1,
       zone: { left: 0, top: 1, right: 5, bottom: 1 },
     });
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
     expect(Object.keys(model["workbook"].activeSheet.merges)).toHaveLength(0);
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
     expect(Object.keys(model["workbook"].activeSheet.merges)).toHaveLength(1);
     expect(Object.values(model["workbook"].activeSheet.merges)[0].topLeft).toBe("A2");
   });
@@ -179,7 +183,7 @@ test("complete import, then export", () => {
         conditionalFormats: [],
       },
     ],
-    activeSheet: "My sheet",
+    activeSheet: "someuuid",
     entities: {},
     styles: {
       99: { bold: true, textColor: "#3A3791", fontSize: 12 },

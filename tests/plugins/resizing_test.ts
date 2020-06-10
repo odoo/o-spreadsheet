@@ -54,18 +54,20 @@ describe("Model resizer", () => {
   test("changing sheets update the sizes", async () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { activate: true });
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
 
-    expect(model.getters.getActiveSheet()).toBe("Sheet2");
+    expect(model.getters.getActiveSheet()).toBe(sheet2);
 
     model.dispatch("RESIZE_COLUMNS", {
-      sheet: "Sheet2",
+      sheet: sheet2,
       cols: [1],
       size: model.getters.getCol(1).size + 100,
     });
 
     const initialWidth = model.getters.getGridSize()[0];
 
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
     expect(model.getters.getGridSize()[0]).toBe(initialWidth - 100);
   });
 

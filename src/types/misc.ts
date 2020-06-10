@@ -107,7 +107,8 @@ export interface Workbook {
   cells: { [key: string]: Cell };
 
   // sheets
-  sheets: Sheet[];
+  visibleSheets: string[]; // ids of visible sheets
+  sheets: { [id: string]: Sheet };
   activeSheet: Sheet;
 }
 

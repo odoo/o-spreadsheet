@@ -38,14 +38,14 @@ describe("addFunction", () => {
 
   test("Can use a getter in a function", () => {
     const model = new Model();
-    functionRegistry.add("GETACTIVESHEET", {
-      description: "Get the name of the current sheet",
+    functionRegistry.add("GETNUMBERCOLS", {
+      description: "Get the number of columns",
       compute: function () {
-        return (this as any).getters.getActiveSheet();
+        return (this as any).getters.getNumberCols();
       },
       args: args``,
       returns: ["STRING"],
     });
-    expect(evaluateCell("A1", { A1: "=GETACTIVESHEET()" })).toBe(model.getters.getActiveSheet());
+    expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(model.getters.getNumberCols());
   });
 });

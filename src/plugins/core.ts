@@ -57,6 +57,7 @@ export class CorePlugin extends BasePlugin {
 
   private width: number = 0;
   private height: number = 0;
+  private sheetIds: { [name: string]: string } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -73,8 +74,8 @@ export class CorePlugin extends BasePlugin {
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
-        return !cmd.name ||
-          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.name) === -1
+        const { visibleSheets, sheets } = this.workbook;
+        return !cmd.name || visibleSheets.findIndex((id) => sheets[id].name === cmd.name) === -1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       default:
@@ -89,12 +90,13 @@ export class CorePlugin extends BasePlugin {
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
-          cmd.name || `Sheet${this.workbook.sheets.length + 1}`,
+          cmd.name || `Sheet${this.workbook.visibleSheets.length + 1}`,
           cmd.cols || 26,
           cmd.rows || 100
         );
+        this.sheetIds[this.workbook.sheets[sheet].name] = sheet;
         if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.name, to: sheet });
+          this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: sheet });
         }
         break;
       case "DELETE_CONTENT":
@@ -103,7 +105,7 @@ export class CorePlugin extends BasePlugin {
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
         this.dispatch("UPDATE_CELL", {
-          sheet: cmd.sheet ? cmd.sheet : this.workbook.activeSheet.name,
+          sheet: cmd.sheet ? cmd.sheet : this.workbook.activeSheet.id,
           col,
           row,
           content: cmd.text,
@@ -150,32 +152,16 @@ export class CorePlugin extends BasePlugin {
         }
         break;
       case "REMOVE_COLUMNS":
-        this.removeColumns(
-          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
-          cmd.columns
-        );
+        this.removeColumns(cmd.sheet, cmd.columns);
         break;
       case "REMOVE_ROWS":
-        this.removeRows(
-          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
-          cmd.rows
-        );
+        this.removeRows(cmd.sheet, cmd.rows);
         break;
       case "ADD_COLUMNS":
-        this.addColumns(
-          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
-          cmd.column,
-          cmd.position,
-          cmd.quantity
-        );
+        this.addColumns(cmd.sheet, cmd.column, cmd.position, cmd.quantity);
         break;
       case "ADD_ROWS":
-        this.addRows(
-          this.workbook.sheets.findIndex((sheet) => sheet.name === cmd.sheet),
-          cmd.row,
-          cmd.position,
-          cmd.quantity
-        );
+        this.addRows(cmd.sheet, cmd.row, cmd.position, cmd.quantity);
         break;
     }
   }
@@ -248,12 +234,16 @@ export class CorePlugin extends BasePlugin {
     return topLeft;
   }
 
+  /**
+   * Returns the id (not the name) of the currently active sheet
+   */
   getActiveSheet(): string {
-    return this.workbook.activeSheet.name;
+    return this.workbook.activeSheet.id;
   }
 
-  getSheets(): string[] {
-    return this.workbook.sheets.map((s) => s.name);
+  getSheets(): Sheet[] {
+    const { visibleSheets, sheets } = this.workbook;
+    return visibleSheets.map((id) => sheets[id]);
   }
 
   getCol(index: number): Col {
@@ -359,7 +349,7 @@ export class CorePlugin extends BasePlugin {
    * @param sheetID ID of the sheet on which deletion should be applied
    * @param columns Columns to delete
    */
-  private removeColumns(sheetID: number, columns: number[]) {
+  private removeColumns(sheetID: string, columns: number[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
@@ -386,7 +376,7 @@ export class CorePlugin extends BasePlugin {
    * @param sheetID ID of the sheet on which deletion should be applied
    * @param rows Rows to delete
    */
-  private removeRows(sheetID: number, rows: number[]) {
+  private removeRows(sheetID: string, rows: number[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
@@ -403,7 +393,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   private addColumns(
-    sheetID: number,
+    sheetID: string,
     column: number,
     position: "before" | "after",
     quantity: number
@@ -418,7 +408,7 @@ export class CorePlugin extends BasePlugin {
     this.manageColumnsHeaders(column, quantity);
   }
 
-  private addRows(sheetID: number, row: number, position: "before" | "after", quantity: number) {
+  private addRows(sheetID: string, row: number, position: "before" | "after", quantity: number) {
     for (let i = 0; i < quantity; i++) {
       this.addEmptyRow();
     }
@@ -439,7 +429,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.name,
+          sheet: this.workbook.activeSheet.id,
           col: cell.col + step,
           row: cell.row,
           content: cell.content,
@@ -458,7 +448,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.name,
+          sheet: this.workbook.activeSheet.id,
           col: cell.col,
           row: cell.row + step,
           content: cell.content,
@@ -574,12 +564,10 @@ export class CorePlugin extends BasePlugin {
       name,
       cells: {},
     });
-    const sheetID = this.workbook.sheets.findIndex(
-      (s) => s.name === this.workbook.activeSheet.name
-    )!;
     this.history.updateLocalState(["height"], this.height + size);
     this.history.updateState(["rows"], newRows);
-    this.history.updateState(["sheets", sheetID, "rows"], newRows);
+    const path = ["sheets", this.workbook.activeSheet.id, "rows"];
+    this.history.updateState(path, newRows);
   }
 
   private updateAllFormulasHorizontally(base: number, step: number) {
@@ -620,7 +608,7 @@ export class CorePlugin extends BasePlugin {
         const [col, row] = toCartesian(xc);
         deleteCommands.push({
           type: "CLEAR_CELL",
-          sheet: this.workbook.activeSheet.name,
+          sheet: this.workbook.activeSheet.id,
           col,
           row,
         });
@@ -641,7 +629,7 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private updateCell(sheet: string, col: number, row: number, data: CellData) {
-    const _sheet = this.workbook.sheets.find((s) => s.name === sheet)!;
+    const _sheet = this.workbook.sheets[sheet];
     const current = _sheet.rows[row].cells[col];
     const xc = (current && current.xc) || toXC(col, row);
     const hasContent = "content" in data;
@@ -706,7 +694,7 @@ export class CorePlugin extends BasePlugin {
       if (cell.type === "formula") {
         cell.error = undefined;
         try {
-          cell.formula = compile(content, sheet);
+          cell.formula = compile(content, sheet, this.sheetIds);
 
           if (cell.formula instanceof AsyncFunction) {
             cell.async = true;
@@ -731,8 +719,8 @@ export class CorePlugin extends BasePlugin {
     this.history.updateSheet(_sheet, ["rows", row, "cells", col], cell);
   }
 
-  private activateSheet(name: string) {
-    const sheet = this.workbook.sheets.find((s) => s.name === name)!;
+  private activateSheet(id: string) {
+    const sheet = this.workbook.sheets[id];
     this.history.updateState(["activeSheet"], sheet);
 
     // setting up rows and columns
@@ -762,10 +750,12 @@ export class CorePlugin extends BasePlugin {
       merges: {},
       mergeCellMap: {},
     };
-    const sheets = this.workbook.sheets.slice();
-    sheets.push(sheet);
-    this.history.updateState(["sheets"], sheets);
-    return sheet.name;
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    visibleSheets.push(sheet.id);
+    const sheets = this.workbook.sheets;
+    this.history.updateState(["visibleSheets"], visibleSheets);
+    this.history.updateState(["sheets"], { ...sheets, [sheet.id]: sheet });
+    return sheet.id;
   }
 
   private clearZones(sheet: string, zones: Zone[]) {
@@ -798,7 +788,9 @@ export class CorePlugin extends BasePlugin {
    * @param cb Update formula function to apply
    */
   private visitFormulas(cb: (value: string, sheet: string | undefined) => string) {
-    for (let sheet of this.workbook.sheets) {
+    const { sheets, activeSheet } = this.workbook;
+    for (let sheetId in sheets) {
+      const sheet = sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
         if (cell.type === "formula") {
           const content = tokenize(cell.content!)
@@ -807,10 +799,10 @@ export class CorePlugin extends BasePlugin {
                 let [value, sheetRef] = t.value.split("!").reverse();
                 if (sheetRef) {
                   sheetRef = sanitizeSheet(sheetRef);
-                  if (sheetRef === this.workbook.activeSheet.name) {
+                  if (sheetRef === activeSheet.name) {
                     return cb(value, sheetRef);
                   }
-                } else if (this.workbook.activeSheet.name === sheet.name) {
+                } else if (activeSheet.id === sheet.id) {
                   return cb(value, undefined);
                 }
               }
@@ -820,7 +812,7 @@ export class CorePlugin extends BasePlugin {
           if (content !== cell.content) {
             const [col, row] = toCartesian(xc);
             this.dispatch("UPDATE_CELL", {
-              sheet: sheet.name,
+              sheet: sheet.id,
               col,
               row,
               content,
@@ -844,6 +836,13 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    // we need to fill the sheetIds mapping first, because otherwise formulas
+    // that depends on a sheet not already imported will not be able to be
+    // compiled
+    for (let sheet of data.sheets) {
+      this.sheetIds[sheet.name] = sheet.id;
+    }
+
     for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
@@ -851,7 +850,8 @@ export class CorePlugin extends BasePlugin {
   }
 
   importSheet(data: SheetData) {
-    const name = data.name || `Sheet${this.workbook.sheets.length + 1}`;
+    let { sheets, visibleSheets } = this.workbook;
+    const name = data.name || `Sheet${Object.keys(sheets).length + 1}`;
     const sheet: Sheet = {
       id: data.id,
       name: name,
@@ -863,19 +863,21 @@ export class CorePlugin extends BasePlugin {
       merges: {},
       mergeCellMap: {},
     };
-    const sheets = this.workbook.sheets.slice();
-    sheets.push(sheet);
-    this.history.updateState(["sheets"], sheets);
+    visibleSheets = visibleSheets.slice();
+    visibleSheets.push(sheet.id);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+    this.history.updateState(["sheets"], { ...sheets, [sheet.id]: sheet });
     // cells
     for (let xc in data.cells) {
       const cell = data.cells[xc];
       const [col, row] = toCartesian(xc);
-      this.updateCell(name, col, row, cell);
+      this.updateCell(data.id, col, row, cell);
     }
   }
 
   export(data: WorkbookData) {
-    data.sheets = this.workbook.sheets.map((sheet) => {
+    data.sheets = this.workbook.visibleSheets.map((id) => {
+      const sheet = this.workbook.sheets[id];
       const cells: { [key: string]: CellData } = {};
       for (let [key, cell] of Object.entries(sheet.cells)) {
         cells[key] = {
@@ -897,7 +899,7 @@ export class CorePlugin extends BasePlugin {
         conditionalFormats: [],
       };
     });
-    data.activeSheet = this.workbook.activeSheet.name;
+    data.activeSheet = this.workbook.activeSheet.id;
   }
 }
 
