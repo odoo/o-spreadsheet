@@ -41,7 +41,9 @@ describe("Grid component", () => {
   });
 
   test("can render a sheet with a merge", async () => {
-    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("B2:B3") });
+    const sheet1 = model["workbook"].visibleSheets[0];
+
+    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
 
     expect(fixture.querySelector("canvas")).toBeDefined();
   });

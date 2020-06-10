@@ -66,7 +66,7 @@ describe("Context Menu add/remove row/col", () => {
           right: 3,
         },
       ],
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -84,7 +84,7 @@ describe("Context Menu add/remove row/col", () => {
           right: model["workbook"].cols.length - 1,
         },
       ],
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -96,7 +96,7 @@ describe("Context Menu add/remove row/col", () => {
     simulateClick(".o-context-menu div[data-name='delete_column']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS", {
       columns: [3],
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -107,7 +107,7 @@ describe("Context Menu add/remove row/col", () => {
     simulateClick(".o-context-menu div[data-name='delete_row']");
     expect(parent.env.dispatch).toHaveBeenCalledWith("REMOVE_ROWS", {
       rows: [4],
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -120,7 +120,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "before",
       column: 3,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -133,7 +133,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "before",
       row: 4,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -146,7 +146,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "after",
       column: 3,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 
@@ -159,7 +159,7 @@ describe("Context Menu add/remove row/col", () => {
       position: "after",
       row: 4,
       quantity: 1,
-      sheet: model["workbook"].activeSheet.name,
+      sheet: model["workbook"].activeSheet.id,
     });
   });
 });

@@ -33,7 +33,7 @@ export class ClipboardPlugin extends BasePlugin {
   private shouldCut?: boolean;
   private zones: Zone[] = [];
   private cells?: ClipboardCell[][];
-  private originSheet: string = this.workbook.activeSheet.name;
+  private originSheet: string = this.workbook.activeSheet.id;
   private _isPaintingFormat: boolean = false;
   private onlyFormat: boolean = false;
 
@@ -168,7 +168,7 @@ export class ClipboardPlugin extends BasePlugin {
     this.shouldCut = cut;
     this.zones = clippedZones;
     this.cells = cells;
-    this.originSheet = this.workbook.activeSheet.name;
+    this.originSheet = this.workbook.activeSheet.id;
   }
 
   private pasteFromClipboard(target: Zone[], content: string) {
@@ -266,7 +266,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (missingRows > 0) {
       this.dispatch("ADD_ROWS", {
         row: rows.length - 1,
-        sheet: this.workbook.activeSheet.name,
+        sheet: this.workbook.activeSheet.id,
         quantity: missingRows,
         position: "after",
       });
@@ -275,7 +275,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (missingCols > 0) {
       this.dispatch("ADD_COLUMNS", {
         column: cols.length - 1,
-        sheet: this.workbook.activeSheet.name,
+        sheet: this.workbook.activeSheet.id,
         quantity: missingCols,
         position: "after",
       });
@@ -315,7 +315,7 @@ export class ClipboardPlugin extends BasePlugin {
         style: origin.style,
         border: origin.border,
         format: origin.format,
-        sheet: this.workbook.activeSheet.name,
+        sheet: this.workbook.activeSheet.id,
         col: col,
         row: row,
         content,
@@ -331,7 +331,7 @@ export class ClipboardPlugin extends BasePlugin {
         }
       } else {
         this.dispatch("CLEAR_CELL", {
-          sheet: this.workbook.activeSheet.name,
+          sheet: this.workbook.activeSheet.id,
           col: col,
           row: row,
         });

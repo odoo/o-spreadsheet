@@ -6,7 +6,7 @@ import { uuidv4 } from "./helpers/index";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 3;
+export const CURRENT_VERSION = 4;
 
 /**
  * This function tries to load anything that could look like a valid workbook
@@ -33,7 +33,7 @@ export function load(data?: any): WorkbookData {
   data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
   data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
   if (!data.sheets.map((s) => s.name).includes(data.activeSheet)) {
-    data.activeSheet = data.sheets[0].name;
+    data.activeSheet = data.sheets[0].id;
   }
 
   if (data.sheets.length === 0) {
@@ -79,9 +79,19 @@ const MIGRATIONS: Migration[] = [
     applyMigration(data: any): any {
       if (data.sheets && data.sheets.length) {
         for (let sheet of data.sheets) {
-          sheet.id = sheet.id || uuidv4();
+          sheet.id = sheet.id || sheet.name;
         }
       }
+      return data;
+    },
+  },
+  {
+    // activeSheet is now an id, not the name of a sheet
+    from: 3,
+    to: 4,
+    applyMigration(data: any): any {
+      const activeSheet = data.sheets.find((s) => s.name === data.activeSheet);
+      data.activeSheet = activeSheet.id;
       return data;
     },
   },
@@ -105,14 +115,16 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
 }
 
 export function createEmptyWorkbookData(): WorkbookData {
-  return {
+  const data = {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet("Sheet1")],
-    activeSheet: "Sheet1",
+    activeSheet: "",
     entities: {},
     styles: {},
     borders: {},
   };
+  data.activeSheet = data.sheets[0].id;
+  return data;
 }
 
 export function createEmptyWorkbook(): Workbook {
@@ -120,7 +132,8 @@ export function createEmptyWorkbook(): Workbook {
     rows: [],
     cols: [],
     cells: {},
-    sheets: [],
+    visibleSheets: [],
+    sheets: {},
     activeSheet: null as any,
   };
 }

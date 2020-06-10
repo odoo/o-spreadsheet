@@ -119,10 +119,10 @@ export class EditionPlugin extends BasePlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       let xc = toXC(this.col, this.row);
-      const sheet = this.workbook.activeSheet;
-      if (xc in sheet.mergeCellMap) {
-        const mergeId = sheet.mergeCellMap[xc];
-        xc = sheet.merges[mergeId].topLeft;
+      const { mergeCellMap, merges } = this.workbook.activeSheet;
+      if (xc in mergeCellMap) {
+        const mergeId = mergeCellMap[xc];
+        xc = merges[mergeId].topLeft;
       }
       let content = this.currentContent;
       this.currentContent = "";
@@ -143,14 +143,14 @@ export class EditionPlugin extends BasePlugin {
           }
         }
         this.dispatch("UPDATE_CELL", {
-          sheet: this.workbook.activeSheet.name,
+          sheet: this.workbook.activeSheet.id,
           col,
           row,
           content,
         });
       } else {
         this.dispatch("UPDATE_CELL", {
-          sheet: this.workbook.activeSheet.name,
+          sheet: this.workbook.activeSheet.id,
           content: "",
           col,
           row,

@@ -1,8 +1,8 @@
-import { Component, tags, hooks } from "@odoo/owl";
-import { Spreadsheet } from "../../src/components";
-import { makeTestFixture, nextTick } from "../helpers";
-import { functionRegistry, args } from "../../src/functions";
+import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
+import { Spreadsheet } from "../../src/components";
+import { args, functionRegistry } from "../../src/functions";
+import { makeTestFixture, nextTick } from "../helpers";
 
 const { xml } = tags;
 const { useRef } = hooks;

@@ -47,7 +47,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
-        this.addConditionalFormatting(cmd.cf, this.workbook.activeSheet.name);
+        this.addConditionalFormatting(cmd.cf, this.workbook.activeSheet.id);
         this.isStale = true;
         break;
       case "REMOVE_COLUMNS":
@@ -91,15 +91,15 @@ export class ConditionalFormatPlugin extends BasePlugin {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      this.cfRules[sheet.name] = sheet.conditionalFormats;
+      this.cfRules[sheet.id] = sheet.conditionalFormats;
     }
   }
 
   export(data: Partial<WorkbookData>) {
     if (data.sheets) {
       for (let sheet of data.sheets) {
-        if (this.cfRules[sheet.name]) {
-          sheet.conditionalFormats = this.cfRules[sheet.name];
+        if (this.cfRules[sheet.id]) {
+          sheet.conditionalFormats = this.cfRules[sheet.id];
         }
       }
     }
@@ -113,7 +113,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * Returns all the conditional format rules defined for the current sheet
    */
   getConditionalFormats(): ConditionalFormat[] {
-    return this.cfRules[this.workbook.activeSheet.name];
+    return this.cfRules[this.workbook.activeSheet.id];
   }
 
   /**
@@ -122,8 +122,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
    */
   getConditionalStyle(xc: string): Style | undefined {
     return (
-      this.computedStyles[this.workbook.activeSheet.name] &&
-      this.computedStyles[this.workbook.activeSheet.name][xc]
+      this.computedStyles[this.workbook.activeSheet.id] &&
+      this.computedStyles[this.workbook.activeSheet.id][xc]
     );
   }
 
@@ -181,9 +181,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
             (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
           );
           const color = (r << 16) | (g << 8) | b;
-          this.computedStyles[this.workbook.activeSheet.name][cell.xc] =
-            this.computedStyles[this.workbook.activeSheet.name][cell.xc] || {};
-          this.computedStyles[this.workbook.activeSheet.name][cell.xc].fillColor =
+          this.computedStyles[this.workbook.activeSheet.id][cell.xc] =
+            this.computedStyles[this.workbook.activeSheet.id][cell.xc] || {};
+          this.computedStyles[this.workbook.activeSheet.id][cell.xc].fillColor =
             "#" + colorNumberString(color);
         }
       }
@@ -252,7 +252,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
    */
   private computeStyles() {
-    const currentSheet = this.workbook.activeSheet.name;
+    const currentSheet = this.workbook.activeSheet.id;
     this.computedStyles[currentSheet] = {};
     for (let cf of this.cfRules[currentSheet]) {
       try {
@@ -329,10 +329,10 @@ export class ConditionalFormatPlugin extends BasePlugin {
             //remove from current rule
             toRemoveRange.push(toXC(originCol, originRow));
           }
-          if (originSheet === this.workbook.activeSheet.name) {
+          if (originSheet === this.workbook.activeSheet.id) {
             this.adaptRules(originSheet, cf, [xc], toRemoveRange);
           } else {
-            this.adaptRules(this.workbook.activeSheet.name, cf, [xc], []);
+            this.adaptRules(this.workbook.activeSheet.id, cf, [xc], []);
             this.adaptRules(originSheet, cf, [], toRemoveRange);
           }
         }

@@ -118,10 +118,11 @@ describe("clipboard", () => {
 
   test("can copy a cell with style", () => {
     const model = new Model();
+    const sheet1 = model["workbook"].activeSheet.id;
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheet: sheet1,
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -160,11 +161,12 @@ describe("clipboard", () => {
 
   test("can copy from an empty cell into a cell with style", () => {
     const model = new Model();
+    const sheet1 = model["workbook"].activeSheet.id;
     // set value and style in B2
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheet: sheet1,
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -288,8 +290,10 @@ describe("clipboard", () => {
         },
       ],
     });
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
     model.dispatch("COPY", { target: target("B2") });
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.isInMerge("A1")).toBe(true);
     expect(model.getters.isInMerge("A2")).toBe(true);
@@ -846,13 +850,16 @@ describe("clipboard", () => {
         },
       ],
     });
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
+
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
@@ -875,13 +882,15 @@ describe("clipboard", () => {
         },
       ],
     });
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet1", to: "Sheet2" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
@@ -889,7 +898,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
-    model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
   });

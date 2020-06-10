@@ -1,6 +1,6 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT } from "../../src/constants";
-import { makeTestFixture } from "../helpers";
+import { getSheet, makeTestFixture } from "../helpers";
 let model: Model;
 
 function undo() {
@@ -17,7 +17,7 @@ function clearColumns(indexes: number[]) {
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model["workbook"].activeSheet.name,
+    sheet: model["workbook"].activeSheet.id,
   });
 }
 
@@ -27,7 +27,7 @@ function clearRows(indexes: number[]) {
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model["workbook"].activeSheet.name,
+    sheet: model["workbook"].activeSheet.id,
   });
 }
 
@@ -373,7 +373,7 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1, 2]);
-      expect(model["workbook"].sheets[0].cells).toMatchObject({
+      expect(getSheet(model, 0).cells).toMatchObject({
         A1: { content: "=#REF" },
         A2: { content: "=#REF" },
         A3: { content: "=Sheet2!B1" },
@@ -382,7 +382,7 @@ describe("Columns", () => {
         B3: { content: "=$C1" },
         B4: { content: "=B3" },
       });
-      expect(model["workbook"].sheets[1].cells).toMatchObject({
+      expect(getSheet(model, 1).cells).toMatchObject({
         A1: { content: "=B1" },
         A2: { content: "=#REF" },
         A3: { content: "=Sheet2!B1" },
@@ -391,7 +391,7 @@ describe("Columns", () => {
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
-      expect(model["workbook"].sheets[0].cells).toMatchObject({
+      expect(getSheet(model, 0).cells).toMatchObject({
         A1: { content: "=D1" },
         A2: { content: "=Sheet1!D1" },
         A3: { content: "=Sheet2!B1" },
@@ -400,7 +400,7 @@ describe("Columns", () => {
         F3: { content: "=$G1" },
         F4: { content: "=F3" },
       });
-      expect(model["workbook"].sheets[1].cells).toMatchObject({
+      expect(getSheet(model, 1).cells).toMatchObject({
         A1: { content: "=B1" },
         A2: { content: "=Sheet1!D1" },
         A3: { content: "=Sheet2!B1" },
@@ -657,7 +657,7 @@ describe("Rows", () => {
 
     test("On deletion", () => {
       removeRows([1, 2]);
-      expect(model["workbook"].sheets[0].cells).toMatchObject({
+      expect(getSheet(model, 0).cells).toMatchObject({
         A1: { content: "=#REF" },
         A2: { content: "=A1" },
         B1: { content: "=#REF" },
@@ -666,7 +666,7 @@ describe("Rows", () => {
         C2: { content: "=A$3" },
         D2: { content: "=C2" },
       });
-      expect(model["workbook"].sheets[1].cells).toMatchObject({
+      expect(getSheet(model, 1).cells).toMatchObject({
         A1: { content: "=A2" },
         B1: { content: "=#REF" },
         C1: { content: "=Sheet2!A2" },
@@ -675,7 +675,7 @@ describe("Rows", () => {
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(0, "after", 1);
-      expect(model["workbook"].sheets[0].cells).toMatchObject({
+      expect(getSheet(model, 0).cells).toMatchObject({
         A1: { content: "=A4" },
         A6: { content: "=A1" },
         B1: { content: "=Sheet1!A4" },
@@ -684,7 +684,7 @@ describe("Rows", () => {
         C6: { content: "=A$7" },
         D6: { content: "=C6" },
       });
-      expect(model["workbook"].sheets[1].cells).toMatchObject({
+      expect(getSheet(model, 1).cells).toMatchObject({
         A1: { content: "=A2" },
         B1: { content: "=Sheet1!A4" },
         C1: { content: "=Sheet2!A2" },

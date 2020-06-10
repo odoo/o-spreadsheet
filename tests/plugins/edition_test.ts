@@ -45,12 +45,13 @@ describe("edition", () => {
 
   test("editing a cell, then activating a new sheet: edition should be stopped", () => {
     const model = new Model();
+    const sheet1 = model["workbook"].visibleSheets[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
     model.dispatch("CREATE_SHEET", { activate: true });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBe(null);
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "Sheet1" });
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: sheet1 });
     expect(getCell(model, "A1")!.content).toBe("a");
   });
 });

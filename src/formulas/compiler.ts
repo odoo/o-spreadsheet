@@ -26,7 +26,11 @@ const UNARY_OPERATOR_MAP = {
 // -----------------------------------------------------------------------------
 export const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
-export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula {
+export function compile(
+  str: string,
+  sheet: string,
+  sheets: { [name: string]: string }
+): CompiledFormula {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
@@ -99,7 +103,8 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
         return ast.value;
       case "REFERENCE":
         id = nextId++;
-        code.push(`let _${id} = cell('${ast.value}', \`${ast.sheet || sheet}\`)`);
+        const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
+        code.push(`let _${id} = cell('${ast.value}', \`${sheetId}\`)`);
         break;
       case "FUNCALL":
         id = nextId++;
@@ -126,9 +131,10 @@ export function compile(str: string, sheet: string = "Sheet1"): CompiledFormula 
       case "BIN_OPERATION":
         id = nextId++;
         if (ast.value === ":") {
-          const sheetName = (ast.left.type === "REFERENCE" && ast.left.sheet) || sheet;
+          const sheetName = ast.left.type === "REFERENCE" && ast.left.sheet;
+          const sheetId = sheetName ? sheets[sheetName] : sheet;
           code.push(
-            `let _${id} = range('${ast.left.value}', '${ast.right.value}', \`${sheetName}\`);`
+            `let _${id} = range('${ast.left.value}', '${ast.right.value}', \`${sheetId}\`);`
           );
         } else {
           left = compileAST(ast.left);
