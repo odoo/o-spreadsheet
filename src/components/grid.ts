@@ -382,8 +382,11 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     } else {
       this.viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
     }
-    this.snappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
-
+    const newSnappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
+    if (!isEqual(this.snappedViewport, newSnappedViewport)) {
+      this.snappedViewport = newSnappedViewport;
+      this.render();
+    }
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;
     const dpr = window.devicePixelRatio || 1;

@@ -11,17 +11,6 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: GridParent;
 
-beforeEach(async () => {
-  fixture = makeTestFixture();
-  model = new Model();
-  parent = new GridParent(model);
-  await parent.mount(fixture);
-});
-
-afterEach(() => {
-  fixture.remove();
-});
-
 function simulateContextMenu(selector: string, coord: { x: number; y: number }) {
   const target = document.querySelector(selector)! as HTMLElement;
   triggerMouseEvent(selector, "mousedown", coord.x, coord.y, { button: 1, bubbles: true });
@@ -30,6 +19,17 @@ function simulateContextMenu(selector: string, coord: { x: number; y: number }) 
   triggerMouseEvent(selector, "contextmenu", coord.x, coord.y, { button: 1, bubbles: true });
 }
 describe("Context Menu add/remove row/col", () => {
+  beforeEach(async () => {
+    fixture = makeTestFixture();
+    model = new Model();
+    parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
+  afterEach(() => {
+    fixture.remove();
+  });
+
   test("can open contextmenu for columns then click elsewhere to close it", async () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     simulateContextMenu(".o-col-resizer", COLUMN_D);
@@ -161,5 +161,31 @@ describe("Context Menu add/remove row/col", () => {
       quantity: 1,
       sheet: model["workbook"].activeSheet.id,
     });
+  });
+});
+describe("remove last row/col", () => {
+  test("can remove last row", async () => {
+    const fixture = makeTestFixture();
+    const ROW_10 = { x: 30, y: 210 };
+    const modelData = {
+      sheets: [
+        {
+          id: "someuuid",
+          colNumber: 10,
+          rowNumber: 10,
+          name: "My sheet",
+          conditionalFormats: [],
+        },
+      ],
+      activeSheet: "someuuid",
+    };
+    const model = new Model(modelData);
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(".o-row-resizer", ROW_10);
+    await nextTick();
+    simulateClick(".o-menu div[data-name='delete_row']");
+    await nextTick();
+    //TODO: should break test
   });
 });

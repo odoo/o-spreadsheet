@@ -138,6 +138,9 @@ export class RendererPlugin extends BasePlugin {
         viewport.offsetY = rows[viewport.top - 1].start;
         viewport = this.getAdjustedViewport(viewport, "zone");
       }
+      if (viewport.right >= cols.length || viewport.bottom >= rows.length) {
+        viewport = this.getAdjustedViewport(viewport, "zone");
+      }
       return viewport;
     }
     const { width, height, offsetX, offsetY } = viewport;
