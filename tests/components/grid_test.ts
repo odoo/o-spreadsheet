@@ -1,8 +1,17 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell, Touch } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
 jest.mock("../../src/components/composer/content_editable_helper");
+jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
+
+function getVerticalScroll(): number {
+  return (parent.grid as any).comp.vScrollbar.scroll;
+}
+
+function getHorizontalScroll(): number {
+  return (parent.grid as any).comp.hScrollbar.scroll;
+}
 
 Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
@@ -81,6 +90,121 @@ describe("Grid component", () => {
     parent.env.openSidePanel("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+  });
+
+  test("Can touch the canvas to move it", async () => {
+    const canvas = fixture.querySelector("canvas")!;
+    expect(getHorizontalScroll()).toBe(0);
+    expect(getVerticalScroll()).toBe(0);
+    canvas.dispatchEvent(
+      new TouchEvent("touchstart", {
+        touches: [
+          new Touch({
+            clientX: 150,
+            clientY: 150,
+            identifier: 1,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    canvas.dispatchEvent(
+      new TouchEvent("touchmove", {
+        touches: [
+          new Touch({
+            clientX: 100,
+            clientY: 120,
+            identifier: 2,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    expect(getHorizontalScroll()).toBe(50);
+    expect(getVerticalScroll()).toBe(30);
+    canvas.dispatchEvent(
+      new TouchEvent("touchmove", {
+        touches: [
+          new Touch({
+            clientX: 80,
+            clientY: 100,
+            identifier: 2,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    expect(getHorizontalScroll()).toBe(70);
+    expect(getVerticalScroll()).toBe(50);
+  });
+  test("Event is stopped if not at the top", async () => {
+    const canvas = fixture.querySelector("canvas")!;
+    expect(getHorizontalScroll()).toBe(0);
+    expect(getVerticalScroll()).toBe(0);
+
+    const mockCallback = jest.fn(() => {});
+    fixture.addEventListener("touchmove", mockCallback);
+
+    canvas.dispatchEvent(
+      new TouchEvent("touchstart", {
+        touches: [
+          new Touch({
+            clientX: 0,
+            clientY: 150,
+            identifier: 1,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    // move down; we are at the top: ev not prevented
+    canvas.dispatchEvent(
+      new TouchEvent("touchmove", {
+        cancelable: true,
+        bubbles: true,
+        touches: [
+          new Touch({
+            clientX: 0,
+            clientY: 120,
+            identifier: 2,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    expect(mockCallback).toBeCalledTimes(1);
+    // move up:; we are not at the top: ev prevented
+    canvas.dispatchEvent(
+      new TouchEvent("touchmove", {
+        cancelable: true,
+        bubbles: true,
+        touches: [
+          new Touch({
+            clientX: 0,
+            clientY: 150,
+            identifier: 3,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    expect(mockCallback).toBeCalledTimes(1);
+    // move up again but we are at the stop: ev not prevented
+    canvas.dispatchEvent(
+      new TouchEvent("touchmove", {
+        cancelable: true,
+        bubbles: true,
+        touches: [
+          new Touch({
+            clientX: 0,
+            clientY: 150,
+            identifier: 4,
+            target: canvas,
+          }),
+        ],
+      })
+    );
+    expect(mockCallback).toBeCalledTimes(2);
   });
 
   describe("keybindings", () => {

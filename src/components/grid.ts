@@ -15,6 +15,7 @@ import { ContextMenuType, contextMenuRegistry } from "./context_menu/context_men
 import { Overlay } from "./overlay";
 import { Autofill } from "./autofill";
 import { startDnd } from "../helpers/drag_and_drop";
+import { ScrollBar } from "./scrollbar";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -113,6 +114,47 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
   return tooltip;
 }
 
+function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
+  const canvasRef = useRef("canvas");
+  let x = null as number | null;
+  let y = null as number | null;
+  function onTouchStart(ev: TouchEvent) {
+    if (ev.touches.length !== 1) return;
+    x = ev.touches[0].clientX;
+    y = ev.touches[0].clientY;
+  }
+  function onTouchEnd() {
+    x = null;
+    y = null;
+  }
+  function onTouchMove(ev: TouchEvent) {
+    if (ev.touches.length !== 1) return;
+    // On mobile browsers, swiping down is often associated with "pull to refresh".
+    // We only want this behavior if the grid is already at the top.
+    // Otherwise we only want to move the canvas up, without triggering any refresh.
+    if (canMoveUp()) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+    const currentX = ev.touches[0].clientX;
+    const currentY = ev.touches[0].clientY;
+    handler(x! - currentX, y! - currentY);
+    x = currentX;
+    y = currentY;
+  }
+  onMounted(() => {
+    canvasRef.el!.addEventListener("touchstart", onTouchStart);
+    canvasRef.el!.addEventListener("touchend", onTouchEnd);
+    canvasRef.el!.addEventListener("touchmove", onTouchMove);
+  });
+
+  onWillUnmount(() => {
+    canvasRef.el!.removeEventListener("touchstart", onTouchStart);
+    canvasRef.el!.removeEventListener("touchend", onTouchEnd);
+    canvasRef.el!.removeEventListener("touchmove", onTouchMove);
+  });
+}
+
 // -----------------------------------------------------------------------------
 // TEMPLATE
 // -----------------------------------------------------------------------------
@@ -209,8 +251,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   private composer = useRef("composer");
 
-  private vScrollbar = useRef("vscrollbar");
-  private hScrollbar = useRef("hscrollbar");
+  private vScrollbarRef = useRef("vscrollbar");
+  private hScrollbarRef = useRef("hscrollbar");
+  private vScrollbar: ScrollBar;
+  private hScrollbar: ScrollBar;
   private canvas = useRef("canvas");
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
@@ -256,7 +300,16 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     "CTRL+Y": () => this.dispatch("REDO"),
   };
 
+  constructor() {
+    super(...arguments);
+    this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
+    this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
+    useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
+  }
+
   mounted() {
+    this.vScrollbar.el = this.vScrollbarRef.el!;
+    this.hScrollbar.el = this.hScrollbarRef.el!;
     this.focus();
     this.drawGrid();
   }
@@ -272,8 +325,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   onScroll() {
-    this.viewport.offsetX = this.hScrollbar.el!.scrollLeft;
-    this.viewport.offsetY = this.vScrollbar.el!.scrollTop;
+    this.viewport.offsetX = this.hScrollbar.scroll;
+    this.viewport.offsetY = this.vScrollbar.scroll;
     const viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
     if (!isEqual(viewport, this.viewport)) {
       this.viewport = viewport;
@@ -309,14 +362,14 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     // update viewport dimensions
     this.viewport.width = this.el!.clientWidth - SCROLLBAR_WIDTH;
     this.viewport.height = this.el!.clientHeight - SCROLLBAR_WIDTH;
-    this.viewport.offsetX = this.hScrollbar.el!.scrollLeft;
-    this.viewport.offsetY = this.vScrollbar.el!.scrollTop;
+    this.viewport.offsetX = this.hScrollbar.scroll;
+    this.viewport.offsetY = this.vScrollbar.scroll;
 
     // check for position changes
     if (this.checkChanges()) {
       this.viewport = this.getters.getAdjustedViewport(this.viewport, "position");
-      this.hScrollbar.el!.scrollLeft = this.viewport.offsetX;
-      this.vScrollbar.el!.scrollTop = this.viewport.offsetY;
+      this.hScrollbar.scroll = this.viewport.offsetX;
+      this.vScrollbar.scroll = this.viewport.offsetY;
     } else {
       this.viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
     }
@@ -339,14 +392,16 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.props.model.drawGrid(renderingContext);
   }
 
+  private moveCanvas(deltaX, deltaY) {
+    this.vScrollbar.scroll = this.vScrollbar.scroll + deltaY;
+    this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
+  }
+
   onMouseWheel(ev: WheelEvent) {
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
-    const vScrollbar = this.vScrollbar.el!;
-    vScrollbar.scrollTop = vScrollbar.scrollTop + normalize(ev.deltaY);
-    const hScrollbar = this.hScrollbar.el!;
-    hScrollbar.scrollLeft = hScrollbar.scrollLeft + normalize(ev.deltaX);
+    this.moveCanvas(normalize(ev.deltaX), normalize(ev.deltaY));
   }
 
   // ---------------------------------------------------------------------------
