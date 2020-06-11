@@ -8,7 +8,7 @@ import {
 } from "./context_menu_registry";
 
 const { xml, css } = tags;
-const { useExternalListener } = hooks;
+const { useExternalListener, useRef } = hooks;
 
 const MENU_WIDTH = 200;
 const MENU_ITEM_HEIGHT = 32;
@@ -49,6 +49,7 @@ const TEMPLATE = xml/* xml */ `
         position="subMenu.position"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
+        t-ref="subContextMenu"
         t-on-close="subMenu.isOpen=false"/>
     </div>`;
 
@@ -115,6 +116,7 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
     depth: 1,
   };
   private subMenu: MenuState;
+  subContextMenu = useRef("subContextMenu");
 
   constructor() {
     super(...arguments);
@@ -224,11 +226,19 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
     this.subMenu.isOpen = false;
   }
 
+  closeSubMenus() {
+    if (this.subContextMenu.comp) {
+      (<ContextMenu>this.subContextMenu.comp).closeSubMenus();
+    }
+    this.subMenu.isOpen = false;
+  }
+
   /**
    * If the given menu is not disabled, open it's submenu at the
    * correct position according to available surrounding space.
    */
-  openSubMenu(menu: RootContextMenuItem, position: number, delay: number) {
+  openSubMenu(menu: RootContextMenuItem, position: number) {
+    this.closeSubMenus();
     if (!menu.isEnabled || menu.isEnabled(this.env.getters.getActiveCell())) {
       this.subMenu.isOpen = true;
       this.subMenu.menuItems = menu.subMenus(this.env);
