@@ -414,6 +414,61 @@ describe("Context Menu", () => {
     await nextTick();
     expect(fixture.querySelector(".o-context-menu div[data-name='subMenu']")).toBeTruthy();
   });
+
+  test("Submenus are correctly hidden", async () => {
+    const menuItems: ContextMenuItem[] = [
+      {
+        type: "root",
+        name: "root_1",
+        description: "root_1",
+        subMenus: () => [
+          {
+            type: "root",
+            name: "root_1_1",
+            description: "root_1_1",
+            subMenus: () => [
+              {
+                type: "action",
+                name: "subMenu_1",
+                description: "subMenu_1",
+                action() {},
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "root",
+        name: "root_2",
+        description: "root_2",
+        subMenus: () => [
+          {
+            type: "root",
+            name: "root_2_1",
+            description: "root_2_1",
+            subMenus: () => [
+              {
+                type: "action",
+                name: "subMenu_2",
+                description: "subMenu_2",
+                action() {},
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    await renderContextMenu(300, 300, { menuItems });
+
+    triggerMouseEvent(".o-context-menu div[data-name='root_1']", "mouseover");
+    await nextTick();
+    triggerMouseEvent(".o-context-menu div[data-name='root_1_1']", "mouseover");
+    await nextTick();
+    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu_1']")).toBeTruthy();
+    triggerMouseEvent(".o-context-menu div[data-name='root_2']", "mouseover");
+    await nextTick();
+    expect(fixture.querySelector(".o-context-menu div[data-name='subMenu_1']")).toBeFalsy();
+  });
 });
 
 describe("Context Menu position", () => {
