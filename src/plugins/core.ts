@@ -758,7 +758,7 @@ export class CorePlugin extends BasePlugin {
     visibleSheets.push(sheet.id);
     const sheets = this.workbook.sheets;
     this.history.updateState(["visibleSheets"], visibleSheets);
-    this.history.updateState(["sheets"], { ...sheets, [sheet.id]: sheet });
+    this.history.updateState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
   }
 
@@ -870,7 +870,7 @@ export class CorePlugin extends BasePlugin {
     visibleSheets = visibleSheets.slice();
     visibleSheets.push(sheet.id);
     this.history.updateState(["visibleSheets"], visibleSheets);
-    this.history.updateState(["sheets"], { ...sheets, [sheet.id]: sheet });
+    this.history.updateState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     // cells
     for (let xc in data.cells) {
       const cell = data.cells[xc];
