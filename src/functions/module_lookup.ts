@@ -33,11 +33,15 @@ function linearSearch(range: any[], target: any): number {
 // -----------------------------------------------------------------------------
 
 export const LOOKUP: FunctionDescription = {
-  description: `Look up a value.`,
+  description: _lt(`Look up a value.`),
   args: args(`
-      search_key (any) The value to search for. For example, 42, "Cats", or I24.
-      search_array (any, range) One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned.
-      result_range (any, range, optional) The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method.
+      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+      search_array (any, range) ${_lt(
+        "One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned."
+      )}
+      result_range (any, range, optional) ${_lt(
+        "The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method."
+      )}
   `),
   returns: ["ANY"],
   compute: function (search_key: any, search_array: any, result_range: any = undefined): any {
@@ -77,11 +81,13 @@ export const LOOKUP: FunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const MATCH: FunctionDescription = {
-  description: `Position of item in range that matches value.`,
+  description: _lt(`Position of item in range that matches value.`),
   args: args(`
-      search_key (any) The value to search for. For example, 42, "Cats", or I24.
-      range (any, range) The one-dimensional array to be searched.
-      search_type (number, optional, default=1) The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order.
+      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+      range (any, range) ${_lt("The one-dimensional array to be searched.")}
+      search_type (number, optional, default=1) ${_lt(
+        "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
+      )}
   `),
   returns: ["NUMBER"],
   compute: function (search_key: any, range: any[], search_type: any = 1): number {
@@ -118,12 +124,18 @@ export const MATCH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const VLOOKUP: FunctionDescription = {
-  description: `Vertical lookup.`,
+  description: _lt(`Vertical lookup.`),
   args: args(`
-      search_key (any) The value to search for. For example, 42, "Cats", or I24.
-      range (any, range) The range to consider for the search. The first column in the range is searched for the key specified in search_key.
-      index (number) The column index of the value to be returned, where the first column in range is numbered 1.
-      is_sorted (boolean, optional, default = TRUE) Indicates whether the column to be searched [the first column of the specified range] is sorted, in which case the closest match for search_key will be returned.
+      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+      range (any, range) ${_lt(
+        "The range to consider for the search. The first column in the range is searched for the key specified in search_key."
+      )}
+      index (number) ${_lt(
+        "The column index of the value to be returned, where the first column in range is numbered 1."
+      )}
+      is_sorted (boolean, optional, default = TRUE) ${_lt(
+        "Indicates whether the column to be searched [the first column of the specified range] is sorted, in which case the closest match for search_key will be returned."
+      )}
   `),
   returns: ["ANY"],
   compute: function (search_key: any, range: any[], index: any, is_sorted: any = true): any {

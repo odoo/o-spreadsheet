@@ -9,10 +9,10 @@ import { _lt } from "../translation";
 // ADD
 // -----------------------------------------------------------------------------
 export const ADD: FunctionDescription = {
-  description: `Sum of two numbers.`,
+  description: _lt(`Sum of two numbers.`),
   args: args(`
-      value1 (number) The first addend.
-      value2 (number) The second addend.
+      value1 (number) ${_lt("The first addend.")}
+      value2 (number) ${_lt("The second addend.")}
     `),
   returns: ["NUMBER"],
   compute: function (value1: any, value2: any): number | InternalDate {
@@ -33,10 +33,10 @@ export const ADD: FunctionDescription = {
 // CONCAT
 // -----------------------------------------------------------------------------
 export const CONCAT: FunctionDescription = {
-  description: `Concatenation of two values.`,
+  description: _lt(`Concatenation of two values.`),
   args: args(`
-      value1 (string) The value to which value2 will be appended.
-      value2 (string) The value to append to value1.
+      value1 (string) ${_lt("The value to which value2 will be appended.")}
+      value2 (string) ${_lt("The value to append to value1.")}
     `),
   returns: ["STRING"],
   compute: function (value1: any, value2: any): string {
@@ -48,10 +48,10 @@ export const CONCAT: FunctionDescription = {
 // DIVIDE
 // -----------------------------------------------------------------------------
 export const DIVIDE: FunctionDescription = {
-  description: `One number divided by another.`,
+  description: _lt(`One number divided by another.`),
   args: args(`
-      dividend (number) The number to be divided.
-      divisor (number) The number to divide by.
+      dividend (number) ${_lt("The number to be divided.")}
+      divisor (number) ${_lt("The number to divide by.")}
     `),
   returns: ["NUMBER"],
   compute: function (dividend: any, divisor: any): number {
@@ -73,10 +73,10 @@ function isEmpty(value: any): boolean {
 const getNeutral = { number: 0, string: "", boolean: false };
 
 export const EQ: FunctionDescription = {
-  description: `Equal.`,
+  description: _lt(`Equal.`),
   args: args(`
-      value1 (any) The first value.
-      value2 (any) The value to test against value1 for equality.
+      value1 (any) ${_lt("The first value.")}
+      value2 (any) ${_lt("The value to test against value1 for equality.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
@@ -120,10 +120,10 @@ function applyRelationalOperator(
 }
 
 export const GT: FunctionDescription = {
-  description: `Strictly greater than.`,
+  description: _lt(`Strictly greater than.`),
   args: args(`
-      value1 (any) The value to test as being greater than value2.
-      value2 (any) The second value.
+      value1 (any) ${_lt("The value to test as being greater than value2.")}
+      value2 (any) ${_lt("The second value.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
@@ -137,10 +137,10 @@ export const GT: FunctionDescription = {
 // GTE
 // -----------------------------------------------------------------------------
 export const GTE: FunctionDescription = {
-  description: `Greater than or equal to.`,
+  description: _lt(`Greater than or equal to.`),
   args: args(`
-      value1 (any) The value to test as being greater than or equal to value2.
-      value2 (any) The second value.
+      value1 (any) ${_lt("The value to test as being greater than or equal to value2.")}
+      value2 (any) ${_lt("The second value.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
@@ -154,10 +154,10 @@ export const GTE: FunctionDescription = {
 // LT
 // -----------------------------------------------------------------------------
 export const LT: FunctionDescription = {
-  description: `Less than.`,
+  description: _lt(`Less than.`),
   args: args(`
-      value1 (any) The value to test as being less than value2.
-      value2 (any) The second value.
+      value1 (any) ${_lt("The value to test as being less than value2.")}
+      value2 (any) ${_lt("The second value.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
@@ -169,10 +169,10 @@ export const LT: FunctionDescription = {
 // LTE
 // -----------------------------------------------------------------------------
 export const LTE: FunctionDescription = {
-  description: `Less than or equal to.`,
+  description: _lt(`Less than or equal to.`),
   args: args(`
-      value1 (any) The value to test as being less than or equal to value2.
-      value2 (any) The second value.
+      value1 (any) ${_lt("The value to test as being less than or equal to value2.")}
+      value2 (any) ${_lt("The second value.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
@@ -184,10 +184,10 @@ export const LTE: FunctionDescription = {
 // MINUS
 // -----------------------------------------------------------------------------
 export const MINUS: FunctionDescription = {
-  description: `Difference of two numbers.`,
+  description: _lt(`Difference of two numbers.`),
   args: args(`
-      value1 (number) The minuend, or number to be subtracted from.
-      value2 (number) The subtrahend, or number to subtract from value1.
+      value1 (number) ${_lt("The minuend, or number to be subtracted from.")}
+      value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
     `),
   returns: ["NUMBER"],
   compute: function (value1: any, value2: any): number {
@@ -199,10 +199,10 @@ export const MINUS: FunctionDescription = {
 // MULTIPLY
 // -----------------------------------------------------------------------------
 export const MULTIPLY: FunctionDescription = {
-  description: `Product of two numbers`,
+  description: _lt(`Product of two numbers`),
   args: args(`
-      factor1 (number) The first multiplicand.
-      factor2 (number) The second multiplicand.
+      factor1 (number) ${_lt("The first multiplicand.")}
+      factor2 (number) ${_lt("The second multiplicand.")}
     `),
   returns: ["NUMBER"],
   compute: function (factor1: any, factor2: any): number {
@@ -214,10 +214,10 @@ export const MULTIPLY: FunctionDescription = {
 // NE
 // -----------------------------------------------------------------------------
 export const NE: FunctionDescription = {
-  description: `Not equal.`,
+  description: _lt(`Not equal.`),
   args: args(`
-      value1 (any) The first value.
-      value2 (any) The value to test against value1 for inequality.
+      value1 (any) ${_lt("The first value.")}
+      value2 (any) ${_lt("The value to test against value1 for inequality.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
@@ -229,10 +229,10 @@ export const NE: FunctionDescription = {
 // POW
 // -----------------------------------------------------------------------------
 export const POW: FunctionDescription = {
-  description: `A number raised to a power.`,
+  description: _lt(`A number raised to a power.`),
   args: args(`
-      base (number) The number to raise to the exponent power.
-      exponent (number) The exponent to raise base to.
+      base (number) ${_lt("The number to raise to the exponent power.")}
+      exponent (number) ${_lt("The exponent to raise base to.")}
     `),
   returns: ["BOOLEAN"],
   compute: function (base: any, exponent: any): number {
@@ -244,9 +244,11 @@ export const POW: FunctionDescription = {
 // UMINUS
 // -----------------------------------------------------------------------------
 export const UMINUS: FunctionDescription = {
-  description: `A number with the sign reversed.`,
+  description: _lt(`A number with the sign reversed.`),
   args: args(`
-      value (number) The number to have its sign reversed. Equivalently, the number to multiply by -1.
+      value (number) ${_lt(
+        "The number to have its sign reversed. Equivalently, the number to multiply by -1."
+      )}
     `),
   returns: ["NUMBER"],
   compute: function (value: any): number {
@@ -258,9 +260,9 @@ export const UMINUS: FunctionDescription = {
 // UNARY_PERCENT
 // -----------------------------------------------------------------------------
 export const UNARY_PERCENT: FunctionDescription = {
-  description: `Value interpreted as a percentage.`,
+  description: _lt(`Value interpreted as a percentage.`),
   args: args(`
-      percentage (number) The value to interpret as a percentage.
+      percentage (number) ${_lt("The value to interpret as a percentage.")}
     `),
   returns: ["NUMBER"],
   compute: function (percentage: any): number {
@@ -272,9 +274,9 @@ export const UNARY_PERCENT: FunctionDescription = {
 // UPLUS
 // -----------------------------------------------------------------------------
 export const UPLUS: FunctionDescription = {
-  description: `A specified number, unchanged.`,
+  description: _lt(`A specified number, unchanged.`),
   args: args(`
-      value (any) The number to return.
+      value (any) ${_lt("The number to return.")}
     `),
   returns: ["ANY"],
   compute: function (value: any): any {
