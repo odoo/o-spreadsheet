@@ -32,7 +32,7 @@ export function load(data?: any): WorkbookData {
   // sensible default values
   data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
   data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
-  if (!data.sheets.map((s) => s.name).includes(data.activeSheet)) {
+  if (!data.sheets.map((s) => s.id).includes(data.activeSheet)) {
     data.activeSheet = data.sheets[0].id;
   }
 

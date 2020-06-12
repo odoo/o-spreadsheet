@@ -182,8 +182,21 @@ test("complete import, then export", () => {
         name: "My sheet",
         conditionalFormats: [],
       },
+      {
+        id: "someuuid_2",
+        colNumber: 10,
+        rowNumber: 10,
+        merges: [],
+        cols: {},
+        rows: {},
+        cells: {
+          A1: { content: "hello" },
+        },
+        name: "My sheet 2",
+        conditionalFormats: [],
+      },
     ],
-    activeSheet: "someuuid",
+    activeSheet: "someuuid_2",
     entities: {},
     styles: {
       99: { bold: true, textColor: "#3A3791", fontSize: 12 },
