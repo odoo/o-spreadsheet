@@ -501,8 +501,10 @@ describe("Rows", () => {
       addRows(2, "after", 1);
       let dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
+      const to = model.getters.getActiveSheet();
       model.dispatch("CREATE_SHEET", { activate: true });
-      model.dispatch("ACTIVATE_SHEET", { from: "Sheet2", to: "Sheet1" });
+      const from = model.getters.getActiveSheet();
+      model.dispatch("ACTIVATE_SHEET", { from, to });
       dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
     });
