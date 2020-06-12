@@ -6,6 +6,7 @@ import {
   ContextMenuItem,
   RootContextMenuItem,
 } from "./context_menu_registry";
+import { BOTTOMBAR_HEIGHT } from "../../constants";
 
 const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
@@ -26,6 +27,7 @@ const TEMPLATE = xml/* xml */ `
           <div
             t-if="menuItem.type === 'action'"
             t-att-data-name="menuItem.name"
+            t-att-title="menuItem.description"
             t-on-click="activateMenu(menuItem)"
             t-on-mouseover="subMenu.isOpen = false"
             class="o-menuitem"
@@ -35,6 +37,7 @@ const TEMPLATE = xml/* xml */ `
           <div
             t-elif="menuItem.type === 'root'"
             t-att-data-name="menuItem.name"
+            t-att-title="menuItem.description"
             t-on-click="openSubMenu(menuItem, menuItem_index)"
             t-on-mouseover="openSubMenu(menuItem, menuItem_index)"
             class="o-menuitem root-menu"
@@ -60,6 +63,7 @@ const CSS = css/* scss */ `
     background-color: white;
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     font-size: 13px;
+    overflow-y: auto;
     .o-menuitem {
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
@@ -72,10 +76,6 @@ const CSS = css/* scss */ `
 
       &:hover {
         background-color: #ebebeb;
-        overflow: visible;
-        display: inline-block;
-        min-width: 100%;
-        width: auto;
       }
 
       &.disabled {
@@ -146,10 +146,11 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
   }
 
   get style() {
-    const { x, y } = this.props.position;
+    const { x, y, height } = this.props.position;
     const hStyle = `left:${this.renderRight ? x : x - MENU_WIDTH}`;
-    const vStyle = `top:${this.renderBottom ? y : y - this.menuHeight}`;
-    return `${vStyle}px;${hStyle}px`;
+    const vStyle = `top:${this.renderBottom ? y : Math.max(MENU_ITEM_HEIGHT, y - this.menuHeight)}`;
+    const heightStyle = `max-height:${height - BOTTOMBAR_HEIGHT - MENU_ITEM_HEIGHT}`;
+    return `${vStyle}px;${hStyle}px;${heightStyle}px`;
   }
 
   activateMenu(menu: ActionContextMenuItem) {
@@ -183,7 +184,7 @@ export class ContextMenu extends Component<Props, SpreadsheetEnv> {
     if (this.renderBottom && spaceBelow) {
       return y;
     } else if (this.renderBottom && !spaceBelow) {
-      return y - subMenuHeight + MENU_ITEM_HEIGHT;
+      return Math.max(MENU_ITEM_HEIGHT, y - subMenuHeight + MENU_ITEM_HEIGHT);
     }
     return y - this.menuHeight;
   }
