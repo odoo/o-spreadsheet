@@ -4,9 +4,9 @@ import { parseNumber, isNumber } from "../helpers/index";
 import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>
-  _lt(`
-  The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a
-  string, and cannot be coerced to a number.`);
+  _lt(
+    `The function [[FUNCTION_NAME]] expects a number value, but '${value}' is a string, and cannot be coerced to a number.`
+  );
 
 export function toNumber(value: any): number {
   switch (typeof value) {
@@ -151,10 +151,9 @@ export function toString(value: any): string {
 }
 
 const expectBooleanValueError = (value: string) =>
-  _lt(`
-  The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a 
-  text, and cannot be coerced to a number.
-`);
+  _lt(
+    `The function [[FUNCTION_NAME]] expects a boolean value, but '${value}' is a text, and cannot be coerced to a number.`
+  );
 
 export function toBoolean(value: any): boolean {
   switch (typeof value) {
@@ -331,9 +330,7 @@ export function visitMatchingRanges(
 
   if (countArg % 2 === 1) {
     throw new Error(
-      _lt(`
-      Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.
-    `)
+      _lt(`Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.`)
     );
   }
 
