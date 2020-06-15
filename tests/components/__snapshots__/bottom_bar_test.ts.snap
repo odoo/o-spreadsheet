@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BottomBar component simple rendering 1`] = `
+<div
+  class="o-spreadsheet-bottom-bar"
+>
+  <span
+    class="o-add-sheet"
+  >
+    <svg
+      class="o-icon"
+    >
+      <path
+        d="M7,0 L9,0 L9,7 L16,7 L16,9 L9,9 L9,16 L7,16 L7,9 L0,9 L0,7 L7,7"
+        fill="#000000"
+      />
+    </svg>
+  </span>
+  <span
+    class="o-sheet active"
+  >
+    Sheet1
+  </span>
+</div>
+`;
