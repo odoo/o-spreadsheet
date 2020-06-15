@@ -2,8 +2,11 @@ import * as owl from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../constants";
 import { SpreadsheetEnv } from "../types";
 import { PLUS } from "./icons";
+import { MenuState, Menu } from "./menu";
+import { sheetMenuRegistry } from "../registries/index";
 const { Component } = owl;
 const { xml, css } = owl.tags;
+const { useState } = owl.hooks;
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -13,7 +16,13 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
     <span class="o-add-sheet" t-on-click="addSheet">${PLUS}</span>
     <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
-      <span class="o-sheet" t-on-click="activateSheet(sheet.id)" t-att-class="{active: sheet.id === getters.getActiveSheet()}">
+      <span class="o-sheet" t-on-click="activateSheet(sheet.id)"
+            t-att-class="{active: sheet.id === getters.getActiveSheet()}">
+      <!-- The next lines should replace the last ones when at least one action
+      has been implemented on sheets. (sheetMenuRegistry)
+      <span class="o-sheet" t-on-click="activateSheet(sheet.id)"
+            t-on-contextmenu.prevent="onContextMenu(sheet.id)"
+            t-att-class="{active: sheet.id === getters.getActiveSheet()}"> -->
         <t t-esc="sheet.name"/>
       </span>
     </t>
@@ -22,6 +31,10 @@ const TEMPLATE = xml/* xml */ `
       <span class="o-space"/>
       <span class="o-aggregate">Sum: <t t-esc="aggregate"/></span>
     </t>
+    <Menu t-if="menuState.isOpen"
+          position="menuState.position"
+          menuItems="menuState.menuItems"
+          t-on-close="menuState.isOpen=false"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -85,8 +98,10 @@ const CSS = css/* scss */ `
 export class BottomBar extends Component<{}, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
+  static components = { Menu };
 
   getters = this.env.getters;
+  menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   addSheet() {
     this.env.dispatch("CREATE_SHEET", { activate: true });
@@ -94,5 +109,21 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
 
   activateSheet(name: string) {
     this.env.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: name });
+  }
+
+  onContextMenu(sheet: string, ev: MouseEvent) {
+    if (this.getters.getActiveSheet() !== sheet) {
+      this.activateSheet(sheet);
+    }
+    const x = (ev.target as HTMLElement).offsetLeft;
+    const y = (ev.target as HTMLElement).offsetTop;
+    this.menuState.isOpen = true;
+    this.menuState.menuItems = sheetMenuRegistry.getAll();
+    this.menuState.position = {
+      x,
+      y,
+      height: 0,
+      width: this.el!.clientWidth,
+    };
   }
 }
