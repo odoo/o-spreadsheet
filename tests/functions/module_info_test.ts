@@ -59,6 +59,7 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=true" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=false" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISLOGICAL(A2)", A2: "4/24/2042" })).toBe(false);
   });
 
   //----------------------------------------------------------------------------
@@ -73,6 +74,7 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(TRUE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(123)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(3%)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=ISNONTEXT("4/24/2042")' })).toBe(false);
 
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "TEST" })).toBe(false);
@@ -83,7 +85,8 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: '"123"' })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: '="TRUE"' })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=true" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "=123" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: "4/24/2042" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNONTEXT(A2)", A2: '="4/24/2042"' })).toBe(false);
   });
 
   //----------------------------------------------------------------------------
@@ -99,6 +102,7 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISNUMBER(123)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(1.2)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(3%)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=ISNUMBER("4/24/2042")' })).toBe(false);
 
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "TEST" })).toBe(false);
@@ -110,6 +114,8 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: '="TRUE"' })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=true" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "=123" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: "4/24/2042" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=ISNUMBER(A2)", A2: '="4/24/2042"' })).toBe(false);
   });
 
   //----------------------------------------------------------------------------
@@ -124,6 +130,7 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISTEXT(TRUE)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(123)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(3%)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=ISTEXT("4/24/2042")' })).toBe(true);
 
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "TEST" })).toBe(true);
@@ -135,5 +142,7 @@ describe("info", () => {
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: '="TRUE"' })).toBe(true);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=true" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "=123" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: "4/24/2042" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISTEXT(A2)", A2: '="4/24/2042"' })).toBe(true);
   });
 });

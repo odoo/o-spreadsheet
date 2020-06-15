@@ -297,6 +297,7 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(0, 9);
     expect(evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(10, 9);
     expect(evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=" + functionName + '("12/31/1899 13:25:45", 1)' })).toBe(2);
 
     expect(evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
     expect(evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -599,6 +600,13 @@ describe("math", () => {
     expect(evaluateCell("B41", { B41: "=COUNTIF(B39, TRUE)", B39: '="TRUE"' })).toBe(0);
     expect(evaluateCell("B42", { B42: '=COUNTIF(B39, "TRUE")', B39: '="TRUE"' })).toBe(0);
     expect(evaluateCell("B43", { B43: '=COUNTIF(B39, "=TRUE")', B39: '="TRUE"' })).toBe(0);
+  });
+
+  test("COUNTIF: operator tests on type date", () => {
+    expect(evaluateCell("A41", { A41: "=COUNTIF(A39, 3.5)", A39: "1/2/1900 12:00" })).toBe(1);
+    expect(evaluateCell("A41", { A41: '=COUNTIF(A39, "=1/3/1900 18:00")', A39: "4.75" })).toBe(1);
+    expect(evaluateCell("A41", { A41: '=COUNTIF(A39, "<1/2/1900 12:00")', A39: "4.75" })).toBe(0);
+    expect(evaluateCell("A41", { A41: '=COUNTIF(A39, ">1/2/1900 12:00")', A39: "4.75" })).toBe(1);
   });
 
   test("COUNTIF: operator tests on criterion expression", () => {
@@ -1847,6 +1855,12 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(TRUE, 1)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(FALSE, 0)" })).toBe(0);
+    expect(
+      evaluateCell("A1", { A1: '=RANDBETWEEN("2/3/2020", "5/28/20")' })
+    ).toBeGreaterThanOrEqual(43864);
+    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("2/3/2020", "5/28/20")' })).toBeLessThanOrEqual(
+      43979
+    );
 
     expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , "")' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , 0)' })).toBe(0);
@@ -1874,6 +1888,19 @@ describe("math", () => {
 
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '=""', A3: '="0"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(42);
+
+    expect(
+      evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "2/3/2020", A3: "5/28/20" })
+    ).toBeGreaterThanOrEqual(43864);
+    expect(
+      evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "2/3/2020", A3: "5/28/20" })
+    ).toBeLessThanOrEqual(43979);
+    expect(
+      evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="2/3/2020"', A3: '="5/28/20"' })
+    ).toBeGreaterThanOrEqual(43864);
+    expect(
+      evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="2/3/2020"', A3: '="5/28/20"' })
+    ).toBeLessThanOrEqual(43979);
   });
 
   //----------------------------------------------------------------------------

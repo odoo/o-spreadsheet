@@ -1,5 +1,6 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
+import { typeNumber } from "./helpers";
 import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
@@ -52,7 +53,7 @@ export const ISNUMBER: FunctionDescription = {
   args: args(`value (any) ${_lt("The value to be verified as a number.")}`),
   returns: ["BOOLEAN"],
   compute: function (value: any): boolean {
-    return typeof value === "number";
+    return typeNumber(value);
   },
 };
 

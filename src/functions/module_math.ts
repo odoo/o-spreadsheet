@@ -7,6 +7,8 @@ import {
   reduceArgs,
   reduceNumbers,
   visitMatchingRanges,
+  typeNumber,
+  numberValue,
 } from "./helpers";
 import { _lt } from "../translation";
 
@@ -1123,8 +1125,8 @@ export const SUMIF: FunctionDescription = {
     let sum = 0;
     visitMatchingRanges([criteria_range, criterion], (i, j) => {
       const value = sum_range[i][j];
-      if (typeof value === "number") {
-        sum += value;
+      if (typeNumber(value)) {
+        sum += numberValue(value);
       }
     });
     return sum;
@@ -1155,8 +1157,8 @@ export const SUMIFS: FunctionDescription = {
     let sum = 0;
     visitMatchingRanges(args, (i, j) => {
       const value = sum_range[i][j];
-      if (typeof value === "number") {
-        sum += value;
+      if (typeNumber(value)) {
+        sum += numberValue(value);
       }
     });
     return sum;

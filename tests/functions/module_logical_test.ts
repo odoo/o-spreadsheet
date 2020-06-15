@@ -24,6 +24,7 @@ describe("bool", () => {
     expect(evaluateCell("A1", { A1: "=AND(0 , TRUE)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=AND(42 , TRUE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=AND(-42 , TRUE)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=AND("2/24/2024", "4/12/2042")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("AND: functional tests on cell arguments", () => {
@@ -42,6 +43,17 @@ describe("bool", () => {
     expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: '="TRUE"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: "42" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: '="42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=AND(A2, A3)", A2: "2/24/2024", A3: "4/12/2042" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=AND(A2, A3)", A2: "2/24/2024", A3: "12/30/1899" })).toBe(
+      false
+    );
+    expect(
+      evaluateCell("A1", { A1: "=AND(A2, A3)", A2: "2/24/2024", A3: "12/30/1899 0:00:01" })
+    ).toBe(true);
+    expect(evaluateCell("A1", { A1: "=AND(A2, A3)", A2: "2/24/2024", A3: "12/29/1899" })).toBe(
+      true
+    );
   });
 
   //----------------------------------------------------------------------------
@@ -66,6 +78,7 @@ describe("bool", () => {
     expect(evaluateCell("A1", { A1: "=IF(42, 1, 2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IF(0, 1, 2)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=IF("test", 1, 2)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=IF("4/2/2042", 1, 2)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("IF: functional tests on cell arguments", () => {
@@ -88,6 +101,10 @@ describe("bool", () => {
   test("IF: casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "0", A3: "1", A4: "2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A3: "1", A4: "2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "4/2/2042", A3: "1", A4: "2" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "12/30/1899", A3: "1", A4: "2" })).toBe(
+      2
+    );
   });
 
   //----------------------------------------------------------------------------

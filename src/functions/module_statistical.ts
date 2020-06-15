@@ -8,6 +8,8 @@ import {
   dichotomicPredecessorSearch,
   reduceNumbersTextAs0,
   visitMatchingRanges,
+  typeNumber,
+  numberValue,
 } from "./helpers";
 import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
@@ -39,10 +41,10 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
   for (let i = 0; i < lenY; i++) {
     const valueY = flatDataY[i];
     const valueX = flatDataX[i];
-    if (typeof valueY === "number" && typeof valueX === "number") {
+    if (typeNumber(valueY) && typeNumber(valueX)) {
       count += 1;
-      sumY += valueY;
-      sumX += valueX;
+      sumY += numberValue(valueY);
+      sumX += numberValue(valueX);
     }
   }
 
@@ -55,10 +57,10 @@ function covariance(dataY: any[], dataX: any[], isSample: boolean): number {
 
   let acc = 0;
   for (let i = 0; i < lenY; i++) {
-    const valueY = flatDataY[i];
-    const valueX = flatDataX[i];
-    if (typeof valueY === "number" && typeof valueX === "number") {
-      acc += (valueY - averageY) * (valueX - averageX);
+    let valueY = flatDataY[i];
+    let valueX = flatDataX[i];
+    if (typeNumber(valueY) && typeNumber(valueX)) {
+      acc += (numberValue(valueY) - averageY) * (numberValue(valueX) - averageX);
     }
   }
 
@@ -199,18 +201,19 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
           for (let j = 0; j < dimLinValue; j++) {
             let subValue = value[i][j];
             let subWeight = weight[i][j];
-            let subValueIsNumber = typeof subValue === "number";
-            let subWeightIsNumber = typeof subWeight === "number";
+            let subValueIsNumber = typeNumber(subValue);
+            let subWeightIsNumber = typeNumber(subWeight);
             // typeof subValue or subWeight can be 'number' or 'undefined'
             if (subValueIsNumber !== subWeightIsNumber) {
               throw new Error(_lt(`AVERAGE.WEIGHTED expects number values.`));
             }
             if (subWeightIsNumber) {
-              if (subWeight < 0) {
+              const subWeightValue = numberValue(subWeight);
+              if (subWeightValue < 0) {
                 throw new Error(negativeWeightError);
               }
-              sum += subValue * subWeight;
-              count += subWeight;
+              sum += numberValue(subValue) * subWeightValue;
+              count += subWeightValue;
             }
           }
         }
@@ -287,9 +290,9 @@ export const AVERAGEIF: FunctionDescription = {
 
     visitMatchingRanges([criteria_range, criterion], (i, j) => {
       const value = average_range[i][j];
-      if (typeof value === "number") {
+      if (typeNumber(value)) {
         count += 1;
-        sum += value;
+        sum += numberValue(value);
       }
     });
 
@@ -325,9 +328,9 @@ export const AVERAGEIFS: FunctionDescription = {
     let sum = 0;
     visitMatchingRanges(args, (i, j) => {
       const value = average_range[i][j];
-      if (typeof value === "number") {
+      if (typeNumber(value)) {
         count += 1;
-        sum += value;
+        sum += numberValue(value);
       }
     });
     if (count === 0) {
@@ -355,7 +358,7 @@ export const COUNT: FunctionDescription = {
       if (Array.isArray(n)) {
         for (let i of n) {
           for (let j of i) {
-            if (typeof j === "number") {
+            if (typeNumber(j)) {
               count += 1;
             }
           }
@@ -449,9 +452,10 @@ export const LARGE: FunctionDescription = {
     let index: number;
     let count = 0;
     visitAny(data, (d) => {
-      if (typeof d === "number") {
-        index = dichotomicPredecessorSearch(largests, d);
-        largests.splice(index + 1, 0, d);
+      if (typeNumber(d)) {
+        const dValue = numberValue(d);
+        index = dichotomicPredecessorSearch(largests, dValue);
+        largests.splice(index + 1, 0, dValue);
         count++;
         if (count > n) {
           largests.shift();
@@ -511,7 +515,7 @@ export const MAXA: FunctionDescription = {
         for (let i of n) {
           for (let j of i) {
             if (j != undefined) {
-              j = typeof j === "number" ? j : 0;
+              j = typeNumber(j) ? numberValue(j) : 0;
               if (maxa < j) {
                 maxa = j;
               }
@@ -554,8 +558,9 @@ export const MAXIFS: FunctionDescription = {
   compute: function (range, ...args): number {
     let result = -Infinity;
     visitMatchingRanges(args, (i, j) => {
-      const value = range[i][j];
-      if (typeof value === "number") {
+      let value = range[i][j];
+      if (typeNumber(value)) {
+        value = numberValue(value);
         result = result < value ? value : result;
       }
     });
@@ -604,7 +609,7 @@ export const MINA: FunctionDescription = {
         for (let i of n) {
           for (let j of i) {
             if (j != undefined) {
-              j = typeof j === "number" ? j : 0;
+              j = typeNumber(j) ? numberValue(j) : 0;
               if (j < mina) {
                 mina = j;
               }
@@ -647,8 +652,9 @@ export const MINIFS: FunctionDescription = {
   compute: function (range, ...args): number {
     let result = Infinity;
     visitMatchingRanges(args, (i, j) => {
-      const value = range[i][j];
-      if (typeof value === "number") {
+      let value = range[i][j];
+      if (typeNumber(value)) {
+        value = numberValue(value);
         result = result > value ? value : result;
       }
     });
@@ -672,9 +678,10 @@ export const SMALL: FunctionDescription = {
     let index: number;
     let count = 0;
     visitAny(data, (d) => {
-      if (typeof d === "number") {
-        index = dichotomicPredecessorSearch(largests, d);
-        largests.splice(index + 1, 0, d);
+      if (typeNumber(d)) {
+        const dValue = numberValue(d);
+        index = dichotomicPredecessorSearch(largests, dValue);
+        largests.splice(index + 1, 0, dValue);
         count++;
         if (count > n) {
           largests.pop();

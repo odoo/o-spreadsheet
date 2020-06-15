@@ -106,6 +106,26 @@ describe("lookup", () => {
     expect(evaluatedGrid.A16).toBe("res 09");
   });
 
+  test("LOOKUP: fonctional tests on dates", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "12/30/1899", B1: "0", C1: "A",
+      A2: "12/31/1899", B2: "1", C2: "B", 
+      A3: "01/01/1900", B3: "2", C3: "C", 
+      A4: "01/02/1900", B4: "3", C4: "D",
+      A5: "01/03/1900", B5: "4", C5: "E",
+
+      A6:  "=LOOKUP(2, A1:A5, C1:C5)", 
+      A7:  "=LOOKUP(A4, B1:B5, C1:C5)", 
+      A8:  '=LOOKUP("01/02/1900", B1:B5, C1:C5)',
+    };
+
+    const evaluatedGrid = evaluateGrid(grid);
+    expect(evaluatedGrid.A6).toBe("C");
+    expect(evaluatedGrid.A7).toBe("D");
+    expect(evaluatedGrid.A8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
+  });
+
   //----------------------------------------------------------------------------
   // MATCH
   //----------------------------------------------------------------------------

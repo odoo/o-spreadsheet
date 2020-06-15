@@ -5,6 +5,8 @@ import {
   toBoolean,
   dichotomicPredecessorSearch,
   dichotomicSuccessorSearch,
+  typeNumber,
+  numberValue,
 } from "./helpers";
 import { _lt } from "../translation";
 import { toZone } from "../helpers/index";
@@ -20,8 +22,11 @@ import { toZone } from "../helpers/index";
  * - [3, 6, 10], 2 => -1
  */
 function linearSearch(range: any[], target: any): number {
+  const targetValue = typeNumber(target) ? numberValue(target) : target;
   for (let i = 0; i < range.length; i++) {
-    if (range[i] === target) {
+    let current = range[i];
+    current === typeNumber(current) ? numberValue(current) : current;
+    if (current === targetValue) {
       return i;
     }
   }

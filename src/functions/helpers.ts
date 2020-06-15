@@ -1,6 +1,13 @@
 // HELPERS
 
-import { parseNumber, isNumber, parseDateTime, numberToDate, toNativeDate } from "../helpers/index";
+import {
+  parseNumber,
+  isNumber,
+  parseDateTime,
+  numberToDate,
+  toNativeDate,
+  InternalDate,
+} from "../helpers/index";
 import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>
@@ -9,19 +16,23 @@ const expectNumberValueError = (value: string) =>
   );
 
 export function toNumber(value: any): number {
-  switch (typeof value) {
-    case "number":
-      return value;
-    case "boolean":
-      return value ? 1 : 0;
-    case "string":
-      if (isNumber(value) || value === "") {
-        return parseNumber(value);
-      }
-      throw new Error(expectNumberValueError(value));
-    default:
-      return value || 0;
+  if (typeNumber(value)) {
+    return numberValue(value);
   }
+  if (typeof value === "boolean") {
+    return value ? 1 : 0;
+  }
+  if (typeof value === "string") {
+    if (isNumber(value) || value === "") {
+      return parseNumber(value);
+    }
+    const date = parseDateTime(value);
+    if (date) {
+      return date.value;
+    }
+    throw new Error(expectNumberValueError(value));
+  }
+  return value || 0;
 }
 
 export function strictToNumber(value: any): number {
@@ -36,8 +47,8 @@ export function visitNumbers(args: IArguments | any[], cb: (arg: number) => void
     if (Array.isArray(n)) {
       for (let i of n) {
         for (let j of i) {
-          if (typeof j === "number") {
-            cb(j);
+          if (typeNumber(j)) {
+            cb(numberValue(j));
           }
         }
       }
@@ -46,6 +57,21 @@ export function visitNumbers(args: IArguments | any[], cb: (arg: number) => void
     }
   }
 }
+export function typeNumber(value: any): boolean {
+  // Normal case
+  if (typeof value === "number") {
+    return true;
+  }
+  // InternalDate case
+  if (typeof value === "object" && value !== null) {
+    return true;
+  }
+  return false;
+}
+
+export function numberValue(value: number | InternalDate) {
+  return typeof value === "number" ? value : value.value;
+}
 
 function visitNumbersTextAs0(args: IArguments | any[], cb: (arg: number) => void): void {
   for (let n of args) {
@@ -53,8 +79,8 @@ function visitNumbersTextAs0(args: IArguments | any[], cb: (arg: number) => void
       for (let i of n) {
         for (let j of i) {
           if (j !== undefined && j !== null) {
-            if (typeof j === "number") {
-              cb(j);
+            if (typeNumber(j)) {
+              cb(numberValue(j));
             } else if (typeof j === "boolean") {
               cb(toNumber(j));
             } else {
@@ -138,16 +164,16 @@ export function reduceNumbersTextAs0<T>(
 }
 
 export function toString(value: any): string {
-  switch (typeof value) {
-    case "string":
-      return value;
-    case "number":
-      return value.toString();
-    case "boolean":
-      return value ? "TRUE" : "FALSE";
-    default:
-      return "";
+  if (typeof value === "string") {
+    return value;
   }
+  if (typeNumber(value)) {
+    return numberValue(value).toString();
+  }
+  if (typeof value === "boolean") {
+    return value ? "TRUE" : "FALSE";
+  }
+  return "";
 }
 
 const expectBooleanValueError = (value: string) =>
@@ -156,27 +182,27 @@ const expectBooleanValueError = (value: string) =>
   );
 
 export function toBoolean(value: any): boolean {
-  switch (typeof value) {
-    case "boolean":
-      return value;
-    case "string":
-      if (value) {
-        let uppercaseVal = value.toUpperCase();
-        if (uppercaseVal === "TRUE") {
-          return true;
-        }
-        if (uppercaseVal === "FALSE") {
-          return false;
-        }
-        throw new Error(expectBooleanValueError(value));
-      } else {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    if (value) {
+      let uppercaseVal = value.toUpperCase();
+      if (uppercaseVal === "TRUE") {
+        return true;
+      }
+      if (uppercaseVal === "FALSE") {
         return false;
       }
-    case "number":
-      return value ? true : false;
-    default:
+      throw new Error(expectBooleanValueError(value));
+    } else {
       return false;
+    }
   }
+  if (typeNumber(value)) {
+    return numberValue(value) ? true : false;
+  }
+  return false;
 }
 
 export function strictToBoolean(value: any): boolean {
@@ -193,8 +219,8 @@ export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): vo
       if (typeof cell === "boolean") {
         return cb(cell);
       }
-      if (typeof cell === "number") {
-        return cb(cell ? true : false);
+      if (typeNumber(cell)) {
+        return cb(numberValue(cell) ? true : false);
       }
       return true;
     },
@@ -246,7 +272,10 @@ function getPredicate(descr: string, isQuery: boolean): Predicate {
     }
   }
 
-  if (isNumber(operand)) {
+  const date = parseDateTime(operand);
+  if (date) {
+    operand = date.value;
+  } else if (isNumber(operand)) {
     operand = toNumber(operand);
   } else if (operand === "TRUE" || operand === "FALSE") {
     operand = toBoolean(operand);
@@ -289,18 +318,19 @@ function operandToRegExp(operand: string): RegExp {
 
 function evaluatePredicate(value: any, criterion: Predicate): boolean {
   const { operator, operand } = criterion;
+  const val = typeNumber(value) ? numberValue(value) : value;
 
   if (typeof operand === "number" && operator === "=") {
-    return toString(value) === toString(operand);
+    return toString(val) === toString(operand);
   }
 
   if (operator === "<>" || operator === "=") {
     let result: boolean;
-    if (typeof value === typeof operand) {
+    if (typeof val === typeof operand) {
       if (criterion.regexp) {
-        result = criterion.regexp.test(value);
+        result = criterion.regexp.test(val);
       } else {
-        result = value === operand;
+        result = val === operand;
       }
     } else {
       result = false;
@@ -308,16 +338,16 @@ function evaluatePredicate(value: any, criterion: Predicate): boolean {
     return operator === "=" ? result : !result;
   }
 
-  if (typeof value === typeof operand) {
+  if (typeof val === typeof operand) {
     switch (operator) {
       case "<":
-        return value < operand;
+        return val < operand;
       case ">":
-        return value > operand;
+        return val > operand;
       case "<=":
-        return value <= operand;
+        return val <= operand;
       case ">=":
-        return value >= operand;
+        return val >= operand;
     }
   }
   return false;
@@ -414,21 +444,24 @@ export function visitMatchingRanges(
  * - [3, 6, 10], 2 => -1
  */
 export function dichotomicPredecessorSearch(range: any[], target: any): number {
-  const typeofTarget = typeof target;
+  const typeofTarget = typeNumber(target) ? "number" : typeof target;
+  const targetValue = typeNumber(target) ? numberValue(target) : target;
   let min = 0;
   let max = range.length - 1;
   let avg = Math.ceil((min + max) / 2);
   let current = range[avg];
+  current = typeNumber(current) ? numberValue(current) : current;
   while (max - min > 0) {
-    if (typeofTarget === typeof current && current <= target) {
+    if (typeofTarget === typeof current && current <= targetValue) {
       min = avg;
     } else {
       max = avg - 1;
     }
     avg = Math.ceil((min + max) / 2);
     current = range[avg];
+    current = typeNumber(current) ? numberValue(current) : current;
   }
-  if (target < current) {
+  if (targetValue < current || typeofTarget !== typeof current) {
     // all values in the range are greater than the target, -1 is returned.
     return -1;
   }
@@ -449,21 +482,24 @@ export function dichotomicPredecessorSearch(range: any[], target: any): number {
  * - [10, 6, 3], 2 => 2
  */
 export function dichotomicSuccessorSearch(range: any[], target: any): number {
-  const typeofTarget = typeof target;
+  const typeofTarget = typeNumber(target) ? "number" : typeof target;
+  const targetValue = typeNumber(target) ? numberValue(target) : target;
   let min = 0;
   let max = range.length - 1;
   let avg = Math.floor((min + max) / 2);
   let current = range[avg];
+  current = typeNumber(current) ? numberValue(current) : current;
   while (max - min > 0) {
-    if (typeofTarget === typeof current && target >= current) {
+    if (typeofTarget === typeof current && targetValue >= current) {
       max = avg;
     } else {
       min = avg + 1;
     }
     avg = Math.floor((min + max) / 2);
     current = range[avg];
+    current = typeNumber(current) ? numberValue(current) : current;
   }
-  if (target > current) {
+  if (targetValue > current || typeofTarget !== typeof current) {
     return avg - 1;
   }
   return avg;

@@ -785,6 +785,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MAX("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MAX(TRUE, FALSE)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=MAX(0, "0", TRUE)' })).toBe(1);
+    expect(evaluateCell("A1", { A1: '=MAX("2/3/2020", "5/28/20")' })).toBe(43979);
   });
 
   test("MAX: functional tests on cell arguments", () => {
@@ -813,6 +814,8 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "=24", A3: "=42" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "=24", A3: '="42"' })).toBe(24);
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '="24"', A3: '="42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: "2/3/2020", A3: "5/28/20" })).toBe(43979);
+    expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '="2/3/2020"', A3: '="5/28/20"' })).toBe(0);
   });
 
   test("MAX: functional tests on simple and cell arguments", () => {
