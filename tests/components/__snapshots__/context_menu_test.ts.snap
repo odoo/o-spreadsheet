@@ -8,24 +8,28 @@ exports[`Context Menu context menu simple rendering 1`] = `
   <div
     class="o-menuitem"
     data-name="cut"
+    title="Cut"
   >
     Cut
   </div>
   <div
     class="o-menuitem"
     data-name="copy"
+    title="Copy"
   >
     Copy
   </div>
   <div
     class="o-menuitem"
     data-name="paste"
+    title="Paste"
   >
     Paste
   </div>
   <div
     class="o-menuitem root-menu"
     data-name="paste_special"
+    title="Paste special"
   >
     Paste special
     <svg
@@ -44,12 +48,14 @@ exports[`Context Menu context menu simple rendering 1`] = `
   <div
     class="o-menuitem disabled"
     data-name="clear_cell"
+    title="Clear cell"
   >
     Clear cell
   </div>
   <div
     class="o-menuitem"
     data-name="conditional_formatting"
+    title="Conditional formatting"
   >
     Conditional formatting
   </div>
