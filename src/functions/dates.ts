@@ -205,7 +205,7 @@ function numberToDate(value: number): Date {
 export function toNativeDate(date: any): Date {
   if (typeof date === "object" && date !== null) {
     if (!date.jsDate) {
-      date.jsDate = new Date(date.value * 86400 * 1000 - DATE_JS_1900_OFFSET);
+      date.jsDate = numberToDate(date.value);
     }
     return date.jsDate;
   }
