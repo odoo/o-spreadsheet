@@ -11,6 +11,7 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
   sidePanelRegistry,
+  sheetMenuRegistry,
 } from "./registries/index";
 
 /**
@@ -36,6 +37,7 @@ export const registries = {
   pluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,
+  sheetMenuRegistry,
   topbarMenuRegistry,
 };
 

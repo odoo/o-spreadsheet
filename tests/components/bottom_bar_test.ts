@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
-import { makeTestFixture } from "../helpers";
+import { makeTestFixture, nextTick } from "../helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types";
 
@@ -65,5 +65,15 @@ describe("BottomBar component", () => {
     const from = parent.model.getters.getActiveSheet();
     const to = from;
     expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { from, to });
+  });
+
+  test.skip("Can open context menu of a sheet", async () => {
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
   });
 });
