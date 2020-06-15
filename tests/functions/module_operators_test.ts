@@ -1,4 +1,5 @@
 import { evaluateCell } from "../helpers";
+import { formatDateTime } from "../../src/functions/dates";
 
 describe("operators", () => {
   //----------------------------------------------------------------------------
@@ -41,6 +42,11 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=""' })).toBe(42);
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '="42"' })).toBe(84);
+
+    const dateAddition = evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "3/3/3 10:20", A3: "1.5" });
+    expect(dateAddition.value).toBeCloseTo(37684.93055556, 5);
+    expect(dateAddition.format).toBe("m/d/yyyy hh:mm");
+    expect(formatDateTime(dateAddition)).toBe("3/4/2003 22:20");
   });
 
   //----------------------------------------------------------------------------
