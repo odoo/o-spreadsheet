@@ -473,14 +473,15 @@ describe("date", () => {
   // NOW
   //----------------------------------------------------------------------------
 
-  test("NOW: functional tests on simple arguments", () => {
-    let timeNow = new Date();
-    timeNow.setSeconds(0);
-    timeNow.setMilliseconds(0);
+  const MockDate = require("mockdate");
 
+  test("NOW: functional tests on simple arguments", async () => {
+    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
     const now = evaluateCell("A1", { A1: "=NOW()" });
-    expect(now.jsDate.getTime()).toBeGreaterThan(timeNow.getTime());
-    expect(now.jsDate.getTime()).toBeLessThan(new Date().getTime());
+    expect(now.value).toBe(51958.171875);
+    expect(now.format).toBe("m/d/yyyy hh:mm:ss");
+    expect(now.jsDate.getTime()).toBe(new Date(2042, 3, 2, 4, 7, 30).getTime());
+    MockDate.reset();
   });
 
   //----------------------------------------------------------------------------
@@ -566,7 +567,7 @@ describe("date", () => {
 
     const today = evaluateCell("A1", { A1: "=TODAY()" });
     expect(today.jsDate.getTime()).toBeGreaterThanOrEqual(timeNow.getTime());
-    expect(today.jsDate.getTime()).toBeLessThan(new Date().getTime());
+    expect(today.jsDate.getTime()).toBeLessThanOrEqual(new Date().getTime());
 
     expect(today.jsDate.getHours()).toBe(0);
     expect(today.jsDate.getMinutes()).toBe(0);
