@@ -85,10 +85,13 @@ export class MergePlugin extends BasePlugin {
       case "REMOVE_MERGE":
         this.removeMerge(cmd.sheet, cmd.zone);
         break;
+      case "AUTOFILL_CELL":
+        this.autoFillMerge(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
+        break;
       case "PASTE_CELL":
         const xc = toXC(cmd.originCol, cmd.originRow);
         if (this.isMainCell(xc, cmd.sheet)) {
-          this.pasteMerge(xc, cmd.col, cmd.row, cmd.sheet, cmd.cut);
+          this.duplicateMerge(xc, cmd.col, cmd.row, cmd.sheet, cmd.cut);
         }
         break;
     }
@@ -293,6 +296,28 @@ export class MergePlugin extends BasePlugin {
       }
     }
   }
+
+  private duplicateMerge(xc: string, col: number, row: number, sheetId: string, cut?: boolean) {
+    const mergeId = this.workbook.sheets[sheetId].mergeCellMap[xc];
+    const merge = this.workbook.sheets[sheetId].merges[mergeId];
+    const newMerge = {
+      left: col,
+      top: row,
+      right: col + merge.right - merge.left,
+      bottom: row + merge.bottom - merge.top,
+    };
+    if (cut) {
+      this.dispatch("REMOVE_MERGE", {
+        sheet: sheetId,
+        zone: merge,
+      });
+    }
+    this.dispatch("ADD_MERGE", {
+      sheet: this.workbook.activeSheet.id,
+      zone: newMerge,
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // Add/Remove columns
   // ---------------------------------------------------------------------------
@@ -376,25 +401,25 @@ export class MergePlugin extends BasePlugin {
     };
   }
 
-  private pasteMerge(xc: string, col: number, row: number, sheetId: string, cut?: boolean) {
-    const mergeId = this.workbook.sheets[sheetId].mergeCellMap[xc];
-    const merge = this.workbook.sheets[sheetId].merges[mergeId];
-    const newMerge = {
-      left: col,
-      top: row,
-      right: col + merge.right - merge.left,
-      bottom: row + merge.bottom - merge.top,
-    };
-    if (cut) {
+  // ---------------------------------------------------------------------------
+  // Autofill
+  // ---------------------------------------------------------------------------
+
+  private autoFillMerge(originCol: number, originRow: number, col: number, row: number) {
+    const xcOrigin = toXC(originCol, originRow);
+    const xcTarget = toXC(col, row);
+    const sheet = this.getters.getActiveSheet();
+    if (this.isInMerge(xcTarget) && !this.isInMerge(xcOrigin)) {
+      const mergeId = this.workbook.sheets[sheet].mergeCellMap[xcTarget];
+      const zone = this.workbook.sheets[sheet].merges[mergeId];
       this.dispatch("REMOVE_MERGE", {
-        sheet: sheetId,
-        zone: merge,
+        sheet,
+        zone,
       });
     }
-    this.dispatch("ADD_MERGE", {
-      sheet: this.workbook.activeSheet.id,
-      zone: newMerge,
-    });
+    if (this.isMainCell(xcOrigin, sheet)) {
+      this.duplicateMerge(xcOrigin, col, row, sheet);
+    }
   }
 
   // ---------------------------------------------------------------------------

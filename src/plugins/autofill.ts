@@ -36,8 +36,12 @@ import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/
  * cell.
  */
 
+interface AutofillCellData extends CellData {
+  col: number;
+  row: number;
+}
 interface GeneratorCell {
-  data: CellData;
+  data: AutofillCellData;
   rule?: AutofillModifier;
 }
 
@@ -61,7 +65,7 @@ class AutofillGenerator {
   /**
    * Get the next value to autofill
    */
-  next(): CellData {
+  next(): AutofillCellData {
     const genCell = this.cells[this.index++ % this.cells.length];
     if (!genCell.rule) {
       return genCell.data;
@@ -113,6 +117,17 @@ export class AutofillPlugin extends BasePlugin {
       case "AUTOFILL_AUTO":
         this.autofillAuto();
         break;
+      case "AUTOFILL_CELL":
+        const sheet = this.getters.getActiveSheet();
+        this.dispatch("UPDATE_CELL", {
+          sheet,
+          col: cmd.col,
+          row: cmd.row,
+          style: cmd.style,
+          border: cmd.border,
+          content: cmd.content,
+          format: cmd.format,
+        });
     }
   }
 
@@ -261,11 +276,19 @@ export class AutofillPlugin extends BasePlugin {
    * Generate the next cell
    */
   private computeNewCell(generator: AutofillGenerator, col: number, row: number, apply: boolean) {
-    const newCell = generator.next();
-    this.lastValue = newCell.content;
+    const { col: originCol, row: originRow, content, style, border, format } = generator.next();
+    this.lastValue = content;
     if (apply) {
-      const sheet = this.getters.getActiveSheet();
-      this.dispatch("UPDATE_CELL", Object.assign({ sheet, col, row }, newCell));
+      this.dispatch("AUTOFILL_CELL", {
+        originCol,
+        originRow,
+        col,
+        row,
+        content,
+        style,
+        border,
+        format,
+      });
     }
   }
 
@@ -284,31 +307,33 @@ export class AutofillPlugin extends BasePlugin {
   private createGenerator(source: string[]): AutofillGenerator {
     const nextCells: GeneratorCell[] = [];
 
-    const cells: (Cell | null)[] = [];
+    const cellsData: { col: number; row: number; cell: Cell | null }[] = [];
     for (let xc of source) {
-      cells.push(this.getters.getCell(...toCartesian(xc)));
+      const [col, row] = toCartesian(xc);
+      const cell = this.getters.getCell(col, row);
+      let cellData: { col: number; row: number; cell: Cell | null } = {
+        col,
+        row,
+        cell,
+      };
+      cellsData.push(cellData);
     }
-
-    for (let cell of cells) {
+    const cells = cellsData.map((cellData) => cellData.cell);
+    for (let cellData of cellsData) {
       let rule: AutofillModifier | undefined;
-      const data: CellData = cell
-        ? {
-            content: cell.content,
-            style: cell.style,
-            format: cell.format,
-            border: cell.border,
-          }
-        : {
-            content: undefined,
-            style: undefined,
-            format: undefined,
-            border: undefined,
-          };
-      if (cell && cell.content) {
-        rule = this.getRule(cell, cells);
+      if (cellData && cellData.cell && cellData.cell.content) {
+        rule = this.getRule(cellData.cell, cells);
       } else {
         rule = { type: "COPY_MODIFIER" };
       }
+      const data = {
+        row: cellData.row,
+        col: cellData.col,
+        content: cellData.cell ? cellData.cell.content : undefined,
+        style: cellData.cell ? cellData.cell.style : undefined,
+        border: cellData.cell ? cellData.cell.border : undefined,
+        format: cellData.cell ? cellData.cell.format : undefined,
+      };
       nextCells.push({ data, rule });
     }
     return new AutofillGenerator(nextCells, this.getters, this.direction!);

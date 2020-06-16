@@ -179,6 +179,18 @@ export interface PasteCellCommand extends BaseCommand {
   cut?: boolean;
 }
 
+export interface AutoFillCellCommand extends BaseCommand {
+  type: "AUTOFILL_CELL";
+  originCol: number;
+  originRow: number;
+  col: number;
+  row: number;
+  content?: string;
+  style?: number;
+  border?: number;
+  format?: string;
+}
+
 export interface ActivatePaintFormatCommand extends BaseCommand {
   type: "ACTIVATE_PAINT_FORMAT";
   target: Zone[];
@@ -341,6 +353,7 @@ export type Command =
   | CutCommand
   | PasteCommand
   | PasteCellCommand
+  | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
   | ResizeRowsCommand
