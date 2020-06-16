@@ -20,7 +20,7 @@ import { _lt } from "../translation";
  */
 
 const functions = functionRegistry.content;
-const OPERATORS = "+,-,*,/,:,=,>=,>,<=,<,%,^".split(",");
+const OPERATORS = "+,-,*,/,:,=,>=,>,<=,<,%,^,&".split(",");
 
 export type TokenType =
   | "OPERATOR"

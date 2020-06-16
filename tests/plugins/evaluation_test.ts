@@ -215,6 +215,10 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A5")!.value).toBe(5);
   });
 
+  test("& operator", () => {
+    expect(evaluateCell("A1", { A1: "=A2&A3", A2: "abc", A3: "def" })).toBe("abcdef");
+  });
+
   test("various expressions with boolean", () => {
     const model = new Model();
 
