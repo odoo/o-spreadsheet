@@ -1,5 +1,5 @@
 import { evaluateCell, evaluateGrid } from "../helpers";
-import { parseDateTime } from "../../src/functions/dates";
+import { parseDateTime } from "../../src/helpers/index";
 
 describe("date", () => {
   //----------------------------------------------------------------------------

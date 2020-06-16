@@ -1,5 +1,5 @@
 import { evaluateCell } from "../helpers";
-import { formatDateTime } from "../../src/functions/dates";
+import { formatDateTime } from "../../src/helpers/index";
 
 describe("operators", () => {
   //----------------------------------------------------------------------------
