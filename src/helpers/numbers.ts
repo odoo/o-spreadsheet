@@ -51,7 +51,7 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): st
   if (n < 0) {
     return "-" + formatDecimal(-n, decimals);
   }
-  const exponentString = `${n}e${decimals}`;
+  const exponentString = `${n.toLocaleString("fullwide", { useGrouping: false })}e${decimals}`;
   const value = Math.round(Number(exponentString));
   let result = Number(`${value}e-${decimals}`).toFixed(decimals);
   if (sep) {
