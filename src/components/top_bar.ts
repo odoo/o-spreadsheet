@@ -370,9 +370,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     const width = this.el!.clientWidth;
     const height = this.el!.parentElement!.clientHeight;
     this.state.menuState.position = { x, y, width, height };
-    this.state.menuState.menuItems = topbarMenuRegistry
-      .getChildren(menu, this.env)
-      .sort((a, b) => a.sequence - b.sequence);
+    this.state.menuState.menuItems = topbarMenuRegistry.getChildren(menu, this.env);
     this.isSelectingMenu = true;
   }
 
@@ -409,7 +407,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       this.currentFormat = "auto";
     }
     this.menus = topbarMenuRegistry.getAll();
-    this.menus.sort((a, b) => a.sequence - b.sequence);
   }
 
   getMenuName(menu: FullMenuItem) {
