@@ -73,6 +73,7 @@ const CSS = css/* scss */ `
 
       &.disabled {
         color: grey;
+        cursor: not-allowed;
       }
 
       &.o-separator {
