@@ -88,6 +88,15 @@ describe("parser", () => {
     });
   });
 
+  test("can parse concat operator", () => {
+    expect(parse("A1&A2")).toEqual({
+      type: "BIN_OPERATION",
+      value: "&",
+      left: { type: "REFERENCE", value: "A1" },
+      right: { type: "REFERENCE", value: "A2" },
+    });
+  });
+
   test("AND", () => {
     expect(parse("=AND(true, false)")).toEqual({
       type: "FUNCALL",
