@@ -1,6 +1,6 @@
 // HELPERS
 
-import { parseNumber, isNumber } from "../helpers/index";
+import { parseNumber, isNumber, parseDateTime, numberToDate, toNativeDate } from "../helpers/index";
 import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>
@@ -200,6 +200,19 @@ export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): vo
     },
     (arg) => (arg !== null ? cb(strictToBoolean(arg)) : true)
   );
+}
+
+export function toDate(date: any): Date {
+  if (typeof date === "object" && date !== null) {
+    return toNativeDate(date);
+  }
+  if (typeof date === "string") {
+    let result = parseDateTime(date);
+    if (result !== null && result.jsDate) {
+      return result.jsDate;
+    }
+  }
+  return numberToDate(toNumber(date));
 }
 
 // -----------------------------------------------------------------------------

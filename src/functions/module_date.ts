@@ -1,7 +1,7 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
-import { toNativeDate, InternalDate, parseDateTime } from "../functions/dates";
-import { toNumber, toString, visitAny } from "./helpers";
+import { toNumber, toString, toDate, visitAny } from "./helpers";
+import { InternalDate, parseDateTime } from "../helpers/index";
 import { _lt } from "../translation";
 
 const INITIAL_1900_DAY = new Date(1899, 11, 30);
@@ -78,7 +78,7 @@ export const DAY: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getDate();
+    return toDate(date).getDate();
   },
 };
 
@@ -93,8 +93,8 @@ export const DAYS: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (end_date: any, start_date: any): number {
-    const _endDate = toNativeDate(end_date);
-    const _startDate = toNativeDate(start_date);
+    const _endDate = toDate(end_date);
+    const _startDate = toDate(start_date);
     const dateDif = _endDate.getTime() - _startDate.getTime();
     return Math.round(dateDif / 86400000);
   },
@@ -113,7 +113,7 @@ export const EDATE: FunctionDescription = {
     `),
   returns: ["DATE"],
   compute: function (start_date: any, months: any): InternalDate {
-    const _startDate = toNativeDate(start_date);
+    const _startDate = toDate(start_date);
     const _months = Math.trunc(toNumber(months));
 
     const yStart = _startDate.getFullYear();
@@ -143,7 +143,7 @@ export const EOMONTH: FunctionDescription = {
     `),
   returns: ["DATE"],
   compute: function (start_date: any, months: any): InternalDate {
-    const _startDate = toNativeDate(start_date);
+    const _startDate = toDate(start_date);
     const _months = Math.trunc(toNumber(months));
 
     const yStart = _startDate.getFullYear();
@@ -169,7 +169,7 @@ export const HOUR: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getHours();
+    return toDate(date).getHours();
   },
 };
 
@@ -185,7 +185,7 @@ export const ISOWEEKNUM: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    const _date = toNativeDate(date);
+    const _date = toDate(date);
     const y = _date.getFullYear();
 
     // 1 - As the 1st week of a year can start the previous year or after the 1st
@@ -268,7 +268,7 @@ export const MINUTE: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getMinutes();
+    return toDate(date).getMinutes();
   },
 };
 
@@ -282,7 +282,7 @@ export const MONTH: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getMonth() + 1;
+    return toDate(date).getMonth() + 1;
   },
 };
 
@@ -413,14 +413,14 @@ export const NETWORKDAYS_INTL: FunctionDescription = {
     weekend: any = 1,
     holidays: any = undefined
   ): number {
-    const _startDate = toNativeDate(start_date);
-    const _endDate = toNativeDate(end_date);
+    const _startDate = toDate(start_date);
+    const _endDate = toDate(end_date);
 
     const daysWeekend = weekendToDayNumber(weekend);
     let timesHoliday = new Set();
     if (holidays !== undefined) {
       visitAny(holidays, (h) => {
-        const holiday = toNativeDate(h);
+        const holiday = toDate(h);
         timesHoliday.add(holiday.getTime());
       });
     }
@@ -476,7 +476,7 @@ export const SECOND: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getSeconds();
+    return toDate(date).getSeconds();
   },
 };
 
@@ -573,7 +573,7 @@ export const WEEKDAY: FunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (date: any, type: any = 1): number {
-    const _date = toNativeDate(date);
+    const _date = toDate(date);
     const _type = Math.round(toNumber(type));
     const m = _date.getDay();
     switch (_type) {
@@ -603,7 +603,7 @@ export const WEEKNUM: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any, type: any = 1): number {
-    const _date = toNativeDate(date);
+    const _date = toDate(date);
     const _type = Math.round(toNumber(type));
 
     let startDayOfWeek: number;
@@ -681,7 +681,7 @@ export const WORKDAY_INTL: FunctionDescription = {
     weekend: any = 1,
     holidays: any = undefined
   ): InternalDate {
-    let _startDate = toNativeDate(start_date);
+    let _startDate = toDate(start_date);
     let _numDays = Math.trunc(toNumber(num_days));
 
     if (weekend === "1111111") {
@@ -692,7 +692,7 @@ export const WORKDAY_INTL: FunctionDescription = {
     let timesHoliday = new Set();
     if (holidays !== undefined) {
       visitAny(holidays, (h) => {
-        const holiday = toNativeDate(h);
+        const holiday = toDate(h);
         timesHoliday.add(holiday.getTime());
       });
     }
@@ -731,6 +731,6 @@ export const YEAR: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getFullYear();
+    return toDate(date).getFullYear();
   },
 };

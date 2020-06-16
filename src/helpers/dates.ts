@@ -1,10 +1,8 @@
-import { toNumber } from "./helpers";
+import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // Date Type
 // -----------------------------------------------------------------------------
-
-import { _lt } from "../translation";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:
@@ -184,7 +182,7 @@ function parseTime(str: string): InternalDate | null {
 // Conversion
 // -----------------------------------------------------------------------------
 
-function numberToDate(value: number): Date {
+export function numberToDate(value: number): Date {
   const truncValue = Math.trunc(value);
   let date = new Date(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
 
@@ -202,20 +200,11 @@ function numberToDate(value: number): Date {
   return date;
 }
 
-export function toNativeDate(date: any): Date {
-  if (typeof date === "object" && date !== null) {
-    if (!date.jsDate) {
-      date.jsDate = numberToDate(date.value);
-    }
-    return date.jsDate;
+export function toNativeDate(date: InternalDate): Date {
+  if (!date.jsDate) {
+    date.jsDate = numberToDate(date.value);
   }
-  if (typeof date === "string") {
-    let result = parseDateTime(date);
-    if (result !== null && result.jsDate) {
-      return result.jsDate;
-    }
-  }
-  return numberToDate(toNumber(date));
+  return date.jsDate;
 }
 
 // -----------------------------------------------------------------------------

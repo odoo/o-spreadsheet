@@ -2,7 +2,7 @@ import { args } from "./arguments";
 import { FunctionDescription } from "../types";
 import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
-import { InternalDate } from "./dates";
+import { InternalDate } from "../helpers/index";
 import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------

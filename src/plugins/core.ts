@@ -2,13 +2,15 @@ import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { compile, rangeTokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
-import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
   isNumber,
   numberToLetters,
   parseNumber,
+  formatDateTime,
+  InternalDate,
+  parseDateTime,
   getUnquotedSheetName,
   toCartesian,
   toXC,
