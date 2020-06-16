@@ -275,7 +275,7 @@ export class EvaluationPlugin extends BasePlugin {
         throw new Error(_lt("This formula depends on invalid values"));
       }
       if (cell.value === LOADING) {
-        throw new Error(_lt("not ready"));
+        throw new Error("not ready");
       }
       return cell.value;
     }
