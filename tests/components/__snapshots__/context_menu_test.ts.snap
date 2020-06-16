@@ -43,6 +43,48 @@ exports[`Context Menu context menu simple rendering 1`] = `
     </svg>
   </div>
   <div
+    class="o-menu-item"
+    data-name="add_row_before"
+    title="Insert row above"
+  >
+    Insert row above
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="add_row_after"
+    title="Insert row below"
+  >
+    Insert row below
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="add_column_before"
+    title="Insert column left"
+  >
+    Insert column left
+  </div>
+  <div
+    class="o-menu-item o-separator"
+    data-name="add_column_after"
+    title="Insert column right"
+  >
+    Insert column right
+  </div>
+  <div
+    class="o-menu-item"
+    data-name="delete_row"
+    title="Delete row 8"
+  >
+    Delete row 8
+  </div>
+  <div
+    class="o-menu-item o-separator"
+    data-name="delete_column"
+    title="Delete column C"
+  >
+    Delete column C
+  </div>
+  <div
     class="o-menu-item disabled"
     data-name="clear_cell"
     title="Clear cell"
