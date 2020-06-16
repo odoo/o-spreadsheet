@@ -474,7 +474,11 @@ export class RendererPlugin extends BasePlugin {
           border = this.getters.getCellBorder(refCell);
         }
         style = style || {};
-        if (!style.fillColor) {
+        // Small trick: the code that draw the background color skips the color
+        // #ffffff.  But for merges, we actually need to draw the background,
+        // otherwise the grid is visible. So, we change the #ffffff color to the
+        // color #fff, which is actually the same.
+        if (!style.fillColor || style.fillColor === "#ffffff") {
           style = Object.create(style);
           style.fillColor = "#fff";
         }
