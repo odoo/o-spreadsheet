@@ -36,9 +36,41 @@ cellMenuRegistry
     sequence: 10,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
+  .add("add_row_before", {
+    name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
+    sequence: 50,
+    action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
+  })
+  .add("add_row_after", {
+    name: ACTIONS.CELL_INSERT_ROWS_AFTER_NAME,
+    sequence: 60,
+    action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
+  })
+  .add("add_column_before", {
+    name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
+    sequence: 70,
+    action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+  })
+  .add("add_column_after", {
+    name: ACTIONS.CELL_INSERT_COLUMNS_AFTER_NAME,
+    sequence: 80,
+    action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
+    separator: true,
+  })
+  .add("delete_row", {
+    name: ACTIONS.REMOVE_ROWS_NAME,
+    sequence: 90,
+    action: ACTIONS.REMOVE_ROWS_ACTION,
+  })
+  .add("delete_column", {
+    name: ACTIONS.REMOVE_COLUMNS_NAME,
+    sequence: 100,
+    action: ACTIONS.REMOVE_COLUMNS_ACTION,
+    separator: true,
+  })
   .add("clear_cell", {
     name: _lt("Clear cell"),
-    sequence: 50,
+    sequence: 110,
     action: ACTIONS.DELETE_CONTENT_ACTION,
     isEnabled: (env: SpreadsheetEnv) => {
       const cell = env.getters.getActiveCell();
@@ -47,6 +79,6 @@ cellMenuRegistry
   })
   .add("conditional_formatting", {
     name: _lt("Conditional formatting"),
-    sequence: 60,
+    sequence: 120,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
   });
