@@ -88,9 +88,9 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
 
   getChildren(node: FullMenuItem, env: SpreadsheetEnv): FullMenuItem[] {
     if (typeof node.children === "function") {
-      return node.children(env);
+      return node.children(env).sort((a, b) => a.sequence - b.sequence);
     }
-    return node.children;
+    return node.children.sort((a, b) => a.sequence - b.sequence);
   }
 
   getName(node: FullMenuItem, env: SpreadsheetEnv): string {
@@ -98,5 +98,13 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
       return node.name(env);
     }
     return node.name;
+  }
+
+  /**
+   * Get a list of all elements in the registry, ordered by sequence
+   * @override
+   */
+  getAll(): FullMenuItem[] {
+    return super.getAll().sort((a, b) => a.sequence - b.sequence);
   }
 }
