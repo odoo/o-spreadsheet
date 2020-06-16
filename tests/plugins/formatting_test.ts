@@ -121,4 +121,12 @@ describe("formatting values (with formatters)", () => {
     setFormat(model, "mm/dd/yyyy");
     expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("Test");
   });
+
+  test("Can set number format to low value", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "0.0000001" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    setFormat(model, "#,##0.00");
+    expect(model.getters.getCellText(model["workbook"].cells.A1)).toBe("0.00");
+  });
 });

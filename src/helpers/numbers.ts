@@ -51,9 +51,13 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): st
   if (n < 0) {
     return "-" + formatDecimal(-n, decimals);
   }
-  const exponentString = `${n}e${decimals}`;
-  const value = Math.round(Number(exponentString));
-  let result = Number(`${value}e-${decimals}`).toFixed(decimals);
+  let number = n;
+  if (!n.toString().includes("e")) {
+    const exponentString = `${n}e${decimals}`;
+    const value = Math.round(Number(exponentString));
+    number = Number(`${value}e-${decimals}`);
+  }
+  let result = number.toFixed(decimals);
   if (sep) {
     let p: number = result.indexOf(".")!;
     result = result.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, (m, i) =>
