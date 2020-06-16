@@ -144,6 +144,16 @@ describe("formatNumber function", () => {
     expect(formatNumber(100000, "#,##0.00")).toBe("100,000.00");
     expect(formatNumber(1000000, "#,##0.00")).toBe("1,000,000.00");
     expect(formatNumber(-1000000, "#,##0.00")).toBe("-1,000,000.00");
+    expect(formatNumber(0.1, "#,##0.00")).toBe("0.10");
+    expect(formatNumber(0.01, "#,##0.00")).toBe("0.01");
+    expect(formatNumber(0.001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.0001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.00001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.0000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.00000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.000000001, "#,##0.00")).toBe("0.00");
+    expect(formatNumber(0.0000000001, "#,##0.00")).toBe("0.00");
   });
 
   test("formatPercent", () => {
