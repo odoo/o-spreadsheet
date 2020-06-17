@@ -41,21 +41,10 @@ cellMenuRegistry
     sequence: 50,
     action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   })
-  .add("add_row_after", {
-    name: ACTIONS.CELL_INSERT_ROWS_AFTER_NAME,
-    sequence: 60,
-    action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
-  })
   .add("add_column_before", {
     name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 70,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
-  })
-  .add("add_column_after", {
-    name: ACTIONS.CELL_INSERT_COLUMNS_AFTER_NAME,
-    sequence: 80,
-    action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
-    separator: true,
   })
   .add("delete_row", {
     name: ACTIONS.REMOVE_ROWS_NAME,
