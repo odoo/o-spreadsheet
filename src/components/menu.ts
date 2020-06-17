@@ -4,6 +4,7 @@ import { SpreadsheetEnv } from "../types";
 import { BOTTOMBAR_HEIGHT } from "../constants";
 import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
+import { isChildEvent } from "./helpers/dom_helpers";
 
 const { xml, css } = tags;
 const { useExternalListener, useRef } = hooks;
@@ -187,17 +188,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return this.props.menuItems.slice(0, index).length * MENU_ITEM_HEIGHT;
   }
 
-  /**
-   * Return true if the event was triggered from
-   * a child element.
-   */
-  private isChildEvent(ev: Event) {
-    return ev.target && this.el!.contains(ev.target as Node);
-  }
-
   private onClick(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    if (this.isChildEvent(ev)) {
+    if (this.el && isChildEvent(this.el, ev)) {
       return;
     }
     this.close();
@@ -205,7 +198,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   private onContextMenu(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    if (this.isChildEvent(ev)) {
+    if (this.el && isChildEvent(this.el, ev)) {
       return;
     }
     this.subMenu.isOpen = false;
