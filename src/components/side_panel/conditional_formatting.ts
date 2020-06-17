@@ -9,24 +9,10 @@ import {
   SingleColorRules,
   Zone,
 } from "../../types";
+import { cellIsOperators } from "./translations_terms";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
-
-const cellIsOperators = {
-  BeginsWith: "Begins with",
-  Between: "Between",
-  ContainsText: "Contains text",
-  EndsWith: "Ends with",
-  Equal: "Is equal to",
-  GreaterThan: "Greater than",
-  GreaterThanOrEqual: "Greater than or equal",
-  LessThan: "Less than",
-  LessThanOrEqual: "Less than or equal",
-  NotBetween: "Not between",
-  NotContains: "Not contains",
-  NotEqual: "Not equal",
-};
 
 // TODO vsc: add ordering of rules
 const PREVIEW_TEMPLATE = xml/* xml */ `

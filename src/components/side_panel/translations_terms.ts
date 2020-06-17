@@ -13,3 +13,18 @@ export const terms = {
   SAVE: _lt("Save"),
   PREVIEWTEXT: _lt("Preview text"),
 };
+
+export const cellIsOperators = {
+  BeginsWith: _lt("Begins with"),
+  Between: _lt("Between"),
+  ContainsText: _lt("Contains text"),
+  EndsWith: _lt("Ends with"),
+  Equal: _lt("Is equal to"),
+  GreaterThan: _lt("Greater than"),
+  GreaterThanOrEqual: _lt("Greater than or equal"),
+  LessThan: _lt("Less than"),
+  LessThanOrEqual: _lt("Less than or equal"),
+  NotBetween: _lt("Not between"),
+  NotContains: _lt("Not contains"),
+  NotEqual: _lt("Not equal"),
+};

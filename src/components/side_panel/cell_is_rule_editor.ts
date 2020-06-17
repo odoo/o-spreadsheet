@@ -3,7 +3,7 @@ import * as icons from "../icons";
 import { ColorPicker } from "../color_picker";
 import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../types";
 import { _lt } from "../../translation";
-import { terms } from "./translations_terms";
+import { terms, cellIsOperators } from "./translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
@@ -129,20 +129,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetEnv> {
   static components = { ColorPicker };
 
   // @ts-ignore   used in XML template
-  private cellIsOperators = {
-    BeginsWith: _lt("Begins with"),
-    Between: _lt("Between"),
-    ContainsText: _lt("Contains text"),
-    EndsWith: _lt("Ends with"),
-    Equal: _lt("Is equal to"),
-    GreaterThan: _lt("Greater than"),
-    GreaterThanOrEqual: _lt("Greater than or equal"),
-    LessThan: _lt("Less than"),
-    LessThanOrEqual: _lt("Less than or equal"),
-    NotBetween: _lt("Not between"),
-    NotContains: _lt("Not contains"),
-    NotEqual: _lt("Not equal"),
-  };
+  private cellIsOperators = cellIsOperators;
 
   cf = this.props.conditionalFormat as ConditionalFormat;
   rule = this.cf.rule as CellIsRule;
