@@ -347,6 +347,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         style="height:1px;width:2592px"
       />
     </div>
+    <div />
   </div>
   <div
     class="o-spreadsheet-bottom-bar o-two-columns"

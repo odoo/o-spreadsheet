@@ -9,6 +9,7 @@ import { WHistory } from "../history";
 import { EvaluationPlugin } from "../plugins/evaluation";
 import { EditionPlugin } from "../plugins/edition";
 import { AutofillPlugin } from "../plugins/autofill";
+import { ArtifactPlugin } from "../plugins/artifact";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -16,7 +17,11 @@ import { AutofillPlugin } from "../plugins/autofill";
 export interface Getters {
   getCell: CorePlugin["getCell"];
   getCellText: CorePlugin["getCellText"];
+
   zoneToXC: CorePlugin["zoneToXC"];
+
+  getRangeParts: CorePlugin["getRangeParts"];
+
   getActiveSheet: CorePlugin["getActiveSheet"];
   getSheets: CorePlugin["getSheets"];
   getCol: CorePlugin["getCol"];
@@ -27,6 +32,8 @@ export interface Getters {
   getColsZone: CorePlugin["getColsZone"];
   getRowsZone: CorePlugin["getRowsZone"];
   getGridSize: CorePlugin["getGridSize"];
+  getRangeValues: CorePlugin["getRangeValues"];
+  getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
@@ -72,4 +79,6 @@ export interface Getters {
   getCurrentContent: EditionPlugin["getCurrentContent"];
 
   getLastValue: AutofillPlugin["getLastValue"];
+
+  getArtifacts: ArtifactPlugin["getArtifacts"];
 }

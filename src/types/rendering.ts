@@ -34,6 +34,7 @@ export const enum LAYERS {
   Background,
   Highlights,
   Clipboard,
+  Artifact,
   Selection,
   Autofill,
   Headers, // Probably keep this at the end

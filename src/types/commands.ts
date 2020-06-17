@@ -335,6 +335,27 @@ export interface AutofillAutoCommand extends BaseCommand {
   type: "AUTOFILL_AUTO";
 }
 
+export interface MoveArtifactCommand extends BaseCommand {
+  type: "MOVE_ARTIFACT";
+}
+
+export interface SelectArtifactCommand extends BaseCommand {
+  type: "SELECT_ARTIFACT";
+  id: string;
+}
+export interface ResizeArtifactCommand extends BaseCommand {
+  type: "RESIZE_ARTIFACT";
+}
+export interface DeleteArtifactCommand extends BaseCommand {
+  type: "DELETE_ARTIFACT";
+}
+
+export interface CreateArtifactCommand extends BaseCommand {
+  type: "CREATE_ARTIFACT";
+  artifactType: "placeholder";
+  details: any;
+}
+
 export type Command =
   | UpdateCellCommand
   | CopyCommand
@@ -383,7 +404,12 @@ export type Command =
   | AddColumnsCommand
   | AutofillCommand
   | AutofillSelectCommand
-  | AutofillAutoCommand;
+  | AutofillAutoCommand
+  | MoveArtifactCommand
+  | ResizeArtifactCommand
+  | SelectArtifactCommand
+  | DeleteArtifactCommand
+  | CreateArtifactCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";

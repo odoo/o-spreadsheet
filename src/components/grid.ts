@@ -14,6 +14,7 @@ import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { Autofill } from "./autofill";
 import { startDnd } from "../helpers/drag_and_drop";
+import { ArtifactsContainer } from "./artifacts/container";
 import { ScrollBar } from "./scrollbar";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
@@ -196,6 +197,7 @@ const TEMPLATE = xml/* xml */ `
     <div class="o-scrollbar horizontal" t-on-scroll="onScroll" t-ref="hscrollbar">
       <div t-attf-style="height:1px;width:{{gridSize[0]}}px"/>
     </div>
+    <ArtifactsContainer viewport="snappedViewport" model="props.model"  />
   </div>`;
 
 // -----------------------------------------------------------------------------
@@ -250,7 +252,7 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Overlay, Menu, Autofill };
+  static components = { Composer, Overlay, Menu, Autofill, ArtifactsContainer };
 
   private menuState: MenuState = useState({
     isOpen: false,
