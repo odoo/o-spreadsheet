@@ -45,30 +45,16 @@ exports[`Context Menu context menu simple rendering 1`] = `
   <div
     class="o-menu-item"
     data-name="add_row_before"
-    title="Insert row above"
+    title="Insert row"
   >
-    Insert row above
-  </div>
-  <div
-    class="o-menu-item"
-    data-name="add_row_after"
-    title="Insert row below"
-  >
-    Insert row below
+    Insert row
   </div>
   <div
     class="o-menu-item"
     data-name="add_column_before"
-    title="Insert column left"
+    title="Insert column"
   >
-    Insert column left
-  </div>
-  <div
-    class="o-menu-item o-separator"
-    data-name="add_column_after"
-    title="Insert column right"
-  >
-    Insert column right
+    Insert column
   </div>
   <div
     class="o-menu-item"
