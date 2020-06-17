@@ -264,6 +264,42 @@ describe("Context Menu", () => {
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
+  test("close contextmenu when clicking on menubar", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(100, 100);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
+    triggerMouseEvent(".o-topbar-menus", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
+
+  test("close contextmenu when clicking on menubar item", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(100, 100);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
+    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
+  });
+  test("close contextmenu when clicking on tools bar", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    simulateContextMenu(100, 100);
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
+    const fontSizeTool = fixture.querySelector('.o-tool[title="Font Size"]')!;
+    triggerMouseEvent(fontSizeTool, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
+  });
+
   test("menu can be hidden/displayed based on the env", async () => {
     const menuDefinitions = Object.assign({}, cellMenuRegistry.content);
     cellMenuRegistry
