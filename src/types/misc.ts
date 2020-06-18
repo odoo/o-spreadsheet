@@ -1,6 +1,9 @@
+import { Figure } from "./workbook_data";
+
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
+
 export interface Zone {
   left: number;
   right: number;
@@ -27,6 +30,7 @@ export interface Sheet {
   colNumber: number;
   rowNumber: number;
   merges: { [key: number]: Merge };
+  figures: { [id: string]: Figure };
   mergeCellMap: { [key: string]: number };
   cols: Col[];
   rows: Row[];

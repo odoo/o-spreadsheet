@@ -6,7 +6,7 @@ import { uuidv4 } from "./helpers/index";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 4;
+export const CURRENT_VERSION = 5;
 
 /**
  * This function tries to load anything that could look like a valid workbook
@@ -95,6 +95,17 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    // add figures object in each sheets
+    from: 4,
+    to: 5,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets) {
+        sheet.figures = {};
+      }
+      return data;
+    },
+  },
 ];
 
 // -----------------------------------------------------------------------------
@@ -111,6 +122,7 @@ function createEmptySheet(name: string = "Sheet1"): SheetData {
     rows: {},
     merges: [],
     conditionalFormats: [],
+    figures: {},
   };
 }
 
