@@ -1,6 +1,6 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
-import { toNumber, toString } from "./helpers";
+import { toNumber, toString, typeNumber, numberValue } from "./helpers";
 import { POWER } from "./module_math";
 import { InternalDate } from "../helpers/index";
 import { _lt } from "../translation";
@@ -16,13 +16,12 @@ export const ADD: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (value1: any, value2: any): number | InternalDate {
-    if (value1 && value1.value) {
-      if (value2 && value2.value) {
-        return value1.value + value2.value;
-      }
+    let format1 = value1 ? value1.format : null;
+    let format2 = value2 ? value2.format : null;
+    if ((format1 && !format2) || (format2 && !format1)) {
       return {
-        value: value1.value + toNumber(value2),
-        format: value1.format,
+        value: toNumber(value1) + toNumber(value2),
+        format: format1 || format2,
       };
     }
     return toNumber(value1) + toNumber(value2);
@@ -80,15 +79,18 @@ export const EQ: FunctionDescription = {
     `),
   returns: ["BOOLEAN"],
   compute: function (value1: any, value2: any): boolean {
-    value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
-    value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
-    if (typeof value1 === "string") {
-      value1 = value1.toUpperCase();
+    let v1 = typeNumber(value1) ? numberValue(value1) : value1;
+    let v2 = typeNumber(value2) ? numberValue(value2) : value2;
+
+    v1 = isEmpty(v1) ? getNeutral[typeof v2] : v1;
+    v2 = isEmpty(v2) ? getNeutral[typeof v1] : v2;
+    if (typeof v1 === "string") {
+      v1 = v1.toUpperCase();
     }
-    if (typeof value2 === "string") {
-      value2 = value2.toUpperCase();
+    if (typeof v2 === "string") {
+      v2 = v2.toUpperCase();
     }
-    return value1 === value2;
+    return v1 === v2;
   },
 };
 
@@ -100,23 +102,25 @@ function applyRelationalOperator(
   value2: any,
   cb: (v1: any, v2: any) => boolean
 ): boolean {
-  value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
-  value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
-  if (typeof value1 !== "number") {
-    value1 = toString(value1).toUpperCase();
+  let v1 = typeNumber(value1) ? numberValue(value1) : value1;
+  let v2 = typeNumber(value2) ? numberValue(value2) : value2;
+  v1 = isEmpty(v1) ? getNeutral[typeof v2] : v1;
+  v2 = isEmpty(v2) ? getNeutral[typeof v1] : v2;
+  if (typeof v1 !== "number") {
+    v1 = toString(v1).toUpperCase();
   }
-  if (typeof value2 !== "number") {
-    value2 = toString(value2).toUpperCase();
+  if (typeof v2 !== "number") {
+    v2 = toString(v2).toUpperCase();
   }
-  const tV1 = typeof value1;
-  const tV2 = typeof value2;
+  const tV1 = typeof v1;
+  const tV2 = typeof v2;
   if (tV1 === "string" && tV2 === "number") {
     return true;
   }
   if (tV2 === "string" && tV1 === "number") {
     return false;
   }
-  return cb(value1, value2);
+  return cb(v1, v2);
 }
 
 export const GT: FunctionDescription = {
@@ -190,7 +194,15 @@ export const MINUS: FunctionDescription = {
       value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
     `),
   returns: ["NUMBER"],
-  compute: function (value1: any, value2: any): number {
+  compute: function (value1: any, value2: any): number | InternalDate {
+    let format1 = value1 ? value1.format : null;
+    let format2 = value2 ? value2.format : null;
+    if ((format1 && !format2) || (format2 && !format1)) {
+      return {
+        value: toNumber(value1) - toNumber(value2),
+        format: format1 || format2,
+      };
+    }
     return toNumber(value1) - toNumber(value2);
   },
 };

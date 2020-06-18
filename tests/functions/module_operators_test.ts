@@ -24,6 +24,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=ADD(1, TRUE)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=ADD(1, FALSE)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=ADD(1, "3%")' })).toBe(1.03);
+    expect(evaluateCell("A1", { A1: '=ADD("3/3/3",1)' })).toBeCloseTo(37684);
   });
 
   test("ADD: functional tests on cell arguments", () => {
@@ -43,10 +44,13 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '="42"' })).toBe(84);
 
-    const dateAddition = evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "3/3/3 10:20", A3: "1.5" });
-    expect(dateAddition.value).toBeCloseTo(37684.93055556, 5);
-    expect(dateAddition.format).toBe("m/d/yyyy hh:mm");
-    expect(formatDateTime(dateAddition)).toBe("3/4/2003 22:20");
+    const dateAddition1 = evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "3/3/3 10:20", A3: "1.5" });
+    expect(dateAddition1.value).toBeCloseTo(37684.93055556, 5);
+    expect(dateAddition1.format).toBe("m/d/yyyy hh:mm");
+    expect(formatDateTime(dateAddition1)).toBe("3/4/2003 22:20");
+    expect(
+      evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "3/3/3 12:00", A3: "3/3/3 12:00" })
+    ).toBeCloseTo(75367);
   });
 
   //----------------------------------------------------------------------------
@@ -149,6 +153,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=EQ(TRUE, )" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(FALSE, 0)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(FALSE, )" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=EQ("12/31/1899", 1)' })).toBe(false);
   });
 
   test("EQ: functional tests on cell arguments", () => {
@@ -166,6 +171,8 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: '=""', A3: "0" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "=TRUE", A3: "1" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: '="42"', A3: "42" })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "12/31/1899", A3: "1" })).toBe(true);
   });
 
   //----------------------------------------------------------------------------
@@ -536,6 +543,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(1, TRUE)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINUS(1, FALSE)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=MINUS(1, "3%")' })).toBe(0.97);
+    expect(evaluateCell("A1", { A1: '=MINUS("3/3/3",1)' })).toBe(37682);
   });
 
   test("MINUS: functional tests on cell arguments", () => {
@@ -555,6 +563,26 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '=""' })).toBe(42);
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '="42"' })).toBe(0);
+
+    const dateSubstraction1 = evaluateCell("A1", {
+      A1: "=MINUS(A2, A3)",
+      A2: "3/3/2003",
+      A3: "1.5",
+    });
+    expect(dateSubstraction1.value).toBe(37681.5);
+    expect(dateSubstraction1.format).toBe("m/d/yyyy");
+    expect(formatDateTime(dateSubstraction1)).toBe("3/1/2003");
+
+    const dateSubstraction2 = evaluateCell("A1", {
+      A1: "=MINUS(A2, A3)",
+      A2: "1.5",
+      A3: "3/3/2003",
+    });
+    expect(dateSubstraction2.value).toBe(-37681.5);
+    expect(dateSubstraction2.format).toBe("m/d/yyyy");
+    expect(formatDateTime(dateSubstraction2)).toBe("10/28/1796");
+
+    expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "3/3/2003", A3: "3/3/2003" })).toBe(0);
   });
 
   //----------------------------------------------------------------------------

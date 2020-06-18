@@ -187,7 +187,10 @@ export function numberToDate(value: number): Date {
   let date = new Date(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
 
   let time = value - truncValue;
-  time = time < 0 ? 1 + time : time;
+  if (time < 0) {
+    date.setDate(date.getDate() - 1);
+    time += 1;
+  }
 
   const hours = Math.round(time * 24);
   const minutes = Math.round((time - hours / 24) * 24 * 60);
