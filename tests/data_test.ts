@@ -6,7 +6,7 @@ describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
     mockUuidV4To(123);
     expect(load()).toEqual({
-      version: 4,
+      version: 5,
       borders: {},
       styles: {},
       entities: {},
@@ -21,13 +21,14 @@ describe("load data", () => {
           rows: {},
           merges: [],
           conditionalFormats: [],
+          figures: [],
         },
       ],
       activeSheet: "123",
     });
 
     expect(load({})).toEqual({
-      version: 4,
+      version: 5,
       borders: {},
       styles: {},
       entities: {},
@@ -42,6 +43,7 @@ describe("load data", () => {
           rows: {},
           merges: [],
           conditionalFormats: [],
+          figures: [],
         },
       ],
       activeSheet: "124",
@@ -54,7 +56,7 @@ describe("load data", () => {
         sheets: [{ id: "asdf", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 4,
+      version: 5,
       borders: {},
       styles: {},
       entities: {},
@@ -69,6 +71,7 @@ describe("load data", () => {
           rows: {},
           merges: ["A1:B2"],
           conditionalFormats: [],
+          figures: [],
         },
       ],
       activeSheet: "asdf",
@@ -82,7 +85,7 @@ describe("load data", () => {
         sheets: [{ name: "Sheet1", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 4,
+      version: 5,
       borders: {},
       styles: {},
       entities: {},
@@ -97,6 +100,7 @@ describe("load data", () => {
           rows: {},
           merges: ["A1:B2"],
           conditionalFormats: [],
+          figures: [],
         },
       ],
       activeSheet: "13",
@@ -122,6 +126,7 @@ describe("load data", () => {
         rows: {},
         merges: ["A1:B2"],
         conditionalFormats: [],
+        figures: [],
       },
       {
         id: "asdf",
@@ -133,6 +138,7 @@ describe("load data", () => {
         rows: {},
         merges: ["C3:D4"],
         conditionalFormats: [],
+        figures: [],
       },
     ]);
   });
@@ -145,7 +151,7 @@ describe("load data", () => {
         sheets: [{ merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 4,
+      version: 5,
       borders: {},
       styles: {},
       entities: {},
@@ -160,6 +166,7 @@ describe("load data", () => {
           rows: {},
           merges: ["A1:B2"],
           conditionalFormats: [],
+          figures: [],
         },
       ],
       activeSheet: "134",

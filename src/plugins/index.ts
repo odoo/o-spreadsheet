@@ -12,6 +12,7 @@ import { SelectionPlugin } from "./selection";
 import { AutofillPlugin } from "./autofill";
 import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
+import { FigurePlugin } from "./figures";
 
 export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("core", CorePlugin)
@@ -25,4 +26,5 @@ export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("selectionInput", SelectionInputPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("grid renderer", RendererPlugin)
-  .add("autofill", AutofillPlugin);
+  .add("autofill", AutofillPlugin)
+  .add("figures", FigurePlugin);

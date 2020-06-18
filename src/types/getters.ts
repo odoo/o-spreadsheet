@@ -11,6 +11,7 @@ import { EditionPlugin } from "../plugins/edition";
 import { AutofillPlugin } from "../plugins/autofill";
 import { HighlightPlugin } from "../plugins/highlight";
 import { SelectionInputPlugin } from "../plugins/selection_inputs";
+import { FigurePlugin } from "../plugins/figures";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -85,4 +86,6 @@ export interface Getters {
 
   getSelectionInput: SelectionInputPlugin["getSelectionInput"];
   getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
+  getFigures: FigurePlugin["getFigures"];
+  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
 }

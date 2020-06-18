@@ -2,7 +2,7 @@ import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../constants";
 import { Col, Row, SpreadsheetEnv, Viewport } from "../types/index";
 import { ContextMenuType } from "./grid";
-import { startDnd } from "../helpers/drag_and_drop";
+import { startDnd } from "./helpers/drag_and_drop";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;

@@ -339,6 +339,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         class="all"
       />
     </div>
+    <div />
     <div
       class="o-scrollbar vertical"
     >

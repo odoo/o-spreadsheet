@@ -69,6 +69,7 @@ const CSS = css/* scss */ `
       padding: 0 15px;
       height: ${BOTTOMBAR_HEIGHT}px;
       line-height: ${BOTTOMBAR_HEIGHT}px;
+      user-select: none;
 
       &.active {
         color: #484;
