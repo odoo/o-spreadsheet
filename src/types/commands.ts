@@ -1,5 +1,6 @@
 import { Zone, Style, BorderCommand, ConditionalFormat } from "./index";
 import { Cell } from "./misc";
+import { Figure } from "./workbook_data";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -508,6 +509,24 @@ export interface ChangeRangeCommand extends BaseCommand {
   value: string;
 }
 
+export interface CreateFigureCommand extends BaseCommand {
+  type: "CREATE_FIGURE";
+  figure: Figure;
+  sheet: string; // id of the target sheet
+}
+
+export interface SelectFigureCommand extends BaseCommand {
+  type: "SELECT_FIGURE";
+  id: string;
+}
+
+export interface MoveFigureCommand extends BaseCommand {
+  type: "MOVE_FIGURE";
+  id: string;
+  x: number;
+  y: number;
+}
+
 export type Command =
   | NewInputCommand
   | RemoveInputCommand
@@ -573,7 +592,10 @@ export type Command =
   | AutofillCommand
   | AutofillSelectCommand
   | ShowFormulaCommand
-  | AutofillAutoCommand;
+  | AutofillAutoCommand
+  | CreateFigureCommand
+  | SelectFigureCommand
+  | MoveFigureCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";

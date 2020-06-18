@@ -10,6 +10,7 @@ import {
   CancelledReason,
 } from "../types/index";
 import { Mode } from "../model";
+import { SELECTION_BORDER_COLOR } from "../constants";
 
 export interface Selection {
   anchor: [number, number];
@@ -487,7 +488,7 @@ export class SelectionPlugin extends BasePlugin {
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
     ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
-    ctx.strokeStyle = "#3266ca";
+    ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
     ctx.globalCompositeOperation = "multiply";
     for (const zone of zones) {

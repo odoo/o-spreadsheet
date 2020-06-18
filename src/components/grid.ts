@@ -13,11 +13,12 @@ import { Composer } from "./composer/composer";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { Autofill } from "./autofill";
-import { startDnd } from "../helpers/drag_and_drop";
+import { startDnd } from "./helpers/drag_and_drop";
 import { ScrollBar } from "./scrollbar";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
+import { FiguresContainer } from "./figures/container";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -172,7 +173,7 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 // TEMPLATE
 // -----------------------------------------------------------------------------
 const TEMPLATE = xml/* xml */ `
-  <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown">
+  <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
     <t t-if="getters.getEditionMode() !== 'inactive'">
       <Composer t-ref="composer" t-on-composer-unmounted="focus" viewport="snappedViewport"/>
     </t>
@@ -181,7 +182,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-dblclick="onDoubleClick"
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
-      t-on-wheel="onMouseWheel" />
+       />
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
@@ -194,6 +195,7 @@ const TEMPLATE = xml/* xml */ `
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridSize()"/>
+    <FiguresContainer viewport="snappedViewport" model="props.model"  />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
     </div>
@@ -232,6 +234,7 @@ const CSS = css/* scss */ `
     .o-scrollbar {
       position: absolute;
       overflow: auto;
+      z-index: 2;
       &.vertical {
         right: 0;
         top: ${SCROLLBAR_WIDTH + 1}px;
@@ -254,7 +257,7 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Composer, Overlay, Menu, Autofill };
+  static components = { Composer, Overlay, Menu, Autofill, FiguresContainer };
 
   private menuState: MenuState = useState({
     isOpen: false,

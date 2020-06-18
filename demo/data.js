@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 1,
+  version: 5,
   sheets: [
     {
       name: "Sheet1",
@@ -76,6 +76,23 @@ export const demoData = {
           },
         },
       ],
+      figures: [ {
+        id: "someId",
+        tag: "text",
+        width: 300,
+        height: 200,
+        x: 300,
+        y: 600,
+        data: "blablabla"
+      }, {
+        id: "someId2",
+        tag: "text",
+        width: 210,
+        height: 180,
+        x: 900,
+        y: 200,
+        data: "yip yip"
+      }],
     },
     {
       name: "Sheet2",
