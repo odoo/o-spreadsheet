@@ -902,6 +902,7 @@ export class CorePlugin extends BasePlugin {
         merges: [], //exportMerges(sheet.merges),
         cells: cells,
         conditionalFormats: [],
+        figures: {},
       };
     });
     data.activeSheet = this.workbook.activeSheet.id;

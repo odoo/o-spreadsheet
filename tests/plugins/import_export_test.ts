@@ -16,7 +16,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 4", () => {
+  test("Can upgrade from 1 to 5", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 1,
@@ -37,8 +37,9 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.activeSheet).toBe("My sheet");
-    expect(data.version).toBe(4);
+    expect(data.version).toBe(5);
     expect(data.sheets[0].id).toBeDefined();
+    expect(data.sheets[0].figures).toBeDefined();
   });
 });
 
@@ -162,6 +163,7 @@ describe("Export", () => {
 
 test("complete import, then export", () => {
   const modelData = {
+    version: CURRENT_VERSION,
     sheets: [
       {
         id: "someuuid",
@@ -181,6 +183,7 @@ test("complete import, then export", () => {
         },
         name: "My sheet",
         conditionalFormats: [],
+        figures: {},
       },
       {
         id: "someuuid_2",
@@ -194,6 +197,7 @@ test("complete import, then export", () => {
         },
         name: "My sheet 2",
         conditionalFormats: [],
+        figures: {},
       },
     ],
     activeSheet: "someuuid_2",
@@ -208,8 +212,8 @@ test("complete import, then export", () => {
     },
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(Object.assign(modelData, { version: CURRENT_VERSION }));
+  expect(model.exportData()).toEqual(modelData);
   // We test here a that two import with the same data give the same result.
   const model2 = new Model(modelData);
-  expect(model2.exportData()).toEqual(Object.assign(modelData, { version: CURRENT_VERSION }));
+  expect(model2.exportData()).toEqual(modelData);
 });
