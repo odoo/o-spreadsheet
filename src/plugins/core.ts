@@ -78,6 +78,15 @@ export class CorePlugin extends BasePlugin {
         return !cmd.name || visibleSheets.findIndex((id) => sheets[id].name === cmd.name) === -1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      case "MOVE_SHEET":
+        const currentIndex = this.workbook.visibleSheets.findIndex((id) => id === cmd.sheet);
+        if (currentIndex === -1) {
+          return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+        }
+        return (cmd.left && currentIndex === 0) ||
+          (!cmd.left && currentIndex === this.workbook.visibleSheets.length - 1)
+          ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
+          : { status: "SUCCESS" };
       default:
         return { status: "SUCCESS" };
     }
@@ -99,6 +108,9 @@ export class CorePlugin extends BasePlugin {
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: sheet });
         }
+        break;
+      case "MOVE_SHEET":
+        this.moveSheet(cmd.sheet, cmd.left);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -768,6 +780,14 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(["visibleSheets"], visibleSheets);
     this.history.updateState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
+  }
+
+  private moveSheet(sheetId: string, left: boolean) {
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
+    const sheet = visibleSheets.splice(currentIndex, 1);
+    visibleSheets.splice(currentIndex + (left ? -1 : 1), 0, sheet[0]);
+    this.history.updateState(["visibleSheets"], visibleSheets);
   }
 
   private clearZones(sheet: string, zones: Zone[]) {

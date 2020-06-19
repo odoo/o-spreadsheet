@@ -71,6 +71,12 @@ export interface CreateSheetCommand extends BaseCommand {
   activate?: boolean;
 }
 
+export interface MoveSheetCommand extends BaseCommand {
+  type: "MOVE_SHEET";
+  sheet: string;
+  left: boolean;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -529,6 +535,7 @@ export type Command =
   | AutoresizeRowsCommand
   | MovePositionCommand
   | CreateSheetCommand
+  | MoveSheetCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand
@@ -592,6 +599,7 @@ export const enum CancelledReason {
   NotEnoughColumns,
   NotEnoughRows,
   WrongSheetName,
+  WrongSheetMove,
   SelectionOutOfBound,
   WrongPasteSelection,
   EmptyClipboard,

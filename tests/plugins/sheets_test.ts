@@ -235,6 +235,35 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheet()).toEqual(sheet1);
     expect(getText(model, "A1")).toEqual("3");
   });
+
+  test("can move a sheet", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", {});
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
+    model.dispatch("MOVE_SHEET", { sheet: sheet1, left: false });
+    expect(model.getters.getActiveSheet()).toEqual(sheet1);
+    expect(model["workbook"].visibleSheets[0]).toEqual(sheet2);
+    expect(model["workbook"].visibleSheets[1]).toEqual(sheet1);
+    model.dispatch("UNDO");
+    expect(model["workbook"].visibleSheets[0]).toEqual(sheet1);
+    expect(model["workbook"].visibleSheets[1]).toEqual(sheet2);
+  });
+
+  test("cannot move the first sheet to left and the last to right", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", {});
+    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet2 = model["workbook"].visibleSheets[1];
+    expect(model.dispatch("MOVE_SHEET", { sheet: sheet1, left: true })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetMove,
+    });
+    expect(model.dispatch("MOVE_SHEET", { sheet: sheet2, left: false })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetMove,
+    });
+  });
 });
 
 function getText(model: Model, xc: string): string {
