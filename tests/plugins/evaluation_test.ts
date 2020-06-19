@@ -222,6 +222,17 @@ describe("evaluateCells", () => {
     expect(evaluateCell("A1", { A1: "=A2<>A3", A2: "abc", A3: "def" })).toBe(true);
   });
 
+  test("if with sub expressions", () => {
+    expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "0" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "1" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IF(AND(A2>0,A3>0),1,2)", A2: "1", A3: "0" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=IF(AND(A2>0,A3>0),1,2)", A2: "1", A3: "1" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IF(A2>=SUM(A2,A3),1,2)", A2: "1", A3: "0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IF(A2>SUM(A2,A3),1,2)", A2: "1", A3: "1" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=IF(A2=0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=IF(A2<>0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(10);
+  });
+
   test("various expressions with boolean", () => {
     const model = new Model();
 

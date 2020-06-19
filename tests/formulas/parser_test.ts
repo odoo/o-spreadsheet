@@ -13,6 +13,23 @@ describe("parser", () => {
     });
   });
 
+  test("can parse a function call with sub expressions as argument", () => {
+    expect(parse("IF(A1 > 0, 1, 2)")).toEqual({
+      type: "FUNCALL",
+      value: "IF",
+      args: [
+        {
+          type: "BIN_OPERATION",
+          value: ">",
+          left: { type: "REFERENCE", value: "A1" },
+          right: { type: "NUMBER", value: 0 },
+        },
+        { type: "NUMBER", value: 1 },
+        { type: "NUMBER", value: 2 },
+      ],
+    });
+  });
+
   test("add a unknown token for empty arguments", () => {
     expect(parse("SUM(1,)")).toEqual({
       type: "FUNCALL",
