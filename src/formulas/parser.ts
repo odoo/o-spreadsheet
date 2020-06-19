@@ -89,6 +89,8 @@ const OP_PRIORITY = {
   "-": 7,
 };
 
+const FUNCTION_BP = 6;
+
 function bindingPower(token: Token): number {
   switch (token.type) {
     case "NUMBER":
@@ -131,7 +133,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           if (tokens[0].type === "COMMA") {
             args.push({ type: "UNKNOWN", value: "" });
           } else {
-            args.push(parseExpression(tokens, 10));
+            args.push(parseExpression(tokens, FUNCTION_BP));
           }
           while (tokens[0].type === "COMMA") {
             tokens.shift();
@@ -142,7 +144,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
             if ((tokens as any)[0].type === "COMMA") {
               args.push({ type: "UNKNOWN", value: "" });
             } else {
-              args.push(parseExpression(tokens, 10));
+              args.push(parseExpression(tokens, FUNCTION_BP));
             }
           }
         }
