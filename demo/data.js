@@ -15,8 +15,10 @@ export const demoData = {
       cols: { 1: {}, 3: {} },
       rows: {},
       cells: {
+        A21: { content: "Sheet2 => B2:" },
         B2: { content: "Owl is awesome", style: 1 },
         B4: { content: "Numbers", style: 4 },
+        B21: { content: "=Sheet2!B2", style: 7 },
         C1: { content: "CF =42" },
         C4: { content: "12.4" },
         C5: { content: "42" },
@@ -50,7 +52,7 @@ export const demoData = {
         G4: { content: "9" },
         G5: { content: "15" },
         G6: { content: "22" },
-        G8: { content: "30" }
+        G8: { content: "30" },
       },
       merges: ["H2:I5", "K3:K8"],
       conditionalFormats: [
@@ -61,8 +63,8 @@ export const demoData = {
             values: ["42"],
             operator: "Equal",
             type: "CellIsRule",
-            style: { fillColor: "orange" }
-          }
+            style: { fillColor: "orange" },
+          },
         },
         {
           id: "2",
@@ -70,11 +72,17 @@ export const demoData = {
           rule: {
             type: "ColorScaleRule",
             minimum: { type: "value", color: 0xffffff },
-            maximum: { type: "value", color: 0xff0000 }
-          }
-        }
-      ]
-    }
+            maximum: { type: "value", color: 0xff0000 },
+          },
+        },
+      ],
+    },
+    {
+      name: "Sheet2",
+      cells: {
+        B2: { content: "42" },
+      },
+    },
   ],
   styles: {
     1: { bold: true, textColor: "#3A3791", fontSize: 12 },
@@ -82,7 +90,8 @@ export const demoData = {
     3: { strikethrough: true },
     4: { fillColor: "#e3efd9" },
     5: { fillColor: "#c5e0b3" },
-    6: { fillColor: "#a7d08c" }
+    6: { fillColor: "#a7d08c" },
+    7: { align: "left" },
   },
   borders: {
     1: { left: ["thin", "#000"] },
@@ -91,9 +100,9 @@ export const demoData = {
       top: ["thin", "#000"],
       left: ["thin", "#000"],
       bottom: ["thin", "#000"],
-      right: ["thin", "#000"]
-    }
-  }
+      right: ["thin", "#000"],
+    },
+  },
 };
 
 // Performance dataset
@@ -135,8 +144,8 @@ export function makeLargeDataset(cols, rows) {
         rowNumber: 1000000,
         cols: { 1: {}, 3: {} },
         rows: {},
-        cells: computeCells(cols, rows)
-      }
+        cells: computeCells(cols, rows),
+      },
     ],
     styles: {
       1: { bold: true, textColor: "#3A3791", fontSize: 12 },
@@ -144,8 +153,8 @@ export function makeLargeDataset(cols, rows) {
       3: { strikethrough: true },
       4: { fillColor: "#e3efd9" },
       5: { fillColor: "#c5e0b3" },
-      6: { fillColor: "#a7d08c" }
+      6: { fillColor: "#a7d08c" },
     },
-    borders: {}
+    borders: {},
   };
 }
