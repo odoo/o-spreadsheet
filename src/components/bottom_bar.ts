@@ -18,12 +18,8 @@ const TEMPLATE = xml/* xml */ `
     <span class="o-add-sheet" t-on-click="addSheet">${PLUS}</span>
     <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
       <span class="o-sheet" t-on-click="activateSheet(sheet.id)"
-            t-att-class="{active: sheet.id === getters.getActiveSheet()}">
-      <!-- The next lines should replace the last ones when at least one action
-      has been implemented on sheets. (sheetMenuRegistry)
-      <span class="o-sheet" t-on-click="activateSheet(sheet.id)"
             t-on-contextmenu.prevent="onContextMenu(sheet.id)"
-            t-att-class="{active: sheet.id === getters.getActiveSheet()}"> -->
+            t-att-class="{active: sheet.id === getters.getActiveSheet()}">
         <t t-esc="sheet.name"/>
       </span>
     </t>

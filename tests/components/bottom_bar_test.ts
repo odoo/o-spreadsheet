@@ -69,7 +69,7 @@ describe("BottomBar component", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { from, to });
   });
 
-  test.skip("Can open context menu of a sheet", async () => {
+  test("Can open context menu of a sheet", async () => {
     const parent = new Parent(new Model());
     await parent.mount(fixture);
 
@@ -77,5 +77,46 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+  });
+
+  test("Can move right a sheet", async () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET");
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheet = model.getters.getActiveSheet();
+    triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, left: false });
+  });
+
+  test("Can move left a sheet", async () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { activate: true });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheet = model.getters.getActiveSheet();
+    triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, left: true });
+  });
+
+  test("Move right and left are disabled when it's not possible to move", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu-item[data-name='move_left'")!.classList).toContain(
+      "disabled"
+    );
+    expect(fixture.querySelector(".o-menu-item[data-name='move_right'")!.classList).toContain(
+      "disabled"
+    );
   });
 });

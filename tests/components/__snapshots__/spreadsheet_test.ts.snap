@@ -372,7 +372,6 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     <span
       class="o-sheet active"
     >
-      <!-- The next lines should replace the last ones when at least one action has been implemented on sheets. (sheetMenuRegistry) &lt;span class="o-sheet" t-on-click="activateSheet(sheet.id)" t-on-contextmenu.prevent="onContextMenu(sheet.id)" t-att-class="{active: sheet.id === getters.getActiveSheet()}"&gt; -->
       Sheet1
     </span>
   </div>
