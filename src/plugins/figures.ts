@@ -36,20 +36,10 @@ export class FigurePlugin extends BasePlugin {
   // Import/Export
   // ---------------------------------------------------------------------------
 
-  import(data: WorkbookData) {
-    // const sheets = data.sheets || [];
-    // for (let sheetData of sheets) {
-    //   const sheet = this.workbook.sheets[sheetData.id];
-    //   if (sheet && sheetData.merges) {
-    //     this.importMerges(sheet.id, sheetData.merges);
-    //   }
-    // }
-  }
-
   export(data: WorkbookData) {
-    // for (let sheetData of data.sheets) {
-    //   const sheet = this.workbook.sheets[sheetData.id];
-    //   sheetData.merges.push(...exportMerges(sheet.merges));
-    // }
+    for (let sheetData of data.sheets) {
+      const sheet = this.workbook.sheets[sheetData.id];
+      sheetData.figures = sheet.figures;
+    }
   }
 }

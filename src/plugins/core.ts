@@ -753,6 +753,7 @@ export class CorePlugin extends BasePlugin {
       cols: createDefaultCols(cols),
       rows: createDefaultRows(rows),
       merges: {},
+      figures: {},
       mergeCellMap: {},
     };
     const visibleSheets = this.workbook.visibleSheets.slice();
@@ -866,6 +867,7 @@ export class CorePlugin extends BasePlugin {
       cols: createCols(data.cols || {}, data.colNumber),
       rows: createRows(data.rows || {}, data.rowNumber),
       merges: {},
+      figures: data.figures,
       mergeCellMap: {},
     };
     visibleSheets = visibleSheets.slice();

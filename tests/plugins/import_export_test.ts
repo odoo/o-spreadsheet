@@ -217,3 +217,32 @@ test("complete import, then export", () => {
   const model2 = new Model(modelData);
   expect(model2.exportData()).toEqual(modelData);
 });
+
+test("import then export (figures)", () => {
+  const modelData = {
+    version: CURRENT_VERSION,
+    sheets: [
+      {
+        id: "someuuid",
+        colNumber: 10,
+        rowNumber: 10,
+        merges: [],
+        cols: {},
+        rows: {},
+        cells: {},
+        name: "My sheet",
+        conditionalFormats: [],
+        figures: { otheruuid: { x: 100, y: 100, width: 100, height: 100 } },
+      },
+    ],
+    activeSheet: "someuuid",
+    entities: {},
+    styles: {},
+    borders: {},
+  };
+  const model = new Model(modelData);
+  expect(model.exportData()).toEqual(modelData);
+  // We test here a that two import with the same data give the same result.
+  const model2 = new Model(modelData);
+  expect(model2.exportData()).toEqual(modelData);
+});

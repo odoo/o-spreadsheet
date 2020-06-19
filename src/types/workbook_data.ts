@@ -12,7 +12,7 @@ export interface HeaderData {
   size?: number;
 }
 
-export interface FigureData {
+export interface Figure {
   x: number;
   y: number;
   width: number;
@@ -27,7 +27,7 @@ export interface SheetData {
   rowNumber: number;
   cells: { [key: string]: CellData };
   merges: string[];
-  figures: { [id: string]: FigureData };
+  figures: { [id: string]: Figure };
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
