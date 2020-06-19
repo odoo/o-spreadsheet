@@ -77,6 +77,12 @@ export interface MoveSheetCommand extends BaseCommand {
   left: boolean;
 }
 
+export interface RenameSheetCommand extends BaseCommand {
+  type: "RENAME_SHEET";
+  sheet: string;
+  name: string;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -536,6 +542,7 @@ export type Command =
   | MovePositionCommand
   | CreateSheetCommand
   | MoveSheetCommand
+  | RenameSheetCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand

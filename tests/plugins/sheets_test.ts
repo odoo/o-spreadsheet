@@ -264,6 +264,48 @@ describe("sheets", () => {
       reason: CancelledReason.WrongSheetMove,
     });
   });
+
+  test("Can rename a sheet", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    const name = "NEW_NAME";
+    model.dispatch("RENAME_SHEET", { sheet, name });
+    expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe(name);
+  });
+
+  test("Cannot rename a sheet with existing name", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    const name = "NEW_NAME";
+    model.dispatch("CREATE_SHEET", { name });
+    expect(model.dispatch("RENAME_SHEET", { sheet, name })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
+  });
+
+  test("Sheet reference are correctly updated", () => {
+    const model = new Model();
+    const name = "NEW_NAME";
+    const sheet1 = model.getters.getActiveSheet();
+    model.dispatch("SET_VALUE", {
+      xc: "A1",
+      text: "=NEW_NAME!A1",
+      sheet: sheet1,
+    });
+
+    model.dispatch("CREATE_SHEET", { name, activate: true });
+    const sheet2 = model.getters.getActiveSheet();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "42", sheet: sheet2 });
+    const nextName = "NEXT_NAME";
+    model.dispatch("RENAME_SHEET", { sheet: sheet2, name: nextName });
+    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=NEXT_NAME!A1");
+    model.dispatch("UNDO"); // Activate Sheet
+    model.dispatch("UNDO"); // Rename sheet
+    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=NEW_NAME!A1");
+  });
 });
 
 function getText(model: Model, xc: string): string {

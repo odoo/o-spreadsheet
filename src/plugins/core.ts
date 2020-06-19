@@ -87,6 +87,12 @@ export class CorePlugin extends BasePlugin {
           (!cmd.left && currentIndex === this.workbook.visibleSheets.length - 1)
           ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
           : { status: "SUCCESS" };
+      case "RENAME_SHEET":
+        return this.workbook.visibleSheets.findIndex(
+          (id) => this.workbook.sheets[id].name === cmd.name
+        ) === -1
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       default:
         return { status: "SUCCESS" };
     }
@@ -111,6 +117,9 @@ export class CorePlugin extends BasePlugin {
         break;
       case "MOVE_SHEET":
         this.moveSheet(cmd.sheet, cmd.left);
+        break;
+      case "RENAME_SHEET":
+        this.renameSheet(cmd.sheet, cmd.name);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -790,6 +799,26 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(["visibleSheets"], visibleSheets);
   }
 
+  private renameSheet(sheetId: string, name: string) {
+    const sheet = this.workbook.sheets[sheetId];
+    const oldName = sheet.name;
+    this.history.updateSheet(sheet, ["name"], name);
+    const sheetIds = Object.assign({}, this.sheetIds, { name: sheet.id });
+    delete sheetIds[oldName];
+    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.visitAllSymbolFormulas((value) => {
+      let [val, sheetRef] = value.split("!").reverse();
+      if (sheetRef) {
+        sheetRef = sanitizeSheet(sheetRef);
+        if (sheetRef === oldName) {
+          const [x, y] = toCartesian(val);
+          return this.getNewRef(val, name, x, y);
+        }
+      }
+      return value;
+    });
+  }
+
   private clearZones(sheet: string, zones: Zone[]) {
     // TODO: get cells from the actual sheet
     const cells = this.workbook.activeSheet.cells;
@@ -814,13 +843,8 @@ export class CorePlugin extends BasePlugin {
   // Helpers
   // ---------------------------------------------------------------------------
 
-  /**
-   * Apply a function to update the formula on every cells of every sheets which
-   * contains a formula
-   * @param cb Update formula function to apply
-   */
-  private visitFormulas(cb: (value: string, sheet: string | undefined) => string) {
-    const { sheets, activeSheet } = this.workbook;
+  private visitAllSymbolFormulas(cb: (value: string, sheet: Sheet) => string) {
+    const { sheets } = this.workbook;
     for (let sheetId in sheets) {
       const sheet = sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
@@ -828,15 +852,7 @@ export class CorePlugin extends BasePlugin {
           const content = tokenize(cell.content!)
             .map((t) => {
               if (t.type === "SYMBOL" && cellReference.test(t.value)) {
-                let [value, sheetRef] = t.value.split("!").reverse();
-                if (sheetRef) {
-                  sheetRef = sanitizeSheet(sheetRef);
-                  if (sheetRef === activeSheet.name) {
-                    return cb(value, sheetRef);
-                  }
-                } else if (activeSheet.id === sheet.id) {
-                  return cb(value, undefined);
-                }
+                return cb(t.value, sheet);
               }
               return t.value;
             })
@@ -853,6 +869,27 @@ export class CorePlugin extends BasePlugin {
         }
       }
     }
+  }
+
+  /**
+   * Apply a function to update the formula on every cells of every sheets which
+   * contains a formula
+   * @param cb Update formula function to apply
+   */
+  private visitFormulas(cb: (value: string, sheetName: string | undefined) => string) {
+    const { activeSheet } = this.workbook;
+    this.visitAllSymbolFormulas((value, sheet) => {
+      let [val, sheetRef] = value.split("!").reverse();
+      if (sheetRef) {
+        sheetRef = sanitizeSheet(sheetRef);
+        if (sheetRef === activeSheet.name) {
+          return cb(val, sheetRef);
+        }
+      } else if (activeSheet.id === sheet.id) {
+        return cb(val, undefined);
+      }
+      return value;
+    });
   }
 
   private getNewRef(value: string, sheet: string | undefined, x: number, y: number): string {
