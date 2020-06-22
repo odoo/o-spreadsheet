@@ -142,6 +142,21 @@ exports[`TopBar component can set cell format 1`] = `
           >
             Date (9/26/2008)
           </div>
+          <div
+            data-format="time"
+          >
+            Time (10:43:00 PM)
+          </div>
+          <div
+            data-format="datetime"
+          >
+            Date time (9/26/2008 22:43:00)
+          </div>
+          <div
+            data-format="duration"
+          >
+            Duration (27:51:38)
+          </div>
         </div>
       </div>
       <div
