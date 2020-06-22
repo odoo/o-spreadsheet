@@ -341,6 +341,13 @@ export const FORMAT_PERCENT_ACTION = (env: SpreadsheetEnv) => setFormatter(env, 
 
 export const FORMAT_DATE_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "m/d/yyyy");
 
+export const FORMAT_TIME_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "hh:mm:ss a");
+
+export const FORMAT_DATE_TIME_ACTION = (env: SpreadsheetEnv) =>
+  setFormatter(env, "m/d/yyyy hh:mm:ss");
+
+export const FORMAT_DURATION_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "hhhh:mm:ss");
+
 export const FORMAT_BOLD_ACTION = (env: SpreadsheetEnv) =>
   setStyle(env, { bold: !env.getters.getCurrentStyle().bold });
 

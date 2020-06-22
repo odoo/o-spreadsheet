@@ -409,6 +409,33 @@ describe("Menu Item actions", () => {
         formatter: "m/d/yyyy",
       });
     });
+
+    test("Time", () => {
+      doAction(["format", "format_number", "format_number_time"], env);
+      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
+        sheet: env.getters.getActiveSheet(),
+        target: env.getters.getSelectedZones(),
+        formatter: "hh:mm:ss a",
+      });
+    });
+
+    test("Date time", () => {
+      doAction(["format", "format_number", "format_number_date_time"], env);
+      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
+        sheet: env.getters.getActiveSheet(),
+        target: env.getters.getSelectedZones(),
+        formatter: "m/d/yyyy hh:mm:ss",
+      });
+    });
+
+    test("Duration", () => {
+      doAction(["format", "format_number", "format_number_duration"], env);
+      expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
+        sheet: env.getters.getActiveSheet(),
+        target: env.getters.getSelectedZones(),
+        formatter: "hhhh:mm:ss",
+      });
+    });
   });
 
   test("Format -> bold", () => {
