@@ -12,6 +12,7 @@ const OPERATOR_MAP = {
   "*": "MULTIPLY",
   "/": "DIVIDE",
   ">=": "GTE",
+  "<>": "NE",
   ">": "GT",
   "<=": "LTE",
   "<": "LT",
