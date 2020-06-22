@@ -95,15 +95,14 @@ describe("evaluateCells", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: '=Sum("asdf")' });
 
     expect(getCell(model, "A1")!.value).toBe("#ERROR");
-    expect(getCell(model, "A1")!.error).toBe(`
-  The function SUM expects a number value, but 'asdf' is a
-  string, and cannot be coerced to a number.`);
+    expect(getCell(model, "A1")!.error).toBe(
+      `The function SUM expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
+    );
 
     model.dispatch("SET_VALUE", { xc: "A1", text: "=DECIMAL(1,100)" });
-    expect(getCell(model, "A1")!.error).toBe(`
-        Function DECIMAL expects the parameter 'base' 
-        to be between 2 and 36 inclusive. Change 'base' 
-        from [100] to a value between 2 and 36.`);
+    expect(getCell(model, "A1")!.error).toBe(
+      `Function DECIMAL expects the parameter 'base' to be between 2 and 36 inclusive. Change 'base' from [100] to a value between 2 and 36.`
+    );
   });
 
   test("error in an addition", () => {
@@ -115,16 +114,16 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A3")!.value).toBe(3);
     model.dispatch("SET_VALUE", { xc: "A2", text: "asdf" });
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    expect(getCell(model, "A3")!.error).toBe(`
-  The function ADD expects a number value, but 'asdf' is a
-  string, and cannot be coerced to a number.`);
+    expect(getCell(model, "A3")!.error).toBe(
+      `The function ADD expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
+    );
     model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
     model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
     expect(getCell(model, "A3")!.value).toBe(43);
   });
 
-  test("error in an substraction", () => {
+  test("error in an subtraction", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
@@ -135,9 +134,9 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
     model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    expect(getCell(model, "A3")!.error).toBe(`
-  The function MINUS expects a number value, but 'asdf' is a
-  string, and cannot be coerced to a number.`);
+    expect(getCell(model, "A3")!.error).toBe(
+      `The function MINUS expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
+    );
     model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
     expect(getCell(model, "A3")!.value).toBe(23);
   });
