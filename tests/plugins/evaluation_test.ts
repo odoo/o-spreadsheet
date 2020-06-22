@@ -218,6 +218,10 @@ describe("evaluateCells", () => {
     expect(evaluateCell("A1", { A1: "=A2&A3", A2: "abc", A3: "def" })).toBe("abcdef");
   });
 
+  test("<> operator", () => {
+    expect(evaluateCell("A1", { A1: "=A2<>A3", A2: "abc", A3: "def" })).toBe(true);
+  });
+
   test("various expressions with boolean", () => {
     const model = new Model();
 

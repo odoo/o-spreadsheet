@@ -35,6 +35,13 @@ describe("tokenizer", () => {
     ]);
   });
 
+  test("not equal operator", () => {
+    expect(tokenize("=<>")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "OPERATOR", value: "<>" },
+    ]);
+  });
+
   test("can tokenize various number expressions", () => {
     expect(tokenize("1%")).toEqual([{ type: "NUMBER", value: "1%" }]);
     expect(tokenize("1 %")).toEqual([{ type: "NUMBER", value: "1 %" }]);
