@@ -122,8 +122,23 @@ topbarMenuRegistry
   .addChild("format_number_date", ["format", "format_number"], {
     name: _lt("Date (9/26/2008)"),
     sequence: 40,
-    separator: true,
     action: ACTIONS.FORMAT_DATE_ACTION,
+  })
+  .addChild("format_number_time", ["format", "format_number"], {
+    name: _lt("Time (10:43:00 PM)"),
+    sequence: 50,
+    action: ACTIONS.FORMAT_TIME_ACTION,
+  })
+  .addChild("format_number_date_time", ["format", "format_number"], {
+    name: _lt("Date time (9/26/2008 22:43:00)"),
+    sequence: 60,
+    action: ACTIONS.FORMAT_DATE_TIME_ACTION,
+  })
+  .addChild("format_number_duration", ["format", "format_number"], {
+    name: _lt("Duration (27:51:38)"),
+    sequence: 70,
+    separator: true,
+    action: ACTIONS.FORMAT_DURATION_ACTION,
   })
   .addChild("format_bold", ["format"], {
     name: _lt("Bold"),
