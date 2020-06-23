@@ -457,4 +457,20 @@ describe("Resizer component", () => {
     triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
+
+  test("right click after last column does not open context menu", async () => {
+    const nCols = model["workbook"].cols.length;
+    const x = model["workbook"].cols[nCols - 1].end + 1;
+    triggerMouseEvent(".o-overlay .o-col-resizer", "contextmenu", x, 10);
+    await nextTick();
+    expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
+  });
+
+  test("right click after last row does not open context menu", async () => {
+    const nRows = model["workbook"].rows.length;
+    const y = model["workbook"].rows[nRows - 1].end + 1;
+    triggerMouseEvent(".o-overlay .o-row-resizer", "contextmenu", 10, y);
+    await nextTick();
+    expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
+  });
 });
