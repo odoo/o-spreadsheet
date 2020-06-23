@@ -4,10 +4,10 @@
  *  sub-env of Spreadsheet components as _t
  * */
 
-type TranslationFunction = (string) => string;
+export type TranslationFunction = (string: string) => string;
 
 // define a mock translation function, when o-spreadsheet runs in standalone it doesn't translate any string
-let _t: TranslationFunction = (s) => s;
+let _t: TranslationFunction = (s: string) => s;
 
 /***
  * Allow to inject a translation function from outside o-spreadsheet.
