@@ -83,6 +83,11 @@ export interface RenameSheetCommand extends BaseCommand {
   name: string;
 }
 
+export interface DeleteSheetCommand extends BaseCommand {
+  type: "DELETE_SHEET";
+  sheet: string;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -543,6 +548,7 @@ export type Command =
   | CreateSheetCommand
   | MoveSheetCommand
   | RenameSheetCommand
+  | DeleteSheetCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand
@@ -605,6 +611,7 @@ export const enum CancelledReason {
   EmptyRedoStack,
   NotEnoughColumns,
   NotEnoughRows,
+  NotEnoughSheets,
   WrongSheetName,
   WrongSheetMove,
   SelectionOutOfBound,

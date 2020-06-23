@@ -93,6 +93,10 @@ export class CorePlugin extends BasePlugin {
         ) === -1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      case "DELETE_SHEET":
+        return this.workbook.visibleSheets.length > 1
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
       default:
         return { status: "SUCCESS" };
     }
@@ -120,6 +124,9 @@ export class CorePlugin extends BasePlugin {
         break;
       case "RENAME_SHEET":
         this.renameSheet(cmd.sheet, cmd.name);
+        break;
+      case "DELETE_SHEET":
+        this.deleteSheet(cmd.sheet);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -817,6 +824,38 @@ export class CorePlugin extends BasePlugin {
       }
       return value;
     });
+  }
+
+  private deleteSheet(sheetId: string) {
+    const name = this.workbook.sheets[sheetId].name;
+    const sheets = Object.assign({}, this.workbook.sheets);
+    delete sheets[sheetId];
+    this.history.updateState(["sheets"], sheets);
+
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
+    visibleSheets.splice(currentIndex, 1);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+
+    const sheetIds = Object.assign({}, this.sheetIds);
+    delete sheetIds[name];
+    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.visitAllSymbolFormulas((value) => {
+      let [, sheetRef] = value.split("!").reverse();
+      if (sheetRef) {
+        sheetRef = sanitizeSheet(sheetRef);
+        if (sheetRef === name) {
+          return "#REF";
+        }
+      }
+      return value;
+    });
+    if (this.getActiveSheet() === sheetId) {
+      this.dispatch("ACTIVATE_SHEET", {
+        from: sheetId,
+        to: visibleSheets[Math.max(0, currentIndex - 1)],
+      });
+    }
   }
 
   private clearZones(sheet: string, zones: Zone[]) {

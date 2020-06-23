@@ -306,6 +306,62 @@ describe("sheets", () => {
     model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
     expect(model.getters.getCell(0, 0)!.content).toBe("=NEW_NAME!A1");
   });
+
+  test("Can delete the active sheet", () => {
+    const model = new Model();
+    const sheet1 = model.getters.getActiveSheet();
+    model.dispatch("CREATE_SHEET", { activate: true });
+    const sheet2 = model.getters.getActiveSheet();
+    model.dispatch("DELETE_SHEET", { sheet: sheet2 });
+    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheets()[0].id).toEqual(sheet1);
+    expect(model.getters.getActiveSheet()).toEqual(sheet1);
+    model.dispatch("UNDO");
+    expect(model.getters.getSheets()).toHaveLength(2);
+    expect(model.getters.getActiveSheet()).toEqual(sheet2);
+    model.dispatch("REDO");
+    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getActiveSheet()).toEqual(sheet1);
+  });
+
+  test("Can delete a non-active sheet", () => {
+    const model = new Model();
+    const sheet1 = model.getters.getActiveSheet();
+    model.dispatch("CREATE_SHEET", { activate: true });
+    const sheet2 = model.getters.getSheets()[1].id;
+    model.dispatch("DELETE_SHEET", { sheet: sheet1 });
+    expect(model.getters.getSheets()).toHaveLength(1);
+    expect(model.getters.getSheets()[0].id).toEqual(sheet2);
+    expect(model.getters.getActiveSheet()).toEqual(sheet2);
+  });
+
+  test("Cannot delete sheet if there is only one", () => {
+    const model = new Model();
+    expect(model.dispatch("DELETE_SHEET", { sheet: model.getters.getActiveSheet() })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.NotEnoughSheets,
+    });
+  });
+
+  test("Sheet reference are correctly marked as #REF", () => {
+    const model = new Model();
+    const name = "NEW_NAME";
+    const sheet1 = model.getters.getActiveSheet();
+    model.dispatch("SET_VALUE", {
+      xc: "A1",
+      text: "=NEW_NAME!A1",
+      sheet: sheet1,
+    });
+
+    model.dispatch("CREATE_SHEET", { name, activate: true });
+    const sheet2 = model.getters.getActiveSheet();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "42", sheet: sheet2 });
+    model.dispatch("DELETE_SHEET", { sheet: sheet2 });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=#REF");
+    model.dispatch("UNDO");
+    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
+    expect(model.getters.getCell(0, 0)!.content).toBe("=NEW_NAME!A1");
+  });
 });
 
 function getText(model: Model, xc: string): string {
