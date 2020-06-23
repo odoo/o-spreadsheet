@@ -4,11 +4,14 @@ import { _lt } from "../../translation";
 export const sheetMenuRegistry = new MenuItemRegistry();
 
 sheetMenuRegistry
-  // .add("delete", {
-  //   name: _lt("Delete"),
-  //   sequence: 10,
-  //   action: () => console.warn("Not implemented"),
-  // })
+  .add("delete", {
+    name: _lt("Delete"),
+    sequence: 10,
+    isEnabled: (env) => {
+      return env.getters.getSheets().length > 1;
+    },
+    action: (env) => env.dispatch("DELETE_SHEET", { sheet: env.getters.getActiveSheet() }),
+  })
   // .add("duplicate", {
   //   name: _lt("Duplicate"),
   //   sequence: 20,

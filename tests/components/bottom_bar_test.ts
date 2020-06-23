@@ -119,4 +119,29 @@ describe("BottomBar component", () => {
       "disabled"
     );
   });
+
+  test("Can delete a sheet", async () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET");
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheet = model.getters.getActiveSheet();
+    triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheet });
+  });
+
+  test("Delete sheet is disabled when there is only one sheet", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu-item[data-name='delete'")!.classList).toContain(
+      "disabled"
+    );
+  });
 });
