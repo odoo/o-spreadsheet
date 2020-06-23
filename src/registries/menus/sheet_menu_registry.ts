@@ -1,7 +1,21 @@
 import { MenuItemRegistry } from "../menu_items_registry";
 import { _lt } from "../../translation";
+import { SpreadsheetEnv } from "../../types";
+import { uuidv4 } from "../../helpers/index";
 
 export const sheetMenuRegistry = new MenuItemRegistry();
+
+function getDuplicateSheetName(env: SpreadsheetEnv, sheet: string) {
+  let i = 1;
+  const names = env.getters.getSheets().map((s) => s.name);
+  const baseName = env._t(`Copy of ${sheet}`);
+  let name = baseName;
+  while (names.includes(name)) {
+    name = `${baseName} (${i})`;
+    i++;
+  }
+  return name;
+}
 
 sheetMenuRegistry
   .add("delete", {
@@ -12,11 +26,22 @@ sheetMenuRegistry
     },
     action: (env) => env.dispatch("DELETE_SHEET", { sheet: env.getters.getActiveSheet() }),
   })
-  // .add("duplicate", {
-  //   name: _lt("Duplicate"),
-  //   sequence: 20,
-  //   action: () => console.warn("Not implemented"),
-  // })
+  .add("duplicate", {
+    name: _lt("Duplicate"),
+    sequence: 20,
+    action: (env) => {
+      const sheet = env.getters.getActiveSheet();
+      const name = getDuplicateSheetName(
+        env,
+        env.getters.getSheets().find((s) => s.id === sheet)!.name
+      );
+      env.dispatch("DUPLICATE_SHEET", {
+        sheet,
+        id: uuidv4(),
+        name,
+      });
+    },
+  })
   // .add("rename", {
   //   name: _lt("Rename"),
   //   sequence: 30,

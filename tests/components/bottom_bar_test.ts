@@ -21,6 +21,7 @@ class Parent extends Component<any, any> {
       openSidePanel: (panel: string) => {},
       dispatch: jest.fn(() => ({ status: "SUCCESS" } as CommandResult)),
       getters: model.getters,
+      _t: (s: string) => s,
       askConfirmation: jest.fn(),
     });
     this.model = model;
@@ -143,5 +144,41 @@ describe("BottomBar component", () => {
     expect(fixture.querySelector(".o-menu-item[data-name='delete'")!.classList).toContain(
       "disabled"
     );
+  });
+
+  test("Can duplicate a sheet", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    mockUuidV4To(123);
+
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheet = model.getters.getActiveSheet();
+    const name = `Copy of ${model.getters.getSheets()[0].name}`;
+    triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", { sheet, id: "123", name });
+  });
+
+  test("Can duplicate a sheet", async () => {
+    const model = new Model({
+      sheets: [
+        {
+          name: "test",
+        },
+        {
+          name: "Copy of test",
+        },
+      ],
+    });
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheet = model.getters.getActiveSheet();
+    const name = `Copy of test (1)`;
+    mockUuidV4To(123);
+    triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", { sheet, id: "123", name });
   });
 });
