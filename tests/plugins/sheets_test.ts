@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
-import { toCartesian } from "../../src/helpers";
+import { toCartesian, uuidv4 } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 
 describe("sheets", () => {
@@ -361,6 +361,62 @@ describe("sheets", () => {
     model.dispatch("UNDO");
     model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
     expect(model.getters.getCell(0, 0)!.content).toBe("=NEW_NAME!A1");
+  });
+
+  test("Can duplicate a sheet", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    expect(model.getters.getActiveSheet()).not.toEqual(sheet);
+    expect(model.getters.getSheets()).toHaveLength(2);
+    model.dispatch("UNDO");
+    expect(model.getters.getSheets()).toHaveLength(1);
+    model.dispatch("REDO");
+    expect(model.getters.getSheets()).toHaveLength(2);
+  });
+
+  test("Cannot duplicate a sheet with the same name", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    const name = model.getters.getSheets()[0].name;
+    const id = uuidv4();
+    expect(model.dispatch("DUPLICATE_SHEET", { sheet, id, name })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
+  });
+
+  test("Properties of sheet are correctly duplicated", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+          merges: ["B1:C2"],
+          conditionalFormats: [
+            {
+              id: "1",
+              ranges: ["A1:A2"],
+              rule: {
+                values: ["42"],
+                operator: "Equal",
+                type: "CellIsRule",
+                style: { fillColor: "orange" },
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "42", sheet });
+    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    expect(model.getters.getActiveSheet()).not.toEqual(sheet);
+    expect(model.getters.getSheets()).toHaveLength(2);
+    expect(getText(model, "A1")).toBe("42");
+    expect(model.getters.getNumberCols()).toBe(5);
+    expect(model.getters.getNumberRows()).toBe(5);
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
   });
 });
 

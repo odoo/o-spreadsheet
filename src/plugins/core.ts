@@ -87,6 +87,7 @@ export class CorePlugin extends BasePlugin {
           (!cmd.left && currentIndex === this.workbook.visibleSheets.length - 1)
           ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
           : { status: "SUCCESS" };
+      case "DUPLICATE_SHEET":
       case "RENAME_SHEET":
         return this.workbook.visibleSheets.findIndex(
           (id) => this.workbook.sheets[id].name === cmd.name
@@ -127,6 +128,9 @@ export class CorePlugin extends BasePlugin {
         break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheet);
+        break;
+      case "DUPLICATE_SHEET":
+        this.duplicateSheet(cmd.sheet, cmd.id, cmd.name);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -856,6 +860,27 @@ export class CorePlugin extends BasePlugin {
         to: visibleSheets[Math.max(0, currentIndex - 1)],
       });
     }
+  }
+
+  private duplicateSheet(fromId: string, toId: string, toName: string) {
+    const sheet = this.workbook.sheets[fromId];
+    const newSheet = Object.assign({}, sheet, {
+      id: toId,
+      name: toName,
+    });
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    const currentIndex = visibleSheets.findIndex((id) => id === fromId);
+    visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+    this.history.updateState(
+      ["sheets"],
+      Object.assign({}, this.workbook.sheets, { [newSheet.id]: newSheet })
+    );
+
+    const sheetIds = Object.assign({}, this.sheetIds);
+    sheetIds[newSheet.name] = newSheet.id;
+    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.dispatch("ACTIVATE_SHEET", { from: this.getActiveSheet(), to: newSheet.id });
   }
 
   private clearZones(sheet: string, zones: Zone[]) {

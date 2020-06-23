@@ -88,6 +88,13 @@ export interface DeleteSheetCommand extends BaseCommand {
   sheet: string;
 }
 
+export interface DuplicateSheetCommand extends BaseCommand {
+  type: "DUPLICATE_SHEET";
+  sheet: string;
+  id: string;
+  name: string;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -549,6 +556,7 @@ export type Command =
   | MoveSheetCommand
   | RenameSheetCommand
   | DeleteSheetCommand
+  | DuplicateSheetCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand
