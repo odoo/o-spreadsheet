@@ -180,7 +180,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
 export class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select"
+    <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
       t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
       <t t-if="state.isActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
@@ -303,7 +303,7 @@ export class ColResizer extends AbstractResizer {
 
 export class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self="select"
+    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
     t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
       <t t-if="state.isActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
