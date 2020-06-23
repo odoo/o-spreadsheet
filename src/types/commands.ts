@@ -70,6 +70,12 @@ export interface CreateSheetCommand extends BaseCommand {
   activate?: boolean;
 }
 
+export interface DeleteSheetCommand extends BaseCommand {
+  type: "DELETE_SHEET";
+  force?: boolean;
+  id: string;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -362,6 +368,7 @@ export type Command =
   | AutoresizeRowsCommand
   | MovePositionCommand
   | CreateSheetCommand
+  | DeleteSheetCommand
   | ActivateSheetCommand
   | SelectCellCommand
   | SetSelectionCommand
@@ -417,6 +424,8 @@ export const enum CancelledReason {
   WrongSheetName,
   SelectionOutOfBound,
   WrongPasteSelection,
+  NotEnoughSheets,
+  DeletetionNotConfirmed,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

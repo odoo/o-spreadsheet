@@ -329,6 +329,11 @@ export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
   env.dispatch("CREATE_SHEET", { activate: true });
 };
 
+export const DELETE_SHEET_ACTION = (env: SpreadsheetEnv) => {
+  const sheet = env.getters.getActiveSheet();
+  env.dispatch("DELETE_SHEET", { id: sheet });
+};
+
 //------------------------------------------------------------------------------
 // Style/Format
 //------------------------------------------------------------------------------

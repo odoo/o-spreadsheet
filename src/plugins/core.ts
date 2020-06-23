@@ -54,6 +54,7 @@ export class CorePlugin extends BasePlugin {
     "getNumberCols",
     "getNumberRows",
     "getGridSize",
+    "canDeleteSheet",
   ];
 
   private width: number = 0;
@@ -79,6 +80,11 @@ export class CorePlugin extends BasePlugin {
         return !cmd.name || visibleSheets.findIndex((id) => sheets[id].name === cmd.name) === -1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      case "DELETE_SHEET": {
+        return this.canDeleteSheet()
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
+      }
       default:
         return { status: "SUCCESS" };
     }
@@ -99,6 +105,10 @@ export class CorePlugin extends BasePlugin {
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: sheet });
         }
+        break;
+      case "DELETE_SHEET":
+        const force = "force" in cmd ? !!cmd.force : false;
+        this.deleteSheet(cmd.id, force);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -296,6 +306,11 @@ export class CorePlugin extends BasePlugin {
 
   getGridSize(): [number, number] {
     return [this.width, this.height];
+  }
+
+  canDeleteSheet(): boolean {
+    const visibleSheets = this.getSheets();
+    return visibleSheets.length > 1;
   }
 
   // ---------------------------------------------------------------------------
@@ -761,6 +776,23 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(["visibleSheets"], visibleSheets);
     this.history.updateState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
+  }
+
+  private deleteSheet(id: string, force: boolean) {
+    if (!force) {
+      this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet?"), () =>
+        this.dispatch("DELETE_SHEET", { id, force: true })
+      );
+      return;
+    }
+    const newSheets = Object.assign({}, this.workbook.sheets);
+    delete newSheets[id];
+    const deletedIndex = this.workbook.visibleSheets.findIndex((s) => s === id);
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    visibleSheets.splice(deletedIndex, 1);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+    this.history.updateState(["sheets"], Object.assign({}, newSheets));
+    this.activateSheet(visibleSheets[deletedIndex - 1]);
   }
 
   private clearZones(sheet: string, zones: Zone[]) {
