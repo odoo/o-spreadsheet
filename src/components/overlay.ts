@@ -155,12 +155,10 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
         this.lastElement = index;
       }
     };
-    const onMouseUpSelect = (ev: MouseEvent) => {
-      window.removeEventListener("mousemove", onMouseMoveSelect);
+    const onMouseUpSelect = () => {
       this.lastElement = null;
     };
-    window.addEventListener("mousemove", onMouseMoveSelect);
-    window.addEventListener("mouseup", onMouseUpSelect, { once: true });
+    startDnd(onMouseMoveSelect, onMouseUpSelect);
   }
 
   onMouseUp(ev: MouseEvent) {
