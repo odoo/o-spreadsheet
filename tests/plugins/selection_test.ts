@@ -2,6 +2,7 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { getActiveXc } from "../helpers";
+import { CancelledReason } from "../../src/types";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
@@ -208,6 +209,44 @@ describe("selection", () => {
     model.dispatch("SELECT_ROW", { index: 0 });
     expect(getActiveXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
+  });
+
+  test("cannot select out of bound row", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    });
+    expect(model.dispatch("SELECT_ROW", { index: -1 })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.SelectionOutOfBound,
+    });
+    expect(model.dispatch("SELECT_ROW", { index: 11 })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.SelectionOutOfBound,
+    });
+  });
+
+  test("cannot select out of bound column", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    });
+    expect(model.dispatch("SELECT_COLUMN", { index: -1 })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.SelectionOutOfBound,
+    });
+    expect(model.dispatch("SELECT_COLUMN", { index: 11 })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.SelectionOutOfBound,
+    });
   });
 
   test("can select the whole sheet", () => {
