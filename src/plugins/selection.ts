@@ -54,19 +54,42 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
-    if (cmd.type === "MOVE_POSITION") {
-      const [refCol, refRow] = this.getReferenceCoords();
-      const { cols, rows } = this.workbook;
-      const outOfBound =
-        (cmd.deltaY < 0 && refRow === 0) ||
-        (cmd.deltaY > 0 && refRow === rows.length - 1) ||
-        (cmd.deltaX < 0 && refCol === 0) ||
-        (cmd.deltaX > 0 && refCol === cols.length - 1);
-      if (outOfBound) {
-        return {
-          status: "CANCELLED",
-          reason: CancelledReason.SelectionOutOfBound,
-        };
+    switch (cmd.type) {
+      case "MOVE_POSITION": {
+        const [refCol, refRow] = this.getReferenceCoords();
+        const { cols, rows } = this.workbook;
+        const outOfBound =
+          (cmd.deltaY < 0 && refRow === 0) ||
+          (cmd.deltaY > 0 && refRow === rows.length - 1) ||
+          (cmd.deltaX < 0 && refCol === 0) ||
+          (cmd.deltaX > 0 && refCol === cols.length - 1);
+        if (outOfBound) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.SelectionOutOfBound,
+          };
+        }
+        break;
+      }
+      case "SELECT_COLUMN": {
+        const { index } = cmd;
+        if (index < 0 || index >= this.workbook.cols.length) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.SelectionOutOfBound,
+          };
+        }
+        break;
+      }
+      case "SELECT_ROW": {
+        const { index } = cmd;
+        if (index < 0 || index >= this.workbook.rows.length) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.SelectionOutOfBound,
+          };
+        }
+        break;
       }
     }
     return {
