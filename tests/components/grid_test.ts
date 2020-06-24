@@ -365,6 +365,7 @@ describe("error tooltip", () => {
   let currentTime = 0;
 
   beforeEach(async () => {
+    currentTime = 0;
     model = new Model();
     parent = new GridParent(model);
 
@@ -404,5 +405,18 @@ describe("error tooltip", () => {
     intervalCb();
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
+  });
+
+  test("can display error when move on merge", async () => {
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("ADD_MERGE", { sheet, zone: toZone("C1:C8") });
+    model.dispatch("SET_VALUE", { xc: "C1", text: "=1/0" });
+    await nextTick();
+    triggerMouseEvent("canvas", "mousemove", 300, 200); // C8
+
+    currentTime = 500;
+    intervalCb();
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 });

@@ -6,7 +6,7 @@ import {
   SCROLLBAR_WIDTH,
   HEADER_HEIGHT,
 } from "../constants";
-import { isEqual, isInside } from "../helpers/index";
+import { isEqual, isInside, toXC, toCartesian } from "../helpers/index";
 import { Model } from "../model";
 import { SpreadsheetEnv, Viewport } from "../types/index";
 import { Composer } from "./composer/composer";
@@ -87,7 +87,8 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
       if (400 < delta && delta < 600) {
         // mouse did not move for a short while
         const [col, row] = getPosition();
-        const cell = env.getters.getCell(col, row);
+        const mainXc = getters.getMainCell(toXC(col, row));
+        const cell = getters.getCell(...toCartesian(mainXc));
         if (cell && cell.error) {
           tooltip.isOpen = true;
           tooltip.text = cell.error;
