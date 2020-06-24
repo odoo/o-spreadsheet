@@ -435,6 +435,57 @@ describe("Columns", () => {
       expect(model.exportData()).toEqual(beforeAdd);
     });
   });
+
+  describe("Correctly update selection", () => {
+    test("On add left 1", () => {
+      model = new Model(fullData);
+      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      addColumns(1, "before", 1);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 2, right: 4, top: 0 });
+    });
+    test("On add left 3", () => {
+      model = new Model(fullData);
+      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      addColumns(1, "before", 3);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 4, right: 6, top: 0 });
+    });
+    test("On add right 1", () => {
+      model = new Model(fullData);
+      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      addColumns(1, "after", 1);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+    });
+    test("On add right 3", () => {
+      model = new Model(fullData);
+      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      addColumns(1, "after", 1);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+    });
+  });
 });
 
 //------------------------------------------------------------------------------
@@ -730,6 +781,57 @@ describe("Rows", () => {
       undo();
       undo();
       expect(model.exportData()).toEqual(beforeAdd);
+    });
+  });
+
+  describe("Correctly update selection", () => {
+    test("On add top 1", () => {
+      model = new Model(fullData);
+      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      addRows(0, "before", 1);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 2, right: 3, top: 1 });
+    });
+    test("On add top 3", () => {
+      model = new Model(fullData);
+      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      addRows(0, "before", 3);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 4, left: 2, right: 3, top: 3 });
+    });
+    test("On add bottom 1", () => {
+      model = new Model(fullData);
+      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      addRows(0, "after", 1);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+    });
+    test("On add bottom 3", () => {
+      model = new Model(fullData);
+      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      addRows(0, "after", 3);
+      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
     });
   });
 });

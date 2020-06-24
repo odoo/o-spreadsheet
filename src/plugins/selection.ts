@@ -148,12 +148,12 @@ export class SelectionPlugin extends BasePlugin {
         break;
       case "ADD_COLUMNS":
         if (cmd.position === "before") {
-          this.onAddColumns(cmd.column, cmd.quantity);
+          this.onAddColumns(cmd.quantity);
         }
         break;
       case "ADD_ROWS":
         if (cmd.position === "before") {
-          this.onAddRows(cmd.row, cmd.quantity);
+          this.onAddRows(cmd.quantity);
         }
         break;
     }
@@ -422,16 +422,26 @@ export class SelectionPlugin extends BasePlugin {
     this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
   }
 
-  private onAddColumns(column: number, quantity: number) {
-    let start = column + quantity;
-    const zone = this.getters.getColsZone(start, start + quantity - 1);
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [start, 0], strict: true });
+  private onAddColumns(quantity: number) {
+    const selection = this.getSelectedZone();
+    const zone = {
+      left: selection.left + quantity,
+      right: selection.right + quantity,
+      top: selection.top,
+      bottom: selection.bottom,
+    };
+    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
   }
 
-  private onAddRows(row: number, quantity: number) {
-    const start = row + quantity;
-    const zone = this.getters.getRowsZone(start, start + quantity - 1);
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, start], strict: true });
+  private onAddRows(quantity: number) {
+    const selection = this.getSelectedZone();
+    const zone = {
+      left: selection.left,
+      right: selection.right,
+      top: selection.top + quantity,
+      bottom: selection.bottom + quantity,
+    };
+    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
   }
 
   // ---------------------------------------------------------------------------
