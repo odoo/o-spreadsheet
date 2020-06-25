@@ -43,9 +43,8 @@ export class ClipboardPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
-    const force = "force" in cmd ? !!cmd.force : false;
     if (cmd.type === "PASTE") {
-      return this.isPasteAllowed(cmd.target, force);
+      return this.isPasteAllowed(cmd.target);
     }
     return {
       status: "SUCCESS",
@@ -112,8 +111,11 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   getPasteZones(target: Zone[]): Zone[] {
-    const height = this.cells!.length;
-    const width = this.cells![0].length;
+    if (!this.cells) {
+      return target;
+    }
+    const height = this.cells.length;
+    const width = this.cells[0].length;
     const selection = target[target.length - 1];
     const pasteZones: Zone[] = [];
     let col = selection.left;
@@ -187,19 +189,21 @@ export class ClipboardPlugin extends BasePlugin {
     }
   }
 
-  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
-    const cells = this.cells;
+  private isPasteAllowed(target: Zone[]): CommandResult {
+    const { zones, cells, status } = this;
     // cannot paste if we have a clipped zone larger than a cell and multiple
     // zones selected
-    if (cells && target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
+    if (!zones || !cells || status === "empty") {
+      return { status: "CANCELLED", reason: CancelledReason.EmptyClipboard };
+    } else if (target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
       return { status: "CANCELLED", reason: CancelledReason.WrongPasteSelection };
     }
     return { status: "SUCCESS" };
   }
 
   private pasteFromModel(target: Zone[]) {
-    const { zones, cells, shouldCut, status } = this;
-    if (!zones || !cells || status === "empty") {
+    const { cells, shouldCut } = this;
+    if (!cells) {
       return;
     }
     this.status = shouldCut ? "empty" : "invisible";
