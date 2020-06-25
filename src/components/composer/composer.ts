@@ -155,11 +155,9 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    return `
-        left: ${x - 1}px;
+    return `left: ${x - 1}px;
         top:${y}px;
         height:${height}px;
-        line-height:${height - 1.5}px;
         font-size:${fontSizeMap[style.fontSize || 10]}px;
         ${weight}${italic}${strikethrough}`;
   }
@@ -167,8 +165,10 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   get composerStyle() {
     const style = this.getters.getCurrentStyle();
     const cell = this.getters.getActiveCell() || { type: "text" };
+    const height = this.rect[3];
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
-    return `text-align:${align};`;
+    return `text-align:${align};
+        line-height:${height - 1.5}px;`;
   }
 
   // ---------------------------------------------------------------------------
