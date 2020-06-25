@@ -65,6 +65,22 @@ describe("clipboard", () => {
     expect(getCell(model, "D3")).toBeNull();
   });
 
+  test("paste without copied value", () => {
+    const model = new Model();
+    const result = model.dispatch("PASTE", { target: target("D2") });
+    expect(result).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.EmptyClipboard,
+    });
+  });
+
+  test("paste zones without copied value", () => {
+    const model = new Model();
+    const zones = target("A1,B2");
+    const pasteZone = model.getters.getPasteZones(zones);
+    expect(pasteZone).toEqual(zones);
+  });
+
   test("can cut and paste a cell in differents sheets", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });

@@ -417,6 +417,7 @@ export const enum CancelledReason {
   WrongSheetName,
   SelectionOutOfBound,
   WrongPasteSelection,
+  EmptyClipboard,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;
