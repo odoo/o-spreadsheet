@@ -3,11 +3,11 @@ import { Grid } from "../src/components/grid";
 import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import * as h from "../src/helpers/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { Cell, GridRenderingContext, SpreadsheetEnv, Sheet, Zone } from "../src/types";
+import { Cell, GridRenderingContext, Sheet, SpreadsheetEnv, Zone } from "../src/types";
 import "./canvas.mock";
+export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -235,12 +235,6 @@ export function resetFunctions() {
   Object.keys(functions).forEach((k) => {
     delete functions[k];
   });
-}
-
-export function mockUuidV4To(expectedId) {
-  let n = expectedId;
-  //@ts-ignore
-  h.uuidv4 = jest.fn(() => String(n++));
 }
 
 export function getActiveXc(model: Model): string {

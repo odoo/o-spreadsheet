@@ -3,6 +3,7 @@ import { ColorScaleThreshold, ConditionalFormat, Style, CommandResult } from "..
 import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick, target } from "../helpers";
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
 
