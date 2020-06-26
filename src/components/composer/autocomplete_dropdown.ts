@@ -59,7 +59,7 @@ const CSS = css/* scss */ `
     & > div {
       display: flex;
       flex-direction: column;
-      padding: 1 0 1 5px;
+      padding: 1px 0 5px 5px;
       .o-autocomplete-description {
         padding: 0 0 0 5px;
         font-size: 11px;
