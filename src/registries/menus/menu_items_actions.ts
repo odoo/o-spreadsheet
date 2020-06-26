@@ -1,6 +1,5 @@
-import { SpreadsheetEnv } from "../../types/env";
-import { Style } from "../../types/misc";
-import { numberToLetters } from "../../helpers/coordinates";
+import { Style, SpreadsheetEnv } from "../../types/index";
+import { numberToLetters } from "../../helpers/index";
 import { _lt } from "../../translation";
 
 //------------------------------------------------------------------------------
@@ -51,14 +50,36 @@ export const UNDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("UNDO");
 
 export const REDO_ACTION = (env: SpreadsheetEnv) => env.dispatch("REDO");
 
-export const COPY_ACTION = (env: SpreadsheetEnv) =>
+export const COPY_ACTION = async (env: SpreadsheetEnv) => {
   env.dispatch("COPY", { target: env.getters.getSelectedZones() });
+  await env.clipboard.writeText(env.getters.getClipboardContent());
+};
 
-export const CUT_ACTION = (env: SpreadsheetEnv) =>
+export const CUT_ACTION = async (env: SpreadsheetEnv) => {
   env.dispatch("CUT", { target: env.getters.getSelectedZones() });
+  await env.clipboard.writeText(env.getters.getClipboardContent());
+};
 
-export const PASTE_ACTION = (env: SpreadsheetEnv) =>
-  env.dispatch("PASTE", { target: env.getters.getSelectedZones(), interactive: true });
+export const PASTE_ACTION = async (env: SpreadsheetEnv) => {
+  const spreadsheetClipboard = env.getters.getClipboardContent();
+  let osClipboard;
+  try {
+    osClipboard = await env.clipboard.readText();
+  } catch (e) {
+    // Permission is required to read the clipboard.
+    console.warn("The OS clipboard could not be read.");
+    console.error(e);
+  }
+  const target = env.getters.getSelectedZones();
+  if (osClipboard && osClipboard !== spreadsheetClipboard) {
+    env.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+      target,
+      text: osClipboard,
+    });
+  } else {
+    env.dispatch("PASTE", { target, interactive: true });
+  }
+};
 
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetEnv) =>
   env.dispatch("PASTE", { target: env.getters.getSelectedZones(), onlyFormat: true });
@@ -74,8 +95,8 @@ export const DELETE_CONTENT_ACTION = (env: SpreadsheetEnv) =>
 //------------------------------------------------------------------------------
 
 export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetEnv) => {
-  let first = 0;
-  let last = 0;
+  let first: number;
+  let last: number;
   const activesRows = env.getters.getActiveRows();
   if (activesRows.size !== 0) {
     first = Math.min(...activesRows);
@@ -102,8 +123,8 @@ export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetEnv) => {
 };
 
 export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetEnv) => {
-  let first = 0;
-  let last = 0;
+  let first: number;
+  let last: number;
   const activeCols = env.getters.getActiveCols();
   if (activeCols.size !== 0) {
     first = Math.min(...activeCols);
@@ -130,8 +151,8 @@ export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
 };
 
 export const REMOVE_ROWS_NAME = (env: SpreadsheetEnv) => {
-  let first = 0;
-  let last = 0;
+  let first: number;
+  let last: number;
   const activesRows = env.getters.getActiveRows();
   if (activesRows.size !== 0) {
     first = Math.min(...activesRows);
@@ -162,8 +183,8 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
 };
 
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
-  let first = 0;
-  let last = 0;
+  let first: number;
+  let last: number;
   const activeCols = env.getters.getActiveCols();
   if (activeCols.size !== 0) {
     first = Math.min(...activeCols);
@@ -211,8 +232,8 @@ export const CELL_INSERT_ROWS_BEFORE_NAME = (env: SpreadsheetEnv) => {
 
 export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
   const activeRows = env.getters.getActiveRows();
-  let row = 0;
-  let quantity = 0;
+  let row: number;
+  let quantity: number;
   if (activeRows.size) {
     row = Math.min(...activeRows);
     quantity = activeRows.size;
@@ -239,8 +260,8 @@ export const MENU_INSERT_ROWS_AFTER_NAME = (env: SpreadsheetEnv) => {
 
 export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetEnv) => {
   const activeRows = env.getters.getActiveRows();
-  let row = 0;
-  let quantity = 0;
+  let row: number;
+  let quantity: number;
   if (activeRows.size) {
     row = Math.max(...activeRows);
     quantity = activeRows.size;
@@ -275,8 +296,8 @@ export const CELL_INSERT_COLUMNS_BEFORE_NAME = (env: SpreadsheetEnv) => {
 
 export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
   const activeCols = env.getters.getActiveCols();
-  let column = 0;
-  let quantity = 0;
+  let column: number;
+  let quantity: number;
   if (activeCols.size) {
     column = Math.min(...activeCols);
     quantity = activeCols.size;
@@ -303,8 +324,8 @@ export const MENU_INSERT_COLUMNS_AFTER_NAME = (env: SpreadsheetEnv) => {
 
 export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
   const activeCols = env.getters.getActiveCols();
-  let column = 0;
-  let quantity = 0;
+  let column: number;
+  let quantity: number;
   if (activeCols.size) {
     column = Math.max(...activeCols);
     quantity = activeCols.size;

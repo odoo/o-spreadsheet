@@ -275,7 +275,6 @@ describe("TopBar component", () => {
       sequence: 1,
       action: () => {
         number++;
-        return { status: "SUCCESS" };
       },
     });
     const parent = new Parent(new Model());

@@ -92,6 +92,7 @@ export class Spreadsheet extends Component<Props> {
       dispatch: this.model.dispatch,
       getters: this.model.getters,
       _t: Spreadsheet._t,
+      clipboard: navigator.clipboard,
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
