@@ -1,5 +1,6 @@
 import { load } from "../src/data";
 import { mockUuidV4To } from "./helpers";
+jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
