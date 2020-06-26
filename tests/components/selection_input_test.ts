@@ -121,8 +121,7 @@ describe("Selection Input", () => {
 
   test("remove button is displayed with more than one input", async () => {
     await createSelectionInput();
-    simulateClick(".o-add-selection");
-    await nextTick();
+    await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBe(2);
   });
 
@@ -152,8 +151,7 @@ describe("Selection Input", () => {
   test("new range is added when button clicked", async () => {
     await createSelectionInput();
     expect(fixture.querySelectorAll("input").length).toBe(1);
-    simulateClick(".o-add-selection");
-    await nextTick();
+    await simulateClick(".o-add-selection");
     expect(fixture.querySelectorAll("input").length).toBe(2);
   });
 
@@ -166,14 +164,12 @@ describe("Selection Input", () => {
 
   test("can focus a range", async () => {
     await createSelectionInput();
-    simulateClick(".o-add-selection"); // last input is now focused
-    await nextTick();
+    await simulateClick(".o-add-selection"); // last input is now focused
     expect([...fixture.querySelectorAll("input")].map((i) => i.className)).toEqual([
       "",
       "o-focused",
     ]);
-    simulateClick("input"); // focus the first input
-    await nextTick();
+    await simulateClick("input"); // focus the first input
     expect([...fixture.querySelectorAll("input")].map((i) => i.className)).toEqual([
       "o-focused",
       "",
@@ -190,8 +186,7 @@ describe("Selection Input", () => {
   test("can unfocus all inputs with the OK button", async () => {
     await createSelectionInput();
     expect(fixture.querySelector(".o-focused")).toBeTruthy();
-    simulateClick(".o-selection-ok");
-    await nextTick();
+    await simulateClick(".o-selection-ok");
   });
 
   test("changed event is triggered when input changed", async () => {
@@ -228,8 +223,7 @@ describe("Selection Input", () => {
     await nextTick();
     expect(fixture.querySelector(".input-1 .o-focused")).toBeTruthy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeFalsy();
-    simulateClick(".input-2 input");
-    await nextTick();
+    await simulateClick(".input-2 input");
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeTruthy();
   });
