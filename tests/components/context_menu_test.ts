@@ -189,8 +189,7 @@ describe("Context Menu", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
 
-    simulateClick("canvas", 50, 50);
-    await nextTick();
+    await simulateClick("canvas", 50, 50);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
@@ -207,8 +206,7 @@ describe("Context Menu", () => {
     await nextTick();
 
     // click on 'copy' menu item
-    simulateClick(".o-menu div[data-name='copy']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='copy']");
 
     // right click on B2
     simulateContextMenu(230, 50);
@@ -216,8 +214,7 @@ describe("Context Menu", () => {
     expect(getActiveXc(model)).toBe("B2");
 
     // click on 'paste' menu item
-    simulateClick(".o-menu div[data-name='paste']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='paste']");
     expect(getCell(model, "B1")!.content).toBe("b1");
     expect(getCell(model, "B2")!.content).toBe("b1");
   });
@@ -235,8 +232,7 @@ describe("Context Menu", () => {
     await nextTick();
 
     // click on 'cut' menu item
-    simulateClick(".o-menu div[data-name='cut']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='cut']");
 
     // right click on B2
     simulateContextMenu(230, 50);
@@ -244,8 +240,7 @@ describe("Context Menu", () => {
     expect(getActiveXc(model)).toBe("B2");
 
     // click on 'paste' menu item
-    simulateClick(".o-menu div[data-name='paste']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='paste']");
 
     expect(getCell(model, "B1")).toBeNull();
     expect(getCell(model, "B2")!.content).toBe("b1");
@@ -371,8 +366,7 @@ describe("Context Menu", () => {
     ];
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
-    simulateClick(".o-menu div[data-name='root']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='root']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
@@ -388,8 +382,7 @@ describe("Context Menu", () => {
 
   test("menu does not close when root menu is clicked", async () => {
     await renderContextMenu(300, 300, { menuItems: subMenu });
-    simulateClick(".o-menu div[data-name='root']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='root']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='root']")).toBeTruthy();
   });
@@ -400,10 +393,8 @@ describe("Context Menu", () => {
       onClose: mockCallback,
       menuItems: subMenu,
     });
-    simulateClick(".o-menu div[data-name='root']");
-    await nextTick();
-    simulateClick(".o-menu div[data-name='subMenu1']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='root']");
+    await simulateClick(".o-menu div[data-name='subMenu1']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeFalsy();
     expect(mockCallback).toHaveBeenCalled();
   });
@@ -429,10 +420,8 @@ describe("Context Menu", () => {
       }),
     ];
     await renderContextMenu(300, 990, { menuItems });
-    simulateClick("div[data-name='root1']");
-    await nextTick();
-    simulateClick("div[data-name='root2']");
-    await nextTick();
+    await simulateClick("div[data-name='root1']");
+    await simulateClick("div[data-name='root2']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
   });
 
@@ -520,8 +509,7 @@ describe("Context Menu position", () => {
 
   test("it renders submenu on the bottom right if enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(300, 300, { menuItems: subMenu });
-    simulateClick("div[data-name='root']");
-    await nextTick();
+    await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
     expect(left).toBe(clickX + width);
@@ -530,8 +518,7 @@ describe("Context Menu position", () => {
 
   test("it renders submenu on the bottom left if not enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(780, 300, { menuItems: subMenu });
-    simulateClick("div[data-name='root']");
-    await nextTick();
+    await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
     const { left: rootLeft } = getMenuPosition();
@@ -542,8 +529,7 @@ describe("Context Menu position", () => {
 
   test("it renders all menus on the bottom left if not enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(990, 300, { menuItems: subMenu });
-    simulateClick("div[data-name='root']");
-    await nextTick();
+    await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { width } = getMenuSize();
     const { left: rootLeft } = getMenuPosition();
@@ -554,8 +540,7 @@ describe("Context Menu position", () => {
 
   test("it renders submenu on the top right if not enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(300, 960, { menuItems: subMenu });
-    simulateClick("div[data-name='root']");
-    await nextTick();
+    await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { height } = getSubMenuSize();
     const { width } = getMenuSize();
@@ -565,8 +550,7 @@ describe("Context Menu position", () => {
 
   test("it renders all menus on the top right if not enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(300, 990, { menuItems: subMenu });
-    simulateClick("div[data-name='root']");
-    await nextTick();
+    await simulateClick("div[data-name='root']");
     const { left, top } = getSubMenuPosition();
     const { top: rootTop } = getMenuPosition();
     const { height } = getSubMenuSize();
@@ -585,8 +569,7 @@ describe("Context Menu - CF", () => {
     await parent.mount(fixture);
     simulateContextMenu(240, 110);
     await nextTick();
-    simulateClick(".o-menu div[data-name='conditional_formatting']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
@@ -618,8 +601,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
-    simulateClick(".o-menu div[data-name='conditional_formatting']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeFalsy();
@@ -665,8 +647,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(240, 110); //click on C5
     await nextTick();
-    simulateClick(".o-menu div[data-name='conditional_formatting']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
@@ -697,8 +678,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
     simulateContextMenu(80, 90);
     await nextTick();
-    simulateClick(".o-menu div[data-name='conditional_formatting']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeFalsy();
@@ -710,8 +690,7 @@ describe("Context Menu - CF", () => {
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [5, 5] });
     simulateContextMenu(530, 125);
     await nextTick();
-    simulateClick(".o-menu div[data-name='conditional_formatting']");
-    await nextTick();
+    await simulateClick(".o-menu div[data-name='conditional_formatting']");
     expect(
       fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf .o-cf-preview-list")
     ).toBeTruthy();
