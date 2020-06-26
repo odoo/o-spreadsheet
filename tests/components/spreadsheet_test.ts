@@ -2,13 +2,21 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import { makeTestFixture, nextTick } from "../helpers";
+import { makeTestFixture, nextTick, MockClipboard } from "../helpers";
 
 const { xml } = tags;
 const { useRef } = hooks;
 
 let fixture: HTMLElement;
 let parent: Parent;
+const clipboard = new MockClipboard();
+
+Object.defineProperty(navigator, "clipboard", {
+  get() {
+    return clipboard;
+  },
+  configurable: true,
+});
 
 class Parent extends Component<any> {
   static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
@@ -94,5 +102,9 @@ describe("Spreadsheet", () => {
     });
     await parent.mount(fixture);
     expect(env).toBeTruthy();
+  });
+
+  test("Clipboard is in spreadsheet env", () => {
+    expect((parent as any).spreadsheet.comp.env.clipboard).toBe(clipboard);
   });
 });

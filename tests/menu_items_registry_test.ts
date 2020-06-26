@@ -2,7 +2,7 @@ import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
 import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
-import { GridParent, makeTestFixture } from "./helpers";
+import { GridParent, makeTestFixture, nextTick } from "./helpers";
 
 function getNode(_path: string[]): FullMenuItem {
   const path = [..._path];
@@ -88,22 +88,39 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> copy", () => {
+    env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "copy"], env);
     expect(env.dispatch).toHaveBeenCalledWith("COPY", {
       target: env.getters.getSelectedZones(),
     });
+    expect(env.clipboard.writeText).toHaveBeenCalledWith(env.getters.getClipboardContent());
   });
 
   test("Edit -> cut", () => {
+    env.clipboard.writeText = jest.fn(() => Promise.resolve());
     doAction(["edit", "cut"], env);
     expect(env.dispatch).toHaveBeenCalledWith("CUT", {
       target: env.getters.getSelectedZones(),
     });
+    expect(env.clipboard.writeText).toHaveBeenCalledWith(env.getters.getClipboardContent());
   });
 
-  test("Edit -> paste", () => {
+  test("Edit -> paste from OS clipboard if copied from outside world last", async () => {
+    doAction(["edit", "copy"], env); // first copy from grid
+    await env.clipboard.writeText("Then copy in OS clipboard");
     doAction(["edit", "paste"], env);
+    await nextTick();
+    expect(env.dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      text: await env.clipboard.readText(),
+      target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
+    });
+  });
 
+  test("Edit -> paste if copied from grid last", async () => {
+    await env.clipboard.writeText("First copy in OS clipboard");
+    doAction(["edit", "copy"], env); // then copy from grid
+    doAction(["edit", "paste"], env);
+    await nextTick();
     expect(env.dispatch).toHaveBeenCalledWith("PASTE", {
       interactive: true,
       target: [{ bottom: 0, left: 0, right: 0, top: 0 }],

@@ -37,6 +37,25 @@ export function makeTestFixture() {
 
 const t = (s: string): string => s;
 
+export class MockClipboard {
+  private content: string = "Some random clipboard content";
+
+  readText(): Promise<string> {
+    return Promise.resolve(this.content);
+  }
+
+  writeText(content: string): Promise<void> {
+    this.content = content;
+    return Promise.resolve();
+  }
+
+  addEventListener() {}
+  removeEventListener() {}
+  dispatchEvent() {
+    return false;
+  }
+}
+
 export class GridParent extends Component<any, SpreadsheetEnv> {
   static template = xml`
     <div class="parent">
@@ -66,6 +85,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       dispatch: model.dispatch,
       getters: model.getters,
       _t: GridParent._t,
+      clipboard: new MockClipboard(),
     });
 
     const drawGrid = model.drawGrid;

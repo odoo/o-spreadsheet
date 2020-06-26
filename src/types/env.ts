@@ -6,4 +6,5 @@ export interface SpreadsheetEnv extends Env {
   openSidePanel: (panel: string, panelProps?: any) => void;
   dispatch: CommandDispatcher["dispatch"];
   getters: Getters;
+  clipboard: Clipboard;
 }
