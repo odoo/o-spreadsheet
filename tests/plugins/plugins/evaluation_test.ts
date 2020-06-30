@@ -1,6 +1,8 @@
 import { Model } from "../../../src/model";
+import { functionRegistry, args } from "../../../src/functions/index";
 
 import "../../canvas.mock";
+import { getCell } from "../../helpers";
 
 let model: Model = new Model();
 beforeEach(() => {
@@ -33,5 +35,20 @@ describe("evaluate formula getter", () => {
   test("evaluate a pending cell (async)", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "=wait(99999)" });
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
+  });
+
+  test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {
+    let value = 1;
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: () => value,
+      args: args(``),
+      returns: ["NUMBER"],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=GETVALUE()" });
+    expect(getCell(model, "A1")!.value).toBe(1);
+    value = 2;
+    model.dispatch("EVALUATE_CELLS");
+    expect(getCell(model, "A1")!.value).toBe(2);
   });
 });
