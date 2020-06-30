@@ -91,10 +91,14 @@ export class EvaluationPlugin extends BasePlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        const cells = new Set(this.WAITING);
-        this.WAITING.clear();
-
-        this.evaluateCells(makeSetIterator(cells));
+        if (cmd.onlyWaiting) {
+          const cells = new Set(this.WAITING);
+          this.WAITING.clear();
+          this.evaluateCells(makeSetIterator(cells));
+        } else {
+          this.WAITING.clear();
+          this.evaluate();
+        }
         this.isUptodate.add(this.workbook.activeSheet.id);
         break;
       case "UNDO":
