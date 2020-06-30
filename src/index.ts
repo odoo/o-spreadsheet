@@ -1,6 +1,6 @@
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { numberToLetters, toXC, toZone, toCartesian } from "./helpers/index";
+import { numberToLetters, toXC, toZone, toCartesian, uuidv4 } from "./helpers/index";
 import { pluginRegistry } from "./plugins/index";
 import {
   autofillModifiersRegistry,
@@ -51,4 +51,5 @@ export const helpers = {
   toCartesian,
   numberToLetters,
   createFullMenuItem,
+  uuidv4,
 };
