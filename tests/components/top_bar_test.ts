@@ -6,11 +6,18 @@ import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_regis
 import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { ConditionalFormat } from "../../src/types";
+import { _lt } from "../../src/translation";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
+
+topbarMenuRegistry.addChild("save", ["file"], {
+  name: _lt("Save"),
+  sequence: 10,
+  action: () => console.log("Not implemented"),
+});
 
 class Parent extends Component<any, any> {
   static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;

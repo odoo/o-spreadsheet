@@ -4,15 +4,38 @@ owl.config.mode = "dev";
 const { whenReady } = owl.utils;
 const { Component } = owl;
 const { xml, css } = owl.tags;
+const { useSubEnv } = owl.hooks;
+
+const Spreadsheet = o_spreadsheet.Spreadsheet;
+const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
+
+menuItemRegistry.addChild("save", ["file"], {
+  name: "Save",
+  sequence: 30,
+  action: (env) => env.save(env.export()),
+});
+menuItemRegistry.addChild("clear", ["file"], {
+  name: "Clear save",
+  sequence: 30,
+  action: (env) => window.localStorage.removeItem("o-spreadsheet"),
+});
 
 let start;
 
-const Spreadsheet = o_spreadsheet.Spreadsheet;
 class App extends Component {
   constructor() {
     super();
     this.key = 1;
-    this.data = demoData;
+    let cacheData;
+    try {
+      cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
+    } catch (_) {
+      window.localStorage.removeItem("o-spreadsheet");
+    }
+    this.data = cacheData || demoData;
+    useSubEnv({
+      save: this.save.bind(this),
+    });
     // this.data = makeLargeDataset(20, 10_000);
   }
 
@@ -29,13 +52,22 @@ class App extends Component {
   notifyUser(ev) {
     window.alert(ev.detail.content);
   }
+
+  saveContent(ev) {
+    this.save(ev.detail.data);
+  }
+
+  save(content) {
+    window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
+  }
 }
 
 App.template = xml`
   <div>
     <Spreadsheet data="data" t-key="key"
       t-on-ask-confirmation="askConfirmation"
-      t-on-notify-user="notifyUser"/>
+      t-on-notify-user="notifyUser"
+      t-on-save-content="saveContent"/>
   </div>`;
 App.style = css`
   html {
