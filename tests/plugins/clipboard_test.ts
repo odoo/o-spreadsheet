@@ -27,13 +27,13 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
     });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" },
     });
@@ -43,17 +43,17 @@ describe("clipboard", () => {
   test("can cut and paste a cell", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
     });
 
     model.dispatch("CUT", { target: target("B2") });
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
     });
     model.dispatch("PASTE", { target: target("D2") });
 
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" },
     });
 
@@ -90,12 +90,12 @@ describe("clipboard", () => {
     const from = model.getters.getActiveSheet();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1Sheet2" });
     model.dispatch("PASTE", { target: target("B2") });
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       A1: { col: 0, row: 0, content: "a1Sheet2", type: "text", value: "a1Sheet2", xc: "A1" },
       B2: { col: 1, row: 1, content: "a1", type: "text", value: "a1", xc: "B2" },
     });
     model.dispatch("ACTIVATE_SHEET", { from, to });
-    expect(model["workbook"].cells).toEqual({});
+    expect(model["workbook"].activeSheet.cells).toEqual({});
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
@@ -402,7 +402,7 @@ describe("clipboard", () => {
     model.dispatch("CUT", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2") });
 
-    expect(model["workbook"].cells).toEqual({
+    expect(model["workbook"].activeSheet.cells).toEqual({
       C2: { col: 2, style: 2, row: 1, content: "b2", type: "text", value: "b2", xc: "C2" },
     });
   });
@@ -596,15 +596,15 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: '="test"' });
 
-    expect(model["workbook"].cells["B2"].content).toEqual('="test"');
-    expect(model["workbook"].cells["B2"].value).toEqual("test");
+    expect(model["workbook"].activeSheet.cells["B2"].content).toEqual('="test"');
+    expect(model["workbook"].activeSheet.cells["B2"].value).toEqual("test");
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
-    expect(model["workbook"].cells["B2"].content).toEqual('="test"');
-    expect(model["workbook"].cells["B2"].value).toEqual("test");
-    expect(model["workbook"].cells["D2"].content).toEqual('="test"');
-    expect(model["workbook"].cells["D2"].value).toEqual("test");
+    expect(model["workbook"].activeSheet.cells["B2"].content).toEqual('="test"');
+    expect(model["workbook"].activeSheet.cells["B2"].value).toEqual("test");
+    expect(model["workbook"].activeSheet.cells["D2"].content).toEqual('="test"');
+    expect(model["workbook"].activeSheet.cells["D2"].value).toEqual("test");
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
@@ -918,11 +918,11 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "txt" });
 
-    const currentRowNumber = model["workbook"].rows.length;
+    const currentRowNumber = model["workbook"].activeSheet.rows.length;
 
     model.dispatch("COPY", { target: [model.getters.getColsZone(0, 0)] });
     model.dispatch("PASTE", { target: target("B2") });
-    expect(model["workbook"].rows.length).toBe(currentRowNumber + 1);
+    expect(model["workbook"].activeSheet.rows.length).toBe(currentRowNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");
   });
 
@@ -930,11 +930,11 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "txt" });
 
-    const currentColNumber = model["workbook"].cols.length;
+    const currentColNumber = model["workbook"].activeSheet.cols.length;
 
     model.dispatch("COPY", { target: [model.getters.getRowsZone(0, 0)] });
     model.dispatch("PASTE", { target: target("B2") });
-    expect(model["workbook"].cols.length).toBe(currentColNumber + 1);
+    expect(model["workbook"].activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");
   });
 });

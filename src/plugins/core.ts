@@ -56,8 +56,6 @@ export class CorePlugin extends BasePlugin {
     "getGridSize",
   ];
 
-  private width: number = 0;
-  private height: number = 0;
   private sheetIds: { [name: string]: string } = {};
 
   // ---------------------------------------------------------------------------
@@ -67,11 +65,11 @@ export class CorePlugin extends BasePlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
-        return this.workbook.cols.length > cmd.columns.length
+        return this.workbook.activeSheet.cols.length > cmd.columns.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
       case "REMOVE_ROWS":
-        return this.workbook.rows.length > cmd.rows.length
+        return this.workbook.activeSheet.rows.length > cmd.rows.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
@@ -87,7 +85,7 @@ export class CorePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.activateSheet(cmd.to);
+        this.history.updateState(["activeSheet"], this.workbook.sheets[cmd.to]);
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -106,7 +104,7 @@ export class CorePlugin extends BasePlugin {
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
         this.dispatch("UPDATE_CELL", {
-          sheet: cmd.sheet ? cmd.sheet : this.workbook.activeSheet.id,
+          sheet: cmd.sheetId ? cmd.sheetId : this.workbook.activeSheet.id,
           col,
           row,
           content: cmd.text,
@@ -154,15 +152,31 @@ export class CorePlugin extends BasePlugin {
         break;
       case "REMOVE_COLUMNS":
         this.removeColumns(cmd.sheet, cmd.columns);
+        this.history.updateState(
+          ["activeSheet", "colNumber"],
+          this.workbook.activeSheet.colNumber - cmd.columns.length
+        );
         break;
       case "REMOVE_ROWS":
         this.removeRows(cmd.sheet, cmd.rows);
+        this.history.updateState(
+          ["activeSheet", "rowNumber"],
+          this.workbook.activeSheet.rowNumber - cmd.rows.length
+        );
         break;
       case "ADD_COLUMNS":
         this.addColumns(cmd.sheet, cmd.column, cmd.position, cmd.quantity);
+        this.history.updateState(
+          ["activeSheet", "colNumber"],
+          this.workbook.activeSheet.colNumber + cmd.quantity
+        );
         break;
       case "ADD_ROWS":
         this.addRows(cmd.sheet, cmd.row, cmd.position, cmd.quantity);
+        this.history.updateState(
+          ["activeSheet", "rowNumber"],
+          this.workbook.activeSheet.rowNumber + cmd.quantity
+        );
         break;
     }
   }
@@ -171,8 +185,18 @@ export class CorePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCell(col: number, row: number): Cell | null {
-    const r = this.workbook.rows[row];
+  getCell(col: number, row: number, sheetName?: string): Cell | null {
+    let r;
+    if (!sheetName) {
+      r = this.workbook.activeSheet.rows[row];
+    } else {
+      const sheet = Object.values(this.workbook.sheets).find((x) => x.name === sheetName);
+      if (sheet) {
+        r = sheet.rows[row];
+      } else {
+        return null;
+      }
+    }
     return r ? r.cells[col] || null : null;
   }
 
@@ -251,35 +275,35 @@ export class CorePlugin extends BasePlugin {
   }
 
   getCol(index: number): Col {
-    return this.workbook.cols[index];
+    return this.workbook.activeSheet.cols[index];
   }
 
   getRow(index: number): Row {
-    return this.workbook.rows[index];
+    return this.workbook.activeSheet.rows[index];
   }
 
   /**
    * Returns all the cells of a col
    */
   getColCells(col: number): Cell[] {
-    return this.workbook.rows.reduce(
+    return this.workbook.activeSheet.rows.reduce(
       (acc: Cell[], cur) => (cur.cells[col] ? acc.concat(cur.cells[col]) : acc),
       []
     );
   }
 
   getNumberCols(): number {
-    return this.workbook.cols.length;
+    return this.workbook.activeSheet.cols.length;
   }
 
   getNumberRows(): number {
-    return this.workbook.rows.length;
+    return this.workbook.activeSheet.rows.length;
   }
 
   getColsZone(start: number, end: number): Zone {
     return {
       top: 0,
-      bottom: this.workbook.rows.length - 1,
+      bottom: this.workbook.activeSheet.rows.length - 1,
       left: start,
       right: end,
     };
@@ -290,12 +314,16 @@ export class CorePlugin extends BasePlugin {
       top: start,
       bottom: end,
       left: 0,
-      right: this.workbook.cols.length - 1,
+      right: this.workbook.activeSheet.cols.length - 1,
     };
   }
 
   getGridSize(): [number, number] {
-    return [this.width, this.height];
+    const activeSheet = this.workbook.activeSheet;
+    const height = activeSheet.rows[activeSheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
+    const width = activeSheet.cols[activeSheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
+
+    return [width, height];
   }
 
   // ---------------------------------------------------------------------------
@@ -303,7 +331,7 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private getColMaxWidth(index: number): number {
-    const cells = this.workbook.rows.reduce(
+    const cells = this.workbook.activeSheet.rows.reduce(
       (acc: Cell[], cur) => (cur.cells[index] ? acc.concat(cur.cells[index]) : acc),
       []
     );
@@ -312,35 +340,33 @@ export class CorePlugin extends BasePlugin {
   }
 
   private getRowMaxHeight(index: number): number {
-    const cells = Object.values(this.workbook.rows[index].cells);
+    const cells = Object.values(this.workbook.activeSheet.rows[index].cells);
     const sizes = cells.map(this.getters.getCellHeight);
     return Math.max(0, ...sizes);
   }
 
   private setColSize(index: number, size: number) {
-    const col = this.workbook.cols[index];
+    const col = this.workbook.activeSheet.cols[index];
     const delta = size - col.size;
-    this.history.updateState(["cols", index, "size"], size);
-    this.history.updateState(["cols", index, "end"], col.end + delta);
-    for (let i = index + 1; i < this.workbook.cols.length; i++) {
-      const col = this.workbook.cols[i];
-      this.history.updateState(["cols", i, "start"], col.start + delta);
-      this.history.updateState(["cols", i, "end"], col.end + delta);
+    this.history.updateState(["activeSheet", "cols", index, "size"], size);
+    this.history.updateState(["activeSheet", "cols", index, "end"], col.end + delta);
+    for (let i = index + 1; i < this.workbook.activeSheet.cols.length; i++) {
+      const col = this.workbook.activeSheet.cols[i];
+      this.history.updateState(["activeSheet", "cols", i, "start"], col.start + delta);
+      this.history.updateState(["activeSheet", "cols", i, "end"], col.end + delta);
     }
-    this.history.updateLocalState(["width"], this.width + delta);
   }
 
   private setRowSize(index: number, size: number) {
-    const row = this.workbook.rows[index];
+    const row = this.workbook.activeSheet.rows[index];
     const delta = size - row.size;
-    this.history.updateState(["rows", index, "size"], size);
-    this.history.updateState(["rows", index, "end"], row.end + delta);
-    for (let i = index + 1; i < this.workbook.rows.length; i++) {
-      const row = this.workbook.rows[i];
-      this.history.updateState(["rows", i, "start"], row.start + delta);
-      this.history.updateState(["rows", i, "end"], row.end + delta);
+    this.history.updateState(["activeSheet", "rows", index, "size"], size);
+    this.history.updateState(["activeSheet", "rows", index, "end"], row.end + delta);
+    for (let i = index + 1; i < this.workbook.activeSheet.rows.length; i++) {
+      const row = this.workbook.activeSheet.rows[i];
+      this.history.updateState(["activeSheet", "rows", i, "start"], row.start + delta);
+      this.history.updateState(["activeSheet", "rows", i, "end"], row.end + delta);
     }
-    this.history.updateLocalState(["height"], this.height + delta);
   }
 
   /**
@@ -468,11 +494,10 @@ export class CorePlugin extends BasePlugin {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
-    let newWidth = this.width;
-    for (let i in this.workbook.cols) {
+    for (let i in this.workbook.activeSheet.cols) {
       if (parseInt(i, 10) === base) {
         if (step !== -1) {
-          const { size } = this.workbook.cols[colIndex];
+          const { size } = this.workbook.activeSheet.cols[colIndex];
           for (let a = 0; a < step; a++) {
             cols.push({
               name: numberToLetters(colIndex),
@@ -480,17 +505,14 @@ export class CorePlugin extends BasePlugin {
               start,
               end: start + size,
             });
-            newWidth = newWidth + size;
             start += size;
             colIndex++;
           }
         } else {
-          const size = this.workbook.cols[colIndex].size;
-          newWidth = newWidth - size;
           continue;
         }
       }
-      const { size } = this.workbook.cols[i];
+      const { size } = this.workbook.activeSheet.cols[i];
       cols.push({
         name: numberToLetters(colIndex),
         size,
@@ -500,21 +522,18 @@ export class CorePlugin extends BasePlugin {
       start += size;
       colIndex++;
     }
-    this.history.updateLocalState(["width"], newWidth);
-    this.history.updateState(["cols"], cols);
+    this.history.updateState(["activeSheet", "cols"], cols);
   }
 
   private processRowsHeaderDelete(index: number) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
-    let sizeToDelete = 0;
-    const cellsQueue = this.workbook.rows.map((row) => row.cells);
-    for (let i in this.workbook.rows) {
-      const row = this.workbook.rows[i];
+    const cellsQueue = this.workbook.activeSheet.rows.map((row) => row.cells);
+    for (let i in this.workbook.activeSheet.rows) {
+      const row = this.workbook.activeSheet.rows[i];
       const { size } = row;
       if (parseInt(i, 10) === index) {
-        sizeToDelete = size;
         continue;
       }
       rowIndex++;
@@ -527,8 +546,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["height"], this.height - sizeToDelete);
-    this.history.updateState(["rows"], rows);
+    this.history.updateState(["activeSheet", "rows"], rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -536,9 +554,9 @@ export class CorePlugin extends BasePlugin {
     let start = 0;
     let rowIndex = 0;
     let sizeIndex = 0;
-    const cellsQueue = this.workbook.rows.map((row) => row.cells);
-    for (let i in this.workbook.rows) {
-      const { size } = this.workbook.rows[sizeIndex];
+    const cellsQueue = this.workbook.activeSheet.rows.map((row) => row.cells);
+    for (let i in this.workbook.activeSheet.rows) {
+      const { size } = this.workbook.activeSheet.rows[sizeIndex];
       if (parseInt(i, 10) < index || parseInt(i, 10) >= index + quantity) {
         sizeIndex++;
       }
@@ -552,15 +570,13 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["height"], start + DEFAULT_CELL_HEIGHT + 5);
-    this.history.updateState(["rows"], rows);
-    this.history.updateState(["sheets", this.workbook.activeSheet.id, "rows"], rows);
+    this.history.updateState(["activeSheet", "rows"], rows);
   }
 
   private addEmptyRow() {
-    const lastEnd = this.workbook.rows[this.workbook.rows.length - 1].end;
-    const name = (this.workbook.rows.length + 1).toString();
-    const newRows: Row[] = this.workbook.rows.slice();
+    const lastEnd = this.workbook.activeSheet.rows[this.workbook.activeSheet.rows.length - 1].end;
+    const name = (this.workbook.activeSheet.rows.length + 1).toString();
+    const newRows: Row[] = this.workbook.activeSheet.rows.slice();
     const size = 0;
     newRows.push({
       start: lastEnd,
@@ -569,9 +585,7 @@ export class CorePlugin extends BasePlugin {
       name,
       cells: {},
     });
-    this.history.updateLocalState(["height"], this.height + size);
-    this.history.updateState(["rows"], newRows);
-    const path = ["sheets", this.workbook.activeSheet.id, "rows"];
+    const path = ["activeSheet", "rows"];
     this.history.updateState(path, newRows);
   }
 
@@ -608,7 +622,7 @@ export class CorePlugin extends BasePlugin {
   ) {
     const deleteCommands: Command[] = [];
     const addCommands: Command[] = [];
-    for (let [xc, cell] of Object.entries(this.workbook.cells)) {
+    for (let [xc, cell] of Object.entries(this.workbook.activeSheet.cells)) {
       if (shouldDelete(cell)) {
         const [col, row] = toCartesian(xc);
         deleteCommands.push({
@@ -724,25 +738,6 @@ export class CorePlugin extends BasePlugin {
     this.history.updateSheet(_sheet, ["rows", row, "cells", col], cell);
   }
 
-  private activateSheet(id: string) {
-    const sheet = this.workbook.sheets[id];
-    this.history.updateState(["activeSheet"], sheet);
-
-    // setting up rows and columns
-    this.history.updateState(["rows"], sheet.rows);
-    this.history.updateState(["cols"], sheet.cols);
-
-    // cells
-    this.history.updateState(["cells"], sheet.cells);
-
-    // sizes
-    const workbook = this.workbook;
-    const height = workbook.rows[workbook.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
-    const width = workbook.cols[workbook.cols.length - 1].end + DEFAULT_CELL_WIDTH;
-    this.history.updateLocalState(["width"], width);
-    this.history.updateLocalState(["height"], height);
-  }
-
   private createSheet(name: string, cols: number, rows: number): string {
     const sheet: Sheet = {
       id: uuidv4(),
@@ -851,7 +846,7 @@ export class CorePlugin extends BasePlugin {
     for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
-    this.activateSheet(data.activeSheet);
+    this.workbook.activeSheet = this.workbook.sheets[data.activeSheet];
   }
 
   importSheet(data: SheetData) {

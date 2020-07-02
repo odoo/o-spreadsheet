@@ -265,7 +265,7 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   private pasteZone(width: number, height: number, col: number, row: number) {
-    const { cols, rows } = this.workbook;
+    const { cols, rows } = this.workbook.activeSheet;
     // first, add missing cols/rows if needed
     const missingRows = height + row - rows.length;
     if (missingRows > 0) {
@@ -304,7 +304,7 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   pasteCell(origin: Cell | null, col: number, row: number, cut?: boolean) {
-    const { cols, rows } = this.workbook;
+    const { cols, rows } = this.workbook.activeSheet;
     const targetCell = this.getters.getCell(col, row);
     if (origin) {
       let content: string | undefined = origin.content || "";

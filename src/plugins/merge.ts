@@ -113,7 +113,7 @@ export class MergePlugin extends BasePlugin {
   isMergeDestructive(zone: Zone): boolean {
     const { left, right, top, bottom } = zone;
     for (let row = top; row <= bottom; row++) {
-      const actualRow = this.workbook.rows[row];
+      const actualRow = this.workbook.activeSheet.rows[row];
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = actualRow.cells[col];
@@ -358,7 +358,7 @@ export class MergePlugin extends BasePlugin {
     const sheet = this.workbook.sheets[sheetId];
     for (let merge of Object.values(sheet.merges)) {
       const xc = merge.topLeft;
-      const topLeft = this.workbook.cells[xc];
+      const topLeft = this.workbook.activeSheet.cells[xc];
       if (!topLeft) {
         continue;
       }

@@ -80,7 +80,7 @@ export class RendererPlugin extends BasePlugin {
     if (x < HEADER_WIDTH) {
       return -1;
     }
-    const cols = this.workbook.cols;
+    const cols = this.workbook.activeSheet.cols;
     const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
@@ -89,7 +89,7 @@ export class RendererPlugin extends BasePlugin {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
-    const rows = this.workbook.rows;
+    const rows = this.workbook.activeSheet.rows;
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
   }
@@ -99,7 +99,7 @@ export class RendererPlugin extends BasePlugin {
     let { offsetY, offsetX } = viewport;
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
-    const { cols, rows } = this.workbook;
+    const { cols, rows } = this.workbook.activeSheet;
     const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
     const width = cols[right].end - offsetX - x;
     const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
@@ -113,7 +113,7 @@ export class RendererPlugin extends BasePlugin {
    * but expressed in term of rows/cols)
    */
   getAdjustedViewport(viewport: Viewport, adjustment: "offsets" | "zone" | "position"): Viewport {
-    const { cols, rows } = this.workbook;
+    const { cols, rows } = this.workbook.activeSheet;
     viewport = Object.assign({}, viewport);
     if (adjustment === "offsets") {
       viewport.offsetX = cols[viewport.left].start;
@@ -184,7 +184,7 @@ export class RendererPlugin extends BasePlugin {
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     let { width, height, offsetX, offsetY, top, left, bottom, right } = viewport;
-    const { rows, cols } = this.workbook;
+    const { rows, cols } = this.workbook.activeSheet;
 
     // white background
     ctx.fillStyle = "white";
@@ -327,7 +327,7 @@ export class RendererPlugin extends BasePlugin {
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
     const selection = this.getters.getSelectedZones();
-    const { cols, rows } = this.workbook;
+    const { cols, rows } = this.workbook.activeSheet;
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
 
@@ -389,10 +389,10 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private hasContent(col: number, row: number): boolean {
-    const { cells, activeSheet } = this.workbook;
+    const { cells, mergeCellMap } = this.workbook.activeSheet;
     const xc = toXC(col, row);
     const cell = cells[xc];
-    return (cell && cell.content) || ((xc in activeSheet.mergeCellMap) as any);
+    return (cell && cell.content) || ((xc in mergeCellMap) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -402,13 +402,13 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, activeSheet, cells } = this.workbook;
+    const { cols, rows, mergeCellMap, cells, merges } = this.workbook.activeSheet;
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cell = row.cells[colNumber];
-        if (cell && !(cell.xc in activeSheet.mergeCellMap)) {
+        if (cell && !(cell.xc in mergeCellMap)) {
           let col = cols[colNumber];
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
@@ -459,7 +459,6 @@ export class RendererPlugin extends BasePlugin {
     }
 
     // process all visible merges
-    const merges = activeSheet.merges;
     for (let id in merges) {
       let merge = merges[id];
       if (overlap(merge, viewport)) {

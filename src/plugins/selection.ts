@@ -67,7 +67,7 @@ export class SelectionPlugin extends BasePlugin {
     switch (cmd.type) {
       case "MOVE_POSITION": {
         const [refCol, refRow] = this.getReferenceCoords();
-        const { cols, rows } = this.workbook;
+        const { cols, rows } = this.workbook.activeSheet;
         const outOfBound =
           (cmd.deltaY < 0 && refRow === 0) ||
           (cmd.deltaY > 0 && refRow === rows.length - 1) ||
@@ -83,7 +83,7 @@ export class SelectionPlugin extends BasePlugin {
       }
       case "SELECT_COLUMN": {
         const { index } = cmd;
-        if (index < 0 || index >= this.workbook.cols.length) {
+        if (index < 0 || index >= this.workbook.activeSheet.cols.length) {
           return {
             status: "CANCELLED",
             reason: CancelledReason.SelectionOutOfBound,
@@ -93,7 +93,7 @@ export class SelectionPlugin extends BasePlugin {
       }
       case "SELECT_ROW": {
         const { index } = cmd;
-        if (index < 0 || index >= this.workbook.rows.length) {
+        if (index < 0 || index >= this.workbook.activeSheet.rows.length) {
           return {
             status: "CANCELLED",
             reason: CancelledReason.SelectionOutOfBound,
@@ -198,7 +198,7 @@ export class SelectionPlugin extends BasePlugin {
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
     for (let zone of this.selection.zones) {
-      if (zone.top === 0 && zone.bottom === this.workbook.rows.length - 1) {
+      if (zone.top === 0 && zone.bottom === this.workbook.activeSheet.rows.length - 1) {
         for (let i = zone.left; i <= zone.right; i++) {
           activeCols.add(i);
         }
@@ -210,7 +210,7 @@ export class SelectionPlugin extends BasePlugin {
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
     for (let zone of this.selection.zones) {
-      if (zone.left === 0 && zone.right === this.workbook.cols.length - 1) {
+      if (zone.left === 0 && zone.right === this.workbook.activeSheet.cols.length - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
         }
@@ -240,7 +240,7 @@ export class SelectionPlugin extends BasePlugin {
     let n = 0;
     for (let zone of this.selection.zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
-        const r = this.workbook.rows[row];
+        const r = this.workbook.activeSheet.rows[row];
         for (let col = zone.left; col <= zone.right; col++) {
           const cell = r.cells[col];
           if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
@@ -274,7 +274,7 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
-    const bottom = this.workbook.rows.length - 1;
+    const bottom = this.workbook.activeSheet.rows.length - 1;
     const zone = { left: index, right: index, top: 0, bottom };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
@@ -291,7 +291,7 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private selectRow(index: number, createRange: boolean, updateRange: boolean) {
-    const right = this.workbook.cols.length - 1;
+    const right = this.workbook.activeSheet.cols.length - 1;
     const zone = { top: index, bottom: index, left: 0, right };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
@@ -308,8 +308,8 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private selectAll() {
-    const bottom = this.workbook.rows.length - 1;
-    const right = this.workbook.cols.length - 1;
+    const bottom = this.workbook.activeSheet.rows.length - 1;
+    const right = this.workbook.activeSheet.cols.length - 1;
     const zone = { left: 0, top: 0, bottom, right };
     this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
   }
@@ -383,9 +383,9 @@ export class SelectionPlugin extends BasePlugin {
       const { left, right, top, bottom } = this.getters.expandZone(z);
       return {
         left: Math.max(0, left),
-        right: Math.min(this.workbook.cols.length - 1, right),
+        right: Math.min(this.workbook.activeSheet.cols.length - 1, right),
         top: Math.max(0, top),
-        bottom: Math.min(this.workbook.rows.length - 1, bottom),
+        bottom: Math.min(this.workbook.activeSheet.rows.length - 1, bottom),
       };
     };
 
@@ -439,8 +439,8 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private updateSelection() {
-    const cols = this.workbook.cols.length - 1;
-    const rows = this.workbook.rows.length - 1;
+    const cols = this.workbook.activeSheet.cols.length - 1;
+    const rows = this.workbook.activeSheet.rows.length - 1;
     const zones = this.selection.zones.map((z) => ({
       left: clip(z.left, 0, cols),
       right: clip(z.right, 0, cols),

@@ -386,7 +386,7 @@ export interface SetValueCommand extends BaseCommand {
   type: "SET_VALUE";
   xc: string;
   text: string;
-  sheet?: string;
+  sheetId?: string;
 }
 
 export interface DeleteContentCommand extends BaseCommand {

@@ -144,7 +144,7 @@ describe("TopBar component", () => {
 
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
-    expect(model["workbook"].cells.A1.style).toBeDefined();
+    expect(model["workbook"].activeSheet.cells.A1.style).toBeDefined();
 
     undoTool.dispatchEvent(new Event("click"));
     await nextTick();
@@ -177,7 +177,7 @@ describe("TopBar component", () => {
       target: model.getters.getSelectedZones(),
       border: "all",
     });
-    expect(model["workbook"].cells.B1.border).toBeDefined();
+    expect(model["workbook"].activeSheet.cells.B1.border).toBeDefined();
     const parent = new Parent(model);
     await parent.mount(fixture);
     const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
@@ -198,7 +198,7 @@ describe("TopBar component", () => {
       .querySelector('[data-format="percent"]')!
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
-    expect(model["workbook"].cells.A1.format).toEqual("0.00%");
+    expect(model["workbook"].activeSheet.cells.A1.format).toEqual("0.00%");
   });
 
   test("can set font size", async () => {
@@ -214,7 +214,7 @@ describe("TopBar component", () => {
       .dispatchEvent(new Event("click", { bubbles: true }));
     await nextTick();
     expect(fontSizeTool.textContent!.trim()).toBe("8");
-    const style = model.getters.getCellStyle(model["workbook"].cells.A1);
+    const style = model.getters.getCellStyle(model["workbook"].activeSheet.cells.A1);
     expect(style.fontSize).toBe(8);
   });
 

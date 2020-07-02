@@ -129,9 +129,6 @@ export function createEmptyWorkbookData(): WorkbookData {
 
 export function createEmptyWorkbook(): Workbook {
   return {
-    rows: [],
-    cols: [],
-    cells: {},
     visibleSheets: [],
     sheets: {},
     activeSheet: null as any,

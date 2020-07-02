@@ -118,8 +118,8 @@ type GridResult = { [xc: string]: any };
 
 export function getGrid(model: Model): GridResult {
   const result = {};
-  for (let xc in model["workbook"].cells) {
-    const cell = model["workbook"].cells[xc];
+  for (let xc in model["workbook"].activeSheet.cells) {
+    const cell = model["workbook"].activeSheet.cells[xc];
     result[xc] = cell.value;
   }
   return result;
@@ -261,8 +261,9 @@ export function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-export function getCell(model: Model, xc: string): Cell | null {
-  return model.getters.getCell(...toCartesian(xc));
+export function getCell(model: Model, xc: string, sheet?: string): Cell | null {
+  let [col, row] = toCartesian(xc);
+  return model.getters.getCell(col, row, sheet);
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

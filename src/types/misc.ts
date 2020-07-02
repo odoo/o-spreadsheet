@@ -104,10 +104,6 @@ export type BorderCommand =
   | "clear";
 
 export interface Workbook {
-  rows: Row[];
-  cols: Col[];
-  cells: { [key: string]: Cell };
-
   // sheets
   visibleSheets: string[]; // ids of visible sheets
   sheets: { [id: string]: Sheet };

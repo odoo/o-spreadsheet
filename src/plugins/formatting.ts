@@ -271,10 +271,10 @@ export class FormattingPlugin extends BasePlugin {
     if (row > 0) {
       this.clearSide(sheet, col, row - 1, "bottom", borderMap);
     }
-    if (col < this.workbook.cols.length - 1) {
+    if (col < this.workbook.activeSheet.cols.length - 1) {
       this.clearSide(sheet, col + 1, row, "left", borderMap);
     }
-    if (row < this.workbook.rows.length - 1) {
+    if (row < this.workbook.activeSheet.rows.length - 1) {
       this.clearSide(sheet, col, row + 1, "top", borderMap);
     }
   }
@@ -382,7 +382,9 @@ export class FormattingPlugin extends BasePlugin {
    * @param upper true if the style of the upper row/col should be used, false, if the lower should be used
    */
   private onAddElements(start: number, end: number, isColumn: boolean, upper: boolean) {
-    const length = isColumn ? this.workbook.rows.length : this.workbook.cols.length;
+    const length = isColumn
+      ? this.workbook.activeSheet.rows.length
+      : this.workbook.activeSheet.cols.length;
     const index = start + 1;
     for (let x = 0; x < length; x++) {
       const xc = isColumn ? toXC(index, x) : toXC(x, index);
@@ -438,15 +440,15 @@ export class FormattingPlugin extends BasePlugin {
   private getFormat(xc: string): FormatInfo {
     const format: FormatInfo = {};
     xc = this.getters.getMainCell(xc);
-    if (xc in this.workbook.cells) {
-      if (this.workbook.cells[xc].border) {
-        format["border"] = this.workbook.cells[xc].border;
+    if (xc in this.workbook.activeSheet.cells) {
+      if (this.workbook.activeSheet.cells[xc].border) {
+        format["border"] = this.workbook.activeSheet.cells[xc].border;
       }
-      if (this.workbook.cells[xc].style) {
-        format["style"] = this.workbook.cells[xc].style;
+      if (this.workbook.activeSheet.cells[xc].style) {
+        format["style"] = this.workbook.activeSheet.cells[xc].style;
       }
-      if (this.workbook.cells[xc].format) {
-        format["format"] = this.workbook.cells[xc].format;
+      if (this.workbook.activeSheet.cells[xc].format) {
+        format["format"] = this.workbook.activeSheet.cells[xc].format;
       }
     }
     return format;

@@ -9,14 +9,14 @@ describe("merges", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
-    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
+    expect(Object.keys(model["workbook"].activeSheet.cells)).toEqual(["B2"]);
     expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
     expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
     const sheet1 = model["workbook"].visibleSheets[0];
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
 
-    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
-    expect(model["workbook"].cells.B2.content).toBe("b2");
+    expect(Object.keys(model["workbook"].activeSheet.cells)).toEqual(["B2"]);
+    expect(model["workbook"].activeSheet.cells.B2.content).toBe("b2");
     expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual(["B2", "B3"]);
     expect(model["workbook"].activeSheet.merges).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
@@ -42,7 +42,7 @@ describe("merges", () => {
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
-    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
+    expect(Object.keys(model["workbook"].activeSheet.cells)).toEqual(["B2"]);
     expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
     expect(Object.keys(model["workbook"].activeSheet.merges)).toEqual([]);
   });
@@ -95,7 +95,7 @@ describe("merges", () => {
 
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(getActiveXc(model)).toBe("C3");
-    expect(Object.keys(model["workbook"].cells)).toEqual(["B2"]);
+    expect(Object.keys(model["workbook"].activeSheet.cells)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
     const sheet1 = model["workbook"].visibleSheets[0];
 
@@ -105,7 +105,7 @@ describe("merges", () => {
       style: { fillColor: "#333" },
     });
 
-    expect(Object.keys(model["workbook"].cells)).toEqual(["B2", "B3", "C2", "C3"]);
+    expect(Object.keys(model["workbook"].activeSheet.cells)).toEqual(["B2", "B3", "C2", "C3"]);
     expect(getCell(model, "B2")!.style).toBeDefined();
   });
 
