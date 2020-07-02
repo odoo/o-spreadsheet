@@ -94,6 +94,7 @@ export class Spreadsheet extends Component<Props> {
       getters: this.model.getters,
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,
+      export: this.model.exportData.bind(this.model),
     });
     useExternalListener(window as any, "resize", this.render);
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
