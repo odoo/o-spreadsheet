@@ -9,7 +9,7 @@ import { FullMenuItem } from "../registries/menu_items_registry";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { DEFAULT_FONT_SIZE } from "../constants";
 import { MenuState, Menu } from "./menu";
-import { setStyle, setFormatter } from "../registries/index";
+import { setStyle, setFormatter, topbarComponentRegistry } from "../registries/index";
 import { isChildEvent } from "./helpers/dom_helpers";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
@@ -45,22 +45,29 @@ const FORMATS = [
 export class TopBar extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet-topbar">
-      <!-- Menus -->
-      <div class="o-topbar-menus">
-        <t t-foreach="menus" t-as="menu" t-key="menu_index">
-          <div t-if="menu.children.length !== 0"
-            class="o-topbar-menu"
-            t-on-click="toggleContextMenu(menu)"
-            t-on-mouseover="onMenuMouseOver(menu)"
-            t-att-data-id="menu.id">
-          <t t-esc="getMenuName(menu)"/>
+      <div class="o-topbar-top">
+        <!-- Menus -->
+        <div class="o-topbar-topleft">
+          <t t-foreach="menus" t-as="menu" t-key="menu_index">
+            <div t-if="menu.children.length !== 0"
+              class="o-topbar-menu"
+              t-on-click="toggleContextMenu(menu)"
+              t-on-mouseover="onMenuMouseOver(menu)"
+              t-att-data-id="menu.id">
+            <t t-esc="getMenuName(menu)"/>
+          </div>
+          </t>
+          <Menu t-if="state.menuState.isOpen"
+                position="state.menuState.position"
+                menuItems="state.menuState.menuItems"
+                t-ref="menuRef"
+                t-on-close="state.menuState.isOpen=false"/>
         </div>
-        </t>
-        <Menu t-if="state.menuState.isOpen"
-              position="state.menuState.position"
-              menuItems="state.menuState.menuItems"
-              t-ref="menuRef"
-              t-on-close="state.menuState.isOpen=false"/>
+        <div class="o-topbar-topright">
+          <div t-foreach="topbarComponents" t-as="comp" t-key="comp_index">
+            <t t-component="comp.component"/>
+          </div>
+        </div>
       </div>
       <!-- Toolbar and Cell Content -->
       <div class="o-topbar-toolbar">
@@ -156,24 +163,32 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       flex-direction: column;
       font-size: 13px;
 
-      /* Menus */
-      .o-topbar-menus {
+      .o-topbar-top {
         border-bottom: 1px solid #e0e2e4;
         display: flex;
         padding: 2px 10px;
+        justify-content: space-between;
 
-        .o-topbar-menu {
-          padding: 4px 6px;
-          margin: 0 2px;
-          cursor: pointer;
+        /* Menus */
+        .o-topbar-topleft {
+          display: flex;
+          .o-topbar-menu {
+            padding: 4px 6px;
+            margin: 0 2px;
+            cursor: pointer;
+          }
+
+          .o-topbar-menu:hover {
+            background-color: #f1f3f4;
+            border-radius: 2px;
+          }
         }
 
-        .o-topbar-menu:hover {
-          background-color: #f1f3f4;
-          border-radius: 2px;
+        .o-topbar-topright {
+          display: flex;
+          justify-content: flex-end;
         }
       }
-
       /* Toolbar + Cell Content */
       .o-topbar-toolbar {
         border-bottom: 1px solid #e0e2e4;
@@ -338,6 +353,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.onClick);
+  }
+
+  get topbarComponents() {
+    return topbarComponentRegistry
+      .getAll()
+      .filter((item) => !item.isVisible || item.isVisible(this.env));
   }
 
   async willStart() {

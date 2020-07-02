@@ -266,7 +266,7 @@ describe("Context Menu", () => {
     simulateContextMenu(100, 100);
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
-    triggerMouseEvent(".o-topbar-menus", "click");
+    triggerMouseEvent(".o-topbar-topleft", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
