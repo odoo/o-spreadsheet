@@ -175,7 +175,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  processArrowKeys(ev: KeyboardEvent, delta: Array<number>) {
+  processArrowKeys(ev: KeyboardEvent) {
     if (this.getters.getEditionMode() === "selecting") {
       ev.preventDefault();
       return;
@@ -396,7 +396,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
         this.autoCompleteState.search = this.tokenAtCursor.value;
         this.autoCompleteState.showProvider = true;
       }
-    } else if (["COMMA", "LEFT_PAREN", "OPERATOR"].includes(this.tokenAtCursor.type)) {
+    } else if (["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(this.tokenAtCursor.type)) {
       // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
       // is relative the to the cell we edit
       this.dispatch("START_COMPOSER_SELECTION");
