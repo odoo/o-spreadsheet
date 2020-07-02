@@ -7,6 +7,7 @@ import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { ConditionalFormat } from "../../src/types";
 import { _lt } from "../../src/translation";
+import { topbarComponentRegistry } from "../../src/registries";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -289,7 +290,43 @@ describe("TopBar component", () => {
     expect(number).toBe(1);
     topbarMenuRegistry.content = menuDefinitions;
   });
+
+  test("Can add a custom component to topbar", async () => {
+    const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
+    class Comp extends Component {
+      static template = xml`<div class="o-topbar-test">Test</div>`;
+    }
+    topbarComponentRegistry.add("1", { component: Comp });
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+    expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
+    topbarComponentRegistry.content = compDefinitions;
+  });
 });
+
+test("Can show/hide a TopBarComponent based on condition", async () => {
+  const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
+  class Comp1 extends Component {
+    static template = xml`<div class="o-topbar-test1">Test1</div>`;
+  }
+  class Comp2 extends Component {
+    static template = xml`<div class="o-topbar-test2">Test2</div>`;
+  }
+  topbarComponentRegistry.add("1", {
+    component: Comp1,
+    isVisible: (env) => true,
+  });
+  topbarComponentRegistry.add("2", {
+    component: Comp2,
+    isVisible: (env) => false,
+  });
+  const parent = new Parent(new Model());
+  await parent.mount(fixture);
+  expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);
+  expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(0);
+  topbarComponentRegistry.content = compDefinitions;
+});
+
 describe("TopBar - CF", () => {
   test("open sidepanel with no CF in selected zone", async () => {
     const model = new Model();

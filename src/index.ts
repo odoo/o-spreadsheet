@@ -12,6 +12,7 @@ import {
   topbarMenuRegistry,
   sidePanelRegistry,
   sheetMenuRegistry,
+  topbarComponentRegistry,
 } from "./registries/index";
 
 /**
@@ -39,6 +40,7 @@ export const registries = {
   sidePanelRegistry,
   sheetMenuRegistry,
   topbarMenuRegistry,
+  topbarComponentRegistry,
 };
 
 export const helpers = {
