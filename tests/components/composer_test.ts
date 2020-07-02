@@ -248,6 +248,12 @@ describe("composer", () => {
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("");
   });
+
+  test("typing a formula with a space should put the composer in 'selecting' mode", async () => {
+    await startComposition();
+    await typeInComposer("= ");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+  });
 });
 
 describe("composer highlights color", () => {
