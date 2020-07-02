@@ -4,7 +4,7 @@ import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
 
 function getBorder(model: Model, xc: string) {
-  const cell = model["workbook"].cells[xc];
+  const cell = model["workbook"].activeSheet.cells[xc];
   return model.getters.getCellBorder(cell);
 }
 
@@ -284,8 +284,8 @@ describe("borders", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,
-      right: model["workbook"].cols.length - 1,
-      bottom: model["workbook"].rows.length - 1,
+      right: model["workbook"].activeSheet.cols.length - 1,
+      bottom: model["workbook"].activeSheet.rows.length - 1,
     });
     setBorder(model, "all");
     expect(getCell(model, "B1")!.border).toBeDefined();

@@ -170,7 +170,7 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(makeObjectIterator(this.workbook.cells));
+    this.evaluateCells(makeObjectIterator(this.workbook.activeSheet.cells));
   }
 
   private evaluateCells(cells: Generator<Cell>) {

@@ -59,7 +59,7 @@ describe("Context Menu add/remove row/col", () => {
       target: [
         {
           top: 0,
-          bottom: model["workbook"].rows.length - 1,
+          bottom: model["workbook"].activeSheet.rows.length - 1,
           left: 3,
           right: 3,
         },
@@ -79,7 +79,7 @@ describe("Context Menu add/remove row/col", () => {
           top: 4,
           bottom: 4,
           left: 0,
-          right: model["workbook"].cols.length - 1,
+          right: model["workbook"].activeSheet.cols.length - 1,
         },
       ],
       sheet: model["workbook"].activeSheet.id,
