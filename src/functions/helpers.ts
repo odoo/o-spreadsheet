@@ -213,7 +213,7 @@ interface Predicate {
   regexp?: RegExp;
 }
 
-function getPredicate(descr: string): Predicate {
+function getPredicate(descr: string, isQuery: boolean): Predicate {
   let operator: Operator;
   let operand: any;
 
@@ -242,6 +242,9 @@ function getPredicate(descr: string): Predicate {
   const result: Predicate = { operator, operand };
 
   if (typeof operand === "string") {
+    if (isQuery) {
+      operand += "*";
+    }
     result.regexp = operandToRegExp(operand);
   }
 
@@ -316,15 +319,25 @@ function evaluatePredicate(value: any, criterion: Predicate): boolean {
  * function with the parameters "i" and "j".
  *
  * Syntax:
- * visitMatchingRanges([range1, predicate1, range2, predicate2, ...], cb(i,j))
- * - range1 (range): The range to check against criterion1.
+ * visitMatchingRanges([range1, predicate1, range2, predicate2, ...], cb(i,j), likeSelection)
+ *
+ * - range1 (range): The range to check against predicate1.
  * - predicate1 (string): The pattern or test to apply to range1.
  * - range2: (range, optional, repeatable) ranges to check.
  * - predicate2 (string, optional, repeatable): Additional pattern or test to apply to range2.
+ *
+ * - cb(i: number, j: number) => void: the callback function.
+ *
+ * - isQuery (boolean) indicates if the comparison with a string should be done as a SQL-like query.
+ * (Ex1 isQuery = true, predicate = "abc", element = "abcde": predicate match the element),
+ * (Ex2 isQuery = false, predicate = "abc", element = "abcde": predicate not match the element).
+ * (Ex3 isQuery = true, predicate = "abc", element = "abc": predicate match the element),
+ * (Ex4 isQuery = false, predicate = "abc", element = "abc": predicate match the element).
  */
 export function visitMatchingRanges(
   args: IArguments | any[],
-  cb: (i: number, j: number) => void
+  cb: (i: number, j: number) => void,
+  isQuery: boolean = false
 ): void {
   const countArg = args.length;
 
@@ -349,7 +362,7 @@ export function visitMatchingRanges(
     }
 
     const description = toString(args[i + 1]);
-    predicates.push(getPredicate(description));
+    predicates.push(getPredicate(description, isQuery));
   }
 
   for (let i = 0; i < dimRow; i++) {
