@@ -187,6 +187,7 @@ describe("Columns", () => {
         { start: 0, end: 10, size: 10, name: "A" },
         { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" },
       ]);
+      expect(model["workbook"].activeSheet.colNumber).toBe(2);
     });
     test("On addition before", () => {
       addColumns(1, "before", 2);
@@ -199,6 +200,7 @@ describe("Columns", () => {
         { start: size + 30, end: size + 50, size: 20, name: "E" },
         { start: size + 50, end: 2 * size + 50, size, name: "F" },
       ]);
+      expect(model["workbook"].activeSheet.colNumber).toBe(6);
     });
     test("On addition after", () => {
       addColumns(2, "after", 2);
@@ -211,6 +213,7 @@ describe("Columns", () => {
         { start: size + 50, end: size + 70, size: 20, name: "E" },
         { start: size + 70, end: 2 * size + 70, size, name: "F" },
       ]);
+      expect(model["workbook"].activeSheet.colNumber).toBe(6);
     });
   });
 
@@ -518,6 +521,7 @@ describe("Rows", () => {
         { start: 0, end: 10, size: 10, name: "1", cells: {} },
         { start: 10, end: size + 10, size, name: "2", cells: {} },
       ]);
+      expect(model["workbook"].activeSheet.rowNumber).toBe(2);
     });
     test("On addition before", () => {
       addRows(1, "before", 2);
@@ -532,6 +536,7 @@ describe("Rows", () => {
       ]);
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
+      expect(model["workbook"].activeSheet.rowNumber).toBe(6);
     });
     test("On addition after", () => {
       addRows(2, "after", 2);
@@ -546,6 +551,7 @@ describe("Rows", () => {
       ]);
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 144]);
+      expect(model["workbook"].activeSheet.rowNumber).toBe(6);
     });
 
     test("activate Sheet: same size", () => {
