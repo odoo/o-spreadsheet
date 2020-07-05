@@ -841,6 +841,45 @@ export const POWER: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// PRODUCT
+// -----------------------------------------------------------------------------
+export const PRODUCT: FunctionDescription = {
+  description: _lt("Result of multiplying a series of numbers together."),
+  args: args(`
+      factor1 (number, range<number>) ${_lt(
+        "The first number or range to calculate for the product."
+      )}
+      factor2 (number, range<number>, optional, repeating) ${_lt(
+        "More numbers or ranges to calculate for the product."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    let count = 0;
+    let acc = 1;
+    for (let n of arguments) {
+      if (Array.isArray(n)) {
+        for (let i of n) {
+          for (let j of i) {
+            if (typeof j === "number") {
+              acc *= j;
+              count += 1;
+            }
+          }
+        }
+      } else if (n !== null) {
+        acc *= strictToNumber(n);
+        count += 1;
+      }
+    }
+    if (count === 0) {
+      return 0;
+    }
+    return acc;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // RAND
 // -----------------------------------------------------------------------------
 export const RAND: FunctionDescription = {

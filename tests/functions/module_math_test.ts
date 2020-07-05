@@ -1678,6 +1678,123 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // PRODUCT
+  //----------------------------------------------------------------------------
+
+  test("PRODUCT: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PRODUCT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=PRODUCT(,)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(1, 2, 3, 1, 2)" })).toBe(12);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(1,  , 2,  , 3)" })).toBe(6);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(1.5, 1.4)" })).toBeCloseTo(2.1);
+    expect(evaluateCell("A1", { A1: '=PRODUCT("Jean Chante", "Jean Courage")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT("2", "-2")' })).toBe(-4);
+    expect(evaluateCell("A1", { A1: '=PRODUCT("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=PRODUCT(TRUE, FALSE)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=PRODUCT(1, "1", TRUE)' })).toBe(1);
+  });
+
+  test("PRODUCT: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "," })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "1", A3: "2" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(1);
+    expect(
+      evaluateCell("A1", { A1: "=PRODUCT(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Brasse" })
+    ).toBe(-15);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: "42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: '"42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: "=42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: "=42" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "=42", A3: "=42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "=42", A3: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(0);
+  });
+
+  test("PRODUCT: functional tests on simple and cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: "" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: " " })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: '=""' })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: '=" "' })).toBe(0);
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=PRODUCT(42, "42")' })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: "42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: '"42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: "=42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: "42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: '"42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: "=42" })).toBe(1764);
+    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: '="42"' })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: "1" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: '"1"' })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: "=1" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: '="1"' })).toBe(1);
+  });
+
+  test("PRODUCT: functional tests on range arguments", () => {
+    const grid = {
+      A1: "=PRODUCT(B2:D3,B4:D4,E2:E3,E4)",
+
+      A2: "=PRODUCT(B2:E2)",
+      A3: "=PRODUCT(B3:E3)",
+      A4: "=PRODUCT(B4:E4)",
+
+      B1: "=PRODUCT(B2:B4)",
+      C1: "=PRODUCT(C2:C4)",
+      D1: "=PRODUCT(D2:D4)",
+      E1: "=PRODUCT(E2:E4)",
+
+      B2: "=3",
+      C2: "3",
+      D2: '"3"',
+      E2: '="3"',
+
+      B3: '=" "',
+      C3: "0",
+      D3: "Jean Jardindu",
+      E3: '"Jean Fortroche"',
+
+      B4: " ",
+      C4: '""',
+      D4: '=""',
+      E4: '" "',
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toBe(0);
+    expect(gridResult.A2).toBe(9);
+    expect(gridResult.A3).toBe(0);
+    expect(gridResult.A4).toBe(0);
+    expect(gridResult.B1).toBe(3);
+    expect(gridResult.C1).toBe(0);
+    expect(gridResult.D1).toBe(0);
+    expect(gridResult.E1).toBe(0);
+  });
+
+  //----------------------------------------------------------------------------
   // RAND
   //----------------------------------------------------------------------------
 

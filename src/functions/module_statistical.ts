@@ -694,6 +694,108 @@ export const SMALL: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// STDEV
+// -----------------------------------------------------------------------------
+export const STDEV: FunctionDescription = {
+  description: _lt("Standard deviation."),
+  args: args(`
+      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+      value2 (number, range<number>, optional, repeating) ${_lt(
+        "Additional values or ranges to include in the sample."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return Math.sqrt(VAR.compute(...arguments));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// STDEV.P
+// -----------------------------------------------------------------------------
+export const STDEV_P: FunctionDescription = {
+  description: _lt("Standard deviation of entire population."),
+  args: args(`
+      value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+      value2 (number, range<number>, optional, repeating) ${_lt(
+        "Additional values or ranges to include in the population."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return Math.sqrt(VAR_P.compute(...arguments));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// STDEV.S
+// -----------------------------------------------------------------------------
+export const STDEV_S: FunctionDescription = {
+  description: _lt("Standard deviation."),
+  args: args(`
+      value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+      value2 (number, range<number>, optional, repeating) ${_lt(
+        "Additional values or ranges to include in the sample."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return Math.sqrt(VAR_S.compute(...arguments));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// STDEVA
+// -----------------------------------------------------------------------------
+export const STDEVA: FunctionDescription = {
+  description: _lt("Standard deviation of sample (text as 0)."),
+  args: args(`
+    value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
+    value2 (number, range<number>, optional, repeating) ${_lt(
+      "Additional values or ranges to include in the sample."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return Math.sqrt(VARA.compute(...arguments));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// STDEVP
+// -----------------------------------------------------------------------------
+export const STDEVP: FunctionDescription = {
+  description: _lt("Standard deviation of entire population."),
+  args: args(`
+    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+    value2 (number, range<number>, optional, repeating) ${_lt(
+      "Additional values or ranges to include in the population."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return Math.sqrt(VARP.compute(...arguments));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// STDEVPA
+// -----------------------------------------------------------------------------
+export const STDEVPA: FunctionDescription = {
+  description: _lt("Standard deviation of entire population (text as 0)."),
+  args: args(`
+    value1 (number, range<number>) ${_lt("The first value or range of the population.")}
+    value2 (number, range<number>, optional, repeating) ${_lt(
+      "Additional values or ranges to include in the population."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    return Math.sqrt(VARPA.compute(...arguments));
+  },
+};
+
+// -----------------------------------------------------------------------------
 // VAR
 // -----------------------------------------------------------------------------
 export const VAR: FunctionDescription = {
