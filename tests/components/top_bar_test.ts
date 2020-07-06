@@ -13,12 +13,6 @@ const { useSubEnv } = hooks;
 
 let fixture: HTMLElement;
 
-topbarMenuRegistry.addChild("save", ["file"], {
-  name: _lt("Save"),
-  sequence: 10,
-  action: () => console.log("Not implemented"),
-});
-
 class Parent extends Component<any, any> {
   static template = xml`<TopBar model="model" t-on-ask-confirmation="askConfirmation"/>`;
   static components = { TopBar };
