@@ -22,6 +22,12 @@ exports[`TopBar component can set cell format 1`] = `
     </div>
     <div
       class="o-topbar-menu"
+      data-id="view"
+    >
+      View
+    </div>
+    <div
+      class="o-topbar-menu"
       data-id="insert"
     >
       Insert
@@ -360,6 +366,12 @@ exports[`TopBar component simple rendering 1`] = `
       data-id="edit"
     >
       Edit
+    </div>
+    <div
+      class="o-topbar-menu"
+      data-id="view"
+    >
+      View
     </div>
     <div
       class="o-topbar-menu"

@@ -388,6 +388,10 @@ export interface SetValueCommand extends BaseCommand {
   text: string;
   sheetId?: string;
 }
+export interface ShowFormulaCommand extends BaseCommand {
+  type: "SET_FORMULA_VISIBILITY";
+  show: boolean;
+}
 
 export interface DeleteContentCommand extends BaseCommand {
   type: "DELETE_CONTENT";
@@ -567,6 +571,7 @@ export type Command =
   | AddColumnsCommand
   | AutofillCommand
   | AutofillSelectCommand
+  | ShowFormulaCommand
   | AutofillAutoCommand;
 
 export interface CommandSuccess {

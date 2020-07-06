@@ -54,9 +54,11 @@ export class CorePlugin extends BasePlugin {
     "getNumberCols",
     "getNumberRows",
     "getGridSize",
+    "shouldShowFormulas",
   ];
 
   private sheetIds: { [name: string]: string } = {};
+  private showFormulas: boolean = false;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -178,6 +180,9 @@ export class CorePlugin extends BasePlugin {
           this.workbook.activeSheet.rowNumber + cmd.quantity
         );
         break;
+      case "SET_FORMULA_VISIBILITY":
+        this.showFormulas = cmd.show;
+        break;
     }
   }
 
@@ -201,35 +206,36 @@ export class CorePlugin extends BasePlugin {
   }
 
   getCellText(cell: Cell): string {
-    const shouldFormat = cell.value && cell.format && !cell.error && !cell.pending;
+    const value = this.showFormulas ? cell.content : cell.value;
+    const shouldFormat = value && cell.format && !cell.error && !cell.pending;
     const dateTimeFormat = shouldFormat && cell.format!.match(/y|m|d|:/);
     const numberFormat = shouldFormat && !dateTimeFormat;
-    switch (typeof cell.value) {
+    switch (typeof value) {
       case "string":
-        return cell.value;
+        return value;
       case "boolean":
-        return cell.value ? "TRUE" : "FALSE";
+        return value ? "TRUE" : "FALSE";
       case "number":
         if (dateTimeFormat) {
-          return formatDateTime({ value: cell.value } as InternalDate, cell.format);
+          return formatDateTime({ value } as InternalDate, cell.format);
         }
         if (numberFormat) {
-          return formatNumber(cell.value, cell.format!);
+          return formatNumber(value, cell.format!);
         }
-        return formatStandardNumber(cell.value);
+        return formatStandardNumber(value);
       case "object":
         if (dateTimeFormat) {
-          return formatDateTime(cell.value as InternalDate, cell.format);
+          return formatDateTime(value as InternalDate, cell.format);
         }
         if (numberFormat) {
-          return formatNumber(cell.value.value, cell.format!);
+          return formatNumber(value.value, cell.format!);
         }
-        if (cell.value && cell.value.format!.match(/y|m|d|:/)) {
-          return formatDateTime(cell.value);
+        if (value && value.format!.match(/y|m|d|:/)) {
+          return formatDateTime(value);
         }
         return "0";
     }
-    return cell.value.toString();
+    return value.toString();
   }
 
   /**
@@ -324,6 +330,10 @@ export class CorePlugin extends BasePlugin {
     const width = activeSheet.cols[activeSheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
 
     return [width, height];
+  }
+
+  shouldShowFormulas(): boolean {
+    return this.showFormulas;
   }
 
   // ---------------------------------------------------------------------------

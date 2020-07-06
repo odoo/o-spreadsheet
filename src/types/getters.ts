@@ -29,6 +29,7 @@ export interface Getters {
   getColsZone: CorePlugin["getColsZone"];
   getRowsZone: CorePlugin["getRowsZone"];
   getGridSize: CorePlugin["getGridSize"];
+  shouldShowFormulas: CorePlugin["shouldShowFormulas"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];

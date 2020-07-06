@@ -97,6 +97,12 @@ topbarMenuRegistry
     action: ACTIONS.CREATE_SHEET_ACTION,
     separator: true,
   })
+  .addChild("view_formulas", ["view"], {
+    name: (env: SpreadsheetEnv) =>
+      env.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
+    action: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
+    sequence: 10,
+  })
   .addChild("format_number", ["format"], {
     name: _lt("Numbers"),
     sequence: 10,
