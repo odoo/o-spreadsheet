@@ -9,6 +9,7 @@ const { useSubEnv } = owl.hooks;
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
 
+menuItemRegistry.add("file", { name: "File", sequence: 10 });
 menuItemRegistry.addChild("save", ["file"], {
   name: "Save",
   sequence: 30,

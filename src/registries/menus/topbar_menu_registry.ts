@@ -13,6 +13,11 @@ topbarMenuRegistry
   .add("insert", { name: _lt("Insert"), sequence: 40 })
   .add("format", { name: _lt("Format"), sequence: 50 })
   .add("data", { name: _lt("Data"), sequence: 60 })
+  .addChild("save", ["file"], {
+    name: _lt("Save"),
+    sequence: 10,
+    action: () => console.log("Not implemented"),
+  })
   .addChild("undo", ["edit"], {
     name: _lt("Undo"),
     sequence: 10,
