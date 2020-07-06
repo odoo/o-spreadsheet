@@ -226,4 +226,24 @@ describe("renderer", () => {
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["right", "center"]);
   });
+
+  test("functions are aligned to the left", () => {
+    const model = new Model();
+
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(1,2)" });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    let textAligns: string[] = [];
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+    model.drawGrid(ctx);
+
+    // 1 center for headers, 1 for cell content
+    expect(textAligns).toEqual(["left", "center"]);
+  });
 });

@@ -90,6 +90,9 @@ export const DELETE_CONTENT_ACTION = (env: SpreadsheetEnv) =>
     target: env.getters.getSelectedZones(),
   });
 
+export const SET_FORMULA_VISIBILITY_ACTION = (env: SpreadsheetEnv) =>
+  env.dispatch("SET_FORMULA_VISIBILITY", { show: !env.getters.shouldShowFormulas() });
+
 //------------------------------------------------------------------------------
 // Grid manipulations
 //------------------------------------------------------------------------------

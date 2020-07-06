@@ -301,4 +301,26 @@ describe("history", () => {
     expect(getCell(model, "A1")!.content).toBe("03/02/2011");
     expect(getCell(model, "A2")!.content).toBe("03/12/2011");
   });
+
+  test("get cell formula text", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(1, 2)" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "This is Patrick" });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("=SUM(1, 2)");
+    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("This is Patrick");
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
+    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("This is Patrick");
+  });
+
+  test("set formula visibility is idempotent", () => {
+    const model = new Model();
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(model.getters.shouldShowFormulas()).toBe(true);
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(model.getters.shouldShowFormulas()).toBe(true);
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    expect(model.getters.shouldShowFormulas()).toBe(false);
+  });
 });

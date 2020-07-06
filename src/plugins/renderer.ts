@@ -29,8 +29,10 @@ import { Mode } from "../model";
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
-function computeAlign(cell: Cell): "right" | "center" | "left" {
-  if (cell.error || cell.pending) {
+function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
+  if (cell.type === "formula" && isShowingFormulas) {
+    return "left";
+  } else if (cell.error || cell.pending) {
     return "center";
   }
   switch (typeof cell.value) {
@@ -417,7 +419,9 @@ export class RendererPlugin extends BasePlugin {
           if (conditionalStyle) {
             style = Object.assign({}, style, conditionalStyle);
           }
-          const align = text ? (style && style.align) || computeAlign(cell) : undefined;
+          const align = text
+            ? (style && style.align) || computeAlign(cell, this.getters.shouldShowFormulas())
+            : undefined;
           let clipRect: Rect | null = null;
           if (text && textWidth > cols[cell.col].size) {
             if (align === "left") {
@@ -469,7 +473,9 @@ export class RendererPlugin extends BasePlugin {
           text = refCell ? this.getters.getCellText(refCell) : "";
           textWidth = this.getters.getCellWidth(refCell);
           style = this.getters.getCellStyle(refCell);
-          align = text ? (style && style.align) || computeAlign(refCell) : null;
+          align = text
+            ? (style && style.align) || computeAlign(refCell, this.getters.shouldShowFormulas())
+            : null;
           border = this.getters.getCellBorder(refCell);
         }
         style = style || {};
