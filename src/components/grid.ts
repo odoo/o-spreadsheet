@@ -337,27 +337,27 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   onScroll() {
     this.viewport.offsetX = this.hScrollbar.scroll;
     this.viewport.offsetY = this.vScrollbar.scroll;
-    const viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
+    const viewport = this.getters.adjustViewportZone(this.viewport);
     if (!isEqual(viewport, this.viewport)) {
       this.viewport = viewport;
       this.render();
     }
-    this.snappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
+    this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
   }
 
   checkChanges(): boolean {
     const [col, row] = this.getters.getPosition();
     const [curCol, curRow] = this.currentPosition;
-    const didChange = col !== curCol || row !== curRow;
-    if (didChange) {
+    const currentSheet = this.getters.getActiveSheet();
+    const changed = currentSheet !== this.currentSheet || col !== curCol || row !== curRow;
+    if (changed) {
       this.currentPosition = [col, row];
     }
-    const currentSheet = this.getters.getActiveSheet();
     if (currentSheet !== this.currentSheet) {
       this.focus();
       this.currentSheet = currentSheet;
     }
-    return didChange;
+    return changed;
   }
 
   getAutofillPosition() {
@@ -370,20 +370,25 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   drawGrid() {
     // update viewport dimensions
+    // resize window
     this.viewport.width = this.el!.clientWidth - SCROLLBAR_WIDTH;
     this.viewport.height = this.el!.clientHeight - SCROLLBAR_WIDTH;
+
+    // scrollbar scrolled
     this.viewport.offsetX = this.hScrollbar.scroll;
     this.viewport.offsetY = this.vScrollbar.scroll;
 
+    // needed to reset the bottom and the right on the current viewport to the one of the new
+    // active sheet or in any case, the number of cols & rows might have changed.
+    this.viewport = this.getters.adjustViewportZone(this.viewport);
+
     // check for position changes
     if (this.checkChanges()) {
-      this.viewport = this.getters.getAdjustedViewport(this.viewport, "position");
+      this.viewport = this.getters.adjustViewportPosition(this.viewport);
       this.hScrollbar.scroll = this.viewport.offsetX;
       this.vScrollbar.scroll = this.viewport.offsetY;
-    } else {
-      this.viewport = this.getters.getAdjustedViewport(this.viewport, "zone");
     }
-    this.snappedViewport = this.getters.getAdjustedViewport(this.viewport, "offsets");
+    this.snappedViewport = this.getters.snapViewportToCell(this.snappedViewport);
 
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;

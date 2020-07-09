@@ -65,7 +65,9 @@ export interface Getters {
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
-  getAdjustedViewport: RendererPlugin["getAdjustedViewport"];
+  snapViewportToCell: RendererPlugin["snapViewportToCell"];
+  adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
+  adjustViewportZone: RendererPlugin["adjustViewportZone"];
 
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];

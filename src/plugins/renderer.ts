@@ -65,7 +65,14 @@ function searchIndex(headers: Header[], offset: number): number {
 
 export class RendererPlugin extends BasePlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
-  static getters = ["getColIndex", "getRowIndex", "getRect", "getAdjustedViewport"];
+  static getters = [
+    "getColIndex",
+    "getRowIndex",
+    "getRect",
+    "snapViewportToCell",
+    "adjustViewportPosition",
+    "adjustViewportZone",
+  ];
   static modes: Mode[] = ["normal", "readonly"];
 
   private boxes: Box[] = [];
@@ -110,58 +117,78 @@ export class RendererPlugin extends BasePlugin {
   }
 
   /**
-   * A viewport is a "physical" window into the data represented on a grid.
-   * This method returns the corresponding zone (so, pretty much the same data,
-   * but expressed in term of rows/cols)
+   * Snap a viewport boundaries to exactly match the start of a cell.
+   * @param viewport
    */
-  getAdjustedViewport(viewport: Viewport, adjustment: "offsets" | "zone" | "position"): Viewport {
+  snapViewportToCell(viewport: Viewport): Viewport {
     const { cols, rows } = this.workbook.activeSheet;
-    viewport = Object.assign({}, viewport);
-    if (adjustment === "offsets") {
-      viewport.offsetX = cols[viewport.left].start;
-      viewport.offsetY = rows[viewport.top].start;
-      return viewport;
+    const adjustedViewport = Object.assign({}, viewport);
+    adjustedViewport.offsetX = cols[viewport.left].start;
+    adjustedViewport.offsetY = rows[viewport.top].start;
+    return adjustedViewport;
+  }
+
+  /**
+   * Adjust the viewport until the active cell is completely visible inside it.
+   * @param viewport the viewport that will be adjusted
+   */
+  adjustViewportPosition(viewport: Viewport): Viewport {
+    const adjustedViewport = Object.assign({}, viewport);
+    const { cols, rows } = this.workbook.activeSheet;
+    const [col, row] = this.getters.getPosition();
+    while (col >= adjustedViewport.right && col !== cols.length - 1) {
+      adjustedViewport.offsetX = cols[adjustedViewport.left].end;
+      this.adjustViewportZoneX(adjustedViewport);
     }
-    if (adjustment === "position") {
-      const [col, row] = this.getters.getPosition();
-      while (col >= viewport.right && col !== cols.length - 1) {
-        viewport.offsetX = cols[viewport.left].end;
-        viewport = this.getAdjustedViewport(viewport, "zone");
-      }
-      while (col < viewport.left) {
-        viewport.offsetX = cols[viewport.left - 1].start;
-        viewport = this.getAdjustedViewport(viewport, "zone");
-      }
-      while (row >= viewport.bottom && row !== rows.length - 1) {
-        viewport.offsetY = rows[viewport.top].end;
-        viewport = this.getAdjustedViewport(viewport, "zone");
-      }
-      while (row < viewport.top) {
-        viewport.offsetY = rows[viewport.top - 1].start;
-        viewport = this.getAdjustedViewport(viewport, "zone");
-      }
-      return viewport;
+    while (col < adjustedViewport.left) {
+      adjustedViewport.offsetX = cols[adjustedViewport.left - 1].start;
+      this.adjustViewportZoneX(adjustedViewport);
     }
-    const { width, height, offsetX, offsetY } = viewport;
-    const top = this.getRowIndex(offsetY + HEADER_HEIGHT, 0);
-    const left = this.getColIndex(offsetX + HEADER_WIDTH, 0);
+    while (row >= adjustedViewport.bottom && row !== rows.length - 1) {
+      adjustedViewport.offsetY = rows[adjustedViewport.top].end;
+      this.adjustViewportZoneY(adjustedViewport);
+    }
+    while (row < adjustedViewport.top) {
+      adjustedViewport.offsetY = rows[adjustedViewport.top - 1].start;
+      this.adjustViewportZoneY(adjustedViewport);
+    }
+    return adjustedViewport;
+  }
+
+  adjustViewportZone(viewport: Viewport): Viewport {
+    const adjustedViewport = Object.assign({}, viewport);
+    this.adjustViewportZoneX(adjustedViewport);
+    this.adjustViewportZoneY(adjustedViewport);
+    return adjustedViewport;
+  }
+
+  private adjustViewportZoneX(viewport: Viewport) {
+    const { cols } = this.workbook.activeSheet;
+    const { width, offsetX } = viewport;
+    viewport.left = this.getColIndex(offsetX + HEADER_WIDTH, 0);
     const x = width + offsetX - HEADER_WIDTH;
-    let right = cols.length - 1;
-    for (let i = left; i < cols.length; i++) {
+    viewport.right = cols.length - 1;
+    for (let i = viewport.left; i < cols.length; i++) {
       if (x < cols[i].end) {
-        right = i;
+        viewport.right = i;
         break;
       }
     }
+  }
+
+  private adjustViewportZoneY(viewport: Viewport) {
+    const { rows } = this.workbook.activeSheet;
+    const { height, offsetY } = viewport;
+    viewport.top = this.getRowIndex(offsetY + HEADER_HEIGHT, 0);
+
     let y = height + offsetY - HEADER_HEIGHT;
-    let bottom = rows.length - 1;
-    for (let i = top; i < rows.length; i++) {
+    viewport.bottom = rows.length - 1;
+    for (let i = viewport.top; i < rows.length; i++) {
       if (y < rows[i].end) {
-        bottom = i;
+        viewport.bottom = i;
         break;
       }
     }
-    return { width, height, offsetX, offsetY, left, top, right, bottom };
   }
 
   // ---------------------------------------------------------------------------
