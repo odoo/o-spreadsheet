@@ -10,10 +10,9 @@ function getViewport(
   offsetX: number,
   offsetY: number
 ): Viewport {
-  return model.getters.getAdjustedViewport(
-    { width, height, offsetX, offsetY, left: 0, right: 0, top: 0, bottom: 0 },
-    "zone"
-  );
+  let viewport = { width, height, offsetX, offsetY, left: 0, right: 0, top: 0, bottom: 0 };
+  viewport = model.getters.adjustViewportZone(viewport);
+  return viewport;
 }
 
 describe("navigation", () => {
@@ -119,12 +118,12 @@ describe("navigation", () => {
     expect(viewport.right).toBe(5);
 
     model.dispatch("SELECT_CELL", { col: 4, row: 0 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
 
     model.dispatch("SELECT_CELL", { col: 5, row: 0 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
   });
@@ -136,12 +135,12 @@ describe("navigation", () => {
     expect(viewport.right).toBe(6);
 
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(6);
 
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(5);
   });
@@ -153,12 +152,12 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(11);
 
     model.dispatch("SELECT_CELL", { col: 0, row: 10 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(11);
 
     model.dispatch("SELECT_CELL", { col: 0, row: 11 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);
   });
@@ -170,12 +169,12 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(14);
 
     model.dispatch("SELECT_CELL", { col: 0, row: 2 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(14);
 
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
-    viewport = model.getters.getAdjustedViewport(viewport, "position");
+    viewport = model.getters.adjustViewportPosition(viewport);
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(12);
   });
