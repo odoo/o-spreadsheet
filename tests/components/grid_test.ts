@@ -474,4 +474,18 @@ describe("multi sheet with different sizes", function () {
       offsetY: 0,
     });
   });
+
+  test("deleting the row that has the active cell doesn't crash", async () => {
+    expect(model["workbook"].activeSheet.name).toBe("small");
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheet: model.getters.getActiveSheet() });
+    await nextTick();
+    expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
+      top: 0,
+      bottom: 1,
+      left: 0,
+      right: 0,
+    });
+    expect(model.getters.getActiveCell()).toBeNull();
+  });
 });
