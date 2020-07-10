@@ -634,29 +634,39 @@ export class CorePlugin extends BasePlugin {
   }
 
   private updateAllFormulasHorizontally(base: number, step: number) {
-    return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      let [x, y] = toCartesian(value);
-      if (x === base && step === -1) {
-        return "#REF";
+    return this.visitAllSymbolFormulas(
+      (value: string, cellRef: string, sheetRef: string | undefined, sheet: Sheet): string => {
+        const { activeSheet } = this.workbook;
+        if ((activeSheet.id !== sheet.id || sheetRef) && sheetRef !== activeSheet.name)
+          return value;
+        let [x, y] = toCartesian(cellRef);
+        if (x === base && step === -1) {
+          return "#REF";
+        }
+        if (x > base) {
+          x += step;
+        }
+        return this.getNewRef(cellRef, sheetRef, x, y);
       }
-      if (x > base) {
-        x += step;
-      }
-      return this.getNewRef(value, sheet, x, y);
-    });
+    );
   }
 
   private updateAllFormulasVertically(base: number, step: number) {
-    return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      let [x, y] = toCartesian(value);
-      if (y === base && step === -1) {
-        return "#REF";
+    return this.visitAllSymbolFormulas(
+      (value: string, cellRef: string, sheetRef: string | undefined, sheet: Sheet): string => {
+        const { activeSheet } = this.workbook;
+        if ((activeSheet.id !== sheet.id || sheetRef) && sheetRef !== activeSheet.name)
+          return value;
+        let [x, y] = toCartesian(cellRef);
+        if (y === base && step === -1) {
+          return "#REF";
+        }
+        if (y > base) {
+          y += step;
+        }
+        return this.getNewRef(cellRef, sheetRef, x, y);
       }
-      if (y > base) {
-        y += step;
-      }
-      return this.getNewRef(value, sheet, x, y);
-    });
+    );
   }
 
   private processCellsToMove(
@@ -817,14 +827,10 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds, { name: sheet.id });
     delete sheetIds[oldName];
     this.history.updateLocalState(["sheetIds"], sheetIds);
-    this.visitAllSymbolFormulas((value) => {
-      let [val, sheetRef] = value.split("!").reverse();
-      if (sheetRef) {
-        sheetRef = sanitizeSheet(sheetRef);
-        if (sheetRef === oldName) {
-          const [x, y] = toCartesian(val);
-          return this.getNewRef(val, name, x, y);
-        }
+    this.visitAllSymbolFormulas((value, cellRef, sheetRef) => {
+      if (sheetRef === oldName) {
+        const [x, y] = toCartesian(cellRef);
+        return this.getNewRef(cellRef, name, x, y);
       }
       return value;
     });
@@ -844,13 +850,9 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds);
     delete sheetIds[name];
     this.history.updateLocalState(["sheetIds"], sheetIds);
-    this.visitAllSymbolFormulas((value) => {
-      let [, sheetRef] = value.split("!").reverse();
-      if (sheetRef) {
-        sheetRef = sanitizeSheet(sheetRef);
-        if (sheetRef === name) {
-          return "#REF";
-        }
+    this.visitAllSymbolFormulas((value, cellRef, sheetRef) => {
+      if (sheetRef === name) {
+        return "#REF";
       }
       return value;
     });
@@ -907,7 +909,9 @@ export class CorePlugin extends BasePlugin {
   // Helpers
   // ---------------------------------------------------------------------------
 
-  private visitAllSymbolFormulas(cb: (value: string, sheet: Sheet) => string) {
+  private visitAllSymbolFormulas(
+    cb: (value: string, cellRef: string, sheetRef: string | undefined, sheet: Sheet) => string
+  ) {
     const { sheets } = this.workbook;
     for (let sheetId in sheets) {
       const sheet = sheets[sheetId];
@@ -916,7 +920,12 @@ export class CorePlugin extends BasePlugin {
           const content = tokenize(cell.content!)
             .map((t) => {
               if (t.type === "SYMBOL" && cellReference.test(t.value)) {
-                return cb(t.value, sheet);
+                let [cellRef, sheetRef] = t.value.split("!").reverse() as [
+                  string,
+                  string | undefined
+                ];
+                sheetRef = sheetRef ? sanitizeSheet(sheetRef) : undefined;
+                return cb(t.value, cellRef, sheetRef, sheet);
               }
               return t.value;
             })
@@ -933,27 +942,6 @@ export class CorePlugin extends BasePlugin {
         }
       }
     }
-  }
-
-  /**
-   * Apply a function to update the formula on every cells of every sheets which
-   * contains a formula
-   * @param cb Update formula function to apply
-   */
-  private visitFormulas(cb: (value: string, sheetName: string | undefined) => string) {
-    const { activeSheet } = this.workbook;
-    this.visitAllSymbolFormulas((value, sheet) => {
-      let [val, sheetRef] = value.split("!").reverse();
-      if (sheetRef) {
-        sheetRef = sanitizeSheet(sheetRef);
-        if (sheetRef === activeSheet.name) {
-          return cb(val, sheetRef);
-        }
-      } else if (activeSheet.id === sheet.id) {
-        return cb(val, undefined);
-      }
-      return value;
-    });
   }
 
   private getNewRef(value: string, sheet: string | undefined, x: number, y: number): string {
