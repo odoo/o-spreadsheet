@@ -280,12 +280,12 @@ export class CorePlugin extends BasePlugin {
     return visibleSheets.map((id) => sheets[id]);
   }
 
-  getCol(index: number): Col {
-    return this.workbook.activeSheet.cols[index];
+  getCol(sheetId: string, index: number): Col {
+    return this.workbook.sheets[sheetId].cols[index];
   }
 
-  getRow(index: number): Row {
-    return this.workbook.activeSheet.rows[index];
+  getRow(sheetId: string, index: number): Row {
+    return this.workbook.sheets[sheetId].rows[index];
   }
 
   /**

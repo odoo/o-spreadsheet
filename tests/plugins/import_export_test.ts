@@ -8,10 +8,10 @@ import { mockUuidV4To } from "../helpers";
 describe("data", () => {
   test("give default col size if not specified", () => {
     const model = new Model();
-
+    const sheet = model.getters.getActiveSheet();
     // 96 is default cell width
-    expect(model.getters.getCol(0).size).toEqual(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getCol(1).size).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getCol(sheet, 0).size).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getCol(sheet, 1).size).toEqual(DEFAULT_CELL_WIDTH);
   });
 });
 
@@ -58,10 +58,11 @@ describe("Import", () => {
         },
       ],
     });
-    expect(model.getters.getCol(0).size).toBe(42);
-    expect(model.getters.getCol(1).size).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getRow(0).size).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getRow(1).size).toBe(13);
+    const sheet = model.getters.getActiveSheet();
+    expect(model.getters.getCol(sheet, 0).size).toBe(42);
+    expect(model.getters.getCol(sheet, 1).size).toBe(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getRow(sheet, 0).size).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRow(sheet, 1).size).toBe(13);
   });
 
   test("Import 2 sheets with merges", () => {

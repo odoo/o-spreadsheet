@@ -246,7 +246,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElement(index: number): Col {
-    return this.getters.getCol(index);
+    return this.getters.getCol(this.getters.getActiveSheet(), index);
   }
 
   _getBottomRightValue(element: Col): number {
@@ -370,7 +370,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElement(index: number): Row {
-    return this.getters.getRow(index);
+    return this.getters.getRow(this.getters.getActiveSheet(), index);
   }
 
   _getHeaderSize(): number {

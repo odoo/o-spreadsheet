@@ -362,9 +362,18 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   getAutofillPosition() {
     const zone = this.getters.getSelectedZone();
+    const sheet = this.getters.getActiveSheet();
     return {
-      left: this.getters.getCol(zone.right).end - 4 + HEADER_WIDTH - this.snappedViewport.offsetX,
-      top: this.getters.getRow(zone.bottom).end - 4 + HEADER_HEIGHT - this.snappedViewport.offsetY,
+      left:
+        this.getters.getCol(sheet, zone.right).end -
+        4 +
+        HEADER_WIDTH -
+        this.snappedViewport.offsetX,
+      top:
+        this.getters.getRow(sheet, zone.bottom).end -
+        4 +
+        HEADER_HEIGHT -
+        this.snappedViewport.offsetY,
     };
   }
 

@@ -168,6 +168,23 @@ describe("core", () => {
     });
     expect(model.getters.zoneToXC(/*A2:B2*/ { top: 1, bottom: 1, left: 0, right: 1 })).toBe("A1");
   });
+
+  test("can get row/col of inactive sheet", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET");
+    const [, sheet2] = model.getters.getSheets();
+    model.dispatch("RESIZE_ROWS", { sheet: sheet2.id, rows: [0], size: 24 });
+    model.dispatch("RESIZE_COLUMNS", { sheet: sheet2.id, cols: [0], size: 42 });
+    expect(sheet2.id).not.toBe(model.getters.getActiveSheet());
+    expect(model.getters.getRow(sheet2.id, 0)).toEqual({
+      cells: {},
+      end: 24,
+      name: "1",
+      size: 24,
+      start: 0,
+    });
+    expect(model.getters.getCol(sheet2.id, 0)).toEqual({ end: 42, name: "A", size: 42, start: 0 });
+  });
 });
 
 describe("history", () => {

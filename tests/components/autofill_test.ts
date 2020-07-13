@@ -37,7 +37,12 @@ describe("Autofill component", () => {
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
-    triggerMouseEvent(autofill, "mousemove", 0, parent.env.getters.getRow(1).end + 10);
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      0,
+      parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+    );
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 0, row: 1 });
     triggerMouseEvent(autofill, "mouseup");
@@ -50,7 +55,12 @@ describe("Autofill component", () => {
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
-    triggerMouseEvent(autofill, "mousemove", parent.env.getters.getCol(1).end + 10, 0);
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 1).end + 10,
+      0
+    );
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 1, row: 0 });
     triggerMouseEvent(autofill, "mouseup");
@@ -73,7 +83,12 @@ describe("Autofill component", () => {
     await nextTick();
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
-    triggerMouseEvent(autofill, "mousemove", 0, parent.env.getters.getRow(1).end + 10);
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      0,
+      parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+    );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
     expect(fixture.querySelector(".o-autofill-nextvalue")!.textContent).toBe("test");
