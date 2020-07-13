@@ -94,7 +94,7 @@ export class EvaluationPlugin extends BasePlugin {
         if (cmd.onlyWaiting) {
           const cells = new Set(this.WAITING);
           this.WAITING.clear();
-          this.evaluateCells(makeSetIterator(cells));
+          this.evaluateCells(makeSetIterator(cells), this.workbook.activeSheet.id);
         } else {
           this.WAITING.clear();
           this.evaluate();
@@ -170,17 +170,20 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(makeObjectIterator(this.workbook.activeSheet.cells));
+    this.evaluateCells(
+      makeObjectIterator(this.workbook.activeSheet.cells),
+      this.workbook.activeSheet.id
+    );
   }
 
-  private evaluateCells(cells: Generator<Cell>) {
+  private evaluateCells(cells: Generator<Cell>, sheetId: string) {
     const self = this;
     const { COMPUTED, PENDING, WAITING } = this;
     const params = this.getFormulaParameters(computeValue);
-    const visited = {};
+    const visited: { [sheetId: string]: { [xc: string]: boolean | null } } = {};
 
     for (let cell of cells) {
-      computeValue(cell);
+      computeValue(cell, sheetId);
     }
 
     function handleError(e: Error, cell: Cell) {
@@ -199,13 +202,14 @@ export class EvaluationPlugin extends BasePlugin {
       }
     }
 
-    function computeValue(cell: Cell) {
+    function computeValue(cell: Cell, sheetId: string) {
       if (cell.type !== "formula" || !cell.formula) {
         return;
       }
       const xc = cell.xc;
-      if (xc in visited) {
-        if (visited[xc] === null) {
+      visited[sheetId] = visited[sheetId] || {};
+      if (xc in visited[sheetId]) {
+        if (visited[sheetId][xc] === null) {
           cell.value = "#CYCLE";
           cell.error = _lt("Circular reference");
         }
@@ -214,7 +218,7 @@ export class EvaluationPlugin extends BasePlugin {
       if (COMPUTED.has(cell) || PENDING.has(cell)) {
         return;
       }
-      visited[xc] = null;
+      visited[sheetId][xc] = null;
       cell.error = undefined;
       try {
         // todo: move formatting in grid and formatters.js
@@ -243,7 +247,7 @@ export class EvaluationPlugin extends BasePlugin {
       } catch (e) {
         handleError(e, cell);
       }
-      visited[xc] = true;
+      visited[sheetId][xc] = true;
     }
   }
 
@@ -270,11 +274,11 @@ export class EvaluationPlugin extends BasePlugin {
       if (!cell || cell.content === "") {
         return null;
       }
-      return getCellValue(cell);
+      return getCellValue(cell, sheet);
     }
 
-    function getCellValue(cell: Cell): any {
-      computeValue(cell);
+    function getCellValue(cell: Cell, sheetId: string): any {
+      computeValue(cell, sheetId);
       if (cell.error) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
@@ -301,7 +305,7 @@ export class EvaluationPlugin extends BasePlugin {
         for (let r = r1; r <= r2; r++) {
           let cell = sheet.rows[r].cells[c];
           if (cell) {
-            col[r - r1] = getCellValue(cell);
+            col[r - r1] = getCellValue(cell, sheetId);
           }
         }
       }

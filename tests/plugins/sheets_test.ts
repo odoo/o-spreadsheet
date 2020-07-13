@@ -185,6 +185,33 @@ describe("sheets", () => {
     expect(getCell(model, "C3")!.value).toBe(42);
   });
 
+  test("evaluation from one sheet to another no render", () => {
+    const model = new Model({
+      sheets: [
+        {
+          name: "small",
+          id: "smallId",
+          colNumber: 2,
+          rowNumber: 2,
+          cells: {
+            A2: { content: "=big!A2" },
+          },
+        },
+        {
+          name: "big",
+          id: "bigId",
+          colNumber: 5,
+          rowNumber: 5,
+          cells: {
+            A1: { content: "23" },
+            A2: { content: "=A1" },
+          },
+        },
+      ],
+    });
+    expect(getCell(model, "A2")!.value).toBe(23);
+  });
+
   test("cells are updated when dependency in other sheet is updated", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { activate: true });
