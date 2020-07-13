@@ -103,7 +103,7 @@ describe("Export", () => {
       ],
     });
     model.dispatch("RESIZE_COLUMNS", {
-      sheet: "Sheet1",
+      sheet: model.getters.getActiveSheet(),
       cols: [1],
       size: 150,
     });
@@ -121,7 +121,7 @@ describe("Export", () => {
       ],
     });
     model.dispatch("RESIZE_ROWS", {
-      sheet: "Sheet1",
+      sheet: model.getters.getActiveSheet(),
       rows: [1],
       size: 150,
     });
