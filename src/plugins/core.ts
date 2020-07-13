@@ -130,7 +130,7 @@ export class CorePlugin extends BasePlugin {
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(col);
           if (size !== 0) {
-            this.setColSize(col, size + 2 * MIN_PADDING);
+            this.setColSize(cmd.sheet, col, size + 2 * MIN_PADDING);
           }
         }
         break;
@@ -138,18 +138,18 @@ export class CorePlugin extends BasePlugin {
         for (let col of cmd.rows) {
           const size = this.getRowMaxHeight(col);
           if (size !== 0) {
-            this.setRowSize(col, size + 2 * MIN_PADDING);
+            this.setRowSize(cmd.sheet, col, size + 2 * MIN_PADDING);
           }
         }
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.cols) {
-          this.setColSize(col, cmd.size);
+          this.setColSize(cmd.sheet, col, cmd.size);
         }
         break;
       case "RESIZE_ROWS":
         for (let row of cmd.rows) {
-          this.setRowSize(row, cmd.size);
+          this.setRowSize(cmd.sheet, row, cmd.size);
         }
         break;
       case "REMOVE_COLUMNS":
@@ -355,27 +355,29 @@ export class CorePlugin extends BasePlugin {
     return Math.max(0, ...sizes);
   }
 
-  private setColSize(index: number, size: number) {
-    const col = this.workbook.activeSheet.cols[index];
+  private setColSize(sheetId: string, index: number, size: number) {
+    const cols = this.workbook.sheets[sheetId].cols;
+    const col = cols[index];
     const delta = size - col.size;
-    this.history.updateState(["activeSheet", "cols", index, "size"], size);
-    this.history.updateState(["activeSheet", "cols", index, "end"], col.end + delta);
-    for (let i = index + 1; i < this.workbook.activeSheet.cols.length; i++) {
-      const col = this.workbook.activeSheet.cols[i];
-      this.history.updateState(["activeSheet", "cols", i, "start"], col.start + delta);
-      this.history.updateState(["activeSheet", "cols", i, "end"], col.end + delta);
+    this.history.updateState(["sheets", sheetId, "cols", index, "size"], size);
+    this.history.updateState(["sheets", sheetId, "cols", index, "end"], col.end + delta);
+    for (let i = index + 1; i < cols.length; i++) {
+      const col = cols[i];
+      this.history.updateState(["sheets", sheetId, "cols", i, "start"], col.start + delta);
+      this.history.updateState(["sheets", sheetId, "cols", i, "end"], col.end + delta);
     }
   }
 
-  private setRowSize(index: number, size: number) {
-    const row = this.workbook.activeSheet.rows[index];
+  private setRowSize(sheetId: string, index: number, size: number) {
+    const rows = this.workbook.sheets[sheetId].rows;
+    const row = rows[index];
     const delta = size - row.size;
-    this.history.updateState(["activeSheet", "rows", index, "size"], size);
-    this.history.updateState(["activeSheet", "rows", index, "end"], row.end + delta);
-    for (let i = index + 1; i < this.workbook.activeSheet.rows.length; i++) {
-      const row = this.workbook.activeSheet.rows[i];
-      this.history.updateState(["activeSheet", "rows", i, "start"], row.start + delta);
-      this.history.updateState(["activeSheet", "rows", i, "end"], row.end + delta);
+    this.history.updateState(["sheets", sheetId, "rows", index, "size"], size);
+    this.history.updateState(["sheets", sheetId, "rows", index, "end"], row.end + delta);
+    for (let i = index + 1; i < rows.length; i++) {
+      const row = rows[i];
+      this.history.updateState(["sheets", sheetId, "rows", i, "start"], row.start + delta);
+      this.history.updateState(["sheets", sheetId, "rows", i, "end"], row.end + delta);
     }
   }
 
