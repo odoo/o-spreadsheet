@@ -348,19 +348,23 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
   }
 
-  checkChanges(): boolean {
+  checkChanges(): { sheetChanged: boolean; positionChanged: boolean } {
     const [col, row] = this.getters.getPosition();
     const [curCol, curRow] = this.currentPosition;
     const currentSheet = this.getters.getActiveSheet();
-    const changed = currentSheet !== this.currentSheet || col !== curCol || row !== curRow;
-    if (changed) {
+    const changes = {
+      sheetChanged: currentSheet !== this.currentSheet,
+      positionChanged: col !== curCol || row !== curRow,
+    };
+    if (changes.positionChanged) {
       this.currentPosition = [col, row];
     }
-    if (currentSheet !== this.currentSheet) {
+    if (changes.sheetChanged) {
+      changes.positionChanged = true;
       this.focus();
       this.currentSheet = currentSheet;
     }
-    return changed;
+    return changes;
   }
 
   getAutofillPosition() {
@@ -390,15 +394,20 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.viewport.offsetX = this.hScrollbar.scroll;
     this.viewport.offsetY = this.vScrollbar.scroll;
 
-    // needed to reset the bottom and the right on the current viewport to the one of the new
-    // active sheet or in any case, the number of cols & rows might have changed.
-    this.viewport = this.getters.adjustViewportZone(this.viewport);
+    const changes = this.checkChanges();
+
+    if (changes.sheetChanged) {
+      // needed to reset the bottom and the right on the current viewport to the one of the new active sheet
+      this.viewport = this.getters.adjustViewportZone(this.viewport);
+    }
 
     // check for position changes
-    if (this.checkChanges()) {
+    if (changes.positionChanged) {
       this.viewport = this.getters.adjustViewportPosition(this.viewport);
       this.hScrollbar.scroll = this.viewport.offsetX;
       this.vScrollbar.scroll = this.viewport.offsetY;
+    } else {
+      this.viewport = this.getters.adjustViewportZone(this.viewport);
     }
     this.snappedViewport = this.getters.snapViewportToCell(this.snappedViewport);
 
