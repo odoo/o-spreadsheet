@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell, Touch } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
+import { Grid } from "../../src/components/grid";
 jest.mock("../../src/components/composer/content_editable_helper");
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
@@ -418,5 +419,59 @@ describe("error tooltip", () => {
     intervalCb();
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+});
+
+describe("multi sheet with different sizes", function () {
+  beforeEach(async () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "small",
+          id: "small",
+          colNumber: 2,
+          rowNumber: 2,
+          cells: {},
+        },
+        {
+          name: "big",
+          id: "big",
+          colNumber: 5,
+          rowNumber: 5,
+          cells: {},
+        },
+      ],
+    });
+    parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
+  test("multiple sheets of different size render correctly", async () => {
+    expect(model["workbook"].activeSheet.name).toBe("small");
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ACTIVATE_SHEET", { from: "small", to: "big" });
+    await nextTick();
+    model.dispatch("SELECT_CELL", { col: 4, row: 4 });
+    model.dispatch("ACTIVATE_SHEET", { from: "big", to: "small" });
+    await nextTick();
+    expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
+      top: 0,
+      bottom: 1,
+      left: 0,
+      right: 1,
+      offsetX: 0,
+      offsetY: 0,
+    });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("ACTIVATE_SHEET", { from: "small", to: "big" });
+    await nextTick();
+    expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
+      top: 0,
+      bottom: 4,
+      left: 0,
+      right: 4,
+      offsetX: 0,
+      offsetY: 0,
+    });
   });
 });
