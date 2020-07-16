@@ -87,6 +87,9 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
       if (400 < delta && delta < 600) {
         // mouse did not move for a short while
         const [col, row] = getPosition();
+        if (col < 0 || row < 0) {
+          return;
+        }
         const mainXc = getters.getMainCell(toXC(col, row));
         const cell = getters.getCell(...toCartesian(mainXc));
         if (cell && cell.error) {
