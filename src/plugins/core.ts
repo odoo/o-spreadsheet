@@ -54,6 +54,9 @@ export class CorePlugin extends BasePlugin {
     "getNumberCols",
     "getNumberRows",
     "getGridSize",
+    "getRangeValues",
+    "getRangeFormattedValues",
+    "getRangeParts",
   ];
 
   private width: number = 0;
@@ -296,6 +299,69 @@ export class CorePlugin extends BasePlugin {
 
   getGridSize(): [number, number] {
     return [this.width, this.height];
+  }
+
+  getRangeValues(range: string): any[] {
+    let { sheet, start, end } = this.getRangeParts(range);
+
+    const s = this.getters.getSheets().find((x) => x.name === sheet);
+    if (!s) return [];
+
+    const [c1, r1] = toCartesian(start);
+    const [c2, r2] = toCartesian(end);
+    const result: any[] = new Array(c2 - c1 + 1);
+    for (let c = c1; c <= c2; c++) {
+      let col: any[] = new Array(r2 - r1 + 1);
+      result[c - c1] = col;
+      for (let r = r1; r <= r2; r++) {
+        let cell = s.rows[r].cells[c];
+        if (cell) {
+          col[r - r1] = cell.value;
+        }
+      }
+    }
+    return result;
+  }
+
+  getRangeFormattedValues(range: string): any[] {
+    let { sheet, start, end } = this.getRangeParts(range);
+
+    const s = this.getters.getSheets().find((x) => x.name === sheet);
+    if (!s) return [];
+
+    const [c1, r1] = toCartesian(start);
+    const [c2, r2] = toCartesian(end);
+    const result: any[] = new Array(c2 - c1 + 1);
+    for (let c = c1; c <= c2; c++) {
+      let col: any[] = new Array(r2 - r1 + 1);
+      result[c - c1] = col;
+      for (let r = r1; r <= r2; r++) {
+        let cell = s.rows[r].cells[c];
+        if (cell) {
+          col[r - r1] = this.getters.getCellText(cell);
+        }
+      }
+    }
+    return result;
+  }
+
+  /* returns all the parts of a range from it's string name, including sheet, start and end*/
+  getRangeParts(range: string): { sheet: string; start: string; end: string } {
+    let sheet: string, start: string, end: string;
+
+    let parts = range.split("!");
+    let cellsRange: string;
+    if (parts.length > 1) {
+      sheet = parts[0];
+      cellsRange = parts[1];
+    } else {
+      sheet = this.getters.getActiveSheet();
+      cellsRange = parts[0];
+    }
+
+    [start, end] = cellsRange.split(":");
+
+    return { sheet, start, end };
   }
 
   // ---------------------------------------------------------------------------

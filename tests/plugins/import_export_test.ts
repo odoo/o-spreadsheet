@@ -232,7 +232,13 @@ test("import then export (figures)", () => {
         cells: {},
         name: "My sheet",
         conditionalFormats: [],
-        figures: { otheruuid: { x: 100, y: 100, width: 100, height: 100 } },
+        figures: {
+          otheruuid: {
+            type: "text",
+            id: "otheruuid",
+            position: { x: 100, y: 100, width: 100, height: 100 },
+          },
+        },
       },
     ],
     activeSheet: "someuuid",

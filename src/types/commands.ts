@@ -1,4 +1,4 @@
-import { Zone, Style, BorderCommand, ConditionalFormat } from "./index";
+import { Zone, Style, BorderCommand, ConditionalFormat, FigurePosition, FigureType } from "./index";
 import { Cell } from "./misc";
 
 // -----------------------------------------------------------------------------
@@ -147,6 +147,13 @@ export interface AddRowsCommand extends BaseCommand {
   sheet: string; //Not used for now
   quantity: number;
   position: "before" | "after";
+}
+
+export interface InsertTextFigureCommand extends BaseCommand {
+  type: "INSERT_TEXT";
+  id: string;
+  text: string;
+  position: FigurePosition;
 }
 
 // Local Commands
@@ -347,6 +354,14 @@ export interface AutofillAutoCommand extends BaseCommand {
   type: "AUTOFILL_AUTO";
 }
 
+export interface InsertFigure extends BaseCommand {
+  type: "INSERT_FIGURE";
+  id: string;
+  sheetId: string;
+  position: Zone;
+  figureType: FigureType;
+}
+
 export type Command =
   | UpdateCellCommand
   | CopyCommand
@@ -396,7 +411,9 @@ export type Command =
   | AddColumnsCommand
   | AutofillCommand
   | AutofillSelectCommand
-  | AutofillAutoCommand;
+  | AutofillAutoCommand
+  | InsertTextFigureCommand
+  | InsertFigure;
 
 export interface CommandSuccess {
   status: "SUCCESS";

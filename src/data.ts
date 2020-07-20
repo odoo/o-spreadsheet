@@ -101,7 +101,7 @@ const MIGRATIONS: Migration[] = [
     to: 5,
     applyMigration(data: any): any {
       for (let sheet of data.sheets) {
-        sheet.figures = {};
+        sheet.figures = sheet.figures || {};
       }
       return data;
     },
