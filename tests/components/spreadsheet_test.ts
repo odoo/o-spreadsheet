@@ -47,6 +47,7 @@ afterEach(() => {
 
 describe("Spreadsheet", () => {
   test("simple rendering snapshot", async () => {
+    await nextTick();
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
