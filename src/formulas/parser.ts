@@ -5,7 +5,7 @@ import { _lt } from "../translation";
 
 const functions = functionRegistry.content;
 
-const UNARY_OPERATORS = ["-"];
+const UNARY_OPERATORS = ["-", "+"];
 
 // -----------------------------------------------------------------------------
 // PARSER
