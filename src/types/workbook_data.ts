@@ -1,5 +1,5 @@
 import { ConditionalFormat } from "./conditional_formatting";
-import { Border, Style } from "./misc";
+import { Border, Style, Zone } from "./misc";
 
 export interface CellData {
   content?: string;
@@ -12,12 +12,12 @@ export interface HeaderData {
   size?: number;
 }
 
+export interface FigurePosition extends Zone {}
+
 export interface Figure {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  type: string;
+  id: string;
+  position: FigurePosition;
+  type: "text"; // | "image" | "graph" ...
 }
 
 export interface SheetData {

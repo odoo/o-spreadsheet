@@ -7,7 +7,7 @@ import { FormattingPlugin } from "../src/plugins/formatting";
 import { ConditionalFormatPlugin } from "../src/plugins/conditional_format";
 import { BasePlugin } from "../src/base_plugin";
 import { pluginRegistry } from "../src/plugins/index";
-import { FigurePlugin } from "../src/plugins/figures";
+import { TextPlugin } from "../src/plugins/figures";
 
 describe("Model", () => {
   test("can create model in headless mode", () => {
@@ -18,7 +18,7 @@ describe("Model", () => {
     expect(model["handlers"][2]).toBeInstanceOf(MergePlugin);
     expect(model["handlers"][3]).toBeInstanceOf(FormattingPlugin);
     expect(model["handlers"][4]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(FigurePlugin);
+    expect(model["handlers"][5]).toBeInstanceOf(TextPlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {

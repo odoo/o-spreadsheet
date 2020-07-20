@@ -9,6 +9,7 @@ import { WHistory } from "../history";
 import { EvaluationPlugin } from "../plugins/evaluation";
 import { EditionPlugin } from "../plugins/edition";
 import { AutofillPlugin } from "../plugins/autofill";
+import { FigurePlugin } from "../plugins/figures";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -72,4 +73,6 @@ export interface Getters {
   getCurrentContent: EditionPlugin["getCurrentContent"];
 
   getLastValue: AutofillPlugin["getLastValue"];
+
+  getFiguresInside: FigurePlugin["getFiguresInside"];
 }
