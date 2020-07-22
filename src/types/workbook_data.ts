@@ -14,10 +14,12 @@ export interface HeaderData {
 
 export interface FigurePosition extends Zone {}
 
+export type FigureType = "text" | "other"; // | "image" | "graph" ...
+
 export interface Figure {
   id: string;
   position: FigurePosition;
-  type: "text"; // | "image" | "graph" ...
+  type: FigureType;
 }
 
 export interface SheetData {

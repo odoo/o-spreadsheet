@@ -1,16 +1,30 @@
 import { BasePlugin } from "../base_plugin";
-import { Command, Figure, WorkbookData, Zone } from "../types/index";
+import { Command, Figure, FigureType, WorkbookData, Zone } from "../types/index";
 import { overlap } from "../helpers";
 
 export class FigurePlugin extends BasePlugin {
   static getters = ["getFiguresInside"];
 
-  protected sheets: { [sheetId: string]: { [figureId: string]: Figure } } = {};
+  // use and array of figures in each sheet because the getter getFiguresInside will be call on all
+  // renders and should be optimized
+  // the add/move etc. commands are the exception here
+  protected sheets: { [sheetId: string]: Figure[] } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  handle(cmd: Command) {}
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "INSERT_FIGURE":
+        const copy: Figure[] = this.sheets[cmd.sheetId].slice();
+        const genericFigure = Object.assign({}, cmd, { type: cmd.figureType });
+        copy.push(genericFigure);
+        this.history.updateLocalState(["sheets", cmd.sheetId], copy);
+      // move
+      // resize
+      // delete
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Getters
@@ -19,51 +33,7 @@ export class FigurePlugin extends BasePlugin {
    * Return the figures inside the zone of a sheet
    */
   public getFiguresInside(sheetId: string, zone: Zone): Figure[] {
-    return Object.values(this.sheets[sheetId]).filter((x) => overlap(x.position, zone));
-  }
-  // ---------------------------------------------------------------------------
-  // Import/Export
-  // ---------------------------------------------------------------------------
-
-  export(data: WorkbookData) {
-    for (let sheetData of data.sheets) {
-      const sheet = this.workbook.sheets[sheetData.id];
-      sheetData.figures = sheet.figures;
-    }
-  }
-}
-
-interface TextFigure extends Figure {
-  text: string;
-  type: "text";
-}
-
-export class TextPlugin extends FigurePlugin {
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
-  beforeHandle(command: Command) {
-    super.beforeHandle(command);
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "INSERT_TEXT":
-        this.history.updateLocalState(["sheets", this.workbook.activeSheet.id, cmd.id], {
-          position: cmd.position,
-          id: cmd.id,
-          text: cmd.text,
-          type: "text",
-        });
-        break;
-
-      default:
-        super.handle(cmd);
-        break;
-    }
-  }
-  finalize(command: Command) {
-    super.finalize(command);
+    return this.sheets[sheetId].filter((x) => overlap(x.position, zone));
   }
 
   // ---------------------------------------------------------------------------
@@ -71,19 +41,57 @@ export class TextPlugin extends FigurePlugin {
   // ---------------------------------------------------------------------------
   import(data: WorkbookData) {
     for (let sheetData of data.sheets) {
-      if (sheetData.figures && !this.sheets[sheetData.id]) {
-        this.sheets[sheetData.id] = {};
+      if (!this.sheets[sheetData.id]) {
+        this.sheets[sheetData.id] = [];
       }
 
-      for (let [k, f] of Object.entries(sheetData.figures)) {
-        if (f.type === "text") {
-          this.sheets[sheetData.id][k] = f as TextFigure;
-        }
-      }
+      Object.values(sheetData.figures).forEach((f) => {
+        this.sheets[sheetData.id].push(f);
+      });
     }
   }
 
   export(data: WorkbookData) {
-    super.export(data);
+    for (let sheetData of data.sheets) {
+      const sheet = this.workbook.sheets[sheetData.id];
+      for (let figure of Object.values(this.sheets[sheet.id])) {
+        sheetData.figures[figure.id] = figure;
+      }
+    }
+  }
+}
+
+/**
+ * Manages a simple text overlay over the grid.
+ * This text can take as mush height and width it wants
+ *
+ * This plugin doesn't need to store any private data
+ */
+export class TextPlugin extends BasePlugin {
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "INSERT_TEXT":
+        const figure = {
+          position: cmd.position,
+          id: cmd.id,
+          text: cmd.text,
+        };
+
+        this.dispatch(
+          "INSERT_FIGURE",
+          Object.assign(
+            { figureType: "text" as FigureType, sheetId: this.workbook.activeSheet.id },
+            figure
+          )
+        );
+        break;
+
+      default:
+        super.handle(cmd);
+        break;
+    }
   }
 }

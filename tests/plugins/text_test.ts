@@ -1,6 +1,5 @@
 import "../canvas.mock";
 //import { getCell } from "../helpers";
-import { uuidv4 } from "../../src/helpers";
 import { Zone } from "../../src/types";
 import { Model } from "../../src";
 
@@ -13,7 +12,7 @@ describe("Text figure plugin", () => {
 
   test("can create a text figure", () => {
     model.dispatch("INSERT_TEXT", {
-      id: uuidv4(),
+      id: "anId",
       text: "test",
       position: {
         top: 1,
@@ -34,8 +33,8 @@ describe("Text figure plugin", () => {
       visibleZone
     );
     expect(visibleFigures).toHaveLength(1);
-    expect(visibleFigures[0].id).toBeDefined();
     expect(visibleFigures[0]).toMatchObject({
+      id: "anId",
       text: "test",
       position: { top: 1, left: 1, right: 2, bottom: 2 },
     });
