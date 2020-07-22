@@ -11,6 +11,197 @@ import {
 import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
+// ACOS
+// -----------------------------------------------------------------------------
+export const ACOS: FunctionDescription = {
+  description: _lt("Inverse cosine of a value, in radians."),
+  args: args(`
+    value (number) ${_lt(
+      "The value for which to calculate the inverse cosine. Must be between -1 and 1, inclusive."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (Math.abs(_value) > 1) {
+      throw new Error(
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values are between -1 and 1 inclusive.`
+        )
+      );
+    }
+    return Math.acos(_value);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ACOSH
+// -----------------------------------------------------------------------------
+export const ACOSH: FunctionDescription = {
+  description: _lt("Inverse hyperbolic cosine of a number."),
+  args: args(`
+    value (number) ${_lt(
+      "The value for which to calculate the inverse hyperbolic cosine. Must be greater than or equal to 1."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (_value < 1) {
+      throw new Error(
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. It should be greater than or equal to 1.`
+        )
+      );
+    }
+    return Math.acosh(_value);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ACOT
+// -----------------------------------------------------------------------------
+export const ACOT: FunctionDescription = {
+  description: _lt("Inverse cotangent of a value."),
+  args: args(`
+    value (number) ${_lt("The value for which to calculate the inverse cotangent.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    const sign = Math.sign(_value) || 1;
+    // ACOT has two possible configurations:
+    // @compatibility Excel: return Math.PI / 2 - Math.atan(toNumber(_value));
+    // @compatibility Google: return sign * Math.PI / 2 - Math.atan(toNumber(_value));
+    return (sign * Math.PI) / 2 - Math.atan(_value);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ACOTH
+// -----------------------------------------------------------------------------
+export const ACOTH: FunctionDescription = {
+  description: _lt("Inverse hyperbolic cotangent of a value."),
+  args: args(`
+    value (number) ${_lt(
+      "The value for which to calculate the inverse hyperbolic cotangent. Must not be between -1 and 1, inclusive."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (Math.abs(_value) <= 1) {
+      throw new Error(
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values cannot be between -1 and 1 inclusive.`
+        )
+      );
+    }
+    return Math.log((_value + 1) / (_value - 1)) / 2;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ASIN
+// -----------------------------------------------------------------------------
+export const ASIN: FunctionDescription = {
+  description: _lt("Inverse sine of a value, in radians."),
+  args: args(`
+    value (number) ${_lt(
+      "The value for which to calculate the inverse sine. Must be between -1 and 1, inclusive."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (Math.abs(_value) > 1) {
+      throw new Error(
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values are between -1 and 1 inclusive.`
+        )
+      );
+    }
+    return Math.asin(_value);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ASINH
+// -----------------------------------------------------------------------------
+export const ASINH: FunctionDescription = {
+  description: _lt("Inverse hyperbolic sine of a number."),
+  args: args(`
+    value (number) ${_lt("The value for which to calculate the inverse hyperbolic sine.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.asinh(toNumber(value));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ATAN
+// -----------------------------------------------------------------------------
+export const ATAN: FunctionDescription = {
+  description: _lt("Inverse tangent of a value, in radians."),
+  args: args(`
+    value (number) ${_lt("The value for which to calculate the inverse tangent.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.atan(toNumber(value));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ATAN2
+// -----------------------------------------------------------------------------
+export const ATAN2: FunctionDescription = {
+  description: _lt("Angle from the X axis to a point (x,y), in radians."),
+  args: args(`
+    x (number) ${_lt(
+      "The x coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis."
+    )}
+    y (number) ${_lt(
+      "The y coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (x: any, y: any): number {
+    const _x = toNumber(x);
+    const _y = toNumber(y);
+    if (_x === 0 && _y === 0) {
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`));
+    }
+    return Math.atan2(_y, _x);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ATANH
+// -----------------------------------------------------------------------------
+export const ATANH: FunctionDescription = {
+  description: _lt("Inverse hyperbolic tangent of a number."),
+  args: args(`
+    value (number) ${_lt(
+      "The value for which to calculate the inverse hyperbolic tangent. Must be between -1 and 1, exclusive."
+    )}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (Math.abs(_value) >= 1) {
+      throw new Error(
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. Valid values are between -1 and 1 exclusive.`
+        )
+      );
+    }
+    return Math.atanh(_value);
+  },
+};
+
+// -----------------------------------------------------------------------------
 // CEILING
 // -----------------------------------------------------------------------------
 export const CEILING: FunctionDescription = {
@@ -101,6 +292,60 @@ export const COS: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (angle: any): number {
     return Math.cos(toNumber(angle));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COSH
+// -----------------------------------------------------------------------------
+export const COSH: FunctionDescription = {
+  description: _lt("Hyperbolic cosine of any real number."),
+  args: args(`
+    value (number) ${_lt("Any real value to calculate the hyperbolic cosine of.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.cosh(toNumber(value));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COT
+// -----------------------------------------------------------------------------
+export const COT: FunctionDescription = {
+  description: _lt("Cotangent of an angle provided in radians."),
+  args: args(`
+    angle (number) ${_lt("The angle to find the cotangent of, in radians.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (angle: any): number {
+    const _angle = toNumber(angle);
+    if (_angle === 0) {
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
+    }
+    return 1 / Math.tan(_angle);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COTH
+// -----------------------------------------------------------------------------
+export const COTH: FunctionDescription = {
+  description: _lt("Hyperbolic cotangent of any real number."),
+  args: args(`
+    value (number) ${_lt("Any real value to calculate the hyperbolic cotangent of.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (_value === 0) {
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
+    }
+    return 1 / Math.tanh(_value);
   },
 };
 
@@ -240,6 +485,42 @@ export const COUNTUNIQUEIFS: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// CSC
+// -----------------------------------------------------------------------------
+export const CSC: FunctionDescription = {
+  description: _lt("Cosecant of an angle provided in radians."),
+  args: args(`
+    angle (number) ${_lt("The angle to find the cosecant of, in radians.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (angle: any): number {
+    const _angle = toNumber(angle);
+    if (_angle === 0) {
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`));
+    }
+    return 1 / Math.sin(_angle);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// CSCH
+// -----------------------------------------------------------------------------
+export const CSCH: FunctionDescription = {
+  description: _lt("Hyperbolic cosecant of any real number."),
+  args: args(`
+    value (number) ${_lt("Any real value to calculate the hyperbolic cosecant of.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (_value === 0) {
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`));
+    }
+    return 1 / Math.sinh(_value);
+  },
+};
+
+// -----------------------------------------------------------------------------
 // DECIMAL
 // -----------------------------------------------------------------------------
 const decimalErrorParameter2 = (parameterName, base, value) =>
@@ -298,6 +579,20 @@ export const DEGREES: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (angle: any): number {
     return (toNumber(angle) * 180) / Math.PI;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// EXP
+// -----------------------------------------------------------------------------
+export const EXP: FunctionDescription = {
+  description: _lt(`Euler's number, e (~2.718) raised to a power.`),
+  args: args(`
+    value (number) ${_lt("The exponent to raise e.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.exp(toNumber(value));
   },
 };
 
@@ -432,6 +727,28 @@ export const ISODD: FunctionDescription = {
     const _value = strictToNumber(value);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// LN
+// -----------------------------------------------------------------------------
+export const LN: FunctionDescription = {
+  description: _lt(`The logarithm of a number, base e (euler's number).`),
+  args: args(`
+    value (number) ${_lt("The value for which to calculate the logarithm, base e.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    const _value = toNumber(value);
+    if (_value <= 0) {
+      throw new Error(
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 1 value is ${_value}. It should be greater than 0.`
+        )
+      );
+    }
+    return Math.log(_value);
   },
 };
 
@@ -652,6 +969,34 @@ export const ROUNDUP: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// SEC
+// -----------------------------------------------------------------------------
+export const SEC: FunctionDescription = {
+  description: _lt("Secant of an angle provided in radians."),
+  args: args(`
+    angle (number) ${_lt("The angle to find the secant of, in radians.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (angle: any): number {
+    return 1 / Math.cos(toNumber(angle));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// SECH
+// -----------------------------------------------------------------------------
+export const SECH: FunctionDescription = {
+  description: _lt("Hyperbolic secant of any real number."),
+  args: args(`
+    value (number) ${_lt("Any real value to calculate the hyperbolic secant of.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return 1 / Math.cosh(toNumber(value));
+  },
+};
+
+// -----------------------------------------------------------------------------
 // SIN
 // -----------------------------------------------------------------------------
 export const SIN: FunctionDescription = {
@@ -662,6 +1007,20 @@ export const SIN: FunctionDescription = {
   returns: ["NUMBER"],
   compute: function (angle: number): number {
     return Math.sin(toNumber(angle));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// SINH
+// -----------------------------------------------------------------------------
+export const SINH: FunctionDescription = {
+  description: _lt("Hyperbolic sine of any real number."),
+  args: args(`
+    value (number) ${_lt("Any real value to calculate the hyperbolic sine of.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.sinh(toNumber(value));
   },
 };
 
@@ -762,6 +1121,34 @@ export const SUMIFS: FunctionDescription = {
       }
     });
     return sum;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// TAN
+// -----------------------------------------------------------------------------
+export const TAN: FunctionDescription = {
+  description: _lt("Tangent of an angle provided in radians."),
+  args: args(`
+    angle (number) ${_lt("The angle to find the tangent of, in radians.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (angle: any): number {
+    return Math.tan(toNumber(angle));
+  },
+};
+
+// -----------------------------------------------------------------------------
+// TANH
+// -----------------------------------------------------------------------------
+export const TANH: FunctionDescription = {
+  description: _lt("Hyperbolic tangent of any real number."),
+  args: args(`
+    value (number) ${_lt("Any real value to calculate the hyperbolic tangent of.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: any): number {
+    return Math.tanh(toNumber(value));
   },
 };
 

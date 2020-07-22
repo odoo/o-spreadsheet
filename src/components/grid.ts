@@ -352,7 +352,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const [col, row] = this.getters.getPosition();
     const [curCol, curRow] = this.currentPosition;
     const currentSheet = this.getters.getActiveSheet();
-    const changed = currentSheet !== this.currentSheet || col !== curCol || row !== curRow
+    const changed = currentSheet !== this.currentSheet || col !== curCol || row !== curRow;
     if (changed) {
       this.currentPosition = [col, row];
     }

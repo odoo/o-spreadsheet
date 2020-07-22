@@ -3,6 +3,181 @@ import { toNumber } from "../../src/functions/helpers";
 
 describe("math", () => {
   //----------------------------------------------------------------------------
+  // ACOS
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", 0],
+    ["-1", Math.PI],
+    ["0", Math.PI / 2],
+    ["0.5", Math.PI / 3],
+  ])("ACOS(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["2"], ["-1.5"]])("ACOS(%s) - ERROR: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("ACOS: special value testing", () => {
+    expect(evaluateCell("A1", { A1: "=ACOS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=ACOS(TRUE)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=ACOS(FALSE)" })).toBeCloseTo(Math.PI / 2, 9);
+
+    expect(evaluateCell("A1", { A1: '=ACOS("")' })).toBeCloseTo(Math.PI / 2, 9);
+    expect(evaluateCell("A1", { A1: '=ACOS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=ACOS("0")' })).toBeCloseTo(Math.PI / 2, 9);
+
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: "" })).toBeCloseTo(Math.PI / 2, 9);
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: "0" })).toBeCloseTo(Math.PI / 2, 9);
+
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '=""' })).toBeCloseTo(Math.PI / 2, 9);
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '="0"' })).toBeCloseTo(Math.PI / 2, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // ACOSH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1.54308063481524", 1],
+    ["1", 0],
+    ["1.25", Math.log(2)],
+    ["2.125", Math.log(4)],
+  ])("ACOSH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ACOSH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["-2"], ["0.5"]])("ACOSH(%s) - ERROR: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=ACOSH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  //----------------------------------------------------------------------------
+  // ACOT
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["0", Math.PI / 2],
+    ["1", Math.PI / 4],
+    ["-1", -Math.PI / 4],
+    ["2", 0.463647609],
+    ["-4", -0.244978663],
+  ])("ACOT(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ACOT(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // ACOTH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1.25", Math.log(3)],
+    ["1.1", 1.522261219],
+    ["2", 0.549306144],
+    ["-3", -0.34657359],
+    ["-4", -0.255412812],
+  ])("ACOTH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ACOTH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0"], ["1"], ["-1"], ["0.5"]])(
+    "ACOTH(%s) - ERROR: take 1 parameter(s), return an error",
+    (a) => {
+      expect(evaluateCell("A1", { A1: "=ACOTH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    }
+  );
+
+  //----------------------------------------------------------------------------
+  // ASIN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", Math.PI / 2],
+    ["-1", -Math.PI / 2],
+    ["0", 0],
+    ["0.5", Math.PI / 6],
+  ])("ASIN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ASIN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["2"], ["-1.5"]])("ASIN(%s) - ERROR: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=ASIN(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  //----------------------------------------------------------------------------
+  // ASINH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1.175201194", 1],
+    ["-3.626860408", -2],
+    ["0", 0],
+    ["0.75", Math.log(2)],
+    ["-1.875", -Math.log(4)],
+  ])("ASINH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ASINH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // ATAN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["0", 0],
+    ["1", Math.PI / 4],
+    ["1.557407725", 1],
+    ["-2", -1.107148718],
+    ["-4", -1.325817664],
+  ])("ATAN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ATAN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // ATAN2
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["42", "0", 0],
+    ["0", "42", Math.PI / 2],
+    ["2", "2", Math.PI / 4],
+    ["-2", "3", 2.15879893],
+    ["4", "-7", -1.051650213],
+  ])("ATAN2(%s, %s) - %s: take 1 parameter(s), return a number", (a, b, expected) => {
+    expect(evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0", "0"]])("ATAN2(%s, %s) - ERROR: take 1 parameter(s), return an error", (a, b) => {
+    expect(evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+  });
+
+  //----------------------------------------------------------------------------
+  // ATANH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["0.8", Math.log(3)],
+    ["0.6", Math.log(2)],
+    ["0", 0],
+    [" 0.761594156", 1],
+    ["-0.9", -1.47221949],
+  ])("ATANH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=ATANH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["1.1"], ["-1"], ["42"]])(
+    "ATANH(%s) - ERROR: take 1 parameter(s), return an error",
+    (a) => {
+      expect(evaluateCell("A1", { A1: "=ATANH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    }
+  );
+
+  //----------------------------------------------------------------------------
   // CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING
   //----------------------------------------------------------------------------
 
@@ -198,7 +373,7 @@ describe("math", () => {
     ["=PI()/2", 0],
     ["=PI()/3", 0.5],
     ["=-PI()/2", 0],
-  ])("COS(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  ])("COS(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=COS(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 
@@ -222,6 +397,56 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=""' })).toBeCloseTo(1, 9);
     expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '="0"' })).toBeCloseTo(1, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // COSH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["0", 1],
+    ["1", 1.543080635],
+    ["-1", 1.543080635],
+    ["=LN(2)", 1.25],
+    ["=LN(4)", 2.125],
+  ])("COSH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=COSH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // COT
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["=PI()/2", 0],
+    ["=PI()/4", 1],
+    ["=-PI()*5/4", -1],
+    ["1", 0.642092616],
+    ["2", -0.457657554],
+  ])("COT(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0"]])("COT(%s) - %s: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!!
+  });
+
+  //----------------------------------------------------------------------------
+  // COTH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["=LN(3)", 1.25],
+    ["1", 1.313035285],
+    ["2", 1.037314721],
+    ["-3", -1.004969823],
+    ["-4", -1.00067115],
+  ])("COTH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0"]])("COTH(%s) - %s: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!!
   });
 
   //----------------------------------------------------------------------------
@@ -764,6 +989,41 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // CSC
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["=3*PI()/2", -1],
+    ["=PI()/2", 1],
+    ["=-PI()/2", -1],
+    ["1", 1.188395106],
+    ["-2", -1.09975017],
+  ])("CSC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0"]])("CSC(%s) - ERROR: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+  });
+
+  //----------------------------------------------------------------------------
+  // CSCH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", 0.850918128],
+    ["-2", -0.275720565],
+    ["=LN(3)", 0.75],
+    ["=-LN(9)", -0.225],
+  ])("CSCH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0"]])("CSCH(%s) - ERROR: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+  });
+
+  //----------------------------------------------------------------------------
   // DECIMAL
   //----------------------------------------------------------------------------
 
@@ -899,6 +1159,42 @@ describe("math", () => {
     expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=""' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '="0"' })).toBe(0);
+  });
+
+  //----------------------------------------------------------------------------
+  // EXP
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", Math.exp(1)],
+    ["=LN(1)", 1],
+    ["0", 1],
+    ["-1", 0.3678794412],
+    ["2", 7.389056099],
+  ])("EXP(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test("EXP: special value testing", () => {
+    expect(evaluateCell("A1", { A1: "=EXP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=EXP(TRUE)" })).toBeCloseTo(Math.exp(1), 9);
+    expect(evaluateCell("A1", { A1: "=EXP(FALSE)" })).toBeCloseTo(1, 9);
+
+    expect(evaluateCell("A1", { A1: '=EXP("")' })).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: '=EXP(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=EXP("1")' })).toBeCloseTo(Math.exp(1), 9);
+
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: "" })).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: "1" })).toBeCloseTo(Math.exp(1), 9);
+
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '"1"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '=""' })).toBeCloseTo(1, 9);
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '="1"' })).toBeCloseTo(Math.exp(1), 9);
   });
 
   //----------------------------------------------------------------------------
@@ -1154,6 +1450,45 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // LN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", 0],
+    ["=EXP(1)", 1],
+    ["2", 0.6931471806],
+    ["9", Math.log(3) + Math.log(3)],
+  ])("LN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  test.each([["0"], ["-42"]])("LN(%s) - %s: take 1 parameter(s), return an error", (a) => {
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("LN: special value testing", () => {
+    expect(evaluateCell("A1", { A1: "=LN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=LN(TRUE)" })).toBeCloseTo(0, 9);
+    expect(evaluateCell("A1", { A1: "=LN(FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+
+    expect(evaluateCell("A1", { A1: '=LN("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: '=LN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=LN("1")' })).toBeCloseTo(0, 9);
+
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: "1" })).toBeCloseTo(0, 9);
+
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '"1"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '="1"' })).toBeCloseTo(0, 9);
+  });
+
+  //----------------------------------------------------------------------------
   // MOD
   //----------------------------------------------------------------------------
 
@@ -1242,7 +1577,7 @@ describe("math", () => {
     ["3", 3],
     ["3.1", 5],
     ["3.9", 5],
-  ])("ODD(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  ])("ODD(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: a })).toBe(expected);
   });
 
@@ -1632,6 +1967,35 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // SEC
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["=PI()/3", 2],
+    ["1", 1.850815718],
+    ["-2", -2.402997962],
+    ["3", -1.010108666],
+    ["-4", -1.529885656],
+    ["0", 1],
+  ])("SEC(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=SEC(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // SECH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", 0.648054274],
+    ["-1", 0.648054274],
+    ["0", 1],
+    ["=LN(2)", 0.8],
+    ["=-LN(3)", 0.6],
+  ])("SECH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=SECH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
   // SIN
   //----------------------------------------------------------------------------
 
@@ -1642,7 +2006,7 @@ describe("math", () => {
     ["=PI()/2", 1],
     ["=PI()/6", 0.5],
     ["=-PI()/2", -1],
-  ])("SIN(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  ])("SIN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 
@@ -1669,6 +2033,20 @@ describe("math", () => {
   });
 
   //----------------------------------------------------------------------------
+  // SINH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["1", 1.175201194],
+    ["-2", -3.626860408],
+    ["0", 0],
+    ["=LN(2)", 0.75],
+    ["=-LN(4)", -1.875],
+  ])("SINH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=SINH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
   // SQRT
   //----------------------------------------------------------------------------
 
@@ -1676,7 +2054,7 @@ describe("math", () => {
     ["0", 0],
     ["4", 2],
     ["9", 3],
-  ])("SQRT(%s) - %s: take 1 parameter(s), return a numner", (a, expected) => {
+  ])("SQRT(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
     expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe(expected);
   });
 
@@ -1881,6 +2259,35 @@ describe("math", () => {
     expect(gridResult.A12).toBe(180);
     expect(gridResult.A13).toBe(90);
     expect(gridResult.A14).toBe(106);
+  });
+
+  //----------------------------------------------------------------------------
+  // TAN
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["0", 0],
+    ["=PI()/4", 1],
+    ["1", 1.557407725],
+    ["2", -2.185039863],
+    ["-3", 0.142546543],
+    ["-4", -1.157821282],
+  ])("TAN(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=TAN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  });
+
+  //----------------------------------------------------------------------------
+  // TANH
+  //----------------------------------------------------------------------------
+
+  test.each([
+    ["=LN(3)", 0.8],
+    ["=LN(2)", 0.6],
+    ["0", 0],
+    ["1", 0.761594156],
+    ["-2", -0.96402758],
+  ])("TANH(%s) - %s: take 1 parameter(s), return a number", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=TANH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 
   //----------------------------------------------------------------------------
