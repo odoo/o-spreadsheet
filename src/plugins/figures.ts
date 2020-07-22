@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { Command, Figure, FigureType, WorkbookData, Zone } from "../types/index";
-import { overlap } from "../helpers";
+import { overlap } from "../helpers/index";
 
 export class FigurePlugin extends BasePlugin {
   static getters = ["getFiguresInside"];
