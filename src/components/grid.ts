@@ -13,7 +13,7 @@ import { Composer } from "./composer/composer";
 import { Menu, MenuState } from "./menu";
 import { Overlay } from "./overlay";
 import { Autofill } from "./autofill";
-import { startDnd } from "../helpers/drag_and_drop";
+import { startDnd } from "./helpers/drag_and_drop";
 import { FiguresContainer } from "./figure/container";
 import { ScrollBar } from "./scrollbar";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";

@@ -1,7 +1,7 @@
 import * as owl from "@odoo/owl";
 import { SpreadsheetEnv, Viewport } from "../types";
 import { clip } from "../helpers/misc";
-import { startDnd } from "../helpers/drag_and_drop";
+import { startDnd } from "./helpers/drag_and_drop";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
