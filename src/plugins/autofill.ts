@@ -258,7 +258,7 @@ export class AutofillPlugin extends BasePlugin {
     }
     if (row === zone.bottom) {
       col = zone.right;
-      if (col <= this.getters.getNumberCols()) {
+      if (col <= this.getters.getNumberCols(this.getters.getActiveSheet())) {
         let right = this.getters.getCell(col + 1, row);
         while (right && right.content) {
           row += 1;

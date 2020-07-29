@@ -298,12 +298,12 @@ export class CorePlugin extends BasePlugin {
     );
   }
 
-  getNumberCols(): number {
-    return this.workbook.activeSheet.cols.length;
+  getNumberCols(sheetId: string): number {
+    return this.workbook.sheets[sheetId].cols.length;
   }
 
-  getNumberRows(): number {
-    return this.workbook.activeSheet.rows.length;
+  getNumberRows(sheetId: string): number {
+    return this.workbook.sheets[sheetId].rows.length;
   }
 
   getColsZone(start: number, end: number): Zone {

@@ -185,6 +185,18 @@ describe("core", () => {
     });
     expect(model.getters.getCol(sheet2.id, 0)).toEqual({ end: 42, name: "A", size: 42, start: 0 });
   });
+
+  test("can get row/col number of inactive sheet", () => {
+    const model = new Model({
+      sheets: [
+        { colNumber: 10, rowNumber: 10, id: "1" },
+        { colNumber: 19, rowNumber: 29, id: "2" },
+      ],
+    });
+    expect(model.getters.getActiveSheet()).not.toBe("2");
+    expect(model.getters.getNumberRows("2")).toEqual(29);
+    expect(model.getters.getNumberCols("2")).toEqual(19);
+  });
 });
 
 describe("history", () => {
