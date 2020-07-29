@@ -171,7 +171,7 @@ describe("core", () => {
 
   test("can get row/col of inactive sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { id: "42" });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_ROWS", { sheet: sheet2.id, rows: [0], size: 24 });
     model.dispatch("RESIZE_COLUMNS", { sheet: sheet2.id, cols: [0], size: 42 });

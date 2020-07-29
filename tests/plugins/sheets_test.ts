@@ -10,7 +10,7 @@ describe("sheets", () => {
     expect(model["workbook"].visibleSheets.length).toBe(1);
     expect(model["workbook"].activeSheet.name).toBe("Sheet1");
 
-    model.dispatch("CREATE_SHEET", { activate: true });
+    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
     expect(model["workbook"].visibleSheets.length).toBe(2);
     expect(model["workbook"].activeSheet.name).toBe("Sheet2");
 
@@ -29,7 +29,7 @@ describe("sheets", () => {
 
     expect(model.getters.getActiveSheet()).toBe(sheet1);
     expect(model.getters.getSheets().map((s) => s.id)).toEqual([sheet1]);
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { id: "42" });
     const sheet2 = model["workbook"].visibleSheets[1];
     expect(model.getters.getActiveSheet()).toBe(sheet1);
     expect(model.getters.getSheets().map((s) => s.id)).toEqual([sheet1, sheet2]);
@@ -37,7 +37,13 @@ describe("sheets", () => {
 
   test("Can create a new sheet with given size and name", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { rows: 2, cols: 4, name: "SheetTest", activate: true });
+    model.dispatch("CREATE_SHEET", {
+      rows: 2,
+      cols: 4,
+      name: "SheetTest",
+      activate: true,
+      id: "42",
+    });
     expect(model["workbook"].activeSheet.colNumber).toBe(4);
     expect(model["workbook"].activeSheet.cols.length).toBe(4);
     expect(model["workbook"].activeSheet.rowNumber).toBe(2);
@@ -48,7 +54,7 @@ describe("sheets", () => {
   test("Cannot create a sheet with a name already existent", () => {
     const model = new Model();
     const name = model["workbook"].activeSheet.name;
-    expect(model.dispatch("CREATE_SHEET", { name })).toEqual({
+    expect(model.dispatch("CREATE_SHEET", { name, id: "42" })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetName,
     });
@@ -69,7 +75,7 @@ describe("sheets", () => {
     expect(model["workbook"].activeSheet.name).toBe("Sheet1");
 
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
-    model.dispatch("CREATE_SHEET", { activate: true });
+    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
     expect(model["workbook"].activeSheet.name).toBe("Sheet2");
     model.dispatch("SET_VALUE", { xc: "A1", text: "=Sheet1!A1" });
     expect(getCell(model, "A1")!.value).toBe(3);
@@ -214,7 +220,7 @@ describe("sheets", () => {
 
   test("cells are updated when dependency in other sheet is updated", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { activate: true });
+    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
     const sheet1 = model["workbook"].visibleSheets[0];
     const sheet2 = model["workbook"].visibleSheets[1];
 

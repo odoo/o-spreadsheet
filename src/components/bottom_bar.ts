@@ -4,6 +4,7 @@ import { SpreadsheetEnv } from "../types";
 import { PLUS } from "./icons";
 import { MenuState, Menu } from "./menu";
 import { sheetMenuRegistry } from "../registries/index";
+import { uuidv4 } from "../helpers";
 const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useState } = owl.hooks;
@@ -104,7 +105,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   addSheet() {
-    this.env.dispatch("CREATE_SHEET", { activate: true });
+    this.env.dispatch("CREATE_SHEET", { activate: true, id: uuidv4() });
   }
 
   activateSheet(name: string) {

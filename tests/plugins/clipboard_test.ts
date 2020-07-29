@@ -86,7 +86,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });
     model.dispatch("CUT", { target: target("A1") });
     const to = model.getters.getActiveSheet();
-    model.dispatch("CREATE_SHEET", { activate: true });
+    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
     const from = model.getters.getActiveSheet();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1Sheet2" });
     model.dispatch("PASTE", { target: target("B2") });

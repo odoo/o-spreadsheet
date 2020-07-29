@@ -1,5 +1,5 @@
 import { Style, SpreadsheetEnv } from "../../types/index";
-import { numberToLetters } from "../../helpers/index";
+import { numberToLetters, uuidv4 } from "../../helpers/index";
 import { _lt } from "../../translation";
 
 //------------------------------------------------------------------------------
@@ -350,7 +350,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
-  env.dispatch("CREATE_SHEET", { activate: true });
+  env.dispatch("CREATE_SHEET", { activate: true, id: uuidv4() });
 };
 
 //------------------------------------------------------------------------------

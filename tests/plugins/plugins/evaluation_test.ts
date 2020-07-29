@@ -16,7 +16,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("in another sheet", () => {
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { id: "42" });
     const sheet2 = model["workbook"].visibleSheets[1];
     model.dispatch("SET_VALUE", { xc: "A1", text: "11", sheetId: sheet2 });
     expect(model.getters.evaluateFormula("=Sheet2!A1")).toBe(11);
@@ -53,7 +53,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("using cells in other sheets", () => {
-    model.dispatch("CREATE_SHEET");
+    model.dispatch("CREATE_SHEET", { id: "42" });
     const s = model.getters.getSheets();
     model.dispatch("ACTIVATE_SHEET", { from: s[1].id, to: s[0].id });
     model.dispatch("SET_VALUE", { sheetId: s[1].id, xc: "A1", text: "12" });

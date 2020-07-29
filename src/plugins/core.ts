@@ -12,7 +12,6 @@ import {
   sanitizeSheet,
   toCartesian,
   toXC,
-  uuidv4,
 } from "../helpers/index";
 import {
   Cell,
@@ -91,6 +90,7 @@ export class CorePlugin extends BasePlugin {
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
+          cmd.id,
           cmd.name || `Sheet${this.workbook.visibleSheets.length + 1}`,
           cmd.cols || 26,
           cmd.rows || 100
@@ -750,9 +750,9 @@ export class CorePlugin extends BasePlugin {
     this.history.updateSheet(_sheet, ["rows", row, "cells", col], cell);
   }
 
-  private createSheet(name: string, cols: number, rows: number): string {
+  private createSheet(id: string, name: string, cols: number, rows: number): string {
     const sheet: Sheet = {
-      id: uuidv4(),
+      id,
       name,
       cells: {},
       colNumber: cols,

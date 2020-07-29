@@ -64,6 +64,7 @@ export interface ResizeRowsCommand extends BaseCommand {
  */
 export interface CreateSheetCommand extends BaseCommand {
   type: "CREATE_SHEET";
+  id: string;
   name?: string;
   cols?: number;
   rows?: number;

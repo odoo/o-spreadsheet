@@ -44,7 +44,10 @@ export class ConditionalFormatPlugin extends BasePlugin {
       case "ACTIVATE_SHEET":
         const activeSheet = cmd.to;
         this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
-        this.cfRules[activeSheet] = this.cfRules[activeSheet] || [];
+        this.isStale = true;
+        break;
+      case "CREATE_SHEET":
+        this.cfRules[cmd.id] = [];
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":

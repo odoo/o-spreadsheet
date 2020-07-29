@@ -84,6 +84,35 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#0000FF" });
   });
 
+  test("Add conditional formating on inactive sheet", () => {
+    model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    const [activeSheet, sheet] = model.getters.getSheets();
+    expect(sheet.id).not.toBe(model.getters.getActiveSheet());
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
+      sheet: sheet.id,
+    });
+    model.dispatch("ACTIVATE_SHEET", {
+      from: activeSheet.id,
+      to: "42",
+    });
+    expect(model.getters.getConditionalFormats()).toEqual([
+      {
+        rule: {
+          values: ["4"],
+          operator: "Equal",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#0000FF",
+          },
+        },
+        id: "2",
+        ranges: ["A1:A4"],
+      },
+    ]);
+  });
+
   test("remove a conditional format rule", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
