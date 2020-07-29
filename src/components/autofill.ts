@@ -112,8 +112,9 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
       );
       const row = this.env.getters.getRowIndex(ev.clientY - position.top, this.props.viewport.top);
       if (lastCol !== col || lastRow !== row) {
-        lastCol = clip(col, 0, this.env.getters.getNumberCols());
-        lastRow = clip(row, 0, this.env.getters.getNumberRows());
+        const sheetId = this.env.getters.getActiveSheet();
+        lastCol = clip(col, 0, this.env.getters.getNumberCols(sheetId));
+        lastRow = clip(row, 0, this.env.getters.getNumberRows(sheetId));
         this.env.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
       }
     };

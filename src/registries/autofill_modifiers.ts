@@ -60,8 +60,15 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
+      const sheetId = getters.getActiveSheet();
       return Object.assign({}, data, {
-        content: applyOffset(data.content!, x, y, getters.getNumberCols(), getters.getNumberRows()),
+        content: applyOffset(
+          data.content!,
+          x,
+          y,
+          getters.getNumberCols(sheetId),
+          getters.getNumberRows(sheetId)
+        ),
       });
     },
   });
