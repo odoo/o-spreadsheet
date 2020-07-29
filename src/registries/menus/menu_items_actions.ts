@@ -81,6 +81,9 @@ export const PASTE_ACTION = async (env: SpreadsheetEnv) => {
   }
 };
 
+export const PASTE_VALUE_ACTION = (env: SpreadsheetEnv) =>
+  env.dispatch("PASTE", { target: env.getters.getSelectedZones(), onlyValue: true });
+
 export const PASTE_FORMAT_ACTION = (env: SpreadsheetEnv) =>
   env.dispatch("PASTE", { target: env.getters.getSelectedZones(), onlyFormat: true });
 

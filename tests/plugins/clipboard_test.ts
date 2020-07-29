@@ -691,6 +691,182 @@ describe("clipboard", () => {
     expect(getCell(model, "C2")).toBeNull();
   });
 
+  test("can copy and paste value only", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+    expect(getCell(model, "C2")!.content).toBe("b2");
+  });
+
+  test("can copy a cell with a style and paste value only", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("SET_FORMATTING", {
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true },
+    });
+    expect(getCell(model, "B2")!.style).toBe(2);
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+
+    expect(getCell(model, "C2")!.value).toBe("b2");
+    expect(getCell(model, "C2")!.style).not.toBeDefined();
+  });
+
+  test("can copy a cell with a border and paste value only", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("SET_FORMATTING", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      border: "bottom",
+    });
+    expect(getCell(model, "B2")!.border).toBe(2);
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+
+    expect(getCell(model, "C2")!.value).toBe("b2");
+    expect(getCell(model, "C2")!.border).not.toBeDefined();
+  });
+
+  test("can copy a cell with a formatter and paste value only", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "0.451" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("SET_FORMATTER", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      formatter: "0.00%",
+    });
+    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("45.10%");
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+
+    expect(model.getters.getCellText(getCell(model, "C2")!)).toBe("0.451");
+  });
+
+  test("can copy a cell with a conditional format and paste value only", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "C1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheet: model.getters.getActiveSheet(),
+    });
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("C1"), onlyValue: true });
+    model.dispatch("COPY", { target: target("A2") });
+    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
+  });
+
+  test("paste value only does not remove style", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "C3", text: "c3" });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    model.dispatch("SET_FORMATTING", {
+      sheet: "Sheet1",
+      target: [{ left: 2, right: 2, top: 2, bottom: 2 }],
+      style: { bold: true },
+    });
+    expect(getCell(model, "C3")!.style).toBe(2);
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C3"), onlyValue: true });
+
+    expect(getCell(model, "C3")!.content).toBe("b2");
+    expect(getCell(model, "C3")!.style).toBe(2);
+  });
+
+  test("paste value only does not remove border", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SET_VALUE", { xc: "C3", text: "c3" });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    model.dispatch("SET_FORMATTING", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      border: "bottom",
+    });
+    expect(getCell(model, "C3")!.border).toBe(2);
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C3"), onlyValue: true });
+
+    expect(getCell(model, "C3")!.content).toBe("b2");
+    expect(getCell(model, "C3")!.border).toBe(2);
+  });
+
+  test("paste value only does not remove formating", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "42" });
+    model.dispatch("SET_VALUE", { xc: "C3", text: "0.451" });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    model.dispatch("SET_FORMATTER", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      formatter: "0.00%",
+    });
+    expect(model.getters.getCellText(getCell(model, "C3")!)).toBe("45.10%");
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("C3"), onlyValue: true });
+
+    expect(model.getters.getCellText(getCell(model, "C3")!)).toBe("4200.00%");
+  });
+
+  test("can copy a formula and paste value only", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(1+2)" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=EQ(42,42)" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: '=CONCAT("Ki","kou")' });
+    model.dispatch("COPY", { target: [zone("A1:A3")] });
+    model.dispatch("PASTE", { target: target("B1"), onlyValue: true });
+    expect(getCell(model, "B1")!.content).toBe("3");
+    expect(getCell(model, "B2")!.content).toBe("TRUE");
+    expect(getCell(model, "B3")!.content).toBe("Kikou");
+  });
+
+  test("can undo a paste value only", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    model.dispatch("SET_FORMATTING", {
+      sheet: "Sheet1",
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: true },
+    });
+    model.dispatch("COPY", { target: [zone("B2:B2")] });
+    model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
+
+    expect(getCell(model, "C2")!.content).toBe("b2");
+    expect(getCell(model, "C2")!.style).not.toBeDefined();
+
+    model.dispatch("UNDO");
+    expect(getCell(model, "C2")).toBeNull();
+  });
+
   test("can copy and paste a formula and update the refs", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(C1:C2)" });

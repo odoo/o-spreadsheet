@@ -31,9 +31,14 @@ cellMenuRegistry
     sequence: 40,
     separator: true,
   })
+  .addChild("paste_value_only", ["paste_special"], {
+    name: _lt("Paste value only"),
+    sequence: 10,
+    action: ACTIONS.PASTE_VALUE_ACTION,
+  })
   .addChild("paste_format_only", ["paste_special"], {
     name: _lt("Paste format only"),
-    sequence: 10,
+    sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
   .add("add_row_before", {
