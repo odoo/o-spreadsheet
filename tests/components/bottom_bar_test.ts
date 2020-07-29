@@ -1,9 +1,10 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
-import { makeTestFixture, nextTick } from "../helpers";
+import { makeTestFixture, nextTick, mockUuidV4To } from "../helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types";
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const { xml } = tags;
 const { useSubEnv } = hooks;
@@ -53,8 +54,9 @@ describe("BottomBar component", () => {
     const parent = new Parent(new Model());
     await parent.mount(fixture);
 
+    mockUuidV4To(42);
     triggerMouseEvent(".o-add-sheet", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true, id: "42" });
   });
 
   test("Can activate a sheet", async () => {

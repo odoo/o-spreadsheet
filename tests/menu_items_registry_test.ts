@@ -2,7 +2,8 @@ import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
 import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
-import { GridParent, makeTestFixture, nextTick } from "./helpers";
+import { GridParent, makeTestFixture, nextTick, mockUuidV4To } from "./helpers";
+jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getNode(_path: string[]): FullMenuItem {
   const path = [..._path];
@@ -386,8 +387,9 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> new sheet", () => {
+    mockUuidV4To(42);
     doAction(["insert", "insert_sheet"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true });
+    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true, id: "42" });
   });
 
   describe("Format -> numbers", () => {

@@ -559,7 +559,7 @@ describe("Rows", () => {
       let dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheet();
-      model.dispatch("CREATE_SHEET", { activate: true });
+      model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
       const from = model.getters.getActiveSheet();
       model.dispatch("ACTIVATE_SHEET", { from, to });
       dimensions = model.getters.getGridSize();

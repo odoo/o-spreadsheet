@@ -48,7 +48,7 @@ describe("edition", () => {
     const sheet1 = model["workbook"].visibleSheets[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
-    model.dispatch("CREATE_SHEET", { activate: true });
+    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBe(null);
     model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: sheet1 });
