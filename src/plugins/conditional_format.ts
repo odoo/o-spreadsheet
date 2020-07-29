@@ -79,7 +79,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "PASTE_CELL":
-        this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheet, cmd.cut);
+        if (!cmd.onlyValue) {
+          this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheet, cmd.cut);
+        }
         break;
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":

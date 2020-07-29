@@ -166,6 +166,7 @@ export interface CutCommand extends BaseCommand {
 export interface PasteCommand extends BaseCommand {
   type: "PASTE";
   target: Zone[];
+  onlyValue?: boolean;
   onlyFormat?: boolean;
   force?: boolean;
 }
@@ -179,6 +180,8 @@ export interface PasteCellCommand extends BaseCommand {
   row: number;
   sheet: string;
   cut?: boolean;
+  onlyValue: boolean;
+  onlyFormat: boolean;
 }
 
 export interface AutoFillCellCommand extends BaseCommand {

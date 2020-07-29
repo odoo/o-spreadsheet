@@ -49,6 +49,11 @@ topbarMenuRegistry
     sequence: 60,
     separator: true,
   })
+  .addChild("paste_special_value", ["edit", "paste_special"], {
+    name: _lt("Paste value only"),
+    sequence: 10,
+    action: ACTIONS.PASTE_VALUE_ACTION,
+  })
   .addChild("paste_special_format", ["edit", "paste_special"], {
     name: _lt("Paste format only"),
     sequence: 20,

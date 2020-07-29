@@ -35,7 +35,8 @@ export class ClipboardPlugin extends BasePlugin {
   private cells?: ClipboardCell[][];
   private originSheet: string = this.workbook.activeSheet.id;
   private _isPaintingFormat: boolean = false;
-  private onlyFormat: boolean = false;
+  private pasteOnlyValue: boolean = false;
+  private pasteOnlyFormat: boolean = false;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -59,9 +60,10 @@ export class ClipboardPlugin extends BasePlugin {
         this.cutOrCopy(cmd.target, true);
         break;
       case "PASTE":
+        this.pasteOnlyValue = "onlyValue" in cmd && !!cmd.onlyValue;
         const onlyFormat = "onlyFormat" in cmd ? !!cmd.onlyFormat : this._isPaintingFormat;
         this._isPaintingFormat = false;
-        this.onlyFormat = onlyFormat;
+        this.pasteOnlyFormat = !this.pasteOnlyValue && onlyFormat;
         if (cmd.interactive) {
           this.interactivePaste(cmd.target);
         } else {
@@ -69,7 +71,7 @@ export class ClipboardPlugin extends BasePlugin {
         }
         break;
       case "PASTE_CELL":
-        this.pasteCell(cmd.origin, cmd.col, cmd.row, cmd.cut);
+        this.pasteCell(cmd.origin, cmd.col, cmd.row, cmd.onlyValue, cmd.onlyFormat);
         break;
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
@@ -297,40 +299,76 @@ export class ClipboardPlugin extends BasePlugin {
           row: row + r,
           sheet: this.originSheet,
           cut: this.shouldCut,
+          onlyValue: this.pasteOnlyValue,
+          onlyFormat: this.pasteOnlyFormat,
         });
       }
     }
   }
 
-  pasteCell(origin: Cell | null, col: number, row: number, cut?: boolean) {
+  pasteCell(
+    origin: Cell | null,
+    col: number,
+    row: number,
+    onlyValue: boolean,
+    onlyFormat: boolean
+  ) {
     const targetCell = this.getters.getCell(col, row);
     if (origin) {
+      let style = origin.style;
+      let border = origin.border;
+      let format = origin.format;
       let content: string | undefined = origin.content || "";
-      if (origin.type === "formula") {
+
+      if (onlyValue) {
+        style = targetCell ? targetCell.style : undefined;
+        border = targetCell ? targetCell.border : undefined;
+        format = targetCell ? targetCell.format : undefined;
+
+        if (targetCell) {
+          if (targetCell.type === "date") {
+            format = targetCell.value.format;
+          }
+        }
+        if (origin.type === "formula" || origin.type === "date") {
+          content = this.valueToContent(origin.value);
+        }
+      } else if (onlyFormat) {
+        content = targetCell ? targetCell.content : "";
+      } else if (origin.type === "formula") {
         const offsetX = col - origin.col;
         const offsetY = row - origin.row;
         content = this.getters.applyOffset(content, offsetX, offsetY);
       }
-      if (this.onlyFormat) {
-        content = targetCell ? targetCell.content : "";
-      }
+
       let newCell = {
-        style: origin.style,
-        border: origin.border,
-        format: origin.format,
+        style: style,
+        border: border,
+        format: format,
         sheet: this.workbook.activeSheet.id,
         col: col,
         row: row,
-        content,
+        content: content,
       };
 
       this.dispatch("UPDATE_CELL", newCell);
     }
     if (!origin && targetCell) {
-      if (this.onlyFormat) {
-        if (targetCell.style || targetCell.border) {
+      if (onlyValue) {
+        if (targetCell.content) {
+          //this.history.updateCell(targetCell, "content", undefined);
+          this.history.updateCell(targetCell, "content", "");
+          this.history.updateCell(targetCell, "value", "");
+        }
+      } else if (onlyFormat) {
+        if (targetCell.style) {
           this.history.updateCell(targetCell, "style", undefined);
+        }
+        if (targetCell.border) {
           this.history.updateCell(targetCell, "border", undefined);
+        }
+        if (targetCell.format) {
+          this.history.updateCell(targetCell, "format", undefined);
         }
       } else {
         this.dispatch("CLEAR_CELL", {
@@ -339,6 +377,21 @@ export class ClipboardPlugin extends BasePlugin {
           row: row,
         });
       }
+    }
+  }
+
+  private valueToContent(cellValue: any): string {
+    switch (typeof cellValue) {
+      case "number":
+        return cellValue.toString();
+      case "string":
+        return cellValue;
+      case "boolean":
+        return cellValue ? "TRUE" : "FALSE";
+      case "object":
+        return cellValue.value.toString();
+      default:
+        return "";
     }
   }
 
