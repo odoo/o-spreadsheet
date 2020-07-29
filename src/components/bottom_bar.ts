@@ -4,7 +4,7 @@ import { SpreadsheetEnv } from "../types";
 import { PLUS } from "./icons";
 import { MenuState, Menu } from "./menu";
 import { sheetMenuRegistry } from "../registries/index";
-import { uuidv4 } from "../helpers";
+import { uuidv4 } from "../helpers/index";
 const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useState } = owl.hooks;
