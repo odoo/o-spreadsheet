@@ -911,6 +911,16 @@ describe("clipboard", () => {
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
   });
+
+  test("can copy and paste a cell which contains a cross-sheet reference", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2" });
+    model.dispatch("SET_VALUE", { xc: "B2", text: "=Sheet2!B2" });
+
+    model.dispatch("COPY", { target: target("B2") });
+    model.dispatch("PASTE", { target: target("B3") });
+    expect(model.getters.getCell(1, 2)!.content).toBe("=Sheet2!B3");
+  });
 });
 
 describe("clipboard: pasting outside of sheet", () => {
