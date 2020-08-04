@@ -228,7 +228,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
-    this.getters.snapViewportToCell(context.viewport);
+    context.viewport = this.getters.snapViewportToCell(context.viewport);
     for (let [renderer, layer] of this.renderers) {
       renderer.drawGrid(context, layer);
     }

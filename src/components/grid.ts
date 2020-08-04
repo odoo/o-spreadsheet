@@ -403,7 +403,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.hScrollbar.scroll = this.viewport.offsetX;
       this.vScrollbar.scroll = this.viewport.offsetY;
     }
-    this.snappedViewport = this.getters.snapViewportToCell(this.snappedViewport);
+    this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
 
     // drawing grid on canvas
     const canvas = this.canvas.el as HTMLCanvasElement;
