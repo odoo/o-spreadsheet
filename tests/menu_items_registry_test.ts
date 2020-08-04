@@ -232,6 +232,7 @@ describe("Menu Item actions", () => {
     test("A selected row", () => {
       model.dispatch("SELECT_ROW", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Row above");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected rows", () => {
@@ -245,11 +246,18 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
+    });
+
+    test("A selected column should hide the item", () => {
+      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       model.dispatch("SELECT_CELL", { col: 3, row: 3 });
       expect(getName(path, env)).toBe("Row above");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
@@ -263,6 +271,7 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
   });
 
@@ -272,6 +281,7 @@ describe("Menu Item actions", () => {
     test("A selected row", () => {
       model.dispatch("SELECT_ROW", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Row below");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected rows", () => {
@@ -285,11 +295,18 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
+    });
+
+    test("A selected column should hide the item", () => {
+      model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
+      expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       model.dispatch("SELECT_CELL", { col: 3, row: 3 });
       expect(getName(path, env)).toBe("Row below");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
@@ -303,6 +320,7 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
   });
 
@@ -312,6 +330,7 @@ describe("Menu Item actions", () => {
     test("A selected column", () => {
       model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Column left");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected columns", () => {
@@ -325,11 +344,18 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
+    });
+
+    test("A selected row should hide the item", () => {
+      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       model.dispatch("SELECT_CELL", { col: 3, row: 3 });
       expect(getName(path, env)).toBe("Column left");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
@@ -343,6 +369,7 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "before",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
   });
 
@@ -352,6 +379,7 @@ describe("Menu Item actions", () => {
     test("A selected column", () => {
       model.dispatch("SELECT_COLUMN", { index: 4, createRange: true });
       expect(getName(path, env)).toBe("Column right");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected columns", () => {
@@ -365,11 +393,18 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
+    });
+
+    test("A selected row should hide the item", () => {
+      model.dispatch("SELECT_ROW", { index: 4, createRange: true });
+      expect(getNode(path).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", () => {
       model.dispatch("SELECT_CELL", { col: 3, row: 3 });
       expect(getName(path, env)).toBe("Column right");
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", () => {
@@ -383,6 +418,7 @@ describe("Menu Item actions", () => {
         quantity: 2,
         position: "after",
       });
+      expect(getNode(path).isVisible(env)).toBeTruthy();
     });
   });
 
