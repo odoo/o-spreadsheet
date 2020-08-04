@@ -345,4 +345,12 @@ describe("Autofill", () => {
     expect(getCell(model, "B1")!.content).toBe("1");
     expect(getCell(model, "B2")!.content).toBe("1");
   });
+
+  test("Autofill cross-sheet references", () => {
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2" });
+    setValue("A1", "=Sheet2!A1");
+    autofill("A1", "A3");
+    expect(getCell(model, "A2")!.content).toBe("=Sheet2!A2");
+    expect(getCell(model, "A3")!.content).toBe("=Sheet2!A3");
+  });
 });

@@ -304,14 +304,13 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   pasteCell(origin: Cell | null, col: number, row: number, cut?: boolean) {
-    const { cols, rows } = this.workbook.activeSheet;
     const targetCell = this.getters.getCell(col, row);
     if (origin) {
       let content: string | undefined = origin.content || "";
       if (origin.type === "formula") {
         const offsetX = col - origin.col;
         const offsetY = row - origin.row;
-        content = applyOffset(content, offsetX, offsetY, cols.length, rows.length);
+        content = applyOffset(content, offsetX, offsetY, this.getters);
       }
       if (this.onlyFormat) {
         content = targetCell ? targetCell.content : "";
