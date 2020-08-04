@@ -73,22 +73,26 @@ topbarMenuRegistry
     name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,
     sequence: 10,
     action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
+    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveCols().size === 0,
   })
   .addChild("insert_row_after", ["insert"], {
     name: ACTIONS.MENU_INSERT_ROWS_AFTER_NAME,
     sequence: 20,
     action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
+    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveCols().size === 0,
     separator: true,
   })
   .addChild("insert_column_before", ["insert"], {
     name: ACTIONS.MENU_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 30,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveRows().size === 0,
   })
   .addChild("insert_column_after", ["insert"], {
     name: ACTIONS.MENU_INSERT_COLUMNS_AFTER_NAME,
     sequence: 40,
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
+    isVisible: (env: SpreadsheetEnv) => env.getters.getActiveRows().size === 0,
     separator: true,
   })
   .addChild("insert_sheet", ["insert"], {
