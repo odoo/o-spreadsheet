@@ -54,4 +54,20 @@ describe("edition", () => {
     model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: sheet1 });
     expect(getCell(model, "A1")!.content).toBe("a");
   });
+
+  test("editing a cell, start a composer selection, then activating a new sheet: mode should still be selecting", () => {
+    const model = new Model();
+    const sheet1 = model["workbook"].visibleSheets[0];
+    model.dispatch("START_EDITION", { text: "=" });
+    model.dispatch("START_COMPOSER_SELECTION");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionSheet()).toBe(sheet1);
+    model.dispatch("CREATE_SHEET", { activate: true, id: "42", name: "Sheet2" });
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(model.getters.getEditionSheet()).toBe(sheet1);
+    model.dispatch("STOP_EDITION");
+    expect(getCell(model, "A1", model.getters.getActiveSheet())).toBeNull();
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: sheet1 });
+    expect(getCell(model, "A1")!.content).toBe("=");
+  });
 });

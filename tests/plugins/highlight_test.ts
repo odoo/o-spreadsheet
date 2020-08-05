@@ -27,6 +27,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -51,6 +52,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -73,6 +75,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -91,6 +94,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -102,6 +106,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -121,6 +126,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
+        sheet: model.getters.getActiveSheet(),
         zone: zone1,
       },
     ]);
@@ -134,6 +140,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
+        sheet: model.getters.getActiveSheet(),
         zone: zone2,
       },
     ]);
@@ -153,6 +160,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
+        sheet: model.getters.getActiveSheet(),
         zone: zone1,
       },
     ]);
@@ -167,6 +175,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
+        sheet: model.getters.getActiveSheet(),
         zone: zone2,
       },
     ]);
@@ -225,10 +234,14 @@ describe("highlight", () => {
     const color = getColor(model);
     model.dispatch("SET_SELECTION", { anchor, zones });
     model.dispatch("STOP_SELECTION");
-    expect(model.getters.getHighlights()).toStrictEqual([{ color, zone }]);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      { color, zone, sheet: model.getters.getActiveSheet() },
+    ]);
     model.dispatch("START_SELECTION");
     model.dispatch("SET_SELECTION", { anchor, zones });
-    expect(model.getters.getHighlights()).toStrictEqual([{ color, zone }]);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      { color, zone, sheet: model.getters.getActiveSheet() },
+    ]);
   });
 
   test("selection without pending highlight", () => {
@@ -252,10 +265,12 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
+        sheet: model.getters.getActiveSheet(),
         zone: zone1,
       },
       {
         color: getColor(model),
+        sheet: model.getters.getActiveSheet(),
         zone: zone2,
       },
     ]);
@@ -274,6 +289,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -290,10 +306,12 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 5, left: 5, right: 5, top: 5 },
       },
       {
         color: getColor(model),
+        sheet: model.getters.getActiveSheet(),
         zone: { bottom: 7, left: 7, right: 7, top: 7 },
       },
     ]);
@@ -312,6 +330,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: mergeColor,
+        sheet: model.getters.getActiveSheet(),
         zone: toZone("A2:A5"),
       },
     ]);
@@ -333,6 +352,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: mergeColor,
+        sheet: model.getters.getActiveSheet(),
         zone: toZone("A1:A5"),
       },
     ]);

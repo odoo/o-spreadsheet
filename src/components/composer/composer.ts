@@ -342,8 +342,13 @@ export class Composer extends Component<any, SpreadsheetEnv> {
             break;
           case "SYMBOL":
             let value = token.value;
-            if (rangeReference.test(value)) {
-              const refSanitized = value.replace(/\$/g, "");
+            const [xc, sheet] = value.split("!").reverse();
+            if (rangeReference.test(xc)) {
+              const refSanitized =
+                (sheet
+                  ? `${sheet}!`
+                  : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
+                xc.replace(/\$/g, "");
               if (!refUsed[refSanitized]) {
                 refUsed[refSanitized] = colors[lastUsedColorIndex];
                 lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
@@ -420,7 +425,10 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     if (this.refSelectionStart) {
       this.selectionStart = this.refSelectionStart;
     }
-
+    if (this.getters.getEditionSheet() !== this.getters.getActiveSheet()) {
+      const sheetName = this.getters.getSheetName(this.getters.getActiveSheet())!;
+      selection = `${sheetName}!${selection}`;
+    }
     this.addText(selection);
     this.processContent();
   }

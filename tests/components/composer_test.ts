@@ -254,6 +254,37 @@ describe("composer", () => {
     await typeInComposer("= ");
     expect(model.getters.getEditionMode()).toBe("selecting");
   });
+
+  test("type '=', select a cell in another sheet", async () => {
+    await typeInComposer("=");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2", activate: true });
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composerEl.textContent).toBe("=Sheet2!C8");
+  });
+
+  test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
+    await typeInComposer("=");
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2", activate: true });
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    model.dispatch("ACTIVATE_SHEET", { from: "42", to: sheet });
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composerEl.textContent).toBe("=C8");
+  });
 });
 
 describe("composer highlights color", () => {
@@ -308,5 +339,17 @@ describe("composer highlights color", () => {
     await startComposition();
     expect(getHighlights(model).length).toBe(0);
     expect(composerEl.textContent).toBe(ref);
+  });
+
+  test("highlight cross-sheet ranges", async () => {
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=B1+Sheet2!A1" });
+    await startComposition();
+    const highlights = getHighlights(model);
+    expect(highlights).toHaveLength(2);
+    expect(highlights[0].sheet).toBe(model.getters.getActiveSheet());
+    expect(highlights[0].zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
+    expect(highlights[1].sheet).toBe("42");
+    expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
 });

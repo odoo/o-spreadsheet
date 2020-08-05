@@ -8,12 +8,13 @@ export type EditionMode = "editing" | "selecting" | "inactive";
 
 export class EditionPlugin extends BasePlugin {
   static layers = [LAYERS.Highlights];
-  static getters = ["getEditionMode", "getCurrentContent"];
+  static getters = ["getEditionMode", "getCurrentContent", "getEditionSheet"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private col: number = 0;
   private row: number = 0;
   private mode: EditionMode = "inactive";
+  private sheet: string = "";
   private currentContent: string = "";
 
   // ---------------------------------------------------------------------------
@@ -23,7 +24,9 @@ export class EditionPlugin extends BasePlugin {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.stopEdition();
+        if (this.mode !== "selecting") {
+          this.stopEdition();
+        }
         break;
     }
   }
@@ -74,6 +77,10 @@ export class EditionPlugin extends BasePlugin {
     return this.currentContent;
   }
 
+  getEditionSheet(): string {
+    return this.sheet;
+  }
+
   // ---------------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------------
@@ -89,6 +96,7 @@ export class EditionPlugin extends BasePlugin {
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
+    this.sheet = this.getters.getActiveSheet();
   }
 
   private stopEdition() {
@@ -119,18 +127,21 @@ export class EditionPlugin extends BasePlugin {
           }
         }
         this.dispatch("UPDATE_CELL", {
-          sheet: this.workbook.activeSheet.id,
+          sheet: this.sheet,
           col,
           row,
           content,
         });
       } else {
         this.dispatch("UPDATE_CELL", {
-          sheet: this.workbook.activeSheet.id,
+          sheet: this.sheet,
           content: "",
           col,
           row,
         });
+      }
+      if (this.getters.getActiveSheet() !== this.sheet) {
+        this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: this.sheet });
       }
     }
   }

@@ -47,6 +47,8 @@ export class CorePlugin extends BasePlugin {
     "getCellText",
     "zoneToXC",
     "getActiveSheet",
+    "getSheetName",
+    "getSheetIdByName",
     "getSheets",
     "getCol",
     "getRow",
@@ -316,6 +318,14 @@ export class CorePlugin extends BasePlugin {
    */
   getActiveSheet(): string {
     return this.workbook.activeSheet.id;
+  }
+
+  getSheetName(sheetId: string): string | undefined {
+    return this.workbook.sheets[sheetId] && this.workbook.sheets[sheetId].name;
+  }
+
+  getSheetIdByName(name: string): string | undefined {
+    return this.sheetIds[name];
   }
 
   getSheets(): Sheet[] {
