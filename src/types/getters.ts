@@ -22,6 +22,8 @@ export interface Getters {
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
   getActiveSheet: CorePlugin["getActiveSheet"];
+  getSheetName: CorePlugin["getSheetName"];
+  getSheetIdByName: CorePlugin["getSheetIdByName"];
   getSheets: CorePlugin["getSheets"];
   getCol: CorePlugin["getCol"];
   getRow: CorePlugin["getRow"];
@@ -81,6 +83,7 @@ export interface Getters {
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   getEditionMode: EditionPlugin["getEditionMode"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
+  getEditionSheet: EditionPlugin["getEditionSheet"];
 
   getLastValue: AutofillPlugin["getLastValue"];
 

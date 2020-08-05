@@ -84,8 +84,12 @@ export class HighlightPlugin extends BasePlugin {
     }
     return Object.keys(ranges)
       .map((r1c1) => {
-        const zone: Zone = this.getters.expandZone(toZone(r1c1));
-        return { zone, color: ranges[r1c1] };
+        const [xc, sheet] = r1c1.split("!").reverse();
+        const sheetId = sheet
+          ? this.getters.getSheetIdByName(sheet)!
+          : this.getters.getActiveSheet();
+        const zone: Zone = this.getters.expandZone(toZone(xc));
+        return { zone, color: ranges[r1c1], sheet: sheetId };
       })
       .filter(
         (x) =>
@@ -149,7 +153,9 @@ export class HighlightPlugin extends BasePlugin {
     // rendering selection highlights
     const { ctx, viewport, thinLineWidth } = renderingContext;
     ctx.lineWidth = 3 * thinLineWidth;
-    for (let h of this.highlights) {
+    for (let h of this.highlights.filter(
+      (highlight) => highlight.sheet === this.getters.getActiveSheet()
+    )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
