@@ -47,12 +47,12 @@ colMenuRegistry
     action: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
   })
   .add("add_column_before", {
-    name: ACTIONS.MENU_INSERT_COLUMNS_BEFORE_NAME,
+    name: ACTIONS.COLUMN_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 80,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
   })
   .add("add_column_after", {
-    name: ACTIONS.MENU_INSERT_COLUMNS_AFTER_NAME,
+    name: ACTIONS.COLUMN_INSERT_COLUMNS_AFTER_NAME,
     sequence: 90,
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
   });
