@@ -47,12 +47,12 @@ rowMenuRegistry
     action: ACTIONS.DELETE_CONTENT_ROWS_ACTION,
   })
   .add("add_row_before", {
-    name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,
+    name: ACTIONS.ROW_INSERT_ROWS_BEFORE_NAME,
     sequence: 80,
     action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   })
   .add("add_row_after", {
-    name: ACTIONS.MENU_INSERT_ROWS_AFTER_NAME,
+    name: ACTIONS.ROW_INSERT_ROWS_AFTER_NAME,
     sequence: 90,
     action: ACTIONS.INSERT_ROWS_AFTER_ACTION,
   });
