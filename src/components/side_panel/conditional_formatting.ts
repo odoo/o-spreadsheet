@@ -353,39 +353,43 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     }
   }
 
-  defaultCellIsRule: ConditionalFormat = {
-    rule: {
-      type: "CellIsRule",
-      operator: "Equal",
-      values: [],
-      style: { fillColor: "#FF0000" },
-    },
-    ranges: [this.getters.getSelectedZones().map(this.getters.zoneToXC).join(",")],
-    id: uuidv4(),
-  };
+  defaultCellIsRule(): ConditionalFormat {
+    return {
+      rule: {
+        type: "CellIsRule",
+        operator: "Equal",
+        values: [],
+        style: { fillColor: "#FF0000" },
+      },
+      ranges: this.getters.getSelectedZones().map(this.getters.zoneToXC),
+      id: uuidv4(),
+    };
+  }
 
-  defaultColorScaleRule: ConditionalFormat = {
-    rule: {
-      minimum: { type: "value", color: 0 },
-      maximum: { type: "value", color: 0xeeffee },
-      type: "ColorScaleRule",
-    },
-    ranges: [this.getters.getSelectedZones().map(this.getters.zoneToXC).join(",")],
-    id: uuidv4(),
-  };
+  defaultColorScaleRule(): ConditionalFormat {
+    return {
+      rule: {
+        minimum: { type: "value", color: 0 },
+        maximum: { type: "value", color: 0xeeffee },
+        type: "ColorScaleRule",
+      },
+      ranges: this.getters.getSelectedZones().map(this.getters.zoneToXC),
+      id: uuidv4(),
+    };
+  }
 
   onAdd() {
     this.state.mode = "add";
-    this.state.currentCF = Object.assign({}, this.defaultCellIsRule);
+    this.state.currentCF = this.defaultCellIsRule();
     this.state.currentRanges = this.state.currentCF!.ranges;
   }
 
   setRuleType(ruleType: string) {
     if (ruleType === "ColorScaleRule") {
-      this.state.currentCF = Object.assign({}, this.defaultColorScaleRule);
+      this.state.currentCF = this.defaultColorScaleRule();
     }
     if (ruleType === "CellIsRule") {
-      this.state.currentCF = Object.assign({}, this.defaultCellIsRule);
+      this.state.currentCF = this.defaultCellIsRule();
     }
     this.state.toRuleType = ruleType;
   }

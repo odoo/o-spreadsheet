@@ -900,6 +900,7 @@ describe("UI of conditional formats", () => {
     buttonSave: ".o-cf-buttons .o-cf-save",
     buttonDelete: ".o-cf-delete-button",
     buttonAdd: ".o-cf-add",
+    closePanel: ".o-sidePanelClose",
   };
 
   test("simple snapshot", () => {
@@ -1049,7 +1050,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "46",
+        id: "47",
         ranges: ["A1:A3"],
         rule: {
           operator: "BeginsWith",
@@ -1111,7 +1112,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "49",
+        id: "51",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -1130,5 +1131,40 @@ describe("UI of conditional formats", () => {
       sheet: model.getters.getActiveSheet(),
     });
   });
+
+  test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
+    triggerMouseEvent(selectors.closePanel, "click");
+    await nextTick();
+    const zone1 = { bottom: 1, left: 1, right: 1, top: 1 };
+    const zone2 = { bottom: 2, left: 2, right: 2, top: 2 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1, zone2],
+    });
+    parent.env.openSidePanel("ConditionalFormatting");
+    await nextTick();
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    const ranges = document.querySelectorAll(selectors.ruleEditor.range);
+    expect(ranges).toHaveLength(2);
+    expect(ranges[0]["value"]).toBe("B2");
+    expect(ranges[1]["value"]).toBe("C3");
+  });
+
+  test("Open CF panel, make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
+    const zone1 = { bottom: 1, left: 1, right: 1, top: 1 };
+    const zone2 = { bottom: 2, left: 2, right: 2, top: 2 };
+    model.dispatch("SET_SELECTION", {
+      anchor: [1, 1],
+      zones: [zone1, zone2],
+    });
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+    const ranges = document.querySelectorAll(selectors.ruleEditor.range);
+    expect(ranges).toHaveLength(2);
+    expect(ranges[0]["value"]).toBe("B2");
+    expect(ranges[1]["value"]).toBe("C3");
+  });
+
   test("switching sheet changes the content of CF and cancels the edition", async () => {});
 });
