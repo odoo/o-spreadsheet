@@ -897,7 +897,7 @@ describe("UI of conditional formats", () => {
       colorPickerYellow: ".o-color-picker div[data-color='#ffc001']",
     },
     cfTabSelector: ".o-cf-type-selector .o-cf-type-tab",
-    buttonSave: ".o-cf-buttons .o-cf-save",
+    buttonSave: ".o-sidePanelButtons .o-cf-save",
     buttonDelete: ".o-cf-delete-button",
     buttonAdd: ".o-cf-add",
   };

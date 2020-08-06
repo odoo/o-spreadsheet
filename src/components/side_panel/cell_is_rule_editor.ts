@@ -59,9 +59,9 @@ const TEMPLATE = xml/* xml */ `
                     <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
         </div>
     </div>
-    <div class="o-cf-buttons">
-      <button t-on-click="onCancel" class="o-cf-button o-cf-cancel" t-esc="env._t('${terms.CANCEL}')"></button>
-      <button t-on-click="onSave" class="o-cf-button o-cf-save" t-esc="env._t('${terms.SAVE}')"></button>
+    <div class="o-sidePanelButtons">
+      <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${terms.CANCEL}')"></button>
+      <button t-on-click="onSave" class="o-sidePanelButton o-cf-save" t-esc="env._t('${terms.SAVE}')"></button>
     </div>
 </div>
 `;
@@ -96,26 +96,6 @@ const CSS = css/* scss */ `
   .o-cf-preview-line {
     border: 1px solid darkgrey;
     padding: 10px;
-  }
-  .o-cf-buttons {
-    padding: 12px;
-    text-align: right;
-    border-bottom: 1px solid #ccc;
-    .o-cf-button {
-      border: 1px solid lightgrey;
-      padding: 0px 20px 0px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 14px;
-      height: 36px;
-      line-height: 16px;
-      background: white;
-      cursor: pointer;
-      margin-left: 8px;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
   }
 `;
 

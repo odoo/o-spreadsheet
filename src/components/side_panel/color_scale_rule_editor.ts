@@ -51,9 +51,9 @@ const TEMPLATE = xml/* xml */ `
           <t t-set="threshold" t-value="state.maximum" ></t>
           <t t-set="thresholdType" t-value="'maximum'" ></t>
       </t>
-      <div class="o-cf-buttons">
-        <button t-on-click="onCancel" class="o-cf-button o-cf-cancel">Cancel</button>
-        <button t-on-click="onSave" class="o-cf-button o-cf-save">Save</button>
+      <div class="o-sidePanelButtons">
+        <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel">Cancel</button>
+        <button t-on-click="onSave" class="o-sidePanelButton o-cf-save">Save</button>
       </div>
   </div>`;
 
@@ -80,26 +80,6 @@ const CSS = css/* scss */ `
   .o-cf-preview-gradient {
     border: 1px solid darkgrey;
     padding: 10px;
-  }
-  .o-cf-buttons {
-    padding: 5px;
-    text-align: right;
-    border-bottom: 1px solid #ccc;
-    .o-cf-button {
-      border: 1px solid lightgrey;
-      padding: 0px 20px 0px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 14px;
-      height: 36px;
-      line-height: 16px;
-      background: white;
-      cursor: pointer;
-      margin-right: 16px;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
   }
 `;
 
