@@ -90,6 +90,8 @@ export class Spreadsheet extends Component<Props> {
     super(...arguments);
     useSubEnv({
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
+      toggleSidePanel: (panel: string, panelProps: any = {}) =>
+        this.toggleSidePanel(panel, panelProps),
       dispatch: this.model.dispatch,
       getters: this.model.getters,
       _t: Spreadsheet._t,
@@ -115,6 +117,14 @@ export class Spreadsheet extends Component<Props> {
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;
     this.sidePanel.isOpen = true;
+  }
+
+  toggleSidePanel(panel: string, panelProps: any) {
+    if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
+      this.sidePanel.isOpen = false;
+    } else {
+      this.openSidePanel(panel, panelProps);
+    }
   }
   focusGrid() {
     (<any>this.grid.comp).focus();
