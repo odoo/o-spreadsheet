@@ -29,18 +29,19 @@ const CSS = css/* scss */ `
     border: 1px solid darkgray;
     .o-sidePanelHeader {
       padding: 6px;
-      height: 41px;
+      height: 30px;
+      background-color: #f8f9fa;
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid darkgray;
       font-weight: bold;
       .o-sidePanelTitle {
         font-weight: bold;
-        padding: 10px;
+        padding: 5px 10px;
         font-size: 1.2rem;
       }
       .o-sidePanelClose {
-        padding: 11px 15px;
+        padding: 5px 10px;
         cursor: pointer;
         &:hover {
           background-color: WhiteSmoke;
@@ -55,6 +56,30 @@ const CSS = css/* scss */ `
     }
     .o-sidePanelFooter {
       padding: 6px;
+    }
+
+    .o-sidePanelButtons {
+      padding: 5px;
+      text-align: right;
+      border-bottom: 1px solid #ccc;
+      .o-sidePanelButton {
+        border: 1px solid lightgrey;
+        padding: 0px 20px 0px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 14px;
+        height: 30px;
+        line-height: 16px;
+        background: white;
+        cursor: pointer;
+        margin-right: 8px;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+      }
+      .o-sidePanelButton:last-child {
+        margin-right: 0px;
+      }
     }
   }
 `;
