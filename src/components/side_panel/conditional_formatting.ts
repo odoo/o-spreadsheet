@@ -137,7 +137,7 @@ const CSS = css/* scss */ `
       }
       .o-cf-delete{
         height: 56px;
-        left: 250px;
+        left: 90%;
         line-height: 56px;
         position: absolute;
       }
