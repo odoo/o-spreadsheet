@@ -14,30 +14,30 @@ interface FigureInfo {
   figure: Figure<any>;
 }
 
-const TEMPLATE = xml/* xml */ `
-<div>
+const TEMPLATE = xml/* xml */ `<div>
     <t t-foreach="getFigures()" t-as="info" t-key="info.id">
-        <div
-          class="o-figure-wrapper"
-          t-att-style="getStyle(info)"
-          t-on-mousedown="onMouseDown(info.figure)" >
-            <div
-              class="o-figure"
-              t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
-              t-att-style="getDims(info)">
-              <t t-component="figureRegistry.get(info.figure.tag).Component"
-                t-key="info.id"
-                figure="info.figure" />
-              <t t-if="info.isSelected">
-                  <div class="o-anchor o-top" t-on-mousedown.stop="resize(info.figure, 0,-1)"/>
-                  <div class="o-anchor o-topRight" t-on-mousedown.stop="resize(info.figure, 1,-1)"/>
-                  <div class="o-anchor o-right" t-on-mousedown.stop="resize(info.figure, 1,0)"/>
-                  <div class="o-anchor o-bottomRight" t-on-mousedown.stop="resize(info.figure, 1,1)"/>
-                  <div class="o-anchor o-bottom" t-on-mousedown.stop="resize(info.figure, 0,1)"/>
-                  <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="resize(info.figure, -1,1)"/>
-                  <div class="o-anchor o-left" t-on-mousedown.stop="resize(info.figure, -1,0)"/>
-                  <div class="o-anchor o-topLeft" t-on-mousedown.stop="resize(info.figure, -1,-1)"/>
-              </t>
+        <div class="o-figure-wrapper"
+             t-att-style="getStyle(info)"
+             t-on-mousedown="onMouseDown(info.figure)"
+             >
+            <div class="o-figure"
+                 t-att-class="{active: info.isSelected, 'o-dragging': info.id === dnd.figureId}"
+                 t-att-style="getDims(info)"
+                 tabindex="0"
+                 t-on-keydown.stop="onKeyDown(info.figure)">
+                <t t-component="figureRegistry.get(info.figure.tag).Component"
+                   t-key="info.id"
+                   figure="info.figure"/>
+                <t t-if="info.isSelected">
+                    <div class="o-anchor o-top" t-on-mousedown.stop="resize(info.figure, 0,-1)"/>
+                    <div class="o-anchor o-topRight" t-on-mousedown.stop="resize(info.figure, 1,-1)"/>
+                    <div class="o-anchor o-right" t-on-mousedown.stop="resize(info.figure, 1,0)"/>
+                    <div class="o-anchor o-bottomRight" t-on-mousedown.stop="resize(info.figure, 1,1)"/>
+                    <div class="o-anchor o-bottom" t-on-mousedown.stop="resize(info.figure, 0,1)"/>
+                    <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="resize(info.figure, -1,1)"/>
+                    <div class="o-anchor o-left" t-on-mousedown.stop="resize(info.figure, -1,0)"/>
+                    <div class="o-anchor o-topLeft" t-on-mousedown.stop="resize(info.figure, -1,-1)"/>
+                </t>
             </div>
         </div>
     </t>
@@ -63,7 +63,9 @@ const CSS = css/*SCSS*/ `
     position: absolute;
     bottom: 3px;
     right: 3px;
-
+    &:focus {
+      outline: none;
+    }
     &.active {
       border: ${ACTIVE_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
       z-index: 1;
@@ -252,5 +254,15 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
       this.dispatch("UPDATE_FIGURE", { id: figure.id, x: this.dnd.x, y: this.dnd.y });
     };
     startDnd(onMouseMove, onMouseUp);
+  }
+
+  onKeyDown(figure: Figure<any>, ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "Delete":
+        ev.preventDefault();
+        this.dispatch("DELETE_FIGURE", { id: figure.id });
+        this.trigger("figure-deleted");
+        break;
+    }
   }
 }

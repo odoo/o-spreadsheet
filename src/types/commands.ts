@@ -1,4 +1,4 @@
-import { Zone, Style, BorderCommand, ConditionalFormat } from "./index";
+import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
 import { Cell } from "./misc";
 import { Figure } from "./workbook_data";
 
@@ -568,6 +568,24 @@ export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
   id: string;
 }
 
+export interface DeleteFigureCommand extends BaseCommand {
+  type: "DELETE_FIGURE";
+  id: string;
+}
+
+export interface CreateChartCommand extends BaseCommand {
+  type: "CREATE_CHART";
+  id: string;
+  sheetId: string;
+  definition: CreateChartDefinition;
+}
+
+export interface UpdateChartCommand extends BaseCommand {
+  type: "UPDATE_CHART";
+  id: string;
+  definition: CreateChartDefinition;
+}
+
 export type Command =
   | NewInputCommand
   | RemoveInputCommand
@@ -635,6 +653,8 @@ export type Command =
   | RemoveRowsCommand
   | RemoveColumnsCommand
   | AddRowsCommand
+  | CreateChartCommand
+  | UpdateChartCommand
   | AddColumnsCommand
   | AutofillCommand
   | AutofillSelectCommand
@@ -642,7 +662,8 @@ export type Command =
   | AutofillAutoCommand
   | CreateFigureCommand
   | SelectFigureCommand
-  | UpdateFigureCommand;
+  | UpdateFigureCommand
+  | DeleteFigureCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";
@@ -669,6 +690,7 @@ export const enum CancelledReason {
   InvalidRange,
   InputAlreadyFocused,
   MaximumRangesReached,
+  InvalidChartDefinition,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

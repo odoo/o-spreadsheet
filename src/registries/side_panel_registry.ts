@@ -1,6 +1,8 @@
 import { Registry } from "../registry";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting";
 import { SpreadsheetEnv } from "../types";
+import { ChartPanel } from "../components/side_panel/chart_panel";
+import { _lt } from "../translation";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry
@@ -14,6 +16,11 @@ export interface SidePanelContent {
 export const sidePanelRegistry = new Registry<SidePanelContent>();
 
 sidePanelRegistry.add("ConditionalFormatting", {
-  title: "Conditional formatting",
+  title: _lt("Conditional formatting"),
   Body: ConditionalFormattingPanel,
+});
+
+sidePanelRegistry.add("ChartPanel", {
+  title: _lt("Chart"),
+  Body: ChartPanel,
 });

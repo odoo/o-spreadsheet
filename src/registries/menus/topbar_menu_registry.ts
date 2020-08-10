@@ -100,11 +100,16 @@ topbarMenuRegistry
     isVisible: (env: SpreadsheetEnv) => env.getters.getActiveRows().size === 0,
     separator: true,
   })
+  .addChild("insert_chart", ["insert"], {
+    name: _lt("Chart"),
+    sequence: 50,
+    action: ACTIONS.CREATE_CHART,
+    separator: true,
+  })
   .addChild("insert_sheet", ["insert"], {
     name: _lt("New sheet"),
     sequence: 60,
     action: ACTIONS.CREATE_SHEET_ACTION,
-    separator: true,
   })
   .addChild("view_formulas", ["view"], {
     name: (env: SpreadsheetEnv) =>

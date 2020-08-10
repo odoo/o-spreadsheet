@@ -12,6 +12,7 @@ import { AutofillPlugin } from "../plugins/autofill";
 import { HighlightPlugin } from "../plugins/highlight";
 import { SelectionInputPlugin } from "../plugins/selection_inputs";
 import { FigurePlugin } from "../plugins/figures";
+import { ChartPlugin } from "../plugins/chart";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -21,6 +22,7 @@ export interface Getters {
   getCell: CorePlugin["getCell"];
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
+
   getActiveSheet: CorePlugin["getActiveSheet"];
   getSheetName: CorePlugin["getSheetName"];
   getSheetIdByName: CorePlugin["getSheetIdByName"];
@@ -33,6 +35,8 @@ export interface Getters {
   getColsZone: CorePlugin["getColsZone"];
   getRowsZone: CorePlugin["getRowsZone"];
   getGridSize: CorePlugin["getGridSize"];
+  getRangeValues: CorePlugin["getRangeValues"];
+  getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
   shouldShowFormulas: CorePlugin["shouldShowFormulas"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
@@ -93,4 +97,7 @@ export interface Getters {
   getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
   getFigures: FigurePlugin["getFigures"];
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
+  getFigure: FigurePlugin["getFigure"];
+
+  getChartRuntime: ChartPlugin["getChartRuntime"];
 }

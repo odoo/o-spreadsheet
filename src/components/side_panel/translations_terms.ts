@@ -28,3 +28,17 @@ export const cellIsOperators = {
   NotContains: _lt("Not contains"),
   NotEqual: _lt("Not equal"),
 };
+
+export const chartTerms = {
+  ChartType: _lt("Chart type"),
+  Line: _lt("Line"),
+  Bar: _lt("Bar"),
+  Pie: _lt("Pie"),
+  Title: _lt("Title"),
+  DataSeries: _lt("Data series"),
+  MyDataHasTitle: _lt("My data has title"),
+  DataCategories: _lt("Data categories (labels)"),
+  UpdateChart: _lt("Update chart"),
+  CreateChart: _lt("Create chart"),
+  TitlePlaceholder: _lt("New Chart"),
+};

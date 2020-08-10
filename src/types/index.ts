@@ -17,3 +17,4 @@ export * from "./misc";
 export * from "./conditional_formatting";
 export * from "./rendering";
 export * from "./workbook_data";
+export * from "./chart";

@@ -1,5 +1,6 @@
 import { Registry } from "../registry";
 import { TextFigure } from "../components/figures/text_figure";
+import { ChartFigure } from "../components/figures/chart";
 
 //------------------------------------------------------------------------------
 // Figure Registry
@@ -14,6 +15,7 @@ import { TextFigure } from "../components/figures/text_figure";
 
 export interface FigureContent {
   Component: any;
+  SidePanelComponent?: string;
 }
 
 export const figureRegistry = new Registry<FigureContent>();
@@ -25,3 +27,4 @@ export const figureRegistry = new Registry<FigureContent>();
 //
 
 figureRegistry.add("text", { Component: TextFigure });
+figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

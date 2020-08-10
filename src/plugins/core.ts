@@ -12,6 +12,8 @@ import {
   getUnquotedSheetName,
   toCartesian,
   toXC,
+  toZone,
+  mapCellsInZone,
   getComposerSheetName,
 } from "../helpers/index";
 import { _lt } from "../translation";
@@ -59,6 +61,8 @@ export class CorePlugin extends BasePlugin {
     "getNumberRows",
     "getGridSize",
     "shouldShowFormulas",
+    "getRangeValues",
+    "getRangeFormattedValues",
   ];
 
   private sheetIds: { [name: string]: string } = {};
@@ -399,6 +403,23 @@ export class CorePlugin extends BasePlugin {
 
   shouldShowFormulas(): boolean {
     return this.showFormulas;
+  }
+
+  getRangeValues(reference: string, defaultSheetId: string): any[][] {
+    const [range, sheetName] = reference.split("!").reverse();
+    const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
+    return mapCellsInZone(toZone(range), this.workbook.sheets[sheetId], (cell) => cell.value);
+  }
+
+  getRangeFormattedValues(reference: string, defaultSheetId: string): string[][] {
+    const [range, sheetName] = reference.split("!").reverse();
+    const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
+    return mapCellsInZone(
+      toZone(range),
+      this.workbook.sheets[sheetId],
+      this.getters.getCellText,
+      ""
+    );
   }
 
   // ---------------------------------------------------------------------------
