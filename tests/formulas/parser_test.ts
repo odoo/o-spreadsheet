@@ -1,4 +1,5 @@
 import { parse } from "../../src/formulas";
+import { astToFormula } from "../../src";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {
@@ -304,5 +305,33 @@ describe("parsing ranges", () => {
 describe("parsing other stuff", () => {
   test("arbitrary text", () => {
     expect(() => parse("=undefined")).toThrow();
+  });
+});
+describe("Converting AST to string", () => {
+  test("Convert number", () => {
+    expect(astToFormula(parse("1"))).toBe("1");
+  });
+  test("Convert string", () => {
+    expect(astToFormula(parse(`"hello"`))).toBe(`"hello"`);
+  });
+  test("Convert boolean", () => {
+    expect(astToFormula(parse("TRUE"))).toBe("TRUE");
+    expect(astToFormula(parse("FALSE"))).toBe("FALSE");
+  });
+  test("Convert unary operator", () => {
+    expect(astToFormula(parse("-45"))).toBe("-45");
+    expect(astToFormula(parse("+45"))).toBe("+45");
+  });
+  test("Convert binary operator", () => {
+    expect(astToFormula(parse("89-45"))).toBe("89-45");
+  });
+  test("Convert reference", () => {
+    expect(astToFormula(parse("A10"))).toBe("A10");
+    expect(astToFormula(parse("$A$10"))).toBe("A10");
+    expect(astToFormula(parse("Sheet1!A10"))).toBe("Sheet1!A10");
+  });
+  test("Convert function", () => {
+    expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");
+    expect(astToFormula(parse("-SUM(5,9,SUM(5,9,8))"))).toBe("-SUM(5,9,SUM(5,9,8))");
   });
 });
