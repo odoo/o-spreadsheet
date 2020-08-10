@@ -8,7 +8,6 @@ import {
   FormulaModifier,
 } from "../types/index";
 import { Registry } from "../registry";
-import { applyOffset } from "../formulas/formulas";
 
 /**
  * An AutofillModifierImplementation is used to describe how to handle a
@@ -61,7 +60,7 @@ autofillModifiersRegistry
           break;
       }
       return Object.assign({}, data, {
-        content: applyOffset(data.content!, x, y, getters),
+        content: getters.applyOffset(data.content!, x, y),
       });
     },
   });

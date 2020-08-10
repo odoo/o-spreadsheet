@@ -1,5 +1,4 @@
 import { BasePlugin } from "../base_plugin";
-import { applyOffset } from "../formulas/index";
 import { clip, toXC } from "../helpers/index";
 import { Mode } from "../model";
 import {
@@ -310,7 +309,7 @@ export class ClipboardPlugin extends BasePlugin {
       if (origin.type === "formula") {
         const offsetX = col - origin.col;
         const offsetY = row - origin.row;
-        content = applyOffset(content, offsetX, offsetY, this.getters);
+        content = this.getters.applyOffset(content, offsetX, offsetY);
       }
       if (this.onlyFormat) {
         content = targetCell ? targetCell.content : "";
