@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { compile } from "../formulas/index";
 import { functionRegistry } from "../functions/index";
-import { toCartesian } from "../helpers/index";
+import { mapCellsInZone, toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
@@ -304,22 +304,11 @@ export class EvaluationPlugin extends BasePlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(v1: string, v2: string, sheetId: string): any[] {
-      const sheet = sheets[sheetId];
-      const [c1, r1] = toCartesian(v1);
-      const [c2, r2] = toCartesian(v2);
-      const result: any[] = new Array(c2 - c1 + 1);
-      for (let c = c1; c <= c2; c++) {
-        let col: any[] = new Array(r2 - r1 + 1);
-        result[c - c1] = col;
-        for (let r = r1; r <= r2; r++) {
-          let cell = sheet.rows[r].cells[c];
-          if (cell) {
-            col[r - r1] = getCellValue(cell, sheetId);
-          }
-        }
-      }
-      return result;
+    function range(v1: string, v2: string, sheetId: string) {
+      const [left, top] = toCartesian(v1);
+      const [right, bottom] = toCartesian(v2);
+      const zone = { left, top, right, bottom };
+      return mapCellsInZone(zone, sheets[sheetId], (cell) => getCellValue(cell, sheetId));
     }
 
     return [readCell, range, evalContext];

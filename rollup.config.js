@@ -9,7 +9,7 @@ export default {
     format: "iife",
     name: "o_spreadsheet",
     extend: true,
-    globals: {"@odoo/owl": "owl"},
-    outro: `exports.__info__.version = '${version}';\nexports.__info__.date = '${new Date().toISOString()}';\nexports.__info__.hash = '${git.short()}';`
-  }
+    globals: { "@odoo/owl": "owl" /*, "chart.js": "chart_js" */ },
+    outro: `exports.__info__.version = '${version}';\nexports.__info__.date = '${new Date().toISOString()}';\nexports.__info__.hash = '${git.short()}';`,
+  },
 };

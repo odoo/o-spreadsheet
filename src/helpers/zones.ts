@@ -1,4 +1,4 @@
-import { Zone } from "../types";
+import { Zone, Sheet, Cell } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 
 /**
@@ -241,4 +241,23 @@ function mergeColumns(
   }
 
   return finalZones;
+}
+
+export function mapCellsInZone<T, U>(
+  zone: Zone,
+  sheet: Sheet,
+  callback: (cell: Cell) => T,
+  emptyCellValue: U = (undefined as unknown) as U
+): (T | U)[][] {
+  const { top, bottom, left, right } = zone;
+  const result: any[] = new Array(right - left + 1);
+  for (let c = left; c <= right; c++) {
+    let col: any[] = new Array(bottom - top + 1);
+    result[c - left] = col;
+    for (let r = top; r <= bottom; r++) {
+      let cell = sheet.rows[r].cells[c];
+      col[r - top] = cell ? callback(cell) : emptyCellValue;
+    }
+  }
+  return result;
 }

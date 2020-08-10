@@ -228,19 +228,21 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 10,
         height: 10,
-        data: undefined,
+        data: "hello",
       },
     });
 
-    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 100, y: 200 });
-    const { x: x1, y: y1 } = model.getters.getFigures(viewport)[0];
+    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 100, y: 200, data: "Coucou" });
+    const { x: x1, y: y1, data: data1 } = model.getters.getFigures(viewport)[0];
     expect(x1).toBe(100);
     expect(y1).toBe(200);
+    expect(data1).toBe("Coucou");
 
     model.dispatch("UNDO");
-    const { x: x2, y: y2 } = model.getters.getFigures(viewport)[0];
+    const { x: x2, y: y2, data: data2 } = model.getters.getFigures(viewport)[0];
     expect(x2).toBe(10);
     expect(y2).toBe(10);
+    expect(data2).toBe("hello");
   });
 
   test("prevent moving a figure left or above of the sheet", () => {
@@ -263,5 +265,63 @@ describe("figure plugin", () => {
     const { x, y } = model.getters.getFigures(viewport)[0];
     expect(x).toBe(0);
     expect(y).toBe(50);
+  });
+
+  test("can delete a figure", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 10,
+        height: 10,
+        data: "hello",
+      },
+    });
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getFigures(viewport)).toHaveLength(1);
+    model.dispatch("DELETE_FIGURE", { id: "someuuid" });
+    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getFigures(viewport)).toHaveLength(0);
+    model.dispatch("UNDO");
+    expect(model.getters.getSelectedFigureId()).toBeNull();
+    expect(model.getters.getFigures(viewport)).toHaveLength(1);
+  });
+
+  test("change sheet deselect figure", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "1",
+          colNumber: 2,
+          rowNumber: 2,
+        },
+        {
+          id: "2",
+          colNumber: 2,
+          rowNumber: 2,
+        },
+      ],
+    });
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 10,
+        height: 10,
+        data: "hello",
+      },
+    });
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    model.dispatch("ACTIVATE_SHEET", { from: "1", to: "2" });
+    expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 });

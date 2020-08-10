@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell, Touch } from "../helpers";
 import { toZone } from "../../src/helpers/index";
-import { triggerMouseEvent } from "../dom_helper";
+import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";
 jest.mock("../../src/components/composer/content_editable_helper");
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
@@ -487,5 +487,83 @@ describe("multi sheet with different sizes", function () {
       right: 0,
     });
     expect(model.getters.getActiveCell()).toBeNull();
+  });
+});
+
+describe("figures", () => {
+  beforeEach(async () => {
+    model = new Model();
+    parent = new GridParent(model);
+    await parent.mount(fixture);
+  });
+
+  afterEach(() => {
+    parent.unmount();
+  });
+
+  test("focus a figure", async () => {
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        tag: "text",
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        data: undefined,
+      },
+    });
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).toBeDefined();
+    await simulateClick(".o-figure");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+  });
+
+  test("deleting a figure focuses the canvas", async () => {
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        tag: "text",
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        data: undefined,
+      },
+    });
+    await nextTick();
+    const figure = fixture.querySelector(".o-figure")!;
+    await simulateClick(".o-figure");
+    expect(document.activeElement).toBe(figure);
+    figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).toBeNull();
+    expect(document.activeElement).toBe(fixture.querySelector("canvas"));
+  });
+
+  test("deleting a figure doesn't delete selection", async () => {
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        tag: "text",
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        data: undefined,
+      },
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "content" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    await nextTick();
+    const figure = fixture.querySelector(".o-figure")!;
+    await simulateClick(".o-figure");
+    figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).toBeNull();
+    expect(model.getters.getCell(0, 0)!.content).toBe("content");
   });
 });

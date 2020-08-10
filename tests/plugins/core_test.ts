@@ -372,4 +372,106 @@ describe("history", () => {
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
     expect(model.getters.shouldShowFormulas()).toBe(false);
   });
+
+  describe("getters", () => {
+    test("getRangeFormattedValues", () => {
+      const sheet1Id = "42";
+      const sheet2Id = "43";
+      const model = new Model({
+        sheets: [
+          {
+            id: sheet1Id,
+            colNumber: 10,
+            rowNumber: 10,
+            cells: {
+              A1: { content: "1000", format: "#,##0" },
+              A3: { content: "2000", format: "#,##0" },
+              B2: { content: "TRUE", format: "#,##0" },
+            },
+          },
+          {
+            id: sheet2Id,
+            colNumber: 10,
+            rowNumber: 10,
+            cells: {
+              A1: { content: "21000", format: "#,##0" },
+              A3: { content: "12-31-2020", format: "mm/dd/yyyy" },
+              B2: { content: "TRUE", format: "#,##0" },
+            },
+          },
+        ],
+      });
+      model.dispatch("ACTIVATE_SHEET", { from: sheet1Id, to: sheet2Id }); // evaluate Sheet2
+      expect(model.getters.getRangeFormattedValues("A1:A3", sheet1Id)).toEqual([
+        ["1,000", "", "2,000"],
+      ]);
+      expect(model.getters.getRangeFormattedValues("$A$1:$A$3", sheet1Id)).toEqual([
+        ["1,000", "", "2,000"],
+      ]);
+      expect(model.getters.getRangeFormattedValues("Sheet1!A1:A3", sheet1Id)).toEqual([
+        ["1,000", "", "2,000"],
+      ]);
+      expect(model.getters.getRangeFormattedValues("Sheet2!A1:A3", sheet2Id)).toEqual([
+        ["21,000", "", "12/31/2020"],
+      ]);
+      expect(model.getters.getRangeFormattedValues("Sheet2!A1:A3", sheet1Id)).toEqual([
+        ["21,000", "", "12/31/2020"],
+      ]);
+      expect(model.getters.getRangeFormattedValues("B2", sheet1Id)).toEqual([["TRUE"]]);
+      expect(model.getters.getRangeFormattedValues("Sheet1!B2", sheet1Id)).toEqual([["TRUE"]]);
+      expect(model.getters.getRangeFormattedValues("Sheet2!B2", sheet2Id)).toEqual([["TRUE"]]);
+      expect(model.getters.getRangeFormattedValues("Sheet2!B2", sheet1Id)).toEqual([["TRUE"]]);
+    });
+
+    test("getRangeValues", () => {
+      const sheet1Id = "42";
+      const sheet2Id = "43";
+      const model = new Model({
+        sheets: [
+          {
+            id: sheet1Id,
+            colNumber: 10,
+            rowNumber: 10,
+            cells: {
+              A1: { content: "1000", format: "#,##0" },
+              A3: { content: "2000", format: "#,##0" },
+              B2: { content: "TRUE", format: "#,##0" },
+            },
+          },
+          {
+            id: sheet2Id,
+            colNumber: 10,
+            rowNumber: 10,
+            cells: {
+              A1: { content: "21000", format: "#,##0" },
+              A3: { content: "12-31-2020", format: "mm/dd/yyyy" },
+              B2: { content: "TRUE", format: "#,##0" },
+            },
+          },
+        ],
+      });
+      const date = {
+        format: "m-d-yyyy",
+        value: 44196,
+        jsDate: new Date("12-31-2020"),
+      };
+      expect(model.getters.getRangeValues("A1:A3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
+      expect(model.getters.getRangeValues("$A$1:$A$3", sheet1Id)).toEqual([
+        [1000, undefined, 2000],
+      ]);
+      expect(model.getters.getRangeValues("Sheet1!A1:A3", sheet1Id)).toEqual([
+        [1000, undefined, 2000],
+      ]);
+      expect(model.getters.getRangeValues("Sheet2!A1:A3", sheet2Id)).toEqual([
+        [21000, undefined, date],
+      ]);
+      expect(model.getters.getRangeValues("Sheet2!A1:A3", sheet1Id)).toEqual([
+        [21000, undefined, date],
+      ]);
+      expect(model.getters.getRangeValues("B2", sheet1Id)).toEqual([[true]]);
+      expect(model.getters.getRangeValues("Sheet1!B2", sheet1Id)).toEqual([[true]]);
+      expect(model.getters.getRangeValues("Sheet2!B2", sheet2Id)).toEqual([[true]]);
+      expect(model.getters.getRangeValues("Sheet2!B2", sheet1Id)).toEqual([[true]]);
+    });
+  });
 });

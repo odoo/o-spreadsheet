@@ -3,7 +3,7 @@ import { Command, WorkbookData, Figure, Viewport } from "../types/index";
 import { uuidv4 } from "../helpers/index";
 
 export class FigurePlugin extends BasePlugin {
-  static getters = ["getFigures", "getSelectedFigureId"];
+  static getters = ["getFigures", "getSelectedFigureId", "getFigure"];
 
   private selectedFigureId: string | null = null;
 
@@ -46,9 +46,24 @@ export class FigurePlugin extends BasePlugin {
         if (cmd.height !== undefined) {
           this.history.updateLocalState(["figures", cmd.id, "height"], cmd.height);
         }
+        if (cmd.data !== undefined) {
+          this.history.updateLocalState(["figures", cmd.id, "data"], cmd.data);
+        }
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
+        break;
+      case "DELETE_FIGURE":
+        this.history.updateLocalState(["figures", cmd.id], undefined);
+        for (let s in this.sheetFigures) {
+          let deletedFigureIndex = this.sheetFigures[s].findIndex((f) => f.id === cmd.id);
+          if (deletedFigureIndex > -1) {
+            const copy = this.sheetFigures[s].slice();
+            copy.splice(deletedFigureIndex, 1);
+            this.history.updateLocalState(["sheetFigures", s], copy);
+            this.selectedFigureId = null;
+          }
+        }
         break;
       // some commands should not remove the current selection
       case "EVALUATE_CELLS":
@@ -90,6 +105,11 @@ export class FigurePlugin extends BasePlugin {
   getSelectedFigureId(): string | null {
     return this.selectedFigureId;
   }
+
+  getFigure<T>(figureId: string): Figure<T> {
+    return this.figures[figureId];
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import { FormattingPlugin } from "./formatting";
 import { MergePlugin } from "./merge";
 import { RendererPlugin } from "./renderer";
 import { SelectionPlugin } from "./selection";
+import { ChartPlugin } from "./chart";
 import { AutofillPlugin } from "./autofill";
 import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
@@ -25,6 +26,7 @@ export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("highlight", HighlightPlugin)
   .add("selectionInput", SelectionInputPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
+  .add("figures", FigurePlugin)
+  .add("chart", ChartPlugin)
   .add("grid renderer", RendererPlugin)
-  .add("autofill", AutofillPlugin)
-  .add("figures", FigurePlugin);
+  .add("autofill", AutofillPlugin);

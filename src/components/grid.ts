@@ -195,7 +195,7 @@ const TEMPLATE = xml/* xml */ `
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridSize()"/>
-    <FiguresContainer viewport="snappedViewport" model="props.model"  />
+    <FiguresContainer viewport="snappedViewport" model="props.model" t-on-figure-deleted="focus" />
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
     </div>
@@ -333,9 +333,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   patched() {
     this.drawGrid();
   }
-
   focus() {
-    if (this.getters.getEditionMode() !== "selecting") {
+    if (this.getters.getEditionMode() !== "selecting" && !this.getters.getSelectedFigureId()) {
       this.canvas.el!.focus();
     }
   }
@@ -503,7 +502,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.dispatch("START_EDITION");
     }
   }
-
   // ---------------------------------------------------------------------------
   // Keyboard interactions
   // ---------------------------------------------------------------------------

@@ -17,6 +17,7 @@
       "esModuleInterop": true,
       "allowJs": true,
       "sourceMap": true
+
     },
     "include": ["src", "tests"]
   }
