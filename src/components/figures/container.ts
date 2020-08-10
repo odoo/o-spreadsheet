@@ -65,7 +65,7 @@ const CSS = css/*SCSS*/ `
     }
 
     &.o-dragging {
-      opacity: 0.8;
+      opacity: 0.9;
       cursor: grabbing;
     }
 
@@ -178,8 +178,8 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     this.dnd.y = figure.y;
 
     const onMouseMove = (ev: MouseEvent) => {
-      this.dnd.x = figure.x - initialX + ev.clientX;
-      this.dnd.y = figure.y - initialY + ev.clientY;
+      this.dnd.x = Math.max(figure.x - initialX + ev.clientX, -ANCHOR_SIZE / 2);
+      this.dnd.y = Math.max(figure.y - initialY + ev.clientY, -ANCHOR_SIZE / 2);
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
