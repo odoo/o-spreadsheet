@@ -226,7 +226,7 @@ export class CorePlugin extends BasePlugin {
 
   getCellText(cell: Cell): string {
     const value = this.showFormulas ? cell.content : cell.value;
-    const shouldFormat = value && cell.format && !cell.error && !cell.pending;
+    const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
     const dateTimeFormat = shouldFormat && cell.format!.match(/y|m|d|:/);
     const numberFormat = shouldFormat && !dateTimeFormat;
     switch (typeof value) {

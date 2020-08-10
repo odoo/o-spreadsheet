@@ -47,13 +47,18 @@ export function formatStandardNumber(n: number): string {
   return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 10 });
 }
 
+export const maximumDecimalPlaces = 20;
+
 export function formatDecimal(n: number, decimals: number, sep: string = ""): string {
   if (n < 0) {
     return "-" + formatDecimal(-n, decimals);
   }
-  const exponentString = `${n.toLocaleString("fullwide", { useGrouping: false })}e${decimals}`;
-  const value = Math.round(Number(exponentString));
-  let result = Number(`${value}e-${decimals}`).toFixed(decimals);
+  const maxDecimals = decimals >= maximumDecimalPlaces ? maximumDecimalPlaces : decimals;
+  let result = n.toLocaleString("fullwide", {
+    minimumFractionDigits: maxDecimals,
+    maximumFractionDigits: maxDecimals,
+    useGrouping: false,
+  });
   if (sep) {
     let p: number = result.indexOf(".")!;
     result = result.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, (m, i) =>
