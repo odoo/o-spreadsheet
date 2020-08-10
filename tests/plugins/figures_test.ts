@@ -39,6 +39,25 @@ describe("figure plugin", () => {
     ]);
   });
 
+  test("can undo figure creation", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        tag: "hey",
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+      },
+    });
+
+    expect(model.getters.getFigures(viewport).length).toBe(1);
+    model.dispatch("UNDO");
+    expect(model.getters.getFigures(viewport).length).toBe(0);
+  });
+
   test("can create a figure in a different sheet", () => {
     const model = new Model();
     const sheet1 = model.getters.getActiveSheet();
@@ -189,5 +208,30 @@ describe("figure plugin", () => {
     const { x: newx, y: newy } = model.getters.getFigures(viewport)[0];
     expect(newx).toBe(100);
     expect(newy).toBe(200);
+  });
+
+  test("can undo a move operation", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 10,
+        height: 10,
+      },
+    });
+
+    model.dispatch("MOVE_FIGURE", { id: "someuuid", x: 100, y: 200 });
+    const { x: x1, y: y1 } = model.getters.getFigures(viewport)[0];
+    expect(x1).toBe(100);
+    expect(y1).toBe(200);
+
+    model.dispatch("UNDO");
+    const { x: x2, y: y2 } = model.getters.getFigures(viewport)[0];
+    expect(x2).toBe(10);
+    expect(y2).toBe(10);
   });
 });

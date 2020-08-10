@@ -15,14 +15,14 @@ export class FigurePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_FIGURE":
-        this.figures[cmd.figure.id] = cmd.figure;
-        this.sheetFigures[cmd.sheet] = this.sheetFigures[cmd.sheet] || [];
-        this.sheetFigures[cmd.sheet].push(cmd.figure);
+        this.history.updateLocalState(["figures", cmd.figure.id], cmd.figure);
+        const sheetFigures = (this.sheetFigures[cmd.sheet] || []).slice();
+        sheetFigures.push(cmd.figure);
+        this.history.updateLocalState(["sheetFigures", cmd.sheet], sheetFigures);
         break;
       case "MOVE_FIGURE":
-        const figure = this.figures[cmd.id];
-        figure.x = cmd.x;
-        figure.y = cmd.y;
+        this.history.updateLocalState(["figures", cmd.id, "x"], cmd.x);
+        this.history.updateLocalState(["figures", cmd.id, "y"], cmd.y);
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
