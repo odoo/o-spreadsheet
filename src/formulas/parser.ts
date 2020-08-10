@@ -245,3 +245,28 @@ export function parse(str: string): AST {
   }
   return result;
 }
+/**
+ * Converts an ast formula to the corresponding string
+ */
+export function astToFormula(ast: AST): string {
+  switch (ast.type) {
+    case "FUNCALL":
+    case "ASYNC_FUNCALL":
+      const args = ast.args.map((arg) => astToFormula(arg));
+      return `${ast.value}(${args.join(",")})`;
+    case "NUMBER":
+      return ast.value.toString();
+    case "STRING":
+      return ast.value;
+    case "BOOLEAN":
+      return ast.value ? "TRUE" : "FALSE";
+    case "UNARY_OPERATION":
+      return ast.value + astToFormula(ast.right);
+    case "BIN_OPERATION":
+      return astToFormula(ast.left) + ast.value + astToFormula(ast.right);
+    case "REFERENCE":
+      return ast.sheet ? `${ast.sheet}!${ast.value}` : ast.value;
+    default:
+      return ast.value;
+  }
+}
