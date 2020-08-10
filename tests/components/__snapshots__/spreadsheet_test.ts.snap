@@ -117,13 +117,31 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
           class="o-divider"
         />
         <div
+          class="o-tool"
+          title="Format as percent"
+        >
+          %
+        </div>
+        <div
+          class="o-tool"
+          title="Decrease decimal places"
+        >
+          .0
+        </div>
+        <div
+          class="o-tool"
+          title="Increase decimal places"
+        >
+          .00
+        </div>
+        <div
           class="o-tool o-dropdown"
-          title="Format"
+          title="More formats"
         >
           <div
             class="o-text-icon"
           >
-            Format 
+            123
             <svg
               class="o-icon"
             >

@@ -78,8 +78,11 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <div class="o-tool" title="Paint Format" t-att-class="{active:paintFormatTool}" t-on-click="paintFormat">${icons.PAINT_FORMAT_ICON}</div>
           <div class="o-tool" title="Clear Format" t-on-click="clearFormatting()">${icons.CLEAR_FORMAT_ICON}</div>
           <div class="o-divider"/>
-          <div class="o-tool o-dropdown" title="Format" t-on-click="toggleDropdownTool('formatTool')">
-            <div class="o-text-icon">Format ${icons.TRIANGLE_DOWN_ICON}</div>
+          <div class="o-tool" title="Format as percent" t-on-click="toogleFormat('percent')">%</div>
+          <div class="o-tool" title="Decrease decimal places" t-on-click="setDecimal(-1)">.0</div>
+          <div class="o-tool" title="Increase decimal places" t-on-click="setDecimal(+1)">.00</div>
+          <div class="o-tool o-dropdown" title="More formats" t-on-click="toggleDropdownTool('formatTool')">
+            <div class="o-text-icon">123${icons.TRIANGLE_DOWN_ICON}</div>
             <div class="o-dropdown-content o-text-options  o-format-tool "  t-if="state.activeTool === 'formatTool'" t-on-click="setFormat">
               <t t-foreach="formats" t-as="format" t-key="format.name">
                 <div t-att-data-format="format.name" t-att-class="{active: currentFormat === format.name}"><t t-esc="format.text"/></div>
@@ -97,9 +100,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             </div>
           </div>
           <div class="o-divider"/>
-          <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toggleFormat('bold')">${icons.BOLD_ICON}</div>
-          <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toggleFormat('italic')">${icons.ITALIC_ICON}</div>
-          <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toggleFormat('strikethrough')">${icons.STRIKE_ICON}</div>
+          <div class="o-tool" title="Bold" t-att-class="{active:style.bold}" t-on-click="toogleStyle('bold')">${icons.BOLD_ICON}</div>
+          <div class="o-tool" title="Italic" t-att-class="{active:style.italic}" t-on-click="toogleStyle('italic')">${icons.ITALIC_ICON}</div>
+          <div class="o-tool" title="Strikethrough"  t-att-class="{active:style.strikethrough}" t-on-click="toogleStyle('strikethrough')">${icons.STRIKE_ICON}</div>
           <div class="o-tool o-dropdown o-with-color">
             <span t-attf-style="border-color:{{textColor}}" title="Text Color" t-on-click="toggleDropdownTool('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
             <ColorPicker t-if="state.activeTool === 'textColorTool'" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
@@ -375,8 +378,14 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.closeMenus();
   }
 
-  toggleFormat(format: string) {
-    setStyle(this.env, { [format]: !this.style[format] });
+  toogleStyle(style: string) {
+    setStyle(this.env, { [style]: !this.style[style] });
+  }
+
+  toogleFormat(format: string) {
+    const formatter = FORMATS.find((f) => f.name === format);
+    const value = (formatter && formatter.value) || "";
+    setFormatter(this.env, value);
   }
 
   toggleAlign(align: Align) {
@@ -479,10 +488,16 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   setFormat(ev: MouseEvent) {
     const format = (ev.target as HTMLElement).dataset.format;
     if (format) {
-      const formatter = FORMATS.find((f) => f.name === format);
-      const value = (formatter && formatter.value) || "";
-      setFormatter(this.env, value);
+      this.toogleFormat(format);
     }
+  }
+
+  setDecimal(step: number) {
+    this.dispatch("SET_DECIMAL", {
+      sheet: this.getters.getActiveSheet(),
+      target: this.getters.getSelectedZones(),
+      step: step,
+    });
   }
 
   paintFormat() {

@@ -98,6 +98,11 @@ describe("formatNumber", () => {
     expect(formatDecimal(5.1, 2)).toBe("5.10");
     expect(formatDecimal(5.1, 3)).toBe("5.100");
 
+    expect(formatDecimal(1.23456789, 0)).toBe("1");
+    expect(formatDecimal(1.23456789, 2)).toBe("1.23");
+    expect(formatDecimal(1.23456789, 5)).toBe("1.23457");
+    expect(formatDecimal(1.23456789, 10)).toBe("1.2345678900");
+
     expect(formatDecimal(-1, 0)).toBe("-1");
     expect(formatDecimal(-1, 1)).toBe("-1.0");
     expect(formatDecimal(-1, 2)).toBe("-1.00");
@@ -112,6 +117,11 @@ describe("formatNumber", () => {
     expect(formatDecimal(-0.5, 1)).toBe("-0.5");
     expect(formatDecimal(-0.5, 2)).toBe("-0.50");
     expect(formatDecimal(-0.5, 3)).toBe("-0.500");
+  });
+
+  test("formatDecimal limitied to 20 decimals", () => {
+    expect(formatDecimal(0.42, 20)).toBe("0.42000000000000000000");
+    expect(formatDecimal(0.42, 21)).toBe("0.42000000000000000000");
   });
 
   test("formatDecimal, thousand separator", () => {

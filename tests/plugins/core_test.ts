@@ -72,6 +72,26 @@ describe("core", () => {
     expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
   });
 
+  test("format cell with the zero value", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+    model.dispatch("SET_FORMATTER", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      formatter: "0.00000",
+    });
+    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0.00000");
+    model.dispatch("SET_VALUE", { xc: "A2", text: "0" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    model.dispatch("SET_FORMATTER", {
+      sheet: model.getters.getActiveSheet(),
+      target: model.getters.getSelectedZones(),
+      formatter: "0.00%",
+    });
+    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("0.00%");
+  });
+
   test("format a pendingcell: should not apply formatter to Loading...", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });

@@ -185,7 +185,7 @@ describe("TopBar component", () => {
     expect(getCell(model, "A1")).toBeNull();
     const parent = new Parent(model);
     await parent.mount(fixture);
-    const formatTool = fixture.querySelector('.o-tool[title="Format"]')!;
+    const formatTool = fixture.querySelector('.o-tool[title="More formats"]')!;
     formatTool.dispatchEvent(new Event("click"));
     await nextTick();
     expect(parent.el).toMatchSnapshot();

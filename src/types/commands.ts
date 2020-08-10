@@ -106,6 +106,13 @@ export interface SetFormatterCommand extends BaseCommand {
   formatter: string;
 }
 
+export interface SetDecimalCommand extends BaseCommand {
+  type: "SET_DECIMAL";
+  sheet: string;
+  target: Zone[];
+  step: number;
+}
+
 /**
  * todo: add sheet argument...
  * todo: use id instead of a list. this is not safe to serialize and send to
@@ -582,6 +589,7 @@ export type Command =
   | AddFormattingCommand
   | ClearFormattingCommand
   | SetFormatterCommand
+  | SetDecimalCommand
   | ClearCellCommand
   | UndoCommand
   | RedoCommand
