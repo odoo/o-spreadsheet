@@ -181,10 +181,16 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           }
         }
         this.status = Status.Running;
-        this.handlers.forEach((h) => h.beforeHandle(command));
-        this.handlers.forEach((h) => h.handle(command));
+        for (const h of this.handlers) {
+          h.beforeHandle(command);
+        }
+        for (const h of this.handlers) {
+          h.handle(command);
+        }
         this.status = Status.Finalizing;
-        this.handlers.forEach((h) => h.finalize(command));
+        for (const h of this.handlers) {
+          h.finalize(command);
+        }
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");
@@ -192,8 +198,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         break;
       case Status.Running:
       case Status.Interactive:
-        this.handlers.forEach((h) => h.beforeHandle(command));
-        this.handlers.forEach((h) => h.handle(command));
+        for (const h of this.handlers) {
+          h.beforeHandle(command);
+        }
+        for (const h of this.handlers) {
+          h.handle(command);
+        }
         break;
       case Status.Finalizing:
         throw new Error(_lt("Nope. Don't do that"));
