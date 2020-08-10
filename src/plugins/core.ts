@@ -677,7 +677,9 @@ export class CorePlugin extends BasePlugin {
   ) {
     const deleteCommands: Command[] = [];
     const addCommands: Command[] = [];
-    for (let [xc, cell] of Object.entries(this.workbook.activeSheet.cells)) {
+
+    for (let xc in this.workbook.activeSheet.cells) {
+      let cell = this.workbook.activeSheet.cells[xc];
       if (shouldDelete(cell)) {
         const [col, row] = toCartesian(xc);
         deleteCommands.push({
