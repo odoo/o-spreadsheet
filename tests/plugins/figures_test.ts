@@ -234,4 +234,25 @@ describe("figure plugin", () => {
     expect(x2).toBe(10);
     expect(y2).toBe(10);
   });
+
+  test("prevent moving a figure left or above of the sheet", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheet: model.getters.getActiveSheet(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 100,
+        height: 100,
+      },
+    });
+
+    model.dispatch("MOVE_FIGURE", { id: "someuuid", x: -10, y: 50 });
+
+    const { x, y } = model.getters.getFigures(viewport)[0];
+    expect(x).toBe(0);
+    expect(y).toBe(50);
+  });
 });
