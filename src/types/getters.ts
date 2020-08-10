@@ -16,6 +16,7 @@ import { SelectionInputPlugin } from "../plugins/selection_inputs";
 // Getters
 // -----------------------------------------------------------------------------
 export interface Getters {
+  applyOffset: CorePlugin["applyOffset"];
   getCell: CorePlugin["getCell"];
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
