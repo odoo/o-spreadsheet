@@ -465,15 +465,26 @@ export class CorePlugin extends BasePlugin {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
-    for (let row of rows) {
+
+    const consecutiveRows = rows.reduce((groups, currentRow, index, rows) => {
+      if (currentRow - rows[index - 1] === -1) {
+        const lastGroup = groups[groups.length - 1];
+        lastGroup.push(currentRow);
+      } else {
+        groups.push([currentRow]);
+      }
+      return groups;
+    }, [] as number[][]);
+
+    for (let group of consecutiveRows) {
       // Update all the formulas.
-      this.updateAllFormulasVertically(row, -1);
+      this.updateAllFormulasVertically(group[0], -group.length);
 
       // Move the cells.
-      this.moveCellsVertically(row, -1);
+      this.moveCellVerticallyBatched(group[group.length - 1], group[0]);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
-      this.processRowsHeaderDelete(row);
+      group.map((row) => this.processRowsHeaderDelete(row));
     }
   }
 
@@ -517,6 +528,35 @@ export class CorePlugin extends BasePlugin {
           sheet: this.workbook.activeSheet.id,
           col: cell.col + step,
           row: cell.row,
+          content: cell.content,
+          border: cell.border,
+          style: cell.style,
+          format: cell.format,
+        };
+      }
+    );
+  }
+
+  /**
+   * Move all the cells that are from the row under `deleteToRow` up to `deleteFromRow`
+   *
+   * b.e.
+   * move vertically with delete from 3 and delete to 5 will first clear all the cells from lines 3 to 5,
+   * then take all the row starting at index 6 and add them back at index 3
+   *
+   * @param deleteFromRow the row index from which to start deleting
+   * @param deleteToRow the row index until which the deleting must continue
+   */
+  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number) {
+    return this.processCellsToMove(
+      ({ row }) => row >= deleteFromRow,
+      ({ row }) => row > deleteToRow,
+      (cell) => {
+        return {
+          type: "UPDATE_CELL",
+          sheet: this.workbook.activeSheet.id,
+          col: cell.col,
+          row: cell.row - (deleteToRow - deleteFromRow + 1),
           content: cell.content,
           border: cell.border,
           style: cell.style,
@@ -660,7 +700,7 @@ export class CorePlugin extends BasePlugin {
   private updateAllFormulasVertically(base: number, step: number) {
     return this.visitFormulas((value: string, sheet: string | undefined): string => {
       let [x, y] = toCartesian(value);
-      if (y === base && step === -1) {
+      if (base + step < y && y <= base) {
         return "#REF";
       }
       if (y > base) {
