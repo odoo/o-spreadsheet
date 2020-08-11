@@ -523,6 +523,26 @@ describe("Rows", () => {
       ]);
       expect(model["workbook"].activeSheet.rowNumber).toBe(2);
     });
+    test("On deletion batch", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 1,
+            rowNumber: 4,
+            cells: {
+              A1: { content: "A1" },
+              A2: { content: "A2" },
+              A3: { content: "A3" },
+              A4: { content: "A4" },
+            },
+          },
+        ],
+      });
+      removeRows([0, 2, 3]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A1: { content: "A2" },
+      });
+    });
     test("On addition before", () => {
       addRows(1, "before", 2);
       const size = DEFAULT_CELL_HEIGHT;
