@@ -76,13 +76,19 @@ export const demoData = {
           },
         },
       ],
+    },
+    {
+      name: "Sheet2",
+      cells: {
+        B2: { content: "42" },
+      },
       figures: [ {
         id: "someId",
         tag: "text",
         width: 300,
         height: 200,
         x: 300,
-        y: 600,
+        y: 100,
         data: "blablabla"
       }, {
         id: "someId2",
@@ -93,12 +99,6 @@ export const demoData = {
         y: 200,
         data: "yip yip"
       }],
-    },
-    {
-      name: "Sheet2",
-      cells: {
-        B2: { content: "42" },
-      },
     },
   ],
   styles: {

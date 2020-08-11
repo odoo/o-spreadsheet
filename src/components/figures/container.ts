@@ -140,9 +140,9 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     // width and height of wrapper need to be adjusted so we do not overlap
     // with headers
     const correctionX = Math.max(0, HEADER_WIDTH - x);
-    x += correctionX;
+    x += correctionX - ANCHOR_SIZE / 2;
     const correctionY = Math.max(0, HEADER_HEIGHT - y);
-    y += correctionY;
+    y += correctionY - ANCHOR_SIZE / 2;
 
     if (width < 0 || height < 0) {
       return `position:absolute;display:none;`;
@@ -178,12 +178,12 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     this.dnd.y = figure.y;
 
     const onMouseMove = (ev: MouseEvent) => {
-      this.dnd.x = Math.max(figure.x - initialX + ev.clientX, -ANCHOR_SIZE / 2);
-      this.dnd.y = Math.max(figure.y - initialY + ev.clientY, -ANCHOR_SIZE / 2);
+      this.dnd.x = Math.max(figure.x - initialX + ev.clientX, 0);
+      this.dnd.y = Math.max(figure.y - initialY + ev.clientY, 0);
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
-      this.dispatch("MOVE_FIGURE", { id: figure.id, x: this.dnd.x, y: this.dnd.y });
+      this.dispatch("UPDATE_FIGURE", { id: figure.id, x: this.dnd.x, y: this.dnd.y });
     };
     startDnd(onMouseMove, onMouseUp);
   }

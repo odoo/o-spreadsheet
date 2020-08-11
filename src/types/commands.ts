@@ -520,11 +520,9 @@ export interface SelectFigureCommand extends BaseCommand {
   id: string;
 }
 
-export interface MoveFigureCommand extends BaseCommand {
-  type: "MOVE_FIGURE";
+export interface UpdateFigureCommand extends BaseCommand, Partial<Figure> {
+  type: "UPDATE_FIGURE";
   id: string;
-  x: number;
-  y: number;
 }
 
 export type Command =
@@ -595,7 +593,7 @@ export type Command =
   | AutofillAutoCommand
   | CreateFigureCommand
   | SelectFigureCommand
-  | MoveFigureCommand;
+  | UpdateFigureCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";

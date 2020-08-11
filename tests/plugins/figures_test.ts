@@ -204,13 +204,13 @@ describe("figure plugin", () => {
     expect(x).toBe(10);
     expect(y).toBe(10);
 
-    model.dispatch("MOVE_FIGURE", { id: "someuuid", x: 100, y: 200 });
+    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 100, y: 200 });
     const { x: newx, y: newy } = model.getters.getFigures(viewport)[0];
     expect(newx).toBe(100);
     expect(newy).toBe(200);
   });
 
-  test("can undo a move operation", () => {
+  test("can undo an update operation", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheet: model.getters.getActiveSheet(),
@@ -224,7 +224,7 @@ describe("figure plugin", () => {
       },
     });
 
-    model.dispatch("MOVE_FIGURE", { id: "someuuid", x: 100, y: 200 });
+    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 100, y: 200 });
     const { x: x1, y: y1 } = model.getters.getFigures(viewport)[0];
     expect(x1).toBe(100);
     expect(y1).toBe(200);
@@ -249,7 +249,7 @@ describe("figure plugin", () => {
       },
     });
 
-    model.dispatch("MOVE_FIGURE", { id: "someuuid", x: -10, y: 50 });
+    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: -10, y: 50 });
 
     const { x, y } = model.getters.getFigures(viewport)[0];
     expect(x).toBe(0);

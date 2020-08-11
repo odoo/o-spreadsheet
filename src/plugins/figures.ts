@@ -20,9 +20,13 @@ export class FigurePlugin extends BasePlugin {
         sheetFigures.push(cmd.figure);
         this.history.updateLocalState(["sheetFigures", cmd.sheet], sheetFigures);
         break;
-      case "MOVE_FIGURE":
-        this.history.updateLocalState(["figures", cmd.id, "x"], Math.max(cmd.x, -4));
-        this.history.updateLocalState(["figures", cmd.id, "y"], Math.max(cmd.y, -4));
+      case "UPDATE_FIGURE":
+        if (cmd.x !== undefined) {
+          this.history.updateLocalState(["figures", cmd.id, "x"], Math.max(cmd.x, 0));
+        }
+        if (cmd.y !== undefined) {
+          this.history.updateLocalState(["figures", cmd.id, "y"], Math.max(cmd.y, 0));
+        }
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
