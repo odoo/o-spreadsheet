@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
-import { AsyncFunction, compile, tokenize } from "../formulas/index";
+import { AsyncFunction, compile, rangeTokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
 import {
   formatNumber,
@@ -194,41 +194,15 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   applyOffset(formula: string, offsetX: number, offsetY: number): string {
-    const tokens = tokenize(formula);
-    return tokens
+    return rangeTokenize(formula)
       .map((t) => {
         if (t.type === "SYMBOL" && cellReference.test(t.value)) {
-          const [xc, sheetRef] = t.value.replace(/\$/g, "").split("!").reverse();
-          let sheetId: string;
-          if (sheetRef) {
-            const sheet = this.getters.getSheets().find((sheet) => sheet.name === sheetRef);
-            if (!sheet) {
-              return "#REF";
-            }
-            sheetId = sheet.id;
-          } else {
-            sheetId = this.getters.getActiveSheet();
+          const [xcs, sheetName] = t.value.split("!").reverse();
+          const sheetId = this.getSheetIdByName(sheetName);
+          if (xcs.includes(":")) {
+            return this.updateRange(xcs, offsetX, offsetY, sheetId);
           }
-          let [x, y] = toCartesian(xc);
-          const freezeCol = t.value.startsWith("$");
-          const freezeRow = t.value.includes("$", 1);
-          x += freezeCol ? 0 : offsetX;
-          y += freezeRow ? 0 : offsetY;
-          if (
-            x < 0 ||
-            x >= this.getters.getNumberCols(sheetId) ||
-            y < 0 ||
-            y >= this.getters.getNumberRows(sheetId)
-          ) {
-            return "#REF";
-          }
-          return (
-            (sheetRef ? `${sheetRef}!` : "") +
-            (freezeCol ? "$" : "") +
-            numberToLetters(x) +
-            (freezeRow ? "$" : "") +
-            String(y + 1)
-          );
+          return this.updateReference(xcs, offsetX, offsetY, sheetId);
         }
         return t.value;
       })
@@ -324,8 +298,8 @@ export class CorePlugin extends BasePlugin {
     return this.workbook.sheets[sheetId] && this.workbook.sheets[sheetId].name;
   }
 
-  getSheetIdByName(name: string): string | undefined {
-    return this.sheetIds[name];
+  getSheetIdByName(name: string | undefined): string | undefined {
+    return name && this.sheetIds[name];
   }
 
   getSheets(): Sheet[] {
@@ -450,7 +424,7 @@ export class CorePlugin extends BasePlugin {
     columns.sort((a, b) => b - a);
     for (let column of columns) {
       // Update all the formulas.
-      this.updateAllFormulasHorizontally(column, -1);
+      this.updateColumnsFormulas(column, -1);
 
       // Move the cells.
       this.moveCellsHorizontally(column, -1);
@@ -488,7 +462,7 @@ export class CorePlugin extends BasePlugin {
 
     for (let group of consecutiveRows) {
       // Update all the formulas.
-      this.updateAllFormulasVertically(group[0], -group.length);
+      this.updateRowsFormulas(group[0], -group.length);
 
       // Move the cells.
       this.moveCellVerticallyBatched(group[group.length - 1], group[0]);
@@ -505,7 +479,7 @@ export class CorePlugin extends BasePlugin {
     quantity: number
   ) {
     // Update all the formulas.
-    this.updateAllFormulasHorizontally(position === "before" ? column - 1 : column, quantity);
+    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity);
 
     // Move the cells.
     this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity);
@@ -519,7 +493,7 @@ export class CorePlugin extends BasePlugin {
       this.addEmptyRow();
     }
     // Update all the formulas.
-    this.updateAllFormulasVertically(position === "before" ? row - 1 : row, quantity);
+    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity);
 
     // Move the cells.
     this.moveCellsVertically(position === "before" ? row : row + 1, quantity);
@@ -694,29 +668,21 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(path, newRows);
   }
 
-  private updateAllFormulasHorizontally(base: number, step: number) {
+  private updateColumnsFormulas(base: number, step: number) {
     return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      let [x, y] = toCartesian(value);
-      if (x === base && step === -1) {
-        return "#REF";
+      if (value.includes(":")) {
+        return this.updateColumnsRange(value, sheet, base, step);
       }
-      if (x > base) {
-        x += step;
-      }
-      return this.getNewRef(value, sheet, x, y);
+      return this.updateColumnsRef(value, sheet, base, step);
     });
   }
 
-  private updateAllFormulasVertically(base: number, step: number) {
+  private updateRowsFormulas(base: number, step: number) {
     return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      let [x, y] = toCartesian(value);
-      if (base + step < y && y <= base) {
-        return "#REF";
+      if (value.includes(":")) {
+        return this.updateRowsRange(value, sheet, base, step);
       }
-      if (y > base) {
-        y += step;
-      }
-      return this.getNewRef(value, sheet, x, y);
+      return this.updateRowsRef(value, sheet, base, step);
     });
   }
 
@@ -886,8 +852,206 @@ export class CorePlugin extends BasePlugin {
   }
 
   // ---------------------------------------------------------------------------
+  // Cols/Rows addition/deletion offsets manipulation
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Update a reference by applying an offset to the column
+   *
+   * @param ref Reference to update
+   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param base Index of the element added/removed
+   * @param step Number of elements added or -1 if removed
+   */
+  private updateColumnsRef = (
+    ref: string,
+    sheet: string | undefined,
+    base: number,
+    step: number
+  ): string => {
+    let x = toCartesian(ref)[0];
+    if (x === base && step === -1) {
+      return "#REF";
+    }
+    return this.updateReference(ref, x > base ? step : 0, 0, this.getSheetIdByName(sheet), false);
+  };
+
+  /**
+   * Update a part of a range by appling an offset. If the current column is
+   * removed, adapt the range accordingly
+   *
+   * @param ref Reference to update
+   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param base Index of the element added/removed
+   * @param step Number of elements added or -1 if removed
+   * @param direction 1 if it's the left part, -1 if it's the right part
+   */
+  private updateColumnsRangePart = (
+    ref: string,
+    sheet: string | undefined,
+    base: number,
+    step: number,
+    direction: number
+  ): string => {
+    let [x, y] = toCartesian(ref);
+    if (x === base && step === -1) {
+      x += direction;
+    }
+    return this.updateColumnsRef(toXC(x, y), sheet, base, step);
+  };
+
+  /**
+   * Update a full range by appling an offset.
+   *
+   * @param ref Reference to update
+   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param base Index of the element added/removed
+   * @param step Number of elements added or -1 if removed
+   */
+  private updateColumnsRange = (
+    ref: string,
+    sheet: string | undefined,
+    base: number,
+    step: number
+  ): string => {
+    let [left, right] = ref.split(":");
+    left = this.updateColumnsRangePart(left, sheet, base, step, 1);
+    right = this.updateColumnsRangePart(right, sheet, base, step, -1);
+    if (left === "#REF" || right === "#REF") {
+      return "#REF";
+    }
+    if (left === right) {
+      return left;
+    }
+    return `${left}:${right}`;
+  };
+
+  /**
+   * Update a reference by applying an offset to the row
+   *
+   * @param ref Reference to update
+   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param base Index of the element added/removed
+   * @param step Number of elements added or -1 if removed
+   */
+  private updateRowsRef = (
+    ref: string,
+    sheet: string | undefined,
+    base: number,
+    step: number
+  ): string => {
+    let y = toCartesian(ref)[1];
+    if (base + step < y && y <= base) {
+      return "#REF";
+    }
+    return this.updateReference(ref, 0, y > base ? step : 0, this.getSheetIdByName(sheet), false);
+  };
+
+  /**
+   * Update a part of a range by appling an offset. If the current row is
+   * removed, adapt the range accordingly
+   *
+   * @param ref Reference to update
+   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param base Index of the element added/removed
+   * @param step Number of elements added or -1 if removed
+   * @param direction 1 if it's the left part, -1 if it's the right part
+   */
+  private updateRowsRangePart = (
+    value: string,
+    sheet: string | undefined,
+    base: number,
+    step: number,
+    direction: number
+  ): string => {
+    let [x, y] = toCartesian(value);
+    if (base + step < y && y <= base) {
+      y += direction;
+    }
+    return this.updateRowsRef(toXC(x, y), sheet, base, step);
+  };
+
+  /**
+   * Update a full range by appling an offset.
+   *
+   * @param ref Reference to update
+   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param base Index of the element added/removed
+   * @param step Number of elements added or -1 if removed
+   */
+  private updateRowsRange = (
+    value: string,
+    sheet: string | undefined,
+    base: number,
+    step: number
+  ): string => {
+    let [left, right] = value.split(":");
+    left = this.updateRowsRangePart(left, sheet, base, step, 1);
+    right = this.updateRowsRangePart(right, sheet, base, step, -1);
+    if (left === "#REF" || right === "#REF") {
+      return "#REF";
+    }
+    if (left === right) {
+      return left;
+    }
+    return `${left}:${right}`;
+  };
+
+  // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
+
+  /**
+   * Update a range with some offsets
+   */
+  private updateRange(
+    symbol: string,
+    offsetX: number,
+    offsetY: number,
+    sheetId: string | undefined
+  ): string {
+    let [left, right] = symbol.split(":");
+    left = this.updateReference(left, offsetX, offsetY, sheetId);
+    right = this.updateReference(right, offsetX, offsetY, sheetId);
+    if (left === "#REF" || right === "#REF") {
+      return "#REF";
+    }
+    return `${left}:${right}`;
+  }
+
+  /**
+   * Update a reference with some offsets.
+   */
+  private updateReference(
+    symbol: string,
+    offsetX: number,
+    offsetY: number,
+    sheetId: string | undefined,
+    updateFreeze: boolean = true
+  ): string {
+    const xc = symbol.replace(/\$/g, "");
+    let [x, y] = toCartesian(xc);
+    const freezeCol = symbol.startsWith("$");
+    const freezeRow = symbol.includes("$", 1);
+    x += freezeCol && updateFreeze ? 0 : offsetX;
+    y += freezeRow && updateFreeze ? 0 : offsetY;
+    if (
+      x < 0 ||
+      x >= this.getters.getNumberCols(sheetId || this.getters.getActiveSheet()) ||
+      y < 0 ||
+      y >= this.getters.getNumberRows(sheetId || this.getters.getActiveSheet())
+    ) {
+      return "#REF";
+    }
+    const sheetName = sheetId && this.getters.getSheetName(sheetId);
+    return (
+      (sheetName ? `${sheetName}!` : "") +
+      (freezeCol ? "$" : "") +
+      numberToLetters(x) +
+      (freezeRow ? "$" : "") +
+      String(y + 1)
+    );
+  }
 
   /**
    * Apply a function to update the formula on every cells of every sheets which
@@ -900,7 +1064,7 @@ export class CorePlugin extends BasePlugin {
       const sheet = sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
         if (cell.type === "formula") {
-          const content = tokenize(cell.content!)
+          const content = rangeTokenize(cell.content!)
             .map((t) => {
               if (t.type === "SYMBOL" && cellReference.test(t.value)) {
                 let [value, sheetRef] = t.value.split("!").reverse();
@@ -928,14 +1092,6 @@ export class CorePlugin extends BasePlugin {
         }
       }
     }
-  }
-
-  private getNewRef(value: string, sheet: string | undefined, x: number, y: number): string {
-    const fixedCol = value.startsWith("$");
-    const fixedRow = value.includes("$", 1);
-    return `${sheet ? sheet + "!" : ""}${fixedCol ? "$" : ""}${numberToLetters(x)}${
-      fixedRow ? "$" : ""
-    }${String(y + 1)}`;
   }
 
   // ---------------------------------------------------------------------------
