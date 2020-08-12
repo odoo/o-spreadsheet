@@ -59,6 +59,7 @@ const CSS = css/* scss */ `
     padding: 0;
     margin: 0;
     border: 0;
+    z-index: 5;
     .o-composer {
       caret-color: black;
       box-sizing: border-box;
