@@ -391,6 +391,40 @@ describe("Columns", () => {
         A3: { content: "=Sheet2!B1" },
       });
     });
+    test("On first col deletion", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B2: { content: "=SUM(A1:C1)" },
+            },
+          },
+        ],
+      });
+      removeColumns([0]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A2: { content: "=SUM(A1:B1)" },
+      });
+    });
+    test("On last col deletion", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              A2: { content: "=SUM(A1:C1)" },
+            },
+          },
+        ],
+      });
+      removeColumns([2]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A2: { content: "=SUM(A1:B1)" },
+      });
+    });
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
@@ -759,6 +793,40 @@ describe("Rows", () => {
         A1: { content: "=A2" },
         B1: { content: "=#REF" },
         C1: { content: "=Sheet2!A2" },
+      });
+    });
+    test("On first row deletion", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B2: { content: "=SUM(A1:A3)" },
+            },
+          },
+        ],
+      });
+      removeRows([0]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        B1: { content: "=SUM(A1:A2)" },
+      });
+    });
+    test("On last row deletion", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B1: { content: "=SUM(A1:A3)" },
+            },
+          },
+        ],
+      });
+      removeRows([2]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        B1: { content: "=SUM(A1:A2)" },
       });
     });
     test("On addition", () => {

@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { fontSizeMap } from "../../fonts";
-import { ComposerToken, composerTokenize, rangeReference } from "../../formulas/index";
+import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/index";
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
@@ -97,7 +97,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     provider: "functions",
     search: "",
   });
-  tokenAtCursor: ComposerToken | void = undefined;
+  tokenAtCursor: EnrichedToken | void = undefined;
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
   shouldProcessInputEvents: boolean = false;
@@ -105,7 +105,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   // modify the model anymore.
   isDone: boolean = false;
   refSelectionStart: number = 0;
-  tokens: ComposerToken[] = [];
+  tokens: EnrichedToken[] = [];
 
   keyMapping: { [key: string]: Function } = {
     Enter: this.processEnterKey,

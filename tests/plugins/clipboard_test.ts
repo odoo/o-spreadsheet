@@ -921,6 +921,16 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("B3") });
     expect(model.getters.getCell(1, 2)!.content).toBe("=Sheet2!B3");
   });
+
+  test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2", rows: 2, cols: 2 });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=Sheet2!A1:A2" });
+
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("A2") });
+    expect(model.getters.getCell(0, 1)!.content).toBe("=#REF");
+  });
 });
 
 describe("clipboard: pasting outside of sheet", () => {
