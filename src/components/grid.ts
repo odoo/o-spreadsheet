@@ -438,13 +438,21 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
+  getCartesianCoordinates(ev: MouseEvent): [number, number] {
+    const rect = this.el!.getBoundingClientRect();
+    const x = ev.pageX - rect.left;
+    const y = ev.pageY - rect.top;
+    const colIndex = this.getters.getColIndex(x, this.snappedViewport.left);
+    const rowIndex = this.getters.getRowIndex(y, this.snappedViewport.top);
+    return [colIndex, rowIndex];
+  }
+
   onMouseDown(ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
     }
-    const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-    const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+    const [col, row] = this.getCartesianCoordinates(ev);
     if (col < 0 || row < 0) {
       return;
     }
@@ -461,8 +469,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     let prevCol = col;
     let prevRow = row;
     const onMouseMove = (ev: MouseEvent) => {
-      const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-      const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+      const [col, row] = this.getCartesianCoordinates(ev);
       if (col < 0 || row < 0) {
         return;
       }
@@ -491,8 +498,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   onDoubleClick(ev) {
-    const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-    const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+    const [col, row] = this.getCartesianCoordinates(ev);
     if (this.clickedCol === col && this.clickedRow === row) {
       this.dispatch("START_EDITION");
     }
@@ -570,8 +576,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   onCanvasContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const col = this.getters.getColIndex(ev.offsetX, this.snappedViewport.left);
-    const row = this.getters.getRowIndex(ev.offsetY, this.snappedViewport.top);
+    const [col, row] = this.getCartesianCoordinates(ev);
     if (col < 0 || row < 0) {
       return;
     }
