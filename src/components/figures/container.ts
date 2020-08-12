@@ -1,8 +1,8 @@
-import { SpreadsheetEnv, Viewport, Figure } from "../../types/index";
-import { Component } from "@odoo/owl";
 import * as owl from "@odoo/owl";
-import { figureRegistry } from "../../registries/index";
+import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
+import { figureRegistry } from "../../registries/index";
+import { Figure, SpreadsheetEnv, Viewport } from "../../types/index";
 import { startDnd } from "../helpers/drag_and_drop";
 
 const { xml, css } = owl.tags;
@@ -29,10 +29,14 @@ const TEMPLATE = xml/* xml */ `
                 t-key="info.id"
                 figure="info.figure" />
               <t t-if="info.isSelected">
-                  <div class="o-anchor o-topRight"></div>
-                  <div class="o-anchor o-topLeft"></div>
-                  <div class="o-anchor o-bottomRight"></div>
-                  <div class="o-anchor o-bottomLeft"></div>
+                  <div class="o-anchor o-top" t-on-mousedown.stop="resize(info.figure, 0,-1)"/>
+                  <div class="o-anchor o-topRight" t-on-mousedown.stop="resize(info.figure, 1,-1)"/>
+                  <div class="o-anchor o-right" t-on-mousedown.stop="resize(info.figure, 1,0)"/>
+                  <div class="o-anchor o-bottomRight" t-on-mousedown.stop="resize(info.figure, 1,1)"/>
+                  <div class="o-anchor o-bottom" t-on-mousedown.stop="resize(info.figure, 0,1)"/>
+                  <div class="o-anchor o-bottomLeft" t-on-mousedown.stop="resize(info.figure, -1,1)"/>
+                  <div class="o-anchor o-left" t-on-mousedown.stop="resize(info.figure, -1,0)"/>
+                  <div class="o-anchor o-topLeft" t-on-mousedown.stop="resize(info.figure, -1,-1)"/>
               </t>
             </div>
         </div>
@@ -46,6 +50,7 @@ const TEMPLATE = xml/* xml */ `
 const ANCHOR_SIZE = 8;
 const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
+const MIN_FIG_SIZE = 80;
 
 const CSS = css/*SCSS*/ `
   .o-figure-wrapper {
@@ -76,25 +81,45 @@ const CSS = css/*SCSS*/ `
       width: ${ANCHOR_SIZE}px;
       height: ${ANCHOR_SIZE}px;
       background-color: #1a73e8;
+      &.o-top {
+        top: -${ANCHOR_SIZE / 2}px;
+        right: 50%;
+        cursor: n-resize;
+      }
       &.o-topRight {
         top: -${ANCHOR_SIZE / 2}px;
         right: -${ANCHOR_SIZE / 2}px;
         cursor: ne-resize;
       }
-      &.o-topLeft {
-        top: -${ANCHOR_SIZE / 2}px;
-        left: -${ANCHOR_SIZE / 2}px;
-        cursor: nw-resize;
+      &.o-right {
+        right: -${ANCHOR_SIZE / 2}px;
+        top: 50%;
+        cursor: e-resize;
       }
       &.o-bottomRight {
         bottom: -${ANCHOR_SIZE / 2}px;
         right: -${ANCHOR_SIZE / 2}px;
         cursor: se-resize;
       }
+      &.o-bottom {
+        bottom: -${ANCHOR_SIZE / 2}px;
+        right: 50%;
+        cursor: s-resize;
+      }
       &.o-bottomLeft {
         bottom: -${ANCHOR_SIZE / 2}px;
         left: -${ANCHOR_SIZE / 2}px;
         cursor: sw-resize;
+      }
+      &.o-left {
+        bottom: 50%;
+        left: -${ANCHOR_SIZE / 2}px;
+        cursor: w-resize;
+      }
+      &.o-topLeft {
+        top: -${ANCHOR_SIZE / 2}px;
+        left: -${ANCHOR_SIZE / 2}px;
+        cursor: nw-resize;
       }
     }
   }
@@ -110,6 +135,8 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     figureId: "",
     x: 0,
     y: 0,
+    width: 0,
+    height: 0,
   });
 
   getters = this.env.getters;
@@ -125,24 +152,25 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
   }
 
   getDims(info: FigureInfo) {
-    const borders = 2 * (info.isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
-    const figure = info.figure;
-    return `width:${figure.width + borders}px;height:${figure.height + borders}px`;
+    const { figure, isSelected } = info;
+    const borders = 2 * (isSelected ? ACTIVE_BORDER_WIDTH : BORDER_WIDTH);
+    const { width, height } = isSelected && this.dnd.figureId ? this.dnd : figure;
+    return `width:${width + borders}px;height:${height + borders}px`;
   }
 
   getStyle(info: FigureInfo) {
     const { figure, isSelected } = info;
-    const { width, height } = figure;
     const { offsetX, offsetY } = this.props.viewport;
-    const target = figure.id === this.dnd.figureId ? this.dnd : figure;
+    const target = figure.id === (isSelected && this.dnd.figureId) ? this.dnd : figure;
+    const { width, height } = target;
     let x = target.x - offsetX + HEADER_WIDTH - 1;
     let y = target.y - offsetY + HEADER_HEIGHT - 1;
     // width and height of wrapper need to be adjusted so we do not overlap
     // with headers
     const correctionX = Math.max(0, HEADER_WIDTH - x);
-    x += correctionX - ANCHOR_SIZE / 2;
+    x += correctionX;
     const correctionY = Math.max(0, HEADER_HEIGHT - y);
-    y += correctionY - ANCHOR_SIZE / 2;
+    y += correctionY;
 
     if (width < 0 || height < 0) {
       return `position:absolute;display:none;`;
@@ -165,6 +193,42 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     this.render();
   }
 
+  resize(figure: Figure, dirX: number, dirY: number, ev: MouseEvent) {
+    ev.stopPropagation();
+    const initialX = ev.clientX;
+    const initialY = ev.clientY;
+    this.dnd.figureId = figure.id;
+    this.dnd.x = figure.x;
+    this.dnd.y = figure.y;
+    this.dnd.width = figure.width;
+    this.dnd.height = figure.height;
+
+    const onMouseMove = (ev: MouseEvent) => {
+      const deltaX = dirX * (ev.clientX - initialX);
+      const deltaY = dirY * (ev.clientY - initialY);
+      this.dnd.width = Math.max(figure.width + deltaX, MIN_FIG_SIZE);
+      this.dnd.height = Math.max(figure.height + deltaY, MIN_FIG_SIZE);
+      if (dirX < 0) {
+        this.dnd.x = figure.x - deltaX;
+      }
+      if (dirY < 0) {
+        this.dnd.y = figure.y - deltaY;
+      }
+    };
+    const onMouseUp = (ev: MouseEvent) => {
+      this.dnd.figureId = "";
+      const update: Partial<Figure> = { id: figure.id, x: this.dnd.x, y: this.dnd.y };
+      if (dirX) {
+        update.width = this.dnd.width;
+      }
+      if (dirY) {
+        update.height = this.dnd.height;
+      }
+      this.dispatch("UPDATE_FIGURE", update as any);
+    };
+    startDnd(onMouseMove, onMouseUp);
+  }
+
   onMouseDown(figure: Figure, ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
@@ -176,6 +240,8 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     this.dnd.figureId = figure.id;
     this.dnd.x = figure.x;
     this.dnd.y = figure.y;
+    this.dnd.width = figure.width;
+    this.dnd.height = figure.height;
 
     const onMouseMove = (ev: MouseEvent) => {
       this.dnd.x = Math.max(figure.x - initialX + ev.clientX, 0);

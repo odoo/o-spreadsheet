@@ -27,6 +27,12 @@ export class FigurePlugin extends BasePlugin {
         if (cmd.y !== undefined) {
           this.history.updateLocalState(["figures", cmd.id, "y"], Math.max(cmd.y, 0));
         }
+        if (cmd.width !== undefined) {
+          this.history.updateLocalState(["figures", cmd.id, "width"], cmd.width);
+        }
+        if (cmd.height !== undefined) {
+          this.history.updateLocalState(["figures", cmd.id, "height"], cmd.height);
+        }
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
