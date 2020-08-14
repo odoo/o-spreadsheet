@@ -261,9 +261,9 @@ export function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-export function getCell(model: Model, xc: string, sheet?: string): Cell | null {
+export function getCell(model: Model, xc: string, sheetId?: string): Cell | null {
   let [col, row] = toCartesian(xc);
-  return model.getters.getCell(col, row, sheet);
+  return model.getters.getCell(col, row, sheetId);
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

@@ -209,18 +209,12 @@ export class CorePlugin extends BasePlugin {
       .join("");
   }
 
-  getCell(col: number, row: number, sheetName?: string): Cell | null {
-    let r;
-    if (!sheetName) {
-      r = this.workbook.activeSheet.rows[row];
-    } else {
-      const sheet = Object.values(this.workbook.sheets).find((x) => x.name === sheetName);
-      if (sheet) {
-        r = sheet.rows[row];
-      } else {
-        return null;
-      }
+  getCell(col: number, row: number, sheetId?: string): Cell | null {
+    const sheet = sheetId ? this.workbook.sheets[sheetId] : this.workbook.activeSheet;
+    if (!sheet) {
+      return null;
     }
+    let r = sheet.rows[row];
     return r ? r.cells[col] || null : null;
   }
 
