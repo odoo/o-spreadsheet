@@ -408,6 +408,23 @@ describe("Columns", () => {
         A2: { content: "=SUM(A1:B1)" },
       });
     });
+    test("On multiple col deletion including the first one", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              C2: { content: "=SUM(A1:D1)" },
+            },
+          },
+        ],
+      });
+      removeColumns([0, 1]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A2: { content: "=SUM(A1:B1)" },
+      });
+    });
     test("On last col deletion", () => {
       model = new Model({
         sheets: [
@@ -421,6 +438,23 @@ describe("Columns", () => {
         ],
       });
       removeColumns([2]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A2: { content: "=SUM(A1:B1)" },
+      });
+    });
+    test("On multiple col deletion including the last one", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              A2: { content: "=SUM(A1:D1)" },
+            },
+          },
+        ],
+      });
+      removeColumns([2, 3]);
       expect(getSheet(model, 0).cells).toMatchObject({
         A2: { content: "=SUM(A1:B1)" },
       });
@@ -812,6 +846,50 @@ describe("Rows", () => {
         B1: { content: "=SUM(A1:A2)" },
       });
     });
+    test("On multiple row deletion including the first one", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 6,
+            cells: {
+              B1: { content: "=SUM(A2:A5)" },
+            },
+          },
+        ],
+      });
+      removeRows([1, 2]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        B1: { content: "=SUM(A2:A3)" },
+      });
+    });
+    test("strange test in Odoo", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 1,
+            rowNumber: 1000,
+            cells: {
+              A5: { content: "=SUM(A6:A255)" },
+              A256: { content: "=SUM(A257:A506)" },
+            },
+          },
+        ],
+      });
+      const rows: number[] = [];
+      for (let i = 6; i <= 254; i++) {
+        rows.push(i);
+      }
+      for (let i = 257; i <= 605; i++) {
+        rows.push(i);
+      }
+
+      removeRows(rows);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A5: { content: "=SUM(A6)" },
+        A7: { content: "=SUM(A8)" },
+      });
+    });
     test("On last row deletion", () => {
       model = new Model({
         sheets: [
@@ -827,6 +905,74 @@ describe("Rows", () => {
       removeRows([2]);
       expect(getSheet(model, 0).cells).toMatchObject({
         B1: { content: "=SUM(A1:A2)" },
+      });
+    });
+    test("On multiple row", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 1,
+            rowNumber: 8,
+            cells: {
+              A1: { content: "=SUM(A2:A5)" },
+            },
+          },
+        ],
+      });
+      removeRows([2, 3]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A1: { content: "=SUM(A2:A3)" },
+      });
+    });
+    test("On multiple rows (7)", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 1,
+            rowNumber: 8,
+            cells: {
+              A1: { content: "=SUM(A2:A8)" },
+            },
+          },
+        ],
+      });
+      removeRows([1, 2, 3, 4, 5, 6]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        A1: { content: "=SUM(A2)" },
+      });
+    });
+    test("On multiple row deletion including the last one", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 4,
+            rowNumber: 4,
+            cells: {
+              B1: { content: "=SUM(A1:A4)" },
+            },
+          },
+        ],
+      });
+      removeRows([2, 3]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        B1: { content: "=SUM(A1:A2)" },
+      });
+    });
+    test("On multiple row deletion including the last and beyond", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 2,
+            rowNumber: 8,
+            cells: {
+              B2: { content: "=SUM(A1:A4)" },
+            },
+          },
+        ],
+      });
+      removeRows([3, 4, 5, 6, 7]);
+      expect(getSheet(model, 0).cells).toMatchObject({
+        B2: { content: "=SUM(A1:A3)" },
       });
     });
     test("On addition", () => {

@@ -954,7 +954,7 @@ export class CorePlugin extends BasePlugin {
    * @param ref Reference to update
    * @param sheet Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
-   * @param step Number of elements added or -1 if removed
+   * @param step Number of elements added/removed (negative when removed)
    * @param direction 1 if it's the left part, -1 if it's the right part
    */
   private updateRowsRangePart = (
@@ -966,7 +966,10 @@ export class CorePlugin extends BasePlugin {
   ): string => {
     let [x, y] = toCartesian(value);
     if (base + step < y && y <= base) {
-      y += direction;
+      if (direction === -1) {
+        y = Math.max(base, y) + step;
+      }
+      step = 0;
     }
     return this.updateRowsRef(toXC(x, y), sheet, base, step);
   };
@@ -977,7 +980,7 @@ export class CorePlugin extends BasePlugin {
    * @param ref Reference to update
    * @param sheet Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
-   * @param step Number of elements added or -1 if removed
+   * @param step Number of elements added/removed (negative when removed)
    */
   private updateRowsRange = (
     value: string,
