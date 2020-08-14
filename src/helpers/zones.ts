@@ -69,7 +69,7 @@ export function isEqual(z1: Zone, z2: Zone): boolean {
  * Return true if two zones overlap, false otherwise.
  */
 export function overlap(z1: Zone, z2: Zone): boolean {
-  if (z1.bottom < z2.top || z2.bottom < z2.top) {
+  if (z1.bottom < z2.top || z2.bottom < z1.top) {
     return false;
   }
   if (z1.right < z2.left || z2.right < z1.left) {
