@@ -21,6 +21,13 @@ menuItemRegistry.addChild("clear", ["file"], {
   action: (env) => window.localStorage.removeItem("o-spreadsheet"),
 });
 
+menuItemRegistry.addChild("export_xls", ["file"], {
+  name: "Export (xls file)",
+  sequence: 30,
+  action: (env) => o_spreadsheet.exportXLS(env.export()),
+});
+
+
 let start;
 
 class App extends Component {

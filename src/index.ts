@@ -28,6 +28,7 @@ export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
 export { parse, astToFormula } from "./formulas/parser";
 export { setTranslationMethod } from "./translation";
+export { exportXLS } from "./data/index";
 
 export const registries = {
   autofillModifiersRegistry,
