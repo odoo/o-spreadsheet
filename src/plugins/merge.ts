@@ -5,9 +5,9 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../helpers/grid_manipulation";
-import { isEqual, toCartesian, toXC, union } from "../helpers/index";
-import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
+import { isEqual, toCartesian, toXC, union, overlap } from "../helpers/index";
 import { _lt } from "../translation";
+import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
 
 interface PendingMerges {
   sheet: string;
@@ -147,14 +147,13 @@ export class MergePlugin extends BasePlugin {
    */
   expandZone(zone: Zone): Zone {
     let { left, right, top, bottom } = zone;
-    let result: Zone = { left, right, top, bottom };
     const sheet = this.workbook.activeSheet;
-    for (let i = left; i <= right; i++) {
-      for (let j = top; j <= bottom; j++) {
-        let mergeId = sheet.mergeCellMap[toXC(i, j)];
-        if (mergeId) {
-          result = union(sheet.merges[mergeId], result);
-        }
+    let result: Zone = { left, right, top, bottom };
+
+    for (let id in sheet.merges) {
+      const merge = sheet.merges[id];
+      if (overlap(merge, result)) {
+        result = union(merge, result);
       }
     }
     return isEqual(result, zone) ? result : this.expandZone(result);
