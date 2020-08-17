@@ -5,7 +5,17 @@ import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
 import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { Cell, GridRenderingContext, Sheet, SpreadsheetEnv, Zone } from "../src/types";
+import {
+  Cell,
+  GridRenderingContext,
+  Sheet,
+  SpreadsheetEnv,
+  Zone,
+  Style,
+  ConditionalFormat,
+  ColorScaleThreshold,
+  CommandTypes,
+} from "../src/types";
 import "./canvas.mock";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
@@ -54,6 +64,16 @@ export class MockClipboard {
   dispatchEvent() {
     return false;
   }
+}
+
+export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
+  const before = model.exportData();
+  model.dispatch(command, args);
+  const after = model.exportData();
+  model.dispatch("UNDO");
+  expect(model.exportData()).toEqual(before);
+  model.dispatch("REDO");
+  expect(model.exportData()).toEqual(after);
 }
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
@@ -288,6 +308,33 @@ export function zone(str: string): Zone {
 
 export function target(str: string): Zone[] {
   return str.split(",").map(zone);
+}
+
+export function createEqualCF(
+  ranges: string[],
+  value: string,
+  style: Style,
+  id: string
+): ConditionalFormat {
+  return {
+    ranges,
+    id,
+    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
+  };
+}
+
+export function createColorScale(
+  id: string,
+  ranges: string[],
+  min: ColorScaleThreshold,
+  max: ColorScaleThreshold,
+  mid?: ColorScaleThreshold
+): ConditionalFormat {
+  return {
+    ranges,
+    id,
+    rule: { type: "ColorScaleRule", minimum: min, maximum: max, midpoint: mid },
+  };
 }
 
 /**

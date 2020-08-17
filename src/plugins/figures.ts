@@ -1,5 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { Command, WorkbookData, Figure, Viewport } from "../types/index";
+import { uuidv4 } from "../helpers/index";
 
 export class FigurePlugin extends BasePlugin {
   static getters = ["getFigures", "getSelectedFigureId"];
@@ -14,6 +15,18 @@ export class FigurePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "DUPLICATE_SHEET":
+        for (let fig of this.sheetFigures[cmd.sheet] || []) {
+          const figure = Object.assign({}, fig, { id: uuidv4() });
+          this.dispatch("CREATE_FIGURE", {
+            sheet: cmd.id,
+            figure,
+          });
+        }
+        break;
+      case "DELETE_SHEET":
+        this.deleteSheet(cmd.sheet);
+        break;
       case "CREATE_FIGURE":
         this.history.updateLocalState(["figures", cmd.figure.id], cmd.figure);
         const sheetFigures = (this.sheetFigures[cmd.sheet] || []).slice();
@@ -43,6 +56,15 @@ export class FigurePlugin extends BasePlugin {
       default:
         this.selectedFigureId = null;
     }
+  }
+
+  deleteSheet(sheet: string) {
+    for (let figure of this.sheetFigures[sheet] || []) {
+      this.history.updateLocalState(["figures", figure.id], undefined);
+    }
+    const sheetFigures = Object.assign({}, this.sheetFigures);
+    delete sheetFigures[sheet];
+    this.history.updateLocalState(["sheetFigures"], sheetFigures);
   }
 
   // ---------------------------------------------------------------------------

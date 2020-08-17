@@ -3,7 +3,7 @@
 exports[`Context Menu context menu simple rendering 1`] = `
 <div
   class="o-menu"
-  style="top:200px;left:300px;max-height:932px"
+  style="top:200px;left:300px;max-height:1000px"
 >
   <div
     class="o-menu-item"

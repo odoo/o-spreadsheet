@@ -1,38 +1,19 @@
 import { Model } from "../../src/model";
-import { ColorScaleThreshold, ConditionalFormat, Style, CommandResult } from "../../src/types";
+import { CommandResult } from "../../src/types";
 import "../canvas.mock";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../dom_helper";
-import { GridParent, makeTestFixture, mockUuidV4To, nextTick, target } from "../helpers";
+import {
+  GridParent,
+  makeTestFixture,
+  mockUuidV4To,
+  nextTick,
+  target,
+  createEqualCF,
+  createColorScale,
+} from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
-
-function createEqualCF(
-  ranges: string[],
-  value: string,
-  style: Style,
-  id: string
-): ConditionalFormat {
-  return {
-    ranges,
-    id,
-    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
-  };
-}
-
-function createColorScale(
-  id: string,
-  ranges: string[],
-  min: ColorScaleThreshold,
-  max: ColorScaleThreshold,
-  mid?: ColorScaleThreshold
-): ConditionalFormat {
-  return {
-    ranges,
-    id,
-    rule: { type: "ColorScaleRule", minimum: min, maximum: max, midpoint: mid },
-  };
-}
 
 beforeEach(() => {
   model = new Model();

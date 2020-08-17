@@ -383,24 +383,71 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
   <div
     class="o-spreadsheet-bottom-bar o-two-columns"
   >
-    <span
-      class="o-add-sheet"
+    <div
+      class="o-sheet-item o-add-sheet"
     >
       <svg
         class="o-icon"
       >
         <path
-          d="M7,0 L9,0 L9,7 L16,7 L16,9 L9,9 L9,16 L7,16 L7,9 L0,9 L0,7 L7,7"
+          d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
           fill="#000000"
         />
       </svg>
-    </span>
-    <span
-      class="o-sheet active"
+    </div>
+    <div
+      class="o-sheet-item o-list-sheets"
     >
-      <!-- The next lines should replace the last ones when at least one action has been implemented on sheets. (sheetMenuRegistry) &lt;span class="o-sheet" t-on-click="activateSheet(sheet.id)" t-on-contextmenu.prevent="onContextMenu(sheet.id)" t-att-class="{active: sheet.id === getters.getActiveSheet()}"&gt; -->
-      Sheet1
-    </span>
+      <svg
+        class="o-icon"
+        viewBox="0 0 384 384"
+      >
+        <rect
+          height="42.667"
+          width="384"
+          x="0"
+          y="277.333"
+        />
+        <rect
+          height="42.667"
+          width="384"
+          x="0"
+          y="170.667"
+        />
+        <rect
+          height="42.667"
+          width="384"
+          x="0"
+          y="64"
+        />
+      </svg>
+    </div>
+    <div
+      class="o-all-sheets"
+    >
+      <div
+        class="o-sheet-item o-sheet active"
+        data-id="1"
+        title="Sheet1"
+      >
+        <span>
+          Sheet1
+        </span>
+        <span
+          class="o-sheet-icon"
+        >
+          <svg
+            class="o-icon"
+          >
+            <polygon
+              fill="#000000"
+              points="0 0 4 4 8 0"
+              transform="translate(5 7)"
+            />
+          </svg>
+        </span>
+      </div>
+    </div>
   </div>
 </div>
 `;

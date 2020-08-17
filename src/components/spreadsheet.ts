@@ -24,7 +24,7 @@ const TEMPLATE = xml/* xml */ `
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
-    <BottomBar class="o-two-columns"/>
+    <BottomBar t-on-click="focusGrid" class="o-two-columns"/>
   </div>`;
 
 const CSS = css/* scss */ `
@@ -70,6 +70,8 @@ export class Spreadsheet extends Component<Props> {
     notifyUser: (content: string) => this.trigger("notify-user", { content }),
     askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
       this.trigger("ask-confirmation", { content, confirm, cancel }),
+    editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
+      this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
   });

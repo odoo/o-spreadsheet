@@ -27,6 +27,7 @@ import {
   SheetData,
   WorkbookData,
   Zone,
+  RenameSheetCommand,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -77,10 +78,26 @@ export class CorePlugin extends BasePlugin {
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
+      case "DUPLICATE_SHEET":
         const { visibleSheets, sheets } = this.workbook;
-        return !cmd.name || visibleSheets.findIndex((id) => sheets[id].name === cmd.name) === -1
+        return !cmd.name || !visibleSheets.find((id) => sheets[id].name === cmd.name)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      case "MOVE_SHEET":
+        const currentIndex = this.workbook.visibleSheets.findIndex((id) => id === cmd.sheet);
+        if (currentIndex === -1) {
+          return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+        }
+        return (cmd.direction === "left" && currentIndex === 0) ||
+          (cmd.direction === "right" && currentIndex === this.workbook.visibleSheets.length - 1)
+          ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
+          : { status: "SUCCESS" };
+      case "RENAME_SHEET":
+        return this.isRenameAllowed(cmd);
+      case "DELETE_SHEET":
+        return this.workbook.visibleSheets.length > 1
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
       default:
         return { status: "SUCCESS" };
     }
@@ -94,7 +111,7 @@ export class CorePlugin extends BasePlugin {
       case "CREATE_SHEET":
         const sheet = this.createSheet(
           cmd.id,
-          cmd.name || `Sheet${this.workbook.visibleSheets.length + 1}`,
+          cmd.name || this.generateSheetName(),
           cmd.cols || 26,
           cmd.rows || 100
         );
@@ -102,6 +119,22 @@ export class CorePlugin extends BasePlugin {
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: sheet });
         }
+        break;
+      case "MOVE_SHEET":
+        this.moveSheet(cmd.sheet, cmd.direction);
+        break;
+      case "RENAME_SHEET":
+        if (cmd.interactive) {
+          this.interactiveRenameSheet(cmd.sheet, _lt("Rename Sheet"));
+        } else {
+          this.renameSheet(cmd.sheet, cmd.name!);
+        }
+        break;
+      case "DUPLICATE_SHEET":
+        this.duplicateSheet(cmd.sheet, cmd.id, cmd.name);
+        break;
+      case "DELETE_SHEET":
+        this.deleteSheet(cmd.sheet);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -823,6 +856,18 @@ export class CorePlugin extends BasePlugin {
     this.history.updateSheet(_sheet, ["rows", row, "cells", col], cell);
   }
 
+  private generateSheetName(): string {
+    let i = 1;
+    const names = this.getSheets().map((s) => s.name);
+    const baseName = _lt("Sheet");
+    let name = `${baseName}${i}`;
+    while (names.includes(name)) {
+      name = `${baseName}${i}`;
+      i++;
+    }
+    return name;
+  }
+
   private createSheet(id: string, name: string, cols: number, rows: number): string {
     const sheet: Sheet = {
       id,
@@ -841,6 +886,116 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(["visibleSheets"], visibleSheets);
     this.history.updateState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
+  }
+
+  private moveSheet(sheetId: string, direction: "left" | "right") {
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
+    const sheet = visibleSheets.splice(currentIndex, 1);
+    visibleSheets.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+  }
+
+  private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
+    if (cmd.interactive) {
+      return { status: "SUCCESS" };
+    }
+    if (!cmd.name) {
+      return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+    }
+    return this.workbook.visibleSheets.findIndex(
+      (id) => this.workbook.sheets[id].name === cmd.name
+    ) === -1
+      ? { status: "SUCCESS" }
+      : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+  }
+
+  private interactiveRenameSheet(sheet: string, title: string) {
+    const placeholder = this.getSheetName(sheet)!;
+    this.ui.editText(title, placeholder, (name: string | null) => {
+      if (!name) {
+        return;
+      }
+      const result = this.dispatch("RENAME_SHEET", { sheet, name });
+      const sheetName = this.getSheetName(sheet);
+      if (result.status === "CANCELLED" && sheetName !== name) {
+        this.interactiveRenameSheet(sheet, _lt("Please enter a valid sheet name"));
+      }
+    });
+  }
+
+  private renameSheet(sheetId: string, name: string) {
+    const sheet = this.workbook.sheets[sheetId];
+    const oldName = sheet.name;
+    this.history.updateSheet(sheet, ["name"], name);
+    const sheetIds = Object.assign({}, this.sheetIds);
+    sheetIds[name] = sheet.id;
+    delete sheetIds[oldName];
+    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.visitAllFormulasSymbols((value: string) => {
+      let [val, sheetRef] = value.split("!").reverse();
+      if (sheetRef) {
+        sheetRef = sanitizeSheet(sheetRef);
+        if (sheetRef === oldName) {
+          if (val.includes(":")) {
+            return this.updateRange(val, 0, 0, sheet.id);
+          }
+          return this.updateReference(val, 0, 0, sheet.id);
+        }
+      }
+      return value;
+    });
+  }
+
+  private duplicateSheet(fromId: string, toId: string, toName: string) {
+    const sheet = this.workbook.sheets[fromId];
+    const newSheet = JSON.parse(JSON.stringify(sheet));
+    newSheet.id = toId;
+    newSheet.name = toName;
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    const currentIndex = visibleSheets.findIndex((id) => id === fromId);
+    visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+    this.history.updateState(
+      ["sheets"],
+      Object.assign({}, this.workbook.sheets, { [newSheet.id]: newSheet })
+    );
+
+    const sheetIds = Object.assign({}, this.sheetIds);
+    sheetIds[newSheet.name] = newSheet.id;
+    this.history.updateLocalState(["sheetIds"], sheetIds);
+  }
+
+  private deleteSheet(sheetId: string) {
+    const name = this.workbook.sheets[sheetId].name;
+    const sheets = Object.assign({}, this.workbook.sheets);
+    delete sheets[sheetId];
+    this.history.updateState(["sheets"], sheets);
+
+    const visibleSheets = this.workbook.visibleSheets.slice();
+    const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
+    visibleSheets.splice(currentIndex, 1);
+    this.history.updateState(["visibleSheets"], visibleSheets);
+
+    const sheetIds = Object.assign({}, this.sheetIds);
+    delete sheetIds[name];
+    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.visitAllFormulasSymbols((value: string) => {
+      let [, sheetRef] = value.split("!").reverse();
+      if (sheetRef) {
+        sheetRef = sanitizeSheet(sheetRef);
+        if (sheetRef === name) {
+          return "#REF";
+        }
+      }
+      return value;
+    });
+    if (this.getActiveSheet() === sheetId) {
+      this.dispatch("ACTIVATE_SHEET", {
+        from: sheetId,
+        to: visibleSheets[Math.max(0, currentIndex - 1)],
+      });
+    }
   }
 
   private clearZones(sheet: string, zones: Zone[]) {
@@ -1074,7 +1229,10 @@ export class CorePlugin extends BasePlugin {
     ) {
       return "#REF";
     }
-    const sheetName = sheetId && this.getters.getSheetName(sheetId);
+    let sheetName = sheetId && this.getters.getSheetName(sheetId);
+    if (sheetName && sheetName.includes(" ")) {
+      sheetName = `'${sheetName}'`;
+    }
     return (
       (sheetName ? `${sheetName}!` : "") +
       (freezeCol ? "$" : "") +
@@ -1084,32 +1242,15 @@ export class CorePlugin extends BasePlugin {
     );
   }
 
-  /**
-   * Apply a function to update the formula on every cells of every sheets which
-   * contains a formula
-   * @param cb Update formula function to apply
-   */
-  private visitFormulas(
-    sheetNameToFind: string,
-    cb: (value: string, sheet: string | undefined) => string
-  ) {
-    const { sheets } = this.workbook;
-    for (let sheetId in sheets) {
-      const sheet = sheets[sheetId];
+  private visitAllFormulasSymbols(cb: (value: string, sheetId: string) => string) {
+    for (let sheetId in this.workbook.sheets) {
+      const sheet = this.workbook.sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
         if (cell.type === "formula") {
           const content = rangeTokenize(cell.content!)
             .map((t) => {
               if (t.type === "SYMBOL" && cellReference.test(t.value)) {
-                let [value, sheetRef] = t.value.split("!").reverse();
-                if (sheetRef) {
-                  sheetRef = sanitizeSheet(sheetRef);
-                  if (sheetRef === sheetNameToFind) {
-                    return cb(value, sheetRef);
-                  }
-                } else if (this.sheetIds[sheetNameToFind] === sheet.id) {
-                  return cb(value, undefined);
-                }
+                return cb(t.value, sheet.id);
               }
               return t.value;
             })
@@ -1126,6 +1267,29 @@ export class CorePlugin extends BasePlugin {
         }
       }
     }
+  }
+
+  /**
+   * Apply a function to update the formula on every cells of every sheets which
+   * contains a formula
+   * @param cb Update formula function to apply
+   */
+  private visitFormulas(
+    sheetNameToFind: string,
+    cb: (value: string, sheet: string | undefined) => string
+  ) {
+    this.visitAllFormulasSymbols((content: string, sheetId: string): string => {
+      let [value, sheetRef] = content.split("!").reverse();
+      if (sheetRef) {
+        sheetRef = sanitizeSheet(sheetRef);
+        if (sheetRef === sheetNameToFind) {
+          return cb(value, sheetRef);
+        }
+      } else if (this.sheetIds[sheetNameToFind] === sheetId) {
+        return cb(value, undefined);
+      }
+      return content;
+    });
   }
 
   // ---------------------------------------------------------------------------

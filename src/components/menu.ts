@@ -1,7 +1,6 @@
 import * as icons from "./icons";
 import { Component, tags, useState, hooks } from "@odoo/owl";
 import { SpreadsheetEnv } from "../types";
-import { BOTTOMBAR_HEIGHT } from "../constants";
 import { FullMenuItem } from "../registries";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { isChildEvent } from "./helpers/dom_helpers";
@@ -142,8 +141,10 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   get style() {
     const { x, y, height } = this.props.position;
     const hStyle = `left:${this.renderRight ? x : x - MENU_WIDTH}`;
-    const vStyle = `top:${this.renderBottom ? y : Math.max(MENU_ITEM_HEIGHT, y - this.menuHeight)}`;
-    const heightStyle = `max-height:${height - BOTTOMBAR_HEIGHT - MENU_ITEM_HEIGHT}`;
+    const vStyle = `top:${
+      this.renderBottom ? y : Math.max(MENU_ITEM_HEIGHT, y - Math.min(this.menuHeight, height))
+    }`;
+    const heightStyle = `max-height:${height}`;
     return `${vStyle}px;${hStyle}px;${heightStyle}px`;
   }
 

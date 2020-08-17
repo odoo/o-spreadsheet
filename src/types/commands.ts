@@ -72,6 +72,30 @@ export interface CreateSheetCommand extends BaseCommand {
   activate?: boolean;
 }
 
+export interface MoveSheetCommand extends BaseCommand {
+  type: "MOVE_SHEET";
+  sheet: string;
+  direction: "left" | "right";
+}
+
+export interface RenameSheetCommand extends BaseCommand {
+  type: "RENAME_SHEET";
+  sheet: string;
+  name?: string;
+}
+
+export interface DuplicateSheetCommand extends BaseCommand {
+  type: "DUPLICATE_SHEET";
+  sheet: string;
+  id: string;
+  name: string;
+}
+
+export interface DeleteSheetCommand extends BaseCommand {
+  type: "DELETE_SHEET";
+  sheet: string;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -556,6 +580,10 @@ export type Command =
   | AutoresizeRowsCommand
   | MovePositionCommand
   | CreateSheetCommand
+  | MoveSheetCommand
+  | RenameSheetCommand
+  | DuplicateSheetCommand
+  | DeleteSheetCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand
@@ -622,7 +650,9 @@ export const enum CancelledReason {
   EmptyRedoStack,
   NotEnoughColumns,
   NotEnoughRows,
+  NotEnoughSheets,
   WrongSheetName,
+  WrongSheetMove,
   SelectionOutOfBound,
   WrongPasteSelection,
   EmptyClipboard,

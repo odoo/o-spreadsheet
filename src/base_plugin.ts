@@ -12,7 +12,7 @@ import {
   CommandResult,
 } from "./types/index";
 
-type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel">;
+type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 /**
  * BasePlugin
  *

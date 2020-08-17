@@ -37,7 +37,13 @@ class Parent extends Component<any> {
 
 beforeEach(async () => {
   fixture = makeTestFixture();
-  parent = new Parent();
+  parent = new Parent({
+    sheets: [
+      {
+        id: 1,
+      },
+    ],
+  });
   await parent.mount(fixture);
 });
 
