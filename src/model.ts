@@ -50,6 +50,7 @@ export interface ModelConfig {
   openSidePanel: (panel: string, panelProps?: any) => void;
   notifyUser: (content: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
+  editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
 }
 
@@ -117,6 +118,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       openSidePanel: config.openSidePanel || (() => {}),
       notifyUser: config.notifyUser || (() => {}),
       askConfirmation: config.askConfirmation || (() => {}),
+      editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
     };
 

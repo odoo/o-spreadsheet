@@ -1,5 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { Command, WorkbookData, Figure, Viewport } from "../types/index";
+import { uuidv4 } from "../helpers/index";
 
 export class FigurePlugin extends BasePlugin {
   static getters = ["getFigures", "getSelectedFigureId"];
@@ -14,6 +15,21 @@ export class FigurePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "DUPLICATE_SHEET":
+        for (let fig of this.sheetFigures[cmd.sheet] || []) {
+          this.dispatch("CREATE_FIGURE", {
+            sheet: cmd.id,
+            figure: {
+              id: uuidv4(),
+              tag: fig.tag,
+              width: fig.width,
+              height: fig.height,
+              x: fig.x,
+              y: fig.y,
+            },
+          });
+        }
+        break;
       case "CREATE_FIGURE":
         this.history.updateLocalState(["figures", cmd.figure.id], cmd.figure);
         const sheetFigures = (this.sheetFigures[cmd.sheet] || []).slice();

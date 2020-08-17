@@ -54,6 +54,11 @@ class App extends Component {
     window.alert(ev.detail.content);
   }
 
+  editText(ev) {
+    const text = window.prompt(ev.detail.title, ev.detail.placeholder);
+    ev.detail.callback(text);
+  }
+
   saveContent(ev) {
     this.save(ev.detail.data);
   }
@@ -68,6 +73,7 @@ App.template = xml`
     <Spreadsheet data="data" t-key="key"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
+      t-on-edit-text="editText"
       t-on-save-content="saveContent"/>
   </div>`;
 App.style = css`
