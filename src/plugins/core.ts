@@ -69,11 +69,11 @@ export class CorePlugin extends BasePlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
-        return this.workbook.activeSheet.cols.length > cmd.columns.length
+        return this.workbook.sheets[cmd.sheet].cols.length > cmd.columns.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
       case "REMOVE_ROWS":
-        return this.workbook.activeSheet.rows.length > cmd.rows.length
+        return this.workbook.sheets[cmd.sheet].rows.length > cmd.rows.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
@@ -158,15 +158,15 @@ export class CorePlugin extends BasePlugin {
       case "REMOVE_COLUMNS":
         this.removeColumns(cmd.sheet, cmd.columns);
         this.history.updateState(
-          ["activeSheet", "colNumber"],
-          this.workbook.activeSheet.colNumber - cmd.columns.length
+          ["sheets", cmd.sheet, "colNumber"],
+          this.workbook.sheets[cmd.sheet].colNumber - cmd.columns.length
         );
         break;
       case "REMOVE_ROWS":
         this.removeRows(cmd.sheet, cmd.rows);
         this.history.updateState(
-          ["activeSheet", "rowNumber"],
-          this.workbook.activeSheet.rowNumber - cmd.rows.length
+          ["sheets", cmd.sheet, "rowNumber"],
+          this.workbook.sheets[cmd.sheet].rowNumber - cmd.rows.length
         );
         break;
       case "ADD_COLUMNS":
@@ -424,13 +424,13 @@ export class CorePlugin extends BasePlugin {
     columns.sort((a, b) => b - a);
     for (let column of columns) {
       // Update all the formulas.
-      this.updateColumnsFormulas(column, -1);
+      this.updateColumnsFormulas(column, -1, sheetID);
 
       // Move the cells.
-      this.moveCellsHorizontally(column, -1);
+      this.moveCellsHorizontally(column, -1, sheetID);
 
       // Effectively delete the element and recompute the left-right.
-      this.manageColumnsHeaders(column, -1);
+      this.manageColumnsHeaders(column, -1, sheetID);
     }
   }
 
@@ -462,13 +462,13 @@ export class CorePlugin extends BasePlugin {
 
     for (let group of consecutiveRows) {
       // Update all the formulas.
-      this.updateRowsFormulas(group[0], -group.length);
+      this.updateRowsFormulas(group[0], -group.length, sheetID);
 
       // Move the cells.
-      this.moveCellVerticallyBatched(group[group.length - 1], group[0]);
+      this.moveCellVerticallyBatched(group[group.length - 1], group[0], sheetID);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
-      group.map((row) => this.processRowsHeaderDelete(row));
+      group.map((row) => this.processRowsHeaderDelete(row, sheetID));
     }
   }
 
@@ -479,13 +479,13 @@ export class CorePlugin extends BasePlugin {
     quantity: number
   ) {
     // Update all the formulas.
-    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity);
+    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity, sheetID);
 
     // Move the cells.
-    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity);
+    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheetID);
 
     // Recompute the left-right/top-bottom.
-    this.manageColumnsHeaders(column, quantity);
+    this.manageColumnsHeaders(column, quantity, sheetID);
   }
 
   private addRows(sheetID: string, row: number, position: "before" | "after", quantity: number) {
@@ -493,23 +493,23 @@ export class CorePlugin extends BasePlugin {
       this.addEmptyRow();
     }
     // Update all the formulas.
-    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity);
+    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheetID);
 
     // Move the cells.
-    this.moveCellsVertically(position === "before" ? row : row + 1, quantity);
+    this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheetID);
 
     // Recompute the left-right/top-bottom.
     this.processRowsHeaderAdd(row, quantity);
   }
 
-  private moveCellsHorizontally(base: number, step: number) {
+  private moveCellsHorizontally(base: number, step: number, sheetID: string) {
     return this.processCellsToMove(
       (cell) => cell.col >= base,
       (cell) => cell.col !== base || step !== -1,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.id,
+          sheet: sheetID,
           col: cell.col + step,
           row: cell.row,
           content: cell.content,
@@ -517,7 +517,8 @@ export class CorePlugin extends BasePlugin {
           style: cell.style,
           format: cell.format,
         };
-      }
+      },
+      sheetID
     );
   }
 
@@ -530,15 +531,16 @@ export class CorePlugin extends BasePlugin {
    *
    * @param deleteFromRow the row index from which to start deleting
    * @param deleteToRow the row index until which the deleting must continue
+   * @param the sheet from which to remove
    */
-  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number) {
+  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number, sheetID: string) {
     return this.processCellsToMove(
       ({ row }) => row >= deleteFromRow,
       ({ row }) => row > deleteToRow,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.id,
+          sheet: this.workbook.sheets[sheetID].id,
           col: cell.col,
           row: cell.row - (deleteToRow - deleteFromRow + 1),
           content: cell.content,
@@ -546,18 +548,19 @@ export class CorePlugin extends BasePlugin {
           style: cell.style,
           format: cell.format,
         };
-      }
+      },
+      sheetID
     );
   }
 
-  private moveCellsVertically(base: number, step: number) {
+  private moveCellsVertically(base: number, step: number, sheetID: string) {
     return this.processCellsToMove(
       (cell) => cell.row >= base,
       (cell) => cell.row !== base || step !== -1,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.workbook.activeSheet.id,
+          sheet: sheetID,
           col: cell.col,
           row: cell.row + step,
           content: cell.content,
@@ -565,18 +568,20 @@ export class CorePlugin extends BasePlugin {
           style: cell.style,
           format: cell.format,
         };
-      }
+      },
+      sheetID
     );
   }
 
-  private manageColumnsHeaders(base: number, step: number) {
+  private manageColumnsHeaders(base: number, step: number, sheetID: string) {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
-    for (let i in this.workbook.activeSheet.cols) {
+    const sheet = this.workbook.sheets[sheetID];
+    for (let i in sheet.cols) {
       if (parseInt(i, 10) === base) {
         if (step !== -1) {
-          const { size } = this.workbook.activeSheet.cols[colIndex];
+          const { size } = sheet.cols[colIndex];
           for (let a = 0; a < step; a++) {
             cols.push({
               name: numberToLetters(colIndex),
@@ -591,7 +596,7 @@ export class CorePlugin extends BasePlugin {
           continue;
         }
       }
-      const { size } = this.workbook.activeSheet.cols[i];
+      const { size } = sheet.cols[i];
       cols.push({
         name: numberToLetters(colIndex),
         size,
@@ -601,16 +606,17 @@ export class CorePlugin extends BasePlugin {
       start += size;
       colIndex++;
     }
-    this.history.updateState(["activeSheet", "cols"], cols);
+    this.history.updateState(["sheets", sheetID, "cols"], cols);
   }
 
-  private processRowsHeaderDelete(index: number) {
+  private processRowsHeaderDelete(index: number, sheetID: string) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
-    const cellsQueue = this.workbook.activeSheet.rows.map((row) => row.cells);
-    for (let i in this.workbook.activeSheet.rows) {
-      const row = this.workbook.activeSheet.rows[i];
+    const sheet = this.workbook.sheets[sheetID];
+    const cellsQueue = sheet.rows.map((row) => row.cells);
+    for (let i in sheet.rows) {
+      const row = sheet.rows[i];
       const { size } = row;
       if (parseInt(i, 10) === index) {
         continue;
@@ -625,7 +631,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateState(["activeSheet", "rows"], rows);
+    this.history.updateState(["sheets", sheetID, "rows"], rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -668,39 +674,48 @@ export class CorePlugin extends BasePlugin {
     this.history.updateState(path, newRows);
   }
 
-  private updateColumnsFormulas(base: number, step: number) {
-    return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      if (value.includes(":")) {
-        return this.updateColumnsRange(value, sheet, base, step);
+  private updateColumnsFormulas(base: number, step: number, sheetID: string) {
+    return this.visitFormulas(
+      this.workbook.sheets[sheetID].name,
+      (value: string, sheet: string | undefined): string => {
+        if (value.includes(":")) {
+          return this.updateColumnsRange(value, sheet, base, step);
+        }
+        return this.updateColumnsRef(value, sheet, base, step);
       }
-      return this.updateColumnsRef(value, sheet, base, step);
-    });
+    );
   }
 
-  private updateRowsFormulas(base: number, step: number) {
-    return this.visitFormulas((value: string, sheet: string | undefined): string => {
-      if (value.includes(":")) {
-        return this.updateRowsRange(value, sheet, base, step);
+  private updateRowsFormulas(base: number, step: number, sheetID: string) {
+    return this.visitFormulas(
+      this.workbook.sheets[sheetID].name,
+      (value: string, sheet: string | undefined): string => {
+        if (value.includes(":")) {
+          return this.updateRowsRange(value, sheet, base, step);
+        }
+        return this.updateRowsRef(value, sheet, base, step);
       }
-      return this.updateRowsRef(value, sheet, base, step);
-    });
+    );
   }
 
   private processCellsToMove(
     shouldDelete: (cell: Cell) => boolean,
     shouldAdd: (cell: Cell) => boolean,
-    buildCellToAdd: (cell: Cell) => Command
+    buildCellToAdd: (cell: Cell) => Command,
+    sheetId
   ) {
     const deleteCommands: Command[] = [];
     const addCommands: Command[] = [];
 
-    for (let xc in this.workbook.activeSheet.cells) {
-      let cell = this.workbook.activeSheet.cells[xc];
+    const sheet = this.workbook.sheets[sheetId];
+
+    for (let xc in sheet.cells) {
+      let cell = sheet.cells[xc];
       if (shouldDelete(cell)) {
         const [col, row] = toCartesian(xc);
         deleteCommands.push({
           type: "CLEAR_CELL",
-          sheet: this.workbook.activeSheet.id,
+          sheet: sheet.id,
           col,
           row,
         });
@@ -1061,8 +1076,11 @@ export class CorePlugin extends BasePlugin {
    * contains a formula
    * @param cb Update formula function to apply
    */
-  private visitFormulas(cb: (value: string, sheet: string | undefined) => string) {
-    const { sheets, activeSheet } = this.workbook;
+  private visitFormulas(
+    sheetNameToFind: string,
+    cb: (value: string, sheet: string | undefined) => string
+  ) {
+    const { sheets } = this.workbook;
     for (let sheetId in sheets) {
       const sheet = sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
@@ -1073,10 +1091,10 @@ export class CorePlugin extends BasePlugin {
                 let [value, sheetRef] = t.value.split("!").reverse();
                 if (sheetRef) {
                   sheetRef = sanitizeSheet(sheetRef);
-                  if (sheetRef === activeSheet.name) {
+                  if (sheetRef === sheetNameToFind) {
                     return cb(value, sheetRef);
                   }
-                } else if (activeSheet.id === sheet.id) {
+                } else if (this.sheetIds[sheetNameToFind] === sheet.id) {
                   return cb(value, undefined);
                 }
               }

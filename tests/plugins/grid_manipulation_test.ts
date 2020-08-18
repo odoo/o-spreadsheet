@@ -189,6 +189,34 @@ describe("Columns", () => {
       ]);
       expect(model["workbook"].activeSheet.colNumber).toBe(2);
     });
+    test("On delete cols in inactive sheet", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B2: { content: "B2 in sheet1" },
+            },
+          },
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B2: { content: "B2 in sheet2" },
+            },
+          },
+        ],
+      });
+      const [sheet1, sheet2] = model.getters.getSheets();
+      expect(sheet2).not.toBe(model.getters.getActiveSheet());
+      model.dispatch("REMOVE_COLUMNS", {
+        columns: [0],
+        sheet: sheet2.id,
+      });
+      expect(sheet1.cells.B2.content).toBe("B2 in sheet1");
+      expect(sheet2.cells.A2.content).toBe("B2 in sheet2");
+    });
     test("On addition before", () => {
       addColumns(1, "before", 2);
       const size = DEFAULT_CELL_WIDTH;
@@ -391,6 +419,43 @@ describe("Columns", () => {
         A3: { content: "=Sheet2!B1" },
       });
     });
+    test("delete col on inactive sheet", () => {
+      const model = new Model({
+        sheets: [
+          {
+            colNumber: 4,
+            rowNumber: 7,
+            cells: {
+              B2: { content: "=Sheet1!B3" },
+              C1: { content: "=Sheet2!B3" },
+            },
+          },
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              A2: { content: "=B2" },
+              B2: { content: "=Sheet1!B2" },
+              C2: { content: "=Sheet2!B2" },
+            },
+          },
+        ],
+      });
+      const [sheet1, sheet2] = model.getters.getSheets();
+      expect(sheet2.id).not.toBe(model.getters.getActiveSheet());
+      model.dispatch("REMOVE_COLUMNS", {
+        columns: [0],
+        sheet: sheet2.id,
+      });
+      expect(sheet1.cells).toMatchObject({
+        B2: { content: "=Sheet1!B3" },
+        C1: { content: "=Sheet2!A3" },
+      });
+      expect(sheet2.cells).toMatchObject({
+        A2: { content: "=Sheet1!B2" },
+        B2: { content: "=Sheet2!A2" },
+      });
+    });
     test("On first col deletion", () => {
       model = new Model({
         sheets: [
@@ -590,6 +655,34 @@ describe("Rows", () => {
         { start: 10, end: size + 10, size, name: "2", cells: {} },
       ]);
       expect(model["workbook"].activeSheet.rowNumber).toBe(2);
+    });
+    test("On delete row in inactive sheet", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B2: { content: "B2 in sheet1" },
+            },
+          },
+          {
+            colNumber: 3,
+            rowNumber: 3,
+            cells: {
+              B2: { content: "B2 in sheet2" },
+            },
+          },
+        ],
+      });
+      const [sheet1, sheet2] = model.getters.getSheets();
+      expect(sheet2).not.toBe(model.getters.getActiveSheet());
+      model.dispatch("REMOVE_ROWS", {
+        rows: [0],
+        sheet: sheet2.id,
+      });
+      expect(sheet1.cells.B2.content).toBe("B2 in sheet1");
+      expect(sheet2.cells.B1.content).toBe("B2 in sheet2");
     });
     test("On deletion batch", () => {
       model = new Model({
@@ -827,6 +920,44 @@ describe("Rows", () => {
         A1: { content: "=A2" },
         B1: { content: "=#REF" },
         C1: { content: "=Sheet2!A2" },
+      });
+    });
+    test("delete row on inactive sheet", () => {
+      const model = new Model({
+        sheets: [
+          {
+            colNumber: 4,
+            rowNumber: 7,
+            cells: {
+              B2: { content: "=Sheet1!A2" },
+              C1: { content: "=Sheet2!A2" },
+            },
+          },
+          {
+            colNumber: 3,
+            rowNumber: 2,
+            cells: {
+              A2: { content: "=B2" },
+              B2: { content: "=Sheet1!A2" },
+              C2: { content: "=Sheet2!A2" },
+            },
+          },
+        ],
+      });
+      const [sheet1, sheet2] = model.getters.getSheets();
+      expect(sheet2.id).not.toBe(model.getters.getActiveSheet()),
+        model.dispatch("REMOVE_ROWS", {
+          rows: [0],
+          sheet: sheet2.id,
+        });
+      expect(sheet1.cells).toMatchObject({
+        B2: { content: "=Sheet1!A2" },
+        C1: { content: "=Sheet2!A1" },
+      });
+      expect(sheet2.cells).toMatchObject({
+        A1: { content: "=B1" },
+        B1: { content: "=Sheet1!A2" },
+        C1: { content: "=Sheet2!A1" },
       });
     });
     test("On first row deletion", () => {
