@@ -496,16 +496,24 @@ export class RendererPlugin extends BasePlugin {
     for (let merge of this.getters.getMerges(activeSheet)) {
       if (overlap(merge, viewport)) {
         const refCell = cells[merge.topLeft];
+        const bottomRight = cells[toXC(merge.right, merge.bottom)];
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
-        if (refCell) {
+        if (refCell || bottomRight) {
           text = refCell ? this.getters.getCellText(refCell) : "";
-          textWidth = this.getters.getCellWidth(refCell);
-          style = this.getters.getCellStyle(refCell);
+          textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
+          style = refCell ? this.getters.getCellStyle(refCell) : null;
           align = text
             ? (style && style.align) || computeAlign(refCell, this.getters.shouldShowFormulas())
             : null;
-          border = this.getters.getCellBorder(refCell);
+          const borderTopLeft = refCell ? this.getters.getCellBorder(refCell) : null;
+          const borderBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
+          border = {
+            bottom: borderBottomRight ? borderBottomRight.bottom : null,
+            left: borderTopLeft ? borderTopLeft.left : null,
+            right: borderBottomRight ? borderBottomRight.right : null,
+            top: borderTopLeft ? borderTopLeft.top : null
+          }
         }
         style = style || {};
         // Small trick: the code that draw the background color skips the color

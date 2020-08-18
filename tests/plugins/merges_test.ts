@@ -1,6 +1,6 @@
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Style } from "../../src/types/index";
+import { Style, Border } from "../../src/types/index";
 import "../canvas.mock";
 import { getActiveXc, getCell, getMergeCellMap, getMerges } from "../helpers";
 
@@ -284,6 +284,45 @@ describe("merges", () => {
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
 
+  test("merging => setting border => unmerging", () => {
+    const model = new Model();
+    const sheet1 = model.getters.getVisibleSheets()[0];
+    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
+
+    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
+
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("SET_FORMATTING", {
+      sheetId: sheet1,
+      target: model.getters.getSelectedZones(),
+      border: "external",
+    });
+    const line = ["thin", "#000"];
+    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
+    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+
+    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
+    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+  });
+
+  test("setting border to topleft => merging => unmerging", () => {
+    const model = new Model();
+    const sheet1 = model.getters.getVisibleSheets()[0];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: sheet1,
+      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+      border: "external",
+    });
+    const line = ["thin", "#000"];
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
+    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
+    expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
+  });
+
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
     const model = new Model({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }],
@@ -359,4 +398,9 @@ describe("merges", () => {
 function getStyle(model: Model, xc: string): Style {
   const cell = getCell(model, xc)!;
   return cell && model.getters.getCellStyle(cell);
+}
+
+function getBorder(model: Model, xc: string): Border | null {
+  const cell = getCell(model, xc)!;
+  return cell && model.getters.getCellBorder(cell);
 }

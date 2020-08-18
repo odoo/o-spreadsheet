@@ -40,7 +40,6 @@ export const demoData = {
         C20: { content: "left", border: 1 },
         E20: { content: "top", border: 2 },
         G20: { content: "all", border: 3 },
-        K3: { border: 3 },
         B17: { content: "=WAIT(1000)" },
         G13: { content: "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16+A17+A18" },
         C23: { content: "0.43", format: "0.00%" },
@@ -82,6 +81,12 @@ export const demoData = {
         A33: { content: "Jessica Alcock (Jess)" },
         A34: { content: "Charlotte Anaya" },
         A35: { content: "Lauren Anthony" },
+        K3: { border: 5 },
+        K4: { border: 4 },
+        K5: { border: 4 },
+        K6: { border: 4 },
+        K7: { border: 4 },
+        K8: { border: 6 },
       },
       merges: ["H2:I5", "K3:K8"],
       conditionalFormats: [
@@ -111,7 +116,7 @@ export const demoData = {
       cells: {
         B2: { content: "42" },
       },
-      figures: [ {
+      figures: [{
         id: "someId",
         tag: "text",
         width: 300,
@@ -127,11 +132,11 @@ export const demoData = {
         x: 900,
         y: 200,
         data: "yip yip"
-      },{
+      }, {
         id: "1",
         tag: "chart",
         width: 400,
-        height:300,
+        height: 300,
         x: 450,
         y: 550,
         data: {
@@ -164,6 +169,17 @@ export const demoData = {
       bottom: ["thin", "#000"],
       right: ["thin", "#000"],
     },
+    4: { right: ["thin", "#000"], left: ["thin", "#000"] },
+    5: {
+      left: ["thin", "#000"],
+      right: ["thin", "#000"],
+      top: ["thin", "#000"]
+    },
+    6: {
+      left: ["thin", "#000"],
+      right: ["thin", "#000"],
+      bottom: ["thin", "#000"]
+    }
   },
 };
 
