@@ -455,7 +455,7 @@ export class FormattingPlugin extends BasePlugin {
    * - "0.00" (step = -1) --> "0.0"
    * - "0%" (step = -1) --> "0%"
    * - "#,##0.0" (step = -1) --> "#,##0"
-   * - "#,##0;0.0%;0.000" (step = -1) --> "#,##0.0;0.00%;0.0000"
+   * - "#,##0;0.0%;0.000" (step = 1) --> "#,##0.0;0.00%;0.0000"
    */
   private changeDecimalFormat(format: string, step: number): string {
     const sign = Math.sign(step);
