@@ -90,13 +90,26 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
 
   finalize() {
     if (this.current && this.current.length) {
-      this.undoStack.push(this.current);
+      if (!this.isActiveSheet()) {
+        // We do not want to save the ACTIVATE_SHEET command if triggered
+        // standalone
+        this.undoStack.push(this.current);
+      }
       this.redoStack = [];
       this.current = null;
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
       }
     }
+  }
+
+  isActiveSheet() {
+    return (
+      this.current &&
+      this.current.length === 1 &&
+      this.current[0].path.length === 1 &&
+      this.current[0].path[0] === "activeSheet"
+    );
   }
 
   undo() {

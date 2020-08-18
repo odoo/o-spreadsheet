@@ -113,4 +113,20 @@ describe("history", () => {
     });
     expect(getCell(model, "A1")!.value).toBe(10);
   });
+
+  test("ACTIVATE_SHEET standalone is not saved", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    model.dispatch("UNDO");
+    expect(model.getters.getActiveSheet()).toBe("42");
+  });
+
+  test("ACTIVATE_SHEET with another command is saved", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("UNDO");
+    expect(model.getters.getActiveSheet()).toBe(sheet);
+  });
 });
