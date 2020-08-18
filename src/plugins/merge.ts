@@ -245,6 +245,7 @@ export class MergePlugin extends BasePlugin {
         this.history.updateState(["sheets", sheetId, "mergeCellMap", xc], id);
       }
     }
+    this.applyBorderMerge(zone, sheetId);
     for (let m of previousMerges) {
       const { top, bottom, left, right } = sheet.merges[m];
       for (let r = top; r <= bottom; r++) {
@@ -261,6 +262,51 @@ export class MergePlugin extends BasePlugin {
         }
       }
       this.history.updateState(["sheets", sheetId, "merges", m], undefined);
+    }
+  }
+
+  private applyBorderMerge(zone: Zone, sheet: string) {
+    const { left, right, top, bottom } = zone;
+    const topLeft = this.getters.getCell(left, top);
+    const bottomRight = this.getters.getCell(right, bottom) || topLeft;
+    const bordersTopLeft = topLeft ? this.getters.getCellBorder(topLeft) : null;
+    const bordersBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
+    this.dispatch("SET_FORMATTING", {
+      sheet,
+      target: [{ left, right, top, bottom }],
+      border: "clear",
+    });
+    if (bordersBottomRight && bordersBottomRight.right) {
+      const zone = [{ left: right, right, top, bottom }];
+      this.dispatch("SET_FORMATTING", {
+        sheet,
+        target: zone,
+        border: "right",
+      });
+    }
+    if (bordersTopLeft && bordersTopLeft.left) {
+      const zone = [{ left, right: left, top, bottom }];
+      this.dispatch("SET_FORMATTING", {
+        sheet,
+        target: zone,
+        border: "left",
+      });
+    }
+    if (bordersTopLeft && bordersTopLeft.top) {
+      const zone = [{ left, right, top, bottom: top }];
+      this.dispatch("SET_FORMATTING", {
+        sheet,
+        target: zone,
+        border: "top",
+      });
+    }
+    if (bordersBottomRight && bordersBottomRight.bottom) {
+      const zone = [{ left, right, top: bottom, bottom }];
+      this.dispatch("SET_FORMATTING", {
+        sheet,
+        target: zone,
+        border: "bottom",
+      });
     }
   }
 
