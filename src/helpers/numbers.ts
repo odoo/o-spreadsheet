@@ -54,7 +54,7 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): st
     return "-" + formatDecimal(-n, decimals);
   }
   const maxDecimals = decimals >= maximumDecimalPlaces ? maximumDecimalPlaces : decimals;
-  let result = n.toLocaleString("fullwide", {
+  let result = n.toLocaleString("en-US", {
     minimumFractionDigits: maxDecimals,
     maximumFractionDigits: maxDecimals,
     useGrouping: false,
