@@ -73,6 +73,13 @@ export class ConditionalFormatPlugin extends BasePlugin {
         );
         this.isStale = true;
         break;
+      case "AUTOFILL_CELL":
+        const sheet = this.getters.getActiveSheet();
+        const cfOrigin = this.getRulesByCell(toXC(cmd.originCol, cmd.originRow));
+        for (const cf of cfOrigin) {
+          this.adaptRules(sheet, cf, [toXC(cmd.col, cmd.row)], []);
+        };
+        break;
       case "ADD_ROWS":
         const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
         this.adaptcfRules(cmd.sheet, (range: string) => updateAddRows(range, row, cmd.quantity));
@@ -151,17 +158,17 @@ export class ConditionalFormatPlugin extends BasePlugin {
     const ruleIds: Set<string> = new Set();
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const cellRulesId = this.getRulesByCell(toXC(col, row));
-        cellRulesId.forEach((ruleId) => {
-          ruleIds.add(ruleId);
+        const cellRules = this.getRulesByCell(toXC(col, row));
+        cellRules.forEach((rule) => {
+          ruleIds.add(rule.id);
         });
       }
     }
     return ruleIds;
   }
-  getRulesByCell(cellXc: string): Set<string> {
+  getRulesByCell(cellXc: string): Set<ConditionalFormat> {
     const currentSheet = this.workbook.activeSheet.id;
-    const rulesId: Set<string> = new Set();
+    const rulesId: Set<ConditionalFormat> = new Set();
     for (let cf of this.cfRules[currentSheet]) {
       for (let ref of cf.ranges) {
         const zone: Zone = toZone(ref);
@@ -169,7 +176,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
           for (let col = zone.left; col <= zone.right; col++) {
             let xc = toXC(col, row);
             if (cellXc == xc) {
-              rulesId.add(cf.id);
+              rulesId.add(cf);
             }
           }
         }

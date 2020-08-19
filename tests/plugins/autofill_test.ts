@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { AutofillPlugin } from "../../src/plugins/autofill";
+import { ConditionalFormat } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
@@ -123,6 +124,42 @@ describe("Autofill", () => {
     expect(cell.border).toBe(2);
     expect(cell.format).toBe("m/d/yyyy");
   });
+
+  test("Autofill add CF to target cell if present in origin cell", () => {
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheet: model.getters.getActiveSheet(),
+      content: "1"
+    });
+    autofill("A1", "A4");
+    const cf: ConditionalFormat = {
+      ranges: ["A1", "A2"],
+      id: "1",
+      rule: {
+        values: ["1"],
+        operator: "Equal",
+        type: "CellIsRule",
+        style: {
+          fillColor: "#FF0000",
+        },
+      },
+    };
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf,
+      sheet: model.getters.getActiveSheet(),
+    });
+    expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A3")).toBeFalsy();
+    expect(model.getters.getConditionalStyle("A4")).toBeFalsy();
+    autofill("A1:A4", "A8");
+    expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A6")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("A7")).toBeFalsy();
+    expect(model.getters.getConditionalStyle("A8")).toBeFalsy();
+  });
+
 
   describe("Autofill multiple values", () => {
     test("Autofill numbers", () => {
