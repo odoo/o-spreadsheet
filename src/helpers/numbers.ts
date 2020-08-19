@@ -40,12 +40,21 @@ export function parseNumber(str: string): number {
   return n;
 }
 
+const decimalStandardRepresentation = new Intl.NumberFormat("en-US", {
+  useGrouping: false,
+  maximumFractionDigits: 10,
+});
+
 export function formatStandardNumber(n: number): string {
   if (Number.isInteger(n)) {
     return n.toString();
   }
-  return n.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 10 });
+  return decimalStandardRepresentation.format(n);
 }
+
+// this is a cache than can contains decimal representation formats
+// from 0 (minimum) to 20 (maximum) digits after the decimal point
+let decimalRepresentations: Intl.NumberFormat[] = [];
 
 export const maximumDecimalPlaces = 20;
 
@@ -54,11 +63,17 @@ export function formatDecimal(n: number, decimals: number, sep: string = ""): st
     return "-" + formatDecimal(-n, decimals);
   }
   const maxDecimals = decimals >= maximumDecimalPlaces ? maximumDecimalPlaces : decimals;
-  let result = n.toLocaleString("en-US", {
-    minimumFractionDigits: maxDecimals,
-    maximumFractionDigits: maxDecimals,
-    useGrouping: false,
-  });
+
+  let formatter = decimalRepresentations[maxDecimals];
+  if (!formatter) {
+    formatter = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: maxDecimals,
+      maximumFractionDigits: maxDecimals,
+      useGrouping: false,
+    });
+    decimalRepresentations[maxDecimals] = formatter;
+  }
+  let result = formatter.format(n);
   if (sep) {
     let p: number = result.indexOf(".")!;
     result = result.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, (m, i) =>
