@@ -19,7 +19,6 @@ colMenuRegistry
     name: _lt("Paste"),
     sequence: 30,
     action: ACTIONS.PASTE_ACTION,
-    separator: true,
   })
   .add("paste_special", {
     name: _lt("Paste special"),
@@ -36,28 +35,29 @@ colMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
-  .add("conditional_formatting", {
-    name: _lt("Conditional formatting"),
-    sequence: 50,
-    action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
-  })
-  .add("delete_column", {
-    name: ACTIONS.REMOVE_COLUMNS_NAME,
-    sequence: 60,
-    action: ACTIONS.REMOVE_COLUMNS_ACTION,
-  })
-  .add("clear_column", {
-    name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
-    sequence: 70,
-    action: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
-  })
   .add("add_column_before", {
     name: ACTIONS.COLUMN_INSERT_COLUMNS_BEFORE_NAME,
-    sequence: 80,
+    sequence: 50,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
   })
   .add("add_column_after", {
     name: ACTIONS.COLUMN_INSERT_COLUMNS_AFTER_NAME,
-    sequence: 90,
+    sequence: 60,
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
+  })
+  .add("delete_column", {
+    name: ACTIONS.REMOVE_COLUMNS_NAME,
+    sequence: 70,
+    action: ACTIONS.REMOVE_COLUMNS_ACTION,
+  })
+  .add("clear_column", {
+    name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
+    sequence: 80,
+    action: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
+    separator: true,
+  })
+  .add("conditional_formatting", {
+    name: _lt("Conditional formatting"),
+    sequence: 90,
+    action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
   });
