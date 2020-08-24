@@ -88,8 +88,11 @@ export interface Getters {
   isIdle: EvaluationPlugin["isIdle"];
 
   getEditionMode: EditionPlugin["getEditionMode"];
+  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
   getEditionSheet: EditionPlugin["getEditionSheet"];
+  getComposerSelection: EditionPlugin["getComposerSelection"];
+  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
 
   getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
 

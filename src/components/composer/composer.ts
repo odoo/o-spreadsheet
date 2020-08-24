@@ -4,7 +4,7 @@ import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
-import { colors, DEBUG, getComposerSheetName } from "../../helpers/index";
+import { zoneToXc, DEBUG } from "../../helpers/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -89,8 +89,6 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   zone: Zone;
   rect: Rect;
 
-  selectionEnd: number = 0;
-  selectionStart: number = 0;
   contentHelper: ContentEditableHelper;
 
   autoCompleteState = useState({
@@ -98,14 +96,12 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     provider: "functions",
     search: "",
   });
-  tokenAtCursor: EnrichedToken | void = undefined;
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
   shouldProcessInputEvents: boolean = false;
   // a composer edits a single cell. After that, it is done and should not
   // modify the model anymore.
   isDone: boolean = false;
-  refSelectionStart: number = 0;
   tokens: EnrichedToken[] = [];
 
   keyMapping: { [key: string]: Function } = {
@@ -150,6 +146,14 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     this.trigger("composer-unmounted");
   }
 
+  async willUpdateProps() {
+    this.processContent();
+  }
+
+  patched() {
+    this.resize();
+  }
+
   get containerStyle() {
     const style = this.getters.getCurrentStyle();
     const [x, y, , height] = this.rect;
@@ -176,8 +180,8 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  processArrowKeys(ev: KeyboardEvent) {
-    if (this.getters.getEditionMode() === "selecting") {
+  private processArrowKeys(ev: KeyboardEvent) {
+    if (this.getters.isSelectingForComposer()) {
       ev.preventDefault();
       return;
     }
@@ -197,7 +201,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     }
   }
 
-  processTabKey(ev: KeyboardEvent) {
+  private processTabKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
     const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
@@ -219,7 +223,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     this.dispatch("MOVE_POSITION", { deltaX, deltaY: 0 });
   }
 
-  processEnterKey(ev: KeyboardEvent) {
+  private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
     const autoCompleteComp = this.autoCompleteRef.comp as TextValueProvider;
@@ -238,7 +242,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     this.isDone = true;
   }
 
-  processEscapeKey() {
+  private processEscapeKey() {
     this.dispatch("STOP_EDITION", { cancel: true });
     this.isDone = true;
   }
@@ -259,11 +263,12 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       return;
     }
     const el = this.composerRef.el! as HTMLInputElement;
-    if (el.clientWidth !== el.scrollWidth) {
-      el.style.width = (el.scrollWidth + 20) as any;
-    }
+    this.resize();
     const content = el.childNodes.length ? el.textContent! : "";
-    this.dispatch("SET_CURRENT_CONTENT", { content });
+    this.dispatch("SET_CURRENT_CONTENT", {
+      content,
+      selection: this.contentHelper.getCurrentSelection(),
+    });
   }
 
   onKeyup(ev: KeyboardEvent) {
@@ -294,14 +299,13 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.showProvider = true;
     } else {
-      this.processContent();
       this.processTokenAtCursor();
     }
   }
 
   onClick(ev: MouseEvent) {
     ev.stopPropagation();
-    this.processContent();
+    this.saveSelection();
     this.processTokenAtCursor();
   }
   onCompleted(ev: CustomEvent) {
@@ -312,27 +316,16 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   // Private
   // ---------------------------------------------------------------------------
 
-  processContent() {
+  private processContent() {
     this.shouldProcessInputEvents = false;
     let value = this.getters.getCurrentContent();
-    this.tokenAtCursor = undefined;
     if (value.startsWith("=")) {
-      this.saveSelection();
       this.contentHelper.removeAll(); // remove the content of the composer, to be added just after
       this.contentHelper.selectRange(0, 0); // move the cursor inside the composer at 0 0.
-      this.dispatch("REMOVE_ALL_HIGHLIGHTS"); //cleanup highlights for references
-
-      const refUsed = {};
-      let lastUsedColorIndex = 0;
 
       this.tokens = composerTokenize(value);
-      if (this.selectionStart === this.selectionEnd && this.selectionEnd === 0) {
-        this.tokenAtCursor = undefined;
-      } else {
-        this.tokenAtCursor = this.tokens.find(
-          (t) => t.start <= this.selectionStart! && t.end >= this.selectionEnd!
-        );
-      }
+      const { start, end } = this.getters.getComposerSelection();
+      const tokenAtCursor = this.getters.getTokenAtCursor();
       for (let token of this.tokens) {
         switch (token.type) {
           case "OPERATOR":
@@ -344,21 +337,9 @@ export class Composer extends Component<any, SpreadsheetEnv> {
             break;
           case "SYMBOL":
             let value = token.value;
-            const [xc, sheet] = value.split("!").reverse();
+            const [xc, sheet] = value.split("!").reverse() as [string, string | undefined];
             if (rangeReference.test(xc)) {
-              const refSanitized =
-                getComposerSheetName(
-                  sheet
-                    ? `${sheet}`
-                    : `${this.getters.getSheetName(this.getters.getEditionSheet())}`
-                ) +
-                "!" +
-                xc.replace(/\$/g, "");
-              if (!refUsed[refSanitized]) {
-                refUsed[refSanitized] = colors[lastUsedColorIndex];
-                lastUsedColorIndex = ++lastUsedColorIndex % colors.length;
-              }
-              this.contentHelper.insertText(value, refUsed[refSanitized]);
+              this.contentHelper.insertText(value, this.rangeColor(xc, sheet));
             } else {
               this.contentHelper.insertText(value);
             }
@@ -367,10 +348,10 @@ export class Composer extends Component<any, SpreadsheetEnv> {
           case "RIGHT_PAREN":
             // Compute the matching parenthesis
             if (
-              this.tokenAtCursor &&
-              ["LEFT_PAREN", "RIGHT_PAREN"].includes(this.tokenAtCursor.type) &&
-              this.tokenAtCursor.parenIndex &&
-              this.tokenAtCursor.parenIndex === token.parenIndex
+              tokenAtCursor &&
+              ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
+              tokenAtCursor.parenIndex &&
+              tokenAtCursor.parenIndex === token.parenIndex
             ) {
               this.contentHelper.insertText(token.value, MatchingParenColor);
             } else {
@@ -384,12 +365,28 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       }
 
       // Put the cursor back where it was
-      this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
-      if (Object.keys(refUsed).length) {
-        this.dispatch("ADD_HIGHLIGHTS", { ranges: refUsed });
-      }
+      this.contentHelper.selectRange(start, end);
     }
     this.shouldProcessInputEvents = true;
+  }
+
+  private resize() {
+    const el = this.composerRef.el! as HTMLInputElement;
+    if (el.clientWidth !== el.scrollWidth) {
+      el.style.width = (el.scrollWidth + 20) as any;
+    }
+  }
+
+  private rangeColor(xc: string, sheetName?: string): string | undefined {
+    const highlights = this.getters.getHighlights();
+    const refSheet = sheetName
+      ? this.getters.getSheetIdByName(sheetName)
+      : this.getters.getEditionSheet();
+    const highlight = highlights.find(
+      (highlight) =>
+        zoneToXc(highlight.zone) == xc.replace(/\$/g, "") && highlight.sheet === refSheet
+    );
+    return highlight && highlight.color ? highlight.color : undefined;
   }
 
   /**
@@ -397,60 +394,38 @@ export class Composer extends Component<any, SpreadsheetEnv> {
    * If the token is a bool, function or symbol we have to initialize the autocomplete engine.
    * If it's a comma, left_paren or operator we have to initialize the range selection.
    */
-  processTokenAtCursor() {
-    if (!this.tokenAtCursor) {
+  private processTokenAtCursor() {
+    const tokenAtCursor = this.getters.getTokenAtCursor();
+    if (!tokenAtCursor) {
       return;
     }
-    if (["BOOLEAN", "FUNCTION", "SYMBOL"].includes(this.tokenAtCursor.type)) {
-      if (this.tokenAtCursor.value.length > 0) {
-        this.autoCompleteState.search = this.tokenAtCursor.value;
+    if (["BOOLEAN", "FUNCTION", "SYMBOL"].includes(tokenAtCursor.type)) {
+      if (tokenAtCursor.value.length > 0) {
+        this.autoCompleteState.search = tokenAtCursor.value;
         this.autoCompleteState.showProvider = true;
       }
-    } else if (["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(this.tokenAtCursor.type)) {
+    } else if (["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(tokenAtCursor.type)) {
       // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
       // is relative the to the cell we edit
       this.dispatch("START_COMPOSER_SELECTION");
-      // We set this variable to store the start of the selection, to allow
-      // to replace selections (ex: select twice a cell should only be added
-      // once)
-      this.refSelectionStart = this.selectionStart;
     }
   }
 
-  addText(text: string) {
-    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
-    this.contentHelper.insertText(text);
-    this.selectionStart = this.selectionEnd = this.selectionStart + text.length;
-    this.contentHelper.selectRange(this.selectionStart, this.selectionEnd);
-  }
-
-  addTextFromSelection() {
-    const zone = this.getters.getSelectedZones()[0];
-    let selection = this.getters.zoneToXC(zone);
-    if (this.refSelectionStart) {
-      this.selectionStart = this.refSelectionStart;
-    }
-    if (this.getters.getEditionSheet() !== this.getters.getActiveSheet()) {
-      const sheetName = getComposerSheetName(
-        this.getters.getSheetName(this.getters.getActiveSheet())!
-      );
-      selection = `${sheetName}!${selection}`;
-    }
-    this.addText(selection);
-    this.processContent();
-  }
-
-  autoComplete(value: string) {
-    this.saveSelection();
+  private autoComplete(value: string) {
     if (value) {
-      if (this.tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(this.tokenAtCursor.type)) {
-        this.selectionStart = this.tokenAtCursor.start;
-        this.selectionEnd = this.tokenAtCursor.end;
+      const tokenAtCursor = this.getters.getTokenAtCursor();
+      if (tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(tokenAtCursor.type)) {
+        const start = tokenAtCursor.start;
+        const end = tokenAtCursor.end;
+        this.dispatch("CHANGE_COMPOSER_SELECTION", {
+          start,
+          end,
+        });
       }
 
       if (this.autoCompleteState.provider === "functions") {
-        if (this.tokens.length && this.tokenAtCursor) {
-          const currentTokenIndex = this.tokens.indexOf(this.tokenAtCursor);
+        if (this.tokens.length && tokenAtCursor) {
+          const currentTokenIndex = this.tokens.indexOf(tokenAtCursor);
           if (currentTokenIndex + 1 < this.tokens.length) {
             const nextToken = this.tokens[currentTokenIndex + 1];
             if (nextToken.type !== "LEFT_PAREN") {
@@ -461,20 +436,23 @@ export class Composer extends Component<any, SpreadsheetEnv> {
           }
         }
       }
-      this.addText(value);
+      this.dispatch("REPLACE_COMPOSER_SELECTION", {
+        text: value,
+      });
     }
     this.autoCompleteState.search = "";
     this.autoCompleteState.showProvider = false;
-    this.processContent();
     this.processTokenAtCursor();
   }
 
   /**
    * Save the current selection
    */
-  saveSelection() {
-    const selection = this.contentHelper.getCurrentSelection();
-    this.selectionStart = selection.start;
-    this.selectionEnd = selection.end;
+  private saveSelection() {
+    const { start, end } = this.contentHelper.getCurrentSelection();
+    this.dispatch("CHANGE_COMPOSER_SELECTION", {
+      start,
+      end,
+    });
   }
 }

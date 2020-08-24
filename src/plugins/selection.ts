@@ -270,7 +270,7 @@ export class SelectionPlugin extends BasePlugin {
    * Return [col, row]
    */
   private getReferenceCoords(): [number, number] {
-    const isSelectingRange = this.getters.getEditionMode() === "selecting";
+    const isSelectingRange = this.getters.isSelectingForComposer();
     return isSelectingRange ? this.selection.anchor : [this.activeCol, this.activeRow];
   }
 
@@ -332,7 +332,7 @@ export class SelectionPlugin extends BasePlugin {
       this.selection.zones = [zone];
     }
     this.selection.anchor = [col, row];
-    if (this.getters.getEditionMode() !== "selecting") {
+    if (!this.getters.isSelectingForComposer()) {
       this.activeCol = col;
       this.activeRow = row;
       this.activeXc = xc;

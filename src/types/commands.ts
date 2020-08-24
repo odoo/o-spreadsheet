@@ -1,6 +1,7 @@
 import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
 import { Cell } from "./misc";
 import { Figure } from "./workbook_data";
+import { ComposerSelection } from "../plugins/edition";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -421,6 +422,18 @@ export interface StopEditionCommand extends BaseCommand {
 export interface SetCurrentContentCommand extends BaseCommand {
   type: "SET_CURRENT_CONTENT";
   content: string;
+  selection?: ComposerSelection;
+}
+
+export interface ChangeComposerSelectionCommand extends BaseCommand {
+  type: "CHANGE_COMPOSER_SELECTION";
+  start: number;
+  end: number;
+}
+
+export interface ReplaceComposerSelectionCommand extends BaseCommand {
+  type: "REPLACE_COMPOSER_SELECTION";
+  text: string;
 }
 
 export interface SetValueCommand extends BaseCommand {
@@ -641,6 +654,8 @@ export type Command =
   | AddMergeCommand
   | RemoveMergeCommand
   | SetCurrentContentCommand
+  | ChangeComposerSelectionCommand
+  | ReplaceComposerSelectionCommand
   | SetValueCommand
   | AddFormattingCommand
   | ClearFormattingCommand
@@ -692,6 +707,7 @@ export const enum CancelledReason {
   MaximumRangesReached,
   InvalidChartDefinition,
   InvalidAutofillSelection,
+  WrongComposerSelection,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

@@ -7,7 +7,10 @@ export class ContentEditableHelper {
   el: HTMLElement | null = null;
   manualRange: boolean = false;
 
-  constructor() {}
+  constructor() {
+    // @ts-ignore
+    window.mockContentHelper = this;
+  }
 
   updateEl(el: HTMLElement) {
     this.el = el;
@@ -29,7 +32,7 @@ export class ContentEditableHelper {
     this.currentState.cursorStart = text.length - 1;
     this.currentState.cursorEnd = text.length - 1;
   }
-  insertText(value, color) {
+  insertText(value, color: string = "#000") {
     const text = this.el!.textContent!;
 
     if (this.manualRange) {
