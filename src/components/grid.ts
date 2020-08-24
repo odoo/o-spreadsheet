@@ -175,7 +175,7 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
     <t t-if="getters.getEditionMode() !== 'inactive'">
-      <Composer t-ref="composer" t-on-composer-unmounted="focus" viewport="snappedViewport"/>
+      <Composer t-on-composer-unmounted="focus" viewport="snappedViewport"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -265,8 +265,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     menuItems: [],
   });
 
-  private composer = useRef("composer");
-
   private vScrollbarRef = useRef("vscrollbar");
   private hScrollbarRef = useRef("hscrollbar");
   private vScrollbar: ScrollBar;
@@ -348,7 +346,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.drawGrid();
   }
   focus() {
-    if (this.getters.getEditionMode() !== "selecting" && !this.getters.getSelectedFigureId()) {
+    if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
       this.canvas.el!.focus();
     }
   }
@@ -494,11 +492,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
-      if (this.getters.getEditionMode() === "selecting") {
-        if (this.composer.comp) {
-          (this.composer.comp as Composer).addTextFromSelection();
-        }
-      }
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
       if (this.getters.isPaintingFormat()) {
         this.dispatch("PASTE", {
@@ -542,9 +535,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.dispatch("MOVE_POSITION", { deltaX: delta[0], deltaY: delta[1] });
     }
 
-    if (this.getters.getEditionMode() === "selecting" && this.composer.comp) {
-      (this.composer.comp as Composer).addTextFromSelection();
-    } else if (this.getters.isPaintingFormat()) {
+    if (this.getters.isPaintingFormat()) {
       this.dispatch("PASTE", {
         target: this.getters.getSelectedZones(),
       });

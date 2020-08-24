@@ -23,8 +23,9 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
     await startComposition();
   }
-  composerEl.append(text);
-  composerEl.dispatchEvent(new Event("input"));
+  // @ts-ignore
+  const cehMock = window.mockContentHelper as ContentEditableHelper;
+  cehMock.insertText(text);
   composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
   await nextTick();
 }
@@ -62,7 +63,8 @@ describe("ranges and highlights", () => {
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("=C8");
     expect(
-      (parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper).colors["C8"]
+      // @ts-ignore
+      (window.mockContentHelper as ContentEditableHelper).colors["C8"]
     ).toBe(colors[0]);
   });
 
@@ -74,7 +76,8 @@ describe("ranges and highlights", () => {
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("=B8:C8");
     expect(
-      (parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper).colors["B8:C8"]
+      // @ts-ignore
+      (window.mockContentHelper as ContentEditableHelper).colors["B8:C8"]
     ).toBe(colors[0]);
   });
 
@@ -82,6 +85,17 @@ describe("ranges and highlights", () => {
     await typeInComposer("=");
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=A2");
+  });
+
+  test("reference position is reset at each selection", async () => {
+    await typeInComposer("=");
+    await keydown("ArrowDown");
+    expect(model.getters.getCurrentContent()).toBe("=A2");
+    await typeInComposer("+", false);
+    expect(model.getters.getCurrentContent()).toBe("=A2+");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    await keydown("ArrowDown");
+    expect(model.getters.getCurrentContent()).toBe("=A2+A2");
   });
 
   test("=Key DOWN+DOWN in A1, should select and highlight A3", async () => {
@@ -184,7 +198,8 @@ describe("composer", () => {
   test("type '=', backspace and select a cell should not add it", async () => {
     await typeInComposer("=");
     model.dispatch("SET_CURRENT_CONTENT", { content: "" });
-    const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
+    // @ts-ignore
+    const cehMock = window.mockContentHelper as ContentEditableHelper;
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("keyup"));
     triggerMouseEvent("canvas", "mousedown", 300, 200);

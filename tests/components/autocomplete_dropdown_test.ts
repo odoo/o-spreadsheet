@@ -244,7 +244,8 @@ describe("Autocomplete parenthesis", () => {
     //edit A1
     model.dispatch("START_EDITION");
     await nextTick();
-    const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
+    // @ts-ignore
+    const cehMock = window.mockContentHelper as ContentEditableHelper;
     // select SUM
     cehMock.selectRange(1, 4);
     // replace SUM with if

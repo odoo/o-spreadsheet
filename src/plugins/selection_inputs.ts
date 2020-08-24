@@ -199,7 +199,7 @@ export class SelectionInputPlugin extends BasePlugin {
     if (
       this.focusedInput === null ||
       this.focusedRange === null ||
-      this.getters.getEditionMode() === "selecting" ||
+      this.getters.isSelectingForComposer() ||
       newHighlights.length === 0
     ) {
       return;
