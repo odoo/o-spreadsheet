@@ -11,4 +11,4 @@ export { tokenize, Token } from "./tokenizer";
 export { composerTokenize } from "./composer_tokenizer";
 export { rangeTokenize, EnrichedToken } from "./range_tokenizer";
 export { parse, rangeReference } from "./parser";
-export { compile, AsyncFunction } from "./compiler";
+export { compile } from "./compiler";

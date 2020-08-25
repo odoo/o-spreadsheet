@@ -78,7 +78,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
         const cfOrigin = this.getRulesByCell(toXC(cmd.originCol, cmd.originRow));
         for (const cf of cfOrigin) {
           this.adaptRules(sheet, cf, [toXC(cmd.col, cmd.row)], []);
-        };
+        }
         break;
       case "ADD_ROWS":
         const row = cmd.position === "before" ? cmd.row : cmd.row + 1;

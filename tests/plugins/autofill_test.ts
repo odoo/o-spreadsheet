@@ -130,7 +130,7 @@ describe("Autofill", () => {
       col: 0,
       row: 0,
       sheet: model.getters.getActiveSheet(),
-      content: "1"
+      content: "1",
     });
     autofill("A1", "A4");
     const cf: ConditionalFormat = {
@@ -159,7 +159,6 @@ describe("Autofill", () => {
     expect(model.getters.getConditionalStyle("A7")).toBeFalsy();
     expect(model.getters.getConditionalStyle("A8")).toBeFalsy();
   });
-
 
   describe("Autofill multiple values", () => {
     test("Autofill numbers", () => {
