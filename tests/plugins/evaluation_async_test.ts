@@ -9,7 +9,7 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A3", text: "= WAIT(1) + 1" });
 
-    expect(model["workbook"].activeSheet.cells["A1"].async).toBeUndefined();
+    expect(model["workbook"].activeSheet.cells["A1"].async).toBe(false);
     expect(model["workbook"].activeSheet.cells["A2"].async).toBe(true);
     expect(model["workbook"].activeSheet.cells["A3"].async).toBe(true);
     expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
@@ -73,7 +73,7 @@ describe("evaluateCells, async formulas", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=1 + A1" });
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBeUndefined();
+    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(false);
     expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(LOADING);
     expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
     expect(patch.calls.length).toBe(1);
@@ -90,7 +90,7 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(1)" });
     model.dispatch("SET_VALUE", { xc: "A3", text: "=A1 + A2" });
 
-    expect(model["workbook"].activeSheet.cells["A3"].async).toBeUndefined();
+    expect(model["workbook"].activeSheet.cells["A3"].async).toBe(false);
     expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(LOADING);
     expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
     expect(model["workbook"].activeSheet.cells["A3"].value).toEqual(LOADING);
@@ -164,7 +164,7 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=A1 + 1/0" });
 
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(undefined);
+    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(false);
     expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
 
     await waitForRecompute();

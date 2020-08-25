@@ -25,10 +25,17 @@ const UNARY_OPERATOR_MAP = {
   "+": "UPLUS",
 };
 
+// this cache contains all compiled function code, grouped by "structure". For
+// example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
+// structural function.
+//
+// It is only exported for testing purposes
+export const functionCache: { [key: string]: CompiledFormula } = {};
+
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
-export const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export function compile(
   str: string,
@@ -39,6 +46,9 @@ export function compile(
   let nextId = 1;
   const code = [`// ${str}`];
   let isAsync = false;
+  let cacheKey = "";
+  let cellRefs: [string, string][] = [];
+  let rangeRefs: [string, string, string][] = [];
 
   if (ast.type === "BIN_OPERATION" && ast.value === ":") {
     throw new Error(_lt("Invalid formula"));
@@ -97,9 +107,14 @@ export function compile(
     }
     return result;
   }
+
   function compileAST(ast: AST): any {
     let id, left, right, args, fnName;
+    if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
+      cacheKey += "_" + ast.value;
+    }
     if (ast.debug) {
+      cacheKey += "?";
       code.push("debugger;");
     }
     switch (ast.type) {
@@ -108,9 +123,11 @@ export function compile(
       case "STRING":
         return ast.value;
       case "REFERENCE":
+        cacheKey += "__REF";
         id = nextId++;
         const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
-        code.push(`let _${id} = cell('${ast.value}', \`${sheetId}\`)`);
+        const refIdx = cellRefs.push([ast.value, sheetId]) - 1;
+        code.push(`let _${id} = cell(${refIdx})`);
         break;
       case "FUNCALL":
         id = nextId++;
@@ -137,11 +154,11 @@ export function compile(
       case "BIN_OPERATION":
         id = nextId++;
         if (ast.value === ":") {
+          cacheKey += "__RANGE";
           const sheetName = ast.left.type === "REFERENCE" && ast.left.sheet;
           const sheetId = sheetName ? sheets[sheetName] : sheet;
-          code.push(
-            `let _${id} = range('${ast.left.value}', '${ast.right.value}', \`${sheetId}\`);`
-          );
+          const rangeIdx = rangeRefs.push([ast.left.value, ast.right.value, sheetId]) - 1;
+          code.push(`let _${id} = range(${rangeIdx});`);
         } else {
           left = compileAST(ast.left);
           right = compileAST(ast.right);
@@ -157,6 +174,23 @@ export function compile(
   }
 
   code.push(`return ${compileAST(ast)};`);
-  const Constructor = isAsync ? AsyncFunction : Function;
-  return new Constructor("cell", "range", "ctx", code.join("\n"));
+  let baseFunction = functionCache[cacheKey];
+  if (!baseFunction) {
+    const Constructor = isAsync ? AsyncFunction : Function;
+    baseFunction = new Constructor("cell", "range", "ctx", code.join("\n"));
+    functionCache[cacheKey] = baseFunction;
+  }
+  const resultFn = (cell, range, ctx) => {
+    const cellFn = (idx) => {
+      const [xc, sheetId] = cellRefs[idx];
+      return cell(xc, sheetId);
+    };
+    const rangeFn = (idx) => {
+      const [xc1, xc2, sheetId] = rangeRefs[idx];
+      return range(xc1, xc2, sheetId);
+    };
+    return baseFunction(cellFn, rangeFn, ctx);
+  };
+  resultFn.async = isAsync;
+  return resultFn;
 }

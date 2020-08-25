@@ -1,8 +1,8 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
-import { AsyncFunction, compile, rangeTokenize } from "../formulas/index";
+import { compile, rangeTokenize } from "../formulas/index";
 import { cellReference } from "../formulas/parser";
+import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
@@ -13,21 +13,21 @@ import {
   toCartesian,
   toXC,
 } from "../helpers/index";
+import { _lt } from "../translation";
 import {
+  CancelledReason,
   Cell,
   CellData,
   Col,
   Command,
+  CommandResult,
   HeaderData,
   Row,
   Sheet,
   SheetData,
   WorkbookData,
   Zone,
-  CommandResult,
-  CancelledReason,
 } from "../types/index";
-import { _lt } from "../translation";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -802,10 +802,7 @@ export class CorePlugin extends BasePlugin {
         cell.error = undefined;
         try {
           cell.formula = compile(content, sheet, this.sheetIds);
-
-          if (cell.formula instanceof AsyncFunction) {
-            cell.async = true;
-          }
+          cell.async = cell.formula.async;
         } catch (e) {
           cell.value = "#BAD_EXPR";
           cell.error = _lt("Invalid Expression");

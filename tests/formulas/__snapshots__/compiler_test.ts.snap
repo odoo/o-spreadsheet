@@ -14,7 +14,7 @@ exports[`expression compiler cells are converted to ranges if function require a
 "function anonymous(cell,range,ctx
 ) {
 // =sum(A1)
-let _2 = cell('A1', \`Sheet1\`)
+let _2 = cell(0)
 ctx.__lastFnCalled = 'SUM'
 let _1 = ctx['SUM']([[_2]])
 return _1;
@@ -25,11 +25,11 @@ exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(cell,range,ctx
 ) {
 // =$A1+$A$2+A$3
-let _3 = cell('A1', \`Sheet1\`)
-let _4 = cell('A2', \`Sheet1\`)
+let _3 = cell(0)
+let _4 = cell(1)
 ctx.__lastFnCalled = 'ADD'
 let _2 = ctx['ADD'](_3, _4)
-let _5 = cell('A3', \`Sheet1\`)
+let _5 = cell(2)
 ctx.__lastFnCalled = 'ADD'
 let _1 = ctx['ADD'](_2, _5)
 return _1;
@@ -40,7 +40,7 @@ exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(cell,range,ctx
 ) {
 // =Sheet34!B3
-let _1 = cell('B3', \`322\`)
+let _1 = cell(0)
 return _1;
 }"
 `;
@@ -50,7 +50,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 ) {
 // =? A1 / 2
 debugger;
-let _2 = cell('A1', \`Sheet1\`)
+let _2 = cell(0)
 ctx.__lastFnCalled = 'DIVIDE'
 let _1 = ctx['DIVIDE'](_2, 2)
 return _1;
@@ -91,8 +91,8 @@ exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(cell,range,ctx
 ) {
 // =A1 + sum(A2:C3)
-let _2 = cell('A1', \`Sheet1\`)
-let _4 = range('A2', 'C3', \`Sheet1\`);
+let _2 = cell(0)
+let _4 = range(0);
 ctx.__lastFnCalled = 'SUM'
 let _3 = ctx['SUM'](_4)
 ctx.__lastFnCalled = 'ADD'
