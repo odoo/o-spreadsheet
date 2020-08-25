@@ -33,6 +33,12 @@ describe("expression compiler", () => {
     expect(compiledBaseFunction("=sum(1,,2)")).toMatchSnapshot();
   });
 
+  test("function call (with lazy parameters)", () => {
+    expect(compiledBaseFunction("=IF(TRUE, 42, 24)")).toMatchSnapshot();
+    expect(compiledBaseFunction("=IF(TRUE, A2, 1/0)")).toMatchSnapshot();
+    expect(compiledBaseFunction("=IF(TRUE, IF(TRUE, A2, SQRT(-1)), 1/0)")).toMatchSnapshot();
+  });
+
   test("read some values and functions", () => {
     expect(compiledBaseFunction("=A1 + sum(A2:C3)")).toMatchSnapshot();
   });
