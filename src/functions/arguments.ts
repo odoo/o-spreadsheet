@@ -42,6 +42,7 @@ function makeArg(str: string): Arg {
   let types: ArgType[] = [];
   let isOptional = false;
   let isRepeating = false;
+  let isLazy = false;
   let defaultVal;
 
   for (let param of parts[2].split(",")) {
@@ -55,6 +56,8 @@ function makeArg(str: string): Arg {
       isOptional = true;
     } else if (key === "REPEATING") {
       isRepeating = true;
+    } else if (key === "LAZY") {
+      isLazy = true;
     } else if (key.startsWith("DEFAULT=")) {
       const value = param.trim().slice(8);
       defaultVal = value[0] === '"' ? value.slice(1, -1) : parseFloat(value);
@@ -71,6 +74,9 @@ function makeArg(str: string): Arg {
   }
   if (isRepeating) {
     result.repeating = true;
+  }
+  if (isLazy) {
+    result.lazy = true;
   }
   if (defaultVal !== undefined) {
     result.default = defaultVal;

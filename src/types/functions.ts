@@ -12,6 +12,7 @@ export type ArgType =
 export interface Arg {
   repeating?: boolean;
   optional?: boolean;
+  lazy?: boolean;
   description: string;
   name: string;
   type: ArgType[];

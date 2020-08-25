@@ -73,8 +73,9 @@ export function compile(
 
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      let argValue = compileAST(arg);
       argDescr = fn.args[i] || argDescr!;
+      const isLazy = argDescr && argDescr.lazy;
+      let argValue = compileAST(arg, isLazy);
       if (arg.type === "REFERENCE") {
         const types = argDescr.type;
         const hasRange = types.find(
@@ -88,7 +89,7 @@ export function compile(
           argValue = `[[${argValue}]]`;
         }
       }
-      result.push(argValue === "" ? `""` : argValue);
+      result.push(argValue);
     }
     const isRepeating = fn.args.length ? fn.args[fn.args.length - 1].repeating : false;
     let minArg = 0;
@@ -107,9 +108,8 @@ export function compile(
     }
     return result;
   }
-
-  function compileAST(ast: AST): any {
-    let id, left, right, args, fnName;
+  function compileAST(ast: AST, isLazy = false): any {
+    let id, left, right, args, fnName, statement;
     if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
       cacheKey += "_" + ast.value;
     }
@@ -121,20 +121,25 @@ export function compile(
       case "BOOLEAN":
       case "NUMBER":
       case "STRING":
-        return ast.value;
-      case "REFERENCE":
-        cacheKey += "__REF";
+        if (!isLazy) {
+          return ast.value;
+        }
         id = nextId++;
+        statement = `${ast.value}`;
+        break;
+      case "REFERENCE":
+        id = nextId++;
+        cacheKey += "__REF";
         const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
         const refIdx = cellRefs.push([ast.value, sheetId]) - 1;
-        code.push(`let _${id} = cell(${refIdx})`);
+        statement = `cell(${refIdx})`;
         break;
       case "FUNCALL":
         id = nextId++;
         args = compileFunctionArgs(ast);
         fnName = ast.value.toUpperCase();
         code.push(`ctx.__lastFnCalled = '${fnName}'`);
-        code.push(`let _${id} = ctx['${fnName}'](${args})`);
+        statement = `ctx['${fnName}'](${args})`;
         break;
       case "ASYNC_FUNCALL":
         id = nextId++;
@@ -142,14 +147,14 @@ export function compile(
         args = compileFunctionArgs(ast);
         fnName = ast.value.toUpperCase();
         code.push(`ctx.__lastFnCalled = '${fnName}'`);
-        code.push(`let _${id} = await ctx['${fnName}'](${args})`);
+        statement = `await ctx['${fnName}'](${args})`;
         break;
       case "UNARY_OPERATION":
         id = nextId++;
         right = compileAST(ast.right);
         fnName = UNARY_OPERATOR_MAP[ast.value];
         code.push(`ctx.__lastFnCalled = '${fnName}'`);
-        code.push(`let _${id} = ctx['${fnName}']( ${right})`);
+        statement = `ctx['${fnName}']( ${right})`;
         break;
       case "BIN_OPERATION":
         id = nextId++;
@@ -158,18 +163,24 @@ export function compile(
           const sheetName = ast.left.type === "REFERENCE" && ast.left.sheet;
           const sheetId = sheetName ? sheets[sheetName] : sheet;
           const rangeIdx = rangeRefs.push([ast.left.value, ast.right.value, sheetId]) - 1;
-          code.push(`let _${id} = range(${rangeIdx});`);
+          statement = `range(${rangeIdx});`;
         } else {
           left = compileAST(ast.left);
           right = compileAST(ast.right);
           fnName = OPERATOR_MAP[ast.value];
           code.push(`ctx.__lastFnCalled = '${fnName}'`);
-          code.push(`let _${id} = ctx['${fnName}'](${left}, ${right})`);
+          statement = `ctx['${fnName}'](${left}, ${right})`;
         }
         break;
       case "UNKNOWN":
-        return "null";
+        if (!isLazy) {
+          return "null";
+        }
+        id = nextId++;
+        statement = `null`;
+        break;
     }
+    code.push(`let _${id} = ` + (isLazy ? `()=> ` : ``) + statement);
     return `_${id}`;
   }
 

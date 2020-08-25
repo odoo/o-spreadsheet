@@ -57,6 +57,11 @@ describe("bool", () => {
     expect(evaluateCell("A1", { A1: "=IF(TRUE , FALSE, 2)" })).toBe(false);
   });
 
+  test("IF: functional tests on simple arguments with errors", () => {
+    expect(evaluateCell("A1", { A1: "=IF(TRUE,42,1/0)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=IF(TRUE,1/0,42)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+  });
+
   test("IF: casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IF(42, 1, 2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IF(0, 1, 2)" })).toBe(2);
@@ -64,9 +69,20 @@ describe("bool", () => {
   });
 
   test("IF: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "TRUE", A3: "1", A4: "2" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "FALSE", A3: "1", A4: "2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: " ", A3: "1", A4: "2" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  test("IF: functional tests on cell arguments with errors", () => {
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "TRUE", A3: "42", A4: "=1/0" })).toBe(
+      42
+    );
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "TRUE", A3: "=1/0", A4: "42" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #DIV/0!
   });
 
   test("IF: casting tests on cell arguments", () => {
@@ -85,6 +101,12 @@ describe("bool", () => {
     expect(evaluateCell("A1", { A1: "=IFS(TRUE, 1)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=IFS(TRUE, "1")' })).toBe("1");
     expect(evaluateCell("A1", { A1: "=IFS(TRUE, FALSE)" })).toBe(false);
+  });
+
+  test("IFS: functional tests on simple arguments with errors", () => {
+    expect(evaluateCell("A1", { A1: '=IFS(TRUE, "ok1", 1/0, 1/0)' })).toBe("ok1");
+    expect(evaluateCell("A1", { A1: '=IFS(1/0, "ok1", TRUE, 42)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=IFS(TRUE, 1/0, TRUE, 42)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
   });
 
   test("IFS: casting tests on simple arguments", () => {
@@ -116,6 +138,36 @@ describe("bool", () => {
         A5: "ok2",
       })
     ).toBe("ok1");
+  });
+
+  test("IFS: functional tests on cell arguments with errors", () => {
+    expect(
+      evaluateCell("A1", {
+        A1: "=IFS(A2, A3, A4, A5)",
+        A2: "TRUE",
+        A3: "ok1",
+        A4: "=1/0",
+        A5: "=1/0",
+      })
+    ).toBe("ok1");
+    expect(
+      evaluateCell("A1", {
+        A1: "=IFS(A2, A3, A4, A5)",
+        A2: "=1/0",
+        A3: "ok1",
+        A4: "TRUE",
+        A5: "42",
+      })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(
+      evaluateCell("A1", {
+        A1: "=IFS(A2, A3, A4, A5)",
+        A2: "TRUE",
+        A3: "=1/0",
+        A4: "TRUE",
+        A5: "42",
+      })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
   });
 
   test("IFS: casting tests on cell arguments", () => {

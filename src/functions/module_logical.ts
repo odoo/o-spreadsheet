@@ -58,18 +58,20 @@ export const IF: FunctionDescription = {
       logical_expression (boolean) ${_lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE."
       )}
-      value_if_true (any) ${_lt("The value the function returns if logical_expression is TRUE.")}
-      value_if_false (any, optional, default=FALSE) ${_lt(
+      value_if_true (any, lazy) ${_lt(
+        "The value the function returns if logical_expression is TRUE."
+      )}
+      value_if_false (any, lazy, optional, default=FALSE) ${_lt(
         "The value the function returns if logical_expression is FALSE."
       )}
     `),
   returns: ["ANY"],
   compute: function (
     logical_expression: any,
-    value_if_true: any,
-    value_if_false: any = false
+    value_if_true: () => any,
+    value_if_false: () => any = () => false
   ): any {
-    const result = toBoolean(logical_expression) ? value_if_true : value_if_false;
+    const result = toBoolean(logical_expression) ? value_if_true() : value_if_false();
     return result === null ? "" : result;
   },
 };
@@ -80,11 +82,11 @@ export const IF: FunctionDescription = {
 export const IFS: FunctionDescription = {
   description: _lt("Returns a value depending on multiple logical expressions."),
   args: args(`
-      condition1 (boolean) ${_lt(
+      condition1 (boolean, lazy) ${_lt(
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
       )}
-      value1 (any) ${_lt("The returned value if condition1 is TRUE.")}
-      additional_values (any, optional, repeating) ${_lt(
+      value1 (any, lazy) ${_lt("The returned value if condition1 is TRUE.")}
+      additional_values (any, lazy, optional, repeating) ${_lt(
         "Additional conditions and values to be evaluated if the previous ones are FALSE."
       )}
     `),
@@ -99,8 +101,8 @@ export const IFS: FunctionDescription = {
       throw new Error(_lt(`Wrong number of arguments. Expected an even number of arguments.`));
     }
     for (let n = 0; n < arguments.length - 1; n += 2) {
-      if (toBoolean(arguments[n])) {
-        return arguments[n + 1];
+      if (toBoolean(arguments[n]())) {
+        return arguments[n + 1]();
       }
     }
     throw new Error(_lt(`No match.`));
