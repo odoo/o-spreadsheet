@@ -141,8 +141,8 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     }
     this.processContent();
 
-    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 1.5) + "px") as string;
-    el.style.height = (this.rect[3] + 1.5 + "px") as string;
+    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 0.5) + "px") as string;
+    el.style.height = (this.rect[3] + 0.5 + "px") as string;
   }
 
   willUnmount(): void {

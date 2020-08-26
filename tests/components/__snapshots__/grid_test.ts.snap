@@ -12,7 +12,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   />
   <div
     class="o-autofill"
-    style="top:45px;left:152px"
+    style="top:45px;left:140px"
   >
     <div
       class="o-autofill-handler"
@@ -53,7 +53,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
 exports[`error tooltip can display error tooltip 1`] = `
 <div
   class="o-error-tooltip"
-  style="left:348px;top:187px"
+  style="left:336px;top:187px"
 >
   Function DIVIDE parameter 2 cannot be zero.
 </div>
