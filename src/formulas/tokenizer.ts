@@ -55,12 +55,12 @@ export function tokenize(str: string): Token[] {
       );
     }
     let token =
-      tokenizeDebugger(chars) ||
       tokenizeSpace(chars) ||
       tokenizeMisc(chars) ||
       tokenizeOperator(chars) ||
       tokenizeNumber(chars) ||
       tokenizeString(chars) ||
+      tokenizeDebugger(chars) ||
       tokenizeSymbol(chars);
 
     if (!token) {
@@ -80,15 +80,16 @@ function tokenizeDebugger(chars: string[]): Token | null {
   return null;
 }
 
+const misc = {
+  ",": "COMMA",
+  "(": "LEFT_PAREN",
+  ")": "RIGHT_PAREN",
+} as const;
+
 function tokenizeMisc(chars: string[]): Token | null {
-  const misc = {
-    ",": "COMMA",
-    "(": "LEFT_PAREN",
-    ")": "RIGHT_PAREN",
-  } as const;
   if (chars[0] in misc) {
-    const value = chars[0];
-    const type = misc[chars.shift() as string] as "COMMA" | "LEFT_PAREN" | "RIGHT_PAREN";
+    const value = chars.shift()!;
+    const type = misc[value];
     return { type, value };
   }
   return null;
@@ -124,8 +125,7 @@ function tokenizeNumber(chars: string[]): Token | null {
 function tokenizeString(chars: string[]): Token | null {
   if (chars[0] === '"') {
     const startChar = chars.shift();
-    const letters: any[] = [];
-    letters.push(startChar);
+    const letters: any[] = [startChar];
     while (chars[0] && (chars[0] !== startChar || letters[letters.length - 1] === "\\")) {
       letters.push(chars.shift());
     }
@@ -139,6 +139,8 @@ function tokenizeString(chars: string[]): Token | null {
   }
   return null;
 }
+
+const separatorRegexp = /\w|\.|!|\$/;
 
 /**
  * A "Symbol" is just basically any word-like element that can appear in a
@@ -157,27 +159,29 @@ function tokenizeSymbol(chars: string[]): Token | null {
   // there are two main cases to manage: either something which starts with
   // a ', like 'Sheet 2'A2, or a word-like element.
   if (chars[0] === "'") {
-    result.push(chars.shift());
+    let lastChar = chars.shift();
+    result.push(lastChar);
     while (chars[0]) {
-      let char = chars.shift();
-      result.push(char);
-      if (char === "'") {
+      lastChar = chars.shift();
+      result.push(lastChar);
+      if (lastChar === "'") {
         if (chars[0] && chars[0] === "'") {
-          result.push(chars.shift());
+          lastChar = chars.shift();
+          result.push(lastChar);
         } else {
           break;
         }
       }
     }
 
-    if (result[result.length - 1] !== "'") {
+    if (lastChar !== "'") {
       return {
         type: "UNKNOWN",
         value: result.join(""),
       };
     }
   }
-  while (chars[0] && chars[0].match(/\w|\.|!|\$/)) {
+  while (chars[0] && chars[0].match(separatorRegexp)) {
     result.push(chars.shift());
   }
   if (result.length) {
@@ -189,9 +193,11 @@ function tokenizeSymbol(chars: string[]): Token | null {
   return null;
 }
 
+const whiteSpaceRegexp = /\s/;
+
 function tokenizeSpace(chars: string[]): Token | null {
   let length = 0;
-  while (chars[0] && chars[0].match(/\s/)) {
+  while (chars[0] && chars[0].match(whiteSpaceRegexp)) {
     length++;
     chars.shift();
   }
