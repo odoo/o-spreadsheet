@@ -129,6 +129,45 @@ describe("merges", () => {
     expect(model.getters.getActiveCell()!.xc).toBe("B2");
   });
 
+  test("merge style is correct for inactive sheets", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "1",
+          colNumber: 1,
+          rowNumber: 1,
+          cells: {
+            A1: { content: "1", style: 1 },
+          },
+        },
+        {
+          id: "2",
+          colNumber: 3,
+          rowNumber: 3,
+          merges: ["A1:B1"],
+          cells: {
+            A1: { content: "2", style: 2 },
+            B1: { content: "", style: 2 },
+          },
+        },
+      ],
+      styles: {
+        1: { fillColor: "#f2f2f2" },
+        2: { fillColor: "#a2a2a2" },
+      },
+    });
+    const [, sheet2] = model.getters.getSheets();
+    expect(sheet2).not.toBe(model.getters.getActiveSheet());
+    model.dispatch("REMOVE_ROWS", {
+      rows: [2],
+      sheet: sheet2.id,
+    });
+    const cell = model.getters.getCell(0, 0, sheet2.name);
+    expect(model.getters.getCellStyle(cell!)).toEqual({
+      fillColor: "#a2a2a2",
+    });
+  });
+
   test("properly compute if a merge is destructive or not", () => {
     const model = new Model({
       sheets: [
