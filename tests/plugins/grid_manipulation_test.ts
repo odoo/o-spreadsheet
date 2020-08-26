@@ -507,6 +507,21 @@ describe("Columns", () => {
         A2: { content: "=SUM(A1:B1)" },
       });
     });
+    test("delete all columns of a range", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 9,
+            rowNumber: 3,
+            cells: {
+              A1: { content: "=SUM(A2:E5)" },
+            },
+          },
+        ],
+      });
+      removeColumns([1, 2, 3, 4]);
+      expect(getSheet(model, 0).cells.A1.content).toBe("=SUM(#REF)");
+    });
     test("On multiple col deletion including the last one", () => {
       model = new Model({
         sheets: [
@@ -703,6 +718,21 @@ describe("Rows", () => {
       expect(getSheet(model, 0).cells).toMatchObject({
         A1: { content: "A2" },
       });
+    });
+    test("delete all rows of a range", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 3,
+            rowNumber: 9,
+            cells: {
+              A1: { content: "=SUM(A2:A5)" },
+            },
+          },
+        ],
+      });
+      removeRows([1, 2, 3, 4]);
+      expect(getSheet(model, 0).cells.A1.content).toBe("=SUM(#REF)");
     });
     test("On addition before", () => {
       addRows(1, "before", 2);
