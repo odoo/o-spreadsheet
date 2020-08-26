@@ -10,6 +10,8 @@ import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   TEXT_HEADER_COLOR,
   HEADER_FONT_SIZE,
+  HEADER_BORDER_COLOR,
+  CELL_BORDER_COLOR,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { overlap, toXC } from "../helpers/index";
@@ -223,8 +225,8 @@ export class RendererPlugin extends BasePlugin {
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
 
-    ctx.lineWidth = 0.4 * thinLineWidth;
-    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2 * thinLineWidth;
+    ctx.strokeStyle = CELL_BORDER_COLOR;
     ctx.beginPath();
 
     // vertical lines
@@ -393,6 +395,7 @@ export class RendererPlugin extends BasePlugin {
     ctx.lineTo(HEADER_WIDTH, height);
     ctx.moveTo(0, HEADER_HEIGHT);
     ctx.lineTo(width, HEADER_HEIGHT);
+    ctx.strokeStyle = HEADER_BORDER_COLOR;
     ctx.stroke();
 
     ctx.beginPath();

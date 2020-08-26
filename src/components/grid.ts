@@ -214,8 +214,8 @@ const CSS = css/* scss */ `
     background-color: ${BACKGROUND_GRAY_COLOR};
 
     > canvas {
-      border-top: 1px solid #aaa;
-      border-bottom: 1px solid #aaa;
+      border-top: 1px solid #e2e3e3;
+      border-bottom: 1px solid #e2e3e3;
 
       &:focus {
         outline: none;

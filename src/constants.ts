@@ -5,12 +5,14 @@ export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 export const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
 export const TEXT_HEADER_COLOR = "#666666";
 export const SELECTION_BORDER_COLOR = "#3266ca";
+export const HEADER_BORDER_COLOR = "#C0C0C0";
+export const CELL_BORDER_COLOR = "#E2E3E3";
 
 // Dimensions
 export const MIN_ROW_HEIGHT = 10;
 export const MIN_COL_WIDTH = 5;
 export const HEADER_HEIGHT = 26;
-export const HEADER_WIDTH = 60;
+export const HEADER_WIDTH = 48;
 export const TOPBAR_HEIGHT = 63;
 export const BOTTOMBAR_HEIGHT = 36;
 export const DEFAULT_CELL_WIDTH = 96;
