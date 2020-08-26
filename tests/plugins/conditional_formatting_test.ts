@@ -893,8 +893,8 @@ describe("UI of conditional formats", () => {
       maxColor: ".o-threshold-maximum .o-tool.o-dropdown.o-with-color span",
       maxType: ".o-threshold-maximum > select",
       maxValue: ".o-threshold-maximum .o-threshold-value",
-      colorPickerBlue: ".o-color-picker div[data-color='#445569']",
-      colorPickerYellow: ".o-color-picker div[data-color='#ffc001']",
+      colorPickerBlue: ".o-color-picker div[data-color='#0000ff']",
+      colorPickerYellow: ".o-color-picker div[data-color='#ffff00']",
     },
     cfTabSelector: ".o-cf-type-selector .o-cf-type-tab",
     buttonSave: ".o-sidePanelButtons .o-cf-save",
@@ -991,12 +991,12 @@ describe("UI of conditional formats", () => {
         ranges: ["B2:B5"],
         rule: {
           maximum: {
-            color: 0xffc001,
+            color: 0xffff00,
             type: "value",
           },
           midpoint: undefined,
           minimum: {
-            color: 0x445569,
+            color: 0x0000ff,
             type: "value",
             value: "33",
           },
@@ -1116,12 +1116,12 @@ describe("UI of conditional formats", () => {
         ranges: ["B2:B5"],
         rule: {
           maximum: {
-            color: 0xffc001,
+            color: 0xffff00,
             type: "value",
           },
           midpoint: undefined,
           minimum: {
-            color: 0x445569,
+            color: 0x0000ff,
             type: "value",
             value: "33",
           },
