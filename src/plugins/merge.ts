@@ -357,7 +357,7 @@ export class MergePlugin extends BasePlugin {
     const sheet = this.workbook.sheets[sheetId];
     for (let merge of Object.values(sheet.merges)) {
       const xc = merge.topLeft;
-      const topLeft = this.workbook.activeSheet.cells[xc];
+      const topLeft = sheet.cells[xc];
       if (!topLeft) {
         continue;
       }
