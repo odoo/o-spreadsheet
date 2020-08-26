@@ -935,6 +935,11 @@ export class CorePlugin extends BasePlugin {
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
+    const columnLeft = toCartesian(left)[0];
+    const columnRight = toCartesian(right)[0];
+    if (columnLeft > columnRight) {
+      return "#REF";
+    }
     if (left === right) {
       return left;
     }
@@ -1007,6 +1012,11 @@ export class CorePlugin extends BasePlugin {
     left = this.updateRowsRangePart(left, sheet, base, step, 1);
     right = this.updateRowsRangePart(right, sheet, base, step, -1);
     if (left === "#REF" || right === "#REF") {
+      return "#REF";
+    }
+    const rowLeft = toCartesian(left)[1];
+    const rowRight = toCartesian(right)[1];
+    if (rowLeft > rowRight) {
       return "#REF";
     }
     if (left === right) {
