@@ -91,6 +91,41 @@ describe("bool", () => {
   });
 
   //----------------------------------------------------------------------------
+  // IFERROR
+  //----------------------------------------------------------------------------
+
+  test("IFERROR: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR( )" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=IFERROR( ,  )" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IFERROR(FALSE , 42)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=IFERROR(TRUE , 42)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=IFERROR("" , 42)' })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IFERROR(3% , 42)" })).toBe(0.03);
+  });
+
+  test("IFERROR: functional tests on simple arguments with errors", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(FALSE, 42/0)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=IFERROR(42/0, FALSE)" })).toBe(false);
+  });
+
+  test("IFERROR: functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "=A2" })).toBe(42); // corespond to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "=(+" })).toBe(42); // corespond to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "=SQRT(-1)" })).toBe(42); // corespond to #ERROR error
+
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "FALSE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "TRUE" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "3" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "test" })).toBe("test");
+  });
+
+  test("IFERROR: functional tests on cell arguments with errors", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "TRUE", A3: "=1/0" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "=1/0", A3: "=1/0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+  });
+
+  //----------------------------------------------------------------------------
   // IFS
   //----------------------------------------------------------------------------
 

@@ -2,6 +2,37 @@ import { evaluateCell } from "../helpers";
 
 describe("info", () => {
   //----------------------------------------------------------------------------
+  // ISERROR
+  //----------------------------------------------------------------------------
+
+  test("ISERROR: functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=ISERROR()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=ISERROR("")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=ISERROR("test")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(TRUE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(FALSE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(3%)" })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=ISERROR(1/0)" })).toBe(true); // corespond to #ERROR error
+
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "TEST" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "TRUE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "1" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: '"test"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: '"123"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: '="TRUE"' })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=true" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=false" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=123" })).toBe(false);
+
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=A2" })).toBe(true); // corespond to #CYCLE error
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=(+" })).toBe(true); // corespond to #BAD_EXPR error
+    expect(evaluateCell("A1", { A1: "=ISERROR(A2)", A2: "=SQRT(-1)" })).toBe(true); // corespond to #ERROR error
+  });
+
+  //----------------------------------------------------------------------------
   // ISLOGICAL
   //----------------------------------------------------------------------------
 
