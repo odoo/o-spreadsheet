@@ -77,6 +77,29 @@ export const IF: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// IFERROR
+// -----------------------------------------------------------------------------
+export const IFERROR: FunctionDescription = {
+  description: _lt("Value if it is not an error, otherwise 2nd argument."),
+  args: args(`
+    value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
+    value_if_error (any, lazy, optional, default="") ${_lt(
+      "The value the function returns if value is an error."
+    )}
+  `),
+  returns: ["ANY"],
+  compute: function (value: () => any, value_if_error: () => any = () => ""): any {
+    let result;
+    try {
+      result = value();
+    } catch (e) {
+      result = value_if_error();
+    }
+    return result === null ? "" : result;
+  },
+};
+
+// -----------------------------------------------------------------------------
 // IFS
 // -----------------------------------------------------------------------------
 export const IFS: FunctionDescription = {

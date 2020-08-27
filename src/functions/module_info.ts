@@ -1,6 +1,24 @@
 import { args } from "./arguments";
 import { FunctionDescription } from "../types";
 import { _lt } from "../translation";
+
+// -----------------------------------------------------------------------------
+// ISERROR
+// -----------------------------------------------------------------------------
+export const ISERROR: FunctionDescription = {
+  description: _lt("Whether a value is an error."),
+  args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
+  returns: ["BOOLEAN"],
+  compute: function (value: () => any): boolean {
+    try {
+      value();
+      return false;
+    } catch (e) {
+      return true;
+    }
+  },
+};
+
 // -----------------------------------------------------------------------------
 // ISLOGICAL
 // -----------------------------------------------------------------------------
