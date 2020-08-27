@@ -1,7 +1,6 @@
 import * as owl from "@odoo/owl";
-import { fontSizeMap } from "../../fonts";
 import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/index";
-import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
+import { SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { zoneToXc, DEBUG } from "../../helpers/index";
@@ -28,9 +27,9 @@ const tokenColor = {
 };
 
 const TEMPLATE = xml/* xml */ `
-<div class="o-composer-container" t-att-style="containerStyle">
+<div class="o-composer-container">
     <div class="o-composer"
-      t-att-style="composerStyle"
+      t-att-style="props.inputStyle"
       t-ref="o_composer"
       tabindex="1"
       contenteditable="true"
@@ -54,19 +53,15 @@ const TEMPLATE = xml/* xml */ `
   `;
 const CSS = css/* scss */ `
   .o-composer-container {
-    box-sizing: border-box;
-    position: absolute;
     padding: 0;
     margin: 0;
     border: 0;
     z-index: 5;
     .o-composer {
       caret-color: black;
-      box-sizing: border-box;
       background-color: white;
       padding-left: 2px;
       padding-right: 2px;
-      border: 1.6px solid #3266ca;
       white-space: nowrap;
       &:focus {
         outline: none;
@@ -75,19 +70,23 @@ const CSS = css/* scss */ `
   }
 `;
 
-export class Composer extends Component<any, SpreadsheetEnv> {
+interface Props {
+  inputStyle: string;
+}
+
+export class Composer extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
   static components = { TextValueProvider };
+  static defaultProps = {
+    inputStyle: "",
+  };
 
   composerRef = useRef("o_composer");
   autoCompleteRef = useRef("o_autocomplete_provider");
 
   getters = this.env.getters;
   dispatch = this.env.dispatch;
-
-  zone: Zone;
-  rect: Rect;
 
   contentHelper: ContentEditableHelper;
 
@@ -119,9 +118,6 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     this.contentHelper = new ContentEditableHelper(this.composerRef.el!);
-    const [col, row] = this.getters.getPosition();
-    this.zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
-    this.rect = this.getters.getRect(this.zone, this.props.viewport);
   }
 
   mounted() {
@@ -136,9 +132,6 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       this.contentHelper.selectRange(currentContent.length, currentContent.length);
     }
     this.processContent();
-
-    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 0.5) + "px") as string;
-    el.style.height = (this.rect[3] + 0.5 + "px") as string;
   }
 
   willUnmount(): void {
@@ -148,32 +141,6 @@ export class Composer extends Component<any, SpreadsheetEnv> {
 
   async willUpdateProps() {
     this.processContent();
-  }
-
-  patched() {
-    this.resize();
-  }
-
-  get containerStyle() {
-    const style = this.getters.getCurrentStyle();
-    const [x, y, , height] = this.rect;
-    const weight = `font-weight:${style.bold ? "bold" : 500};`;
-    const italic = style.italic ? `font-style: italic;` : ``;
-    const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    return `left: ${x - 1}px;
-        top:${y}px;
-        height:${height}px;
-        font-size:${fontSizeMap[style.fontSize || 10]}px;
-        ${weight}${italic}${strikethrough}`;
-  }
-
-  get composerStyle() {
-    const style = this.getters.getCurrentStyle();
-    const cell = this.getters.getActiveCell() || { type: "text" };
-    const height = this.rect[3];
-    const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
-    return `text-align:${align};
-        line-height:${height - 1.5}px;`;
   }
 
   // ---------------------------------------------------------------------------
@@ -263,7 +230,6 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       return;
     }
     const el = this.composerRef.el! as HTMLInputElement;
-    this.resize();
     const content = el.childNodes.length ? el.textContent! : "";
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
@@ -368,13 +334,6 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       this.contentHelper.selectRange(start, end);
     }
     this.shouldProcessInputEvents = true;
-  }
-
-  private resize() {
-    const el = this.composerRef.el! as HTMLInputElement;
-    if (el.clientWidth !== el.scrollWidth) {
-      el.style.width = (el.scrollWidth + 20) as any;
-    }
   }
 
   private rangeColor(xc: string, sheetName?: string): string | undefined {
