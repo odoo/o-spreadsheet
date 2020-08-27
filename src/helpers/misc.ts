@@ -24,3 +24,5 @@ export function sanitizeSheet(sheet: string): string {
 export function clip(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
 }
+
+export const DEBUG: { [key: string]: any } = {};
