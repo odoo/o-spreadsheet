@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { compile } from "../formulas/index";
 import { functionRegistry } from "../functions/index";
-import { toCartesian } from "../helpers/index";
+import { toCartesian, DEBUG } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
@@ -74,6 +74,9 @@ export class EvaluationPlugin extends BasePlugin {
   ) {
     super(workbook, getters, history, dispatch, config);
     this.evalContext = config.evalContext;
+    DEBUG.evaluation = {
+      isIdle: () => this.loadingCells === 0,
+    };
   }
 
   // ---------------------------------------------------------------------------

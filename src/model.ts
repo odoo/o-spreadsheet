@@ -16,6 +16,7 @@ import {
   EvalContext,
 } from "./types/index";
 import { _lt } from "./translation";
+import { DEBUG } from "./helpers/index";
 
 /**
  * Model
@@ -99,7 +100,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   constructor(data: any = {}, config: Partial<ModelConfig> = {}) {
     super();
-    (window as any).model = this; // to debug. remove this someday
+    DEBUG.model = this;
 
     const workbookData = load(data);
     this.workbook = createEmptyWorkbook();

@@ -4,7 +4,7 @@ import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
-import { colors } from "../../helpers/index";
+import { colors, DEBUG } from "../../helpers/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -129,8 +129,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   }
 
   mounted() {
-    // @ts-ignore
-    window.composer = this;
+    DEBUG.composer = this;
 
     const el = this.composerRef.el!;
 
