@@ -909,7 +909,8 @@ export class CorePlugin extends BasePlugin {
     if (x === base && step === -1) {
       x += direction;
     }
-    return this.updateColumnsRef(toXC(x, y), sheet, base, step);
+    const [xcRef] = this.updateColumnsRef(toXC(x, y), sheet, base, step).split("!").reverse();
+    return xcRef;
   };
 
   /**
@@ -940,7 +941,8 @@ export class CorePlugin extends BasePlugin {
     if (left === right) {
       return left;
     }
-    return `${left}:${right}`;
+    const range = `${left}:${right}`;
+    return sheet ? `${sheet}!${range}` : range;
   };
 
   /**
@@ -988,7 +990,8 @@ export class CorePlugin extends BasePlugin {
       }
       step = 0;
     }
-    return this.updateRowsRef(toXC(x, y), sheet, base, step);
+    const [xcRef] = this.updateRowsRef(toXC(x, y), sheet, base, step).split("!").reverse();
+    return xcRef;
   };
 
   /**
@@ -1019,7 +1022,8 @@ export class CorePlugin extends BasePlugin {
     if (left === right) {
       return left;
     }
-    return `${left}:${right}`;
+    const range = `${left}:${right}`;
+    return sheet ? `${sheet}!${range}` : range;
   };
 
   // ---------------------------------------------------------------------------
