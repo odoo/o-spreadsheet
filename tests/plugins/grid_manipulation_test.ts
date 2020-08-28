@@ -522,6 +522,42 @@ describe("Columns", () => {
       removeColumns([1, 2, 3, 4]);
       expect(getSheet(model, 0).cells.A1.content).toBe("=SUM(#REF)");
     });
+    test("update cross sheet range on column deletion", () => {
+      model = new Model({
+        sheets: [
+          { name: "Sheet1", colNumber: 5, rowNumber: 5 },
+          {
+            name: "Sheet2",
+            colNumber: 3,
+            rowNumber: 9,
+            cells: {
+              A1: { content: "=SUM(Sheet1!B1:D3)" },
+            },
+          },
+        ],
+      });
+      removeColumns([0]);
+      expect(model.getters.getCell(0, 0, "Sheet2")!.content).toBe("=SUM(Sheet1!A1:C3)");
+    });
+    test("update cross sheet range on column deletion in inactive sheet", () => {
+      model = new Model({
+        sheets: [
+          { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less column than Sheet1
+          { name: "Sheet1", colNumber: 5, rowNumber: 5 },
+          {
+            name: "Sheet2",
+            colNumber: 5,
+            rowNumber: 9,
+            cells: {
+              A1: { content: "=SUM(Sheet1!B1:D3)" },
+            },
+          },
+        ],
+      });
+      const sheet1Id = model.getters.getSheetIdByName("Sheet1");
+      model.dispatch("REMOVE_COLUMNS", { sheet: sheet1Id!, columns: [0] });
+      expect(model.getters.getCell(0, 0, "Sheet2")!.content).toBe("=SUM(Sheet1!A1:C3)");
+    });
     test("On multiple col deletion including the last one", () => {
       model = new Model({
         sheets: [
@@ -733,6 +769,42 @@ describe("Rows", () => {
       });
       removeRows([1, 2, 3, 4]);
       expect(getSheet(model, 0).cells.A1.content).toBe("=SUM(#REF)");
+    });
+    test("update cross sheet range on row deletion", () => {
+      model = new Model({
+        sheets: [
+          { name: "Sheet1", colNumber: 5, rowNumber: 5 },
+          {
+            name: "Sheet2",
+            colNumber: 3,
+            rowNumber: 9,
+            cells: {
+              A1: { content: "=SUM(Sheet1!A2:A3)" },
+            },
+          },
+        ],
+      });
+      removeRows([0]);
+      expect(model.getters.getCell(0, 0, "Sheet2")!.content).toBe("=SUM(Sheet1!A1:A2)");
+    });
+    test("update cross sheet range on row deletion in inactive sheet", () => {
+      model = new Model({
+        sheets: [
+          { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less rows than Sheet1
+          { name: "Sheet1", colNumber: 5, rowNumber: 5 },
+          {
+            name: "Sheet2",
+            colNumber: 5,
+            rowNumber: 9,
+            cells: {
+              A1: { content: "=SUM(Sheet1!A2:A3)" },
+            },
+          },
+        ],
+      });
+      const sheet1Id = model.getters.getSheetIdByName("Sheet1");
+      model.dispatch("REMOVE_ROWS", { sheet: sheet1Id!, rows: [0] });
+      expect(model.getters.getCell(0, 0, "Sheet2")!.content).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("On addition before", () => {
       addRows(1, "before", 2);
