@@ -1,6 +1,6 @@
 {
   "name": "@odoo/o-spreadsheet",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
