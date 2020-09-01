@@ -1,8 +1,8 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell } from "../helpers";
+import { getCell, setCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types";
-import { toZone } from "../../src/helpers";
+import { toZone, toCartesian } from "../../src/helpers";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
@@ -212,6 +212,15 @@ describe("edition", () => {
     expect(model.getters.getHighlights()).toHaveLength(0);
   });
 
+  test("cancel edition reset current content", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", {
+      text: "=SUM(A2:A3, B5)",
+    });
+    model.dispatch("STOP_EDITION", { cancel: true });
+    expect(model.getters.getCurrentContent()).toBe("");
+  });
+
   test("ranges are not highlighted when inactive", () => {
     const model = new Model();
     expect(model.getters.getEditionMode()).toBe("inactive");
@@ -302,5 +311,123 @@ describe("edition", () => {
       delta: [1, 1],
     });
     expect(model.getters.getCurrentContent()).toBe("=B2:C3");
+  });
+
+  test("start edition without selection set cursor at the end", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", { text: "coucou" });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 6, end: 6 });
+  });
+
+  test("start edition with a provided selection", () => {
+    const model = new Model();
+    model.dispatch("START_EDITION", {
+      text: "coucou",
+      selection: { start: 4, end: 5 },
+    });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 5 });
+  });
+
+  test("start edition with a wrong selection", () => {
+    const model = new Model();
+    const result = model.dispatch("START_EDITION", {
+      text: "coucou",
+      selection: { start: 10, end: 1 },
+    });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.WrongComposerSelection });
+  });
+
+  test("select another cell while editing set the content to the selected cell", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "Hello sir");
+    model.dispatch("START_EDITION", { text: "coucou" });
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    expect(model.getters.getCurrentContent()).toBe("Hello sir");
+  });
+
+  test("set value of the active cell updates the content", () => {
+    const model = new Model();
+    expect(model.getters.getPosition()).toEqual(toCartesian("A1"));
+    setCellContent(model, "A1", "Hello sir");
+    expect(model.getters.getCurrentContent()).toBe("Hello sir");
+  });
+
+  test("set value of the active cell when switching sheet", () => {
+    const model = new Model();
+    const sheet1Id = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "Hello from sheet1");
+    model.dispatch("CREATE_SHEET", {
+      sheetId: "42",
+      activate: true,
+    });
+    expect(model.getters.getCurrentContent()).toBe("");
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: sheet1Id });
+    expect(model.getters.getCurrentContent()).toBe("Hello from sheet1");
+  });
+
+  test("select another cell which is empty set the content to an empty string", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "Hello sir");
+    expect(model.getters.getCurrentContent()).toBe("Hello sir");
+    const [col, row] = toCartesian("A2");
+    expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
+    model.dispatch("SELECT_CELL", { col, row });
+    expect(model.getters.getCurrentContent()).toBe("");
+  });
+
+  test("content is the raw cell content, not the evaluated text", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "=SUM(5)");
+    model.dispatch("START_EDITION");
+    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    expect(model.getters.getCurrentContent()).toBe("=SUM(5)");
+  });
+
+  test("default active cell content when model is started", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 2,
+          rowNumber: 2,
+          cells: { A1: { content: "Hello" } },
+        },
+      ],
+    });
+    expect(model.getters.getCurrentContent()).toBe("Hello");
+  });
+
+  test("content is updated if cell content is updated", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 2,
+          rowNumber: 2,
+          cells: { B1: { content: "Hello" } },
+        },
+      ],
+    });
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    expect(model.getters.getCurrentContent()).toBe("Hello");
+    model.dispatch("UPDATE_CELL", {
+      col: 2,
+      row: 0,
+      content: "update another cell",
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    expect(model.getters.getCurrentContent()).toBe("Hello");
+    model.dispatch("UPDATE_CELL", {
+      col: 1,
+      row: 0,
+      content: "Hi",
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    expect(model.getters.getCurrentContent()).toBe("Hi");
+    model.dispatch("UPDATE_CELL", {
+      col: 1,
+      row: 0,
+      content: "",
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    expect(model.getters.getCurrentContent()).toBe("");
   });
 });

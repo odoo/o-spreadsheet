@@ -20,6 +20,7 @@ import {
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/merge";
+import { ComposerSelection } from "../src/plugins/edition";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
@@ -75,8 +76,8 @@ export class MockClipboard {
     return Promise.resolve();
   }
 
-  addEventListener() { }
-  removeEventListener() { }
+  addEventListener() {}
+  removeEventListener() {}
   dispatchEvent() {
     return false;
   }
@@ -93,10 +94,14 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 }
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
-  static template = xml`
+  static template = xml/* xml */ `
     <div class="parent">
-    <TopBar model="model" t-on-ask-confirmation="askConfirmation"/>
-      <Grid model="model" t-ref="grid"/>
+      <TopBar
+        model="model"
+        t-on-ask-confirmation="askConfirmation"
+        focusComposer="focusTopBarComposer"
+        t-on-composer-focused="onTopBarComposerFocused"/>
+      <Grid model="model" t-ref="grid" t-on-composer-focused="onGridComposerFocused" focusComposer="focusGridComposer"/>
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
              model="model"
@@ -114,11 +119,17 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     panelProps: any;
   });
 
+  composer = useState({
+    topBar: false,
+    grid: false,
+  });
+
   constructor(model: Model) {
     super();
     useSubEnv({
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-      toggleSidePanel: (panel: string, panelProps: any = {}) => this.toggleSidePanel(panel, panelProps),
+      toggleSidePanel: (panel: string, panelProps: any = {}) =>
+        this.toggleSidePanel(panel, panelProps),
       dispatch: model.dispatch,
       getters: model.getters,
       _t: GridParent._t,
@@ -132,6 +143,14 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       drawGrid.call(this, context);
     };
     this.model = model;
+  }
+
+  get focusTopBarComposer(): boolean {
+    return this.model.getters.getEditionMode() !== "inactive" && this.composer.topBar;
+  }
+
+  get focusGridComposer(): boolean {
+    return this.model.getters.getEditionMode() !== "inactive" && this.composer.grid;
   }
 
   mounted() {
@@ -152,6 +171,32 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
       this.sidePanel.isOpen = false;
     } else {
       this.openSidePanel(panel, panelProps);
+    }
+  }
+
+  onTopBarComposerFocused(ev: CustomEvent) {
+    this.composer.grid = false;
+    this.composer.topBar = true;
+    this.setComposerContent(ev.detail || {});
+  }
+
+  onGridComposerFocused(ev: CustomEvent) {
+    this.composer.topBar = false;
+    this.composer.grid = true;
+    this.setComposerContent(ev.detail || {});
+  }
+
+  private setComposerContent({
+    content,
+    selection,
+  }: {
+    content?: string | undefined;
+    selection?: ComposerSelection;
+  }) {
+    if (this.model.getters.getEditionMode() === "inactive") {
+      this.model.dispatch("START_EDITION", { text: content, selection });
+    } else if (content) {
+      this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
     }
   }
 }

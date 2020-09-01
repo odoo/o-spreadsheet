@@ -45,6 +45,7 @@ export class EditionPlugin extends BasePlugin {
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongComposerSelection };
       case "SET_CURRENT_CONTENT":
+      case "START_EDITION":
         return cmd.selection && cmd.selection.start > cmd.selection.end
           ? { status: "CANCELLED", reason: CancelledReason.WrongComposerSelection }
           : { status: "SUCCESS" };
@@ -65,6 +66,9 @@ export class EditionPlugin extends BasePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "START":
+        this.setActiveContent();
+        break;
       case "CHANGE_COMPOSER_SELECTION":
         this.selectionStart = cmd.start;
         this.selectionEnd = cmd.end;
@@ -87,12 +91,13 @@ export class EditionPlugin extends BasePlugin {
         }
         break;
       case "START_EDITION":
-        this.startEdition(cmd.text);
+        this.startEdition(cmd.text, cmd.selection);
         this.highlightRanges();
         break;
       case "STOP_EDITION":
         if (cmd.cancel) {
           this.cancelEdition();
+          this.resetContent();
         } else {
           this.stopEdition();
         }
@@ -106,13 +111,27 @@ export class EditionPlugin extends BasePlugin {
       case "REPLACE_COMPOSER_SELECTION":
         this.replaceSelection(cmd.text);
         break;
+      case "UPDATE_CELL":
+        const [col, row] = this.getters.getPosition();
+        if (col === this.col && row === this.row) {
+          this.setActiveContent();
+        }
+        break;
+      case "ACTIVATE_SHEET":
+        if (this.mode === "inactive") {
+          this.setActiveContent();
+        }
+        break;
       case "SELECT_CELL":
       case "SET_SELECTION":
       case "MOVE_POSITION":
         if (this.mode === "editing") {
-          this.stopEdition();
+          this.dispatch("STOP_EDITION");
         } else if (this.mode === "selecting") {
           this.insertSelectedRange();
+        }
+        if (this.mode === "inactive") {
+          this.setActiveContent();
         }
         break;
     }
@@ -163,13 +182,13 @@ export class EditionPlugin extends BasePlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
-  private startEdition(str?: string) {
+  private startEdition(str?: string, selection?: ComposerSelection) {
     if (!str) {
       const cell = this.getters.getActiveCell();
       str = cell ? cell.content || "" : "";
     }
     this.mode = "editing";
-    this.setContent(str || "");
+    this.setContent(str, selection);
     this.dispatch("REMOVE_ALL_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
     this.col = col;
@@ -226,6 +245,14 @@ export class EditionPlugin extends BasePlugin {
   private cancelEdition() {
     this.mode = "inactive";
     this.dispatch("REMOVE_ALL_HIGHLIGHTS");
+  }
+
+  /**
+   * Reset the current content to the active cell content
+   */
+  private resetContent() {
+    const cell = this.getters.getActiveCell();
+    this.setContent(cell ? cell.content || "" : "");
   }
 
   private setContent(text: string, selection?: ComposerSelection) {
@@ -315,5 +342,23 @@ export class EditionPlugin extends BasePlugin {
     if (Object.keys(ranges).length) {
       this.dispatch("ADD_HIGHLIGHTS", { ranges });
     }
+  }
+
+  private setActiveContent() {
+    const mainCell = this.getters.getMainCell(toXC(...this.getters.getPosition()));
+    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), ...toCartesian(mainCell));
+    if (anchor) {
+      const { col, row } = this.getters.getCellPosition(anchor.id);
+      this.col = col;
+      this.row = row;
+    }
+    const content = anchor
+      ? anchor.content
+        ? anchor.content
+        : this.getters.getCellText(anchor)
+      : "";
+    this.dispatch("SET_CURRENT_CONTENT", {
+      content,
+    });
   }
 }

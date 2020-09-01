@@ -184,7 +184,10 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid" t-on-click="focus" t-on-keydown="onKeydown" t-on-wheel="onMouseWheel">
     <t t-if="getters.getEditionMode() !== 'inactive'">
-      <GridComposer t-on-composer-unmounted="focus" viewport="snappedViewport"/>
+      <GridComposer
+        t-on-composer-unmounted="focus"
+        focus="props.focusComposer"
+        viewport="snappedViewport"/>
     </t>
     <canvas t-ref="canvas"
       t-on-mousedown="onMouseDown"
@@ -305,10 +308,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
   private keyDownMapping: { [key: string]: Function } = {
-    ENTER: () => this.dispatch("START_EDITION"),
+    ENTER: () => this.trigger("composer-focused"),
     TAB: () => this.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 }),
     "SHIFT+TAB": () => this.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 }),
-    F2: () => this.dispatch("START_EDITION"),
+    F2: () => this.trigger("composer-focused"),
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
         sheetId: this.getters.getActiveSheetId(),
@@ -511,7 +514,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   onDoubleClick(ev) {
     const [col, row] = this.getCartesianCoordinates(ev);
     if (this.clickedCol === col && this.clickedRow === row) {
-      this.dispatch("START_EDITION");
+      this.trigger("composer-focused");
     }
   }
 
@@ -574,7 +577,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
         // character
         ev.preventDefault();
         ev.stopPropagation();
-        this.dispatch("START_EDITION", { text: ev.key });
+        this.trigger("composer-focused", { content: ev.key });
       }
     }
   }

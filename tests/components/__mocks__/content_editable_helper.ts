@@ -7,30 +7,22 @@ export class ContentEditableHelper {
   el: HTMLElement | null = null;
   manualRange: boolean = false;
 
-  constructor() {
-    // @ts-ignore
-    window.mockContentHelper = this;
-  }
-
   updateEl(el: HTMLElement) {
     this.el = el;
-    this.el.focus();
     this.currentState = {
       cursorStart: 0,
       cursorEnd: 0,
     };
-
+    this.attachEventHandlers();
     this.colors = {};
   }
   selectRange(start, end) {
+    this.el!.focus();
+    // @ts-ignore
+    window.mockContentHelper = this;
     this.manualRange = true;
     this.currentState.cursorStart = start;
     this.currentState.cursorEnd = end;
-  }
-  selectLast() {
-    const text = this.el!.textContent!;
-    this.currentState.cursorStart = text.length - 1;
-    this.currentState.cursorEnd = text.length - 1;
   }
   insertText(value, color: string = "#000") {
     const text = this.el!.textContent!;
@@ -72,5 +64,27 @@ export class ContentEditableHelper {
       start: v.length,
       end: v.length,
     };
+  }
+
+  private attachEventHandlers() {
+    if (this.el === null) return;
+    this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el!, ev));
+  }
+
+  /**
+   * Mock default keydown events
+   */
+  private onKeyDown(el: HTMLElement, ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "Home":
+        this.currentState.cursorStart = 0;
+        this.currentState.cursorEnd = 0;
+        break;
+      case "End":
+        const end = el.textContent ? el.textContent.length : 0;
+        this.currentState.cursorStart = end;
+        this.currentState.cursorEnd = end;
+        break;
+    }
   }
 }

@@ -41,6 +41,12 @@ async function keydown(key: string, options: any = {}) {
   );
   await nextTick();
 }
+async function keyup(key: string, options: any = {}) {
+  composerEl.dispatchEvent(
+    new KeyboardEvent("keyup", Object.assign({ key, bubbles: true }, options))
+  );
+  await nextTick();
+}
 
 beforeEach(async () => {
   fixture = makeTestFixture();
@@ -108,6 +114,16 @@ describe("ranges and highlights", () => {
     await typeInComposer("=");
     await keydown("ArrowRight");
     expect(model.getters.getCurrentContent()).toBe("=B1");
+  });
+
+  test("=Key RIGHT twice selects C1", async () => {
+    await typeInComposer("=");
+    await keydown("ArrowRight");
+    await keyup("ArrowRight");
+    expect(model.getters.getCurrentContent()).toBe("=B1");
+    await keydown("ArrowRight");
+    await keyup("ArrowRight");
+    expect(model.getters.getCurrentContent()).toBe("=C1");
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
@@ -181,7 +197,7 @@ describe("composer", () => {
     await startComposition();
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getPosition()).toEqual([0, 0]);
-    expect(document.activeElement).toBe(fixture.querySelector("div.o-composer")!);
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
@@ -204,7 +220,7 @@ describe("composer", () => {
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     await nextTick();
     expect(getActiveXc(model)).toBe("C8");
-    expect(fixture.getElementsByClassName("o-composer")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
   test("type '=', select twice a cell", async () => {
@@ -303,6 +319,27 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=Sheet2!C8");
   });
 
+  test("Home key sets cursor at the begining", async () => {
+    await typeInComposer("Hello");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Home" }));
+    await nextTick();
+    composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "Home" }));
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
+  });
+
+  test("End key sets cursor at the begining", async () => {
+    await typeInComposer("Hello");
+    model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+    await nextTick();
+    composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
+    await nextTick();
+    composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: "End" }));
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+  });
+
   test("type =, select a cell in another sheet with space in name", async () => {
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
@@ -341,7 +378,7 @@ describe("composer", () => {
     jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
     jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
     await typeInComposer("world", false);
-    expect(styleSpy).toHaveBeenCalledWith(170); // scrollWidth + 50
+    expect(styleSpy).toHaveBeenCalledWith("170px"); // scrollWidth + 50
   });
 });
 
@@ -410,4 +447,5 @@ describe("composer highlights color", () => {
     expect(highlights[1].sheet).toBe("42");
     expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
+  test("grid composer is resized when top bar composer grows", async () => {});
 });

@@ -6,6 +6,8 @@ import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/selection";
+import { ComposerSelection } from "../plugins/edition";
+import { ComposerFocusedEvent } from "./composer/composer";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -18,8 +20,17 @@ const { useSubEnv } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet" t-on-save-requested="save" t-on-keydown="onKeydown">
-    <TopBar t-on-click="focusGrid" class="o-two-columns"/>
-    <Grid model="model" t-ref="grid" t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
+    <TopBar
+      t-on-click="focusGrid"
+      t-on-composer-focused="onTopBarComposerFocused"
+      focusComposer="focusTopBarComposer"
+      class="o-two-columns"/>
+    <Grid
+      model="model"
+      t-ref="grid"
+      focusComposer="focusGridComposer"
+      t-on-composer-focused="onGridComposerFocused"
+      t-att-class="{'o-two-columns': !sidePanel.isOpen}"/>
     <SidePanel t-if="sidePanel.isOpen"
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
@@ -83,6 +94,11 @@ export class Spreadsheet extends Component<Props> {
     panelProps: any;
   });
 
+  composer = useState({
+    topBar: false,
+    grid: false,
+  });
+
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
@@ -108,6 +124,14 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+  }
+
+  get focusTopBarComposer(): boolean {
+    return this.model.getters.getEditionMode() !== "inactive" && this.composer.topBar;
+  }
+
+  get focusGridComposer(): boolean {
+    return this.model.getters.getEditionMode() !== "inactive" && this.composer.grid;
   }
 
   mounted() {
@@ -206,6 +230,35 @@ export class Spreadsheet extends Component<Props> {
       ev.stopPropagation();
       handler();
       return;
+    }
+  }
+
+  onTopBarComposerFocused(ev: ComposerFocusedEvent) {
+    this.composer.grid = false;
+    this.composer.topBar = true;
+    this.setComposerContent(ev.detail || {});
+  }
+
+  onGridComposerFocused(ev: ComposerFocusedEvent) {
+    this.composer.topBar = false;
+    this.composer.grid = true;
+    this.setComposerContent(ev.detail || {});
+  }
+
+  /**
+   * Start the edition or update the content if it's already started.
+   */
+  private setComposerContent({
+    content,
+    selection,
+  }: {
+    content?: string | undefined;
+    selection?: ComposerSelection;
+  }) {
+    if (this.model.getters.getEditionMode() === "inactive") {
+      this.model.dispatch("START_EDITION", { text: content, selection });
+    } else if (content) {
+      this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
     }
   }
 }

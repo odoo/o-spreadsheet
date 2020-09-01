@@ -30,7 +30,7 @@ beforeEach(async () => {
   // start composition
   parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
   await nextTick();
-  composerEl = fixture.querySelector("div.o-composer")!;
+  composerEl = fixture.querySelector(".o-grid div.o-composer")!;
 });
 
 afterEach(() => {
@@ -63,7 +63,8 @@ describe("Functions autocomplete", () => {
   describe("autocomplete", () => {
     test("= do not show autocomplete", async () => {
       await typeInComposer("=");
-      expect(document.activeElement).toBe(composerEl);
+      const activeElement = document.activeElement;
+      expect(activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
 
@@ -246,8 +247,9 @@ describe("Autocomplete parenthesis", () => {
     await nextTick();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     //edit A1
-    model.dispatch("START_EDITION");
+    parent.grid.el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     await nextTick();
+    composerEl = fixture.querySelector(".o-grid div.o-composer")!;
     // @ts-ignore
     const cehMock = window.mockContentHelper as ContentEditableHelper;
     // select SUM
