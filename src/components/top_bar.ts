@@ -9,6 +9,8 @@ import { FullMenuItem } from "../registries/menu_items_registry";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { DEFAULT_FONT_SIZE } from "../constants";
 import { MenuState, Menu } from "./menu";
+import { Composer } from "./composer/composer";
+
 import { setStyle, setFormatter, topbarComponentRegistry } from "../registries/index";
 import { isChildEvent } from "./helpers/dom_helpers";
 const { Component, useState, hooks } = owl;
@@ -149,12 +151,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
           <!-- <div class="o-tool" title="Vertical align"><span>${icons.ALIGN_MIDDLE_ICON}</span> ${icons.TRIANGLE_DOWN_ICON}</div> -->
           <!-- <div class="o-tool" title="Text Wrapping">${icons.TEXT_WRAPPING_ICON}</div> -->
         </div>
-
-        <!-- Cell content -->
-        <div class="o-toolbar-cell-content">
-          <t t-set="cell" t-value="getters.getActiveCell()"/>
-          <t t-esc="cell and cell.content"/>
-        </div>
+        <Composer inputStyle="composerStyle" focus="props.focusComposer"/>
 
       </div>
     </div>`;
@@ -196,14 +193,17 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
         border-bottom: 1px solid #e0e2e4;
         display: flex;
 
+        .o-composer-container {
+          height: 34px;
+        }
+
         /* Toolbar */
         .o-toolbar-tools {
           display: flex;
-
+          flex-shrink: 0;
           margin-left: 20px;
           color: #333;
           cursor: default;
-          display: flex;
 
           .o-tool {
             display: flex;
@@ -212,6 +212,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             padding: 0 3px;
             border-radius: 2px;
             cursor: pointer;
+            min-width: fit-content;
           }
 
           .o-tool.active,
@@ -316,19 +317,10 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             }
           }
         }
-
-        /* Cell Content */
-        .o-toolbar-cell-content {
-          font-size: 12px;
-          font-weight: 500;
-          padding: 0 12px;
-          margin: 0;
-          line-height: 34px;
-        }
       }
     }
   `;
-  static components = { ColorPicker, Menu };
+  static components = { ColorPicker, Menu, Composer };
   formats = FORMATS;
   currentFormat = "auto";
   fontSizes = fontSizes;
@@ -351,6 +343,11 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   textColor: string = "black";
   menus: FullMenuItem[] = [];
   menuRef = useRef("menuRef");
+  composerStyle = `
+    line-height: 34px;
+    border-bottom: 1px solid #e0e2e4;
+    border-left: 1px solid #e0e2e4;
+  `;
 
   constructor() {
     super(...arguments);

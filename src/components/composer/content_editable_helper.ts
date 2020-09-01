@@ -6,7 +6,6 @@ export class ContentEditableHelper {
 
   updateEl(el: HTMLElement) {
     this.el = el;
-    this.el.focus();
   }
 
   /**
@@ -79,8 +78,16 @@ export class ContentEditableHelper {
    * the selection is replaced by the text to be inserted
    * */
   insertText(value: string, color: string = "#000") {
-    document.execCommand("foreColor", false, color);
-    document.execCommand("insertText", false, value);
+    if (!value) return;
+    if (document.activeElement === this.el) {
+      document.execCommand("foreColor", false, color);
+      document.execCommand("insertText", false, value);
+    } else {
+      const span = document.createElement("span");
+      span.innerText = value;
+      span.style.color = color;
+      this.el.appendChild(span);
+    }
   }
 
   /**

@@ -11,7 +11,9 @@ import {
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";
-jest.mock("../../src/components/composer/content_editable_helper");
+jest.mock("../../src/components/composer/content_editable_helper", () =>
+  require("./__mocks__/content_editable_helper")
+);
 jest.mock("../../src/components/scrollbar", () => require("./__mocks__/scrollbar"));
 
 function getVerticalScroll(): number {
@@ -41,7 +43,12 @@ describe("Grid component", () => {
   beforeEach(async () => {
     model = new Model();
     parent = new GridParent(model);
+    fixture = makeTestFixture();
     await parent.mount(fixture);
+  });
+
+  afterEach(() => {
+    fixture.remove();
   });
 
   test("simple rendering snapshot", async () => {
@@ -417,6 +424,15 @@ describe("error tooltip", () => {
     intervalCb();
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
+  test("composer content is set when clicking on merged cell (not top left)", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("C1:C8") });
+    setCellContent(model, "C1", "Hello");
+    await nextTick();
+    await simulateClick("canvas", 300, 200); // C8
+    expect(model.getters.getCurrentContent()).toBe("Hello");
   });
 });
 

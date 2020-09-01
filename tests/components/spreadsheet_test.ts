@@ -1,11 +1,20 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import { makeTestFixture, nextTick, MockClipboard, setCellContent } from "../helpers";
+import {
+  makeTestFixture,
+  nextTick,
+  MockClipboard,
+  typeInComposer,
+  setCellContent,
+} from "../helpers";
 import { Model } from "../../src";
 import { SelectionMode } from "../../src/plugins/selection";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEBUG } from "../../src/helpers";
+jest.mock("../../src/components/composer/content_editable_helper", () =>
+  require("./__mocks__/content_editable_helper")
+);
 
 const { xml } = tags;
 const { useRef } = hooks;
@@ -208,5 +217,108 @@ describe("Spreadsheet", () => {
     );
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+  });
+});
+
+describe("Composer interactions", () => {
+  test("type in grid composer adds text to topbar composer", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+    await nextTick();
+    const gridComposer = document.querySelector(".o-grid .o-composer");
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    expect(document.activeElement).toBe(gridComposer);
+    await typeInComposer(gridComposer!, "text");
+    expect(topBarComposer!.textContent).toBe("text");
+    expect(gridComposer!.textContent).toBe("text");
+  });
+
+  test("type in topbar composer adds text to grid composer", async () => {
+    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    const gridComposer = document.querySelector(".o-grid .o-composer");
+    expect(topBarComposer).toBeDefined();
+    expect(document.activeElement).toBe(topBarComposer);
+    expect(gridComposer).toBeDefined();
+    await typeInComposer(topBarComposer!, "text");
+    await nextTick();
+    expect(topBarComposer!.textContent).toBe("text");
+    expect(gridComposer!.textContent).toBe("text");
+  });
+
+  test("start typing in topbar composer then continue in grid composer", async () => {
+    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    const gridComposer = document.querySelector(".o-grid .o-composer");
+
+    // Type in top bar composer
+    await typeInComposer(topBarComposer!, "from topbar");
+    expect(topBarComposer!.textContent).toBe("from topbar");
+    expect(gridComposer!.textContent).toBe("from topbar");
+
+    // Focus grid composer and type
+    triggerMouseEvent(".o-grid .o-composer", "click");
+    await nextTick();
+    await typeInComposer(gridComposer!, "from grid");
+    expect(topBarComposer!.textContent).toBe("from topbarfrom grid");
+    expect(gridComposer!.textContent).toBe("from topbarfrom grid");
+  });
+
+  test("top bar composer display active cell content", async () => {
+    setCellContent(parent.model, "A2", "Hello");
+    parent.model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    expect(topBarComposer!.textContent).toBe("Hello");
+  });
+
+  test("autocomplete disapear when grid composer is blured", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
+    const gridComposer = document.querySelector(".o-grid .o-composer")!;
+    await typeInComposer(gridComposer, "=SU");
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeDefined();
+    topBarComposer.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+  });
+
+  test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
+    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
+    const gridComposer = document.querySelector(".o-grid .o-composer")! as HTMLElement;
+    const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
+    await typeInComposer(gridComposer, "=SU");
+    await nextTick();
+    topBarComposer.dispatchEvent(new Event("click"));
+    await nextTick();
+    expect(document.activeElement).toBe(topBarComposer);
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  test("selecting ranges multiple times in topbar bar does not resize grid composer", async () => {
+    triggerMouseEvent(".o-spreadsheet-topbar .o-composer", "click");
+    await nextTick();
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
+    // Type in top bar composer
+    await typeInComposer(topBarComposer!, "=");
+    const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
+    await nextTick();
+    parent.model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    await nextTick();
+    parent.model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+    await nextTick();
+    expect(spy).not.toHaveBeenCalled();
   });
 });

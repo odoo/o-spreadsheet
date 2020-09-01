@@ -422,6 +422,7 @@ export interface StopComposerSelectionCommand extends BaseCommand {
 export interface StartEditionCommand extends BaseCommand {
   type: "START_EDITION";
   text?: string;
+  selection?: ComposerSelection;
 }
 
 export interface StopEditionCommand extends BaseCommand {
