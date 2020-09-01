@@ -1107,6 +1107,16 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("A2") });
     expect(model.getters.getCell(0, 1)!.content).toBe("=#REF");
   });
+
+  test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(Sheet2!A2:A5)" });
+
+    model.dispatch("COPY", { target: target("A1") });
+    model.dispatch("PASTE", { target: target("B1") });
+    expect(model.getters.getCell(1, 0)!.content).toBe("=SUM(Sheet2!B2:B5)");
+  });
 });
 
 describe("clipboard: pasting outside of sheet", () => {

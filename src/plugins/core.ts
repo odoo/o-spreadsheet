@@ -1045,6 +1045,8 @@ export class CorePlugin extends BasePlugin {
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
+    //As updateReference put the sheet in the ref, we need to remove it from the right part
+    right = right.split("!").pop()!;
     return `${left}:${right}`;
   }
 
