@@ -189,7 +189,10 @@ export class EvaluationPlugin extends BasePlugin {
       computeValue(cell, sheetId);
     }
 
-    function handleError(e: Error, cell: Cell) {
+    function handleError(e: Error | any, cell: Cell) {
+      if (!(e instanceof Error)) {
+        e = new Error(e);
+      }
       if (PENDING.has(cell)) {
         PENDING.delete(cell);
         self.loadingCells--;
@@ -265,7 +268,7 @@ export class EvaluationPlugin extends BasePlugin {
       getters: this.getters,
     });
     const sheets = this.workbook.sheets;
-
+    const PENDING = this.PENDING;
     function readCell(xc: string, sheet: string): any {
       let cell;
       const s = sheets[sheet];
@@ -281,6 +284,9 @@ export class EvaluationPlugin extends BasePlugin {
     }
 
     function getCellValue(cell: Cell, sheetId: string): any {
+      if (cell.async && cell.error && !PENDING.has(cell)) {
+        throw new Error(_lt("This formula depends on invalid values"));
+      }
       computeValue(cell, sheetId);
       if (cell.error) {
         throw new Error(_lt("This formula depends on invalid values"));

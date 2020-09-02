@@ -239,6 +239,11 @@ function clearTimers() {
   }
 }
 
+export async function asyncComputations() {
+  clearTimers();
+  await nextTick();
+}
+
 export async function waitForRecompute() {
   patch.resolveAll();
   await nextTick();
