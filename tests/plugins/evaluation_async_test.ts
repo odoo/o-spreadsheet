@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
-import { patch, waitForRecompute } from "../helpers";
+import { patch, waitForRecompute, asyncComputations } from "../helpers";
 import { LOADING } from "../../src/plugins/evaluation";
+import { functionRegistry, args } from "../../src/functions";
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {
@@ -178,5 +179,72 @@ describe("evaluateCells, async formulas", () => {
     await waitForRecompute();
 
     expect(model["workbook"].activeSheet.cells["A2"].value).toEqual("#ERROR");
+  });
+
+  test("sync formula depending on error async cell", async () => {
+    functionRegistry.add("CRASHING", {
+      async: true,
+      description: "This async formula crashes",
+      args: args(``),
+      compute: () => {
+        throw new Error("I crashed");
+      },
+      returns: ["ANY"],
+    });
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=CRASHING()" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=SUM(A1)" });
+    await asyncComputations();
+    expect(model.getters.getCell(0, 0)!.value).toEqual("#ERROR");
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
+    await asyncComputations();
+    expect(model.getters.getCell(0, 0)!.value).toEqual("#ERROR");
+    expect(model.getters.getCell(0, 1)!.value).toEqual("#ERROR");
+  });
+
+  test("async formulas in errors are re-evaluated", async () => {
+    functionRegistry.add("ONLYPOSITIVE", {
+      async: true,
+      description: "This async formula crashes for negative numbers",
+      args: args(`value (number)`),
+      compute: (value) => {
+        if (value < 0) {
+          throw new Error("I only like positive numbers");
+        }
+        return value;
+      },
+      returns: ["ANY"],
+    });
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A2", text: "-1" });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=ONLYPOSITIVE(A2)" });
+    await asyncComputations();
+    expect(model.getters.getCell(0, 0)!.value).toEqual("#ERROR");
+    model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
+    await asyncComputations();
+    expect(model.getters.getCell(0, 0)!.value).toEqual(1);
+  });
+
+  test("async formulas rejected with a reason", async () => {
+    functionRegistry.add("REJECT", {
+      async: true,
+      description: "This async formula is rejected",
+      args: args(`value (any, optional)`),
+      compute: (value: string | undefined) => {
+        return new Promise((resolve, reject) => reject(value || undefined));
+      },
+      returns: ["ANY"],
+    });
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: `=REJECT("This is an error")` });
+    model.dispatch("SET_VALUE", { xc: "A2", text: `=REJECT()` });
+    model.dispatch("SET_VALUE", { xc: "A3", text: `=REJECT(4)` });
+    await asyncComputations();
+    expect(model.getters.getCell(0, 0)!.value).toBe("#ERROR");
+    expect(model.getters.getCell(0, 1)!.value).toBe("#ERROR");
+    expect(model.getters.getCell(0, 2)!.value).toBe("#ERROR");
+    expect(model.getters.getCell(0, 0)!.error).toBe("This is an error");
+    expect(model.getters.getCell(0, 1)!.error).toBe("");
+    expect(model.getters.getCell(0, 2)!.error).toBe("4");
   });
 });
