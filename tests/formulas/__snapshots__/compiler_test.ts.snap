@@ -1,5 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
+"function anonymous(cell,range,ctx
+) {
+// =USEMETAARG(A1)
+let _2 = \\"A1\\"
+ctx.__lastFnCalled = 'USEMETAARG'
+let _1 = ctx['USEMETAARG'](_2)
+return _1;
+}"
+`;
+
+exports[`compile functions with meta arguments function call requesting meta parameter 2`] = `
+"function anonymous(cell,range,ctx
+) {
+// =USEMETAARG(B2)
+let _2 = \\"B2\\"
+ctx.__lastFnCalled = 'USEMETAARG'
+let _1 = ctx['USEMETAARG'](_2)
+return _1;
+}"
+`;
+
 exports[`expression compiler async functions 1`] = `
 "async function anonymous(cell,range,ctx
 ) {

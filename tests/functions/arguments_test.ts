@@ -1,4 +1,4 @@
-import { args } from "../../src/functions/arguments";
+import { args, validateArguments } from "../../src/functions/arguments";
 
 describe("args", () => {
   test("various", () => {
@@ -137,5 +137,76 @@ describe("args", () => {
         repeating: true,
       },
     ]);
+  });
+});
+
+describe("arguments validation", () => {
+  test("'META' type can only be declared alone", () => {
+    expect(() => validateArguments(args(`metaArg (meta)`))).not.toThrow();
+    expect(() => validateArguments(args(`metaArg (meta, optional)`))).not.toThrow();
+    expect(() => validateArguments(args(`metaArg (meta, repeating)`))).not.toThrow();
+
+    expect(() => validateArguments(args(`metaArg (meta, any)`))).toThrow();
+    expect(() => validateArguments(args(`metaArg (meta, range)`))).toThrow();
+    expect(() => validateArguments(args(`metaArg (meta, number)`))).toThrow();
+    expect(() => validateArguments(args(`metaArg (meta, string)`))).toThrow();
+    expect(() => validateArguments(args(`metaArg (meta, boolean)`))).toThrow();
+  });
+
+  test("The maximum repeating arguments is 1", () => {
+    expect(() =>
+      validateArguments(
+        args(`
+      arg1 (any)
+      arg2 (any, repeating)
+    `)
+      )
+    ).not.toThrow();
+    expect(() =>
+      validateArguments(
+        args(`
+      arg1 (any, repeating)
+      arg2 (any, repeating)
+    `)
+      )
+    ).toThrow();
+    expect(() =>
+      validateArguments(
+        args(`
+      arg1 (any, repeating)
+      arg2 (any)
+    `)
+      )
+    ).toThrow();
+  });
+
+  test("All optional arguments must be after all mandatory arguments", () => {
+    expect(() =>
+      validateArguments(
+        args(`
+      arg1 (any)
+      arg2 (any, optional)
+      arg3 (any, optional)
+    `)
+      )
+    ).not.toThrow();
+    expect(() =>
+      validateArguments(
+        args(`
+    arg1 (any)
+    arg2 (any, optional)
+    arg3 (any, optional, repeating)
+  `)
+      )
+    ).not.toThrow();
+    expect(() =>
+      validateArguments(
+        args(`
+      arg1 (any)
+      arg2 (any, optional)
+      arg3 (any)
+    `)
+      )
+    ).toThrow();
   });
 });

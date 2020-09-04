@@ -50,11 +50,9 @@ export interface NewCell {
   format?: string;
 }
 
-type _CompiledFormula = (
-  readCell: (xc: string, sheet: string) => any,
-  range: (v1: string, v2: string, sheetName: string) => any[],
-  ctx: {}
-) => any;
+export type ReadCell = (xc: string, sheet: string) => any;
+export type Range = (v1: string, v2: string, sheetName: string) => any[];
+export type _CompiledFormula = (readCell: ReadCell, range: Range, ctx: {}) => any;
 
 export interface CompiledFormula extends _CompiledFormula {
   async: boolean;

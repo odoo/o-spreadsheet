@@ -873,7 +873,7 @@ export class CorePlugin extends BasePlugin {
       if (cell.type === "formula") {
         cell.error = undefined;
         try {
-          cell.formula = compile(content, sheetId, this.sheetIds);
+          cell.formula = compile(content, sheetId, this.sheetIds, xc);
           cell.async = cell.formula.async;
         } catch (e) {
           cell.value = "#BAD_EXPR";

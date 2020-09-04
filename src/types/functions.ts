@@ -7,7 +7,8 @@ export type ArgType =
   | "RANGE"
   | "RANGE<BOOLEAN>"
   | "RANGE<NUMBER>"
-  | "RANGE<STRING>";
+  | "RANGE<STRING>"
+  | "META";
 
 export interface Arg {
   repeating?: boolean;
@@ -30,5 +31,6 @@ export interface FunctionDescription {
 
 export interface EvalContext {
   __lastFnCalled?: string;
+  __originCellXC?: string;
   [key: string]: any;
 }

@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg } from "../types/index";
+import { CompiledFormula, Arg, ReadCell, EvalContext, Range } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
 
@@ -40,7 +40,8 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 export function compile(
   str: string,
   sheet: string,
-  sheets: { [name: string]: string }
+  sheets: { [name: string]: string },
+  originCellXC?: string
 ): CompiledFormula {
   const ast = parse(str);
   let nextId = 1;
@@ -66,18 +67,24 @@ export function compile(
    * between a cell value and a non cell value.
    */
   function compileFunctionArgs(ast: ASTAsyncFuncall | ASTFuncall): string[] {
-    const fn = functions[ast.value.toUpperCase()];
-    const result: string[] = [];
-    const args = ast.args;
-    let argDescr: Arg;
+    const functionDefinition = functions[ast.value.toUpperCase()];
+    let argDefinition: Arg;
 
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      argDescr = fn.args[i] || argDescr!;
-      const isLazy = argDescr && argDescr.lazy;
-      let argValue = compileAST(arg, isLazy);
+    const result: string[] = [];
+    const currentFunctionArguments = ast.args;
+
+    for (let i = 0; i < currentFunctionArguments.length; i++) {
+      const arg = currentFunctionArguments[i];
+      argDefinition = functionDefinition.args[i] || argDefinition!;
+      const types = argDefinition && argDefinition.type;
+      let argValue: any;
+      // detect when an argument need to be evaluated as a meta argument
+      const isMeta = types && types.includes("META");
+      // detect when an argument need to be evaluated as a lazy argument
+      const isLazy = argDefinition && argDefinition.lazy;
+      argValue = compileAST(arg, isLazy, isMeta);
+      // transform cell value into a range
       if (arg.type === "REFERENCE") {
-        const types = argDescr.type;
         const hasRange = types.find(
           (t) =>
             t === "RANGE" ||
@@ -91,10 +98,12 @@ export function compile(
       }
       result.push(argValue);
     }
-    const isRepeating = fn.args.length ? fn.args[fn.args.length - 1].repeating : false;
+    const isRepeating = functionDefinition.args.length
+      ? functionDefinition.args[functionDefinition.args.length - 1].repeating
+      : false;
     let minArg = 0;
-    let maxArg = isRepeating ? Infinity : fn.args.length;
-    for (let arg of fn.args) {
+    let maxArg = isRepeating ? Infinity : functionDefinition.args.length;
+    for (let arg of functionDefinition.args) {
       if (!arg.optional) {
         minArg++;
       }
@@ -103,14 +112,37 @@ export function compile(
       throw new Error(
         _lt(`
           Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-          Expected ${fn.args.length}, but got ${result.length} instead.`)
+          Expected ${functionDefinition.args.length}, but got ${result.length} instead.`)
       );
     }
     return result;
   }
-  function compileAST(ast: AST, isLazy = false): any {
+
+  /**
+   * This function compiles all the information extracted by the parser into an
+   * executable code for the evaluation of the cells content. It uses a cash to
+   * not reevaluate identical code structures.
+   *
+   * The funcion is sensitive to two parameters “isLazy” and “isMeta”. These
+   * parameters may vary when compiling function arguments:
+   *
+   * - isLazy: In some cases the function arguments does not need to be
+   * evaluated before entering the functions. For example the IF function might
+   * take invalid arguments that do not need to be evaluate and thus should not
+   * create an error. For this we have lazy arguments.
+   *
+   * - isMeta: In some cases the function arguments expects informations on the
+   * cell/range other than the associated value(s). For example the COLUMN
+   * function needs to receive as argument the coordinates of a cell rather
+   * than its value. For this we have meta arguments.
+   */
+
+  function compileAST(ast: AST, isLazy = false, isMeta = false): string {
     let id, left, right, args, fnName, statement;
     if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
+      if (isMeta) {
+        throw new Error(_lt(`Argument must be a reference to a cell or range.`));
+      }
       cacheKey += "_" + ast.value;
     }
     if (ast.debug) {
@@ -122,17 +154,22 @@ export function compile(
       case "NUMBER":
       case "STRING":
         if (!isLazy) {
-          return ast.value;
+          return ast.value as string;
         }
         id = nextId++;
         statement = `${ast.value}`;
         break;
       case "REFERENCE":
         id = nextId++;
-        cacheKey += "__REF";
-        const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
-        const refIdx = cellRefs.push([ast.value, sheetId]) - 1;
-        statement = `cell(${refIdx})`;
+        if (isMeta) {
+          statement = `"${ast.value}"`;
+          cacheKey += "_" + statement;
+        } else {
+          cacheKey += "__REF";
+          const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
+          const refIdx = cellRefs.push([ast.value, sheetId]) - 1;
+          statement = `cell(${refIdx})`;
+        }
         break;
       case "FUNCALL":
         id = nextId++;
@@ -159,11 +196,16 @@ export function compile(
       case "BIN_OPERATION":
         id = nextId++;
         if (ast.value === ":") {
-          cacheKey += "__RANGE";
-          const sheetName = ast.left.type === "REFERENCE" && ast.left.sheet;
-          const sheetId = sheetName ? sheets[sheetName] : sheet;
-          const rangeIdx = rangeRefs.push([ast.left.value, ast.right.value, sheetId]) - 1;
-          statement = `range(${rangeIdx});`;
+          if (isMeta) {
+            statement = `"${ast.left.value}:${ast.right.value}"`;
+            cacheKey += "_" + statement;
+          } else {
+            cacheKey += "__RANGE";
+            const sheetName = ast.left.type === "REFERENCE" && ast.left.sheet;
+            const sheetId = sheetName ? sheets[sheetName] : sheet;
+            const rangeIdx = rangeRefs.push([ast.left.value, ast.right.value, sheetId]) - 1;
+            statement = `range(${rangeIdx});`;
+          }
         } else {
           left = compileAST(ast.left);
           right = compileAST(ast.right);
@@ -191,7 +233,9 @@ export function compile(
     baseFunction = new Constructor("cell", "range", "ctx", code.join("\n"));
     functionCache[cacheKey] = baseFunction;
   }
-  const resultFn = (cell, range, ctx) => {
+  const resultFn = (cell: ReadCell, range: Range, ctx: EvalContext) => {
+    ctx.__originCellXC = originCellXC;
+
     const cellFn = (idx) => {
       const [xc, sheetId] = cellRefs[idx];
       return cell(xc, sheetId);
