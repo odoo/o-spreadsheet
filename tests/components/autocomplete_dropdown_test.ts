@@ -1,5 +1,12 @@
 import { Model } from "../../src/model";
-import { GridParent, makeTestFixture, nextTick, resetFunctions, getCell } from "../helpers";
+import {
+  GridParent,
+  makeTestFixture,
+  nextTick,
+  resetFunctions,
+  getCell,
+  typeInComposer as typeInComposerHelper,
+} from "../helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -11,10 +18,7 @@ let composerEl: Element;
 let fixture: HTMLElement;
 let parent: any;
 async function typeInComposer(text: string) {
-  composerEl.append(text);
-  composerEl.dispatchEvent(new Event("input"));
-  composerEl.dispatchEvent(new Event("keyup"));
-  await nextTick();
+  await typeInComposerHelper(composerEl, text);
 }
 
 beforeEach(async () => {

@@ -1,5 +1,14 @@
 import { Model } from "../../src/model";
-import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell, setCellContent } from "../helpers";
+import {
+  nextTick,
+  makeTestFixture,
+  GridParent,
+  getActiveXc,
+  getCell,
+  startGridComposition as startComposition,
+  typeInComposer as typeInComposerHelper,
+  setCellContent,
+} from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
@@ -21,20 +30,9 @@ function getHighlights(model: Model): any[] {
 
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
-    await startComposition();
+    composerEl = await startComposition();
   }
-  // @ts-ignore
-  const cehMock = window.mockContentHelper as ContentEditableHelper;
-  cehMock.insertText(text);
-  composerEl.dispatchEvent(new Event("input", { bubbles: true }));
-  composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
-  await nextTick();
-}
-
-async function startComposition(key: string = "Enter") {
-  canvasEl.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
-  await nextTick();
-  composerEl = fixture.querySelector("div.o-composer")!;
+  await typeInComposerHelper(composerEl, text);
 }
 
 async function keydown(key: string, options: any = {}) {
@@ -187,12 +185,12 @@ describe("composer", () => {
   });
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
-    await startComposition("=");
+    composerEl = await startComposition("=");
     expect(composerEl.textContent).toBe("=");
   });
 
   test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
-    await startComposition("b");
+    composerEl = await startComposition("b");
     expect(composerEl.textContent).toBe("b");
   });
 
@@ -242,7 +240,6 @@ describe("composer", () => {
   });
 
   test("typing incorrect formula then enter exits the edit mode and moves to the next cell down", async () => {
-    await startComposition();
     await typeInComposer("=qsdf");
     await keydown("Enter");
     expect(getCell(model, "A1")!.content).toBe("=qsdf");
@@ -383,7 +380,7 @@ describe("composer highlights color", () => {
 
   test("highlight range", async () => {
     setCellContent(model, "A1", "=sum(a1:a10)");
-    await startComposition();
+    composerEl = await startComposition();
     expect(getHighlights(model).length).toBe(1);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
     expect(composerEl.textContent).toBe("=sum(a1:a10)");
@@ -397,7 +394,7 @@ describe("composer highlights color", () => {
 
   test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async (ref) => {
     setCellContent(model, "A1", ref);
-    await startComposition();
+    composerEl = await startComposition();
     expect(getHighlights(model).length).toBe(0);
     expect(composerEl.textContent).toBe(ref);
   });

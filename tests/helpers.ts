@@ -389,6 +389,22 @@ export function createColorScale(
   };
 }
 
+export async function typeInComposer(composerEl: Element, text: string) {
+  // @ts-ignore
+  const cehMock = window.mockContentHelper as ContentEditableHelper;
+  cehMock.insertText(text);
+  composerEl.dispatchEvent(new Event("input", { bubbles: true }));
+  composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
+  await nextTick();
+}
+
+export async function startGridComposition(key: string = "Enter") {
+  const gridEl = document.querySelector(".o-grid");
+  gridEl!.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+  await nextTick();
+  return document.querySelector(".o-grid .o-composer")!;
+}
+
 /**
  * The Touch API is currently experimental (mid 2020).
  * This implementation is used in test to easily trigger TouchEvents.
