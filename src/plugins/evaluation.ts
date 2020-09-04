@@ -4,7 +4,7 @@ import { functionRegistry } from "../functions/index";
 import { mapCellsInZone, toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters } from "../types";
+import { Cell, Command, CommandDispatcher, EvalContext, Getters, ReadCell, Range } from "../types";
 import { _lt } from "../translation";
 
 function* makeObjectIterator(obj: Object) {
@@ -21,8 +21,6 @@ function* makeSetIterator(set: Set<any>) {
 
 const functionMap = functionRegistry.mapping;
 
-type ReadCell = (xc: string, sheet: string) => any;
-type Range = (v1: string, v2: string, sheetName: string) => any[];
 type FormulaParameters = [ReadCell, Range, EvalContext];
 
 export const LOADING = "Loading...";

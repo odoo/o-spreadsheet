@@ -7,6 +7,7 @@ import {
   dichotomicSuccessorSearch,
 } from "./helpers";
 import { _lt } from "../translation";
+import { toZone } from "../helpers/index";
 
 /**
  * Perform a linear search and return the index of the perfect match.
@@ -27,6 +28,52 @@ function linearSearch(range: any[], target: any): number {
   // no value is found, -1 is returned
   return -1;
 }
+
+// -----------------------------------------------------------------------------
+// COLUMN
+// -----------------------------------------------------------------------------
+
+export const COLUMN: FunctionDescription = {
+  description: _lt("Column number of a specified cell."),
+  args: args(
+    `cell_reference (meta, optional, default='The cell in which the formula is entered by default') ${_lt(
+      "The cell whose column number will be returned. Column A corresponds to 1."
+    )}
+    `
+  ),
+  returns: ["NUMBER"],
+  compute: function (cellReference?: string): number {
+    let zone;
+    if (cellReference) {
+      zone = toZone(cellReference);
+    } else {
+      if (this.__originCellXC) {
+        zone = toZone(this.__originCellXC);
+      } else {
+        throw new Error(
+          _lt(
+            `In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter.`
+          )
+        );
+      }
+    }
+    return zone.left + 1;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// COLUMNS
+// -----------------------------------------------------------------------------
+
+export const COLUMNS: FunctionDescription = {
+  description: _lt("Number of columns in a specified array or range."),
+  args: args(`range (meta) ${_lt("The range whose column count will be returned.")}`),
+  returns: ["NUMBER"],
+  compute: function (range: string): number {
+    const zone = toZone(range);
+    return zone.right - zone.left + 1;
+  },
+};
 
 // -----------------------------------------------------------------------------
 // LOOKUP
@@ -116,6 +163,49 @@ export const MATCH: FunctionDescription = {
     } else {
       throw new Error(_lt(`Did not find value '${search_key}' in MATCH evaluation.`));
     }
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ROW
+// -----------------------------------------------------------------------------
+
+export const ROW: FunctionDescription = {
+  description: _lt("Row number of a specified cell."),
+  args: args(
+    `cell_reference (meta, optional, default='The cell in which the formula is entered by default')) ${_lt(
+      "The cell whose row number will be returned."
+    )}`
+  ),
+  returns: ["NUMBER"],
+  compute: function (cellReference?: string): number {
+    let zone;
+    if (cellReference) {
+      zone = toZone(cellReference);
+    } else {
+      if (this.__originCellXC) {
+        zone = toZone(this.__originCellXC);
+      } else {
+        throw Error(
+          `In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter.`
+        );
+      }
+    }
+    return zone.top + 1;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// ROWS
+// -----------------------------------------------------------------------------
+
+export const ROWS: FunctionDescription = {
+  description: _lt("Number of rows in a specified array or range."),
+  args: args(`range (meta) ${_lt("The range whose row count will be returned.")}`),
+  returns: ["NUMBER"],
+  compute: function (range: string): number {
+    const zone = toZone(range);
+    return zone.bottom - zone.top + 1;
   },
 };
 

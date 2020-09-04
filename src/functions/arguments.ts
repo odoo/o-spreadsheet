@@ -16,6 +16,7 @@ const ARG_TYPES: ArgType[] = [
   "RANGE<BOOLEAN>",
   "RANGE<NUMBER>",
   "RANGE<STRING>",
+  "META",
 ];
 
 /**
@@ -92,6 +93,14 @@ export function validateArguments(args: Arg[]) {
   let previousArgRepeating: boolean | undefined = false;
   let previousArgOptional: boolean | undefined = false;
   for (let current of args) {
+    if (current.type.includes("META") && current.type.length > 1) {
+      throw new Error(
+        _lt(
+          "Function ${name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone."
+        )
+      );
+    }
+
     if (previousArgRepeating) {
       throw new Error(
         _lt(

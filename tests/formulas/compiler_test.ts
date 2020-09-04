@@ -1,5 +1,6 @@
 import { compile } from "../../src/formulas";
 import { functionCache } from "../../src/formulas/compiler";
+import { functionRegistry } from "../../src/functions/index";
 
 function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
@@ -75,5 +76,73 @@ describe("expression compiler", () => {
     expect(() => compiledBaseFunction("=sum(1)")).not.toThrowError();
     expect(() => compiledBaseFunction("=sum(1,2)")).not.toThrowError();
     expect(() => compiledBaseFunction("=sum(1,2,3)")).not.toThrowError();
+  });
+});
+
+describe("compile functions with meta arguments", () => {
+  beforeAll(() => {
+    functionRegistry.add("USEMETAARG", {
+      description: "function with a meta argument",
+      compute: (arg) => arg,
+      args: [{ name: "arg", description: "", type: ["META"] }],
+      returns: ["STRING"],
+    });
+    functionRegistry.add("NOTUSEMETAARG", {
+      description: "function with a meta argument",
+      compute: (arg) => arg,
+      args: [{ name: "arg", description: "", type: ["ANY"] }],
+      returns: ["ANY"],
+    });
+  });
+
+  test("function call requesting meta parameter", () => {
+    expect(compiledBaseFunction("=USEMETAARG(A1)")).toMatchSnapshot();
+    expect(compiledBaseFunction("=USEMETAARG(B2)")).toMatchSnapshot();
+  });
+
+  test("function call requesting meta parameter throws error if parameter isn't cell/range reference", () => {
+    expect(() => compiledBaseFunction("=USEMETAARG(X8)")).not.toThrow();
+    expect(() => compiledBaseFunction("=USEMETAARG($X$8)")).not.toThrow();
+    expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!X8)")).not.toThrow();
+    expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!X8)")).not.toThrow();
+
+    expect(() => compiledBaseFunction("=USEMETAARG(D3:Z9)")).not.toThrow();
+    expect(() => compiledBaseFunction("=USEMETAARG($D$3:$Z$9)")).not.toThrow();
+    expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!$D$3:$Z$9)")).not.toThrow();
+    expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!D3:Z9)")).not.toThrow();
+
+    expect(() => compiledBaseFunction('=USEMETAARG("kikou")')).toThrowError();
+    expect(() => compiledBaseFunction('=USEMETAARG("")')).toThrowError();
+    expect(() => compiledBaseFunction("=USEMETAARG(TRUE)")).toThrowError();
+    expect(() => compiledBaseFunction("=USEMETAARG(SUM(1,2,3))")).toThrowError();
+  });
+
+  test("functions call requesting a meta parameter does not care about the value of the cell / range passed as a reference", () => {
+    const compiledFormula1 = compile("=USEMETAARG(A1)", "Sheet1", { Sheet1: "1" });
+    const compiledFormula2 = compile("=USEMETAARG(A1:B2)", "Sheet1", { Sheet1: "1" });
+    const compiledFormula3 = compile("=NOTUSEMETAARG(A1)", "Sheet1", { Sheet1: "1" });
+    const compiledFormula4 = compile("=NOTUSEMETAARG(A1:B2)", "Sheet1", { Sheet1: "1" });
+
+    let cellFunctionIsCalled = jest.fn();
+    let rangeFunctionIsCalled = jest.fn();
+
+    const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
+
+    compiledFormula1(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
+    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
+    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+
+    compiledFormula2(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
+    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
+    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+
+    compiledFormula3(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
+    expect(cellFunctionIsCalled).toHaveBeenCalled();
+    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+    cellFunctionIsCalled.mockReset();
+
+    compiledFormula4(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
+    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
+    expect(rangeFunctionIsCalled).toHaveBeenCalled();
   });
 });
