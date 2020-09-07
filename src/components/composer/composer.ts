@@ -267,6 +267,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
 
   onKeyup(ev: KeyboardEvent) {
     if (
+      this.isDone ||
       [
         "Control",
         "Shift",

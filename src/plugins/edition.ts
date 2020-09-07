@@ -41,7 +41,9 @@ export class EditionPlugin extends BasePlugin {
         });
         break;
       case "STOP_COMPOSER_SELECTION":
-        this.mode = "editing";
+        if (this.mode === "selecting") {
+          this.mode = "editing";
+        }
         break;
       case "START_EDITION":
         this.startEdition(cmd.text);
