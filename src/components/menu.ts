@@ -58,6 +58,7 @@ const CSS = css/* scss */ `
     font-size: 13px;
     overflow-y: auto;
     z-index: 10;
+    padding: 5px 0px;
     .o-menu-item {
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
