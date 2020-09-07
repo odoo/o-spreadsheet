@@ -70,4 +70,11 @@ describe("edition", () => {
     model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: sheet1 });
     expect(getCell(model, "A1")!.content).toBe("=");
   });
+
+  test("ignore stopping composer selection if not selecting", () => {
+    const model = new Model();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+    model.dispatch("STOP_COMPOSER_SELECTION");
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
 });

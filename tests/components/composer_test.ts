@@ -248,6 +248,27 @@ describe("composer", () => {
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("");
   });
+  test("keyup event triggered after edition end", async () => {
+    canvasEl.dispatchEvent(
+      new KeyboardEvent("keydown", Object.assign({ key: "d", bubbles: true }))
+    );
+    await nextTick();
+    const composerEl = fixture.querySelector("div.o-composer")!;
+    expect(model.getters.getEditionMode()).toBe("editing");
+    // Enter is pressed really fast while another character is pressed such that
+    // the character keyup event happens after the Enter
+    composerEl.dispatchEvent(
+      new KeyboardEvent("keydown", Object.assign({ key: "Enter", bubbles: true }))
+    );
+    composerEl.dispatchEvent(
+      new KeyboardEvent("keyup", Object.assign({ key: "Enter", bubbles: true }))
+    );
+    composerEl.dispatchEvent(
+      new KeyboardEvent("keyup", Object.assign({ key: "d", bubbles: true }))
+    );
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
 
   test("typing a formula with a space should put the composer in 'selecting' mode", async () => {
     await startComposition();
