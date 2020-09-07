@@ -5,6 +5,7 @@ import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { colors, DEBUG } from "../../helpers/index";
+import { toXC } from "../../helpers/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -43,6 +44,7 @@ const TEMPLATE = xml/* xml */ `
       t-on-blur="saveSelection"
       t-on-click="onClick"
     />
+    <div t-esc="toXC(...getters.getPosition())"/>
     <TextValueProvider
         t-if="autoCompleteState.showProvider"
         t-ref="o_autocomplete_provider"
@@ -85,6 +87,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
 
   getters = this.env.getters;
   dispatch = this.env.dispatch;
+  toXC = toXC;
 
   zone: Zone;
   rect: Rect;
@@ -276,7 +279,8 @@ export class Composer extends Component<any, SpreadsheetEnv> {
         "ArrowRight",
         "Tab",
         "Enter",
-      ].includes(ev.key)
+      ].includes(ev.key) ||
+      this.isDone
     ) {
       // already processed in keydown
       return;

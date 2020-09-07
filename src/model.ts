@@ -171,6 +171,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+    console.trace(type, payload);
     const command: Command = Object.assign({ type }, payload);
     let status: Status = command.interactive ? Status.Interactive : this.status;
     switch (status) {

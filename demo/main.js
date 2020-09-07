@@ -33,7 +33,7 @@ class App extends Component {
     } catch (_) {
       window.localStorage.removeItem("o-spreadsheet");
     }
-    this.data = cacheData || demoData;
+    this.data = {}; //cacheData || demoData;
     useSubEnv({
       save: this.save.bind(this),
     });
