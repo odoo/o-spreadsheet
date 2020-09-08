@@ -7,10 +7,12 @@ import { toCartesian, toXC } from "./coordinates";
  * Examples:
  *    "A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
  *    "B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *    "Sheet1!A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
+ *    "Sheet1!B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
  *
- *  TODO VSC: Support 'Sheet!' reference
  */
 export function toZone(xc: string): Zone {
+  xc = xc.split("!").pop()!;
   const ranges = xc.replace("$", "").split(":");
   let top: number, bottom: number, left: number, right: number;
 
