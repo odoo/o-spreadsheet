@@ -80,7 +80,7 @@ export class CorePlugin extends BasePlugin {
       case "CREATE_SHEET":
       case "DUPLICATE_SHEET":
         const { visibleSheets, sheets } = this.workbook;
-        return !cmd.name || visibleSheets.findIndex((id) => sheets[id].name === cmd.name) === -1
+        return !cmd.name || !visibleSheets.find((id) => sheets[id].name === cmd.name)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       case "MOVE_SHEET":
@@ -88,8 +88,8 @@ export class CorePlugin extends BasePlugin {
         if (currentIndex === -1) {
           return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
         }
-        return (cmd.left && currentIndex === 0) ||
-          (!cmd.left && currentIndex === this.workbook.visibleSheets.length - 1)
+        return (cmd.direction === "left" && currentIndex === 0) ||
+          (cmd.direction === "right" && currentIndex === this.workbook.visibleSheets.length - 1)
           ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
           : { status: "SUCCESS" };
       case "RENAME_SHEET":
@@ -121,7 +121,7 @@ export class CorePlugin extends BasePlugin {
         }
         break;
       case "MOVE_SHEET":
-        this.moveSheet(cmd.sheet, cmd.left);
+        this.moveSheet(cmd.sheet, cmd.direction);
         break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
@@ -888,11 +888,11 @@ export class CorePlugin extends BasePlugin {
     return sheet.id;
   }
 
-  private moveSheet(sheetId: string, left: boolean) {
+  private moveSheet(sheetId: string, direction: "left" | "right") {
     const visibleSheets = this.workbook.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
     const sheet = visibleSheets.splice(currentIndex, 1);
-    visibleSheets.splice(currentIndex + (left ? -1 : 1), 0, sheet[0]);
+    visibleSheets.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
     this.history.updateState(["visibleSheets"], visibleSheets);
   }
 

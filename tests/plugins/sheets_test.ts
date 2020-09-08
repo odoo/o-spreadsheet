@@ -255,13 +255,15 @@ describe("sheets", () => {
     model.dispatch("CREATE_SHEET", { id: "42" });
     const sheet1 = model["workbook"].visibleSheets[0];
     const sheet2 = model["workbook"].visibleSheets[1];
-    model.dispatch("MOVE_SHEET", { sheet: sheet1, left: false });
+    const beforeMoveSheet = model.exportData();
+    model.dispatch("MOVE_SHEET", { sheet: sheet1, direction: "right" });
     expect(model.getters.getActiveSheet()).toEqual(sheet1);
     expect(model["workbook"].visibleSheets[0]).toEqual(sheet2);
     expect(model["workbook"].visibleSheets[1]).toEqual(sheet1);
     model.dispatch("UNDO");
     expect(model["workbook"].visibleSheets[0]).toEqual(sheet1);
     expect(model["workbook"].visibleSheets[1]).toEqual(sheet2);
+    expect(beforeMoveSheet).toEqual(model.exportData());
   });
 
   test("cannot move the first sheet to left and the last to right", () => {
@@ -269,11 +271,11 @@ describe("sheets", () => {
     model.dispatch("CREATE_SHEET", { id: "42" });
     const sheet1 = model["workbook"].visibleSheets[0];
     const sheet2 = model["workbook"].visibleSheets[1];
-    expect(model.dispatch("MOVE_SHEET", { sheet: sheet1, left: true })).toEqual({
+    expect(model.dispatch("MOVE_SHEET", { sheet: sheet1, direction: "left" })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetMove,
     });
-    expect(model.dispatch("MOVE_SHEET", { sheet: sheet2, left: false })).toEqual({
+    expect(model.dispatch("MOVE_SHEET", { sheet: sheet2, direction: "right" })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetMove,
     });

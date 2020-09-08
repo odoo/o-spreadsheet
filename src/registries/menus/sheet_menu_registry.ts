@@ -60,7 +60,7 @@ sheetMenuRegistry
       return sheets.findIndex((s) => s.id === sheet) !== sheets.length - 1;
     },
     action: (env) =>
-      env.dispatch("MOVE_SHEET", { sheet: env.getters.getActiveSheet(), left: false }),
+      env.dispatch("MOVE_SHEET", { sheet: env.getters.getActiveSheet(), direction: "right" }),
   })
   .add("move_left", {
     name: _lt("Move left"),
@@ -70,5 +70,5 @@ sheetMenuRegistry
       return env.getters.getSheets().findIndex((s) => s.id === sheet) !== 0;
     },
     action: (env) =>
-      env.dispatch("MOVE_SHEET", { sheet: env.getters.getActiveSheet(), left: true }),
+      env.dispatch("MOVE_SHEET", { sheet: env.getters.getActiveSheet(), direction: "left" }),
   });

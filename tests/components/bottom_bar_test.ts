@@ -90,7 +90,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheet = model.getters.getActiveSheet();
     triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, left: false });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "right" });
   });
 
   test("Can move left a sheet", async () => {
@@ -103,7 +103,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheet = model.getters.getActiveSheet();
     triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, left: true });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "left" });
   });
 
   test("Move right and left are disabled when it's not possible to move", async () => {

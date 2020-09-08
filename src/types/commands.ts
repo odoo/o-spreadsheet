@@ -75,7 +75,7 @@ export interface CreateSheetCommand extends BaseCommand {
 export interface MoveSheetCommand extends BaseCommand {
   type: "MOVE_SHEET";
   sheet: string;
-  left: boolean;
+  direction: "left" | "right";
 }
 
 export interface RenameSheetCommand extends BaseCommand {

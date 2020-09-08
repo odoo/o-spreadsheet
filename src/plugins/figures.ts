@@ -17,18 +17,15 @@ export class FigurePlugin extends BasePlugin {
     switch (cmd.type) {
       case "DUPLICATE_SHEET":
         for (let fig of this.sheetFigures[cmd.sheet] || []) {
+          const figure = Object.assign({}, fig, { id: uuidv4() });
           this.dispatch("CREATE_FIGURE", {
             sheet: cmd.id,
-            figure: {
-              id: uuidv4(),
-              tag: fig.tag,
-              width: fig.width,
-              height: fig.height,
-              x: fig.x,
-              y: fig.y,
-            },
+            figure,
           });
         }
+        break;
+      case "DELETE_SHEET":
+        this.deleteSheet(cmd.sheet);
         break;
       case "CREATE_FIGURE":
         this.history.updateLocalState(["figures", cmd.figure.id], cmd.figure);
@@ -59,6 +56,15 @@ export class FigurePlugin extends BasePlugin {
       default:
         this.selectedFigureId = null;
     }
+  }
+
+  deleteSheet(sheet: string) {
+    for (let figure of this.sheetFigures[sheet] || []) {
+      this.history.updateLocalState(["figures", figure.id], undefined);
+    }
+    const sheetFigures = Object.assign({}, this.sheetFigures);
+    delete sheetFigures[sheet];
+    this.history.updateLocalState(["sheetFigures"], sheetFigures);
   }
 
   // ---------------------------------------------------------------------------

@@ -51,7 +51,14 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "DUPLICATE_SHEET":
-        this.cfRules[cmd.id] = this.cfRules[cmd.sheet].slice();
+        this.history.updateLocalState(["cfRules", cmd.id], this.cfRules[cmd.sheet].slice());
+        this.isStale = true;
+        break;
+      case "DELETE_SHEET":
+        const cfRules = Object.assign({}, this.cfRules);
+        delete cfRules[cmd.sheet];
+        this.history.updateLocalState(["cfRules"], cfRules);
+        this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
         this.addConditionalFormatting(cmd.cf, cmd.sheet);

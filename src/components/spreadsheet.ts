@@ -24,7 +24,7 @@ const TEMPLATE = xml/* xml */ `
            t-on-close-side-panel="sidePanel.isOpen = false"
            component="sidePanel.component"
            panelProps="sidePanel.panelProps"/>
-    <BottomBar class="o-two-columns"/>
+    <BottomBar t-on-click="focusGrid" class="o-two-columns"/>
   </div>`;
 
 const CSS = css/* scss */ `
