@@ -1,4 +1,5 @@
-import { recomputeZones, overlap } from "../../src/helpers/index";
+import { recomputeZones, overlap, toZone } from "../../src/helpers/index";
+import { Zone } from "../../src/types";
 
 describe("overlap", () => {
   test("one zone above the other", () => {
@@ -66,5 +67,31 @@ describe("recomputeZones", () => {
     const toRemove = ["B1:C6"];
     const expectedZone = ["A1:A6", "D1:D6"];
     expect(recomputeZones(toKeep, toRemove)).toEqual(expectedZone);
+  });
+});
+
+describe("toZone", () => {
+  test.each([["A1"], ["$A1"], ["A$1"], ["$A$1"], ["Sheet1!A1"], ["Sheet1!$A$1"]])(
+    "should support different simple cell reference",
+    (range) => {
+      expect(toZone(range)).toStrictEqual({ top: 0, bottom: 0, left: 0, right: 0 } as Zone);
+    }
+  );
+
+  test.each([
+    ["A1:B2"],
+    ["$A1:B2"],
+    ["A$1:B2"],
+    ["A1:$B2"],
+    ["A1:B$2"],
+    ["$A$1:$B$2"],
+    ["Sheet1!A1:B2"],
+    ["Sheet1!$A$1:$B$2"],
+  ])("should support different range reference", (range) => {
+    expect(toZone(range)).toStrictEqual({ top: 0, bottom: 1, left: 0, right: 1 } as Zone);
+  });
+
+  test("should support lowercase cell reference", () => {
+    expect(toZone("c35")).toStrictEqual({ right: 2, top: 34, bottom: 34, left: 2 } as Zone);
   });
 });
