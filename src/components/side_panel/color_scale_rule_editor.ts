@@ -38,7 +38,7 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
   <div>
-      <div class="o-cf-title-format">Format rules</div>
+      <div class="o-section-title">Format rules</div>
       <div class="o-cf-title-text">Preview</div>
       <t t-call="${PREVIEW_TEMPLATE}"/>
       <div class="o-cf-title-text">Minpoint</div>
@@ -58,9 +58,6 @@ const TEMPLATE = xml/* xml */ `
   </div>`;
 
 const CSS = css/* scss */ `
-  .o-cf-title-format {
-    margin: 10px 0px 18px 0px;
-  }
   .o-cf-title-text {
     font-size: 12px;
     line-height: 14px;

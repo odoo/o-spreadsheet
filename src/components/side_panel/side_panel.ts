@@ -78,6 +78,27 @@ const CSS = css/* scss */ `
         margin-right: 0px;
       }
     }
+    .o-input {
+      border-radius: 4px;
+      border: 1px solid lightgrey;
+      padding: 5px;
+      margin-bottom: 5px;
+      font-size: 14px;
+      width: 90%;
+    }
+    select.o-input {
+      background-color: white;
+      text-align: left;
+    }
+
+    .o-section {
+      padding: 10px;
+      .o-section-title {
+        font-size: 16px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+      }
+    }
   }
 `;
 
