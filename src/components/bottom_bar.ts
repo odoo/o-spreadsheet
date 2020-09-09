@@ -163,7 +163,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     const x = target.offsetLeft;
     const y = target.offsetTop;
     this.menuState.isOpen = true;
-    this.menuState.menuItems = registry.getAll();
+    this.menuState.menuItems = registry.getAll().filter((x) => x.isVisible(this.env));
     this.menuState.position = {
       x,
       y,

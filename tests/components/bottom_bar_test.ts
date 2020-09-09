@@ -106,19 +106,15 @@ describe("BottomBar component", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "left" });
   });
 
-  test("Move right and left are disabled when it's not possible to move", async () => {
+  test("Move right and left are not visible when it's not possible to move", async () => {
     const model = new Model();
     const parent = new Parent(model);
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    expect(fixture.querySelector(".o-menu-item[data-name='move_left'")!.classList).toContain(
-      "disabled"
-    );
-    expect(fixture.querySelector(".o-menu-item[data-name='move_right'")!.classList).toContain(
-      "disabled"
-    );
+    expect(fixture.querySelector(".o-menu-item[data-name='move_left'")).toBeNull();
+    expect(fixture.querySelector(".o-menu-item[data-name='move_right'")).toBeNull();
   });
 
   test("Can rename a sheet", async () => {
@@ -179,19 +175,17 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheet = model.getters.getActiveSheet();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheet });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheet, interactive: true });
   });
 
-  test("Delete sheet is disabled when there is only one sheet", async () => {
+  test("Delete sheet is not visible when there is only one sheet", async () => {
     const model = new Model();
     const parent = new Parent(model);
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    expect(fixture.querySelector(".o-menu-item[data-name='delete'")!.classList).toContain(
-      "disabled"
-    );
+    expect(fixture.querySelector(".o-menu-item[data-name='delete'")).toBeNull();
   });
 
   test("Can open the list of sheets", async () => {

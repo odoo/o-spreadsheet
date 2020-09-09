@@ -21,10 +21,11 @@ sheetMenuRegistry
   .add("delete", {
     name: _lt("Delete"),
     sequence: 10,
-    isEnabled: (env) => {
+    isVisible: (env) => {
       return env.getters.getSheets().length > 1;
     },
-    action: (env) => env.dispatch("DELETE_SHEET", { sheet: env.getters.getActiveSheet() }),
+    action: (env) =>
+      env.dispatch("DELETE_SHEET", { sheet: env.getters.getActiveSheet(), interactive: true }),
   })
   .add("duplicate", {
     name: _lt("Duplicate"),
@@ -54,7 +55,7 @@ sheetMenuRegistry
   .add("move_right", {
     name: _lt("Move right"),
     sequence: 40,
-    isEnabled: (env) => {
+    isVisible: (env) => {
       const sheet = env.getters.getActiveSheet();
       const sheets = env.getters.getSheets();
       return sheets.findIndex((s) => s.id === sheet) !== sheets.length - 1;
@@ -65,7 +66,7 @@ sheetMenuRegistry
   .add("move_left", {
     name: _lt("Move left"),
     sequence: 50,
-    isEnabled: (env) => {
+    isVisible: (env) => {
       const sheet = env.getters.getActiveSheet();
       return env.getters.getSheets().findIndex((s) => s.id === sheet) !== 0;
     },

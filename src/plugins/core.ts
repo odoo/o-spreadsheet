@@ -134,7 +134,11 @@ export class CorePlugin extends BasePlugin {
         this.duplicateSheet(cmd.sheet, cmd.id, cmd.name);
         break;
       case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheet);
+        if (cmd.interactive) {
+          this.interactiveDeleteSheet(cmd.sheet);
+        } else {
+          this.deleteSheet(cmd.sheet);
+        }
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);
@@ -881,7 +885,8 @@ export class CorePlugin extends BasePlugin {
       mergeCellMap: {},
     };
     const visibleSheets = this.workbook.visibleSheets.slice();
-    visibleSheets.push(sheet.id);
+    const index = visibleSheets.findIndex((id) => this.workbook.activeSheet.id === id);
+    visibleSheets.splice(index + 1, 0, sheet.id);
     const sheets = this.workbook.sheets;
     this.history.updateState(["visibleSheets"], visibleSheets);
     this.history.updateState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
@@ -964,6 +969,13 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: toId });
+  }
+
+  private interactiveDeleteSheet(sheetId: string) {
+    this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
+      this.dispatch("DELETE_SHEET", { sheet: sheetId });
+    });
   }
 
   private deleteSheet(sheetId: string) {

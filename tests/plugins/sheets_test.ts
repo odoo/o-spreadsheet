@@ -23,6 +23,14 @@ describe("sheets", () => {
     expect(model["workbook"].activeSheet.name).toBe("Sheet2");
   });
 
+  test("Creating a new sheet insert it just after the active", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { id: "42", name: "42" });
+    model.dispatch("CREATE_SHEET", { id: "43", name: "43" });
+    expect(model.getters.getSheets()[1].id).toBe("43");
+    expect(model.getters.getSheets()[2].id).toBe("42");
+  });
+
   test("Creating a new sheet does not activate it by default", () => {
     const model = new Model();
     const sheet1 = model["workbook"].visibleSheets[0];
@@ -369,6 +377,13 @@ describe("sheets", () => {
     expect(model.getters.getSheets()).toHaveLength(1);
     model.dispatch("REDO");
     expect(model.getters.getSheets()).toHaveLength(2);
+  });
+
+  test("Duplicate a sheet make the newly created active", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    model.dispatch("DUPLICATE_SHEET", { sheet, id: "42", name: "dup" });
+    expect(model.getters.getActiveSheet()).toBe("42");
   });
 
   test("Cannot duplicate a sheet with the same name", () => {
