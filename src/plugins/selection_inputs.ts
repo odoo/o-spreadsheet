@@ -26,6 +26,7 @@ export class SelectionInputPlugin extends BasePlugin {
   private inputs: {
     [id: string]: RangeInputValue[];
   } = {};
+  private inputMaximums: { [id: string]: number } = {};
   private focusedInput: string | null = null;
   private focusedRange: number | null = null;
   private willAddNewRange: boolean = false;
@@ -42,6 +43,11 @@ export class SelectionInputPlugin extends BasePlugin {
           return { status: "CANCELLED", reason: CancelledReason.InputAlreadyFocused };
         }
         break;
+      case "ADD_EMPTY_RANGE":
+        if (this.inputs[cmd.id].length === this.inputMaximums[cmd.id]) {
+          return { status: "CANCELLED", reason: CancelledReason.MaximumRangesReached };
+        }
+        break;
     }
     return { status: "SUCCESS" };
   }
@@ -49,7 +55,7 @@ export class SelectionInputPlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ENABLE_NEW_SELECTION_INPUT":
-        this.initInput(cmd.id, cmd.initialRanges || []);
+        this.initInput(cmd.id, cmd.initialRanges || [], cmd.maximumRanges);
         break;
       case "DISABLE_SELECTION_INPUT":
         if (this.focusedInput === cmd.id) {
@@ -59,6 +65,7 @@ export class SelectionInputPlugin extends BasePlugin {
           this.focusedInput = null;
         }
         delete this.inputs[cmd.id];
+        delete this.inputMaximums[cmd.id];
         break;
       case "FOCUS_RANGE":
         this.focus(cmd.id, this.getIndex(cmd.id, cmd.rangeId));
@@ -123,13 +130,16 @@ export class SelectionInputPlugin extends BasePlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private initInput(id: string, initialRanges: string[]) {
+  private initInput(id: string, initialRanges: string[], maximumRanges?: number) {
     this.inputs[id] = initialRanges.map((r) =>
       Object.freeze({
         xc: r,
         id: uuidv4(),
       })
     ) as RangeInputValue[];
+    if (maximumRanges !== undefined) {
+      this.inputMaximums[id] = maximumRanges;
+    }
     if (this.inputs[id].length === 0) {
       this.dispatch("ADD_EMPTY_RANGE", { id });
     }
@@ -207,12 +217,19 @@ export class SelectionInputPlugin extends BasePlugin {
    * Add a new input at the end and focus it.
    */
   private addNewRange(id: string, highlights: Highlight[]) {
+    if (this.inputMaximums[id] < this.inputs[id].length + highlights.length) {
+      return;
+    }
     this.inputs[id] = this.inputs[id].concat(this.highlightsToInput(highlights));
     this.focusLast(id);
   }
 
   private setRange(id: string, index: number, highlights: Highlight[]) {
-    const [existingRange, ...newRanges] = this.highlightsToInput(highlights);
+    let [existingRange, ...newRanges] = this.highlightsToInput(highlights);
+    const additionalRanges = this.inputs[id].length + newRanges.length - this.inputMaximums[id];
+    if (additionalRanges) {
+      newRanges = newRanges.slice(0, newRanges.length - additionalRanges);
+    }
     this.inputs[id].splice(index, 1, existingRange, ...newRanges);
     // focus the last newly added range
     if (newRanges.length) {
