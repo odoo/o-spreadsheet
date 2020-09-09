@@ -80,6 +80,29 @@ describe("BottomBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
   });
 
+  test("Can open context menu of a sheet with the arrow", async () => {
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+  });
+
+  test("Click on the arrow when the context menu is open should close it", async () => {
+    const parent = new Parent(new Model());
+    await parent.mount(fixture);
+
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    triggerMouseEvent(".o-sheet-icon", "click");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+  });
+
   test("Can move right a sheet", async () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { id: "42" });

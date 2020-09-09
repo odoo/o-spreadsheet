@@ -176,10 +176,14 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     if (this.getters.getActiveSheet() !== sheet) {
       this.activateSheet(sheet);
     }
-    this.openContextMenu(
-      (ev.currentTarget as HTMLElement).parentElement as HTMLElement,
-      sheetMenuRegistry
-    );
+    if (this.menuState.isOpen) {
+      this.menuState.isOpen = false;
+    } else {
+      this.openContextMenu(
+        (ev.currentTarget as HTMLElement).parentElement as HTMLElement,
+        sheetMenuRegistry
+      );
+    }
   }
 
   onContextMenu(sheet: string, ev: MouseEvent) {
