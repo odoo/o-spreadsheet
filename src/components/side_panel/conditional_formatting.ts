@@ -59,11 +59,11 @@ const TEMPLATE = xml/* xml */ `
           <div class="o-cf-type-tab" t-att-class="{'o-cf-tab-selected': state.toRuleType === 'ColorScaleRule'}" t-on-click="setRuleType('ColorScaleRule')">Color Scale</div>
         </div>
         <div class="o-cf-ruleEditor">
-            <div class="o-cf-range">
-              <div class="o-cf-range-title">Apply to range</div>
+            <div class="o-section o-cf-range">
+              <div class="o-section-title">Apply to range</div>
               <SelectionInput ranges="state.currentRanges" class="o-range" t-on-selection-changed="onRangesChanged"/>
             </div>
-            <div class="o-cf-editor">
+            <div class="o-cf-editor o-section">
               <t t-component="editors[state.currentCF.rule.type]"
                   t-key="state.currentCF.id"
                   conditionalFormat="state.currentCF"
@@ -143,17 +143,6 @@ const CSS = css/* scss */ `
       }
     }
     .o-cf-ruleEditor {
-      .o-cf-range {
-        padding: 10px;
-        .o-cf-range-title{
-          font-size: 14px;
-          margin-bottom: 20px;
-          margin-top: 20px;
-        }
-      }
-      .o-cf-editor{
-        padding:10px;
-      }
       .o-dropdown {
         position: relative;
         .o-dropdown-content {

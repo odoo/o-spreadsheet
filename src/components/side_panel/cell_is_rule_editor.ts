@@ -21,16 +21,16 @@ export const PREVIEW_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
 <div>
-    <div class="o-cf-title-format" t-esc="env._t('${terms.CF_TITLE}')"></div>
+    <div class="o-section-title" t-esc="env._t('${terms.CF_TITLE}')"></div>
     <div class="o-cf-title-text" t-esc="env._t('${terms.IS_RULE}')"></div>
-    <select t-model="state.condition.operator" class="o-cell-is-operator">
+    <select t-model="state.condition.operator" class="o-input o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
         </t>
     </select>
-    <input type="text" placeholder="Value" t-model="state.condition.value1" class="o-cell-is-value"/>
+    <input type="text" placeholder="Value" t-model="state.condition.value1" class="o-input o-cell-is-value"/>
     <t t-if="state.condition.operator === 'Between' || state.condition.operator === 'NotBetween'">
-        <input type="text" t-model="state.condition.value2"/>
+        <input type="text" placeholder="and value" t-model="state.condition.value2" class="o-input"/>
     </t>
     <div class="o-cf-title-text" t-esc="env._t('${terms.FORMATTING_STYLE}')"></div>
 
@@ -67,31 +67,11 @@ const TEMPLATE = xml/* xml */ `
 `;
 
 const CSS = css/* scss */ `
-  .o-cf-title-format {
-    margin: 10px 0px 18px 0px;
-  }
   .o-cf-title-text {
     font-size: 12px;
     line-height: 14px;
     margin-bottom: 6px;
     margin-top: 18px;
-  }
-  .o-cell-is-operator {
-    background-color: white;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-    font-size: 14px;
-    border: 1px solid lightgrey;
-    padding: 5px;
-    text-align: left;
-    width: 90%;
-  }
-  .o-cell-is-value {
-    border-radius: 4px;
-    border: 1px solid lightgrey;
-    padding: 5px;
-    width: 90%;
   }
   .o-cf-preview-line {
     border: 1px solid darkgrey;
