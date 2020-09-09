@@ -3,7 +3,6 @@ import { Mode } from "../model";
 import {
   AutofillModifier,
   Cell,
-  CellData,
   Command,
   DIRECTION,
   Getters,
@@ -12,6 +11,9 @@ import {
   Zone,
   CancelledReason,
   CommandResult,
+  Tooltip,
+  GeneratorCell,
+  AutofillResult,
 } from "../types/index";
 import { union, toCartesian, toXC } from "../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
@@ -36,15 +38,6 @@ import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/
  * cell.
  */
 
-interface AutofillCellData extends CellData {
-  col: number;
-  row: number;
-}
-interface GeneratorCell {
-  data: AutofillCellData;
-  rule?: AutofillModifier;
-}
-
 /**
  * This class is used to generate the next values to autofill.
  * It's done from a selection (the source) and describe how the next values
@@ -65,16 +58,22 @@ class AutofillGenerator {
   /**
    * Get the next value to autofill
    */
-  next(): AutofillCellData {
+  next(): AutofillResult {
     const genCell = this.cells[this.index++ % this.cells.length];
     if (!genCell.rule) {
-      return genCell.data;
+      return {
+        cellData: genCell.data,
+        tooltip: genCell.data.content ? { props: genCell.data.content } : undefined,
+      };
     }
     const rule = genCell.rule;
-    const data = autofillModifiersRegistry
+    const { cellData, tooltip } = autofillModifiersRegistry
       .get(rule.type)
       .apply(rule, genCell.data, this.getters, this.direction);
-    return Object.assign({}, genCell.data, data);
+    return {
+      cellData: Object.assign({}, genCell.data, cellData),
+      tooltip,
+    };
   }
 }
 
@@ -84,12 +83,12 @@ class AutofillGenerator {
  */
 export class AutofillPlugin extends BasePlugin {
   static layers = [LAYERS.Autofill];
-  static getters = ["getLastValue"];
+  static getters = ["getAutofillTooltip"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private autofillZone: Zone | undefined;
   private direction: DIRECTION | undefined;
-  private lastValue: string | undefined;
+  private tooltip: Tooltip | undefined;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -135,8 +134,8 @@ export class AutofillPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getLastValue(): string | undefined {
-    return this.lastValue;
+  getAutofillTooltip(): Tooltip | undefined {
+    return this.tooltip;
   }
 
   // ---------------------------------------------------------------------------
@@ -210,7 +209,7 @@ export class AutofillPlugin extends BasePlugin {
       const zone = union(this.getters.getSelectedZone(), this.autofillZone);
       this.autofillZone = undefined;
       this.direction = undefined;
-      this.lastValue = undefined;
+      this.tooltip = undefined;
       this.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
@@ -276,8 +275,9 @@ export class AutofillPlugin extends BasePlugin {
    * Generate the next cell
    */
   private computeNewCell(generator: AutofillGenerator, col: number, row: number, apply: boolean) {
-    const { col: originCol, row: originRow, content, style, border, format } = generator.next();
-    this.lastValue = content;
+    const { cellData, tooltip } = generator.next();
+    const { col: originCol, row: originRow, content, style, border, format } = cellData;
+    this.tooltip = tooltip;
     if (apply) {
       this.dispatch("AUTOFILL_CELL", {
         originCol,

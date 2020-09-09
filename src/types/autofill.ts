@@ -8,6 +8,8 @@
  *  - Formula: update the formula, with the same behaviour than paste
  */
 
+import { CellData } from "./workbook_data";
+
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";
   increment: number;
@@ -25,3 +27,22 @@ export interface FormulaModifier {
 }
 
 export type AutofillModifier = IncrementModifier | CopyModifier | FormulaModifier;
+
+export interface Tooltip {
+  props: any;
+  component?: any;
+}
+
+export interface AutofillResult {
+  cellData: AutofillCellData;
+  tooltip?: Tooltip;
+}
+
+export interface AutofillCellData extends CellData {
+  col: number;
+  row: number;
+}
+export interface GeneratorCell {
+  data: AutofillCellData;
+  rule?: AutofillModifier;
+}
