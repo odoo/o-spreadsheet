@@ -93,6 +93,37 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[1].isFocused).toBe(true);
   });
 
+  test("expanding a selection does not add input if maximum is reached", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 1 });
+    select(model, "C2");
+    model.dispatch("PREPARE_SELECTION_EXPANSION");
+    model.dispatch("START_SELECTION_EXPANSION");
+    model.dispatch("SELECT_CELL", { col: 3, row: 1 });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(1);
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
+  });
+
+  test("adding multiple ranges does not add more input than maximum", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 2 });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: {
+        A1: "#000",
+        B1: "#000",
+        C1: "#000",
+      },
+    });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(2);
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("B1");
+  });
+
+  test("cannot add emty range when maximum ranges reached", async () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, maximumRanges: 1 });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(1);
+    model.dispatch("ADD_EMPTY_RANGE", { id });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(1);
+  });
+
   test("add an empty range", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     expect(model.getters.getSelectionInput(id).length).toBe(1);

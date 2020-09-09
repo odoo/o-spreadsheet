@@ -26,6 +26,7 @@ const TEMPLATE = xml/* xml */ `
 
     <div class="o-selection-controls">
       <button
+        t-if="canAddRange"
         t-on-click="addEmptyInput"
         class="o-btn o-add-selection">Add another range</button>
       <button
@@ -77,6 +78,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   ranges: string[];
+  maximumRanges?: number;
 }
 
 /**
@@ -103,8 +105,16 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     return this.ranges.filter((i) => i.isFocused).length > 0;
   }
 
+  get canAddRange(): boolean {
+    return !this.props.maximumRanges || this.ranges.length < this.props.maximumRanges;
+  }
+
   mounted() {
-    this.dispatch("ENABLE_NEW_SELECTION_INPUT", { id: this.id, initialRanges: this.props.ranges });
+    this.dispatch("ENABLE_NEW_SELECTION_INPUT", {
+      id: this.id,
+      initialRanges: this.props.ranges,
+      maximumRanges: this.props.maximumRanges,
+    });
   }
 
   async willUnmount() {

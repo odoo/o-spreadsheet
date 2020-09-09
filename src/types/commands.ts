@@ -487,6 +487,10 @@ export interface NewInputCommand extends BaseCommand {
    * e.g. ["B4", "A1:A3"]
    */
   initialRanges?: string[];
+  /**
+   * Maximum number of ranges allowed
+   */
+  maximumRanges?: number;
 }
 
 /**
@@ -664,6 +668,7 @@ export const enum CancelledReason {
   EmptyClipboard,
   InvalidRange,
   InputAlreadyFocused,
+  MaximumRangesReached,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;
