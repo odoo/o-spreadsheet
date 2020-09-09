@@ -10,7 +10,7 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-sidePanel" >
     <div class="o-sidePanelHeader">
         <div class="o-sidePanelTitle" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="trigger('close-side-panel')">x</div>
+        <div class="o-sidePanelClose" t-on-click="trigger('close-side-panel')">×</div>
     </div>
     <div class="o-sidePanelBody">
       <t t-component="state.panel.Body" t-props="props.panelProps" t-key="'Body_' + props.component"/>
@@ -32,6 +32,7 @@ const CSS = css/* scss */ `
       height: 30px;
       background-color: #f8f9fa;
       display: flex;
+      align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid darkgray;
       font-weight: bold;
@@ -41,6 +42,7 @@ const CSS = css/* scss */ `
         font-size: 1.2rem;
       }
       .o-sidePanelClose {
+        font-size: 1.5rem;
         padding: 5px 10px;
         cursor: pointer;
         &:hover {
@@ -57,7 +59,6 @@ const CSS = css/* scss */ `
     .o-sidePanelButtons {
       padding: 5px;
       text-align: right;
-      border-bottom: 1px solid #ccc;
       .o-sidePanelButton {
         border: 1px solid lightgrey;
         padding: 0px 20px 0px 20px;
