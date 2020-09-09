@@ -6,6 +6,7 @@ import {
   IncrementModifier,
   CopyModifier,
   FormulaModifier,
+  Tooltip,
 } from "../types/index";
 import { Registry } from "../registry";
 
@@ -19,7 +20,7 @@ interface AutofillModifierImplementation {
     data: CellData,
     getters: Getters,
     direction: DIRECTION
-  ) => CellData;
+  ) => { cellData: CellData; tooltip?: Tooltip };
 }
 
 export const autofillModifiersRegistry = new Registry<AutofillModifierImplementation>();
@@ -28,13 +29,20 @@ autofillModifiersRegistry
   .add("INCREMENT_MODIFIER", {
     apply: (rule: IncrementModifier, data: CellData) => {
       rule.current += rule.increment;
-      return Object.assign({}, data, {
-        content: (parseFloat(data.content!) + rule.current).toString(),
-      });
+      const content = (parseFloat(data.content!) + rule.current).toString();
+      return {
+        cellData: Object.assign({}, data, { content }),
+        tooltip: content ? { props: { content } } : undefined,
+      };
     },
   })
   .add("COPY_MODIFIER", {
-    apply: (rule: CopyModifier, data: CellData) => data,
+    apply: (rule: CopyModifier, data: CellData) => {
+      return {
+        cellData: data,
+        tooltip: data.content ? { props: { content: data.content } } : undefined,
+      };
+    },
   })
   .add("FORMULA_MODIFIER", {
     apply: (rule: FormulaModifier, data: CellData, getters: Getters, direction: DIRECTION) => {
@@ -59,8 +67,10 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      return Object.assign({}, data, {
-        content: getters.applyOffset(data.content!, x, y),
-      });
+      const content = getters.applyOffset(data.content!, x, y);
+      return {
+        cellData: Object.assign({}, data, { content }),
+        tooltip: content ? { props: { content } } : undefined,
+      };
     },
   });

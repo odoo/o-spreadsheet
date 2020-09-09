@@ -2,6 +2,10 @@ import { Model } from "../../src/model";
 import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types/commands";
+import * as owl from "@odoo/owl";
+
+const { Component } = owl;
+const { xml } = owl.tags;
 
 Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
   get() {
@@ -92,5 +96,35 @@ describe("Autofill component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
     expect(fixture.querySelector(".o-autofill-nextvalue")!.textContent).toBe("test");
+  });
+
+  test("Can display tooltip with a custom component", async () => {
+    const autofill = fixture.querySelector(".o-autofill");
+    class CustomTooltip extends Component {
+      static template = xml/* xml */ `
+        <div class="custom_tooltip" t-esc="props.content"/>
+      `;
+    }
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    parent.env.getters.getAutofillTooltip = jest.fn(() => {
+      return {
+        props: { content: "blabla" },
+        component: CustomTooltip,
+      };
+    });
+    model.dispatch("SET_VALUE", { xc: "A1", text: "test" });
+    await nextTick();
+    triggerMouseEvent(autofill, "mousedown", 4, 4);
+    await nextTick();
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      0,
+      parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+    );
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
+    expect(fixture.querySelector(".custom_tooltip")).toBeDefined();
+    expect(fixture.querySelector(".custom_tooltip")!.textContent).toBe("blabla");
   });
 });

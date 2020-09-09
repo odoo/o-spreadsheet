@@ -14,8 +14,10 @@ const { useState } = owl.hooks;
 const TEMPLATE = xml/* xml */ `
   <div class="o-autofill" t-on-mousedown="onMouseDown" t-att-style="style" t-on-dblclick="onDblClick">
     <div class="o-autofill-handler" t-att-style="styleHandler"/>
-    <t t-set="lastValue" t-value="env.getters.getLastValue()"/>
-    <div t-if="lastValue" class="o-autofill-nextvalue" t-att-style="styleNextvalue" t-esc="lastValue" tabindex="-1"/>
+    <t t-set="tooltip" t-value="getTooltip()"/>
+    <div t-if="tooltip" class="o-autofill-nextvalue" t-att-style="styleNextvalue">
+      <t t-component="tooltip.component" t-props="tooltip.props"/>
+    </div>
   </div>
 `;
 
@@ -39,11 +41,12 @@ const CSS = css/* scss */ `
 
     .o-autofill-nextvalue {
       position: absolute;
-      background-color: #fffff0;
+      background-color: white;
       border: 1px solid black;
-      padding: 2px;
+      padding: 5px;
       font-size: 12px;
       pointer-events: none;
+      white-space: nowrap;
     }
   }
 `;
@@ -87,6 +90,14 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
     return `top:${position.top + 5}px;left:${position.left + 15}px;`;
   }
 
+  getTooltip() {
+    const tooltip = this.env.getters.getAutofillTooltip();
+    if (tooltip && !tooltip.component) {
+      tooltip.component = TooltipComponent;
+    }
+    return tooltip;
+  }
+
   onMouseDown(ev: MouseEvent) {
     this.state.handler = true;
     this.state.position = { left: 0, top: 0 };
@@ -124,4 +135,10 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
   onDblClick() {
     this.env.dispatch("AUTOFILL_AUTO");
   }
+}
+
+class TooltipComponent extends Component<Props> {
+  static template = xml/* xml */ `
+    <div t-esc="props.content"/>
+  `;
 }

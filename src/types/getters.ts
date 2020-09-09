@@ -85,7 +85,7 @@ export interface Getters {
   getCurrentContent: EditionPlugin["getCurrentContent"];
   getEditionSheet: EditionPlugin["getEditionSheet"];
 
-  getLastValue: AutofillPlugin["getLastValue"];
+  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
 
   getSelectionInput: SelectionInputPlugin["getSelectionInput"];
   getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
