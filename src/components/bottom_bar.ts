@@ -24,7 +24,7 @@ const TEMPLATE = xml/* xml */ `
              t-att-title="sheet.name"
              t-att-data-id="sheet.id"
              t-att-class="{active: sheet.id === getters.getActiveSheet()}">
-          <span t-esc="sheet.name"/>
+          <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="onDblClick(sheet.id)"/>
           <span class="o-sheet-icon" t-on-click.stop="onIconClick(sheet.id)">${TRIANGLE_DOWN_ICON}</span>
         </div>
       </t>
@@ -157,6 +157,10 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
 
   activateSheet(name: string) {
     this.env.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: name });
+  }
+
+  onDblClick(sheet: string) {
+    this.env.dispatch("RENAME_SHEET", { interactive: true, sheet });
   }
 
   openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {
