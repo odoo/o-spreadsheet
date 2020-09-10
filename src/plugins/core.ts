@@ -95,6 +95,7 @@ export class CorePlugin extends BasePlugin {
           : { status: "SUCCESS" };
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
+      case "DELETE_SHEET_CONFIRMATION":
       case "DELETE_SHEET":
         return this.workbook.visibleSheets.length > 1
           ? { status: "SUCCESS" }
@@ -134,12 +135,11 @@ export class CorePlugin extends BasePlugin {
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheet, cmd.id, cmd.name);
         break;
+      case "DELETE_SHEET_CONFIRMATION":
+        this.interactiveDeleteSheet(cmd.sheet);
+        break;
       case "DELETE_SHEET":
-        if (cmd.interactive) {
-          this.interactiveDeleteSheet(cmd.sheet);
-        } else {
-          this.deleteSheet(cmd.sheet);
-        }
+        this.deleteSheet(cmd.sheet);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheet, cmd.target);

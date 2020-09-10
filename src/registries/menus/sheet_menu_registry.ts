@@ -25,7 +25,7 @@ sheetMenuRegistry
       return env.getters.getSheets().length > 1;
     },
     action: (env) =>
-      env.dispatch("DELETE_SHEET", { sheet: env.getters.getActiveSheet(), interactive: true }),
+      env.dispatch("DELETE_SHEET_CONFIRMATION", { sheet: env.getters.getActiveSheet() }),
   })
   .add("duplicate", {
     name: _lt("Duplicate"),

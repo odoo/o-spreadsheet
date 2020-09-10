@@ -209,7 +209,7 @@ describe("BottomBar component", () => {
     await nextTick();
     const sheet = model.getters.getActiveSheet();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheet, interactive: true });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET_CONFIRMATION", { sheet });
   });
 
   test("Delete sheet is not visible when there is only one sheet", async () => {
