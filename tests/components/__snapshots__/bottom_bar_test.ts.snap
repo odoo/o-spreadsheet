@@ -51,7 +51,9 @@ exports[`BottomBar component simple rendering 1`] = `
       data-id="1"
       title="Sheet1"
     >
-      <span>
+      <span
+        class="o-sheet-name"
+      >
         Sheet1
       </span>
       <span

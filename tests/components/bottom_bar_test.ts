@@ -152,6 +152,17 @@ describe("BottomBar component", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", { sheet, interactive: true });
   });
 
+  test("Can rename a sheet with dblclick", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+
+    triggerMouseEvent(".o-sheet-name", "dblclick");
+    await nextTick();
+    const sheet = model.getters.getActiveSheet();
+    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", { sheet, interactive: true });
+  });
+
   test("Can duplicate a sheet", async () => {
     const model = new Model();
     const parent = new Parent(model);
