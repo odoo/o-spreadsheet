@@ -1143,4 +1143,28 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(model["workbook"].activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");
   });
+
+  test("can paste multiple cells from os to outside of sheet", () => {
+    const model = new Model();
+
+    model.dispatch("CREATE_SHEET", { activate: true, id: "2", name: "sheet2", rows: 2, cols: 2 });
+    model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+      text: "A\nque\tcoucou\nBOB",
+      target: target("B2"),
+    });
+    expect(getCell(model, "B2")!.content).toBe("A");
+    expect(getCell(model, "B3")!.content).toBe("que");
+    expect(getCell(model, "C3")!.content).toBe("coucou");
+    expect(getCell(model, "B4")!.content).toBe("BOB");
+
+    model.dispatch("CREATE_SHEET", { activate: true, id: "3", name: "sheet3", rows: 2, cols: 2 });
+    model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+      text: "A\nque\tcoucou\tPatrick",
+      target: target("B2"),
+    });
+    expect(getCell(model, "B2")!.content).toBe("A");
+    expect(getCell(model, "B3")!.content).toBe("que");
+    expect(getCell(model, "C3")!.content).toBe("coucou");
+    expect(getCell(model, "D3")!.content).toBe("Patrick");
+  });
 });
