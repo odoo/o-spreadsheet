@@ -96,6 +96,11 @@ export interface DeleteSheetCommand extends BaseCommand {
   sheet: string;
 }
 
+export interface DeleteSheetConfirmationCommand extends BaseCommand {
+  type: "DELETE_SHEET_CONFIRMATION";
+  sheet: string;
+}
+
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
   sheet: string;
@@ -584,6 +589,7 @@ export type Command =
   | RenameSheetCommand
   | DuplicateSheetCommand
   | DeleteSheetCommand
+  | DeleteSheetConfirmationCommand
   | ActivateSheetCommand
   | StartSelectionCommand
   | StartExpansionCommand
