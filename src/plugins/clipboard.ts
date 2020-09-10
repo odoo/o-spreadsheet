@@ -182,12 +182,29 @@ export class ClipboardPlugin extends BasePlugin {
       .split("\n")
       .map((vals) => vals.split("\t"));
     const { left: activeCol, top: activeRow } = target[0];
+    const width = Math.max.apply(
+      Math,
+      values.map((a) => a.length)
+    );
+    const height = values.length;
+    this.addMissingDimensions(width, height, activeCol, activeRow);
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
         const xc = toXC(activeCol + j, activeRow + i);
         this.dispatch("SET_VALUE", { xc, text: values[i][j] });
       }
     }
+    this.dispatch("SET_SELECTION", {
+      anchor: [activeCol, activeRow],
+      zones: [
+        {
+          left: activeCol,
+          top: activeRow,
+          right: activeCol + width - 1,
+          bottom: activeRow + height - 1,
+        },
+      ],
+    });
   }
 
   private isPasteAllowed(target: Zone[]): CommandResult {
@@ -266,26 +283,8 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   private pasteZone(width: number, height: number, col: number, row: number) {
-    const { cols, rows } = this.workbook.activeSheet;
     // first, add missing cols/rows if needed
-    const missingRows = height + row - rows.length;
-    if (missingRows > 0) {
-      this.dispatch("ADD_ROWS", {
-        row: rows.length - 1,
-        sheet: this.workbook.activeSheet.id,
-        quantity: missingRows,
-        position: "after",
-      });
-    }
-    const missingCols = width + col - cols.length;
-    if (missingCols > 0) {
-      this.dispatch("ADD_COLUMNS", {
-        column: cols.length - 1,
-        sheet: this.workbook.activeSheet.id,
-        quantity: missingCols,
-        position: "after",
-      });
-    }
+    this.addMissingDimensions(width, height, col, row);
     // then, perform the actual paste operation
     for (let r = 0; r < height; r++) {
       const rowCells = this.cells![r];
@@ -303,6 +302,28 @@ export class ClipboardPlugin extends BasePlugin {
           onlyFormat: this.pasteOnlyFormat,
         });
       }
+    }
+  }
+
+  private addMissingDimensions(width, height, col, row) {
+    const { cols, rows } = this.workbook.activeSheet;
+    const missingRows = height + row - rows.length;
+    if (missingRows > 0) {
+      this.dispatch("ADD_ROWS", {
+        row: rows.length - 1,
+        sheet: this.workbook.activeSheet.id,
+        quantity: missingRows,
+        position: "after",
+      });
+    }
+    const missingCols = width + col - cols.length;
+    if (missingCols > 0) {
+      this.dispatch("ADD_COLUMNS", {
+        column: cols.length - 1,
+        sheet: this.workbook.activeSheet.id,
+        quantity: missingCols,
+        position: "after",
+      });
     }
   }
 
