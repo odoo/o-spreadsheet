@@ -290,6 +290,20 @@ describe("composer", () => {
     expect(composerEl.textContent).toBe("=Sheet2!C8");
   });
 
+  test("type =, select a cell in another sheet with space in name", async () => {
+    await typeInComposer("=");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet 2", activate: true });
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composerEl.textContent).toBe("='Sheet 2'!C8");
+  });
+
   test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
     await typeInComposer("=");
     const sheet = model.getters.getActiveSheet();

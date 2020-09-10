@@ -4,7 +4,7 @@ import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/
 import { Rect, SpreadsheetEnv, Zone } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
-import { colors, DEBUG } from "../../helpers/index";
+import { colors, DEBUG, getComposerSheetName } from "../../helpers/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -346,9 +346,12 @@ export class Composer extends Component<any, SpreadsheetEnv> {
             const [xc, sheet] = value.split("!").reverse();
             if (rangeReference.test(xc)) {
               const refSanitized =
-                (sheet
-                  ? `${sheet}!`
-                  : `${this.getters.getSheetName(this.getters.getEditionSheet())}!`) +
+                getComposerSheetName(
+                  sheet
+                    ? `${sheet}`
+                    : `${this.getters.getSheetName(this.getters.getEditionSheet())}`
+                ) +
+                "!" +
                 xc.replace(/\$/g, "");
               if (!refUsed[refSanitized]) {
                 refUsed[refSanitized] = colors[lastUsedColorIndex];
@@ -427,7 +430,9 @@ export class Composer extends Component<any, SpreadsheetEnv> {
       this.selectionStart = this.refSelectionStart;
     }
     if (this.getters.getEditionSheet() !== this.getters.getActiveSheet()) {
-      const sheetName = this.getters.getSheetName(this.getters.getActiveSheet())!;
+      const sheetName = getComposerSheetName(
+        this.getters.getSheetName(this.getters.getActiveSheet())!
+      );
       selection = `${sheetName}!${selection}`;
     }
     this.addText(selection);

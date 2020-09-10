@@ -9,9 +9,10 @@ import {
   isNumber,
   numberToLetters,
   parseNumber,
-  sanitizeSheet,
+  getUnquotedSheetName,
   toCartesian,
   toXC,
+  getComposerSheetName,
 } from "../helpers/index";
 import { _lt } from "../translation";
 import {
@@ -941,7 +942,7 @@ export class CorePlugin extends BasePlugin {
     this.visitAllFormulasSymbols((value: string) => {
       let [val, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
-        sheetRef = sanitizeSheet(sheetRef);
+        sheetRef = getUnquotedSheetName(sheetRef);
         if (sheetRef === oldName) {
           if (val.includes(":")) {
             return this.updateRange(val, 0, 0, sheet.id);
@@ -996,7 +997,7 @@ export class CorePlugin extends BasePlugin {
     this.visitAllFormulasSymbols((value: string) => {
       let [, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
-        sheetRef = sanitizeSheet(sheetRef);
+        sheetRef = getUnquotedSheetName(sheetRef);
         if (sheetRef === name) {
           return "#REF";
         }
@@ -1242,10 +1243,7 @@ export class CorePlugin extends BasePlugin {
     ) {
       return "#REF";
     }
-    let sheetName = sheetId && this.getters.getSheetName(sheetId);
-    if (sheetName && sheetName.includes(" ")) {
-      sheetName = `'${sheetName}'`;
-    }
+    const sheetName = sheetId && getComposerSheetName(this.getters.getSheetName(sheetId)!);
     return (
       (sheetName ? `${sheetName}!` : "") +
       (freezeCol ? "$" : "") +
@@ -1294,7 +1292,7 @@ export class CorePlugin extends BasePlugin {
     this.visitAllFormulasSymbols((content: string, sheetId: string): string => {
       let [value, sheetRef] = content.split("!").reverse();
       if (sheetRef) {
-        sheetRef = sanitizeSheet(sheetRef);
+        sheetRef = getUnquotedSheetName(sheetRef);
         if (sheetRef === sheetNameToFind) {
           return cb(value, sheetRef);
         }
