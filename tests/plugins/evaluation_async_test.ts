@@ -247,4 +247,28 @@ describe("evaluateCells, async formulas", () => {
     expect(model.getters.getCell(0, 1)!.error).toBe("");
     expect(model.getters.getCell(0, 2)!.error).toBe("4");
   });
+
+  test("getting notified when all async formulas are done", async () => {
+    expect(7);
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=WAIT(1)" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(15)" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: "=a2" });
+    expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(LOADING);
+    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    expect(model["workbook"].activeSheet.cells["A3"].value).toEqual(LOADING);
+
+    expect(patch.calls).toHaveLength(2);
+
+    const recompute = waitForRecompute();
+    const prom = model.getters.getEvaluationCompleted();
+    prom.then(() => {
+      expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(1);
+      expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(15);
+      expect(model["workbook"].activeSheet.cells["A3"].value).toEqual(15);
+      expect(patch.calls).toHaveLength(0);
+    });
+
+    await recompute;
+  });
 });

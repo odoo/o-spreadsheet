@@ -28,10 +28,10 @@ type FormulaParameters = [ReadCell, Range, EvalContext];
 export const LOADING = "Loading...";
 
 export class EvaluationPlugin extends BasePlugin {
-  static getters = ["evaluateFormula"];
+  static getters = ["evaluateFormula", "getEvaluationCompleted"];
   static modes: Mode[] = ["normal", "readonly"];
 
-  private isUptodate: Set<string> = new Set();
+  private isUpToDate: Set<string> = new Set();
   private loadingCells: number = 0;
   private isStarted: boolean = false;
   private cache: { [key: string]: Function } = {};
@@ -64,6 +64,7 @@ export class EvaluationPlugin extends BasePlugin {
    * When A1 is computed, A1 is moved in COMPUTED
    */
   private COMPUTED: Set<Cell> = new Set();
+  private evaluationPromise?: Promise<any>;
 
   constructor(
     workbook: Workbook,
@@ -90,7 +91,7 @@ export class EvaluationPlugin extends BasePlugin {
         break;
       case "UPDATE_CELL":
         if ("content" in cmd) {
-          this.isUptodate.clear();
+          this.isUpToDate.clear();
         }
         break;
       case "EVALUATE_CELLS":
@@ -102,22 +103,24 @@ export class EvaluationPlugin extends BasePlugin {
           this.WAITING.clear();
           this.evaluate();
         }
-        this.isUptodate.add(this.workbook.activeSheet.id);
+        this.isUpToDate.add(this.workbook.activeSheet.id);
         break;
       case "UNDO":
       case "REDO":
-        this.isUptodate.clear();
+        this.isUpToDate.clear();
         break;
     }
   }
 
   finalize() {
-    if (!this.isUptodate.has(this.workbook.activeSheet.id)) {
+    if (!this.isUpToDate.has(this.workbook.activeSheet.id)) {
       this.evaluate();
-      this.isUptodate.add(this.workbook.activeSheet.id);
+      this.isUpToDate.add(this.workbook.activeSheet.id);
     }
     if (this.loadingCells > 0) {
-      this.startScheduler();
+      // we need to chain all the resolution promises together. If we don't, the first to stop will
+      // resolve the promise and once it is resolved it is immutable.
+      this.evaluationPromise = Promise.all([this.evaluationPromise, this.startScheduler()]);
     }
   }
 
@@ -143,27 +146,34 @@ export class EvaluationPlugin extends BasePlugin {
     return compiledFormula(...params);
   }
 
+  getEvaluationCompleted(): Promise<any> {
+    return this.evaluationPromise || Promise.resolve();
+  }
+
   // ---------------------------------------------------------------------------
   // Scheduler
   // ---------------------------------------------------------------------------
 
-  private startScheduler() {
+  private async startScheduler(): Promise<void> {
     if (!this.isStarted) {
-      this.isStarted = true;
-      let current = this.loadingCells;
-      const recomputeCells = () => {
-        if (this.loadingCells !== current) {
-          this.dispatch("EVALUATE_CELLS", { onlyWaiting: true });
-          current = this.loadingCells;
-          if (current === 0) {
-            this.isStarted = false;
+      return new Promise((resolve) => {
+        this.isStarted = true;
+        let current = this.loadingCells;
+        const recomputeCells = () => {
+          if (this.loadingCells !== current) {
+            this.dispatch("EVALUATE_CELLS", { onlyWaiting: true });
+            current = this.loadingCells;
+            if (current === 0) {
+              this.isStarted = false;
+              resolve();
+            }
           }
-        }
-        if (current > 0) {
-          window.setTimeout(recomputeCells, 15);
-        }
-      };
-      window.setTimeout(recomputeCells, 5);
+          if (current > 0) {
+            window.setTimeout(recomputeCells, 15);
+          }
+        };
+        window.setTimeout(recomputeCells, 5);
+      });
     }
   }
 

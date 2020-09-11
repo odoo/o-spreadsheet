@@ -81,6 +81,7 @@ export interface Getters {
   canRedo: WHistory["canRedo"];
 
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
+  getEvaluationCompleted: EvaluationPlugin["getEvaluationCompleted"];
   getEditionMode: EditionPlugin["getEditionMode"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
   getEditionSheet: EditionPlugin["getEditionSheet"];
