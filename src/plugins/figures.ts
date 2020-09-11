@@ -7,8 +7,8 @@ export class FigurePlugin extends BasePlugin {
 
   private selectedFigureId: string | null = null;
 
-  private figures: { [figId: string]: Figure } = {};
-  private sheetFigures: { [sheetId: string]: Figure[] } = {};
+  private figures: { [figId: string]: Figure<any> } = {};
+  private sheetFigures: { [sheetId: string]: Figure<any>[] } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -71,8 +71,8 @@ export class FigurePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getFigures(viewport: Viewport): Figure[] {
-    const result: Figure[] = [];
+  getFigures(viewport: Viewport): Figure<any>[] {
+    const result: Figure<any>[] = [];
     const figures = this.sheetFigures[this.workbook.activeSheet.id] || [];
     const { offsetX, offsetY, width, height } = viewport;
     for (let figure of figures) {
@@ -96,7 +96,7 @@ export class FigurePlugin extends BasePlugin {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      const figList: Figure[] = [];
+      const figList: Figure<any>[] = [];
       for (let f of sheet.figures) {
         this.figures[f.id] = f;
         figList.push(f);
