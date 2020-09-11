@@ -25,6 +25,7 @@ describe("figure plugin", () => {
         height: 100,
         x: 100,
         y: 100,
+        data: undefined,
       },
     });
     const data = model.exportData();
@@ -50,6 +51,7 @@ describe("figure plugin", () => {
         height: 100,
         x: 100,
         y: 100,
+        data: undefined,
       },
     });
 
@@ -74,6 +76,7 @@ describe("figure plugin", () => {
         height: 100,
         x: 100,
         y: 100,
+        data: undefined,
       },
     });
     const data = model.exportData();
@@ -119,6 +122,7 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
+        data: undefined,
       },
     });
 
@@ -151,6 +155,7 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
+        data: undefined,
       },
     });
 
@@ -174,6 +179,7 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
+        data: undefined,
       },
     });
 
@@ -197,6 +203,7 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
+        data: undefined,
       },
     });
 
@@ -221,6 +228,7 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 10,
         height: 10,
+        data: undefined,
       },
     });
 
@@ -246,6 +254,7 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
+        data: undefined,
       },
     });
 

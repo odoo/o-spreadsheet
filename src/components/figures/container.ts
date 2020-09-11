@@ -11,7 +11,7 @@ const { useState } = owl;
 interface FigureInfo {
   id: string;
   isSelected: boolean;
-  figure: Figure;
+  figure: Figure<any>;
 }
 
 const TEMPLATE = xml/* xml */ `
@@ -193,7 +193,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     this.render();
   }
 
-  resize(figure: Figure, dirX: number, dirY: number, ev: MouseEvent) {
+  resize(figure: Figure<any>, dirX: number, dirY: number, ev: MouseEvent) {
     ev.stopPropagation();
     const initialX = ev.clientX;
     const initialY = ev.clientY;
@@ -217,7 +217,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
-      const update: Partial<Figure> = { id: figure.id, x: this.dnd.x, y: this.dnd.y };
+      const update: Partial<Figure<any>> = { id: figure.id, x: this.dnd.x, y: this.dnd.y };
       if (dirX) {
         update.width = this.dnd.width;
       }
@@ -229,7 +229,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     startDnd(onMouseMove, onMouseUp);
   }
 
-  onMouseDown(figure: Figure, ev: MouseEvent) {
+  onMouseDown(figure: Figure<any>, ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;

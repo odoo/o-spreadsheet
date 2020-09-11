@@ -554,7 +554,7 @@ export interface ChangeRangeCommand extends BaseCommand {
 
 export interface CreateFigureCommand extends BaseCommand {
   type: "CREATE_FIGURE";
-  figure: Figure;
+  figure: Figure<any>;
   sheet: string; // id of the target sheet
 }
 
@@ -563,7 +563,7 @@ export interface SelectFigureCommand extends BaseCommand {
   id: string;
 }
 
-export interface UpdateFigureCommand extends BaseCommand, Partial<Figure> {
+export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
   type: "UPDATE_FIGURE";
   id: string;
 }

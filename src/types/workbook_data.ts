@@ -12,14 +12,14 @@ export interface HeaderData {
   size?: number;
 }
 
-export interface Figure {
+export interface Figure<T> {
   id: string;
   x: number;
   y: number;
   width: number;
   height: number;
   tag: string;
-  data?: any;
+  data: T;
 }
 
 export interface SheetData {
@@ -29,7 +29,7 @@ export interface SheetData {
   rowNumber: number;
   cells: { [key: string]: CellData };
   merges: string[];
-  figures: Figure[];
+  figures: Figure<any>[];
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];

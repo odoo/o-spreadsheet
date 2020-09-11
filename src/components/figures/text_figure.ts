@@ -27,7 +27,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  figure: Figure;
+  figure: Figure<string>;
 }
 
 export class TextFigure extends Component<Props, SpreadsheetEnv> {
