@@ -15,6 +15,18 @@ import {
   topbarComponentRegistry,
 } from "./registries/index";
 
+import {
+  MIN_ROW_HEIGHT,
+  MIN_COL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  TOPBAR_HEIGHT,
+  BOTTOMBAR_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DEFAULT_CELL_HEIGHT,
+  SCROLLBAR_WIDTH,
+} from "./constants";
+
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
  *
@@ -29,6 +41,18 @@ export { Model } from "./model";
 export { parse, astToFormula } from "./formulas/parser";
 export { setTranslationMethod } from "./translation";
 export { DEBUG as __DEBUG__ } from "./helpers/index";
+
+export const SPREADSHEET_DIMENSIONS = {
+  MIN_ROW_HEIGHT,
+  MIN_COL_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  TOPBAR_HEIGHT,
+  BOTTOMBAR_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DEFAULT_CELL_HEIGHT,
+  SCROLLBAR_WIDTH,
+};
 
 export const registries = {
   autofillModifiersRegistry,
