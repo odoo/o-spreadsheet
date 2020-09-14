@@ -1,7 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { compile } from "../formulas/index";
 import { functionRegistry } from "../functions/index";
-import { toCartesian, DEBUG } from "../helpers/index";
+import { toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
@@ -28,7 +28,7 @@ type FormulaParameters = [ReadCell, Range, EvalContext];
 export const LOADING = "Loading...";
 
 export class EvaluationPlugin extends BasePlugin {
-  static getters = ["evaluateFormula"];
+  static getters = ["evaluateFormula", "isIdle"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private isUptodate: Set<string> = new Set();
@@ -74,9 +74,6 @@ export class EvaluationPlugin extends BasePlugin {
   ) {
     super(workbook, getters, history, dispatch, config);
     this.evalContext = config.evalContext;
-    DEBUG.evaluation = {
-      isIdle: () => this.loadingCells === 0,
-    };
   }
 
   // ---------------------------------------------------------------------------
@@ -141,6 +138,10 @@ export class EvaluationPlugin extends BasePlugin {
     }
     const params = this.getFormulaParameters(() => {});
     return compiledFormula(...params);
+  }
+
+  isIdle() {
+    return this.loadingCells === 0;
   }
 
   // ---------------------------------------------------------------------------
