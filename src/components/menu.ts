@@ -18,7 +18,7 @@ const SEPARATOR_HEIGHT = 1;
 
 const TEMPLATE = xml/* xml */ `
     <div>
-      <div class="o-menu" t-att-style="style">
+      <div class="o-menu" t-att-style="style" t-on-scroll="onScroll">
         <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
@@ -41,7 +41,7 @@ const TEMPLATE = xml/* xml */ `
         </t>
       </div>
       <Menu t-if="subMenu.isOpen"
-        position="subMenu.position"
+        position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
         t-ref="subMenuRef"
@@ -89,15 +89,23 @@ const CSS = css/* scss */ `
   }
 `;
 
+interface MenuPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 interface Props {
-  position: { x: number; y: number; width: number; height: number };
+  position: MenuPosition;
   menuItems: FullMenuItem[];
   depth: number;
 }
 
 export interface MenuState {
   isOpen: boolean;
-  position: null | { x: number; y: number; width: number; height: number };
+  position: null | MenuPosition;
+  scrollOffset?: number;
   menuItems: FullMenuItem[];
 }
 
@@ -118,8 +126,15 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     this.subMenu = useState({
       isOpen: false,
       position: null,
+      scrollOffset: 0,
       menuItems: [],
     });
+  }
+
+  get subMenuPosition(): MenuPosition {
+    const position = Object.assign({}, this.subMenu.position);
+    position.y -= this.subMenu.scrollOffset || 0;
+    return position;
   }
 
   private get renderRight(): boolean {
@@ -139,11 +154,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   get style() {
-    const { x, y, height } = this.props.position;
+    const { x, height } = this.props.position;
     const hStyle = `left:${this.renderRight ? x : x - MENU_WIDTH}`;
-    const vStyle = `top:${
-      this.renderBottom ? y : Math.max(MENU_ITEM_HEIGHT, y - Math.min(this.menuHeight, height))
-    }`;
+    const vStyle = `top:${this.menuVerticalPosition()}`;
     const heightStyle = `max-height:${height}`;
     return `${vStyle}px;${hStyle}px;${heightStyle}px`;
   }
@@ -156,6 +169,14 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   private close() {
     this.subMenu.isOpen = false;
     this.trigger("close");
+  }
+
+  private menuVerticalPosition(): number {
+    const { y, height } = this.props.position;
+    if (this.renderBottom) {
+      return y;
+    }
+    return Math.max(MENU_ITEM_HEIGHT, y - Math.min(this.menuHeight, height));
   }
 
   private subMenuHorizontalPosition(): number {
@@ -171,15 +192,13 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   private subMenuVerticalPosition(menuCount: number, position: number): number {
     const { height } = this.props.position;
-    const y = this.props.position.y + this.menuItemVerticalOffset(position);
+    const y = this.menuVerticalPosition() + this.menuItemVerticalOffset(position);
     const subMenuHeight = menuCount * MENU_ITEM_HEIGHT;
     const spaceBelow = y < height - subMenuHeight;
-    if (this.renderBottom && spaceBelow) {
+    if (spaceBelow) {
       return y;
-    } else if (this.renderBottom && !spaceBelow) {
-      return Math.max(MENU_ITEM_HEIGHT, y - subMenuHeight + MENU_ITEM_HEIGHT);
     }
-    return y - this.menuHeight;
+    return Math.max(MENU_ITEM_HEIGHT, y - subMenuHeight + MENU_ITEM_HEIGHT);
   }
 
   /**
@@ -223,6 +242,10 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
       (<Menu>this.subMenuRef.comp).closeSubMenus();
     }
     this.subMenu.isOpen = false;
+  }
+
+  onScroll(ev) {
+    this.subMenu.scrollOffset = ev.target.scrollTop;
   }
 
   /**
