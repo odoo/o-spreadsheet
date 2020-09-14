@@ -5,6 +5,7 @@ import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
+  getDefaultNumberFormat,
   isNumber,
   maximumDecimalPlaces,
   parseNumber,
@@ -185,33 +186,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
               (cell.type === CellType.formula && typeof cell.value === "number")) &&
             !cell.format?.match(DATETIME_FORMAT) // reject dates
           ) {
-            return cell.format || this.setDefaultNumberFormat(cell.value as any);
+            return cell.format || getDefaultNumberFormat(cell.value as any);
           }
         }
       }
     }
     return undefined;
-  }
-
-  /**
-   * Function used to give the default format of a cell with a number for value.
-   * It is considered that the default format of a number is 0 followed by as many
-   * 0 as there are decimal places.
-   *
-   * Example:
-   * - 1 --> '0'
-   * - 123 --> '0'
-   * - 12345 --> '0'
-   * - 42.1 --> '0.0'
-   * - 456.0001 --> '0.0000'
-   */
-  private setDefaultNumberFormat(cellValue: number): string {
-    const strValue = cellValue.toString();
-    const parts = strValue.split(".");
-    if (parts.length === 1) {
-      return "0";
-    }
-    return "0." + Array(parts[1].length + 1).join("0");
   }
 
   /**

@@ -51,7 +51,7 @@ describe("parseNumber", () => {
 });
 
 describe("formatNumber", () => {
-  test("formatNumber", () => {
+  test("formatStandardNumber", () => {
     expect(formatStandardNumber(1)).toBe("1");
     expect(formatStandardNumber(0)).toBe("0");
     expect(formatStandardNumber(-1)).toBe("-1");
@@ -68,13 +68,16 @@ describe("formatNumber", () => {
     expect(formatStandardNumber(0.00000000001)).toBe("0");
     expect(formatStandardNumber(0.000000000001)).toBe("0");
 
-    // @compatibility note: in Google Sheets, the next three tests result in 1234512345
-    expect(formatStandardNumber(1234512345.1)).toBe("1234512345.1");
-    expect(formatStandardNumber(1234512345.12)).toBe("1234512345.12");
-    expect(formatStandardNumber(1234512345.123)).toBe("1234512345.123");
-
-    expect(formatStandardNumber(123.10000000001)).toBe("123.1");
-    expect(formatStandardNumber(123.10000000000000001)).toBe("123.1");
+    expect(formatStandardNumber(1234567891.123456789)).toBe("1234567891");
+    expect(formatStandardNumber(-1234567891.123456789)).toBe("-1234567891");
+    expect(formatStandardNumber(123456789.123456789)).toBe("123456789.1");
+    expect(formatStandardNumber(-123456789.123456789)).toBe("-123456789.1");
+    expect(formatStandardNumber(12345678.123456789)).toBe("12345678.12");
+    expect(formatStandardNumber(-12345678.123456789)).toBe("-12345678.12");
+    expect(formatStandardNumber(1.12345678912)).toBe("1.123456789");
+    expect(formatStandardNumber(-1.12345678912)).toBe("-1.123456789");
+    expect(formatStandardNumber(0.12345678912)).toBe("0.1234567891");
+    expect(formatStandardNumber(12345.1230045)).toBe("12345.123");
   });
 
   test("formatDecimal", () => {
