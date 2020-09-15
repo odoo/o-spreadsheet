@@ -190,7 +190,16 @@ export const MINUS: FunctionDescription = {
       value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
     `),
   returns: ["NUMBER"],
-  compute: function (value1: any, value2: any): number {
+  compute: function (value1: any, value2: any): number | InternalDate {
+    if (value1 && value1.value) {
+      if (value2 && value2.value) {
+        return value1.value - value2.value;
+      }
+      return {
+        value: value1.value - toNumber(value2),
+        format: value1.format,
+      };
+    }
     return toNumber(value1) - toNumber(value2);
   },
 };

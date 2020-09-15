@@ -76,4 +76,29 @@ describe("evaluateCells", () => {
     };
     expect(evaluateCell("A3", grid)).toEqual(58476);
   });
+
+  test("substract a date and a number", () => {
+    const grid = {
+      A1: "1/3/2020",
+      A2: "=A1-1",
+    };
+    expect(evaluateCellText("A2", grid)).toEqual("1/2/2020");
+  });
+
+  test("substract a date in mm/d/yyyy format and a number", () => {
+    const grid = {
+      A1: "01/12/2020",
+      A2: "=A1-1",
+    };
+    expect(evaluateCellText("A2", grid)).toEqual("01/11/2020");
+  });
+
+  test("substract two dates", () => {
+    const grid = {
+      A1: "2/3/2020",
+      A2: "1/2/1940",
+      A3: "=A1-A2",
+    };
+    expect(evaluateCell("A3", grid)).toEqual(29252);
+  });
 });
