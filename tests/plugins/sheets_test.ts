@@ -297,12 +297,41 @@ describe("sheets", () => {
     expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe(name);
   });
 
+  test("New sheet name is trimmed", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    const name = " NEW_NAME   ";
+    model.dispatch("RENAME_SHEET", { sheet, name });
+    expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe("NEW_NAME");
+  });
+
   test("Cannot rename a sheet with existing name", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheet();
     const name = "NEW_NAME";
     model.dispatch("CREATE_SHEET", { name, id: "42" });
     expect(model.dispatch("RENAME_SHEET", { sheet, name })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
+    expect(model.dispatch("RENAME_SHEET", { sheet, name: "new_name" })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
+    expect(model.dispatch("RENAME_SHEET", { sheet, name: "new_name " })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
+  });
+
+  test("Cannot rename a sheet without name", () => {
+    const model = new Model();
+    const sheet = model.getters.getActiveSheet();
+    expect(model.dispatch("RENAME_SHEET", { sheet, name: undefined })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.WrongSheetName,
+    });
+    expect(model.dispatch("RENAME_SHEET", { sheet, name: "    " })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetName,
     });

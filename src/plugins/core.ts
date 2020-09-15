@@ -905,11 +905,12 @@ export class CorePlugin extends BasePlugin {
     if (cmd.interactive) {
       return { status: "SUCCESS" };
     }
-    if (!cmd.name) {
+    const name = cmd.name && cmd.name.trim().toLowerCase();
+    if (!name) {
       return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
     }
     return this.workbook.visibleSheets.findIndex(
-      (id) => this.workbook.sheets[id].name === cmd.name
+      (id) => this.workbook.sheets[id].name.toLowerCase() === name
     ) === -1
       ? { status: "SUCCESS" }
       : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
@@ -932,7 +933,7 @@ export class CorePlugin extends BasePlugin {
   private renameSheet(sheetId: string, name: string) {
     const sheet = this.workbook.sheets[sheetId];
     const oldName = sheet.name;
-    this.history.updateSheet(sheet, ["name"], name);
+    this.history.updateSheet(sheet, ["name"], name.trim());
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[name] = sheet.id;
     delete sheetIds[oldName];
