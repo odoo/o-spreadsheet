@@ -20,7 +20,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     Copy
   </div>
   <div
-    class="o-menu-item o-separator"
+    class="o-menu-item"
     data-name="paste"
     title="Paste"
   >
@@ -50,7 +50,7 @@ exports[`Context Menu context menu simple rendering 1`] = `
     Insert row
   </div>
   <div
-    class="o-menu-item"
+    class="o-menu-item o-separator"
     data-name="add_column_before"
     title="Insert column"
   >

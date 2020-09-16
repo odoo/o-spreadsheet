@@ -24,7 +24,6 @@ cellMenuRegistry
     name: _lt("Paste"),
     sequence: 30,
     action: ACTIONS.PASTE_ACTION,
-    separator: true,
   })
   .add("paste_special", {
     name: _lt("Paste special"),
@@ -32,7 +31,7 @@ cellMenuRegistry
     separator: true,
   })
   .addChild("paste_value_only", ["paste_special"], {
-    name: _lt("Paste value only"),
+    name: _lt("Paste values only"),
     sequence: 10,
     action: ACTIONS.PASTE_VALUE_ACTION,
   })
@@ -50,6 +49,7 @@ cellMenuRegistry
     name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
     sequence: 70,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
+    separator: true,
   })
   .add("delete_row", {
     name: ACTIONS.REMOVE_ROWS_NAME,
@@ -75,4 +75,5 @@ cellMenuRegistry
     name: _lt("Conditional formatting"),
     sequence: 120,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
+    separator: true,
   });
