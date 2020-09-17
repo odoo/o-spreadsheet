@@ -7,3 +7,5 @@ dist/
 /coverage/
 
 debug.log
+
+release-notes.md
