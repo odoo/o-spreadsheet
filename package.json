@@ -11,7 +11,8 @@
     "build": "npm run build:js && npm run build:bundle",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write"
+    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write",
+    "release": "node tools/release.js"
   },
   "browserslist": [
     "last 1 Chrome versions"
