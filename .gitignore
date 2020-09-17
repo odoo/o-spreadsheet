@@ -8,3 +8,5 @@ dist/
 logs/
 
 debug.log
+
+release-notes.md
