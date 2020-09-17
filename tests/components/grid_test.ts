@@ -566,4 +566,26 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-figure")).toBeNull();
     expect(model.getters.getCell(0, 0)!.content).toBe("content");
   });
+
+  test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_FIGURE", {
+      sheet: "42",
+      figure: {
+        id: "someuuid",
+        tag: "text",
+        width: 100,
+        height: 100,
+        x: 1,
+        y: 1,
+        data: undefined,
+      },
+    });
+    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
+    fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
+    await nextTick();
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
+  });
 });

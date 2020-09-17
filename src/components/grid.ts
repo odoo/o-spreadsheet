@@ -330,6 +330,21 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.drawGrid();
   }
 
+  async willUpdateProps() {
+    const sheet = this.getters.getActiveSheet();
+    if (this.currentSheet !== sheet) {
+      this.currentSheet = sheet;
+      // We need to reset the viewport as the sheet is changed
+      this.viewport.offsetX = 0;
+      this.viewport.offsetY = 0;
+      this.hScrollbar.scroll = 0;
+      this.vScrollbar.scroll = 0;
+      this.viewport = this.getters.adjustViewportZone(this.viewport);
+      this.viewport = this.getters.adjustViewportPosition(this.viewport);
+      this.snappedViewport = this.getters.snapViewportToCell(this.viewport);
+    }
+  }
+
   patched() {
     this.drawGrid();
   }
