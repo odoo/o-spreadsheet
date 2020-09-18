@@ -333,7 +333,6 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   async willUpdateProps() {
     const sheet = this.getters.getActiveSheet();
     if (this.currentSheet !== sheet) {
-      this.currentSheet = sheet;
       // We need to reset the viewport as the sheet is changed
       this.viewport.offsetX = 0;
       this.viewport.offsetY = 0;
