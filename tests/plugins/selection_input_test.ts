@@ -293,6 +293,24 @@ describe("selection input plugin", () => {
     expect(highlightedZones(model)).toStrictEqual([]);
   });
 
+  test("writing an invalid range with valid ones keeps the invalid one", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["B2", "E3"] });
+    model.dispatch("FOCUS_RANGE", {
+      id,
+      rangeId: idOfRange(model, id, 0),
+    });
+    model.dispatch("CHANGE_RANGE", {
+      id,
+      rangeId: idOfRange(model, id, 0),
+      value: "A1, This is invalid",
+    });
+    expect(highlightedZones(model)).toEqual(["E3", "A1"]);
+    expect(model.getters.getSelectionInput(id)).toHaveLength(3);
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("This is invalid");
+    expect(model.getters.getSelectionInput(id)[2].xc).toBe("E3");
+  });
+
   test("writing an empty range removes the highlight", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "C2" });
@@ -405,5 +423,91 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id)[0].color).toBe(null);
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     expect(model.getters.getSelectionInput(id)[0].color).toBe(color);
+  });
+
+  test("can select a range in another sheet", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { A1: "#000" },
+    });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("Sheet2!A1");
+  });
+
+  test("focus while in other sheet", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { A1: "#000" },
+    });
+    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    let [range] = model.getters.getSelectionInput(id);
+    model.dispatch("FOCUS_RANGE", { id, rangeId: range.id });
+    [range] = model.getters.getSelectionInput(id);
+    expect(range.xc).toBe("A1");
+  });
+
+  test("mixing ranges from different sheets in the same input", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    expect(model.getters.getActiveSheet()).not.toBe("42");
+    model.dispatch("CHANGE_RANGE", {
+      id,
+      rangeId: idOfRange(model, id, 0),
+      value: "A1, Sheet2!B3",
+    });
+    let [range1, range2] = model.getters.getSelectionInput(id);
+    expect(highlightedZones(model)).toEqual(["A1"]);
+    expect(range1.xc).toBe("A1");
+    expect(range2.xc).toBe("Sheet2!B3");
+  });
+
+  test("mixing ranges from different sheets in the same input in another sheet", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CHANGE_RANGE", {
+      id,
+      rangeId: idOfRange(model, id, 0),
+      value: "Sheet2!B3, A1",
+    });
+    let [range1, range2] = model.getters.getSelectionInput(id);
+    expect(highlightedZones(model)).toEqual(["B3"]);
+    expect(model.getters.getSelectionInput(id)).toHaveLength(2);
+    expect(range1.xc).toBe("Sheet2!B3");
+    expect(range2.xc).toBe("A1");
+  });
+
+  test("manually adding a range from another sheet", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A1"] });
+    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A1, C5" });
+    expect(model.getters.getSelectionInput(id)).toHaveLength(2);
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("C5");
+  });
+
+  test("highlights are set when activating another sheet", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CHANGE_RANGE", {
+      id,
+      rangeId: idOfRange(model, id, 0),
+      value: "Sheet2!B3, A1",
+    });
+    expect(highlightedZones(model)).toEqual(["A1"]);
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    expect(highlightedZones(model)).toEqual(["A1", "B3"]);
+  });
+
+  test("input not focused when changing sheet", () => {
+    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["Sheet2!B2"] });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
   });
 });
