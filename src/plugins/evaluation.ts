@@ -305,10 +305,13 @@ export class EvaluationPlugin extends BasePlugin {
      * that are actually present in the grid.
      */
     function range(v1: string, v2: string, sheetId: string) {
-      const [left, top] = toCartesian(v1);
-      const [right, bottom] = toCartesian(v2);
+      const sheet = sheets[sheetId];
+      let [left, top] = toCartesian(v1);
+      let [right, bottom] = toCartesian(v2);
+      right = Math.min(right, sheet.colNumber - 1);
+      bottom = Math.min(bottom, sheet.rowNumber - 1);
       const zone = { left, top, right, bottom };
-      return mapCellsInZone(zone, sheets[sheetId], (cell) => getCellValue(cell, sheetId));
+      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
     }
 
     return [readCell, range, evalContext];

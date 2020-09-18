@@ -2285,6 +2285,7 @@ describe("math", () => {
       A2: "=SUM(B2:E2)",
       A3: "=SUM(B3:E3)",
       A4: "=SUM(B4:E4)",
+      A5: "=SUM(B4:E2000)",
 
       B1: "=SUM(B2:B4)",
       C1: "=SUM(C2:C4)",
@@ -2312,6 +2313,7 @@ describe("math", () => {
     expect(gridResult.A2).toBe(6);
     expect(gridResult.A3).toBe(0);
     expect(gridResult.A4).toBe(0);
+    expect(gridResult.A5).toBe(0);
     expect(gridResult.B1).toBe(3);
     expect(gridResult.C1).toBe(3);
     expect(gridResult.D1).toBe(0);
