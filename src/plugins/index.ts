@@ -14,9 +14,11 @@ import { AutofillPlugin } from "./autofill";
 import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
 import { FigurePlugin } from "./figures";
+import { RangePlugin } from "./range";
 
 export const pluginRegistry = new Registry<typeof BasePlugin>()
   .add("core", CorePlugin)
+  .add("range", RangePlugin)
   .add("evaluation", EvaluationPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("merge", MergePlugin)
