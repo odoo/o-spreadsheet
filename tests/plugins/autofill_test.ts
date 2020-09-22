@@ -4,7 +4,14 @@ import { ConditionalFormat } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import { getCell, getMergeCellMap, getMerges, setCellContent } from "../helpers";
+import {
+  getCell,
+  getCellContent,
+  getCellText,
+  getMergeCellMap,
+  getMerges,
+  setCellContent,
+} from "../helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -92,14 +99,14 @@ describe("Autofill", () => {
   });
 
   test.each([
-    ["1", "1"],
-    ["test", "test"],
-    ["=B1", "=B2"],
-    ["01/01/2020", "01/01/2020"],
-  ])("Autofill %s DOWN should give %s", (text, expected) => {
+    ["1", "1", "number"],
+    ["test", "test", "string"],
+    ["=B1", "=B2", "formula"],
+    ["01/01/2020", "01/01/2020", "date"],
+  ])("Autofill %s DOWN should give %s", (text, expected, expectedType) => {
     setCellContent(model, "A1", text);
     autofill("A1", "A2");
-    expect(getCell(model, "A2")!.content).toBe(expected);
+    expect(getCellText(model, "A2")).toBe(expected);
   });
 
   test("Autofill keep style, border and format", () => {
@@ -158,20 +165,20 @@ describe("Autofill", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
       autofill("A1:A2", "A6");
-      expect(getCell(model, "A3")!.content).toBe("3");
-      expect(getCell(model, "A4")!.content).toBe("4");
-      expect(getCell(model, "A5")!.content).toBe("5");
-      expect(getCell(model, "A6")!.content).toBe("6");
+      expect(getCellContent(model, "A3")).toBe("3");
+      expect(getCellContent(model, "A4")).toBe("4");
+      expect(getCellContent(model, "A5")).toBe("5");
+      expect(getCellContent(model, "A6")).toBe("6");
     });
 
     test("Autofill 2 non-consecutive numbers", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       autofill("A1:A2", "A6");
-      expect(getCell(model, "A3")!.content).toBe("5");
-      expect(getCell(model, "A4")!.content).toBe("7");
-      expect(getCell(model, "A5")!.content).toBe("9");
-      expect(getCell(model, "A6")!.content).toBe("11");
+      expect(getCellContent(model, "A3")).toBe("5");
+      expect(getCellContent(model, "A4")).toBe("7");
+      expect(getCellContent(model, "A5")).toBe("9");
+      expect(getCellContent(model, "A6")).toBe("11");
     });
 
     test("Autofill more than 2 consecutive numbers", () => {
@@ -179,9 +186,9 @@ describe("Autofill", () => {
       setCellContent(model, "A2", "3");
       setCellContent(model, "A3", "5");
       autofill("A1:A3", "A6");
-      expect(getCell(model, "A4")!.content).toBe("7");
-      expect(getCell(model, "A5")!.content).toBe("9");
-      expect(getCell(model, "A6")!.content).toBe("11");
+      expect(getCellContent(model, "A4")).toBe("7");
+      expect(getCellContent(model, "A5")).toBe("9");
+      expect(getCellContent(model, "A6")).toBe("11");
     });
 
     test("Autofill non-trivial steps", () => {
@@ -189,29 +196,29 @@ describe("Autofill", () => {
       setCellContent(model, "A2", "2");
       setCellContent(model, "A3", "4");
       autofill("A1:A3", "A6");
-      expect(getCell(model, "A4")!.content).toBe("5.5");
-      expect(getCell(model, "A5")!.content).toBe("6.5");
-      expect(getCell(model, "A6")!.content).toBe("8.5");
+      expect(getCellContent(model, "A4")).toBe("5.5");
+      expect(getCellContent(model, "A5")).toBe("6.5");
+      expect(getCellContent(model, "A6")).toBe("8.5");
     });
 
     test("Autofill formulas", () => {
       setCellContent(model, "A1", "=B1");
       setCellContent(model, "A2", "=B2");
       autofill("A1:A2", "A6");
-      expect(getCell(model, "A3")!.content).toBe("=B3");
-      expect(getCell(model, "A4")!.content).toBe("=B4");
-      expect(getCell(model, "A5")!.content).toBe("=B5");
-      expect(getCell(model, "A6")!.content).toBe("=B6");
+      expect(getCellText(model, "A3")).toBe("=B3");
+      expect(getCellText(model, "A4")).toBe("=B4");
+      expect(getCellText(model, "A5")).toBe("=B5");
+      expect(getCellText(model, "A6")).toBe("=B6");
     });
 
     test("Autofill text values", () => {
       setCellContent(model, "A1", "A");
       setCellContent(model, "A2", "B");
       autofill("A1:A2", "A6");
-      expect(getCell(model, "A3")!.content).toBe("A");
-      expect(getCell(model, "A4")!.content).toBe("B");
-      expect(getCell(model, "A5")!.content).toBe("A");
-      expect(getCell(model, "A6")!.content).toBe("B");
+      expect(getCellContent(model, "A3")).toBe("A");
+      expect(getCellContent(model, "A4")).toBe("B");
+      expect(getCellContent(model, "A5")).toBe("A");
+      expect(getCellContent(model, "A6")).toBe("B");
     });
 
     test("Autofill mixed values", () => {
@@ -219,20 +226,20 @@ describe("Autofill", () => {
       setCellContent(model, "A2", "2");
       setCellContent(model, "A3", "test");
       autofill("A1:A3", "A9");
-      expect(getCell(model, "A4")!.content).toBe("3");
-      expect(getCell(model, "A5")!.content).toBe("4");
-      expect(getCell(model, "A6")!.content).toBe("test");
-      expect(getCell(model, "A7")!.content).toBe("5");
-      expect(getCell(model, "A8")!.content).toBe("6");
-      expect(getCell(model, "A9")!.content).toBe("test");
+      expect(getCellContent(model, "A4")).toBe("3");
+      expect(getCellContent(model, "A5")).toBe("4");
+      expect(getCellContent(model, "A6")).toBe("test");
+      expect(getCellContent(model, "A7")).toBe("5");
+      expect(getCellContent(model, "A8")).toBe("6");
+      expect(getCellContent(model, "A9")).toBe("test");
     });
 
     test("Autofill number and text", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "test");
       autofill("A1:A2", "A4");
-      expect(getCell(model, "A3")!.content).toBe("2");
-      expect(getCell(model, "A4")!.content).toBe("test");
+      expect(getCellContent(model, "A3")).toBe("2");
+      expect(getCellContent(model, "A4")).toBe("test");
     });
 
     test("Autofill mixed-mixed values", () => {
@@ -242,11 +249,11 @@ describe("Autofill", () => {
       setCellContent(model, "A4", "-2");
       setCellContent(model, "A5", "-3");
       autofill("A1:A5", "A10");
-      expect(getCell(model, "A6")!.content).toBe("2");
-      expect(getCell(model, "A7")!.content).toBe("test");
-      expect(getCell(model, "A8")!.content).toBe("-4");
-      expect(getCell(model, "A9")!.content).toBe("-5");
-      expect(getCell(model, "A10")!.content).toBe("-6");
+      expect(getCellContent(model, "A6")).toBe("2");
+      expect(getCellContent(model, "A7")).toBe("test");
+      expect(getCellContent(model, "A8")).toBe("-4");
+      expect(getCellContent(model, "A9")).toBe("-5");
+      expect(getCellContent(model, "A10")).toBe("-6");
     });
 
     test("Autofill should override selected zone", () => {
@@ -265,25 +272,25 @@ describe("Autofill", () => {
       expect(cell.style).toBeUndefined();
       expect(cell.border).toBeUndefined();
       expect(cell.format).toBeUndefined();
-      expect(cell.content).toBe("1");
+      expect(cell["content"]).toBe("1");
     });
   });
 
   test("Autofill functions", () => {
     setCellContent(model, "A1", "=B1");
     autofill("A1", "A3"); // DOWN
-    expect(getCell(model, "A2")!.content).toBe("=B2");
-    expect(getCell(model, "A3")!.content).toBe("=B3");
+    expect(getCellText(model, "A2")).toBe("=B2");
+    expect(getCellText(model, "A3")).toBe("=B3");
     setCellContent(model, "A1", "=A2");
     autofill("A1", "C1"); // RIGHT
-    expect(getCell(model, "B1")!.content).toBe("=B2");
-    expect(getCell(model, "C1")!.content).toBe("=C2");
+    expect(getCellText(model, "B1")).toBe("=B2");
+    expect(getCellText(model, "C1")).toBe("=C2");
     setCellContent(model, "B2", "=C3");
     autofill("B2", "A2"); // LEFT
-    expect(getCell(model, "A2")!.content).toBe("=B3");
-    expect(getCell(model, "B2")!.content).toBe("=C3");
+    expect(getCellText(model, "A2")).toBe("=B3");
+    expect(getCellText(model, "B2")).toBe("=C3");
     autofill("B2", "B1"); // UP
-    expect(getCell(model, "B1")!.content).toBe("=C2");
+    expect(getCellText(model, "B1")).toBe("=C2");
   });
 
   test("Autofill empty cell should erase others", () => {
@@ -308,8 +315,8 @@ describe("Autofill", () => {
     setCellContent(model, "B2", "2");
     selectZone("B2");
     model.dispatch("AUTOFILL_AUTO");
-    expect(getCell(model, "B3")!.content).toBe("2");
-    expect(getCell(model, "B4")!.content).toBe("2");
+    expect(getCellContent(model, "B3")).toBe("2");
+    expect(getCellContent(model, "B4")).toBe("2");
     expect(getCell(model, "B5")).toBeUndefined();
   });
 
@@ -320,8 +327,8 @@ describe("Autofill", () => {
     setCellContent(model, "A2", "2");
     selectZone("A2");
     model.dispatch("AUTOFILL_AUTO");
-    expect(getCell(model, "A3")!.content).toBe("2");
-    expect(getCell(model, "A4")!.content).toBe("2");
+    expect(getCellContent(model, "A3")).toBe("2");
+    expect(getCellContent(model, "A4")).toBe("2");
     expect(getCell(model, "A5")).toBeUndefined();
   });
 
@@ -336,9 +343,9 @@ describe("Autofill", () => {
       "2": { bottom: 4, id: 2, left: 0, right: 0, top: 3, topLeft: "A4" },
       "3": { bottom: 7, id: 3, left: 0, right: 0, top: 6, topLeft: "A7" },
     });
-    expect(getCell(model, "A1")!.content).toBe("1");
-    expect(getCell(model, "A4")!.content).toBe("2");
-    expect(getCell(model, "A7")!.content).toBe("3");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A4")).toBe("2");
+    expect(getCellContent(model, "A7")).toBe("3");
   });
 
   test("autofill with merge greater than the grid size", () => {
@@ -368,12 +375,12 @@ describe("Autofill", () => {
     autofill("A1:A2", "A6");
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(getMerges(model)).toEqual({});
-    expect(getCell(model, "A1")!.content).toBe("1");
-    expect(getCell(model, "A2")!.content).toBe("2");
-    expect(getCell(model, "A3")!.content).toBe("3");
-    expect(getCell(model, "A4")!.content).toBe("4");
-    expect(getCell(model, "A5")!.content).toBe("5");
-    expect(getCell(model, "A6")!.content).toBe("6");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A2")).toBe("2");
+    expect(getCellContent(model, "A3")).toBe("3");
+    expect(getCellContent(model, "A4")).toBe("4");
+    expect(getCellContent(model, "A5")).toBe("5");
+    expect(getCellContent(model, "A6")).toBe("6");
   });
 
   test("autofill with merge in target (2)", () => {
@@ -383,15 +390,15 @@ describe("Autofill", () => {
     autofill("B1", "B2");
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(getMerges(model)).toEqual({});
-    expect(getCell(model, "B1")!.content).toBe("1");
-    expect(getCell(model, "B2")!.content).toBe("1");
+    expect(getCellContent(model, "B1")).toBe("1");
+    expect(getCellContent(model, "B2")).toBe("1");
   });
 
   test("Autofill cross-sheet references", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
-    expect(getCell(model, "A2")!.content).toBe("=Sheet2!A2");
-    expect(getCell(model, "A3")!.content).toBe("=Sheet2!A3");
+    expect(getCellText(model, "A2")).toBe("=Sheet2!A2");
+    expect(getCellText(model, "A3")).toBe("=Sheet2!A3");
   });
 });

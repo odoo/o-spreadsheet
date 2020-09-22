@@ -228,7 +228,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         break;
       case Status.Finalizing:
-        throw new Error(_lt("Nope. Don't do that"));
+        throw new Error(_lt("Cannot dispatch commands in the finalize state"));
     }
     return { status: "SUCCESS" } as CommandSuccess;
   };

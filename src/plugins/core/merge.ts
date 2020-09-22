@@ -6,25 +6,26 @@ import {
   updateRemoveRows,
 } from "../../helpers/grid_manipulation";
 import {
-  isEqual,
-  toCartesian,
-  toXC,
-  union,
-  overlap,
   clip,
   isDefined,
+  isEqual,
+  overlap,
+  toCartesian,
+  toXC,
   toZone,
+  union,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   CancelledReason,
+  CellType,
   Command,
   CommandResult,
   Merge,
+  Sheet,
   UID,
   WorkbookData,
   Zone,
-  Sheet,
 } from "../../types/index";
 
 interface PendingMerges {
@@ -175,7 +176,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = actualRow.cells[col];
-          if (cell && cell.content) {
+          if (cell && cell.type !== CellType.empty) {
             return true;
           }
         }

@@ -161,7 +161,7 @@ export class AutofillPlugin extends UIPlugin {
   /**
    * Autofill the autofillZone from the current selection
    * @param apply Flag set to true to apply the autofill in the model. It's
-   *              usefull to set it to false when we need to fill the tooltip
+   *              useful to set it to false when we need to fill the tooltip
    */
   private autofill(apply: boolean) {
     if (!this.autofillZone || this.direction === undefined) {
@@ -273,7 +273,7 @@ export class AutofillPlugin extends UIPlugin {
     let row = zone.bottom;
     if (col > 0) {
       let left = this.getters.getCell(sheetId, col - 1, row);
-      while (left && left.content) {
+      while (left && left.type !== "empty") {
         row += 1;
         left = this.getters.getCell(sheetId, col - 1, row);
       }
@@ -282,7 +282,7 @@ export class AutofillPlugin extends UIPlugin {
       col = zone.right;
       if (col <= this.getters.getActiveSheet().cols.length) {
         let right = this.getters.getCell(sheetId, col + 1, row);
-        while (right && right.content) {
+        while (right && right.type !== "empty") {
           row += 1;
           right = this.getters.getCell(sheetId, col + 1, row);
         }
@@ -331,9 +331,9 @@ export class AutofillPlugin extends UIPlugin {
     const nextCells: GeneratorCell[] = [];
 
     const cellsData: { col: number; row: number; cell?: Cell }[] = [];
+    const sheetId = this.getters.getActiveSheetId();
     for (let xc of source) {
       const [col, row] = toCartesian(xc);
-      const sheetId = this.getters.getActiveSheetId();
       const cell = this.getters.getCell(sheetId, col, row);
       let cellData: { col: number; row: number; cell?: Cell } = {
         col,
@@ -353,11 +353,14 @@ export class AutofillPlugin extends UIPlugin {
       const data = {
         row: cellData.row,
         col: cellData.col,
-        content: cellData.cell ? cellData.cell.content : undefined,
+        content: "",
         style: cellData.cell ? cellData.cell.style : undefined,
         border: cellData.cell ? cellData.cell.border : undefined,
         format: cellData.cell ? cellData.cell.format : undefined,
       };
+
+      data.content = cellData.cell ? this.getters.getCellText(cellData.cell, sheetId, true) : "";
+
       nextCells.push({ data, rule });
     }
     return new AutofillGenerator(nextCells, this.getters, this.direction!);

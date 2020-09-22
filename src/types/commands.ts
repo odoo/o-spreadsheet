@@ -222,6 +222,7 @@ export interface PasteCommand extends BaseCommand {
 export interface PasteCellCommand extends BaseCommand {
   type: "PASTE_CELL";
   origin: Cell | null;
+  originSheet: UID;
   originCol: number;
   originRow: number;
   col: number;

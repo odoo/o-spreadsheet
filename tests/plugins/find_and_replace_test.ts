@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import { toCartesian } from "../../src/helpers";
 import { SearchOptions, ReplaceOptions } from "../../src/plugins/ui/find_and_replace";
 import "../canvas.mock";
-import { getCell } from "../helpers";
+import { getCellContent, getCellText } from "../helpers";
 
 let model: Model;
 let searchOptions: SearchOptions;
@@ -139,7 +139,7 @@ describe("basic search", () => {
 });
 describe("next/previous cycle", () => {
   beforeEach(() => {
-    model = new Model();
+    model = new Model({ sheets: [{ id: "s1" }] });
     updateCell("A1", "1");
     updateCell("A2", "1");
     updateCell("A3", "1");
@@ -173,7 +173,7 @@ describe("next/previous cycle", () => {
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
     let activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -184,7 +184,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -195,7 +195,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -206,7 +206,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -217,7 +217,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -229,7 +229,7 @@ describe("next/previous cycle", () => {
     let matches = model.getters.getSearchMatches();
     let matchIndex = model.getters.getCurrentSelectedMatchIndex();
     let activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -240,7 +240,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -251,7 +251,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 1, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(1);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -262,7 +262,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 0, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(0);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
@@ -273,7 +273,7 @@ describe("next/previous cycle", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     activeCellPosition = model.getters.getCellPosition(model.getters.getActiveCell()!.id);
-    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2 });
+    expect(activeCellPosition).toStrictEqual({ col: 0, row: 2, sheetId: "s1" });
     expect(matches).toHaveLength(3);
     expect(matchIndex).toStrictEqual(2);
     expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: false });
@@ -419,7 +419,7 @@ describe("replace", () => {
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
-    expect(getCell(model, "A1")!.content).toBe("kikou");
+    expect(getCellContent(model, "A1")).toBe("kikou");
   });
 
   test("Can replace a value in a formula", () => {
@@ -431,7 +431,7 @@ describe("replace", () => {
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
-    expect(getCell(model, "A2")!.content).toBe("=SUM(4,4)");
+    expect(getCellText(model, "A2")).toBe("=SUM(4,4)");
   });
 
   test("formulas will be overwritten if modify formula is checked", () => {
@@ -442,7 +442,7 @@ describe("replace", () => {
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
-    expect(getCell(model, "A2")!.content).toBe("2");
+    expect(getCellContent(model, "A2")).toBe("2");
   });
 
   test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {
@@ -452,7 +452,7 @@ describe("replace", () => {
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(1);
     expect(matchIndex).toStrictEqual(0);
-    expect(getCell(model, "A2")!.content).toBe("=SUM(2,2)");
+    expect(getCellText(model, "A2")).toBe("=SUM(2,2)");
   });
 
   test("can replace all", () => {
@@ -462,9 +462,9 @@ describe("replace", () => {
     const matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toStrictEqual(null);
-    expect(getCell(model, "A1")!.content).toBe("kikouo");
-    expect(getCell(model, "A2")!.content).toBe("=SUM(2,2)");
-    expect(getCell(model, "A3")!.content).toBe("kikou");
-    expect(getCell(model, "A4")!.content).toBe("kikou");
+    expect(getCellContent(model, "A1")).toBe("kikouo");
+    expect(getCellText(model, "A2")).toBe("=SUM(2,2)");
+    expect(getCellContent(model, "A3")).toBe("kikou");
+    expect(getCellContent(model, "A4")).toBe("kikou");
   });
 });

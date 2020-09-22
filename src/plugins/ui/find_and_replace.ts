@@ -1,5 +1,13 @@
 import { toXC } from "../../helpers/coordinates";
-import { Cell, Command, GridRenderingContext, LAYERS } from "../../types/index";
+import {
+  Cell,
+  CellType,
+  Command,
+  FormulaCell,
+  GridRenderingContext,
+  LAYERS,
+  UID,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -143,13 +151,24 @@ export class FindAndReplacePlugin extends UIPlugin {
    * Find matches using the current regex
    */
   private findMatches() {
-    const cells = this.getters.getCells(this.getters.getActiveSheetId());
+    const activeSheetId = this.getters.getActiveSheetId();
+    const cells = this.getters.getCells(activeSheetId);
     const matches: SearchMatch[] = [];
 
-    let field = this.searchOptions.searchFormulas ? "content" : "value";
+    //let field = this.searchOptions.searchFormulas ? "content" : "value";
     if (this.toSearch) {
       for (const cell of Object.values(cells)) {
-        if (cell && this.currentSearchRegex && this.currentSearchRegex.test(cell[field])) {
+        if (
+          cell &&
+          this.currentSearchRegex &&
+          this.currentSearchRegex.test(
+            this.searchOptions.searchFormulas
+              ? cell.type === CellType.formula
+                ? this.getters.getFormulaCellContent(activeSheetId, cell as FormulaCell)
+                : String(cell.value)
+              : String(cell.value)
+          )
+        ) {
           const position = this.getters.getCellPosition(cell.id);
           const match: SearchMatch = { col: position.col, row: position.row, selected: false };
           matches.push(match);
@@ -226,12 +245,9 @@ export class FindAndReplacePlugin extends UIPlugin {
     }
     const matches = this.searchMatches;
     const selectedMatch = matches[this.selectedMatchIndex];
-    const cellToReplace = this.getters.getCell(
-      this.getters.getActiveSheetId(),
-      selectedMatch.col,
-      selectedMatch.row
-    );
-    const toReplace: string | null = this.toReplace(cellToReplace);
+    const sheetId = this.getters.getActiveSheetId();
+    const cellToReplace = this.getters.getCell(sheetId, selectedMatch.col, selectedMatch.row);
+    const toReplace: string | null = this.toReplace(cellToReplace, sheetId);
     if (!cellToReplace || !toReplace) {
       this.selectNextCell(Direction.next);
     } else {
@@ -264,11 +280,13 @@ export class FindAndReplacePlugin extends UIPlugin {
    * Determines if the content, the value or nothing should be replaced,
    * based on the search and replace options
    */
-  private toReplace(cell: Cell | undefined) {
-    if (cell && this.searchOptions.searchFormulas) {
-      return cell.content;
-    } else if (cell && (this.replaceOptions.modifyFormulas || cell.type !== "formula")) {
-      return cell.value;
+  private toReplace(cell: Cell | undefined, sheetId: UID) {
+    if (cell) {
+      if (this.searchOptions.searchFormulas && cell.type === CellType.formula) {
+        return this.getters.getFormulaCellContent(sheetId, cell);
+      } else if (this.replaceOptions.modifyFormulas || cell.type !== CellType.formula) {
+        return (cell.value as any).toString();
+      }
     }
     return null;
   }

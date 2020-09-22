@@ -1,6 +1,13 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, createEqualCF, testUndoRedo, setCellContent, getCellContent } from "../helpers";
+import {
+  getCell,
+  createEqualCF,
+  testUndoRedo,
+  setCellContent,
+  getCellContent,
+  getCellText,
+} from "../helpers";
 import { uuidv4, toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 
@@ -406,11 +413,24 @@ describe("sheets", () => {
     const nextName = "NEXT NAME";
     model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(getCell(model, "A1")!.content).toBe("='NEXT NAME'!A1");
+    expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
     model.dispatch("UNDO"); // Activate Sheet
     model.dispatch("UNDO"); // Rename sheet
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(getCell(model, "A1")!.content).toBe("=NEW_NAME!A1");
+    expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
+  });
+
+  test("Cells have the correct value after rename sheet", () => {
+    const model = new Model();
+    const name = "NEW_NAME";
+    const sheet2 = "42";
+    model.dispatch("CREATE_SHEET", { name, sheetId: sheet2, position: 1 });
+    setCellContent(model, "A1", "=NEW_NAME!A1");
+    setCellContent(model, "A1", "24", sheet2);
+    const nextName = "NEXT NAME";
+    model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
+    expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
+    expect(getCell(model, "A1")!.value).toBe(24);
   });
 
   test("Rename a sheet will call editText", async () => {
@@ -716,10 +736,10 @@ describe("sheets", () => {
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
-    expect(getCell(model, "A1")!.content).toBe("=#REF");
+    expect(getCellText(model, "A1")).toBe("=#REF");
     model.dispatch("UNDO");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(getCell(model, "A1")!.content).toBe("=NEW_NAME!A1");
+    expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
   });
 
   test("UPDATE_CELL_POSITION remove the old position if exist", () => {
@@ -736,6 +756,10 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheet();
     expect(sheet.rows[0].cells[0]).toBeUndefined();
     expect(sheet.rows[1].cells[1]!.id).toBe(cell.id);
-    expect(model.getters.getCellPosition(cell.id)).toEqual({ col: 1, row: 1 });
+    expect(model.getters.getCellPosition(cell.id)).toEqual({
+      col: 1,
+      row: 1,
+      sheetId: model.getters.getActiveSheetId(),
+    });
   });
 });

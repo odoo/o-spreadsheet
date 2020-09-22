@@ -2,7 +2,14 @@ import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style, Border, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
-import { getActiveXc, getCell, getMergeCellMap, getMerges, setCellContent } from "../helpers";
+import {
+  getActiveXc,
+  getCell,
+  getCellContent,
+  getMergeCellMap,
+  getMerges,
+  setCellContent,
+} from "../helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -23,7 +30,7 @@ describe("merges", () => {
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
 
     expect(getCellsXC(model)).toEqual(["B2"]);
-    expect(model.getters.getCellByXc(sheet1, "B2")!.content).toBe("b2");
+    expect(getCellContent(model, "B2", sheet1)).toBe("b2");
     expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
     expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
@@ -99,7 +106,7 @@ describe("merges", () => {
     expect(model.getters.getCurrentContent()).toBe("b2");
     model.dispatch("SET_CURRENT_CONTENT", { content: "new value" });
     model.dispatch("STOP_EDITION");
-    expect(getCell(model, "B2")!.content).toBe("new value");
+    expect(getCellContent(model, "B2")).toBe("new value");
   });
 
   test("setting a style to a merge edit all the cells", () => {
@@ -134,6 +141,7 @@ describe("merges", () => {
     const model = new Model({
       sheets: [
         {
+          id: "s1",
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
@@ -150,6 +158,7 @@ describe("merges", () => {
     expect(model.getters.getCellPosition(model.getters.getActiveCell()!.id)).toEqual({
       col: 1,
       row: 1,
+      sheetId: "s1",
     });
   });
 

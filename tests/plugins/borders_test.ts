@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import { BorderCommand, Border } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import { getCell, setCellContent } from "../helpers";
+import { getCell, getCellContent, setCellContent } from "../helpers";
 
 function getBorder(model: Model, xc: string): Border | null {
   const cell = model.getters.getCellByXc(model.getters.getActiveSheetId(), xc);
@@ -256,10 +256,10 @@ describe("borders", () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "all");
 
-    expect(getCell(model, "B2")!.content).toBe("some content");
+    expect(getCellContent(model, "B2")).toBe("some content");
     expect(getCell(model, "B2")!.border).toBeDefined();
     model.dispatch("UNDO");
-    expect(getCell(model, "B2")!.content).toBe("some content");
+    expect(getCellContent(model, "B2")).toBe("some content");
     expect(getCell(model, "B2")!.border).not.toBeDefined();
   });
 

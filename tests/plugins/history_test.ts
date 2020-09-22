@@ -1,7 +1,7 @@
 import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, setCellContent, waitForRecompute } from "../helpers";
+import { getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
@@ -154,25 +154,25 @@ describe("Model history", () => {
     setCellContent(model, "A2", "3");
     setCellContent(model, "A2", "5");
 
-    expect(getCell(model, "A2")!.content).toBe("5");
+    expect(getCellContent(model, "A2")).toBe("5");
 
     model.dispatch("UNDO");
-    expect(getCell(model, "A2")!.content).toBe("3");
+    expect(getCellContent(model, "A2")).toBe("3");
 
     model.dispatch("UNDO");
     expect(getCell(model, "A2")).toBeUndefined();
 
     model.dispatch("REDO");
-    expect(getCell(model, "A2")!.content).toBe("3");
+    expect(getCellContent(model, "A2")).toBe("3");
     model.dispatch("REDO");
-    expect(getCell(model, "A2")!.content).toBe("5");
+    expect(getCellContent(model, "A2")).toBe("5");
   });
 
   test("redo stack is nuked when new operation is performed", () => {
     const model = new Model();
     setCellContent(model, "A2", "3");
 
-    expect(getCell(model, "A2")!.content).toBe("3");
+    expect(getCellContent(model, "A2")).toBe("3");
 
     model.dispatch("UNDO");
     expect(getCell(model, "A2")).toBeUndefined();
@@ -210,13 +210,13 @@ describe("Model history", () => {
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
       model.dispatch("START_EDITION", { text: String(i) });
       model.dispatch("STOP_EDITION");
-      expect(getCell(model, "A1")!.content).toBe(String(i));
+      expect(getCellContent(model, "A1")).toBe(String(i));
     }
     model.dispatch("START_EDITION", { text: "abc" });
     model.dispatch("STOP_EDITION");
-    expect(getCell(model, "A1")!.content).toBe("abc");
+    expect(getCellContent(model, "A1")).toBe("abc");
     model.dispatch("UNDO");
-    expect(getCell(model, "A1")!.content).toBe(String(MAX_HISTORY_STEPS - 1));
+    expect(getCellContent(model, "A1")).toBe(String(MAX_HISTORY_STEPS - 1));
   });
 
   test("undo recomputes the cells", () => {

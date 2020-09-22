@@ -1,4 +1,4 @@
-import { Cell, AutofillModifier } from "../types/index";
+import { Cell, AutofillModifier, FormulaCell, OtherCell } from "../types/index";
 import { Registry } from "../registry";
 
 /**
@@ -73,14 +73,14 @@ autofillRulesRegistry
   })
   .add("update_formula", {
     condition: (cell: Cell) => cell.type === "formula",
-    generateRule: (_, cells: (Cell | undefined)[]) => {
+    generateRule: (_, cells: (FormulaCell | undefined)[]) => {
       return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
     },
     sequence: 30,
   })
   .add("increment_number", {
     condition: (cell: Cell) => cell.type === "number",
-    generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
+    generateRule: (cell: Cell, cells: (OtherCell | undefined)[]) => {
       const group = getGroup(cell, cells);
       let increment: number = 1;
       if (group.length == 2) {

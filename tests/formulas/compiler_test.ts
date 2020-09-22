@@ -2,7 +2,8 @@ import { compile, normalize } from "../../src/formulas/index";
 import { functionCache } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
 import { evaluateCell } from "../helpers";
-import { NormalizedFormula } from "../../src/types";
+import { NormalizedFormula, Range } from "../../src/types";
+import { toZone } from "../../src/helpers";
 
 function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
@@ -247,23 +248,26 @@ describe("compile functions", () => {
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
-      compiledFormula1(["A1"], "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC", true);
+      const rangeA1 = [{ zone: toZone("A1"), id: "R1", sheetId: "ABC" }] as Range[];
+      const rangeA1ToB2 = [{ zone: toZone("A1:B2"), id: "R1", sheetId: "ABC" }] as Range[];
+
+      compiledFormula1(rangeA1, "ABC", refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC", true);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula2(["A1:B2"], "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC", true);
+      compiledFormula2(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC", true);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula3(["A1"], "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC");
+      compiledFormula3(rangeA1, "ABC", refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(0, rangeA1, "ABC");
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula4(["A1:B2"], "ABC", refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC");
+      compiledFormula4(rangeA1ToB2, "ABC", refFn, ensureRange, ctx);
+      expect(refFn).toHaveBeenCalledWith(0, rangeA1ToB2, "ABC");
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
     });

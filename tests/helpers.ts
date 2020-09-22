@@ -3,7 +3,7 @@ import { Grid } from "../src/components/grid";
 import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import { toCartesian, toXC, getCellText } from "../src/helpers/index";
+import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
 import {
   Cell,
@@ -253,13 +253,8 @@ export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   return result;
 }
 
-export function getCellContent(model: Model, xc: string): string {
-  const cell = getCell(model, xc);
-  return cell ? getCellText(cell, model.getters.shouldShowFormulas()) : "";
-}
-
 /**
- * Evaluate the final state of a cell according to the different values ​​and
+ * Evaluate the final state of a cell according to the different values and
  * different functions submitted in a grid cells
  *
  * Examples:
@@ -370,7 +365,32 @@ export function getCell(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): Cell | undefined {
-  return model.getters.getCellByXc(sheetId, xc);
+  let [col, row] = toCartesian(xc);
+  return model.getters.getCell(sheetId, col, row);
+}
+
+/**
+ * gets the string representation of the content of a cell (the value for formula cell, or the formula, depending on ShowFormula)
+ */
+export function getCellContent(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): string {
+  const cell = getCell(model, xc, sheetId);
+  return cell ? model.getters.getCellText(cell, sheetId, model.getters.shouldShowFormulas()) : "";
+}
+
+/**
+ * get the string representation of the content of a cell, and always formula for formula cells
+ */
+export function getCellText(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const cell = getCell(model, xc, sheetId);
+  return cell ? model.getters.getCellText(cell, sheetId, true) : "";
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

@@ -1,6 +1,6 @@
 import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../../formulas/index";
-import { toXC, toCartesian, colors, getComposerSheetName, getCellText } from "../../helpers/index";
-import { Command, LAYERS, CancelledReason, CommandResult } from "../../types/index";
+import { toXC, toCartesian, colors, getComposerSheetName } from "../../helpers/index";
+import { Command, LAYERS, CancelledReason, CommandResult, CellType, Cell } from "../../types/index";
 import { Mode } from "../../model";
 import { UIPlugin } from "../ui_plugin";
 
@@ -31,6 +31,7 @@ export class EditionPlugin extends UIPlugin {
   private selectionStart: number = 0;
   private selectionEnd: number = 0;
   private selectionInitialStart: number = 0;
+  private initialContent: string | undefined = "";
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -182,13 +183,31 @@ export class EditionPlugin extends UIPlugin {
   // Misc
   // ---------------------------------------------------------------------------
 
-  private startEdition(str?: string, selection?: ComposerSelection) {
-    if (!str) {
-      const cell = this.getters.getActiveCell();
-      str = cell ? cell.content || "" : "";
+  private getCellContent(cell: Cell) {
+    switch (cell.type) {
+      case CellType.formula:
+        return this.getters.getFormulaCellContent(this.getters.getActiveSheetId(), cell);
+      case CellType.empty:
+        return "";
+      case CellType.date:
+      case CellType.number:
+      case CellType.text:
+      case CellType.invalidFormula:
+        return cell.content;
     }
+  }
+
+  /**
+   * start the edition of a cell
+   * @param str the key that is used to start the edition if it is a "content" key like a letter or number
+   * @param selection
+   * @private
+   */
+  private startEdition(str?: string, selection?: ComposerSelection) {
+    const cell = this.getters.getActiveCell();
+    this.initialContent = (cell && this.getCellContent(cell)) || "";
     this.mode = "editing";
-    this.setContent(str, selection);
+    this.setContent(str || this.initialContent, selection);
     this.dispatch("REMOVE_ALL_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
     this.col = col;
@@ -201,14 +220,13 @@ export class EditionPlugin extends UIPlugin {
       this.cancelEdition();
       const sheetId = this.getters.getActiveSheetId();
       const xc = this.getters.getMainCell(sheetId, toXC(this.col, this.row));
-      const cell = this.getters.getCellByXc(sheetId, xc);
+      const [col, row] = toCartesian(xc);
       let content = this.currentContent;
       this.setContent("");
-      const didChange = cell ? cell.content !== content : content !== "";
+      const didChange = this.initialContent !== content;
       if (!didChange) {
         return;
       }
-      const [col, row] = toCartesian(xc);
       if (content) {
         if (content.startsWith("=")) {
           const tokens = tokenize(content);
@@ -233,7 +251,7 @@ export class EditionPlugin extends UIPlugin {
           row,
         });
       }
-      if (this.getters.getActiveSheetId() !== this.sheet) {
+      if (sheetId !== this.sheet) {
         this.dispatch("ACTIVATE_SHEET", {
           sheetIdFrom: this.getters.getActiveSheetId(),
           sheetIdTo: this.sheet,
@@ -251,8 +269,7 @@ export class EditionPlugin extends UIPlugin {
    * Reset the current content to the active cell content
    */
   private resetContent() {
-    const cell = this.getters.getActiveCell();
-    this.setContent(cell ? cell.content || "" : "");
+    this.setContent(this.initialContent || "");
   }
 
   private setContent(text: string, selection?: ComposerSelection) {
@@ -354,7 +371,7 @@ export class EditionPlugin extends UIPlugin {
       this.col = col;
       this.row = row;
     }
-    const content = anchor ? (anchor.content ? anchor.content : getCellText(anchor)) : "";
+    const content = anchor ? this.getters.getCellText(anchor, sheetId, true) : "";
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
     });

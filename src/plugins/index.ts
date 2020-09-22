@@ -21,9 +21,11 @@ import { SheetUIPlugin } from "./ui/ui_sheet";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { CorePluginConstructor } from "./core_plugin";
 import { UIPluginConstuctor } from "./ui_plugin";
+import { RangePlugin } from "./core/range";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
+  .add("range", RangePlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("formatting", FormattingPlugin)

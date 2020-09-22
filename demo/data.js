@@ -203,13 +203,11 @@ function computeCells(cols, rows) {
     } else {
       const prev = _getColumnLetter(letter - 1);
       cells[x + 3] = {
-        content: `=2*${prev}${rows}`,
         formula: { text: "=2*|0|", dependencies: [`${prev}${rows}`] },
       };
     }
     for (let index = 4; index <= rows; index++) {
       cells[x + index] = {
-        content: `=${x}${index - 1}+1`,
         formula: { text: "=|0|+1", dependencies: [`${x}${index - 1}`] },
       };
     }
@@ -218,7 +216,6 @@ function computeCells(cols, rows) {
   const nextLetter = _getColumnLetter(cols + 1);
   for (let i = 3; i <= rows; i++) {
     cells[nextLetter + i] = {
-      content: `=SUM(A${i}:${letter}${i})`,
       formula: { text: "=SUM(|0|)", dependencies: [`A${i}:${letter}${i}`] },
     };
   }

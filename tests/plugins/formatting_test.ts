@@ -425,7 +425,7 @@ describe("Autoresize", () => {
       (p) => p instanceof SheetUIPlugin
     )! as SheetUIPlugin;
     sheetUIPlugin.getCellWidth = jest.fn((cell: Cell) => {
-      if (cell.content === "size0") return sizes[0];
+      if (cell["content"] === "size0") return sizes[0];
       return sizes[1];
     });
   });

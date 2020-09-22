@@ -2,11 +2,12 @@ import { Model } from "../../src/model";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
 import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
-import { setCellContent } from "../helpers";
+import { setCellContent, mockUuidV4To } from "../helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };
 };
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 interface ContextObserver {
   onSet?(key, val): void;
@@ -61,6 +62,9 @@ class MockGridRenderingContext implements GridRenderingContext {
   }
 }
 
+beforeEach(() => {
+  mockUuidV4To(1);
+});
 describe("renderer", () => {
   test("snapshot for a simple grid rendering", () => {
     const model = new Model();
@@ -240,9 +244,14 @@ describe("renderer", () => {
         }
       },
     });
+
+    const getCellTextMock = jest.fn(() => "=SUM(1,2)");
+    model.getters.getCellText = getCellTextMock;
+
     model.drawGrid(ctx);
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "1", true);
   });
 });

@@ -1,7 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { getCell, setCellContent } from "../helpers";
+import { getCell, getCellContent, setCellContent } from "../helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
@@ -13,7 +13,7 @@ describe("styles", () => {
       style: { fillColor: "red" },
     });
 
-    expect(getCell(model, "B1")!.content).toBe("");
+    expect(getCellContent(model, "B1")).toBe("");
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("UNDO");
     expect(getCell(model, "B1")).toBeUndefined();
@@ -28,10 +28,10 @@ describe("styles", () => {
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
-    expect(getCell(model, "B1")!.content).toBe("some content");
+    expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("UNDO");
-    expect(getCell(model, "B1")!.content).toBe("some content");
+    expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 
@@ -50,7 +50,7 @@ describe("styles", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
-    expect(getCell(model, "B1")!.content).toBe("b1");
+    expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 

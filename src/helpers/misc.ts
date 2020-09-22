@@ -2,10 +2,6 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 
-import { formatNumber, formatStandardNumber } from "./numbers";
-import { formatDateTime, InternalDate } from "../functions/dates";
-import { Cell } from "../types/misc";
-
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.
@@ -50,35 +46,3 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 
 export const DEBUG: { [key: string]: any } = {};
 
-export function getCellText(cell: Cell, showFormula: boolean = false): string {
-  const value = showFormula ? cell.content : cell.value;
-  const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
-  const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);
-  const numberFormat = shouldFormat && !dateTimeFormat;
-  switch (typeof value) {
-    case "string":
-      return value;
-    case "boolean":
-      return value ? "TRUE" : "FALSE";
-    case "number":
-      if (dateTimeFormat) {
-        return formatDateTime({ value } as InternalDate, cell.format);
-      }
-      if (numberFormat) {
-        return formatNumber(value, cell.format!);
-      }
-      return formatStandardNumber(value);
-    case "object":
-      if (dateTimeFormat) {
-        return formatDateTime(value as InternalDate, cell.format);
-      }
-      if (numberFormat) {
-        return formatNumber(value.value, cell.format!);
-      }
-      if (value && value.format!.match(/[ymd:]/)) {
-        return formatDateTime(value);
-      }
-      return "0";
-  }
-  return value.toString();
-}

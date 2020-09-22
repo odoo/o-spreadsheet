@@ -8,6 +8,8 @@ import {
   startGridComposition as startComposition,
   typeInComposer as typeInComposerHelper,
   setCellContent,
+  getCellText,
+  getCellContent,
 } from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
@@ -246,7 +248,7 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("selecting");
     await keydown("Enter");
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(getCell(model, "A1")!.content).toBe("=C8");
+    expect(getCellText(model, "A1")).toBe("=C8");
   });
 
   test("clicking on the composer while typing text (not formula) does not duplicates text", async () => {
@@ -259,7 +261,7 @@ describe("composer", () => {
   test("typing incorrect formula then enter exits the edit mode and moves to the next cell down", async () => {
     await typeInComposer("=qsdf");
     await keydown("Enter");
-    expect(getCell(model, "A1")!.content).toBe("=qsdf");
+    expect(getCellText(model, "A1")).toBe("=qsdf");
     expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
   });
 
@@ -267,7 +269,7 @@ describe("composer", () => {
     await startComposition();
     await typeInComposer("qsdf");
     await keydown("Enter");
-    expect(getCell(model, "A1")!.content).toBe("qsdf");
+    expect(getCellContent(model, "A1")).toBe("qsdf");
     expect(getCell(model, "A1")!.value).toBe("qsdf");
   });
 
@@ -429,7 +431,7 @@ describe("composer highlights color", () => {
     composerEl = await startComposition();
     expect(getHighlights(model).length).toBe(1);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
-    expect(composerEl.textContent).toBe("=sum(a1:a10)");
+    expect(composerEl.textContent).toBe("=sum(A1:A10)");
   });
 
   test("highlight 'reverse' ranges", async () => {

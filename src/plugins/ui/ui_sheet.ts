@@ -1,6 +1,5 @@
 import { CancelledReason, Command, CommandResult, Sheet, UID, Cell, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
-import { getCellText } from "../../helpers/index";
 import {
   DEFAULT_FONT_WEIGHT,
   DEFAULT_FONT_SIZE,
@@ -150,7 +149,11 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
   }
 
   getCellWidth(cell: Cell): number {
-    const text = getCellText(cell, this.getters.shouldShowFormulas());
+    const text = this.getters.getCellText(
+      cell,
+      this.getters.getActiveSheetId(),
+      this.getters.shouldShowFormulas()
+    );
     const style = this.getters.getCellStyle(cell);
     const italic = style.italic ? "italic " : "";
     const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;

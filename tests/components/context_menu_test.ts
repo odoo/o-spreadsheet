@@ -1,5 +1,13 @@
 import { Model } from "../../src/model";
-import { GridParent, makeTestFixture, nextTick, getCell, Touch, setCellContent } from "../helpers";
+import {
+  GridParent,
+  makeTestFixture,
+  nextTick,
+  getCell,
+  Touch,
+  setCellContent,
+  getCellContent,
+} from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { toXC } from "../../src/helpers";
 import { Menu } from "../../src/components/menu";
@@ -209,8 +217,8 @@ describe("Context Menu", () => {
 
     // click on 'paste' menu item
     await simulateClick(".o-menu div[data-name='paste']");
-    expect(getCell(model, "B1")!.content).toBe("b1");
-    expect(getCell(model, "B2")!.content).toBe("b1");
+    expect(getCellContent(model, "B1")).toBe("b1");
+    expect(getCellContent(model, "B2")).toBe("b1");
   });
 
   test("can cut/paste with context menu", async () => {
@@ -237,7 +245,7 @@ describe("Context Menu", () => {
     await simulateClick(".o-menu div[data-name='paste']");
 
     expect(getCell(model, "B1")).toBeUndefined();
-    expect(getCell(model, "B2")!.content).toBe("b1");
+    expect(getCellContent(model, "B2")).toBe("b1");
   });
 
   test("menu does not close when right click elsewhere", async () => {
