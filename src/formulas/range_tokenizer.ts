@@ -26,7 +26,7 @@ export interface FunctionContext {
 }
 
 /**
- * Add the following informations on tokens:
+ * Add the following information on tokens:
  * - length
  * - start
  * - end

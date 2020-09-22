@@ -1,28 +1,29 @@
 import {
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  CELL_BORDER_COLOR,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
+  HEADER_BORDER_COLOR,
+  HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
-  BACKGROUND_HEADER_ACTIVE_COLOR,
   TEXT_HEADER_COLOR,
-  HEADER_FONT_SIZE,
-  HEADER_BORDER_COLOR,
-  CELL_BORDER_COLOR,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
-import { overlap, toXC, getCellText } from "../../helpers/index";
+import { overlap, toXC } from "../../helpers/index";
 import {
   Box,
-  Rect,
-  Zone,
-  Viewport,
+  Cell,
+  CellType,
+  GridRenderingContext,
   Header,
   LAYERS,
-  GridRenderingContext,
-  Cell,
+  Rect,
+  Viewport,
+  Zone,
 } from "../../types/index";
 import { Mode } from "../../model";
 import { UIPlugin } from "../ui_plugin";
@@ -32,9 +33,9 @@ import { UIPlugin } from "../ui_plugin";
 // -----------------------------------------------------------------------------
 
 function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
-  if (cell.type === "formula" && isShowingFormulas) {
+  if (cell.type === CellType.formula && isShowingFormulas) {
     return "left";
-  } else if (cell.error || cell.pending) {
+  } else if (cell.error) {
     return "center";
   }
   switch (typeof cell.value) {
@@ -423,7 +424,7 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     const xc = toXC(col, row);
-    return (cell && cell.content) || (this.getters.isInMerge(sheetId, xc) as any);
+    return (cell && cell.type !== "empty") || (this.getters.isInMerge(sheetId, xc) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -432,6 +433,7 @@ export class RendererPlugin extends UIPlugin {
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
 
+    const showFormula: boolean = this.getters.shouldShowFormulas();
     const result: Box[] = [];
     const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // process all visible cells
@@ -443,7 +445,7 @@ export class RendererPlugin extends UIPlugin {
           let xc = toXC(colNumber, rowNumber);
           if (!this.getters.isInMerge(sheetId, xc)) {
             let col = cols[colNumber];
-            const text = getCellText(cell);
+            const text = this.getters.getCellText(cell, sheetId, showFormula);
             const textWidth = this.getters.getCellWidth(cell);
             let style = this.getters.getCellStyle(cell);
             const conditionalStyle = this.getters.getConditionalStyle(xc);
@@ -451,7 +453,7 @@ export class RendererPlugin extends UIPlugin {
               style = Object.assign({}, style, conditionalStyle);
             }
             const align = text
-              ? (style && style.align) || computeAlign(cell, this.getters.shouldShowFormulas())
+              ? (style && style.align) || computeAlign(cell, showFormula)
               : undefined;
             let clipRect: Rect | null = null;
             if (text && textWidth > cols[colNumber].size) {
@@ -503,12 +505,10 @@ export class RendererPlugin extends UIPlugin {
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
         if (refCell || bottomRight) {
-          text = refCell ? getCellText(refCell) : "";
+          text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
           style = refCell ? this.getters.getCellStyle(refCell) : null;
-          align = text
-            ? (style && style.align) || computeAlign(refCell!, this.getters.shouldShowFormulas())
-            : null;
+          align = text ? (style && style.align) || computeAlign(refCell!, showFormula) : null;
           const borderTopLeft = refCell ? this.getters.getCellBorder(refCell) : null;
           const borderBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
           border = {

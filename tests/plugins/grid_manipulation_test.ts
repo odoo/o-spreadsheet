@@ -1,9 +1,19 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { getCell, getMergeCellMap, getMerges, makeTestFixture } from "../helpers";
-import { CancelledReason, UID } from "../../src/types";
+import {
+  getCell,
+  getCellContent,
+  getCellText,
+  getMergeCellMap,
+  getMerges,
+  makeTestFixture,
+  mockUuidV4To,
+} from "../helpers";
+import { CancelledReason, CellType, UID } from "../../src/types";
 import { toXC, toZone } from "../../src/helpers";
+
 let model: Model;
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 function undo() {
   model.dispatch("UNDO");
@@ -65,6 +75,7 @@ function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
   for (let cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
+    cell = model.getters.getCell(sheetId, col, row)!;
     cells[toXC(col, row)] = cell;
   }
   return cells;
@@ -99,6 +110,10 @@ const fullData = {
 // Clear
 //------------------------------------------------------------------------------
 
+beforeEach(() => {
+  mockUuidV4To(1);
+});
+
 describe("Clear columns", () => {
   test("Can clear multiple column", () => {
     model = new Model({
@@ -128,9 +143,9 @@ describe("Clear columns", () => {
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
-    expect(getCell(model, "B1")).toMatchObject({ content: "", style: 1, border: 1 });
-    expect(getCell(model, "C1")).toMatchObject({ content: "", style: 1 });
-    expect(getCell(model, "C2")).toMatchObject({ content: "", border: 1 });
+    expect(getCell(model, "B1")).toMatchObject({ style: 1, border: 1 });
+    expect(getCell(model, "C1")).toMatchObject({ style: 1 });
+    expect(getCell(model, "C2")).toMatchObject({ border: 1 });
   });
   test("cannot delete column in invalid sheet", () => {
     expect(
@@ -172,11 +187,11 @@ describe("Clear rows", () => {
     expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(6);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
-    expect(getCell(model, "A2")).toMatchObject({ content: "", style: 1, border: 1 });
-    expect(getCell(model, "A3")).toMatchObject({ content: "", border: 1 });
+    expect(getCell(model, "A2")).toMatchObject({ style: 1, border: 1 });
+    expect(getCell(model, "A3")).toMatchObject({ border: 1 });
     expect(getCell(model, "B1")).toMatchObject({ content: "B1" });
     expect(getCell(model, "C1")).toMatchObject({ content: "C1" });
-    expect(getCell(model, "C2")).toMatchObject({ content: "", style: 1 });
+    expect(getCell(model, "C2")).toMatchObject({ style: 1 });
   });
   test("cannot delete row in invalid sheet", () => {
     expect(
@@ -226,6 +241,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "s1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -233,6 +249,7 @@ describe("Columns", () => {
             },
           },
           {
+            id: "s2",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -247,8 +264,8 @@ describe("Columns", () => {
         columns: [0],
         sheetId: sheet2.id,
       });
-      expect(model.getters.getCellByXc(sheet1.id, "B2")!.content).toBe("B2 in sheet1");
-      expect(model.getters.getCellByXc(sheet2.id, "A2")!.content).toBe("B2 in sheet2");
+      expect(getCellContent(model, "B2", sheet1.id)).toBe("B2 in sheet1");
+      expect(getCellContent(model, "A2", sheet2.id)).toBe("B2 in sheet2");
     });
     test("On addition before", () => {
       addColumns(1, "before", 2);
@@ -453,25 +470,14 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1, 2]);
-      expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { content: "=#REF" },
-        A2: { content: "=#REF" },
-        A3: { content: "=Sheet2!B1" },
-        B1: { content: "=A1" },
-        B2: { content: "=#REF" },
-        B3: { content: "=$C1" },
-        B4: { content: "=B3" },
-      });
-      expect(getCellsObject(model, "sheet2")).toMatchObject({
-        A1: { content: "=B1" },
-        A2: { content: "=#REF" },
-        A3: { content: "=Sheet2!B1" },
-      });
+      expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
+      expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
     test("delete col on inactive sheet", () => {
       const model = new Model({
         sheets: [
           {
+            id: "s1",
             colNumber: 4,
             rowNumber: 7,
             cells: {
@@ -480,6 +486,7 @@ describe("Columns", () => {
             },
           },
           {
+            id: "s2",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -497,12 +504,12 @@ describe("Columns", () => {
         sheetId: sheet2.id,
       });
       expect(getCellsObject(model, sheet1.id)).toMatchObject({
-        B2: { content: "=Sheet1!B3" },
-        C1: { content: "=Sheet2!A3" },
+        B2: { formula: { text: "=|0|" }, dependencies: [{ sheetId: "s1", zone: toZone("B3") }] },
+        C1: { formula: { text: "=|0|" }, dependencies: [{ sheetId: "s2", zone: toZone("A3") }] },
       });
       expect(getCellsObject(model, sheet2.id)).toMatchObject({
-        A2: { content: "=Sheet1!B2" },
-        B2: { content: "=Sheet2!A2" },
+        A2: { formula: { text: "=|0|" }, dependencies: [{ sheetId: "s1", zone: toZone("B2") }] },
+        B2: { formula: { text: "=|0|" }, dependencies: [{ sheetId: "s2", zone: toZone("A2") }] },
       });
     });
     test("On first col deletion", () => {
@@ -520,7 +527,7 @@ describe("Columns", () => {
       });
       removeColumns([0]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { content: "=SUM(A1:B1)" },
+        A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
     });
     test("On multiple col deletion including the first one", () => {
@@ -538,7 +545,7 @@ describe("Columns", () => {
       });
       removeColumns([0, 1]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { content: "=SUM(A1:B1)" },
+        A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
     });
     test("On last col deletion", () => {
@@ -556,7 +563,7 @@ describe("Columns", () => {
       });
       removeColumns([2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { content: "=SUM(A1:B1)" },
+        A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
     });
     test("delete almost all columns of a range", () => {
@@ -573,7 +580,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([1, 2, 3, 4]);
-      expect(model.getters.getCellByXc("s1", "A1")!.content).toBe("=SUM(A2:A5)");
+      expect(getCellText(model, "A1", "s1")).toBe("=SUM(A2:A5)");
     });
 
     test("delete all columns of a range", () => {
@@ -590,7 +597,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([1, 2, 3, 4]);
-      expect(model.getters.getCellByXc("s1", "A1")!.content).toBe("=SUM(#REF)");
+      expect(getCellText(model, "A1", "s1")).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on column deletion", () => {
       model = new Model({
@@ -608,7 +615,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([0]);
-      expect(getCell(model, "A1", "42")!.content).toBe("=SUM(Sheet1!A1:C3)");
+      expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("update cross sheet range on column deletion in inactive sheet", () => {
       model = new Model({
@@ -628,7 +635,7 @@ describe("Columns", () => {
       });
       const sheet1Id = model.getters.getSheetIdByName("Sheet1");
       model.dispatch("REMOVE_COLUMNS", { sheetId: sheet1Id!, columns: [0] });
-      expect(getCell(model, "A1", "42")!.content).toBe("=SUM(Sheet1!A1:C3)");
+      expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("On multiple col deletion including the last one", () => {
       model = new Model({
@@ -645,26 +652,14 @@ describe("Columns", () => {
       });
       removeColumns([2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A2: { content: "=SUM(A1:B1)" },
+        A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
     });
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
-      expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { content: "=D1" },
-        A2: { content: "=Sheet1!D1" },
-        A3: { content: "=Sheet2!B1" },
-        F1: { content: "=A1" },
-        F2: { content: "=D1" },
-        F3: { content: "=$G1" },
-        F4: { content: "=F3" },
-      });
-      expect(getCellsObject(model, "sheet2")).toMatchObject({
-        A1: { content: "=B1" },
-        A2: { content: "=Sheet1!D1" },
-        A3: { content: "=Sheet2!B1" },
-      });
+      expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
+      expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
   });
 
@@ -805,8 +800,8 @@ describe("Rows", () => {
         rows: [0],
         sheetId: sheet2.id,
       });
-      expect(model.getters.getCellByXc(sheet1.id, "B2")!.content).toBe("B2 in sheet1");
-      expect(model.getters.getCellByXc(sheet2.id, "B1")!.content).toBe("B2 in sheet2");
+      expect(getCellContent(model, "B2", sheet1.id)).toBe("B2 in sheet1");
+      expect(getCellContent(model, "B1", sheet2.id)).toBe("B2 in sheet2");
     });
     test("On deletion batch", () => {
       model = new Model({
@@ -843,7 +838,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([1, 2, 3, 4]);
-      expect(model.getters.getCellByXc("sheet1", "A1")!.content).toBe("=SUM(#REF)");
+      expect(getCellText(model, "A1")).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on row deletion", () => {
       model = new Model({
@@ -861,7 +856,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([0]);
-      expect(getCell(model, "A1", "42")!.content).toBe("=SUM(Sheet1!A1:A2)");
+      expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("update cross sheet range on row deletion in inactive sheet", () => {
       model = new Model({
@@ -881,7 +876,7 @@ describe("Rows", () => {
       });
       const sheet1Id = model.getters.getSheetIdByName("Sheet1");
       model.dispatch("REMOVE_ROWS", { sheetId: sheet1Id!, rows: [0] });
-      expect(getCell(model, "A1", "42")!.content).toBe("=SUM(Sheet1!A1:A2)");
+      expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("On addition before", () => {
       addRows(1, "before", 2);
@@ -1107,25 +1102,14 @@ describe("Rows", () => {
 
     test("On deletion", () => {
       removeRows([1, 2]);
-      expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { content: "=#REF" },
-        A2: { content: "=A1" },
-        B1: { content: "=#REF" },
-        B2: { content: "=B1" },
-        C1: { content: "=Sheet2!A2" },
-        C2: { content: "=A$3" },
-        D2: { content: "=C2" },
-      });
-      expect(getCellsObject(model, "sheet2")).toMatchObject({
-        A1: { content: "=A2" },
-        B1: { content: "=#REF" },
-        C1: { content: "=Sheet2!A2" },
-      });
+      expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
+      expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
     test("delete row on inactive sheet", () => {
       const model = new Model({
         sheets: [
           {
+            id: "s1",
             colNumber: 4,
             rowNumber: 7,
             cells: {
@@ -1134,6 +1118,7 @@ describe("Rows", () => {
             },
           },
           {
+            id: "s2",
             colNumber: 3,
             rowNumber: 2,
             cells: {
@@ -1144,21 +1129,13 @@ describe("Rows", () => {
           },
         ],
       });
-      const [sheet1, sheet2] = model.getters.getSheets();
-      expect(sheet2.id).not.toBe(model.getters.getActiveSheetId()),
-        model.dispatch("REMOVE_ROWS", {
-          rows: [0],
-          sheetId: sheet2.id,
-        });
-      expect(getCellsObject(model, sheet1.id)).toMatchObject({
-        B2: { content: "=Sheet1!A2" },
-        C1: { content: "=Sheet2!A1" },
+      expect(model.getters.getActiveSheetId()).toBe("s1");
+      model.dispatch("REMOVE_ROWS", {
+        rows: [0],
+        sheetId: "s2",
       });
-      expect(getCellsObject(model, sheet2.id)).toMatchObject({
-        A1: { content: "=B1" },
-        B1: { content: "=Sheet1!A2" },
-        C1: { content: "=Sheet2!A1" },
-      });
+      expect(getCellsObject(model, "s1")).toMatchSnapshot();
+      expect(getCellsObject(model, "s2")).toMatchSnapshot();
     });
     test("On first row deletion", () => {
       model = new Model({
@@ -1175,7 +1152,7 @@ describe("Rows", () => {
       });
       removeRows([0]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { content: "=SUM(A1:A2)" },
+        B1: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:A2") }] },
       });
     });
     test("On multiple row deletion including the first one", () => {
@@ -1193,7 +1170,7 @@ describe("Rows", () => {
       });
       removeRows([1, 2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { content: "=SUM(A2:A3)" },
+        B1: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A2:A3") }] },
       });
     });
     test("strange test in Odoo", () => {
@@ -1220,8 +1197,8 @@ describe("Rows", () => {
 
       removeRows(rows);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A5: { content: "=SUM(A6)" },
-        A7: { content: "=SUM(A8)" },
+        A5: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A6") }] },
+        A7: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A8") }] },
       });
     });
     test("On last row deletion", () => {
@@ -1239,7 +1216,7 @@ describe("Rows", () => {
       });
       removeRows([2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { content: "=SUM(A1:A2)" },
+        B1: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:A2") }] },
       });
     });
     test("On multiple row", () => {
@@ -1257,7 +1234,11 @@ describe("Rows", () => {
       });
       removeRows([2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { content: "=SUM(A2:A3)" },
+        A1: {
+          dependencies: [{ zone: { top: 1, left: 0, bottom: 2, right: 0 } }],
+          type: CellType.formula,
+          formula: { text: "=SUM(|0|)" },
+        },
       });
     });
     test("On multiple rows (7)", () => {
@@ -1275,7 +1256,11 @@ describe("Rows", () => {
       });
       removeRows([1, 2, 3, 4, 5, 6]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { content: "=SUM(A2)" },
+        A1: {
+          dependencies: [{ zone: { top: 1, left: 0, bottom: 1, right: 0 } }],
+          type: CellType.formula,
+          formula: { text: "=SUM(|0|)" },
+        },
       });
     });
     test("On multiple row deletion including the last one", () => {
@@ -1293,7 +1278,13 @@ describe("Rows", () => {
       });
       removeRows([2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B1: { content: "=SUM(A1:A2)" },
+        B1: {
+          dependencies: [{ zone: { top: 0, left: 0, bottom: 1, right: 0 } }],
+          type: CellType.formula,
+          formula: {
+            text: "=SUM(|0|)",
+          },
+        },
       });
     });
     test("On multiple row deletion including the last and beyond", () => {
@@ -1311,26 +1302,18 @@ describe("Rows", () => {
       });
       removeRows([3, 4, 5, 6, 7]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        B2: { content: "=SUM(A1:A3)" },
+        B2: {
+          dependencies: [{ zone: { top: 0, left: 0, bottom: 2, right: 0 } }],
+          type: CellType.formula,
+          formula: { text: "=SUM(|0|)" },
+        },
       });
     });
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(0, "after", 1);
-      expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { content: "=A4" },
-        A6: { content: "=A1" },
-        B1: { content: "=Sheet1!A4" },
-        B6: { content: "=B1" },
-        C1: { content: "=Sheet2!A2" },
-        C6: { content: "=A$7" },
-        D6: { content: "=C6" },
-      });
-      expect(getCellsObject(model, "sheet2")).toMatchObject({
-        A1: { content: "=A2" },
-        B1: { content: "=Sheet1!A4" },
-        C1: { content: "=Sheet2!A2" },
-      });
+      expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
+      expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
   });
 

@@ -1,23 +1,26 @@
-import { clip, getCellText, toXC } from "../../helpers/index";
+import { clip, toXC } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
+  CancelledReason,
   Cell,
+  CellType,
   Command,
+  CommandResult,
   GridRenderingContext,
   LAYERS,
-  Zone,
-  CancelledReason,
-  CommandResult,
-  UID,
   Sheet,
+  UID,
+  Zone,
 } from "../../types/index";
 import { _lt } from "../../translation";
 import { UIPlugin } from "../ui_plugin";
+import { InternalDate } from "../../functions/dates";
 
 interface ClipboardCell {
   cell: Cell | null;
   col: number;
   row: number;
+  sheetId: UID;
 }
 
 /**
@@ -75,10 +78,17 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "PASTE_CELL":
         const xc = toXC(cmd.originCol, cmd.originRow);
-        if (this.getters.getMainCell(cmd.sheetId, xc) === xc) {
-          this.pasteMerge(xc, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
+        if (this.getters.getMainCell(cmd.originSheet, xc) === xc) {
+          this.pasteMerge(xc, cmd.col, cmd.row, cmd.originSheet, cmd.sheetId, cmd.cut);
         }
-        this.pasteCell(cmd.origin, cmd.col, cmd.row, cmd.onlyValue, cmd.onlyFormat);
+        this.pasteCell(
+          cmd.originSheet,
+          cmd.origin,
+          cmd.col,
+          cmd.row,
+          cmd.onlyValue,
+          cmd.onlyFormat
+        );
         break;
       case "PASTE_FROM_OS_CLIPBOARD":
         this.pasteFromClipboard(cmd.target, cmd.text);
@@ -98,7 +108,7 @@ export class ClipboardPlugin extends UIPlugin {
    * Format the current clipboard to a string suitable for being pasted in other
    * programs.
    *
-   * - add a tab character between each concecutive cells
+   * - add a tab character between each consecutive cells
    * - add a newline character between each line
    *
    * Note that it returns \t if the clipboard is empty. This is necessary for the
@@ -113,7 +123,11 @@ export class ClipboardPlugin extends UIPlugin {
       this.cells
         .map((cells) => {
           return cells
-            .map((c) => (c.cell ? getCellText(c.cell, this.getters.shouldShowFormulas()) : ""))
+            .map((c) =>
+              c.cell
+                ? this.getters.getCellText(c.cell, c.sheetId, this.getters.shouldShowFormulas())
+                : ""
+            )
             .join("\t");
         })
         .join("\n") || "\t"
@@ -174,6 +188,7 @@ export class ClipboardPlugin extends UIPlugin {
             cell: cell ? Object.assign({}, cell) : null,
             col: c,
             row: r,
+            sheetId: activeSheetId,
           });
         }
       }
@@ -321,9 +336,10 @@ export class ClipboardPlugin extends UIPlugin {
           origin: originCell.cell,
           originCol: originCell.col,
           originRow: originCell.row,
+          originSheet: originCell.sheetId,
           col: col + c,
           row: row + r,
-          sheetId: this.originSheetId,
+          sheetId: this.getters.getActiveSheetId(),
           cut: this.shouldCut,
           onlyValue: this.pasteOnlyValue,
           onlyFormat: this.pasteOnlyFormat,
@@ -332,13 +348,20 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
-  private pasteMerge(xc: string, col: number, row: number, sheetId: UID, cut?: boolean) {
-    const merge = this.getters.getMerge(sheetId, xc);
+  private pasteMerge(
+    xc: string,
+    col: number,
+    row: number,
+    originSheet: UID,
+    sheetId: UID,
+    cut?: boolean
+  ) {
+    const merge = this.getters.getMerge(originSheet, xc);
     const sheet = this.getters.getSheet(sheetId);
     if (!merge || !sheet) return;
     if (cut) {
       this.dispatch("REMOVE_MERGE", {
-        sheetId: sheetId,
+        sheetId: originSheet,
         zone: merge,
       });
     }
@@ -376,6 +399,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   pasteCell(
+    originSheet: UID,
     origin: Cell | null,
     col: number,
     row: number,
@@ -388,7 +412,7 @@ export class ClipboardPlugin extends UIPlugin {
       let style = origin.style;
       let border = origin.border;
       let format = origin.format;
-      let content: string | undefined = origin.content || "";
+      let content: string = this.getters.getCellValue(origin, originSheet, true) || "";
 
       if (onlyValue) {
         style = targetCell ? targetCell.style : undefined;
@@ -396,19 +420,18 @@ export class ClipboardPlugin extends UIPlugin {
         format = targetCell ? targetCell.format : undefined;
 
         if (targetCell) {
-          if (targetCell.type === "date") {
-            format = targetCell.value.format;
+          if (targetCell.type === CellType.date) {
+            format = (targetCell.value as InternalDate).format;
           }
         }
-        if (origin.type === "formula" || origin.type === "date") {
+        if (origin.type === CellType.formula || origin.type === CellType.date) {
           content = this.valueToContent(origin.value);
         }
-      } else if (onlyFormat) {
-        content = targetCell ? targetCell.content : "";
-      } else if (origin.type === "formula") {
+      } else if (!onlyFormat && origin.type === CellType.formula) {
         const position = this.getters.getCellPosition(origin.id);
         const offsetX = col - position.col;
         const offsetY = row - position.row;
+        // TODO: replace with range specific stuff
         content = this.getters.applyOffset(sheetId, content, offsetX, offsetY);
       }
       const newCell = {
@@ -418,8 +441,10 @@ export class ClipboardPlugin extends UIPlugin {
         sheetId,
         col,
         row,
-        content,
       };
+      if (!onlyFormat) {
+        newCell["content"] = content;
+      }
 
       this.dispatch("UPDATE_CELL", newCell);
     } else if (targetCell) {

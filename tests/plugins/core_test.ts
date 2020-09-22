@@ -254,7 +254,7 @@ describe("history", () => {
     model.dispatch("START_EDITION", { text: "abc" });
     model.dispatch("STOP_EDITION");
 
-    expect(getCell(model, "A1")!.content).toBe("abc");
+    expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
@@ -264,7 +264,7 @@ describe("history", () => {
     expect(model.getters.canRedo()).toBe(true);
 
     model.dispatch("REDO");
-    expect(getCell(model, "A1")!.content).toBe("abc");
+    expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
   });
@@ -280,17 +280,17 @@ describe("history", () => {
     model.dispatch("START_EDITION", { text: "abc" });
     model.dispatch("STOP_EDITION");
 
-    expect(getCell(model, "A1")!.content).toBe("abc");
+    expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
     model.dispatch("UNDO");
-    expect(getCell(model, "A1")!.content).toBe("1");
+    expect(getCellContent(model, "A1")).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
     model.dispatch("REDO");
-    expect(getCell(model, "A1")!.content).toBe("abc");
+    expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
   });
@@ -299,7 +299,7 @@ describe("history", () => {
     const model = new Model();
     setCellContent(model, "A2", "3");
 
-    expect(getCell(model, "A2")!.content).toBe("3");
+    expect(getCellContent(model, "A2")).toBe("3");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
@@ -308,7 +308,7 @@ describe("history", () => {
     expect(getCell(model, "A2")).toBeUndefined();
 
     model.dispatch("UNDO");
-    expect(getCell(model, "A2")!.content).toBe("3");
+    expect(getCellContent(model, "A2")).toBe("3");
 
     model.dispatch("REDO");
     expect(getCell(model, "A2")).toBeUndefined();
@@ -372,8 +372,8 @@ describe("history", () => {
     const model = new Model();
     setCellContent(model, "A1", "03/2/2011");
     setCellContent(model, "A2", " 03/12/2011");
-    expect(getCell(model, "A1")!.content).toBe("03/02/2011");
-    expect(getCell(model, "A2")!.content).toBe("03/12/2011");
+    expect(getCellContent(model, "A1")).toBe("03/02/2011");
+    expect(getCellContent(model, "A2")).toBe("03/12/2011");
   });
 
   test("get cell formula text", () => {
@@ -420,8 +420,8 @@ describe("history", () => {
         { id: "2", cells: { A1: { content: "Sheet2A1" } } },
       ],
     });
-    expect(model.getters.getCell("1", 0, 0)!.content).toBe("Sheet1A1");
-    expect(model.getters.getCell("2", 0, 0)!.content).toBe("Sheet2A1");
+    expect(getCellContent(model, "A1", "1")).toBe("Sheet1A1");
+    expect(getCellContent(model, "A1", "2")).toBe("Sheet2A1");
   });
 
   describe("getters", () => {

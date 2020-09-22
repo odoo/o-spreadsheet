@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, setCellContent } from "../helpers";
+import { getCell, getCellContent, getCellText, setCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 
@@ -12,7 +12,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "a" });
     model.dispatch("STOP_EDITION");
     expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(1);
-    expect(getCell(model, "A1")!.content).toBe("a");
+    expect(getCellContent(model, "A1")).toBe("a");
 
     // removing
     model.dispatch("START_EDITION");
@@ -36,14 +36,14 @@ describe("edition", () => {
     });
 
     // removing
-    expect(getCell(model, "A2")!.content).toBe("a2");
+    expect(getCellContent(model, "A2")).toBe("a2");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "A2")).toBeTruthy();
-    expect(getCell(model, "A2")!.content).toBe("");
+    expect(getCellContent(model, "A2")).toBe("");
   });
 
   test("editing a cell, then activating a new sheet: edition should be stopped", () => {
@@ -58,7 +58,7 @@ describe("edition", () => {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: sheet1,
     });
-    expect(getCell(model, "A1")!.content).toBe("a");
+    expect(getCellContent(model, "A1")).toBe("a");
   });
 
   test("editing a cell, start a composer selection, then activating a new sheet: mode should still be selecting", () => {
@@ -73,7 +73,7 @@ describe("edition", () => {
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
-    expect(getCell(model, "A1")!.content).toBe("=");
+    expect(getCellText(model, "A1")).toBe("=");
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",
@@ -86,6 +86,20 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
     model.dispatch("STOP_COMPOSER_SELECTION");
     expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("Composer has the content with the updated sheet name", () => {
+    const model = new Model();
+    const name = "NEW_NAME";
+    const sheet2 = "42";
+    model.dispatch("CREATE_SHEET", { name, sheetId: sheet2, position: 1 });
+    setCellContent(model, "A1", "=NEW_NAME!A1");
+    setCellContent(model, "A1", "24", sheet2);
+    const nextName = "NEXT NAME";
+    model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
+    model.dispatch("START_EDITION");
+    expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
+    expect(model.getters.getCurrentContent()).toBe("='NEXT NAME'!A1");
   });
 
   test("setting content sets selection at the end by default", () => {

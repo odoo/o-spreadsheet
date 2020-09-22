@@ -1,0 +1,1420 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Columns Correctly update references On addition 1`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "5",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "4",
+    "type": "formula",
+    "value": null,
+  },
+  "A2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "7",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "6",
+    "type": "formula",
+    "value": null,
+  },
+  "A3": Object {
+    "dependencies": Array [
+      Object {
+        "id": "9",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "8",
+    "type": "formula",
+    "value": null,
+  },
+  "F1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "11",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": null,
+  },
+  "F2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "13",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "12",
+    "type": "formula",
+    "value": null,
+  },
+  "F3": Object {
+    "dependencies": Array [
+      Object {
+        "id": "15",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": true,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 6,
+          "right": 6,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "14",
+    "type": "formula",
+    "value": null,
+  },
+  "F4": Object {
+    "dependencies": Array [
+      Object {
+        "id": "17",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 2,
+          "left": 5,
+          "right": 5,
+          "top": 2,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "16",
+    "type": "formula",
+    "value": null,
+  },
+}
+`;
+
+exports[`Columns Correctly update references On addition 2`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "19",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "18",
+    "type": "formula",
+  },
+  "A2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "21",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 3,
+          "right": 3,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "20",
+    "type": "formula",
+  },
+  "A3": Object {
+    "dependencies": Array [
+      Object {
+        "id": "23",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "22",
+    "type": "formula",
+  },
+}
+`;
+
+exports[`Columns Correctly update references On deletion 1`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "5",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "4",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "A2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "7",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "6",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "A3": Object {
+    "dependencies": Array [
+      Object {
+        "id": "9",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "8",
+    "type": "formula",
+    "value": null,
+  },
+  "B1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "11",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "B2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "13",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "12",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "B3": Object {
+    "dependencies": Array [
+      Object {
+        "id": "15",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": true,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 2,
+          "right": 2,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "14",
+    "type": "formula",
+    "value": null,
+  },
+  "B4": Object {
+    "dependencies": Array [
+      Object {
+        "id": "17",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 2,
+          "left": 1,
+          "right": 1,
+          "top": 2,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "16",
+    "type": "formula",
+    "value": null,
+  },
+}
+`;
+
+exports[`Columns Correctly update references On deletion 2`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "19",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "18",
+    "type": "formula",
+  },
+  "A2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "21",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "20",
+    "type": "formula",
+  },
+  "A3": Object {
+    "dependencies": Array [
+      Object {
+        "id": "23",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "22",
+    "type": "formula",
+  },
+}
+`;
+
+exports[`Rows Correctly update references On addition 1`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "5",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 3,
+          "left": 0,
+          "right": 0,
+          "top": 3,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "4",
+    "type": "formula",
+    "value": null,
+  },
+  "A6": Object {
+    "dependencies": Array [
+      Object {
+        "id": "7",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "6",
+    "type": "formula",
+    "value": null,
+  },
+  "B1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "9",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 3,
+          "left": 0,
+          "right": 0,
+          "top": 3,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "8",
+    "type": "formula",
+    "value": null,
+  },
+  "B6": Object {
+    "dependencies": Array [
+      Object {
+        "id": "11",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": null,
+  },
+  "C1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "13",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "12",
+    "type": "formula",
+    "value": null,
+  },
+  "C6": Object {
+    "dependencies": Array [
+      Object {
+        "id": "15",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": true,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 6,
+          "left": 0,
+          "right": 0,
+          "top": 6,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "14",
+    "type": "formula",
+    "value": null,
+  },
+  "D6": Object {
+    "dependencies": Array [
+      Object {
+        "id": "17",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 5,
+          "left": 2,
+          "right": 2,
+          "top": 5,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "16",
+    "type": "formula",
+    "value": null,
+  },
+}
+`;
+
+exports[`Rows Correctly update references On addition 2`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "19",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "18",
+    "type": "formula",
+  },
+  "B1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "21",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 3,
+          "left": 0,
+          "right": 0,
+          "top": 3,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "20",
+    "type": "formula",
+  },
+  "C1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "23",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "22",
+    "type": "formula",
+  },
+}
+`;
+
+exports[`Rows Correctly update references On deletion 1`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "5",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "4",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "A2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "7",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "6",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "B1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "9",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "8",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "B2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "11",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": "This formula depends on invalid values",
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "10",
+    "type": "formula",
+    "value": "#ERROR",
+  },
+  "C1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "13",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "12",
+    "type": "formula",
+    "value": null,
+  },
+  "C2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "15",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": true,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 2,
+          "left": 0,
+          "right": 0,
+          "top": 2,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "14",
+    "type": "formula",
+    "value": null,
+  },
+  "D2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "17",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 2,
+          "right": 2,
+          "top": 1,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "16",
+    "type": "formula",
+    "value": null,
+  },
+}
+`;
+
+exports[`Rows Correctly update references On deletion 2`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "19",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "18",
+    "type": "formula",
+  },
+  "B1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "21",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet1",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "20",
+    "type": "formula",
+  },
+  "C1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "23",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "sheet2",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "22",
+    "type": "formula",
+  },
+}
+`;
+
+exports[`Rows Correctly update references delete row on inactive sheet 1`] = `
+Object {
+  "B2": Object {
+    "dependencies": Array [
+      Object {
+        "id": "28",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "s1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "27",
+    "type": "formula",
+    "value": null,
+  },
+  "C1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "30",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "s2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "29",
+    "type": "formula",
+    "value": null,
+  },
+}
+`;
+
+exports[`Rows Correctly update references delete row on inactive sheet 2`] = `
+Object {
+  "A1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "32",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": false,
+        "sheetId": "s2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 1,
+          "right": 1,
+          "top": 0,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "31",
+    "type": "formula",
+    "value": null,
+  },
+  "B1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "34",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "s1",
+        "zone": Object {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1,
+        },
+      },
+    ],
+    "error": undefined,
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "33",
+    "type": "formula",
+    "value": null,
+  },
+  "C1": Object {
+    "dependencies": Array [
+      Object {
+        "id": "36",
+        "invalidSheetName": undefined,
+        "onChange": undefined,
+        "parts": Array [
+          Object {
+            "colFixed": false,
+            "rowFixed": false,
+          },
+        ],
+        "prefixSheet": true,
+        "sheetId": "s2",
+        "zone": Object {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0,
+        },
+      },
+    ],
+    "formula": Object {
+      "compiledFormula": [Function],
+      "text": "=|0|",
+    },
+    "id": "35",
+    "type": "formula",
+  },
+}
+`;

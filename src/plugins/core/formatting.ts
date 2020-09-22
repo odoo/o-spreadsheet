@@ -1,17 +1,18 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { stringify, toCartesian, toXC, maximumDecimalPlaces, toZone } from "../../helpers/index";
+import { maximumDecimalPlaces, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
 import {
   Border,
   BorderCommand,
+  CancelledReason,
   Cell,
+  CellType,
   Command,
+  CommandResult,
+  Sheet,
   Style,
   UID,
   WorkbookData,
   Zone,
-  Sheet,
-  CommandResult,
-  CancelledReason,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
@@ -112,7 +113,7 @@ export class FormattingPlugin extends CorePlugin {
         this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
         break;
       case "ADD_COLUMNS":
-        const start_col = cmd.position === "before" ? cmd.column - 1 : cmd.column;
+        const start_col = cmd.position === "before" && cmd.column > 0 ? cmd.column - 1 : cmd.column;
         const end_col = start_col + cmd.quantity + 1;
         const sheet = this.getters.getSheet(cmd.sheetId)!;
         this.onAddElements(sheet, start_col, end_col, true, cmd.position === "before");
@@ -399,9 +400,10 @@ export class FormattingPlugin extends CorePlugin {
           const cell = this.getters.getCell(sheetId, col, row);
           if (
             cell &&
-            (cell.type === "number" || (cell.type === "formula" && typeof cell.value === "number"))
+            (cell.type === CellType.number ||
+              (cell.type === CellType.formula && typeof cell.value === "number"))
           ) {
-            return cell.format || this.setDefaultNumberFormat(cell.value);
+            return cell.format || this.setDefaultNumberFormat(cell.value as any);
           }
         }
       }

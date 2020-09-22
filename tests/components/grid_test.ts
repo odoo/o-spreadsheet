@@ -7,6 +7,7 @@ import {
   getCell,
   Touch,
   setCellContent,
+  getCellContent,
 } from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent, simulateClick } from "../dom_helper";
@@ -230,7 +231,7 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       expect(getActiveXc(model)).toBe("A2");
       expect(model.getters.getEditionMode()).toBe("inactive");
-      expect(getCell(model, "A1")!.content).toBe("a");
+      expect(getCellContent(model, "A1")).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
@@ -243,7 +244,7 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
-      expect(getCell(model, "A2")!.content).toBe("a");
+      expect(getCellContent(model, "A2")).toBe("a");
     });
 
     test("pressing shift+ENTER in edit mode in top row stop editing and stay on same cell", async () => {
@@ -254,7 +255,7 @@ describe("Grid component", () => {
         .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
       expect(getActiveXc(model)).toBe("A1");
       expect(model.getters.getEditionMode()).toBe("inactive");
-      expect(getCell(model, "A1")!.content).toBe("a");
+      expect(getCellContent(model, "A1")).toBe("a");
     });
 
     test("pressing TAB move to next cell", async () => {
@@ -578,7 +579,7 @@ describe("figures", () => {
     figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(getCell(model, "A1")!.content).toBe("content");
+    expect(getCellContent(model, "A1")).toBe("content");
   });
 
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
