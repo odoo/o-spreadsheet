@@ -5,6 +5,7 @@ import { makeTestFixture, nextTick, MockClipboard } from "../helpers";
 import { Model } from "../../src";
 import { SelectionMode } from "../../src/plugins/selection";
 import { triggerMouseEvent } from "../dom_helper";
+import { DEBUG } from "../../src/helpers";
 
 const { xml } = tags;
 const { useRef } = hooks;
@@ -174,5 +175,10 @@ describe("Spreadsheet", () => {
       new KeyboardEvent("keydown", { key: "Control", ctrlKey: true, bubbles: true, repeat: true })
     );
     expect(parent.model.getters.getSelectionMode()).toBe(SelectionMode.idle);
+  });
+
+  test("Debug informations are removed when Spreadsheet is destroyed", async () => {
+    parent["spreadsheet"].comp.destroy();
+    expect(Object.keys(DEBUG)).toHaveLength(0);
   });
 });
