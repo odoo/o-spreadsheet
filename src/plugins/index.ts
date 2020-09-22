@@ -1,5 +1,5 @@
-import { PluginConstuctor } from "../base_plugin";
 import { Registry } from "../registry";
+import { PluginConstuctor } from "../base_plugin";
 import { ClipboardPlugin } from "./clipboard";
 import { ConditionalFormatPlugin } from "./conditional_format";
 import { CorePlugin } from "./core";
@@ -14,10 +14,12 @@ import { AutofillPlugin } from "./autofill";
 import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
 import { FigurePlugin } from "./figures";
+import { RangePlugin } from "./range";
 import { SheetPlugin } from "./sheet";
 
 export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("sheet", SheetPlugin)
+  .add("range", RangePlugin)
   .add("core", CorePlugin)
   .add("evaluation", EvaluationPlugin)
   .add("clipboard", ClipboardPlugin)

@@ -3,6 +3,7 @@ import { functionRegistry, args } from "../../../src/functions/index";
 
 import "../../canvas.mock";
 import { getCell, setCellContent } from "../../helpers";
+import resetAllMocks = jest.resetAllMocks;
 
 let model: Model = new Model();
 beforeEach(() => {
@@ -37,19 +38,36 @@ describe("evaluate formula getter", () => {
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });
 
-  test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {
-    let value = 1;
+  test("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
+    const mockCompute = jest.fn();
+
     functionRegistry.add("GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: mockCompute,
       args: args(``),
       returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
-    expect(getCell(model, "A1")!.value).toBe(1);
-    value = 2;
+    expect(mockCompute).toHaveBeenCalledTimes(1);
+    resetAllMocks();
     model.dispatch("EVALUATE_CELLS");
-    expect(getCell(model, "A1")!.value).toBe(2);
+    expect(mockCompute).toHaveBeenCalledTimes(0);
+  });
+  test("cells are re-evaluated if one of their dependency changes", () => {
+    const mockCompute = jest.fn();
+
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: mockCompute,
+      args: args(`value (any) bla`),
+      returns: ["NUMBER"],
+    });
+    setCellContent(model, "A1", "=GETVALUE(A2)");
+
+    expect(mockCompute).toHaveBeenCalledTimes(1);
+    resetAllMocks();
+    setCellContent(model, "A2", "1");
+    expect(mockCompute).toHaveBeenCalledTimes(1);
   });
 
   test("using cells in other sheets", () => {

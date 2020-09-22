@@ -61,7 +61,7 @@ exports[`expression compiler cells are converted to ranges if function require a
 // =sum(|0|)
 let _2 = ref(0, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM'](range(0, deps, sheetId))
+let _1 = ctx['SUM'](range(0, deps))
 return _1;
 }"
 `;
@@ -139,7 +139,7 @@ exports[`expression compiler read some values and functions 1`] = `
 let _2 = ref(0, deps, sheetId)
 let _4 = ref(1, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
-let _3 = ctx['SUM'](range(1, deps, sheetId))
+let _3 = ctx['SUM'](range(1, deps))
 ctx.__lastFnCalled = 'ADD'
 let _1 = ctx['ADD'](_2, _3)
 return _1;

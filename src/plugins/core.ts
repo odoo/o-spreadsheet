@@ -22,6 +22,8 @@ import {
   NormalizedFormula,
   Sheet,
   WorkbookData,
+  ChangeType,
+  Range,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -107,7 +109,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         if (cell.type === "formula" && cell.formula) {
           cells[xc].formula = {
             text: cell.formula.text || "",
-            dependencies: cell.formula.dependencies.slice() || [],
+            dependencies:
+              cell.dependencies?.map((d) => this.getters.getRangeString(d.id, _sheet.id)) || [],
           };
         }
       }
@@ -275,14 +278,26 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       cell = { id: current?.id || uuidv4(), content, value, type };
       if (cell.type === "formula") {
         cell.error = undefined;
+        cell.pending = true;
         try {
           let formulaString: NormalizedFormula = normalize(cell.content || "");
           let compiledFormula = compile(formulaString);
           cell.formula = {
             compiledFormula: compiledFormula,
-            dependencies: formulaString.dependencies,
             text: formulaString.text,
           };
+
+          const ranges: Range[] = [];
+          for (let xc of formulaString.dependencies) {
+            ranges.push(
+              this.getters.getRangeFromSheetXC(
+                sheet.id,
+                xc,
+                this.cellDependencyChanged.bind(this, cell)
+              )
+            );
+          }
+          cell.dependencies = ranges;
         } catch (e) {
           cell.value = "#BAD_EXPR";
           cell.error = _lt("Invalid Expression");
@@ -301,6 +316,22 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     // todo: make this work on other sheets
     this.history.update("cells", sheet.id, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
+  }
+
+  private cellDependencyChanged(cell: Cell, changeType: ChangeType) {
+    //console.log(`cell ${cell.xc} dep changed with ${changeType}`);
+
+    switch (changeType) {
+      case "REMOVE":
+      case "RESIZE":
+      case "MOVE":
+      // cell.content = astToFormula(cell.formula!.ast);
+      case "CHANGE":
+        cell.value = "To recompute";
+        cell.pending = true;
+        break;
+    }
+    //cell.formula(this.getters.getFormulaParameters());
   }
 }
 // ---------------------------------------------------------------------------

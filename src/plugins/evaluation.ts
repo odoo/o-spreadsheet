@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
-import { mapCellsInZone, toCartesian, toXC } from "../helpers/index";
+import { mapCellsInZone, toXC } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import {
@@ -13,12 +13,16 @@ import {
   ReferenceDenormalizer,
   EnsureRange,
   NormalizedFormula,
+  Range,
 } from "../types";
 import { _lt } from "../translation";
 import { compile, normalize } from "../formulas/index";
-function* makeObjectIterator(obj: Object) {
+
+function* makeObjectIterator(obj: Object, predicate: (cell: any) => boolean) {
   for (let i in obj) {
-    yield obj[i];
+    if (predicate && predicate(obj[i])) {
+      yield obj[i];
+    }
   }
 }
 
@@ -129,12 +133,17 @@ export class EvaluationPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: UID = this.getters.getActiveSheetId()): any {
+  evaluateFormula(formula: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     let formulaString: NormalizedFormula = normalize(formula);
-
     const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
-    return compiledFormula(formulaString.dependencies, sheet, ...params);
+
+    const ranges: Range[] = [];
+    for (let xc of formulaString.dependencies) {
+      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+    }
+
+    return compiledFormula(ranges, sheetId, ...params);
   }
 
   isIdle() {
@@ -172,7 +181,9 @@ export class EvaluationPlugin extends BasePlugin {
   private evaluate() {
     this.COMPUTED.clear();
     this.evaluateCells(
-      makeObjectIterator(this.getters.getCells()),
+      makeObjectIterator(this.getters.getCells(), (cell: Cell) => {
+        return !!cell.pending;
+      }),
       this.getters.getActiveSheetId()
     );
   }
@@ -227,14 +238,13 @@ export class EvaluationPlugin extends BasePlugin {
       cell.error = undefined;
       try {
         params[2].__originCellXC = xc;
-        // todo: move formatting in grid and formatters.js
         if (cell.formula.compiledFormula.async) {
           cell.value = LOADING;
           cell.pending = true;
           PENDING.add(cell);
 
           cell.formula
-            .compiledFormula(cell.formula.dependencies, sheetId, ...params)
+            .compiledFormula(cell.dependencies!, sheetId, ...params)
             .then((val) => {
               cell.value = val;
               self.loadingCells--;
@@ -247,7 +257,7 @@ export class EvaluationPlugin extends BasePlugin {
             .catch((e: Error) => handleError(e, cell));
           self.loadingCells++;
         } else {
-          cell.value = cell.formula.compiledFormula(cell.formula.dependencies, sheetId, ...params);
+          cell.value = cell.formula.compiledFormula(cell.dependencies!, sheetId, ...params);
           cell.pending = false;
         }
         if (Array.isArray(cell.value)) {
@@ -275,32 +285,34 @@ export class EvaluationPlugin extends BasePlugin {
     });
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
-    function readCell(xc: string, sheet: UID): any {
+    function readCell(range: Range): any {
       let cell;
-      const s = sheets[sheet];
+      const s = sheets[range.sheetId];
       if (s) {
-        // TODO: might not be the fastest way to get a cell
-        cell = evalContext.getters.getCellByXc(s.id, xc);
+        cell = s.rows[range.zone.top].cells[range.zone.left];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
       if (!cell || cell.content === "") {
         return null;
       }
-      return getCellValue(cell, sheet);
+      return getCellValue(cell, range.sheetId);
     }
 
     function getCellValue(cell: Cell, sheetId: UID): any {
       if (cell.formula && cell.formula.compiledFormula.async && cell.error && !PENDING.has(cell)) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
-      computeValue(cell, sheetId);
-      if (cell.error) {
-        throw new Error(_lt("This formula depends on invalid values"));
+      if (typeof cell.pending === "undefined" || cell.pending === true) {
+        computeValue(cell, sheetId);
+        if (cell.error) {
+          throw new Error(_lt("This formula depends on invalid values"));
+        }
+        if (cell.value === LOADING) {
+          throw new Error("not ready");
+        }
       }
-      if (cell.value === LOADING) {
-        throw new Error("not ready");
-      }
+
       return cell.value;
     }
 
@@ -310,26 +322,16 @@ export class EvaluationPlugin extends BasePlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function _range(v1: string, v2: string, sheetId: UID): any[][] {
-      const sheet = sheets[sheetId]!;
-      let [left, top] = toCartesian(v1);
-      let [right, bottom] = toCartesian(v2);
-      right = Math.min(right, sheet.cols.length - 1);
-      bottom = Math.min(bottom, sheet.rows.length - 1);
+    function _range(range: Range): any[][] {
+      const sheet = sheets[range.sheetId]!;
 
-      if (left > right) {
-        const tmp = left;
-        left = right;
-        right = tmp;
-      }
-      if (top > bottom) {
-        const tmp = top;
-        top = bottom;
-        bottom = tmp;
-      }
-
-      const zone = { left, top, right, bottom };
-      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
+      const zone = {
+        left: range.zone.left,
+        top: range.zone.top,
+        right: Math.min(range.zone.right, sheet.colNumber - 1),
+        bottom: Math.min(range.zone.bottom, sheet.rowNumber - 1),
+      };
+      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, range.sheetId));
     }
 
     /**
@@ -345,25 +347,20 @@ export class EvaluationPlugin extends BasePlugin {
      */
     function refFn(
       position: number,
-      references: string[],
+      references: Range[],
       sheetId: UID,
       isMeta: boolean = false
     ): any | any[][] {
-      const referenceText = references[position];
+      const range: Range = references[position];
       if (isMeta) {
-        return referenceText;
+        return evalContext.getters.getRangeString(range.id, sheetId);
       }
-      const [reference, sheetName] = referenceText.split("!").reverse();
-      const referenceSheetId = sheetName
-        ? evalContext.getters.getSheetIdByName(sheetName)
-        : sheetId;
-      if (referenceText.includes(":")) {
+      if (range.zone.left !== range.zone.right || range.zone.top !== range.zone.bottom) {
         // it's a range
-        const [left, right] = reference.split(":");
-        return _range(left, right, referenceSheetId);
+        return _range(range);
       } else {
         //it's a cell
-        return readCell(reference, referenceSheetId);
+        return readCell(range);
       }
     }
 
@@ -374,19 +371,8 @@ export class EvaluationPlugin extends BasePlugin {
      *
      * the parameters are the same as refFn, except that these parameters cannot be Meta
      */
-    function range(position: number, references: string[], sheetId: UID): any[][] {
-      const referenceText = references[position];
-      const [reference, sheetName] = referenceText.split("!").reverse();
-      const sheet = sheetName ? sheets[sheetName] : undefined;
-      const referenceSheetId = sheet ? sheet.id : sheetId;
-
-      if (references[position] && !references[position].includes(":")) {
-        //it's a cell reference, but it must be treated as a range
-        return _range(reference, reference, referenceSheetId);
-      } else {
-        const [left, right] = reference.split(":");
-        return _range(left, right, referenceSheetId);
-      }
+    function range(position: number, references: Range[]): any[][] {
+      return _range(references[position]);
     }
 
     return [refFn, range, evalContext];

@@ -47,17 +47,23 @@ export interface NewCell {
   format?: string;
 }
 
+export type Range = {
+  id: UID;
+  zone: Zone; // the zone the range actually spans
+  sheetId: UID; // the sheet on which the range is defined
+  onChange?: onRangeChange; // the callbacks that needs to be called if a range is modified
+};
 export type ReferenceDenormalizer = (
   position: number,
-  references: string[],
+  references: Range[],
   sheetId: UID,
   isMeta: boolean
 ) => any | any[][];
 
-export type EnsureRange = (position: number, references: string[], sheetId: UID) => any[][];
+export type EnsureRange = (position: number, references: Range[]) => any[][];
 
 export type _CompiledFormula = (
-  deps: string[],
+  deps: Range[],
   sheetId: UID,
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
@@ -75,9 +81,9 @@ export interface Cell extends NewCell {
   value: any;
   formula?: {
     text: string;
-    dependencies: string[];
     compiledFormula: CompiledFormula;
   };
+  dependencies?: Range[];
   type: "formula" | "text" | "number" | "date";
 }
 
@@ -123,3 +129,6 @@ export const enum DIRECTION {
   LEFT,
   RIGHT,
 }
+
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE";
+export type onRangeChange = (changeType: ChangeType) => void;

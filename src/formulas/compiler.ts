@@ -28,7 +28,6 @@ const UNARY_OPERATOR_MAP = {
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
-//
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: CompiledFormula } = {};
 
@@ -87,7 +86,7 @@ export function compile(str: NormalizedFormula): CompiledFormula {
               t === "RANGE<STRING>"
           );
           if (hasRange) {
-            argValue = `range(${arg.value}, deps, sheetId)`;
+            argValue = `range(${arg.value}, deps)`;
           }
         }
         result.push(argValue);
