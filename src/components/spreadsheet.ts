@@ -115,6 +115,11 @@ export class Spreadsheet extends Component<Props> {
     this.model.off("update", this);
   }
 
+  destroy() {
+    this.model.destroy();
+    super.destroy();
+  }
+
   openSidePanel(panel: string, panelProps: any) {
     this.sidePanel.component = panel;
     this.sidePanel.panelProps = panelProps;

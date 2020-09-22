@@ -146,6 +146,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   }
 
   willUnmount(): void {
+    delete DEBUG.composer;
     this.trigger("composer-unmounted");
   }
 

@@ -131,6 +131,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.dispatch("START");
   }
 
+  destroy() {
+    delete DEBUG.model;
+  }
+
   /**
    * Initialise and properly configure a plugin.
    *
