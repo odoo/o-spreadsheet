@@ -134,6 +134,7 @@ describe("merges", () => {
     const model = new Model({
       sheets: [
         {
+          id: "s1",
           colNumber: 10,
           rowNumber: 10,
           cells: { B2: { content: "b2" } },
@@ -150,6 +151,7 @@ describe("merges", () => {
     expect(model.getters.getCellPosition(model.getters.getActiveCell()!.id)).toEqual({
       col: 1,
       row: 1,
+      sheetId: "s1",
     });
   });
 

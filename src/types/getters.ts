@@ -6,6 +6,7 @@ import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { FormattingPlugin } from "../plugins/core/formatting";
 import { WHistory } from "../history";
+import { RangePlugin } from "../plugins/core/range";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EditionPlugin } from "../plugins/ui/edition";
 import { AutofillPlugin } from "../plugins/ui/autofill";
@@ -71,6 +72,9 @@ export interface CoreGetters {
   getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
   getChartDefinition: ChartPlugin["getChartDefinition"];
+
+  getRangeString: RangePlugin["getRangeString"];
+  getRangeFromSheetXC: RangePlugin["getRangeFromSheetXC"];
 }
 
 export type Getters = CoreGetters & {

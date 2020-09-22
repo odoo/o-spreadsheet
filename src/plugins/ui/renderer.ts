@@ -34,7 +34,7 @@ import { UIPlugin } from "../ui_plugin";
 function computeAlign(cell: Cell, isShowingFormulas: boolean): "right" | "center" | "left" {
   if (cell.type === "formula" && isShowingFormulas) {
     return "left";
-  } else if (cell.error || cell.pending) {
+  } else if (cell.error) {
     return "center";
   }
   switch (typeof cell.value) {

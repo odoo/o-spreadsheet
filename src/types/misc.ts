@@ -47,17 +47,31 @@ export interface NewCell {
   format?: string;
 }
 
+export interface RangePart {
+  colFixed: boolean;
+  rowFixed: boolean;
+}
+
+export type Range = {
+  id: UID;
+  zone: Zone; // the zone the range actually spans
+  sheetId: UID; // the sheet on which the range is defined
+  onChange?: onRangeChange; // the callbacks that needs to be called if a range is modified
+  invalidSheetName?: string; // the name of any sheet that is invalid
+  parts?: RangePart[];
+  prefixSheet: boolean; // true of the user provided the range with the sheet name, so it has to be recomputed with the sheet name too
+};
 export type ReferenceDenormalizer = (
   position: number,
-  references: string[],
+  references: Range[],
   sheetId: UID,
   isMeta: boolean
 ) => any | any[][];
 
-export type EnsureRange = (position: number, references: string[], sheetId: UID) => any[][];
+export type EnsureRange = (position: number, references: Range[]) => any[][];
 
 export type _CompiledFormula = (
-  deps: string[],
+  deps: Range[],
   sheetId: UID,
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
@@ -71,13 +85,12 @@ export interface CompiledFormula extends _CompiledFormula {
 export interface Cell extends NewCell {
   id: UID;
   error?: string;
-  pending?: boolean;
   value: any;
   formula?: {
     text: string;
-    dependencies: string[];
     compiledFormula: CompiledFormula;
   };
+  dependencies?: Range[];
   type: "formula" | "text" | "number" | "date";
 }
 
@@ -123,3 +136,6 @@ export const enum DIRECTION {
   LEFT,
   RIGHT,
 }
+
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE";
+export type onRangeChange = (changeType: ChangeType, sheetId: UID) => void;

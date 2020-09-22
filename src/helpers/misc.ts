@@ -52,7 +52,7 @@ export const DEBUG: { [key: string]: any } = {};
 
 export function getCellText(cell: Cell, showFormula: boolean = false): string {
   const value = showFormula ? cell.content : cell.value;
-  const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
+  const shouldFormat = (value || value === 0) && cell.format && !cell.error;
   const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);
   const numberFormat = shouldFormat && !dateTimeFormat;
   switch (typeof value) {

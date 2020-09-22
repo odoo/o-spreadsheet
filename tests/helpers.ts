@@ -259,7 +259,7 @@ export function getCellContent(model: Model, xc: string): string {
 }
 
 /**
- * Evaluate the final state of a cell according to the different values ​​and
+ * Evaluate the final state of a cell according to the different values and
  * different functions submitted in a grid cells
  *
  * Examples:

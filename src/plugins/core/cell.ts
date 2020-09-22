@@ -12,7 +12,10 @@ import {
   NormalizedFormula,
   Sheet,
   WorkbookData,
+  Range,
+  ChangeType,
 } from "../../types/index";
+import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
@@ -86,7 +89,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         if (cell.type === "formula" && cell.formula) {
           cells[xc].formula = {
             text: cell.formula.text || "",
-            dependencies: cell.formula.dependencies.slice() || [],
+            dependencies:
+              cell.dependencies?.map((d) => this.getters.getRangeString(d.id, _sheet.id)) || [],
           };
         }
       }
@@ -169,7 +173,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       cell = { id: current.id, content, value: current.value, type: current.type };
       if (cell.type === "formula") {
         cell.error = current.error;
-        cell.pending = current.pending;
         cell.formula = current.formula;
       }
     } else {
@@ -205,9 +208,21 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           let compiledFormula = compile(formulaString);
           cell.formula = {
             compiledFormula: compiledFormula,
-            dependencies: formulaString.dependencies,
             text: formulaString.text,
           };
+
+          const ranges: Range[] = [];
+          for (let xc of formulaString.dependencies) {
+            // todo: remove the actual range from the cell and only keep the range Id
+            ranges.push(
+              this.getters.getRangeFromSheetXC(
+                sheet.id,
+                xc,
+                this.cellDependencyChanged.bind(this, cell)
+              )
+            );
+          }
+          cell.dependencies = ranges;
         } catch (e) {
           cell.value = "#BAD_EXPR";
           cell.error = _lt("Invalid Expression");
@@ -226,7 +241,33 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.history.update("cells", sheet.id, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
   }
+
+  /**
+   * the goal of this function is to update the content of the cell if one of its dependency has changed
+   * This has to be removed in the favor of only updating a cell when its content is requested by the user
+   *
+   * TODO: remove this, only recompute the content it is displayed to the user by the composer
+   *
+   * @param cell
+   * @param changeType
+   * @param sheetId
+   * @private
+   */
+  private cellDependencyChanged(cell: Cell, changeType: ChangeType, sheetId: UID) {
+    let newDependencies = cell.dependencies?.map((x, i) => {
+      return {
+        stringDependency: this.getters.getRangeString(x.id, sheetId),
+        stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
+      };
+    });
+    let newContent = cell.formula?.text || "";
+    if (newDependencies) {
+      for (let d of newDependencies) {
+        newContent = newContent.replace(d.stringPosition, d.stringDependency);
+      }
+
+      cell.content = newContent;
+    }
+    cell.value = "To recompute";
+  }
 }
-// ---------------------------------------------------------------------------
-// Import/Export
-// ---------------------------------------------------------------------------

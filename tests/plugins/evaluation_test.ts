@@ -2,6 +2,7 @@ import { functionRegistry, args } from "../../src/functions";
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { evaluateCell, evaluateGrid, getCell, setCellContent } from "../helpers";
+import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
@@ -867,6 +868,27 @@ describe("evaluateCells", () => {
     expect(getCell(model, "D12")!.value).toBe(1);
   });
 
+  test("evaluation follows dependencies", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 4,
+          rowNumber: 4,
+          cells: {
+            A1: { content: "old" },
+            A2: { content: "=a1" },
+            A3: { content: "=a2" },
+          },
+        },
+      ],
+    });
+
+    expect(model.getters.getCellByXc("sheet1", "A3")!.value).toBe("old");
+    model.dispatch("UPDATE_CELL", { col: 0, row: 0, content: "new", sheetId: "sheet1" });
+    expect(model.getters.getCellByXc("sheet1", "A3")!.value).toBe("new");
+  });
+
   // TO DO: add tests for exp format (ex: 4E10)
   // RO DO: add tests for DATE string format (ex match: "28 02 2020")
 });
@@ -933,5 +955,37 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A2", "=A1", s[1].id);
     setCellContent(model, "A2", "=Sheet2!A1", s[0].id);
     expect(getCell(model, "A2", s[0].id)!.value).toBe(12);
+  });
+
+  test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
+    const mockCompute = jest.fn();
+
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: mockCompute,
+      args: args(``),
+      returns: ["NUMBER"],
+    });
+    setCellContent(model, "A1", "=GETVALUE()");
+    expect(mockCompute).toHaveBeenCalledTimes(1);
+    resetAllMocks();
+    model.dispatch("EVALUATE_CELLS");
+    expect(mockCompute).toHaveBeenCalledTimes(0);
+  });
+  test("cells are re-evaluated if one of their dependency changes", () => {
+    const mockCompute = jest.fn();
+
+    functionRegistry.add("GETVALUE", {
+      description: "Get value",
+      compute: mockCompute,
+      args: args(`value (any) bla`),
+      returns: ["NUMBER"],
+    });
+    setCellContent(model, "A1", "=GETVALUE(A2)");
+
+    expect(mockCompute).toHaveBeenCalledTimes(1);
+    resetAllMocks();
+    setCellContent(model, "A2", "1");
+    expect(mockCompute).toHaveBeenCalledTimes(1);
   });
 });

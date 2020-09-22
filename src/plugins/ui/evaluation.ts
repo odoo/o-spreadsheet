@@ -1,5 +1,5 @@
 import { functionRegistry } from "../../functions/index";
-import { mapCellsInZone, toCartesian, toXC, toZone, getCellText } from "../../helpers/index";
+import { mapCellsInZone, toXC, toZone, getCellText } from "../../helpers/index";
 import { WHistory } from "../../history";
 import { Mode, ModelConfig } from "../../model";
 import {
@@ -12,6 +12,7 @@ import {
   ReferenceDenormalizer,
   EnsureRange,
   NormalizedFormula,
+  Range,
 } from "../../types";
 import { _lt } from "../../translation";
 import { compile, normalize } from "../../formulas/index";
@@ -38,10 +39,10 @@ export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "isIdle", "getRangeFormattedValues", "getRangeValues"];
   static modes: Mode[] = ["normal", "readonly"];
 
-  private isUpToDate: Set<UID> = new Set();
+  private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
   private loadingCells: number = 0;
   private isStarted: boolean = false;
-  private evalContext: EvalContext;
+  private readonly evalContext: EvalContext;
 
   /**
    * For all cells that are being currently computed (asynchronously).
@@ -128,10 +129,15 @@ export class EvaluationPlugin extends UIPlugin {
 
   evaluateFormula(formula: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     let formulaString: NormalizedFormula = normalize(formula);
-
     const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
-    return compiledFormula(formulaString.dependencies, sheetId, ...params);
+
+    const ranges: Range[] = [];
+    for (let xc of formulaString.dependencies) {
+      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+    }
+
+    return compiledFormula(ranges, sheetId, ...params);
   }
 
   isIdle() {
@@ -212,7 +218,6 @@ export class EvaluationPlugin extends UIPlugin {
       }
       if (e.message === "not ready") {
         WAITING.add(cell);
-        cell.pending = true;
         cell.value = LOADING;
       } else if (!cell.error) {
         cell.value = "#ERROR";
@@ -242,28 +247,24 @@ export class EvaluationPlugin extends UIPlugin {
       cell.error = undefined;
       try {
         params[2].__originCellXC = xc;
-        // todo: move formatting in grid and formatters.js
         if (cell.formula.compiledFormula.async) {
           cell.value = LOADING;
-          cell.pending = true;
           PENDING.add(cell);
 
           cell.formula
-            .compiledFormula(cell.formula.dependencies, sheetId, ...params)
+            .compiledFormula(cell.dependencies!, sheetId, ...params)
             .then((val) => {
               cell.value = val;
               self.loadingCells--;
               if (PENDING.has(cell)) {
                 PENDING.delete(cell);
-                cell.pending = false;
                 COMPUTED.add(cell);
               }
             })
             .catch((e: Error) => handleError(e, cell));
           self.loadingCells++;
         } else {
-          cell.value = cell.formula.compiledFormula(cell.formula.dependencies, sheetId, ...params);
-          cell.pending = false;
+          cell.value = cell.formula.compiledFormula(cell.dependencies!, sheetId, ...params);
         }
         if (Array.isArray(cell.value)) {
           // if a value returns an array (like =A1:A3)
@@ -290,19 +291,18 @@ export class EvaluationPlugin extends UIPlugin {
     });
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
-    function readCell(xc: string, sheet: UID): any {
+    function readCell(range: Range): any {
       let cell;
-      const s = sheets[sheet];
+      const s = sheets[range.sheetId];
       if (s) {
-        // TODO: might not be the fastest way to get a cell
-        cell = evalContext.getters.getCellByXc(s.id, xc);
+        cell = s.rows[range.zone.top].cells[range.zone.left];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
       if (!cell || cell.content === "") {
         return null;
       }
-      return getCellValue(cell, sheet);
+      return getCellValue(cell, range.sheetId);
     }
 
     function getCellValue(cell: Cell, sheetId: UID): any {
@@ -316,6 +316,7 @@ export class EvaluationPlugin extends UIPlugin {
       if (cell.value === LOADING) {
         throw new Error("not ready");
       }
+
       return cell.value;
     }
 
@@ -325,26 +326,16 @@ export class EvaluationPlugin extends UIPlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function _range(v1: string, v2: string, sheetId: UID): any[][] {
-      const sheet = sheets[sheetId]!;
-      let [left, top] = toCartesian(v1);
-      let [right, bottom] = toCartesian(v2);
-      right = Math.min(right, sheet.cols.length - 1);
-      bottom = Math.min(bottom, sheet.rows.length - 1);
+    function _range(range: Range): any[][] {
+      const sheet = sheets[range.sheetId]!;
 
-      if (left > right) {
-        const tmp = left;
-        left = right;
-        right = tmp;
-      }
-      if (top > bottom) {
-        const tmp = top;
-        top = bottom;
-        bottom = tmp;
-      }
-
-      const zone = { left, top, right, bottom };
-      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
+      const zone = {
+        left: range.zone.left,
+        top: range.zone.top,
+        right: Math.min(range.zone.right, sheet.cols.length - 1),
+        bottom: Math.min(range.zone.bottom, sheet.rows.length - 1),
+      };
+      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, range.sheetId));
     }
 
     /**
@@ -360,25 +351,24 @@ export class EvaluationPlugin extends UIPlugin {
      */
     function refFn(
       position: number,
-      references: string[],
+      references: Range[],
       sheetId: UID,
       isMeta: boolean = false
     ): any | any[][] {
-      const referenceText = references[position];
+      const range: Range = references[position];
+
       if (isMeta) {
-        return referenceText;
+        return evalContext.getters.getRangeString(range.id, sheetId);
       }
-      const [reference, sheetName] = referenceText.split("!").reverse();
-      const referenceSheetId = sheetName
-        ? evalContext.getters.getSheetIdByName(sheetName)
-        : sheetId;
-      if (referenceText.includes(":")) {
+      if (range.invalidSheetName) {
+        throw new Error(_lt(`Invalid sheet name: ${range.invalidSheetName}`));
+      }
+      if (range.zone.left !== range.zone.right || range.zone.top !== range.zone.bottom) {
         // it's a range
-        const [left, right] = reference.split(":");
-        return _range(left, right, referenceSheetId);
+        return _range(range);
       } else {
         //it's a cell
-        return readCell(reference, referenceSheetId);
+        return readCell(range);
       }
     }
 
@@ -389,19 +379,8 @@ export class EvaluationPlugin extends UIPlugin {
      *
      * the parameters are the same as refFn, except that these parameters cannot be Meta
      */
-    function range(position: number, references: string[], sheetId: UID): any[][] {
-      const referenceText = references[position];
-      const [reference, sheetName] = referenceText.split("!").reverse();
-      const sheet = sheetName ? sheets[sheetName] : undefined;
-      const referenceSheetId = sheet ? sheet.id : sheetId;
-
-      if (references[position] && !references[position].includes(":")) {
-        //it's a cell reference, but it must be treated as a range
-        return _range(reference, reference, referenceSheetId);
-      } else {
-        const [left, right] = reference.split(":");
-        return _range(left, right, referenceSheetId);
-      }
+    function range(position: number, references: Range[]): any[][] {
+      return _range(references[position]);
     }
 
     return [refFn, range, evalContext];

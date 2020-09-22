@@ -1126,6 +1126,7 @@ describe("Rows", () => {
       const model = new Model({
         sheets: [
           {
+            id: "s1",
             colNumber: 4,
             rowNumber: 7,
             cells: {
@@ -1134,6 +1135,7 @@ describe("Rows", () => {
             },
           },
           {
+            id: "s2",
             colNumber: 3,
             rowNumber: 2,
             cells: {
@@ -1144,17 +1146,16 @@ describe("Rows", () => {
           },
         ],
       });
-      const [sheet1, sheet2] = model.getters.getSheets();
-      expect(sheet2.id).not.toBe(model.getters.getActiveSheetId()),
-        model.dispatch("REMOVE_ROWS", {
-          rows: [0],
-          sheetId: sheet2.id,
-        });
-      expect(getCellsObject(model, sheet1.id)).toMatchObject({
+      expect(model.getters.getActiveSheetId()).toBe("s1");
+      model.dispatch("REMOVE_ROWS", {
+        rows: [0],
+        sheetId: "s2",
+      });
+      expect(getCellsObject(model, "s1")).toMatchObject({
         B2: { content: "=Sheet1!A2" },
         C1: { content: "=Sheet2!A1" },
       });
-      expect(getCellsObject(model, sheet2.id)).toMatchObject({
+      expect(getCellsObject(model, "s2")).toMatchObject({
         A1: { content: "=B1" },
         B1: { content: "=Sheet1!A2" },
         C1: { content: "=Sheet2!A1" },

@@ -112,7 +112,7 @@ export class FormattingPlugin extends CorePlugin {
         this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
         break;
       case "ADD_COLUMNS":
-        const start_col = cmd.position === "before" ? cmd.column - 1 : cmd.column;
+        const start_col = cmd.position === "before" && cmd.column > 0 ? cmd.column - 1 : cmd.column;
         const end_col = start_col + cmd.quantity + 1;
         const sheet = this.getters.getSheet(cmd.sheetId)!;
         this.onAddElements(sheet, start_col, end_col, true, cmd.position === "before");
