@@ -691,6 +691,7 @@ export const enum CancelledReason {
   InputAlreadyFocused,
   MaximumRangesReached,
   InvalidChartDefinition,
+  InvalidAutofillSelection,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;
