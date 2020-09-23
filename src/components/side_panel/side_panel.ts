@@ -57,7 +57,7 @@ const CSS = css/* scss */ `
     }
 
     .o-sidePanelButtons {
-      padding: 5px;
+      padding: 5px 16px;
       text-align: right;
       .o-sidePanelButton {
         border: 1px solid lightgrey;
@@ -81,10 +81,11 @@ const CSS = css/* scss */ `
     .o-input {
       border-radius: 4px;
       border: 1px solid lightgrey;
-      padding: 5px;
-      margin-bottom: 5px;
-      font-size: 14px;
-      width: 90%;
+      padding: 4px 6px;
+      width: 96%;
+      .o-type-selector {
+        background-position: right 5px top 11px;
+      }
     }
     select.o-input {
       background-color: white;
@@ -92,11 +93,10 @@ const CSS = css/* scss */ `
     }
 
     .o-section {
-      padding: 10px;
+      padding: 16px;
       .o-section-title {
-        font-size: 16px;
-        margin-bottom: 20px;
-        margin-top: 20px;
+        font-weight: bold;
+        margin-bottom: 5px;
       }
     }
   }

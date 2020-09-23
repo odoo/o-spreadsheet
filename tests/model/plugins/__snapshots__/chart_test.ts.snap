@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`datasource tests create chart with column datasets 1`] = `
+Object {
+  "data": Object {
+    "datasets": Array [
+      Object {
+        "backgroundColor": "rgb(31,119,180)",
+        "borderColor": "rgb(31,119,180)",
+        "data": Array [
+          10,
+          11,
+          12,
+        ],
+        "label": "first column dataset",
+        "lineTension": 0,
+      },
+      Object {
+        "backgroundColor": "rgb(255,127,14)",
+        "borderColor": "rgb(255,127,14)",
+        "data": Array [
+          20,
+          19,
+          18,
+        ],
+        "label": "second column dataset",
+        "lineTension": 0,
+      },
+    ],
+    "labels": Array [
+      "P1",
+      "P2",
+      "P3",
+    ],
+  },
+  "options": Object {
+    "animation": Object {
+      "duration": 0,
+    },
+    "elements": Object {
+      "line": Object {
+        "fill": false,
+      },
+      "point": Object {
+        "hitRadius": 15,
+      },
+    },
+    "hover": Object {
+      "animationDuration": 10,
+    },
+    "layout": Object {
+      "padding": Object {
+        "bottom": 10,
+        "left": 20,
+        "right": 20,
+        "top": 10,
+      },
+    },
+    "maintainAspectRatio": false,
+    "responsive": true,
+    "responsiveAnimationDuration": 0,
+    "scales": Object {
+      "xAxes": Array [
+        Object {
+          "ticks": Object {
+            "labelOffset": 2,
+            "maxRotation": 60,
+            "minRotation": 15,
+            "padding": 5,
+          },
+        },
+      ],
+      "yAxes": Array [
+        Object {
+          "ticks": Object {
+            "beginAtZero": true,
+          },
+        },
+      ],
+    },
+    "title": Object {
+      "display": true,
+      "fontSize": 22,
+      "fontStyle": "normal",
+      "text": "test 1",
+    },
+  },
+  "type": "line",
+}
+`;

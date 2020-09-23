@@ -76,34 +76,7 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toEqual({
-      type: "line",
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 0 },
-        hover: { animationDuration: 0 },
-        responsiveAnimationDuration: 0,
-        title: { display: true, text: "test 1" },
-      },
-      data: {
-        labels: ["P1", "P2", "P3"],
-        datasets: [
-          {
-            backgroundColor: "rgba(255,133,27,0.3)",
-            data: [10, 11, 12],
-            label: "first column dataset",
-            lineTension: 0,
-          },
-          {
-            backgroundColor: "rgba(0,116,217,0.3)",
-            data: [20, 19, 18],
-            label: "second column dataset",
-            lineTension: 0,
-          },
-        ],
-      },
-    });
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with rectangle dataset", () => {
@@ -152,34 +125,9 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toEqual({
-      type: "line",
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 0 },
-        hover: { animationDuration: 0 },
-        responsiveAnimationDuration: 0,
-        title: { display: true, text: "test 1" },
-      },
-      data: {
-        labels: ["P1", "P2", "P3"],
-        datasets: [
-          {
-            backgroundColor: "rgba(255,133,27,0.3)",
-            data: [10, 11, 12],
-            label: "",
-            lineTension: 0,
-          },
-          {
-            backgroundColor: "rgba(0,116,217,0.3)",
-            data: [20, 19, 18],
-            label: "",
-            lineTension: 0,
-          },
-        ],
-      },
-    });
+    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    expect(datasets[0].label!.toString()).toEqual("Series");
+    expect(datasets[1].label!.toString()).toEqual("Series");
   });
 
   test("create chart with row datasets", () => {
@@ -249,21 +197,7 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toEqual({
-      type: "line",
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 0 },
-        hover: { animationDuration: 0 },
-        responsiveAnimationDuration: 0,
-        title: { display: true, text: "test 1" },
-      },
-      data: {
-        labels: ["P4", "P5", "P6"],
-        datasets: [],
-      },
-    });
+    expect(model.getters.getChartRuntime("1")!.data!.datasets!).toHaveLength(0);
   });
 
   test("create chart with a dataset of one cell (no title)", () => {
@@ -289,28 +223,9 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toEqual({
-      type: "line",
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 0 },
-        hover: { animationDuration: 0 },
-        responsiveAnimationDuration: 0,
-        title: { display: true, text: "test 1" },
-      },
-      data: {
-        labels: ["P4"],
-        datasets: [
-          {
-            backgroundColor: "rgba(255,133,27,0.3)",
-            data: [30],
-            label: "",
-            lineTension: 0,
-          },
-        ],
-      },
-    });
+    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    expect(datasets).toHaveLength(1);
+    expect(datasets[0].label!.toString()).toEqual("Series");
   });
 
   test.skip("delete a data source column", () => {

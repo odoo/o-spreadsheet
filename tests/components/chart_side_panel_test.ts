@@ -63,7 +63,7 @@ describe("Chart sidepanel component", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_CHART", {
       definition: {
         title: "My title",
-        type: "line",
+        type: "bar",
         seriesHasTitle: false,
         dataSets: ["B1:B10"],
         labelRange: "A2:A10",

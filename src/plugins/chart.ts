@@ -9,10 +9,11 @@ import {
   CommandResult,
   CancelledReason,
 } from "../types/index";
-import { ChartConfiguration } from "chart.js";
+import { ChartConfiguration, ChartType } from "chart.js";
 import { BasePlugin } from "../base_plugin";
 import { isInside, toXC, toZone, zoneToXc } from "../helpers/index";
 import { rangeReference } from "../formulas/parser";
+import { chartTerms } from "../components/side_panel/translations_terms";
 
 /**
  * Chart plugin
@@ -20,15 +21,29 @@ import { rangeReference } from "../formulas/parser";
  * This plugin creates and displays charts
  * */
 
-// the same colors as defined in the the composer colors, except at 30% transparency
-
-import { colors } from "../helpers/color";
-
-const GraphColors = colors.map((c) => {
-  return `rgba(${parseInt(c.slice(1, 3), 16)},
-  ${parseInt(c.slice(3, 5), 16)},
-  ${parseInt(c.slice(5, 7), 16)}, 0.3)`.replace(/\s/g, "");
-});
+const GraphColors = [
+  // the same colors as those used in odoo reporting
+  "rgb(31,119,180)",
+  "rgb(255,127,14)",
+  "rgb(174,199,232)",
+  "rgb(255,187,120)",
+  "rgb(44,160,44)",
+  "rgb(152,223,138)",
+  "rgb(214,39,40)",
+  "rgb(255,152,150)",
+  "rgb(148,103,189)",
+  "rgb(197,176,213)",
+  "rgb(140,86,75)",
+  "rgb(196,156,148)",
+  "rgb(227,119,194)",
+  "rgb(247,182,210)",
+  "rgb(127,127,127)",
+  "rgb(199,199,199)",
+  "rgb(188,189,34)",
+  "rgb(219,219,141)",
+  "rgb(23,190,207)",
+  "rgb(158,218,229)",
+];
 
 export class ChartPlugin extends BasePlugin {
   static getters = ["getChartRuntime"];
@@ -214,51 +229,105 @@ export class ChartPlugin extends BasePlugin {
     return { labelCell, dataRange };
   }
 
-  private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
-    let runtime: ChartConfiguration = {
-      type: definition.type,
+  private getDefaultConfiguration(
+    type: ChartType,
+    title: string | undefined,
+    labels: string[]
+  ): ChartConfiguration {
+    const config: ChartConfiguration = {
+      type,
       options: {
         // https://www.chartjs.org/docs/latest/general/responsive.html
         responsive: true, // will resize when its container is resized
         maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
-
+        layout: { padding: { left: 20, right: 20, top: 10, bottom: 10 } },
+        elements: {
+          line: {
+            fill: false, // do not fill the area under line charts
+          },
+          point: {
+            hitRadius: 15, // increased hit radius to display point tooltip when hovering nearby
+          },
+        },
         animation: {
           duration: 0, // general animation time
         },
         hover: {
-          animationDuration: 0, // duration of animations when hovering an item
+          animationDuration: 10, // duration of animations when hovering an item
         },
         responsiveAnimationDuration: 0, // animation duration after a resize
         title: {
           display: true,
-          text: definition.title,
+          fontSize: 22,
+          fontStyle: "normal",
+          text: title,
         },
       },
       data: {
-        labels:
-          definition.labelRange !== ""
-            ? this.getters
-                .getRangeFormattedValues(definition.labelRange, definition.sheetId)
-                .flat(1)
-            : [],
+        labels,
         datasets: [],
       },
     };
 
+    if (type !== "pie") {
+      config.options!.scales = {
+        xAxes: [
+          {
+            ticks: {
+              // x axis configuration
+              maxRotation: 60,
+              minRotation: 15,
+              padding: 5,
+              labelOffset: 2,
+            },
+          },
+        ],
+        yAxes: [
+          {
+            ticks: {
+              // y axis configuration
+              beginAtZero: true, // the origin of the y axis is always zero
+            },
+          },
+        ],
+      };
+    }
+    return config;
+  }
+
+  private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
+    const labels =
+      definition.labelRange !== ""
+        ? this.getters.getRangeFormattedValues(definition.labelRange, definition.sheetId).flat(1)
+        : [];
+    const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
+
     let graphColorIndex = 0;
     for (const ds of definition.dataSets) {
       const dataset = {
-        label: ds.labelCell ? this.getters.evaluateFormula(ds.labelCell, definition.sheetId) : "",
+        label: ds.labelCell
+          ? this.getters.evaluateFormula(ds.labelCell, definition.sheetId)
+          : chartTerms.Series,
         data: ds.dataRange
           ? this.getters.getRangeValues(ds.dataRange, definition.sheetId).flat(1)
           : [],
         lineTension: 0, // 0 -> render straight lines, which is much faster
+        borderColor: definition.type !== "pie" ? GraphColors[graphColorIndex] : "#FFFFFF", // white border for pie chart
         backgroundColor: GraphColors[graphColorIndex],
       };
+      if (definition.type === "pie") {
+        const colors: string[] = [];
+        for (let i = 0; i <= dataset.data.length - 1; i++) {
+          colors.push(GraphColors[graphColorIndex]);
+          graphColorIndex = ++graphColorIndex % GraphColors.length;
+        }
+        // In case of pie graph, dataset.backgroundColor is an array of string
+        // @ts-ignore
+        dataset.backgroundColor = colors;
+      }
       graphColorIndex = ++graphColorIndex % GraphColors.length;
       runtime.data!.datasets!.push(dataset);
     }
-
     return runtime;
   }
 

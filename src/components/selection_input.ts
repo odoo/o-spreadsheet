@@ -39,14 +39,11 @@ const TEMPLATE = xml/* xml */ `
 const CSS = css/* scss */ `
   .o-selection {
     input {
-      margin: 8px 1px;
-      padding: 1px 8px;
+      padding: 4px 6px;
       border-radius: 4px;
       box-sizing: border-box;
       border: 1px solid #dadce0;
-      font-size: 14px;
-      height: 32px;
-      width: 90%;
+      width: 100%;
     }
     input:focus {
       outline: none;
@@ -54,7 +51,7 @@ const CSS = css/* scss */ `
     input.o-focused {
       border-color: #3266ca;
       border-width: 2px;
-      padding: 0px 7px;
+      padding: 3px 5px;
     }
     button.o-remove-selection {
       background: transparent;

@@ -12,8 +12,8 @@ const TEMPLATE = xml/* xml */ `
     <div class="o-section">
       <div class="o-section-title"><t t-esc="env._t('${chartTerms.ChartType}')"/></div>
       <select t-model="state.type" class="o-input o-type-selector">
-        <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
         <option value="bar" t-esc="env._t('${chartTerms.Bar}')"/>
+        <option value="line" t-esc="env._t('${chartTerms.Line}')"/>
         <option value="pie" t-esc="env._t('${chartTerms.Pie}')"/>
       </select>
     </div>
@@ -97,7 +97,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
       title: data && data.title ? data.title : "",
       ranges: data ? data.dataSets.map((ds) => ds.dataRange) : [],
       labelRange: data ? data.labelRange : "",
-      type: data ? data.type : "line",
+      type: data ? data.type : "bar",
       seriesHasTitle: data ? data.title !== undefined : false,
     };
   }
