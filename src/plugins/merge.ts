@@ -5,7 +5,7 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../helpers/grid_manipulation";
-import { isEqual, toCartesian, toXC, union, overlap } from "../helpers/index";
+import { isEqual, toCartesian, toXC, union, overlap, clip } from "../helpers/index";
 import { _lt } from "../translation";
 import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
 
@@ -299,11 +299,13 @@ export class MergePlugin extends BasePlugin {
   private duplicateMerge(xc: string, col: number, row: number, sheetId: string, cut?: boolean) {
     const mergeId = this.workbook.sheets[sheetId].mergeCellMap[xc];
     const merge = this.workbook.sheets[sheetId].merges[mergeId];
+    const colNumber = this.getters.getNumberCols(sheetId) - 1;
+    const rowNumber = this.getters.getNumberRows(sheetId) - 1;
     const newMerge = {
       left: col,
       top: row,
-      right: col + merge.right - merge.left,
-      bottom: row + merge.bottom - merge.top,
+      right: clip(col + merge.right - merge.left, 0, colNumber),
+      bottom: clip(row + merge.bottom - merge.top, 0, rowNumber),
     };
     if (cut) {
       this.dispatch("REMOVE_MERGE", {
