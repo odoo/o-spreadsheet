@@ -124,9 +124,11 @@ export class Autofill extends Component<Props, SpreadsheetEnv> {
       const row = this.env.getters.getRowIndex(ev.clientY - position.top, this.props.viewport.top);
       if (lastCol !== col || lastRow !== row) {
         const sheetId = this.env.getters.getActiveSheet();
-        lastCol = clip(col, 0, this.env.getters.getNumberCols(sheetId));
-        lastRow = clip(row, 0, this.env.getters.getNumberRows(sheetId));
-        this.env.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+        lastCol = col === -1 ? lastCol : clip(col, 0, this.env.getters.getNumberCols(sheetId));
+        lastRow = row === -1 ? lastRow : clip(row, 0, this.env.getters.getNumberRows(sheetId));
+        if (lastCol !== undefined && lastRow !== undefined) {
+          this.env.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+        }
       }
     };
     startDnd(onMouseMove, onMouseUp);

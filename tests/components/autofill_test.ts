@@ -3,6 +3,7 @@ import { makeTestFixture, GridParent, nextTick } from "../helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types/commands";
 import * as owl from "@odoo/owl";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 
 const { Component } = owl;
 const { xml } = owl.tags;
@@ -44,11 +45,11 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      0,
-      parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
     );
     await nextTick();
-    expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 0, row: 1 });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 0, row: 2 });
     triggerMouseEvent(autofill, "mouseup");
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL");
@@ -62,11 +63,11 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 1).end + 10,
-      0
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 1).end + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 0).start + 10
     );
     await nextTick();
-    expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 1, row: 0 });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 2, row: 0 });
     triggerMouseEvent(autofill, "mouseup");
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL");
@@ -90,8 +91,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      0,
-      parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
@@ -119,12 +120,31 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      0,
-      parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
     expect(fixture.querySelector(".custom_tooltip")).toBeDefined();
     expect(fixture.querySelector(".custom_tooltip")!.textContent).toBe("blabla");
+  });
+
+  test("Autofill on the last col/row", async () => {
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    const autofill = fixture.querySelector(".o-autofill");
+    triggerMouseEvent(autofill, "mousedown", 4, 4);
+    await nextTick();
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      HEADER_WIDTH +
+        parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start +
+        10000,
+      HEADER_HEIGHT +
+        parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).start +
+        10000
+    );
+    await nextTick();
+    expect(parent.env.dispatch).not.toHaveBeenCalled();
   });
 });

@@ -15,7 +15,7 @@ import {
   GeneratorCell,
   AutofillResult,
 } from "../types/index";
-import { union, toCartesian, toXC } from "../helpers/index";
+import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
 
 /**
@@ -87,6 +87,7 @@ export class AutofillPlugin extends BasePlugin {
   static modes: Mode[] = ["normal", "readonly"];
 
   private autofillZone: Zone | undefined;
+  private lastCellSelected: { col?: number; row?: number } = {};
   private direction: DIRECTION | undefined;
   private tooltip: Tooltip | undefined;
 
@@ -96,6 +97,20 @@ export class AutofillPlugin extends BasePlugin {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "AUTOFILL_SELECT":
+        const sheetId = this.getters.getActiveSheet();
+        this.lastCellSelected.col =
+          cmd.col === -1
+            ? this.lastCellSelected.col
+            : clip(cmd.col, 0, this.getters.getNumberCols(sheetId));
+        this.lastCellSelected.row =
+          cmd.row === -1
+            ? this.lastCellSelected.row
+            : clip(cmd.row, 0, this.getters.getNumberRows(sheetId));
+        if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
+          return { status: "SUCCESS" };
+        }
+        return { status: "CANCELLED", reason: CancelledReason.InvalidAutofillSelection };
       case "AUTOFILL_AUTO":
         const zone = this.getters.getSelectedZone();
         return zone.top === zone.bottom
@@ -208,6 +223,7 @@ export class AutofillPlugin extends BasePlugin {
     if (apply) {
       const zone = union(this.getters.getSelectedZone(), this.autofillZone);
       this.autofillZone = undefined;
+      this.lastCellSelected = {};
       this.direction = undefined;
       this.tooltip = undefined;
       this.dispatch("SET_SELECTION", {
@@ -222,6 +238,10 @@ export class AutofillPlugin extends BasePlugin {
    */
   private select(col: number, row: number) {
     const source = this.getters.getSelectedZone();
+    if (isInside(col, row, source)) {
+      this.autofillZone = undefined;
+      return;
+    }
     this.direction = this.getDirection(col, row);
     switch (this.direction) {
       case DIRECTION.UP:
