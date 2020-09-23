@@ -355,6 +355,28 @@ describe("Autofill", () => {
     expect(getCell(model, "A7")!.content).toBe("3");
   });
 
+  test("autofill with merge greater than the grid size", () => {
+    model = new Model({
+      sheets: [{
+        colNumber: 1,
+        rowNumber: 5,
+      }],
+    });
+    const sheet1 = model.getters.getActiveSheet();
+    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A2") });
+    autofill("A1:A2", "A5");
+    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+    ]);
+    expect(model["workbook"].activeSheet.merges).toEqual({
+      "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: "A1" },
+      "2": { bottom: 3, id: 2, left: 0, right: 0, top: 2, topLeft: "A3" },
+    });
+  });
+
   test("autofill with merge in target (1)", () => {
     const sheet1 = model.getters.getActiveSheet();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A3:A5") });
