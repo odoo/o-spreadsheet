@@ -95,8 +95,8 @@ export class HighlightPlugin extends BasePlugin {
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.workbook.activeSheet.rows.length &&
-          x.zone.right < this.workbook.activeSheet.cols.length
+          x.zone.bottom < this.getters.getRows().length &&
+          x.zone.right < this.getters.getCols().length
       );
   }
 

@@ -56,7 +56,9 @@ export class CorePlugin extends BasePlugin {
     "getSheetIdByName",
     "getSheets",
     "getCol",
+    "getCols",
     "getRow",
+    "getRows",
     "getCells",
     "getColCells",
     "getNumberCols",
@@ -359,8 +361,16 @@ export class CorePlugin extends BasePlugin {
     return this.workbook.sheets[sheetId].cols[index];
   }
 
+  getCols(): Col[] {
+    return this.workbook.activeSheet.cols;
+  }
+
   getRow(sheetId: string, index: number): Row {
     return this.workbook.sheets[sheetId].rows[index];
+  }
+
+  getRows(): Row[] {
+    return this.workbook.activeSheet.rows;
   }
 
   /**
