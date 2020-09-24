@@ -140,7 +140,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * Returns all the conditional format rules defined for the current sheet
    */
   getConditionalFormats(): ConditionalFormat[] {
-    return this.cfRules[this.workbook.activeSheet.id];
+    return this.cfRules[this.getters.getActiveSheet()];
   }
 
   /**
@@ -149,8 +149,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
    */
   getConditionalStyle(xc: string): Style | undefined {
     return (
-      this.computedStyles[this.workbook.activeSheet.id] &&
-      this.computedStyles[this.workbook.activeSheet.id][xc]
+      this.computedStyles[this.getters.getActiveSheet()] &&
+      this.computedStyles[this.getters.getActiveSheet()][xc]
     );
   }
 
@@ -177,7 +177,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     return ruleIds;
   }
   getRulesByCell(cellXc: string): Set<ConditionalFormat> {
-    const currentSheet = this.workbook.activeSheet.id;
+    const currentSheet = this.getters.getActiveSheet();
     const rulesId: Set<ConditionalFormat> = new Set();
     for (let cf of this.cfRules[currentSheet]) {
       for (let ref of cf.ranges) {
@@ -249,9 +249,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
             (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
           );
           const color = (r << 16) | (g << 8) | b;
-          this.computedStyles[this.workbook.activeSheet.id][cell.xc] =
-            this.computedStyles[this.workbook.activeSheet.id][cell.xc] || {};
-          this.computedStyles[this.workbook.activeSheet.id][cell.xc].fillColor =
+          this.computedStyles[this.getters.getActiveSheet()][cell.xc] =
+            this.computedStyles[this.getters.getActiveSheet()][cell.xc] || {};
+          this.computedStyles[this.getters.getActiveSheet()][cell.xc].fillColor =
             "#" + colorNumberString(color);
         }
       }
@@ -322,7 +322,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
    */
   private computeStyles() {
-    const currentSheet = this.workbook.activeSheet.id;
+    const currentSheet = this.getters.getActiveSheet();
     this.computedStyles[currentSheet] = {};
     for (let cf of this.cfRules[currentSheet]) {
       try {
@@ -408,10 +408,10 @@ export class ConditionalFormatPlugin extends BasePlugin {
             //remove from current rule
             toRemoveRange.push(toXC(originCol, originRow));
           }
-          if (originSheet === this.workbook.activeSheet.id) {
+          if (originSheet === this.getters.getActiveSheet()) {
             this.adaptRules(originSheet, cf, [xc], toRemoveRange);
           } else {
-            this.adaptRules(this.workbook.activeSheet.id, cf, [xc], []);
+            this.adaptRules(this.getters.getActiveSheet(), cf, [xc], []);
             this.adaptRules(originSheet, cf, [], toRemoveRange);
           }
         }

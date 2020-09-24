@@ -31,6 +31,7 @@ import {
   WorkbookData,
   Zone,
   RenameSheetCommand,
+  UID,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -123,7 +124,7 @@ export class CorePlugin extends BasePlugin {
         );
         this.sheetIds[this.workbook.sheets[sheet].name] = sheet;
         if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: sheet });
+          this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: sheet });
         }
         break;
       case "MOVE_SHEET":
@@ -151,7 +152,7 @@ export class CorePlugin extends BasePlugin {
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
         this.dispatch("UPDATE_CELL", {
-          sheet: cmd.sheetId ? cmd.sheetId : this.workbook.activeSheet.id,
+          sheet: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheet(),
           col,
           row,
           content: cmd.text,
@@ -332,7 +333,7 @@ export class CorePlugin extends BasePlugin {
   /**
    * Returns the id (not the name) of the currently active sheet
    */
-  getActiveSheet(): string {
+  getActiveSheet(): UID {
     return this.workbook.activeSheet.id;
   }
 
@@ -907,7 +908,7 @@ export class CorePlugin extends BasePlugin {
       mergeCellMap: {},
     };
     const visibleSheets = this.workbook.visibleSheets.slice();
-    const index = visibleSheets.findIndex((id) => this.workbook.activeSheet.id === id);
+    const index = visibleSheets.findIndex((id) => this.getters.getActiveSheet() === id);
     visibleSheets.splice(index + 1, 0, sheet.id);
     const sheets = this.workbook.sheets;
     this.history.updateState(["visibleSheets"], visibleSheets);
@@ -992,7 +993,7 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.updateLocalState(["sheetIds"], sheetIds);
-    this.dispatch("ACTIVATE_SHEET", { from: this.workbook.activeSheet.id, to: toId });
+    this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: toId });
   }
 
   private interactiveDeleteSheet(sheetId: string) {
@@ -1393,7 +1394,7 @@ export class CorePlugin extends BasePlugin {
         figures: [],
       };
     });
-    data.activeSheet = this.workbook.activeSheet.id;
+    data.activeSheet = this.getters.getActiveSheet();
   }
 }
 
