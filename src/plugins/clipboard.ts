@@ -306,7 +306,8 @@ export class ClipboardPlugin extends BasePlugin {
   }
 
   private addMissingDimensions(width, height, col, row) {
-    const { cols, rows } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
     const missingRows = height + row - rows.length;
     if (missingRows > 0) {
       this.dispatch("ADD_ROWS", {

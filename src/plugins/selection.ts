@@ -68,7 +68,8 @@ export class SelectionPlugin extends BasePlugin {
     switch (cmd.type) {
       case "MOVE_POSITION": {
         const [refCol, refRow] = this.getReferenceCoords();
-        const { cols, rows } = this.workbook.activeSheet;
+        const cols = this.getters.getCols();
+        const rows = this.getters.getRows();
         const outOfBound =
           (cmd.deltaY < 0 && refRow === 0) ||
           (cmd.deltaY > 0 && refRow === rows.length - 1) ||

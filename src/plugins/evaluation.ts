@@ -129,7 +129,7 @@ export class EvaluationPlugin extends BasePlugin {
       compiledFormula = this.cache[cacheKey];
     } else {
       let sheetIds: { [name: string]: string } = {};
-      const { sheets } = this.workbook;
+      const sheets = this.getters.getEvaluationSheets();
       for (let sheetId in sheets) {
         sheetIds[sheets[sheetId].name] = sheetId;
       }

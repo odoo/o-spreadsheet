@@ -110,7 +110,8 @@ export class RendererPlugin extends BasePlugin {
     let { offsetY, offsetX } = viewport;
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
-    const { cols, rows } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
     const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
     const width = cols[right].end - offsetX - x;
     const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
@@ -123,7 +124,8 @@ export class RendererPlugin extends BasePlugin {
    * @param viewport
    */
   snapViewportToCell(viewport: Viewport): Viewport {
-    const { cols, rows } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
     const adjustedViewport = Object.assign({}, viewport);
     adjustedViewport.offsetX = cols[viewport.left].start;
     adjustedViewport.offsetY = rows[viewport.top].start;
@@ -136,7 +138,8 @@ export class RendererPlugin extends BasePlugin {
    */
   adjustViewportPosition(viewport: Viewport): Viewport {
     const adjustedViewport = Object.assign({}, viewport);
-    const { cols, rows } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
     const [col, row] = this.getters.getPosition();
     while (col >= adjustedViewport.right && col !== cols.length - 1) {
       adjustedViewport.offsetX = cols[adjustedViewport.left].end;
@@ -165,7 +168,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private adjustViewportZoneX(viewport: Viewport) {
-    const { cols } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
     const { width, offsetX } = viewport;
     viewport.left = this.getColIndex(offsetX + HEADER_WIDTH, 0);
     const x = width + offsetX - HEADER_WIDTH;
@@ -179,7 +182,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private adjustViewportZoneY(viewport: Viewport) {
-    const { rows } = this.workbook.activeSheet;
+    const rows = this.getters.getRows();
     const { height, offsetY } = viewport;
     viewport.top = this.getRowIndex(offsetY + HEADER_HEIGHT, 0);
 
@@ -215,8 +218,8 @@ export class RendererPlugin extends BasePlugin {
   private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     let { width, height, offsetX, offsetY, top, left, bottom, right } = viewport;
-    const { rows, cols } = this.workbook.activeSheet;
-
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
     // white background
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, viewport.width, viewport.height);
@@ -358,7 +361,8 @@ export class RendererPlugin extends BasePlugin {
     offsetX -= HEADER_WIDTH;
     offsetY -= HEADER_HEIGHT;
     const selection = this.getters.getSelectedZones();
-    const { cols, rows } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
     const activeCols = this.getters.getActiveCols();
     const activeRows = this.getters.getActiveRows();
 
@@ -436,7 +440,9 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, cells } = this.workbook.activeSheet;
+    const cols = this.getters.getCols();
+    const rows = this.getters.getRows();
+    const cells = this.getters.getCells();
     const activeSheet = this.getters.getActiveSheet();
     const merges = this.getters.getMerges(activeSheet);
     const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
