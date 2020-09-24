@@ -187,10 +187,12 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getActiveCell(): Cell | null {
-    const sheet = this.workbook.activeSheet;
-    let mergeId = sheet.mergeCellMap[this.activeXc];
+    const activeSheet = this.getters.getActiveSheet();
+    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
+    const merges = this.getters.getMerges(activeSheet);
+    let mergeId = mergeCellMap[this.activeXc];
     if (mergeId) {
-      return sheet.cells[sheet.merges[mergeId].topLeft];
+      return this.workbook.activeSheet.cells[merges[mergeId].topLeft];
     } else {
       return this.getters.getCell(this.activeCol, this.activeRow);
     }
@@ -346,12 +348,13 @@ export class SelectionPlugin extends BasePlugin {
     const [refCol, refRow] = this.getReferenceCoords();
     const activeReference = toXC(refCol, refRow);
 
-    const sheet = this.workbook.activeSheet;
-    let mergeId = sheet.mergeCellMap[activeReference];
+    const activeSheet = this.getters.getActiveSheet();
+    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
+    let mergeId = mergeCellMap[activeReference];
     if (mergeId) {
       let targetCol = refCol;
       let targetRow = refRow;
-      while (sheet.mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
+      while (mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
@@ -501,7 +504,9 @@ export class SelectionPlugin extends BasePlugin {
     ctx.globalCompositeOperation = "source-over";
 
     // active zone
-    const { mergeCellMap, merges } = this.workbook.activeSheet;
+    const activeSheet = this.getters.getActiveSheet();
+    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
+    const merges = this.getters.getMerges(activeSheet);
     const [col, row] = this.getPosition();
     const activeXc = toXC(col, row);
 

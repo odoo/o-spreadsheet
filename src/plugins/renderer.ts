@@ -421,7 +421,9 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private hasContent(col: number, row: number): boolean {
-    const { cells, mergeCellMap } = this.workbook.activeSheet;
+    const cells = this.workbook.activeSheet.cells;
+    const activeSheet = this.getters.getActiveSheet();
+    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
     const xc = toXC(col, row);
     const cell = cells[xc];
     return (cell && cell.content) || ((xc in mergeCellMap) as any);
@@ -434,7 +436,10 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, mergeCellMap, cells, merges } = this.workbook.activeSheet;
+    const { cols, rows, cells } = this.workbook.activeSheet;
+    const activeSheet = this.getters.getActiveSheet();
+    const merges = this.getters.getMerges(activeSheet);
+    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];

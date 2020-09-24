@@ -7,7 +7,15 @@ import {
 } from "../helpers/grid_manipulation";
 import { isEqual, toCartesian, toXC, union, overlap, clip } from "../helpers/index";
 import { _lt } from "../translation";
-import { CancelledReason, Command, CommandResult, Merge, WorkbookData, Zone } from "../types/index";
+import {
+  CancelledReason,
+  Command,
+  CommandResult,
+  Merge,
+  UID,
+  WorkbookData,
+  Zone,
+} from "../types/index";
 
 interface PendingMerges {
   sheet: string;
@@ -21,10 +29,15 @@ export class MergePlugin extends BasePlugin {
     "getMainCell",
     "expandZone",
     "doesIntersectMerge",
+    "getMergeCellMap",
+    "getMerges",
   ];
 
   private nextId: number = 1;
   private pending: PendingMerges | null = null;
+
+  private merges: Record<UID, { [key: number]: Merge }> = {};
+  private mergeCellMap: Record<UID, { [key: string]: number }> = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -75,6 +88,24 @@ export class MergePlugin extends BasePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "CREATE_SHEET":
+        this.history.updateLocalState(["merges", cmd.id], {});
+        this.history.updateLocalState(["mergeCellMap", cmd.id], {});
+        break;
+      case "DELETE_SHEET":
+        this.history.updateLocalState(["merges", cmd.sheet], {});
+        this.history.updateLocalState(["mergeCellMap", cmd.sheet], {});
+        break;
+      case "DUPLICATE_SHEET":
+        this.history.updateLocalState(
+          ["merges", cmd.id],
+          Object.assign({}, this.merges[cmd.sheet])
+        );
+        this.history.updateLocalState(
+          ["mergeCellMap", cmd.id],
+          Object.assign({}, this.mergeCellMap[cmd.sheet])
+        );
+        break;
       case "ADD_MERGE":
         if (cmd.interactive) {
           this.interactiveMerge(cmd.sheet, cmd.zone);
@@ -105,6 +136,14 @@ export class MergePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
+  getMergeCellMap(sheetId: UID): { [key: string]: number } {
+    return this.mergeCellMap[sheetId];
+  }
+
+  getMerges(sheetId: UID): { [key: number]: Merge } {
+    return this.merges[sheetId];
+  }
+
   /**
    * Return true if the current selection requires losing state if it is merged.
    * This happens when there is some textual content in other cells than the
@@ -134,7 +173,8 @@ export class MergePlugin extends BasePlugin {
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
         const cellXc = toXC(col, row);
-        if (this.workbook.activeSheet.mergeCellMap[cellXc]) {
+        const activeSheet = this.getters.getActiveSheet();
+        if (this.mergeCellMap[activeSheet][cellXc]) {
           return true;
         }
       }
@@ -147,11 +187,11 @@ export class MergePlugin extends BasePlugin {
    */
   expandZone(zone: Zone): Zone {
     let { left, right, top, bottom } = zone;
-    const sheet = this.workbook.activeSheet;
+    const activeSheet = this.getters.getActiveSheet();
     let result: Zone = { left, right, top, bottom };
 
-    for (let id in sheet.merges) {
-      const merge = sheet.merges[id];
+    for (let id in this.merges[activeSheet]) {
+      const merge = this.merges[activeSheet][id];
       if (overlap(merge, result)) {
         result = union(merge, result);
       }
@@ -160,13 +200,13 @@ export class MergePlugin extends BasePlugin {
   }
 
   isInMerge(xc: string): boolean {
-    return xc in this.workbook.activeSheet.mergeCellMap;
+    const activeSheet = this.getters.getActiveSheet();
+    return xc in this.mergeCellMap[activeSheet];
   }
 
   isMainCell(xc: string, sheetId: string): boolean {
-    const merges = this.workbook.sheets[sheetId].merges;
-    for (let key in merges) {
-      if (merges[key].topLeft === xc) {
+    for (let key in this.merges[sheetId]) {
+      if (this.merges[sheetId][key].topLeft === xc) {
         return true;
       }
     }
@@ -177,9 +217,9 @@ export class MergePlugin extends BasePlugin {
     if (!this.isInMerge(xc)) {
       return xc;
     }
-    const sheet = this.workbook.activeSheet;
-    const merge = sheet.mergeCellMap[xc];
-    return sheet.merges[merge].topLeft;
+    const activeSheet = this.getters.getActiveSheet();
+    const merge = this.mergeCellMap[activeSheet][xc];
+    return this.merges[activeSheet][merge].topLeft;
   }
 
   // ---------------------------------------------------------------------------
@@ -210,8 +250,7 @@ export class MergePlugin extends BasePlugin {
    *   merges)
    * - it does nothing if the merge is trivial: A1:A1
    */
-  private addMerge(sheetId: string, zone: Zone) {
-    const sheet = this.workbook.sheets[sheetId];
+  private addMerge(sheetId: UID, zone: Zone) {
     const { left, right, top, bottom } = zone;
     let tl = toXC(left, top);
     let br = toXC(right, bottom);
@@ -220,7 +259,7 @@ export class MergePlugin extends BasePlugin {
     }
 
     let id = this.nextId++;
-    this.history.updateState(["sheets", sheetId, "merges", id], {
+    this.history.updateLocalState(["merges", sheetId, id], {
       id,
       left,
       top,
@@ -239,19 +278,19 @@ export class MergePlugin extends BasePlugin {
             row,
           });
         }
-        if (sheet.mergeCellMap[xc]) {
-          previousMerges.add(sheet.mergeCellMap[xc]);
+        if (this.mergeCellMap[sheetId][xc]) {
+          previousMerges.add(this.mergeCellMap[sheetId][xc]);
         }
-        this.history.updateState(["sheets", sheetId, "mergeCellMap", xc], id);
+        this.history.updateLocalState(["mergeCellMap", sheetId, xc], id);
       }
     }
     for (let m of previousMerges) {
-      const { top, bottom, left, right } = sheet.merges[m];
+      const { top, bottom, left, right } = this.merges[sheetId][m];
       for (let r = top; r <= bottom; r++) {
         for (let c = left; c <= right; c++) {
           const xc = toXC(c, r);
-          if (sheet.mergeCellMap[xc] !== id) {
-            this.history.updateState(["sheets", sheetId, "mergeCellMap", xc], undefined);
+          if (this.mergeCellMap[sheetId][xc] !== id) {
+            this.history.updateLocalState(["mergeCellMap", sheetId, xc], undefined);
             this.dispatch("CLEAR_CELL", {
               sheet: sheetId,
               col: c,
@@ -260,23 +299,23 @@ export class MergePlugin extends BasePlugin {
           }
         }
       }
-      this.history.updateState(["sheets", sheetId, "merges", m], undefined);
+      this.history.updateLocalState(["merges", sheetId, m], undefined);
     }
   }
 
   private removeMerge(sheetId: string, zone: Zone) {
     const { left, top, bottom, right } = zone;
     let tl = toXC(left, top);
-    const mergeId = this.workbook.sheets[sheetId].mergeCellMap[tl];
-    const mergeZone = this.workbook.sheets[sheetId].merges[mergeId];
+    const mergeId = this.mergeCellMap[sheetId][tl];
+    const mergeZone = this.merges[sheetId][mergeId];
     if (!isEqual(zone, mergeZone)) {
       throw new Error(_lt("Invalid merge zone"));
     }
-    this.history.updateState(["sheets", sheetId, "merges", mergeId], undefined);
+    this.history.updateLocalState(["merges", sheetId, mergeId], undefined);
     for (let r = top; r <= bottom; r++) {
       for (let c = left; c <= right; c++) {
         const xc = toXC(c, r);
-        this.history.updateState(["sheets", sheetId, "mergeCellMap", xc], undefined);
+        this.history.updateLocalState(["mergeCellMap", sheetId, xc], undefined);
       }
     }
   }
@@ -296,9 +335,9 @@ export class MergePlugin extends BasePlugin {
     }
   }
 
-  private duplicateMerge(xc: string, col: number, row: number, sheetId: string, cut?: boolean) {
-    const mergeId = this.workbook.sheets[sheetId].mergeCellMap[xc];
-    const merge = this.workbook.sheets[sheetId].merges[mergeId];
+  private duplicateMerge(xc: string, col: number, row: number, sheetId: UID, cut?: boolean) {
+    const mergeId = this.mergeCellMap[sheetId][xc];
+    const merge = this.merges[sheetId][mergeId];
     const colNumber = this.getters.getNumberCols(sheetId) - 1;
     const rowNumber = this.getters.getNumberRows(sheetId) - 1;
     const newMerge = {
@@ -323,23 +362,21 @@ export class MergePlugin extends BasePlugin {
   // Add/Remove columns
   // ---------------------------------------------------------------------------
 
-  private removeAllMerges(sheetId: string) {
-    const sheet = this.workbook.sheets[sheetId];
-    for (let id in sheet.merges) {
-      this.history.updateState(["sheets", sheetId, "merges", id], undefined);
+  private removeAllMerges(sheetId: UID) {
+    for (let id in this.merges[sheetId]) {
+      this.history.updateLocalState(["merges", sheetId, id], undefined);
     }
-    for (let id in sheet.mergeCellMap) {
-      this.history.updateState(["sheets", sheetId, "mergeCellMap", id], undefined);
+    for (let id in this.mergeCellMap[sheetId]) {
+      this.history.updateLocalState(["mergeCellMap", sheetId, id], undefined);
     }
   }
 
   private exportAndRemoveMerges(
-    sheetId: string,
+    sheetId: UID,
     updater: (s: string) => string | null,
     isCol: boolean
   ) {
-    const sheet = this.workbook.sheets[sheetId];
-    const merges = exportMerges(sheet.merges);
+    const merges = exportMerges(this.merges[sheetId]);
     const updatedMerges: string[] = [];
     for (let m of merges) {
       const update = updater(m);
@@ -357,7 +394,7 @@ export class MergePlugin extends BasePlugin {
 
   private updateMergesStyles(sheetId: string, isColumn: boolean) {
     const sheet = this.workbook.sheets[sheetId];
-    for (let merge of Object.values(sheet.merges)) {
+    for (let merge of Object.values(this.merges[sheetId])) {
       const xc = merge.topLeft;
       const topLeft = sheet.cells[xc];
       if (!topLeft) {
@@ -409,17 +446,17 @@ export class MergePlugin extends BasePlugin {
   private autoFillMerge(originCol: number, originRow: number, col: number, row: number) {
     const xcOrigin = toXC(originCol, originRow);
     const xcTarget = toXC(col, row);
-    const sheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheet();
     if (this.isInMerge(xcTarget) && !this.isInMerge(xcOrigin)) {
-      const mergeId = this.workbook.sheets[sheet].mergeCellMap[xcTarget];
-      const zone = this.workbook.sheets[sheet].merges[mergeId];
+      const mergeId = this.mergeCellMap[activeSheet][xcTarget];
+      const zone = this.merges[activeSheet][mergeId];
       this.dispatch("REMOVE_MERGE", {
-        sheet,
+        sheet: activeSheet,
         zone,
       });
     }
-    if (this.isMainCell(xcOrigin, sheet)) {
-      this.duplicateMerge(xcOrigin, col, row, sheet);
+    if (this.isMainCell(xcOrigin, activeSheet)) {
+      this.duplicateMerge(xcOrigin, col, row, activeSheet);
     }
   }
 
@@ -431,6 +468,8 @@ export class MergePlugin extends BasePlugin {
     const sheets = data.sheets || [];
     for (let sheetData of sheets) {
       const sheet = this.workbook.sheets[sheetData.id];
+      this.history.updateLocalState(["merges", sheetData.id], {});
+      this.history.updateLocalState(["mergeCellMap", sheetData.id], {});
       if (sheet && sheetData.merges) {
         this.importMerges(sheet.id, sheetData.merges);
       }
@@ -443,7 +482,7 @@ export class MergePlugin extends BasePlugin {
       const [tl, br] = m.split(":");
       const [left, top] = toCartesian(tl);
       const [right, bottom] = toCartesian(br);
-      this.history.updateState(["sheets", sheetId, "merges", id], {
+      this.history.updateLocalState(["merges", sheetId, id], {
         id,
         left,
         top,
@@ -454,15 +493,14 @@ export class MergePlugin extends BasePlugin {
       for (let row = top; row <= bottom; row++) {
         for (let col = left; col <= right; col++) {
           const xc = toXC(col, row);
-          this.history.updateState(["sheets", sheetId, "mergeCellMap", xc], id);
+          this.history.updateLocalState(["mergeCellMap", sheetId, xc], id);
         }
       }
     }
   }
   export(data: WorkbookData) {
     for (let sheetData of data.sheets) {
-      const sheet = this.workbook.sheets[sheetData.id];
-      sheetData.merges.push(...exportMerges(sheet.merges));
+      sheetData.merges.push(...exportMerges(this.merges[sheetData.id]));
     }
   }
 }

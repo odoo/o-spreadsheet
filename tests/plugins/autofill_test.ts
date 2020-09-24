@@ -337,7 +337,7 @@ describe("Autofill", () => {
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A2") });
     setValue("A1", "1");
     autofill("A1:A3", "A9");
-    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([
+    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([
       "A1",
       "A2",
       "A4",
@@ -345,7 +345,7 @@ describe("Autofill", () => {
       "A7",
       "A8",
     ]);
-    expect(model["workbook"].activeSheet.merges).toEqual({
+    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
       "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: "A1" },
       "2": { bottom: 4, id: 2, left: 0, right: 0, top: 3, topLeft: "A4" },
       "3": { bottom: 7, id: 3, left: 0, right: 0, top: 6, topLeft: "A7" },
@@ -357,21 +357,23 @@ describe("Autofill", () => {
 
   test("autofill with merge greater than the grid size", () => {
     model = new Model({
-      sheets: [{
-        colNumber: 1,
-        rowNumber: 5,
-      }],
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 5,
+        },
+      ],
     });
     const sheet1 = model.getters.getActiveSheet();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A2") });
     autofill("A1:A2", "A5");
-    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([
+    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([
       "A1",
       "A2",
       "A3",
       "A4",
     ]);
-    expect(model["workbook"].activeSheet.merges).toEqual({
+    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
       "1": { bottom: 1, id: 1, left: 0, right: 0, top: 0, topLeft: "A1" },
       "2": { bottom: 3, id: 2, left: 0, right: 0, top: 2, topLeft: "A3" },
     });
@@ -383,8 +385,8 @@ describe("Autofill", () => {
     setValue("A1", "1");
     setValue("A2", "2");
     autofill("A1:A2", "A6");
-    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
-    expect(model["workbook"].activeSheet.merges).toEqual({});
+    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([]);
+    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({});
     expect(getCell(model, "A1")!.content).toBe("1");
     expect(getCell(model, "A2")!.content).toBe("2");
     expect(getCell(model, "A3")!.content).toBe("3");
@@ -398,8 +400,8 @@ describe("Autofill", () => {
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A2:B2") });
     setValue("B1", "1");
     autofill("B1", "B2");
-    expect(Object.keys(model["workbook"].activeSheet.mergeCellMap)).toEqual([]);
-    expect(model["workbook"].activeSheet.merges).toEqual({});
+    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([]);
+    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({});
     expect(getCell(model, "B1")!.content).toBe("1");
     expect(getCell(model, "B2")!.content).toBe("1");
   });
