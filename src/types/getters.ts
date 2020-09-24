@@ -28,6 +28,7 @@ export interface Getters {
   getSheetName: CorePlugin["getSheetName"];
   getSheetIdByName: CorePlugin["getSheetIdByName"];
   getSheets: CorePlugin["getSheets"];
+  getVisibleSheets: CorePlugin["getVisibleSheets"];
   getCol: CorePlugin["getCol"];
   getCols: CorePlugin["getCols"];
   getRow: CorePlugin["getRow"];

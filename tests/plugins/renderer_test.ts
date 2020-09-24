@@ -109,7 +109,7 @@ describe("renderer", () => {
   test("formulas in a merge, evaluating to a string are properly aligned", () => {
     const model = new Model();
 
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A2:B2") });
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
@@ -159,7 +159,7 @@ describe("renderer", () => {
 
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
     const model = new Model();
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A2:B2") });
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });

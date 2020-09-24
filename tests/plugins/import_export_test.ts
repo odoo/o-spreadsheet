@@ -79,8 +79,8 @@ describe("Import", () => {
         },
       ],
     });
-    const sheet1 = model["workbook"].visibleSheets[0];
-    const sheet2 = model["workbook"].visibleSheets[1];
+    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet2 = model.getters.getVisibleSheets()[1];
     model.dispatch("SELECT_ROW", { index: 1 });
     model.dispatch("ADD_MERGE", {
       sheet: sheet1,

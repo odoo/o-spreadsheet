@@ -51,7 +51,7 @@ describe("Grid component", () => {
   });
 
   test("can render a sheet with a merge", async () => {
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
 
@@ -447,7 +447,7 @@ describe("multi sheet with different sizes", function () {
   });
 
   test("multiple sheets of different size render correctly", async () => {
-    expect(model["workbook"].activeSheet.name).toBe("small");
+    expect(model.getters.getSheetName(model.getters.getActiveSheet())).toBe("small");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("ACTIVATE_SHEET", { from: "small", to: "big" });
     await nextTick();
@@ -476,7 +476,7 @@ describe("multi sheet with different sizes", function () {
   });
 
   test("deleting the row that has the active cell doesn't crash", async () => {
-    expect(model["workbook"].activeSheet.name).toBe("small");
+    expect(model.getters.getSheetName(model.getters.getActiveSheet())).toBe("small");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("REMOVE_COLUMNS", { columns: [1], sheet: model.getters.getActiveSheet() });
     await nextTick();

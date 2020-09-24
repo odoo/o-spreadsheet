@@ -159,7 +159,7 @@ describe("ranges and highlights", () => {
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("ALTER_SELECTION", { delta: [1, 1] });
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:C3") });
     model.dispatch("SELECT_CELL", { col: 2, row: 0 });
     await typeInComposer("=");

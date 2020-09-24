@@ -55,6 +55,7 @@ export class CorePlugin extends BasePlugin {
     "getSheetName",
     "getSheetIdByName",
     "getSheets",
+    "getVisibleSheets",
     "getEvaluationSheets",
     "getCol",
     "getCols",
@@ -352,6 +353,10 @@ export class CorePlugin extends BasePlugin {
   getSheets(): Sheet[] {
     const { visibleSheets, sheets } = this.workbook;
     return visibleSheets.map((id) => sheets[id]);
+  }
+
+  getVisibleSheets(): string[] {
+    return this.workbook.visibleSheets;
   }
 
   getEvaluationSheets(): Record<UID, Sheet> {
