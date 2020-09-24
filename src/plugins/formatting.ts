@@ -587,15 +587,15 @@ export class FormattingPlugin extends BasePlugin {
   private getFormat(xc: string): FormatInfo {
     const format: FormatInfo = {};
     xc = this.getters.getMainCell(xc);
-    if (xc in this.workbook.activeSheet.cells) {
-      if (this.workbook.activeSheet.cells[xc].border) {
-        format["border"] = this.workbook.activeSheet.cells[xc].border;
+    if (xc in this.getters.getCells()) {
+      if (this.getters.getCells()[xc].border) {
+        format["border"] = this.getters.getCells()[xc].border;
       }
-      if (this.workbook.activeSheet.cells[xc].style) {
-        format["style"] = this.workbook.activeSheet.cells[xc].style;
+      if (this.getters.getCells()[xc].style) {
+        format["style"] = this.getters.getCells()[xc].style;
       }
-      if (this.workbook.activeSheet.cells[xc].format) {
-        format["format"] = this.workbook.activeSheet.cells[xc].format;
+      if (this.getters.getCells()[xc].format) {
+        format["format"] = this.getters.getCells()[xc].format;
       }
     }
     return format;

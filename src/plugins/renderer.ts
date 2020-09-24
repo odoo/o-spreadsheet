@@ -421,7 +421,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private hasContent(col: number, row: number): boolean {
-    const cells = this.workbook.activeSheet.cells;
+    const cells = this.getters.getCells();
     const activeSheet = this.getters.getActiveSheet();
     const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
     const xc = toXC(col, row);

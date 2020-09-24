@@ -192,7 +192,7 @@ export class SelectionPlugin extends BasePlugin {
     const merges = this.getters.getMerges(activeSheet);
     let mergeId = mergeCellMap[this.activeXc];
     if (mergeId) {
-      return this.workbook.activeSheet.cells[merges[mergeId].topLeft];
+      return this.getters.getCells()[merges[mergeId].topLeft];
     } else {
       return this.getters.getCell(this.activeCol, this.activeRow);
     }
