@@ -1,4 +1,4 @@
-import { SheetData, Workbook, WorkbookData } from "./types/index";
+import { SheetData, WorkbookData } from "./types/index";
 import { uuidv4 } from "./helpers/index";
 
 /**
@@ -137,12 +137,4 @@ export function createEmptyWorkbookData(): WorkbookData {
   };
   data.activeSheet = data.sheets[0].id;
   return data;
-}
-
-export function createEmptyWorkbook(): Workbook {
-  return {
-    visibleSheets: [],
-    sheets: {},
-    activeSheet: null as any,
-  };
 }

@@ -108,13 +108,6 @@ export type BorderCommand =
   | "bottom"
   | "clear";
 
-export interface Workbook {
-  // sheets
-  visibleSheets: UID[]; // ids of visible sheets
-  sheets: Record<UID, Sheet>;
-  activeSheet: Sheet;
-}
-
 export const enum DIRECTION {
   UP,
   DOWN,

@@ -7,7 +7,6 @@ import {
   Getters,
   GridRenderingContext,
   LAYERS,
-  Workbook,
   WorkbookData,
   CommandResult,
 } from "./types/index";
@@ -28,7 +27,6 @@ export class BasePlugin implements CommandHandler {
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
-  protected workbook: Workbook;
   protected getters: Getters;
   protected history: WorkbookHistory;
   protected dispatch: CommandDispatcher["dispatch"];
@@ -36,13 +34,11 @@ export class BasePlugin implements CommandHandler {
   protected ui: UIActions;
 
   constructor(
-    workbook: Workbook,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    this.workbook = workbook;
     this.getters = getters;
     this.history = Object.assign(Object.create(history), {
       updateLocalState: history.updateStateFromRoot.bind(history, this),

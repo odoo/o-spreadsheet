@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { BasePlugin } from "./base_plugin";
-import { createEmptyWorkbook, createEmptyWorkbookData, load } from "./data";
+import {  createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { pluginRegistry } from "./plugins/index";
 import {
@@ -8,7 +8,6 @@ import {
   CommandHandler,
   Getters,
   Command,
-  Workbook,
   WorkbookData,
   GridRenderingContext,
   LAYERS,
@@ -88,11 +87,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private config: ModelConfig;
 
   /**
-   * The workbook is the core state, shared between all plugins.
-   */
-  private workbook: Workbook;
-
-  /**
    * Getters are the main way the rest of the UI read data from the model. Also,
    * it is shared between all plugins, so they can also communicate with each
    * other.
@@ -104,8 +98,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    this.workbook = createEmptyWorkbook();
-    const history = new WHistory(this.workbook);
+    const history = new WHistory();
 
     this.getters = {
       canUndo: history.canUndo.bind(history),
@@ -145,7 +138,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.workbook, this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, history, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
