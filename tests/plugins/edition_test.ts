@@ -10,14 +10,14 @@ describe("edition", () => {
     // adding
     model.dispatch("START_EDITION", { text: "a" });
     model.dispatch("STOP_EDITION");
-    expect(Object.keys(model["workbook"].activeSheet.cells)).toEqual(["A1"]);
-    expect(model["workbook"].activeSheet.cells["A1"].content).toBe("a");
+    expect(Object.keys(model.getters.getCells())).toEqual(["A1"]);
+    expect(model.getters.getCells()["A1"].content).toBe("a");
 
     // removing
     model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "" });
     model.dispatch("STOP_EDITION");
-    expect(model["workbook"].activeSheet.cells).toEqual({});
+    expect(model.getters.getCells()).toEqual({});
   });
 
   test("deleting a cell with style does not remove it", () => {
@@ -35,19 +35,19 @@ describe("edition", () => {
     });
 
     // removing
-    expect(model["workbook"].activeSheet.cells["A2"].content).toBe("a2");
+    expect(model.getters.getCells()["A2"].content).toBe("a2");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
       sheet: model.getters.getActiveSheet(),
       target: model.getters.getSelectedZones(),
     });
-    expect("A2" in model["workbook"].activeSheet.cells).toBeTruthy();
-    expect(model["workbook"].activeSheet.cells["A2"].content).toBe("");
+    expect("A2" in model.getters.getCells()).toBeTruthy();
+    expect(model.getters.getCells()["A2"].content).toBe("");
   });
 
   test("editing a cell, then activating a new sheet: edition should be stopped", () => {
     const model = new Model();
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
     model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
@@ -59,7 +59,7 @@ describe("edition", () => {
 
   test("editing a cell, start a composer selection, then activating a new sheet: mode should still be selecting", () => {
     const model = new Model();
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "=" });
     model.dispatch("START_COMPOSER_SELECTION");
     expect(model.getters.getEditionMode()).toBe("selecting");

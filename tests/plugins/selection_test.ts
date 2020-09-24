@@ -357,7 +357,7 @@ describe("multiple selections", () => {
 describe("multiple sheets", () => {
   test("activating same sheet does not change selection", () => {
     const model = new Model();
-    const sheet1 = model["workbook"].visibleSheets[0];
+    const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
@@ -375,8 +375,8 @@ describe("multiple sheets", () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
 
-    const sheet1 = model["workbook"].visibleSheets[0];
-    const sheet2 = model["workbook"].visibleSheets[1];
+    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet2 = model.getters.getVisibleSheets()[1];
     model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
     model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });

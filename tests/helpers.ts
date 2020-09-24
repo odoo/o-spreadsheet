@@ -138,8 +138,8 @@ type GridResult = { [xc: string]: any };
 
 export function getGrid(model: Model): GridResult {
   const result = {};
-  for (let xc in model["workbook"].activeSheet.cells) {
-    const cell = model["workbook"].activeSheet.cells[xc];
+  for (let xc in model.getters.getCells()) {
+    const cell = model.getters.getCells()[xc];
     result[xc] = cell.value;
   }
   return result;
@@ -292,8 +292,7 @@ export function getCell(model: Model, xc: string, sheet?: string): Cell | null {
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {
-  const id = model["workbook"].visibleSheets[index];
-  return model["workbook"].sheets[id];
+  return model.getters.getSheets()[index];
 }
 
 export function zone(str: string): Zone {

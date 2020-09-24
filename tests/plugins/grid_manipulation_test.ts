@@ -17,7 +17,7 @@ function clearColumns(indexes: number[]) {
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model["workbook"].activeSheet.id,
+    sheet: model.getters.getActiveSheet(),
   });
 }
 
@@ -27,7 +27,7 @@ function clearRows(indexes: number[]) {
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model["workbook"].activeSheet.id,
+    sheet: model.getters.getActiveSheet(),
   });
 }
 
@@ -110,8 +110,8 @@ describe("Clear columns", () => {
     });
 
     clearColumns([1, 2]);
-    expect(model["workbook"].activeSheet.cells.B2).toBeUndefined();
-    expect(model["workbook"].activeSheet.cells).toMatchObject({
+    expect(model.getters.getCells().B2).toBeUndefined();
+    expect(model.getters.getCells()).toMatchObject({
       A1: { content: "A1" },
       A2: { content: "A2" },
       A3: { content: "A3" },
@@ -146,8 +146,8 @@ describe("Clear rows", () => {
     });
 
     clearRows([1, 2]);
-    expect(model["workbook"].activeSheet.cells.B2).toBeUndefined();
-    expect(model["workbook"].activeSheet.cells).toMatchObject({
+    expect(model.getters.getCells().B2).toBeUndefined();
+    expect(model.getters.getCells()).toMatchObject({
       A1: { content: "A1" },
       A2: { content: "", style: 1, border: 1 },
       A3: { content: "", border: 1 },
@@ -183,11 +183,11 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([0, 2]);
-      expect(model["workbook"].activeSheet.cols).toEqual([
+      expect(model.getters.getCols()).toEqual([
         { start: 0, end: 10, size: 10, name: "A" },
         { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" },
       ]);
-      expect(model["workbook"].activeSheet.colNumber).toBe(2);
+      expect(model.getters.getNumberCols(model.getters.getActiveSheet())).toBe(2);
     });
     test("On delete cols in inactive sheet", () => {
       model = new Model({
@@ -220,7 +220,7 @@ describe("Columns", () => {
     test("On addition before", () => {
       addColumns(1, "before", 2);
       const size = DEFAULT_CELL_WIDTH;
-      expect(model["workbook"].activeSheet.cols).toEqual([
+      expect(model.getters.getCols()).toEqual([
         { start: 0, end: size, size, name: "A" },
         { start: size, end: size + 10, size: 10, name: "B" },
         { start: size + 10, end: size + 20, size: 10, name: "C" },
@@ -228,12 +228,12 @@ describe("Columns", () => {
         { start: size + 30, end: size + 50, size: 20, name: "E" },
         { start: size + 50, end: 2 * size + 50, size, name: "F" },
       ]);
-      expect(model["workbook"].activeSheet.colNumber).toBe(6);
+      expect(model.getters.getNumberCols(model.getters.getActiveSheet())).toBe(6);
     });
     test("On addition after", () => {
       addColumns(2, "after", 2);
       const size = DEFAULT_CELL_WIDTH;
-      expect(model["workbook"].activeSheet.cols).toEqual([
+      expect(model.getters.getCols()).toEqual([
         { start: 0, end: size, size, name: "A" },
         { start: size, end: size + 10, size: 10, name: "B" },
         { start: size + 10, end: size + 30, size: 20, name: "C" },
@@ -241,7 +241,7 @@ describe("Columns", () => {
         { start: size + 50, end: size + 70, size: 20, name: "E" },
         { start: size + 70, end: 2 * size + 70, size, name: "F" },
       ]);
-      expect(model["workbook"].activeSheet.colNumber).toBe(6);
+      expect(model.getters.getNumberCols(model.getters.getActiveSheet())).toBe(6);
     });
   });
 
@@ -335,10 +335,10 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1]);
-      expect(model["workbook"].activeSheet.cells.B1).toBeUndefined();
-      expect(model["workbook"].activeSheet.cells.B2).toBeUndefined();
-      expect(model["workbook"].activeSheet.cells.B3).toBeUndefined();
-      expect(model["workbook"].activeSheet.cells).toMatchObject({
+      expect(model.getters.getCells().B1).toBeUndefined();
+      expect(model.getters.getCells().B2).toBeUndefined();
+      expect(model.getters.getCells().B3).toBeUndefined();
+      expect(model.getters.getCells()).toMatchObject({
         A1: { style: 1 },
         A2: { border: 1 },
         A3: { style: 1, border: 1 },
@@ -351,7 +351,7 @@ describe("Columns", () => {
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(2, "after", 2);
-      expect(model["workbook"].activeSheet.cells).toMatchObject({
+      expect(model.getters.getCells()).toMatchObject({
         A1: { style: 1 },
         A2: { border: 1 },
         A3: { style: 1, border: 1 },
@@ -703,11 +703,11 @@ describe("Rows", () => {
     test("On deletion", () => {
       removeRows([0, 2]);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model["workbook"].activeSheet.rows).toEqual([
+      expect(model.getters.getRows()).toEqual([
         { start: 0, end: 10, size: 10, name: "1", cells: {} },
         { start: 10, end: size + 10, size, name: "2", cells: {} },
       ]);
-      expect(model["workbook"].activeSheet.rowNumber).toBe(2);
+      expect(model.getters.getNumberRows(model.getters.getActiveSheet())).toBe(2);
     });
     test("On delete row in inactive sheet", () => {
       model = new Model({
@@ -811,7 +811,7 @@ describe("Rows", () => {
     test("On addition before", () => {
       addRows(1, "before", 2);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model["workbook"].activeSheet.rows).toEqual([
+      expect(model.getters.getRows()).toEqual([
         { start: 0, end: size, size, name: "1", cells: {} },
         { start: size, end: size + 10, size: 10, name: "2", cells: {} },
         { start: size + 10, end: size + 20, size: 10, name: "3", cells: {} },
@@ -821,12 +821,12 @@ describe("Rows", () => {
       ]);
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
-      expect(model["workbook"].activeSheet.rowNumber).toBe(6);
+      expect(model.getters.getNumberRows(model.getters.getActiveSheet())).toBe(6);
     });
     test("On addition after", () => {
       addRows(2, "after", 2);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model["workbook"].activeSheet.rows).toEqual([
+      expect(model.getters.getRows()).toEqual([
         { start: 0, end: size, size, name: "1", cells: {} },
         { start: size, end: size + 10, size: 10, name: "2", cells: {} },
         { start: size + 10, end: size + 30, size: 20, name: "3", cells: {} },
@@ -836,7 +836,7 @@ describe("Rows", () => {
       ]);
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 144]);
-      expect(model["workbook"].activeSheet.rowNumber).toBe(6);
+      expect(model.getters.getNumberRows(model.getters.getActiveSheet())).toBe(6);
     });
 
     test("activate Sheet: same size", () => {
@@ -940,10 +940,10 @@ describe("Rows", () => {
     });
     test("On deletion", () => {
       removeRows([1]);
-      expect(model["workbook"].activeSheet.cells.A2).toBeUndefined();
-      expect(model["workbook"].activeSheet.cells.B2).toBeUndefined();
-      expect(model["workbook"].activeSheet.cells.C2).toBeUndefined();
-      expect(model["workbook"].activeSheet.cells).toMatchObject({
+      expect(model.getters.getCells().A2).toBeUndefined();
+      expect(model.getters.getCells().B2).toBeUndefined();
+      expect(model.getters.getCells().C2).toBeUndefined();
+      expect(model.getters.getCells()).toMatchObject({
         A1: { style: 1 },
         A3: { style: 1 },
         B1: { border: 1 },
@@ -957,7 +957,7 @@ describe("Rows", () => {
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(2, "after", 2);
-      expect(model["workbook"].activeSheet.cells).toMatchObject({
+      expect(model.getters.getCells()).toMatchObject({
         A1: { style: 1 },
         B1: { border: 1 },
         C1: { style: 1, border: 1 },

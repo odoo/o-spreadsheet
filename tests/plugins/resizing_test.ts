@@ -78,8 +78,8 @@ describe("Model resizer", () => {
   test("changing sheets update the sizes", async () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
-    const sheet1 = model["workbook"].visibleSheets[0];
-    const sheet2 = model["workbook"].visibleSheets[1];
+    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheet2 = model.getters.getVisibleSheets()[1];
 
     expect(model.getters.getActiveSheet()).toBe(sheet2);
 
