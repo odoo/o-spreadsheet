@@ -2,6 +2,8 @@
 // WorkBook
 // -----------------------------------------------------------------------------
 
+export type UID = string;
+
 export interface Zone {
   left: number;
   right: number;
@@ -22,7 +24,7 @@ export interface Style {
 }
 
 export interface Sheet {
-  id: string;
+  id: UID;
   name: string;
   cells: { [key: string]: Cell };
   colNumber: number;
@@ -111,8 +113,8 @@ export type BorderCommand =
 
 export interface Workbook {
   // sheets
-  visibleSheets: string[]; // ids of visible sheets
-  sheets: { [id: string]: Sheet };
+  visibleSheets: UID[]; // ids of visible sheets
+  sheets: Record<UID, Sheet>;
   activeSheet: Sheet;
 }
 
