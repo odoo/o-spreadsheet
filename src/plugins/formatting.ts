@@ -274,10 +274,10 @@ export class FormattingPlugin extends BasePlugin {
     if (row > 0) {
       this.clearSide(sheet, col, row - 1, "bottom", borderMap);
     }
-    if (col < this.workbook.activeSheet.cols.length - 1) {
+    if (col < this.getters.getCols().length - 1) {
       this.clearSide(sheet, col + 1, row, "left", borderMap);
     }
-    if (row < this.workbook.activeSheet.rows.length - 1) {
+    if (row < this.getters.getRows().length - 1) {
       this.clearSide(sheet, col, row + 1, "top", borderMap);
     }
   }
@@ -529,9 +529,7 @@ export class FormattingPlugin extends BasePlugin {
    * @param upper true if the style of the upper row/col should be used, false, if the lower should be used
    */
   private onAddElements(start: number, end: number, isColumn: boolean, upper: boolean) {
-    const length = isColumn
-      ? this.workbook.activeSheet.rows.length
-      : this.workbook.activeSheet.cols.length;
+    const length = isColumn ? this.getters.getRows().length : this.getters.getCols().length;
     const index = start + 1;
     for (let x = 0; x < length; x++) {
       const xc = isColumn ? toXC(index, x) : toXC(x, index);

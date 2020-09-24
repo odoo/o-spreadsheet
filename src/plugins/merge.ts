@@ -97,10 +97,7 @@ export class MergePlugin extends BasePlugin {
         this.history.updateLocalState(["mergeCellMap", cmd.sheet], {});
         break;
       case "DUPLICATE_SHEET":
-        this.history.updateLocalState(
-          ["merges", cmd.to],
-          Object.assign({}, this.merges[cmd.from])
-        );
+        this.history.updateLocalState(["merges", cmd.to], Object.assign({}, this.merges[cmd.from]));
         this.history.updateLocalState(
           ["mergeCellMap", cmd.to],
           Object.assign({}, this.mergeCellMap[cmd.from])
@@ -152,7 +149,7 @@ export class MergePlugin extends BasePlugin {
   isMergeDestructive(zone: Zone): boolean {
     const { left, right, top, bottom } = zone;
     for (let row = top; row <= bottom; row++) {
-      const actualRow = this.workbook.activeSheet.rows[row];
+      const actualRow = this.getters.getRows()[row];
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = actualRow.cells[col];

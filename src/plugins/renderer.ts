@@ -91,7 +91,7 @@ export class RendererPlugin extends BasePlugin {
     if (x < HEADER_WIDTH) {
       return -1;
     }
-    const cols = this.workbook.activeSheet.cols;
+    const cols = this.getters.getCols();
     const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
@@ -100,7 +100,7 @@ export class RendererPlugin extends BasePlugin {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
-    const rows = this.workbook.activeSheet.rows;
+    const rows = this.getters.getRows();
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
   }
