@@ -1,6 +1,5 @@
 import {
   Cell,
-  Workbook,
   Sheet,
   Command,
   CommandHandler,
@@ -30,7 +29,6 @@ type Step = HistoryChange[];
 export const MAX_HISTORY_STEPS = 99;
 
 export interface WorkbookHistory {
-  updateState(path: (string | number)[], val: any): void;
   updateLocalState(path: (string | number)[], val: any): void;
   updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void;
   updateSheet(sheet: Sheet, path: (string | number)[], value: any): void;
@@ -39,14 +37,9 @@ export interface WorkbookHistory {
 type WorkbookHistoryNonLocal = Omit<WorkbookHistory, "updateLocalState">;
 
 export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
-  private workbook: Workbook;
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];
-
-  constructor(workbook: Workbook) {
-    this.workbook = workbook;
-  }
 
   // getters
   canUndo(): boolean {
@@ -170,10 +163,6 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
     } else {
       value[key] = val;
     }
-  }
-
-  updateState(path: (string | number)[], val: any): void {
-    this.updateStateFromRoot(this.workbook, path, val);
   }
 
   updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void {

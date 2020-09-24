@@ -4,7 +4,7 @@ import { functionRegistry } from "../functions/index";
 import { mapCellsInZone, toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
+import { Cell, Command, CommandDispatcher, EvalContext, Getters } from "../types";
 import { _lt } from "../translation";
 
 function* makeObjectIterator(obj: Object) {
@@ -66,13 +66,12 @@ export class EvaluationPlugin extends BasePlugin {
   private COMPUTED: Set<Cell> = new Set();
 
   constructor(
-    workbook: Workbook,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(workbook, getters, history, dispatch, config);
+    super(getters, history, dispatch, config);
     this.evalContext = config.evalContext;
   }
 
@@ -265,7 +264,7 @@ export class EvaluationPlugin extends BasePlugin {
     const evalContext = Object.assign(Object.create(functionMap), this.evalContext, {
       getters: this.getters,
     });
-    const sheets = this.workbook.sheets;
+    const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
     function readCell(xc: string, sheet: string): any {
       let cell;
