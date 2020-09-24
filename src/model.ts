@@ -25,8 +25,7 @@ import { DEBUG } from "./helpers/index";
  * plugins.
  *
  * At creation, the Model instantiates all necessary plugins.  They each have
- * a private state (for example, the Selection plugin has the current selection),
- * and share a common core state (named workbook).
+ * a private state (for example, the Selection plugin has the current selection).
  *
  * State changes are then performed through commands.  Commands are dispatched
  * to the model, which will then relay them to each plugins (and the history

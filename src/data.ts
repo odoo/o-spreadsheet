@@ -9,9 +9,9 @@ import { uuidv4 } from "./helpers/index";
 export const CURRENT_VERSION = 5;
 
 /**
- * This function tries to load anything that could look like a valid workbook
- * data object. It applies any migrations, if needed, and return a current,
- * complete workbook data object.
+ * This function tries to load anything that could look like a valid
+ * workbookdata object. It applies any migrations, if needed, and return a
+ * current, complete workbookdata object.
  *
  * It also ensures that there is at least one sheet.
  */
