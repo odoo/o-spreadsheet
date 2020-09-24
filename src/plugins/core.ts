@@ -57,6 +57,7 @@ export class CorePlugin extends BasePlugin {
     "getSheets",
     "getCol",
     "getRow",
+    "getCells",
     "getColCells",
     "getNumberCols",
     "getNumberRows",
@@ -348,6 +349,10 @@ export class CorePlugin extends BasePlugin {
   getSheets(): Sheet[] {
     const { visibleSheets, sheets } = this.workbook;
     return visibleSheets.map((id) => sheets[id]);
+  }
+
+  getCells(): { [key: string]: Cell } {
+    return this.workbook.activeSheet.cells;
   }
 
   getCol(sheetId: string, index: number): Col {
@@ -1034,7 +1039,7 @@ export class CorePlugin extends BasePlugin {
 
   private clearZones(sheet: string, zones: Zone[]) {
     // TODO: get cells from the actual sheet
-    const cells = this.workbook.activeSheet.cells;
+    const cells = this.getters.getCells();
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {

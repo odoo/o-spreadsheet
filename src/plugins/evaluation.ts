@@ -174,10 +174,7 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(
-      makeObjectIterator(this.workbook.activeSheet.cells),
-      this.getters.getActiveSheet()
-    );
+    this.evaluateCells(makeObjectIterator(this.getters.getCells()), this.getters.getActiveSheet());
   }
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
