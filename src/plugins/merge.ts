@@ -98,12 +98,12 @@ export class MergePlugin extends BasePlugin {
         break;
       case "DUPLICATE_SHEET":
         this.history.updateLocalState(
-          ["merges", cmd.id],
-          Object.assign({}, this.merges[cmd.sheet])
+          ["merges", cmd.to],
+          Object.assign({}, this.merges[cmd.from])
         );
         this.history.updateLocalState(
-          ["mergeCellMap", cmd.id],
-          Object.assign({}, this.mergeCellMap[cmd.sheet])
+          ["mergeCellMap", cmd.to],
+          Object.assign({}, this.mergeCellMap[cmd.from])
         );
         break;
       case "ADD_MERGE":

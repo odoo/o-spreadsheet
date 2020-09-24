@@ -87,8 +87,8 @@ export interface RenameSheetCommand extends BaseCommand {
 
 export interface DuplicateSheetCommand extends BaseCommand {
   type: "DUPLICATE_SHEET";
-  sheet: string;
-  id: string;
+  from: string;
+  to: string;
   name: string;
 }
 

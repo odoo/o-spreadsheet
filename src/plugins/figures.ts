@@ -16,10 +16,10 @@ export class FigurePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "DUPLICATE_SHEET":
-        for (let fig of this.sheetFigures[cmd.sheet] || []) {
+        for (let fig of this.sheetFigures[cmd.from] || []) {
           const figure = Object.assign({}, fig, { id: uuidv4() });
           this.dispatch("CREATE_FIGURE", {
-            sheet: cmd.id,
+            sheet: cmd.to,
             figure,
           });
         }

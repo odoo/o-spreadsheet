@@ -174,7 +174,11 @@ describe("BottomBar component", () => {
     const sheet = model.getters.getActiveSheet();
     const name = `Copy of ${model.getters.getSheets()[0].name}`;
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", { sheet, id: "123", name });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
+      from: sheet,
+      to: "123",
+      name,
+    });
   });
 
   test("Can duplicate a sheet", async () => {
@@ -196,7 +200,11 @@ describe("BottomBar component", () => {
     const name = `Copy of test (1)`;
     mockUuidV4To(123);
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", { sheet, id: "123", name });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
+      from: sheet,
+      to: "123",
+      name,
+    });
   });
 
   test("Can delete a sheet", async () => {

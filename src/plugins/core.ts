@@ -138,7 +138,7 @@ export class CorePlugin extends BasePlugin {
         }
         break;
       case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheet, cmd.id, cmd.name);
+        this.duplicateSheet(cmd.from, cmd.to, cmd.name);
         break;
       case "DELETE_SHEET_CONFIRMATION":
         this.interactiveDeleteSheet(cmd.sheet);

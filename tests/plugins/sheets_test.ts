@@ -400,7 +400,7 @@ describe("sheets", () => {
   test("Can duplicate a sheet", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheet();
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
     model.dispatch("UNDO");
     expect(model.getters.getSheets()).toHaveLength(1);
@@ -411,7 +411,7 @@ describe("sheets", () => {
   test("Duplicate a sheet make the newly created active", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheet();
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: "42", name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: "42", name: "dup" });
     expect(model.getters.getActiveSheet()).toBe("42");
   });
 
@@ -420,7 +420,7 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheet();
     const name = model.getters.getSheets()[0].name;
     const id = uuidv4();
-    expect(model.dispatch("DUPLICATE_SHEET", { sheet, id, name })).toEqual({
+    expect(model.dispatch("DUPLICATE_SHEET", { from: sheet, to: id, name })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetName,
     });
@@ -450,7 +450,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheet();
     model.dispatch("SET_VALUE", { xc: "A1", text: "42" });
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { from: sheet, to: newSheet });
@@ -483,7 +483,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheet();
     model.dispatch("SET_VALUE", { xc: "A1", text: "42" });
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { from: sheet, to: newSheet });
@@ -514,7 +514,7 @@ describe("sheets", () => {
       ],
     });
     const sheet = model.getters.getActiveSheet();
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { from: sheet, to: newSheet });
@@ -540,7 +540,7 @@ describe("sheets", () => {
         data: undefined,
       },
     });
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: "42", name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: "42", name: "dup" });
     model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 40 });
     const data = model.exportData();
 
@@ -557,7 +557,7 @@ describe("sheets", () => {
   test("Cols and Rows are correctly duplicated", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheet();
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
     model.dispatch("RESIZE_COLUMNS", { cols: [0], size: 1, sheet });
     model.dispatch("RESIZE_ROWS", { rows: [0], size: 1, sheet });
@@ -578,7 +578,7 @@ describe("sheets", () => {
       ],
     });
     const sheet = model.getters.getActiveSheet();
-    model.dispatch("DUPLICATE_SHEET", { sheet, id: uuidv4(), name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { from: sheet, to: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
     model.dispatch("REMOVE_MERGE", { sheet, zone: toZone("A1:A2") });
     const newSheet = model.getters.getSheets()[1].id;
@@ -640,8 +640,8 @@ describe("sheets", () => {
   test("Can undo-redo a sheet duplication", () => {
     const model = new Model();
     testUndoRedo(model, expect, "DUPLICATE_SHEET", {
-      id: "42",
-      sheet: model.getters.getActiveSheet(),
+      to: "42",
+      from: model.getters.getActiveSheet(),
       name: "dup",
     });
   });

@@ -37,8 +37,8 @@ sheetMenuRegistry
         env.getters.getSheets().find((s) => s.id === sheet)!.name
       );
       env.dispatch("DUPLICATE_SHEET", {
-        sheet,
-        id: uuidv4(),
+        from: sheet,
+        to: uuidv4(),
         name,
       });
     },
