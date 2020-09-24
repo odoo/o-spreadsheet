@@ -904,8 +904,6 @@ export class CorePlugin extends BasePlugin {
       rowNumber: rows,
       cols: createDefaultCols(cols),
       rows: createDefaultRows(rows),
-      merges: {},
-      mergeCellMap: {},
     };
     const visibleSheets = this.workbook.visibleSheets.slice();
     const index = visibleSheets.findIndex((id) => this.getters.getActiveSheet() === id);
@@ -1354,8 +1352,6 @@ export class CorePlugin extends BasePlugin {
       rowNumber: data.rowNumber,
       cols: createCols(data.cols || {}, data.colNumber),
       rows: createRows(data.rows || {}, data.rowNumber),
-      merges: {},
-      mergeCellMap: {},
     };
     visibleSheets = visibleSheets.slice();
     visibleSheets.push(sheet.id);

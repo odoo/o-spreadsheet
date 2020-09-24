@@ -28,8 +28,6 @@ export interface Sheet {
   cells: { [key: string]: Cell };
   colNumber: number;
   rowNumber: number;
-  merges: { [key: number]: Merge };
-  mergeCellMap: { [key: string]: number };
   cols: Col[];
   rows: Row[];
 }
