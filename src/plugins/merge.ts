@@ -314,7 +314,7 @@ export class MergePlugin extends BasePlugin {
       });
     }
     this.dispatch("ADD_MERGE", {
-      sheet: this.workbook.activeSheet.id,
+      sheet: this.getters.getActiveSheet(),
       zone: newMerge,
     });
   }

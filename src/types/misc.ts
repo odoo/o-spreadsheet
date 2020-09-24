@@ -12,7 +12,6 @@ export interface Zone {
 }
 
 export type Align = "left" | "right" | "center" | undefined;
-
 export interface Style {
   bold?: boolean;
   italic?: boolean;

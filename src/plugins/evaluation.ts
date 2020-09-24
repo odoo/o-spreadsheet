@@ -94,12 +94,12 @@ export class EvaluationPlugin extends BasePlugin {
         if (cmd.onlyWaiting) {
           const cells = new Set(this.WAITING);
           this.WAITING.clear();
-          this.evaluateCells(makeSetIterator(cells), this.workbook.activeSheet.id);
+          this.evaluateCells(makeSetIterator(cells), this.getters.getActiveSheet());
         } else {
           this.WAITING.clear();
           this.evaluate();
         }
-        this.isUptodate.add(this.workbook.activeSheet.id);
+        this.isUptodate.add(this.getters.getActiveSheet());
         break;
       case "UNDO":
       case "REDO":
@@ -109,9 +109,9 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
-    if (!this.isUptodate.has(this.workbook.activeSheet.id)) {
+    if (!this.isUptodate.has(this.getters.getActiveSheet())) {
       this.evaluate();
-      this.isUptodate.add(this.workbook.activeSheet.id);
+      this.isUptodate.add(this.getters.getActiveSheet());
     }
     if (this.loadingCells > 0) {
       this.startScheduler();
@@ -122,7 +122,7 @@ export class EvaluationPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.id): any {
+  evaluateFormula(formula: string, sheet: string = this.getters.getActiveSheet()): any {
     const cacheKey = `${sheet}#${formula}`;
     let compiledFormula;
     if (cacheKey in this.cache) {
@@ -176,7 +176,7 @@ export class EvaluationPlugin extends BasePlugin {
     this.COMPUTED.clear();
     this.evaluateCells(
       makeObjectIterator(this.workbook.activeSheet.cells),
-      this.workbook.activeSheet.id
+      this.getters.getActiveSheet()
     );
   }
 
