@@ -390,7 +390,7 @@ export class MergePlugin extends BasePlugin {
   }
 
   private updateMergesStyles(sheetId: string, isColumn: boolean) {
-    const sheet = this.workbook.sheets[sheetId];
+    const sheet = this.getters.getSheets().find((s) => s.id === sheetId)!;
     for (let merge of Object.values(this.merges[sheetId])) {
       const xc = merge.topLeft;
       const topLeft = sheet.cells[xc];
@@ -464,11 +464,10 @@ export class MergePlugin extends BasePlugin {
   import(data: WorkbookData) {
     const sheets = data.sheets || [];
     for (let sheetData of sheets) {
-      const sheet = this.workbook.sheets[sheetData.id];
       this.history.updateLocalState(["merges", sheetData.id], {});
       this.history.updateLocalState(["mergeCellMap", sheetData.id], {});
-      if (sheet && sheetData.merges) {
-        this.importMerges(sheet.id, sheetData.merges);
+      if (sheetData.merges) {
+        this.importMerges(sheetData.id, sheetData.merges);
       }
     }
   }
