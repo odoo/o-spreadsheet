@@ -228,6 +228,24 @@ describe("datasource tests", function () {
     expect(datasets[0].label!.toString()).toEqual("Series");
   });
 
+  test("create chart with async as label", () => {
+    model.dispatch("SET_VALUE", { xc: "B7", text: "=WAIT(1000)" });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheet(),
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        seriesHasTitle: true,
+        labelRange: "B7",
+        type: "line",
+      },
+    });
+    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    expect(datasets).toHaveLength(1);
+    expect(datasets[0].label!.toString()).toEqual("Series");
+  });
+
   test.skip("delete a data source column", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",

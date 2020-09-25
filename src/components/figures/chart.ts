@@ -47,6 +47,7 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
     if (chartData) {
       if (chartData.data && chartData.data.datasets) {
         Object.assign(this.chart!.data!.datasets, chartData.data.datasets);
+        Object.assign(this.chart!.data.labels, chartData.data.labels);
       } else {
         this.chart!.data.datasets = undefined;
       }

@@ -304,10 +304,19 @@ export class ChartPlugin extends BasePlugin {
 
     let graphColorIndex = 0;
     for (const ds of definition.dataSets) {
+      let label;
+      if (ds.labelCell) {
+        try {
+          label = this.getters.evaluateFormula(ds.labelCell, definition.sheetId);
+        } catch (e) {
+          // We want here to catch issue linked to async formula
+          label = chartTerms.Series;
+        }
+      } else {
+        label = chartTerms.Series;
+      }
       const dataset = {
-        label: ds.labelCell
-          ? this.getters.evaluateFormula(ds.labelCell, definition.sheetId)
-          : chartTerms.Series,
+        label,
         data: ds.dataRange
           ? this.getters.getRangeValues(ds.dataRange, definition.sheetId).flat(1)
           : [],
