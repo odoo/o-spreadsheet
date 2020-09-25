@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { GridParent, makeTestFixture, nextTick, getCell } from "../helpers";
+import { GridParent, makeTestFixture, nextTick, getCell, Touch } from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { toXC } from "../../src/helpers";
 import { Menu } from "../../src/components/menu";
@@ -476,6 +476,82 @@ describe("Context Menu", () => {
     triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseover");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeFalsy();
+  });
+
+  test("scroll through the menu with the wheel / scrollbar prevents the grid from scrolling", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    // grid initially at (0, 0) scroll position
+    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
+    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+
+    simulateContextMenu(300, 200);
+    await nextTick();
+
+    const menu = fixture.querySelector(".o-menu")!;
+    // scroll
+    menu.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: 300, deltaX: 300, deltaMode: 0, bubbles: true })
+    );
+    menu.dispatchEvent(new Event("scroll", { bubbles: true }));
+    await nextTick();
+
+    // grid always at (0, 0) scroll position
+    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
+    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+  });
+
+  test("scroll through the menu with the touch device prevents the grid from scrolling", async () => {
+    const model = new Model();
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+
+    // grid initially at (0, 0) scroll position
+    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
+    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
+
+    simulateContextMenu(300, 200);
+    await nextTick();
+
+    const menu = fixture.querySelector(".o-menu")!;
+
+    // start move at (310, 210) touch position
+    menu.dispatchEvent(
+      new TouchEvent("touchstart", {
+        bubbles: true,
+        cancelable: true,
+        touches: [
+          new Touch({
+            clientX: 310,
+            clientY: 210,
+            identifier: 1,
+            target: menu,
+          }),
+        ],
+      })
+    );
+    // move down;
+    menu.dispatchEvent(
+      new TouchEvent("touchmove", {
+        bubbles: true,
+        cancelable: true,
+        touches: [
+          new Touch({
+            clientX: 310,
+            clientY: 180,
+            identifier: 2,
+            target: menu,
+          }),
+        ],
+      })
+    );
+
+    await nextTick();
+    // grid always at (0, 0) scroll position
+    expect(parent.grid.comp.vScrollbar.scroll).toBe(0);
+    expect(parent.grid.comp.hScrollbar.scroll).toBe(0);
   });
 });
 
