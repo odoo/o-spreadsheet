@@ -1123,12 +1123,12 @@ describe("clipboard: pasting outside of sheet", () => {
   test("can copy and paste a full column", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "txt" });
-    const activeSheetId = model.getters.getActiveSheetId();
-    const currentRowNumber = model.getters.getNumberRows(activeSheetId);
+    const activeSheet = model.getters.getActiveSheet();
+    const currentRowNumber = activeSheet.rowNumber;
 
     model.dispatch("COPY", { target: [model.getters.getColsZone(0, 0)] });
     model.dispatch("PASTE", { target: target("B2") });
-    expect(model.getters.getNumberRows(activeSheetId)).toBe(currentRowNumber + 1);
+    expect(activeSheet.rowNumber).toBe(currentRowNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");
   });
 
@@ -1136,12 +1136,12 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "txt" });
 
-    const activeSheetId = model.getters.getActiveSheetId();
-    const currentColNumber = model.getters.getNumberCols(activeSheetId);
+    const activeSheet = model.getters.getActiveSheet();
+    const currentColNumber = activeSheet.colNumber;
 
     model.dispatch("COPY", { target: [model.getters.getRowsZone(0, 0)] });
     model.dispatch("PASTE", { target: target("B2") });
-    expect(model.getters.getNumberCols(activeSheetId)).toBe(currentColNumber + 1);
+    expect(activeSheet.colNumber).toBe(currentColNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");
   });
 

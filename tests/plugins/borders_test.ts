@@ -281,12 +281,12 @@ describe("borders", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     model.dispatch("ALTER_SELECTION", { cell: [25, 99] });
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheet = model.getters.getActiveSheet();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,
-      right: model.getters.getNumberCols(activeSheetId) - 1,
-      bottom: model.getters.getNumberRows(activeSheetId) - 1,
+      right: activeSheet.colNumber - 1,
+      bottom: activeSheet.rowNumber - 1,
     });
     setBorder(model, "all");
     expect(getCell(model, "B1")!.border).toBeDefined();

@@ -35,8 +35,6 @@ export interface Getters {
   getRow: CorePlugin["getRow"];
   getCells: CorePlugin["getCells"];
   getColCells: CorePlugin["getColCells"];
-  getNumberCols: CorePlugin["getNumberCols"];
-  getNumberRows: CorePlugin["getNumberRows"];
   getColsZone: CorePlugin["getColsZone"];
   getRowsZone: CorePlugin["getRowsZone"];
   getGridSize: CorePlugin["getGridSize"];

@@ -84,7 +84,7 @@ export class SelectionPlugin extends BasePlugin {
       }
       case "SELECT_COLUMN": {
         const { index } = cmd;
-        if (index < 0 || index >= this.getters.getNumberCols(this.getters.getActiveSheetId())) {
+        if (index < 0 || index >= this.getters.getActiveSheet().colNumber) {
           return {
             status: "CANCELLED",
             reason: CancelledReason.SelectionOutOfBound,
@@ -94,7 +94,7 @@ export class SelectionPlugin extends BasePlugin {
       }
       case "SELECT_ROW": {
         const { index } = cmd;
-        if (index < 0 || index >= this.getters.getNumberRows(this.getters.getActiveSheetId())) {
+        if (index < 0 || index >= this.getters.getActiveSheet().rowNumber) {
           return {
             status: "CANCELLED",
             reason: CancelledReason.SelectionOutOfBound,
@@ -193,10 +193,7 @@ export class SelectionPlugin extends BasePlugin {
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
     for (let zone of this.selection.zones) {
-      if (
-        zone.top === 0 &&
-        zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
-      ) {
+      if (zone.top === 0 && zone.bottom === this.getters.getActiveSheet().rowNumber - 1) {
         for (let i = zone.left; i <= zone.right; i++) {
           activeCols.add(i);
         }
@@ -208,10 +205,7 @@ export class SelectionPlugin extends BasePlugin {
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
     for (let zone of this.selection.zones) {
-      if (
-        zone.left === 0 &&
-        zone.right === this.getters.getNumberCols(this.getters.getActiveSheetId()) - 1
-      ) {
+      if (zone.left === 0 && zone.right === this.getters.getActiveSheet().colNumber - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
         }
@@ -275,7 +269,7 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private selectColumn(index: number, createRange: boolean, updateRange: boolean) {
-    const bottom = this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1;
+    const bottom = this.getters.getActiveSheet().rowNumber - 1;
     const zone = { left: index, right: index, top: 0, bottom };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
@@ -292,7 +286,7 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private selectRow(index: number, createRange: boolean, updateRange: boolean) {
-    const right = this.getters.getNumberCols(this.getters.getActiveSheetId()) - 1;
+    const right = this.getters.getActiveSheet().colNumber - 1;
     const zone = { top: index, bottom: index, left: 0, right };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
@@ -309,8 +303,8 @@ export class SelectionPlugin extends BasePlugin {
   }
 
   private selectAll() {
-    const bottom = this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1;
-    const right = this.getters.getNumberCols(this.getters.getActiveSheetId()) - 1;
+    const bottom = this.getters.getActiveSheet().rowNumber - 1;
+    const right = this.getters.getActiveSheet().colNumber - 1;
     const zone = { left: 0, top: 0, bottom, right };
     this.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
   }
@@ -377,14 +371,14 @@ export class SelectionPlugin extends BasePlugin {
     const [anchorCol, anchorRow] = selection.anchor;
     const { left, right, top, bottom } = lastZone;
     let result: Zone | null = lastZone;
-    const activeSheetId = this.getters.getActiveSheetId();
+    const activeSheet = this.getters.getActiveSheet();
     const expand = (z: Zone) => {
       const { left, right, top, bottom } = this.getters.expandZone(z);
       return {
         left: Math.max(0, left),
-        right: Math.min(this.getters.getNumberCols(activeSheetId) - 1, right),
+        right: Math.min(activeSheet.colNumber - 1, right),
         top: Math.max(0, top),
-        bottom: Math.min(this.getters.getNumberRows(activeSheetId) - 1, bottom),
+        bottom: Math.min(activeSheet.rowNumber - 1, bottom),
       };
     };
 

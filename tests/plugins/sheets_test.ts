@@ -52,9 +52,10 @@ describe("sheets", () => {
       activate: true,
       id: "42",
     });
-    expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(4);
-    expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(2);
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("SheetTest");
+    const activeSheet = model.getters.getActiveSheet();
+    expect(activeSheet.colNumber).toBe(4);
+    expect(activeSheet.rowNumber).toBe(2);
+    expect(activeSheet.name).toBe("SheetTest");
   });
 
   test("Cannot create a sheet with a name already existent", () => {
@@ -453,8 +454,8 @@ describe("sheets", () => {
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { from: sheet, to: newSheet });
     expect(getText(model, "A1")).toBe("42");
-    expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(5);
-    expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(5);
+    expect(model.getters.getActiveSheet().colNumber).toBe(5);
+    expect(model.getters.getActiveSheet().rowNumber).toBe(5);
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
   });
 

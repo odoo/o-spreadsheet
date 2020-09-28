@@ -63,8 +63,6 @@ export class CorePlugin extends BasePlugin {
     "getRow",
     "getCells",
     "getColCells",
-    "getNumberCols",
-    "getNumberRows",
     "getGridSize",
     "shouldShowFormulas",
     "getRangeValues",
@@ -383,14 +381,6 @@ export class CorePlugin extends BasePlugin {
       (acc: Cell[], cur) => (cur.cells[col] ? acc.concat(cur.cells[col]) : acc),
       []
     );
-  }
-
-  getNumberCols(sheetId: UID): number {
-    return this.sheets[sheetId].cols.length;
-  }
-
-  getNumberRows(sheetId: UID): number {
-    return this.sheets[sheetId].rows.length;
   }
 
   getColsZone(start: number, end: number): Zone {
@@ -1262,9 +1252,9 @@ export class CorePlugin extends BasePlugin {
     y += freezeRow && updateFreeze ? 0 : offsetY;
     if (
       x < 0 ||
-      x >= this.getters.getNumberCols(sheetId || this.getters.getActiveSheetId()) ||
+      x >= this.getters.getSheet(sheetId || this.getters.getActiveSheetId()).colNumber ||
       y < 0 ||
-      y >= this.getters.getNumberRows(sheetId || this.getters.getActiveSheetId())
+      y >= this.getters.getSheet(sheetId || this.getters.getActiveSheetId()).rowNumber
     ) {
       return "#REF";
     }
