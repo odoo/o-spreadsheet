@@ -493,7 +493,7 @@ export class SelectionPlugin extends BasePlugin {
     ctx.globalCompositeOperation = "source-over";
 
     // active zone
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     const [col, row] = this.getPosition();
     const activeXc = toXC(col, row);
 

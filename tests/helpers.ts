@@ -305,14 +305,14 @@ export function getMerges(model: Model): { [key: number]: Merge } {
   const mergePlugin = model["handlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
-  return mergePlugin["merges"][model.getters.getActiveSheet()];
+  return mergePlugin["merges"][model.getters.getActiveSheetId()];
 }
 
 export function getMergeCellMap(model: Model): { [key: string]: number } {
   const mergePlugin = model["handlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
-  return mergePlugin["mergeCellMap"][model.getters.getActiveSheet()];
+  return mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];
 }
 
 export function zone(str: string): Zone {

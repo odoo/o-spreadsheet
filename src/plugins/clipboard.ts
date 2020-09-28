@@ -33,7 +33,7 @@ export class ClipboardPlugin extends BasePlugin {
   private shouldCut?: boolean;
   private zones: Zone[] = [];
   private cells?: ClipboardCell[][];
-  private originSheet: string = this.getters.getActiveSheet();
+  private originSheet: string = this.getters.getActiveSheetId();
   private _isPaintingFormat: boolean = false;
   private pasteOnlyValue: boolean = false;
   private pasteOnlyFormat: boolean = false;
@@ -172,7 +172,7 @@ export class ClipboardPlugin extends BasePlugin {
     this.shouldCut = cut;
     this.zones = clippedZones;
     this.cells = cells;
-    this.originSheet = this.getters.getActiveSheet();
+    this.originSheet = this.getters.getActiveSheetId();
   }
 
   private pasteFromClipboard(target: Zone[], content: string) {
@@ -312,7 +312,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (missingRows > 0) {
       this.dispatch("ADD_ROWS", {
         row: rows.length - 1,
-        sheet: this.getters.getActiveSheet(),
+        sheet: this.getters.getActiveSheetId(),
         quantity: missingRows,
         position: "after",
       });
@@ -321,7 +321,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (missingCols > 0) {
       this.dispatch("ADD_COLUMNS", {
         column: cols.length - 1,
-        sheet: this.getters.getActiveSheet(),
+        sheet: this.getters.getActiveSheetId(),
         quantity: missingCols,
         position: "after",
       });
@@ -367,7 +367,7 @@ export class ClipboardPlugin extends BasePlugin {
         style: style,
         border: border,
         format: format,
-        sheet: this.getters.getActiveSheet(),
+        sheet: this.getters.getActiveSheetId(),
         col: col,
         row: row,
         content: content,
@@ -394,7 +394,7 @@ export class ClipboardPlugin extends BasePlugin {
         }
       } else {
         this.dispatch("CLEAR_CELL", {
-          sheet: this.getters.getActiveSheet(),
+          sheet: this.getters.getActiveSheetId(),
           col: col,
           row: row,
         });
@@ -443,7 +443,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (
       this.status !== "visible" ||
       !zones.length ||
-      this.originSheet !== this.getters.getActiveSheet()
+      this.originSheet !== this.getters.getActiveSheetId()
     ) {
       return;
     }

@@ -46,7 +46,7 @@ describe("styles", () => {
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.content).toBe("b1");
@@ -63,7 +63,7 @@ describe("styles", () => {
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")).toBeNull();
@@ -80,7 +80,7 @@ describe("styles", () => {
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.style).not.toBeDefined();

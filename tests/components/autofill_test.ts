@@ -45,8 +45,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
-      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), 1).end + 10
     );
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 0, row: 2 });
@@ -63,8 +63,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 1).end + 10,
-      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 0).start + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), 1).end + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), 0).start + 10
     );
     await nextTick();
     expect(parent.env.dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 2, row: 0 });
@@ -91,8 +91,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
-      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), 1).end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
@@ -120,8 +120,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "mousemove",
-      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
-      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), 1).end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
@@ -138,10 +138,10 @@ describe("Autofill component", () => {
       autofill,
       "mousemove",
       HEADER_WIDTH +
-        parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start +
+        parent.env.getters.getCol(parent.env.getters.getActiveSheetId(), 0).start +
         10000,
       HEADER_HEIGHT +
-        parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).start +
+        parent.env.getters.getRow(parent.env.getters.getActiveSheetId(), 1).start +
         10000
     );
     await nextTick();

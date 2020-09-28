@@ -498,7 +498,7 @@ export class RendererPlugin extends BasePlugin {
       }
     }
 
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     // process all visible merges
     for (let merge of this.getters.getMerges(activeSheet)) {
       if (overlap(merge, viewport)) {

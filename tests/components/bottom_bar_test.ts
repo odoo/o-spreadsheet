@@ -65,7 +65,7 @@ describe("BottomBar component", () => {
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "click");
-    const from = parent.model.getters.getActiveSheet();
+    const from = parent.model.getters.getActiveSheetId();
     const to = from;
     expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { from, to });
   });
@@ -111,7 +111,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "right" });
   });
@@ -124,7 +124,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "left" });
   });
@@ -147,7 +147,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", { sheet, interactive: true });
   });
@@ -159,7 +159,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet-name", "dblclick");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", { sheet, interactive: true });
   });
 
@@ -171,7 +171,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     const name = `Copy of ${model.getters.getSheets()[0].name}`;
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
@@ -196,7 +196,7 @@ describe("BottomBar component", () => {
     await parent.mount(fixture);
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     const name = `Copy of test (1)`;
     mockUuidV4To(123);
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
@@ -215,7 +215,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET_CONFIRMATION", { sheet });
   });
@@ -243,7 +243,7 @@ describe("BottomBar component", () => {
   test("Can open the list of sheets", async () => {
     const model = new Model();
     const parent = new Parent(model);
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { id: "42" });
     await parent.mount(fixture);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
@@ -259,7 +259,7 @@ describe("BottomBar component", () => {
   test("Can activate a sheet from the list of sheets", async () => {
     const model = new Model();
     const parent = new Parent(model);
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { id: "42" });
     await parent.mount(fixture);
     triggerMouseEvent(".o-list-sheets", "click");

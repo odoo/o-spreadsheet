@@ -57,7 +57,7 @@ describe("datasource tests", function () {
   test("create chart with column datasets", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
@@ -72,7 +72,7 @@ describe("datasource tests", function () {
         { dataRange: "C2:C4", labelCell: "C1" },
       ],
       labelRange: "Sheet1!A2:A4",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -82,7 +82,7 @@ describe("datasource tests", function () {
   test("create chart with rectangle dataset", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:C4"],
@@ -97,7 +97,7 @@ describe("datasource tests", function () {
         { dataRange: "C2:C4", labelCell: "C1" },
       ],
       labelRange: "Sheet1!A2:A4",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -106,7 +106,7 @@ describe("datasource tests", function () {
   test("create chart with column datasets without series title", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B2:B4", "Sheet1!C2:C4"],
@@ -121,7 +121,7 @@ describe("datasource tests", function () {
         { dataRange: "C2:C4", labelCell: undefined },
       ],
       labelRange: "Sheet1!A2:A4",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -133,7 +133,7 @@ describe("datasource tests", function () {
   test("create chart with row datasets", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
@@ -148,7 +148,7 @@ describe("datasource tests", function () {
         { dataRange: "B9:D9", labelCell: "A9" },
       ],
       labelRange: "Sheet1!B7:D7",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -157,7 +157,7 @@ describe("datasource tests", function () {
   test("create chart with row datasets without series title", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B8:D8", "Sheet1!B9:D9"],
@@ -172,7 +172,7 @@ describe("datasource tests", function () {
         { dataRange: "B9:D9", labelCell: undefined },
       ],
       labelRange: "Sheet1!B7:D7",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -181,7 +181,7 @@ describe("datasource tests", function () {
   test("create chart with only the dataset title (no data)", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B8"],
@@ -193,7 +193,7 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(viewport)[0].data).toEqual({
       dataSets: [],
       labelRange: "Sheet1!B7:D7",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -203,7 +203,7 @@ describe("datasource tests", function () {
   test("create chart with a dataset of one cell (no title)", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["B8"],
@@ -219,7 +219,7 @@ describe("datasource tests", function () {
         },
       ],
       labelRange: "B7",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       title: "test 1",
       type: "line",
     });
@@ -232,7 +232,7 @@ describe("datasource tests", function () {
     model.dispatch("SET_VALUE", { xc: "B7", text: "=WAIT(1000)" });
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["B7:B8"],
@@ -249,7 +249,7 @@ describe("datasource tests", function () {
   test.skip("delete a data source column", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
@@ -258,7 +258,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheet: model.getters.getActiveSheet() });
+    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheet: model.getters.getActiveSheetId() });
     expect(model.getters.getChartRuntime("1")!.data!.datasets).toHaveLength(1);
     expect(model.getters.getChartRuntime("1")!.data!.datasets![0].data).toEqual([20, 19, 18]);
   });
@@ -266,7 +266,7 @@ describe("datasource tests", function () {
   test.skip("delete a data set labels column", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
@@ -275,13 +275,13 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    model.dispatch("REMOVE_COLUMNS", { columns: [0], sheet: model.getters.getActiveSheet() });
+    model.dispatch("REMOVE_COLUMNS", { columns: [0], sheet: model.getters.getActiveSheetId() });
     // dataset in col B becomes labels in col A
     expect(model.getters.getChartRuntime("1")!.data!.labels).toBeUndefined();
   });
 
   test("update dataset cell updates chart runtime", () => {
-    const sheetId = model.getters.getActiveSheet();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
       sheetId,
@@ -316,7 +316,7 @@ describe("datasource tests", function () {
   test("create chart with invalid dataset", () => {
     const result = model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "This is invalid"],
@@ -331,7 +331,7 @@ describe("datasource tests", function () {
   test("create chart with invalid labels", () => {
     const result = model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4"],
@@ -403,7 +403,7 @@ describe("undo/redo", () => {
   test("undo/redo chart creation", () => {
     testUndoRedo(model, expect, "CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],

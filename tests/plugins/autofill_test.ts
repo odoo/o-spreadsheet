@@ -113,7 +113,7 @@ describe("Autofill", () => {
     model.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       style: 1,
       border: 2,
       format: "m/d/yyyy",
@@ -129,7 +129,7 @@ describe("Autofill", () => {
     model.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       content: "1",
     });
     autofill("A1", "A4");
@@ -147,7 +147,7 @@ describe("Autofill", () => {
     };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf,
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
@@ -259,7 +259,7 @@ describe("Autofill", () => {
     test("Autofill should override selected zone", () => {
       setValue("A1", "1");
       model.dispatch("UPDATE_CELL", {
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         col: 0,
         row: 1,
         content: "test",
@@ -296,7 +296,7 @@ describe("Autofill", () => {
   test("Autofill empty cell should erase others", () => {
     setValue("A2", "1");
     model.dispatch("UPDATE_CELL", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       col: 0,
       row: 2,
       style: 1,
@@ -333,7 +333,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge in selection", () => {
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A2") });
     setValue("A1", "1");
     autofill("A1:A3", "A9");
@@ -357,7 +357,7 @@ describe("Autofill", () => {
         },
       ],
     });
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A2") });
     autofill("A1:A2", "A5");
     expect(Object.keys(getMergeCellMap(model))).toEqual(["A1", "A2", "A3", "A4"]);
@@ -368,7 +368,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge in target (1)", () => {
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A3:A5") });
     setValue("A1", "1");
     setValue("A2", "2");
@@ -384,7 +384,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge in target (2)", () => {
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A2:B2") });
     setValue("B1", "1");
     autofill("B1", "B2");

@@ -277,7 +277,7 @@ describe("Resizer component", () => {
     selectColumn("C");
     selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getCol(sheet, 0).size;
     expect(model.getters.getCol(sheet, 1).size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 2).size).toBe(1006);
@@ -311,7 +311,7 @@ describe("Resizer component", () => {
     selectRow(2);
     selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getRow(sheet, 0).size;
     expect(model.getters.getRow(sheet, 1).size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2).size).toBe(21);

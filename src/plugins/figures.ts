@@ -88,7 +88,7 @@ export class FigurePlugin extends BasePlugin {
 
   getFigures(viewport: Viewport): Figure<any>[] {
     const result: Figure<any>[] = [];
-    const figures = this.sheetFigures[this.getters.getActiveSheet()] || [];
+    const figures = this.sheetFigures[this.getters.getActiveSheetId()] || [];
     const { offsetX, offsetY, width, height } = viewport;
     for (let figure of figures) {
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {

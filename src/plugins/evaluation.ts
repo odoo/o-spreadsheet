@@ -90,7 +90,7 @@ export class EvaluationPlugin extends BasePlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        const activeSheet = this.getters.getActiveSheet();
+        const activeSheet = this.getters.getActiveSheetId();
         if (cmd.onlyWaiting) {
           const cells = new Set(this.WAITING);
           this.WAITING.clear();
@@ -109,7 +109,7 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     if (!this.isUptodate.has(activeSheet)) {
       this.evaluate();
       this.isUptodate.add(activeSheet);
@@ -123,7 +123,7 @@ export class EvaluationPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: string = this.getters.getActiveSheet()): any {
+  evaluateFormula(formula: string, sheet: string = this.getters.getActiveSheetId()): any {
     const cacheKey = `${sheet}#${formula}`;
     let compiledFormula;
     if (cacheKey in this.cache) {
@@ -175,7 +175,7 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(makeObjectIterator(this.getters.getCells()), this.getters.getActiveSheet());
+    this.evaluateCells(makeObjectIterator(this.getters.getCells()), this.getters.getActiveSheetId());
   }
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {

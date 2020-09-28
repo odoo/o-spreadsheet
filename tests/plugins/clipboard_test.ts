@@ -85,9 +85,9 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });
     model.dispatch("CUT", { target: target("A1") });
-    const to = model.getters.getActiveSheet();
+    const to = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
-    const from = model.getters.getActiveSheet();
+    const from = model.getters.getActiveSheetId();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1Sheet2" });
     model.dispatch("PASTE", { target: target("B2") });
     expect(model.getters.getCells()).toEqual({
@@ -119,7 +119,7 @@ describe("clipboard", () => {
 
   test("can copy a cell with style", () => {
     const model = new Model();
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
@@ -162,7 +162,7 @@ describe("clipboard", () => {
 
   test("can copy from an empty cell into a cell with style", () => {
     const model = new Model();
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     // set value and style in B2
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
@@ -187,7 +187,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
@@ -205,7 +205,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "0.451" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
@@ -723,7 +723,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
@@ -741,7 +741,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "0.451" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
@@ -768,7 +768,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1"), onlyValue: true });
@@ -805,7 +805,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C3", text: "c3" });
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
@@ -824,7 +824,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C3", text: "0.451" });
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
@@ -925,7 +925,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
@@ -951,7 +951,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "C2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1") });
     model.dispatch("PASTE", { target: target("C1") });
@@ -976,7 +976,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
     model.dispatch("PASTE", { target: target("B1") });
@@ -1006,7 +1006,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
     model.dispatch("PASTE", { target: target("B1") });
@@ -1040,7 +1040,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("COPY", { target: target("A1:A2") });
     model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
@@ -1072,7 +1072,7 @@ describe("clipboard", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1", "A2"], "1", { fillColor: "#FF0000" }, "1"),
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("CUT", { target: target("A1:A2") });
     model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });

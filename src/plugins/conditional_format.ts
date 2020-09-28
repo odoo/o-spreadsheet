@@ -84,7 +84,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "AUTOFILL_CELL":
-        const sheet = this.getters.getActiveSheet();
+        const sheet = this.getters.getActiveSheetId();
         const cfOrigin = this.getRulesByCell(toXC(cmd.originCol, cmd.originRow));
         for (const cf of cfOrigin) {
           this.adaptRules(sheet, cf, [toXC(cmd.col, cmd.row)], []);
@@ -140,7 +140,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * Returns all the conditional format rules defined for the current sheet
    */
   getConditionalFormats(): ConditionalFormat[] {
-    return this.cfRules[this.getters.getActiveSheet()];
+    return this.cfRules[this.getters.getActiveSheetId()];
   }
 
   /**
@@ -148,7 +148,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * undefined if this cell doesn't have a conditional style set.
    */
   getConditionalStyle(xc: string): Style | undefined {
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     const styles = this.computedStyles[activeSheet];
     return styles && styles[xc];
   }
@@ -176,7 +176,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     return ruleIds;
   }
   getRulesByCell(cellXc: string): Set<ConditionalFormat> {
-    const currentSheet = this.getters.getActiveSheet();
+    const currentSheet = this.getters.getActiveSheetId();
     const rulesId: Set<ConditionalFormat> = new Set();
     for (let cf of this.cfRules[currentSheet]) {
       for (let ref of cf.ranges) {
@@ -234,7 +234,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     const colorDiffUnitG = deltaColorG / deltaValue;
     const colorDiffUnitB = deltaColorB / deltaValue;
     const zone: Zone = toZone(range);
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     const computedStyle = this.computedStyles[activeSheet];
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -321,7 +321,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * If multiple conditional formatting use the same style value, they will be applied in order so that the last applied wins
    */
   private computeStyles() {
-    const currentSheet = this.getters.getActiveSheet();
+    const currentSheet = this.getters.getActiveSheetId();
     this.computedStyles[currentSheet] = {};
     for (let cf of this.cfRules[currentSheet]) {
       try {
@@ -398,7 +398,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     cut?: boolean
   ) {
     const xc = toXC(col, row);
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     for (let rule of this.cfRules[originSheet]) {
       for (let range of rule.ranges) {
         if (isInside(originCol, originRow, toZone(range))) {
