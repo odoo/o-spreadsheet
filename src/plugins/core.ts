@@ -71,7 +71,7 @@ export class CorePlugin extends BasePlugin {
     "getRangeFormattedValues",
   ];
 
-  private sheetIds: { [name: string]: string } = {};
+  private sheetIds: { [name: string]: UID } = {};
   private showFormulas: boolean = false;
   private visibleSheets: UID[] = []; // ids of visible sheets
   private sheets: Record<UID, Sheet> = {};
@@ -334,11 +334,11 @@ export class CorePlugin extends BasePlugin {
     return this.activeSheet.id;
   }
 
-  getSheetName(sheetId: string): string | undefined {
+  getSheetName(sheetId: UID): string | undefined {
     return this.sheets[sheetId] && this.sheets[sheetId].name;
   }
 
-  getSheetIdByName(name: string | undefined): string | undefined {
+  getSheetIdByName(name: string | undefined): UID | undefined {
     return name && this.sheetIds[name];
   }
 
@@ -347,7 +347,7 @@ export class CorePlugin extends BasePlugin {
     return visibleSheets.map((id) => sheets[id]);
   }
 
-  getVisibleSheets(): string[] {
+  getVisibleSheets(): UID[] {
     return this.visibleSheets;
   }
 
@@ -359,7 +359,7 @@ export class CorePlugin extends BasePlugin {
     return this.activeSheet.cells;
   }
 
-  getCol(sheetId: string, index: number): Col {
+  getCol(sheetId: UID, index: number): Col {
     return this.sheets[sheetId].cols[index];
   }
 
@@ -367,7 +367,7 @@ export class CorePlugin extends BasePlugin {
     return this.activeSheet.cols;
   }
 
-  getRow(sheetId: string, index: number): Row {
+  getRow(sheetId: UID, index: number): Row {
     return this.sheets[sheetId].rows[index];
   }
 
@@ -385,11 +385,11 @@ export class CorePlugin extends BasePlugin {
     );
   }
 
-  getNumberCols(sheetId: string): number {
+  getNumberCols(sheetId: UID): number {
     return this.sheets[sheetId].cols.length;
   }
 
-  getNumberRows(sheetId: string): number {
+  getNumberRows(sheetId: UID): number {
     return this.sheets[sheetId].rows.length;
   }
 
@@ -423,13 +423,13 @@ export class CorePlugin extends BasePlugin {
     return this.showFormulas;
   }
 
-  getRangeValues(reference: string, defaultSheetId: string): any[][] {
+  getRangeValues(reference: string, defaultSheetId: UID): any[][] {
     const [range, sheetName] = reference.split("!").reverse();
     const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
     return mapCellsInZone(toZone(range), this.sheets[sheetId], (cell) => cell.value);
   }
 
-  getRangeFormattedValues(reference: string, defaultSheetId: string): string[][] {
+  getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
     const [range, sheetName] = reference.split("!").reverse();
     const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
     return mapCellsInZone(toZone(range), this.sheets[sheetId], this.getters.getCellText, "");
@@ -454,7 +454,7 @@ export class CorePlugin extends BasePlugin {
     return Math.max(0, ...sizes);
   }
 
-  private setColSize(sheetId: string, index: number, size: number) {
+  private setColSize(sheetId: UID, index: number, size: number) {
     const cols = this.sheets[sheetId].cols;
     const col = cols[index];
     const delta = size - col.size;
@@ -467,7 +467,7 @@ export class CorePlugin extends BasePlugin {
     }
   }
 
-  private setRowSize(sheetId: string, index: number, size: number) {
+  private setRowSize(sheetId: UID, index: number, size: number) {
     const rows = this.sheets[sheetId].rows;
     const row = rows[index];
     const delta = size - row.size;
@@ -487,22 +487,22 @@ export class CorePlugin extends BasePlugin {
    * - Update the cols/rows (size, number, (cells), ...)
    * - Reevaluate the cells
    *
-   * @param sheetID ID of the sheet on which deletion should be applied
+   * @param sheetId ID of the sheet on which deletion should be applied
    * @param columns Columns to delete
    */
-  private removeColumns(sheetID: string, columns: number[]) {
+  private removeColumns(sheetId: UID, columns: number[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
     for (let column of columns) {
       // Update all the formulas.
-      this.updateColumnsFormulas(column, -1, sheetID);
+      this.updateColumnsFormulas(column, -1, sheetId);
 
       // Move the cells.
-      this.moveCellsHorizontally(column, -1, sheetID);
+      this.moveCellsHorizontally(column, -1, sheetId);
 
       // Effectively delete the element and recompute the left-right.
-      this.manageColumnsHeaders(column, -1, sheetID);
+      this.manageColumnsHeaders(column, -1, sheetId);
     }
   }
 
@@ -514,10 +514,10 @@ export class CorePlugin extends BasePlugin {
    * - Update the cols/rows (size, number, (cells), ...)
    * - Reevaluate the cells
    *
-   * @param sheetID ID of the sheet on which deletion should be applied
+   * @param sheetId ID of the sheet on which deletion should be applied
    * @param rows Rows to delete
    */
-  private removeRows(sheetID: string, rows: number[]) {
+  private removeRows(sheetId: UID, rows: number[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
@@ -534,54 +534,49 @@ export class CorePlugin extends BasePlugin {
 
     for (let group of consecutiveRows) {
       // Update all the formulas.
-      this.updateRowsFormulas(group[0], -group.length, sheetID);
+      this.updateRowsFormulas(group[0], -group.length, sheetId);
 
       // Move the cells.
-      this.moveCellVerticallyBatched(group[group.length - 1], group[0], sheetID);
+      this.moveCellVerticallyBatched(group[group.length - 1], group[0], sheetId);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
-      group.map((row) => this.processRowsHeaderDelete(row, sheetID));
+      group.map((row) => this.processRowsHeaderDelete(row, sheetId));
     }
   }
 
-  private addColumns(
-    sheetID: string,
-    column: number,
-    position: "before" | "after",
-    quantity: number
-  ) {
+  private addColumns(sheetId: UID, column: number, position: "before" | "after", quantity: number) {
     // Update all the formulas.
-    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity, sheetID);
+    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity, sheetId);
 
     // Move the cells.
-    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheetID);
+    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheetId);
 
     // Recompute the left-right/top-bottom.
-    this.manageColumnsHeaders(column, quantity, sheetID);
+    this.manageColumnsHeaders(column, quantity, sheetId);
   }
 
-  private addRows(sheetID: string, row: number, position: "before" | "after", quantity: number) {
+  private addRows(sheetId: UID, row: number, position: "before" | "after", quantity: number) {
     for (let i = 0; i < quantity; i++) {
       this.addEmptyRow();
     }
     // Update all the formulas.
-    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheetID);
+    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheetId);
 
     // Move the cells.
-    this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheetID);
+    this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheetId);
 
     // Recompute the left-right/top-bottom.
     this.processRowsHeaderAdd(row, quantity);
   }
 
-  private moveCellsHorizontally(base: number, step: number, sheetID: string) {
+  private moveCellsHorizontally(base: number, step: number, sheetId: UID) {
     return this.processCellsToMove(
       (cell) => cell.col >= base,
       (cell) => cell.col !== base || step !== -1,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: sheetID,
+          sheet: sheetId,
           col: cell.col + step,
           row: cell.row,
           content: cell.content,
@@ -590,7 +585,7 @@ export class CorePlugin extends BasePlugin {
           format: cell.format,
         };
       },
-      sheetID
+      sheetId
     );
   }
 
@@ -605,14 +600,14 @@ export class CorePlugin extends BasePlugin {
    * @param deleteToRow the row index until which the deleting must continue
    * @param the sheet from which to remove
    */
-  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number, sheetID: string) {
+  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number, sheetId: UID) {
     return this.processCellsToMove(
       ({ row }) => row >= deleteFromRow,
       ({ row }) => row > deleteToRow,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.sheets[sheetID].id,
+          sheet: this.sheets[sheetId].id,
           col: cell.col,
           row: cell.row - (deleteToRow - deleteFromRow + 1),
           content: cell.content,
@@ -621,18 +616,18 @@ export class CorePlugin extends BasePlugin {
           format: cell.format,
         };
       },
-      sheetID
+      sheetId
     );
   }
 
-  private moveCellsVertically(base: number, step: number, sheetID: string) {
+  private moveCellsVertically(base: number, step: number, sheetId: UID) {
     return this.processCellsToMove(
       (cell) => cell.row >= base,
       (cell) => cell.row !== base || step !== -1,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: sheetID,
+          sheet: sheetId,
           col: cell.col,
           row: cell.row + step,
           content: cell.content,
@@ -641,15 +636,15 @@ export class CorePlugin extends BasePlugin {
           format: cell.format,
         };
       },
-      sheetID
+      sheetId
     );
   }
 
-  private manageColumnsHeaders(base: number, step: number, sheetID: string) {
+  private manageColumnsHeaders(base: number, step: number, sheetId: UID) {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
-    const sheet = this.sheets[sheetID];
+    const sheet = this.sheets[sheetId];
     for (let i in sheet.cols) {
       if (parseInt(i, 10) === base) {
         if (step !== -1) {
@@ -678,14 +673,14 @@ export class CorePlugin extends BasePlugin {
       start += size;
       colIndex++;
     }
-    this.history.updateLocalState(["sheets", sheetID, "cols"], cols);
+    this.history.updateLocalState(["sheets", sheetId, "cols"], cols);
   }
 
-  private processRowsHeaderDelete(index: number, sheetID: string) {
+  private processRowsHeaderDelete(index: number, sheetId: UID) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
-    const sheet = this.sheets[sheetID];
+    const sheet = this.sheets[sheetId];
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const row = sheet.rows[i];
@@ -703,7 +698,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["sheets", sheetID, "rows"], rows);
+    this.history.updateLocalState(["sheets", sheetId, "rows"], rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -746,9 +741,9 @@ export class CorePlugin extends BasePlugin {
     this.history.updateLocalState(path, newRows);
   }
 
-  private updateColumnsFormulas(base: number, step: number, sheetID: string) {
+  private updateColumnsFormulas(base: number, step: number, sheetId: UID) {
     return this.visitFormulas(
-      this.sheets[sheetID].name,
+      this.sheets[sheetId].name,
       (value: string, sheet: string | undefined): string => {
         if (value.includes(":")) {
           return this.updateColumnsRange(value, sheet, base, step);
@@ -758,9 +753,9 @@ export class CorePlugin extends BasePlugin {
     );
   }
 
-  private updateRowsFormulas(base: number, step: number, sheetID: string) {
+  private updateRowsFormulas(base: number, step: number, sheetId: UID) {
     return this.visitFormulas(
-      this.sheets[sheetID].name,
+      this.sheets[sheetId].name,
       (value: string, sheet: string | undefined): string => {
         if (value.includes(":")) {
           return this.updateRowsRange(value, sheet, base, step);
@@ -774,7 +769,7 @@ export class CorePlugin extends BasePlugin {
     shouldDelete: (cell: Cell) => boolean,
     shouldAdd: (cell: Cell) => boolean,
     buildCellToAdd: (cell: Cell) => Command,
-    sheetId
+    sheetId: UID
   ) {
     const deleteCommands: Command[] = [];
     const addCommands: Command[] = [];
@@ -807,9 +802,9 @@ export class CorePlugin extends BasePlugin {
   // Cells
   // ---------------------------------------------------------------------------
 
-  private updateCell(sheet: string, col: number, row: number, data: CellData) {
-    const _sheet = this.sheets[sheet];
-    const current = _sheet.rows[row].cells[col];
+  private updateCell(sheetId: UID, col: number, row: number, data: CellData) {
+    const sheet = this.sheets[sheetId];
+    const current = sheet.rows[row].cells[col];
     const xc = (current && current.xc) || toXC(col, row);
     const hasContent = "content" in data;
 
@@ -824,8 +819,8 @@ export class CorePlugin extends BasePlugin {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        this.history.updateSheet(_sheet, ["cells", xc], undefined);
-        this.history.updateSheet(_sheet, ["rows", row, "cells", col], undefined);
+        this.history.updateSheet(sheet, ["cells", xc], undefined);
+        this.history.updateSheet(sheet, ["rows", row, "cells", col], undefined);
       }
       return;
     }
@@ -873,7 +868,7 @@ export class CorePlugin extends BasePlugin {
       if (cell.type === "formula") {
         cell.error = undefined;
         try {
-          cell.formula = compile(content, sheet, this.sheetIds);
+          cell.formula = compile(content, sheetId, this.sheetIds);
           cell.async = cell.formula.async;
         } catch (e) {
           cell.value = "#BAD_EXPR";
@@ -891,8 +886,8 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    this.history.updateSheet(_sheet, ["cells", xc], cell);
-    this.history.updateSheet(_sheet, ["rows", row, "cells", col], cell);
+    this.history.updateSheet(sheet, ["cells", xc], cell);
+    this.history.updateSheet(sheet, ["rows", row, "cells", col], cell);
   }
 
   private generateSheetName(): string {
@@ -907,7 +902,7 @@ export class CorePlugin extends BasePlugin {
     return name;
   }
 
-  private createSheet(id: string, name: string, cols: number, rows: number): string {
+  private createSheet(id: UID, name: string, cols: number, rows: number): string {
     const sheet: Sheet = {
       id,
       name,
@@ -926,7 +921,7 @@ export class CorePlugin extends BasePlugin {
     return sheet.id;
   }
 
-  private moveSheet(sheetId: string, direction: "left" | "right") {
+  private moveSheet(sheetId: UID, direction: "left" | "right") {
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
     const sheet = visibleSheets.splice(currentIndex, 1);
@@ -947,21 +942,21 @@ export class CorePlugin extends BasePlugin {
       : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
   }
 
-  private interactiveRenameSheet(sheet: string, title: string) {
-    const placeholder = this.getSheetName(sheet)!;
+  private interactiveRenameSheet(sheetId: UID, title: string) {
+    const placeholder = this.getSheetName(sheetId)!;
     this.ui.editText(title, placeholder, (name: string | null) => {
       if (!name) {
         return;
       }
-      const result = this.dispatch("RENAME_SHEET", { sheet, name });
-      const sheetName = this.getSheetName(sheet);
+      const result = this.dispatch("RENAME_SHEET", { sheet: sheetId, name });
+      const sheetName = this.getSheetName(sheetId);
       if (result.status === "CANCELLED" && sheetName !== name) {
-        this.interactiveRenameSheet(sheet, _lt("Please enter a valid sheet name"));
+        this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
       }
     });
   }
 
-  private renameSheet(sheetId: string, name: string) {
+  private renameSheet(sheetId: UID, name: string) {
     const sheet = this.sheets[sheetId];
     const oldName = sheet.name;
     this.history.updateSheet(sheet, ["name"], name.trim());
@@ -984,7 +979,7 @@ export class CorePlugin extends BasePlugin {
     });
   }
 
-  private duplicateSheet(fromId: string, toId: string, toName: string) {
+  private duplicateSheet(fromId: UID, toId: UID, toName: string) {
     const sheet = this.sheets[fromId];
     const newSheet = JSON.parse(JSON.stringify(sheet));
     newSheet.id = toId;
@@ -1004,13 +999,13 @@ export class CorePlugin extends BasePlugin {
     this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: toId });
   }
 
-  private interactiveDeleteSheet(sheetId: string) {
+  private interactiveDeleteSheet(sheetId: UID) {
     this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
       this.dispatch("DELETE_SHEET", { sheet: sheetId });
     });
   }
 
-  private deleteSheet(sheetId: string) {
+  private deleteSheet(sheetId: UID) {
     const name = this.sheets[sheetId].name;
     const sheets = Object.assign({}, this.sheets);
     delete sheets[sheetId];
@@ -1042,7 +1037,7 @@ export class CorePlugin extends BasePlugin {
     }
   }
 
-  private clearZones(sheet: string, zones: Zone[]) {
+  private clearZones(sheetId: UID, zones: Zone[]) {
     // TODO: get cells from the actual sheet
     const cells = this.getters.getCells();
     for (let zone of zones) {
@@ -1051,7 +1046,7 @@ export class CorePlugin extends BasePlugin {
           const xc = toXC(col, row);
           if (xc in cells) {
             this.dispatch("UPDATE_CELL", {
-              sheet,
+              sheet: sheetId,
               content: "",
               col,
               row,
@@ -1070,13 +1065,13 @@ export class CorePlugin extends BasePlugin {
    * Update a reference by applying an offset to the column
    *
    * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param sheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    */
   private updateColumnsRef = (
     ref: string,
-    sheet: string | undefined,
+    sheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
@@ -1084,7 +1079,7 @@ export class CorePlugin extends BasePlugin {
     if (x === base && step === -1) {
       return "#REF";
     }
-    return this.updateReference(ref, x > base ? step : 0, 0, this.getSheetIdByName(sheet), false);
+    return this.updateReference(ref, x > base ? step : 0, 0, this.getSheetIdByName(sheetId), false);
   };
 
   /**
@@ -1092,14 +1087,14 @@ export class CorePlugin extends BasePlugin {
    * removed, adapt the range accordingly
    *
    * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param sheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    * @param direction 1 if it's the left part, -1 if it's the right part
    */
   private updateColumnsRangePart = (
     ref: string,
-    sheet: string | undefined,
+    sheetId: UID | undefined,
     base: number,
     step: number,
     direction: number
@@ -1108,7 +1103,7 @@ export class CorePlugin extends BasePlugin {
     if (x === base && step === -1) {
       x += direction;
     }
-    const [xcRef] = this.updateColumnsRef(toXC(x, y), sheet, base, step).split("!").reverse();
+    const [xcRef] = this.updateColumnsRef(toXC(x, y), sheetId, base, step).split("!").reverse();
     return xcRef;
   };
 
@@ -1116,19 +1111,19 @@ export class CorePlugin extends BasePlugin {
    * Update a full range by appling an offset.
    *
    * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param sheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    */
   private updateColumnsRange = (
     ref: string,
-    sheet: string | undefined,
+    sheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
     let [left, right] = ref.split(":");
-    left = this.updateColumnsRangePart(left, sheet, base, step, 1);
-    right = this.updateColumnsRangePart(right, sheet, base, step, -1);
+    left = this.updateColumnsRangePart(left, sheetId, base, step, 1);
+    right = this.updateColumnsRangePart(right, sheetId, base, step, -1);
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
@@ -1141,20 +1136,20 @@ export class CorePlugin extends BasePlugin {
       return left;
     }
     const range = `${left}:${right}`;
-    return sheet ? `${sheet}!${range}` : range;
+    return sheetId ? `${sheetId}!${range}` : range;
   };
 
   /**
    * Update a reference by applying an offset to the row
    *
    * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param sheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    */
   private updateRowsRef = (
     ref: string,
-    sheet: string | undefined,
+    sheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
@@ -1162,7 +1157,7 @@ export class CorePlugin extends BasePlugin {
     if (base + step < y && y <= base) {
       return "#REF";
     }
-    return this.updateReference(ref, 0, y > base ? step : 0, this.getSheetIdByName(sheet), false);
+    return this.updateReference(ref, 0, y > base ? step : 0, this.getSheetIdByName(sheetId), false);
   };
 
   /**
@@ -1170,14 +1165,14 @@ export class CorePlugin extends BasePlugin {
    * removed, adapt the range accordingly
    *
    * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param sheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added/removed (negative when removed)
    * @param direction 1 if it's the left part, -1 if it's the right part
    */
   private updateRowsRangePart = (
     value: string,
-    sheet: string | undefined,
+    sheetId: UID | undefined,
     base: number,
     step: number,
     direction: number
@@ -1189,7 +1184,7 @@ export class CorePlugin extends BasePlugin {
       }
       step = 0;
     }
-    const [xcRef] = this.updateRowsRef(toXC(x, y), sheet, base, step).split("!").reverse();
+    const [xcRef] = this.updateRowsRef(toXC(x, y), sheetId, base, step).split("!").reverse();
     return xcRef;
   };
 
@@ -1197,19 +1192,19 @@ export class CorePlugin extends BasePlugin {
    * Update a full range by appling an offset.
    *
    * @param ref Reference to update
-   * @param sheet Id of the sheet, if cross-sheet reference
+   * @param sheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added/removed (negative when removed)
    */
   private updateRowsRange = (
     value: string,
-    sheet: string | undefined,
+    sheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
     let [left, right] = value.split(":");
-    left = this.updateRowsRangePart(left, sheet, base, step, 1);
-    right = this.updateRowsRangePart(right, sheet, base, step, -1);
+    left = this.updateRowsRangePart(left, sheetId, base, step, 1);
+    right = this.updateRowsRangePart(right, sheetId, base, step, -1);
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
@@ -1222,7 +1217,7 @@ export class CorePlugin extends BasePlugin {
       return left;
     }
     const range = `${left}:${right}`;
-    return sheet ? `${sheet}!${range}` : range;
+    return sheetId ? `${sheetId}!${range}` : range;
   };
 
   // ---------------------------------------------------------------------------
@@ -1236,7 +1231,7 @@ export class CorePlugin extends BasePlugin {
     symbol: string,
     offsetX: number,
     offsetY: number,
-    sheetId: string | undefined
+    sheetId: UID | undefined
   ): string {
     let [left, right] = symbol.split(":");
     left = this.updateReference(left, offsetX, offsetY, sheetId);
@@ -1256,7 +1251,7 @@ export class CorePlugin extends BasePlugin {
     symbol: string,
     offsetX: number,
     offsetY: number,
-    sheetId: string | undefined,
+    sheetId: UID | undefined,
     updateFreeze: boolean = true
   ): string {
     const xc = symbol.replace(/\$/g, "");
@@ -1283,7 +1278,7 @@ export class CorePlugin extends BasePlugin {
     );
   }
 
-  private visitAllFormulasSymbols(cb: (value: string, sheetId: string) => string) {
+  private visitAllFormulasSymbols(cb: (value: string, sheetId: UID) => string) {
     for (let sheetId in this.sheets) {
       const sheet = this.sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
@@ -1319,7 +1314,7 @@ export class CorePlugin extends BasePlugin {
     sheetNameToFind: string,
     cb: (value: string, sheet: string | undefined) => string
   ) {
-    this.visitAllFormulasSymbols((content: string, sheetId: string): string => {
+    this.visitAllFormulasSymbols((content: string, sheetId: UID): string => {
       let [value, sheetRef] = content.split("!").reverse();
       if (sheetRef) {
         sheetRef = getUnquotedSheetName(sheetRef);
