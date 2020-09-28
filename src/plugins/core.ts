@@ -52,7 +52,9 @@ export class CorePlugin extends BasePlugin {
     "getCellText",
     "zoneToXC",
     "getActiveSheetId",
+    "getActiveSheet",
     "getSheetName",
+    "getSheet",
     "getSheetIdByName",
     "getSheets",
     "getVisibleSheets",
@@ -332,6 +334,14 @@ export class CorePlugin extends BasePlugin {
    */
   getActiveSheetId(): UID {
     return this.activeSheet.id;
+  }
+
+  getActiveSheet(): Sheet {
+    return this.activeSheet;
+  }
+
+  getSheet(sheetId: UID): Sheet {
+    return this.sheets[sheetId];
   }
 
   getSheetName(sheetId: UID): string | undefined {

@@ -24,7 +24,9 @@ export interface Getters {
   zoneToXC: CorePlugin["zoneToXC"];
 
   getActiveSheetId: CorePlugin["getActiveSheetId"];
+  getActiveSheet: CorePlugin["getActiveSheet"];
   getEvaluationSheets: CorePlugin["getEvaluationSheets"];
+  getSheet: CorePlugin["getSheet"];
   getSheetName: CorePlugin["getSheetName"];
   getSheetIdByName: CorePlugin["getSheetIdByName"];
   getSheets: CorePlugin["getSheets"];
