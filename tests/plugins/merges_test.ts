@@ -162,7 +162,7 @@ describe("merges", () => {
       rows: [2],
       sheet: sheet2.id,
     });
-    const cell = model.getters.getCell(0, 0, sheet2.name);
+    const cell = getCell(model, "A1", sheet2.id);
     expect(model.getters.getCellStyle(cell!)).toEqual({
       fillColor: "#a2a2a2",
     });

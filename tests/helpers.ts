@@ -16,6 +16,7 @@ import {
   ColorScaleThreshold,
   CommandTypes,
   Merge,
+  UID,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/merge";
@@ -288,9 +289,12 @@ export function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-export function getCell(model: Model, xc: string, sheet?: string): Cell | null {
+export function getCell(model: Model, xc: string, sheet?: UID): Cell | null {
   let [col, row] = toCartesian(xc);
-  return model.getters.getCell(col, row, sheet);
+  if (sheet) {
+    return model.getters.getEvaluationSheets()[sheet].rows[row].cells[col];
+  }
+  return model.getters.getCell(col, row);
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {
