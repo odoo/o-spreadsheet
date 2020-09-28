@@ -1,11 +1,4 @@
-import {
-  Cell,
-  Sheet,
-  Command,
-  CommandHandler,
-  CommandResult,
-  CancelledReason,
-} from "./types/index";
+import { Cell, Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
 
 /**
  * History Management System
@@ -31,7 +24,6 @@ export const MAX_HISTORY_STEPS = 99;
 export interface WorkbookHistory {
   updateLocalState(path: (string | number)[], val: any): void;
   updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void;
-  updateSheet(sheet: Sheet, path: (string | number)[], value: any): void;
 }
 
 type WorkbookHistoryNonLocal = Omit<WorkbookHistory, "updateLocalState">;
@@ -167,9 +159,5 @@ export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
 
   updateCell<T extends keyof Cell>(cell: Cell, key: T, value: Cell[T]): void {
     this.updateStateFromRoot(cell, [key], value);
-  }
-
-  updateSheet(sheet: Sheet, path: (string | number)[], value: any): void {
-    this.updateStateFromRoot(sheet, path, value);
   }
 }
