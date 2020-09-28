@@ -26,11 +26,12 @@ export class MergePlugin extends BasePlugin {
   static getters = [
     "isMergeDestructive",
     "isInMerge",
+    "isInSameMerge",
     "getMainCell",
     "expandZone",
     "doesIntersectMerge",
-    "getMergeCellMap",
     "getMerges",
+    "getMerge",
   ];
 
   private nextId: number = 1;
@@ -133,12 +134,12 @@ export class MergePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getMergeCellMap(sheetId: UID): { [key: string]: number } {
-    return this.mergeCellMap[sheetId];
+  getMerges(sheetId: UID): Merge[] {
+    return Object.values(this.merges[sheetId]);
   }
 
-  getMerges(sheetId: UID): { [key: number]: Merge } {
-    return this.merges[sheetId];
+  getMerge(sheetId: UID, xc: string): Merge | undefined {
+    return this.merges[sheetId][this.mergeCellMap[sheetId][xc]];
   }
 
   /**
@@ -194,6 +195,14 @@ export class MergePlugin extends BasePlugin {
       }
     }
     return isEqual(result, zone) ? result : this.expandZone(result);
+  }
+
+  isInSameMerge(xc1: string, xc2: string): boolean {
+    if (!this.isInMerge(xc1) || !this.isInMerge(xc2)) {
+      return false;
+    }
+    const activeSheet = this.getters.getActiveSheet();
+    return this.mergeCellMap[activeSheet][xc1] === this.mergeCellMap[activeSheet][xc2];
   }
 
   isInMerge(xc: string): boolean {

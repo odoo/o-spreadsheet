@@ -2,7 +2,7 @@ import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style } from "../../src/types/index";
 import "../canvas.mock";
-import { getActiveXc, getCell } from "../helpers";
+import { getActiveXc, getCell, getMergeCellMap, getMerges } from "../helpers";
 
 describe("merges", () => {
   test("can merge two cells", () => {
@@ -10,18 +10,15 @@ describe("merges", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
     expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([]);
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toEqual([]);
+    expect(Object.keys(getMergeCellMap(model))).toEqual([]);
+    expect(Object.keys(getMerges(model))).toEqual([]);
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
 
     expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
     expect(model.getters.getCells().B2.content).toBe("b2");
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([
-      "B2",
-      "B3",
-    ]);
-    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
   });
@@ -37,11 +34,8 @@ describe("merges", () => {
         },
       ],
     });
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([
-      "B2",
-      "B3",
-    ]);
-    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
@@ -49,8 +43,8 @@ describe("merges", () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
     expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([]);
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toEqual([]);
+    expect(Object.keys(getMergeCellMap(model))).toEqual([]);
+    expect(Object.keys(getMerges(model))).toEqual([]);
   });
 
   test("a single cell is not merged", () => {
@@ -58,12 +52,12 @@ describe("merges", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     const sheet1 = model.getters.getVisibleSheets()[0];
 
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toEqual([]);
+    expect(Object.keys(getMerges(model))).toEqual([]);
 
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B2") });
 
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([]);
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toEqual([]);
+    expect(Object.keys(getMergeCellMap(model))).toEqual([]);
+    expect(Object.keys(getMerges(model))).toEqual([]);
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -298,14 +292,14 @@ describe("merges", () => {
 
     //merging
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A3") });
-    const mergeId = model.getters.getMergeCellMap(model.getters.getActiveSheet()).A1;
+    const mergeId = getMergeCellMap(model).A1;
     expect(mergeId).toBeGreaterThan(0);
-    expect(model.getters.getMergeCellMap(model.getters.getActiveSheet()).A2).toBe(mergeId);
+    expect(getMergeCellMap(model).A2).toBe(mergeId);
 
     // unmerge. there should not be any merge left
     model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("A1:A3") });
-    expect(model.getters.getMergeCellMap(model.getters.getActiveSheet())).toEqual({});
-    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({});
+    expect(getMergeCellMap(model)).toEqual({});
+    expect(getMerges(model)).toEqual({});
   });
 
   test("can undo and redo a merge", () => {
@@ -315,26 +309,20 @@ describe("merges", () => {
     // select B2:B3 and merge
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
 
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([
-      "B2",
-      "B3",
-    ]);
-    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
 
     // undo
     model.dispatch("UNDO");
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([]);
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toEqual([]);
+    expect(Object.keys(getMergeCellMap(model))).toEqual([]);
+    expect(Object.keys(getMerges(model))).toEqual([]);
 
     // redo
     model.dispatch("REDO");
-    expect(Object.keys(model.getters.getMergeCellMap(model.getters.getActiveSheet()))).toEqual([
-      "B2",
-      "B3",
-    ]);
-    expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+    expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
+    expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
     });
   });

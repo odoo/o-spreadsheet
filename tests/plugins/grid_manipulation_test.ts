@@ -1,6 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { getSheet, makeTestFixture } from "../helpers";
+import { getMergeCellMap, getMerges, getSheet, makeTestFixture } from "../helpers";
 let model: Model;
 
 function undo() {
@@ -260,12 +260,12 @@ describe("Columns", () => {
 
     test("On deletion", () => {
       removeColumns([1, 3]);
-      expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+      expect(getMerges(model)).toEqual({
         5: { id: 5, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 2 },
         6: { id: 6, topLeft: "B2", top: 1, bottom: 1, left: 1, right: 2 },
         7: { id: 7, topLeft: "B3", top: 2, bottom: 2, left: 1, right: 2 },
       });
-      expect(model.getters.getMergeCellMap(model.getters.getActiveSheet())).toEqual({
+      expect(getMergeCellMap(model)).toEqual({
         A1: 5,
         B1: 5,
         C1: 5,
@@ -279,13 +279,13 @@ describe("Columns", () => {
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
-      expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+      expect(getMerges(model)).toEqual({
         9: { id: 9, topLeft: "A1", top: 0, bottom: 0, left: 0, right: 6 },
         10: { id: 10, topLeft: "D2", top: 1, bottom: 1, left: 3, right: 6 },
         11: { id: 11, topLeft: "E3", top: 2, bottom: 2, left: 4, right: 6 },
         12: { id: 12, topLeft: "D4", top: 3, bottom: 3, left: 3, right: 5 },
       });
-      expect(model.getters.getMergeCellMap(model.getters.getActiveSheet())).toEqual({
+      expect(getMergeCellMap(model)).toEqual({
         A1: 9,
         B1: 9,
         C1: 9,
@@ -365,9 +365,7 @@ describe("Columns", () => {
         C4: { style: 1, border: 1 },
         E1: { style: 1 },
       });
-      expect(
-        Object.values(model.getters.getMerges(model.getters.getActiveSheet()))[0]
-      ).toMatchObject({
+      expect(Object.values(getMerges(model))[0]).toMatchObject({
         left: 2,
         right: 5,
         topLeft: "C4",
@@ -866,12 +864,12 @@ describe("Rows", () => {
     });
     test("On deletion", () => {
       removeRows([1, 3]);
-      expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+      expect(getMerges(model)).toEqual({
         5: { id: 5, topLeft: "A1", top: 0, bottom: 2, left: 0, right: 0 },
         6: { id: 6, topLeft: "B2", top: 1, bottom: 2, left: 1, right: 1 },
         7: { id: 7, topLeft: "C2", top: 1, bottom: 2, left: 2, right: 2 },
       });
-      expect(model.getters.getMergeCellMap(model.getters.getActiveSheet())).toEqual({
+      expect(getMergeCellMap(model)).toEqual({
         A1: 5,
         A2: 5,
         A3: 5,
@@ -884,13 +882,13 @@ describe("Rows", () => {
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(0, "after", 1);
-      expect(model.getters.getMerges(model.getters.getActiveSheet())).toEqual({
+      expect(getMerges(model)).toEqual({
         9: { id: 9, topLeft: "A1", top: 0, bottom: 6, left: 0, right: 0 },
         10: { id: 10, topLeft: "B4", top: 3, bottom: 6, left: 1, right: 1 },
         11: { id: 11, topLeft: "C5", top: 4, bottom: 6, left: 2, right: 2 },
         12: { id: 12, topLeft: "D4", top: 3, bottom: 5, left: 3, right: 3 },
       });
-      expect(model.getters.getMergeCellMap(model.getters.getActiveSheet())).toEqual({
+      expect(getMergeCellMap(model)).toEqual({
         A1: 9,
         A2: 9,
         A3: 9,
@@ -971,9 +969,7 @@ describe("Rows", () => {
         D3: { style: 1, border: 1 },
         A5: { style: 1 },
       });
-      expect(
-        Object.values(model.getters.getMerges(model.getters.getActiveSheet()))[0]
-      ).toMatchObject({
+      expect(Object.values(getMerges(model))[0]).toMatchObject({
         top: 2,
         bottom: 5,
         topLeft: "D3",

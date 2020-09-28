@@ -15,8 +15,10 @@ import {
   ConditionalFormat,
   ColorScaleThreshold,
   CommandTypes,
+  Merge,
 } from "../src/types";
 import "./canvas.mock";
+import { MergePlugin } from "../src/plugins/merge";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
@@ -293,6 +295,20 @@ export function getCell(model: Model, xc: string, sheet?: string): Cell | null {
 
 export function getSheet(model: Model, index: number = 0): Sheet {
   return model.getters.getSheets()[index];
+}
+
+export function getMerges(model: Model): { [key: number]: Merge } {
+  const mergePlugin = model["handlers"].find(
+    (handler) => handler instanceof MergePlugin
+  )! as MergePlugin;
+  return mergePlugin["merges"][model.getters.getActiveSheet()];
+}
+
+export function getMergeCellMap(model: Model): { [key: string]: number } {
+  const mergePlugin = model["handlers"].find(
+    (handler) => handler instanceof MergePlugin
+  )! as MergePlugin;
+  return mergePlugin["mergeCellMap"][model.getters.getActiveSheet()];
 }
 
 export function zone(str: string): Zone {
