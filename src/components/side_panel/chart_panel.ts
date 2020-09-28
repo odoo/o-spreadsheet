@@ -66,7 +66,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
 
   createChart() {
     this.env.dispatch("CREATE_CHART", {
-      sheetId: this.getters.getActiveSheet(),
+      sheetId: this.getters.getActiveSheetId(),
       id: uuidv4(),
       definition: this.getChartDefinition(),
     });

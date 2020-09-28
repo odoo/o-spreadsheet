@@ -157,7 +157,7 @@ describe("merges", () => {
       },
     });
     const [, sheet2] = model.getters.getSheets();
-    expect(sheet2).not.toBe(model.getters.getActiveSheet());
+    expect(sheet2).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("REMOVE_ROWS", {
       rows: [2],
       sheet: sheet2.id,
@@ -206,7 +206,7 @@ describe("merges", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
     model.dispatch("ADD_MERGE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       zone: model.getters.getSelectedZone(),
       interactive: true,
     });

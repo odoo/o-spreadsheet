@@ -409,7 +409,7 @@ describe("error tooltip", () => {
   });
 
   test("can display error when move on merge", async () => {
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet, zone: toZone("C1:C8") });
     model.dispatch("SET_VALUE", { xc: "C1", text: "=1/0" });
     await nextTick();
@@ -447,7 +447,7 @@ describe("multi sheet with different sizes", function () {
   });
 
   test("multiple sheets of different size render correctly", async () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheet())).toBe("small");
+    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("ACTIVATE_SHEET", { from: "small", to: "big" });
     await nextTick();
@@ -476,9 +476,9 @@ describe("multi sheet with different sizes", function () {
   });
 
   test("deleting the row that has the active cell doesn't crash", async () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheet())).toBe("small");
+    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("small");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheet: model.getters.getActiveSheet() });
+    model.dispatch("REMOVE_COLUMNS", { columns: [1], sheet: model.getters.getActiveSheetId() });
     await nextTick();
     expect((parent.grid.comp! as Grid)["viewport"]).toMatchObject({
       top: 0,
@@ -503,7 +503,7 @@ describe("figures", () => {
 
   test("focus a figure", async () => {
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         tag: "text",
@@ -522,7 +522,7 @@ describe("figures", () => {
 
   test("deleting a figure focuses the canvas", async () => {
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         tag: "text",
@@ -545,7 +545,7 @@ describe("figures", () => {
 
   test("deleting a figure doesn't delete selection", async () => {
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         tag: "text",
@@ -584,7 +584,7 @@ describe("figures", () => {
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     await nextTick();
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
   });

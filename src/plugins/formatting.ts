@@ -161,7 +161,7 @@ export class FormattingPlugin extends BasePlugin {
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
     this.dispatch("UPDATE_CELL", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       col,
       row,
       style: id,
@@ -343,7 +343,7 @@ export class FormattingPlugin extends BasePlugin {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
-            sheet: this.getters.getActiveSheet(),
+            sheet: this.getters.getActiveSheetId(),
             col,
             row,
             style: 0,
@@ -564,7 +564,7 @@ export class FormattingPlugin extends BasePlugin {
       if (Object.keys(format).length !== 0) {
         for (let i = index; i < end; i++) {
           this.dispatch("UPDATE_CELL", {
-            sheet: this.getters.getActiveSheet(),
+            sheet: this.getters.getActiveSheetId(),
             col: isColumn ? i : x,
             row: isColumn ? x : i,
             style: format.style,

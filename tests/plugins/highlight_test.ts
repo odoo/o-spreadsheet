@@ -27,7 +27,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -52,7 +52,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -75,7 +75,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -94,7 +94,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -106,7 +106,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -126,7 +126,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: zone1,
       },
     ]);
@@ -140,7 +140,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: zone2,
       },
     ]);
@@ -160,7 +160,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: zone1,
       },
     ]);
@@ -175,7 +175,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: zone2,
       },
     ]);
@@ -235,12 +235,12 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", { anchor, zones });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
-      { color, zone, sheet: model.getters.getActiveSheet() },
+      { color, zone, sheet: model.getters.getActiveSheetId() },
     ]);
     model.dispatch("START_SELECTION");
     model.dispatch("SET_SELECTION", { anchor, zones });
     expect(model.getters.getHighlights()).toStrictEqual([
-      { color, zone, sheet: model.getters.getActiveSheet() },
+      { color, zone, sheet: model.getters.getActiveSheetId() },
     ]);
   });
 
@@ -265,12 +265,12 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: zone1,
       },
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: zone2,
       },
     ]);
@@ -289,7 +289,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -306,12 +306,12 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: firstColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 5, left: 5, right: 5, top: 5 },
       },
       {
         color: getColor(model),
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 7, left: 7, right: 7, top: 7 },
       },
     ]);
@@ -319,7 +319,7 @@ describe("highlight", () => {
 
   test("selecting cells in a merge expands the highlight", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet, zone: toZone("A2:A4") });
     model.dispatch("START_SELECTION_EXPANSION");
     model.dispatch("SET_SELECTION", {
@@ -330,7 +330,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: mergeColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: toZone("A2:A5"),
       },
     ]);
@@ -338,7 +338,7 @@ describe("highlight", () => {
 
   test("selecting cell in a merge does not reset pending highlights", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheet, zone: toZone("A2:A4") });
     model.dispatch("START_SELECTION_EXPANSION");
     model.dispatch("SET_SELECTION", {
@@ -352,7 +352,7 @@ describe("highlight", () => {
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: mergeColor,
-        sheet: model.getters.getActiveSheet(),
+        sheet: model.getters.getActiveSheetId(),
         zone: toZone("A1:A5"),
       },
     ]);

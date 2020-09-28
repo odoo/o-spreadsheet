@@ -168,7 +168,7 @@ describe("TopBar component", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "all",
     });
@@ -361,7 +361,7 @@ describe("TopBar - CF", () => {
     };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
@@ -405,11 +405,11 @@ describe("TopBar - CF", () => {
     };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });

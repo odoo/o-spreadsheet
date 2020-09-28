@@ -23,7 +23,7 @@ export interface Getters {
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
 
-  getActiveSheet: CorePlugin["getActiveSheet"];
+  getActiveSheetId: CorePlugin["getActiveSheetId"];
   getEvaluationSheets: CorePlugin["getEvaluationSheets"];
   getSheetName: CorePlugin["getSheetName"];
   getSheetIdByName: CorePlugin["getSheetIdByName"];

@@ -321,7 +321,7 @@ describe("composer", () => {
 
   test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
     await typeInComposer("=");
-    const sheet = model.getters.getActiveSheet();
+    const sheet = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { id: "42", name: "Sheet2", activate: true });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
@@ -397,7 +397,7 @@ describe("composer highlights color", () => {
     await startComposition();
     const highlights = getHighlights(model);
     expect(highlights).toHaveLength(2);
-    expect(highlights[0].sheet).toBe(model.getters.getActiveSheet());
+    expect(highlights[0].sheet).toBe(model.getters.getActiveSheetId());
     expect(highlights[0].zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
     expect(highlights[1].sheet).toBe("42");
     expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });

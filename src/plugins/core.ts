@@ -51,7 +51,7 @@ export class CorePlugin extends BasePlugin {
     "getCell",
     "getCellText",
     "zoneToXC",
-    "getActiveSheet",
+    "getActiveSheetId",
     "getSheetName",
     "getSheetIdByName",
     "getSheets",
@@ -132,7 +132,7 @@ export class CorePlugin extends BasePlugin {
         );
         this.sheetIds[this.sheets[sheet].name] = sheet;
         if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: sheet });
+          this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: sheet });
         }
         break;
       case "MOVE_SHEET":
@@ -160,7 +160,7 @@ export class CorePlugin extends BasePlugin {
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
         this.dispatch("UPDATE_CELL", {
-          sheet: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheet(),
+          sheet: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheetId(),
           col,
           row,
           content: cmd.text,
@@ -330,7 +330,7 @@ export class CorePlugin extends BasePlugin {
   /**
    * Returns the id (not the name) of the currently active sheet
    */
-  getActiveSheet(): UID {
+  getActiveSheetId(): UID {
     return this.activeSheet.id;
   }
 
@@ -913,7 +913,7 @@ export class CorePlugin extends BasePlugin {
       rows: createDefaultRows(rows),
     };
     const visibleSheets = this.visibleSheets.slice();
-    const index = visibleSheets.findIndex((id) => this.getters.getActiveSheet() === id);
+    const index = visibleSheets.findIndex((id) => this.getters.getActiveSheetId() === id);
     visibleSheets.splice(index + 1, 0, sheet.id);
     const sheets = this.sheets;
     this.history.updateLocalState(["visibleSheets"], visibleSheets);
@@ -996,7 +996,7 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.updateLocalState(["sheetIds"], sheetIds);
-    this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: toId });
+    this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: toId });
   }
 
   private interactiveDeleteSheet(sheetId: UID) {
@@ -1029,7 +1029,7 @@ export class CorePlugin extends BasePlugin {
       }
       return value;
     });
-    if (this.getActiveSheet() === sheetId) {
+    if (this.getActiveSheetId() === sheetId) {
       this.dispatch("ACTIVATE_SHEET", {
         from: sheetId,
         to: visibleSheets[Math.max(0, currentIndex - 1)],
@@ -1262,9 +1262,9 @@ export class CorePlugin extends BasePlugin {
     y += freezeRow && updateFreeze ? 0 : offsetY;
     if (
       x < 0 ||
-      x >= this.getters.getNumberCols(sheetId || this.getters.getActiveSheet()) ||
+      x >= this.getters.getNumberCols(sheetId || this.getters.getActiveSheetId()) ||
       y < 0 ||
-      y >= this.getters.getNumberRows(sheetId || this.getters.getActiveSheet())
+      y >= this.getters.getNumberRows(sheetId || this.getters.getActiveSheetId())
     ) {
       return "#REF";
     }
@@ -1395,7 +1395,7 @@ export class CorePlugin extends BasePlugin {
         figures: [],
       };
     });
-    data.activeSheet = this.getters.getActiveSheet();
+    data.activeSheet = this.getters.getActiveSheetId();
   }
 }
 

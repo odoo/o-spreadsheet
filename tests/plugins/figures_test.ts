@@ -17,7 +17,7 @@ describe("figure plugin", () => {
   test("can create a figure", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         tag: "hey",
@@ -43,7 +43,7 @@ describe("figure plugin", () => {
   test("can undo figure creation", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         tag: "hey",
@@ -62,9 +62,9 @@ describe("figure plugin", () => {
 
   test("can create a figure in a different sheet", () => {
     const model = new Model();
-    const sheet1 = model.getters.getActiveSheet();
+    const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { activate: true, id: "sheet2" });
-    const sheet2 = model.getters.getActiveSheet();
+    const sheet2 = model.getters.getActiveSheetId();
     model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
 
     model.dispatch("CREATE_FIGURE", {
@@ -92,7 +92,7 @@ describe("figure plugin", () => {
   test("can create a figure with some data", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 100,
@@ -114,7 +114,7 @@ describe("figure plugin", () => {
   test("getFigures only returns visible figures", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -147,7 +147,7 @@ describe("figure plugin", () => {
   test("selecting a figure, then clicking on a cell unselect figure", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -171,7 +171,7 @@ describe("figure plugin", () => {
   test("some commands do not remove figure selection", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -195,7 +195,7 @@ describe("figure plugin", () => {
   test("can move a figure", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -220,7 +220,7 @@ describe("figure plugin", () => {
   test("can undo an update operation", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -248,7 +248,7 @@ describe("figure plugin", () => {
   test("prevent moving a figure left or above of the sheet", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -270,7 +270,7 @@ describe("figure plugin", () => {
   test("can delete a figure", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,
@@ -308,7 +308,7 @@ describe("figure plugin", () => {
       ],
     });
     model.dispatch("CREATE_FIGURE", {
-      sheet: model.getters.getActiveSheet(),
+      sheet: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
         x: 10,

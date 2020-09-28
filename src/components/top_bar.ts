@@ -464,7 +464,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   toggleMerge() {
     const zones = this.getters.getSelectedZones();
     const zone = zones[zones.length - 1];
-    const sheet = this.getters.getActiveSheet();
+    const sheet = this.getters.getActiveSheetId();
     if (this.inMerge) {
       this.dispatch("REMOVE_MERGE", { sheet, zone });
     } else {
@@ -478,7 +478,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
   setBorder(command: BorderCommand) {
     this.dispatch("SET_FORMATTING", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       target: this.getters.getSelectedZones(),
       border: command,
     });
@@ -493,7 +493,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
   setDecimal(step: number) {
     this.dispatch("SET_DECIMAL", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       target: this.getters.getSelectedZones(),
       step: step,
     });
@@ -507,7 +507,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
 
   clearFormatting() {
     this.dispatch("CLEAR_FORMATTING", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       target: this.getters.getSelectedZones(),
     });
   }

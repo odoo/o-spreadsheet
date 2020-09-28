@@ -174,7 +174,7 @@ export class EditionPlugin extends BasePlugin {
     const [col, row] = this.getters.getPosition();
     this.col = col;
     this.row = row;
-    this.sheet = this.getters.getActiveSheet();
+    this.sheet = this.getters.getActiveSheetId();
   }
 
   private stopEdition() {
@@ -214,8 +214,8 @@ export class EditionPlugin extends BasePlugin {
           row,
         });
       }
-      if (this.getters.getActiveSheet() !== this.sheet) {
-        this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheet(), to: this.sheet });
+      if (this.getters.getActiveSheetId() !== this.sheet) {
+        this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: this.sheet });
       }
     }
   }
@@ -250,9 +250,9 @@ export class EditionPlugin extends BasePlugin {
       start: this.selectionInitialStart,
       end,
     });
-    if (this.getters.getEditionSheet() !== this.getters.getActiveSheet()) {
+    if (this.getters.getEditionSheet() !== this.getters.getActiveSheetId()) {
       const sheetName = getComposerSheetName(
-        this.getters.getSheetName(this.getters.getActiveSheet())!
+        this.getters.getSheetName(this.getters.getActiveSheetId())!
       );
       selectedXc = `${sheetName}!${selectedXc}`;
     }

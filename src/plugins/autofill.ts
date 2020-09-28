@@ -98,7 +98,7 @@ export class AutofillPlugin extends BasePlugin {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "AUTOFILL_SELECT":
-        const sheetId = this.getters.getActiveSheet();
+        const sheetId = this.getters.getActiveSheetId();
         this.lastCellSelected.col =
           cmd.col === -1
             ? this.lastCellSelected.col
@@ -132,7 +132,7 @@ export class AutofillPlugin extends BasePlugin {
         this.autofillAuto();
         break;
       case "AUTOFILL_CELL":
-        const sheet = this.getters.getActiveSheet();
+        const sheet = this.getters.getActiveSheetId();
         this.dispatch("UPDATE_CELL", {
           sheet,
           col: cmd.col,
@@ -277,7 +277,7 @@ export class AutofillPlugin extends BasePlugin {
     }
     if (row === zone.bottom) {
       col = zone.right;
-      if (col <= this.getters.getNumberCols(this.getters.getActiveSheet())) {
+      if (col <= this.getters.getNumberCols(this.getters.getActiveSheetId())) {
         let right = this.getters.getCell(col + 1, row);
         while (right && right.content) {
           row += 1;

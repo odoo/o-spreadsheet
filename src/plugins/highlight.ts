@@ -87,7 +87,7 @@ export class HighlightPlugin extends BasePlugin {
         const [xc, sheet] = r1c1.split("!").reverse();
         const sheetId = sheet
           ? this.getters.getSheetIdByName(sheet)!
-          : this.getters.getActiveSheet();
+          : this.getters.getActiveSheetId();
         const zone: Zone = this.getters.expandZone(toZone(xc));
         return { zone, color: ranges[r1c1], sheet: sheetId };
       })
@@ -154,7 +154,7 @@ export class HighlightPlugin extends BasePlugin {
     const { ctx, viewport, thinLineWidth } = renderingContext;
     ctx.lineWidth = 3 * thinLineWidth;
     for (let h of this.highlights.filter(
-      (highlight) => highlight.sheet === this.getters.getActiveSheet()
+      (highlight) => highlight.sheet === this.getters.getActiveSheetId()
     )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {

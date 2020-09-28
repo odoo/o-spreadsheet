@@ -246,7 +246,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElement(index: number): Col {
-    return this.getters.getCol(this.getters.getActiveSheet(), index);
+    return this.getters.getCol(this.getters.getActiveSheetId(), index);
   }
 
   _getBottomRightValue(element: Col): number {
@@ -266,7 +266,7 @@ export class ColResizer extends AbstractResizer {
     const size = this.state.delta + this._getElement(index).size;
     const cols = this.getters.getActiveCols();
     this.dispatch("RESIZE_COLUMNS", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       cols: cols.has(index) ? [...cols] : [index],
       size,
     });
@@ -283,7 +283,7 @@ export class ColResizer extends AbstractResizer {
   _fitElementSize(index: number): void {
     const cols = this.getters.getActiveCols();
     this.dispatch("AUTORESIZE_COLUMNS", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       cols: cols.has(index) ? [...cols] : [index],
     });
   }
@@ -370,7 +370,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElement(index: number): Row {
-    return this.getters.getRow(this.getters.getActiveSheet(), index);
+    return this.getters.getRow(this.getters.getActiveSheetId(), index);
   }
 
   _getHeaderSize(): number {
@@ -386,7 +386,7 @@ export class RowResizer extends AbstractResizer {
     const size = this.state.delta + this._getElement(index).size;
     const rows = this.getters.getActiveRows();
     this.dispatch("RESIZE_ROWS", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       rows: rows.has(index) ? [...rows] : [index],
       size,
     });
@@ -403,7 +403,7 @@ export class RowResizer extends AbstractResizer {
   _fitElementSize(index: number): void {
     const rows = this.getters.getActiveRows();
     this.dispatch("AUTORESIZE_ROWS", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       rows: rows.has(index) ? [...rows] : [index],
     });
   }

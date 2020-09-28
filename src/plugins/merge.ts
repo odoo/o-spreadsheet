@@ -171,7 +171,7 @@ export class MergePlugin extends BasePlugin {
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
         const cellXc = toXC(col, row);
-        const activeSheet = this.getters.getActiveSheet();
+        const activeSheet = this.getters.getActiveSheetId();
         if (this.mergeCellMap[activeSheet][cellXc]) {
           return true;
         }
@@ -185,7 +185,7 @@ export class MergePlugin extends BasePlugin {
    */
   expandZone(zone: Zone): Zone {
     let { left, right, top, bottom } = zone;
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     let result: Zone = { left, right, top, bottom };
 
     for (let id in this.merges[activeSheet]) {
@@ -201,12 +201,12 @@ export class MergePlugin extends BasePlugin {
     if (!this.isInMerge(xc1) || !this.isInMerge(xc2)) {
       return false;
     }
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     return this.mergeCellMap[activeSheet][xc1] === this.mergeCellMap[activeSheet][xc2];
   }
 
   isInMerge(xc: string): boolean {
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     return xc in this.mergeCellMap[activeSheet];
   }
 
@@ -223,7 +223,7 @@ export class MergePlugin extends BasePlugin {
     if (!this.isInMerge(xc)) {
       return xc;
     }
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     const merge = this.mergeCellMap[activeSheet][xc];
     return this.merges[activeSheet][merge].topLeft;
   }
@@ -359,7 +359,7 @@ export class MergePlugin extends BasePlugin {
       });
     }
     this.dispatch("ADD_MERGE", {
-      sheet: this.getters.getActiveSheet(),
+      sheet: this.getters.getActiveSheetId(),
       zone: newMerge,
     });
   }
@@ -452,7 +452,7 @@ export class MergePlugin extends BasePlugin {
   private autoFillMerge(originCol: number, originRow: number, col: number, row: number) {
     const xcOrigin = toXC(originCol, originRow);
     const xcTarget = toXC(col, row);
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheetId();
     if (this.isInMerge(xcTarget) && !this.isInMerge(xcOrigin)) {
       const mergeId = this.mergeCellMap[activeSheet][xcTarget];
       const zone = this.merges[activeSheet][mergeId];

@@ -69,7 +69,7 @@ describe("Chart sidepanel component", () => {
         labelRange: "A2:A10",
       },
       id: "42",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
     });
     parent.unmount();
   });
@@ -79,7 +79,7 @@ describe("Chart sidepanel component", () => {
     const model = new Model();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheet(),
+      sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
         dataSets: ["B1:B4", "C1:C4"],

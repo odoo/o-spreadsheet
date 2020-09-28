@@ -273,7 +273,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
   private currentPosition = this.getters.getPosition();
-  private currentSheet = this.getters.getActiveSheet();
+  private currentSheet = this.getters.getActiveSheetId();
 
   private clickedCol = 0;
   private clickedRow = 0;
@@ -302,7 +302,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     F2: () => this.dispatch("START_EDITION"),
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
-        sheet: this.getters.getActiveSheet(),
+        sheet: this.getters.getActiveSheetId(),
         target: this.getters.getSelectedZones(),
       });
     },
@@ -329,7 +329,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   async willUpdateProps() {
-    const sheet = this.getters.getActiveSheet();
+    const sheet = this.getters.getActiveSheetId();
     if (this.currentSheet !== sheet) {
       // We need to reset the viewport as the sheet is changed
       this.viewport.offsetX = 0;
@@ -365,7 +365,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   checkChanges(): boolean {
     const [col, row] = this.getters.getPosition();
     const [curCol, curRow] = this.currentPosition;
-    const currentSheet = this.getters.getActiveSheet();
+    const currentSheet = this.getters.getActiveSheetId();
     const changed = currentSheet !== this.currentSheet || col !== curCol || row !== curRow;
     if (changed) {
       this.currentPosition = [col, row];
@@ -379,7 +379,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   getAutofillPosition() {
     const zone = this.getters.getSelectedZone();
-    const sheet = this.getters.getActiveSheet();
+    const sheet = this.getters.getActiveSheetId();
     return {
       left:
         this.getters.getCol(sheet, zone.right).end -
