@@ -40,7 +40,8 @@ describe("navigation", () => {
 
   test("move right from right row", () => {
     const model = new Model();
-    const colNumber = model.getters.getCols().length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const colNumber = model.getters.getNumberCols(activeSheetId);
     model.dispatch("SELECT_CELL", { col: colNumber - 1, row: 0 });
 
     expect(model.getters.getPosition()).toEqual([colNumber - 1, 0]);
@@ -50,7 +51,8 @@ describe("navigation", () => {
 
   test("move bottom from bottom row", () => {
     const model = new Model();
-    const rowNumber = model.getters.getRows().length;
+    const activeSheetId = model.getters.getActiveSheetId();
+    const rowNumber = model.getters.getNumberRows(activeSheetId);
     model.dispatch("SELECT_CELL", { col: 0, row: rowNumber - 1 });
     expect(model.getters.getPosition()).toEqual([0, rowNumber - 1]);
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });

@@ -183,7 +183,7 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([0, 2]);
-      expect(model.getters.getCols()).toEqual([
+      expect(model.getters.getActiveSheet().cols).toEqual([
         { start: 0, end: 10, size: 10, name: "A" },
         { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" },
       ]);
@@ -220,7 +220,7 @@ describe("Columns", () => {
     test("On addition before", () => {
       addColumns(1, "before", 2);
       const size = DEFAULT_CELL_WIDTH;
-      expect(model.getters.getCols()).toEqual([
+      expect(model.getters.getActiveSheet().cols).toEqual([
         { start: 0, end: size, size, name: "A" },
         { start: size, end: size + 10, size: 10, name: "B" },
         { start: size + 10, end: size + 20, size: 10, name: "C" },
@@ -233,7 +233,7 @@ describe("Columns", () => {
     test("On addition after", () => {
       addColumns(2, "after", 2);
       const size = DEFAULT_CELL_WIDTH;
-      expect(model.getters.getCols()).toEqual([
+      expect(model.getters.getActiveSheet().cols).toEqual([
         { start: 0, end: size, size, name: "A" },
         { start: size, end: size + 10, size: 10, name: "B" },
         { start: size + 10, end: size + 30, size: 20, name: "C" },
@@ -703,7 +703,7 @@ describe("Rows", () => {
     test("On deletion", () => {
       removeRows([0, 2]);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model.getters.getRows()).toEqual([
+      expect(model.getters.getActiveSheet().rows).toEqual([
         { start: 0, end: 10, size: 10, name: "1", cells: {} },
         { start: 10, end: size + 10, size, name: "2", cells: {} },
       ]);
@@ -813,7 +813,7 @@ describe("Rows", () => {
     test("On addition before", () => {
       addRows(1, "before", 2);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model.getters.getRows()).toEqual([
+      expect(model.getters.getActiveSheet().rows).toEqual([
         { start: 0, end: size, size, name: "1", cells: {} },
         { start: size, end: size + 10, size: 10, name: "2", cells: {} },
         { start: size + 10, end: size + 20, size: 10, name: "3", cells: {} },
@@ -828,7 +828,7 @@ describe("Rows", () => {
     test("On addition after", () => {
       addRows(2, "after", 2);
       const size = DEFAULT_CELL_HEIGHT;
-      expect(model.getters.getRows()).toEqual([
+      expect(model.getters.getActiveSheet().rows).toEqual([
         { start: 0, end: size, size, name: "1", cells: {} },
         { start: size, end: size + 10, size: 10, name: "2", cells: {} },
         { start: size + 10, end: size + 30, size: 20, name: "3", cells: {} },

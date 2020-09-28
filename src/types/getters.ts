@@ -32,9 +32,7 @@ export interface Getters {
   getSheets: CorePlugin["getSheets"];
   getVisibleSheets: CorePlugin["getVisibleSheets"];
   getCol: CorePlugin["getCol"];
-  getCols: CorePlugin["getCols"];
   getRow: CorePlugin["getRow"];
-  getRows: CorePlugin["getRows"];
   getCells: CorePlugin["getCells"];
   getColCells: CorePlugin["getColCells"];
   getNumberCols: CorePlugin["getNumberCols"];
