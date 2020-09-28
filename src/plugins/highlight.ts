@@ -85,9 +85,7 @@ export class HighlightPlugin extends BasePlugin {
     return Object.keys(ranges)
       .map((r1c1) => {
         const [xc, sheet] = r1c1.split("!").reverse();
-        const sheetId = sheet
-          ? this.getters.getSheetIdByName(sheet)!
-          : this.getters.getActiveSheetId();
+        const sheetId = this.getters.getSheetIdByName(sheet) || this.getters.getActiveSheetId();
         const zone: Zone = this.getters.expandZone(toZone(xc));
         return { zone, color: ranges[r1c1], sheet: sheetId };
       })
@@ -95,8 +93,8 @@ export class HighlightPlugin extends BasePlugin {
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getRows().length &&
-          x.zone.right < this.getters.getCols().length
+          x.zone.bottom < this.getters.getNumberRows(x.sheet) &&
+          x.zone.right < this.getters.getNumberCols(x.sheet)
       );
   }
 

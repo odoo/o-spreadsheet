@@ -234,11 +234,11 @@ export class ConditionalFormatPlugin extends BasePlugin {
     const colorDiffUnitG = deltaColorG / deltaValue;
     const colorDiffUnitB = deltaColorB / deltaValue;
     const zone: Zone = toZone(range);
-    const activeSheet = this.getters.getActiveSheetId();
-    const computedStyle = this.computedStyles[activeSheet];
+    const activeSheetId = this.getters.getActiveSheetId();
+    const computedStyle = this.computedStyles[activeSheetId];
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const cell = this.getters.getRows()[row].cells[col];
+        const cell = this.getters.getCell(col, row);
         if (cell && cell.value && !Number.isNaN(Number.parseFloat(cell.value))) {
           const r = Math.round(
             ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
@@ -337,7 +337,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
               for (let row = zone.top; row <= zone.bottom; row++) {
                 for (let col = zone.left; col <= zone.right; col++) {
                   const pr = this.rulePredicate[cf.rule.type];
-                  let cell = this.getters.getRows()[row].cells[col];
+                  let cell = this.getters.getCell(col, row);
                   let xc = toXC(col, row);
                   if (pr && pr(cell, cf.rule)) {
                     // we must combine all the properties of all the CF rules applied to the given cell

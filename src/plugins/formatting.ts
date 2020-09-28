@@ -264,20 +264,20 @@ export class FormattingPlugin extends BasePlugin {
     row: number,
     borderMap: { [xc: string]: number }
   ) {
+    const activeSheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(col, row);
     const xc = cell ? cell.xc : toXC(col, row);
     borderMap[xc] = 0;
-
     if (col > 0) {
       this.clearSide(sheet, col - 1, row, "right", borderMap);
     }
     if (row > 0) {
       this.clearSide(sheet, col, row - 1, "bottom", borderMap);
     }
-    if (col < this.getters.getCols().length - 1) {
+    if (col < this.getters.getNumberCols(activeSheetId) - 1) {
       this.clearSide(sheet, col + 1, row, "left", borderMap);
     }
-    if (row < this.getters.getRows().length - 1) {
+    if (row < this.getters.getNumberRows(activeSheetId) - 1) {
       this.clearSide(sheet, col, row + 1, "top", borderMap);
     }
   }
@@ -529,7 +529,10 @@ export class FormattingPlugin extends BasePlugin {
    * @param upper true if the style of the upper row/col should be used, false, if the lower should be used
    */
   private onAddElements(start: number, end: number, isColumn: boolean, upper: boolean) {
-    const length = isColumn ? this.getters.getRows().length : this.getters.getCols().length;
+    const activeSheetId = this.getters.getActiveSheetId();
+    const length = isColumn
+      ? this.getters.getNumberRows(activeSheetId)
+      : this.getters.getNumberCols(activeSheetId);
     const index = start + 1;
     for (let x = 0; x < length; x++) {
       const xc = isColumn ? toXC(index, x) : toXC(x, index);

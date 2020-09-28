@@ -53,9 +53,7 @@ describe("sheets", () => {
       id: "42",
     });
     expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(4);
-    expect(model.getters.getCols().length).toBe(4);
     expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(2);
-    expect(model.getters.getRows().length).toBe(2);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("SheetTest");
   });
 

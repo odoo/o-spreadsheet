@@ -60,9 +60,7 @@ export class CorePlugin extends BasePlugin {
     "getVisibleSheets",
     "getEvaluationSheets",
     "getCol",
-    "getCols",
     "getRow",
-    "getRows",
     "getCells",
     "getColCells",
     "getNumberCols",
@@ -373,16 +371,8 @@ export class CorePlugin extends BasePlugin {
     return this.sheets[sheetId].cols[index];
   }
 
-  getCols(): Col[] {
-    return this.activeSheet.cols;
-  }
-
   getRow(sheetId: UID, index: number): Row {
     return this.sheets[sheetId].rows[index];
-  }
-
-  getRows(): Row[] {
-    return this.activeSheet.rows;
   }
 
   /**
