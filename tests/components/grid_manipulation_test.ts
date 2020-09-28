@@ -59,7 +59,7 @@ describe("Context Menu add/remove row/col", () => {
       target: [
         {
           top: 0,
-          bottom: model.getters.getNumberRows(model.getters.getActiveSheetId()) - 1,
+          bottom: model.getters.getActiveSheet().rowNumber - 1,
           left: 3,
           right: 3,
         },
@@ -79,7 +79,7 @@ describe("Context Menu add/remove row/col", () => {
           top: 4,
           bottom: 4,
           left: 0,
-          right: model.getters.getNumberCols(model.getters.getActiveSheetId()) - 1,
+          right: model.getters.getActiveSheet().colNumber - 1,
         },
       ],
       sheet: model.getters.getActiveSheetId(),

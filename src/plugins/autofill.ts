@@ -102,11 +102,11 @@ export class AutofillPlugin extends BasePlugin {
         this.lastCellSelected.col =
           cmd.col === -1
             ? this.lastCellSelected.col
-            : clip(cmd.col, 0, this.getters.getNumberCols(sheetId));
+            : clip(cmd.col, 0, this.getters.getSheet(sheetId).colNumber);
         this.lastCellSelected.row =
           cmd.row === -1
             ? this.lastCellSelected.row
-            : clip(cmd.row, 0, this.getters.getNumberRows(sheetId));
+            : clip(cmd.row, 0, this.getters.getSheet(sheetId).rowNumber);
         if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
           return { status: "SUCCESS" };
         }
@@ -277,7 +277,7 @@ export class AutofillPlugin extends BasePlugin {
     }
     if (row === zone.bottom) {
       col = zone.right;
-      if (col <= this.getters.getNumberCols(this.getters.getActiveSheetId())) {
+      if (col <= this.getters.getActiveSheet().colNumber) {
         let right = this.getters.getCell(col + 1, row);
         while (right && right.content) {
           row += 1;

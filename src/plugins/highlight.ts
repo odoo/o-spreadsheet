@@ -93,8 +93,8 @@ export class HighlightPlugin extends BasePlugin {
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getNumberRows(x.sheet) &&
-          x.zone.right < this.getters.getNumberCols(x.sheet)
+          x.zone.bottom < this.getters.getSheet(x.sheet).rowNumber &&
+          x.zone.right < this.getters.getSheet(x.sheet).colNumber
       );
   }
 

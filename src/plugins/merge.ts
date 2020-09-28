@@ -344,8 +344,9 @@ export class MergePlugin extends BasePlugin {
   private duplicateMerge(xc: string, col: number, row: number, sheetId: UID, cut?: boolean) {
     const mergeId = this.mergeCellMap[sheetId][xc];
     const merge = this.merges[sheetId][mergeId];
-    const colNumber = this.getters.getNumberCols(sheetId) - 1;
-    const rowNumber = this.getters.getNumberRows(sheetId) - 1;
+    const sheet = this.getters.getSheet(sheetId);
+    const colNumber = sheet.colNumber - 1;
+    const rowNumber = sheet.rowNumber - 1;
     const newMerge = {
       left: col,
       top: row,

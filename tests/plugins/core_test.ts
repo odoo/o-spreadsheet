@@ -214,8 +214,8 @@ describe("core", () => {
       ],
     });
     expect(model.getters.getActiveSheetId()).not.toBe("2");
-    expect(model.getters.getNumberRows("2")).toEqual(29);
-    expect(model.getters.getNumberCols("2")).toEqual(19);
+    expect(model.getters.getSheet("2").rowNumber).toEqual(29);
+    expect(model.getters.getSheet("2").colNumber).toEqual(19);
   });
 });
 
