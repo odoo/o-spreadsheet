@@ -260,19 +260,8 @@ export class CorePlugin extends BasePlugin {
       .join("");
   }
 
-  getCell(col: number, row: number, sheetName?: string): Cell | null {
-    let r;
-    if (!sheetName) {
-      r = this.activeSheet.rows[row];
-    } else {
-      const sheet = Object.values(this.sheets).find((x) => x.name === sheetName);
-      if (sheet) {
-        r = sheet.rows[row];
-      } else {
-        return null;
-      }
-    }
-    return r ? r.cells[col] || null : null;
+  getCell(col: number, row: number): Cell | null {
+    return (this.activeSheet.rows[row] && this.activeSheet.rows[row].cells[col]) || null;
   }
 
   getCellText(cell: Cell): string {

@@ -68,9 +68,10 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
-    expect(getCell(model, "A1", model.getters.getActiveSheet())).toBeNull();
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: sheet1 });
+    expect(model.getters.getActiveSheet()).toBe(sheet1);
     expect(getCell(model, "A1")!.content).toBe("=");
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    expect(getCell(model, "A1")).toBeNull();
   });
 
   test("ignore stopping composer selection if not selecting", () => {

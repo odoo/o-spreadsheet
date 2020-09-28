@@ -59,6 +59,6 @@ describe("evaluate formula getter", () => {
     model.dispatch("SET_VALUE", { sheetId: s[1].id, xc: "A1", text: "12" });
     model.dispatch("SET_VALUE", { sheetId: s[1].id, xc: "A2", text: "=A1" });
     model.dispatch("SET_VALUE", { sheetId: s[0].id, xc: "A2", text: "=Sheet2!A1" });
-    expect(model.getters.getCell(0, 1, "Sheet1")!.value).toBe(12);
+    expect(getCell(model, "A2", s[0].id)!.value).toBe(12);
   });
 });
