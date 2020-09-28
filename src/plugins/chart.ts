@@ -162,6 +162,7 @@ export class ChartPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private getChartDefinition(figureId: string): ChartDefinition {
+    this.getters.range.getZone("mjsd");
     return this.getters.getFigure<ChartDefinition>(figureId).data;
   }
 

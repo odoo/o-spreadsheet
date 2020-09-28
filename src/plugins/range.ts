@@ -1,31 +1,23 @@
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
-import { Command, WorkbookData, Zone } from "../types";
-import { toZone } from "../helpers";
+import { Command, Zone } from "../types/index";
+import { toZone } from "../helpers/index";
 
-export class Range {
-  get zone(): Zone {
-    return this._zone;
-  }
-  get sheetId(): string {
-    return this._sheetId;
-  }
-  private readonly _sheetId: string;
-  private readonly _zone: Zone;
+export type onRangeChange = () => void;
 
-  constructor(sheetId: string, zone: string | Zone) {
-    this._sheetId = sheetId;
-    if (zone instanceof String) {
-      this._zone = toZone(zone as string);
-    } else {
-      this._zone = zone as Zone;
-    }
-  }
-}
+export type Range = {
+  id: string;
+  zone: Zone; // the zone the range actually spans
+  sheetId: string; // the sheet on which the range is defined
+  isRowFixed: boolean; // if the row is preceded by $
+  isColFixed: boolean; // if the col is preceded by $
+  onChange: onRangeChange; // the callbacks that needs to be called if a range is modified
+};
 
 export class RangePlugin extends BasePlugin {
   static getters = ["getRange", "getRangeFromZone", "getRangeFromXC"];
   static modes: Mode[] = ["normal", "readonly", "headless"];
+  static pluginName = "range";
 
   private ranges: Record<string, Record<string, Range>> = {};
 
@@ -37,25 +29,29 @@ export class RangePlugin extends BasePlugin {
     }
   }
 
-  finalize() {}
-
-  import(data: WorkbookData) {
-    super.import(data);
-  }
-
-  export(data: WorkbookData) {
-    super.export(data);
+  finalize() {
+    // call all the onchange
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-  getRangeFromXC(sheetId: string, xc: string): Range {
-    return this.getRangeFromZone(sheetId, toZone(xc));
+
+  getRange(xc: string, rangeSheetId: string, onchange?: onRangeChange): string {
+    return this.getRangeFromZone(rangeSheetId, toZone(xc));
   }
 
-  getRangeFromZone(sheetId: string, zone: Zone): Range {
-    return this.ranges[sheetId][this.uniqueRef(sheetId, zone)];
+  getRangeFromZone(sheetId: string, zone: Zone, onchange?: onRangeChange): string {
+    this.ranges[sheetId][this.uniqueRef(sheetId, zone)];
+    return "32";
+  }
+
+  getRangeToString(rangeId: string): string {
+    return "564";
+  }
+
+  getZoneFromRange(rangeId: string): Zone {
+    return { top: 1, left: 1, bottom: 1, right: 1 };
   }
 
   //getRange(rangeId: string): Range {}

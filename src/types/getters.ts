@@ -13,6 +13,7 @@ import { HighlightPlugin } from "../plugins/highlight";
 import { SelectionInputPlugin } from "../plugins/selection_inputs";
 import { FigurePlugin } from "../plugins/figures";
 import { ChartPlugin } from "../plugins/chart";
+import { RangePlugin } from "../plugins/range";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -109,4 +110,8 @@ export interface Getters {
   getFigure: FigurePlugin["getFigure"];
 
   getChartRuntime: ChartPlugin["getChartRuntime"];
+
+  range: {
+    getZone: RangePlugin["getZoneFromRange"];
+  };
 }

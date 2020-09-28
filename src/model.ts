@@ -143,7 +143,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         if (!(name in plugin)) {
           throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
         }
-        this.getters[name] = plugin[name].bind(plugin);
+        this.getters[Plugin.name][name] = plugin[name].bind(plugin);
       }
       this.handlers.push(plugin);
       const layers = Plugin.layers.map((l) => [plugin, l] as [BasePlugin, LAYERS]);
