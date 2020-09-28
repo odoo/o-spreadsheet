@@ -148,10 +148,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
    * undefined if this cell doesn't have a conditional style set.
    */
   getConditionalStyle(xc: string): Style | undefined {
-    return (
-      this.computedStyles[this.getters.getActiveSheet()] &&
-      this.computedStyles[this.getters.getActiveSheet()][xc]
-    );
+    const activeSheet = this.getters.getActiveSheet();
+    const styles = this.computedStyles[activeSheet];
+    return styles && styles[xc];
   }
 
   getRulesSelection(selection: [Zone]): string[] {
@@ -235,6 +234,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
     const colorDiffUnitG = deltaColorG / deltaValue;
     const colorDiffUnitB = deltaColorB / deltaValue;
     const zone: Zone = toZone(range);
+    const activeSheet = this.getters.getActiveSheet();
+    const computedStyle = this.computedStyles[activeSheet];
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getRows()[row].cells[col];
@@ -249,10 +250,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
             (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
           );
           const color = (r << 16) | (g << 8) | b;
-          this.computedStyles[this.getters.getActiveSheet()][cell.xc] =
-            this.computedStyles[this.getters.getActiveSheet()][cell.xc] || {};
-          this.computedStyles[this.getters.getActiveSheet()][cell.xc].fillColor =
-            "#" + colorNumberString(color);
+          computedStyle[cell.xc] = computedStyle[cell.xc] || {};
+          computedStyle[cell.xc].fillColor = "#" + colorNumberString(color);
         }
       }
     }
@@ -399,6 +398,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     cut?: boolean
   ) {
     const xc = toXC(col, row);
+    const activeSheet = this.getters.getActiveSheet();
     for (let rule of this.cfRules[originSheet]) {
       for (let range of rule.ranges) {
         if (isInside(originCol, originRow, toZone(range))) {
@@ -408,10 +408,10 @@ export class ConditionalFormatPlugin extends BasePlugin {
             //remove from current rule
             toRemoveRange.push(toXC(originCol, originRow));
           }
-          if (originSheet === this.getters.getActiveSheet()) {
+          if (originSheet === activeSheet) {
             this.adaptRules(originSheet, cf, [xc], toRemoveRange);
           } else {
-            this.adaptRules(this.getters.getActiveSheet(), cf, [xc], []);
+            this.adaptRules(activeSheet, cf, [xc], []);
             this.adaptRules(originSheet, cf, [], toRemoveRange);
           }
         }
