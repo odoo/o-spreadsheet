@@ -90,15 +90,16 @@ export class EvaluationPlugin extends BasePlugin {
         }
         break;
       case "EVALUATE_CELLS":
+        const activeSheet = this.getters.getActiveSheet();
         if (cmd.onlyWaiting) {
           const cells = new Set(this.WAITING);
           this.WAITING.clear();
-          this.evaluateCells(makeSetIterator(cells), this.getters.getActiveSheet());
+          this.evaluateCells(makeSetIterator(cells), activeSheet);
         } else {
           this.WAITING.clear();
           this.evaluate();
         }
-        this.isUptodate.add(this.getters.getActiveSheet());
+        this.isUptodate.add(activeSheet);
         break;
       case "UNDO":
       case "REDO":
@@ -108,9 +109,10 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
-    if (!this.isUptodate.has(this.getters.getActiveSheet())) {
+    const activeSheet = this.getters.getActiveSheet();
+    if (!this.isUptodate.has(activeSheet)) {
       this.evaluate();
-      this.isUptodate.add(this.getters.getActiveSheet());
+      this.isUptodate.add(activeSheet);
     }
     if (this.loadingCells > 0) {
       this.startScheduler();

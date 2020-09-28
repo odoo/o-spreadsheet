@@ -585,15 +585,17 @@ export class FormattingPlugin extends BasePlugin {
   private getFormat(xc: string): FormatInfo {
     const format: FormatInfo = {};
     xc = this.getters.getMainCell(xc);
-    if (xc in this.getters.getCells()) {
-      if (this.getters.getCells()[xc].border) {
-        format["border"] = this.getters.getCells()[xc].border;
+    const cells = this.getters.getCells();
+    if (xc in cells) {
+      const cell = cells[xc];
+      if (cell.border) {
+        format["border"] = cell.border;
       }
-      if (this.getters.getCells()[xc].style) {
-        format["style"] = this.getters.getCells()[xc].style;
+      if (cell.style) {
+        format["style"] = cell.style;
       }
-      if (this.getters.getCells()[xc].format) {
-        format["format"] = this.getters.getCells()[xc].format;
+      if (cell.format) {
+        format["format"] = cell.format;
       }
     }
     return format;
