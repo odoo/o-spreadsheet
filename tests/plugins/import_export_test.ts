@@ -3,7 +3,7 @@ import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { CURRENT_VERSION } from "../../src/data";
-import { mockUuidV4To } from "../helpers";
+import { getMerges, mockUuidV4To } from "../helpers";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
@@ -87,12 +87,10 @@ describe("Import", () => {
       zone: { left: 0, top: 1, right: 5, bottom: 1 },
     });
     model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toHaveLength(0);
+    expect(Object.keys(getMerges(model))).toHaveLength(0);
     model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
-    expect(Object.keys(model.getters.getMerges(model.getters.getActiveSheet()))).toHaveLength(1);
-    expect(Object.values(model.getters.getMerges(model.getters.getActiveSheet()))[0].topLeft).toBe(
-      "A2"
-    );
+    expect(Object.keys(getMerges(model))).toHaveLength(1);
+    expect(Object.values(getMerges(model))[0].topLeft).toBe("A2");
   });
 });
 

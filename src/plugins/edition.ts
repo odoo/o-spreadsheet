@@ -180,18 +180,11 @@ export class EditionPlugin extends BasePlugin {
   private stopEdition() {
     if (this.mode !== "inactive") {
       this.cancelEdition();
-      let xc = toXC(this.col, this.row);
+      const xc = this.getters.getMainCell(toXC(this.col, this.row));
       const cells = this.getters.getCells();
-      const activeSheet = this.getters.getActiveSheet();
-      const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
-      const merges = this.getters.getMerges(activeSheet);
-      if (xc in mergeCellMap) {
-        const mergeId = mergeCellMap[xc];
-        xc = merges[mergeId].topLeft;
-      }
+      const cell = cells[xc];
       let content = this.currentContent;
       this.setContent("");
-      const cell = cells[xc];
       const didChange = cell ? cell.content !== content : content !== "";
       if (!didChange) {
         return;

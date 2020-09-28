@@ -426,11 +426,9 @@ export class RendererPlugin extends BasePlugin {
 
   private hasContent(col: number, row: number): boolean {
     const cells = this.getters.getCells();
-    const activeSheet = this.getters.getActiveSheet();
-    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
     const xc = toXC(col, row);
     const cell = cells[xc];
-    return (cell && cell.content) || ((xc in mergeCellMap) as any);
+    return (cell && cell.content) || (this.getters.isInMerge(xc) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -443,15 +441,12 @@ export class RendererPlugin extends BasePlugin {
     const cols = this.getters.getCols();
     const rows = this.getters.getRows();
     const cells = this.getters.getCells();
-    const activeSheet = this.getters.getActiveSheet();
-    const merges = this.getters.getMerges(activeSheet);
-    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cell = row.cells[colNumber];
-        if (cell && !(cell.xc in mergeCellMap)) {
+        if (cell && !this.getters.isInMerge(cell.xc)) {
           let col = cols[colNumber];
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
@@ -503,9 +498,9 @@ export class RendererPlugin extends BasePlugin {
       }
     }
 
+    const activeSheet = this.getters.getActiveSheet();
     // process all visible merges
-    for (let id in merges) {
-      let merge = merges[id];
+    for (let merge of this.getters.getMerges(activeSheet)) {
       if (overlap(merge, viewport)) {
         const refCell = cells[merge.topLeft];
         const width = cols[merge.right].end - cols[merge.left].start;

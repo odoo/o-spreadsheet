@@ -188,15 +188,7 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getActiveCell(): Cell | null {
-    const activeSheet = this.getters.getActiveSheet();
-    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
-    const merges = this.getters.getMerges(activeSheet);
-    let mergeId = mergeCellMap[this.activeXc];
-    if (mergeId) {
-      return this.getters.getCells()[merges[mergeId].topLeft];
-    } else {
-      return this.getters.getCell(this.activeCol, this.activeRow);
-    }
+    return this.getters.getCells()[this.getters.getMainCell(this.activeXc)] || null;
   }
 
   getActiveCols(): Set<number> {
@@ -348,14 +340,10 @@ export class SelectionPlugin extends BasePlugin {
   movePosition(deltaX: number, deltaY: number) {
     const [refCol, refRow] = this.getReferenceCoords();
     const activeReference = toXC(refCol, refRow);
-
-    const activeSheet = this.getters.getActiveSheet();
-    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
-    let mergeId = mergeCellMap[activeReference];
-    if (mergeId) {
+    if (this.getters.isInMerge(activeReference)) {
       let targetCol = refCol;
       let targetRow = refRow;
-      while (mergeCellMap[toXC(targetCol, targetRow)] === mergeId) {
+      while (this.getters.isInSameMerge(activeReference, toXC(targetCol, targetRow))) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
@@ -506,16 +494,14 @@ export class SelectionPlugin extends BasePlugin {
 
     // active zone
     const activeSheet = this.getters.getActiveSheet();
-    const mergeCellMap = this.getters.getMergeCellMap(activeSheet);
-    const merges = this.getters.getMerges(activeSheet);
     const [col, row] = this.getPosition();
     const activeXc = toXC(col, row);
 
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
-    if (activeXc in mergeCellMap) {
-      zone = merges[mergeCellMap[activeXc]];
+    if (this.getters.isInMerge(activeXc)) {
+      zone = this.getters.getMerge(activeSheet, activeXc)!;
     } else {
       zone = {
         top: row,
