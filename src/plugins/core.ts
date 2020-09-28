@@ -819,8 +819,8 @@ export class CorePlugin extends BasePlugin {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        this.history.updateSheet(sheet, ["cells", xc], undefined);
-        this.history.updateSheet(sheet, ["rows", row, "cells", col], undefined);
+        this.history.updateLocalState(["sheets", sheetId, "cells", xc], undefined);
+        this.history.updateLocalState(["sheets", sheetId, "rows", row, "cells", col], undefined);
       }
       return;
     }
@@ -886,8 +886,8 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    this.history.updateSheet(sheet, ["cells", xc], cell);
-    this.history.updateSheet(sheet, ["rows", row, "cells", col], cell);
+    this.history.updateLocalState(["sheets", sheetId, "cells", xc], cell);
+    this.history.updateLocalState(["sheets", sheetId, "rows", row, "cells", col], cell);
   }
 
   private generateSheetName(): string {
@@ -959,7 +959,7 @@ export class CorePlugin extends BasePlugin {
   private renameSheet(sheetId: UID, name: string) {
     const sheet = this.sheets[sheetId];
     const oldName = sheet.name;
-    this.history.updateSheet(sheet, ["name"], name.trim());
+    this.history.updateLocalState(["sheets", sheetId, "name"], name.trim());
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[name] = sheet.id;
     delete sheetIds[oldName];
