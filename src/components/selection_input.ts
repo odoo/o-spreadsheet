@@ -54,10 +54,10 @@ const CSS = css/* scss */ `
       padding: 3px 5px;
     }
     button.o-remove-selection {
+      margin-left: -30px;
       background: transparent;
       border: none;
       color: #333;
-      font-size: 17px;
       cursor: pointer;
     }
     button.o-btn {
