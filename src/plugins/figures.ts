@@ -28,39 +28,39 @@ export class FigurePlugin extends BasePlugin {
         this.deleteSheet(cmd.sheet);
         break;
       case "CREATE_FIGURE":
-        this.history.updateLocalState(["figures", cmd.figure.id], cmd.figure);
+        this.history.update(["figures", cmd.figure.id], cmd.figure);
         const sheetFigures = (this.sheetFigures[cmd.sheet] || []).slice();
         sheetFigures.push(cmd.figure);
-        this.history.updateLocalState(["sheetFigures", cmd.sheet], sheetFigures);
+        this.history.update(["sheetFigures", cmd.sheet], sheetFigures);
         break;
       case "UPDATE_FIGURE":
         if (cmd.x !== undefined) {
-          this.history.updateLocalState(["figures", cmd.id, "x"], Math.max(cmd.x, 0));
+          this.history.update(["figures", cmd.id, "x"], Math.max(cmd.x, 0));
         }
         if (cmd.y !== undefined) {
-          this.history.updateLocalState(["figures", cmd.id, "y"], Math.max(cmd.y, 0));
+          this.history.update(["figures", cmd.id, "y"], Math.max(cmd.y, 0));
         }
         if (cmd.width !== undefined) {
-          this.history.updateLocalState(["figures", cmd.id, "width"], cmd.width);
+          this.history.update(["figures", cmd.id, "width"], cmd.width);
         }
         if (cmd.height !== undefined) {
-          this.history.updateLocalState(["figures", cmd.id, "height"], cmd.height);
+          this.history.update(["figures", cmd.id, "height"], cmd.height);
         }
         if (cmd.data !== undefined) {
-          this.history.updateLocalState(["figures", cmd.id, "data"], cmd.data);
+          this.history.update(["figures", cmd.id, "data"], cmd.data);
         }
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
         break;
       case "DELETE_FIGURE":
-        this.history.updateLocalState(["figures", cmd.id], undefined);
+        this.history.update(["figures", cmd.id], undefined);
         for (let s in this.sheetFigures) {
           let deletedFigureIndex = this.sheetFigures[s].findIndex((f) => f.id === cmd.id);
           if (deletedFigureIndex > -1) {
             const copy = this.sheetFigures[s].slice();
             copy.splice(deletedFigureIndex, 1);
-            this.history.updateLocalState(["sheetFigures", s], copy);
+            this.history.update(["sheetFigures", s], copy);
             this.selectedFigureId = null;
           }
         }
@@ -75,11 +75,11 @@ export class FigurePlugin extends BasePlugin {
 
   deleteSheet(sheet: string) {
     for (let figure of this.sheetFigures[sheet] || []) {
-      this.history.updateLocalState(["figures", figure.id], undefined);
+      this.history.update(["figures", figure.id], undefined);
     }
     const sheetFigures = Object.assign({}, this.sheetFigures);
     delete sheetFigures[sheet];
-    this.history.updateLocalState(["sheetFigures"], sheetFigures);
+    this.history.update(["sheetFigures"], sheetFigures);
   }
 
   // ---------------------------------------------------------------------------

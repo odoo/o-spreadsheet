@@ -41,7 +41,7 @@ export class BasePlugin implements CommandHandler {
   ) {
     this.getters = getters;
     this.history = Object.assign(Object.create(history), {
-      updateLocalState: history.updateStateFromRoot.bind(history, this),
+      update: history.updateStateFromRoot.bind(history, this),
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;
