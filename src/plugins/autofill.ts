@@ -164,6 +164,7 @@ export class AutofillPlugin extends BasePlugin {
    */
   private autofill(apply: boolean) {
     if (!this.autofillZone || this.direction === undefined) {
+      this.tooltip = undefined;
       return;
     }
     const source = this.getters.getSelectedZone();
