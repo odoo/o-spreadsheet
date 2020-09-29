@@ -14,11 +14,13 @@ const TEMPLATE = xml/* xml */ `
       t-on-input="onInput"/>
   </div>
 `;
+
+const COMPOSER_BORDER_WIDTH = 1.6;
 const CSS = css/* scss */ `
   .o-grid-composer {
     box-sizing: border-box;
     position: absolute;
-    border: 1.6px solid #3266ca;
+    border: ${COMPOSER_BORDER_WIDTH}px solid #3266ca;
   }
 `;
 
@@ -53,7 +55,7 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
     return `left: ${x - 1}px;
         top:${y}px;
-        height:${height}px;
+        height:${height + 1}px;
         font-size:${fontSizeMap[style.fontSize || 10]}px;
         ${weight}${italic}${strikethrough}`;
   }
@@ -61,16 +63,17 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   get composerStyle(): string {
     const style = this.getters.getCurrentStyle();
     const cell = this.getters.getActiveCell() || { type: "text" };
-    const height = this.rect[3];
+    const height = this.rect[3] - COMPOSER_BORDER_WIDTH * 2 + 1;
     const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
     return `text-align:${align};
-        line-height:${height - 1.5}px;`;
+        height: ${height}px;
+        line-height:${height}px;`;
   }
 
   mounted() {
     const el = this.el!;
-    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 0.5) + "px") as string;
-    el.style.height = (this.rect[3] + 0.5 + "px") as string;
+    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 1) + "px") as string;
+    el.style.height = (this.rect[3] + 1 + "px") as string;
   }
 
   onInput(ev: KeyboardEvent) {
