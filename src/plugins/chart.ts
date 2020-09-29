@@ -90,8 +90,8 @@ export class ChartPlugin extends BasePlugin {
           },
         });
 
-        this.history.updateLocalState(["chartFigures"], new Set(this.chartFigures).add(cmd.id));
-        this.history.updateLocalState(
+        this.history.update(["chartFigures"], new Set(this.chartFigures).add(cmd.id));
+        this.history.update(
           ["chartRuntime", cmd.id],
           this.mapDefinitionToRuntime(chartDefinition)
         );
@@ -105,7 +105,7 @@ export class ChartPlugin extends BasePlugin {
           id: cmd.id,
           data: chartDefinition,
         });
-        this.history.updateLocalState(
+        this.history.update(
           ["chartRuntime", cmd.id],
           this.mapDefinitionToRuntime(chartDefinition)
         );
@@ -115,8 +115,8 @@ export class ChartPlugin extends BasePlugin {
         if (this.chartFigures.has(cmd.id)) {
           const figures = new Set(this.chartFigures);
           figures.delete(cmd.id);
-          this.history.updateLocalState(["chartFigures"], figures);
-          this.history.updateLocalState(["chartRuntime", cmd.id], undefined);
+          this.history.update(["chartFigures"], figures);
+          this.history.update(["chartRuntime", cmd.id], undefined);
         }
         break;
       case "UPDATE_CELL":

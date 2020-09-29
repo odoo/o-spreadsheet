@@ -119,7 +119,7 @@ export class CorePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.history.updateLocalState(["activeSheet"], this.sheets[cmd.to]);
+        this.history.update(["activeSheet"], this.sheets[cmd.to]);
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -206,28 +206,28 @@ export class CorePlugin extends BasePlugin {
         break;
       case "REMOVE_COLUMNS":
         this.removeColumns(cmd.sheet, cmd.columns);
-        this.history.updateLocalState(
+        this.history.update(
           ["sheets", cmd.sheet, "colNumber"],
           this.sheets[cmd.sheet].colNumber - cmd.columns.length
         );
         break;
       case "REMOVE_ROWS":
         this.removeRows(cmd.sheet, cmd.rows);
-        this.history.updateLocalState(
+        this.history.update(
           ["sheets", cmd.sheet, "rowNumber"],
           this.sheets[cmd.sheet].rowNumber - cmd.rows.length
         );
         break;
       case "ADD_COLUMNS":
         this.addColumns(cmd.sheet, cmd.column, cmd.position, cmd.quantity);
-        this.history.updateLocalState(
+        this.history.update(
           ["activeSheet", "colNumber"],
           this.activeSheet.colNumber + cmd.quantity
         );
         break;
       case "ADD_ROWS":
         this.addRows(cmd.sheet, cmd.row, cmd.position, cmd.quantity);
-        this.history.updateLocalState(
+        this.history.update(
           ["activeSheet", "rowNumber"],
           this.activeSheet.rowNumber + cmd.quantity
         );
@@ -448,12 +448,12 @@ export class CorePlugin extends BasePlugin {
     const cols = this.sheets[sheetId].cols;
     const col = cols[index];
     const delta = size - col.size;
-    this.history.updateLocalState(["sheets", sheetId, "cols", index, "size"], size);
-    this.history.updateLocalState(["sheets", sheetId, "cols", index, "end"], col.end + delta);
+    this.history.update(["sheets", sheetId, "cols", index, "size"], size);
+    this.history.update(["sheets", sheetId, "cols", index, "end"], col.end + delta);
     for (let i = index + 1; i < cols.length; i++) {
       const col = cols[i];
-      this.history.updateLocalState(["sheets", sheetId, "cols", i, "start"], col.start + delta);
-      this.history.updateLocalState(["sheets", sheetId, "cols", i, "end"], col.end + delta);
+      this.history.update(["sheets", sheetId, "cols", i, "start"], col.start + delta);
+      this.history.update(["sheets", sheetId, "cols", i, "end"], col.end + delta);
     }
   }
 
@@ -461,12 +461,12 @@ export class CorePlugin extends BasePlugin {
     const rows = this.sheets[sheetId].rows;
     const row = rows[index];
     const delta = size - row.size;
-    this.history.updateLocalState(["sheets", sheetId, "rows", index, "size"], size);
-    this.history.updateLocalState(["sheets", sheetId, "rows", index, "end"], row.end + delta);
+    this.history.update(["sheets", sheetId, "rows", index, "size"], size);
+    this.history.update(["sheets", sheetId, "rows", index, "end"], row.end + delta);
     for (let i = index + 1; i < rows.length; i++) {
       const row = rows[i];
-      this.history.updateLocalState(["sheets", sheetId, "rows", i, "start"], row.start + delta);
-      this.history.updateLocalState(["sheets", sheetId, "rows", i, "end"], row.end + delta);
+      this.history.update(["sheets", sheetId, "rows", i, "start"], row.start + delta);
+      this.history.update(["sheets", sheetId, "rows", i, "end"], row.end + delta);
     }
   }
 
@@ -663,7 +663,7 @@ export class CorePlugin extends BasePlugin {
       start += size;
       colIndex++;
     }
-    this.history.updateLocalState(["sheets", sheetId, "cols"], cols);
+    this.history.update(["sheets", sheetId, "cols"], cols);
   }
 
   private processRowsHeaderDelete(index: number, sheetId: UID) {
@@ -688,7 +688,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["sheets", sheetId, "rows"], rows);
+    this.history.update(["sheets", sheetId, "rows"], rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -712,7 +712,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.updateLocalState(["activeSheet", "rows"], rows);
+    this.history.update(["activeSheet", "rows"], rows);
   }
 
   private addEmptyRow() {
@@ -728,7 +728,7 @@ export class CorePlugin extends BasePlugin {
       cells: {},
     });
     const path = ["activeSheet", "rows"];
-    this.history.updateLocalState(path, newRows);
+    this.history.update(path, newRows);
   }
 
   private updateColumnsFormulas(base: number, step: number, sheetId: UID) {
@@ -809,8 +809,8 @@ export class CorePlugin extends BasePlugin {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        this.history.updateLocalState(["sheets", sheetId, "cells", xc], undefined);
-        this.history.updateLocalState(["sheets", sheetId, "rows", row, "cells", col], undefined);
+        this.history.update(["sheets", sheetId, "cells", xc], undefined);
+        this.history.update(["sheets", sheetId, "rows", row, "cells", col], undefined);
       }
       return;
     }
@@ -876,8 +876,8 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    this.history.updateLocalState(["sheets", sheetId, "cells", xc], cell);
-    this.history.updateLocalState(["sheets", sheetId, "rows", row, "cells", col], cell);
+    this.history.update(["sheets", sheetId, "cells", xc], cell);
+    this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
   }
 
   private generateSheetName(): string {
@@ -906,8 +906,8 @@ export class CorePlugin extends BasePlugin {
     const index = visibleSheets.findIndex((id) => this.getters.getActiveSheetId() === id);
     visibleSheets.splice(index + 1, 0, sheet.id);
     const sheets = this.sheets;
-    this.history.updateLocalState(["visibleSheets"], visibleSheets);
-    this.history.updateLocalState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
+    this.history.update(["visibleSheets"], visibleSheets);
+    this.history.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
   }
 
@@ -916,7 +916,7 @@ export class CorePlugin extends BasePlugin {
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
     const sheet = visibleSheets.splice(currentIndex, 1);
     visibleSheets.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
-    this.history.updateLocalState(["visibleSheets"], visibleSheets);
+    this.history.update(["visibleSheets"], visibleSheets);
   }
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
@@ -949,11 +949,11 @@ export class CorePlugin extends BasePlugin {
   private renameSheet(sheetId: UID, name: string) {
     const sheet = this.sheets[sheetId];
     const oldName = sheet.name;
-    this.history.updateLocalState(["sheets", sheetId, "name"], name.trim());
+    this.history.update(["sheets", sheetId, "name"], name.trim());
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[name] = sheet.id;
     delete sheetIds[oldName];
-    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.history.update(["sheetIds"], sheetIds);
     this.visitAllFormulasSymbols((value: string) => {
       let [val, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
@@ -977,15 +977,15 @@ export class CorePlugin extends BasePlugin {
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === fromId);
     visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
-    this.history.updateLocalState(["visibleSheets"], visibleSheets);
-    this.history.updateLocalState(
+    this.history.update(["visibleSheets"], visibleSheets);
+    this.history.update(
       ["sheets"],
       Object.assign({}, this.sheets, { [newSheet.id]: newSheet })
     );
 
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
-    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.history.update(["sheetIds"], sheetIds);
     this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: toId });
   }
 
@@ -999,16 +999,16 @@ export class CorePlugin extends BasePlugin {
     const name = this.sheets[sheetId].name;
     const sheets = Object.assign({}, this.sheets);
     delete sheets[sheetId];
-    this.history.updateLocalState(["sheets"], sheets);
+    this.history.update(["sheets"], sheets);
 
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
     visibleSheets.splice(currentIndex, 1);
-    this.history.updateLocalState(["visibleSheets"], visibleSheets);
+    this.history.update(["visibleSheets"], visibleSheets);
 
     const sheetIds = Object.assign({}, this.sheetIds);
     delete sheetIds[name];
-    this.history.updateLocalState(["sheetIds"], sheetIds);
+    this.history.update(["sheetIds"], sheetIds);
     this.visitAllFormulasSymbols((value: string) => {
       let [, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
@@ -1350,8 +1350,8 @@ export class CorePlugin extends BasePlugin {
     };
     visibleSheets = visibleSheets.slice();
     visibleSheets.push(sheet.id);
-    this.history.updateLocalState(["visibleSheets"], visibleSheets);
-    this.history.updateLocalState(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
+    this.history.update(["visibleSheets"], visibleSheets);
+    this.history.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     // cells
     for (let xc in data.cells) {
       const cell = data.cells[xc];

@@ -335,6 +335,7 @@ export class ClipboardPlugin extends BasePlugin {
     onlyFormat: boolean
   ) {
     const targetCell = this.getters.getCell(col, row);
+    const sheet = this.getters.getActiveSheetId();
     if (origin) {
       let style = origin.style;
       let border = origin.border;
@@ -361,36 +362,36 @@ export class ClipboardPlugin extends BasePlugin {
         const offsetY = row - origin.row;
         content = this.getters.applyOffset(content, offsetX, offsetY);
       }
-
-      let newCell = {
-        style: style,
-        border: border,
-        format: format,
-        sheet: this.getters.getActiveSheetId(),
-        col: col,
-        row: row,
-        content: content,
+      const newCell = {
+        style,
+        border,
+        format,
+        sheet,
+        col,
+        row,
+        content,
       };
 
       this.dispatch("UPDATE_CELL", newCell);
-    }
-    if (!origin && targetCell) {
+    } else if (targetCell) {
       if (onlyValue) {
         if (targetCell.content) {
-          //this.history.updateCell(targetCell, "content", undefined);
-          this.history.updateCell(targetCell, "content", "");
-          this.history.updateCell(targetCell, "value", "");
+          this.dispatch("UPDATE_CELL", {
+            sheet,
+            col,
+            row,
+            content: "",
+          });
         }
       } else if (onlyFormat) {
-        if (targetCell.style) {
-          this.history.updateCell(targetCell, "style", undefined);
-        }
-        if (targetCell.border) {
-          this.history.updateCell(targetCell, "border", undefined);
-        }
-        if (targetCell.format) {
-          this.history.updateCell(targetCell, "format", undefined);
-        }
+        this.dispatch("UPDATE_CELL", {
+          sheet,
+          col,
+          row,
+          style: undefined,
+          border: undefined,
+          format: undefined,
+        });
       } else {
         this.dispatch("CLEAR_CELL", {
           sheet: this.getters.getActiveSheetId(),
