@@ -75,12 +75,19 @@ export class CorePlugin extends BasePlugin {
   private sheets: Record<UID, Sheet> = {};
   private activeSheet: Sheet = null as any;
 
+  // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
+  // the main command.
+  private historizeActiveSheet: boolean = true;
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "ACTIVATE_SHEET":
+        this.historizeActiveSheet = false;
+        return { status: "SUCCESS" };
       case "REMOVE_COLUMNS":
         return this.sheets[cmd.sheet].cols.length > cmd.columns.length
           ? { status: "SUCCESS" }
@@ -119,7 +126,11 @@ export class CorePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.history.update(["activeSheet"], this.sheets[cmd.to]);
+        if (this.historizeActiveSheet) {
+          this.history.update(["activeSheet"], this.sheets[cmd.to]);
+        } else {
+          this.activeSheet = this.sheets[cmd.to];
+        }
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -236,6 +247,10 @@ export class CorePlugin extends BasePlugin {
         this.showFormulas = cmd.show;
         break;
     }
+  }
+
+  finalize() {
+    this.historizeActiveSheet = true;
   }
 
   // ---------------------------------------------------------------------------
@@ -978,10 +993,7 @@ export class CorePlugin extends BasePlugin {
     const currentIndex = visibleSheets.findIndex((id) => id === fromId);
     visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
     this.history.update(["visibleSheets"], visibleSheets);
-    this.history.update(
-      ["sheets"],
-      Object.assign({}, this.sheets, { [newSheet.id]: newSheet })
-    );
+    this.history.update(["sheets"], Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
