@@ -99,6 +99,33 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")!.textContent).toBe("test");
   });
 
+  test("Tooltip is removed when cancelling autofill", async () => {
+    const autofill = fixture.querySelector(".o-autofill");
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "test" });
+    await nextTick();
+    triggerMouseEvent(autofill, "mousedown", 4, 4);
+    await nextTick();
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 1).end + 10
+    );
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeDefined();
+    triggerMouseEvent(
+      autofill,
+      "mousemove",
+      HEADER_WIDTH + parent.env.getters.getCol(parent.env.getters.getActiveSheet(), 0).start + 10,
+      HEADER_HEIGHT + parent.env.getters.getRow(parent.env.getters.getActiveSheet(), 0).start + 10
+    );
+    await nextTick();
+    triggerMouseEvent(autofill, "mouseup");
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
+  });
+
   test("Can display tooltip with a custom component", async () => {
     const autofill = fixture.querySelector(".o-autofill");
     class CustomTooltip extends Component {
