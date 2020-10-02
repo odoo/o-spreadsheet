@@ -213,11 +213,12 @@ export class MergePlugin extends BasePlugin {
   private addMerge(sheetId: string, zone: Zone) {
     const sheet = this.workbook.sheets[sheetId];
     const { left, right, top, bottom } = zone;
-    let tl = toXC(left, top);
-    let br = toXC(right, bottom);
+    const tl = toXC(left, top);
+    const br = toXC(right, bottom);
     if (tl === br) {
       return;
     }
+    const topLeft = this.getters.getCell(left, top);
 
     let id = this.nextId++;
     this.history.updateState(["sheets", sheetId, "merges", id], {
@@ -233,10 +234,12 @@ export class MergePlugin extends BasePlugin {
       for (let col = left; col <= right; col++) {
         const xc = toXC(col, row);
         if (col !== left || row !== top) {
-          this.dispatch("CLEAR_CELL", {
+          this.dispatch("UPDATE_CELL", {
             sheet: sheetId,
             col,
             row,
+            style: topLeft ? topLeft.style : undefined,
+            content: undefined,
           });
         }
         if (sheet.mergeCellMap[xc]) {
@@ -270,7 +273,8 @@ export class MergePlugin extends BasePlugin {
     const topLeft = this.getters.getCell(left, top);
     const bottomRight = this.getters.getCell(right, bottom) || topLeft;
     const bordersTopLeft = topLeft ? this.getters.getCellBorder(topLeft) : null;
-    const bordersBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
+    const bordersBottomRight =
+      (bottomRight ? this.getters.getCellBorder(bottomRight) : null) || bordersTopLeft;
     this.dispatch("SET_FORMATTING", {
       sheet,
       target: [{ left, right, top, bottom }],
