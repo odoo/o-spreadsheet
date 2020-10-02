@@ -113,7 +113,9 @@ export const AVEDEV: FunctionDescription = {
       0
     );
     if (count === 0) {
-      throw new Error(_lt(`Evaluation of function AVEDEV caused a divide by zero error.`));
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
     }
     const average = sum / count;
     return reduceNumbers(arguments, (acc, a) => acc + Math.abs(average - a), 0) / count;
@@ -145,7 +147,9 @@ export const AVERAGE: FunctionDescription = {
       0
     );
     if (count === 0) {
-      throw new Error(_lt(`Evaluation of function AVERAGE caused a divide by zero error.`));
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
     }
     return sum / count;
   },
@@ -154,9 +158,9 @@ export const AVERAGE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // AVERAGE.WEIGHTED
 // -----------------------------------------------------------------------------
-const rangeError = _lt(`AVERAGE.WEIGHTED has mismatched range sizes.`);
+const rangeError = _lt(`[[FUNCTION_NAME]] has mismatched range sizes.`);
 const negativeWeightError = _lt(
-  `AVERAGE.WEIGHTED expects the weight to be positive or equal to 0.`
+  `[[FUNCTION_NAME]] expects the weight to be positive or equal to 0.`
 );
 
 export const AVERAGE_WEIGHTED: FunctionDescription = {
@@ -203,7 +207,7 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
             let subWeightIsNumber = typeof subWeight === "number";
             // typeof subValue or subWeight can be 'number' or 'undefined'
             if (subValueIsNumber !== subWeightIsNumber) {
-              throw new Error(_lt(`AVERAGE.WEIGHTED expects number values.`));
+              throw new Error(_lt(`[[FUNCTION_NAME]] expects number values.`));
             }
             if (subWeightIsNumber) {
               if (subWeight < 0) {
@@ -226,7 +230,7 @@ export const AVERAGE_WEIGHTED: FunctionDescription = {
     }
     if (count === 0) {
       throw new Error(
-        _lt(`Evaluation of function AVERAGE.WEIGHTED caused a divide by zero error.`)
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
       );
     }
     return sum / count;
@@ -258,7 +262,9 @@ export const AVERAGEA: FunctionDescription = {
       0
     );
     if (count === 0) {
-      throw new Error(_lt(`Evaluation of function AVERAGEA caused a divide by zero error.`));
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
     }
     return sum / count;
   },
@@ -277,16 +283,16 @@ export const AVERAGEIF: FunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (criteria_range: any, criterion: any, average_range: any = undefined): number {
-    if (average_range === undefined) {
-      average_range = criteria_range;
+  compute: function (criteriaRange: any, criterion: any, averageRange: any = undefined): number {
+    if (averageRange === undefined) {
+      averageRange = criteriaRange;
     }
 
     let count = 0;
     let sum = 0;
 
-    visitMatchingRanges([criteria_range, criterion], (i, j) => {
-      const value = average_range[i][j];
+    visitMatchingRanges([criteriaRange, criterion], (i, j) => {
+      const value = averageRange[i][j];
       if (typeof value === "number") {
         count += 1;
         sum += value;
@@ -294,7 +300,9 @@ export const AVERAGEIF: FunctionDescription = {
     });
 
     if (count === 0) {
-      throw new Error(_lt(`Evaluation of function AVERAGEIF caused a divide by zero error.`));
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
     }
     return sum / count;
   },
@@ -320,18 +328,20 @@ export const AVERAGEIFS: FunctionDescription = {
   // criteria_range2 (any, range, optional, repeating) Additional ranges to check.
   // criterion2 (string, optional, repeating) Additional criteria to check.
   returns: ["NUMBER"],
-  compute: function (average_range, ...args): number {
+  compute: function (averageRange, ...args): number {
     let count = 0;
     let sum = 0;
     visitMatchingRanges(args, (i, j) => {
-      const value = average_range[i][j];
+      const value = averageRange[i][j];
       if (typeof value === "number") {
         count += 1;
         sum += value;
       }
     });
     if (count === 0) {
-      throw new Error(_lt(`Evaluation of function AVERAGEIFS caused a divide by zero error.`));
+      throw new Error(
+        _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      );
     }
     return sum / count;
   },
@@ -398,8 +408,8 @@ export const COVAR: FunctionDescription = {
     data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
   `),
   returns: ["NUMBER"],
-  compute: function (data_y: any[], data_x: any[]): number {
-    return covariance(data_y, data_x, false);
+  compute: function (dataY: any[], dataX: any[]): number {
+    return covariance(dataY, dataX, false);
   },
 };
 
@@ -413,8 +423,8 @@ export const COVARIANCE_P: FunctionDescription = {
     data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
   `),
   returns: ["NUMBER"],
-  compute: function (data_y: any[], data_x: any[]): number {
-    return covariance(data_y, data_x, false);
+  compute: function (dataY: any[], dataX: any[]): number {
+    return covariance(dataY, dataX, false);
   },
 };
 
@@ -428,8 +438,8 @@ export const COVARIANCE_S: FunctionDescription = {
     data_x (any, range) ${_lt("The range representing the array or matrix of independent data.")}
   `),
   returns: ["NUMBER"],
-  compute: function (data_y: any[], data_x: any[]): number {
-    return covariance(data_y, data_x, true);
+  compute: function (dataY: any[], dataX: any[]): number {
+    return covariance(dataY, dataX, true);
   },
 };
 
@@ -461,10 +471,10 @@ export const LARGE: FunctionDescription = {
     });
     const result = largests.shift();
     if (result === undefined) {
-      throw new Error(_lt(`LARGE has no valid input data.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(_lt(`Function LARGE parameter 2 value ${n} is out of range.`));
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value ${n} is out of range.`));
     }
     return result;
   },
@@ -684,10 +694,10 @@ export const SMALL: FunctionDescription = {
     });
     const result = largests.pop();
     if (result === undefined) {
-      throw new Error(_lt(`SMALL has no valid input data.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     if (count < n) {
-      throw new Error(_lt(`Function SMALL parameter 2 value ${n} is out of range.`));
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value ${n} is out of range.`));
     }
     return result;
   },

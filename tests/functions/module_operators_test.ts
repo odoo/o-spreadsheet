@@ -1,11 +1,7 @@
 import { evaluateCell } from "../helpers";
 
-describe("operators", () => {
-  //----------------------------------------------------------------------------
-  // ADD
-  //----------------------------------------------------------------------------
-
-  test("ADD: functional tests on simple arguments", () => {
+describe("ADD formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=ADD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=ADD( ,  )" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=ADD( , 1)" })).toBe(1);
@@ -15,7 +11,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=ADD(42, 42%)" })).toBe(42.42);
   });
 
-  test("ADD: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=ADD(1, "")' })).toBe(1);
     expect(evaluateCell("A1", { A1: '=ADD(1, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=ADD(1, "3")' })).toBe(4);
@@ -25,14 +21,14 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=ADD(1, "3%")' })).toBe(1.03);
   });
 
-  test("ADD: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "1" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "1", A3: "42" })).toBe(43);
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "-1", A3: "4.2" })).toBe(3.2);
   });
 
-  test("ADD: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '"3"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -42,12 +38,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '="42"' })).toBe(84);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // CONCAT
-  //----------------------------------------------------------------------------
-
-  test("CONCAT: functional tests on simple arguments", () => {
+describe("CONCAT formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=CONCAT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=CONCAT( ,  )" })).toBe("");
     expect(evaluateCell("A1", { A1: "=CONCAT( , 1)" })).toBe("1");
@@ -66,7 +60,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=CONCAT("TRUE", TRUE)' })).toBe("TRUETRUE");
   });
 
-  test("CONCAT: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "1" })).toBe("1");
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "1", A3: "42" })).toBe("142");
@@ -80,12 +74,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "42", A3: '=" "' })).toBe("42 ");
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "42", A3: '="24"' })).toBe("4224");
   });
+});
 
-  //----------------------------------------------------------------------------
-  // DIVIDE
-  //----------------------------------------------------------------------------
-
-  test("DIVIDE: functional tests on simple arguments", () => {
+describe("DIVIDE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=DIVIDE( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=DIVIDE( , 1)" })).toBe(0);
@@ -95,7 +87,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE(1, 5%)" })).toBe(20);
   });
 
-  test("DIVIDE: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=DIVIDE("", 1)' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=DIVIDE(" ", 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=DIVIDE("4", 2)' })).toBe(2);
@@ -105,14 +97,14 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=DIVIDE(1, "50%")' })).toBe(2);
   });
 
-  test("DIVIDE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "42", A3: "2" })).toBe(21);
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "4.2", A3: "-1" })).toBe(-4.2);
   });
 
-  test("DIVIDE: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: '""', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: '" "', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: '"3"', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -121,12 +113,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: '=" "', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "42", A3: '="42"' })).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // EQ
-  //----------------------------------------------------------------------------
-
-  test("EQ: functional tests on simple arguments", () => {
+describe("EQ formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=EQ()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=EQ( ,  )" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ( , 0)" })).toBe(true);
@@ -145,7 +135,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=EQ(FALSE, )" })).toBe(true);
   });
 
-  test("EQ: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A3: "0" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "42", A3: "42" })).toBe(true);
@@ -161,12 +151,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "=TRUE", A3: "1" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: '="42"', A3: "42" })).toBe(false);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // GT
-  //----------------------------------------------------------------------------
-
-  test("GT: functional tests on simple arguments", () => {
+describe("GT formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=GT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=GT( ,  )" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=GT( , 1)" })).toBe(false);
@@ -214,7 +202,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=GT("1", "99999")' })).toBe(false);
   });
 
-  test("GT: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: "1" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A3: "1" })).toBe(false);
@@ -247,12 +235,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // GTE
-  //----------------------------------------------------------------------------
-
-  test("GTE: functional tests on simple arguments", () => {
+describe("GTE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=GTE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=GTE( ,  )" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE( , 1)" })).toBe(false);
@@ -301,7 +287,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=GTE("1", "99999")' })).toBe(false);
   });
 
-  test("GTE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: "1" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A3: "1" })).toBe(false);
@@ -334,12 +320,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // LT
-  //----------------------------------------------------------------------------
-
-  test("LT: functional tests on simple arguments", () => {
+describe("LT formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=LT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=LT( ,  )" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT( , 1)" })).toBe(true);
@@ -387,7 +371,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=LT("1", "99999")' })).toBe(true);
   });
 
-  test("LT: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: "1" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A3: "1" })).toBe(true);
@@ -420,12 +404,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(true);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // LTE
-  //----------------------------------------------------------------------------
-
-  test("LTE: functional tests on simple arguments", () => {
+describe("LTE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=LTE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=LTE( ,  )" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=LTE( , 1)" })).toBe(true);
@@ -474,7 +456,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=LTE("1", "99999")' })).toBe(true);
   });
 
-  test("LTE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: "1" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A3: "1" })).toBe(true);
@@ -507,12 +489,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: '="1"', A3: "99999" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(true);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MINUS
-  //----------------------------------------------------------------------------
-
-  test("MINUS: functional tests on simple arguments", () => {
+describe("MINUS formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINUS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=MINUS( ,  )" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINUS( , 1)" })).toBe(-1);
@@ -522,7 +502,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(42, 42%)" })).toBe(41.58);
   });
 
-  test("MINUS: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=MINUS(1, "")' })).toBe(1);
     expect(evaluateCell("A1", { A1: '=MINUS(1, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=MINUS(1, "3")' })).toBe(-2);
@@ -532,7 +512,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=MINUS(1, "3%")' })).toBe(0.97);
   });
 
-  test("MINUS: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "1" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A3: "1" })).toBe(-1);
@@ -540,7 +520,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "-1", A3: "4.2" })).toBe(-5.2);
   });
 
-  test("MINUS: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '"3"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -550,12 +530,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '="42"' })).toBe(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MULTIPLY
-  //----------------------------------------------------------------------------
-
-  test("MULTIPLY: functional tests on simple arguments", () => {
+describe("MULTIPLY formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=MULTIPLY( ,  )" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MULTIPLY( , 2)" })).toBe(0);
@@ -565,7 +543,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY(2, 5%)" })).toBe(0.1);
   });
 
-  test("MULTIPLY: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=MULTIPLY("", 1)' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=MULTIPLY(" ", 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=MULTIPLY("4", 2)' })).toBe(8);
@@ -575,14 +553,14 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=MULTIPLY(2, "50%")' })).toBe(1);
   });
 
-  test("MULTIPLY: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: "42", A3: "2" })).toBe(84);
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: "4.2", A3: "-2" })).toBe(-8.4);
   });
 
-  test("MULTIPLY: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: '""', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: '" "', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: '"3"', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -591,12 +569,10 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: '=" "', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: "42", A3: '="42"' })).toBe(1764);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // NE
-  //----------------------------------------------------------------------------
-
-  test("NE: functional tests on simple arguments", () => {
+describe("NE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=NE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=NE( ,  )" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=NE( , 0)" })).toBe(false);
@@ -615,7 +591,7 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=NE(FALSE, )" })).toBe(false);
   });
 
-  test("NE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A3: "0" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A2: "42", A3: "42" })).toBe(false);
@@ -631,11 +607,9 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A2: "=TRUE", A3: "1" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A2: '="42"', A3: "42" })).toBe(true);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // POW
-  //----------------------------------------------------------------------------
-
+describe("POW formula", () => {
   test.each([
     ["0", "0", 1],
     ["0", "0.5", 0],
@@ -648,7 +622,7 @@ describe("operators", () => {
     ["4", "0.5", 2],
     ["4", "-0.5", 0.5],
     ["4", "-2", 0.0625],
-  ])("POW(%s, %s) - %s: take 2 parameter(s), return a number", (a, b, expected) => {
+  ])("take 2 parameters, return a number", (a, b, expected) => {
     expect(evaluateCell("A1", { A1: "=POW(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
 
@@ -656,11 +630,11 @@ describe("operators", () => {
     ["-4", "0.5"],
     ["-4", "1.5"],
     ["-4", "0.2"],
-  ])("POW(%s, %s) - error: take 2 parameter(s), return an error on parameter 2", (a, b) => {
+  ])("take 2 parameters, return an error on parameter 2", (a, b) => {
     expect(evaluateCell("A1", { A1: "=POW(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("POW: special value testing", () => {
+  test("special value testing", () => {
     expect(evaluateCell("A1", { A1: "=POW()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=POW( , )" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=POW(42, 2)" })).toBe(1764);
@@ -692,19 +666,17 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=POW(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=POW(A2, A3)", A2: '="42"', A3: '="2"' })).toBe(1764);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // UMINUS
-  //----------------------------------------------------------------------------
-
-  test("UMINUS: functional tests on simple arguments", () => {
+describe("UMINUS formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=UMINUS(0)" })).toBe(-0);
     expect(evaluateCell("A1", { A1: "=UMINUS(2)" })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=UMINUS(-3)" })).toBe(3);
   });
 
-  test("UMINUS: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=UMINUS("")' })).toBe(-0);
     expect(evaluateCell("A1", { A1: '=UMINUS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=UMINUS("4")' })).toBe(-4);
@@ -714,14 +686,14 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=UMINUS("test")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("UMINUS: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)" })).toBe(-0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "0" })).toBe(-0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "-2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "3" })).toBe(-3);
   });
 
-  test("UMINUS: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "TRUE" })).toBe(-1);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: "FALSE" })).toBe(-0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -730,19 +702,17 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '=""' })).toBe(-0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '="42"' })).toBe(-42);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // UNARY.PERCENT
-  //----------------------------------------------------------------------------
-
-  test("UNARY.PERCENT: functional tests on simple arguments", () => {
+describe("UNARY.PERCENT formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(2)" })).toBe(0.02);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(-3)" })).toBe(-0.03);
   });
 
-  test("UNARY.PERCENT: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=UNARY.PERCENT("")' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=UNARY.PERCENT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=UNARY.PERCENT("4")' })).toBe(0.04);
@@ -754,14 +724,14 @@ describe("operators", () => {
     expect(evaluateCell("A1", { A1: '=UNARY.PERCENT("test")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("UNARY.PERCENT: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: "-2" })).toBe(-0.02);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: "3" })).toBe(0.03);
   });
 
-  test("UNARY.PERCENT: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: "TRUE" })).toBe(0.01);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: "FALSE" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!

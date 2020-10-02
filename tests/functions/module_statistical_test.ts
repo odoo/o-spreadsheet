@@ -1,11 +1,7 @@
 import { evaluateCell, evaluateGrid } from "../helpers";
 
-describe("statistical", () => {
-  //----------------------------------------------------------------------------
-  // AVEDEV
-  //----------------------------------------------------------------------------
-
-  test("AVEDEV: functional tests on simple arguments", () => {
+describe("AVEDEV formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=AVEDEV()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=AVEDEV(,)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVEDEV(0)" })).toBe(0);
@@ -16,14 +12,14 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVEDEV(-10, 20)" })).toBe(15);
   });
 
-  test("AVEDEV: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=AVEDEV("2", "-6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: '=AVEDEV("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=AVEDEV("2", " -6 ")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=AVEDEV(TRUE, FALSE)" })).toBe(0.5);
   });
 
-  test("AVEDEV: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "1", A3: "2" })).toBe(0.5);
@@ -33,14 +29,14 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "-10", A3: "20" })).toBe(15);
   });
 
-  test("AVEDEV: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: '"2"', A3: '"6"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: '"2"', A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "TRUE", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=AVEDEV(A2, A3)", A2: "TRUE", A3: "42" })).toBe(0);
   });
 
-  test("AVEDEV: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=AVEDEV(B2:D4)",
       A2: "=AVEDEV(B2:C3, B4:C4, D2:D3, D4)",
@@ -57,12 +53,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", grid)).toEqual(17.1);
     expect(evaluateCell("A2", grid)).toEqual(17.1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // AVERAGE
-  //----------------------------------------------------------------------------
-
-  test("AVERAGE: functional tests on simple arguments", () => {
+describe("AVERAGE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=average()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=average(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=average(1, 2)" })).toBe(1.5);
@@ -72,12 +66,12 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=average(-10, 20)" })).toBe(5);
   });
 
-  test("AVERAGE: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=average("2", "-6")' })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=average(TRUE, FALSE)" })).toBe(0.5);
   });
 
-  test("AVERAGE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=average(A2)", A2: "" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "1", A3: "2" })).toBe(1.5);
@@ -87,7 +81,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "-10", A3: "20" })).toBe(5);
   });
 
-  test("AVERAGE: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: '"2"', A3: '"6"' })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: '"2"', A3: "42" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "TRUE", A3: "FALSE" })).toEqual(
@@ -96,7 +90,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=average(A2, A3)", A2: "TRUE", A3: "42" })).toBe(42);
   });
 
-  test("AVERAGE: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=average(B2:D4)",
       A2: "=average(B2:C3, B4:C4, D2:D3, D4)",
@@ -113,12 +107,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", grid)).toEqual(8);
     expect(evaluateCell("A2", grid)).toEqual(8);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // AVERAGE.WEIGHTED
-  //----------------------------------------------------------------------------
-
-  test("AVERAGE.WEIGHTED: functional tests on simple arguments", () => {
+describe("AVERAGE.WEIGHTED formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=average.weighted( ,  )" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average.weighted(0, 0)" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average.weighted(0, 1)" })).toBe(0);
@@ -133,7 +125,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=average.weighted(1, -1, 3, 3)" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("AVERAGE.WEIGHTED: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=average.weighted("-10", "1", "20", "2")' })).toBe(10);
     expect(evaluateCell("A1", { A1: "=average.weighted(TRUE, FALSE)" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=average.weighted(FALSE, TRUE)" })).toBe(0);
@@ -142,7 +134,7 @@ describe("statistical", () => {
     ); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("AVERAGE.WEIGHTED: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=average.weighted(A2, A3)", A2: "", A3: "" })).toEqual(
       "#ERROR"
     ); // @compatibility: on google sheets, return #DIV/0!
@@ -218,7 +210,7 @@ describe("statistical", () => {
     ).toEqual("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("AVERAGE.WEIGHTED: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",
@@ -284,7 +276,7 @@ describe("statistical", () => {
     ).toBe(6);
   });
 
-  test("AVERAGE.WEIGHTED: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=average.weighted(C1, C3, D1, D3, E1, E3, F1, F3)",
       A2: "=average.weighted(C1:F1, C3:F3)",
@@ -328,12 +320,10 @@ describe("statistical", () => {
     expect(evaluateCell("A9", grid)).toBe(16);
     expect(evaluateCell("A10", grid)).toBe(16);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // AVERAGEA
-  //----------------------------------------------------------------------------
-
-  test("AVERAGEA: functional tests on simple arguments", () => {
+describe("AVERAGEA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=AVERAGEA(,)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(0)" })).toBe(0);
@@ -344,7 +334,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(-10, 20)" })).toBe(5);
   });
 
-  test("AVERAGEA: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=AVERAGEA("")' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=AVERAGEA(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=AVERAGEA("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -354,7 +344,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(TRUE, FALSE)" })).toBe(0.5);
   });
 
-  test("AVERAGEA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: "0" })).toBe(0);
@@ -365,7 +355,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2, A3)", A2: "-10", A3: "20" })).toBe(5);
   });
 
-  test("AVERAGEA: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '""' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '" "' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '"42"' })).toBe(0);
@@ -378,7 +368,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=AVERAGEA(A2)", A2: '="42"' })).toBe(0);
   });
 
-  test("AVERAGEA: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=AVERAGEA(B2:D4)",
       A2: "=AVERAGEA(B2:C3, B4:C4, D2:D3, D4)",
@@ -394,12 +384,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", grid)).toBe(2);
     expect(evaluateCell("A2", grid)).toBe(2);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // AVERAGEIF
-  //----------------------------------------------------------------------------
-
-  test("AVERAGEIF: functional tests on range", () => {
+describe("AVERAGEIF formula", () => {
+  test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
       A1:  "Coffee"    , B1:  "4"  ,
@@ -424,12 +412,10 @@ describe("statistical", () => {
     expect(gridResult.A14).toBe(28.25);
     expect(gridResult.A15).toBe(36);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // AVERAGEIFS
-  //----------------------------------------------------------------------------
-
-  test("AVERAGEIFS: functional tests on range", () => {
+describe("AVERAGEIFS formula", () => {
+  test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
       B1:  "4" , C1:  "14", D1:  "Yes",
@@ -454,12 +440,10 @@ describe("statistical", () => {
     expect(gridResult.A13).toBe(30);
     expect(gridResult.A14).toBe(21.2);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // COUNT
-  //----------------------------------------------------------------------------
-
-  test("COUNT: functional tests on simple arguments", () => {
+describe("COUNT formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=count()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=count( ,  )" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=count(1, 2, 3, 4)" })).toBe(4);
@@ -468,7 +452,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=count(1 ,2, 3%)" })).toBe(3);
   });
 
-  test("count: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=count(1, 2, "")' })).toBe(2);
     expect(evaluateCell("A1", { A1: '=count(1, 2, " ")' })).toBe(2);
     expect(evaluateCell("A1", { A1: '=count(1, 2, "3")' })).toBe(3);
@@ -479,7 +463,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=count(1, 2, "3@")' })).toBe(2);
   });
 
-  test("COUNT: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=count(A2)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=count(A2)", A2: "0" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "42" })).toBe(2);
@@ -488,7 +472,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "3%" })).toBe(2);
   });
 
-  test("COUNT: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '""' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '" "' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3"' })).toBe(1);
@@ -499,7 +483,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "42", A3: '"3@"' })).toBe(1);
   });
 
-  test("COUNT: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=count(B2:D4)",
       A2: "=count(B2:C3, B4:C4, D2:D3, D4)",
@@ -516,12 +500,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", grid)).toEqual(4);
     expect(evaluateCell("A2", grid)).toEqual(4);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // COUNTA
-  //----------------------------------------------------------------------------
-
-  test("COUNTA: functional tests on simple arguments", () => {
+describe("COUNTA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=COUNTA( ,  )" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=COUNTA(1, 2, 3, 4)" })).toBe(4);
@@ -530,7 +512,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(1 ,2, 3%)" })).toBe(3);
   });
 
-  test("COUNTA: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=COUNTA(1, 2, "")' })).toBe(3);
     expect(evaluateCell("A1", { A1: '=COUNTA(1, 2, " ")' })).toBe(3);
     expect(evaluateCell("A1", { A1: '=COUNTA(1, 2, "3")' })).toBe(3);
@@ -541,7 +523,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=COUNTA(1, 2, "3@")' })).toBe(3);
   });
 
-  test("COUNTA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(A2)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=COUNTA(A2)", A2: "0" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "1", A3: "42" })).toBe(2);
@@ -550,7 +532,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "1", A3: "3%" })).toBe(2);
   });
 
-  test("COUNTA: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "42", A3: '""' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "42", A3: '" "' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "42", A3: '"3"' })).toBe(2);
@@ -564,7 +546,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "42", A3: '="42"' })).toBe(2);
   });
 
-  test("COUNTA: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=COUNTA(B2:D4)",
       A2: "=COUNTA(B2:C3, B4:C4, D2:D3, D4)",
@@ -580,12 +562,10 @@ describe("statistical", () => {
     expect(evaluateCell("A1", grid)).toBe(8);
     expect(evaluateCell("A2", grid)).toBe(8);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // COVAR
-  //----------------------------------------------------------------------------
-
-  test("COVAR: functional tests on range arguments", () => {
+describe("COVAR formula", () => {
+  test("functional tests on range arguments", () => {
     // prettier-ignore
     const grid = {
       A1: "1", B1: "4",
@@ -616,12 +596,10 @@ describe("statistical", () => {
     expect(gridResult.A14).toEqual(0.25);
     expect(gridResult.A15).toEqual(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // COVARIANCE.P
-  //----------------------------------------------------------------------------
-
-  test("COVARIANCE.P: functional tests on range arguments", () => {
+describe("COVARIANCE.P formula", () => {
+  test("functional tests on range arguments", () => {
     // prettier-ignore
     const grid = {
       A1: "1", B1: "4",
@@ -652,12 +630,10 @@ describe("statistical", () => {
     expect(gridResult.A14).toEqual(0.25);
     expect(gridResult.A15).toEqual(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // COVARIANCE.S
-  //----------------------------------------------------------------------------
-
-  test("COVARIANCE.S: functional tests on range arguments", () => {
+describe("COVARIANCE.S formula", () => {
+  test("functional tests on range arguments", () => {
     // prettier-ignore
     const grid = {
       A1: "1", B1: "4",
@@ -688,12 +664,10 @@ describe("statistical", () => {
     expect(gridResult.A14).toEqual(0.5);
     expect(gridResult.A15).toEqual("#ERROR"); //@compatibility: on google sheet, return #NUM
   });
+});
 
-  //----------------------------------------------------------------------------
-  // LARGE
-  //----------------------------------------------------------------------------
-
-  test("LARGE: functional tests on simple arguments", () => {
+describe("LARGE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=LARGE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=LARGE( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=LARGE( , 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
@@ -704,7 +678,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=LARGE(2, 1.9)" })).toBe(2);
   });
 
-  test("LARGE: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=LARGE(2, "1")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=LARGE(2, TRUE)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=LARGE(2, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
@@ -714,7 +688,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=LARGE("2", 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 
-  test("LARGE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LARGE(A2:A4, A5)", A2: "", A3: "", A4: "", A5: "0" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #NUM!
@@ -738,7 +712,7 @@ describe("statistical", () => {
     ); // @compatibility: on google sheets, return #NUM!
   });
 
-  test("LARGE: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=LARGE(A2:A4, A5)", A2: '"3"', A3: "", A4: "2", A5: "1" })
     ).toBe(2);
@@ -764,12 +738,10 @@ describe("statistical", () => {
       evaluateCell("A1", { A1: "=LARGE(A2:A4, A5)", A2: "TRUE", A3: "0", A4: "0", A5: "1" })
     ).toBe(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MAX
-  //----------------------------------------------------------------------------
-
-  test("MAX: functional tests on simple arguments", () => {
+describe("MAX formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MAX()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=MAX(,)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAX(0)" })).toBe(0);
@@ -787,7 +759,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MAX(0, "0", TRUE)' })).toBe(1);
   });
 
-  test("MAX: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAX(A2)", A2: "," })).toBe(0);
@@ -815,7 +787,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAX(A2, A3)", A2: '="24"', A3: '="42"' })).toBe(0);
   });
 
-  test("MAX: functional tests on simple and cell arguments", () => {
+  test("functional tests on simple and cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAX(A2,)", A2: '=""' })).toBe(0);
@@ -843,7 +815,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAX(A2, TRUE)", A2: '="0"' })).toBe(1);
   });
 
-  test("MAX: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=MAX(B2:D3,B4:D4,E2:E3,E4)",
 
@@ -882,12 +854,10 @@ describe("statistical", () => {
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MAXA
-  //----------------------------------------------------------------------------
-
-  test("MAXA: functional tests on simple arguments", () => {
+describe("MAXA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MAXA()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=MAXA(,)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(0)" })).toBe(0);
@@ -906,7 +876,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MAXA(0, "0", TRUE)' })).toBe(1);
   });
 
-  test("MAXA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MAXA(A2)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(A2)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(A2)", A2: "," })).toBe(0);
@@ -934,7 +904,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAXA(A2, A3)", A2: '="24"', A3: '="42"' })).toBe(0);
   });
 
-  test("MAXA: functional tests on simple and cell arguments", () => {
+  test("functional tests on simple and cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MAXA(A2,)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(A2,)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MAXA(A2,)", A2: '=""' })).toBe(0);
@@ -962,7 +932,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MAXA(A2, TRUE)", A2: '="0"' })).toBe(1);
   });
 
-  test("MAXA: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=MAXA(B2:D3,B4:D4,E2:E3,E4)",
 
@@ -1001,12 +971,10 @@ describe("statistical", () => {
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MAXIFS
-  //----------------------------------------------------------------------------
-
-  test("MAXIFS: functional tests on range", () => {
+describe("MAXIFS formula", () => {
+  test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
       B1:  "4" , C1:  "14", D1:  "Yes",
@@ -1031,12 +999,10 @@ describe("statistical", () => {
     expect(gridResult.A13).toBe(24);
     expect(gridResult.A14).toBe(31);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MIN
-  //----------------------------------------------------------------------------
-
-  test("MIN: functional tests on simple arguments", () => {
+describe("MIN formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MIN()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=MIN(,)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(0)" })).toBe(0);
@@ -1054,7 +1020,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MIN(0, "0", TRUE)' })).toBe(0);
   });
 
-  test("MIN: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(A2)", A2: "," })).toBe(0);
@@ -1082,7 +1048,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MIN(A2, A3)", A2: '="42"', A3: '="24"' })).toBe(0);
   });
 
-  test("MIN: functional tests on simple and cell arguments", () => {
+  test("functional tests on simple and cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MIN(A2,)", A2: '=""' })).toBe(0);
@@ -1110,7 +1076,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MIN(A2, TRUE)", A2: '="0"' })).toBe(1);
   });
 
-  test("MIN: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=MIN(B2:D3,B4:D4,E2:E3,E4)",
 
@@ -1149,12 +1115,10 @@ describe("statistical", () => {
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MINA
-  //----------------------------------------------------------------------------
-
-  test("MINA: functional tests on simple arguments", () => {
+describe("MINA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINA()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=MINA(,)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINA(0)" })).toBe(0);
@@ -1173,7 +1137,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=MINA(0, "0", TRUE)' })).toBe(0);
   });
 
-  test("MINA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINA(A2)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINA(A2)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINA(A2)", A2: "," })).toBe(0);
@@ -1201,7 +1165,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MINA(A2, A3)", A2: '="42"', A3: '="24"' })).toBe(0);
   });
 
-  test("MINA: functional tests on simple and cell arguments", () => {
+  test("functional tests on simple and cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINA(A2,)", A2: "" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINA(A2,)", A2: " " })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MINA(A2,)", A2: '=""' })).toBe(0);
@@ -1229,7 +1193,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=MINA(A2, TRUE)", A2: '="2"' })).toBe(0);
   });
 
-  test("MINA: functional tests on range arguments", () => {
+  test("functional tests on range arguments", () => {
     const grid = {
       A1: "=MINA(B2:D3,B4:D4,E2:E3,E4)",
 
@@ -1268,12 +1232,10 @@ describe("statistical", () => {
     expect(gridResult.D1).toEqual(0);
     expect(gridResult.E1).toEqual(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MINIFS
-  //----------------------------------------------------------------------------
-
-  test("MINIFS: functional tests on range", () => {
+describe("MINIFS formula", () => {
+  test("functional tests on range", () => {
     // prettier-ignore
     const grid = {
       B1:  "4" , C1:  "14", D1:  "Yes",
@@ -1298,12 +1260,10 @@ describe("statistical", () => {
     expect(gridResult.A13).toBe(24);
     expect(gridResult.A14).toBe(9);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // SMALL
-  //----------------------------------------------------------------------------
-
-  test("SMALL: functional tests on simple arguments", () => {
+describe("SMALL formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=SMALL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=SMALL( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=SMALL( , 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
@@ -1314,7 +1274,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=SMALL(2, 1.9)" })).toBe(2);
   });
 
-  test("SMALL: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=SMALL(2, "1")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=SMALL(2, TRUE)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=SMALL(2, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
@@ -1324,7 +1284,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: '=SMALL("2", 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 
-  test("SMALL: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=SMALL(A2:A4, A5)", A2: "", A3: "", A4: "", A5: "0" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #NUM!
@@ -1348,7 +1308,7 @@ describe("statistical", () => {
     ); // @compatibility: on google sheets, return #NUM!
   });
 
-  test("SMALL: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=SMALL(A2:A4, A5)", A2: '"3"', A3: "", A4: "2", A5: "1" })
     ).toBe(2);
@@ -1374,12 +1334,10 @@ describe("statistical", () => {
       evaluateCell("A1", { A1: "=SMALL(A2:A4, A5)", A2: "TRUE", A3: "0", A4: "0", A5: "1" })
     ).toBe(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // STDEV
-  //----------------------------------------------------------------------------
-
-  test("STDEV: functional tests on simple arguments", () => {
+describe("STDEV formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=STDEV(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV(1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1391,13 +1349,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEV(-2, 0, 2)" })).toBe(2);
   });
 
-  test("STDEV: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=STDEV(2, 4, "6")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEV(TRUE, 3, 5)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=STDEV("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("STDEV: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV(A2)", A2: "0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV(A2)", A2: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1409,7 +1367,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEV(A2, A3, A4)", A2: "-2", A3: "0", A4: "2" })).toBe(2);
   });
 
-  test("STDEV: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=STDEV(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })
     ).toBeCloseTo(1.41);
@@ -1423,12 +1381,10 @@ describe("statistical", () => {
       evaluateCell("A1", { A1: "=STDEV(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })
     ).toBeCloseTo(1.41);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // STDEV.P
-  //----------------------------------------------------------------------------
-
-  test("STDEV.P: functional tests on simple arguments", () => {
+describe("STDEV.P formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.P()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=STDEV.P(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=STDEV.P(1)" })).toBe(0);
@@ -1440,13 +1396,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.P(-3, 0, 3)" })).toBeCloseTo(2.45);
   });
 
-  test("STDEV.P: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=STDEV.P(2, 5, "8")' })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: "=STDEV.P(TRUE, 4, 7)" })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: '=STDEV.P("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("STDEV.P: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.P(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV.P(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=STDEV.P(A2)", A2: "1" })).toBe(0);
@@ -1462,7 +1418,7 @@ describe("statistical", () => {
     ).toBeCloseTo(2.45);
   });
 
-  test("STDEV.P: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.P(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(
       1
     );
@@ -1474,12 +1430,10 @@ describe("statistical", () => {
     );
     expect(evaluateCell("A1", { A1: "=STDEV.P(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // STDEV.S
-  //----------------------------------------------------------------------------
-
-  test("STDEV.S: functional tests on simple arguments", () => {
+describe("STDEV.S formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.S()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=STDEV.S(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV.S(1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1491,13 +1445,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.S(-2, 0, 2)" })).toBe(2);
   });
 
-  test("STDEV.S: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=STDEV.S(2, 4, "6")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEV.S(TRUE, 3, 5)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=STDEV.S("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("STDEV.S: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.S(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV.S(A2)", A2: "0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEV.S(A2)", A2: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1509,7 +1463,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEV.S(A2, A3, A4)", A2: "-2", A3: "0", A4: "2" })).toBe(2);
   });
 
-  test("STDEV.S: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=STDEV.S(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })
     ).toBeCloseTo(1.41);
@@ -1523,12 +1477,10 @@ describe("statistical", () => {
       evaluateCell("A1", { A1: "=STDEV.S(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })
     ).toBeCloseTo(1.41);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // STDEVA
-  //----------------------------------------------------------------------------
-
-  test("STDEVA: functional tests on simple arguments", () => {
+describe("STDEVA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVA()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=STDEVA(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEVA(1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1540,13 +1492,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEVA(-2, 0, 2)" })).toBe(2);
   });
 
-  test("STDEVA: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=STDEVA(2, 4, "6")' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEVA(TRUE, 3, 5)" })).toBe(2);
     expect(evaluateCell("A1", { A1: '=STDEVA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("STDEVA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVA(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEVA(A2)", A2: "0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEVA(A2)", A2: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1558,7 +1510,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEVA(A2, A3, A4)", A2: "-2", A3: "0", A4: "2" })).toBe(2);
   });
 
-  test("STDEVA: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVA(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=STDEVA(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(2);
     expect(
@@ -1566,12 +1518,10 @@ describe("statistical", () => {
     ).toBeCloseTo(2.52);
     expect(evaluateCell("A1", { A1: "=STDEVA(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(2);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // STDEVP
-  //----------------------------------------------------------------------------
-
-  test("STDEVP: functional tests on simple arguments", () => {
+describe("STDEVP formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=STDEVP(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=STDEVP(1)" })).toBe(0);
@@ -1583,13 +1533,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEVP(-3, 0, 3)" })).toBeCloseTo(2.45);
   });
 
-  test("STDEVP: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=STDEVP(2, 5, "8")' })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: "=STDEVP(TRUE, 4, 7)" })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: '=STDEVP("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("STDEVP: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVP(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEVP(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=STDEVP(A2)", A2: "1" })).toBe(0);
@@ -1605,18 +1555,16 @@ describe("statistical", () => {
     ).toBeCloseTo(2.45);
   });
 
-  test("STDEVP: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // STDEVPA
-  //----------------------------------------------------------------------------
-
-  test("STDEVPA: functional tests on simple arguments", () => {
+describe("STDEVPA formula", () => {
+  test("Sfunctional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVPA()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=STDEVPA(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=STDEVPA(1)" })).toBe(0);
@@ -1628,13 +1576,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=STDEVPA(-3, 0, 3)" })).toBeCloseTo(2.45);
   });
 
-  test("STDEVPA: casting tests on simple arguments", () => {
+  test("Scasting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=STDEVPA(2, 5, "8")' })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: "=STDEVPA(TRUE, 4, 7)" })).toBeCloseTo(2.45);
     expect(evaluateCell("A1", { A1: '=STDEVPA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("STDEVPA: functional tests on cell arguments", () => {
+  test("Sfunctional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=STDEVPA(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=STDEVPA(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=STDEVPA(A2)", A2: "1" })).toBe(0);
@@ -1650,7 +1598,7 @@ describe("statistical", () => {
     ).toBeCloseTo(2.45);
   });
 
-  test("STDEVPA: casting tests on cell arguments", () => {
+  test("Scasting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=STDEVPA(A2, A3, A4)", A2: "3", A3: "6", A4: '="9"' })
     ).toBeCloseTo(2.45);
@@ -1664,12 +1612,10 @@ describe("statistical", () => {
       evaluateCell("A1", { A1: "=STDEVPA(A2, A3, A4)", A2: "3", A3: "6", A4: '=""' })
     ).toBeCloseTo(2.45);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // VAR
-  //----------------------------------------------------------------------------
-
-  test("VAR: functional tests on simple arguments", () => {
+describe("VAR formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VAR(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR(1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1681,13 +1627,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR(-2, 0, 2)" })).toBe(4);
   });
 
-  test("VAR: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=VAR(2, 4, "6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VAR(TRUE, 3, 5)" })).toBe(4);
     expect(evaluateCell("A1", { A1: '=VAR("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("VAR: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR(A2)", A2: "0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR(A2)", A2: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1699,18 +1645,16 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "-2", A3: "0", A4: "2" })).toBe(4);
   });
 
-  test("VAR: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(2);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // VAR.P
-  //----------------------------------------------------------------------------
-
-  test("VAR.P: functional tests on simple arguments", () => {
+describe("VAR.P formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR.P()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VAR.P(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=VAR.P(1)" })).toBe(0);
@@ -1722,13 +1666,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR.P(-3, 0, 3)" })).toBe(6);
   });
 
-  test("VAR.P: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=VAR.P(2, 5, "8")' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VAR.P(TRUE, 4, 7)" })).toBe(6);
     expect(evaluateCell("A1", { A1: '=VAR.P("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("VAR.P: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR.P(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR.P(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=VAR.P(A2)", A2: "1" })).toBe(0);
@@ -1740,18 +1684,16 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "-3", A3: "0", A4: "3" })).toBe(6);
   });
 
-  test("VAR.P: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // VAR.S
-  //----------------------------------------------------------------------------
-
-  test("VAR.S: functional tests on simple arguments", () => {
+describe("VAR.S formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR.S()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VAR.S(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR.S(1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1763,13 +1705,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR.S(-2, 0, 2)" })).toBe(4);
   });
 
-  test("VAR.S: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=VAR.S(2, 4, "6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VAR.S(TRUE, 3, 5)" })).toBe(4);
     expect(evaluateCell("A1", { A1: '=VAR.S("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("VAR.S: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR.S(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR.S(A2)", A2: "0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VAR.S(A2)", A2: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1781,18 +1723,16 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "-2", A3: "0", A4: "2" })).toBe(4);
   });
 
-  test("VAR.S: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(2);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // VARA
-  //----------------------------------------------------------------------------
-
-  test("VARA: functional tests on simple arguments", () => {
+describe("VARA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARA()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VARA(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VARA(1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1804,13 +1744,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARA(-2, 0, 2)" })).toBe(4);
   });
 
-  test("VARA: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=VARA(2, 4, "6")' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VARA(TRUE, 3, 5)" })).toBe(4);
     expect(evaluateCell("A1", { A1: '=VARA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("VARA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARA(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VARA(A2)", A2: "0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VARA(A2)", A2: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
@@ -1822,18 +1762,16 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "-2", A3: "0", A4: "2" })).toBe(4);
   });
 
-  test("VARA: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "test", A3: "3", A4: "6" })).toBe(9);
     expect(evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(4);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // VARP
-  //----------------------------------------------------------------------------
-
-  test("VARP: functional tests on simple arguments", () => {
+describe("VARP formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VARP(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=VARP(1)" })).toBe(0);
@@ -1845,13 +1783,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARP(-3, 0, 3)" })).toBe(6);
   });
 
-  test("VARP: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=VARP(2, 5, "8")' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARP(TRUE, 4, 7)" })).toBe(6);
     expect(evaluateCell("A1", { A1: '=VARP("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("VARP: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARP(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VARP(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=VARP(A2)", A2: "1" })).toBe(0);
@@ -1863,18 +1801,16 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "-3", A3: "0", A4: "3" })).toBe(6);
   });
 
-  test("VARP: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "2", A3: "4", A4: '="6"' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "TRUE", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // VARPA
-  //----------------------------------------------------------------------------
-
-  test("VARPA: functional tests on simple arguments", () => {
+describe("VARPA formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARPA()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=VARPA(0)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=VARPA(1)" })).toBe(0);
@@ -1886,13 +1822,13 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARPA(-3, 0, 3)" })).toBe(6);
   });
 
-  test("VARPA: casting tests on simple arguments", () => {
+  test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=VARPA(2, 5, "8")' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARPA(TRUE, 4, 7)" })).toBe(6);
     expect(evaluateCell("A1", { A1: '=VARPA("test", 3, 5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
-  test("VARPA: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARPA(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=VARPA(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=VARPA(A2)", A2: "1" })).toBe(0);
@@ -1904,7 +1840,7 @@ describe("statistical", () => {
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "-3", A3: "0", A4: "3" })).toBe(6);
   });
 
-  test("VARPA: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "3", A3: "6", A4: '="9"' })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "TRUE", A3: "4", A4: "7" })).toBe(6);
     expect(evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "test", A3: "3", A4: "6" })).toBe(6);

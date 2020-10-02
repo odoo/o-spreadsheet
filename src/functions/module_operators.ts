@@ -57,7 +57,7 @@ export const DIVIDE: FunctionDescription = {
   compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
     if (_divisor === 0) {
-      throw new Error(_lt("Function DIVIDE parameter 2 cannot be zero."));
+      throw new Error(_lt("Function [[FUNCTION_NAME]] parameter 2 cannot be zero."));
     }
     return toNumber(dividend) / _divisor;
   },

@@ -1,12 +1,8 @@
 import { evaluateCell, evaluateGrid } from "../helpers";
 import { parseDateTime } from "../../src/functions/dates";
 
-describe("date", () => {
-  //----------------------------------------------------------------------------
-  // DATE
-  //----------------------------------------------------------------------------
-
-  test("DATE: functional tests on cell arguments", () => {
+describe("DATE formula", () => {
+  test("functional tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       // YEAR / MONTH / DAY
@@ -84,12 +80,10 @@ describe("date", () => {
     expect(gridResult.A35).toEqual(parseDateTime("12/1/1901"));
     expect(gridResult.A36).toEqual(parseDateTime("12/1/1905"));
   });
+});
 
-  //----------------------------------------------------------------------------
-  // DATEVALUE
-  //----------------------------------------------------------------------------
-
-  test("DATEVALUE: functional tests on simple arguments", () => {
+describe("DATEVALUE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=DATEVALUE(40931)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: "=DATEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
@@ -100,33 +94,29 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: '=DATEVALUE("13/8/1999")' })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
   });
 
-  test("DATEVALUE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "36380" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "8/8/1999" })).toBe("#ERROR"); // @compatibility, retrun 8/8/1999 on Google Sheet
     expect(evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "13/8/1999" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
   });
+});
 
-  //----------------------------------------------------------------------------
-  // DAY
-  //----------------------------------------------------------------------------
-
-  test("DAY: functional tests on simple arguments", () => {
+describe("DAY formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=DAY("3/28/2017")' })).toBe(28);
     expect(evaluateCell("A1", { A1: '=DAY("5/31/2012")' })).toBe(31);
     expect(evaluateCell("A1", { A1: '=DAY("41060")' })).toBe(31);
     expect(evaluateCell("A1", { A1: "=DAY(41060)" })).toBe(31);
   });
 
-  test("DAY: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=DAY(A2)", A2: "5/31/2012" })).toBe(31);
     expect(evaluateCell("A1", { A1: "=DAY(A2)", A2: "41060" })).toBe(31);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // DAYS
-  //----------------------------------------------------------------------------
-
-  test("DAYS: functional tests on simple arguments", () => {
+describe("DAYS formula", () => {
+  test("functional tests on simple arguments", () => {
     const grid = {
       A1: '=DAYS("2/13/2015", "2/23/2014")',
       A2: '=DAYS("7/15/2020", "7/16/2016")',
@@ -145,12 +135,10 @@ describe("date", () => {
     expect(gridResult.A6).toBe(365);
     expect(gridResult.A7).toBe(366);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // EDATE
-  //----------------------------------------------------------------------------
-
-  test("EDATE: functional tests on simple arguments", () => {
+describe("EDATE formula", () => {
+  test("functional tests on simple arguments", () => {
     const grid = {
       A1: '=EDATE("7/20/1969", 0)',
       A2: '=EDATE("7/21/1969", 1)',
@@ -168,7 +156,7 @@ describe("date", () => {
     expect(gridResult.A6).toEqual(parseDateTime("8/21/1969"));
   });
 
-  test("EDATE: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     const grid = {
       A7: '=EDATE("7/21/1969", "1")',
       A8: '=EDATE("7/21/1969", True)',
@@ -177,12 +165,10 @@ describe("date", () => {
     expect(gridResult.A7).toEqual(parseDateTime("8/21/1969"));
     expect(gridResult.A8).toEqual(parseDateTime("8/21/1969"));
   });
+});
 
-  //----------------------------------------------------------------------------
-  // EOMONTH
-  //----------------------------------------------------------------------------
-
-  test("EOMONTH: functional tests on simple arguments", () => {
+describe("EOMONTH formula", () => {
+  test("functional tests on simple arguments", () => {
     const grid = {
       A1: '=EOMONTH("7/20/2020", 0)',
       A2: '=EOMONTH("7/21/2020", 1)',
@@ -200,7 +186,7 @@ describe("date", () => {
     expect(gridResult.A6).toEqual(parseDateTime("8/31/2020"));
   });
 
-  test("EOMONTH: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     const grid = {
       A7: '=EOMONTH("7/21/1920", "1")',
       A8: '=EOMONTH("7/21/2020", True)',
@@ -209,12 +195,10 @@ describe("date", () => {
     expect(gridResult.A7).toEqual(parseDateTime("8/31/1920"));
     expect(gridResult.A8).toEqual(parseDateTime("8/31/2020"));
   });
+});
 
-  //----------------------------------------------------------------------------
-  // HOUR
-  //----------------------------------------------------------------------------
-
-  test("HOUR: functional tests on simple arguments", () => {
+describe("HOUR formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=HOUR("11:23:13")' })).toBe(11);
     expect(evaluateCell("A1", { A1: '=HOUR("2020 12 12 23:40:12")' })).toBe(23);
     expect(evaluateCell("A1", { A1: '=HOUR("3:00")' })).toBe(3);
@@ -223,18 +207,16 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=HOUR(12345.125)" })).toBe(3);
   });
 
-  test("HOUR: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "11:23:13" })).toBe(11);
     expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "2020 12 12 23:40:12" })).toBe(23);
     expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "0.25" })).toBe(6);
     expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "54321.5" })).toBe(12);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // ISOWEEKNUM
-  //----------------------------------------------------------------------------
-
-  test("ISOWEEKNUM: functional tests on cell arguments", () => {
+describe("ISOWEEKNUM formula", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2016" })).toBe(53);
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2016" })).toBe(53);
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2016" })).toBe(1);
@@ -250,12 +232,10 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2021" })).toBe(53);
     expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2021" })).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MINUTE
-  //----------------------------------------------------------------------------
-
-  test("MINUTE: functional tests on simple arguments", () => {
+describe("MINUTE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=MINUTE("11:23:13")' })).toBe(23);
     expect(evaluateCell("A1", { A1: '=MINUTE("2020 12 12 23:40:12")' })).toBe(40);
     expect(evaluateCell("A1", { A1: '=MINUTE("0:21")' })).toBe(21);
@@ -264,18 +244,16 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=MINUTE(12345.129)" })).toBe(5);
   });
 
-  test("MINUTE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "11:23:13" })).toBe(23);
     expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "2020 12 12 23:40:12" })).toBe(40);
     expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "0.2532" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "54321.789" })).toBe(56);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // MONTH
-  //----------------------------------------------------------------------------
-
-  test("MONTH: functional tests on cell arguments", () => {
+describe("MONTH formula", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "1/2/1954" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "5/13/1954" })).toBe(5);
     expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "43964" })).toBe(5); // 43964 corespond to 5/13/195
@@ -285,12 +263,10 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: '="43964"' })).toBe(5);
     expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "TRUE" })).toBe(12);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // NETWORKDAYS
-  //----------------------------------------------------------------------------
-
-  test("NETWORKDAYS: functional tests on cell arguments", () => {
+describe("NETWORKDAYS formula", () => {
+  test("functional tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       A1: "1/1/2013",  A2: "1/21/2013", A3: "2/18/2013",   A4: "5/27/2013",
@@ -320,11 +296,10 @@ describe("date", () => {
     expect(gridResult.C23).toBe(24);
     expect(gridResult.C24).toBe(24);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // NETWORKDAYS.INTL
-  //----------------------------------------------------------------------------
-  test("NETWORKDAYS.INTL: functional tests on cell arguments, string method", () => {
+describe("NETWORKDAYS.INTL formula", () => {
+  test("functional tests on cell arguments, string method", () => {
     // prettier-ignore
     const grid = {
       B2:  "5/4/2020", C2:  "5/17/2020", D2:  "=NETWORKDAYS.INTL(B2, C2)",
@@ -379,7 +354,7 @@ describe("date", () => {
     expect(gridResult.D83).toBe(0);
   });
 
-  test("NETWORKDAYS.INTL: functional tests on cell arguments, number method", () => {
+  test("functional tests on cell arguments, number method", () => {
     // prettier-ignore
     const grid = {
       B18: "5/4/2020",  C18: "5/17/2020", D18: '=NETWORKDAYS.INTL(B18, C18, 0)',
@@ -452,7 +427,7 @@ describe("date", () => {
     expect(gridResult.D54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
 
-  test("NETWORKDAYS.INTL: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       B68: "5/4/2020",  C68: "5/17/2020", D68: '=NETWORKDAYS.INTL(B68, C68, 1110111)',
@@ -468,14 +443,12 @@ describe("date", () => {
     expect(gridResult.D71).toBe("#ERROR"); // @compatibility on Google Sheets, return  #VALUE!
     expect(gridResult.D72).toBe(5);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // NOW
-  //----------------------------------------------------------------------------
-
+describe("NOW formula", () => {
   const MockDate = require("mockdate");
 
-  test("NOW: functional tests on simple arguments", async () => {
+  test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
     const now = evaluateCell("A1", { A1: "=NOW()" });
     expect(now.value).toBe(51958.171875);
@@ -483,12 +456,10 @@ describe("date", () => {
     expect(now.jsDate.getTime()).toBe(new Date(2042, 3, 2, 4, 7, 30).getTime());
     MockDate.reset();
   });
+});
 
-  //----------------------------------------------------------------------------
-  // SECOND
-  //----------------------------------------------------------------------------
-
-  test("SECOND: functional tests on simple arguments", () => {
+describe("SECOND formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=SECOND("11:23:13")' })).toBe(13);
     expect(evaluateCell("A1", { A1: '=SECOND("2020 12 12 23:40:12")' })).toBe(12);
     expect(evaluateCell("A1", { A1: '=SECOND("0:21:42")' })).toBe(42);
@@ -497,17 +468,16 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: "=SECOND(12345.129)" })).toBe(46);
   });
 
-  test("SECOND: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "11:23:13" })).toBe(13);
     expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "2020 12 12 23:40:12" })).toBe(12);
     expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "0.2532" })).toBe(36);
     expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "54321.789" })).toBe(10);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // TIME
-  //----------------------------------------------------------------------------
-  test("TIME: functional tests on cell arguments", () => {
+describe("TIME formula", () => {
+  test("functional tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       A1:   "=TIME(B1,  C1,   D1 )",  B1:  "9",  C1:  "11",  D1:  "31",
@@ -536,12 +506,10 @@ describe("date", () => {
     expect(gridResult.A10).toEqual(parseDateTime("1:54:01 PM"));
     expect(gridResult.A11).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
+});
 
-  //----------------------------------------------------------------------------
-  // TIMEVALUE
-  //----------------------------------------------------------------------------
-
-  test("TIMEVALUE: functional tests on simple arguments", () => {
+describe("TIMEVALUE formula", () => {
+  test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=TIMEVALUE(40931.5678)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: "=TIMEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012")' })).toBe(0);
@@ -549,16 +517,14 @@ describe("date", () => {
     expect(evaluateCell("A1", { A1: '=TIMEVALUE("1899 10 08 18:00")' })).toBe(0.75);
   });
 
-  test("TIMEVALUE: functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "36380.5678" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
     expect(evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "8/8/1999 12:09:00" })).toBe("#ERROR"); // @compatibility, retrun 8/8/1999 on Google Sheet
   });
+});
 
-  //----------------------------------------------------------------------------
-  // TODAY
-  //----------------------------------------------------------------------------
-
-  test("TODAY: functional tests on simple arguments", () => {
+describe("TODAY formula", () => {
+  test("functional tests on simple arguments", () => {
     let timeNow = new Date();
     timeNow.setHours(0);
     timeNow.setMinutes(0);
@@ -576,12 +542,10 @@ describe("date", () => {
 
     expect(today.value - Math.abs(today.value)).toBe(0);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // WEEKDAY
-  //----------------------------------------------------------------------------
-
-  test("WEEKDAY: functional tests on cell arguments, option 1", () => {
+describe("WEEKDAY formula", () => {
+  test("functional tests on cell arguments, option 1", () => {
     // prettier-ignore
     const grid = {
       A3: "1/1/2020", B3: "1", C3: "=WEEKDAY(A3,B3)",
@@ -602,7 +566,7 @@ describe("date", () => {
     expect(gridResult.C9).toBe(3);
   });
 
-  test("WEEKDAY: functional tests on cell arguments, option 2", () => {
+  test("functional tests on cell arguments, option 2", () => {
     // prettier-ignore
     const grid = {
       A11: "1/1/2020", B11: "2", C11: "=WEEKDAY(A11,B11)",
@@ -623,7 +587,7 @@ describe("date", () => {
     expect(gridResult.C17).toBe(2);
   });
 
-  test("WEEKDAY: functional tests on cell arguments, option 3", () => {
+  test("functional tests on cell arguments, option 3", () => {
     // prettier-ignore
     const grid = {
       A19: "1/1/2020", B19: "3", C19: "=WEEKDAY(A19,B19)",
@@ -643,12 +607,10 @@ describe("date", () => {
     expect(gridResult.C24).toBe(0);
     expect(gridResult.C25).toBe(1);
   });
+});
 
-  //----------------------------------------------------------------------------
-  // WEEKNUM
-  //----------------------------------------------------------------------------
-
-  test("WEEKNUM: functional tests on cell arguments", () => {
+describe("WEEKNUM formula", () => {
+  test("functional tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       A11: "12/31/2019", B11: "1" , C11: "=WEEKNUM(A11, B11)", 
@@ -743,12 +705,10 @@ describe("date", () => {
     expect(gridResult.C53).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.C54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
+});
 
-  //----------------------------------------------------------------------------
-  // WORKDAY
-  //----------------------------------------------------------------------------
-
-  test("WORKDAY: functional tests on cell arguments", () => {
+describe("WORKDAY formula", () => {
+  test("functional tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       A1: "1/1/2013" , A2: "1/21/2013", A3: "2/18/2013", A4: "5/27/2013",
@@ -776,11 +736,10 @@ describe("date", () => {
     expect(gridResult.C18).toEqual(parseDateTime("12/27/2012"));
     expect(gridResult.C19).toEqual(parseDateTime("12/26/2012"));
   });
+});
 
-  //----------------------------------------------------------------------------
-  // WORKDAY.INTL
-  //----------------------------------------------------------------------------
-  test("WORKDAY.INTL: functional tests on cell arguments, string method", () => {
+describe("WORKDAY.INTL formula", () => {
+  test("functional tests on cell arguments, string method", () => {
     // prettier-ignore
     const grid = {
       B2:  "5/4/2020", C2:  "4", D2:  '=WORKDAY.INTL(B2,  C2)', 
@@ -834,7 +793,7 @@ describe("date", () => {
     expect(gridResult.D83).toEqual(parseDateTime("6/4/2020"));
   });
 
-  test("WORKDAY.INTL: functional tests on cell arguments, number method", () => {
+  test("functional tests on cell arguments, number method", () => {
     // prettier-ignore
     const grid = {
       B18: "5/4/2020",  C18: "1", D18: '=WORKDAY.INTL(B18, C18, 0)',
@@ -907,7 +866,7 @@ describe("date", () => {
     expect(gridResult.D54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
 
-  test("WORKDAY.INTL: casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       B68: "5/4/2020",  C68: "1", D68: '=WORKDAY.INTL(B68, C68, 1110111)',
@@ -923,12 +882,10 @@ describe("date", () => {
     expect(gridResult.D71).toBe("#ERROR"); // @compatibility on Google Sheets, return  #VALUE!
     expect(gridResult.D72).toEqual(parseDateTime("5/12/2020"));
   });
+});
 
-  //----------------------------------------------------------------------------
-  // YEAR
-  //----------------------------------------------------------------------------
-
-  test("YEAR: functional tests on cell arguments", () => {
+describe("YEAR formula", () => {
+  test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "5/13/1950" })).toBe(1950);
     expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "5/13/2020" })).toBe(2020);
     expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "43964" })).toBe(2020); // 43964 corespond to 5/13/2020

@@ -220,7 +220,7 @@ export const CEILING: FunctionDescription = {
     if (_value > 0 && _factor < 0) {
       throw new Error(
         _lt(
-          `Function CEILING expects the parameter '${CEILING.args[1].name}' to be positive when parameter '${CEILING.args[0].name}' is positive. Change '${CEILING.args[1].name}' from [${_factor}] to a positive value.`
+          `Function [[FUNCTION_NAME]] expects the parameter '${CEILING.args[1].name}' to be positive when parameter '${CEILING.args[0].name}' is positive. Change '${CEILING.args[1].name}' from [${_factor}] to a positive value.`
         )
       );
     }
@@ -541,7 +541,7 @@ export const DECIMAL: FunctionDescription = {
     if (_base < 2 || _base > 36) {
       throw new Error(
         _lt(
-          `Function DECIMAL expects the parameter '${DECIMAL.args[1].name}' to be between 2 and 36 inclusive. Change '${DECIMAL.args[1].name}' from [${_base}] to a value between 2 and 36.`
+          `Function [[FUNCTION_NAME]] expects the parameter '${DECIMAL.args[1].name}' to be between 2 and 36 inclusive. Change '${DECIMAL.args[1].name}' from [${_base}] to a value between 2 and 36.`
         )
       );
     }
@@ -615,7 +615,7 @@ export const FLOOR: FunctionDescription = {
     if (_value > 0 && _factor < 0) {
       throw new Error(
         _lt(
-          `Function FLOOR expects the parameter '${FLOOR.args[1].name}' to be positive when parameter '${FLOOR.args[0].name}' is positive. Change '${FLOOR.args[1].name}' from [${_factor}] to a positive value.`
+          `Function [[FUNCTION_NAME]] expects the parameter '${FLOOR.args[1].name}' to be positive when parameter '${FLOOR.args[0].name}' is positive. Change '${FLOOR.args[1].name}' from [${_factor}] to a positive value.`
         )
       );
     }
@@ -768,7 +768,7 @@ export const MOD: FunctionDescription = {
     if (_divisor === 0) {
       throw new Error(
         _lt(
-          `Function MOD expects the parameter '${MOD.args[1].name}' to be different from 0. Change '${MOD.args[1].name}' to a value other than 0.`
+          `Function [[FUNCTION_NAME]] expects the parameter '${MOD.args[1].name}' to be different from 0. Change '${MOD.args[1].name}' to a value other than 0.`
         )
       );
     }
@@ -832,7 +832,7 @@ export const POWER: FunctionDescription = {
     if (!Number.isInteger(_exponent)) {
       throw new Error(
         _lt(
-          `Function POWER expects the parameter '${POWER.args[1].name}' to be an integer when parameter '${POWER.args[0].name}' is negative. Change '${POWER.args[1].name}' from [${_exponent}] to an integer value.`
+          `Function [[FUNCTION_NAME]] expects the parameter '${POWER.args[1].name}' to be an integer when parameter '${POWER.args[0].name}' is negative. Change '${POWER.args[1].name}' from [${_exponent}] to an integer value.`
         )
       );
     }
@@ -915,7 +915,7 @@ export const RANDBETWEEN: FunctionDescription = {
     if (_high < _low) {
       throw new Error(
         _lt(
-          `Function RANDBETWEEN parameter '${RANDBETWEEN.args[1].name}' value is ${_high}. It should be greater than or equal to [${_low}].`
+          `Function [[FUNCTION_NAME]] parameter '${RANDBETWEEN.args[1].name}' value is ${_high}. It should be greater than or equal to [${_low}].`
         )
       );
     }
@@ -1078,7 +1078,7 @@ export const SQRT: FunctionDescription = {
     if (_value < 0) {
       throw new Error(
         _lt(
-          `Function SQRT parameter '${SQRT.args[0].name}' value is negative. It should be positive or zero. Change '${SQRT.args[0].name}' from [${_value}] to a positive value.`
+          `Function [[FUNCTION_NAME]] parameter '${SQRT.args[0].name}' value is negative. It should be positive or zero. Change '${SQRT.args[0].name}' from [${_value}] to a positive value.`
         )
       );
     }
@@ -1116,13 +1116,13 @@ export const SUMIF: FunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (criteria_range: any, criterion: any, sum_range: any = undefined): number {
-    if (sum_range === undefined) {
-      sum_range = criteria_range;
+  compute: function (criteriaRange: any, criterion: any, sumRange: any = undefined): number {
+    if (sumRange === undefined) {
+      sumRange = criteriaRange;
     }
     let sum = 0;
-    visitMatchingRanges([criteria_range, criterion], (i, j) => {
-      const value = sum_range[i][j];
+    visitMatchingRanges([criteriaRange, criterion], (i, j) => {
+      const value = sumRange[i][j];
       if (typeof value === "number") {
         sum += value;
       }
@@ -1151,10 +1151,10 @@ export const SUMIFS: FunctionDescription = {
   // criteria_range2 (any, range, optional, repeating) Additional ranges to check.
   // criterion2 (string, optional, repeating) Additional criteria to check.
   returns: ["NUMBER"],
-  compute: function (sum_range, ...args): number {
+  compute: function (sumRange, ...args): number {
     let sum = 0;
     visitMatchingRanges(args, (i, j) => {
-      const value = sum_range[i][j];
+      const value = sumRange[i][j];
       if (typeof value === "number") {
         sum += value;
       }

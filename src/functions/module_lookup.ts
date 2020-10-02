@@ -91,35 +91,39 @@ export const LOOKUP: FunctionDescription = {
       )}
   `),
   returns: ["ANY"],
-  compute: function (search_key: any, search_array: any, result_range: any = undefined): any {
-    const verticalSearch = search_array[0].length >= search_array.length;
-    const searchRange = verticalSearch ? search_array[0] : search_array.map((c) => c[0]);
+  compute: function (searchKey: any, searchArray: any, resultRange: any = undefined): any {
+    const verticalSearch = searchArray[0].length >= searchArray.length;
+    const searchRange = verticalSearch ? searchArray[0] : searchArray.map((c) => c[0]);
 
-    const index = dichotomicPredecessorSearch(searchRange, search_key);
+    const index = dichotomicPredecessorSearch(searchRange, searchKey);
     if (index === -1) {
-      throw new Error(_lt(`Did not find value '${search_key}' in LOOKUP evaluation.`));
+      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
     }
-    if (result_range === undefined) {
-      return verticalSearch ? search_array.pop()[index] : search_array[index].pop();
+    if (resultRange === undefined) {
+      return verticalSearch ? searchArray.pop()[index] : searchArray[index].pop();
     }
 
-    const nbCol = result_range.length;
-    const nbRow = result_range[0].length;
+    const nbCol = resultRange.length;
+    const nbRow = resultRange[0].length;
     if (nbCol > 1 && nbRow > 1) {
-      throw new Error(_lt(`LOOKUP range must be a single row or a single column.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] range must be a single row or a single column.`));
     }
 
     if (nbCol > 1) {
       if (nbCol - 1 < index) {
-        throw new Error(_lt(`LOOKUP evaluates to an out of range row value ${index + 1}.`));
+        throw new Error(
+          _lt(`[[FUNCTION_NAME]] evaluates to an out of range row value ${index + 1}.`)
+        );
       }
-      return result_range[index][0];
+      return resultRange[index][0];
     }
 
     if (nbRow - 1 < index) {
-      throw new Error(_lt(`LOOKUP evaluates to an out of range column value ${index + 1}.`));
+      throw new Error(
+        _lt(`[[FUNCTION_NAME]] evaluates to an out of range column value ${index + 1}.`)
+      );
     }
-    return result_range[0][index];
+    return resultRange[0][index];
   },
 };
 
@@ -137,31 +141,31 @@ export const MATCH: FunctionDescription = {
       )}
   `),
   returns: ["NUMBER"],
-  compute: function (search_key: any, range: any[], search_type: any = 1): number {
-    let _searchType = toNumber(search_type);
+  compute: function (searchKey: any, range: any[], searchType: any = 1): number {
+    let _searchType = toNumber(searchType);
     const nbCol = range.length;
     const nbRow = range[0].length;
     if (nbCol > 1 && nbRow > 1) {
-      throw new Error(_lt(`MATCH range must be a single row or a single column.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] range must be a single row or a single column.`));
     }
     let index = -1;
     range = range.flat();
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicPredecessorSearch(range, search_key);
+        index = dichotomicPredecessorSearch(range, searchKey);
         break;
       case 0:
-        index = linearSearch(range, search_key);
+        index = linearSearch(range, searchKey);
         break;
       case -1:
-        index = dichotomicSuccessorSearch(range, search_key);
+        index = dichotomicSuccessorSearch(range, searchKey);
         break;
     }
     if (index > -1) {
       return index + 1;
     } else {
-      throw new Error(_lt(`Did not find value '${search_key}' in MATCH evaluation.`));
+      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
     }
   },
 };
@@ -228,25 +232,25 @@ export const VLOOKUP: FunctionDescription = {
       )}
   `),
   returns: ["ANY"],
-  compute: function (search_key: any, range: any[], index: any, is_sorted: any = true): any {
+  compute: function (searchKey: any, range: any[], index: any, isSorted: any = true): any {
     const _index = Math.trunc(toNumber(index));
     if (_index < 1 || range.length < _index) {
-      throw new Error(_lt(`VLOOKUP evaluates to an out of bounds range.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] evaluates to an out of bounds range.`));
     }
 
-    const _isSorted = toBoolean(is_sorted);
+    const _isSorted = toBoolean(isSorted);
     const firstCol = range[0];
     let lineIndex;
     if (_isSorted) {
-      lineIndex = dichotomicPredecessorSearch(firstCol, search_key);
+      lineIndex = dichotomicPredecessorSearch(firstCol, searchKey);
     } else {
-      lineIndex = linearSearch(firstCol, search_key);
+      lineIndex = linearSearch(firstCol, searchKey);
     }
 
     if (lineIndex > -1) {
       return range[_index - 1][lineIndex];
     } else {
-      throw new Error(_lt(`Did not find value '${search_key}' in VLOOKUP evaluation.`));
+      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
     }
   },
 };
