@@ -111,7 +111,6 @@ export interface Getters {
 
   getChartRuntime: ChartPlugin["getChartRuntime"];
 
-  range: {
-    getZone: RangePlugin["getZoneFromRange"];
-  };
+  getRangeFromZone: RangePlugin["getRangeFromZone"];
+  getRangeFromXC: RangePlugin["getRangeFromXC"];
 }

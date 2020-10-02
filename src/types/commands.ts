@@ -30,7 +30,7 @@ import { ComposerSelection } from "../plugins/edition";
  * active sheet.
  */
 
-interface BaseCommand {
+export interface BaseCommand {
   interactive?: boolean;
 }
 

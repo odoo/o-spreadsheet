@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
-import { Command, Zone } from "../types/index";
+import { Command, UID, Zone } from "../types/index";
 import { toZone } from "../helpers/index";
 
 export type onRangeChange = () => void;
@@ -15,7 +15,7 @@ export type Range = {
 };
 
 export class RangePlugin extends BasePlugin {
-  static getters = ["getRange", "getRangeFromZone", "getRangeFromXC"];
+  static getters = ["getRangeFromZone", "getRangeFromXC"];
   static modes: Mode[] = ["normal", "readonly", "headless"];
   static pluginName = "range";
 
@@ -37,11 +37,14 @@ export class RangePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getRange(xc: string, rangeSheetId: string, onchange?: onRangeChange): string {
-    return this.getRangeFromZone(rangeSheetId, toZone(xc));
+  getRangeFromXC(sheetId: UID, xc: string, onchange?: onRangeChange): string {
+    return this.getRangeFromZone(sheetId, toZone(xc), onchange);
   }
 
-  getRangeFromZone(sheetId: string, zone: Zone, onchange?: onRangeChange): string {
+  getRangeFromZone(sheetId: UID, zone: Zone, onchange?: onRangeChange): string {
+    if (!this.ranges[sheetId]) {
+      this.ranges[sheetId] = {};
+    }
     this.ranges[sheetId][this.uniqueRef(sheetId, zone)];
     return "32";
   }
