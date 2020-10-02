@@ -25,9 +25,7 @@ export interface WorkbookHistory {
   update(path: (string | number)[], val: any): void;
 }
 
-type WorkbookHistoryNonLocal = Omit<WorkbookHistory, "update">;
-
-export class WHistory implements WorkbookHistoryNonLocal, CommandHandler {
+export class WHistory implements CommandHandler {
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];
