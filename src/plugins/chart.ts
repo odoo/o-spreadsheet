@@ -91,10 +91,7 @@ export class ChartPlugin extends BasePlugin {
         });
 
         this.history.update(["chartFigures"], new Set(this.chartFigures).add(cmd.id));
-        this.history.update(
-          ["chartRuntime", cmd.id],
-          this.mapDefinitionToRuntime(chartDefinition)
-        );
+        this.history.update(["chartRuntime", cmd.id], this.mapDefinitionToRuntime(chartDefinition));
         break;
       case "UPDATE_CHART": {
         const chartDefinition = this.createChartDefinition(
@@ -105,10 +102,7 @@ export class ChartPlugin extends BasePlugin {
           id: cmd.id,
           data: chartDefinition,
         });
-        this.history.update(
-          ["chartRuntime", cmd.id],
-          this.mapDefinitionToRuntime(chartDefinition)
-        );
+        this.history.update(["chartRuntime", cmd.id], this.mapDefinitionToRuntime(chartDefinition));
         break;
       }
       case "DELETE_FIGURE":

@@ -175,7 +175,10 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(makeObjectIterator(this.getters.getCells()), this.getters.getActiveSheetId());
+    this.evaluateCells(
+      makeObjectIterator(this.getters.getCells()),
+      this.getters.getActiveSheetId()
+    );
   }
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
