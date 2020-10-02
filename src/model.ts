@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { BasePlugin } from "./base_plugin";
-import {  createEmptyWorkbookData, load } from "./data";
+import { createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { pluginRegistry } from "./plugins/index";
 import {
