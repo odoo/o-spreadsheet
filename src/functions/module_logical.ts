@@ -43,7 +43,7 @@ export const AND: FunctionDescription = {
       return result;
     });
     if (!foundBoolean) {
-      throw new Error(_lt(`AND has no valid input data.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     return result;
   },
@@ -67,11 +67,11 @@ export const IF: FunctionDescription = {
     `),
   returns: ["ANY"],
   compute: function (
-    logical_expression: any,
-    value_if_true: () => any,
-    value_if_false: () => any = () => false
+    logicalExpression: any,
+    valueIfTrue: () => any,
+    valueIfFalse: () => any = () => false
   ): any {
-    const result = toBoolean(logical_expression) ? value_if_true() : value_if_false();
+    const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
     return result === null ? "" : result;
   },
 };
@@ -88,12 +88,12 @@ export const IFERROR: FunctionDescription = {
     )}
   `),
   returns: ["ANY"],
-  compute: function (value: () => any, value_if_error: () => any = () => ""): any {
+  compute: function (value: () => any, valueIfError: () => any = () => ""): any {
     let result;
     try {
       result = value();
     } catch (e) {
-      result = value_if_error();
+      result = valueIfError();
     }
     return result === null ? "" : result;
   },
@@ -144,8 +144,8 @@ export const NOT: FunctionDescription = {
     `
   ),
   returns: ["BOOLEAN"],
-  compute: function (logical_expression: any): boolean {
-    return !toBoolean(logical_expression);
+  compute: function (logicalExpression: any): boolean {
+    return !toBoolean(logicalExpression);
   },
 };
 
@@ -172,7 +172,7 @@ export const OR: FunctionDescription = {
       return !result;
     });
     if (!foundBoolean) {
-      throw new Error(_lt(`OR has no valid input data.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     return result;
   },
@@ -201,7 +201,7 @@ export const XOR: FunctionDescription = {
       return true;
     });
     if (!foundBoolean) {
-      throw new Error(_lt(`XOR has no valid input data.`));
+      throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
     }
     return result;
   },

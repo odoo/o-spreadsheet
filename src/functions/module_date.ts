@@ -25,7 +25,9 @@ export const DATE: FunctionDescription = {
     // For years less than 0 or greater than 10000, return #ERROR.
     if (_year < 0 || 10000 <= _year) {
       throw new Error(
-        _lt(`function DATE parameter year sould be greater or equal to 0 and lesser than 10000.`)
+        _lt(
+          `function [[FUNCTION_NAME]] parameter year sould be greater or equal to 0 and lesser than 10000.`
+        )
       );
     }
 
@@ -38,7 +40,7 @@ export const DATE: FunctionDescription = {
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
     if (delta < 0) {
-      throw new Error(_lt(`function DATE result sould not be lesser than 01/01/1900`));
+      throw new Error(_lt(`function [[FUNCTION_NAME]] result sould not be lesser than 01/01/1900`));
     }
 
     return {
@@ -58,11 +60,13 @@ export const DATEVALUE: FunctionDescription = {
       date_string (string) ${_lt("The string representing the date.")}
     `),
   returns: ["NUMBER"],
-  compute: function (date_string: any): number {
-    const _dateString = toString(date_string);
+  compute: function (dateString: any): number {
+    const _dateString = toString(dateString);
     const datetime = parseDateTime(_dateString);
     if (datetime === null) {
-      throw new Error(_lt(`DATEVALUE parameter '${_dateString}' cannot be parsed to date/time.`));
+      throw new Error(
+        _lt(`[[FUNCTION_NAME]] parameter '${_dateString}' cannot be parsed to date/time.`)
+      );
     }
     return Math.trunc(datetime.value);
   },
@@ -92,9 +96,9 @@ export const DAYS: FunctionDescription = {
       start_date (date) ${_lt("The start of the date range.")}
     `),
   returns: ["NUMBER"],
-  compute: function (end_date: any, start_date: any): number {
-    const _endDate = toNativeDate(end_date);
-    const _startDate = toNativeDate(start_date);
+  compute: function (endDate: any, startDate: any): number {
+    const _endDate = toNativeDate(endDate);
+    const _startDate = toNativeDate(startDate);
     const dateDif = _endDate.getTime() - _startDate.getTime();
     return Math.round(dateDif / 86400000);
   },
@@ -112,8 +116,8 @@ export const EDATE: FunctionDescription = {
     )}
     `),
   returns: ["DATE"],
-  compute: function (start_date: any, months: any): InternalDate {
-    const _startDate = toNativeDate(start_date);
+  compute: function (startDate: any, months: any): InternalDate {
+    const _startDate = toNativeDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
     const yStart = _startDate.getFullYear();
@@ -142,8 +146,8 @@ export const EOMONTH: FunctionDescription = {
     )}
     `),
   returns: ["DATE"],
-  compute: function (start_date: any, months: any): InternalDate {
-    const _startDate = toNativeDate(start_date);
+  compute: function (startDate: any, months: any): InternalDate {
+    const _startDate = toNativeDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
     const yStart = _startDate.getFullYear();
@@ -303,8 +307,8 @@ export const NETWORKDAYS: FunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
-  compute: function (start_date: any, end_date: any, holidays: any): number {
-    return NETWORKDAYS_INTL.compute(start_date, end_date, 1, holidays);
+  compute: function (startDate: any, endDate: any, holidays: any): number {
+    return NETWORKDAYS_INTL.compute(startDate, endDate, 1, holidays);
   },
 };
 
@@ -408,13 +412,13 @@ export const NETWORKDAYS_INTL: FunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (
-    start_date: any,
-    end_date: any,
+    startDate: any,
+    endDate: any,
     weekend: any = 1,
     holidays: any = undefined
   ): number {
-    const _startDate = toNativeDate(start_date);
-    const _endDate = toNativeDate(end_date);
+    const _startDate = toNativeDate(startDate);
+    const _endDate = toNativeDate(endDate);
 
     const daysWeekend = weekendToDayNumber(weekend);
     let timesHoliday = new Set();
@@ -505,7 +509,7 @@ export const TIME: FunctionDescription = {
     _hour %= 24;
 
     if (_hour < 0) {
-      throw new Error(_lt(`function Time result sould not be negative`));
+      throw new Error(_lt(`function [[FUNCTION_NAME]] result sould not be negative`));
     }
 
     const jsDate = new Date(1899, 11, 30, _hour, _minute, _second);
@@ -527,11 +531,13 @@ export const TIMEVALUE: FunctionDescription = {
       time_string (string) ${_lt("The string that holds the time representation.")}
     `),
   returns: ["NUMBER"],
-  compute: function (time_string: any): number {
-    const _timeString = toString(time_string);
+  compute: function (timeString: any): number {
+    const _timeString = toString(timeString);
     const datetime = parseDateTime(_timeString);
     if (datetime === null) {
-      throw new Error(_lt(`TIMEVALUE parameter '${_timeString}' cannot be parsed to date/time.`));
+      throw new Error(
+        _lt(`[[FUNCTION_NAME]] parameter '${_timeString}' cannot be parsed to date/time.`)
+      );
     }
     const result = datetime.value - Math.trunc(datetime.value);
 
@@ -584,7 +590,7 @@ export const WEEKDAY: FunctionDescription = {
       case 3:
         return m === 0 ? 6 : m - 1;
     }
-    throw new Error(_lt(`Function WEEKDAY parameter 2 value ${_type} is out of range.`));
+    throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value ${_type} is out of range.`));
   },
 };
 
@@ -615,7 +621,9 @@ export const WEEKNUM: FunctionDescription = {
     } else if (_type === 21) {
       return ISOWEEKNUM.compute(date);
     } else {
-      throw new Error(_lt(`Function WEEKNUM parameter 2 value ${_type} is out of range.`));
+      throw new Error(
+        _lt(`Function [[FUNCTION_NAME]] parameter 2 value ${_type} is out of range.`)
+      );
     }
 
     const y = _date.getFullYear();
@@ -652,8 +660,8 @@ export const WORKDAY: FunctionDescription = {
       )}
       `),
   returns: ["NUMBER"],
-  compute: function (start_date: any, num_days: any, holidays: any = undefined): number {
-    return WORKDAY_INTL.compute(start_date, num_days, 1, holidays);
+  compute: function (startDate: any, numDays: any, holidays: any = undefined): number {
+    return WORKDAY_INTL.compute(startDate, numDays, 1, holidays);
   },
 };
 
@@ -676,16 +684,16 @@ export const WORKDAY_INTL: FunctionDescription = {
     `),
   returns: ["DATE"],
   compute: function (
-    start_date: any,
-    num_days: any,
+    startDate: any,
+    numDays: any,
     weekend: any = 1,
     holidays: any = undefined
   ): InternalDate {
-    let _startDate = toNativeDate(start_date);
-    let _numDays = Math.trunc(toNumber(num_days));
+    let _startDate = toNativeDate(startDate);
+    let _numDays = Math.trunc(toNumber(numDays));
 
     if (weekend === "1111111") {
-      throw new Error(_lt(`Function WORKDAY.INTL parameter 3 cannot be equal to '1111111'.`));
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 3 cannot be equal to '1111111'.`));
     }
     const daysWeekend = weekendToDayNumber(weekend);
 

@@ -14,10 +14,12 @@ export const CHAR: FunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (table_number: any): string {
-    const _tableNumber = Math.trunc(toNumber(table_number));
+  compute: function (tableNumber: any): string {
+    const _tableNumber = Math.trunc(toNumber(tableNumber));
     if (_tableNumber < 1) {
-      throw new Error(_lt(`Function CHAR parameter 1 value ${_tableNumber} is out of range.`));
+      throw new Error(
+        _lt(`Function [[FUNCTION_NAME]] parameter 1 value ${_tableNumber} is out of range.`)
+      );
     }
     return String.fromCharCode(_tableNumber);
   },
@@ -68,24 +70,28 @@ export const FIND: FunctionDescription = {
       )}
   `),
   returns: ["NUMBER"],
-  compute: function (search_for: any, text_to_search: any, starting_at: any = 1): number {
-    const _textToSearch = toString(text_to_search);
+  compute: function (searchFor: any, textToSearch: any, startingAt: any = 1): number {
+    const _textToSearch = toString(textToSearch);
     if (_textToSearch === "") {
-      throw new Error(_lt(`Function FIND parameter 2 value should be non-empty.`));
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value should be non-empty.`));
     }
 
-    const _startingAt = toNumber(starting_at);
+    const _startingAt = toNumber(startingAt);
     if (_startingAt === 0) {
       throw new Error(
-        _lt(`Function FIND parameter 3 value is 0. It should be greater than or equal to 1.`)
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 3 value is 0. It should be greater than or equal to 1.`
+        )
       );
     }
 
-    const _searchFor = toString(search_for);
+    const _searchFor = toString(searchFor);
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
     if (result < 0) {
       throw new Error(
-        _lt(`In FIND evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`)
+        _lt(
+          `In [[FUNCTION_NAME]] evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`
+        )
       );
     }
     return result + 1;
@@ -107,13 +113,9 @@ export const JOIN: FunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (delimiter: any, ...values_or_arrays: any): string {
+  compute: function (delimiter: any, ...valuesOrArrays: any): string {
     const _delimiter = toString(delimiter);
-    return reduceArgs(
-      values_or_arrays,
-      (acc, a) => (acc ? acc + _delimiter : "") + toString(a),
-      ""
-    );
+    return reduceArgs(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
 };
 
@@ -129,11 +131,13 @@ export const LEFT: FunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: any, number_of_characters: any = 1): string {
-    const _numberOfCharacters = toNumber(number_of_characters);
+  compute: function (text: any, numberOfCharacters: any = 1): string {
+    const _numberOfCharacters = toNumber(numberOfCharacters);
     if (_numberOfCharacters < 0) {
       throw new Error(
-        _lt(`Function LEFT parameter 2 value is negative. It should be positive or zero.`)
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 2 value is negative. It should be positive or zero.`
+        )
       );
     }
     return toString(text).substring(0, _numberOfCharacters);
@@ -180,19 +184,19 @@ export const REPLACE: FunctionDescription = {
       new_text (string) ${_lt("The text which will be inserted into the original text.")}
   `),
   returns: ["STRING"],
-  compute: function (text: any, position: any, length: any, new_text: any): string {
+  compute: function (text: any, position: any, length: any, newText: any): string {
     const _position = toNumber(position);
     if (_position < 1) {
       throw new Error(
         _lt(
-          `Function REPLACE parameter 2 value is ${_position}. It should be greater than or equal to 1.`
+          `Function [[FUNCTION_NAME]] parameter 2 value is ${_position}. It should be greater than or equal to 1.`
         )
       );
     }
 
     const _text = toString(text);
     const _length = toNumber(length);
-    const _newText = toString(new_text);
+    const _newText = toString(newText);
     return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
 };
@@ -209,11 +213,13 @@ export const RIGHT: FunctionDescription = {
       )}
   `),
   returns: ["STRING"],
-  compute: function (text: any, number_of_characters: any = 1): string {
-    const _numberOfCharacters = toNumber(number_of_characters);
+  compute: function (text: any, numberOfCharacters: any = 1): string {
+    const _numberOfCharacters = toNumber(numberOfCharacters);
     if (_numberOfCharacters < 0) {
       throw new Error(
-        _lt(`Function RIGHT parameter 2 value is negative. It should be positive or zero.`)
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 2 value is negative. It should be positive or zero.`
+        )
       );
     }
     const _text = toString(text);
@@ -235,24 +241,28 @@ export const SEARCH: FunctionDescription = {
       )}
   `),
   returns: ["NUMBER"],
-  compute: function (search_for: any, text_to_search: any, starting_at: any = 1): number {
-    const _textToSearch = toString(text_to_search).toLowerCase();
+  compute: function (searchFor: any, textToDearch: any, startingAt: any = 1): number {
+    const _textToSearch = toString(textToDearch).toLowerCase();
     if (_textToSearch === "") {
-      throw new Error(_lt(`Function SEARCH parameter 2 value should be non-empty.`));
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value should be non-empty.`));
     }
 
-    const _startingAt = toNumber(starting_at);
+    const _startingAt = toNumber(startingAt);
     if (_startingAt === 0) {
       throw new Error(
-        _lt(`Function SEARCH parameter 3 value is 0. It should be greater than or equal to 1.`)
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 3 value is 0. It should be greater than or equal to 1.`
+        )
       );
     }
 
-    const _searchFor = toString(search_for).toLowerCase();
+    const _searchFor = toString(searchFor).toLowerCase();
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
     if (result < 0) {
       throw new Error(
-        _lt(`In SEARCH evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`)
+        _lt(
+          `In [[FUNCTION_NAME]] evaluation, cannot find '${_searchFor}' within '${_textToSearch}'.`
+        )
       );
     }
     return result + 1;
@@ -274,25 +284,27 @@ export const SUBSTITUTE: FunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (
-    text_to_search: any,
-    search_for: any,
-    replace_with: any,
-    occurrence_number: any = undefined
+    textToSearch: any,
+    searchFor: any,
+    replaceWith: any,
+    occurrenceNumber: any = undefined
   ): string {
-    const _occurrenceNumber = toNumber(occurrence_number);
+    const _occurrenceNumber = toNumber(occurrenceNumber);
     if (_occurrenceNumber < 0) {
       throw new Error(
-        _lt(`Function SUBSTITUTE parameter 4 value is negative. It should be positive or zero.`)
+        _lt(
+          `Function [[FUNCTION_NAME]] parameter 4 value is negative. It should be positive or zero.`
+        )
       );
     }
 
-    const _textToSearch = toString(text_to_search);
-    const _searchFor = toString(search_for);
+    const _textToSearch = toString(textToSearch);
+    const _searchFor = toString(searchFor);
     if (_searchFor === "") {
       return _textToSearch;
     }
 
-    const _replaceWith = toString(replace_with);
+    const _replaceWith = toString(replaceWith);
     const reg = new RegExp(_searchFor, "g");
     if (_occurrenceNumber === 0) {
       return _textToSearch.replace(reg, _replaceWith);
@@ -321,12 +333,12 @@ export const TEXTJOIN: FunctionDescription = {
       text2 (string, range<string>, optional, repeating) ${_lt("Additional text item(s).")}
   `),
   returns: ["STRING"],
-  compute: function (delimiter: any, ignore_empty: any, ...texts_or_arrays: any): string {
+  compute: function (delimiter: any, ignoreEmpty: any, ...textsOrArrays: any): string {
     const _delimiter = toString(delimiter);
-    const _ignoreEmpty = toBoolean(ignore_empty);
+    const _ignoreEmpty = toBoolean(ignoreEmpty);
     let n = 0;
     return reduceArgs(
-      texts_or_arrays,
+      textsOrArrays,
       (acc, a) =>
         !(_ignoreEmpty && toString(a) === "") ? (n++ ? acc + _delimiter : "") + toString(a) : acc,
       ""

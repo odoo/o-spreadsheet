@@ -1,6 +1,6 @@
 import { evaluateGrid } from "../helpers";
 
-describe("database", () => {
+describe("database formula", () => {
   // prettier-ignore
   const database = {
         A1:  "NAME"          , B1:  "FILM"                , C1:  "YEAR", D1:  "SCORE", 
@@ -22,12 +22,13 @@ describe("database", () => {
         A17: "Jean Ferrat"   , B17: "La Vieille dame ..." , C17: "1965", D17: "0.7" 
     }
 
-  test("DCOUNT: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const gridDcount = {
+  describe("DCOUNT formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const gridDcount = {
           A20: "YEAR", 
           A21: "1976", B21: '=DCOUNT(A1:D17, "YEAR", A20:A21)',
-          
+
           B24: '=DCOUNT(A1:D17, "YEAR", A23:A24)',
 
           A27: "1976", B27: '=DCOUNT(A1:D17, "YEAR", A26:A27)',
@@ -63,10 +64,10 @@ describe("database", () => {
 
           A59: "1"     , 
           A60: "Jean R", B60: '=DCOUNT(A1:D17, "YEAR", A59:A60)',
-          
+
           A62: "SCORE", B62: "SCORE",
           A63: "0.71" , B63: "0.7"  , C63: '=DCOUNT(A1:D17, "YEAR", A62:B63)',
-          
+
           A65: "SCORE",
           A66: "0.71" , 
           A67: "0.7"  , B67: '=DCOUNT(A1:D17, "YEAR", A65:A67)',
@@ -84,43 +85,44 @@ describe("database", () => {
           A79: "SCORE", B79: "YEAR"
                       , B80: "1976",
           A81: "0.7"  ,              C81: '=DCOUNT(A1:D17, "YEAR", A79:B81)',
-          
+
           A83: "SCORE", B83: "TEST"
                       , B84: "1976",
           A85: "0.7"  ,              C85: '=DCOUNT(A1:D17, "YEAR", A83:B85)',
-           
+
         };
 
-    const gridResult = evaluateGrid({ ...database, ...gridDcount });
+      const gridResult = evaluateGrid({ ...database, ...gridDcount });
 
-    expect(gridResult.B21).toBe(2);
-    expect(gridResult.B24).toBe(15);
-    expect(gridResult.B27).toBe(0);
-    expect(gridResult.B30).toBe(15);
-    expect(gridResult.B33).toBe(0);
-    expect(gridResult.B36).toBe(15);
-    expect(gridResult.B39).toBe(0);
-    expect(gridResult.B42).toBe(0);
-    expect(gridResult.C45).toBe(12);
-    expect(gridResult.B48).toBe(5);
-    expect(gridResult.B51).toBe(3);
-    expect(gridResult.B54).toBe(5);
-    expect(gridResult.B57).toBe(5);
-    expect(gridResult.B60).toBe(0);
-    expect(gridResult.C63).toBe(0);
-    expect(gridResult.B67).toBe(4);
-    expect(gridResult.B70).toBe(11);
-    expect(gridResult.B74).toBe(11);
-    expect(gridResult.B77).toBe(5);
-    expect(gridResult.C81).toBe(4);
-    expect(gridResult.C85).toBe(2);
+      expect(gridResult.B21).toBe(2);
+      expect(gridResult.B24).toBe(15);
+      expect(gridResult.B27).toBe(0);
+      expect(gridResult.B30).toBe(15);
+      expect(gridResult.B33).toBe(0);
+      expect(gridResult.B36).toBe(15);
+      expect(gridResult.B39).toBe(0);
+      expect(gridResult.B42).toBe(0);
+      expect(gridResult.C45).toBe(12);
+      expect(gridResult.B48).toBe(5);
+      expect(gridResult.B51).toBe(3);
+      expect(gridResult.B54).toBe(5);
+      expect(gridResult.B57).toBe(5);
+      expect(gridResult.B60).toBe(0);
+      expect(gridResult.C63).toBe(0);
+      expect(gridResult.B67).toBe(4);
+      expect(gridResult.B70).toBe(11);
+      expect(gridResult.B74).toBe(11);
+      expect(gridResult.B77).toBe(5);
+      expect(gridResult.C81).toBe(4);
+      expect(gridResult.C85).toBe(2);
+    });
   });
 
   // prettier-ignore
   const criteria = {
         F1: "YEAR", 
         F2: "1976",
-        
+
         F4: "FILM",
         F5: "Léon",
 
@@ -133,179 +135,201 @@ describe("database", () => {
         F13: "0.7"  , G13: "1964",
     }
 
-  test("DAVERAGE: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DAVERAGE(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DAVERAGE(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DAVERAGE(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DAVERAGE(A1:D17, "YEAR", F11:G13)',            
+  describe("DAVERAGE formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DAVERAGE(A1:D17, "SCORE", F1:F2)',
+          A21: '=DAVERAGE(A1:D17, "SCORE", F4:F5)',
+          A22: '=DAVERAGE(A1:D17, "YEAR", F7:F9)',
+          A23: '=DAVERAGE(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe(0.73);
-    expect(gridResult.A21).toBe(0.75);
-    expect(gridResult.A22).toBe(1981.5);
-    expect(gridResult.A23).toBe(1972);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe(0.73);
+      expect(gridResult.A21).toBe(0.75);
+      expect(gridResult.A22).toBe(1981.5);
+      expect(gridResult.A23).toBe(1972);
+    });
   });
 
-  test("DCOUNTA: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DCOUNTA(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DCOUNTA(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DCOUNTA(A1:D17, "NAME", F7:F9)',            
-          A23: '=DCOUNTA(A1:D17, "NAME", F11:G13)',            
+  describe("DCOUNTA formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DCOUNTA(A1:D17, "SCORE", F1:F2)',
+          A21: '=DCOUNTA(A1:D17, "SCORE", F4:F5)',
+          A22: '=DCOUNTA(A1:D17, "NAME", F7:F9)',
+          A23: '=DCOUNTA(A1:D17, "NAME", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe(2);
-    expect(gridResult.A21).toBe(1);
-    expect(gridResult.A22).toBe(12);
-    expect(gridResult.A23).toBe(3);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe(2);
+      expect(gridResult.A21).toBe(1);
+      expect(gridResult.A22).toBe(12);
+      expect(gridResult.A23).toBe(3);
+    });
   });
 
-  test("DGET: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DGET(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DGET(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DGET(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DGET(A1:D17, "YEAR", F11:G13)',            
+  describe("DGET formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DGET(A1:D17, "SCORE", F1:F2)',
+          A21: '=DGET(A1:D17, "SCORE", F4:F5)',
+          A22: '=DGET(A1:D17, "YEAR", F7:F9)',
+          A23: '=DGET(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(gridResult.A21).toBe(0.75);
-    expect(gridResult.A22).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(gridResult.A23).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(gridResult.A21).toBe(0.75);
+      expect(gridResult.A22).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(gridResult.A23).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    });
   });
 
-  test("DMAX: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DMAX(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DMAX(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DMAX(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DMAX(A1:D17, "YEAR", F11:G13)',            
+  describe("DMAX formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DMAX(A1:D17, "SCORE", F1:F2)',
+          A21: '=DMAX(A1:D17, "SCORE", F4:F5)',
+          A22: '=DMAX(A1:D17, "YEAR", F7:F9)',
+          A23: '=DMAX(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe(0.75);
-    expect(gridResult.A21).toBe(0.75);
-    expect(gridResult.A22).toBe(2011);
-    expect(gridResult.A23).toBe(1976);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe(0.75);
+      expect(gridResult.A21).toBe(0.75);
+      expect(gridResult.A22).toBe(2011);
+      expect(gridResult.A23).toBe(1976);
+    });
   });
 
-  test("DMIN: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DMIN(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DMIN(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DMIN(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DMIN(A1:D17, "YEAR", F11:G13)',            
+  describe("DMIN formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DMIN(A1:D17, "SCORE", F1:F2)',
+          A21: '=DMIN(A1:D17, "SCORE", F4:F5)',
+          A22: '=DMIN(A1:D17, "YEAR", F7:F9)',
+          A23: '=DMIN(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe(0.71);
-    expect(gridResult.A21).toBe(0.75);
-    expect(gridResult.A22).toBe(1938);
-    expect(gridResult.A23).toBe(1964);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe(0.71);
+      expect(gridResult.A21).toBe(0.75);
+      expect(gridResult.A22).toBe(1938);
+      expect(gridResult.A23).toBe(1964);
+    });
   });
 
-  test("DPRODUCT: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DPRODUCT(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DPRODUCT(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DPRODUCT(A1:D17, "SCORE", F7:F9)',            
-          A23: '=DPRODUCT(A1:D17, "YEAR", F11:G13)',            
+  describe("DPRODUCT formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DPRODUCT(A1:D17, "SCORE", F1:F2)',
+          A21: '=DPRODUCT(A1:D17, "SCORE", F4:F5)',
+          A22: '=DPRODUCT(A1:D17, "SCORE", F7:F9)',
+          A23: '=DPRODUCT(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe(0.5325);
-    expect(gridResult.A21).toBe(0.75);
-    expect(gridResult.A22).toBeCloseTo(0.01707, 5);
-    expect(gridResult.A23).toBe(7668587264);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe(0.5325);
+      expect(gridResult.A21).toBe(0.75);
+      expect(gridResult.A22).toBeCloseTo(0.01707, 5);
+      expect(gridResult.A23).toBe(7668587264);
+    });
   });
 
-  test("DSTDEV: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DSTDEV(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DSTDEV(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DSTDEV(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DSTDEV(A1:D17, "YEAR", F11:G13)',            
+  describe("DSTDEV formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DSTDEV(A1:D17, "SCORE", F1:F2)',
+          A21: '=DSTDEV(A1:D17, "SCORE", F4:F5)',
+          A22: '=DSTDEV(A1:D17, "YEAR", F7:F9)',
+          A23: '=DSTDEV(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBeCloseTo(0.02828, 5);
-    expect(gridResult.A21).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(gridResult.A22).toBeCloseTo(24.47448, 5);
-    expect(gridResult.A23).toBeCloseTo(6.9282, 5);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBeCloseTo(0.02828, 5);
+      expect(gridResult.A21).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+      expect(gridResult.A22).toBeCloseTo(24.47448, 5);
+      expect(gridResult.A23).toBeCloseTo(6.9282, 5);
+    });
   });
 
-  test("DSTDEVP: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DSTDEVP(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DSTDEVP(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DSTDEVP(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DSTDEVP(A1:D17, "YEAR", F11:G13)',            
+  describe("DSTDEVP formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DSTDEVP(A1:D17, "SCORE", F1:F2)',
+          A21: '=DSTDEVP(A1:D17, "SCORE", F4:F5)',
+          A22: '=DSTDEVP(A1:D17, "YEAR", F7:F9)',
+          A23: '=DSTDEVP(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBeCloseTo(0.02);
-    expect(gridResult.A21).toBe(0);
-    expect(gridResult.A22).toBeCloseTo(23.43253, 5);
-    expect(gridResult.A23).toBeCloseTo(5.65685, 5);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBeCloseTo(0.02);
+      expect(gridResult.A21).toBe(0);
+      expect(gridResult.A22).toBeCloseTo(23.43253, 5);
+      expect(gridResult.A23).toBeCloseTo(5.65685, 5);
+    });
   });
 
-  test("DSUM: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DSUM(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DSUM(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DSUM(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DSUM(A1:D17, "YEAR", F11:G13)',            
+  describe("DSUM formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DSUM(A1:D17, "SCORE", F1:F2)',
+          A21: '=DSUM(A1:D17, "SCORE", F4:F5)',
+          A22: '=DSUM(A1:D17, "YEAR", F7:F9)',
+          A23: '=DSUM(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBe(1.46);
-    expect(gridResult.A21).toBe(0.75);
-    expect(gridResult.A22).toBe(23778);
-    expect(gridResult.A23).toBe(5916);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBe(1.46);
+      expect(gridResult.A21).toBe(0.75);
+      expect(gridResult.A22).toBe(23778);
+      expect(gridResult.A23).toBe(5916);
+    });
   });
 
-  test("DVAR: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DVAR(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DVAR(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DVAR(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DVAR(A1:D17, "YEAR", F11:G13)',            
+  describe("DVAR formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DVAR(A1:D17, "SCORE", F1:F2)',
+          A21: '=DVAR(A1:D17, "SCORE", F4:F5)',
+          A22: '=DVAR(A1:D17, "YEAR", F7:F9)',
+          A23: '=DVAR(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBeCloseTo(0.0008, 4);
-    expect(gridResult.A21).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(gridResult.A22).toBe(599);
-    expect(gridResult.A23).toBe(48);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBeCloseTo(0.0008, 4);
+      expect(gridResult.A21).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+      expect(gridResult.A22).toBe(599);
+      expect(gridResult.A23).toBe(48);
+    });
   });
 
-  test("DVARP: functional tests on cell arguments", () => {
-    // prettier-ignore
-    const grid = {
-          A20: '=DVARP(A1:D17, "SCORE", F1:F2)',            
-          A21: '=DVARP(A1:D17, "SCORE", F4:F5)',            
-          A22: '=DVARP(A1:D17, "YEAR", F7:F9)',            
-          A23: '=DVARP(A1:D17, "YEAR", F11:G13)',            
+  describe("DVAR formula", () => {
+    test("functional tests on cell arguments", () => {
+      // prettier-ignore
+      const grid = {
+          A20: '=DVARP(A1:D17, "SCORE", F1:F2)',
+          A21: '=DVARP(A1:D17, "SCORE", F4:F5)',
+          A22: '=DVARP(A1:D17, "YEAR", F7:F9)',
+          A23: '=DVARP(A1:D17, "YEAR", F11:G13)',
         };
 
-    const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
-    expect(gridResult.A20).toBeCloseTo(0.0004, 4);
-    expect(gridResult.A21).toBe(0);
-    expect(gridResult.A22).toBeCloseTo(549.08333, 5);
-    expect(gridResult.A23).toBe(32);
+      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      expect(gridResult.A20).toBeCloseTo(0.0004, 4);
+      expect(gridResult.A21).toBe(0);
+      expect(gridResult.A22).toBeCloseTo(549.08333, 5);
+      expect(gridResult.A23).toBe(32);
+    });
   });
 });
