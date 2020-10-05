@@ -1,5 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 1`] = `
+"function anonymous(cell,range,ctx
+) {
+// =USELAZYARG(24)
+let _2 = ()=> 24
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
+exports[`compile functions with lazy arguments functions call requesting lazy parameters 2`] = `
+"function anonymous(cell,range,ctx
+) {
+// =USELAZYARG(1/0)
+ctx.__lastFnCalled = 'DIVIDE'
+let _2 = ()=> ctx['DIVIDE'](1, 0)
+ctx.__lastFnCalled = 'USELAZYARG'
+let _1 = ctx['USELAZYARG'](_2)
+return _1;
+}"
+`;
+
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(cell,range,ctx
 ) {
@@ -75,50 +98,6 @@ debugger;
 let _2 = cell(0)
 ctx.__lastFnCalled = 'DIVIDE'
 let _1 = ctx['DIVIDE'](_2, 2)
-return _1;
-}"
-`;
-
-exports[`expression compiler function call (with lazy parameters) 1`] = `
-"function anonymous(cell,range,ctx
-) {
-// =IF(TRUE, 42, 24)
-let _2 = ()=> 42
-let _3 = ()=> 24
-ctx.__lastFnCalled = 'IF'
-let _1 = ctx['IF'](true,_2,_3)
-return _1;
-}"
-`;
-
-exports[`expression compiler function call (with lazy parameters) 2`] = `
-"function anonymous(cell,range,ctx
-) {
-// =IF(TRUE, A2, 1/0)
-let _2 = ()=> cell(0)
-ctx.__lastFnCalled = 'DIVIDE'
-let _3 = ()=> ctx['DIVIDE'](1, 0)
-ctx.__lastFnCalled = 'IF'
-let _1 = ctx['IF'](true,_2,_3)
-return _1;
-}"
-`;
-
-exports[`expression compiler function call (with lazy parameters) 3`] = `
-"function anonymous(cell,range,ctx
-) {
-// =IF(TRUE, IF(TRUE, A2, SQRT(-1)), 1/0)
-let _3 = ()=> cell(0)
-ctx.__lastFnCalled = 'UMINUS'
-let _5 = ctx['UMINUS']( 1)
-ctx.__lastFnCalled = 'SQRT'
-let _4 = ()=> ctx['SQRT'](_5)
-ctx.__lastFnCalled = 'IF'
-let _2 = ()=> ctx['IF'](true,_3,_4)
-ctx.__lastFnCalled = 'DIVIDE'
-let _6 = ()=> ctx['DIVIDE'](1, 0)
-ctx.__lastFnCalled = 'IF'
-let _1 = ctx['IF'](true,_2,_6)
 return _1;
 }"
 `;
