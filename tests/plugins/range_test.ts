@@ -92,6 +92,208 @@ describe("range plugin", () => {
     m.dispatch("REMOVE_ROWS", { sheet: m.getters.getActiveSheetId(), rows: [5] });
     expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
   });
+  // ------------------------------------------------------------------------
+
+  test("create a range and add a column in the middle", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 2,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
+  });
+
+  test("create a range and add a column in the start", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 2,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
+  });
+
+  test("create a range and add a column in the end", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 3,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
+  });
+
+  test("create a range and add a column before the start", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 0,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["A2:C4"]);
+  });
+
+  test("create a range and add a column after the end", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 5,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+  });
+
+  test("create a range and add a column in the middle", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 2,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
+  });
+
+  test("create a range and add a column in the start", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 2,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
+  });
+
+  test("create a range and add a column in the end", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 3,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
+  });
+
+  test("create a range and add a column before the start", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 0,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["A2:C4"]);
+  });
+
+  test("create a range and add a column before the end", () => {
+    m.dispatch("ADD_COLUMNS", {
+      sheet: m.getters.getActiveSheetId(),
+      column: 5,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+  });
+  // ----------------------------------------------------------------------
+
+  test("create a range and add a row in the middle", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 2,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
+  });
+
+  test("create a range and add a row in the start", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 2,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
+  });
+
+  test("create a range and add a row in the end", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 3,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
+  });
+
+  test("create a range and add a row before the start", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 0,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B1:D3"]);
+  });
+
+  test("create a range and add a row after the end", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 5,
+      quantity: 1,
+      position: "after",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+  });
+
+  test("create a range and add a row in the middle", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 2,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
+  });
+
+  test("create a range and add a row in the start", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 2,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
+  });
+
+  test("create a range and add a row in the end", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 3,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
+  });
+
+  test("create a range and add a row before the start", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 0,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B1:D3"]);
+  });
+
+  test("create a range and add a row before the end", () => {
+    m.dispatch("ADD_ROWS", {
+      sheet: m.getters.getActiveSheetId(),
+      row: 5,
+      quantity: 1,
+      position: "before",
+    });
+    expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
+  });
 
   test("test withing a different sheet", () => {});
   test("test withing a sheet that has a space", () => {});
