@@ -497,7 +497,7 @@ describe("selection input plugin", () => {
       value: "Sheet2!B3, A1",
     });
     expect(highlightedZones(model)).toEqual(["A1"]);
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
     expect(highlightedZones(model)).toEqual(["A1", "B3"]);
   });
 
@@ -507,7 +507,7 @@ describe("selection input plugin", () => {
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheet(), to: "42" });
+    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
   });
 });
