@@ -54,8 +54,18 @@ export class RangePlugin extends BasePlugin {
         }
         break;
       case "ADD_COLUMNS":
+        for (let range of Object.values(this.ranges)) {
+          if (range.zone.left <= cmd.column && cmd.column <= range.zone.right) {
+            range.zone.right++;
+          }
+        }
         break;
       case "ADD_ROWS":
+        for (let range of Object.values(this.ranges)) {
+          if (range.zone.top <= cmd.row && cmd.row <= range.zone.bottom) {
+            range.zone.bottom++;
+          }
+        }
         break;
     }
   }
