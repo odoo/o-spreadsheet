@@ -113,4 +113,5 @@ export interface Getters {
 
   getRangeFromZone: RangePlugin["getRangeFromZone"];
   getRangeFromXC: RangePlugin["getRangeFromXC"];
+  getRangeString: RangePlugin["getRangeString"];
 }
