@@ -1,6 +1,7 @@
 import { compile } from "../../src/formulas";
 import { functionCache } from "../../src/formulas/compiler";
-import { functionRegistry } from "../../src/functions/index";
+import { functionRegistry } from "../../src/functions";
+import { evaluateCell } from "../helpers";
 
 function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
@@ -32,12 +33,6 @@ describe("expression compiler", () => {
     expect(compiledBaseFunction("=sum(1,2)")).toMatchSnapshot();
     expect(compiledBaseFunction('=sum(true, "")')).toMatchSnapshot();
     expect(compiledBaseFunction("=sum(1,,2)")).toMatchSnapshot();
-  });
-
-  test("function call (with lazy parameters)", () => {
-    expect(compiledBaseFunction("=IF(TRUE, 42, 24)")).toMatchSnapshot();
-    expect(compiledBaseFunction("=IF(TRUE, A2, 1/0)")).toMatchSnapshot();
-    expect(compiledBaseFunction("=IF(TRUE, IF(TRUE, A2, SQRT(-1)), 1/0)")).toMatchSnapshot();
   });
 
   test("read some values and functions", () => {
@@ -79,6 +74,60 @@ describe("expression compiler", () => {
   });
 });
 
+describe("compile functions with lazy arguments", () => {
+  // this tests performs controls inside formula functions. For this reason, we
+  // don't use mocked functions. Errors would be caught during evaluation of
+  // formulas and not during the tests. So here we use a simple counter
+
+  let count = 0;
+
+  beforeAll(() => {
+    functionRegistry.add("ANYFUNCTION", {
+      description: "any function",
+      compute: () => {
+        count += 1;
+        return true;
+      },
+      args: [],
+      returns: ["ANY"],
+    });
+
+    functionRegistry.add("USELAZYARG", {
+      description: "function with a lazy argument",
+      compute: (arg) => {
+        count *= 42;
+        return arg();
+      },
+      args: [{ name: "lazyArg", description: "", type: ["ANY"], lazy: true }],
+      returns: ["ANY"],
+    });
+
+    functionRegistry.add("NOTUSELAZYARG", {
+      description: "any function",
+      compute: (arg) => {
+        count *= 42;
+        return arg;
+      },
+      args: [{ name: "any", description: "", type: ["ANY"] }],
+      returns: ["ANY"],
+    });
+  });
+
+  test("formulas passed as lazy arguments are not executed before the parent formula", () => {
+    count = 0;
+    evaluateCell("A1", { A1: "=USELAZYARG(ANYFUNCTION())" });
+    expect(count).toBe(1);
+    count = 0;
+    evaluateCell("A2", { A2: "=NOTUSELAZYARG(ANYFUNCTION())" });
+    expect(count).toBe(42);
+  });
+
+  test("functions call requesting lazy parameters", () => {
+    expect(compiledBaseFunction("=USELAZYARG(24)")).toMatchSnapshot();
+    expect(compiledBaseFunction("=USELAZYARG(1/0)")).toMatchSnapshot();
+  });
+});
+
 describe("compile functions with meta arguments", () => {
   beforeAll(() => {
     functionRegistry.add("USEMETAARG", {
@@ -88,7 +137,7 @@ describe("compile functions with meta arguments", () => {
       returns: ["STRING"],
     });
     functionRegistry.add("NOTUSEMETAARG", {
-      description: "function with a meta argument",
+      description: "any function",
       compute: (arg) => arg,
       args: [{ name: "arg", description: "", type: ["ANY"] }],
       returns: ["ANY"],
