@@ -134,7 +134,7 @@ export class AutofillPlugin extends BasePlugin {
       case "AUTOFILL_CELL":
         const sheet = this.getters.getActiveSheetId();
         this.dispatch("UPDATE_CELL", {
-          sheet,
+          sheetId: sheet,
           col: cmd.col,
           row: cmd.row,
           style: cmd.style,

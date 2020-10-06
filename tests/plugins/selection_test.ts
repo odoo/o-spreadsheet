@@ -361,7 +361,7 @@ describe("multiple sheets", () => {
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet1 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
   });
 
@@ -370,16 +370,16 @@ describe("multiple sheets", () => {
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
 
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
-    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
   });
 });

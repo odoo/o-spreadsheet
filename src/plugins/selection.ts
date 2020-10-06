@@ -113,14 +113,14 @@ export class SelectionPlugin extends BasePlugin {
         this.selectCell(0, 0);
         break;
       case "ACTIVATE_SHEET":
-        this.sheetsData[cmd.from] = {
+        this.sheetsData[cmd.sheetIdFrom] = {
           selection: JSON.parse(JSON.stringify(this.selection)),
           activeCol: this.activeCol,
           activeRow: this.activeRow,
           activeXc: this.activeXc,
         };
-        if (cmd.to in this.sheetsData) {
-          Object.assign(this, this.sheetsData[cmd.to]);
+        if (cmd.sheetIdTo in this.sheetsData) {
+          Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
         } else {
           this.selectCell(0, 0);
         }

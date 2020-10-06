@@ -110,7 +110,7 @@ describe("renderer", () => {
     const model = new Model();
 
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A2:B2") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
 
@@ -161,7 +161,7 @@ describe("renderer", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
 
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A2:B2") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
     model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
 

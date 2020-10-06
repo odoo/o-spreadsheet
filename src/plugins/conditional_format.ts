@@ -42,43 +42,43 @@ export class ConditionalFormatPlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        const activeSheet = cmd.to;
+        const activeSheet = cmd.sheetIdTo;
         this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
         this.isStale = true;
         break;
       case "CREATE_SHEET":
-        this.cfRules[cmd.id] = [];
+        this.cfRules[cmd.sheetId] = [];
         this.isStale = true;
         break;
       case "DUPLICATE_SHEET":
-        this.history.update(["cfRules", cmd.to], this.cfRules[cmd.from].slice());
+        this.history.update(["cfRules", cmd.sheetIdTo], this.cfRules[cmd.sheetIdFrom].slice());
         this.isStale = true;
         break;
       case "DELETE_SHEET":
         const cfRules = Object.assign({}, this.cfRules);
-        delete cfRules[cmd.sheet];
+        delete cfRules[cmd.sheetId];
         this.history.update(["cfRules"], cfRules);
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
-        this.addConditionalFormatting(cmd.cf, cmd.sheet);
+        this.addConditionalFormatting(cmd.cf, cmd.sheetId);
         this.isStale = true;
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
-        this.removeConditionalFormatting(cmd.id, cmd.sheet);
+        this.removeConditionalFormatting(cmd.id, cmd.sheetId);
         this.isStale = true;
         break;
       case "REMOVE_COLUMNS":
-        this.adaptcfRules(cmd.sheet, (range: string) => updateRemoveColumns(range, cmd.columns));
+        this.adaptcfRules(cmd.sheetId, (range: string) => updateRemoveColumns(range, cmd.columns));
         this.isStale = true;
         break;
       case "REMOVE_ROWS":
-        this.adaptcfRules(cmd.sheet, (range: string) => updateRemoveRows(range, cmd.rows));
+        this.adaptcfRules(cmd.sheetId, (range: string) => updateRemoveRows(range, cmd.rows));
         this.isStale = true;
         break;
       case "ADD_COLUMNS":
         const column = cmd.position === "before" ? cmd.column : cmd.column + 1;
-        this.adaptcfRules(cmd.sheet, (range: string) =>
+        this.adaptcfRules(cmd.sheetId, (range: string) =>
           updateAddColumns(range, column, cmd.quantity)
         );
         this.isStale = true;
@@ -92,12 +92,12 @@ export class ConditionalFormatPlugin extends BasePlugin {
         break;
       case "ADD_ROWS":
         const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
-        this.adaptcfRules(cmd.sheet, (range: string) => updateAddRows(range, row, cmd.quantity));
+        this.adaptcfRules(cmd.sheetId, (range: string) => updateAddRows(range, row, cmd.quantity));
         this.isStale = true;
         break;
       case "PASTE_CELL":
         if (!cmd.onlyValue) {
-          this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheet, cmd.cut);
+          this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
         }
         break;
       case "EVALUATE_CELLS":

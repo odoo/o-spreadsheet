@@ -78,7 +78,7 @@ export class ChartPlugin extends BasePlugin {
       case "CREATE_CHART":
         const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
         this.dispatch("CREATE_FIGURE", {
-          sheet: cmd.sheetId,
+          sheetId: cmd.sheetId,
           figure: {
             id: cmd.id,
             data: chartDefinition,

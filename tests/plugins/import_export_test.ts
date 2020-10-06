@@ -83,12 +83,12 @@ describe("Import", () => {
     const sheet2 = model.getters.getVisibleSheets()[1];
     model.dispatch("SELECT_ROW", { index: 1 });
     model.dispatch("ADD_MERGE", {
-      sheet: sheet1,
+      sheetId: sheet1,
       zone: { left: 0, top: 1, right: 5, bottom: 1 },
     });
-    model.dispatch("ACTIVATE_SHEET", { from: sheet1, to: sheet2 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
     expect(Object.keys(getMerges(model))).toHaveLength(0);
-    model.dispatch("ACTIVATE_SHEET", { from: sheet2, to: sheet1 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     expect(Object.keys(getMerges(model))).toHaveLength(1);
     expect(Object.values(getMerges(model))[0].topLeft).toBe("A2");
   });
@@ -105,7 +105,7 @@ describe("Export", () => {
       ],
     });
     model.dispatch("RESIZE_COLUMNS", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       cols: [1],
       size: 150,
     });
@@ -123,7 +123,7 @@ describe("Export", () => {
       ],
     });
     model.dispatch("RESIZE_ROWS", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       rows: [1],
       size: 150,
     });

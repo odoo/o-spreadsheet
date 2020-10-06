@@ -1,5 +1,5 @@
 import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
-import { Cell } from "./misc";
+import { Cell, UID } from "./misc";
 import { Figure } from "./workbook_data";
 import { ComposerSelection } from "../plugins/edition";
 
@@ -38,7 +38,7 @@ interface BaseCommand {
 // ------------------------------------------------
 export interface UpdateCellCommand extends BaseCommand {
   type: "UPDATE_CELL";
-  sheet: string;
+  sheetId: UID;
   col: number;
   row: number;
   content?: string;
@@ -49,14 +49,14 @@ export interface UpdateCellCommand extends BaseCommand {
 
 export interface ResizeColumnsCommand extends BaseCommand {
   type: "RESIZE_COLUMNS";
-  sheet: string;
+  sheetId: UID;
   cols: number[];
   size: number;
 }
 
 export interface ResizeRowsCommand extends BaseCommand {
   type: "RESIZE_ROWS";
-  sheet: string;
+  sheetId: UID;
   rows: number[];
   size: number;
 }
@@ -66,7 +66,7 @@ export interface ResizeRowsCommand extends BaseCommand {
  */
 export interface CreateSheetCommand extends BaseCommand {
   type: "CREATE_SHEET";
-  id: string;
+  sheetId: UID;
   name?: string;
   cols?: number;
   rows?: number;
@@ -75,49 +75,49 @@ export interface CreateSheetCommand extends BaseCommand {
 
 export interface MoveSheetCommand extends BaseCommand {
   type: "MOVE_SHEET";
-  sheet: string;
+  sheetId: UID;
   direction: "left" | "right";
 }
 
 export interface RenameSheetCommand extends BaseCommand {
   type: "RENAME_SHEET";
-  sheet: string;
+  sheetId: UID;
   name?: string;
 }
 
 export interface DuplicateSheetCommand extends BaseCommand {
   type: "DUPLICATE_SHEET";
-  from: string;
-  to: string;
+  sheetIdFrom: UID;
+  sheetIdTo: UID;
   name: string;
 }
 
 export interface DeleteSheetCommand extends BaseCommand {
   type: "DELETE_SHEET";
-  sheet: string;
+  sheetId: UID;
 }
 
 export interface DeleteSheetConfirmationCommand extends BaseCommand {
   type: "DELETE_SHEET_CONFIRMATION";
-  sheet: string;
+  sheetId: UID;
 }
 
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
-  sheet: string;
+  sheetId: UID;
   zone: Zone;
   force?: boolean;
 }
 
 export interface RemoveMergeCommand extends BaseCommand {
   type: "REMOVE_MERGE";
-  sheet: string;
+  sheetId: UID;
   zone: Zone;
 }
 
 export interface AddFormattingCommand extends BaseCommand {
   type: "SET_FORMATTING";
-  sheet: string;
+  sheetId: UID;
   target: Zone[];
   style?: Style;
   border?: BorderCommand;
@@ -125,20 +125,20 @@ export interface AddFormattingCommand extends BaseCommand {
 
 export interface ClearFormattingCommand extends BaseCommand {
   type: "CLEAR_FORMATTING";
-  sheet: string;
+  sheetId: UID;
   target: Zone[];
 }
 
 export interface SetFormatterCommand extends BaseCommand {
   type: "SET_FORMATTER";
-  sheet: string;
+  sheetId: UID;
   target: Zone[];
   formatter: string;
 }
 
 export interface SetDecimalCommand extends BaseCommand {
   type: "SET_DECIMAL";
-  sheet: string;
+  sheetId: UID;
   target: Zone[];
   step: number;
 }
@@ -151,31 +151,31 @@ export interface SetDecimalCommand extends BaseCommand {
 export interface AddConditionalFormatCommand extends BaseCommand {
   type: "ADD_CONDITIONAL_FORMAT";
   cf: ConditionalFormat;
-  sheet: string;
+  sheetId: UID;
 }
 
 export interface RemoveConditionalFormatCommand extends BaseCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
-  sheet: string;
+  sheetId: UID;
 }
 
 export interface RemoveColumnsCommand extends BaseCommand {
   type: "REMOVE_COLUMNS";
   columns: number[];
-  sheet: string; //Not used for now
+  sheetId: UID;
 }
 
 export interface RemoveRowsCommand extends BaseCommand {
   type: "REMOVE_ROWS";
   rows: number[];
-  sheet: string; //Not used for now
+  sheetId: UID;
 }
 
 export interface AddColumnsCommand extends BaseCommand {
   type: "ADD_COLUMNS";
   column: number;
-  sheet: string; //Not used for now
+  sheetId: UID;
   quantity: number;
   position: "before" | "after";
 }
@@ -183,7 +183,7 @@ export interface AddColumnsCommand extends BaseCommand {
 export interface AddRowsCommand extends BaseCommand {
   type: "ADD_ROWS";
   row: number;
-  sheet: string; //Not used for now
+  sheetId: UID;
   quantity: number;
   position: "before" | "after";
 }
@@ -215,7 +215,7 @@ export interface PasteCellCommand extends BaseCommand {
   originRow: number;
   col: number;
   row: number;
-  sheet: string;
+  sheetId: UID;
   cut?: boolean;
   onlyValue: boolean;
   onlyFormat: boolean;
@@ -246,13 +246,13 @@ export interface PasteFromOSClipboardCommand extends BaseCommand {
 
 export interface AutoresizeColumnsCommand extends BaseCommand {
   type: "AUTORESIZE_COLUMNS";
-  sheet: string;
+  sheetId: UID;
   cols: number[];
 }
 
 export interface AutoresizeRowsCommand extends BaseCommand {
   type: "AUTORESIZE_ROWS";
-  sheet: string;
+  sheetId: UID;
   rows: number[];
 }
 
@@ -264,8 +264,8 @@ export interface MovePositionCommand extends BaseCommand {
 
 export interface ActivateSheetCommand extends BaseCommand {
   type: "ACTIVATE_SHEET";
-  from: string;
-  to: string;
+  sheetIdFrom: UID;
+  sheetIdTo: UID;
 }
 
 export interface SelectCellCommand extends BaseCommand {
@@ -440,7 +440,7 @@ export interface SetValueCommand extends BaseCommand {
   type: "SET_VALUE";
   xc: string;
   text: string;
-  sheetId?: string;
+  sheetId?: UID;
 }
 export interface ShowFormulaCommand extends BaseCommand {
   type: "SET_FORMULA_VISIBILITY";
@@ -449,13 +449,13 @@ export interface ShowFormulaCommand extends BaseCommand {
 
 export interface DeleteContentCommand extends BaseCommand {
   type: "DELETE_CONTENT";
-  sheet: string;
+  sheetId: UID;
   target: Zone[];
 }
 
 export interface ClearCellCommand extends BaseCommand {
   type: "CLEAR_CELL";
-  sheet: string;
+  sheetId: UID;
   col: number;
   row: number;
 }
@@ -568,7 +568,7 @@ export interface ChangeRangeCommand extends BaseCommand {
 export interface CreateFigureCommand extends BaseCommand {
   type: "CREATE_FIGURE";
   figure: Figure<any>;
-  sheet: string; // id of the target sheet
+  sheetId: UID;
 }
 
 export interface SelectFigureCommand extends BaseCommand {

@@ -9,6 +9,7 @@ import {
   Zone,
   CancelledReason,
   CommandResult,
+  UID,
 } from "../types/index";
 import { _lt } from "../translation";
 
@@ -33,7 +34,7 @@ export class ClipboardPlugin extends BasePlugin {
   private shouldCut?: boolean;
   private zones: Zone[] = [];
   private cells?: ClipboardCell[][];
-  private originSheet: string = this.getters.getActiveSheetId();
+  private originSheetId: UID = this.getters.getActiveSheetId();
   private _isPaintingFormat: boolean = false;
   private pasteOnlyValue: boolean = false;
   private pasteOnlyFormat: boolean = false;
@@ -172,7 +173,7 @@ export class ClipboardPlugin extends BasePlugin {
     this.shouldCut = cut;
     this.zones = clippedZones;
     this.cells = cells;
-    this.originSheet = this.getters.getActiveSheetId();
+    this.originSheetId = this.getters.getActiveSheetId();
   }
 
   private pasteFromClipboard(target: Zone[], content: string) {
@@ -273,7 +274,7 @@ export class ClipboardPlugin extends BasePlugin {
       for (let cell of row) {
         if (cell) {
           this.dispatch("CLEAR_CELL", {
-            sheet: this.originSheet,
+            sheetId: this.originSheetId,
             col: cell.col,
             row: cell.row,
           });
@@ -296,7 +297,7 @@ export class ClipboardPlugin extends BasePlugin {
           originRow: originCell.row,
           col: col + c,
           row: row + r,
-          sheet: this.originSheet,
+          sheetId: this.originSheetId,
           cut: this.shouldCut,
           onlyValue: this.pasteOnlyValue,
           onlyFormat: this.pasteOnlyFormat,
@@ -311,7 +312,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (missingRows > 0) {
       this.dispatch("ADD_ROWS", {
         row: rows.length - 1,
-        sheet: this.getters.getActiveSheetId(),
+        sheetId: this.getters.getActiveSheetId(),
         quantity: missingRows,
         position: "after",
       });
@@ -320,7 +321,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (missingCols > 0) {
       this.dispatch("ADD_COLUMNS", {
         column: cols.length - 1,
-        sheet: this.getters.getActiveSheetId(),
+        sheetId: this.getters.getActiveSheetId(),
         quantity: missingCols,
         position: "after",
       });
@@ -335,7 +336,7 @@ export class ClipboardPlugin extends BasePlugin {
     onlyFormat: boolean
   ) {
     const targetCell = this.getters.getCell(col, row);
-    const sheet = this.getters.getActiveSheetId();
+    const sheetId = this.getters.getActiveSheetId();
     if (origin) {
       let style = origin.style;
       let border = origin.border;
@@ -366,7 +367,7 @@ export class ClipboardPlugin extends BasePlugin {
         style,
         border,
         format,
-        sheet,
+        sheetId,
         col,
         row,
         content,
@@ -377,7 +378,7 @@ export class ClipboardPlugin extends BasePlugin {
       if (onlyValue) {
         if (targetCell.content) {
           this.dispatch("UPDATE_CELL", {
-            sheet,
+            sheetId: sheetId,
             col,
             row,
             content: "",
@@ -385,7 +386,7 @@ export class ClipboardPlugin extends BasePlugin {
         }
       } else if (onlyFormat) {
         this.dispatch("UPDATE_CELL", {
-          sheet,
+          sheetId: sheetId,
           col,
           row,
           style: undefined,
@@ -394,7 +395,7 @@ export class ClipboardPlugin extends BasePlugin {
         });
       } else {
         this.dispatch("CLEAR_CELL", {
-          sheet: this.getters.getActiveSheetId(),
+          sheetId: this.getters.getActiveSheetId(),
           col: col,
           row: row,
         });
@@ -443,7 +444,7 @@ export class ClipboardPlugin extends BasePlugin {
     if (
       this.status !== "visible" ||
       !zones.length ||
-      this.originSheet !== this.getters.getActiveSheetId()
+      this.originSheetId !== this.getters.getActiveSheetId()
     ) {
       return;
     }

@@ -65,7 +65,7 @@ describe("core", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
@@ -77,7 +77,7 @@ describe("core", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       formatter: "0.00000",
     });
@@ -85,7 +85,7 @@ describe("core", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "0" });
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
@@ -97,7 +97,7 @@ describe("core", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       formatter: "#,##0.00",
     });
@@ -108,7 +108,7 @@ describe("core", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2) + 1" });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheetId: "Sheet1",
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       style: { bold: true },
     });
@@ -191,10 +191,10 @@ describe("core", () => {
 
   test("can get row/col of inactive sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
-    model.dispatch("RESIZE_ROWS", { sheet: sheet2.id, rows: [0], size: 24 });
-    model.dispatch("RESIZE_COLUMNS", { sheet: sheet2.id, cols: [0], size: 42 });
+    model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, rows: [0], size: 24 });
+    model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, cols: [0], size: 42 });
     expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
     expect(model.getters.getRow(sheet2.id, 0)).toEqual({
       cells: {},
@@ -277,7 +277,7 @@ describe("history", () => {
     expect(getCell(model, "A2")!.content).toBe("3");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "A2")).toBeNull();
@@ -293,7 +293,7 @@ describe("history", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheetId: "Sheet1",
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       style: { bold: true },
     });
@@ -301,7 +301,7 @@ describe("history", () => {
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
 
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
     });
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
@@ -311,7 +311,7 @@ describe("history", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       border: "bottom",
     });
@@ -319,7 +319,7 @@ describe("history", () => {
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
 
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
     });
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
@@ -329,7 +329,7 @@ describe("history", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
     model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       formatter: "#,##0.00",
     });
@@ -337,7 +337,7 @@ describe("history", () => {
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3.00");
 
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
     });
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
@@ -401,7 +401,7 @@ describe("history", () => {
           },
         ],
       });
-      model.dispatch("ACTIVATE_SHEET", { from: sheet1Id, to: sheet2Id }); // evaluate Sheet2
+      model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: sheet2Id }); // evaluate Sheet2
       expect(model.getters.getRangeFormattedValues("A1:A3", sheet1Id)).toEqual([
         ["1,000", "", "2,000"],
       ]);

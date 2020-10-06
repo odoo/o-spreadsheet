@@ -13,7 +13,7 @@ describe("merges", () => {
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
 
     expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
     expect(model.getters.getCells().B2.content).toBe("b2");
@@ -41,7 +41,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
@@ -54,7 +54,7 @@ describe("merges", () => {
 
     expect(Object.keys(getMerges(model))).toEqual([]);
 
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B2") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B2") });
 
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
@@ -100,7 +100,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("SET_FORMATTING", {
-      sheet: sheet1,
+      sheetId: sheet1,
       target: model.getters.getSelectedZones(),
       style: { fillColor: "#333" },
     });
@@ -160,7 +160,7 @@ describe("merges", () => {
     expect(sheet2).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("REMOVE_ROWS", {
       rows: [2],
-      sheet: sheet2.id,
+      sheetId: sheet2.id,
     });
     const cell = getCell(model, "A1", sheet2.id);
     expect(model.getters.getCellStyle(cell!)).toEqual({
@@ -206,7 +206,7 @@ describe("merges", () => {
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
     model.dispatch("ADD_MERGE", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       zone: model.getters.getSelectedZone(),
       interactive: true,
     });
@@ -229,7 +229,7 @@ describe("merges", () => {
       ],
     });
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheet: "Sheet1", zone: toZone("A1:A3") });
+    model.dispatch("ADD_MERGE", { sheetId: "Sheet1", zone: toZone("A1:A3") });
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")!.value).toBe(2);
@@ -254,7 +254,7 @@ describe("merges", () => {
     });
     const sheet1 = model.getters.getVisibleSheets()[0];
     expect(getCell(model, "A4")!.value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A3"), force: true });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A3"), force: true });
 
     expect(getCell(model, "A1")!.value).toBe(1);
     expect(getCell(model, "A2")).toBeNull();
@@ -269,9 +269,9 @@ describe("merges", () => {
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     model.dispatch("SET_FORMATTING", {
-      sheet: sheet1,
+      sheetId: sheet1,
       target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
       style: { fillColor: "red" },
     });
@@ -279,7 +279,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -291,13 +291,13 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     //merging
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A3") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
     const mergeId = getMergeCellMap(model).A1;
     expect(mergeId).toBeGreaterThan(0);
     expect(getMergeCellMap(model).A2).toBe(mergeId);
 
     // unmerge. there should not be any merge left
-    model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("A1:A3") });
+    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:A3") });
     expect(getMergeCellMap(model)).toEqual({});
     expect(getMerges(model)).toEqual({});
   });
@@ -307,7 +307,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     // select B2:B3 and merge
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
 
     expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
     expect(getMerges(model)).toEqual({
@@ -331,7 +331,7 @@ describe("merges", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
 
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     model.dispatch("UNDO");
@@ -347,8 +347,8 @@ describe("merges", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
 
-    model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
-    model.dispatch("REMOVE_MERGE", { sheet: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     model.dispatch("UNDO");

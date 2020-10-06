@@ -89,11 +89,11 @@ export class CorePlugin extends BasePlugin {
         this.historizeActiveSheet = false;
         return { status: "SUCCESS" };
       case "REMOVE_COLUMNS":
-        return this.sheets[cmd.sheet].cols.length > cmd.columns.length
+        return this.sheets[cmd.sheetId].cols.length > cmd.columns.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
       case "REMOVE_ROWS":
-        return this.sheets[cmd.sheet].rows.length > cmd.rows.length
+        return this.sheets[cmd.sheetId].rows.length > cmd.rows.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
@@ -103,7 +103,7 @@ export class CorePlugin extends BasePlugin {
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       case "MOVE_SHEET":
-        const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheet);
+        const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
         if (currentIndex === -1) {
           return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
         }
@@ -127,60 +127,60 @@ export class CorePlugin extends BasePlugin {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         if (this.historizeActiveSheet) {
-          this.history.update(["activeSheet"], this.sheets[cmd.to]);
+          this.history.update(["activeSheet"], this.sheets[cmd.sheetIdTo]);
         } else {
-          this.activeSheet = this.sheets[cmd.to];
+          this.activeSheet = this.sheets[cmd.sheetIdTo];
         }
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
-          cmd.id,
+          cmd.sheetId,
           cmd.name || this.generateSheetName(),
           cmd.cols || 26,
           cmd.rows || 100
         );
         this.sheetIds[this.sheets[sheet].name] = sheet;
         if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: sheet });
+          this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: sheet });
         }
         break;
       case "MOVE_SHEET":
-        this.moveSheet(cmd.sheet, cmd.direction);
+        this.moveSheet(cmd.sheetId, cmd.direction);
         break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
-          this.interactiveRenameSheet(cmd.sheet, _lt("Rename Sheet"));
+          this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
         } else {
-          this.renameSheet(cmd.sheet, cmd.name!);
+          this.renameSheet(cmd.sheetId, cmd.name!);
         }
         break;
       case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.from, cmd.to, cmd.name);
+        this.duplicateSheet(cmd.sheetIdFrom, cmd.sheetIdTo, cmd.name);
         break;
       case "DELETE_SHEET_CONFIRMATION":
-        this.interactiveDeleteSheet(cmd.sheet);
+        this.interactiveDeleteSheet(cmd.sheetId);
         break;
       case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheet);
+        this.deleteSheet(cmd.sheetId);
         break;
       case "DELETE_CONTENT":
-        this.clearZones(cmd.sheet, cmd.target);
+        this.clearZones(cmd.sheetId, cmd.target);
         break;
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
         this.dispatch("UPDATE_CELL", {
-          sheet: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheetId(),
+          sheetId: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheetId(),
           col,
           row,
           content: cmd.text,
         });
         break;
       case "UPDATE_CELL":
-        this.updateCell(cmd.sheet, cmd.col, cmd.row, cmd);
+        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
-          sheet: cmd.sheet,
+          sheetId: cmd.sheetId,
           col: cmd.col,
           row: cmd.row,
           content: "",
@@ -193,7 +193,7 @@ export class CorePlugin extends BasePlugin {
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(col);
           if (size !== 0) {
-            this.setColSize(cmd.sheet, col, size + 2 * MIN_PADDING);
+            this.setColSize(cmd.sheetId, col, size + 2 * MIN_PADDING);
           }
         }
         break;
@@ -201,43 +201,43 @@ export class CorePlugin extends BasePlugin {
         for (let col of cmd.rows) {
           const size = this.getRowMaxHeight(col);
           if (size !== 0) {
-            this.setRowSize(cmd.sheet, col, size + 2 * MIN_PADDING);
+            this.setRowSize(cmd.sheetId, col, size + 2 * MIN_PADDING);
           }
         }
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.cols) {
-          this.setColSize(cmd.sheet, col, cmd.size);
+          this.setColSize(cmd.sheetId, col, cmd.size);
         }
         break;
       case "RESIZE_ROWS":
         for (let row of cmd.rows) {
-          this.setRowSize(cmd.sheet, row, cmd.size);
+          this.setRowSize(cmd.sheetId, row, cmd.size);
         }
         break;
       case "REMOVE_COLUMNS":
-        this.removeColumns(cmd.sheet, cmd.columns);
+        this.removeColumns(cmd.sheetId, cmd.columns);
         this.history.update(
-          ["sheets", cmd.sheet, "colNumber"],
-          this.sheets[cmd.sheet].colNumber - cmd.columns.length
+          ["sheets", cmd.sheetId, "colNumber"],
+          this.sheets[cmd.sheetId].colNumber - cmd.columns.length
         );
         break;
       case "REMOVE_ROWS":
-        this.removeRows(cmd.sheet, cmd.rows);
+        this.removeRows(cmd.sheetId, cmd.rows);
         this.history.update(
-          ["sheets", cmd.sheet, "rowNumber"],
-          this.sheets[cmd.sheet].rowNumber - cmd.rows.length
+          ["sheets", cmd.sheetId, "rowNumber"],
+          this.sheets[cmd.sheetId].rowNumber - cmd.rows.length
         );
         break;
       case "ADD_COLUMNS":
-        this.addColumns(cmd.sheet, cmd.column, cmd.position, cmd.quantity);
+        this.addColumns(cmd.sheetId, cmd.column, cmd.position, cmd.quantity);
         this.history.update(
           ["activeSheet", "colNumber"],
           this.activeSheet.colNumber + cmd.quantity
         );
         break;
       case "ADD_ROWS":
-        this.addRows(cmd.sheet, cmd.row, cmd.position, cmd.quantity);
+        this.addRows(cmd.sheetId, cmd.row, cmd.position, cmd.quantity);
         this.history.update(
           ["activeSheet", "rowNumber"],
           this.activeSheet.rowNumber + cmd.quantity
@@ -581,7 +581,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: sheetId,
+          sheetId: sheetId,
           col: cell.col + step,
           row: cell.row,
           content: cell.content,
@@ -612,7 +612,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: this.sheets[sheetId].id,
+          sheetId,
           col: cell.col,
           row: cell.row - (deleteToRow - deleteFromRow + 1),
           content: cell.content,
@@ -632,7 +632,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheet: sheetId,
+          sheetId: sheetId,
           col: cell.col,
           row: cell.row + step,
           content: cell.content,
@@ -787,7 +787,7 @@ export class CorePlugin extends BasePlugin {
         const [col, row] = toCartesian(xc);
         deleteCommands.push({
           type: "CLEAR_CELL",
-          sheet: sheet.id,
+          sheetId: sheet.id,
           col,
           row,
         });
@@ -953,7 +953,7 @@ export class CorePlugin extends BasePlugin {
       if (!name) {
         return;
       }
-      const result = this.dispatch("RENAME_SHEET", { sheet: sheetId, name });
+      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
       const sheetName = this.getSheetName(sheetId);
       if (result.status === "CANCELLED" && sheetName !== name) {
         this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
@@ -998,12 +998,12 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update(["sheetIds"], sheetIds);
-    this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: toId });
+    this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: toId });
   }
 
   private interactiveDeleteSheet(sheetId: UID) {
     this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
-      this.dispatch("DELETE_SHEET", { sheet: sheetId });
+      this.dispatch("DELETE_SHEET", { sheetId: sheetId });
     });
   }
 
@@ -1033,8 +1033,8 @@ export class CorePlugin extends BasePlugin {
     });
     if (this.getActiveSheetId() === sheetId) {
       this.dispatch("ACTIVATE_SHEET", {
-        from: sheetId,
-        to: visibleSheets[Math.max(0, currentIndex - 1)],
+        sheetIdFrom: sheetId,
+        sheetIdTo: visibleSheets[Math.max(0, currentIndex - 1)],
       });
     }
   }
@@ -1048,7 +1048,7 @@ export class CorePlugin extends BasePlugin {
           const xc = toXC(col, row);
           if (xc in cells) {
             this.dispatch("UPDATE_CELL", {
-              sheet: sheetId,
+              sheetId: sheetId,
               content: "",
               col,
               row,
@@ -1296,7 +1296,7 @@ export class CorePlugin extends BasePlugin {
           if (content !== cell.content) {
             const [col, row] = toCartesian(xc);
             this.dispatch("UPDATE_CELL", {
-              sheet: sheet.id,
+              sheetId: sheet.id,
               col,
               row,
               content,

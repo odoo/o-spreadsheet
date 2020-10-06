@@ -7,7 +7,7 @@ describe("styles", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheetId: "Sheet1",
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
@@ -23,7 +23,7 @@ describe("styles", () => {
     model.dispatch("SET_VALUE", { xc: "B1", text: "some content" });
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheetId: "Sheet1",
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
@@ -40,13 +40,13 @@ describe("styles", () => {
     model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: sheet1,
+      sheetId: sheet1,
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.content).toBe("b1");
@@ -57,13 +57,13 @@ describe("styles", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheetId: "Sheet1",
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")).toBeNull();
@@ -74,13 +74,13 @@ describe("styles", () => {
     model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
+      sheetId: "Sheet1",
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.style).not.toBeDefined();

@@ -719,7 +719,7 @@ describe("Context Menu - CF", () => {
     };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
@@ -761,11 +761,11 @@ describe("Context Menu - CF", () => {
     };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
     });
     const zone = { left: 0, top: 0, bottom: 10, right: 10 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });
@@ -796,7 +796,7 @@ describe("Context Menu - CF", () => {
     };
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
     });
     let zone = { left: 0, top: 0, bottom: 10, right: 0 };
     model.dispatch("SET_SELECTION", { zones: [zone], anchor: [0, 0] });

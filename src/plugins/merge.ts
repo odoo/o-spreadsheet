@@ -60,18 +60,22 @@ export class MergePlugin extends BasePlugin {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
         this.exportAndRemoveMerges(
-          cmd.sheet,
+          cmd.sheetId,
           (range) => updateRemoveColumns(range, cmd.columns),
           true
         );
         break;
       case "REMOVE_ROWS":
-        this.exportAndRemoveMerges(cmd.sheet, (range) => updateRemoveRows(range, cmd.rows), false);
+        this.exportAndRemoveMerges(
+          cmd.sheetId,
+          (range) => updateRemoveRows(range, cmd.rows),
+          false
+        );
         break;
       case "ADD_COLUMNS":
         const col = cmd.position === "before" ? cmd.column : cmd.column + 1;
         this.exportAndRemoveMerges(
-          cmd.sheet,
+          cmd.sheetId,
           (range) => updateAddColumns(range, col, cmd.quantity),
           true
         );
@@ -79,7 +83,7 @@ export class MergePlugin extends BasePlugin {
       case "ADD_ROWS":
         const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
         this.exportAndRemoveMerges(
-          cmd.sheet,
+          cmd.sheetId,
           (range) => updateAddRows(range, row, cmd.quantity),
           false
         );
@@ -90,37 +94,37 @@ export class MergePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET":
-        this.history.update(["merges", cmd.id], {});
-        this.history.update(["mergeCellMap", cmd.id], {});
+        this.history.update(["merges", cmd.sheetId], {});
+        this.history.update(["mergeCellMap", cmd.sheetId], {});
         break;
       case "DELETE_SHEET":
-        this.history.update(["merges", cmd.sheet], {});
-        this.history.update(["mergeCellMap", cmd.sheet], {});
+        this.history.update(["merges", cmd.sheetId], {});
+        this.history.update(["mergeCellMap", cmd.sheetId], {});
         break;
       case "DUPLICATE_SHEET":
-        this.history.update(["merges", cmd.to], Object.assign({}, this.merges[cmd.from]));
+        this.history.update(["merges", cmd.sheetIdTo], Object.assign({}, this.merges[cmd.sheetIdFrom]));
         this.history.update(
-          ["mergeCellMap", cmd.to],
-          Object.assign({}, this.mergeCellMap[cmd.from])
+          ["mergeCellMap", cmd.sheetIdTo],
+          Object.assign({}, this.mergeCellMap[cmd.sheetIdFrom])
         );
         break;
       case "ADD_MERGE":
         if (cmd.interactive) {
-          this.interactiveMerge(cmd.sheet, cmd.zone);
+          this.interactiveMerge(cmd.sheetId, cmd.zone);
         } else {
-          this.addMerge(cmd.sheet, cmd.zone);
+          this.addMerge(cmd.sheetId, cmd.zone);
         }
         break;
       case "REMOVE_MERGE":
-        this.removeMerge(cmd.sheet, cmd.zone);
+        this.removeMerge(cmd.sheetId, cmd.zone);
         break;
       case "AUTOFILL_CELL":
         this.autoFillMerge(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
         break;
       case "PASTE_CELL":
         const xc = toXC(cmd.originCol, cmd.originRow);
-        if (this.isMainCell(xc, cmd.sheet)) {
-          this.duplicateMerge(xc, cmd.col, cmd.row, cmd.sheet, cmd.cut);
+        if (this.isMainCell(xc, cmd.sheetId)) {
+          this.duplicateMerge(xc, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
         }
         break;
     }
@@ -279,7 +283,7 @@ export class MergePlugin extends BasePlugin {
         const xc = toXC(col, row);
         if (col !== left || row !== top) {
           this.dispatch("CLEAR_CELL", {
-            sheet: sheetId,
+            sheetId: sheetId,
             col,
             row,
           });
@@ -298,7 +302,7 @@ export class MergePlugin extends BasePlugin {
           if (this.mergeCellMap[sheetId][xc] !== id) {
             this.history.update(["mergeCellMap", sheetId, xc], undefined);
             this.dispatch("CLEAR_CELL", {
-              sheet: sheetId,
+              sheetId: sheetId,
               col: c,
               row: r,
             });
@@ -327,14 +331,14 @@ export class MergePlugin extends BasePlugin {
   }
 
   private interactiveMerge(sheet: string, zone: Zone) {
-    const result = this.dispatch("ADD_MERGE", { sheet, zone });
+    const result = this.dispatch("ADD_MERGE", { sheetId: sheet, zone });
 
     if (result.status === "CANCELLED") {
       if (result.reason === CancelledReason.MergeIsDestructive) {
         this.ui.askConfirmation(
           _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
           () => {
-            this.dispatch("ADD_MERGE", { sheet, zone, force: true });
+            this.dispatch("ADD_MERGE", { sheetId: sheet, zone, force: true });
           }
         );
       }
@@ -355,12 +359,12 @@ export class MergePlugin extends BasePlugin {
     };
     if (cut) {
       this.dispatch("REMOVE_MERGE", {
-        sheet: sheetId,
+        sheetId: sheetId,
         zone: merge,
       });
     }
     this.dispatch("ADD_MERGE", {
-      sheet: this.getters.getActiveSheetId(),
+      sheetId: this.getters.getActiveSheetId(),
       zone: newMerge,
     });
   }
@@ -415,7 +419,7 @@ export class MergePlugin extends BasePlugin {
         y += 1;
       }
       this.dispatch("UPDATE_CELL", {
-        sheet: sheet.id,
+        sheetId: sheet.id,
         col: x,
         row: y,
         style: topLeft.style,
@@ -458,7 +462,7 @@ export class MergePlugin extends BasePlugin {
       const mergeId = this.mergeCellMap[activeSheet][xcTarget];
       const zone = this.merges[activeSheet][mergeId];
       this.dispatch("REMOVE_MERGE", {
-        sheet: activeSheet,
+        sheetId: activeSheet,
         zone,
       });
     }
