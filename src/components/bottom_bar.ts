@@ -137,7 +137,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   }
 
   addSheet() {
-    this.env.dispatch("CREATE_SHEET", { activate: true, id: uuidv4() });
+    this.env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4() });
   }
 
   listSheets(ev: MouseEvent) {
@@ -148,7 +148,7 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
       registry.add(sheet.id, {
         name: sheet.name,
         sequence: i,
-        action: (env) => env.dispatch("ACTIVATE_SHEET", { from, to: sheet.id }),
+        action: (env) => env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
       });
       i++;
     }
@@ -156,11 +156,11 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   }
 
   activateSheet(name: string) {
-    this.env.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: name });
+    this.env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: name });
   }
 
-  onDblClick(sheet: string) {
-    this.env.dispatch("RENAME_SHEET", { interactive: true, sheet });
+  onDblClick(sheetId: string) {
+    this.env.dispatch("RENAME_SHEET", { interactive: true, sheetId });
   }
 
   openContextMenu(target: HTMLElement, registry: MenuItemRegistry) {

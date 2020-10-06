@@ -16,22 +16,22 @@ export class FigurePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "DUPLICATE_SHEET":
-        for (let fig of this.sheetFigures[cmd.from] || []) {
+        for (let fig of this.sheetFigures[cmd.sheetIdFrom] || []) {
           const figure = Object.assign({}, fig, { id: uuidv4() });
           this.dispatch("CREATE_FIGURE", {
-            sheet: cmd.to,
+            sheetId: cmd.sheetIdTo,
             figure,
           });
         }
         break;
       case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheet);
+        this.deleteSheet(cmd.sheetId);
         break;
       case "CREATE_FIGURE":
         this.history.update(["figures", cmd.figure.id], cmd.figure);
-        const sheetFigures = (this.sheetFigures[cmd.sheet] || []).slice();
+        const sheetFigures = (this.sheetFigures[cmd.sheetId] || []).slice();
         sheetFigures.push(cmd.figure);
-        this.history.update(["sheetFigures", cmd.sheet], sheetFigures);
+        this.history.update(["sheetFigures", cmd.sheetId], sheetFigures);
         break;
       case "UPDATE_FIGURE":
         if (cmd.x !== undefined) {

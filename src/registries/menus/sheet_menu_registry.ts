@@ -25,7 +25,7 @@ sheetMenuRegistry
       return env.getters.getSheets().length > 1;
     },
     action: (env) =>
-      env.dispatch("DELETE_SHEET_CONFIRMATION", { sheet: env.getters.getActiveSheetId() }),
+      env.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: env.getters.getActiveSheetId() }),
   })
   .add("duplicate", {
     name: _lt("Duplicate"),
@@ -37,8 +37,8 @@ sheetMenuRegistry
         env.getters.getSheets().find((s) => s.id === sheet)!.name
       );
       env.dispatch("DUPLICATE_SHEET", {
-        from: sheet,
-        to: uuidv4(),
+        sheetIdFrom: sheet,
+        sheetIdTo: uuidv4(),
         name,
       });
     },
@@ -49,7 +49,7 @@ sheetMenuRegistry
     action: (env) =>
       env.dispatch("RENAME_SHEET", {
         interactive: true,
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
       }),
   })
   .add("move_right", {
@@ -61,7 +61,7 @@ sheetMenuRegistry
       return sheets.findIndex((s) => s.id === sheet) !== sheets.length - 1;
     },
     action: (env) =>
-      env.dispatch("MOVE_SHEET", { sheet: env.getters.getActiveSheetId(), direction: "right" }),
+      env.dispatch("MOVE_SHEET", { sheetId: env.getters.getActiveSheetId(), direction: "right" }),
   })
   .add("move_left", {
     name: _lt("Move left"),
@@ -71,5 +71,5 @@ sheetMenuRegistry
       return env.getters.getSheets().findIndex((s) => s.id === sheet) !== 0;
     },
     action: (env) =>
-      env.dispatch("MOVE_SHEET", { sheet: env.getters.getActiveSheetId(), direction: "left" }),
+      env.dispatch("MOVE_SHEET", { sheetId: env.getters.getActiveSheetId(), direction: "left" }),
   });

@@ -47,12 +47,12 @@ describe("history", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "all",
     });
     model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "all",
     });
@@ -116,8 +116,8 @@ describe("history", () => {
 
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { id: "42" });
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
     model.dispatch("UNDO");
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
@@ -125,7 +125,7 @@ describe("history", () => {
   test("ACTIVATE_SHEET with another command is saved", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     model.dispatch("UNDO");
     expect(model.getters.getActiveSheetId()).toBe(sheet);
   });

@@ -28,7 +28,7 @@ function getRowsNumber(env: SpreadsheetEnv): number {
 
 export function setFormatter(env: SpreadsheetEnv, formatter: string) {
   env.dispatch("SET_FORMATTER", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     target: env.getters.getSelectedZones(),
     formatter,
   });
@@ -36,7 +36,7 @@ export function setFormatter(env: SpreadsheetEnv, formatter: string) {
 
 export function setStyle(env: SpreadsheetEnv, style: Style) {
   env.dispatch("SET_FORMATTING", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     target: env.getters.getSelectedZones(),
     style,
   });
@@ -89,7 +89,7 @@ export const PASTE_FORMAT_ACTION = (env: SpreadsheetEnv) =>
 
 export const DELETE_CONTENT_ACTION = (env: SpreadsheetEnv) =>
   env.dispatch("DELETE_CONTENT", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     target: env.getters.getSelectedZones(),
   });
 
@@ -124,7 +124,7 @@ export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetEnv) => {
   );
   env.dispatch("DELETE_CONTENT", {
     target,
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
   });
 };
 
@@ -152,7 +152,7 @@ export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
   );
   env.dispatch("DELETE_CONTENT", {
     target,
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
   });
 };
 
@@ -183,7 +183,7 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetEnv) => {
     }
   }
   env.dispatch("REMOVE_ROWS", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     rows,
   });
 };
@@ -215,7 +215,7 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
     }
   }
   env.dispatch("REMOVE_COLUMNS", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     columns,
   });
 };
@@ -254,7 +254,7 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
     quantity = zone.bottom - zone.top + 1;
   }
   env.dispatch("ADD_ROWS", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     position: "before",
     row,
     quantity,
@@ -287,7 +287,7 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetEnv) => {
     quantity = zone.bottom - zone.top + 1;
   }
   env.dispatch("ADD_ROWS", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     position: "after",
     row,
     quantity,
@@ -328,7 +328,7 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetEnv) => {
     quantity = zone.right - zone.left + 1;
   }
   env.dispatch("ADD_COLUMNS", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     position: "before",
     column,
     quantity,
@@ -361,7 +361,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
     quantity = zone.right - zone.left + 1;
   }
   env.dispatch("ADD_COLUMNS", {
-    sheet: env.getters.getActiveSheetId(),
+    sheetId: env.getters.getActiveSheetId(),
     position: "after",
     column,
     quantity,
@@ -373,7 +373,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
-  env.dispatch("CREATE_SHEET", { activate: true, id: uuidv4() });
+  env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4() });
 };
 
 //------------------------------------------------------------------------------

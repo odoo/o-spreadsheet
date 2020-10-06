@@ -38,7 +38,7 @@ describe("edition", () => {
     expect(model.getters.getCells()["A2"].content).toBe("a2");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect("A2" in model.getters.getCells()).toBeTruthy();
@@ -50,10 +50,10 @@ describe("edition", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
-    model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBe(null);
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: sheet1 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: sheet1 });
     expect(getCell(model, "A1")!.content).toBe("a");
   });
 
@@ -64,13 +64,13 @@ describe("edition", () => {
     model.dispatch("START_COMPOSER_SELECTION");
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
-    model.dispatch("CREATE_SHEET", { activate: true, id: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", name: "Sheet2" });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(getCell(model, "A1")!.content).toBe("=");
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
     expect(getCell(model, "A1")).toBeNull();
   });
 

@@ -320,7 +320,7 @@ describe("highlight", () => {
   test("selecting cells in a merge expands the highlight", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheet, zone: toZone("A2:A4") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet, zone: toZone("A2:A4") });
     model.dispatch("START_SELECTION_EXPANSION");
     model.dispatch("SET_SELECTION", {
       anchor: [0, 4],
@@ -339,7 +339,7 @@ describe("highlight", () => {
   test("selecting cell in a merge does not reset pending highlights", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("ADD_MERGE", { sheet, zone: toZone("A2:A4") });
+    model.dispatch("ADD_MERGE", { sheetId: sheet, zone: toZone("A2:A4") });
     model.dispatch("START_SELECTION_EXPANSION");
     model.dispatch("SET_SELECTION", {
       anchor: [0, 4],

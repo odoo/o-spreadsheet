@@ -147,7 +147,7 @@ describe("Menu Item actions", () => {
   test("Edit -> edit_delete_cell_values", () => {
     doAction(["edit", "edit_delete_cell_values"], env);
     expect(env.dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
-      sheet: env.getters.getActiveSheetId(),
+      sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
     });
   });
@@ -166,7 +166,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_ROWS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         rows: [4, 5],
       });
     });
@@ -182,7 +182,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_ROWS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         rows: [3, 4],
       });
     });
@@ -196,7 +196,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         columns: [4],
       });
     });
@@ -207,7 +207,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("Delete columns E - F");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         columns: [4, 5],
       });
     });
@@ -217,7 +217,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("Delete column D");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         columns: [3],
       });
     });
@@ -228,7 +228,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         columns: [3, 4],
       });
     });
@@ -249,7 +249,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         row: 4,
         quantity: 2,
         position: "before",
@@ -274,7 +274,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Rows above");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         row: 3,
         quantity: 2,
         position: "before",
@@ -298,7 +298,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         row: 5,
         quantity: 2,
         position: "after",
@@ -323,7 +323,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Rows below");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_ROWS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         row: 4,
         quantity: 2,
         position: "after",
@@ -347,7 +347,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         column: 4,
         quantity: 2,
         position: "before",
@@ -372,7 +372,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Columns left");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         column: 3,
         quantity: 2,
         position: "before",
@@ -396,7 +396,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         column: 5,
         quantity: 2,
         position: "after",
@@ -421,7 +421,7 @@ describe("Menu Item actions", () => {
       expect(getName(path, env)).toBe("2 Columns right");
       doAction(path, env);
       expect(env.dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         column: 4,
         quantity: 2,
         position: "after",
@@ -433,14 +433,14 @@ describe("Menu Item actions", () => {
   test("Insert -> new sheet", () => {
     mockUuidV4To(42);
     doAction(["insert", "insert_sheet"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true, id: "42" });
+    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true, sheetId: "42" });
   });
 
   describe("Format -> numbers", () => {
     test("Automatic", () => {
       doAction(["format", "format_number", "format_number_auto"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "",
       });
@@ -449,7 +449,7 @@ describe("Menu Item actions", () => {
     test("Number", () => {
       doAction(["format", "format_number", "format_number_number"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "#,##0.00",
       });
@@ -458,7 +458,7 @@ describe("Menu Item actions", () => {
     test("Percent", () => {
       doAction(["format", "format_number", "format_number_percent"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "0.00%",
       });
@@ -467,7 +467,7 @@ describe("Menu Item actions", () => {
     test("Date", () => {
       doAction(["format", "format_number", "format_number_date"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "m/d/yyyy",
       });
@@ -476,7 +476,7 @@ describe("Menu Item actions", () => {
     test("Time", () => {
       doAction(["format", "format_number", "format_number_time"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "hh:mm:ss a",
       });
@@ -485,7 +485,7 @@ describe("Menu Item actions", () => {
     test("Date time", () => {
       doAction(["format", "format_number", "format_number_date_time"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "m/d/yyyy hh:mm:ss",
       });
@@ -494,7 +494,7 @@ describe("Menu Item actions", () => {
     test("Duration", () => {
       doAction(["format", "format_number", "format_number_duration"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
-        sheet: env.getters.getActiveSheetId(),
+        sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
         formatter: "hhhh:mm:ss",
       });
@@ -504,7 +504,7 @@ describe("Menu Item actions", () => {
   test("Format -> bold", () => {
     doAction(["format", "format_bold"], env);
     expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-      sheet: env.getters.getActiveSheetId(),
+      sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { bold: true },
     });
@@ -513,7 +513,7 @@ describe("Menu Item actions", () => {
   test("Format -> italic", () => {
     doAction(["format", "format_italic"], env);
     expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-      sheet: env.getters.getActiveSheetId(),
+      sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { italic: true },
     });
@@ -522,7 +522,7 @@ describe("Menu Item actions", () => {
   test("Format -> strikethrough", () => {
     doAction(["format", "format_strikethrough"], env);
     expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-      sheet: env.getters.getActiveSheetId(),
+      sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { strikethrough: true },
     });
@@ -532,7 +532,7 @@ describe("Menu Item actions", () => {
     const fontSize = fontSizes[0];
     doAction(["format", "format_font_size", `format_font_size_${fontSize.pt}`], env);
     expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
-      sheet: env.getters.getActiveSheetId(),
+      sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { fontSize: fontSize.pt },
     });

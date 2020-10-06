@@ -74,20 +74,20 @@ export class FormattingPlugin extends BasePlugin {
     switch (cmd.type) {
       case "SET_FORMATTING":
         if (cmd.style) {
-          this.setStyle(cmd.sheet, cmd.target, cmd.style);
+          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
         }
         if (cmd.border) {
-          this.setBorder(cmd.sheet, cmd.target, cmd.border);
+          this.setBorder(cmd.sheetId, cmd.target, cmd.border);
         }
         break;
       case "CLEAR_FORMATTING":
         this.clearFormatting(cmd.target);
         break;
       case "SET_FORMATTER":
-        this.setFormatter(cmd.sheet, cmd.target, cmd.formatter);
+        this.setFormatter(cmd.sheetId, cmd.target, cmd.formatter);
         break;
       case "SET_DECIMAL":
-        this.setDecimal(cmd.sheet, cmd.target, cmd.step);
+        this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
         break;
       case "ADD_COLUMNS":
         const start_col = cmd.position === "before" ? cmd.column - 1 : cmd.column;
@@ -161,7 +161,7 @@ export class FormattingPlugin extends BasePlugin {
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
     this.dispatch("UPDATE_CELL", {
-      sheet: this.getters.getActiveSheetId(),
+      sheetId: this.getters.getActiveSheetId(),
       col,
       row,
       style: id,
@@ -196,7 +196,7 @@ export class FormattingPlugin extends BasePlugin {
       const current = (cell && cell.border) || 0;
       if (current !== borderId) {
         this.dispatch("UPDATE_CELL", {
-          sheet: sheet,
+          sheetId: sheet,
           col,
           row,
           border: borderId,
@@ -343,7 +343,7 @@ export class FormattingPlugin extends BasePlugin {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
-            sheet: this.getters.getActiveSheetId(),
+            sheetId: this.getters.getActiveSheetId(),
             col,
             row,
             style: 0,
@@ -363,7 +363,7 @@ export class FormattingPlugin extends BasePlugin {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
           this.dispatch("UPDATE_CELL", {
-            sheet,
+            sheetId: sheet,
             col,
             row,
             format,
@@ -565,7 +565,7 @@ export class FormattingPlugin extends BasePlugin {
       if (Object.keys(format).length !== 0) {
         for (let i = index; i < end; i++) {
           this.dispatch("UPDATE_CELL", {
-            sheet: this.getters.getActiveSheetId(),
+            sheetId: this.getters.getActiveSheetId(),
             col: isColumn ? i : x,
             row: isColumn ? x : i,
             style: format.style,

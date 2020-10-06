@@ -302,7 +302,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     F2: () => this.dispatch("START_EDITION"),
     DELETE: () => {
       this.dispatch("DELETE_CONTENT", {
-        sheet: this.getters.getActiveSheetId(),
+        sheetId: this.getters.getActiveSheetId(),
         target: this.getters.getSelectedZones(),
       });
     },

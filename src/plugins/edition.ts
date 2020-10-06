@@ -201,21 +201,21 @@ export class EditionPlugin extends BasePlugin {
           }
         }
         this.dispatch("UPDATE_CELL", {
-          sheet: this.sheet,
+          sheetId: this.sheet,
           col,
           row,
           content,
         });
       } else {
         this.dispatch("UPDATE_CELL", {
-          sheet: this.sheet,
+          sheetId: this.sheet,
           content: "",
           col,
           row,
         });
       }
       if (this.getters.getActiveSheetId() !== this.sheet) {
-        this.dispatch("ACTIVATE_SHEET", { from: this.getters.getActiveSheetId(), to: this.sheet });
+        this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: this.sheet });
       }
     }
   }

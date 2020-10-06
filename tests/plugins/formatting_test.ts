@@ -3,7 +3,7 @@ import "../canvas.mock";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
-    sheet: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
     target: model.getters.getSelectedZones(),
     formatter: format,
   });
@@ -11,7 +11,7 @@ function setFormat(model: Model, format: string) {
 
 function setDecimal(model: Model, step: number) {
   model.dispatch("SET_DECIMAL", {
-    sheet: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
     target: model.getters.getSelectedZones(),
     step: step,
   });
@@ -148,7 +148,7 @@ describe("formatting values (when change decimal)", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "42%" });
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     model.dispatch("DELETE_CONTENT", {
-      sheet: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(model.getters.getCells().A1.format).toBe("0%");

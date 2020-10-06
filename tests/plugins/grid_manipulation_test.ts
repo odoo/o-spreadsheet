@@ -17,7 +17,7 @@ function clearColumns(indexes: number[]) {
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
   });
 }
 
@@ -27,21 +27,21 @@ function clearRows(indexes: number[]) {
   });
   model.dispatch("DELETE_CONTENT", {
     target,
-    sheet: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
   });
 }
 
 function removeColumns(columns: number[]) {
-  model.dispatch("REMOVE_COLUMNS", { sheet: model.getters.getActiveSheetId(), columns });
+  model.dispatch("REMOVE_COLUMNS", { sheetId: model.getters.getActiveSheetId(), columns });
 }
 
 function removeRows(rows: number[]) {
-  model.dispatch("REMOVE_ROWS", { sheet: model.getters.getActiveSheetId(), rows });
+  model.dispatch("REMOVE_ROWS", { sheetId: model.getters.getActiveSheetId(), rows });
 }
 
 function addColumns(column: number, position: "before" | "after", quantity: number) {
   model.dispatch("ADD_COLUMNS", {
-    sheet: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
     position,
     column,
     quantity,
@@ -50,7 +50,7 @@ function addColumns(column: number, position: "before" | "after", quantity: numb
 
 function addRows(row: number, position: "before" | "after", quantity: number) {
   model.dispatch("ADD_ROWS", {
-    sheet: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
     position,
     row,
     quantity,
@@ -212,7 +212,7 @@ describe("Columns", () => {
       expect(sheet2).not.toBe(model.getters.getActiveSheetId());
       model.dispatch("REMOVE_COLUMNS", {
         columns: [0],
-        sheet: sheet2.id,
+        sheetId: sheet2.id,
       });
       expect(sheet1.cells.B2.content).toBe("B2 in sheet1");
       expect(sheet2.cells.A2.content).toBe("B2 in sheet2");
@@ -445,7 +445,7 @@ describe("Columns", () => {
       expect(sheet2.id).not.toBe(model.getters.getActiveSheetId());
       model.dispatch("REMOVE_COLUMNS", {
         columns: [0],
-        sheet: sheet2.id,
+        sheetId: sheet2.id,
       });
       expect(sheet1.cells).toMatchObject({
         B2: { content: "=Sheet1!B3" },
@@ -557,7 +557,7 @@ describe("Columns", () => {
         ],
       });
       const sheet1Id = model.getters.getSheetIdByName("Sheet1");
-      model.dispatch("REMOVE_COLUMNS", { sheet: sheet1Id!, columns: [0] });
+      model.dispatch("REMOVE_COLUMNS", { sheetId: sheet1Id!, columns: [0] });
       expect(getCell(model, "A1", "42")!.content).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("On multiple col deletion including the last one", () => {
@@ -732,7 +732,7 @@ describe("Rows", () => {
       expect(sheet2).not.toBe(model.getters.getActiveSheetId());
       model.dispatch("REMOVE_ROWS", {
         rows: [0],
-        sheet: sheet2.id,
+        sheetId: sheet2.id,
       });
       expect(sheet1.cells.B2.content).toBe("B2 in sheet1");
       expect(sheet2.cells.B1.content).toBe("B2 in sheet2");
@@ -807,7 +807,7 @@ describe("Rows", () => {
         ],
       });
       const sheet1Id = model.getters.getSheetIdByName("Sheet1");
-      model.dispatch("REMOVE_ROWS", { sheet: sheet1Id!, rows: [0] });
+      model.dispatch("REMOVE_ROWS", { sheetId: sheet1Id!, rows: [0] });
       expect(getCell(model, "A1", "42")!.content).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("On addition before", () => {
@@ -846,9 +846,9 @@ describe("Rows", () => {
       let dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
-      model.dispatch("CREATE_SHEET", { activate: true, id: "42" });
+      model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
       const from = model.getters.getActiveSheetId();
-      model.dispatch("ACTIVATE_SHEET", { from, to });
+      model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
       dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
     });
@@ -1054,7 +1054,7 @@ describe("Rows", () => {
       expect(sheet2.id).not.toBe(model.getters.getActiveSheetId()),
         model.dispatch("REMOVE_ROWS", {
           rows: [0],
-          sheet: sheet2.id,
+          sheetId: sheet2.id,
         });
       expect(sheet1.cells).toMatchObject({
         B2: { content: "=Sheet1!A2" },

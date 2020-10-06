@@ -57,7 +57,10 @@ describe("BottomBar component", () => {
 
     mockUuidV4To(42);
     triggerMouseEvent(".o-add-sheet", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true, id: "42" });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", {
+      activate: true,
+      sheetId: "42",
+    });
   });
 
   test("Can activate a sheet", async () => {
@@ -65,9 +68,9 @@ describe("BottomBar component", () => {
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "click");
-    const from = parent.model.getters.getActiveSheetId();
-    const to = from;
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { from, to });
+    const sheetIdFrom = parent.model.getters.getActiveSheetId();
+    const sheetIdTo = sheetIdFrom;
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
   });
 
   test("Can open context menu of a sheet", async () => {
@@ -105,28 +108,28 @@ describe("BottomBar component", () => {
 
   test("Can move right a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_right'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "right" });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheetId, direction: "right" });
   });
 
   test("Can move left a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='move_left'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheet, direction: "left" });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("MOVE_SHEET", { sheetId, direction: "left" });
   });
 
   test("Move right and left are not visible when it's not possible to move", async () => {
@@ -147,9 +150,12 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='rename'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", { sheet, interactive: true });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", {
+      sheetId,
+      interactive: true,
+    });
   });
 
   test("Can rename a sheet with dblclick", async () => {
@@ -159,8 +165,11 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet-name", "dblclick");
     await nextTick();
-    const sheet = model.getters.getActiveSheetId();
-    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", { sheet, interactive: true });
+    const sheetId = model.getters.getActiveSheetId();
+    expect(parent.env.dispatch).toHaveBeenCalledWith("RENAME_SHEET", {
+      sheetId,
+      interactive: true,
+    });
   });
 
   test("Can duplicate a sheet", async () => {
@@ -175,8 +184,8 @@ describe("BottomBar component", () => {
     const name = `Copy of ${model.getters.getSheets()[0].name}`;
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
-      from: sheet,
-      to: "123",
+      sheetIdFrom: sheet,
+      sheetIdTo: "123",
       name,
     });
   });
@@ -201,23 +210,23 @@ describe("BottomBar component", () => {
     mockUuidV4To(123);
     triggerMouseEvent(".o-menu-item[data-name='duplicate'", "click");
     expect(parent.env.dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
-      from: sheet,
-      to: "123",
+      sheetIdFrom: sheet,
+      sheetIdTo: "123",
       name,
     });
   });
 
   test("Can delete a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     triggerMouseEvent(".o-menu-item[data-name='delete'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET_CONFIRMATION", { sheet });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("DELETE_SHEET_CONFIRMATION", { sheetId });
   });
 
   test("Delete sheet is not visible when there is only one sheet", async () => {
@@ -244,7 +253,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     await parent.mount(fixture);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-list-sheets", "click");
@@ -260,11 +269,14 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     await parent.mount(fixture);
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();
     triggerMouseEvent(".o-menu-item[data-name='42'", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", { from: sheet, to: "42" });
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
+      sheetIdFrom: sheet,
+      sheetIdTo: "42",
+    });
   });
 });
