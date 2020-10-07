@@ -4,7 +4,8 @@ import { Command, UID, Zone } from "../types/index";
 import { getComposerSheetName, toZone, uuidv4, zoneToXc } from "../helpers/index";
 import { _lt } from "../translation";
 
-export type onRangeChange = () => void;
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE";
+export type onRangeChange = (changeType: ChangeType) => void;
 
 export type Range = {
   id: UID;
@@ -55,15 +56,39 @@ export class RangePlugin extends BasePlugin {
         break;
       case "ADD_COLUMNS":
         for (let range of Object.values(this.ranges)) {
-          if (range.zone.left <= cmd.column && cmd.column <= range.zone.right) {
-            range.zone.right++;
+          if (cmd.position === "after") {
+            if (range.zone.left <= cmd.column && cmd.column <= range.zone.right) {
+              range.zone.right++;
+            } else if (cmd.column < range.zone.left) {
+              range.zone.left++;
+              range.zone.right++;
+            }
+          } else {
+            if (range.zone.left < cmd.column && cmd.column <= range.zone.right) {
+              range.zone.right++;
+            } else if (cmd.column <= range.zone.left) {
+              range.zone.left++;
+              range.zone.right++;
+            }
           }
         }
         break;
       case "ADD_ROWS":
         for (let range of Object.values(this.ranges)) {
-          if (range.zone.top <= cmd.row && cmd.row <= range.zone.bottom) {
-            range.zone.bottom++;
+          if (cmd.position === "after") {
+            if (range.zone.top <= cmd.row && cmd.row < range.zone.bottom) {
+              range.zone.bottom++;
+            } else if (cmd.row < range.zone.top) {
+              range.zone.top++;
+              range.zone.bottom++;
+            }
+          } else {
+            if (range.zone.top < cmd.row && cmd.row <= range.zone.bottom) {
+              range.zone.bottom++;
+            } else if (cmd.row <= range.zone.top) {
+              range.zone.top++;
+              range.zone.bottom++;
+            }
           }
         }
         break;
