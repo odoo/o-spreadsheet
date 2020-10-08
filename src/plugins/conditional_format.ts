@@ -239,7 +239,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getCell(col, row);
-        if (cell && cell.value && !Number.isNaN(Number.parseFloat(cell.value))) {
+        if (cell && !Number.isNaN(Number.parseFloat(cell.value))) {
           const r = Math.round(
             ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
           );
