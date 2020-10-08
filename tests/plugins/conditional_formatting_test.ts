@@ -777,6 +777,50 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
     });
 
+    test("2 points, value scale with minimum = 0", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "1" });
+      model.dispatch("SET_VALUE", { xc: "A3", text: "7" });
+      model.dispatch("SET_VALUE", { xc: "A4", text: "9" });
+      model.dispatch("SET_VALUE", { xc: "A5", text: "10" });
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1:A5"],
+          { type: "value", color: 0xff00ff },
+          { type: "value", color: 0x123456 }
+        ),
+        sheet: model.getters.getActiveSheet(),
+      });
+
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+      expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+      expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+      expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+    });
+
+    test("2 points, value scale with any value 0", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "-5" });
+      model.dispatch("SET_VALUE", { xc: "A3", text: "5" });
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1:A5"],
+          { type: "value", color: 0xff0000 },
+          { type: "value", color: 0x00ff00 }
+        ),
+        sheet: model.getters.getActiveSheet(),
+      });
+
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#808000" });
+      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#ff0000" });
+      expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#00ff00" });
+    });
+
     test("2 points, value scale with same min/max", () => {
       model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
       model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
