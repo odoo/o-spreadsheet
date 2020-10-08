@@ -26,6 +26,7 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
   // @ts-ignore
   const cehMock = window.mockContentHelper as ContentEditableHelper;
   cehMock.insertText(text);
+  composerEl.dispatchEvent(new Event("input", { bubbles: true }));
   composerEl.dispatchEvent(new Event("keyup", { bubbles: true }));
   await nextTick();
 }
@@ -334,6 +335,16 @@ describe("composer", () => {
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
+  });
+
+  test("composer is resized when input content is larger than composer", async () => {
+    await typeInComposer("Hello");
+    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+    const styleSpy = jest.spyOn(gridComposer.style, "width", "set");
+    jest.spyOn(gridComposer, "clientWidth", "get").mockImplementation(() => 100);
+    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
+    await typeInComposer("world", false);
+    expect(styleSpy).toHaveBeenCalledWith(170); // scrollWidth + 50
   });
 });
 

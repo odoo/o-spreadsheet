@@ -73,10 +73,11 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     el.style.height = (this.rect[3] + 0.5 + "px") as string;
   }
 
-  onInput() {
+  onInput(ev: KeyboardEvent) {
     const el = this.el! as HTMLInputElement;
-    if (el.clientWidth !== el.scrollWidth) {
-      el.style.width = (el.scrollWidth + 50) as any;
+    const composerInput = ev.target! as HTMLInputElement;
+    if (composerInput.clientWidth !== composerInput.scrollWidth) {
+      el.style.width = (composerInput.scrollWidth + 50) as any;
     }
   }
 }
