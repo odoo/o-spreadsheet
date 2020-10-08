@@ -237,8 +237,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
     const zone: Zone = toZone(range);
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const cell = this.workbook.activeSheet.rows[row].cells[col];
-        if (cell && cell.value && !Number.isNaN(Number.parseFloat(cell.value))) {
+        const cell = this.getters.getCell(col, row);
+        if (cell && !Number.isNaN(Number.parseFloat(cell.value))) {
           const r = Math.round(
             ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
           );
