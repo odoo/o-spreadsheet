@@ -14,18 +14,8 @@ function getHorizontalScroll(): number {
   return (parent.grid as any).comp.hScrollbar.scroll;
 }
 
-Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
-  get() {
-    return 1000;
-  },
-  configurable: true,
-});
-Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
-  get() {
-    return 1000;
-  },
-  configurable: true,
-});
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
 let model: Model;
