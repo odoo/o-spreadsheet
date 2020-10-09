@@ -4,6 +4,7 @@ import { pluginRegistry } from "../../src/plugins";
 import { BaseCommand, Command, UID } from "../../src/types";
 
 let m;
+let notificationSpy;
 
 export interface UseRange extends BaseCommand {
   type: "USE_RANGE";
@@ -22,7 +23,7 @@ class PluginTestRange extends BasePlugin {
     switch (cmd.type) {
       case "USE_RANGE":
         for (let r of cmd.rangesXC) {
-          this.ranges.push(this.getters.getRangeFromXC(cmd.sheetId, r));
+          this.ranges.push(this.getters.getRangeFromXC(cmd.sheetId, r, this.rangeChanged));
         }
         break;
     }
@@ -33,6 +34,10 @@ class PluginTestRange extends BasePlugin {
       this.getters.getRangeString(rangeId, this.getters.getActiveSheetId())
     );
   }
+
+  rangeChanged() {
+    console.log("called");
+  }
 }
 
 pluginRegistry.add("testRange", PluginTestRange);
@@ -40,7 +45,13 @@ pluginRegistry.add("testRange", PluginTestRange);
 describe("range plugin", () => {
   beforeEach(() => {
     m = new Model();
+    notificationSpy = jest
+      .spyOn(PluginTestRange.prototype, "rangeChanged")
+      .mockImplementation(() => "Hello");
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B2:D4"] });
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe("adapting the ranges to changes", () => {
@@ -304,8 +315,21 @@ describe("range plugin", () => {
   });
 
   describe("change notification", () => {
-    test("a change should be notified", () => {});
-    test("multiple changes of the same range should get notified only once", () => {});
+    test("a change should be notified", () => {
+      m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [2] });
+      expect(notificationSpy).toHaveBeenCalledTimes(1);
+      expect(notificationSpy).toHaveBeenCalledWith("RESIZE");
+    });
+    test("multiple changes of the same range should get notified only once", () => {
+      m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [1, 2] });
+      expect(notificationSpy).toHaveBeenCalledTimes(1);
+      expect(notificationSpy).toHaveBeenCalledWith("RESIZE");
+    });
+    test("multiple changes that results in the range disappearing should be notified only once", () => {
+      m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [1, 2, 3] });
+      expect(notificationSpy).toHaveBeenCalledTimes(1);
+      expect(notificationSpy).toHaveBeenCalledWith("REMOVE");
+    });
   });
 
   test("test withing a different sheet", () => {});

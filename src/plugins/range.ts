@@ -22,6 +22,9 @@ export class RangePlugin extends BasePlugin {
   static pluginName = "range";
 
   private ranges: Record<UID, Range> = {};
+  private notifyResize: Set<UID> = new Set<UID>();
+  private notifyMove: Set<UID> = new Set<UID>();
+  private notifyRemove: Set<UID> = new Set<UID>();
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -34,9 +37,11 @@ export class RangePlugin extends BasePlugin {
           for (let range of Object.values(this.ranges)) {
             if (range.zone.left <= colIndexToRemove && colIndexToRemove <= range.zone.right) {
               range.zone.right--;
+              this.notifyResize.add(range.id);
             } else if (colIndexToRemove < range.zone.left) {
               range.zone.left--;
               range.zone.right--;
+              this.notifyMove.add(range.id);
             }
           }
         }
@@ -47,9 +52,11 @@ export class RangePlugin extends BasePlugin {
           for (let range of Object.values(this.ranges)) {
             if (range.zone.top <= rowsIndexToRemove && rowsIndexToRemove <= range.zone.bottom) {
               range.zone.bottom--;
+              this.notifyResize.add(range.id);
             } else if (rowsIndexToRemove < range.zone.top) {
               range.zone.top--;
               range.zone.bottom--;
+              this.notifyMove.add(range.id);
             }
           }
         }
@@ -62,13 +69,16 @@ export class RangePlugin extends BasePlugin {
             } else if (cmd.column < range.zone.left) {
               range.zone.left++;
               range.zone.right++;
+              this.notifyMove.add(range.id);
             }
           } else {
             if (range.zone.left < cmd.column && cmd.column <= range.zone.right) {
               range.zone.right++;
+              this.notifyResize.add(range.id);
             } else if (cmd.column <= range.zone.left) {
               range.zone.left++;
               range.zone.right++;
+              this.notifyMove.add(range.id);
             }
           }
         }
@@ -78,16 +88,20 @@ export class RangePlugin extends BasePlugin {
           if (cmd.position === "after") {
             if (range.zone.top <= cmd.row && cmd.row < range.zone.bottom) {
               range.zone.bottom++;
+              this.notifyResize.add(range.id);
             } else if (cmd.row < range.zone.top) {
               range.zone.top++;
               range.zone.bottom++;
+              this.notifyMove.add(range.id);
             }
           } else {
             if (range.zone.top < cmd.row && cmd.row <= range.zone.bottom) {
               range.zone.bottom++;
+              this.notifyResize.add(range.id);
             } else if (cmd.row <= range.zone.top) {
               range.zone.top++;
               range.zone.bottom++;
+              this.notifyMove.add(range.id);
             }
           }
         }
@@ -96,7 +110,17 @@ export class RangePlugin extends BasePlugin {
   }
 
   finalize() {
-    // call all the onchange
+    for (const rangeId of this.notifyResize) {
+      const r = this.ranges[rangeId];
+      if (r.zone.right - r.zone.left < 0 || r.zone.bottom - r.zone.top < 0) {
+        this.notifyRemove.add(rangeId);
+        this.notifyResize.delete(rangeId);
+      }
+    }
+
+    this.notify(this.notifyRemove, "REMOVE");
+    this.notify(this.notifyResize, "RESIZE");
+    this.notify(this.notifyMove, "MOVE");
   }
 
   // ---------------------------------------------------------------------------
@@ -150,6 +174,15 @@ export class RangePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
+
+  private notify(set: Set<UID>, type: ChangeType) {
+    for (const rangeId of set) {
+      if (this.ranges[rangeId].onChange) {
+        this.ranges[rangeId].onChange!(type);
+      }
+    }
+    set.clear();
+  }
 
   // private uniqueRef(sheetId: UID, zone: Zone): string {
   //   return "".concat(sheetId, "|", zoneToXc(zone));
