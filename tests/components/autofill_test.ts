@@ -8,18 +8,8 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 const { Component } = owl;
 const { xml } = owl.tags;
 
-Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
-  get() {
-    return 1000;
-  },
-  configurable: true,
-});
-Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
-  get() {
-    return 1000;
-  },
-  configurable: true,
-});
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 let fixture: HTMLElement;
 let model: Model;
