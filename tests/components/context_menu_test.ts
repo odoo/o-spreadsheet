@@ -21,18 +21,8 @@ afterEach(() => {
   fixture.remove();
 });
 
-Object.defineProperty(HTMLDivElement.prototype, "clientWidth", {
-  get() {
-    return 1000;
-  },
-  configurable: true,
-});
-Object.defineProperty(HTMLDivElement.prototype, "clientHeight", {
-  get() {
-    return 1000;
-  },
-  configurable: true,
-});
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
