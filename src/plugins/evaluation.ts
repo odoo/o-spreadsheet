@@ -4,7 +4,16 @@ import { functionRegistry } from "../functions/index";
 import { mapCellsInZone, toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters, ReadCell, Range } from "../types";
+import {
+  Cell,
+  Command,
+  CommandDispatcher,
+  EvalContext,
+  Getters,
+  ReadCell,
+  Range,
+  UID,
+} from "../types";
 import { _lt } from "../translation";
 
 function* makeObjectIterator(obj: Object) {
@@ -83,9 +92,9 @@ export class EvaluationPlugin extends BasePlugin {
         this.evaluate();
         break;
       case "UPDATE_CELL":
-        if ("content" in cmd) {
-          this.isUptodate.clear();
-        }
+        // if ("content" in cmd) {
+        //   this.isUptodate.clear();
+        // }
         break;
       case "EVALUATE_CELLS":
         const activeSheet = this.getters.getActiveSheetId();
@@ -107,11 +116,11 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
-    const activeSheet = this.getters.getActiveSheetId();
-    if (!this.isUptodate.has(activeSheet)) {
-      this.evaluate();
-      this.isUptodate.add(activeSheet);
-    }
+    // const activeSheet = this.getters.getActiveSheetId();
+    // if (!this.isUptodate.has(activeSheet)) {
+    //   this.evaluate();
+    //   this.isUptodate.add(activeSheet);
+    // }
     if (this.loadingCells > 0) {
       this.startScheduler();
     }
@@ -283,7 +292,7 @@ export class EvaluationPlugin extends BasePlugin {
       return getCellValue(cell, sheet);
     }
 
-    function getCellValue(cell: Cell, sheetId: string): any {
+    function getCellValue(cell: Cell, sheetId: UID): any {
       if (cell.async && cell.error && !PENDING.has(cell)) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
@@ -303,7 +312,7 @@ export class EvaluationPlugin extends BasePlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(v1: string, v2: string, sheetId: string) {
+    function range(v1: string, v2: string, sheetId: UID) {
       const sheet = sheets[sheetId];
       let [left, top] = toCartesian(v1);
       let [right, bottom] = toCartesian(v2);

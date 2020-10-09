@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg, ReadCell, EvalContext, Range } from "../types/index";
+import { CompiledFormula, Arg, ReadCell, EvalContext, Range, UID } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
 
@@ -28,7 +28,6 @@ const UNARY_OPERATOR_MAP = {
 // this cache contains all compiled function code, grouped by "structure". For
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
-//
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: CompiledFormula } = {};
 
@@ -40,16 +39,16 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 export function compile(
   str: string,
   sheet: string,
-  sheets: { [name: string]: string },
+  sheets: { [p: string]: string },
   originCellXC?: string
 ): CompiledFormula {
   const ast = parse(str);
   let nextId = 1;
   const code = [`// ${str}`];
-  let isAsync = false;
+  let isAsync = false; // true if any part of the formula is async, else false
   let cacheKey = "";
-  let cellRefs: [string, string][] = [];
-  let rangeRefs: [string, string, string][] = [];
+  let cellRefs: [string, UID][] = []; // references of the cells used in this formula, format [XC, SheetId]
+  let rangeRefs: [string, string, UID][] = []; // references of the ranges used in this formula, format [startXC, endXC, SheetId]
 
   if (ast.type === "BIN_OPERATION" && ast.value === ":") {
     throw new Error(_lt("Invalid formula"));
@@ -167,6 +166,7 @@ export function compile(
         } else {
           cacheKey += "__REF";
           const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
+
           const refIdx = cellRefs.push([ast.value, sheetId]) - 1;
           statement = `cell(${refIdx})`;
         }
@@ -244,8 +244,12 @@ export function compile(
       const [xc1, xc2, sheetId] = rangeRefs[idx];
       return range(xc1, xc2, sheetId);
     };
+
     return baseFunction(cellFn, rangeFn, ctx);
   };
+
   resultFn.async = isAsync;
+  resultFn.cellRefs = cellRefs;
+  resultFn.rangeRefs = rangeRefs;
   return resultFn;
 }

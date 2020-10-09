@@ -826,7 +826,6 @@ export class CorePlugin extends BasePlugin {
     // if all are empty, we need to delete the underlying cell object
     if (!content && !style && !border && !format) {
       if (current) {
-        // todo: make this work on other sheets
         this.history.update(["sheets", sheetId, "cells", xc], undefined);
         this.history.update(["sheets", sheetId, "rows", row, "cells", col], undefined);
       }
@@ -893,7 +892,6 @@ export class CorePlugin extends BasePlugin {
     if (format) {
       cell.format = format;
     }
-    // todo: make this work on other sheets
     this.history.update(["sheets", sheetId, "cells", xc], cell);
     this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
   }

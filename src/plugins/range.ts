@@ -1,11 +1,8 @@
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
-import { Command, UID, Zone } from "../types/index";
+import { ChangeType, Command, onRangeChange, UID, Zone } from "../types/index";
 import { getComposerSheetName, toZone, uuidv4, zoneToXc } from "../helpers/index";
 import { _lt } from "../translation";
-
-export type ChangeType = "REMOVE" | "RESIZE" | "MOVE";
-export type onRangeChange = (changeType: ChangeType) => void;
 
 export type Range = {
   id: UID;
@@ -128,11 +125,11 @@ export class RangePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getRangeFromXC(sheetId: UID, xc: string, onChange?: onRangeChange): string {
+  getRangeFromXC(sheetId: UID, xc: string, onChange?: onRangeChange): UID {
     return this.getRangeFromZone(sheetId, toZone(xc), onChange);
   }
 
-  getRangeFromZone(sheetId: UID, zone: Zone, onChange?: onRangeChange): string {
+  getRangeFromZone(sheetId: UID, zone: Zone, onChange?: onRangeChange): UID {
     let r: Range = {
       id: uuidv4(),
       sheetId,
