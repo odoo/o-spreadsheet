@@ -1,5 +1,13 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg, ReadCell, EvalContext, Range, UID } from "../types/index";
+import {
+  CompiledFormula,
+  Arg,
+  ReadCell,
+  EvalContext,
+  Range,
+  CellRefs,
+  RangeRefs,
+} from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
 
@@ -47,8 +55,8 @@ export function compile(
   const code = [`// ${str}`];
   let isAsync = false; // true if any part of the formula is async, else false
   let cacheKey = "";
-  let cellRefs: [string, UID][] = []; // references of the cells used in this formula, format [XC, SheetId]
-  let rangeRefs: [string, string, UID][] = []; // references of the ranges used in this formula, format [startXC, endXC, SheetId]
+  let cellRefs: CellRefs = []; // references of the cells used in this formula, format [XC, SheetId]
+  let rangeRefs: RangeRefs = []; // references of the ranges used in this formula, format [startXC, endXC, SheetId]
 
   if (ast.type === "BIN_OPERATION" && ast.value === ":") {
     throw new Error(_lt("Invalid formula"));

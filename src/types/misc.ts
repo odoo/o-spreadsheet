@@ -54,11 +54,17 @@ export type ReadCell = (xc: string, sheet: UID) => any;
 export type Range = (v1: string, v2: string, sheetName: string) => any[];
 export type _CompiledFormula = (readCell: ReadCell, range: Range, ctx: {}) => any;
 
+export type CellRefs = [string, UID][];
+export type RangeRefs = [string, string, UID][];
+
 export interface CompiledFormula extends _CompiledFormula {
   async: boolean;
+  cellRefs: CellRefs;
+  rangeRefs: RangeRefs;
 }
 
 export interface Cell extends NewCell {
+  dependencies?: UID[]; // all the cells and ranges this cell with the current formula is depending upon
   col: number;
   row: number;
   xc: string;

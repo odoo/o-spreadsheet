@@ -17,8 +17,8 @@ import { FigurePlugin } from "./figures";
 import { RangePlugin } from "./range";
 
 export const pluginRegistry = new Registry<typeof BasePlugin>()
-  .add("core", CorePlugin)
   .add("range", RangePlugin)
+  .add("core", CorePlugin)
   .add("evaluation", EvaluationPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("merge", MergePlugin)

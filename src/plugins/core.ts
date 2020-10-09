@@ -32,6 +32,7 @@ import {
   Zone,
   RenameSheetCommand,
   UID,
+  ChangeType,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -877,6 +878,23 @@ export class CorePlugin extends BasePlugin {
         try {
           cell.formula = compile(content, sheetId, this.sheetIds, xc);
           cell.async = cell.formula.async;
+          const ranges: UID[] = [];
+          for (let [xc, sheetId] of cell.formula.cellRefs) {
+            ranges.push(
+              this.getters.getRangeFromXC(sheetId, xc, this.cellDependencyChanged.bind(this, cell))
+            );
+          }
+          for (let [xc1, xc2, sheetId] of cell.formula.rangeRefs) {
+            ranges.push(
+              this.getters.getRangeFromXC(
+                sheetId,
+                `${xc1}:${xc2}`,
+                this.cellDependencyChanged.bind(this, cell)
+              )
+            );
+          }
+
+          cell.dependencies = ranges;
         } catch (e) {
           cell.value = "#BAD_EXPR";
           cell.error = _lt("Invalid Expression");
@@ -894,6 +912,10 @@ export class CorePlugin extends BasePlugin {
     }
     this.history.update(["sheets", sheetId, "cells", xc], cell);
     this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
+  }
+
+  private cellDependencyChanged(cell: Cell, changeType: ChangeType) {
+    console.log(`cell ${cell.xc} dep changed with ${changeType}`);
   }
 
   private generateSheetName(): string {
