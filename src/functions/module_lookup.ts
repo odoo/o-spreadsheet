@@ -76,6 +76,48 @@ export const COLUMNS: FunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// HLOOKUP
+// -----------------------------------------------------------------------------
+
+export const HLOOKUP: FunctionDescription = {
+  description: _lt(`Horizontal lookup`),
+  args: args(`
+      search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
+      range (any, range) ${_lt(
+        "The range to consider for the search. The first row in the range is searched for the key specified in search_key."
+      )}
+      index (number) ${_lt(
+        "The row index of the value to be returned, where the first row in range is numbered 1."
+      )}
+      is_sorted (boolean, optional, default = TRUE) ${_lt(
+        "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
+      )}
+  `),
+  returns: ["ANY"],
+  compute: function (searchKey: any, range: any[], index: any, isSorted: any = true): any {
+    const _index = Math.trunc(toNumber(index));
+    if (_index < 1 || range[0].length < _index) {
+      throw new Error(_lt(`[[FUNCTION_NAME]] evaluates to an out of bounds range.`));
+    }
+
+    const _isSorted = toBoolean(isSorted);
+    const firstRow = range.map((col) => col[0]);
+    let colIndex;
+    if (_isSorted) {
+      colIndex = dichotomicPredecessorSearch(firstRow, searchKey);
+    } else {
+      colIndex = linearSearch(firstRow, searchKey);
+    }
+
+    if (colIndex > -1) {
+      return range[colIndex][_index - 1];
+    } else {
+      throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
+    }
+  },
+};
+
+// -----------------------------------------------------------------------------
 // LOOKUP
 // -----------------------------------------------------------------------------
 
@@ -228,7 +270,7 @@ export const VLOOKUP: FunctionDescription = {
         "The column index of the value to be returned, where the first column in range is numbered 1."
       )}
       is_sorted (boolean, optional, default = TRUE) ${_lt(
-        "Indicates whether the column to be searched [the first column of the specified range] is sorted, in which case the closest match for search_key will be returned."
+        "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )}
   `),
   returns: ["ANY"],
@@ -240,15 +282,15 @@ export const VLOOKUP: FunctionDescription = {
 
     const _isSorted = toBoolean(isSorted);
     const firstCol = range[0];
-    let lineIndex;
+    let rowIndex;
     if (_isSorted) {
-      lineIndex = dichotomicPredecessorSearch(firstCol, searchKey);
+      rowIndex = dichotomicPredecessorSearch(firstCol, searchKey);
     } else {
-      lineIndex = linearSearch(firstCol, searchKey);
+      rowIndex = linearSearch(firstCol, searchKey);
     }
 
-    if (lineIndex > -1) {
-      return range[_index - 1][lineIndex];
+    if (rowIndex > -1) {
+      return range[_index - 1][rowIndex];
     } else {
       throw new Error(_lt(`Did not find value '${searchKey}' in [[FUNCTION_NAME]] evaluation.`));
     }
