@@ -115,6 +115,7 @@ export class RangePlugin extends BasePlugin {
       if (r.zone.right - r.zone.left < 0 || r.zone.bottom - r.zone.top < 0) {
         this.notifyRemove.add(rangeId);
         this.notifyResize.delete(rangeId);
+        this.notifyMove.delete(rangeId);
       }
     }
 
