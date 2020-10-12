@@ -119,5 +119,5 @@ export const enum DIRECTION {
   RIGHT,
 }
 
-export type ChangeType = "REMOVE" | "RESIZE" | "MOVE";
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE";
 export type onRangeChange = (changeType: ChangeType) => void;

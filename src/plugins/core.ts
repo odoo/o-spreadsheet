@@ -916,6 +916,7 @@ export class CorePlugin extends BasePlugin {
 
   private cellDependencyChanged(cell: Cell, changeType: ChangeType) {
     console.log(`cell ${cell.xc} dep changed with ${changeType}`);
+    //cell.formula(this.getters.getFormulaParameters());
   }
 
   private generateSheetName(): string {

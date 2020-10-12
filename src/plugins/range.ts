@@ -22,6 +22,7 @@ export class RangePlugin extends BasePlugin {
   private notifyResize: Set<UID> = new Set<UID>();
   private notifyMove: Set<UID> = new Set<UID>();
   private notifyRemove: Set<UID> = new Set<UID>();
+  private notifyChange: Set<UID> = new Set<UID>();
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -103,6 +104,19 @@ export class RangePlugin extends BasePlugin {
           }
         }
         break;
+      case "UPDATE_CELL":
+        for (let range of Object.values(this.ranges)) {
+          if (
+            range.zone.left <= cmd.col &&
+            cmd.col <= range.zone.right &&
+            range.zone.top <= cmd.row &&
+            cmd.row <= range.zone.bottom
+          ) {
+            this.notifyChange.add(range.id);
+          }
+        }
+
+        break;
     }
   }
 
@@ -113,12 +127,14 @@ export class RangePlugin extends BasePlugin {
         this.notifyRemove.add(rangeId);
         this.notifyResize.delete(rangeId);
         this.notifyMove.delete(rangeId);
+        this.notifyChange.delete(rangeId);
       }
     }
 
     this.notify(this.notifyRemove, "REMOVE");
     this.notify(this.notifyResize, "RESIZE");
     this.notify(this.notifyMove, "MOVE");
+    this.notify(this.notifyChange, "CHANGE");
   }
 
   // ---------------------------------------------------------------------------
