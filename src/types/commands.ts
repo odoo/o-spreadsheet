@@ -1,4 +1,4 @@
-import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
+import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition, HighlightType } from "./index";
 import { Cell, UID } from "./misc";
 import { Figure } from "./workbook_data";
 import { ComposerSelection } from "../plugins/edition";
@@ -332,6 +332,7 @@ export interface HighlightSelectionCommand extends BaseCommand {
  */
 export interface AddPendingHighlightCommand extends BaseCommand {
   type: "ADD_PENDING_HIGHLIGHTS";
+  highlightType: HighlightType;
   ranges: { [range: string]: string };
 }
 
@@ -383,6 +384,7 @@ export interface EvaluateCellsCommand extends BaseCommand {
 export interface AddHighlightsCommand extends BaseCommand {
   type: "ADD_HIGHLIGHTS";
   ranges: { [range: string]: string };
+  highlightType: HighlightType
 }
 
 /**

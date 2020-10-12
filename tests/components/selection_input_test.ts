@@ -138,6 +138,7 @@ describe("Selection Input", () => {
       ranges: {
         B4: "#454545",
       },
+      highlightType: "border",
     });
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
@@ -147,6 +148,7 @@ describe("Selection Input", () => {
       ranges: {
         B5: "#787878",
       },
+      highlightType: "border",
     });
     await nextTick();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
@@ -239,6 +241,7 @@ describe("Selection Input", () => {
       ranges: {
         B4: "#454545",
       },
+      highlightType: "border",
     });
     await nextTick();
     expect(onChanged).toHaveBeenCalled();

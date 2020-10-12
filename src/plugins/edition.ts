@@ -313,7 +313,7 @@ export class EditionPlugin extends BasePlugin {
       }
     }
     if (Object.keys(ranges).length) {
-      this.dispatch("ADD_HIGHLIGHTS", { ranges });
+      this.dispatch("ADD_HIGHLIGHTS", { ranges, highlightType: "border" });
     }
   }
 }

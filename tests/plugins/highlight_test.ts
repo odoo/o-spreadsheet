@@ -20,14 +20,44 @@ beforeEach(async () => {
 });
 
 describe("highlight", () => {
-  test("add highlight", () => {
+  test("add highlight border ", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
+      highlightType: "border"
     });
     expect(model.getters.getHighlights()).toStrictEqual([
       {
         color: "#888",
         sheet: model.getters.getActiveSheetId(),
+        type: "border",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+  test("add highlight background ", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+      highlightType: "background"
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        sheet: model.getters.getActiveSheetId(),
+        type: "background",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
+  });
+  test("add highlight border+background ", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+      highlightType: "all"
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        sheet: model.getters.getActiveSheetId(),
+        type: "all",
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -36,15 +66,25 @@ describe("highlight", () => {
   test("remove all highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888", B6: "#999" },
+      highlightType: "border"
     });
-    expect(model.getters.getHighlights().length).toBe(2);
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { C2: "#888", C6: "#999" },
+      highlightType: "background"
+    });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { D2: "#888", D6: "#999" },
+      highlightType: "all"
+    });
+    expect(model.getters.getHighlights().length).toBe(6);
     model.dispatch("REMOVE_ALL_HIGHLIGHTS");
     expect(model.getters.getHighlights()).toEqual([]);
   });
 
-  test("remove a single highlight", () => {
+  test("remove a single highlight border", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888", B6: "#999" },
+      highlightType: "border",
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: { B6: "#999" },
@@ -54,6 +94,41 @@ describe("highlight", () => {
         color: "#888",
         sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
+        type: "border",
+      },
+    ]);
+  });
+  test("remove a single highlight background", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888", B6: "#999" },
+      highlightType: "background",
+    });
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { B6: "#999" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        sheet: model.getters.getActiveSheetId(),
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+        type: "background",
+      },
+    ]);
+  });
+  test("remove a single highlight border+background", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888", B6: "#999" },
+      highlightType: "all",
+    });
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { B6: "#999" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        sheet: model.getters.getActiveSheetId(),
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+        type: "all",
       },
     ]);
   });
@@ -61,6 +136,7 @@ describe("highlight", () => {
   test("add no hightlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: {},
+      highlightType: "border",
     });
     expect(model.getters.getHighlights()).toStrictEqual([]);
   });
@@ -68,6 +144,7 @@ describe("highlight", () => {
   test("remove highlight with another color", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
+      highlightType: "border",
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: { B2: "#999" },
@@ -77,6 +154,7 @@ describe("highlight", () => {
         color: "#888",
         sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
+        type: "border",
       },
     ]);
   });
@@ -84,9 +162,11 @@ describe("highlight", () => {
   test("remove highlight with same range", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
+      highlightType: "border",
     });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#999" },
+      highlightType: "border",
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: { B2: "#999" },
@@ -95,6 +175,7 @@ describe("highlight", () => {
       {
         color: "#888",
         sheet: model.getters.getActiveSheetId(),
+        type: "border",
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
       },
     ]);
@@ -103,6 +184,7 @@ describe("highlight", () => {
   test("remove highlight with sheet reference", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
+      highlightType: "border"
     });
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: { "Sheet1!B2": "#888" },
@@ -114,33 +196,33 @@ describe("highlight", () => {
     const sheet1 = model.getters.getActiveSheetId();
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
+      highlightType: "border"
     });
     model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
+      highlightType: "border"
     });
-    expect(model.getters.getHighlights()).toStrictEqual([
-      {
-        color: "#888",
-        sheet: sheet1,
-        zone: { bottom: 1, left: 1, right: 1, top: 1 },
-      },
-      {
-        color: "#888",
-        sheet: "42",
-        zone: { bottom: 1, left: 1, right: 1, top: 1 },
-      },
-    ]);
+    expect(model.getters.getHighlights()).toStrictEqual([{
+      color: "#888",
+      sheet: sheet1,
+      type: "border",
+      zone: { bottom: 1, left: 1, right: 1, top: 1 },
+    }, {
+      color: "#888",
+      sheet: "42",
+      type: "border",
+      zone: { bottom: 1, left: 1, right: 1, top: 1 },
+    }]);
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    expect(model.getters.getHighlights()).toStrictEqual([
-      {
-        color: "#888",
-        sheet: sheet1,
-        zone: { bottom: 1, left: 1, right: 1, top: 1 },
-      },
-    ]);
+    expect(model.getters.getHighlights()).toStrictEqual([{
+      color: "#888",
+      type: "border",
+      sheet: sheet1,
+      zone: { bottom: 1, left: 1, right: 1, top: 1 },
+    }]);
   });
 
   test("highlight cell selection", () => {
@@ -151,6 +233,7 @@ describe("highlight", () => {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
+        type: "border",
       },
     ]);
   });
@@ -171,6 +254,7 @@ describe("highlight", () => {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
         zone: zone1,
+        type: "border",
       },
     ]);
     model.dispatch("START_SELECTION");
@@ -185,6 +269,7 @@ describe("highlight", () => {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
         zone: zone2,
+        type: "border",
       },
     ]);
   });
@@ -205,6 +290,7 @@ describe("highlight", () => {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
         zone: zone1,
+        type: "border",
       },
     ]);
     model.dispatch("PREPARE_SELECTION_EXPANSION");
@@ -220,6 +306,7 @@ describe("highlight", () => {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
         zone: zone2,
+        type: "border",
       },
     ]);
   });
@@ -278,12 +365,12 @@ describe("highlight", () => {
     model.dispatch("SET_SELECTION", { anchor, zones });
     model.dispatch("STOP_SELECTION");
     expect(model.getters.getHighlights()).toStrictEqual([
-      { color, zone, sheet: model.getters.getActiveSheetId() },
+      { color, zone, sheet: model.getters.getActiveSheetId(), type: "border", },
     ]);
     model.dispatch("START_SELECTION");
     model.dispatch("SET_SELECTION", { anchor, zones });
     expect(model.getters.getHighlights()).toStrictEqual([
-      { color, zone, sheet: model.getters.getActiveSheetId() },
+      { color, zone, sheet: model.getters.getActiveSheetId(), type: "border", },
     ]);
   });
 
@@ -310,11 +397,13 @@ describe("highlight", () => {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
         zone: zone1,
+        type: "border",
       },
       {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
         zone: zone2,
+        type: "border",
       },
     ]);
   });
@@ -322,9 +411,11 @@ describe("highlight", () => {
   test("selection with manually set pending highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B10: "#999" },
+      highlightType: "border",
     });
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
       ranges: { B10: "#999" },
+      highlightType: "border",
     });
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("START_SELECTION");
@@ -334,6 +425,7 @@ describe("highlight", () => {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 1, left: 1, right: 1, top: 1 },
+        type: "border",
       },
     ]);
   });
@@ -351,11 +443,13 @@ describe("highlight", () => {
         color: firstColor,
         sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 5, left: 5, right: 5, top: 5 },
+        type: "border",
       },
       {
         color: getColor(model),
         sheet: model.getters.getActiveSheetId(),
         zone: { bottom: 7, left: 7, right: 7, top: 7 },
+        type: "border",
       },
     ]);
   });
@@ -375,6 +469,7 @@ describe("highlight", () => {
         color: mergeColor,
         sheet: model.getters.getActiveSheetId(),
         zone: toZone("A2:A5"),
+        type: "border",
       },
     ]);
   });
@@ -397,6 +492,7 @@ describe("highlight", () => {
         color: mergeColor,
         sheet: model.getters.getActiveSheetId(),
         zone: toZone("A1:A5"),
+        type: "border",
       },
     ]);
   });
@@ -405,6 +501,7 @@ describe("highlight", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("ADD_PENDING_HIGHLIGHTS", {
       ranges: { B10: "#999" },
+      highlightType: "border",
     });
     expect(getPendingHighlights(model).length).toBe(1);
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: false });

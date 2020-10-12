@@ -111,6 +111,7 @@ describe("selection input plugin", () => {
         B1: "#000",
         C1: "#000",
       },
+      highlightType: "border",
     });
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");

@@ -28,3 +28,12 @@ export function getNextColor() {
   colorIndex = ++colorIndex % colors.length;
   return colors[colorIndex];
 }
+
+/*
+* add opacity based on the alpha value to the hex color
+*/
+export function AddOpacityToColor(color: string | null, alpha: number): string {
+  const x = Math.floor(alpha * 255);
+  const a = (x < 16) ? '0' + x.toString(16) : x.toString(16);
+  return color + a;
+}

@@ -108,7 +108,13 @@ export interface Highlight {
   zone: Zone;
   sheet: string;
   color: string | null;
+  type: HighlightType;
 }
+
+export type HighlightType =
+  | "border"
+  | "background"
+  | "all";
 
 export type BorderCommand =
   | "all"

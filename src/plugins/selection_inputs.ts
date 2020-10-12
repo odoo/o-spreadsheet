@@ -190,7 +190,7 @@ export class SelectionInputPlugin extends BasePlugin {
       this.focusedRange = index;
       const ranges = this.inputToHighlights(input);
       if (Object.keys(ranges).length > 0) {
-        this.dispatch("ADD_HIGHLIGHTS", { ranges });
+        this.dispatch("ADD_HIGHLIGHTS", { ranges, highlightType: "border" });
       }
     }
   }
@@ -248,6 +248,7 @@ export class SelectionInputPlugin extends BasePlugin {
         color: input.color,
         xc: value,
       }),
+      highlightType: "border",
     });
   }
 
@@ -266,6 +267,7 @@ export class SelectionInputPlugin extends BasePlugin {
     if (index !== null && this.inputs[id][index].xc) {
       this.dispatch("ADD_PENDING_HIGHLIGHTS", {
         ranges: this.inputToHighlights(this.inputs[id][index]),
+        highlightType: "border",
       });
     }
   }

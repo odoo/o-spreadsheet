@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
-import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../types/index";
-import { toZone, getNextColor, isEqual } from "../helpers/index";
+import { Command, LAYERS, Zone, GridRenderingContext, Highlight, HighlightType } from "../types/index";
+import { toZone, getNextColor, isEqual, AddOpacityToColor } from "../helpers/index";
 import { Mode } from "../model";
 
 /**
@@ -22,7 +22,7 @@ export class HighlightPlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_HIGHLIGHTS":
-        this.addHighlights(cmd.ranges);
+        this.addHighlights(cmd.ranges, cmd.highlightType);
         break;
       case "REMOVE_ALL_HIGHLIGHTS":
         this.highlights = [];
@@ -49,7 +49,7 @@ export class HighlightPlugin extends BasePlugin {
         this.pendingHighlights = [];
         break;
       case "ADD_PENDING_HIGHLIGHTS":
-        this.addPendingHighlight(cmd.ranges);
+        this.addPendingHighlight(cmd.ranges, cmd.highlightType);
         break;
       case "SET_HIGHLIGHT_COLOR":
         this.color = cmd.color;
@@ -68,17 +68,17 @@ export class HighlightPlugin extends BasePlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private addHighlights(ranges: { [range: string]: string }) {
-    let highlights = this.prepareHighlights(ranges);
+  private addHighlights(ranges: { [range: string]: string }, highlightType: HighlightType) {
+    let highlights = this.prepareHighlights(ranges, highlightType);
     this.highlights = this.highlights.concat(highlights);
   }
 
-  private addPendingHighlight(ranges: { [range: string]: string }) {
-    let highlights = this.prepareHighlights(ranges);
+  private addPendingHighlight(ranges: { [range: string]: string }, highlightType: HighlightType) {
+    let highlights = this.prepareHighlights(ranges, highlightType);
     this.pendingHighlights = this.pendingHighlights.concat(highlights);
   }
 
-  private prepareHighlights(ranges: { [range: string]: string }): Highlight[] {
+  private prepareHighlights(ranges: { [range: string]: string }, highlightType: HighlightType): Highlight[] {
     if (Object.keys(ranges).length === 0) {
       return [];
     }
@@ -87,7 +87,7 @@ export class HighlightPlugin extends BasePlugin {
         const [xc, sheet] = r1c1.split("!").reverse();
         const sheetId = this.getters.getSheetIdByName(sheet) || this.getters.getActiveSheetId();
         const zone: Zone = this.getters.expandZone(toZone(xc));
-        return { zone, color: ranges[r1c1], sheet: sheetId };
+        return { zone, color: ranges[r1c1], sheet: sheetId, type: highlightType };
       })
       .filter(
         (x) =>
@@ -134,8 +134,8 @@ export class HighlightPlugin extends BasePlugin {
       ranges[this.getters.zoneToXC(zone)] = color;
       color = getNextColor();
     }
-    this.dispatch("ADD_HIGHLIGHTS", { ranges });
-    this.dispatch("ADD_PENDING_HIGHLIGHTS", { ranges });
+    this.dispatch("ADD_HIGHLIGHTS", { ranges, highlightType: "border" },);
+    this.dispatch("ADD_PENDING_HIGHLIGHTS", { ranges, highlightType: "border" });
   }
 
   private isHighlighted(zone: Zone): boolean {
@@ -174,8 +174,14 @@ export class HighlightPlugin extends BasePlugin {
     )) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
-        ctx.strokeStyle = h.color!;
-        ctx.strokeRect(x, y, width, height);
+        if (h.type === "border" || h.type === "all") {
+          ctx.strokeStyle = h.color!;
+          ctx.strokeRect(x, y, width, height);
+        }
+        if (h.type === "background" || h.type === "all") {
+          ctx.fillStyle = AddOpacityToColor(h.color, 0.2);
+          ctx.fillRect(x, y, width, height);
+        }
       }
     }
   }
