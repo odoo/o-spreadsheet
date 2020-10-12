@@ -156,7 +156,10 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
   }
 
   activateSheet(name: string) {
-    this.env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: name });
+    this.env.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.getters.getActiveSheetId(),
+      sheetIdTo: name,
+    });
   }
 
   onDblClick(sheetId: string) {

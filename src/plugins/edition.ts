@@ -215,7 +215,10 @@ export class EditionPlugin extends BasePlugin {
         });
       }
       if (this.getters.getActiveSheetId() !== this.sheet) {
-        this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: this.sheet });
+        this.dispatch("ACTIVATE_SHEET", {
+          sheetIdFrom: this.getters.getActiveSheetId(),
+          sheetIdTo: this.sheet,
+        });
       }
     }
   }

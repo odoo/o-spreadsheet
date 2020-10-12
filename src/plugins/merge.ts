@@ -102,7 +102,10 @@ export class MergePlugin extends BasePlugin {
         this.history.update(["mergeCellMap", cmd.sheetId], {});
         break;
       case "DUPLICATE_SHEET":
-        this.history.update(["merges", cmd.sheetIdTo], Object.assign({}, this.merges[cmd.sheetIdFrom]));
+        this.history.update(
+          ["merges", cmd.sheetIdTo],
+          Object.assign({}, this.merges[cmd.sheetIdFrom])
+        );
         this.history.update(
           ["mergeCellMap", cmd.sheetIdTo],
           Object.assign({}, this.mergeCellMap[cmd.sheetIdFrom])

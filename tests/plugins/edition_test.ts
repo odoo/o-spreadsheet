@@ -53,7 +53,10 @@ describe("edition", () => {
     model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBe(null);
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: sheet1 });
+    model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: model.getters.getActiveSheetId(),
+      sheetIdTo: sheet1,
+    });
     expect(getCell(model, "A1")!.content).toBe("a");
   });
 
@@ -70,7 +73,10 @@ describe("edition", () => {
     model.dispatch("STOP_EDITION");
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(getCell(model, "A1")!.content).toBe("=");
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
+    model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: model.getters.getActiveSheetId(),
+      sheetIdTo: "42",
+    });
     expect(getCell(model, "A1")).toBeNull();
   });
 
