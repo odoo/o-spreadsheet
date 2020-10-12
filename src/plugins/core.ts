@@ -875,6 +875,7 @@ export class CorePlugin extends BasePlugin {
       cell = { col, row, xc, content, value, type };
       if (cell.type === "formula") {
         cell.error = undefined;
+        cell.pending = true;
         try {
           cell.formula = compile(content, sheetId, this.sheetIds, xc);
           cell.async = cell.formula.async;
@@ -916,6 +917,17 @@ export class CorePlugin extends BasePlugin {
 
   private cellDependencyChanged(cell: Cell, changeType: ChangeType) {
     console.log(`cell ${cell.xc} dep changed with ${changeType}`);
+
+    switch (changeType) {
+      case "REMOVE":
+      case "RESIZE":
+      case "MOVE":
+      // cell.content = astToFormula(cell.formula!.ast);
+      case "CHANGE":
+        cell.value = "To recompute";
+        cell.pending = true;
+        break;
+    }
     //cell.formula(this.getters.getFormulaParameters());
   }
 

@@ -138,7 +138,7 @@ export function compile(
    * take invalid arguments that do not need to be evaluate and thus should not
    * create an error. For this we have lazy arguments.
    *
-   * - isMeta: In some cases the function arguments expects informations on the
+   * - isMeta: In some cases the function arguments expects information on the
    * cell/range other than the associated value(s). For example the COLUMN
    * function needs to receive as argument the coordinates of a cell rather
    * than its value. For this we have meta arguments.
@@ -259,5 +259,6 @@ export function compile(
   resultFn.async = isAsync;
   resultFn.cellRefs = cellRefs;
   resultFn.rangeRefs = rangeRefs;
+  resultFn.ast = ast;
   return resultFn;
 }

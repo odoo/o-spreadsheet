@@ -16,9 +16,11 @@ import {
 } from "../types";
 import { _lt } from "../translation";
 
-function* makeObjectIterator(obj: Object) {
+function* makeObjectIterator(obj: Object, predicate: (cell: any) => boolean) {
   for (let i in obj) {
-    yield obj[i];
+    if (predicate && predicate(obj[i])) {
+      yield obj[i];
+    }
   }
 }
 
@@ -92,9 +94,9 @@ export class EvaluationPlugin extends BasePlugin {
         this.evaluate();
         break;
       case "UPDATE_CELL":
-        // if ("content" in cmd) {
-        //   this.isUptodate.clear();
-        // }
+        if ("content" in cmd) {
+          this.isUptodate.clear();
+        }
         break;
       case "EVALUATE_CELLS":
         const activeSheet = this.getters.getActiveSheetId();
@@ -116,11 +118,11 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
-    // const activeSheet = this.getters.getActiveSheetId();
-    // if (!this.isUptodate.has(activeSheet)) {
-    //   this.evaluate();
-    //   this.isUptodate.add(activeSheet);
-    // }
+    const activeSheet = this.getters.getActiveSheetId();
+    if (!this.isUptodate.has(activeSheet)) {
+      this.evaluate();
+      this.isUptodate.add(activeSheet);
+    }
     if (this.loadingCells > 0) {
       this.startScheduler();
     }
@@ -183,7 +185,9 @@ export class EvaluationPlugin extends BasePlugin {
   private evaluate() {
     this.COMPUTED.clear();
     this.evaluateCells(
-      makeObjectIterator(this.getters.getCells()),
+      makeObjectIterator(this.getters.getCells(), (cell: Cell) => {
+        return !!cell.pending;
+      }),
       this.getters.getActiveSheetId()
     );
   }
