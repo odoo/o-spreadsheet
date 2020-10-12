@@ -141,7 +141,10 @@ export class CorePlugin extends BasePlugin {
         );
         this.sheetIds[this.sheets[sheet].name] = sheet;
         if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: sheet });
+          this.dispatch("ACTIVATE_SHEET", {
+            sheetIdFrom: this.getters.getActiveSheetId(),
+            sheetIdTo: sheet,
+          });
         }
         break;
       case "MOVE_SHEET":
@@ -998,7 +1001,10 @@ export class CorePlugin extends BasePlugin {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update(["sheetIds"], sheetIds);
-    this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: this.getters.getActiveSheetId(), sheetIdTo: toId });
+    this.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.getters.getActiveSheetId(),
+      sheetIdTo: toId,
+    });
   }
 
   private interactiveDeleteSheet(sheetId: UID) {

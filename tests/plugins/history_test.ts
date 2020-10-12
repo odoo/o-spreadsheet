@@ -117,7 +117,10 @@ describe("history", () => {
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42" });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
+    model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: model.getters.getActiveSheetId(),
+      sheetIdTo: "42",
+    });
     model.dispatch("UNDO");
     expect(model.getters.getActiveSheetId()).toBe("42");
   });

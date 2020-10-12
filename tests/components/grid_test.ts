@@ -574,7 +574,10 @@ describe("figures", () => {
     fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
     await nextTick();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
+    model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: model.getters.getActiveSheetId(),
+      sheetIdTo: "42",
+    });
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
   });
