@@ -100,6 +100,44 @@ describe("highlight", () => {
     ]);
   });
 
+  test("remove highlight with sheet reference", () => {
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { "Sheet1!B2": "#888" },
+    });
+    expect(model.getters.getHighlights()).toHaveLength(0);
+  });
+
+  test("remove highlight from another sheet", () => {
+    const sheet1 = model.getters.getActiveSheet();
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([{
+      color: "#888",
+      sheet: sheet1,
+      zone: { bottom: 1, left: 1, right: 1, top: 1 },
+    }, {
+      color: "#888",
+      sheet: "42",
+      zone: { bottom: 1, left: 1, right: 1, top: 1 },
+    }]);
+    model.dispatch("REMOVE_HIGHLIGHTS", {
+      ranges: { B2: "#888" },
+    });
+    expect(model.getters.getHighlights()).toStrictEqual([{
+      color: "#888",
+      sheet: sheet1,
+      zone: { bottom: 1, left: 1, right: 1, top: 1 },
+    }]);
+  });
+
   test("highlight cell selection", () => {
     model.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
