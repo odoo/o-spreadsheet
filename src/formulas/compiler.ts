@@ -130,7 +130,7 @@ export function compile(
    * executable code for the evaluation of the cells content. It uses a cash to
    * not reevaluate identical code structures.
    *
-   * The funcion is sensitive to two parameters “isLazy” and “isMeta”. These
+   * The function is sensitive to two parameters “isLazy” and “isMeta”. These
    * parameters may vary when compiling function arguments:
    *
    * - isLazy: In some cases the function arguments does not need to be
