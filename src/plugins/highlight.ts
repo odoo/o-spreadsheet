@@ -98,10 +98,28 @@ export class HighlightPlugin extends BasePlugin {
       );
   }
 
+  /**
+   *
+   * @param ranges {"[sheet!]XC": color}
+   * @private
+   */
   private removeHighlights(ranges: { [range: string]: string }) {
-    this.highlights = this.highlights.filter(
-      (h) => ranges[this.getters.zoneToXC(h.zone)] !== h.color
-    );
+    const activeSheetId = this.getters.getActiveSheetId();
+    const rangesBySheets = {};
+    for (let [range, color] of Object.entries(ranges)) {
+      const [xc, sheetName] = range.split("!").reverse();
+      const sheetId = this.getters.getSheetIdByName(sheetName);
+      rangesBySheets[sheetId || activeSheetId] = {
+        [xc]: color,
+        ...(rangesBySheets[sheetId || activeSheetId] || {}),
+      };
+    }
+    const shouldBeKept = (highlight: Highlight) =>
+      !(
+        rangesBySheets[highlight.sheet] &&
+        rangesBySheets[highlight.sheet][this.getters.zoneToXC(highlight.zone)] === highlight.color
+      );
+    this.highlights = this.highlights.filter(shouldBeKept);
   }
 
   /**
