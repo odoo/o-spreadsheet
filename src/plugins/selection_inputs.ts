@@ -170,6 +170,13 @@ export class SelectionInputPlugin extends BasePlugin {
     if (currentFocusedRange !== null && index == null) {
       this.dispatch("HIGHLIGHT_SELECTION", { enabled: false });
       this.removeAllHighlights();
+      const activeSheetId = this.getters.getActiveSheetId();
+      if (this.activeSheets[id] !== activeSheetId) {
+        this.dispatch("ACTIVATE_SHEET", {
+          sheetIdFrom: activeSheetId,
+          sheetIdTo: this.activeSheets[id],
+        })
+      }
     }
     if (currentFocusedInput !== null && id !== null && currentFocusedInput !== id) {
       this.removeAllHighlights();

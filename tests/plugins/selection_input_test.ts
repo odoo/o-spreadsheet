@@ -427,7 +427,7 @@ describe("selection input plugin", () => {
 
   test("can select a range in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { A1: "#000" },
     });
@@ -439,7 +439,7 @@ describe("selection input plugin", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { A1: "#000" },
     });
-    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     let [range] = model.getters.getSelectionInput(id);
     model.dispatch("FOCUS_RANGE", { id, rangeId: range.id });
@@ -449,7 +449,7 @@ describe("selection input plugin", () => {
 
   test("mixing ranges from different sheets in the same input", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     expect(model.getters.getActiveSheet()).not.toBe("42");
     model.dispatch("CHANGE_RANGE", {
       id,
@@ -464,7 +464,7 @@ describe("selection input plugin", () => {
 
   test("mixing ranges from different sheets in the same input in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     model.dispatch("CHANGE_RANGE", {
       id,
       rangeId: idOfRange(model, id, 0),
@@ -479,7 +479,7 @@ describe("selection input plugin", () => {
 
   test("manually adding a range from another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A1"] });
-    model.dispatch("CREATE_SHEET", { id: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A1, C5" });
@@ -490,24 +490,33 @@ describe("selection input plugin", () => {
 
   test("highlights are set when activating another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     model.dispatch("CHANGE_RANGE", {
       id,
       rangeId: idOfRange(model, id, 0),
       value: "Sheet2!B3, A1",
     });
     expect(highlightedZones(model)).toEqual(["A1"]);
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
     expect(highlightedZones(model)).toEqual(["A1", "B3"]);
   });
 
   test("input not focused when changing sheet", () => {
-    model.dispatch("CREATE_SHEET", { id: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["Sheet2!B2"] });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
-    model.dispatch("ACTIVATE_SHEET", { from: model.getters.getActiveSheetId(), to: "42" });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: model.getters.getActiveSheetId(), sheetIdTo: "42" });
     expect(model.getters.getSelectionInput(id)[0].isFocused).toBe(false);
+  });
+
+  test("go back to initial sheet when selection is finished", () => {
+    const sheet1Id = model.getters.getActiveSheetId();
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: null });
+    expect(model.getters.getActiveSheetId()).toBe(sheet1Id)
   });
 });
