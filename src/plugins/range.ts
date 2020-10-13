@@ -8,8 +8,6 @@ export type Range = {
   id: UID;
   zone: Zone; // the zone the range actually spans
   sheetId: UID; // the sheet on which the range is defined
-  isRowFixed: boolean; // if the row is preceded by $
-  isColFixed: boolean; // if the col is preceded by $
   onChange?: onRangeChange; // the callbacks that needs to be called if a range is modified
 };
 

@@ -259,6 +259,6 @@ export function compile(
   resultFn.async = isAsync;
   resultFn.cellRefs = cellRefs;
   resultFn.rangeRefs = rangeRefs;
-  resultFn.ast = ast;
+  // resultFn.ast = ast;
   return resultFn;
 }

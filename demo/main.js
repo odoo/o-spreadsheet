@@ -37,7 +37,7 @@ class App extends Component {
     useSubEnv({
       save: this.save.bind(this),
     });
-    // this.data = makeLargeDataset(20, 10_000);
+    this.data = makeLargeDataset(20, 3000);
   }
 
   mounted() {

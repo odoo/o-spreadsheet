@@ -2,8 +2,6 @@
 // MISC
 // -----------------------------------------------------------------------------
 
-import { AST } from "../formulas/parser";
-
 export type UID = string;
 
 export interface Zone {
@@ -63,7 +61,7 @@ export interface CompiledFormula extends _CompiledFormula {
   async: boolean;
   cellRefs: CellRefs;
   rangeRefs: RangeRefs;
-  ast: AST;
+  // ast: AST;
 }
 
 export interface Cell extends NewCell {
