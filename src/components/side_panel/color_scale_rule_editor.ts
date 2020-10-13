@@ -26,14 +26,14 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
       </div>
       <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
           <option value="value">Cell values</option>
-<!--          <option value="number">Fixed number</option>--> <!-- not yet implemented -->
+          <option value="number">Fixed number</option>
 <!--          <option value="percentage">Percentage</option>-->
 <!--          <option value="percentile">Percentile</option>-->
 <!--          <option value="formula">Formula</option>-->
       </select>
 
       <input type="text" t-model="threshold.value" class="o-threshold-value"
-            t-att-disabled="threshold.type !== 'number'"/>
+            t-att-disabled="!(threshold.type === 'number' || threshold.type === 'percentage' || threshold.type === 'percentile')"/>
   </div>`;
 
 const TEMPLATE = xml/* xml */ `

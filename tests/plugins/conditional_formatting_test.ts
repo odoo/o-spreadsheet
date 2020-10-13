@@ -820,6 +820,40 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#ff0000" });
       expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#00ff00" });
     });
+    
+    test("2 points, number", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "5" });
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1:A5"],
+          { type: "number", color: 0xff0000, value: 0 },
+          { type: "number", color: 0x00ff00, value: 255 }
+        ),
+        sheetId: model.getters.getActiveSheetId(),
+      });
+
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#fa0500" });
+    });
+
+    test("2 points, number with overflow", () => {
+      model.dispatch("SET_VALUE", { xc: "A1", text: "-5" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "300" });
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1:A5"],
+          { type: "number", color: 0xff0000, value: 0 },
+          { type: "number", color: 0x00ff00, value: 255 }
+        ),
+        sheetId: model.getters.getActiveSheetId(),
+      });
+
+      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
+      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#00ff00" });
+    });
 
     test("2 points, value scale with same min/max", () => {
       model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
