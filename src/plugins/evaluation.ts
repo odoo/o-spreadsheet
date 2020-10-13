@@ -260,6 +260,13 @@ export class EvaluationPlugin extends BasePlugin {
           self.loadingCells++;
         } else {
           cell.value = cell.formula(...params);
+          // if (cell.dependencies) {
+          //   for (let range of cell.dependencies) {
+          //     if (range.onChange) {
+          //       range.onChange("CHANGE");
+          //     }
+          //   }
+          // }
           cell.pending = false;
         }
         cell.error = undefined;
@@ -300,13 +307,16 @@ export class EvaluationPlugin extends BasePlugin {
       if (cell.async && cell.error && !PENDING.has(cell)) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
-      computeValue(cell, sheetId);
-      if (cell.error) {
-        throw new Error(_lt("This formula depends on invalid values"));
+      if (typeof cell.pending === "undefined" || cell.pending === true) {
+        computeValue(cell, sheetId);
+        if (cell.error) {
+          throw new Error(_lt("This formula depends on invalid values"));
+        }
+        if (cell.value === LOADING) {
+          throw new Error("not ready");
+        }
       }
-      if (cell.value === LOADING) {
-        throw new Error("not ready");
-      }
+
       return cell.value;
     }
 

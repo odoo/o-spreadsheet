@@ -35,6 +35,8 @@ import {
   ChangeType,
 } from "../types/index";
 
+import { Range as RangyRange } from "../plugins/range";
+
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
 
@@ -879,7 +881,7 @@ export class CorePlugin extends BasePlugin {
         try {
           cell.formula = compile(content, sheetId, this.sheetIds, xc);
           cell.async = cell.formula.async;
-          const ranges: UID[] = [];
+          const ranges: RangyRange[] = [];
           for (let [xc, sheetId] of cell.formula.cellRefs) {
             ranges.push(
               this.getters.getRangeFromXC(sheetId, xc, this.cellDependencyChanged.bind(this, cell))

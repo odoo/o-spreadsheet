@@ -139,21 +139,21 @@ export class RangePlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getRangeFromXC(sheetId: UID, xc: string, onChange?: onRangeChange): UID {
+  getRangeFromXC(sheetId: UID, xc: string, onChange?: onRangeChange): Range {
     return this.getRangeFromZone(sheetId, toZone(xc), onChange);
   }
 
-  getRangeFromZone(sheetId: UID, zone: Zone, onChange?: onRangeChange): UID {
+  getRangeFromZone(sheetId: UID, zone: Zone, onChange?: onRangeChange): Range {
     let r: Range = {
       id: uuidv4(),
       sheetId,
       zone,
       onChange,
-      isColFixed: false,
-      isRowFixed: false,
+      // isColFixed: false,
+      // isRowFixed: false,
     };
     this.ranges[r.id] = r;
-    return r.id;
+    return r;
   }
 
   /**

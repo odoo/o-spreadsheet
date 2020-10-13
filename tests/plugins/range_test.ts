@@ -1,7 +1,8 @@
 import "../canvas.mock";
 import { BasePlugin, Model } from "../../src";
 import { pluginRegistry } from "../../src/plugins";
-import { BaseCommand, Command, UID } from "../../src/types";
+import { BaseCommand, Command } from "../../src/types";
+import { Range } from "../../src/plugins/range";
 
 let m;
 let notificationSpy;
@@ -17,7 +18,7 @@ type TestCommands = Command | UseRange;
 class PluginTestRange extends BasePlugin {
   static getters = ["getUsedRanges"];
 
-  ranges: UID[] = [];
+  ranges: Range[] = [];
 
   handle(cmd: TestCommands) {
     switch (cmd.type) {
@@ -30,8 +31,8 @@ class PluginTestRange extends BasePlugin {
   }
 
   getUsedRanges() {
-    return this.ranges.map((rangeId) =>
-      this.getters.getRangeString(rangeId, this.getters.getActiveSheetId())
+    return this.ranges.map((range) =>
+      this.getters.getRangeString(range.id, this.getters.getActiveSheetId())
     );
   }
 

@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 
 export type UID = string;
+import { Range as RangyRange } from "../plugins/range";
 
 export interface Zone {
   left: number;
@@ -65,7 +66,7 @@ export interface CompiledFormula extends _CompiledFormula {
 }
 
 export interface Cell extends NewCell {
-  dependencies?: UID[]; // all the cells and ranges this cell with the current formula is depending upon
+  dependencies?: RangyRange[]; // all the cells and ranges this cell with the current formula is depending upon
   col: number;
   row: number;
   xc: string;
