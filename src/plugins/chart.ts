@@ -8,6 +8,7 @@ import {
   Zone,
   CommandResult,
   CancelledReason,
+  UID,
 } from "../types/index";
 import { ChartConfiguration, ChartType } from "chart.js";
 import { BasePlugin } from "../base_plugin";
@@ -173,6 +174,9 @@ export class ChartPlugin extends BasePlugin {
 
     for (let range of createCommand.dataSets) {
       let zone = toZone(range);
+      const sheetName = range.split("!").reverse()[1];
+      const dataRangeSheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : undefined;
+      const dataSetSheetId = sheetId !== dataRangeSheetId ? dataRangeSheetId : undefined;
       if (zone.left !== zone.right && zone.top !== zone.bottom) {
         // It's a rectangle. We treat all columns (arbitrary) as different data series.
         for (let column = zone.left; column <= zone.right; column++) {
@@ -182,15 +186,17 @@ export class ChartPlugin extends BasePlugin {
             top: zone.top,
             bottom: zone.bottom,
           };
-          dataSets.push(this.createDataset(columnZone, createCommand.seriesHasTitle));
+          dataSets.push(
+            this.createDataset(columnZone, createCommand.seriesHasTitle, dataSetSheetId)
+          );
         }
       } else if (zone.left === zone.right && zone.top === zone.bottom) {
         // A single cell. If it's only the title, the dataset is not added.
         if (!createCommand.seriesHasTitle) {
-          dataSets.push({ dataRange: zoneToXc(zone) });
+          dataSets.push(this.createDataset(zone, false, dataSetSheetId));
         }
       } else {
-        dataSets.push(this.createDataset(zone, createCommand.seriesHasTitle));
+        dataSets.push(this.createDataset(zone, createCommand.seriesHasTitle, dataSetSheetId));
       }
     }
 
@@ -204,22 +210,27 @@ export class ChartPlugin extends BasePlugin {
   }
 
   /**
-   * Create a chart dataset from a Zone.
+   * Create a chart dataset from a Zone (with an optional sheet).
    * The zone should be a single column or a single row
    */
-  private createDataset(zone: Zone, withTitle: boolean): DataSet {
+  private createDataset(zone: Zone, withTitle: boolean, sheetId?: UID): DataSet {
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       throw new Error(`Zone should be a single column or row: ${zoneToXc(zone)}`);
     }
-    const labelCell = withTitle ? toXC(zone.left, zone.top) : undefined;
+    let labelCell: string | undefined = undefined;
+    if (withTitle) {
+      const xc = toXC(zone.left, zone.top);
+      labelCell = sheetId ? `${this.getters.getSheetName(sheetId)}!${xc}` : xc;
+    }
     const offset = withTitle ? 1 : 0;
     const isColumn = zone.top !== zone.bottom && zone.left === zone.right;
-    const dataRange = zoneToXc({
+    let dataRange = zoneToXc({
       top: isColumn ? zone.top + offset : zone.top,
       bottom: zone.bottom,
       left: isColumn ? zone.left : zone.left + offset,
       right: zone.right,
     });
+    dataRange = sheetId ? `${this.getters.getSheetName(sheetId)}!${dataRange}` : dataRange;
     return { labelCell, dataRange };
   }
 

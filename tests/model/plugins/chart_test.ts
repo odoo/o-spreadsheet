@@ -79,6 +79,55 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
+  test("create chart in another sheet", () => {
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: "42",
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B2:B4", "Sheet1!C2"],
+        seriesHasTitle: false,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+      dataSets: [
+        { dataRange: "Sheet1!B2:B4", labelCell: undefined },
+        { dataRange: "Sheet1!C2", labelCell: undefined },
+      ],
+      labelRange: "Sheet1!A2:A4",
+      sheetId: model.getters.getActiveSheetId(),
+      title: "test 1",
+      type: "line",
+    });
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+  });
+
+  test("create chart in another sheet with labels", () => {
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: "42",
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4", "Sheet1!C1"],
+        seriesHasTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+      dataSets: [{ dataRange: "Sheet1!B2:B4", labelCell: "Sheet1!B1" }],
+      labelRange: "Sheet1!A2:A4",
+      sheetId: model.getters.getActiveSheetId(),
+      title: "test 1",
+      type: "line",
+    });
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+  });
+
   test("create chart with rectangle dataset", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",
