@@ -403,14 +403,23 @@ export const FORMAT_DATE_TIME_ACTION = (env: SpreadsheetEnv) =>
 
 export const FORMAT_DURATION_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "hhhh:mm:ss");
 
-export const FORMAT_BOLD_ACTION = (env: SpreadsheetEnv) =>
-  setStyle(env, { bold: !env.getters.getCurrentStyle().bold });
+export const FORMAT_BOLD_ACTION = (env: SpreadsheetEnv) => {
+  const cell = env.getters.getActiveCell();
+  const style = cell ? env.getters.getCurrentStyle(cell) : {};
+  setStyle(env, { bold: !style.bold });
+};
 
-export const FORMAT_ITALIC_ACTION = (env: SpreadsheetEnv) =>
-  setStyle(env, { italic: !env.getters.getCurrentStyle().italic });
+export const FORMAT_ITALIC_ACTION = (env: SpreadsheetEnv) => {
+  const cell = env.getters.getActiveCell();
+  const style = cell ? env.getters.getCurrentStyle(cell) : {};
+  setStyle(env, { italic: !style.italic });
+};
 
-export const FORMAT_STRIKETHROUGH_ACTION = (env: SpreadsheetEnv) =>
-  setStyle(env, { strikethrough: !env.getters.getCurrentStyle().strikethrough });
+export const FORMAT_STRIKETHROUGH_ACTION = (env: SpreadsheetEnv) => {
+  const cell = env.getters.getActiveCell();
+  const style = cell ? env.getters.getCurrentStyle(cell) : {};
+  setStyle(env, { strikethrough: !style.strikethrough });
+};
 
 //------------------------------------------------------------------------------
 // Side panel

@@ -10,6 +10,7 @@
 
 export * from "./autofill";
 export * from "./commands";
+export * from "./events";
 export * from "./env";
 export * from "./functions";
 export * from "./getters";

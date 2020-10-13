@@ -10,6 +10,7 @@ export const demoData = {
   sheets: [
     {
       name: "Sheet1",
+      id: "42",
       colNumber: 26,
       rowNumber: 120,
       cols: { 1: {}, 3: {} },
@@ -113,42 +114,47 @@ export const demoData = {
     },
     {
       name: "Sheet2",
+      id: "43",
       cells: {
         B2: { content: "42" },
       },
-      figures: [{
-        id: "someId",
-        tag: "text",
-        width: 300,
-        height: 200,
-        x: 300,
-        y: 100,
-        data: "blablabla"
-      }, {
-        id: "someId2",
-        tag: "text",
-        width: 210,
-        height: 180,
-        x: 900,
-        y: 200,
-        data: "yip yip"
-      }, {
-        id: "1",
-        tag: "chart",
-        width: 400,
-        height: 300,
-        x: 450,
-        y: 550,
-        data: {
-          type: "line",
-          title: "demo chart",
-          labelRange: "Sheet1!A27:A35",
-          dataSets: [
-            { labelCell: "Sheet1!B26", dataRange: "Sheet1!B27:B35" },
-            { labelCell: "Sheet1!C26", dataRange: "Sheet1!C27:C35" },
-          ],
-        }
-      }],
+      figures: [
+        {
+          id: "someId",
+          tag: "text",
+          width: 300,
+          height: 200,
+          x: 300,
+          y: 100,
+          data: "blablabla",
+        },
+        {
+          id: "someId2",
+          tag: "text",
+          width: 210,
+          height: 180,
+          x: 900,
+          y: 200,
+          data: "yip yip",
+        },
+        {
+          id: "1",
+          tag: "chart",
+          width: 400,
+          height: 300,
+          x: 450,
+          y: 550,
+          data: {
+            type: "line",
+            title: "demo chart",
+            labelRange: "Sheet1!A27:A35",
+            dataSets: [
+              { labelCell: "Sheet1!B26", dataRange: "Sheet1!B27:B35" },
+              { labelCell: "Sheet1!C26", dataRange: "Sheet1!C27:C35" },
+            ],
+          },
+        },
+      ],
     },
   ],
   styles: {

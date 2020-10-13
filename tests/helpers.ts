@@ -19,7 +19,7 @@ import {
   UID,
 } from "../src/types";
 import "./canvas.mock";
-import { MergePlugin } from "../src/plugins/merge";
+import { MergePlugin } from "../src/plugins/base/merge";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
@@ -302,14 +302,14 @@ export function getSheet(model: Model, index: number = 0): Sheet {
 }
 
 export function getMerges(model: Model): { [key: number]: Merge } {
-  const mergePlugin = model["handlers"].find(
+  const mergePlugin = model["commandHandlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
   return mergePlugin["merges"][model.getters.getActiveSheetId()];
 }
 
 export function getMergeCellMap(model: Model): { [key: string]: number } {
-  const mergePlugin = model["handlers"].find(
+  const mergePlugin = model["commandHandlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
   return mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];

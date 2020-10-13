@@ -1,23 +1,81 @@
-import { MergePlugin } from "../plugins/merge";
-import { ClipboardPlugin } from "../plugins/clipboard";
-import { SelectionPlugin } from "../plugins/selection";
-import { CorePlugin } from "../plugins/core";
-import { ConditionalFormatPlugin } from "../plugins/conditional_format";
-import { RendererPlugin } from "../plugins/renderer";
-import { FormattingPlugin } from "../plugins/formatting";
+import { MergePlugin } from "../plugins/base/merge";
+import { ClipboardPlugin } from "../plugins/ui/clipboard";
+import { SelectionPlugin } from "../plugins/ui/selection";
+import { CorePlugin } from "../plugins/base/core";
+import { ConditionalFormatPlugin } from "../plugins/base/conditional_format";
+import { RendererPlugin } from "../plugins/ui/renderer";
+import { FormattingPlugin } from "../plugins/base/formatting";
 import { WHistory } from "../history";
-import { EvaluationPlugin } from "../plugins/evaluation";
-import { EditionPlugin } from "../plugins/edition";
-import { AutofillPlugin } from "../plugins/autofill";
-import { HighlightPlugin } from "../plugins/highlight";
-import { SelectionInputPlugin } from "../plugins/selection_inputs";
-import { FigurePlugin } from "../plugins/figures";
-import { ChartPlugin } from "../plugins/chart";
+import { EvaluationPlugin } from "../plugins/base/evaluation";
+import { EditionPlugin } from "../plugins/ui/edition";
+import { AutofillPlugin } from "../plugins/ui/autofill";
+import { HighlightPlugin } from "../plugins/ui/highlight";
+import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { FigurePlugin } from "../plugins/base/figures";
+import { ChartPlugin } from "../plugins/base/chart";
 
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
-export interface Getters {
+
+// export interface ClipboardPluginGetters {
+//   getClipboardContent: ClipboardPlugin["getClipboardContent"];
+//   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
+//   getPasteZones: ClipboardPlugin["getPasteZones"];
+// }
+
+// export interface SelectionPluginGetters extends ClipboardPluginGetters {
+//   getActiveCell: SelectionPlugin["getActiveCell"];
+//   getActiveCols: SelectionPlugin["getActiveCols"];
+//   getActiveRows: SelectionPlugin["getActiveRows"];
+//   getSelectedZones: SelectionPlugin["getSelectedZones"];
+//   getSelectedZone: SelectionPlugin["getSelectedZone"];
+//   getSelection: SelectionPlugin["getSelection"];
+//   getPosition: SelectionPlugin["getPosition"];
+//   getAggregate: SelectionPlugin["getAggregate"];
+//   getSelectionMode: SelectionPlugin["getSelectionMode"];
+//   isSelected: SelectionPlugin["isSelected"];
+// }
+
+export interface UIGetters {
+  getClipboardContent: ClipboardPlugin["getClipboardContent"];
+  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
+  getPasteZones: ClipboardPlugin["getPasteZones"];
+
+  getActiveCell: SelectionPlugin["getActiveCell"];
+  getActiveCols: SelectionPlugin["getActiveCols"];
+  getActiveRows: SelectionPlugin["getActiveRows"];
+  getSelectedZones: SelectionPlugin["getSelectedZones"];
+  getSelectedZone: SelectionPlugin["getSelectedZone"];
+  getSelection: SelectionPlugin["getSelection"];
+  getPosition: SelectionPlugin["getPosition"];
+  getAggregate: SelectionPlugin["getAggregate"];
+  getSelectionMode: SelectionPlugin["getSelectionMode"];
+  isSelected: SelectionPlugin["isSelected"];
+
+  getHighlights: HighlightPlugin["getHighlights"];
+
+  getColIndex: RendererPlugin["getColIndex"];
+  getRowIndex: RendererPlugin["getRowIndex"];
+  getRect: RendererPlugin["getRect"];
+  snapViewportToCell: RendererPlugin["snapViewportToCell"];
+  adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
+  adjustViewportZone: RendererPlugin["adjustViewportZone"];
+
+  getEditionMode: EditionPlugin["getEditionMode"];
+  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
+  getCurrentContent: EditionPlugin["getCurrentContent"];
+  getEditionSheet: EditionPlugin["getEditionSheet"];
+  getComposerSelection: EditionPlugin["getComposerSelection"];
+  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
+
+  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
+
+  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
+  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
+}
+
+export interface BaseGetters {
   applyOffset: CorePlugin["applyOffset"];
   getCell: CorePlugin["getCell"];
   getCellText: CorePlugin["getCellText"];
@@ -42,10 +100,6 @@ export interface Getters {
   getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
   shouldShowFormulas: CorePlugin["shouldShowFormulas"];
 
-  getClipboardContent: ClipboardPlugin["getClipboardContent"];
-  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
-  getPasteZones: ClipboardPlugin["getPasteZones"];
-
   getCellWidth: FormattingPlugin["getCellWidth"];
   getTextWidth: FormattingPlugin["getTextWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
@@ -59,29 +113,9 @@ export interface Getters {
   getMerges: MergePlugin["getMerges"];
   getMerge: MergePlugin["getMerge"];
 
-  getActiveCell: SelectionPlugin["getActiveCell"];
-  getActiveCols: SelectionPlugin["getActiveCols"];
-  getActiveRows: SelectionPlugin["getActiveRows"];
-  getSelectedZones: SelectionPlugin["getSelectedZones"];
-  getSelectedZone: SelectionPlugin["getSelectedZone"];
-  getSelection: SelectionPlugin["getSelection"];
-  getPosition: SelectionPlugin["getPosition"];
-  getAggregate: SelectionPlugin["getAggregate"];
-  getSelectionMode: SelectionPlugin["getSelectionMode"];
-  isSelected: SelectionPlugin["isSelected"];
-
-  getHighlights: HighlightPlugin["getHighlights"];
-
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
   getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
-
-  getColIndex: RendererPlugin["getColIndex"];
-  getRowIndex: RendererPlugin["getRowIndex"];
-  getRect: RendererPlugin["getRect"];
-  snapViewportToCell: RendererPlugin["snapViewportToCell"];
-  adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
-  adjustViewportZone: RendererPlugin["adjustViewportZone"];
 
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
@@ -93,20 +127,11 @@ export interface Getters {
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   isIdle: EvaluationPlugin["isIdle"];
 
-  getEditionMode: EditionPlugin["getEditionMode"];
-  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
-  getCurrentContent: EditionPlugin["getCurrentContent"];
-  getEditionSheet: EditionPlugin["getEditionSheet"];
-  getComposerSelection: EditionPlugin["getComposerSelection"];
-  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
-
-  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
-
-  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
-  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
   getFigures: FigurePlugin["getFigures"];
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
   getChartRuntime: ChartPlugin["getChartRuntime"];
 }
+
+export type Getters = UIGetters & BaseGetters;

@@ -3,7 +3,7 @@ import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell } from "../
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
-import { HighlightPlugin } from "../../src/plugins/highlight";
+import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -15,7 +15,7 @@ let fixture: HTMLElement;
 let parent: GridParent;
 
 function getHighlights(model: Model): any[] {
-  const highlightPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
+  const highlightPlugin = (model as any).commandHandlers.find((h) => h instanceof HighlightPlugin);
   return highlightPlugin.highlights;
 }
 

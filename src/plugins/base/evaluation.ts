@@ -1,11 +1,21 @@
-import { BasePlugin } from "../base_plugin";
-import { compile } from "../formulas/index";
-import { functionRegistry } from "../functions/index";
-import { mapCellsInZone, toCartesian } from "../helpers/index";
-import { WHistory } from "../history";
-import { Mode, ModelConfig } from "../model";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters, ReadCell, Range } from "../types";
-import { _lt } from "../translation";
+import { BasePlugin } from "./base_plugin";
+import { compile } from "../../formulas/index";
+import { functionRegistry } from "../../functions/index";
+import { mapCellsInZone, toCartesian } from "../../helpers/index";
+import { WHistory } from "../../history";
+import { Mode, ModelConfig } from "../../model";
+import {
+  Cell,
+  Command,
+  CommandDispatcher,
+  EvalContext,
+  Getters,
+  ReadCell,
+  Range,
+  CellUpdatedEvent,
+  EventDispatcher,
+} from "../../types";
+import { _lt } from "../../translation";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -66,11 +76,21 @@ export class EvaluationPlugin extends BasePlugin {
   constructor(
     getters: Getters,
     history: WHistory,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
+    currentMode: Mode,
+    dispatch: CommandDispatcher["dispatch"], // TODO REMOVE ME
+    config: ModelConfig, // TODO REMOVE ME
+    bus: EventDispatcher
   ) {
-    super(getters, history, dispatch, config);
+    super(getters, history, currentMode, dispatch, config, bus);
     this.evalContext = config.evalContext;
+  }
+
+  protected registerListener() {
+    this.bus.on("cell-updated", this, (event: CellUpdatedEvent) => {
+      if ("content" in event) {
+        this.isUptodate.clear();
+      }
+    })
   }
 
   // ---------------------------------------------------------------------------
@@ -81,11 +101,6 @@ export class EvaluationPlugin extends BasePlugin {
     switch (cmd.type) {
       case "START":
         this.evaluate();
-        break;
-      case "UPDATE_CELL":
-        if ("content" in cmd) {
-          this.isUptodate.clear();
-        }
         break;
       case "EVALUATE_CELLS":
         const activeSheet = this.getters.getActiveSheetId();

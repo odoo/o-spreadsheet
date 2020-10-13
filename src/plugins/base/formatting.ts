@@ -1,8 +1,17 @@
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
-import { fontSizeMap } from "../fonts";
-import { stringify, toCartesian, toXC, maximumDecimalPlaces } from "../helpers/index";
-import { Border, BorderCommand, Cell, Command, Style, WorkbookData, Zone } from "../types/index";
-import { BasePlugin } from "../base_plugin";
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../../constants";
+import { fontSizeMap } from "../../fonts";
+import { stringify, toCartesian, toXC, maximumDecimalPlaces, toZone } from "../../helpers/index";
+import {
+  Border,
+  BorderCommand,
+  Cell,
+  Command,
+  Style,
+  WorkbookData,
+  Zone,
+  UID,
+} from "../../types/index";
+import { BasePlugin } from "./base_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers
@@ -72,6 +81,11 @@ export class FormattingPlugin extends BasePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "ADD_MERGE":
+        if (!cmd.interactive) {
+          this.addMerge(cmd.sheetId, cmd.zone);
+        }
+        break;
       case "SET_FORMATTING":
         if (cmd.style) {
           this.setStyle(cmd.sheetId, cmd.target, cmd.style);
@@ -136,9 +150,8 @@ export class FormattingPlugin extends BasePlugin {
     return cell.border ? this.borders[cell.border] : null;
   }
 
-  getCurrentStyle(): Style {
-    const cell = this.getters.getActiveCell();
-    return cell && cell.style ? this.styles[cell.style] : {};
+  getCurrentStyle(cell: Cell): Style {
+    return cell.style ? this.styles[cell.style] : {};
   }
 
   // ---------------------------------------------------------------------------
@@ -160,7 +173,7 @@ export class FormattingPlugin extends BasePlugin {
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
-    this.dispatch("UPDATE_CELL", {
+    this.bus.trigger("cell-updated", {
       sheetId: this.getters.getActiveSheetId(),
       col,
       row,
@@ -602,6 +615,32 @@ export class FormattingPlugin extends BasePlugin {
     return format;
   }
 
+  addMerge(sheetId: UID, zone: Zone) {
+    const { left, right, top, bottom } = zone;
+    const topLeft = this.getters.getCell(left, top);
+    const bottomRight = this.getters.getCell(right, bottom) || topLeft;
+    const bordersTopLeft = topLeft ? this.getCellBorder(topLeft) : null;
+    const bordersBottomRight =
+      (bottomRight ? this.getCellBorder(bottomRight) : null) || bordersTopLeft;
+    this.setBorder(sheetId, [{ left, right, top, bottom }], "clear");
+    if (bordersBottomRight && bordersBottomRight.right) {
+      const zone = [{ left: right, right, top, bottom }];
+      this.setBorder(sheetId, zone, "right");
+    }
+    if (bordersTopLeft && bordersTopLeft.left) {
+      const zone = [{ left, right: left, top, bottom }];
+      this.setBorder(sheetId, zone, "left");
+    }
+    if (bordersTopLeft && bordersTopLeft.top) {
+      const zone = [{ left, right, top, bottom: top }];
+      this.setBorder(sheetId, zone, "top");
+    }
+    if (bordersBottomRight && bordersBottomRight.bottom) {
+      const zone = [{ left, right, top: bottom, bottom }];
+      this.setBorder(sheetId, zone, "bottom");
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
@@ -622,6 +661,14 @@ export class FormattingPlugin extends BasePlugin {
       nextId = Math.max(k as any, nextId);
     }
     this.nextId = nextId + 1;
+    const sheets = data.sheets || [];
+    for (let sheetData of sheets) {
+      if (sheetData.merges) {
+        for (let merge of sheetData.merges) {
+          this.addMerge(sheetData.id, toZone(merge));
+        }
+      }
+    }
   }
 
   export(data: WorkbookData) {

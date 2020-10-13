@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { patch, waitForRecompute, asyncComputations } from "../helpers";
-import { LOADING } from "../../src/plugins/evaluation";
+import { LOADING } from "../../src/plugins/base/evaluation";
 import { functionRegistry, args } from "../../src/functions";
 
 describe("evaluateCells, async formulas", () => {

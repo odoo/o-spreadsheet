@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { Command, WorkbookData, Figure, Viewport } from "../types/index";
-import { uuidv4 } from "../helpers/index";
+import { BasePlugin } from "./base_plugin";
+import { Command, WorkbookData, Figure, Viewport, SheetDeletedEvent } from "../../types/index";
+import { uuidv4 } from "../../helpers/index";
 
 export class FigurePlugin extends BasePlugin {
   static getters = ["getFigures", "getSelectedFigureId", "getFigure"];
@@ -9,6 +9,10 @@ export class FigurePlugin extends BasePlugin {
 
   private figures: { [figId: string]: Figure<any> } = {};
   private sheetFigures: { [sheetId: string]: Figure<any>[] } = {};
+
+  protected registerListener() {
+    this.bus.on("sheet-deleted", this, (event: SheetDeletedEvent) => this.deleteSheet(event.sheetId))
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -23,9 +27,6 @@ export class FigurePlugin extends BasePlugin {
             figure,
           });
         }
-        break;
-      case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheetId);
         break;
       case "CREATE_FIGURE":
         this.history.update(["figures", cmd.figure.id], cmd.figure);

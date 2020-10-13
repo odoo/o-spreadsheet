@@ -1,7 +1,6 @@
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { numberToLetters, toXC, toZone, toCartesian, uuidv4, formatDecimal } from "./helpers/index";
-import { pluginRegistry } from "./plugins/index";
 import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
@@ -27,6 +26,8 @@ import {
   SCROLLBAR_WIDTH,
 } from "./constants";
 
+import { uiPluginRegistry, basePluginRegistry } from "./registries/plugin_registry";
+
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
  *
@@ -35,7 +36,8 @@ import {
  */
 
 export const __info__ = {};
-export { BasePlugin } from "./base_plugin";
+export { BasePlugin } from "./plugins/base/base_plugin";
+export { UIPlugin } from "./plugins/ui/ui_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
 export { parse, astToFormula } from "./formulas/parser";
@@ -60,12 +62,13 @@ export const registries = {
   cellMenuRegistry,
   colMenuRegistry,
   functionRegistry,
-  pluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,
   sheetMenuRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
+  uiPluginRegistry,
+  basePluginRegistry,
 };
 
 export const helpers = {

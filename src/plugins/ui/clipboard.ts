@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { clip, toXC } from "../helpers/index";
-import { Mode } from "../model";
+import { UIPlugin } from "./ui_plugin";
+import { clip, toXC } from "../../helpers/index";
+import { Mode } from "../../model";
 import {
   Cell,
   Command,
@@ -10,8 +10,8 @@ import {
   CancelledReason,
   CommandResult,
   UID,
-} from "../types/index";
-import { _lt } from "../translation";
+} from "../../types/index";
+import { _lt } from "../../translation";
 
 interface ClipboardCell {
   cell: Cell | null;
@@ -25,7 +25,7 @@ interface ClipboardCell {
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardPlugin extends BasePlugin {
+export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
   static getters = ["getClipboardContent", "isPaintingFormat", "getPasteZones"];
   static modes: Mode[] = ["normal", "readonly"];
@@ -44,8 +44,9 @@ export class ClipboardPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
+    const force = "force" in cmd ? !!cmd.force : false;
     if (cmd.type === "PASTE") {
-      return this.isPasteAllowed(cmd.target);
+      return this.isPasteAllowed(cmd.target, force);
     }
     return {
       status: "SUCCESS",
@@ -208,7 +209,7 @@ export class ClipboardPlugin extends BasePlugin {
     });
   }
 
-  private isPasteAllowed(target: Zone[]): CommandResult {
+  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
     const { zones, cells, status } = this;
     // cannot paste if we have a clipped zone larger than a cell and multiple
     // zones selected
@@ -217,7 +218,7 @@ export class ClipboardPlugin extends BasePlugin {
     } else if (target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
       return { status: "CANCELLED", reason: CancelledReason.WrongPasteSelection };
     }
-    return { status: "SUCCESS" };
+    return this.isMergePasteAllowed(target, force);
   }
 
   private pasteFromModel(target: Zone[]) {
@@ -267,6 +268,23 @@ export class ClipboardPlugin extends BasePlugin {
         zones: [newSelection],
       });
     }
+  }
+
+  private isMergePasteAllowed(target: Zone[], force: boolean): CommandResult {
+    if (!force) {
+      const pasteZones = this.getters.getPasteZones(target);
+      for (let zone of pasteZones) {
+        if (this.getters.doesIntersectMerge(zone)) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.WillRemoveExistingMerge,
+          };
+        }
+      }
+    }
+    return {
+      status: "SUCCESS",
+    };
   }
 
   private clearCutZone() {

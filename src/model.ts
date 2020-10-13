@@ -1,11 +1,12 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin } from "./base_plugin";
 import { createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
-import { pluginRegistry } from "./plugins/index";
+import { uiPluginRegistry, basePluginRegistry } from "./registries/plugin_registry";
 import {
   CommandDispatcher,
   CommandHandler,
+  BaseGetters,
+  UIGetters,
   Getters,
   Command,
   WorkbookData,
@@ -13,9 +14,13 @@ import {
   LAYERS,
   CommandSuccess,
   EvalContext,
+  NetworkConfig,
+  EventDispatcher,
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
+import { BasePlugin } from "./plugins/base/base_plugin";
+import { UIPlugin } from "./plugins/ui/ui_plugin";
 
 /**
  * Model
@@ -45,6 +50,7 @@ import { DEBUG } from "./helpers/index";
 export type Mode = "normal" | "headless" | "readonly";
 export interface ModelConfig {
   mode: Mode;
+  network: NetworkConfig;
   openSidePanel: (panel: string, panelProps?: any) => void;
   notifyUser: (content: string) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
@@ -64,7 +70,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Handlers are classes that can handle a command. In practice, this is
    * basically a list of all plugins and the history manager (not a plugin)
    */
-  private handlers: CommandHandler[];
+  private commandHandlers: CommandHandler[];
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -73,7 +79,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * This list simply keeps the renderers+layer information so the drawing code
    * can just iterate on it
    */
-  private renderers: [BasePlugin, LAYERS][] = [];
+  private renderers: [UIPlugin, LAYERS][] = [];
 
   /**
    * Internal status of the model. Important for command handling coordination
@@ -90,7 +96,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * it is shared between all plugins, so they can also communicate with each
    * other.
    */
+  baseGetters: BaseGetters;
+  UIgetters: UIGetters;
   getters: Getters;
+
+  private isMultiUser: boolean = false;
 
   constructor(data: any = {}, config: Partial<ModelConfig> = {}) {
     super();
@@ -99,14 +109,21 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const workbookData = load(data);
     const history = new WHistory();
 
+    this.baseGetters = {
+      canUndo: history.canUndo.bind(history),
+      canRedo: history.canRedo.bind(history),
+    } as BaseGetters;
+    this.UIgetters = {} as UIGetters;
     this.getters = {
       canUndo: history.canUndo.bind(history),
       canRedo: history.canRedo.bind(history),
     } as Getters;
-    this.handlers = [history];
+    this.commandHandlers = [history];
 
+    const bus = new owl.core.EventBus();
     this.config = {
       mode: config.mode || "normal",
+      network: config.network || { sendCommand: () => {} },
       openSidePanel: config.openSidePanel || (() => {}),
       notifyUser: config.notifyUser || (() => {}),
       askConfirmation: config.askConfirmation || (() => {}),
@@ -114,11 +131,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       evalContext: config.evalContext || {},
     };
 
-    // registering plugins
-    for (let Plugin of pluginRegistry.getAll()) {
-      this.setupPlugin(Plugin, workbookData);
+    for (let Plugin of basePluginRegistry.getAll()) {
+      this._setupBasePlugin(Plugin, workbookData, bus);
     }
 
+    for (let Plugin of uiPluginRegistry.getAll()) {
+      this._setupUIPlugin(Plugin);
+    }
     // starting plugins
     this.dispatch("START");
   }
@@ -127,26 +146,51 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     delete DEBUG.model;
   }
 
+  private _setupBasePlugin(Plugin: typeof BasePlugin, data: WorkbookData, bus: EventDispatcher) {
+    const dispatch = this.dispatch.bind(this); //TODO TO REMOVE
+    const history = this.commandHandlers.find((p) => p instanceof WHistory)! as WHistory;
+    if (Plugin.modes.includes(this.config.mode)) {
+      const plugin = new Plugin(
+        this.getters,
+        history,
+        this.config.mode,
+        dispatch,
+        this.config,
+        bus
+      );
+      plugin.import(data);
+      for (let name of Plugin.getters) {
+        if (!(name in plugin)) {
+          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
+        }
+        this.baseGetters[name] = plugin[name].bind(plugin);
+        this.getters[name] = plugin[name].bind(plugin);
+      }
+      // @ts-ignore
+      this.commandHandlers.push(plugin); // TODO REMOVE ME
+    }
+  }
+
   /**
    * Initialise and properly configure a plugin.
    *
    * This method is private for now, but if the need arise, there is no deep
    * reason why the model could not add dynamically a plugin while it is running.
    */
-  private setupPlugin(Plugin: typeof BasePlugin, data: WorkbookData) {
+  private _setupUIPlugin(Plugin: typeof UIPlugin) {
     const dispatch = this.dispatch.bind(this);
-    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+    const history = this.commandHandlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
-      plugin.import(data);
+      const plugin = new Plugin(this.getters, history, this.config.mode, dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
         }
+        this.UIgetters[name] = plugin[name].bind(plugin);
         this.getters[name] = plugin[name].bind(plugin);
       }
-      this.handlers.push(plugin);
-      const layers = Plugin.layers.map((l) => [plugin, l] as [BasePlugin, LAYERS]);
+      this.commandHandlers.push(plugin);
+      const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
       this.renderers.push(...layers);
       this.renderers.sort((p1, p2) => p1[1] - p2[1]);
     }
@@ -157,8 +201,24 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // ---------------------------------------------------------------------------
 
   /**
-   * The dispatch method is the only entry point to manipulate date in the model.
-   * This is through this method that commands are dispatched, most of the time
+   * The dispatch method is the onprivate _setupUIPlugin(Plugin: typeof UIPlugin) {
+    const dispatch = this.dispatch.bind(this);
+    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+    if (Plugin.modes.includes(this.config.mode)) {
+      const plugin = new Plugin(this.getters, history, this.config.mode, dispatch, this.config);
+      for (let name of Plugin.getters) {
+        if (!(name in plugin)) {
+          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
+        }
+        this.getters[name] = plugin[name].bind(plugin);
+      }
+      this.commandHandler.push(plugin);
+      this.eventHandler.push(plugin);
+      const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
+      this.renderers.push(...layers);
+      this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+    }
+  }hat commands are dispatched, most of the time
    * recursively until no plugin want to react anymore.
    *
    * Small technical detail: it is defined as an arrow function.  There are two
@@ -168,26 +228,44 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    *    component)
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
-  dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  dispatch: CommandDispatcher["dispatch"] = (
+    type: string,
+    payload?: any,
+    fromNetwork?: boolean
+  ) => {
     const command: Command = Object.assign({ type }, payload);
     let status: Status = command.interactive ? Status.Interactive : this.status;
     switch (status) {
       case Status.Ready:
-        for (let handler of this.handlers) {
+        if (fromNetwork) {
+          this.isMultiUser = true;
+        }
+        for (let handler of this.commandHandlers) {
           const allowDispatch = handler.allowDispatch(command);
           if (allowDispatch.status === "CANCELLED") {
             return allowDispatch;
           }
         }
+        if (!this.isMultiUser) {
+          if (
+            type === "UPDATE_CELL" ||
+            type === "CREATE_SHEET" ||
+            type === "MOVE_SHEET" ||
+            type === "DUPLICATE_SHEET"
+          ) {
+            // this.config.network.sendCommand(command.type, command);
+            this.trigger("command-dispatched", { command });
+          }
+        }
         this.status = Status.Running;
-        for (const h of this.handlers) {
+        for (const h of this.commandHandlers) {
           h.beforeHandle(command);
         }
-        for (const h of this.handlers) {
+        for (const h of this.commandHandlers) {
           h.handle(command);
         }
         this.status = Status.Finalizing;
-        for (const h of this.handlers) {
+        for (const h of this.commandHandlers) {
           h.finalize(command);
         }
         this.status = Status.Ready;
@@ -197,16 +275,28 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         break;
       case Status.Running:
       case Status.Interactive:
-        for (const h of this.handlers) {
+        if (!this.isMultiUser) {
+          if (
+            type === "UPDATE_CELL" ||
+            type === "CREATE_SHEET" ||
+            type === "MOVE_SHEET" ||
+            type === "DUPLICATE_SHEET"
+          ) {
+            //this.config.network.sendCommand(type, payload);
+            this.trigger("command-dispatched", { command });
+          }
+        }
+        for (const h of this.commandHandlers) {
           h.beforeHandle(command);
         }
-        for (const h of this.handlers) {
+        for (const h of this.commandHandlers) {
           h.handle(command);
         }
         break;
       case Status.Finalizing:
         throw new Error(_lt("Nope. Don't do that"));
     }
+    this.isMultiUser = false;
     return { status: "SUCCESS" } as CommandSuccess;
   };
 
@@ -227,7 +317,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   drawGrid(context: GridRenderingContext) {
     // we make sure here that the viewport is properly positioned: the offsets
     // correspond exactly to a cell
-    context.viewport = this.getters.snapViewportToCell(context.viewport);
+    context.viewport = this.UIgetters.snapViewportToCell(context.viewport);
     for (let [renderer, layer] of this.renderers) {
       renderer.drawGrid(context, layer);
     }
@@ -243,7 +333,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   exportData(): WorkbookData {
     const data = createEmptyWorkbookData();
-    for (let handler of this.handlers) {
+    for (let handler of this.commandHandlers) {
       if (handler instanceof BasePlugin) {
         handler.export(data);
       }

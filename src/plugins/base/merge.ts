@@ -1,21 +1,23 @@
-import { BasePlugin } from "../base_plugin";
 import {
   updateAddColumns,
   updateAddRows,
   updateRemoveColumns,
   updateRemoveRows,
-} from "../helpers/grid_manipulation";
-import { isEqual, toCartesian, toXC, union, overlap, clip } from "../helpers/index";
-import { _lt } from "../translation";
+} from "../../helpers/grid_manipulation";
+import { isEqual, toCartesian, toXC, union, overlap, clip, toZone } from "../../helpers/index";
 import {
   CancelledReason,
   Command,
   CommandResult,
   Merge,
+  SheetCreatedEvent,
+  SheetDeletedEvent,
   UID,
   WorkbookData,
   Zone,
-} from "../types/index";
+} from "../../types/index";
+import { BasePlugin } from "./base_plugin";
+import { _lt } from "../../translation";
 
 interface PendingMerges {
   sheet: string;
@@ -35,10 +37,20 @@ export class MergePlugin extends BasePlugin {
   ];
 
   private nextId: number = 1;
-  private pending: PendingMerges | null = null;
-
+  pending: PendingMerges | null = null;
   private merges: Record<UID, { [key: number]: Merge }> = {};
   private mergeCellMap: Record<UID, { [key: string]: number }> = {};
+
+  registerListener() {
+    this.bus.on("sheet-created", this, (event: SheetCreatedEvent) => {
+      this.history.update(["merges", event.sheetId], {});
+      this.history.update(["mergeCellMap", event.sheetId], {});
+    });
+    this.bus.on("sheet-deleted", this, (event: SheetDeletedEvent) => {
+      this.history.update(["merges", event.sheetId], {});
+      this.history.update(["mergeCellMap", event.sheetId], {});
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -47,8 +59,6 @@ export class MergePlugin extends BasePlugin {
     const force = "force" in cmd ? !!cmd.force : false;
 
     switch (cmd.type) {
-      case "PASTE":
-        return this.isPasteAllowed(cmd.target, force);
       case "ADD_MERGE":
         return this.isMergeAllowed(cmd.zone, force);
       default:
@@ -56,51 +66,8 @@ export class MergePlugin extends BasePlugin {
     }
   }
 
-  beforeHandle(cmd: Command) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS":
-        this.exportAndRemoveMerges(
-          cmd.sheetId,
-          (range) => updateRemoveColumns(range, cmd.columns),
-          true
-        );
-        break;
-      case "REMOVE_ROWS":
-        this.exportAndRemoveMerges(
-          cmd.sheetId,
-          (range) => updateRemoveRows(range, cmd.rows),
-          false
-        );
-        break;
-      case "ADD_COLUMNS":
-        const col = cmd.position === "before" ? cmd.column : cmd.column + 1;
-        this.exportAndRemoveMerges(
-          cmd.sheetId,
-          (range) => updateAddColumns(range, col, cmd.quantity),
-          true
-        );
-        break;
-      case "ADD_ROWS":
-        const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
-        this.exportAndRemoveMerges(
-          cmd.sheetId,
-          (range) => updateAddRows(range, row, cmd.quantity),
-          false
-        );
-        break;
-    }
-  }
-
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update(["merges", cmd.sheetId], {});
-        this.history.update(["mergeCellMap", cmd.sheetId], {});
-        break;
-      case "DELETE_SHEET":
-        this.history.update(["merges", cmd.sheetId], {});
-        this.history.update(["mergeCellMap", cmd.sheetId], {});
-        break;
       case "DUPLICATE_SHEET":
         this.history.update(
           ["merges", cmd.sheetIdTo],
@@ -130,10 +97,61 @@ export class MergePlugin extends BasePlugin {
           this.duplicateMerge(xc, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
         }
         break;
-    }
-    if (this.pending) {
-      this.importMerges(this.pending.sheet, this.pending.merges);
-      this.history.update(["pending"], null);
+      case "REMOVE_COLUMNS":
+        this.exportAndRemoveMerges(
+          cmd.sheetId,
+          (range) => updateRemoveColumns(range, cmd.columns),
+          true
+        );
+        if (this.pending) {
+          this.importMerges(this.pending.sheet, this.pending.merges);
+          this.pending = null;
+        }
+        break;
+      case "REMOVE_ROWS":
+        this.exportAndRemoveMerges(
+          cmd.sheetId,
+          (range) => updateRemoveRows(range, cmd.rows),
+          false
+        );
+        if (this.pending) {
+          this.importMerges(this.pending.sheet, this.pending.merges);
+          this.pending = null;
+        }
+        break;
+      case "ADD_COLUMNS":
+        const col = cmd.position === "before" ? cmd.column : cmd.column + 1;
+        this.exportAndRemoveMerges(
+          cmd.sheetId,
+          (range) => updateAddColumns(range, col, cmd.quantity),
+          true
+        );
+        if (this.pending) {
+          this.importMerges(this.pending.sheet, this.pending.merges);
+          this.pending = null;
+        }
+        break;
+      case "ADD_ROWS":
+        const row = cmd.position === "before" ? cmd.row : cmd.row + 1;
+        this.exportAndRemoveMerges(
+          cmd.sheetId,
+          (range) => updateAddRows(range, row, cmd.quantity),
+          false
+        );
+        if (this.pending) {
+          this.importMerges(this.pending.sheet, this.pending.merges);
+          this.pending = null;
+        }
+        break;
+      // case "ADD_COLUMNS":
+      // case "ADD_ROWS":
+      // case "REMOVE_COLUMNS":
+      // case "REMOVE_ROWS":
+      //   if (this.pending) {
+      //     this.importMerges(this.pending.sheet, this.pending.merges);
+      //     this.pending = null;
+      //   }
+      //   break;
     }
   }
 
@@ -300,9 +318,9 @@ export class MergePlugin extends BasePlugin {
         this.history.update(["mergeCellMap", sheetId, xc], id);
       }
     }
-    this.applyBorderMerge(zone, sheetId);
-    for (let m of previousMerges) {
-      const { top, bottom, left, right } = this.merges[sheetId][m];
+
+    for (let mergeId of previousMerges) {
+      const { top, bottom, left, right } = this.merges[sheetId][mergeId];
       for (let r = top; r <= bottom; r++) {
         for (let c = left; c <= right; c++) {
           const xc = toXC(c, r);
@@ -316,53 +334,7 @@ export class MergePlugin extends BasePlugin {
           }
         }
       }
-      this.history.update(["merges", sheetId, m], undefined);
-    }
-  }
-
-  private applyBorderMerge(zone: Zone, sheetId: UID) {
-    const { left, right, top, bottom } = zone;
-    const topLeft = this.getters.getCell(left, top);
-    const bottomRight = this.getters.getCell(right, bottom) || topLeft;
-    const bordersTopLeft = topLeft ? this.getters.getCellBorder(topLeft) : null;
-    const bordersBottomRight =
-      (bottomRight ? this.getters.getCellBorder(bottomRight) : null) || bordersTopLeft;
-    this.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: [{ left, right, top, bottom }],
-      border: "clear",
-    });
-    if (bordersBottomRight && bordersBottomRight.right) {
-      const zone = [{ left: right, right, top, bottom }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "right",
-      });
-    }
-    if (bordersTopLeft && bordersTopLeft.left) {
-      const zone = [{ left, right: left, top, bottom }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "left",
-      });
-    }
-    if (bordersTopLeft && bordersTopLeft.top) {
-      const zone = [{ left, right, top, bottom: top }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "top",
-      });
-    }
-    if (bordersBottomRight && bordersBottomRight.bottom) {
-      const zone = [{ left, right, top: bottom, bottom }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "bottom",
-      });
+      this.history.update(["merges", sheetId, mergeId], undefined);
     }
   }
 
@@ -451,11 +423,12 @@ export class MergePlugin extends BasePlugin {
         }
       }
     }
-    this.updateMergesStyles(sheetId, isCol);
+    //this.updateMergesStyles(sheetId, isCol);
     this.removeAllMerges(sheetId);
-    this.history.update(["pending"], { sheet: sheetId, merges: updatedMerges });
+    this.pending = { sheet: sheetId, merges: updatedMerges };
   }
 
+  // @ts-ignore
   private updateMergesStyles(sheetId: string, isColumn: boolean) {
     const sheet = this.getters.getSheets().find((s) => s.id === sheetId)!;
     for (let merge of Object.values(this.merges[sheetId])) {
@@ -480,27 +453,6 @@ export class MergePlugin extends BasePlugin {
         format: topLeft.format,
       });
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Copy/Cut/Paste and Merge
-  // ---------------------------------------------------------------------------
-
-  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
-    if (!force) {
-      const pasteZones = this.getters.getPasteZones(target);
-      for (let zone of pasteZones) {
-        if (this.doesIntersectMerge(zone)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.WillRemoveExistingMerge,
-          };
-        }
-      }
-    }
-    return {
-      status: "SUCCESS",
-    };
   }
 
   // ---------------------------------------------------------------------------
@@ -540,25 +492,8 @@ export class MergePlugin extends BasePlugin {
   }
 
   private importMerges(sheetId: string, merges: string[]) {
-    for (let m of merges) {
-      let id = this.nextId++;
-      const [tl, br] = m.split(":");
-      const [left, top] = toCartesian(tl);
-      const [right, bottom] = toCartesian(br);
-      this.history.update(["merges", sheetId, id], {
-        id,
-        left,
-        top,
-        right,
-        bottom,
-        topLeft: tl,
-      });
-      for (let row = top; row <= bottom; row++) {
-        for (let col = left; col <= right; col++) {
-          const xc = toXC(col, row);
-          this.history.update(["mergeCellMap", sheetId, xc], id);
-        }
-      }
+    for (let merge of merges) {
+      this.addMerge(sheetId, toZone(merge));
     }
   }
   export(data: WorkbookData) {

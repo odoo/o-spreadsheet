@@ -1,6 +1,5 @@
 import {
   Command,
-  LAYERS,
   ChartDefinition,
   WorkbookData,
   CreateChartDefinition,
@@ -8,12 +7,14 @@ import {
   Zone,
   CommandResult,
   CancelledReason,
-} from "../types/index";
+  CellUpdatedEvent,
+} from "../../types/index";
 import { ChartConfiguration, ChartType } from "chart.js";
-import { BasePlugin } from "../base_plugin";
-import { isInside, toXC, toZone, zoneToXc } from "../helpers/index";
-import { rangeReference } from "../formulas/parser";
-import { chartTerms } from "../components/side_panel/translations_terms";
+import { BasePlugin } from "./base_plugin";
+
+import { isInside, toXC, toZone, zoneToXc } from "../../helpers/index";
+import { rangeReference } from "../../formulas/parser";
+import { chartTerms } from "../../components/side_panel/translations_terms";
 
 /**
  * Chart plugin
@@ -47,7 +48,6 @@ const GraphColors = [
 
 export class ChartPlugin extends BasePlugin {
   static getters = ["getChartRuntime"];
-  static layers = [LAYERS.Chart];
 
   private chartFigures: Set<string> = new Set();
 
@@ -55,6 +55,17 @@ export class ChartPlugin extends BasePlugin {
   // as well as all the options needed for the chart library to work correctly
   private chartRuntime: { [figureId: string]: ChartConfiguration } = {};
   private outOfDate: Set<string> = new Set<string>();
+
+  protected registerListener() {
+    this.bus.on("cell-updated", this, (event: CellUpdatedEvent) => {
+      for (let chartId of this.chartFigures) {
+        const chart = this.getChartDefinition(chartId);
+        if (this.isCellUsedInChart(chart, event.col, event.row)) {
+          this.outOfDate.add(chartId);
+        }
+      }
+    })
+  }
 
   allowDispatch(cmd: Command): CommandResult {
     const success: CommandResult = { status: "SUCCESS" };
@@ -111,14 +122,6 @@ export class ChartPlugin extends BasePlugin {
           figures.delete(cmd.id);
           this.history.update(["chartFigures"], figures);
           this.history.update(["chartRuntime", cmd.id], undefined);
-        }
-        break;
-      case "UPDATE_CELL":
-        for (let chartId of this.chartFigures) {
-          const chart = this.getChartDefinition(chartId);
-          if (this.isCellUsedInChart(chart, cmd.col, cmd.row)) {
-            this.outOfDate.add(chartId);
-          }
         }
         break;
     }

@@ -430,7 +430,8 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
 
   updateCellState() {
-    this.style = this.getters.getCurrentStyle();
+    const cell = this.getters.getActiveCell();
+    this.style = cell ? this.getters.getCurrentStyle(cell) : {};
     this.fillColor = this.style.fillColor || "white";
     this.textColor = this.style.textColor || "black";
     const zones = this.getters.getSelectedZones();
@@ -445,7 +446,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.undoTool = this.getters.canUndo();
     this.redoTool = this.getters.canRedo();
     this.paintFormatTool = this.getters.isPaintingFormat();
-    const cell = this.getters.getActiveCell();
     if (cell && cell.format) {
       const format = this.formats.find((f) => f.value === cell.format);
       this.currentFormat = format ? format.name : "";

@@ -1,4 +1,3 @@
-import { BasePlugin } from "../base_plugin";
 import {
   colorNumberString,
   toXC,
@@ -9,18 +8,21 @@ import {
   updateRemoveRows,
   isInside,
   recomputeZones,
-} from "../helpers/index";
+} from "../../helpers/index";
 import {
   Cell,
   CellIsRule,
+  SheetCreatedEvent,
+  SheetDeletedEvent,
   ColorScaleRule,
   Command,
   ConditionalFormat,
   Style,
   WorkbookData,
   Zone,
-} from "../types/index";
-import { _lt } from "../translation";
+} from "../../types/index";
+import { _lt } from "../../translation";
+import { BasePlugin } from "./base_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -35,29 +37,29 @@ export class ConditionalFormatPlugin extends BasePlugin {
   // stores the computed styles in the format of computedStyles.sheetName.cellXC = Style
   private computedStyles: { [sheet: string]: { [cellXc: string]: Style } } = {};
 
+  protected registerListener() {
+    this.bus.on("cell-updated", this, () => (this.isStale = true));
+    this.bus.on("sheet-created", this, (event: SheetCreatedEvent) => {
+      this.cfRules[event.sheetId] = [];
+      this.computeStyles[event.sheetId] = {};
+      this.isStale = true;
+    });
+    this.bus.on("sheet-deleted", this, (event: SheetDeletedEvent) => {
+      const cfRules = Object.assign({}, this.cfRules);
+        delete cfRules[event.sheetId];
+        this.history.update(["cfRules"], cfRules);
+        this.isStale = true;
+    })
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        const activeSheet = cmd.sheetIdTo;
-        this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
-        this.isStale = true;
-        break;
-      case "CREATE_SHEET":
-        this.cfRules[cmd.sheetId] = [];
-        this.isStale = true;
-        break;
       case "DUPLICATE_SHEET":
         this.history.update(["cfRules", cmd.sheetIdTo], this.cfRules[cmd.sheetIdFrom].slice());
-        this.isStale = true;
-        break;
-      case "DELETE_SHEET":
-        const cfRules = Object.assign({}, this.cfRules);
-        delete cfRules[cmd.sheetId];
-        this.history.update(["cfRules"], cfRules);
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
@@ -100,8 +102,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
           this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
         }
         break;
+      case "ACTIVATE_SHEET":
       case "EVALUATE_CELLS":
-      case "UPDATE_CELL":
       case "UNDO":
       case "REDO":
         this.isStale = true;

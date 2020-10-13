@@ -1,8 +1,8 @@
-import { BasePlugin } from "../base_plugin";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { compile, rangeTokenize } from "../formulas/index";
-import { cellReference } from "../formulas/parser";
-import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
+import { BasePlugin } from "./base_plugin";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { compile, rangeTokenize } from "../../formulas/index";
+import { cellReference } from "../../formulas/parser";
+import { formatDateTime, InternalDate, parseDateTime } from "../../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
@@ -15,8 +15,8 @@ import {
   toZone,
   mapCellsInZone,
   getComposerSheetName,
-} from "../helpers/index";
-import { _lt } from "../translation";
+} from "../../helpers/index";
+import { _lt } from "../../translation";
 import {
   CancelledReason,
   Cell,
@@ -24,6 +24,7 @@ import {
   Col,
   Command,
   CommandResult,
+  Event,
   HeaderData,
   Row,
   Sheet,
@@ -32,7 +33,11 @@ import {
   Zone,
   RenameSheetCommand,
   UID,
-} from "../types/index";
+  CellUpdatedEvent,
+  SheetMovedEvent,
+  SheetDeletedEvent,
+  CellClearedEvent,
+} from "../../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -78,6 +83,33 @@ export class CorePlugin extends BasePlugin {
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
   private historizeActiveSheet: boolean = true;
+
+  // ---------------------------------------------------------------------------
+  // Event Handling
+  // ---------------------------------------------------------------------------
+
+  protected registerListener() {
+    this.bus.on("cell-updated", this, (event: CellUpdatedEvent) => {
+      this.updateCell(event.sheetId, event.col, event.row, event);
+    });
+    this.bus.on("sheet-moved", this, (event: SheetMovedEvent) => {
+      this.moveSheet(event.sheetId, event.direction);
+    });
+    this.bus.on("sheet-deleted", this, (event: SheetDeletedEvent) => {
+      this.deleteSheet(event.sheetId);
+    });
+    this.bus.on("cell-cleared", this, (event: CellClearedEvent) => {
+      this.bus.trigger("cell-updated", {
+        sheetId: event.sheetId,
+        col: event.col,
+        row: event.row,
+        content: "",
+        border: 0,
+        style: 0,
+        format: "",
+      });
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -146,9 +178,12 @@ export class CorePlugin extends BasePlugin {
             sheetIdTo: sheet,
           });
         }
+        this.bus.trigger("sheet-created", {
+          sheetId: cmd.sheetId,
+        });
         break;
       case "MOVE_SHEET":
-        this.moveSheet(cmd.sheetId, cmd.direction);
+        this.bus.trigger("sheet-moved", cmd);
         break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
@@ -164,14 +199,14 @@ export class CorePlugin extends BasePlugin {
         this.interactiveDeleteSheet(cmd.sheetId);
         break;
       case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheetId);
+        this.bus.trigger("sheet-deleted", { sheetId: cmd.sheetId });
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
         break;
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
-        this.dispatch("UPDATE_CELL", {
+        this.bus.trigger("cell-updated", {
           sheetId: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheetId(),
           col,
           row,
@@ -179,18 +214,10 @@ export class CorePlugin extends BasePlugin {
         });
         break;
       case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
+        this.bus.trigger("cell-updated", cmd);
         break;
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          border: 0,
-          style: 0,
-          format: "",
-        });
+      case "CLEAR_CELL": // usefull ?
+        this.bus.trigger("cell-cleared", cmd);
         break;
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
@@ -583,7 +610,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => cell.col !== base || step !== -1,
       (cell) => {
         return {
-          type: "UPDATE_CELL",
+          type: "cell-updated",
           sheetId: sheetId,
           col: cell.col + step,
           row: cell.row,
@@ -614,7 +641,7 @@ export class CorePlugin extends BasePlugin {
       ({ row }) => row > deleteToRow,
       (cell) => {
         return {
-          type: "UPDATE_CELL",
+          type: "cell-updated",
           sheetId,
           col: cell.col,
           row: cell.row - (deleteToRow - deleteFromRow + 1),
@@ -634,7 +661,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => cell.row !== base || step !== -1,
       (cell) => {
         return {
-          type: "UPDATE_CELL",
+          type: "cell-updated",
           sheetId: sheetId,
           col: cell.col,
           row: cell.row + step,
@@ -776,11 +803,11 @@ export class CorePlugin extends BasePlugin {
   private processCellsToMove(
     shouldDelete: (cell: Cell) => boolean,
     shouldAdd: (cell: Cell) => boolean,
-    buildCellToAdd: (cell: Cell) => Command,
+    buildCellToAdd: (cell: Cell) => Event,
     sheetId: UID
   ) {
-    const deleteCommands: Command[] = [];
-    const addCommands: Command[] = [];
+    const deleteEvents: Event[] = [];
+    const addEvents: Event[] = [];
 
     const sheet = this.sheets[sheetId];
 
@@ -788,22 +815,22 @@ export class CorePlugin extends BasePlugin {
       let cell = sheet.cells[xc];
       if (shouldDelete(cell)) {
         const [col, row] = toCartesian(xc);
-        deleteCommands.push({
-          type: "CLEAR_CELL",
+        deleteEvents.push({
+          type: "cell-cleared",
           sheetId: sheet.id,
           col,
           row,
         });
         if (shouldAdd(cell)) {
-          addCommands.push(buildCellToAdd(cell));
+          addEvents.push(buildCellToAdd(cell));
         }
       }
     }
-    for (let cmd of deleteCommands) {
-      this.dispatch(cmd.type, cmd);
+    for (let event of deleteEvents) {
+      this.bus.trigger(event.type, event);
     }
-    for (let cmd of addCommands) {
-      this.dispatch(cmd.type, cmd);
+    for (let event of addEvents) {
+      this.bus.trigger(event.type, event);
     }
   }
   // ---------------------------------------------------------------------------
@@ -956,7 +983,7 @@ export class CorePlugin extends BasePlugin {
       if (!name) {
         return;
       }
-      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
+      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name }); //TODO This should be done in an UI plugin
       const sheetName = this.getSheetName(sheetId);
       if (result.status === "CANCELLED" && sheetName !== name) {
         this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
@@ -1009,7 +1036,7 @@ export class CorePlugin extends BasePlugin {
 
   private interactiveDeleteSheet(sheetId: UID) {
     this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
-      this.dispatch("DELETE_SHEET", { sheetId: sheetId });
+      this.bus.trigger("sheet-deleted", { sheetId });
     });
   }
 
@@ -1053,7 +1080,7 @@ export class CorePlugin extends BasePlugin {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);
           if (xc in cells) {
-            this.dispatch("UPDATE_CELL", {
+            this.bus.trigger("cell-updated", {
               sheetId: sheetId,
               content: "",
               col,
@@ -1301,7 +1328,7 @@ export class CorePlugin extends BasePlugin {
             .join("");
           if (content !== cell.content) {
             const [col, row] = toCartesian(xc);
-            this.dispatch("UPDATE_CELL", {
+            this.bus.trigger("cell-updated", {
               sheetId: sheet.id,
               col,
               row,

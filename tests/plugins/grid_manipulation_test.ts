@@ -952,7 +952,8 @@ describe("Rows", () => {
         B3: { border: 1 },
         C1: { style: 1, border: 1 },
         C3: { style: 1, border: 1 },
-        D2: { style: 1, border: 1 },
+        // D2: { style: 1, border: 1 }, // @compatibility google spreadsheet
+        D2: { style: 1 },
       });
     });
 
