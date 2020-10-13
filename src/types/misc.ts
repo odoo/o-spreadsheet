@@ -112,3 +112,7 @@ export const enum DIRECTION {
   LEFT,
   RIGHT,
 }
+
+export interface NetworkConfig {
+  sendCommand: (type: string, payload?: any) => void;
+}

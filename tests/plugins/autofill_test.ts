@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { AutofillPlugin } from "../../src/plugins/autofill";
+import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { ConditionalFormat } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
@@ -57,7 +57,7 @@ function setValue(xc: string, text: string) {
 
 beforeEach(() => {
   model = new Model();
-  autoFill = model["handlers"].find(
+  autoFill = model["commandHandlers"].find(
     (handler) => handler instanceof AutofillPlugin
   )! as AutofillPlugin;
 });

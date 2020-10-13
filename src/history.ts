@@ -1,4 +1,13 @@
-import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
+import { uuidv4 } from "./helpers";
+import {
+  Command,
+  CommandHandler,
+  CommandResult,
+  CancelledReason,
+  EventHandler,
+  UID,
+  CommandDispatcher,
+} from "./types/index";
 
 /**
  * History Management System
@@ -14,7 +23,11 @@ interface HistoryChange {
   after: any;
 }
 
-type Step = HistoryChange[];
+interface Step {
+  changes: HistoryChange[];
+  id: UID;
+  command: Command;
+}
 
 /**
  * Max Number of history steps kept in memory
@@ -25,10 +38,12 @@ export interface WorkbookHistory {
   update(path: (string | number)[], val: any): void;
 }
 
-export class WHistory implements CommandHandler {
+export class WHistory implements CommandHandler, EventHandler {
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];
+
+  constructor(private dispatch: CommandDispatcher["dispatch"]) {}
 
   // getters
   canUndo(): boolean {
@@ -54,8 +69,13 @@ export class WHistory implements CommandHandler {
   }
 
   beforeHandle(cmd: Command) {
-    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO") {
-      this.current = [];
+    if (
+      !this.current &&
+      cmd.type !== "REDO" &&
+      cmd.type !== "UNDO" &&
+      cmd.type !== "SELECTIVE_UNDO"
+    ) {
+      this.current = { changes: [], id: uuidv4(), command: cmd };
     }
   }
 
@@ -64,19 +84,97 @@ export class WHistory implements CommandHandler {
       case "UNDO":
         this.undo();
         break;
+      case "SELECTIVE_UNDO":
+        this.selectiveUndo(cmd.id);
+        break;
       case "REDO":
         this.redo();
         break;
     }
   }
 
+  handleEvent() {}
+
   finalize() {
-    if (this.current && this.current.length) {
+    if (this.current && this.current.changes.length) {
       this.undoStack.push(this.current);
       this.redoStack = [];
-      this.current = null;
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
+      }
+    }
+    this.current = null;
+  }
+
+  getInverse(cmd: Command): Command {
+    if (cmd.type === "ADD_COLUMNS") {
+      const columns: number[] = [];
+      let start = cmd.column;
+      if (cmd.position === "after") {
+        start++;
+      }
+      for (let i = 0; i < cmd.quantity; i++) {
+        columns.push(i + start);
+      }
+      return {
+        type: "REMOVE_COLUMNS",
+        columns,
+        sheetId: cmd.sheetId,
+      };
+    }
+    return cmd;
+  }
+
+  transform(toTransform: Command, executed: Command): Command[] {
+    if (toTransform.type === "UPDATE_CELL") {
+      if (executed.type === "REMOVE_COLUMNS") {
+        if (toTransform.sheetId !== executed.sheetId) {
+          return [toTransform];
+        }
+        let col = toTransform.col;
+        if (executed.columns.includes(col)) {
+          return [];
+        }
+        for (let removedColumn of executed.columns) {
+          if (col >= removedColumn) {
+            col--;
+          }
+        }
+        return [Object.assign({}, toTransform, { col })];
+      }
+    }
+    return [toTransform];
+  }
+
+  selectiveUndo(id: UID) {
+    const index = this.undoStack.findIndex((step) => step.id === id);
+    if (index === -1) {
+      throw new Error(`No selective undo with id ${id}`);
+    }
+    const toRedo: Step[] = this.undoStack.slice(index + 1);
+
+    for (let x of toRedo.reverse()) {
+      for (let i = x.changes.length - 1; i >= 0; i--) {
+        let change = x.changes[i];
+        this.applyChange(change, "before");
+      }
+    }
+    toRedo.reverse();
+
+    this.undoStack = this.undoStack.slice(0, index + 1);
+    const step = this.undoStack.pop();
+    if (!step) {
+      return;
+    }
+    const executed = this.getInverse(step.command);
+    for (let i = step.changes.length - 1; i >= 0; i--) {
+      let change = step.changes[i];
+      this.applyChange(change, "before");
+    }
+    for (let step of toRedo) {
+      const commands = this.transform(step.command, executed);
+      for (let cmd of commands) {
+        this.dispatch(cmd.type, cmd);
       }
     }
   }
@@ -87,8 +185,8 @@ export class WHistory implements CommandHandler {
       return;
     }
     this.redoStack.push(step);
-    for (let i = step.length - 1; i >= 0; i--) {
-      let change = step[i];
+    for (let i = step.changes.length - 1; i >= 0; i--) {
+      let change = step.changes[i];
       this.applyChange(change, "before");
     }
   }
@@ -99,7 +197,7 @@ export class WHistory implements CommandHandler {
       return;
     }
     this.undoStack.push(step);
-    for (let change of step) {
+    for (let change of step.changes) {
       this.applyChange(change, "after");
     }
   }
@@ -127,7 +225,7 @@ export class WHistory implements CommandHandler {
       return;
     }
     if (this.current) {
-      this.current.push({
+      this.current.changes.push({
         root,
         path,
         before: value[key],

@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { waitForRecompute, getCell } from "../helpers";
-import { LOADING } from "../../src/plugins/evaluation";
+import { LOADING } from "../../src/plugins/base/evaluation";
 
 describe("core", () => {
   test("properly compute sum of current cells", () => {

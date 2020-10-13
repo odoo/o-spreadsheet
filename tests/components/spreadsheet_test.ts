@@ -3,7 +3,7 @@ import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { makeTestFixture, nextTick, MockClipboard } from "../helpers";
 import { Model } from "../../src";
-import { SelectionMode } from "../../src/plugins/selection";
+import { SelectionMode } from "../../src/plugins/ui/selection";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEBUG } from "../../src/helpers";
 

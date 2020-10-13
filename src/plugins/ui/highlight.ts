@@ -1,12 +1,12 @@
-import { BasePlugin } from "../base_plugin";
-import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../types/index";
-import { toZone, getNextColor, isEqual } from "../helpers/index";
-import { Mode } from "../model";
+import { UIPlugin } from "./ui_plugin";
+import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../../types/index";
+import { toZone, getNextColor, isEqual } from "../../helpers/index";
+import { Mode } from "../../model";
 
 /**
  * HighlightPlugin
  */
-export class HighlightPlugin extends BasePlugin {
+export class HighlightPlugin extends UIPlugin {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"];

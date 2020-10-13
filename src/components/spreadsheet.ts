@@ -5,7 +5,10 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { SelectionMode } from "../plugins/selection";
+import { SelectionMode } from "../plugins/ui/selection";
+import { SOCT4 } from "../soct4";
+import { NetworkCommand, OTMessage, OTResponse } from "../types";
+import { OtClient } from "../ot_client";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -56,6 +59,8 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
+  sendCommand?: (networkCommand: NetworkCommand) => void;
+  getTicket?: () => Promise<number>;
 }
 
 const t = (s: string): string => s;
@@ -74,7 +79,14 @@ export class Spreadsheet extends Component<Props> {
       this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
+    network: {
+      sendCommand: (type: string, payload?: any) =>
+        this.trigger("network-command", { type, payload }),
+    },
   });
+
+  soct4: SOCT4;
+  otClient: OtClient;
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
@@ -105,6 +117,34 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+
+    this.soct4 = new SOCT4(this.model, this.broadcast.bind(this), this.getTicket.bind(this));
+    this.otClient = new OtClient(0, this.broadcast.bind(this), this.model);
+    this.model.on("command-dispatched", this, (ev) => {
+      // this.soct4.localExecution(ev.command);
+      this.otClient.localCommand(ev.command);
+    });
+  }
+
+  // sequentialReception(networkCommand: Required<NetworkCommand>) {
+  sequentialReception(message: OTResponse) {
+    // this.soct4.sequentialReception(networkCommand);
+    this.otClient.onReceived(message);
+  }
+
+  // private broadcast(newtworkCommand: NetworkCommand) {
+  private broadcast(message: OTMessage) {
+    // if (this.props.sendCommand !== undefined) {
+    //   this.props.sendCommand(newtworkCommand);
+    // }
+    this.trigger("network-command", { command: message });
+  }
+
+  private async getTicket() {
+    if (this.props.getTicket !== undefined) {
+      return this.props.getTicket();
+    }
+    return -1;
   }
 
   mounted() {

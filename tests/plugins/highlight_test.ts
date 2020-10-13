@@ -1,17 +1,17 @@
 import { Model } from "../../src";
 import "../canvas.mock";
-import { HighlightPlugin } from "../../src/plugins/highlight";
+import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import { toZone } from "../../src/helpers";
 
 let model: Model;
 
 function getPendingHighlights(model: Model): string {
-  const highligthPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
+  const highligthPlugin = (model as any).commandHandlers.find((h) => h instanceof HighlightPlugin);
   return highligthPlugin.pendingHighlights;
 }
 
 function getColor(model: Model): string {
-  const highligthPlugin = (model as any).handlers.find((h) => h instanceof HighlightPlugin);
+  const highligthPlugin = (model as any).commandHandlers.find((h) => h instanceof HighlightPlugin);
   return highligthPlugin.color;
 }
 

@@ -9,12 +9,14 @@
  */
 
 export * from "./autofill";
+export * from "./chart";
 export * from "./commands";
+export * from "./conditional_formatting";
 export * from "./env";
+export * from "./events";
 export * from "./functions";
 export * from "./getters";
+export * from "./history";
 export * from "./misc";
-export * from "./conditional_formatting";
 export * from "./rendering";
 export * from "./workbook_data";
-export * from "./chart";

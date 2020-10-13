@@ -48,7 +48,8 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   }
 
   get containerStyle(): string {
-    const style = this.getters.getCurrentStyle();
+    const cell = this.getters.getActiveCell();
+    const style = cell ? this.getters.getCurrentStyle(cell) : {};
     const [x, y, , height] = this.rect;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
@@ -61,10 +62,11 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   }
 
   get composerStyle(): string {
-    const style = this.getters.getCurrentStyle();
-    const cell = this.getters.getActiveCell() || { type: "text" };
+    const cell = this.getters.getActiveCell();
+    const style = cell ? this.getters.getCurrentStyle(cell) : {};
+    const type = cell ? cell.type : "text";
     const height = this.rect[3] - COMPOSER_BORDER_WIDTH * 2 + 1;
-    const align = "align" in style ? style.align : cell.type === "number" ? "right" : "left";
+    const align = "align" in style ? style.align : type === "number" ? "right" : "left";
     return `text-align:${align};
         height: ${height}px;
         line-height:${height}px;`;

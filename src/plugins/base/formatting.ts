@@ -1,8 +1,8 @@
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
-import { fontSizeMap } from "../fonts";
-import { stringify, toCartesian, toXC, maximumDecimalPlaces } from "../helpers/index";
-import { Border, BorderCommand, Cell, Command, Style, WorkbookData, Zone } from "../types/index";
-import { BasePlugin } from "../base_plugin";
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../../constants";
+import { fontSizeMap } from "../../fonts";
+import { stringify, toCartesian, toXC, maximumDecimalPlaces } from "../../helpers/index";
+import { Border, BorderCommand, Cell, Command, Style, WorkbookData, Zone } from "../../types/index";
+import { BasePlugin } from "./base_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers
@@ -136,9 +136,8 @@ export class FormattingPlugin extends BasePlugin {
     return cell.border ? this.borders[cell.border] : null;
   }
 
-  getCurrentStyle(): Style {
-    const cell = this.getters.getActiveCell();
-    return cell && cell.style ? this.styles[cell.style] : {};
+  getCurrentStyle(cell: Cell): Style {
+    return cell.style ? this.styles[cell.style] : {};
   }
 
   // ---------------------------------------------------------------------------
@@ -160,7 +159,7 @@ export class FormattingPlugin extends BasePlugin {
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
-    this.dispatch("UPDATE_CELL", {
+    this.dispatchEvent("CELL_UPDATED_EVENT", {
       sheetId: this.getters.getActiveSheetId(),
       col,
       row,

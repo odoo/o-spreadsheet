@@ -1,8 +1,8 @@
-import { BasePlugin } from "../base_plugin";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { compile, rangeTokenize } from "../formulas/index";
-import { cellReference } from "../formulas/parser";
-import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
+import { BasePlugin } from "./base_plugin";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { compile, rangeTokenize } from "../../formulas/index";
+import { cellReference } from "../../formulas/parser";
+import { formatDateTime, InternalDate, parseDateTime } from "../../functions/dates";
 import {
   formatNumber,
   formatStandardNumber,
@@ -15,8 +15,8 @@ import {
   toZone,
   mapCellsInZone,
   getComposerSheetName,
-} from "../helpers/index";
-import { _lt } from "../translation";
+} from "../../helpers/index";
+import { _lt } from "../../translation";
 import {
   CancelledReason,
   Cell,
@@ -24,6 +24,7 @@ import {
   Col,
   Command,
   CommandResult,
+  Event,
   HeaderData,
   Row,
   Sheet,
@@ -32,7 +33,7 @@ import {
   Zone,
   RenameSheetCommand,
   UID,
-} from "../types/index";
+} from "../../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -79,6 +80,20 @@ export class CorePlugin extends BasePlugin {
   // the main command.
   private historizeActiveSheet: boolean = true;
 
+  // ---------------------------------------------------------------------------
+  // Event Handling
+  // ---------------------------------------------------------------------------
+
+  handleEvent(event: Event) {
+    switch (event.type) {
+      case "CELL_UPDATED_EVENT":
+        this.updateCell(event.sheetId, event.col, event.row, event);
+        break;
+      case "SHEET_MOVED_EVENT":
+        this.moveSheet(event.sheetId, event.direction);
+        break;
+    }
+  }
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -146,9 +161,12 @@ export class CorePlugin extends BasePlugin {
             sheetIdTo: sheet,
           });
         }
+        this.dispatchEvent("SHEET_CREATED_EVENT", {
+          sheetId: cmd.sheetId,
+        });
         break;
       case "MOVE_SHEET":
-        this.moveSheet(cmd.sheetId, cmd.direction);
+        this.dispatchEvent("SHEET_MOVED_EVENT", cmd);
         break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
@@ -171,7 +189,7 @@ export class CorePlugin extends BasePlugin {
         break;
       case "SET_VALUE":
         const [col, row] = toCartesian(cmd.xc);
-        this.dispatch("UPDATE_CELL", {
+        this.dispatchEvent("CELL_UPDATED_EVENT", {
           sheetId: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheetId(),
           col,
           row,
@@ -179,10 +197,10 @@ export class CorePlugin extends BasePlugin {
         });
         break;
       case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
+        this.dispatchEvent("CELL_UPDATED_EVENT", cmd);
         break;
       case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
+        this.dispatchEvent("CELL_UPDATED_EVENT", {
           sheetId: cmd.sheetId,
           col: cmd.col,
           row: cmd.row,
@@ -583,7 +601,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => cell.col !== base || step !== -1,
       (cell) => {
         return {
-          type: "UPDATE_CELL",
+          type: "CELL_UPDATED_EVENT",
           sheetId: sheetId,
           col: cell.col + step,
           row: cell.row,
@@ -614,7 +632,7 @@ export class CorePlugin extends BasePlugin {
       ({ row }) => row > deleteToRow,
       (cell) => {
         return {
-          type: "UPDATE_CELL",
+          type: "CELL_UPDATED_EVENT",
           sheetId,
           col: cell.col,
           row: cell.row - (deleteToRow - deleteFromRow + 1),
@@ -634,7 +652,7 @@ export class CorePlugin extends BasePlugin {
       (cell) => cell.row !== base || step !== -1,
       (cell) => {
         return {
-          type: "UPDATE_CELL",
+          type: "CELL_UPDATED_EVENT",
           sheetId: sheetId,
           col: cell.col,
           row: cell.row + step,
@@ -776,11 +794,11 @@ export class CorePlugin extends BasePlugin {
   private processCellsToMove(
     shouldDelete: (cell: Cell) => boolean,
     shouldAdd: (cell: Cell) => boolean,
-    buildCellToAdd: (cell: Cell) => Command,
+    buildCellToAdd: (cell: Cell) => Event,
     sheetId: UID
   ) {
     const deleteCommands: Command[] = [];
-    const addCommands: Command[] = [];
+    const addEvents: Event[] = [];
 
     const sheet = this.sheets[sheetId];
 
@@ -795,15 +813,15 @@ export class CorePlugin extends BasePlugin {
           row,
         });
         if (shouldAdd(cell)) {
-          addCommands.push(buildCellToAdd(cell));
+          addEvents.push(buildCellToAdd(cell));
         }
       }
     }
     for (let cmd of deleteCommands) {
       this.dispatch(cmd.type, cmd);
     }
-    for (let cmd of addCommands) {
-      this.dispatch(cmd.type, cmd);
+    for (let event of addEvents) {
+      this.dispatchEvent(event.type, event);
     }
   }
   // ---------------------------------------------------------------------------
@@ -1053,7 +1071,7 @@ export class CorePlugin extends BasePlugin {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const xc = toXC(col, row);
           if (xc in cells) {
-            this.dispatch("UPDATE_CELL", {
+            this.dispatchEvent("CELL_UPDATED_EVENT", {
               sheetId: sheetId,
               content: "",
               col,
@@ -1301,7 +1319,7 @@ export class CorePlugin extends BasePlugin {
             .join("");
           if (content !== cell.content) {
             const [col, row] = toCartesian(xc);
-            this.dispatch("UPDATE_CELL", {
+            this.dispatchEvent("CELL_UPDATED_EVENT", {
               sheetId: sheet.id,
               col,
               row,

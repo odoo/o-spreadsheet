@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { Command, WorkbookData, Figure, Viewport } from "../types/index";
-import { uuidv4 } from "../helpers/index";
+import { BasePlugin } from "./base_plugin";
+import { Command, WorkbookData, Figure, Viewport } from "../../types/index";
+import { uuidv4 } from "../../helpers/index";
 
 export class FigurePlugin extends BasePlugin {
   static getters = ["getFigures", "getSelectedFigureId", "getFigure"];

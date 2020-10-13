@@ -1,5 +1,5 @@
-import { BasePlugin } from "../base_plugin";
-import { Mode } from "../model";
+import { UIPlugin } from "./ui_plugin";
+import { Mode } from "../../model";
 import {
   AutofillModifier,
   Cell,
@@ -14,9 +14,9 @@ import {
   Tooltip,
   GeneratorCell,
   AutofillResult,
-} from "../types/index";
-import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
+} from "../../types/index";
+import { union, toCartesian, toXC, isInside, clip } from "../../helpers/index";
+import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 
 /**
  * This plugin manage the autofill.
@@ -81,7 +81,7 @@ class AutofillGenerator {
  * Autofill Plugin
  *
  */
-export class AutofillPlugin extends BasePlugin {
+export class AutofillPlugin extends UIPlugin {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
   static modes: Mode[] = ["normal", "readonly"];

@@ -1,10 +1,47 @@
-import { MAX_HISTORY_STEPS } from "../../src/history";
+import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell, waitForRecompute } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
+
+describe.only("Selective undo-redo", () => {
+  let model: Model;
+  let history: WHistory;
+
+  beforeEach(() => {
+    model = new Model();
+    history = model["commandHandlers"].find((p) => p instanceof WHistory)! as WHistory;
+  });
+
+  test("Basic selective undo", () => {
+    model.dispatch("SET_VALUE", { xc: "A1", text: "A1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "A2" });
+    const steps = history["undoStack"];
+    expect(steps).toHaveLength(2);
+    const id = steps[0].id;
+    model.dispatch("SELECTIVE_UNDO", { id });
+    // expect(history["undoStack"]).toHaveLength(1);
+    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A2")).toBeDefined();
+    expect(getCell(model, "A2")!.content).toBe("A2");
+  });
+
+  test("Selective undo with OT", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_COLUMNS", { sheetId, column: 0, quantity: 1, position: "after" });
+    model.dispatch("UPDATE_CELL", { col: 4, row: 0, sheetId, content: "test" });
+    const steps = history["undoStack"];
+    expect(steps).toHaveLength(2);
+    const id = steps[0].id;
+    model.dispatch("SELECTIVE_UNDO", { id });
+    // expect(history["undoStack"]).toHaveLength(1);
+    expect(getCell(model, "E1")).toBeNull();
+    expect(getCell(model, "D1")).toBeDefined();
+    expect(getCell(model, "D1")!.content).toBe("test");
+  });
+});
 
 describe("history", () => {
   test("can undo and redo two consecutive operations", () => {

@@ -1,4 +1,3 @@
-import { BasePlugin } from "../base_plugin";
 import {
   colorNumberString,
   toXC,
@@ -9,18 +8,20 @@ import {
   updateRemoveRows,
   isInside,
   recomputeZones,
-} from "../helpers/index";
+} from "../../helpers/index";
 import {
   Cell,
   CellIsRule,
   ColorScaleRule,
   Command,
   ConditionalFormat,
+  Event,
   Style,
   WorkbookData,
   Zone,
-} from "../types/index";
-import { _lt } from "../translation";
+} from "../../types/index";
+import { _lt } from "../../translation";
+import { BasePlugin } from "./base_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -39,17 +40,21 @@ export class ConditionalFormatPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  handleEvent(ev: Event) {
+    switch (ev.type) {
+      case "SHEET_CREATED_EVENT":
+        this.cfRules[ev.sheetId] = [];
+        this.computeStyles[ev.sheetId] = {};
+        this.isStale = true;
+        break;
+      case "CELL_UPDATED_EVENT":
+        this.isStale = true;
+        break;
+    }
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        const activeSheet = cmd.sheetIdTo;
-        this.computedStyles[activeSheet] = this.computedStyles[activeSheet] || {};
-        this.isStale = true;
-        break;
-      case "CREATE_SHEET":
-        this.cfRules[cmd.sheetId] = [];
-        this.isStale = true;
-        break;
       case "DUPLICATE_SHEET":
         this.history.update(["cfRules", cmd.sheetIdTo], this.cfRules[cmd.sheetIdFrom].slice());
         this.isStale = true;
@@ -100,8 +105,8 @@ export class ConditionalFormatPlugin extends BasePlugin {
           this.pasteCf(cmd.originCol, cmd.originRow, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
         }
         break;
+      case "ACTIVATE_SHEET":
       case "EVALUATE_CELLS":
-      case "UPDATE_CELL":
       case "UNDO":
       case "REDO":
         this.isStale = true;

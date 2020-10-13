@@ -1,11 +1,11 @@
 import { Model } from "../../src/model";
 import { CancelledReason, Zone, ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
-import { ClipboardPlugin } from "../../src/plugins/clipboard";
+import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { getCell, getGrid, target, zone } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
-  const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
+  const clipboardPlugin = (model as any).commandHandlers.find((h) => h instanceof ClipboardPlugin);
   return clipboardPlugin.status === "visible" ? clipboardPlugin.zones : [];
 }
 

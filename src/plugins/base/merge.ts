@@ -1,21 +1,22 @@
-import { BasePlugin } from "../base_plugin";
 import {
   updateAddColumns,
   updateAddRows,
   updateRemoveColumns,
   updateRemoveRows,
-} from "../helpers/grid_manipulation";
-import { isEqual, toCartesian, toXC, union, overlap, clip } from "../helpers/index";
-import { _lt } from "../translation";
+} from "../../helpers/grid_manipulation";
+import { isEqual, toCartesian, toXC, union, overlap, clip } from "../../helpers/index";
+import { _lt } from "../../translation";
 import {
   CancelledReason,
   Command,
   CommandResult,
+  Event,
   Merge,
   UID,
   WorkbookData,
   Zone,
-} from "../types/index";
+} from "../../types/index";
+import { BasePlugin } from "./base_plugin";
 
 interface PendingMerges {
   sheet: string;
@@ -47,8 +48,6 @@ export class MergePlugin extends BasePlugin {
     const force = "force" in cmd ? !!cmd.force : false;
 
     switch (cmd.type) {
-      case "PASTE":
-        return this.isPasteAllowed(cmd.target, force);
       case "ADD_MERGE":
         return this.isMergeAllowed(cmd.zone, force);
       default:
@@ -91,12 +90,17 @@ export class MergePlugin extends BasePlugin {
     }
   }
 
+  handleEvent(ev: Event) {
+    switch (ev.type) {
+      case "SHEET_CREATED_EVENT":
+        this.history.update(["merges", ev.sheetId], {});
+        this.history.update(["mergeCellMap", ev.sheetId], {});
+        break;
+    }
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update(["merges", cmd.sheetId], {});
-        this.history.update(["mergeCellMap", cmd.sheetId], {});
-        break;
       case "DELETE_SHEET":
         this.history.update(["merges", cmd.sheetId], {});
         this.history.update(["mergeCellMap", cmd.sheetId], {});
@@ -480,27 +484,6 @@ export class MergePlugin extends BasePlugin {
         format: topLeft.format,
       });
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Copy/Cut/Paste and Merge
-  // ---------------------------------------------------------------------------
-
-  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
-    if (!force) {
-      const pasteZones = this.getters.getPasteZones(target);
-      for (let zone of pasteZones) {
-        if (this.doesIntersectMerge(zone)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.WillRemoveExistingMerge,
-          };
-        }
-      }
-    }
-    return {
-      status: "SUCCESS",
-    };
   }
 
   // ---------------------------------------------------------------------------
