@@ -14,6 +14,7 @@ import {
   Cell,
   CellIsRule,
   ColorScaleRule,
+  ColorScaleThreshold,
   Command,
   ConditionalFormat,
   Style,
@@ -21,6 +22,7 @@ import {
   Zone,
 } from "../types/index";
 import { _lt } from "../translation";
+import { clip } from "../helpers/misc";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -215,48 +217,55 @@ export class ConditionalFormatPlugin extends BasePlugin {
 
   /**
    * Execute the complete color scale for the range of the conditional format for a 2 colors rule
+   *
+   * Example of execution :
+   * - minValue = 10; maxValue = 50
+   * - deltaValue = 40
+   * - rule.minimum.color = #ff0000; rule.maximum.color = #99ff00
+   * - deltaColor = [0xff - 0x99, 0x00 - 0xff, 0x00 - 0x00]
+   * - colorDiffUnit = [(0xff - 0x99) / 40, (0x00 - 0xff) / 40, (0x00 - 0x00) / 40] -> color/value
    */
   private applyColorScale(range: string, rule: ColorScaleRule): void {
     // what happens when multi-range ? the function is called multiple times ? (min value should be calculated once)
-    
-    let minValue: number;
-    if(rule.minimum.type == "value") {
-      minValue = Number(this.getters.evaluateFormula(`=min(${range})`));
-      if(Number.isNaN(minValue)) {
-        return;
-      }
-    } else if (rule.minimum.type == "number") {
-      minValue = rule.minimum.value!;
-    } else {
-      return;
-    }
-    
-    let maxValue: number;
-    if(rule.maximum.type == "value") {
-      maxValue = Number(this.getters.evaluateFormula(`=max(${range})`));
-      if(Number.isNaN(maxValue)) {
-        return;
-      }
-    } else if (rule.maximum.type == "number") {
-      maxValue = rule.maximum.value!;
-    } else {
-      return;
-    }
+    // TODO: .value is received as a string
+    const self = this;
+    function parsePoint(thres:ColorScaleThreshold, functionName:"min"|"max") {
+      if(!(functionName == "min" || functionName == "max"))
+        throw Error("AssertionError");
 
-    // example: minValue = 10; maxValue = 50;
+      if(thres.type == "value") {
+        let ret = Number(self.getters.evaluateFormula(`=${functionName}(${range})`));
+        if (Number.isNaN(ret))
+          throw Error("NaN");
+        return ret;
+      }
+      else if(thres.type == "number") {
+        if(thres.value == undefined)
+          throw Error();
+        return thres.value!;
+      }
+      else {
+        throw Error("Not Implemented");
+      }
+    }
+    
+    let minValue: number, maxValue:number;
+    try {
+      minValue = parsePoint(rule.minimum, "min");
+      maxValue = parsePoint(rule.maximum, "max");
+    } catch(e) {
+      return; // silently returns, the CF is wrongly formatted
+    }
 
     const deltaValue = maxValue - minValue;
-    // example : deltaValue = 40
     if (!deltaValue) {
       return;
     }
-    // example: rule.minimum.color = #ff0000; rule.maximum.color = #99ff00
-    // deltaColor = [0xff - 0x99, 0x00 - 0xff, 0x00 - 0x00]
+
     const deltaColorR = ((rule.minimum.color >> 16) % 256) - ((rule.maximum.color >> 16) % 256);
     const deltaColorG = ((rule.minimum.color >> 8) % 256) - ((rule.maximum.color >> 8) % 256);
     const deltaColorB = (rule.minimum.color % 256) - (rule.maximum.color % 256);
 
-    // example: colorDiffUnit = [(0xff - 0x99) / 40, (0x00 - 0xff) / 40, (0x00 - 0x00) / 40] -> color/value
     const colorDiffUnitR = deltaColorR / deltaValue;
     const colorDiffUnitG = deltaColorG / deltaValue;
     const colorDiffUnitB = deltaColorB / deltaValue;
@@ -267,7 +276,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getCell(col, row);
         if (cell && !Number.isNaN(Number.parseFloat(cell.value))) {
-          let value = Math.min(Math.max(cell.value, minValue), maxValue);
+          let value = clip(cell.value, minValue, maxValue);
           const r = Math.round(
             ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (value - minValue)
           );
