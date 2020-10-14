@@ -1,10 +1,12 @@
 import * as owl from "@odoo/owl";
 import { SpreadsheetEnv } from "../types";
 import { uuidv4 } from "../helpers/index";
+import { useGridClickEvent } from "./grid";
 
 const { Component } = owl;
 
 const { xml, css } = owl.tags;
+const { useExternalListener } = owl.hooks;
 
 const TEMPLATE = xml/* xml */ `
   <div class="o-selection">
@@ -94,6 +96,14 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
 
+  constructor() {
+    super(...arguments);
+    useExternalListener(document.body, "mousedown", () => this.focus(null));
+    useGridClickEvent(this, {
+      mousedown: (ev) => this.onGridMouseDown(ev),
+    });
+  }
+
   get ranges() {
     return this.getters.getSelectionInput(this.id);
   }
@@ -156,6 +166,12 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
     });
     target.blur();
     this.triggerChange();
+  }
+
+  onGridMouseDown(ev: MouseEvent) {
+    if (this.hasFocus) {
+      ev.stopPropagation();
+    }
   }
 
   disable() {

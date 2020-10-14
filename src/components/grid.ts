@@ -51,6 +51,24 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 // Error Tooltip Hook
 // -----------------------------------------------------------------------------
 
+const gridClickEventBus = new owl.core.EventBus();
+
+/**
+ * Allows to attach external event listeners when the grid triggers
+ * a mouse event
+ * (only mousedown for this POC)
+ */
+export function useGridClickEvent(owner, handlers: { [event: string]: (ev: MouseEvent) => void }) {
+  for (let [eventType, handler] of Object.entries(handlers)) {
+    gridClickEventBus.on(eventType, owner, handler);
+  }
+  onWillUnmount(() => {
+    for (let eventType of Object.keys(handlers)) {
+      gridClickEventBus.off(eventType, owner);
+    }
+  });
+}
+
 interface ErrorTooltip {
   isOpen: boolean;
   text: string;
@@ -459,6 +477,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
+    gridClickEventBus.trigger(ev.type, ev);
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
