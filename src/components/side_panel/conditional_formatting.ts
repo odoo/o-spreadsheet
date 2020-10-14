@@ -281,7 +281,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       const fontStyle = cellRule.style.italic ? "italic" : "normal";
       const color = cellRule.style.textColor || "none";
       const backgroundColor = cellRule.style.fillColor || "none";
-      return `font-weight:${fontWeight}
+      return `font-weight:${fontWeight};
                text-decoration:${fontDecoration};
                font-style:${fontStyle};
                color:${color};
