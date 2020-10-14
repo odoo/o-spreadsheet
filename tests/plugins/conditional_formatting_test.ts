@@ -990,6 +990,21 @@ describe("UI of conditional formats", () => {
     });
   });
 
+  test("the preview should be bold when the rule is bold", async () => {
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["C1:C5"], "2", { bold: true, fillColor: "#ff0000" }, "99"),
+      sheet: model.getters.getActiveSheet(),
+    });
+
+    await nextTick();
+
+    let previews = document.querySelectorAll(selectors.listPreview);
+    let line = previews[2].querySelector(selectors.previewImage);
+    expect(line!.getAttribute("style")).toMatch("font-weight:bold;");
+  });
+
   test("can edit an existing ColorScaleRule", async () => {
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
