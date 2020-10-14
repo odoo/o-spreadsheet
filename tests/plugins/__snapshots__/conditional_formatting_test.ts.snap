@@ -33,7 +33,7 @@ exports[`UI of conditional formats simple snapshot 1`] = `
           >
             <div
               class="o-cf-preview-image"
-              style="font-weight:normal
+              style="font-weight:normal;
                text-decoration:none;
                font-style:normal;
                color:none;
