@@ -423,7 +423,7 @@ export class RendererPlugin extends BasePlugin {
     const cells = this.getters.getCells();
     const xc = toXC(col, row);
     const cell = cells[xc];
-    return (cell && cell.content) || (this.getters.isInMerge(xc) as any);
+    return !!cell || (this.getters.isInMerge(xc) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {

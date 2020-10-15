@@ -376,14 +376,12 @@ export class ClipboardPlugin extends BasePlugin {
       this.dispatch("UPDATE_CELL", newCell);
     } else if (targetCell) {
       if (onlyValue) {
-        if (targetCell.content) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId: sheetId,
-            col,
-            row,
-            content: "",
-          });
-        }
+        this.dispatch("UPDATE_CELL", {
+          sheetId: sheetId,
+          col,
+          row,
+          content: "",
+        });
       } else if (onlyFormat) {
         this.dispatch("UPDATE_CELL", {
           sheetId: sheetId,

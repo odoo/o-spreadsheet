@@ -342,7 +342,7 @@ export class AutofillPlugin extends BasePlugin {
     const cells = cellsData.map((cellData) => cellData.cell);
     for (let cellData of cellsData) {
       let rule: AutofillModifier | undefined;
-      if (cellData && cellData.cell && cellData.cell.content) {
+      if (cellData && cellData.cell) {
         rule = this.getRule(cellData.cell, cells);
       } else {
         rule = { type: "COPY_MODIFIER" };
