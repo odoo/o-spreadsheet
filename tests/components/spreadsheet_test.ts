@@ -181,4 +181,32 @@ describe("Spreadsheet", () => {
     parent["spreadsheet"].comp.destroy();
     expect(Object.keys(DEBUG)).toHaveLength(0);
   });
+
+  test("can open/close search with ctrl+h", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
+    );
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    await nextTick();
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
+    );
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+  });
+
+  test("can open/close search with ctrl+f", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
+    );
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    await nextTick();
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "F", ctrlKey: true, bubbles: true })
+    );
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+  });
 });

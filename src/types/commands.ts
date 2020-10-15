@@ -2,6 +2,7 @@ import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } 
 import { Cell, UID } from "./misc";
 import { Figure } from "./workbook_data";
 import { ComposerSelection } from "../plugins/edition";
+import { SearchOptions, ReplaceOptions } from "../plugins/find_and_replace";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -602,6 +603,38 @@ export interface UpdateChartCommand extends BaseCommand {
   definition: CreateChartDefinition;
 }
 
+export interface UpdateSearchCommand extends BaseCommand {
+  type: "UPDATE_SEARCH";
+  toSearch: string;
+  searchOptions: SearchOptions;
+}
+
+export interface ClearSearchCommand extends BaseCommand {
+  type: "CLEAR_SEARCH";
+}
+export interface RefreshSearchCommand extends BaseCommand {
+  type: "REFRESH_SEARCH";
+}
+
+export interface SelectSearchPreviousCommand extends BaseCommand {
+  type: "SELECT_SEARCH_PREVIOUS_MATCH";
+}
+
+export interface SelectSearchNextCommand extends BaseCommand {
+  type: "SELECT_SEARCH_NEXT_MATCH";
+}
+
+export interface ReplaceSearchCommand extends BaseCommand {
+  type: "REPLACE_SEARCH";
+  replaceWith: string;
+  replaceOptions: ReplaceOptions;
+}
+export interface ReplaceAllSearchCommand extends BaseCommand {
+  type: "REPLACE_ALL_SEARCH";
+  replaceWith: string;
+  replaceOptions: ReplaceOptions;
+}
+
 export type Command =
   | NewInputCommand
   | RemoveInputCommand
@@ -681,7 +714,14 @@ export type Command =
   | SelectFigureCommand
   | UpdateFigureCommand
   | DeleteFigureCommand
-  | UpdateCellPositionCommand;
+  | UpdateCellPositionCommand
+  | UpdateSearchCommand
+  | RefreshSearchCommand
+  | ClearSearchCommand
+  | SelectSearchPreviousCommand
+  | SelectSearchNextCommand
+  | ReplaceSearchCommand
+  | ReplaceAllSearchCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";

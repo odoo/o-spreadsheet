@@ -14,6 +14,7 @@ import { SelectionInputPlugin } from "../plugins/selection_inputs";
 import { FigurePlugin } from "../plugins/figures";
 import { ChartPlugin } from "../plugins/chart";
 import { SheetPlugin } from "../plugins/sheet";
+import { FindAndReplacePlugin } from "../plugins/find_and_replace";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -112,4 +113,7 @@ export interface Getters {
   getFigure: FigurePlugin["getFigure"];
 
   getChartRuntime: ChartPlugin["getChartRuntime"];
+
+  getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
+  getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
 }

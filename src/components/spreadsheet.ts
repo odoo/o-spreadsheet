@@ -87,7 +87,10 @@ export class Spreadsheet extends Component<Props> {
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
   private clipBoardString: string = "";
-
+  private keyDownMapping: { [key: string]: Function } = {
+    "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
+    "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
+  };
   constructor() {
     super(...arguments);
     useSubEnv({
@@ -129,6 +132,7 @@ export class Spreadsheet extends Component<Props> {
   toggleSidePanel(panel: string, panelProps: any) {
     if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
       this.sidePanel.isOpen = false;
+      this.focusGrid();
     } else {
       this.openSidePanel(panel, panelProps);
     }
@@ -189,6 +193,19 @@ export class Spreadsheet extends Component<Props> {
           ? "PREPARE_SELECTION_EXPANSION"
           : "START_SELECTION_EXPANSION"
       );
+    }
+    let keyDownString = "";
+    if (ev.ctrlKey || ev.metaKey) {
+       keyDownString += "CTRL+";
+       }
+    keyDownString += ev.key.toUpperCase();
+
+    let handler = this.keyDownMapping[keyDownString];
+    if (handler) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      handler();
+      return;
     }
   }
 }

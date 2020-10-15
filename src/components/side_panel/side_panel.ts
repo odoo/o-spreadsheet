@@ -68,11 +68,13 @@ const CSS = css/* scss */ `
         height: 30px;
         line-height: 16px;
         background: white;
-        cursor: pointer;
         margin-right: 8px;
-        &:hover {
+        &:hover:enabled {
           background-color: rgba(0, 0, 0, 0.08);
         }
+      }
+      .o-sidePanelButton:enabled {
+        cursor: pointer;
       }
       .o-sidePanelButton:last-child {
         margin-right: 0px;
@@ -98,6 +100,9 @@ const CSS = css/* scss */ `
         font-weight: bold;
         margin-bottom: 5px;
       }
+    }
+    label {
+      display: block;
     }
   }
 `;
