@@ -419,3 +419,7 @@ export const FORMAT_STRIKETHROUGH_ACTION = (env: SpreadsheetEnv) =>
 export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("ConditionalFormatting", { selection: env.getters.getSelectedZones() });
 };
+
+export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
+  env.openSidePanel("FindAndReplace", {});
+};

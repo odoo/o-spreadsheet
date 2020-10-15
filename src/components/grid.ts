@@ -312,6 +312,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     },
     "CTRL+Z": () => this.dispatch("UNDO"),
     "CTRL+Y": () => this.dispatch("REDO"),
+    "CTRL+H": () => this.env.toggleSidePanel("FindAndReplace", {}),
   };
 
   constructor() {

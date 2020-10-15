@@ -59,6 +59,12 @@ topbarMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
+  .addChild("find_and_replace", ["edit"], {
+    name: _lt("Find and replace"),
+    sequence: 65,
+    action: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
+    separator: true,
+  })
   .addChild("edit_delete_cell_values", ["edit"], {
     name: _lt("Delete values"),
     sequence: 70,

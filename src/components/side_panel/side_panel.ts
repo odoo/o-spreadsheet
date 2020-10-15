@@ -99,6 +99,9 @@ const CSS = css/* scss */ `
         margin-bottom: 5px;
       }
     }
+    label {
+      display: block;  
+    }
   }
 `;
 

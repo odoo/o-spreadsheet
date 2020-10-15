@@ -133,7 +133,7 @@ describe("Grid component", () => {
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
 
-    const mockCallback = jest.fn(() => {});
+    const mockCallback = jest.fn(() => { });
     fixture.addEventListener("touchmove", mockCallback);
 
     canvas.dispatchEvent(
@@ -301,6 +301,18 @@ describe("Grid component", () => {
         right: 25,
         bottom: 99,
       });
+    });
+    test("can open/close search with ctrl+h", async () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "H", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
     });
 
     test("can save the sheet with CTRL+S", async () => {
