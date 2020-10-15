@@ -274,7 +274,7 @@ export function preParseFormula(formula: string): FormulaString {
     switch (token.type) {
       case "SYMBOL":
         if (cellReference.test(token.value)) {
-          const value = token.value.trim().toUpperCase();
+          const value = token.value.trim();
           if (!references.includes(value)) {
             references.push(value);
           }

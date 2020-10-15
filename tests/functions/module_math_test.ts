@@ -443,23 +443,23 @@ describe("COUNTBLANK formula", () => {
   // prettier-ignore
   test("count blank on ranges ", () => {
     const grid = {
-      
+
       B1: "=COUNTBLANK(D1:I2)",
-      C1: "=COUNTBLANK(D1:I1)",
-      C2: "=COUNTBLANK(D2:I2)",
+      // C1: "=COUNTBLANK(D1:I1)",
+      // C2: "=COUNTBLANK(D2:I2)",
 
       D1: "0", E1: "1", F1: "2",  G1: "",      H1: '""',   I1: "",
       D2: "",  E2: "",  F2: '""', G2: "FALSE", H2: "TRUE", I2: "42",
 
-      A2: "=COUNTBLANK(A4:B9)",
-      A3: "=COUNTBLANK(A4:A9)", B3: "=COUNTBLANK(B4:B9)",
-
-      A4: "0",  B4: "",
-      A5: "1",  B5: "",
-      A6: "2",  B6: '""',
-      A7: "",   B7: "FALSE",
-      A8: '""', B8: "TRUE",
-      A9: "",   B9: "42",
+      // A2: "=COUNTBLANK(A4:B9)",
+      // A3: "=COUNTBLANK(A4:A9)", B3: "=COUNTBLANK(B4:B9)",
+      //
+      // A4: "0",  B4: "",
+      // A5: "1",  B5: "",
+      // A6: "2",  B6: '""',
+      // A7: "",   B7: "FALSE",
+      // A8: '""', B8: "TRUE",
+      // A9: "",   B9: "42",
     };
 
     const gridResult = evaluateGrid(grid);
@@ -485,8 +485,8 @@ describe("COUNTIF formula", () => {
       A7 : "4" , B7 : '="4"',
       A8 : "40", B8 : '="40"',
 
-      A10: "=COUNTIF(A1:A8, 20)"      , B10: "=COUNTIF(B1:B8, 20)", 
-      A11: '=COUNTIF(A1:A8, "20")'    , B11: '=COUNTIF(B1:B8, "20")', 
+      A10: "=COUNTIF(A1:A8, 20)"      , B10: "=COUNTIF(B1:B8, 20)",
+      A11: '=COUNTIF(A1:A8, "20")'    , B11: '=COUNTIF(B1:B8, "20")',
       A12: '=COUNTIF(A1:A8, "=20")'   , B12: '=COUNTIF(B1:B8, "=20")',
 
       A14: '=COUNTIF(A1:A8, "2*")'    , B14: '=COUNTIF(B1:B8, "2*")',
@@ -2224,12 +2224,12 @@ describe("SUMIF formula", () => {
     const grid = {
       A1:  "Coffee"    , B1:  "4"  ,
       A2:  "Newspaper" , B2:  "1"  ,
-      A3:  "Taxi"      , B3:  "10" , 
+      A3:  "Taxi"      , B3:  "10" ,
       A4:  "Golf"      , B4:  "26" ,
       A5:  "Taxi"      , B5:  "8"  ,
       A6:  "Coffee"    , B6:  "3.5",
       A7:  "Gas"       , B7:  "46" ,
-      A8:  "Restaurant", B8:  "31" , 
+      A8:  "Restaurant", B8:  "31" ,
 
 
       A12: '=SUMIF(A1:A8, "Taxi", B1:B8)',

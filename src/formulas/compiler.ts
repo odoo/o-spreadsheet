@@ -8,6 +8,7 @@ import {
   FormulaString,
   UID,
   KnownReferenceDereferencer,
+  _CompiledFormula,
 } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse, preParseFormula } from "./parser";
 import { _lt } from "../translation";
@@ -52,11 +53,7 @@ export function compileFromCompleteFormula(
   sheets: { [name: string]: UID }
 ) {
   let formulaString: FormulaString = preParseFormula(formula);
-  if (!functionCache[formulaString.text]) {
-    let compiledFormula = compile(formulaString, sheet, sheets);
-    functionCache[formulaString.text] = compiledFormula;
-  }
-  return functionCache[formulaString.text];
+  return compile(formulaString, sheet, sheets);
 }
 
 export function compile(
@@ -275,6 +272,7 @@ export function compile(
     const Constructor = isAsync ? AsyncFunction : Function;
     let baseFunction = new Constructor("cell", "range", "ref", "ctx", code.join("\n"));
     functionCache[str.text] = baseFunction;
+    functionCache[str.text].async = isAsync;
   }
 
   const resultFn = (
@@ -282,7 +280,7 @@ export function compile(
     range: Range,
     ref: KnownReferenceDereferencer,
     ctx: EvalContext
-  ) => {
+  ): _CompiledFormula => {
     ctx.__originCellXC = originCellXC;
 
     const cellFn = (idx) => {

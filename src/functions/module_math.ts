@@ -362,11 +362,12 @@ export const COUNTBLANK: FunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (): number {
-    return reduceArgs(
+    const res = reduceArgs(
       arguments,
       (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc),
       0
     );
+    return res;
   },
 };
 
