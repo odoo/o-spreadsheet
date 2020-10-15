@@ -1,6 +1,7 @@
 import { functionRegistry } from "../functions/index";
 import { formulaNumberRegexp } from "../helpers/index";
 import { _lt } from "../translation";
+import { FORMULA_REF_IDENTIFIER } from "./parser";
 
 /**
  * Tokenizer
@@ -34,6 +35,7 @@ export type TokenType =
   | "COMMA"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
+  | "KNOWN_REFERENCE"
   | "UNKNOWN";
 
 export interface Token {
@@ -45,6 +47,7 @@ export function tokenize(str: string): Token[] {
   const chars = str.split("");
   const result: Token[] = [];
   let tokenCount = 0;
+
   while (chars.length) {
     tokenCount++;
     if (tokenCount > 100) {
@@ -61,6 +64,7 @@ export function tokenize(str: string): Token[] {
       tokenizeNumber(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
+      tokenizeKnownReferences(chars) ||
       tokenizeSymbol(chars);
 
     if (!token) {
@@ -70,6 +74,22 @@ export function tokenize(str: string): Token[] {
     result.push(token);
   }
   return result;
+}
+function tokenizeKnownReferences(chars: string[]): Token | null {
+  if (chars[0] === FORMULA_REF_IDENTIFIER) {
+    chars.shift(); // consume the | even if it is incorrect
+    const match = chars.join("").match(formulaNumberRegexp);
+    if (match) {
+      chars.splice(0, match[0].length);
+    } else {
+      return null;
+    }
+    if (chars[0] === FORMULA_REF_IDENTIFIER) {
+      chars.shift();
+    }
+    return { type: "KNOWN_REFERENCE", value: match[0] };
+  }
+  return null;
 }
 
 function tokenizeDebugger(chars: string[]): Token | null {

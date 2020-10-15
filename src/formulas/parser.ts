@@ -3,7 +3,7 @@ import { functionRegistry } from "../functions/index";
 import { toCartesian, toXC, getUnquotedSheetName, parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
 import { FormulaString } from "../types";
-import { composerTokenize } from "./composer_tokenizer";
+import { rangeTokenize } from "./range_tokenizer";
 
 const functions = functionRegistry.content;
 
@@ -18,6 +18,10 @@ interface ASTBase {
 
 interface ASTNumber extends ASTBase {
   type: "NUMBER";
+  value: number;
+}
+interface ASTKnownReference extends ASTBase {
+  type: "KNOWN_REFERENCE";
   value: number;
 }
 
@@ -76,6 +80,7 @@ export type AST =
   | ASTBoolean
   | ASTString
   | ASTReference
+  | ASTKnownReference
   | ASTUnknown;
 
 export const OP_PRIORITY = {
@@ -157,6 +162,11 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
         return { type, value: current.value, args };
       }
+    case "KNOWN_REFERENCE":
+      return {
+        type: "KNOWN_REFERENCE",
+        value: parseInt(current.value, 10),
+      };
     case "SYMBOL":
       if (cellReference.test(current.value)) {
         if (current.value.includes("!")) {
@@ -251,11 +261,12 @@ export function parse(str: string): AST {
 export const FORMULA_REF_IDENTIFIER = "|";
 
 /**
- * parses a formula (as a string) into the same formula, but with the references to other cells extracted
+ * parses a formula (as a string) into the same formula,
+ * but with the references to other cells extracted
  * @param formula
  */
-export function parseFormula(formula: string): FormulaString {
-  const tokens = composerTokenize(formula);
+export function preParseFormula(formula: string): FormulaString {
+  const tokens = rangeTokenize(formula);
 
   let references: string[] = [];
 
@@ -304,6 +315,8 @@ export function astToFormula(ast: AST): string {
       return astToFormula(ast.left) + ast.value + astToFormula(ast.right);
     case "REFERENCE":
       return ast.sheet ? `${ast.sheet}!${ast.value}` : ast.value;
+    case "KNOWN_REFERENCE":
+      return `${FORMULA_REF_IDENTIFIER}${ast.value}${FORMULA_REF_IDENTIFIER}`;
     default:
       return ast.value;
   }

@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { compile, rangeTokenize, cellReference, parseFormula } from "../formulas/index";
+import { compile, rangeTokenize, cellReference, preParseFormula } from "../formulas/index";
 import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
 import {
   formatNumber,
@@ -876,7 +876,7 @@ export class CorePlugin extends BasePlugin {
       if (cell.type === "formula") {
         cell.error = undefined;
         try {
-          let formulaString: FormulaString = parseFormula(cell.content || "");
+          let formulaString: FormulaString = preParseFormula(cell.content || "");
           let compiledFormula = compile(formulaString, sheetId, this.sheetIds, xc);
           cell.formula = {
             compiledFormula: compiledFormula,

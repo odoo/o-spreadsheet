@@ -12,6 +12,7 @@ import {
   ReadCell,
   Range,
   UID,
+  KnownReferenceDereferencer,
 } from "../types";
 import { _lt } from "../translation";
 import { compileFromCompleteFormula } from "../formulas/index";
@@ -30,7 +31,7 @@ function* makeSetIterator(set: Set<any>) {
 
 const functionMap = functionRegistry.mapping;
 
-type FormulaParameters = [ReadCell, Range, EvalContext];
+type FormulaParameters = [ReadCell, Range, KnownReferenceDereferencer, EvalContext];
 
 export const LOADING = "Loading...";
 
@@ -212,7 +213,7 @@ export class EvaluationPlugin extends BasePlugin {
         cell.value = LOADING;
       } else if (!cell.error) {
         cell.value = "#ERROR";
-        const __lastFnCalled = params[2].__lastFnCalled || "";
+        const __lastFnCalled = params[3].__lastFnCalled || "";
         cell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
       }
     }
@@ -278,7 +279,7 @@ export class EvaluationPlugin extends BasePlugin {
     });
     const sheets = this.getters.getEvaluationSheets();
     const PENDING = this.PENDING;
-    function readCell(xc: string, sheet: string): any {
+    function readCell(xc: string, sheet: UID): any {
       let cell;
       const s = sheets[sheet];
       if (s) {
@@ -322,6 +323,6 @@ export class EvaluationPlugin extends BasePlugin {
       return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
     }
 
-    return [readCell, range, evalContext];
+    return [readCell, range, (id) => {}, evalContext];
   }
 }

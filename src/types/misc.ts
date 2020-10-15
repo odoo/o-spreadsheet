@@ -52,7 +52,16 @@ export interface NewCell {
 
 export type ReadCell = (xc: string, sheet: string) => any;
 export type Range = (v1: string, v2: string, sheetName: string) => any[];
-export type _CompiledFormula = (readCell: ReadCell, range: Range, ctx: {}) => any;
+export type KnownReferenceDereferencer = (
+  knowReferencePosition: number,
+  sheetId: UID
+) => any | any[];
+export type _CompiledFormula = (
+  readCell: ReadCell,
+  range: Range,
+  ref: KnownReferenceDereferencer,
+  ctx: {}
+) => any;
 
 export interface CompiledFormula extends _CompiledFormula {
   async: boolean;
