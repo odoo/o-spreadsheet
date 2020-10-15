@@ -38,7 +38,7 @@ export function enrichTokens(tokens: Token[]): EnrichedToken[] {
 }
 
 /**
- * Remove informations added on EnrichedToken to make a Token
+ * Remove information added on EnrichedToken to make a Token
  */
 function toSimpleTokens(composerTokens: EnrichedToken[]): Token[] {
   return composerTokens.map((x) => {

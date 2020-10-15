@@ -1,17 +1,18 @@
 import { SheetData, WorkbookData } from "./types/index";
 import { uuidv4 } from "./helpers/index";
+import { normalize } from "./formulas/index";
 
 /**
  * This is the current state version number. It should be incremented each time
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 5;
+export const CURRENT_VERSION = 6;
 
 /**
  * This function tries to load anything that could look like a valid
- * workbookdata object. It applies any migrations, if needed, and return a
- * current, complete workbookdata object.
+ * workbookData object. It applies any migrations, if needed, and return a
+ * current, complete workbookData object.
  *
  * It also ensures that there is at least one sheet.
  */
@@ -50,6 +51,7 @@ interface Migration {
   from: number;
   to: number;
   applyMigration(data: any): any;
+  description: string;
 }
 
 function migrate(data: any): WorkbookData {
@@ -62,7 +64,7 @@ function migrate(data: any): WorkbookData {
 
 const MIGRATIONS: Migration[] = [
   {
-    // add the `activeSheet` field on data
+    description: "add the `activeSheet` field on data",
     from: 1,
     to: 2,
     applyMigration(data: any): any {
@@ -73,7 +75,7 @@ const MIGRATIONS: Migration[] = [
     },
   },
   {
-    // add an id field in each sheet
+    description: "add an id field in each sheet",
     from: 2,
     to: 3,
     applyMigration(data: any): any {
@@ -86,7 +88,7 @@ const MIGRATIONS: Migration[] = [
     },
   },
   {
-    // activeSheet is now an id, not the name of a sheet
+    description: "activeSheet is now an id, not the name of a sheet",
     from: 3,
     to: 4,
     applyMigration(data: any): any {
@@ -96,12 +98,29 @@ const MIGRATIONS: Migration[] = [
     },
   },
   {
-    // add figures object in each sheets
+    description: "add figures object in each sheets",
     from: 4,
     to: 5,
     applyMigration(data: any): any {
       for (let sheet of data.sheets) {
         sheet.figures = sheet.figures || [];
+      }
+      return data;
+    },
+  },
+  {
+    description:
+      "normalize the content of the cell if it is a formula to avoid parsing all the formula that vary only by the cells they use",
+    from: 5,
+    to: 6,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets) {
+        for (let xc in sheet.cells) {
+          const cell = sheet.cells[xc];
+          if (cell.content && cell.content.startsWith("=")) {
+            cell.formula = normalize(cell.content);
+          }
+        }
       }
       return data;
     },

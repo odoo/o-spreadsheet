@@ -1,14 +1,20 @@
-import { compile } from "../../src/formulas";
+import { compile, normalize } from "../../src/formulas/index";
 import { functionCache } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
 import { evaluateCell } from "../helpers";
+import { NormalizedFormula } from "../../src/types";
 
 function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
     delete functionCache[f];
   }
-  compile(formula, "Sheet1", { Sheet1: "1" });
+  compileFromCompleteFormula(formula);
   return Object.values(functionCache)[0].toString();
+}
+
+function compileFromCompleteFormula(formula: string) {
+  let formulaString: NormalizedFormula = normalize(formula);
+  return compile(formulaString);
 }
 
 describe("expression compiler", () => {
@@ -60,7 +66,6 @@ describe("expression compiler", () => {
   });
 
   test("cannot compile some invalid formulas", () => {
-    expect(() => compiledBaseFunction("=A1:A2")).toThrow();
     expect(() => compiledBaseFunction("=qsdf")).toThrow();
   });
 
@@ -167,31 +172,34 @@ describe("compile functions with meta arguments", () => {
   });
 
   test("functions call requesting a meta parameter does not care about the value of the cell / range passed as a reference", () => {
-    const compiledFormula1 = compile("=USEMETAARG(A1)", "Sheet1", { Sheet1: "1" });
-    const compiledFormula2 = compile("=USEMETAARG(A1:B2)", "Sheet1", { Sheet1: "1" });
-    const compiledFormula3 = compile("=NOTUSEMETAARG(A1)", "Sheet1", { Sheet1: "1" });
-    const compiledFormula4 = compile("=NOTUSEMETAARG(A1:B2)", "Sheet1", { Sheet1: "1" });
+    const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)");
+    const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)");
+    const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)");
+    const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)");
 
-    let cellFunctionIsCalled = jest.fn();
-    let rangeFunctionIsCalled = jest.fn();
+    let refFn = jest.fn();
+    let ensureRange = jest.fn();
 
     const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
-    compiledFormula1(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
-    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+    compiledFormula1(["A1"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC", true);
+    expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
 
-    compiledFormula2(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
-    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+    compiledFormula2(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC", true);
+    expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
 
-    compiledFormula3(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalled();
-    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
-    cellFunctionIsCalled.mockReset();
+    compiledFormula3(["A1"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC");
+    expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
 
-    compiledFormula4(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
-    expect(rangeFunctionIsCalled).toHaveBeenCalled();
+    compiledFormula4(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC");
+    expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
   });
 });

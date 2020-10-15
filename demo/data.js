@@ -116,39 +116,43 @@ export const demoData = {
       cells: {
         B2: { content: "42" },
       },
-      figures: [{
-        id: "someId",
-        tag: "text",
-        width: 300,
-        height: 200,
-        x: 300,
-        y: 100,
-        data: "blablabla"
-      }, {
-        id: "someId2",
-        tag: "text",
-        width: 210,
-        height: 180,
-        x: 900,
-        y: 200,
-        data: "yip yip"
-      }, {
-        id: "1",
-        tag: "chart",
-        width: 400,
-        height: 300,
-        x: 450,
-        y: 550,
-        data: {
-          type: "line",
-          title: "demo chart",
-          labelRange: "Sheet1!A27:A35",
-          dataSets: [
-            { labelCell: "Sheet1!B26", dataRange: "Sheet1!B27:B35" },
-            { labelCell: "Sheet1!C26", dataRange: "Sheet1!C27:C35" },
-          ],
-        }
-      }],
+      figures: [
+        {
+          id: "someId",
+          tag: "text",
+          width: 300,
+          height: 200,
+          x: 300,
+          y: 100,
+          data: "blablabla",
+        },
+        {
+          id: "someId2",
+          tag: "text",
+          width: 210,
+          height: 180,
+          x: 900,
+          y: 200,
+          data: "yip yip",
+        },
+        {
+          id: "1",
+          tag: "chart",
+          width: 400,
+          height: 300,
+          x: 450,
+          y: 550,
+          data: {
+            type: "line",
+            title: "demo chart",
+            labelRange: "Sheet1!A27:A35",
+            dataSets: [
+              { labelCell: "Sheet1!B26", dataRange: "Sheet1!B27:B35" },
+              { labelCell: "Sheet1!C26", dataRange: "Sheet1!C27:C35" },
+            ],
+          },
+        },
+      ],
     },
   ],
   styles: {
@@ -198,16 +202,25 @@ function computeCells(cols, rows) {
       cells[x + 3] = { content: letter.toString() };
     } else {
       const prev = _getColumnLetter(letter - 1);
-      cells[x + 3] = { content: `=2*${prev}${rows}` };
+      cells[x + 3] = {
+        content: `=2*${prev}${rows}`,
+        formula: { text: "=2*|0|", dependencies: [`${prev}${rows}`] },
+      };
     }
     for (let index = 4; index <= rows; index++) {
-      cells[x + index] = { content: `=${x}${index - 1}+1` };
+      cells[x + index] = {
+        content: `=${x}${index - 1}+1`,
+        formula: { text: "=|0|+1", dependencies: [`${x}${index - 1}`] },
+      };
     }
   }
   const letter = _getColumnLetter(cols);
   const nextLetter = _getColumnLetter(cols + 1);
   for (let i = 3; i <= rows; i++) {
-    cells[nextLetter + i] = { content: `=SUM(A${i}:${letter}${i})` };
+    cells[nextLetter + i] = {
+      content: `=SUM(A${i}:${letter}${i})`,
+      formula: { text: "=SUM(|0|)", dependencies: [`A${i}:${letter}${i}`] },
+    };
   }
   return cells;
 }
