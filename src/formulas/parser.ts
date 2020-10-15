@@ -2,6 +2,8 @@ import { Token, tokenize } from "./tokenizer";
 import { functionRegistry } from "../functions/index";
 import { toCartesian, toXC, getUnquotedSheetName, parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
+import { FormulaString } from "../types";
+import { composerTokenize } from "./composer_tokenizer";
 
 const functions = functionRegistry.content;
 
@@ -76,7 +78,7 @@ export type AST =
   | ASTReference
   | ASTUnknown;
 
-const OP_PRIORITY = {
+export const OP_PRIORITY = {
   "^": 30,
   "*": 20,
   "/": 20,
@@ -89,9 +91,9 @@ const OP_PRIORITY = {
   "-": 7,
 };
 
-const FUNCTION_BP = 6;
+export const FUNCTION_BP = 6;
 
-function bindingPower(token: Token): number {
+export function bindingPower(token: Token): number {
   switch (token.type) {
     case "NUMBER":
     case "SYMBOL":
@@ -245,6 +247,42 @@ export function parse(str: string): AST {
   }
   return result;
 }
+
+export const FORMULA_REF_IDENTIFIER = "|";
+
+/**
+ * parses a formula (as a string) into the same formula, but with the references to other cells extracted
+ * @param formula
+ */
+export function parseFormula(formula: string): FormulaString {
+  const tokens = composerTokenize(formula);
+
+  let references: string[] = [];
+
+  let noRefFormula = tokens.reduce<string>((s, token) => {
+    switch (token.type) {
+      case "SYMBOL":
+        if (cellReference.test(token.value)) {
+          const value = token.value.trim().toUpperCase();
+          if (!references.includes(value)) {
+            references.push(value);
+          }
+          s += `${FORMULA_REF_IDENTIFIER}${references.indexOf(value)}${FORMULA_REF_IDENTIFIER}`;
+        } else {
+          s += token.value;
+        }
+        break;
+      case "OPERATOR":
+      default:
+        s += token.value;
+    }
+
+    return s;
+  }, "");
+
+  return { text: noRefFormula, dependencies: references };
+}
+
 /**
  * Converts an ast formula to the corresponding string
  */

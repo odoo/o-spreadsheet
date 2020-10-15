@@ -1,11 +1,20 @@
 import { BasePlugin } from "../base_plugin";
-import { compile } from "../formulas/index";
 import { functionRegistry } from "../functions/index";
 import { mapCellsInZone, toCartesian } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters, ReadCell, Range } from "../types";
+import {
+  Cell,
+  Command,
+  CommandDispatcher,
+  EvalContext,
+  Getters,
+  ReadCell,
+  Range,
+  UID,
+} from "../types";
 import { _lt } from "../translation";
+import { compileFromCompleteFormula } from "../formulas/index";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -127,12 +136,12 @@ export class EvaluationPlugin extends BasePlugin {
     if (cacheKey in this.cache) {
       compiledFormula = this.cache[cacheKey];
     } else {
-      let sheetIds: { [name: string]: string } = {};
+      let sheetIds: { [name: string]: UID } = {};
       const sheets = this.getters.getEvaluationSheets();
       for (let sheetId in sheets) {
         sheetIds[sheets[sheetId].name] = sheetId;
       }
-      compiledFormula = compile(formula, sheet, sheetIds);
+      compiledFormula = compileFromCompleteFormula(formula, sheet, sheetIds);
       this.cache[cacheKey] = compiledFormula;
     }
     const params = this.getFormulaParameters(() => {});
@@ -228,12 +237,12 @@ export class EvaluationPlugin extends BasePlugin {
       cell.error = undefined;
       try {
         // todo: move formatting in grid and formatters.js
-        if (cell.async) {
+        if (cell.formula.compiledFormula.async) {
           cell.value = LOADING;
           cell.pending = true;
           PENDING.add(cell);
-          cell
-            .formula(...params)
+          cell.formula
+            .compiledFormula(...params)
             .then((val) => {
               cell.value = val;
               self.loadingCells--;
@@ -246,7 +255,7 @@ export class EvaluationPlugin extends BasePlugin {
             .catch((e: Error) => handleError(e, cell));
           self.loadingCells++;
         } else {
-          cell.value = cell.formula(...params);
+          cell.value = cell.formula.compiledFormula(...params);
           cell.pending = false;
         }
         cell.error = undefined;
@@ -284,7 +293,7 @@ export class EvaluationPlugin extends BasePlugin {
     }
 
     function getCellValue(cell: Cell, sheetId: string): any {
-      if (cell.async && cell.error && !PENDING.has(cell)) {
+      if (cell.formula && cell.formula.compiledFormula.async && cell.error && !PENDING.has(cell)) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
       computeValue(cell, sheetId);

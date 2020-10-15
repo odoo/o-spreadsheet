@@ -1,4 +1,4 @@
-import { compile } from "../../src/formulas";
+import { compileFromCompleteFormula } from "../../src/formulas/index";
 import { functionCache } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
 import { evaluateCell } from "../helpers";
@@ -7,7 +7,7 @@ function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
     delete functionCache[f];
   }
-  compile(formula, "Sheet1", { Sheet1: "1" });
+  compileFromCompleteFormula(formula, "Sheet1", { Sheet1: "1" });
   return Object.values(functionCache)[0].toString();
 }
 
@@ -167,10 +167,18 @@ describe("compile functions with meta arguments", () => {
   });
 
   test("functions call requesting a meta parameter does not care about the value of the cell / range passed as a reference", () => {
-    const compiledFormula1 = compile("=USEMETAARG(A1)", "Sheet1", { Sheet1: "1" });
-    const compiledFormula2 = compile("=USEMETAARG(A1:B2)", "Sheet1", { Sheet1: "1" });
-    const compiledFormula3 = compile("=NOTUSEMETAARG(A1)", "Sheet1", { Sheet1: "1" });
-    const compiledFormula4 = compile("=NOTUSEMETAARG(A1:B2)", "Sheet1", { Sheet1: "1" });
+    const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)", "Sheet1", {
+      Sheet1: "1",
+    });
+    const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)", "Sheet1", {
+      Sheet1: "1",
+    });
+    const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)", "Sheet1", {
+      Sheet1: "1",
+    });
+    const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)", "Sheet1", {
+      Sheet1: "1",
+    });
 
     let cellFunctionIsCalled = jest.fn();
     let rangeFunctionIsCalled = jest.fn();

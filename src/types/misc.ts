@@ -65,8 +65,11 @@ export interface Cell extends NewCell {
   error?: string;
   pending?: boolean;
   value: any;
-  formula?: CompiledFormula;
-  async?: boolean;
+  formula?: {
+    text: string;
+    dependencies: string[];
+    compiledFormula: CompiledFormula;
+  };
   type: "formula" | "text" | "number" | "date";
 }
 

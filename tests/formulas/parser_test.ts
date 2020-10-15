@@ -1,5 +1,6 @@
 import { parse } from "../../src/formulas";
 import { astToFormula } from "../../src";
+import { parseFormula } from "../../src/formulas/parser";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {
@@ -333,5 +334,67 @@ describe("Converting AST to string", () => {
   test("Convert function", () => {
     expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");
     expect(astToFormula(parse("-SUM(5,9,SUM(5,9,8))"))).toBe("-SUM(5,9,SUM(5,9,8))");
+  });
+});
+
+describe("Parsing formulas to extract the same formula but independent from references", function () {
+  test("basic formula with not references should be unchanged", () => {
+    expect(parseFormula("=Sum( 1 , 3) + 8 - ( 1 * 8)")).toEqual({
+      text: "=Sum( 1 , 3) + 8 - ( 1 * 8)",
+      dependencies: [],
+    });
+    expect(parseFormula("=1")).toEqual({
+      text: "=1",
+      dependencies: [],
+    });
+  });
+
+  test("replace references with different syntax", () => {
+    expect(parseFormula("=A1")).toEqual({
+      text: "=|0|",
+      dependencies: ["A1"],
+    });
+    expect(parseFormula("=$A$1")).toEqual({
+      text: "=|0|",
+      dependencies: ["$A$1"],
+    });
+    expect(parseFormula("=Sheet1!A1")).toEqual({
+      text: "=|0|",
+      dependencies: ["SHEET1!A1"],
+    });
+    expect(parseFormula("='Sheet1'!A1")).toEqual({
+      text: "=|0|",
+      dependencies: ["'SHEET1'!A1"],
+    });
+    expect(parseFormula("='Sheet1'!A$1")).toEqual({
+      text: "=|0|",
+      dependencies: ["'SHEET1'!A$1"],
+    });
+    expect(parseFormula("=A1:b2")).toEqual({
+      text: "=|0|",
+      dependencies: ["A1:B2"],
+    });
+    expect(parseFormula("=$A$1:$b$2")).toEqual({
+      text: "=|0|",
+      dependencies: ["$A$1:$B$2"],
+    });
+    expect(parseFormula("=Sheet1!A1:b2")).toEqual({
+      text: "=|0|",
+      dependencies: ["SHEET1!A1:B2"],
+    });
+    expect(parseFormula("='SHEET 1'!A1:b2")).toEqual({
+      text: "=|0|",
+      dependencies: ["'SHEET 1'!A1:B2"],
+    });
+    expect(parseFormula("='Sheet1'!A$1:$B2")).toEqual({
+      text: "=|0|",
+      dependencies: ["'SHEET1'!A$1:$B2"],
+    });
+  });
+  test("replace multiple references", () => {
+    expect(parseFormula("=sum(a1:a3, a1:a3) + a1")).toEqual({
+      text: "=sum(|0|,|0|) + |1|",
+      dependencies: ["A1:A3", "A1"],
+    });
   });
 });

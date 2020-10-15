@@ -1,6 +1,14 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg, ReadCell, EvalContext, Range } from "../types/index";
-import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
+import {
+  CompiledFormula,
+  Arg,
+  ReadCell,
+  EvalContext,
+  Range,
+  FormulaString,
+  UID,
+} from "../types/index";
+import { AST, ASTAsyncFuncall, ASTFuncall, parse, parseFormula } from "./parser";
 import { _lt } from "../translation";
 
 const functions = functionRegistry.content;
@@ -37,13 +45,26 @@ export const functionCache: { [key: string]: CompiledFormula } = {};
 // -----------------------------------------------------------------------------
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
+export function compileFromCompleteFormula(
+  formula: string,
+  sheet: UID,
+  sheets: { [name: string]: UID }
+) {
+  let formulaString: FormulaString = parseFormula(formula);
+  if (!functionCache[formulaString.text]) {
+    let compiledFormula = compile(formulaString, sheet, sheets);
+    functionCache[formulaString.text] = compiledFormula;
+  }
+  return functionCache[formulaString.text];
+}
+
 export function compile(
-  str: string,
+  str: FormulaString,
   sheet: string,
-  sheets: { [name: string]: string },
+  sheets: { [name: string]: UID },
   originCellXC?: string
 ): CompiledFormula {
-  const ast = parse(str);
+  const ast = parse(str.text);
   let nextId = 1;
   const code = [`// ${str}`];
   let isAsync = false;
