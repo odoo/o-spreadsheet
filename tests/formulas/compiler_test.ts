@@ -180,26 +180,26 @@ describe("compile functions with meta arguments", () => {
       Sheet1: "1",
     });
 
-    let cellFunctionIsCalled = jest.fn();
-    let rangeFunctionIsCalled = jest.fn();
+    let refFn = jest.fn();
+    let ensureRange = jest.fn();
 
     const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
-    compiledFormula1(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
-    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+    compiledFormula1(["A1"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledTimes(0);
+    expect(ensureRange).toHaveBeenCalledTimes(0);
 
-    compiledFormula2(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
-    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
+    compiledFormula2(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledTimes(0);
+    expect(ensureRange).toHaveBeenCalledTimes(0);
 
-    compiledFormula3(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalled();
-    expect(rangeFunctionIsCalled).toHaveBeenCalledTimes(0);
-    cellFunctionIsCalled.mockReset();
+    compiledFormula3(["A1"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalled();
+    expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
 
-    compiledFormula4(cellFunctionIsCalled, rangeFunctionIsCalled, ctx);
-    expect(cellFunctionIsCalled).toHaveBeenCalledTimes(0);
-    expect(rangeFunctionIsCalled).toHaveBeenCalled();
+    compiledFormula4(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+    expect(refFn).toHaveBeenCalledTimes(0);
+    expect(ensureRange).toHaveBeenCalled();
   });
 });

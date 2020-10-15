@@ -445,21 +445,21 @@ describe("COUNTBLANK formula", () => {
     const grid = {
 
       B1: "=COUNTBLANK(D1:I2)",
-      // C1: "=COUNTBLANK(D1:I1)",
-      // C2: "=COUNTBLANK(D2:I2)",
+      C1: "=COUNTBLANK(D1:I1)",
+      C2: "=COUNTBLANK(D2:I2)",
 
       D1: "0", E1: "1", F1: "2",  G1: "",      H1: '""',   I1: "",
       D2: "",  E2: "",  F2: '""', G2: "FALSE", H2: "TRUE", I2: "42",
 
-      // A2: "=COUNTBLANK(A4:B9)",
-      // A3: "=COUNTBLANK(A4:A9)", B3: "=COUNTBLANK(B4:B9)",
-      //
-      // A4: "0",  B4: "",
-      // A5: "1",  B5: "",
-      // A6: "2",  B6: '""',
-      // A7: "",   B7: "FALSE",
-      // A8: '""', B8: "TRUE",
-      // A9: "",   B9: "42",
+      A2: "=COUNTBLANK(A4:B9)",
+      A3: "=COUNTBLANK(A4:A9)", B3: "=COUNTBLANK(B4:B9)",
+
+      A4: "0",  B4: "",
+      A5: "1",  B5: "",
+      A6: "2",  B6: '""',
+      A7: "",   B7: "FALSE",
+      A8: '""', B8: "TRUE",
+      A9: "",   B9: "42",
     };
 
     const gridResult = evaluateGrid(grid);

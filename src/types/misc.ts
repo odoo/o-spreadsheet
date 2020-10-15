@@ -50,16 +50,23 @@ export interface NewCell {
   format?: string;
 }
 
-export type ReadCell = (xc: string, sheet: string) => any;
-export type Range = (v1: string, v2: string, sheetName: string) => any[];
+// export type ReadCell = (xc: string, sheet: string) => any;
+// export type Range = (v1: string, v2: string, sheetName: string) => any[];
 export type KnownReferenceDereferencer = (
-  knowReferencePosition: number,
-  sheetId: UID
-) => any | any[];
+  knowReferencePosition,
+  knownReferences,
+  evaluationSheetId
+) => any | any[][];
+
+export type EnsureRange = (knowReferencePosition, knownReferences, evaluationSheetId) => any[][];
+
 export type _CompiledFormula = (
-  readCell: ReadCell,
-  range: Range,
+  // readCell: ReadCell,
+  // range: Range,
+  deps: string[],
+  evaluationSheetId: UID,
   ref: KnownReferenceDereferencer,
+  ensureRange: EnsureRange,
   ctx: {}
 ) => any;
 

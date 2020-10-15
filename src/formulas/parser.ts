@@ -263,6 +263,9 @@ export const FORMULA_REF_IDENTIFIER = "|";
 /**
  * parses a formula (as a string) into the same formula,
  * but with the references to other cells extracted
+ *
+ * =sum(a3:b1) + c3 --> =sum(|0|) + |1|
+ *
  * @param formula
  */
 export function preParseFormula(formula: string): FormulaString {

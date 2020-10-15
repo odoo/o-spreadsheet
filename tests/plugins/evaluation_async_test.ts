@@ -10,7 +10,7 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A3", text: "= WAIT(1) + 1" });
 
-    expect(model.getters.getCells()["A1"].formula).toBeUndefined();
+    expect(model.getters.getCells()["A1"].formula!.compiledFormula.async).toBe(false);
     expect(model.getters.getCells()["A2"]!.formula!.compiledFormula.async).toBe(true);
     expect(model.getters.getCells()["A3"]!.formula!.compiledFormula.async).toBe(true);
     expect(model.getters.getCells()["A2"]!.value).toEqual(LOADING);

@@ -9,10 +9,9 @@ import {
   CommandDispatcher,
   EvalContext,
   Getters,
-  ReadCell,
-  Range,
   UID,
   KnownReferenceDereferencer,
+  EnsureRange,
 } from "../types";
 import { _lt } from "../translation";
 import { compileFromCompleteFormula } from "../formulas/index";
@@ -31,7 +30,7 @@ function* makeSetIterator(set: Set<any>) {
 
 const functionMap = functionRegistry.mapping;
 
-type FormulaParameters = [ReadCell, Range, KnownReferenceDereferencer, EvalContext];
+type FormulaParameters = [KnownReferenceDereferencer, EnsureRange, EvalContext];
 
 export const LOADING = "Loading...";
 
@@ -213,7 +212,7 @@ export class EvaluationPlugin extends BasePlugin {
         cell.value = LOADING;
       } else if (!cell.error) {
         cell.value = "#ERROR";
-        const __lastFnCalled = params[3].__lastFnCalled || "";
+        const __lastFnCalled = params[2].__lastFnCalled || "";
         cell.error = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
       }
     }
@@ -243,7 +242,7 @@ export class EvaluationPlugin extends BasePlugin {
           cell.pending = true;
           PENDING.add(cell);
           cell.formula
-            .compiledFormula(...params)
+            .compiledFormula(cell.formula.dependencies, sheetId, ...params)
             .then((val) => {
               cell.value = val;
               self.loadingCells--;
@@ -256,7 +255,7 @@ export class EvaluationPlugin extends BasePlugin {
             .catch((e: Error) => handleError(e, cell));
           self.loadingCells++;
         } else {
-          cell.value = cell.formula.compiledFormula(...params);
+          cell.value = cell.formula.compiledFormula(cell.formula.dependencies, sheetId, ...params);
           cell.pending = false;
         }
         cell.error = undefined;
@@ -267,6 +266,7 @@ export class EvaluationPlugin extends BasePlugin {
     }
   }
 
+  //TODO VSC : Update this comment !
   /**
    * Return all functions necessary to properly evaluate a formula:
    * - a readCell function to read the value of a cell
@@ -313,7 +313,7 @@ export class EvaluationPlugin extends BasePlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(v1: string, v2: string, sheetId: string) {
+    function range(v1: string, v2: string, sheetId: UID): any[][] {
       const sheet = sheets[sheetId];
       let [left, top] = toCartesian(v1);
       let [right, bottom] = toCartesian(v2);
@@ -323,6 +323,39 @@ export class EvaluationPlugin extends BasePlugin {
       return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
     }
 
-    return [readCell, range, (id) => {}, evalContext];
+    // TODO VSC : write doc
+    function refFn(knowReferencePosition, knownReferences, evaluationSheetId): any | any[][] {
+      const referenceText = knownReferences[knowReferencePosition];
+      const [reference, sheetName] = referenceText.split("!").reverse();
+      const sheetId = sheetName ? sheets[sheetName] : evaluationSheetId;
+      if (referenceText.includes(":")) {
+        // it's a range
+        const [left, right] = reference.split(":");
+        return range(left, right, sheetId);
+      } else {
+        //it's a cell
+        return readCell(reference, sheetId);
+      }
+    }
+
+    // TODO VSC : write doc
+    function ensureRange(knowReferencePosition, knownReferences, evaluationSheetId): any[][] {
+      const referenceText = knownReferences[knowReferencePosition];
+      const [reference, sheetName] = referenceText.split("!").reverse();
+      const sheetId = sheetName ? sheets[sheetName] : evaluationSheetId;
+
+      if (
+        knownReferences[knowReferencePosition] &&
+        !knownReferences[knowReferencePosition].includes(":")
+      ) {
+        //it's a cell reference, but it must be treated as a range
+        return range(reference, reference, sheetId);
+      } else {
+        const [left, right] = reference.split(":");
+        return range(left, right, sheetId);
+      }
+    }
+
+    return [refFn, ensureRange, evalContext];
   }
 }

@@ -1,15 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import {
-  CompiledFormula,
-  Arg,
-  ReadCell,
-  EvalContext,
-  Range,
-  FormulaString,
-  UID,
-  KnownReferenceDereferencer,
-  _CompiledFormula,
-} from "../types/index";
+import { CompiledFormula, Arg, FormulaString, UID } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse, preParseFormula } from "./parser";
 import { _lt } from "../translation";
 
@@ -69,7 +59,7 @@ export function compile(
   if (!functionCache[str.text]) {
     const ast = parse(str.text);
     let nextId = 1;
-    const code = [`// ${str}`];
+    const code = [`// ${str.text}`];
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new Error(_lt("Invalid formula"));
@@ -113,7 +103,7 @@ export function compile(
               t === "RANGE<STRING>"
           );
           if (hasRange) {
-            argValue = `[[${argValue}]]`;
+            argValue = `ensureRange(${arg.value}, deps, evaluationSheetId)`;
           }
         }
         result.push(argValue);
@@ -143,7 +133,7 @@ export function compile(
      * executable code for the evaluation of the cells content. It uses a cash to
      * not reevaluate identical code structures.
      *
-     * The funcion is sensitive to two parameters “isLazy” and “isMeta”. These
+     * The function is sensitive to two parameters “isLazy” and “isMeta”. These
      * parameters may vary when compiling function arguments:
      *
      * - isLazy: In some cases the function arguments does not need to be
@@ -151,7 +141,7 @@ export function compile(
      * take invalid arguments that do not need to be evaluate and thus should not
      * create an error. For this we have lazy arguments.
      *
-     * - isMeta: In some cases the function arguments expects informations on the
+     * - isMeta: In some cases the function arguments expects information on the
      * cell/range other than the associated value(s). For example the COLUMN
      * function needs to receive as argument the coordinates of a cell rather
      * than its value. For this we have meta arguments.
@@ -159,7 +149,11 @@ export function compile(
 
     function compileAST(ast: AST, isLazy = false, isMeta = false): string {
       let id, left, right, args, fnName, statement;
-      if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
+      if (
+        ast.type !== "REFERENCE" &&
+        ast.type !== "KNOWN_REFERENCE" &&
+        !(ast.type === "BIN_OPERATION" && ast.value === ":")
+      ) {
         if (isMeta) {
           throw new Error(_lt(`Argument must be a reference to a cell or range.`));
         }
@@ -185,23 +179,10 @@ export function compile(
             break;
           }
           id = nextId++;
-          //const [, sheetName] = referenceText.split("!").reverse();
-          //const sheetId = sheetName ? sheets[sheetName] : sheet;
           if (isMeta) {
             statement = `"${referenceText}"`;
           } else {
-            /*if (referenceText.includes(":")) {
-              // it's a range
-              const [left, right] = reference.split(":");
-              const rangeIdx = rangeRefs.push([left, right, sheetId]) - 1;
-              statement = `range(${rangeIdx});`;
-            } else {
-              //it's a cell
-              const refIdx = cellRefs.push([referenceText, sheetId]) - 1;
-              statement = `cell(${refIdx})`;
-            }*/
-
-            statement = `ref(${ast.value})`;
+            statement = `ref(${ast.value}, deps, evaluationSheetId)`;
           }
           break;
         case "REFERENCE":
@@ -270,12 +251,23 @@ export function compile(
     code.push(`return ${compileAST(ast)};`);
 
     const Constructor = isAsync ? AsyncFunction : Function;
-    let baseFunction = new Constructor("cell", "range", "ref", "ctx", code.join("\n"));
+    let baseFunction = new Constructor(
+      // "cell",
+      // "range",
+      "deps", // the dependencies in the current formula
+      "evaluationSheetId", // the sheet the formula is currently evaluating
+      "ref", // a function to access a certain dependency at a given index
+      "ensureRange", // same as above, but guarantee that the result is in the form of a range
+      "ctx",
+      code.join("\n")
+    );
     functionCache[str.text] = baseFunction;
     functionCache[str.text].async = isAsync;
   }
 
-  const resultFn = (
+  return functionCache[str.text];
+
+  /*const resultFn = (
     cell: ReadCell,
     range: Range,
     ref: KnownReferenceDereferencer,
@@ -294,7 +286,6 @@ export function compile(
 
     const refFn = (knowReferencePosition) => {
       const referenceText = str.dependencies[knowReferencePosition];
-
       const [reference, sheetName] = referenceText.split("!").reverse();
       const sheetId = sheetName ? sheets[sheetName] : sheet;
       if (referenceText.includes(":")) {
@@ -310,5 +301,5 @@ export function compile(
     return functionCache[str.text](cellFn, rangeFn, refFn, ctx);
   };
   resultFn.async = functionCache[str.text].async;
-  return resultFn;
+  return resultFn;*/
 }
