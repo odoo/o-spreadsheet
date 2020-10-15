@@ -1,4 +1,4 @@
-import { load } from "../src/data";
+import { CURRENT_VERSION, load } from "../src/data";
 import { mockUuidV4To } from "./helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
@@ -6,7 +6,7 @@ describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
     mockUuidV4To(123);
     expect(load()).toEqual({
-      version: 5,
+      version: CURRENT_VERSION,
       borders: {},
       styles: {},
       entities: {},
@@ -28,7 +28,7 @@ describe("load data", () => {
     });
 
     expect(load({})).toEqual({
-      version: 5,
+      version: CURRENT_VERSION,
       borders: {},
       styles: {},
       entities: {},
@@ -56,7 +56,7 @@ describe("load data", () => {
         sheets: [{ id: "asdf", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 5,
+      version: CURRENT_VERSION,
       borders: {},
       styles: {},
       entities: {},
@@ -85,7 +85,7 @@ describe("load data", () => {
         sheets: [{ name: "Sheet1", merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 5,
+      version: CURRENT_VERSION,
       borders: {},
       styles: {},
       entities: {},
@@ -151,7 +151,7 @@ describe("load data", () => {
         sheets: [{ merges: ["A1:B2"] }],
       })
     ).toEqual({
-      version: 5,
+      version: CURRENT_VERSION,
       borders: {},
       styles: {},
       entities: {},

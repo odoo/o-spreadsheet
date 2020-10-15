@@ -10,5 +10,6 @@
 export { tokenize, Token } from "./tokenizer";
 export { composerTokenize } from "./composer_tokenizer";
 export { rangeTokenize, EnrichedToken } from "./range_tokenizer";
-export { parse, rangeReference } from "./parser";
+export { parse, rangeReference, cellReference } from "./parser";
 export { compile } from "./compiler";
+export { normalize } from "./normalize";

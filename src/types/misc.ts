@@ -50,9 +50,22 @@ export interface NewCell {
   format?: string;
 }
 
-export type ReadCell = (xc: string, sheet: string) => any;
-export type Range = (v1: string, v2: string, sheetName: string) => any[];
-export type _CompiledFormula = (readCell: ReadCell, range: Range, ctx: {}) => any;
+export type ReferenceDenormalizer = (
+  position: number,
+  references: string[],
+  sheetId: UID,
+  isMeta: boolean
+) => any | any[][];
+
+export type EnsureRange = (position: number, references: string[], sheetId: UID) => any[][];
+
+export type _CompiledFormula = (
+  deps: string[],
+  sheetId: UID,
+  refFn: ReferenceDenormalizer,
+  range: EnsureRange,
+  ctx: {}
+) => any;
 
 export interface CompiledFormula extends _CompiledFormula {
   async: boolean;
@@ -65,8 +78,11 @@ export interface Cell extends NewCell {
   error?: string;
   pending?: boolean;
   value: any;
-  formula?: CompiledFormula;
-  async?: boolean;
+  formula?: {
+    text: string;
+    dependencies: string[];
+    compiledFormula: CompiledFormula;
+  };
   type: "formula" | "text" | "number" | "date";
 }
 

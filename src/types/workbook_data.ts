@@ -1,8 +1,16 @@
 import { ConditionalFormat } from "./conditional_formatting";
 import { Border, Style } from "./misc";
 
+export type NormalizedFormula = {
+  // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
+  // {formula: "=sum(  |ref1|, 3) + |ref2|"), ["a1:b3","a1"]
+  text: string;
+  dependencies: string[];
+};
+
 export interface CellData {
   content?: string;
+  formula?: NormalizedFormula;
   style?: number;
   border?: number;
   format?: string;

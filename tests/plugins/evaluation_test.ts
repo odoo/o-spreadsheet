@@ -189,6 +189,12 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A1")!.value).toBe(42);
   });
 
+  test("=Range", () => {
+    const model = new Model();
+    model.dispatch("SET_VALUE", { xc: "A1", text: "=A2:A3" });
+    expect(getCell(model, "A1")!.value).toBe("#ERROR");
+  });
+
   test("misc math formulas", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "42" });

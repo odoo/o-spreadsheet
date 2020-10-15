@@ -16,7 +16,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 5", () => {
+  test("Can upgrade from 1 to 6", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 1,
@@ -30,6 +30,7 @@ describe("Migrations", () => {
           rows: {
             0: { size: 12 },
           },
+          cells: { A1: { content: "=a1" } },
           name: "My sheet",
           conditionalFormats: [],
         },
@@ -37,9 +38,12 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.activeSheet).toBe("My sheet");
-    expect(data.version).toBe(5);
+    expect(data.version).toBe(6);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
+    expect(data.sheets[0].cells.A1.formula).toBeDefined();
+    expect(data.sheets[0].cells.A1.formula!.text).toBeDefined();
+    expect(data.sheets[0].cells.A1.formula!.dependencies).toBeDefined();
   });
 });
 
@@ -179,7 +183,13 @@ test("complete import, then export", () => {
         },
         cells: {
           A1: { content: "hello" },
-          B1: { content: "=a1", style: 99, border: 8, format: "0.00%" },
+          B1: {
+            content: "=a1",
+            formula: { text: "=|0|", dependencies: ["a1"] },
+            style: 99,
+            border: 8,
+            format: "0.00%",
+          },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
         },
         name: "My sheet",
