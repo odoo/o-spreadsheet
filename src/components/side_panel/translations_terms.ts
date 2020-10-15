@@ -43,3 +43,15 @@ export const chartTerms = {
   CreateChart: _lt("Create chart"),
   TitlePlaceholder: _lt("New Chart"),
 };
+
+export const FindAndReplaceTerms = {
+  Search: _lt("Search"),
+  Replace: _lt("Replace"),
+  Next: _lt("Next"),
+  Previous: _lt("Previous"),
+  MatchCase: _lt("Match case"),
+  ExactMatch: _lt("Match entire cell content"),
+  SearchFormulas: _lt("Search in formulas"),
+  ReplaceAll: _lt("Replace all"),
+  ReplaceFormulas: _lt("Also modify formulas"),
+};

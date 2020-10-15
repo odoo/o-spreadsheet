@@ -34,6 +34,7 @@ export const enum LAYERS {
   Background,
   Highlights,
   Clipboard,
+  Search,
   Chart,
   Selection,
   Autofill,
