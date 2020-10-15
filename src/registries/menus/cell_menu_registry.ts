@@ -68,7 +68,7 @@ cellMenuRegistry
     action: ACTIONS.DELETE_CONTENT_ACTION,
     isEnabled: (env: SpreadsheetEnv) => {
       const cell = env.getters.getActiveCell();
-      return Boolean(cell && cell.content);
+      return Boolean(cell);
     },
   })
   .add("conditional_formatting", {

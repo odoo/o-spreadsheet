@@ -41,7 +41,7 @@ export interface Border {
 }
 
 export interface NewCell {
-  content?: string;
+  content: string;
   style?: number;
   border?: number;
   format?: string;
