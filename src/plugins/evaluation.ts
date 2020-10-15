@@ -1,11 +1,22 @@
 import { BasePlugin } from "../base_plugin";
-import { compile } from "../formulas/index";
+import { compile, normalize } from "../formulas/index";
 import { functionRegistry } from "../functions/index";
-import { mapCellsInZone, toCartesian } from "../helpers/index";
+import { mapCellsInZone, toCartesian, toXC, toZone } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { _lt } from "../translation";
-import { Cell, Command, CommandDispatcher, EvalContext, Getters, Workbook } from "../types";
+import {
+  Cell,
+  Command,
+  CommandDispatcher,
+  EnsureRange,
+  EvalContext,
+  Getters,
+  NormalizedFormula,
+  ReferenceDenormalizer,
+  UID,
+  Workbook,
+} from "../types";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -21,9 +32,7 @@ function* makeSetIterator(set: Set<any>) {
 
 const functionMap = functionRegistry.mapping;
 
-type ReadCell = (xc: string, sheet: string) => any;
-type Range = (v1: string, v2: string, sheetName: string) => any[];
-type FormulaParameters = [ReadCell, Range, EvalContext];
+type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export const LOADING = "Loading...";
 
@@ -34,7 +43,6 @@ export class EvaluationPlugin extends BasePlugin {
   private isUptodate: Set<string> = new Set();
   private loadingCells: number = 0;
   private isStarted: boolean = false;
-  private cache: { [key: string]: Function } = {};
   private evalContext: EvalContext;
 
   /**
@@ -126,22 +134,12 @@ export class EvaluationPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: string = this.workbook.activeSheet.id): any {
-    const cacheKey = `${sheet}#${formula}`;
-    let compiledFormula;
-    if (cacheKey in this.cache) {
-      compiledFormula = this.cache[cacheKey];
-    } else {
-      let sheetIds: { [name: string]: string } = {};
-      const { sheets } = this.workbook;
-      for (let sheetId in sheets) {
-        sheetIds[sheets[sheetId].name] = sheetId;
-      }
-      compiledFormula = compile(formula, sheet, sheetIds);
-      this.cache[cacheKey] = compiledFormula;
-    }
+  evaluateFormula(formula: string, sheet: UID = this.workbook.activeSheet.id): any {
+    let formulaString: NormalizedFormula = normalize(formula);
+
+    const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
-    return compiledFormula(...params);
+    return compiledFormula(formulaString.dependencies, sheet, ...params);
   }
 
   isIdle() {
@@ -235,13 +233,15 @@ export class EvaluationPlugin extends BasePlugin {
       visited[sheetId][xc] = null;
       cell.error = undefined;
       try {
+        params[2].__originCellXC = xc;
         // todo: move formatting in grid and formatters.js
-        if (cell.async) {
+        if (cell.formula.compiledFormula.async) {
           cell.value = LOADING;
           cell.pending = true;
           PENDING.add(cell);
-          cell
-            .formula(...params)
+
+          cell.formula
+            .compiledFormula(cell.formula.dependencies, sheetId, ...params)
             .then((val) => {
               cell.value = val;
               self.loadingCells--;
@@ -254,10 +254,15 @@ export class EvaluationPlugin extends BasePlugin {
             .catch((e: Error) => handleError(e, cell, sheetId));
           self.loadingCells++;
         } else {
-          cell.value = cell.formula(...params);
+          cell.value = cell.formula.compiledFormula(cell.formula.dependencies, sheetId, ...params);
           cell.pending = false;
         }
-        cell.error = undefined;
+        if (Array.isArray(cell.value)) {
+          // if a value returns an array (like =A1:A3)
+          throw new Error(_lt("This formula depends on invalid values"));
+        } else {
+          cell.error = undefined;
+        }
       } catch (e) {
         handleError(e, cell, sheetId);
       }
@@ -267,8 +272,8 @@ export class EvaluationPlugin extends BasePlugin {
 
   /**
    * Return all functions necessary to properly evaluate a formula:
-   * - a readCell function to read the value of a cell
-   * - a range function to convert a range description into a proper value array
+   * - a refFn function to read any reference, cell or range of a normalized formula
+   * - a range function to convert any reference to a proper value array
    * - an evaluation context
    */
   private getFormulaParameters(computeValue: Function): FormulaParameters {
@@ -277,27 +282,26 @@ export class EvaluationPlugin extends BasePlugin {
     });
     const sheets = this.workbook.sheets;
     const PENDING = this.PENDING;
-
-    function readCell(xc: string, sheet: string): any {
+    function readCell(xc: string, sheetId: UID): any {
       let cell;
-      const s = sheets[sheet];
+      const s = sheets[sheetId];
       if (s) {
-        cell = s.cells[xc];
+        cell = s.cells[xc.toUpperCase().replace(/\$/g, "")];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
       if (!cell || cell.content === "") {
         return null;
       }
-      const value = getCellValue(cell, sheet);
+      const value = getCellValue(cell, sheetId);
       if (value === LOADING) {
         throw new Error("not ready");
       }
       return value;
     }
 
-    function getCellValue(cell: Cell, sheetId: string): any {
-      if (cell.async && cell.error && !PENDING.has(cell)) {
+    function getCellValue(cell: Cell, sheetId: UID): any {
+      if (cell.formula && cell.formula.compiledFormula.async && cell.error && !PENDING.has(cell)) {
         throw new Error(_lt("This formula depends on invalid values"));
       }
       computeValue(cell, sheetId);
@@ -313,12 +317,24 @@ export class EvaluationPlugin extends BasePlugin {
      * Note that each col is possibly sparse: it only contain the values of cells
      * that are actually present in the grid.
      */
-    function range(v1: string, v2: string, sheetId: string) {
+    function _range(v1: string, v2: string, sheetId: UID): any[][] {
       const sheet = sheets[sheetId];
       let [left, top] = toCartesian(v1);
       let [right, bottom] = toCartesian(v2);
       right = Math.min(right, sheet.colNumber - 1);
       bottom = Math.min(bottom, sheet.rowNumber - 1);
+
+      if (left > right) {
+        const tmp = left;
+        left = right;
+        right = tmp;
+      }
+      if (top > bottom) {
+        const tmp = top;
+        top = bottom;
+        bottom = tmp;
+      }
+
       const zone = { left, top, right, bottom };
       const result = mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
       for (const col of result) {
@@ -331,6 +347,73 @@ export class EvaluationPlugin extends BasePlugin {
       return result;
     }
 
-    return [readCell, range, evalContext];
+    /**
+     * Returns the value of the cell(s) used in reference
+     *
+     * @param position the index in the references array
+     * @param references all the references used in the current formula
+     * @param sheetId the sheet that is currently being evaluated, if a reference does not
+     *        include a sheet, it is the id of the sheet of the reference to be used
+     */
+    function refFn(
+      position: number,
+      references: string[],
+      sheetId: UID,
+      functionName: string,
+      paramNumber: number
+    ): any | any[][] {
+      const referenceText = references[position];
+
+      const [reference, sheetName] = referenceText.split("!").reverse();
+      const referenceSheetId = sheetName
+        ? evalContext.getters.getSheetIdByName(sheetName)
+        : sheetId;
+
+      const zone = toZone(referenceText);
+
+      if (zone.top > zone.bottom || zone.left > zone.right) {
+        throw new Error(
+          _lt("invalid range %s:%s", toXC(zone.left, zone.top), toXC(zone.right, zone.bottom))
+        );
+      }
+
+      // if the formula definition could have accepted a range, we would pass through the _range function and not here
+      if (zone.bottom !== zone.top || zone.left !== zone.right) {
+        throw new Error(
+          _lt(
+            "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
+            functionName.toString(),
+            paramNumber.toString()
+          )
+        );
+      }
+      //it's a cell
+      return readCell(reference, referenceSheetId);
+    }
+
+    /**
+     * Return the values of the cell(s) used in reference, but always in the format of a range even
+     * if a single cell is referenced. This is useful for the formulas that describe parameters as
+     * range<number> etc.
+     *
+     * the parameters are the same as refFn, except that these parameters cannot be Meta
+     */
+    function range(position: number, references: string[], sheetId: UID): any[][] {
+      const referenceText = references[position];
+      const [reference, sheetName] = referenceText.split("!").reverse();
+      const referenceSheetId = sheetName
+        ? evalContext.getters.getSheetIdByName(sheetName)
+        : sheetId;
+
+      if (references[position] && !references[position].includes(":")) {
+        //it's a cell reference, but it must be treated as a range
+        return _range(reference, reference, referenceSheetId);
+      } else {
+        const [left, right] = reference.split(":");
+        return _range(left, right, referenceSheetId);
+      }
+    }
+
+    return [refFn, range, evalContext];
   }
 }

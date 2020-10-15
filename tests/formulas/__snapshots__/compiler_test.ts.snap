@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`compile functions with lazy arguments functions call requesting lazy parameters 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =USELAZYARG(24)
 let _2 = ()=> 24
@@ -12,7 +12,7 @@ return _1;
 `;
 
 exports[`compile functions with lazy arguments functions call requesting lazy parameters 2`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =USELAZYARG(1/0)
 ctx.__lastFnCalled = 'DIVIDE'
@@ -24,7 +24,7 @@ return _1;
 `;
 
 exports[`expression compiler async functions 1`] = `
-"async function anonymous(cell,range,ctx
+"async function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =WAIT(5)
 ctx.__lastFnCalled = 'WAIT'
@@ -34,25 +34,28 @@ return _1;
 `;
 
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =sum(A1)
-let _2 = cell(0)
+// =sum(|0|)
+let _2 = range(0, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM']([[_2]])
+let _1 = ctx['SUM'](_2)
 return _1;
 }"
 `;
 
 exports[`expression compiler expression with $ref 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =$A1+$A$2+A$3
-let _3 = cell(0)
-let _4 = cell(1)
+// =|0|+|1|+|2|
+let _3 = ref(0, deps, sheetId,
+              \\"undefined\\", undefined)
+let _4 = ref(1, deps, sheetId,
+              \\"undefined\\", undefined)
 ctx.__lastFnCalled = 'ADD'
 let _2 = ctx['ADD'](_3, _4)
-let _5 = cell(2)
+let _5 = ref(2, deps, sheetId,
+              \\"undefined\\", undefined)
 ctx.__lastFnCalled = 'ADD'
 let _1 = ctx['ADD'](_2, _5)
 return _1;
@@ -60,20 +63,22 @@ return _1;
 `;
 
 exports[`expression compiler expression with references with a sheet 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =Sheet34!B3
-let _1 = cell(0)
+// =|0|
+let _1 = ref(0, deps, sheetId,
+              \\"undefined\\", undefined)
 return _1;
 }"
 `;
 
 exports[`expression compiler expressions with a debugger 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =? A1 / 2
+// =? |0| / 2
 debugger;
-let _2 = cell(0)
+let _2 = ref(0, deps, sheetId,
+              \\"undefined\\", undefined)
 ctx.__lastFnCalled = 'DIVIDE'
 let _1 = ctx['DIVIDE'](_2, 2)
 return _1;
@@ -81,7 +86,7 @@ return _1;
 `;
 
 exports[`expression compiler function call (with lazy parameters) 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =IF(TRUE, 42, 24)
 let _2 = ()=> 42
@@ -93,10 +98,11 @@ return _1;
 `;
 
 exports[`expression compiler function call (with lazy parameters) 2`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =IF(TRUE, A2, 1/0)
-let _2 = ()=> cell(0)
+// =IF(TRUE, |0|, 1/0)
+let _2 = ()=> ref(0, deps, sheetId,
+              \\"IF\\", 2)
 ctx.__lastFnCalled = 'DIVIDE'
 let _3 = ()=> ctx['DIVIDE'](1, 0)
 ctx.__lastFnCalled = 'IF'
@@ -106,10 +112,11 @@ return _1;
 `;
 
 exports[`expression compiler function call (with lazy parameters) 3`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =IF(TRUE, IF(TRUE, A2, SQRT(-1)), 1/0)
-let _3 = ()=> cell(0)
+// =IF(TRUE, IF(TRUE, |0|, SQRT(-1)), 1/0)
+let _3 = ()=> ref(0, deps, sheetId,
+              \\"IF\\", 2)
 ctx.__lastFnCalled = 'UMINUS'
 let _5 = ctx['UMINUS']( 1)
 ctx.__lastFnCalled = 'SQRT'
@@ -125,7 +132,7 @@ return _1;
 `;
 
 exports[`expression compiler function call 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =sum(1,2)
 ctx.__lastFnCalled = 'SUM'
@@ -135,7 +142,7 @@ return _1;
 `;
 
 exports[`expression compiler function call 2`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =sum(true, \\"\\")
 ctx.__lastFnCalled = 'SUM'
@@ -145,7 +152,7 @@ return _1;
 `;
 
 exports[`expression compiler function call 3`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =sum(1,,2)
 ctx.__lastFnCalled = 'SUM'
@@ -155,11 +162,12 @@ return _1;
 `;
 
 exports[`expression compiler read some values and functions 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
-// =A1 + sum(A2:C3)
-let _2 = cell(0)
-let _4 = range(0);
+// =|0| + sum(|1|)
+let _2 = ref(0, deps, sheetId,
+              \\"undefined\\", undefined)
+let _4 = range(1, deps, sheetId)
 ctx.__lastFnCalled = 'SUM'
 let _3 = ctx['SUM'](_4)
 ctx.__lastFnCalled = 'ADD'
@@ -169,7 +177,7 @@ return _1;
 `;
 
 exports[`expression compiler simple values 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =1
 return 1;
@@ -177,7 +185,7 @@ return 1;
 `;
 
 exports[`expression compiler simple values 2`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =true
 return true;
@@ -185,7 +193,7 @@ return true;
 `;
 
 exports[`expression compiler simple values 3`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =\\"abc\\"
 return \\"abc\\";
@@ -193,7 +201,7 @@ return \\"abc\\";
 `;
 
 exports[`expression compiler some arithmetic expressions 1`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =1 + 3
 ctx.__lastFnCalled = 'ADD'
@@ -203,7 +211,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 2`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =2 * 3
 ctx.__lastFnCalled = 'MULTIPLY'
@@ -213,7 +221,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 3`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =2 - 3
 ctx.__lastFnCalled = 'MINUS'
@@ -223,7 +231,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 4`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =2 / 3
 ctx.__lastFnCalled = 'DIVIDE'
@@ -233,7 +241,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 5`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =-3
 ctx.__lastFnCalled = 'UMINUS'
@@ -243,7 +251,7 @@ return _1;
 `;
 
 exports[`expression compiler some arithmetic expressions 6`] = `
-"function anonymous(cell,range,ctx
+"function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =(3 + 1) * (-1 + 4)
 ctx.__lastFnCalled = 'ADD'

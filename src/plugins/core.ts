@@ -1,7 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { compile, rangeTokenize } from "../formulas/index";
-import { cellReference } from "../formulas/parser";
+import { cellReference, compile, normalize, rangeTokenize } from "../formulas/index";
 import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
 import {
   formatNumber,
@@ -26,6 +25,7 @@ import {
   Command,
   CommandResult,
   HeaderData,
+  NormalizedFormula,
   RenameSheetCommand,
   Row,
   Sheet,
@@ -831,9 +831,6 @@ export class CorePlugin extends BasePlugin {
         cell.error = current.error;
         cell.pending = current.pending;
         cell.formula = current.formula;
-        if (current.async) {
-          cell.async = true;
-        }
       }
     } else {
       // the current content cannot be reused, so we need to recompute the
@@ -864,8 +861,13 @@ export class CorePlugin extends BasePlugin {
       if (cell.type === "formula") {
         cell.error = undefined;
         try {
-          cell.formula = compile(content, sheet, this.sheetIds);
-          cell.async = cell.formula.async;
+          let formulaString: NormalizedFormula = normalize(cell.content || "");
+          let compiledFormula = compile(formulaString);
+          cell.formula = {
+            compiledFormula: compiledFormula,
+            dependencies: formulaString.dependencies,
+            text: formulaString.text,
+          };
         } catch (e) {
           cell.value = "#BAD_EXPR";
           cell.error = e.message || _lt("Invalid Expression");

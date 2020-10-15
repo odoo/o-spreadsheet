@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // WorkBook
 // -----------------------------------------------------------------------------
-
+export type UID = string;
 export interface Zone {
   left: number;
   right: number;
@@ -51,9 +51,21 @@ export interface NewCell {
   format?: string;
 }
 
-type _CompiledFormula = (
-  readCell: (xc: string, sheet: string) => any,
-  range: (v1: string, v2: string, sheetName: string) => any[],
+export type ReferenceDenormalizer = (
+  position: number,
+  references: string[],
+  sheetId: UID,
+  functionName: string,
+  paramNumber: number
+) => any | any[][];
+
+export type EnsureRange = (position: number, references: string[], sheetId: UID) => any[][];
+
+export type _CompiledFormula = (
+  deps: string[],
+  sheetId: UID,
+  refFn: ReferenceDenormalizer,
+  range: EnsureRange,
   ctx: {}
 ) => any;
 
@@ -68,8 +80,11 @@ export interface Cell extends NewCell {
   error?: string;
   pending?: boolean;
   value: any;
-  formula?: CompiledFormula;
-  async?: boolean;
+  formula?: {
+    text: string;
+    dependencies: string[];
+    compiledFormula: CompiledFormula;
+  };
   type: "formula" | "text" | "number" | "date";
 }
 
