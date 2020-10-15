@@ -1,15 +1,21 @@
-import { compile } from "../../src/formulas";
+import { Model } from "../../src";
 import { functionCache } from "../../src/formulas/compiler";
+import { compile, normalize } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions/index";
-import { ArgType } from "../../src/types";
+import { ArgType, NormalizedFormula } from "../../src/types";
 import { evaluateCell } from "../helpers";
 
 function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
     delete functionCache[f];
   }
-  compile(formula, "Sheet1", { Sheet1: "1" });
+  compileFromCompleteFormula(formula);
   return Object.values(functionCache)[0].toString();
+}
+
+function compileFromCompleteFormula(formula: string) {
+  let formulaString: NormalizedFormula = normalize(formula);
+  return compile(formulaString);
 }
 
 describe("expression compiler", () => {
@@ -67,7 +73,6 @@ describe("expression compiler", () => {
   });
 
   test("cannot compile some invalid formulas", () => {
-    expect(() => compiledBaseFunction("=A1:A2")).toThrow();
     expect(() => compiledBaseFunction("=qsdf")).toThrow();
   });
 
@@ -175,29 +180,30 @@ describe("compile functions", () => {
         });
       }
 
-      expect(() => compiledBaseFunction("=ANYEXPECTED(A1:A2)")).toThrowError(
+      const m = new Model();
+      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => compiledBaseFunction("=BOOLEANEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula("=BOOLEANEXPECTED(A1:A2)")).toThrowError(
         "Function BOOLEANEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => compiledBaseFunction("=DATEEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula("=DATEEXPECTED(A1:A2)")).toThrowError(
         "Function DATEEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => compiledBaseFunction("=NUMBEREXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula("=NUMBEREXPECTED(A1:A2)")).toThrowError(
         "Function NUMBEREXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => compiledBaseFunction("=STRINGEXPECTED(A1:A2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula("=STRINGEXPECTED(A1:A2)")).toThrowError(
         "Function STRINGEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
 
-      expect(() => compiledBaseFunction("=ANYEXPECTED(A1:A$2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A$2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => compiledBaseFunction("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
+      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => compiledBaseFunction("=ANYEXPECTED(A1:A1)")).not.toThrow();
+      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A1)")).not.toThrow();
     });
   });
 

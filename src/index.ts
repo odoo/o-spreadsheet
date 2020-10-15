@@ -36,6 +36,7 @@ import {
 export const __info__ = {};
 export { BasePlugin } from "./base_plugin";
 export { Spreadsheet } from "./components/index";
+export { functionCache } from "./formulas/compiler";
 export { astToFormula, parse } from "./formulas/parser";
 export { DEBUG as __DEBUG__ } from "./helpers/index";
 export { Model } from "./model";

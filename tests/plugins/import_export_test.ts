@@ -30,6 +30,7 @@ describe("Migrations", () => {
           rows: {
             0: { size: 12 },
           },
+          cells: { A1: { content: "=a1" } },
           name: "My sheet",
           conditionalFormats: [],
         },
@@ -179,7 +180,12 @@ test("complete import, then export", () => {
         },
         cells: {
           A1: { content: "hello" },
-          B1: { content: "=a1", style: 99, border: 8, format: "0.00%" },
+          B1: {
+            content: "=a1",
+            style: 99,
+            border: 8,
+            format: "0.00%",
+          },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
         },
         name: "My sheet",

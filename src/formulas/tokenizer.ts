@@ -34,6 +34,7 @@ export type TokenType =
   | "COMMA"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
+  | "REFERENCE"
   | "UNKNOWN";
 
 export interface Token {
@@ -45,6 +46,7 @@ export function tokenize(str: string): Token[] {
   const chars = str.split("");
   const result: Token[] = [];
   let tokenCount = 0;
+
   while (chars.length) {
     tokenCount++;
     if (tokenCount > 100) {
@@ -61,6 +63,7 @@ export function tokenize(str: string): Token[] {
       tokenizeNumber(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
+      tokenizeNormalizedReferences(chars) ||
       tokenizeSymbol(chars);
 
     if (!token) {
@@ -70,6 +73,25 @@ export function tokenize(str: string): Token[] {
     result.push(token);
   }
   return result;
+}
+
+export const FORMULA_REF_IDENTIFIER = "|";
+
+function tokenizeNormalizedReferences(chars: string[]): Token | null {
+  if (chars[0] === FORMULA_REF_IDENTIFIER) {
+    chars.shift(); // consume the | even if it is incorrect
+    const match = chars.join("").match(formulaNumberRegexp);
+    if (match) {
+      chars.splice(0, match[0].length);
+    } else {
+      return null;
+    }
+    if (chars[0] === FORMULA_REF_IDENTIFIER) {
+      chars.shift();
+    }
+    return { type: "REFERENCE", value: match[0] };
+  }
+  return null;
 }
 
 function tokenizeDebugger(chars: string[]): Token | null {

@@ -11,14 +11,14 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A3", text: "= WAIT(1) + 1" });
 
-    expect(model["workbook"].activeSheet.cells["A1"].async).toBe(false);
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(true);
-    expect(model["workbook"].activeSheet.cells["A3"].async).toBe(true);
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 0)!.formula!.compiledFormula.async).toBe(false);
+    expect(model.getters.getCell(0, 1)!.formula!.compiledFormula.async).toBe(true);
+    expect(model.getters.getCell(0, 2)!.formula!.compiledFormula.async).toBe(true);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
     expect(patch.calls.length).toBe(2);
     await waitForRecompute();
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(3);
-    expect(model["workbook"].activeSheet.cells["A3"].value).toEqual(2);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(3);
+    expect(model.getters.getCell(0, 2)!.value).toEqual(2);
   });
 
   test("async formulas in base data", async () => {
@@ -32,8 +32,8 @@ describe("evaluateCells, async formulas", () => {
       ],
     });
 
-    expect(model["workbook"].activeSheet.cells["B2"].async).toBe(true);
-    expect(model["workbook"].activeSheet.cells["B2"].value).toEqual(LOADING);
+    expect(model.getters.getCell(1, 1)!.formula!.compiledFormula.async).toBe(true);
+    expect(model.getters.getCell(1, 1)!.value).toEqual(LOADING);
     let updates = 0;
     model.on("update", null, () => updates++);
     expect(updates).toBe(0);
@@ -45,9 +45,9 @@ describe("evaluateCells, async formulas", () => {
   test("async formula, on update", async () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=3" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(33)" });
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(true);
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    model.dispatch("SET_VALUE", { xc: "A2", text: "=?WAIT(33)" });
+    expect(model.getters.getCell(0, 1)!.formula!.compiledFormula.async).toBe(true);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
     expect(patch.calls.length).toBe(1);
 
     await waitForRecompute();
@@ -57,8 +57,8 @@ describe("evaluateCells, async formulas", () => {
   test("async formula (async function inside async function)", async () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(WAIT(3))" });
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(true);
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 1)!.formula!.compiledFormula.async).toBe(true);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
     expect(patch.calls.length).toBe(1);
     // Inner wait is resolved
     await waitForRecompute();
@@ -75,9 +75,9 @@ describe("evaluateCells, async formulas", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=1 + A1" });
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(false);
-    expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(LOADING);
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 1)!.formula!.compiledFormula.async).toBe(false);
+    expect(model.getters.getCell(0, 0)!.value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
     expect(patch.calls.length).toBe(1);
 
     await waitForRecompute();
@@ -92,10 +92,10 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A2", text: "=WAIT(1)" });
     model.dispatch("SET_VALUE", { xc: "A3", text: "=A1 + A2" });
 
-    expect(model["workbook"].activeSheet.cells["A3"].async).toBe(false);
-    expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(LOADING);
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
-    expect(model["workbook"].activeSheet.cells["A3"].value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 2)!.formula!.compiledFormula.async).toBe(false);
+    expect(model.getters.getCell(0, 0)!.value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 2)!.value).toEqual(LOADING);
     expect(patch.calls.length).toBe(2);
     await waitForRecompute();
     expect(model["workbook"].activeSheet.cells["A1"].value).toEqual(3);
@@ -149,9 +149,9 @@ describe("evaluateCells, async formulas", () => {
     let updateNbr = 0;
     model.on("update", null, () => updateNbr++);
 
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(true);
-    expect(model["workbook"].activeSheet.cells["A1"].value).toEqual("#CYCLE");
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 1)!.formula!.compiledFormula.async).toBe(true);
+    expect(model.getters.getCell(0, 0)!.value).toEqual("#CYCLE");
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
     expect(patch.calls.length).toBe(1);
     updateNbr = 0;
     await waitForRecompute();
@@ -166,8 +166,8 @@ describe("evaluateCells, async formulas", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "=WAIT(3)" });
     model.dispatch("SET_VALUE", { xc: "A2", text: "=A1 + 1/0" });
 
-    expect(model["workbook"].activeSheet.cells["A2"].async).toBe(false);
-    expect(model["workbook"].activeSheet.cells["A2"].value).toEqual(LOADING);
+    expect(model.getters.getCell(0, 1)!.formula!.compiledFormula.async).toBe(false);
+    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
 
     await waitForRecompute();
 

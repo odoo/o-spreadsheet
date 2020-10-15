@@ -60,4 +60,52 @@ describe("evaluate formula getter", () => {
     model.dispatch("SET_VALUE", { sheetId: s[0].id, xc: "A2", text: "=Sheet2!A1" });
     expect(model.getters.getCell(0, 1, "Sheet1")!.value).toBe(12);
   });
+
+  test("evaluate references with fixed indexes", () => {
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: "=A1" });
+    model.dispatch("SET_VALUE", { xc: "A4", text: "=$A1" });
+    model.dispatch("SET_VALUE", { xc: "A5", text: "=A$1" });
+    model.dispatch("SET_VALUE", { xc: "A6", text: "=$A$1" });
+    model.dispatch("SET_VALUE", { xc: "B3", text: "=sum(A$1:A2)" });
+    model.dispatch("SET_VALUE", { xc: "B4", text: "=sum(A$1:A$2)" });
+    model.dispatch("SET_VALUE", { xc: "B5", text: "=sum($A$1:A2)" });
+    model.dispatch("SET_VALUE", { xc: "B6", text: "=sum($A$1:$A$2)" });
+
+    expect(model.getters.getCell(0, 2, "Sheet1")!.value).toBe(1);
+    expect(model.getters.getCell(0, 3, "Sheet1")!.value).toBe(1);
+    expect(model.getters.getCell(0, 4, "Sheet1")!.value).toBe(1);
+    expect(model.getters.getCell(0, 5, "Sheet1")!.value).toBe(1);
+
+    expect(model.getters.getCell(1, 2, "Sheet1")!.value).toBe(3);
+    expect(model.getters.getCell(1, 3, "Sheet1")!.value).toBe(3);
+    expect(model.getters.getCell(1, 4, "Sheet1")!.value).toBe(3);
+    expect(model.getters.getCell(1, 5, "Sheet1")!.value).toBe(3);
+  });
+
+  test("evaluate function with fixed reference to another sheet", () => {
+    model.dispatch("CREATE_SHEET", { id: "42", name: "second sheet" });
+
+    model.dispatch("SET_VALUE", { xc: "A1", text: "1", sheetId: "42" });
+    model.dispatch("SET_VALUE", { xc: "A2", text: "2", sheetId: "42" });
+    model.dispatch("SET_VALUE", { xc: "A3", text: "='second sheet'!A1" });
+    model.dispatch("SET_VALUE", { xc: "A4", text: "='second sheet'!$A1" });
+    model.dispatch("SET_VALUE", { xc: "A5", text: "='second sheet'!A$1" });
+    model.dispatch("SET_VALUE", { xc: "A6", text: "='second sheet'!$A$1" });
+    model.dispatch("SET_VALUE", { xc: "B3", text: "=sum('second sheet'!A$1:A2)" });
+    model.dispatch("SET_VALUE", { xc: "B4", text: "=sum('second sheet'!A$1:A$2)" });
+    model.dispatch("SET_VALUE", { xc: "B5", text: "=sum('second sheet'!$A$1:A2)" });
+    model.dispatch("SET_VALUE", { xc: "B6", text: "=sum('second sheet'!$A$1:$A$2)" });
+
+    expect(model.getters.getCell(0, 2, "Sheet1")!.value).toBe(1);
+    expect(model.getters.getCell(0, 3, "Sheet1")!.value).toBe(1);
+    expect(model.getters.getCell(0, 4, "Sheet1")!.value).toBe(1);
+    expect(model.getters.getCell(0, 5, "Sheet1")!.value).toBe(1);
+
+    expect(model.getters.getCell(1, 2, "Sheet1")!.value).toBe(3);
+    expect(model.getters.getCell(1, 3, "Sheet1")!.value).toBe(3);
+    expect(model.getters.getCell(1, 4, "Sheet1")!.value).toBe(3);
+    expect(model.getters.getCell(1, 5, "Sheet1")!.value).toBe(3);
+  });
 });

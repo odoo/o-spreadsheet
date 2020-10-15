@@ -4,175 +4,176 @@ import { LOADING } from "../../src/plugins/evaluation";
 import { getCell, waitForRecompute } from "../helpers";
 
 describe("core", () => {
-  test("properly compute sum of current cells", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "54" });
+  describe("aggregate", () => {
+    test("properly compute sum of current cells", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
+      model.dispatch("SET_VALUE", { xc: "A3", text: "54" });
 
-    expect(model.getters.getAggregate()).toBe(null);
+      expect(model.getters.getAggregate()).toBe(null);
 
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
 
-    expect(model.getters.getAggregate()).toBe(null);
+      expect(model.getters.getAggregate()).toBe(null);
 
-    model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
-    expect(model.getters.getAggregate()).toBe("57");
-  });
-
-  test("ignore cells with an error", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=A2" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "3" });
-
-    // select A1
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    expect(model.getters.getAggregate()).toBe(null);
-
-    // select A1:A2
-    model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
-    expect(model.getters.getAggregate()).toBe(null);
-
-    // select A1:A3
-    model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
-    expect(model.getters.getAggregate()).toBe("5");
-  });
-
-  describe("raise error from compilation with specific error message", () => {
-    functionRegistry.add("TWOARGSNEEDED", {
-      description: "any function",
-      compute: () => {
-        return true;
-      },
-      args: [
-        { name: "arg1", description: "", type: ["ANY"] },
-        { name: "arg2", description: "", type: ["ANY"] },
-      ],
-      returns: ["ANY"],
+      model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
+      expect(model.getters.getAggregate()).toBe("57");
     });
 
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=TWOARGSNEEDED(42)" });
-    expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
-    expect(getCell(model, "A1")!.error).toBe(
-      `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2, but got 1 instead.`
-    );
-  });
+    test("ignore cells with an error", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "=A2" });
+      model.dispatch("SET_VALUE", { xc: "A3", text: "3" });
 
-  test("ignore async cells while they are not ready", async () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=Wait(1000)" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "44" });
+      // select A1
+      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      expect(model.getters.getAggregate()).toBe(null);
 
-    // select A1
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    expect(model.getters.getAggregate()).toBe(null);
+      // select A1:A2
+      model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
+      expect(model.getters.getAggregate()).toBe(null);
 
-    // select A1:A2
-    model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
-    expect(model.getters.getAggregate()).toBe(null);
-
-    await waitForRecompute();
-    expect(model.getters.getAggregate()).toBe("1044");
-  });
-
-  test("format cell that point to an empty cell properly", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=A2" });
-
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0");
-  });
-
-  test.each([
-    [undefined, ""],
-    [{ hello: 1 }, "[object Object]"],
-    [{ hello: 1, toString: () => "hello" }, "hello"],
-    [null, "0"],
-  ])("getCellText of cell with %j value", (a, expected) => {
-    const model = new Model();
-    expect(
-      model.getters.getCellText({
-        value: a,
-        col: 0,
-        row: 0,
-        type: "text",
-        xc: "A1",
-      })
-    ).toBe(expected);
-  });
-
-  test("format cell without content: empty string", () => {
-    const model = new Model();
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("SET_FORMATTING", {
-      sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones(),
-      border: "bottom",
+      // select A1:A3
+      model.dispatch("ALTER_SELECTION", { cell: [0, 2] });
+      expect(model.getters.getAggregate()).toBe("5");
     });
-    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
-  });
 
-  test("format cell with the zero value", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones(),
-      formatter: "0.00000",
+    describe("raise error from compilation with specific error message", () => {
+      functionRegistry.add("TWOARGSNEEDED", {
+        description: "any function",
+        compute: () => {
+          return true;
+        },
+        args: [
+          { name: "arg1", description: "", type: ["ANY"] },
+          { name: "arg2", description: "", type: ["ANY"] },
+        ],
+        returns: ["ANY"],
+      });
+
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "=TWOARGSNEEDED(42)" });
+      expect(getCell(model, "A1")!.value).toBe("#BAD_EXPR");
+      expect(getCell(model, "A1")!.error).toBe(
+        `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2, but got 1 instead.`
+      );
     });
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0.00000");
-    model.dispatch("SET_VALUE", { xc: "A2", text: "0" });
-    model.dispatch("SELECT_CELL", { col: 0, row: 1 });
-    model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones(),
-      formatter: "0.00%",
+
+    test("ignore async cells while they are not ready", async () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "=Wait(1000)" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "44" });
+
+      // select A1
+      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      expect(model.getters.getAggregate()).toBe(null);
+
+      // select A1:A2
+      model.dispatch("ALTER_SELECTION", { cell: [0, 1] });
+      expect(model.getters.getAggregate()).toBe(null);
+
+      await waitForRecompute();
+      expect(model.getters.getAggregate()).toBe("1044");
     });
-    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("0.00%");
-  });
 
-  test("format a pendingcell: should not apply formatter to Loading...", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });
-    model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("SET_FORMATTER", {
-      sheet: model.getters.getActiveSheet(),
-      target: model.getters.getSelectedZones(),
-      formatter: "#,##0.00",
+    test("format cell that point to an empty cell properly", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "=A2" });
+      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0");
     });
-    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe(LOADING);
-  });
 
-  test("evaluate properly a cell with a style just recently applied", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2) + 1" });
-    model.dispatch("SET_FORMATTING", {
-      sheet: "Sheet1",
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      style: { bold: true },
+    test.each([
+      [undefined, ""],
+      [{ hello: 1 }, "[object Object]"],
+      [{ hello: 1, toString: () => "hello" }, "hello"],
+      [null, "0"],
+    ])("getCellText of cell with %j value", (a, expected) => {
+      const model = new Model();
+      expect(
+        model.getters.getCellText({
+          value: a,
+          col: 0,
+          row: 0,
+          type: "text",
+          xc: "A1",
+        })
+      ).toBe(expected);
     });
-    expect(model.getters.getCellText(model.getters.getCell(0, 0)!)).toEqual("1");
-  });
 
-  test("format cell to a boolean value", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=false" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=true" });
+    test("format cell without content: empty string", () => {
+      const model = new Model();
+      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      model.dispatch("SET_FORMATTING", {
+        sheet: model.getters.getActiveSheet(),
+        target: model.getters.getSelectedZones(),
+        border: "bottom",
+      });
+      expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
+    });
 
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("FALSE");
-    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("TRUE");
-  });
+    test("format cell with the zero value", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
+      model.dispatch("SELECT_CELL", { col: 0, row: 0 });
+      model.dispatch("SET_FORMATTER", {
+        sheet: model.getters.getActiveSheet(),
+        target: model.getters.getSelectedZones(),
+        formatter: "0.00000",
+      });
+      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0.00000");
+      model.dispatch("SET_VALUE", { xc: "A2", text: "0" });
+      model.dispatch("SELECT_CELL", { col: 0, row: 1 });
+      model.dispatch("SET_FORMATTER", {
+        sheet: model.getters.getActiveSheet(),
+        target: model.getters.getSelectedZones(),
+        formatter: "0.00%",
+      });
+      expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("0.00%");
+    });
 
-  test("detect and format percentage values automatically", () => {
-    const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3%" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "3.4%" });
+    test("format a pendingcell: should not apply formatter to Loading...", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });
+      model.dispatch("SELECT_CELL", { col: 1, row: 1 });
+      model.dispatch("SET_FORMATTER", {
+        sheet: model.getters.getActiveSheet(),
+        target: model.getters.getSelectedZones(),
+        formatter: "#,##0.00",
+      });
+      expect(model.getters.getCellText(getCell(model, "B2")!)).toBe(LOADING);
+    });
 
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3%");
-    expect(getCell(model, "A1")!.format).toBe("0%");
-    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("3.40%");
-    expect(getCell(model, "A2")!.format).toBe("0.00%");
+    test("evaluate properly a cell with a style just recently applied", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2) + 1" });
+      model.dispatch("SET_FORMATTING", {
+        sheet: "Sheet1",
+        target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
+        style: { bold: true },
+      });
+      expect(model.getters.getCellText(model.getters.getCell(0, 0)!)).toEqual("1");
+    });
+
+    test("format cell to a boolean value", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "=false" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "=true" });
+
+      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("FALSE");
+      expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("TRUE");
+    });
+
+    test("detect and format percentage values automatically", () => {
+      const model = new Model();
+      model.dispatch("SET_VALUE", { xc: "A1", text: "3%" });
+      model.dispatch("SET_VALUE", { xc: "A2", text: "3.4%" });
+
+      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3%");
+      expect(getCell(model, "A1")!.format).toBe("0%");
+      expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("3.40%");
+      expect(getCell(model, "A2")!.format).toBe("0.00%");
+    });
   });
 
   test("does not reevaluate cells if edition does not change content", () => {
