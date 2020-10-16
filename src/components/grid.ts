@@ -442,7 +442,9 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
-    this.moveCanvas(normalize(ev.deltaX), normalize(ev.deltaY));
+    const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
+    const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
+    this.moveCanvas(normalize(deltaX), normalize(deltaY));
   }
 
   // ---------------------------------------------------------------------------
