@@ -581,4 +581,14 @@ describe("figures", () => {
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
   });
+
+  test("Can scroll horizontally using shift key", async () => {
+    const baseVertical = getVerticalScroll();
+    const baseHorizontal = getHorizontalScroll();
+    fixture
+      .querySelector(".o-grid")!
+      .dispatchEvent(new WheelEvent("wheel", { deltaY: 1500, shiftKey: true }));
+    expect(getVerticalScroll()).toBe(baseVertical);
+    expect(getHorizontalScroll()).toBe(baseHorizontal + 1500);
+  });
 });
