@@ -12,9 +12,10 @@ import {
   UID,
   KnownReferenceDereferencer,
   EnsureRange,
+  FormulaString,
 } from "../types";
 import { _lt } from "../translation";
-import { compileFromCompleteFormula } from "../formulas/index";
+import { compile, preParseFormula } from "../formulas/index";
 
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
@@ -41,7 +42,6 @@ export class EvaluationPlugin extends BasePlugin {
   private isUptodate: Set<string> = new Set();
   private loadingCells: number = 0;
   private isStarted: boolean = false;
-  private cache: { [key: string]: Function } = {};
   private evalContext: EvalContext;
 
   /**
@@ -130,22 +130,19 @@ export class EvaluationPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: string = this.getters.getActiveSheetId()): any {
-    const cacheKey = `${sheet}#${formula}`;
-    let compiledFormula;
-    if (cacheKey in this.cache) {
-      compiledFormula = this.cache[cacheKey];
-    } else {
-      let sheetIds: { [name: string]: UID } = {};
-      const sheets = this.getters.getEvaluationSheets();
-      for (let sheetId in sheets) {
-        sheetIds[sheets[sheetId].name] = sheetId;
-      }
-      compiledFormula = compileFromCompleteFormula(formula, sheet, sheetIds);
-      this.cache[cacheKey] = compiledFormula;
+  evaluateFormula(formula: string, sheet: UID = this.getters.getActiveSheetId()): any {
+    let formulaString: FormulaString = preParseFormula(formula);
+
+    let sheetIds: { [name: string]: UID } = {};
+    const sheets = this.getters.getEvaluationSheets();
+    for (let sheetId in sheets) {
+      sheetIds[sheets[sheetId].name] = sheetId;
     }
+    let compiledFormula = compile(formulaString, sheet, sheetIds);
+
     const params = this.getFormulaParameters(() => {});
-    return compiledFormula(...params);
+
+    return compiledFormula(formulaString.dependencies, sheet, ...params);
   }
 
   isIdle() {
