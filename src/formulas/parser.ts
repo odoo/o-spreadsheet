@@ -1,6 +1,6 @@
 import { Token, tokenize } from "./tokenizer";
 import { functionRegistry } from "../functions/index";
-import { toCartesian, toXC, getUnquotedSheetName, parseNumber } from "../helpers/index";
+import { parseNumber } from "../helpers/index";
 import { _lt } from "../translation";
 import { FormulaString } from "../types";
 import { rangeTokenize } from "./range_tokenizer";
@@ -33,12 +33,6 @@ interface ASTString extends ASTBase {
 interface ASTBoolean extends ASTBase {
   type: "BOOLEAN";
   value: boolean;
-}
-
-interface ASTReference extends ASTBase {
-  type: "REFERENCE";
-  value: string;
-  sheet?: string;
 }
 
 interface ASTUnaryOperation extends ASTBase {
@@ -79,7 +73,6 @@ export type AST =
   | ASTNumber
   | ASTBoolean
   | ASTString
-  | ASTReference
   | ASTKnownReference
   | ASTUnknown;
 
@@ -168,30 +161,13 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         value: parseInt(current.value, 10),
       };
     case "SYMBOL":
-      if (cellReference.test(current.value)) {
-        if (current.value.includes("!")) {
-          let [sheet, val] = current.value.split("!");
-          sheet = getUnquotedSheetName(sheet);
-          return {
-            type: "REFERENCE",
-            value: val.replace(/\$/g, "").toUpperCase(),
-            sheet: sheet,
-          };
-        } else {
-          return {
-            type: "REFERENCE",
-            value: current.value.replace(/\$/g, "").toUpperCase(),
-          };
-        }
+      if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
+        return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
       } else {
-        if (["TRUE", "FALSE"].includes(current.value.toUpperCase())) {
-          return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
-        } else {
-          if (current.value) {
-            throw new Error(_lt("Invalid formula"));
-          }
-          return { type: "UNKNOWN", value: current.value };
+        if (current.value) {
+          throw new Error(_lt("Invalid formula"));
         }
+        return { type: "UNKNOWN", value: current.value };
       }
     case "LEFT_PAREN":
       const result = parseExpression(tokens, 5);
@@ -216,14 +192,7 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
   if (current.type === "OPERATOR") {
     const bp = bindingPower(current);
     const right = parseExpression(tokens, bp);
-    if (current.value === ":") {
-      if (left.type === "REFERENCE" && right.type === "REFERENCE") {
-        const [x1, y1] = toCartesian(left.value);
-        const [x2, y2] = toCartesian(right.value);
-        left.value = toXC(Math.min(x1, x2), Math.min(y1, y2));
-        right.value = toXC(Math.max(x1, x2), Math.max(y1, y2));
-      }
-    }
+
     return {
       type: "BIN_OPERATION",
       value: current.value,
@@ -316,8 +285,6 @@ export function astToFormula(ast: AST): string {
       return ast.value + astToFormula(ast.right);
     case "BIN_OPERATION":
       return astToFormula(ast.left) + ast.value + astToFormula(ast.right);
-    case "REFERENCE":
-      return ast.sheet ? `${ast.sheet}!${ast.value}` : ast.value;
     case "KNOWN_REFERENCE":
       return `${FORMULA_REF_IDENTIFIER}${ast.value}${FORMULA_REF_IDENTIFIER}`;
     default:

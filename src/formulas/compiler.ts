@@ -52,8 +52,6 @@ export function compile(
   sheets: { [name: string]: UID },
   originCellXC?: string
 ): CompiledFormula {
-  let cellRefs: [string, string][] = [];
-  let rangeRefs: [string, string, string][] = [];
   let isAsync = false;
 
   if (!functionCache[str.text]) {
@@ -94,7 +92,7 @@ export function compile(
         const isLazy = argDefinition && argDefinition.lazy;
         argValue = compileAST(arg, isLazy, isMeta);
         // transform cell value into a range
-        if (arg.type === "REFERENCE" || arg.type === "KNOWN_REFERENCE") {
+        if (arg.type === "KNOWN_REFERENCE") {
           const hasRange = types.find(
             (t) =>
               t === "RANGE" ||
@@ -149,11 +147,7 @@ export function compile(
 
     function compileAST(ast: AST, isLazy = false, isMeta = false): string {
       let id, left, right, args, fnName, statement;
-      if (
-        ast.type !== "REFERENCE" &&
-        ast.type !== "KNOWN_REFERENCE" &&
-        !(ast.type === "BIN_OPERATION" && ast.value === ":")
-      ) {
+      if (ast.type !== "KNOWN_REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
           throw new Error(_lt(`Argument must be a reference to a cell or range.`));
         }
@@ -185,16 +179,6 @@ export function compile(
             statement = `ref(${ast.value}, deps, evaluationSheetId)`;
           }
           break;
-        case "REFERENCE":
-          id = nextId++;
-          if (isMeta) {
-            statement = `"${ast.value}"`;
-          } else {
-            const sheetId = ast.sheet ? sheets[ast.sheet] : sheet;
-            const refIdx = cellRefs.push([ast.value, sheetId]) - 1;
-            statement = `cell(${refIdx})`;
-          }
-          break;
         case "FUNCALL":
           id = nextId++;
           args = compileFunctionArgs(ast);
@@ -219,22 +203,11 @@ export function compile(
           break;
         case "BIN_OPERATION":
           id = nextId++;
-          if (ast.value === ":") {
-            if (isMeta) {
-              statement = `"${ast.left.value}:${ast.right.value}"`;
-            } else {
-              const sheetName = ast.left.type === "REFERENCE" && ast.left.sheet;
-              const sheetId = sheetName ? sheets[sheetName] : sheet;
-              const rangeIdx = rangeRefs.push([ast.left.value, ast.right.value, sheetId]) - 1;
-              statement = `range(${rangeIdx});`;
-            }
-          } else {
-            left = compileAST(ast.left);
-            right = compileAST(ast.right);
-            fnName = OPERATOR_MAP[ast.value];
-            code.push(`ctx.__lastFnCalled = '${fnName}'`);
-            statement = `ctx['${fnName}'](${left}, ${right})`;
-          }
+          left = compileAST(ast.left);
+          right = compileAST(ast.right);
+          fnName = OPERATOR_MAP[ast.value];
+          code.push(`ctx.__lastFnCalled = '${fnName}'`);
+          statement = `ctx['${fnName}'](${left}, ${right})`;
           break;
         case "UNKNOWN":
           if (!isLazy) {
@@ -252,8 +225,6 @@ export function compile(
 
     const Constructor = isAsync ? AsyncFunction : Function;
     let baseFunction = new Constructor(
-      // "cell",
-      // "range",
       "deps", // the dependencies in the current formula
       "evaluationSheetId", // the sheet the formula is currently evaluating
       "ref", // a function to access a certain dependency at a given index
@@ -266,40 +237,4 @@ export function compile(
   }
 
   return functionCache[str.text];
-
-  /*const resultFn = (
-    cell: ReadCell,
-    range: Range,
-    ref: KnownReferenceDereferencer,
-    ctx: EvalContext
-  ): _CompiledFormula => {
-    ctx.__originCellXC = originCellXC;
-
-    const cellFn = (idx) => {
-      const [xc, sheetId] = cellRefs[idx];
-      return cell(xc, sheetId);
-    };
-    const rangeFn = (idx) => {
-      const [xc1, xc2, sheetId] = rangeRefs[idx];
-      return range(xc1, xc2, sheetId);
-    };
-
-    const refFn = (knowReferencePosition) => {
-      const referenceText = str.dependencies[knowReferencePosition];
-      const [reference, sheetName] = referenceText.split("!").reverse();
-      const sheetId = sheetName ? sheets[sheetName] : sheet;
-      if (referenceText.includes(":")) {
-        // it's a range
-        const [left, right] = reference.split(":");
-        return range(left, right, sheetId);
-      } else {
-        //it's a cell
-        return cell(reference, sheetId);
-      }
-    };
-
-    return functionCache[str.text](cellFn, rangeFn, refFn, ctx);
-  };
-  resultFn.async = functionCache[str.text].async;
-  return resultFn;*/
 }

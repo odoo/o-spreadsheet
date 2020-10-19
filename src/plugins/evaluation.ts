@@ -324,7 +324,9 @@ export class EvaluationPlugin extends BasePlugin {
     function refFn(knowReferencePosition, knownReferences, evaluationSheetId): any | any[][] {
       const referenceText = knownReferences[knowReferencePosition];
       const [reference, sheetName] = referenceText.split("!").reverse();
-      const sheetId = sheetName ? sheets[sheetName] : evaluationSheetId;
+      const sheetId = sheetName
+        ? evalContext.getters.getSheetIdByName(sheetName)
+        : evaluationSheetId;
       if (referenceText.includes(":")) {
         // it's a range
         const [left, right] = reference.split(":");
