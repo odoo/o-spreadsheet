@@ -60,7 +60,7 @@ describe("expression compiler", () => {
   });
 
   test("cannot compile some invalid formulas", () => {
-    expect(() => compiledBaseFunction("=A1:A2")).toThrow();
+    //expect(() => compiledBaseFunction("=A1:A2")).toThrow(); // this cannot be validated anymore because the range is a runtime parameter, not a compile time parameter anymore
     expect(() => compiledBaseFunction("=qsdf")).toThrow();
   });
 
@@ -178,20 +178,23 @@ describe("compile functions with meta arguments", () => {
     const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
     compiledFormula1(["A1"], "ABC", undefined, refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledTimes(0);
+    expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC", true);
     expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
 
     compiledFormula2(["A1:B2"], "ABC", undefined, refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledTimes(0);
+    expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC", true);
     expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
 
     compiledFormula3(["A1"], "ABC", undefined, refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalled();
+    expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC");
     expect(ensureRange).toHaveBeenCalledTimes(0);
     refFn.mockReset();
 
     compiledFormula4(["A1:B2"], "ABC", undefined, refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledTimes(0);
-    expect(ensureRange).toHaveBeenCalled();
+    expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC");
+    expect(ensureRange).toHaveBeenCalledTimes(0);
+    refFn.mockReset();
   });
 });

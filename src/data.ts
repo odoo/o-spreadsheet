@@ -11,8 +11,8 @@ export const CURRENT_VERSION = 6;
 
 /**
  * This function tries to load anything that could look like a valid
- * workbookdata object. It applies any migrations, if needed, and return a
- * current, complete workbookdata object.
+ * workbookData object. It applies any migrations, if needed, and return a
+ * current, complete workbookData object.
  *
  * It also ensures that there is at least one sheet.
  */
@@ -119,6 +119,7 @@ const MIGRATIONS: Migration[] = [
           }
         }
       }
+      return data;
     },
   },
 ];
