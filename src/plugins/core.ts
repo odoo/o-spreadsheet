@@ -877,7 +877,7 @@ export class CorePlugin extends BasePlugin {
         cell.error = undefined;
         try {
           let formulaString: FormulaString = preParseFormula(cell.content || "");
-          let compiledFormula = compile(formulaString, sheetId, this.sheetIds, xc);
+          let compiledFormula = compile(formulaString, xc);
           cell.formula = {
             compiledFormula: compiledFormula,
             dependencies: formulaString.dependencies,

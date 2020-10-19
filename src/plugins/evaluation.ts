@@ -133,15 +133,8 @@ export class EvaluationPlugin extends BasePlugin {
   evaluateFormula(formula: string, sheet: UID = this.getters.getActiveSheetId()): any {
     let formulaString: FormulaString = preParseFormula(formula);
 
-    let sheetIds: { [name: string]: UID } = {};
-    const sheets = this.getters.getEvaluationSheets();
-    for (let sheetId in sheets) {
-      sheetIds[sheets[sheetId].name] = sheetId;
-    }
-    let compiledFormula = compile(formulaString, sheet, sheetIds);
-
+    const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
-
     return compiledFormula(formulaString.dependencies, sheet, ...params);
   }
 

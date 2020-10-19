@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg, FormulaString, UID } from "../types/index";
+import { CompiledFormula, Arg, FormulaString } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse, preParseFormula } from "./parser";
 import { _lt } from "../translation";
 
@@ -37,21 +37,12 @@ export const functionCache: { [key: string]: CompiledFormula } = {};
 // -----------------------------------------------------------------------------
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
-export function compileFromCompleteFormula(
-  formula: string,
-  sheet: UID,
-  sheets: { [name: string]: UID }
-) {
+export function compileFromCompleteFormula(formula: string) {
   let formulaString: FormulaString = preParseFormula(formula);
-  return compile(formulaString, sheet, sheets);
+  return compile(formulaString);
 }
 
-export function compile(
-  str: FormulaString,
-  sheet: string,
-  sheets: { [name: string]: UID },
-  originCellXC?: string
-): CompiledFormula {
+export function compile(str: FormulaString, originCellXC?: string): CompiledFormula {
   let isAsync = false;
 
   if (!functionCache[str.text]) {

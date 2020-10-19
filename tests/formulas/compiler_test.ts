@@ -7,7 +7,7 @@ function compiledBaseFunction(formula: string): string {
   for (let f in functionCache) {
     delete functionCache[f];
   }
-  compileFromCompleteFormula(formula, "Sheet1", { Sheet1: "1" });
+  compileFromCompleteFormula(formula);
   return Object.values(functionCache)[0].toString();
 }
 
@@ -167,18 +167,10 @@ describe("compile functions with meta arguments", () => {
   });
 
   test("functions call requesting a meta parameter does not care about the value of the cell / range passed as a reference", () => {
-    const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)", "Sheet1", {
-      Sheet1: "1",
-    });
-    const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)", "Sheet1", {
-      Sheet1: "1",
-    });
-    const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)", "Sheet1", {
-      Sheet1: "1",
-    });
-    const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)", "Sheet1", {
-      Sheet1: "1",
-    });
+    const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)");
+    const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)");
+    const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)");
+    const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)");
 
     let refFn = jest.fn();
     let ensureRange = jest.fn();
