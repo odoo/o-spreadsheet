@@ -1038,7 +1038,6 @@ describe("UI of conditional formats", () => {
           minimum: {
             color: 0x0000ff,
             type: "value",
-            value: "33",
           },
           type: "ColorScaleRule",
         },
@@ -1143,7 +1142,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
+    //setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
 
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     //  click save
@@ -1163,7 +1162,6 @@ describe("UI of conditional formats", () => {
           minimum: {
             color: 0x0000ff,
             type: "value",
-            value: "33",
           },
           type: "ColorScaleRule",
         },
@@ -1171,12 +1169,12 @@ describe("UI of conditional formats", () => {
       sheetId: model.getters.getActiveSheetId(),
     });
   });
-  /*
+
   test("Colorscale input number must yield a number not a string", async () => {
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
 
-    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change"); // TODO: type of min = "number" select[name="valueType"]
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20", "input");
 
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
@@ -1187,15 +1185,15 @@ describe("UI of conditional formats", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "2",
-        ranges: ["B2:B5"],
+        ranges: ["B1:B5"],
         rule: {
           maximum: {
-            color: 0xffff00,
+            color: 0x123456,
             type: "value",
           },
           midpoint: undefined,
           minimum: {
-            color: 0x0000ff,
+            color: 0xff00ff,
             type: "number",
             value: 20, // as a number, not a string
           },
@@ -1204,7 +1202,7 @@ describe("UI of conditional formats", () => {
       },
       sheetId: model.getters.getActiveSheetId(),
     });
-  });*/
+  });
 
   /* TODO "Colorscale inputing wrong minimum value"
      Open side panel CF
