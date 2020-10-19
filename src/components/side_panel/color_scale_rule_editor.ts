@@ -32,7 +32,7 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
 <!--          <option value="formula">Formula</option>-->
       </select>
 
-      <input type="text" t-model="threshold.value" class="o-threshold-value"
+      <input type="text" t-on-change="setValue(thresholdType)" class="o-threshold-value"
             t-att-disabled="!(threshold.type === 'number' || threshold.type === 'percentage' || threshold.type === 'percentile')"/>
   </div>`;
 
@@ -124,6 +124,10 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     const color: string = ev.detail.color;
     this.state[target].color = Number.parseInt(color.substr(1), 16);
     this.closeMenus();
+  }
+  setValue(target: string, ev) {
+    let number = Number.parseFloat(ev.target.value);
+    this.state[target].value = Number.isNaN(number) ? undefined : number;
   }
   closeMenus() {
     this.state.minimumColorTool = false;

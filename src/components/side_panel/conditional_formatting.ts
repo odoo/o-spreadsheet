@@ -300,6 +300,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   onSave(ev: CustomEvent) {
     if (this.state.currentCF) {
+      // if state is not well formatted (for example type=number and value=undefined), do not dispatch
       this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: ev.detail.rule,

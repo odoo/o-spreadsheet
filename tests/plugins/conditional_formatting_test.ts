@@ -820,40 +820,6 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#ff0000" });
       expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#00ff00" });
     });
-    
-    test("2 points, number", () => {
-      model.dispatch("SET_VALUE", { xc: "A1", text: "5" });
-
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A5"],
-          { type: "number", color: 0xff0000, value: 0 },
-          { type: "number", color: 0x00ff00, value: 255 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
-      });
-
-      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#fa0500" });
-    });
-
-    test("2 points, number with overflow", () => {
-      model.dispatch("SET_VALUE", { xc: "A1", text: "-5" });
-      model.dispatch("SET_VALUE", { xc: "A2", text: "300" });
-
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A5"],
-          { type: "number", color: 0xff0000, value: 0 },
-          { type: "number", color: 0x00ff00, value: 255 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
-      });
-
-      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
-      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#00ff00" });
-    });
 
     test("2 points, value scale with same min/max", () => {
       model.dispatch("SET_VALUE", { xc: "A1", text: "10" });
@@ -1204,6 +1170,54 @@ describe("UI of conditional formats", () => {
       },
       sheetId: model.getters.getActiveSheetId(),
     });
+  });
+  /*
+  test("Colorscale input number must yield a number not a string", async () => {
+    triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
+    await nextTick();
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change"); // TODO: type of min = "number" select[name="valueType"]
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20", "input");
+
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "2",
+        ranges: ["B2:B5"],
+        rule: {
+          maximum: {
+            color: 0xffff00,
+            type: "value",
+          },
+          midpoint: undefined,
+          minimum: {
+            color: 0x0000ff,
+            type: "number",
+            value: 20, // as a number, not a string
+          },
+          type: "ColorScaleRule",
+        },
+      },
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });*/
+
+  /* TODO "Colorscale inputing wrong minimum value"
+     Open side panel CF
+     Click on tab ColorScale
+     Change minimum type to "number" (selectors.colorScaleEditor.minType)
+     Change minimum input to "bla" (selectors.colorScaleEditor.minValue) (.o-threshold-minimum .o-threshold-value)
+     Click on save
+    ; it expects to have no background on a cell of the range
+  */
+
+  test.skip("Colorscale inputing wrong minimum value", async () => {
+    // same a previous test but minType = "bla"
+    // expects parent.env.dispatch to NOT be called (or to be called with value = undefined ?)
   });
 
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
