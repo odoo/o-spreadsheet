@@ -1,12 +1,13 @@
 import { SheetData, WorkbookData } from "./types/index";
 import { uuidv4 } from "./helpers/index";
+import { preParseFormula } from "./formulas";
 
 /**
  * This is the current state version number. It should be incremented each time
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 5;
+export const CURRENT_VERSION = 6;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -104,6 +105,20 @@ const MIGRATIONS: Migration[] = [
         sheet.figures = sheet.figures || [];
       }
       return data;
+    },
+  },
+  {
+    from: 5,
+    to: 6,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets) {
+        for (let xc in sheet.cells) {
+          const cell = sheet.cells[xc];
+          if (cell.content && cell.content.startsWith("=")) {
+            cell.formula = preParseFormula(cell.content);
+          }
+        }
+      }
     },
   },
 ];
