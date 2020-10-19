@@ -165,7 +165,7 @@ export function compile(str: FormulaString, originCellXC?: string): CompiledForm
           }
           id = nextId++;
           if (isMeta) {
-            statement = `"${referenceText}"`;
+            statement = `ref(${ast.value}, deps, evaluationSheetId, ${isMeta})`;
           } else {
             statement = `ref(${ast.value}, deps, evaluationSheetId)`;
           }
@@ -212,12 +212,14 @@ export function compile(str: FormulaString, originCellXC?: string): CompiledForm
       return `_${id}`;
     }
 
+    code.push(`ctx['__originCellXC'] = cellOrigin;`);
     code.push(`return ${compileAST(ast)};`);
 
     const Constructor = isAsync ? AsyncFunction : Function;
     let baseFunction = new Constructor(
       "deps", // the dependencies in the current formula
       "evaluationSheetId", // the sheet the formula is currently evaluating
+      "cellOrigin", // the cell XC currently being evaluated
       "ref", // a function to access a certain dependency at a given index
       "ensureRange", // same as above, but guarantee that the result is in the form of a range
       "ctx",

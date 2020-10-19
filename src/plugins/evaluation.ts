@@ -135,7 +135,7 @@ export class EvaluationPlugin extends BasePlugin {
 
     const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
-    return compiledFormula(formulaString.dependencies, sheet, ...params);
+    return compiledFormula(formulaString.dependencies, sheet, undefined, ...params);
   }
 
   isIdle() {
@@ -231,8 +231,9 @@ export class EvaluationPlugin extends BasePlugin {
           cell.value = LOADING;
           cell.pending = true;
           PENDING.add(cell);
+
           cell.formula
-            .compiledFormula(cell.formula.dependencies, sheetId, ...params)
+            .compiledFormula(cell.formula.dependencies, sheetId, cell.xc, ...params)
             .then((val) => {
               cell.value = val;
               self.loadingCells--;
@@ -245,7 +246,12 @@ export class EvaluationPlugin extends BasePlugin {
             .catch((e: Error) => handleError(e, cell));
           self.loadingCells++;
         } else {
-          cell.value = cell.formula.compiledFormula(cell.formula.dependencies, sheetId, ...params);
+          cell.value = cell.formula.compiledFormula(
+            cell.formula.dependencies,
+            sheetId,
+            cell.xc,
+            ...params
+          );
           cell.pending = false;
         }
         cell.error = undefined;
@@ -314,8 +320,16 @@ export class EvaluationPlugin extends BasePlugin {
     }
 
     // TODO VSC : write doc
-    function refFn(knowReferencePosition, knownReferences, evaluationSheetId): any | any[][] {
+    function refFn(
+      knowReferencePosition,
+      knownReferences,
+      evaluationSheetId,
+      isMeta: boolean = false
+    ): any | any[][] {
       const referenceText = knownReferences[knowReferencePosition];
+      if (isMeta) {
+        return referenceText;
+      }
       const [reference, sheetName] = referenceText.split("!").reverse();
       const sheetId = sheetName
         ? evalContext.getters.getSheetIdByName(sheetName)

@@ -177,20 +177,20 @@ describe("compile functions with meta arguments", () => {
 
     const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
-    compiledFormula1(["A1"], "ABC", refFn, ensureRange, ctx);
+    compiledFormula1(["A1"], "ABC", undefined, refFn, ensureRange, ctx);
     expect(refFn).toHaveBeenCalledTimes(0);
     expect(ensureRange).toHaveBeenCalledTimes(0);
 
-    compiledFormula2(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+    compiledFormula2(["A1:B2"], "ABC", undefined, refFn, ensureRange, ctx);
     expect(refFn).toHaveBeenCalledTimes(0);
     expect(ensureRange).toHaveBeenCalledTimes(0);
 
-    compiledFormula3(["A1"], "ABC", refFn, ensureRange, ctx);
+    compiledFormula3(["A1"], "ABC", undefined, refFn, ensureRange, ctx);
     expect(refFn).toHaveBeenCalled();
     expect(ensureRange).toHaveBeenCalledTimes(0);
     refFn.mockReset();
 
-    compiledFormula4(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+    compiledFormula4(["A1:B2"], "ABC", undefined, refFn, ensureRange, ctx);
     expect(refFn).toHaveBeenCalledTimes(0);
     expect(ensureRange).toHaveBeenCalled();
   });

@@ -55,7 +55,8 @@ export interface NewCell {
 export type KnownReferenceDereferencer = (
   knowReferencePosition,
   knownReferences,
-  evaluationSheetId
+  evaluationSheetId,
+  isMeta: boolean
 ) => any | any[][];
 
 export type EnsureRange = (knowReferencePosition, knownReferences, evaluationSheetId) => any[][];
@@ -65,6 +66,7 @@ export type _CompiledFormula = (
   // range: Range,
   deps: string[],
   evaluationSheetId: UID,
+  cellOrigin: string | undefined, // the XC of the cell currently being compiled
   ref: KnownReferenceDereferencer,
   ensureRange: EnsureRange,
   ctx: {}
