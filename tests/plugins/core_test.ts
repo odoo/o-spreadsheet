@@ -212,6 +212,7 @@ describe("core", () => {
 
   test("can get row/col number of inactive sheet", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         { colNumber: 10, rowNumber: 10, id: "1" },
         { colNumber: 19, rowNumber: 29, id: "2" },
@@ -250,6 +251,7 @@ describe("history", () => {
 
   test("can undo and redo a cell update", () => {
     const model = new Model({
+      version: 6,
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }],
     });
 
@@ -382,6 +384,7 @@ describe("history", () => {
       const sheet1Id = "42";
       const sheet2Id = "43";
       const model = new Model({
+        version: 6,
         sheets: [
           {
             id: sheet1Id,
@@ -431,6 +434,7 @@ describe("history", () => {
       const sheet1Id = "42";
       const sheet2Id = "43";
       const model = new Model({
+        version: 6,
         sheets: [
           {
             id: sheet1Id,

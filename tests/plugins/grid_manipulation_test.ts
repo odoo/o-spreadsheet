@@ -89,6 +89,7 @@ const fullData = {
 describe("Clear columns", () => {
   test("Can clear multiple column", () => {
     model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 3,
@@ -125,6 +126,7 @@ describe("Clear columns", () => {
 describe("Clear rows", () => {
   test("Can clear multiple rows", () => {
     model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 3,
@@ -169,6 +171,7 @@ describe("Columns", () => {
   describe("Correctly update size, name, order and number", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -191,6 +194,7 @@ describe("Columns", () => {
     });
     test("On delete cols in inactive sheet", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -248,6 +252,7 @@ describe("Columns", () => {
   describe("Correctly update merges", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 5,
@@ -310,6 +315,7 @@ describe("Columns", () => {
   describe("Correctly update border and style", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -376,6 +382,7 @@ describe("Columns", () => {
   describe("Correctly update references", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 7,
@@ -421,6 +428,7 @@ describe("Columns", () => {
     });
     test("delete col on inactive sheet", () => {
       const model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -458,6 +466,7 @@ describe("Columns", () => {
     });
     test("On first col deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -475,6 +484,7 @@ describe("Columns", () => {
     });
     test("On multiple col deletion including the first one", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -492,6 +502,7 @@ describe("Columns", () => {
     });
     test("On last col deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -509,6 +520,7 @@ describe("Columns", () => {
     });
     test("delete all columns of a range", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 9,
@@ -524,6 +536,7 @@ describe("Columns", () => {
     });
     test("update cross sheet range on column deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           { name: "Sheet1", colNumber: 5, rowNumber: 5 },
           {
@@ -542,6 +555,7 @@ describe("Columns", () => {
     });
     test("update cross sheet range on column deletion in inactive sheet", () => {
       model = new Model({
+        version: 6,
         sheets: [
           { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less column than Sheet1
           { name: "Sheet1", colNumber: 5, rowNumber: 5 },
@@ -562,6 +576,7 @@ describe("Columns", () => {
     });
     test("On multiple col deletion including the last one", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -688,6 +703,7 @@ describe("Rows", () => {
   describe("Correctly update size, name, order and number", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 1,
@@ -711,6 +727,7 @@ describe("Rows", () => {
     });
     test("On delete row in inactive sheet", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -739,6 +756,7 @@ describe("Rows", () => {
     });
     test("On deletion batch", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 1,
@@ -759,6 +777,7 @@ describe("Rows", () => {
     });
     test("delete all rows of a range", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -774,6 +793,7 @@ describe("Rows", () => {
     });
     test("update cross sheet range on row deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           { name: "Sheet1", colNumber: 5, rowNumber: 5 },
           {
@@ -792,6 +812,7 @@ describe("Rows", () => {
     });
     test("update cross sheet range on row deletion in inactive sheet", () => {
       model = new Model({
+        version: 6,
         sheets: [
           { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less rows than Sheet1
           { name: "Sheet1", colNumber: 5, rowNumber: 5 },
@@ -857,6 +878,7 @@ describe("Rows", () => {
   describe("Correctly update merges", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -917,6 +939,7 @@ describe("Rows", () => {
   describe("Correctly update border and style", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -984,6 +1007,7 @@ describe("Rows", () => {
   describe("Correctly update references", () => {
     beforeEach(() => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -1030,6 +1054,7 @@ describe("Rows", () => {
     });
     test("delete row on inactive sheet", () => {
       const model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -1068,6 +1093,7 @@ describe("Rows", () => {
     });
     test("On first row deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -1085,6 +1111,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the first one", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -1102,6 +1129,7 @@ describe("Rows", () => {
     });
     test("strange test in Odoo", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 1,
@@ -1129,6 +1157,7 @@ describe("Rows", () => {
     });
     test("On last row deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 3,
@@ -1146,6 +1175,7 @@ describe("Rows", () => {
     });
     test("On multiple row", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 1,
@@ -1163,6 +1193,7 @@ describe("Rows", () => {
     });
     test("On multiple rows (7)", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 1,
@@ -1180,6 +1211,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the last one", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 4,
@@ -1197,6 +1229,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the last and beyond", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 2,

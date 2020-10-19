@@ -89,7 +89,7 @@ describe("history", () => {
   });
 
   test("undo when undo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
+    const model = new Model({ version: 6, sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
     await waitForRecompute();
 
     expect(getCell(model, "A1")!.value).toBe(10);
@@ -102,7 +102,7 @@ describe("history", () => {
   });
 
   test("undo when redo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
+    const model = new Model({ version: 6, sheets: [{ cells: { A1: { content: "=WAIT(10)" } } }] });
     await waitForRecompute();
 
     expect(getCell(model, "A1")!.value).toBe(10);

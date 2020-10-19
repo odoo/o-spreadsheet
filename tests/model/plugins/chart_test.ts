@@ -17,6 +17,7 @@ const viewport: Viewport = {
 
 beforeEach(() => {
   model = new Model({
+    version: 6,
     sheets: [
       {
         name: "Sheet1",

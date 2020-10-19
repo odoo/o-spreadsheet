@@ -74,6 +74,7 @@ describe("TopBar component", () => {
 
   test("merging cell button state is correct", async () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

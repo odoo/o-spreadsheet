@@ -415,6 +415,7 @@ describe("error tooltip", () => {
 describe("multi sheet with different sizes", function () {
   beforeEach(async () => {
     model = new Model({
+      version: 6,
       sheets: [
         {
           name: "small",

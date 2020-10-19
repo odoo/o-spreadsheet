@@ -111,6 +111,7 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           name: "ABC",
@@ -133,6 +134,7 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets, 2", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           name: "ABC",
@@ -158,6 +160,7 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets, 3 (with range)", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           name: "ABC",
@@ -184,6 +187,7 @@ describe("sheets", () => {
 
   test("evaluating multiple sheets: cycles", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           name: "ABC",
@@ -214,6 +218,7 @@ describe("sheets", () => {
 
   test("evaluation from one sheet to another no render", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           name: "small",
@@ -433,6 +438,7 @@ describe("sheets", () => {
 
   test("Properties of sheet are correctly duplicated", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -467,6 +473,7 @@ describe("sheets", () => {
 
   test("CFs of sheets are correctly duplicated", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -508,6 +515,7 @@ describe("sheets", () => {
 
   test("Cells are correctly duplicated", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -574,6 +582,7 @@ describe("sheets", () => {
 
   test("Merges are correctly duplicated", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,

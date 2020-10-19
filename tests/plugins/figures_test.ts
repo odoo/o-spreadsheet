@@ -294,6 +294,7 @@ describe("figure plugin", () => {
 
   test("change sheet deselect figure", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           id: "1",

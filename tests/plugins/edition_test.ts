@@ -22,6 +22,7 @@ describe("edition", () => {
 
   test("deleting a cell with style does not remove it", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

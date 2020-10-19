@@ -350,6 +350,7 @@ describe("Autofill", () => {
 
   test("autofill with merge greater than the grid size", () => {
     model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 1,

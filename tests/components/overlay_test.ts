@@ -27,6 +27,7 @@ function fillData() {
 beforeEach(async () => {
   fixture = makeTestFixture();
   model = new Model({
+    version: 6,
     sheets: [
       {
         colNumber: 10,

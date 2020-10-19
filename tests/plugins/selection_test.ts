@@ -7,6 +7,7 @@ import { CancelledReason } from "../../src/types";
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -20,6 +21,7 @@ describe("selection", () => {
 
   test("can select selection with shift-arrow", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -45,6 +47,7 @@ describe("selection", () => {
 
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -68,6 +71,7 @@ describe("selection", () => {
 
   test("can expand selection with mouse", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -83,6 +87,7 @@ describe("selection", () => {
 
   test("move selection in and out of a merge (in opposite direction)", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -107,6 +112,7 @@ describe("selection", () => {
 
   test("update selection in some different directions", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -131,6 +137,7 @@ describe("selection", () => {
 
   test("expand selection when encountering a merge", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -151,6 +158,7 @@ describe("selection", () => {
 
   test("can select a whole column", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -166,6 +174,7 @@ describe("selection", () => {
 
   test("can select a whole column with a merged cell", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -181,6 +190,7 @@ describe("selection", () => {
 
   test("can select a whole row", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -197,6 +207,7 @@ describe("selection", () => {
 
   test("can select a whole row with a merged cell", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -213,6 +224,7 @@ describe("selection", () => {
 
   test("cannot select out of bound row", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -232,6 +244,7 @@ describe("selection", () => {
 
   test("cannot select out of bound column", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -251,6 +264,7 @@ describe("selection", () => {
 
   test("can select the whole sheet", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -266,6 +280,7 @@ describe("selection", () => {
 
   test("can select part of a formula", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -287,6 +302,7 @@ describe("selection", () => {
 
   test("extend selection works based on selection anchor, not active cell", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -329,6 +345,7 @@ describe("selection", () => {
 describe("multiple selections", () => {
   test("can select a new range", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

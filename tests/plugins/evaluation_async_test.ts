@@ -22,6 +22,7 @@ describe("evaluateCells, async formulas", () => {
 
   test("async formulas in base data", async () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

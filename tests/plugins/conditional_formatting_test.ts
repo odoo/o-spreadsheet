@@ -285,6 +285,7 @@ describe("conditional format", () => {
     };
     test("On row deletion", () => {
       model = new Model({
+        version: 6,
         sheets: [
           {
             colNumber: 7,
@@ -322,6 +323,8 @@ describe("conditional format", () => {
     });
     test("On column deletion", () => {
       model = new Model({
+        version: 6,
+
         sheets: [
           {
             colNumber: 4,
@@ -359,6 +362,8 @@ describe("conditional format", () => {
     });
     test("On column addition", () => {
       model = new Model({
+        version: 6,
+
         sheets: [
           {
             colNumber: 3,
@@ -398,6 +403,8 @@ describe("conditional format", () => {
     });
     test("On row addition", () => {
       model = new Model({
+        version: 6,
+
         sheets: [
           {
             colNumber: 4,
@@ -990,6 +997,21 @@ describe("UI of conditional formats", () => {
     });
   });
 
+  test("the preview should be bold when the rule is bold", async () => {
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["C1:C5"], "2", { bold: true, fillColor: "#ff0000" }, "99"),
+      sheetId: model.getters.getActiveSheetId(),
+    });
+
+    await nextTick();
+
+    let previews = document.querySelectorAll(selectors.listPreview);
+    let line = previews[2].querySelector(selectors.previewImage);
+    expect(line!.getAttribute("style")).toMatch("font-weight:bold;");
+  });
+
   test("can edit an existing ColorScaleRule", async () => {
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
     await nextTick();
@@ -1023,7 +1045,6 @@ describe("UI of conditional formats", () => {
           minimum: {
             color: 0x0000ff,
             type: "value",
-            value: "33",
           },
           type: "ColorScaleRule",
         },
@@ -1128,7 +1149,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
     triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
 
-    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
+    //setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "33", "input");
 
     parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
     //  click save
@@ -1148,13 +1169,60 @@ describe("UI of conditional formats", () => {
           minimum: {
             color: 0x0000ff,
             type: "value",
-            value: "33",
           },
           type: "ColorScaleRule",
         },
       },
       sheetId: model.getters.getActiveSheetId(),
     });
+  });
+
+  test("Colorscale input number must yield a number not a string", async () => {
+    triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[1], "click");
+    await nextTick();
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20", "change");
+
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "2",
+        ranges: ["B1:B5"],
+        rule: {
+          maximum: {
+            color: 0x123456,
+            type: "value",
+          },
+          midpoint: undefined,
+          minimum: {
+            color: 0xff00ff,
+            type: "number",
+            value: 20, // as a number, not a string
+          },
+          type: "ColorScaleRule",
+        },
+      },
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+
+  /* TODO "Colorscale inputing wrong minimum value"
+     Open side panel CF
+     Click on tab ColorScale
+     Change minimum type to "number" (selectors.colorScaleEditor.minType)
+     Change minimum input to "bla" (selectors.colorScaleEditor.minValue) (.o-threshold-minimum .o-threshold-value)
+     Click on save
+    ; it expects to have no background on a cell of the range
+  */
+
+  test.skip("Colorscale inputing wrong minimum value", async () => {
+    // same a previous test but minType = "bla"
+    // expects parent.env.dispatch to NOT be called (or to be called with value = undefined ?)
   });
 
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {

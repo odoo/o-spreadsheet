@@ -7,7 +7,7 @@ import { preParseFormula } from "./formulas";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 6;
+export const CURRENT_VERSION = 7;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -117,6 +117,30 @@ const MIGRATIONS: Migration[] = [
           if (cell.content && cell.content.startsWith("=")) {
             cell.formula = preParseFormula(cell.content);
           }
+        }
+      }
+      return data;
+    },
+  },
+  {
+    from: 6,
+    to: 7,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets) {
+        for (let xc in sheet.cells) {
+          const cell = sheet.cells[xc];
+          cell.c = cell.content;
+          cell.fmt = cell.format;
+          cell.b = cell.border;
+          cell.s = cell.style;
+          cell.fmla = cell.formula
+            ? { t: cell.formula.t, d: cell.formula.dependencies }
+            : undefined;
+          delete cell.content;
+          delete cell.format;
+          delete cell.border;
+          delete cell.style;
+          delete cell.formula;
         }
       }
       return data;

@@ -219,6 +219,7 @@ describe("clipboard", () => {
 
   test("can copy and paste merged content", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -237,6 +238,7 @@ describe("clipboard", () => {
 
   test("can cut and paste merged content", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -259,6 +261,7 @@ describe("clipboard", () => {
 
   test("paste on existing merge removes existing merge", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -279,6 +282,7 @@ describe("clipboard", () => {
 
   test("copy/paste a merge from one page to another", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -332,6 +336,7 @@ describe("clipboard", () => {
 
   test("Pasting content that will destroy a merge will fail if not forced", async () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -364,6 +369,7 @@ describe("clipboard", () => {
 
   test("Pasting content that will destroy a merge will be applied if forced", async () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -755,6 +761,7 @@ describe("clipboard", () => {
 
   test("can copy a cell with a conditional format and paste value only", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -912,6 +919,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted cell", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -938,6 +946,7 @@ describe("clipboard", () => {
   });
   test("can cut and paste a conditional formatted cell", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -965,6 +974,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted zone", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -995,6 +1005,7 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional formatted zone", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -1022,6 +1033,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted cell to another page", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,
@@ -1055,6 +1067,7 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional formatted cell to another page", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 5,

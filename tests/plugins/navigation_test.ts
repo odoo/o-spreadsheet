@@ -61,6 +61,7 @@ describe("navigation", () => {
 
   test("move in and out of a merge", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -86,6 +87,7 @@ describe("navigation", () => {
 
   test("do nothing if moving out of merge is out of grid", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

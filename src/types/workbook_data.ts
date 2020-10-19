@@ -16,6 +16,14 @@ export interface CellData {
   format?: string;
 }
 
+export interface ShortCellData {
+  c?: string;
+  fmla?: { t: string; d: string[] };
+  s?: number;
+  b?: number;
+  fmt?: string;
+}
+
 export interface HeaderData {
   size?: number;
 }
@@ -35,7 +43,7 @@ export interface SheetData {
   name: string;
   colNumber: number;
   rowNumber: number;
-  cells: { [key: string]: CellData };
+  cells: { [key: string]: ShortCellData };
   merges: string[];
   figures: Figure<any>[];
   cols: { [key: number]: HeaderData };

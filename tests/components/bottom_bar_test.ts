@@ -192,6 +192,7 @@ describe("BottomBar component", () => {
 
   test("Can duplicate a sheet", async () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           name: "test",

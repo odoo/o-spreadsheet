@@ -25,6 +25,7 @@ describe("merges", () => {
 
   test("can unmerge two cells", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -62,6 +63,7 @@ describe("merges", () => {
 
   test("editing a merge cell actually edits the top left", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -83,6 +85,7 @@ describe("merges", () => {
 
   test("setting a style to a merge edit all the cells", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -111,6 +114,7 @@ describe("merges", () => {
 
   test("when moving in a merge, selected cell is topleft", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -131,6 +135,7 @@ describe("merges", () => {
 
   test("merge style is correct for inactive sheets", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           id: "1",
@@ -170,6 +175,7 @@ describe("merges", () => {
 
   test("properly compute if a merge is destructive or not", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -187,6 +193,7 @@ describe("merges", () => {
 
   test("a merge with only style should not be considered destructive", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -215,6 +222,7 @@ describe("merges", () => {
 
   test("merging cells with values will do nothing if not forced", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -239,6 +247,7 @@ describe("merges", () => {
 
   test("merging cells with values remove them if forced", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

@@ -4,6 +4,7 @@ import "../canvas.mock";
 describe("applyOffset", () => {
   test("simple changes", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -17,6 +18,7 @@ describe("applyOffset", () => {
 
   test("can handle negative/invalid offsets", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -31,6 +33,7 @@ describe("applyOffset", () => {
 
   test("can handle other formulas", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -43,6 +46,7 @@ describe("applyOffset", () => {
 
   test("can handle cross-sheet formulas", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,

@@ -32,6 +32,7 @@ import {
   RenameSheetCommand,
   UID,
   FormulaString,
+  ShortCellData,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -1379,25 +1380,31 @@ export class CorePlugin extends BasePlugin {
     for (let xc in data.cells) {
       const cell = data.cells[xc];
       const [col, row] = toCartesian(xc);
-      this.updateCell(data.id, col, row, cell);
+      this.updateCell(data.id, col, row, {
+        content: cell.c,
+        border: cell.b,
+        style: cell.s,
+        format: cell.fmt,
+        formula: cell.fmla ? { text: cell.fmla.t, dependencies: cell.fmla.d } : undefined,
+      });
     }
   }
 
   export(data: WorkbookData) {
     data.sheets = this.visibleSheets.map((id) => {
       const sheet = this.sheets[id];
-      const cells: { [key: string]: CellData } = {};
+      const cells: { [key: string]: ShortCellData } = {};
       for (let [key, cell] of Object.entries(sheet.cells)) {
         cells[key] = {
-          content: cell.content,
-          border: cell.border,
-          style: cell.style,
-          format: cell.format,
+          c: cell.content,
+          b: cell.border,
+          s: cell.style,
+          fmt: cell.format,
         };
         if (cell.type === "formula" && cell.formula) {
-          cells[key].formula = {
-            text: cell.formula.text || "",
-            dependencies: cell.formula.dependencies.slice() || [],
+          cells[key].fmla = {
+            t: cell.formula.text || "",
+            d: cell.formula.dependencies.slice() || [],
           };
         }
       }

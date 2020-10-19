@@ -16,7 +16,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 6", () => {
+  test("Can upgrade from 1 to 7", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 1,
@@ -38,18 +38,19 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.activeSheet).toBe("My sheet");
-    expect(data.version).toBe(6);
+    expect(data.version).toBe(7);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
-    expect(data.sheets[0].cells.A1.formula).toBeDefined();
-    expect(data.sheets[0].cells.A1.formula!.text).toBeDefined();
-    expect(data.sheets[0].cells.A1.formula!.dependencies).toBeDefined();
+    expect(data.sheets[0].cells.A1.fmla).toBeDefined();
+    expect(data.sheets[0].cells.A1.fmla!.t).toBeDefined();
+    expect(data.sheets[0].cells.A1.fmla!.d).toBeDefined();
   });
 });
 
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 2,
@@ -72,6 +73,7 @@ describe("Import", () => {
 
   test("Import 2 sheets with merges", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 2,
@@ -101,6 +103,7 @@ describe("Import", () => {
 describe("Export", () => {
   test("Can export col size", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -119,6 +122,7 @@ describe("Export", () => {
 
   test("Can export row size", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -137,6 +141,7 @@ describe("Export", () => {
 
   test("Can export merges", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -151,6 +156,7 @@ describe("Export", () => {
 
   test("Can export format", () => {
     const model = new Model({
+      version: 6,
       sheets: [
         {
           colNumber: 10,
@@ -162,7 +168,7 @@ describe("Export", () => {
       ],
     });
     const exp = model.exportData();
-    expect(exp.sheets![0].cells!.A1.format).toBe("0.00%");
+    expect(exp.sheets![0].cells!.A1.fmt).toBe("0.00%");
   });
 });
 
@@ -182,15 +188,15 @@ test("complete import, then export", () => {
           1: { size: 13 },
         },
         cells: {
-          A1: { content: "hello" },
+          A1: { c: "hello" },
           B1: {
-            content: "=a1",
-            formula: { text: "=|0|", dependencies: ["a1"] },
-            style: 99,
-            border: 8,
-            format: "0.00%",
+            c: "=a1",
+            fmla: { t: "=|0|", d: ["a1"] },
+            s: 99,
+            b: 8,
+            fmt: "0.00%",
           },
-          C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
+          C1: { c: "=mqdlskjfqmslfkj(++%//@@@)" },
         },
         name: "My sheet",
         conditionalFormats: [],
@@ -204,7 +210,7 @@ test("complete import, then export", () => {
         cols: {},
         rows: {},
         cells: {
-          A1: { content: "hello" },
+          A1: { c: "hello" },
         },
         name: "My sheet 2",
         conditionalFormats: [],
