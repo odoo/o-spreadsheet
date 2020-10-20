@@ -111,10 +111,10 @@ export class HighlightPlugin extends BasePlugin {
     for (let [range, color] of Object.entries(ranges)) {
       const [xc, sheetName] = range.split("!").reverse();
       const sheetId = this.getters.getSheetIdByName(sheetName);
-      rangesBySheets[sheetId || activeSheetId] = {
-        [xc]: color,
-        ...(rangesBySheets[sheetId || activeSheetId] || {}),
-      };
+      rangesBySheets[sheetId || activeSheetId] = Object.assign(
+        { [xc]: color },
+        rangesBySheets[sheetId || activeSheetId] || {}
+      );
     }
     const shouldBeKept = (highlight: Highlight) =>
       !(
