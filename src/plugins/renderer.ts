@@ -512,8 +512,8 @@ export class RendererPlugin extends BasePlugin {
             bottom: borderBottomRight ? borderBottomRight.bottom : null,
             left: borderTopLeft ? borderTopLeft.left : null,
             right: borderBottomRight ? borderBottomRight.right : null,
-            top: borderTopLeft ? borderTopLeft.top : null
-          }
+            top: borderTopLeft ? borderTopLeft.top : null,
+          };
         }
         style = style || {};
         // Small trick: the code that draw the background color skips the color
