@@ -285,6 +285,23 @@ describe("selection", () => {
     });
   });
 
+  test("can change activeCell without changing selection", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    });
+    model.dispatch("SELECT_CELL", { col: 2, row: 2 });
+    expect(getActiveXc(model)).toBe("C3");
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 2, right: 2, bottom: 2 });
+    model.dispatch("CHANGE_ACTIVE_XC", { xc: "F6" });
+    expect(getActiveXc(model)).toBe("F6");
+    expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 2, right: 2, bottom: 2 });
+  });
+
   test("extend selection works based on selection anchor, not active cell", () => {
     const model = new Model({
       sheets: [

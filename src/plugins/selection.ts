@@ -1,4 +1,4 @@
-import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
+import { isEqual, toXC, union, clip, formatStandardNumber, toCartesian } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import {
   Command,
@@ -178,6 +178,9 @@ export class SelectionPlugin extends BasePlugin {
         if (cmd.position === "before") {
           this.onAddRows(cmd.quantity);
         }
+        break;
+      case "CHANGE_ACTIVE_XC":
+        this.changeActiveXc(cmd.xc)
         break;
     }
   }
@@ -466,6 +469,13 @@ export class SelectionPlugin extends BasePlugin {
       bottom: selection.bottom + quantity,
     };
     this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+  }
+
+  private changeActiveXc(xc: string) {
+    const [col, row] = toCartesian(xc);
+    this.activeCol = col;
+    this.activeRow = row;
+    this.activeXc = xc;
   }
 
   // ---------------------------------------------------------------------------

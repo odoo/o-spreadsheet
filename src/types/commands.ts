@@ -188,6 +188,10 @@ export interface AddRowsCommand extends BaseCommand {
   position: "before" | "after";
 }
 
+export interface ChangeActiveXc extends BaseCommand {
+  type: "CHANGE_ACTIVE_XC";
+  xc: string;
+}
 // Local Commands
 // ------------------------------------------------
 export interface CopyCommand extends BaseCommand {
@@ -670,6 +674,7 @@ export type Command =
   | RemoveRowsCommand
   | RemoveColumnsCommand
   | AddRowsCommand
+  | ChangeActiveXc
   | CreateChartCommand
   | UpdateChartCommand
   | AddColumnsCommand
