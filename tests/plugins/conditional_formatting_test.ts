@@ -1058,7 +1058,7 @@ describe("UI of conditional formats", () => {
     expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
   });
 
-  test.skip("color-picker closes when click elsewhere", async () => {
+  test("color-picker closes when click elsewhere", async () => {
     triggerMouseEvent(document.querySelectorAll(selectors.listPreview)[0], "click");
     await nextTick();
     triggerMouseEvent(selectors.ruleEditor.editor.colorDropdown, "click");
