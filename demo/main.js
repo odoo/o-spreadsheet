@@ -49,14 +49,14 @@ class App extends Component {
       console.log(e);
     });
     this.socket.addEventListener("message", async (ev) => {
-      if (ev.data instanceof Blob) {
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.spread.comp.model.dispatch("CRDT_RECEIVED", { data: new Uint8Array(e.target.result) });
-        };
-        reader.readAsArrayBuffer(ev.data);
-      }
+      this.spread.comp.model.dispatch("CRDT_RECEIVED", { data: JSON.parse(ev.data)});
+      // if (ev.data instanceof Blob) {
+      //   const reader = new FileReader();
+      //   reader.onload = (e) => {
+      //     this.spread.comp.model.dispatch("CRDT_RECEIVED", { data: new Uint8Array(e.target.result) });
+      //   };
+      //   reader.readAsArrayBuffer(ev.data);
+      // }
       // if (msg.type === "multiuser_command") {
         // const command = Object.assign(msg.payload.payload, { type: msg.payload.type });
         // should not be broadcast directly
@@ -102,7 +102,7 @@ class App extends Component {
   }
 
   sendCommand(ev) {
-    const command = ev.detail.command;
+    const command = JSON.stringify(ev.detail.command);
     // const msg = JSON.stringify({ type: "multiuser_command", payload: command });
     // const command = JSON.stringify(this.spread.comp.model.exportData());
     if (!this.isConnected) {
