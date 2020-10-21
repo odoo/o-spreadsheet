@@ -50,6 +50,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  sendCommand: (data) => Promise<void>;
 }
 
 const enum Status {
@@ -112,6 +113,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
+      sendCommand: config.sendCommand || (async () => {}),
     };
 
     // registering plugins

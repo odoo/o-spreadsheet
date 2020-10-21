@@ -1,4 +1,4 @@
-import { SheetData, WorkbookData } from "./types/index";
+import { ImportSheetData, WorkbookData } from "./types/index";
 import { uuidv4 } from "./helpers/index";
 
 /**
@@ -111,7 +111,7 @@ const MIGRATIONS: Migration[] = [
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
-function createEmptySheet(name: string = "Sheet1"): SheetData {
+function createEmptySheet(name: string = "Sheet1"): ImportSheetData {
   return {
     id: uuidv4(),
     name,

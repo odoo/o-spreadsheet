@@ -74,6 +74,9 @@ export class Spreadsheet extends Component<Props> {
       this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
+    sendCommand: async (data) => {
+      this.trigger("send-crdt", { command: data });
+    },
   });
   grid = useRef("grid");
 

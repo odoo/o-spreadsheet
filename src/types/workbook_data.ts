@@ -22,7 +22,7 @@ export interface Figure<T> {
   data: T;
 }
 
-export interface SheetData {
+export interface ImportSheetData {
   id: string;
   name: string;
   colNumber: number;
@@ -37,7 +37,7 @@ export interface SheetData {
 
 export interface WorkbookData {
   version: number;
-  sheets: SheetData[];
+  sheets: ImportSheetData[];
   activeSheet: string;
   styles: { [key: number]: Style };
   borders: { [key: number]: Border };

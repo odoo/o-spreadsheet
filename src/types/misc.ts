@@ -22,7 +22,7 @@ export interface Style {
   fontSize?: number; // in pt, not in px!
 }
 
-export interface Sheet {
+export interface SheetData {
   id: UID;
   name: string;
   cells: { [key: string]: Cell };
@@ -31,6 +31,11 @@ export interface Sheet {
   cols: Col[];
   rows: Row[];
 }
+
+export type Sheet = SheetData & {
+  updateCell: (xc: string, cell: Cell) => void;
+  resetCell: (xc: string) => void;
+};
 
 // A border description is a pair [style, ]
 export type BorderStyle = "thin" | "medium" | "thick" | "dashed" | "dotted" | "double";

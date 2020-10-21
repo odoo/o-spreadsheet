@@ -4,7 +4,7 @@ owl.config.mode = "dev";
 const { whenReady } = owl.utils;
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useSubEnv } = owl.hooks;
+const { useSubEnv, useRef } = owl.hooks;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
@@ -28,6 +28,7 @@ class App extends Component {
     super();
     this.key = 1;
     let cacheData;
+    this.spread = useRef("spread");
     try {
       cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
     } catch (_) {
@@ -37,8 +38,35 @@ class App extends Component {
     useSubEnv({
       save: this.save.bind(this),
     });
+    this.queue = [];
+    this.isConnected = false;
+    this.socket = new WebSocket(`ws://${window.location.hostname}:9000`);
+    this.socket.addEventListener("open", () => {
+      this.isConnected = true;
+      this.processQueue();
+    });
+    this.socket.addEventListener("error", (e) => {
+      console.log(e);
+    });
+    this.socket.addEventListener("message", async (ev) => {
+      if (ev.data instanceof Blob) {
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.spread.comp.model.dispatch("CRDT_RECEIVED", { data: new Uint8Array(e.target.result) });
+        };
+        reader.readAsArrayBuffer(ev.data);
+      }
+      // if (msg.type === "multiuser_command") {
+        // const command = Object.assign(msg.payload.payload, { type: msg.payload.type });
+        // should not be broadcast directly
+        // this.spread.comp.model.dispatch("MULTIUSER", { command });
+      // }
+    });
     // this.data = makeLargeDataset(20, 10_000);
   }
+
+  willStart() {}
 
   mounted() {
     console.log("Mounted: ", Date.now() - start);
@@ -66,14 +94,76 @@ class App extends Component {
   save(content) {
     window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
   }
+
+  processQueue() {
+    for (let msg of this.queue) {
+      this.socket.send(msg);
+    }
+  }
+
+  sendCommand(ev) {
+    const command = ev.detail.command;
+    // const msg = JSON.stringify({ type: "multiuser_command", payload: command });
+    // const command = JSON.stringify(this.spread.comp.model.exportData());
+    if (!this.isConnected) {
+      this.queue.push(command);
+    } else {
+      this.socket.send(command);
+    }
+  }
+
+  sendCommand2(networkCommand) {
+    const clientId = networkCommand.clientId;
+    const commands = networkCommand.commands;
+    const msg = JSON.stringify({ type: "multiuser_command", payload: { clientId, commands } });
+    if (!this.isConnected) {
+      this.queue.push(msg);
+    } else {
+      this.socket.send(msg);
+    }
+  }
+
+  async getTicket() {
+    return (await jsonRPC(`http://${window.location.hostname}:9000/timestamp`, {})).timestamp;
+
+    function jsonRPC(url, data) {
+      return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+        xhr.setRequestHeader("Content-type", "application/binary");
+        // const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+        // xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        xhr.onload = function () {
+          if (this.status >= 200 && this.status < 300) {
+            resolve(JSON.parse(xhr.response));
+          } else {
+            reject({
+              status: this.status,
+              statusText: xhr.statusText,
+            });
+          }
+        };
+        xhr.onerror = function () {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText,
+          });
+        };
+        xhr.send(JSON.stringify(data));
+      });
+    }
+  }
 }
 
 App.template = xml`
   <div>
     <Spreadsheet data="data" t-key="key"
+      t-ref="spread"
+      getTicket="getTicket"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"
+      t-on-send-crdt="sendCommand"
       t-on-save-content="saveContent"/>
   </div>`;
 App.style = css`

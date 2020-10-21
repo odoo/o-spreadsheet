@@ -34,6 +34,11 @@ interface BaseCommand {
   interactive?: boolean;
 }
 
+export interface CRDT_RECEIVED extends BaseCommand {
+  type: "CRDT_RECEIVED";
+  data: any;
+}
+
 // Primitive Commands
 // ------------------------------------------------
 export interface UpdateCellCommand extends BaseCommand {
@@ -678,6 +683,7 @@ export type Command =
   | CreateFigureCommand
   | SelectFigureCommand
   | UpdateFigureCommand
+  | CRDT_RECEIVED
   | DeleteFigureCommand;
 
 export interface CommandSuccess {
