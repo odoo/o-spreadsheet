@@ -32,6 +32,11 @@ describe("evaluate formula getter", () => {
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });
 
+  test("evaluate an invalid formula", () => {
+    setCellContent(model, "A1", "=min(abc)");
+    expect(() => model.getters.evaluateFormula("=A1")).toThrow();
+  });
+
   test("evaluate a pending cell (async)", () => {
     setCellContent(model, "A1", "=wait(99999)");
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
