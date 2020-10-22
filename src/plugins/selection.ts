@@ -76,9 +76,7 @@ export class SelectionPlugin extends BasePlugin {
     config: ModelConfig
   ) {
     super(getters, history, dispatch, config);
-    // this.doc.getMap("Hello").set("activeCol", this.activeCol);
-    // this.doc.getMap("Hello").set("activeRow", this.activeRow);
-    // this.doc.getMap("Hello").set("activeXc", this.activeXc);
+    
     this.doc.on("updateV2", (update: Uint8Array) => {
       config.sendCommand(update);
     });
@@ -137,6 +135,8 @@ export class SelectionPlugin extends BasePlugin {
         console.log(cmd.data);
         console.log(this.doc.getMap("Hello"));
         console.log(this.doc.getMap("Hello").get("activeXc"));
+        console.log(this.doc.getMap("Hello").get("activeCol"));
+        console.log(this.doc.getMap("Hello").get("activeRow"));
         break;
       case "START":
         this.selectCell(0, 0);
@@ -144,7 +144,11 @@ export class SelectionPlugin extends BasePlugin {
       case "ACTIVATE_SHEET":
         const random = Math.floor(Math.random() * 50);
         console.log(random);
-        this.doc.getMap("Hello").set("activeXc", `B${random}`);
+        this.doc.transact(() => {
+          this.doc.getMap("Hello").set("activeXc", `B${random}`);
+          this.doc.getMap("Hello").set("activeCol", this.activeCol);
+          this.doc.getMap("Hello").set("activeRow", this.activeRow);
+        }, 41)
         this.sheetsData[cmd.sheetIdFrom] = {
           selection: JSON.parse(JSON.stringify(this.selection)),
           activeCol: this.activeCol,
