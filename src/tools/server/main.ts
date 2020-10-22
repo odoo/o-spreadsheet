@@ -14,9 +14,9 @@ app.ws("/", function (ws, req) {
     // const msg = JSON.parse(message);
     console.log(message);
     aWss.clients.forEach(function each(client) {
-      if (client !== ws) {
-        client.send(message);
-      }
+      // if (client !== ws) {
+      client.send(message);
+      // }
     });
     // if (msg.type === "multiuser_command") {
     //   console.log(JSON.stringify(msg.payload));
