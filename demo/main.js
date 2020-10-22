@@ -102,13 +102,13 @@ class App extends Component {
   }
 
   sendCommand(ev) {
-    const command = ev.detail.command;
+    const data = ev.detail.command;
     // const msg = JSON.stringify({ type: "multiuser_command", payload: command });
     // const command = JSON.stringify(this.spread.comp.model.exportData());
     if (!this.isConnected) {
-      this.queue.push(command);
+      this.queue.push(data);
     } else {
-      this.socket.send(command);
+      this.socket.send(data);
     }
   }
 

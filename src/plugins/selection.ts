@@ -8,9 +8,13 @@ import {
   GridRenderingContext,
   CommandResult,
   CancelledReason,
+  CommandDispatcher,
+  Getters,
 } from "../types/index";
-import { Mode } from "../model";
+import { Mode, ModelConfig } from "../model";
 import { SELECTION_BORDER_COLOR } from "../constants";
+import * as Y from "yjs";
+import { WHistory } from "../history";
 
 export interface Selection {
   anchor: [number, number];
@@ -60,6 +64,25 @@ export class SelectionPlugin extends BasePlugin {
   private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
 
+  private doc = new Y.Doc();
+  // private crdt = this.doc.getMap("Hello");
+
+  // private doc2 = new Y.Doc();
+
+  constructor(
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, history, dispatch, config);
+    // this.doc.getMap("Hello").set("activeCol", this.activeCol);
+    // this.doc.getMap("Hello").set("activeRow", this.activeRow);
+    // this.doc.getMap("Hello").set("activeXc", this.activeXc);
+    this.doc.on("updateV2", (update: Uint8Array) => {
+      config.sendCommand(update);
+    });
+  }
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -109,10 +132,19 @@ export class SelectionPlugin extends BasePlugin {
   }
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "CRDT_RECEIVED":
+        Y.applyUpdateV2(this.doc, cmd.data);
+        console.log(cmd.data);
+        console.log(this.doc.getMap("Hello"));
+        console.log(this.doc.getMap("Hello").get("activeXc"));
+        break;
       case "START":
         this.selectCell(0, 0);
         break;
       case "ACTIVATE_SHEET":
+        const random = Math.floor(Math.random() * 50);
+        console.log(random);
+        this.doc.getMap("Hello").set("activeXc", `B${random}`);
         this.sheetsData[cmd.sheetIdFrom] = {
           selection: JSON.parse(JSON.stringify(this.selection)),
           activeCol: this.activeCol,
@@ -330,6 +362,9 @@ export class SelectionPlugin extends BasePlugin {
       this.activeCol = col;
       this.activeRow = row;
       this.activeXc = xc;
+      // this.crdt.set("activeCol", col);
+      // this.crdt.set("activeRow", row);
+      // this.crdt.set("activeXc", xc);
     }
   }
 
