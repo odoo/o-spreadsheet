@@ -130,14 +130,6 @@ export class SelectionPlugin extends BasePlugin {
   }
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CRDT_RECEIVED":
-        Y.applyUpdateV2(this.doc, cmd.data);
-        console.log(cmd.data);
-        console.log(this.doc.getMap("Hello"));
-        console.log(this.doc.getMap("Hello").get("activeXc"));
-        console.log(this.doc.getMap("Hello").get("activeCol"));
-        console.log(this.doc.getMap("Hello").get("activeRow"));
-        break;
       case "START":
         this.selectCell(0, 0);
         break;

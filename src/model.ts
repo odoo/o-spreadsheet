@@ -16,6 +16,7 @@ import {
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
+import { CorePlugin } from "./plugins/core";
 
 /**
  * Model
@@ -251,5 +252,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       }
     }
     return data;
+  }
+
+  getCRDTState() {
+    return (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).getCRDT();
+  }
+
+  importCRDT(crdt) {
+    (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).importCRDT(crdt);
   }
 }

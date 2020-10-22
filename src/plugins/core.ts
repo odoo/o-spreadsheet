@@ -99,6 +99,15 @@ export class CorePlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  getCRDT() {
+    return this.sheets.getState();
+  }
+
+  importCRDT(data) {
+    console.log("Import data");
+    this.sheets.import(data);
+  }
+
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
@@ -141,6 +150,9 @@ export class CorePlugin extends BasePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "CRDT_RECEIVED":
+        this.sheets.crdtReceived(cmd.data);
+        break;
       case "ACTIVATE_SHEET":
         if (this.historizeActiveSheet) {
           this.history.update(["activeSheet"], this.sheets.get(cmd.sheetIdTo)!);

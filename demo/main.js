@@ -39,29 +39,51 @@ class App extends Component {
       save: this.save.bind(this),
     });
     this.queue = [];
+    this.stateQueue = [];
     this.isConnected = false;
+    this.isStateConnected = false;
     this.socket = new WebSocket(`ws://${window.location.hostname}:9000`);
+    this.stateSocket = new WebSocket(`ws://${window.location.hostname}:9000/sync-state`);
+    this.stateSocket.addEventListener("open", () => {
+      this.isStateConnected = true;
+      this.processQueue(this.stateQueue, this.stateSocket);
+    });
     this.socket.addEventListener("open", () => {
       this.isConnected = true;
-      this.processQueue();
+      this.processQueue(this.queue, this.socket);
     });
     this.socket.addEventListener("error", (e) => {
       console.log(e);
     });
+    this.blockRequest = false;
     this.socket.addEventListener("message", async (ev) => {
       if (ev.data instanceof Blob) {
-        
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.spread.comp.model.dispatch("CRDT_RECEIVED", { data: new Uint8Array(e.target.result) });
+          this.spread.comp.model.dispatch("CRDT_RECEIVED", {
+            data: new Uint8Array(e.target.result),
+          });
         };
         reader.readAsArrayBuffer(ev.data);
       }
       // if (msg.type === "multiuser_command") {
-        // const command = Object.assign(msg.payload.payload, { type: msg.payload.type });
-        // should not be broadcast directly
-        // this.spread.comp.model.dispatch("MULTIUSER", { command });
+      // const command = Object.assign(msg.payload.payload, { type: msg.payload.type });
+      // should not be broadcast directly
+      // this.spread.comp.model.dispatch("MULTIUSER", { command });
       // }
+    });
+    this.stateSocket.addEventListener("message", async (ev) => {
+      if (this.blockRequest) {
+        return;
+      }
+      this.blockRequest = true;
+      if (ev.data instanceof Blob) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.spread.comp.model.importCRDT(new Uint8Array(e.target.result));
+        };
+        reader.readAsArrayBuffer(ev.data);
+      }
     });
     // this.data = makeLargeDataset(20, 10_000);
   }
@@ -95,9 +117,9 @@ class App extends Component {
     window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
   }
 
-  processQueue() {
-    for (let msg of this.queue) {
-      this.socket.send(msg);
+  processQueue(queue, socket) {
+    for (let msg of queue) {
+      socket.send(msg);
     }
   }
 
@@ -122,6 +144,49 @@ class App extends Component {
       this.socket.send(msg);
     }
   }
+
+  async sendState(ev) {
+    console.log("sendState", ev);
+    const data = ev.detail.command;
+    // const msg = JSON.stringify({ type: "multiuser_command", payload: command });
+    // const command = JSON.stringify(this.spread.comp.model.exportData());
+    if (!this.isConnected) {
+      this.stateQueue.push(data);
+    } else {
+      this.stateSocket.send(data);
+    }
+    // const result = await this.jsonRPC(
+    //   `http://${window.location.hostname}:9000/state_from_client`,
+    //   ev.detail.command
+    // );
+    // console.log(result);
+    // this.spread.comp.model.importCRDT(result);
+  }
+
+  // jsonRPC(url, data) {
+  //   return new Promise(function (resolve, reject) {
+  //     let xhr = new XMLHttpRequest();
+  //     xhr.open("POST", url);
+  //     xhr.setRequestHeader("Content-type", "application/octet-stream");
+  //     xhr.onload = function () {
+  //       if (this.status >= 200 && this.status < 300) {
+  //         resolve(xhr.response);
+  //       } else {
+  //         reject({
+  //           status: this.status,
+  //           statusText: xhr.statusText,
+  //         });
+  //       }
+  //     };
+  //     xhr.onerror = function () {
+  //       reject({
+  //         status: this.status,
+  //         statusText: xhr.statusText,
+  //       });
+  //     };
+  //     xhr.send(data);
+  //   });
+  // }
 
   async getTicket() {
     return (await jsonRPC(`http://${window.location.hostname}:9000/timestamp`, {})).timestamp;
@@ -155,7 +220,7 @@ class App extends Component {
   }
 }
 
-App.template = xml`
+App.template = xml/* xml */ `
   <div>
     <Spreadsheet data="data" t-key="key"
       t-ref="spread"
@@ -163,6 +228,7 @@ App.template = xml`
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"
+      t-on-send-crdt-state="sendState"
       t-on-send-crdt="sendCommand"
       t-on-save-content="saveContent"/>
   </div>`;

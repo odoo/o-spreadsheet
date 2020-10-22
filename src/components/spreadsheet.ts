@@ -112,6 +112,8 @@ export class Spreadsheet extends Component<Props> {
 
   mounted() {
     this.model.on("update", this, this.render);
+    console.log("triggering send-crdt-state");
+    setTimeout(() => this.trigger("send-crdt-state", { command: this.model.getCRDTState() }), 15);
   }
 
   willUnmount() {

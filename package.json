@@ -30,6 +30,7 @@
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.23",
     "babel-eslint": "^10.1.0",
+    "body-parser": "^1.19.0",
     "eslint": "^6.8.0",
     "git-rev-sync": "^2.1.0",
     "jest": "^25.3.0",
