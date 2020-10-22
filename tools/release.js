@@ -60,10 +60,10 @@ async function startRelease() {
 
   // ---------------------------------------------------------------------------
   log(`Step 4/${STEPS}: creating branch...`);
-  const gitResult = await execCommand(`git checkout -b master-release-${next}`);
-  if (gitResult !== 0) {
-    log("Git commit failed. Aborting.");
-    return;
+  const gitCoResult = await execCommand(`git checkout -b master-release-${next}`);
+  if (gitCoResult !== 0) {
+    log("Git checkout failed. Aborting.");
+    return;µ
   }
 
   // ---------------------------------------------------------------------------
