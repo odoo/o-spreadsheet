@@ -14,6 +14,7 @@ import {
   Cell,
   CellIsRule,
   ColorScaleRule,
+  ColorScaleThreshold,
   Command,
   ConditionalFormat,
   Style,
@@ -21,6 +22,7 @@ import {
   Zone,
 } from "../types/index";
 import { _lt } from "../translation";
+import { clip } from "../helpers/misc";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -213,19 +215,46 @@ export class ConditionalFormatPlugin extends BasePlugin {
     this.history.update(["cfRules", sheet], currentCF);
   }
 
+  private parsePoint(
+    range: string,
+    threshold: ColorScaleThreshold,
+    functionName: "min" | "max"
+  ): number {
+    switch (threshold.type) {
+      case "value":
+        // returns number or #error
+        return Number(this.getters.evaluateFormula(`=${functionName}(${range})`));
+      case "number":
+        if (typeof threshold.value === undefined) {
+          throw Error();
+        }
+        return threshold.value!;
+      default:
+        throw Error("Not Implemented");
+    }
+  }
+
   /**
-   * Execute the complete color scale for the range of the conditional format for a 2 colors rule
+   * - deltaColor = [0xff - 0x99, 0x00 - 0xff, 0x00 - 0x00]
+   * - colorDiffUnit = [(0xff - 0x99) / 40, (0x00 - 0xff) / 40, (0x00 - 0x00) / 40] -> color/value
    */
   private applyColorScale(range: string, rule: ColorScaleRule): void {
-    const minValue = Number(this.getters.evaluateFormula(`=min(${range})`));
-    const maxValue = Number(this.getters.evaluateFormula(`=max(${range})`));
-    if (Number.isNaN(minValue) || Number.isNaN(maxValue)) {
-      return;
+    // what happens when multi-range ? the function is called multiple times ? (min value should be calculated once)
+    // TODO: .value is received as a string
+
+    let minValue: number, maxValue: number;
+    try {
+      minValue = this.parsePoint(range, rule.minimum, "min");
+      maxValue = this.parsePoint(range, rule.maximum, "max");
+    } catch (e) {
+      return; // silently returns, the CF is wrongly formatted
     }
+
     const deltaValue = maxValue - minValue;
     if (!deltaValue) {
       return;
     }
+
     const deltaColorR = ((rule.minimum.color >> 16) % 256) - ((rule.maximum.color >> 16) % 256);
     const deltaColorG = ((rule.minimum.color >> 8) % 256) - ((rule.maximum.color >> 8) % 256);
     const deltaColorB = (rule.minimum.color % 256) - (rule.maximum.color % 256);
@@ -240,15 +269,14 @@ export class ConditionalFormatPlugin extends BasePlugin {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getCell(col, row);
         if (cell && !Number.isNaN(Number.parseFloat(cell.value))) {
+          let value = clip(cell.value, minValue, maxValue);
           const r = Math.round(
-            ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
+            ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (value - minValue)
           );
           const g = Math.round(
-            ((rule.minimum.color >> 8) % 256) - colorDiffUnitG * (cell.value - minValue)
+            ((rule.minimum.color >> 8) % 256) - colorDiffUnitG * (value - minValue)
           );
-          const b = Math.round(
-            (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
-          );
+          const b = Math.round((rule.minimum.color % 256) - colorDiffUnitB * (value - minValue));
           const color = (r << 16) | (g << 8) | b;
           computedStyle[cell.xc] = computedStyle[cell.xc] || {};
           computedStyle[cell.xc].fillColor = "#" + colorNumberString(color);
