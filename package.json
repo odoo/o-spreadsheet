@@ -49,7 +49,6 @@
   },
   "dependencies": {
     "@odoo/owl": "^1.0.11",
-    "automerge": "^0.14.1",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "yjs": "^13.4.1"

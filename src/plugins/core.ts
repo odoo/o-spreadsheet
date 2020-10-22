@@ -80,8 +80,6 @@ export class CorePlugin extends BasePlugin {
   private visibleSheets: UID[] = []; // ids of visible sheets
   private sheets: CRDTSheets; // TODO interface
   private activeSheet: Sheet = null as any;
-  private doc: any;
-  private sendCommand: (data) => void;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
@@ -94,8 +92,7 @@ export class CorePlugin extends BasePlugin {
     config: ModelConfig
   ) {
     super(getters, history, dispatch, config);
-    this.sheets = new CRDTSheets(); // TODO interface
-    this.sendCommand = config.sendCommand;
+    this.sheets = new CRDTSheets(config.sendCommand); // TODO interface
   }
 
   // ---------------------------------------------------------------------------
@@ -103,7 +100,6 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
-    this.doc = this.sheets.getDoc();
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.historizeActiveSheet = false;
@@ -277,10 +273,6 @@ export class CorePlugin extends BasePlugin {
 
   finalize() {
     this.historizeActiveSheet = true;
-    const changes = this.sheets.getChanges(this.doc);
-    if (changes.length > 0) {
-      this.sendCommand(changes);
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -922,10 +914,9 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    //this.history.update(["sheets", sheetId, "cells", xc], cell);
-    this.sheets.get(sheetId)!.cells[xc] = cell;
-    this.sheets.get(sheetId)!.rows[row].cells[col] = cell;
-    //this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
+    // this.history.update(["sheets", sheetId, "cells", xc], cell);
+    this.sheets.get(sheetId)!.updateCell(xc, cell);
+    // this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
   }
 
   private generateSheetName(): string {
