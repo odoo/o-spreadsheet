@@ -243,6 +243,13 @@ describe("evaluateCells", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2<>0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(10);
   });
 
+  test("evaluate formula throws when we pass an invalid formula", () => {
+    let model = new Model();
+    expect(() => {
+      model.getters.evaluateFormula("=min(abc)");
+    }).toThrow();
+  });
+
   test("various expressions with boolean", () => {
     const model = new Model();
 
