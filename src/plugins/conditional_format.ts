@@ -215,45 +215,38 @@ export class ConditionalFormatPlugin extends BasePlugin {
     this.history.update(["cfRules", sheet], currentCF);
   }
 
+  private parsePoint(
+    range: string,
+    threshold: ColorScaleThreshold,
+    functionName: "min" | "max"
+  ): number {
+    switch (threshold.type) {
+      case "value":
+        // returns number or #error
+        return Number(this.getters.evaluateFormula(`=${functionName}(${range})`));
+      case "number":
+        if (typeof threshold.value === undefined) {
+          throw Error();
+        }
+        return threshold.value!;
+      default:
+        throw Error("Not Implemented");
+    }
+  }
+
   /**
-   * Execute the complete color scale for the range of the conditional format for a 2 colors rule
-   *
-   * Example of execution :
-   * - minValue = 10; maxValue = 50
-   * - deltaValue = 40
-   * - rule.minimum.color = #ff0000; rule.maximum.color = #99ff00
    * - deltaColor = [0xff - 0x99, 0x00 - 0xff, 0x00 - 0x00]
    * - colorDiffUnit = [(0xff - 0x99) / 40, (0x00 - 0xff) / 40, (0x00 - 0x00) / 40] -> color/value
    */
   private applyColorScale(range: string, rule: ColorScaleRule): void {
     // what happens when multi-range ? the function is called multiple times ? (min value should be calculated once)
     // TODO: .value is received as a string
-    const self = this;
-    function parsePoint(thres:ColorScaleThreshold, functionName:"min"|"max") {
-      if(!(functionName == "min" || functionName == "max"))
-        throw Error("AssertionError");
 
-      if(thres.type == "value") {
-        let ret = Number(self.getters.evaluateFormula(`=${functionName}(${range})`));
-        if (Number.isNaN(ret))
-          throw Error("NaN");
-        return ret;
-      }
-      else if(thres.type == "number") {
-        if(thres.value == undefined)
-          throw Error();
-        return thres.value!;
-      }
-      else {
-        throw Error("Not Implemented");
-      }
-    }
-    
-    let minValue: number, maxValue:number;
+    let minValue: number, maxValue: number;
     try {
-      minValue = parsePoint(rule.minimum, "min");
-      maxValue = parsePoint(rule.maximum, "max");
-    } catch(e) {
+      minValue = this.parsePoint(range, rule.minimum, "min");
+      maxValue = this.parsePoint(range, rule.maximum, "max");
+    } catch (e) {
       return; // silently returns, the CF is wrongly formatted
     }
 
@@ -283,9 +276,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
           const g = Math.round(
             ((rule.minimum.color >> 8) % 256) - colorDiffUnitG * (value - minValue)
           );
-          const b = Math.round(
-            (rule.minimum.color % 256) - colorDiffUnitB * (value - minValue)
-          );
+          const b = Math.round((rule.minimum.color % 256) - colorDiffUnitB * (value - minValue));
           const color = (r << 16) | (g << 8) | b;
           computedStyle[cell.xc] = computedStyle[cell.xc] || {};
           computedStyle[cell.xc].fillColor = "#" + colorNumberString(color);
