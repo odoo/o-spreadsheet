@@ -5,7 +5,13 @@ import { createCellsCRDT } from "./cells";
 import { RowEntity, createRowsCRDT } from "./rows_crdt";
 
 class SheetEntity implements Sheet {
-  constructor(private sheetCRDT: Y.Map<any>) {}
+  private _cells: Y.Map<any>;
+  private _rows: Y.Array<any>;
+
+  constructor(private sheetCRDT: Y.Map<any>) {
+    this._cells = this.sheetCRDT.get("cells");
+    this._rows = this.sheetCRDT.get("rows");
+  }
 
   get id(): string {
     return this.sheetCRDT.get("id");
@@ -57,9 +63,6 @@ class SheetEntity implements Sheet {
   }
 
   get rows(): Row[] {
-    if (!this.sheetCRDT.get("rows").toArray) {
-      debugger;
-    }
     return this.sheetCRDT
       .get("rows")
       .toArray()
@@ -68,17 +71,20 @@ class SheetEntity implements Sheet {
 
   set rows(value) {
     // not needed
-    debugger;
     this.sheetCRDT.set("rows", createRowsCRDT(value));
   }
 
+  getCell(xc: string): Cell {
+    return this._cells.get(xc);
+  }
+
   updateCell(xc: string, cell: Cell) {
-    const currentRows = this.sheetCRDT.get("rows");
+    const currentRows = this._rows;
     // currentRows[cell.row].cells[cell.col] = cell;
-    currentRows.get(cell.row.toString()).get("cells").set(cell.col.toString(), cell);
+    currentRows.get(cell.row).get("cells").set(cell.col.toString(), cell);
     // this.sheetCRDT.set("rows", [...currentRows]);
     // this.sheets.get('12345').get('rows').get(0).get('cells').toJSON()
-    this.sheetCRDT.get("cells").set(xc, cell);
+    this._cells.set(xc, cell);
   }
 
   resetCell(xc: string) {
@@ -92,7 +98,7 @@ class SheetEntity implements Sheet {
 }
 
 export class CRDTSheets {
-  private doc = new Y.Doc();
+  public doc = new Y.Doc();
   private syncing: boolean = false;
 
   private get sheets(): Y.Map<Y.Map<any>> {
@@ -101,7 +107,6 @@ export class CRDTSheets {
 
   constructor(private sendCommand: (data) => Promise<void>) {
     this.sendCommand = sendCommand;
-    this.subscribeToUpdates();
   }
 
   crdtReceived(data: Uint8Array) {
@@ -137,9 +142,11 @@ export class CRDTSheets {
   }
 
   import(changes) {
+    console.time("import");
     this.doc = new Y.Doc();
     Y.applyUpdateV2(this.doc, changes);
     this.subscribeToUpdates();
+    console.timeEnd("import");
     console.log(this.sheets.toJSON());
   }
 
@@ -150,7 +157,6 @@ export class CRDTSheets {
 
   private subscribeToUpdates() {
     this.doc.on("updateV2", (update: Uint8Array) => {
-      console.log("update!!!!!!!!!!!!!!!", this.sendCommand);
       if (!this.syncing) {
         this.sendCommand(update);
       }

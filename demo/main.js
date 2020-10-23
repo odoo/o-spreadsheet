@@ -85,7 +85,7 @@ class App extends Component {
         reader.readAsArrayBuffer(ev.data);
       }
     });
-    // this.data = makeLargeDataset(20, 10_000);
+    this.data = makeLargeDataset(45, 5000);
   }
 
   willStart() {}

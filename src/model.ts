@@ -118,9 +118,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     };
 
     // registering plugins
+    console.time("setupPlugin");
     for (let Plugin of pluginRegistry.getAll()) {
       this.setupPlugin(Plugin, workbookData);
     }
+    console.timeEnd("setupPlugin");
 
     // starting plugins
     this.dispatch("START");

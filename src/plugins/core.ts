@@ -840,7 +840,8 @@ export class CorePlugin extends BasePlugin {
 
   private updateCell(sheetId: UID, col: number, row: number, data: CellData) {
     const sheet = this.sheets.get(sheetId)!;
-    const current = sheet.rows[row].cells[col];
+    // const current = sheet.rows[row].cells[col];
+    const current = sheet.getCell(toXC(col, row));
     const xc = (current && current.xc) || toXC(col, row);
     const hasContent = "content" in data;
 
@@ -1376,14 +1377,16 @@ export class CorePlugin extends BasePlugin {
     // we need to fill the sheetIds mapping first, because otherwise formulas
     // that depends on a sheet not already imported will not be able to be
     // compiled
-    for (let sheet of data.sheets) {
-      this.sheetIds[sheet.name] = sheet.id;
-    }
+    this.sheets.doc.transact(() => {
+      for (let sheet of data.sheets) {
+        this.sheetIds[sheet.name] = sheet.id;
+      }
 
-    for (let sheet of data.sheets) {
-      this.importSheet(sheet);
-    }
-    this.activeSheet = this.sheets.get(data.activeSheet)!;
+      for (let sheet of data.sheets) {
+        this.importSheet(sheet);
+      }
+      this.activeSheet = this.sheets.get(data.activeSheet)!;
+    });
   }
 
   importSheet(data: ImportSheetData) {

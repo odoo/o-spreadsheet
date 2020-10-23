@@ -35,6 +35,7 @@ export interface SheetData {
 export type Sheet = SheetData & {
   updateCell: (xc: string, cell: Cell) => void;
   resetCell: (xc: string) => void;
+  getCell: (xc: string) => Cell;
 };
 
 // A border description is a pair [style, ]

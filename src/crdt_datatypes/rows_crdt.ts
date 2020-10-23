@@ -21,17 +21,21 @@ import { createCellsCRDT } from "./cells";
 
 export function createRowsCRDT(rows: Row[]): Y.Array<Y.Map<any>> {
   const crdt = new Y.Array<Y.Map<any>>();
-  crdt.push(
-    rows.map((row) => {
-      const rowCRDT = new Y.Map();
-      rowCRDT.set("start", row.start);
-      rowCRDT.set("end", row.end);
-      rowCRDT.set("name", row.name);
-      rowCRDT.set("size", row.size);
-      rowCRDT.set("cells", createCellsCRDT(row.cells));
-      return rowCRDT;
-    })
-  );
+  // TODO batch insertion
+  while (rows.length) {
+    crdt.push(
+      rows.splice(0, 1000).map((row) => {
+        const rowCRDT = new Y.Map();
+        rowCRDT.set("start", row.start);
+        rowCRDT.set("end", row.end);
+        rowCRDT.set("name", row.name);
+        rowCRDT.set("size", row.size);
+        rowCRDT.set("cells", createCellsCRDT(row.cells));
+        return rowCRDT;
+      })
+    );
+    console.log(rows.length, "rows remaining");
+  }
   return crdt;
 }
 
