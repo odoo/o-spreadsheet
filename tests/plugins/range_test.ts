@@ -58,54 +58,54 @@ describe("range plugin", () => {
   describe("adapting the ranges to changes", () => {
     describe("create a range and remove a column", () => {
       test("in the middle", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [2] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [2] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("in the end", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [3] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [3] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
       test("before the start", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [0] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [0] });
         expect(m.getters.getUsedRanges()).toEqual(["A2:C4"]);
       });
 
       test("after the end", () => {
-        m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [5] });
+        m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [5] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
 
     describe("create a range and remove a row", () => {
       test("in the middle", () => {
-        m.dispatch("REMOVE_ROWS", { sheet: m.getters.getActiveSheetId(), rows: [2] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("in the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheet: m.getters.getActiveSheetId(), rows: [2] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [2] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("in the end", () => {
-        m.dispatch("REMOVE_ROWS", { sheet: m.getters.getActiveSheetId(), rows: [3] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [3] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
       test("before the start", () => {
-        m.dispatch("REMOVE_ROWS", { sheet: m.getters.getActiveSheetId(), rows: [0] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [0] });
         expect(m.getters.getUsedRanges()).toEqual(["B1:D3"]);
       });
 
       test("after the end", () => {
-        m.dispatch("REMOVE_ROWS", { sheet: m.getters.getActiveSheetId(), rows: [5] });
+        m.dispatch("REMOVE_ROWS", { sheetId: m.getters.getActiveSheetId(), rows: [5] });
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
@@ -113,7 +113,7 @@ describe("range plugin", () => {
     describe("create a range and add a column", () => {
       test("after, in the middle", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 2,
           quantity: 1,
           position: "after",
@@ -123,7 +123,7 @@ describe("range plugin", () => {
 
       test("after, in the start", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 1,
           quantity: 1,
           position: "after",
@@ -133,7 +133,7 @@ describe("range plugin", () => {
 
       test("after, in the end", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 3,
           quantity: 1,
           position: "after",
@@ -143,7 +143,7 @@ describe("range plugin", () => {
 
       test("after, before the start", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 0,
           quantity: 1,
           position: "after",
@@ -153,7 +153,7 @@ describe("range plugin", () => {
 
       test("after, after the end", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 4,
           quantity: 1,
           position: "after",
@@ -163,7 +163,7 @@ describe("range plugin", () => {
 
       test("before, in the middle", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 2,
           quantity: 1,
           position: "before",
@@ -173,7 +173,7 @@ describe("range plugin", () => {
 
       test("before, in the start", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 1,
           quantity: 1,
           position: "before",
@@ -183,7 +183,7 @@ describe("range plugin", () => {
 
       test("before, in the end", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 3,
           quantity: 1,
           position: "before",
@@ -193,7 +193,7 @@ describe("range plugin", () => {
 
       test("before, before the start", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 0,
           quantity: 1,
           position: "before",
@@ -203,7 +203,7 @@ describe("range plugin", () => {
 
       test("before, before the end", () => {
         m.dispatch("ADD_COLUMNS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           column: 4,
           quantity: 1,
           position: "before",
@@ -215,7 +215,7 @@ describe("range plugin", () => {
     describe("create a range and add a row", () => {
       test("after, in the middle", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 2,
           quantity: 1,
           position: "after",
@@ -225,7 +225,7 @@ describe("range plugin", () => {
 
       test("after, in the start", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 1,
           quantity: 1,
           position: "after",
@@ -235,7 +235,7 @@ describe("range plugin", () => {
 
       test("after, in the end", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 3,
           quantity: 1,
           position: "after",
@@ -245,7 +245,7 @@ describe("range plugin", () => {
 
       test("after, before the start", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 0,
           quantity: 1,
           position: "after",
@@ -255,7 +255,7 @@ describe("range plugin", () => {
 
       test("after, after the end", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 4,
           quantity: 1,
           position: "after",
@@ -265,7 +265,7 @@ describe("range plugin", () => {
 
       test("before, in the middle", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 2,
           quantity: 1,
           position: "before",
@@ -275,7 +275,7 @@ describe("range plugin", () => {
 
       test("before, in the start", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 1,
           quantity: 1,
           position: "before",
@@ -285,7 +285,7 @@ describe("range plugin", () => {
 
       test("before, in the end", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 3,
           quantity: 1,
           position: "before",
@@ -295,7 +295,7 @@ describe("range plugin", () => {
 
       test("before, before the start", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 0,
           quantity: 1,
           position: "before",
@@ -305,7 +305,7 @@ describe("range plugin", () => {
 
       test("before, before the end", () => {
         m.dispatch("ADD_ROWS", {
-          sheet: m.getters.getActiveSheetId(),
+          sheetId: m.getters.getActiveSheetId(),
           row: 5,
           quantity: 1,
           position: "before",
@@ -317,17 +317,17 @@ describe("range plugin", () => {
 
   describe("change notification", () => {
     test("a change should be notified", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [2] });
+      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [2] });
       expect(notificationSpy).toHaveBeenCalledTimes(1);
       expect(notificationSpy).toHaveBeenCalledWith("RESIZE");
     });
     test("multiple changes of the same range should get notified only once", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [1, 2] });
+      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2] });
       expect(notificationSpy).toHaveBeenCalledTimes(1);
       expect(notificationSpy).toHaveBeenCalledWith("RESIZE");
     });
     test("multiple changes that results in the range disappearing should be notified only once", () => {
-      m.dispatch("REMOVE_COLUMNS", { sheet: m.getters.getActiveSheetId(), columns: [1, 2, 3] });
+      m.dispatch("REMOVE_COLUMNS", { sheetId: m.getters.getActiveSheetId(), columns: [1, 2, 3] });
       expect(notificationSpy).toHaveBeenCalledTimes(1);
       expect(notificationSpy).toHaveBeenCalledWith("REMOVE");
     });

@@ -918,7 +918,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   private cellDependencyChanged(cell: Cell, changeType: ChangeType) {
-    console.log(`cell ${cell.xc} dep changed with ${changeType}`);
+    //console.log(`cell ${cell.xc} dep changed with ${changeType}`);
 
     switch (changeType) {
       case "REMOVE":
