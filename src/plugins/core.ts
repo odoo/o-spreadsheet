@@ -379,7 +379,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   getActiveSheet(): Sheet {
-    return this.activeSheet;
+    return this.sheets.get(this.activeSheet.id)!;
   }
 
   getSheet(sheetId: UID): Sheet {

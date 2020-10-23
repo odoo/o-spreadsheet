@@ -76,7 +76,7 @@ export class SelectionPlugin extends BasePlugin {
     config: ModelConfig
   ) {
     super(getters, history, dispatch, config);
-    
+
     this.doc.on("updateV2", (update: Uint8Array) => {
       config.sendCommand(update);
     });
@@ -140,7 +140,7 @@ export class SelectionPlugin extends BasePlugin {
           this.doc.getMap("Hello").set("activeXc", `B${random}`);
           this.doc.getMap("Hello").set("activeCol", this.activeCol);
           this.doc.getMap("Hello").set("activeRow", this.activeRow);
-        }, 41)
+        }, 41);
         this.sheetsData[cmd.sheetIdFrom] = {
           selection: JSON.parse(JSON.stringify(this.selection)),
           activeCol: this.activeCol,
