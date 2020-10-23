@@ -1,7 +1,8 @@
 import * as Y from "yjs";
 import { Sheet, Cell, SheetData, UID } from "../types";
 import { Header, Row } from "../types";
-
+import { createCellsCRDT } from "./cells";
+import { RowEntity, createRowsCRDT } from "./rows_crdt";
 
 class SheetEntity implements Sheet {
   constructor(private sheetCRDT: Y.Map<any>) {}
@@ -56,25 +57,36 @@ class SheetEntity implements Sheet {
   }
 
   get rows(): Row[] {
-    return this.sheetCRDT.get("rows");
+    if (!this.sheetCRDT.get("rows").toArray) {
+      debugger;
+    }
+    return this.sheetCRDT
+      .get("rows")
+      .toArray()
+      .map((rowCRDT) => new RowEntity(rowCRDT));
   }
 
   set rows(value) {
-    this.sheetCRDT.set("rows", value);
+    // not needed
+    debugger;
+    this.sheetCRDT.set("rows", createRowsCRDT(value));
   }
 
   updateCell(xc: string, cell: Cell) {
-    const currentRows: Row[] = this.sheetCRDT.get("rows");
-    currentRows[cell.row].cells[cell.col] = cell;
-    this.sheetCRDT.set("rows", [...currentRows]);
+    const currentRows = this.sheetCRDT.get("rows");
+    // currentRows[cell.row].cells[cell.col] = cell;
+    currentRows.get(cell.row.toString()).get("cells").set(cell.col.toString(), cell);
+    // this.sheetCRDT.set("rows", [...currentRows]);
+    // this.sheets.get('12345').get('rows').get(0).get('cells').toJSON()
     this.sheetCRDT.get("cells").set(xc, cell);
   }
 
   resetCell(xc: string) {
-    const currentRows: Row[] = this.sheetCRDT.get("rows");
-    const cell = this.sheetCRDT.get("cells").get("xc");
-    delete currentRows[cell.row].cells[cell.col];
-    this.sheetCRDT.set("rows", [...currentRows]);
+    // TODO delete in rows
+    // const currentRows: Row[] = this.sheetCRDT.get("rows");
+    // const cell = this.sheetCRDT.get("cells").get("xc");
+    // delete currentRows[cell.row].cells[cell.col];
+    // this.sheetCRDT.set("rows", [...currentRows]);
     this.sheetCRDT.get("cells").delete(xc);
   }
 }
@@ -83,7 +95,7 @@ export class CRDTSheets {
   private doc = new Y.Doc();
   private syncing: boolean = false;
 
-  get sheets(): Y.Map<Y.Map<any>> {
+  private get sheets(): Y.Map<Y.Map<any>> {
     return this.doc.getMap("sheets");
   }
 
@@ -113,8 +125,9 @@ export class CRDTSheets {
     sheet.set("name", sheetData.name);
     sheet.set("colNumber", sheetData.colNumber);
     sheet.set("rowNumber", sheetData.rowNumber);
-    sheet.set("cells", new Y.Map<Y.Map<any>>()); // set cells here
-    sheet.set("rows", sheetData.rows);
+    sheet.set("cells", createCellsCRDT(sheetData.cells)); // set cells here
+    // sheet.set("rows", sheetData.rows);
+    sheet.set("rows", createRowsCRDT(sheetData.rows));
     sheet.set("cols", sheetData.cols);
     this.sheets.set(sheetData.id, sheet);
   }
