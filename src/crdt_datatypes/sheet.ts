@@ -30,7 +30,7 @@ class SheetEntity implements Sheet {
   }
 
   get cells(): { [key: string]: Cell } {
-    // wrap in entity object
+    // slow
     return this.sheetCRDT.get("cells").toJSON();
   }
 
@@ -74,25 +74,24 @@ class SheetEntity implements Sheet {
     this.sheetCRDT.set("rows", createRowsCRDT(value));
   }
 
-  getCell(xc: string): Cell {
-    return this._cells.get(xc);
+  getCell(xc: string): Cell | null {
+    return this._cells.get(xc) || null;
+  }
+
+  *getCells(): Generator<Cell> {
+    for (let [, cell] of this.sheetCRDT.get("cells")) {
+      yield cell;
+    }
   }
 
   updateCell(xc: string, cell: Cell) {
     const currentRows = this._rows;
-    // currentRows[cell.row].cells[cell.col] = cell;
     currentRows.get(cell.row).get("cells").set(cell.col.toString(), cell);
-    // this.sheetCRDT.set("rows", [...currentRows]);
-    // this.sheets.get('12345').get('rows').get(0).get('cells').toJSON()
     this._cells.set(xc, cell);
   }
 
   resetCell(xc: string) {
-    // TODO delete in rows
-    // const currentRows: Row[] = this.sheetCRDT.get("rows");
-    // const cell = this.sheetCRDT.get("cells").get("xc");
-    // delete currentRows[cell.row].cells[cell.col];
-    // this.sheetCRDT.set("rows", [...currentRows]);
+    // TODO also delete in rows
     this.sheetCRDT.get("cells").delete(xc);
   }
 }
@@ -130,8 +129,7 @@ export class CRDTSheets {
     sheet.set("name", sheetData.name);
     sheet.set("colNumber", sheetData.colNumber);
     sheet.set("rowNumber", sheetData.rowNumber);
-    sheet.set("cells", createCellsCRDT(sheetData.cells)); // set cells here
-    // sheet.set("rows", sheetData.rows);
+    sheet.set("cells", createCellsCRDT(sheetData.cells));
     sheet.set("rows", createRowsCRDT(sheetData.rows));
     sheet.set("cols", sheetData.cols);
     this.sheets.set(sheetData.id, sheet);
@@ -145,8 +143,8 @@ export class CRDTSheets {
     console.time("import");
     this.doc = new Y.Doc();
     Y.applyUpdateV2(this.doc, changes);
-    this.subscribeToUpdates();
     console.timeEnd("import");
+    this.subscribeToUpdates();
     console.log(this.sheets.toJSON());
   }
 

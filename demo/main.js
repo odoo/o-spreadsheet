@@ -153,6 +153,7 @@ class App extends Component {
     if (!this.isConnected) {
       this.stateQueue.push(data);
     } else {
+      console.log(this.stateSocket.readyState)
       this.stateSocket.send(data);
     }
     // const result = await this.jsonRPC(

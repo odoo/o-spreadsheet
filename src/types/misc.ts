@@ -32,10 +32,20 @@ export interface SheetData {
   rows: Row[];
 }
 
-export type Sheet = SheetData & {
+export type Sheet = {
   updateCell: (xc: string, cell: Cell) => void;
   resetCell: (xc: string) => void;
-  getCell: (xc: string) => Cell;
+  getCell: (xc: string) => Cell | null;
+  getCells: () => Generator<Cell>;
+  id: UID;
+  name: string;
+  colNumber: number;
+  rowNumber: number;
+  cols: Col[];
+  rows: Row[];
+
+  // TO REMOVE: not used anymore outside tests ;)
+  cells: { [key: string]: Cell };
 };
 
 // A border description is a pair [style, ]

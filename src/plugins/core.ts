@@ -403,12 +403,18 @@ export class CorePlugin extends BasePlugin {
     return this.visibleSheets;
   }
 
-  getEvaluationSheets(): Record<UID, Sheet> {
-    return this.sheets.toObject();
+  getEvaluationSheets(): CRDTSheets {
+    // TODO interface
+    return this.sheets;
   }
 
+  // TO REMOVE: not used anymore outside tests ;)
   getCells(): { [key: string]: Cell } {
-    return this.activeSheet.cells;
+    const cells = {};
+    for (let cell of this.activeSheet.getCells()) {
+      cells[cell.xc] = cell;
+    }
+    return cells;
   }
 
   getCol(sheetId: UID, index: number): Col {
@@ -812,10 +818,9 @@ export class CorePlugin extends BasePlugin {
 
     const sheet = this.sheets.get(sheetId)!;
 
-    for (let xc in sheet.cells) {
-      let cell = sheet.cells[xc];
+    for (let cell of sheet.getCells()) {
       if (shouldDelete(cell)) {
-        const [col, row] = toCartesian(xc);
+        const [col, row] = [cell.col, cell.row];
         deleteCommands.push({
           type: "CLEAR_CELL",
           sheetId: sheet.id,
@@ -1322,7 +1327,7 @@ export class CorePlugin extends BasePlugin {
   private visitAllFormulasSymbols(cb: (value: string, sheetId: UID) => string) {
     for (let sheetId in this.sheets.ids) {
       const sheet = this.sheets.get(sheetId)!;
-      for (let [xc, cell] of Object.entries(sheet.cells)) {
+      for (let cell of sheet.getCells()) {
         if (cell.type === "formula") {
           const content = rangeTokenize(cell.content!)
             .map((t) => {
@@ -1333,7 +1338,7 @@ export class CorePlugin extends BasePlugin {
             })
             .join("");
           if (content !== cell.content) {
-            const [col, row] = toCartesian(xc);
+            const [col, row] = [cell.col, cell.row];
             this.dispatch("UPDATE_CELL", {
               sheetId: sheet.id,
               col,
@@ -1418,8 +1423,8 @@ export class CorePlugin extends BasePlugin {
     data.sheets = this.visibleSheets.map((id) => {
       const sheet = this.sheets.get(id)!;
       const cells: { [key: string]: CellData } = {};
-      for (let [key, cell] of Object.entries(sheet.cells)) {
-        cells[key] = {
+      for (let cell of sheet.getCells()) {
+        cells[cell.xc] = {
           content: cell.content,
           border: cell.border,
           style: cell.style,

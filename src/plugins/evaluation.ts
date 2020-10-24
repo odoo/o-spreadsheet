@@ -7,12 +7,6 @@ import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, ReadCell, Range } from "../types";
 import { _lt } from "../translation";
 
-function* makeObjectIterator(obj: Object) {
-  for (let i in obj) {
-    yield obj[i];
-  }
-}
-
 function* makeSetIterator(set: Set<any>) {
   for (let elem of set) {
     yield elem;
@@ -173,10 +167,8 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    this.evaluateCells(
-      makeObjectIterator(this.getters.getCells()),
-      this.getters.getActiveSheetId()
-    );
+    const activeSheet = this.getters.getActiveSheet();
+    this.evaluateCells(activeSheet.getCells(), this.getters.getActiveSheetId());
   }
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
@@ -271,9 +263,9 @@ export class EvaluationPlugin extends BasePlugin {
     const PENDING = this.PENDING;
     function readCell(xc: string, sheet: string): any {
       let cell;
-      const s = sheets[sheet];
+      const s = sheets.get(sheet);
       if (s) {
-        cell = s.cells[xc];
+        cell = s.getCell(xc);
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }

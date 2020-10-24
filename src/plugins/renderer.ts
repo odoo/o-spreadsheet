@@ -420,9 +420,8 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private hasContent(col: number, row: number): boolean {
-    const cells = this.getters.getCells();
     const xc = toXC(col, row);
-    const cell = cells[xc];
+    const cell = this.getters.getCell(col, row);
     return (cell && cell.content) || (this.getters.isInMerge(xc) as any);
   }
 
@@ -433,7 +432,8 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, cells } = this.getters.getActiveSheet();
+    const activeSheet = this.getters.getActiveSheet();
+    const { cols, rows } = activeSheet;
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
@@ -491,11 +491,11 @@ export class RendererPlugin extends BasePlugin {
       }
     }
 
-    const activeSheet = this.getters.getActiveSheetId();
+    const activeSheetId = this.getters.getActiveSheetId();
     // process all visible merges
-    for (let merge of this.getters.getMerges(activeSheet)) {
+    for (let merge of this.getters.getMerges(activeSheetId)) {
       if (overlap(merge, viewport)) {
-        const refCell = cells[merge.topLeft];
+        const refCell = activeSheet.getCell(merge.topLeft);
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
         if (refCell) {

@@ -2,26 +2,9 @@ import * as Y from "yjs";
 import { Row, Cell } from "../types";
 import { createCellsCRDT } from "./cells";
 
-// should be a factory, not a child class
-// export class RowsCRDT extends Y.Array<Y.Map<any>> {
-
-//   constructor(rows: Row[]) {
-//     super()
-//     this.push(rows.map((row) => {
-//       const rowCRDT = new Y.Map();
-//       rowCRDT.set("start", row.start);
-//       rowCRDT.set("end", row.end);
-//       rowCRDT.set("name", row.name);
-//       rowCRDT.set("size", row.size);
-//       rowCRDT.set("cells", createCellsCRDT(row.cells));
-//       return rowCRDT
-//     }));
-//   }
-// }
-
 export function createRowsCRDT(rows: Row[]): Y.Array<Y.Map<any>> {
   const crdt = new Y.Array<Y.Map<any>>();
-  // TODO batch insertion
+  // batch insertion
   while (rows.length) {
     crdt.push(
       rows.splice(0, 1000).map((row) => {
