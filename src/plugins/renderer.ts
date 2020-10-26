@@ -433,18 +433,21 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, cells } = this.getters.getActiveSheet();
+    const { cols, rows, id } = this.getters.getActiveSheet();
+    const cells = this.getters.getCells(id);
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cell = row.cells[colNumber];
-        if (cell && !this.getters.isInMerge(cell.xc)) {
+
+        let xc = toXC(colNumber, rowNumber);
+        if (cell && !this.getters.isInMerge(xc)) {
           let col = cols[colNumber];
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
           let style = this.getters.getCellStyle(cell);
-          const conditionalStyle = this.getters.getConditionalStyle(cell.xc);
+          const conditionalStyle = this.getters.getConditionalStyle(xc);
           if (conditionalStyle) {
             style = Object.assign({}, style, conditionalStyle);
           }
@@ -452,10 +455,10 @@ export class RendererPlugin extends BasePlugin {
             ? (style && style.align) || computeAlign(cell, this.getters.shouldShowFormulas())
             : undefined;
           let clipRect: Rect | null = null;
-          if (text && textWidth > cols[cell.col].size) {
+          if (text && textWidth > cols[colNumber].size) {
             if (align === "left") {
-              let c = cell.col;
-              while (c < right && !this.hasContent(c + 1, cell.row)) {
+              let c = colNumber;
+              while (c < right && !this.hasContent(c + 1, rowNumber)) {
                 c++;
               }
               const width = cols[c].end - col.start;
@@ -463,8 +466,8 @@ export class RendererPlugin extends BasePlugin {
                 clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
               }
             } else {
-              let c = cell.col;
-              while (c > left && !this.hasContent(c - 1, cell.row)) {
+              let c = colNumber;
+              while (c > left && !this.hasContent(c - 1, rowNumber)) {
                 c--;
               }
               const width = col.end - cols[c].start;

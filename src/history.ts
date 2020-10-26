@@ -21,8 +21,70 @@ type Step = HistoryChange[];
  */
 export const MAX_HISTORY_STEPS = 99;
 
-export interface WorkbookHistory {
+/*export interface WorkbookHistory {
   update(path: (string | number)[], val: any): void;
+}*/
+
+export interface WorkbookHistory<Plugin> {
+  update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
+
+  update<T extends keyof Plugin, U extends keyof Plugin[T]>(
+    key1: T,
+    key2: U,
+    val: Plugin[T][U]
+  ): void;
+
+  update<T extends keyof Plugin, U extends keyof Plugin[T], K extends keyof Plugin[T][U]>(
+    key1: T,
+    key2: U,
+    key3: K,
+    val: Plugin[T][U][K]
+  ): void;
+
+  update<
+    T extends keyof Plugin,
+    U extends keyof Plugin[T],
+    K extends keyof Plugin[T][U],
+    V extends keyof Plugin[T][U][K]
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    val: Plugin[T][U][K][V]
+  ): void;
+
+  update<
+    T extends keyof Plugin,
+    U extends keyof Plugin[T],
+    K extends keyof Plugin[T][U],
+    V extends keyof Plugin[T][U][K],
+    W extends keyof Plugin[T][U][K][V]
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    key5: W,
+    val: Plugin[T][U][K][V][W]
+  ): void;
+
+  update<
+    T extends keyof Plugin,
+    U extends keyof Plugin[T],
+    K extends keyof Plugin[T][U],
+    V extends keyof Plugin[T][U][K],
+    W extends keyof Plugin[T][U][K][V],
+    X extends keyof Plugin[T][U][K][V][W]
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    key5: W,
+    key6: X,
+    val: Plugin[T][U][K][V][W][X]
+  ): void;
 }
 
 export class WHistory implements CommandHandler {

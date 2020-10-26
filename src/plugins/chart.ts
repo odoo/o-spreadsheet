@@ -45,15 +45,21 @@ const GraphColors = [
   "rgb(158,218,229)",
 ];
 
-export class ChartPlugin extends BasePlugin {
+interface ChartState {
+  chartFigures: Set<string>;
+
+  chartRuntime: { [figureId: string]: ChartConfiguration };
+}
+
+export class ChartPlugin extends BasePlugin<any> implements ChartState {
   static getters = ["getChartRuntime"];
   static layers = [LAYERS.Chart];
 
-  private chartFigures: Set<string> = new Set();
+  public readonly chartFigures: Set<string> = new Set();
 
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
-  private chartRuntime: { [figureId: string]: ChartConfiguration } = {};
+  public readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
   private outOfDate: Set<string> = new Set<string>();
 
   allowDispatch(cmd: Command): CommandResult {
@@ -90,8 +96,8 @@ export class ChartPlugin extends BasePlugin {
           },
         });
 
-        this.history.update(["chartFigures"], new Set(this.chartFigures).add(cmd.id));
-        this.history.update(["chartRuntime", cmd.id], this.mapDefinitionToRuntime(chartDefinition));
+        this.history.update("chartFigures", new Set(this.chartFigures).add(cmd.id));
+        this.history.update("chartRuntime", cmd.id, this.mapDefinitionToRuntime(chartDefinition));
         break;
       case "UPDATE_CHART": {
         const chartDefinition = this.createChartDefinition(
@@ -102,15 +108,15 @@ export class ChartPlugin extends BasePlugin {
           id: cmd.id,
           data: chartDefinition,
         });
-        this.history.update(["chartRuntime", cmd.id], this.mapDefinitionToRuntime(chartDefinition));
+        this.history.update("chartRuntime", cmd.id, this.mapDefinitionToRuntime(chartDefinition));
         break;
       }
       case "DELETE_FIGURE":
         if (this.chartFigures.has(cmd.id)) {
           const figures = new Set(this.chartFigures);
           figures.delete(cmd.id);
-          this.history.update(["chartFigures"], figures);
-          this.history.update(["chartRuntime", cmd.id], undefined);
+          this.history.update("chartFigures", figures);
+          this.history.update("chartRuntime", cmd.id, undefined);
         }
         break;
       case "UPDATE_CELL":

@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { functionRegistry } from "../functions/index";
-import { mapCellsInZone, toCartesian } from "../helpers/index";
+import { mapCellsInZone, toCartesian, toXC } from "../helpers/index";
 import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import {
@@ -16,7 +16,6 @@ import {
 } from "../types";
 import { _lt } from "../translation";
 import { compile, normalize } from "../formulas/index";
-
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];
@@ -211,7 +210,8 @@ export class EvaluationPlugin extends BasePlugin {
       if (cell.type !== "formula" || !cell.formula) {
         return;
       }
-      const xc = cell.xc;
+      const position = params[2].getCellPosition(cell.id);
+      const xc = toXC(position.col, position.row);
       visited[sheetId] = visited[sheetId] || {};
       if (xc in visited[sheetId]) {
         if (visited[sheetId][xc] === null) {
@@ -279,7 +279,8 @@ export class EvaluationPlugin extends BasePlugin {
       let cell;
       const s = sheets[sheet];
       if (s) {
-        cell = s.cells[xc];
+        // TODO: might not be the fastest way to get a cell
+        cell = evalContext.getters.getCell(s.id)[xc];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }

@@ -436,12 +436,12 @@ export interface ReplaceComposerSelectionCommand extends BaseCommand {
   text: string;
 }
 
-export interface SetValueCommand extends BaseCommand {
-  type: "SET_VALUE";
-  xc: string;
-  text: string;
-  sheetId?: UID;
-}
+// export interface SetValueCommand extends BaseCommand {
+//   type: "SET_VALUE";
+//   xc: string;
+//   text: string;
+//   sheetId?: UID;
+// }
 export interface ShowFormulaCommand extends BaseCommand {
   type: "SET_FORMULA_VISIBILITY";
   show: boolean;
@@ -656,7 +656,7 @@ export type Command =
   | SetCurrentContentCommand
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
-  | SetValueCommand
+  // | SetValueCommand
   | AddFormattingCommand
   | ClearFormattingCommand
   | SetFormatterCommand

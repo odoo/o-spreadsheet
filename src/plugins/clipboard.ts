@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { clip, toXC } from "../helpers/index";
+import { clip } from "../helpers/index";
 import { Mode } from "../model";
 import {
   Cell,
@@ -10,6 +10,7 @@ import {
   CancelledReason,
   CommandResult,
   UID,
+  Sheet,
 } from "../types/index";
 import { _lt } from "../translation";
 
@@ -188,11 +189,18 @@ export class ClipboardPlugin extends BasePlugin {
       values.map((a) => a.length)
     );
     const height = values.length;
-    this.addMissingDimensions(width, height, activeCol, activeRow);
+    const sheet = this.getters.getActiveSheet();
+    this.addMissingDimensions(sheet, width, height, activeCol, activeRow);
     for (let i = 0; i < values.length; i++) {
       for (let j = 0; j < values[i].length; j++) {
-        const xc = toXC(activeCol + j, activeRow + i);
-        this.dispatch("SET_VALUE", { xc, text: values[i][j] });
+        this.dispatch("UPDATE_CELL", {
+          row: activeRow + i,
+          col: activeCol + j,
+          content: values[i][j],
+          sheetId: sheet.id,
+        });
+        //const xc = toXC(activeCol + j, activeRow + i);
+        //this.dispatch("SET_VALUE", { xc, text: values[i][j] });
       }
     }
     this.dispatch("SET_SELECTION", {
@@ -285,7 +293,7 @@ export class ClipboardPlugin extends BasePlugin {
 
   private pasteZone(width: number, height: number, col: number, row: number) {
     // first, add missing cols/rows if needed
-    this.addMissingDimensions(width, height, col, row);
+    this.addMissingDimensions(this.getters.getActiveSheet(), width, height, col, row);
     // then, perform the actual paste operation
     for (let r = 0; r < height; r++) {
       const rowCells = this.cells![r];
@@ -306,8 +314,8 @@ export class ClipboardPlugin extends BasePlugin {
     }
   }
 
-  private addMissingDimensions(width, height, col, row) {
-    const { cols, rows } = this.getters.getActiveSheet();
+  private addMissingDimensions(sheet: Sheet, width, height, col, row) {
+    const { cols, rows } = sheet;
     const missingRows = height + row - rows.length;
     if (missingRows > 0) {
       this.dispatch("ADD_ROWS", {
@@ -359,8 +367,9 @@ export class ClipboardPlugin extends BasePlugin {
       } else if (onlyFormat) {
         content = targetCell ? targetCell.content : "";
       } else if (origin.type === "formula") {
-        const offsetX = col - origin.col;
-        const offsetY = row - origin.row;
+        const position = this.getters.getCellPosition(origin.id);
+        const offsetX = col - position.col;
+        const offsetY = row - position.row;
         content = this.getters.applyOffset(content, offsetX, offsetY);
       }
       const newCell = {

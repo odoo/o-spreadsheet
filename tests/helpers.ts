@@ -8,7 +8,6 @@ import { Model } from "../src/model";
 import {
   Cell,
   GridRenderingContext,
-  Sheet,
   SpreadsheetEnv,
   Zone,
   Style,
@@ -295,10 +294,6 @@ export function getCell(model: Model, xc: string, sheet?: UID): Cell | null {
     return model.getters.getEvaluationSheets()[sheet].rows[row].cells[col];
   }
   return model.getters.getCell(col, row);
-}
-
-export function getSheet(model: Model, index: number = 0): Sheet {
-  return model.getters.getSheets()[index];
 }
 
 export function getMerges(model: Model): { [key: number]: Merge } {

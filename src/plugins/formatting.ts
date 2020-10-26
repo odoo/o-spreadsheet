@@ -265,8 +265,7 @@ export class FormattingPlugin extends BasePlugin {
     borderMap: { [xc: string]: number }
   ) {
     const activeSheet = this.getters.getActiveSheet();
-    const cell = this.getters.getCell(col, row);
-    const xc = cell ? cell.xc : toXC(col, row);
+    const xc = toXC(col, row);
     borderMap[xc] = 0;
     if (col > 0) {
       this.clearSide(sheet, col - 1, row, "right", borderMap);
@@ -290,7 +289,7 @@ export class FormattingPlugin extends BasePlugin {
     borderMap: { [xc: string]: number }
   ) {
     const cell = this.getters.getCell(col, row);
-    const xc = cell ? cell.xc : toXC(col, row);
+    const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
     if (side in currentBorder) {
@@ -308,7 +307,7 @@ export class FormattingPlugin extends BasePlugin {
     borderMap: { [xc: string]: number }
   ) {
     const cell = this.getters.getCell(col, row);
-    const xc = cell ? cell.xc : toXC(col, row);
+    const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
     const nextBorder = Object.assign({}, currentBorder, border);

@@ -22,7 +22,12 @@ interface PendingMerges {
   merges: string[];
 }
 
-export class MergePlugin extends BasePlugin {
+interface MergeState {
+  merges: Record<UID, { [key: number]: Merge }>;
+  mergeCellMap: Record<UID, { [xc: string]: number }>; // SheetId [ XC ] --> merge ID
+}
+
+export class MergePlugin extends BasePlugin implements MergeState {
   static getters = [
     "isMergeDestructive",
     "isInMerge",
@@ -37,8 +42,8 @@ export class MergePlugin extends BasePlugin {
   private nextId: number = 1;
   private pending: PendingMerges | null = null;
 
-  private merges: Record<UID, { [key: number]: Merge }> = {};
-  private mergeCellMap: Record<UID, { [key: string]: number }> = {};
+  public readonly merges: Record<UID, { [key: number]: Merge }> = {};
+  public readonly mergeCellMap: Record<UID, { [key: string]: number }> = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -94,20 +99,22 @@ export class MergePlugin extends BasePlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET":
-        this.history.update(["merges", cmd.sheetId], {});
-        this.history.update(["mergeCellMap", cmd.sheetId], {});
+        this.history.update("merges", cmd.sheetId, {});
+        this.history.update("mergeCellMap", cmd.sheetId, {});
         break;
       case "DELETE_SHEET":
-        this.history.update(["merges", cmd.sheetId], {});
-        this.history.update(["mergeCellMap", cmd.sheetId], {});
+        this.history.update("merges", cmd.sheetId, {});
+        this.history.update("mergeCellMap", cmd.sheetId, {});
         break;
       case "DUPLICATE_SHEET":
         this.history.update(
-          ["merges", cmd.sheetIdTo],
+          "merges",
+          cmd.sheetIdTo,
           Object.assign({}, this.merges[cmd.sheetIdFrom])
         );
         this.history.update(
-          ["mergeCellMap", cmd.sheetIdTo],
+          "mergeCellMap",
+          cmd.sheetIdTo,
           Object.assign({}, this.mergeCellMap[cmd.sheetIdFrom])
         );
         break;
@@ -133,7 +140,7 @@ export class MergePlugin extends BasePlugin {
     }
     if (this.pending) {
       this.importMerges(this.pending.sheet, this.pending.merges);
-      this.history.update(["pending"], null);
+      this.history.update("pending", null);
     }
   }
 
@@ -273,7 +280,7 @@ export class MergePlugin extends BasePlugin {
     const topLeft = this.getters.getCell(left, top);
 
     let id = this.nextId++;
-    this.history.update(["merges", sheetId, id], {
+    this.history.update("merges", sheetId, id, {
       id,
       left,
       top,
@@ -297,7 +304,7 @@ export class MergePlugin extends BasePlugin {
         if (this.mergeCellMap[sheetId][xc]) {
           previousMerges.add(this.mergeCellMap[sheetId][xc]);
         }
-        this.history.update(["mergeCellMap", sheetId, xc], id);
+        this.history.update("mergeCellMap", sheetId, xc, id);
       }
     }
     this.applyBorderMerge(zone, sheetId);
@@ -307,7 +314,7 @@ export class MergePlugin extends BasePlugin {
         for (let c = left; c <= right; c++) {
           const xc = toXC(c, r);
           if (this.mergeCellMap[sheetId][xc] !== id) {
-            this.history.update(["mergeCellMap", sheetId, xc], undefined);
+            this.history.update("mergeCellMap", sheetId, xc, undefined);
             this.dispatch("CLEAR_CELL", {
               sheetId: sheetId,
               col: c,
@@ -316,7 +323,7 @@ export class MergePlugin extends BasePlugin {
           }
         }
       }
-      this.history.update(["merges", sheetId, m], undefined);
+      this.history.update("merges", sheetId, m, undefined);
     }
   }
 
@@ -374,11 +381,11 @@ export class MergePlugin extends BasePlugin {
     if (!isEqual(zone, mergeZone)) {
       throw new Error(_lt("Invalid merge zone"));
     }
-    this.history.update(["merges", sheetId, mergeId], undefined);
+    this.history.update("merges", sheetId, mergeId, undefined);
     for (let r = top; r <= bottom; r++) {
       for (let c = left; c <= right; c++) {
         const xc = toXC(c, r);
-        this.history.update(["mergeCellMap", sheetId, xc], undefined);
+        this.history.update("mergeCellMap", sheetId, xc, undefined);
       }
     }
   }
@@ -428,10 +435,10 @@ export class MergePlugin extends BasePlugin {
 
   private removeAllMerges(sheetId: UID) {
     for (let id in this.merges[sheetId]) {
-      this.history.update(["merges", sheetId, id], undefined);
+      this.history.update("merges", sheetId, id, undefined);
     }
     for (let id in this.mergeCellMap[sheetId]) {
-      this.history.update(["mergeCellMap", sheetId, id], undefined);
+      this.history.update("mergeCellMap", sheetId, id, undefined);
     }
   }
 
@@ -453,14 +460,14 @@ export class MergePlugin extends BasePlugin {
     }
     this.updateMergesStyles(sheetId, isCol);
     this.removeAllMerges(sheetId);
-    this.history.update(["pending"], { sheet: sheetId, merges: updatedMerges });
+    this.history.update("pending", { sheet: sheetId, merges: updatedMerges });
   }
 
   private updateMergesStyles(sheetId: string, isColumn: boolean) {
-    const sheet = this.getters.getSheets().find((s) => s.id === sheetId)!;
+    const cells = this.getters.getCells(sheetId);
     for (let merge of Object.values(this.merges[sheetId])) {
       const xc = merge.topLeft;
-      const topLeft = sheet.cells[xc];
+      const topLeft = cells[xc];
       if (!topLeft) {
         continue;
       }
@@ -472,7 +479,7 @@ export class MergePlugin extends BasePlugin {
         y += 1;
       }
       this.dispatch("UPDATE_CELL", {
-        sheetId: sheet.id,
+        sheetId,
         col: x,
         row: y,
         style: topLeft.style,
@@ -531,8 +538,8 @@ export class MergePlugin extends BasePlugin {
   import(data: WorkbookData) {
     const sheets = data.sheets || [];
     for (let sheetData of sheets) {
-      this.history.update(["merges", sheetData.id], {});
-      this.history.update(["mergeCellMap", sheetData.id], {});
+      this.history.update("merges", sheetData.id, {});
+      this.history.update("mergeCellMap", sheetData.id, {});
       if (sheetData.merges) {
         this.importMerges(sheetData.id, sheetData.merges);
       }
@@ -545,7 +552,7 @@ export class MergePlugin extends BasePlugin {
       const [tl, br] = m.split(":");
       const [left, top] = toCartesian(tl);
       const [right, bottom] = toCartesian(br);
-      this.history.update(["merges", sheetId, id], {
+      this.history.update("merges", sheetId, id, {
         id,
         left,
         top,
@@ -556,7 +563,7 @@ export class MergePlugin extends BasePlugin {
       for (let row = top; row <= bottom; row++) {
         for (let col = left; col <= right; col++) {
           const xc = toXC(col, row);
-          this.history.update(["mergeCellMap", sheetId, xc], id);
+          this.history.update("mergeCellMap", sheetId, xc, id);
         }
       }
     }

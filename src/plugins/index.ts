@@ -14,8 +14,26 @@ import { AutofillPlugin } from "./autofill";
 import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
 import { FigurePlugin } from "./figures";
+import { SheetPlugin } from "./sheet";
+import { WHistory } from "../history";
+import { Mode, ModelConfig } from "../model";
+import { Getters, CommandDispatcher, LAYERS } from "../types";
 
-export const pluginRegistry = new Registry<typeof BasePlugin>()
+export interface PluginContructor {
+  new (
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ): BasePlugin;
+
+  layers: LAYERS[];
+  getters: string[];
+  modes: Mode[];
+}
+
+export const pluginRegistry = new Registry<PluginContructor>()
+  .add("sheet", SheetPlugin)
   .add("core", CorePlugin)
   .add("evaluation", EvaluationPlugin)
   .add("clipboard", ClipboardPlugin)

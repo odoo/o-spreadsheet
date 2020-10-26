@@ -1,3 +1,5 @@
+import { Getters } from "./getters";
+
 export type ArgType =
   | "ANY"
   | "BOOLEAN"
@@ -29,8 +31,9 @@ export interface FunctionDescription {
   returns: [ArgType];
 }
 
-export interface EvalContext {
+export type EvalContext = {
+  [key in keyof Getters]: any;
+} & {
   __lastFnCalled?: string;
   __originCellXC?: string;
-  [key: string]: any;
-}
+};

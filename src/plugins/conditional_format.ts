@@ -26,11 +26,17 @@ import { _lt } from "../translation";
 // Constants
 // -----------------------------------------------------------------------------
 
-export class ConditionalFormatPlugin extends BasePlugin {
+interface ConditionalFormatState {
+  cfRules: { [sheet: string]: ConditionalFormat[] };
+}
+
+export class ConditionalFormatPlugin
+  extends BasePlugin<ConditionalFormatState>
+  implements ConditionalFormatState {
   static getters = ["getConditionalFormats", "getConditionalStyle", "getRulesSelection"];
 
   private isStale: boolean = true;
-  private cfRules: { [sheet: string]: ConditionalFormat[] } = {};
+  public readonly cfRules: { [sheet: string]: ConditionalFormat[] } = {};
 
   // stores the computed styles in the format of computedStyles.sheetName.cellXC = Style
   private computedStyles: { [sheet: string]: { [cellXc: string]: Style } } = {};
@@ -51,13 +57,13 @@ export class ConditionalFormatPlugin extends BasePlugin {
         this.isStale = true;
         break;
       case "DUPLICATE_SHEET":
-        this.history.update(["cfRules", cmd.sheetIdTo], this.cfRules[cmd.sheetIdFrom].slice());
+        this.history.update("cfRules", cmd.sheetIdTo, this.cfRules[cmd.sheetIdFrom.slice()]);
         this.isStale = true;
         break;
       case "DELETE_SHEET":
         const cfRules = Object.assign({}, this.cfRules);
         delete cfRules[cmd.sheetId];
-        this.history.update(["cfRules"], cfRules);
+        this.history.update("cfRules", cfRules);
         this.isStale = true;
         break;
       case "ADD_CONDITIONAL_FORMAT":
@@ -210,7 +216,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     } else {
       currentCF.push(cf);
     }
-    this.history.update(["cfRules", sheet], currentCF);
+    this.history.update("cfRules", sheet, currentCF);
   }
 
   /**
@@ -250,8 +256,9 @@ export class ConditionalFormatPlugin extends BasePlugin {
             (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
           );
           const color = (r << 16) | (g << 8) | b;
-          computedStyle[cell.xc] = computedStyle[cell.xc] || {};
-          computedStyle[cell.xc].fillColor = "#" + colorNumberString(color);
+          const xc = toXC(col, row);
+          computedStyle[xc] = computedStyle[xc] || {};
+          computedStyle[xc].fillColor = "#" + colorNumberString(color);
         }
       }
     }
@@ -374,7 +381,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
       cf.ranges = updatedRanges;
       newCfs.push(cf);
     }
-    this.history.update(["cfRules", sheet], newCfs);
+    this.history.update("cfRules", sheet, newCfs);
   }
 
   private removeConditionalFormatting(id: string, sheet: string) {
@@ -382,7 +389,7 @@ export class ConditionalFormatPlugin extends BasePlugin {
     if (cfIndex !== -1) {
       const currentCF = this.cfRules[sheet].slice();
       currentCF.splice(cfIndex, 1);
-      this.history.update(["cfRules", sheet], currentCF);
+      this.history.update("cfRules", sheet, currentCF);
     }
   }
 

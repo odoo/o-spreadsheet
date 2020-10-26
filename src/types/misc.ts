@@ -25,7 +25,6 @@ export interface Style {
 export interface Sheet {
   id: UID;
   name: string;
-  cells: { [key: string]: Cell };
   colNumber: number;
   rowNumber: number;
   cols: Col[];
@@ -72,9 +71,10 @@ export interface CompiledFormula extends _CompiledFormula {
 }
 
 export interface Cell extends NewCell {
-  col: number;
-  row: number;
-  xc: string;
+  //col: number;
+  //row: number;
+  //xc: string;
+  id: UID;
   error?: string;
   pending?: boolean;
   value: any;

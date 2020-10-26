@@ -22,13 +22,13 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
  * how each of these model sub parts should interact with each other.
  */
 
-export class BasePlugin implements CommandHandler {
+export class BasePlugin<T = any> implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
   protected getters: Getters;
-  protected history: WorkbookHistory;
+  protected history: WorkbookHistory<T>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
   protected ui: UIActions;
