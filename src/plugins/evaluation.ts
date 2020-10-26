@@ -6,6 +6,7 @@ import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { Cell, Command, CommandDispatcher, EvalContext, Getters, ReadCell, Range } from "../types";
 import { _lt } from "../translation";
+import { GlobalCRDT } from "../crdt_datatypes/global";
 
 function* makeSetIterator(set: Set<any>) {
   for (let elem of set) {
@@ -58,12 +59,13 @@ export class EvaluationPlugin extends BasePlugin {
   private COMPUTED: Set<Cell> = new Set();
 
   constructor(
+    repository: GlobalCRDT,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(getters, history, dispatch, config);
+    super(repository, getters, history, dispatch, config);
     this.evalContext = config.evalContext;
   }
 

@@ -1,3 +1,4 @@
+import { GlobalCRDT } from "./crdt_datatypes/global";
 import { WHistory, WorkbookHistory } from "./history";
 import { Mode, ModelConfig } from "./model";
 import {
@@ -22,24 +23,22 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
  * how each of these model sub parts should interact with each other.
  */
 
-export class BasePlugin implements CommandHandler {
+export class BasePlugin<RepositoryType> implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
-  protected getters: Getters;
   protected history: WorkbookHistory;
-  protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
   protected ui: UIActions;
 
   constructor(
-    getters: Getters,
+    protected repository: RepositoryType,
+    protected getters: Getters,
     history: WHistory,
-    dispatch: CommandDispatcher["dispatch"],
+    protected dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    this.getters = getters;
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
     });

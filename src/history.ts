@@ -1,4 +1,4 @@
-import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
+import { Command, CommandHandler, CommandResult } from "./types/index";
 
 /**
  * History Management System
@@ -40,16 +40,16 @@ export class WHistory implements CommandHandler {
   }
 
   allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "UNDO":
-        return this.canUndo()
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
-      case "REDO":
-        return this.canRedo()
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
-    }
+    // switch (cmd.type) {
+    //   case "UNDO":
+    //     return this.canUndo()
+    //       ? { status: "SUCCESS" }
+    //       : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
+    //   case "REDO":
+    //     return this.canRedo()
+    //       ? { status: "SUCCESS" }
+    //       : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
+    // }
     return { status: "SUCCESS" };
   }
 

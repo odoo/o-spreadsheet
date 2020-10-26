@@ -186,16 +186,16 @@ const TEMPLATE = xml/* xml */ `
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
-    <t t-if="getters.getEditionMode() === 'inactive'">
+    <!-- <t t-if="getters.getEditionMode() === 'inactive'">
       <Autofill position="getAutofillPosition()" viewport="snappedViewport"/>
-    </t>
+    </t> -->
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
     <Menu t-if="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>
     <t t-set="gridSize" t-value="getters.getGridSize()"/>
-    <FiguresContainer viewport="snappedViewport" model="props.model" t-on-figure-deleted="focus" />
+    <!-- <FiguresContainer viewport="snappedViewport" model="props.model" t-on-figure-deleted="focus" /> -->
     <div class="o-scrollbar vertical" t-on-scroll="onScroll" t-ref="vscrollbar">
       <div t-attf-style="width:1px;height:{{gridSize[1]}}px"/>
     </div>
@@ -346,7 +346,8 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.drawGrid();
   }
   focus() {
-    if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
+    // if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
+    if (!this.getters.isSelectingForComposer()) {
       this.canvas.el!.focus();
     }
   }
@@ -493,11 +494,11 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const onMouseUp = (ev: MouseEvent) => {
       this.dispatch(ev.ctrlKey ? "PREPARE_SELECTION_EXPANSION" : "STOP_SELECTION");
       this.canvas.el!.removeEventListener("mousemove", onMouseMove);
-      if (this.getters.isPaintingFormat()) {
-        this.dispatch("PASTE", {
-          target: this.getters.getSelectedZones(),
-        });
-      }
+      // if (this.getters.isPaintingFormat()) {
+      //   this.dispatch("PASTE", {
+      //     target: this.getters.getSelectedZones(),
+      //   });
+      // }
     };
 
     startDnd(onMouseMove, onMouseUp);

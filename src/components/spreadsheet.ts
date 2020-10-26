@@ -56,6 +56,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
+  crdtData?: any;
 }
 
 const t = (s: string): string => s;
@@ -66,18 +67,21 @@ export class Spreadsheet extends Component<Props> {
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
-  model = new Model(this.props.data, {
-    notifyUser: (content: string) => this.trigger("notify-user", { content }),
-    askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-      this.trigger("ask-confirmation", { content, confirm, cancel }),
-    editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
-      this.trigger("edit-text", { title, placeholder, callback }),
-    openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-    evalContext: { env: this.env },
-    sendCommand: async (data) => {
-      this.trigger("send-crdt", { command: data });
-    },
-  });
+  model = new Model(
+    { json: this.props.data, crdt: this.props.crdtData },
+    {
+      notifyUser: (content: string) => this.trigger("notify-user", { content }),
+      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+        this.trigger("ask-confirmation", { content, confirm, cancel }),
+      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
+        this.trigger("edit-text", { title, placeholder, callback }),
+      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
+      evalContext: { env: this.env },
+      sendCommand: async (data) => {
+        this.trigger("send-crdt", { command: data });
+      },
+    }
+  );
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
@@ -113,7 +117,8 @@ export class Spreadsheet extends Component<Props> {
   mounted() {
     this.model.on("update", this, this.render);
     console.log("triggering send-crdt-state");
-    setTimeout(() => this.trigger("send-crdt-state", { command: this.model.getCRDTState() }), 15);
+    // WTF!? => the parent needs to be mounted, otherwise it will not catch the event.
+    setTimeout(() => this.trigger("send-crdt-state", { command: this.model.getCRDTState() }), 80);
   }
 
   willUnmount() {

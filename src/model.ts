@@ -17,6 +17,7 @@ import {
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
 import { CorePlugin } from "./plugins/core";
+import { GlobalCRDT } from "./crdt_datatypes/global";
 
 /**
  * Model
@@ -87,6 +88,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   private config: ModelConfig;
 
+  private globalCRDT: GlobalCRDT;
+
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
    * it is shared between all plugins, so they can also communicate with each
@@ -94,9 +97,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   getters: Getters;
 
-  constructor(data: any = {}, config: Partial<ModelConfig> = {}) {
+  constructor(datas: any = {}, config: Partial<ModelConfig> = {}) {
     super();
     DEBUG.model = this;
+    const data = datas.json || {};
+    const crdt = datas.crdt;
+    this.globalCRDT = new GlobalCRDT(config.sendCommand || (async () => {}));
 
     const workbookData = load(data);
     const history = new WHistory();
@@ -122,6 +128,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     for (let Plugin of pluginRegistry.getAll()) {
       this.setupPlugin(Plugin, workbookData);
     }
+    if (crdt) {
+      this.importCRDT(crdt);
+    }
     console.timeEnd("setupPlugin");
 
     // starting plugins
@@ -142,7 +151,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.globalCRDT, this.getters, history, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -184,17 +193,23 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
             return allowDispatch;
           }
         }
-        this.status = Status.Running;
-        for (const h of this.handlers) {
-          h.beforeHandle(command);
-        }
-        for (const h of this.handlers) {
-          h.handle(command);
-        }
-        this.status = Status.Finalizing;
-        for (const h of this.handlers) {
-          h.finalize(command);
-        }
+        const sheets = (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin)[
+          "sheets"
+        ];
+        sheets.doc.transact(() => {
+          this.status = Status.Running;
+          for (const h of this.handlers) {
+            h.beforeHandle(command);
+          }
+
+          for (const h of this.handlers) {
+            h.handle(command);
+          }
+          this.status = Status.Finalizing;
+          for (const h of this.handlers) {
+            h.finalize(command);
+          }
+        }, sheets.uuid);
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");
@@ -258,9 +273,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   getCRDTState() {
     return (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).getCRDT();
+    // return this.globalCRDT.getState();
   }
 
   importCRDT(crdt) {
+    // this.globalCRDT.import(crdt);
     (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).importCRDT(crdt);
   }
 }

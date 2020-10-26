@@ -1,4 +1,5 @@
 import * as Y from "yjs";
+import { uuidv4 } from "../helpers/index";
 import { Sheet, Cell, SheetData, UID } from "../types";
 import { Header, Row } from "../types";
 import { createCellsCRDT } from "./cells";
@@ -98,7 +99,10 @@ class SheetEntity implements Sheet {
 
 export class CRDTSheets {
   public doc = new Y.Doc();
+  // @ts-ignore
+  private undoManager: Y.UndoManager;
   private syncing: boolean = false;
+  public uuid: UID = uuidv4();
 
   private get sheets(): Y.Map<Y.Map<any>> {
     return this.doc.getMap("sheets");
@@ -106,6 +110,22 @@ export class CRDTSheets {
 
   constructor(private sendCommand: (data) => Promise<void>) {
     this.sendCommand = sendCommand;
+    this.initUndoManager();
+  }
+
+  initUndoManager() {
+    this.undoManager = new Y.UndoManager(this.sheets, {
+      captureTimeout: 500,
+      trackedOrigins: new Set([this.uuid]),
+    });
+  }
+
+  undo() {
+    this.undoManager.undo();
+  }
+
+  redo() {
+    this.undoManager.redo();
   }
 
   crdtReceived(data: Uint8Array) {
@@ -143,6 +163,7 @@ export class CRDTSheets {
     console.time("import");
     this.doc = new Y.Doc();
     Y.applyUpdateV2(this.doc, changes);
+    this.initUndoManager();
     console.timeEnd("import");
     this.subscribeToUpdates();
     console.log(this.sheets.toJSON());

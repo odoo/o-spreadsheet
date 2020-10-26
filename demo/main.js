@@ -23,18 +23,38 @@ menuItemRegistry.addChild("clear", ["file"], {
 
 let start;
 
+function rpc(route, method, data) {
+  const url = `http://${window.location.hostname}:9000/${route}`;
+  return new Promise(function (resolve, reject) {
+    let xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    // xhr.setRequestHeader("Content-type", "application/binary");
+    xhr.onload = function () {
+      if (this.status >= 200 && this.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText,
+        });
+      }
+    };
+    xhr.onerror = function () {
+      reject({
+        status: this.status,
+        statusText: xhr.statusText,
+      });
+    };
+    xhr.send(data);
+  });
+}
+
 class App extends Component {
   constructor() {
     super();
     this.key = 1;
     let cacheData;
     this.spread = useRef("spread");
-    try {
-      cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
-    } catch (_) {
-      window.localStorage.removeItem("o-spreadsheet");
-    }
-    this.data = cacheData || demoData;
     useSubEnv({
       save: this.save.bind(this),
     });
@@ -85,10 +105,50 @@ class App extends Component {
         reader.readAsArrayBuffer(ev.data);
       }
     });
-    this.data = makeLargeDataset(45, 5000);
+    //this.data = makeLargeDataset(45, 5000);
   }
 
-  willStart() {}
+  async willStart() {
+    // try {
+    //   cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
+    // } catch (_) {
+    //   window.localStorage.removeItem("o-spreadsheet");
+    // }
+    // this.data = cacheData || demoData;
+    const first = JSON.parse(await rpc("get-status", "GET"));
+
+    // For testing puposes we need to load all data every time
+    this.data = JSON.parse(await rpc("get-json", "GET"));
+    if (!first) {
+      const crdtResponse = await this.getCRDT();
+      // const enc = new TextEncoder();
+      // this.crdtData = enc.encode(crdtResponse);
+      this.crdtData = new Uint8Array(JSON.parse(crdtResponse).data);
+      console.log(this.crdtData);
+      // this.crdtData = new Uint8Array(crdtResponse);
+    }
+    // if (first) {
+    //   this.data = JSON.parse(await rpc("get-json", "GET"));
+    // } else {
+    //   const crdtResponse = await this.getCRDT();
+    //   const enc = new TextEncoder();
+    //   this.crdtData = enc.encode(crdtResponse);
+    // }
+  }
+
+  getCRDT() {
+    return new Promise(async (resolve, reject) => {
+      const crdt = await rpc("get-crdt", "GET");
+      if (crdt) {
+        resolve(crdt);
+      } else {
+        // FIXME clear timer if unmounted
+        setTimeout(() => {
+          return this.getCRDT();
+        }, 1000);
+      }
+    });
+  }
 
   mounted() {
     console.log("Mounted: ", Date.now() - start);
@@ -114,7 +174,9 @@ class App extends Component {
   }
 
   save(content) {
-    window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
+    //window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
+    const data = this.spread.comp.model.getCRDTState();
+    this.sendState2(data);
   }
 
   processQueue(queue, socket) {
@@ -145,87 +207,35 @@ class App extends Component {
     }
   }
 
-  async sendState(ev) {
-    console.log("sendState", ev);
-    const data = ev.detail.command;
-    // const msg = JSON.stringify({ type: "multiuser_command", payload: command });
-    // const command = JSON.stringify(this.spread.comp.model.exportData());
+  async sendState2(data) {
     if (!this.isConnected) {
       this.stateQueue.push(data);
     } else {
-      console.log(this.stateSocket.readyState)
+      console.log(this.stateSocket.readyState);
       this.stateSocket.send(data);
     }
-    // const result = await this.jsonRPC(
-    //   `http://${window.location.hostname}:9000/state_from_client`,
-    //   ev.detail.command
-    // );
-    // console.log(result);
-    // this.spread.comp.model.importCRDT(result);
   }
 
-  // jsonRPC(url, data) {
-  //   return new Promise(function (resolve, reject) {
-  //     let xhr = new XMLHttpRequest();
-  //     xhr.open("POST", url);
-  //     xhr.setRequestHeader("Content-type", "application/octet-stream");
-  //     xhr.onload = function () {
-  //       if (this.status >= 200 && this.status < 300) {
-  //         resolve(xhr.response);
-  //       } else {
-  //         reject({
-  //           status: this.status,
-  //           statusText: xhr.statusText,
-  //         });
-  //       }
-  //     };
-  //     xhr.onerror = function () {
-  //       reject({
-  //         status: this.status,
-  //         statusText: xhr.statusText,
-  //       });
-  //     };
-  //     xhr.send(data);
-  //   });
-  // }
-
-  async getTicket() {
-    return (await jsonRPC(`http://${window.location.hostname}:9000/timestamp`, {})).timestamp;
-
-    function jsonRPC(url, data) {
-      return new Promise(function (resolve, reject) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", url);
-        xhr.setRequestHeader("Content-type", "application/binary");
-        // const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-        // xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.onload = function () {
-          if (this.status >= 200 && this.status < 300) {
-            resolve(JSON.parse(xhr.response));
-          } else {
-            reject({
-              status: this.status,
-              statusText: xhr.statusText,
-            });
-          }
-        };
-        xhr.onerror = function () {
-          reject({
-            status: this.status,
-            statusText: xhr.statusText,
-          });
-        };
-        xhr.send(JSON.stringify(data));
-      });
-    }
+  async sendState(ev) {
+    console.log("sendState", ev);
+    const data = ev.detail.command;
+    console.log(data);
+    this.sendState2(data);
+    // const msg = JSON.stringify({ type: "multiuser_command", payload: command });
+    // const command = JSON.stringify(this.spread.comp.model.exportData());
+    // if (!this.isConnected) {
+    //   this.stateQueue.push(data);
+    // } else {
+    //   console.log(this.stateSocket.readyState);
+    //   this.stateSocket.send(data);
+    // }
   }
 }
 
 App.template = xml/* xml */ `
   <div>
-    <Spreadsheet data="data" t-key="key"
+    <Spreadsheet data="data" crdtData="crdtData" t-key="key"
       t-ref="spread"
-      getTicket="getTicket"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"

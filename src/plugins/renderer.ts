@@ -444,10 +444,10 @@ export class RendererPlugin extends BasePlugin {
           const text = this.getters.getCellText(cell);
           const textWidth = this.getters.getCellWidth(cell);
           let style = this.getters.getCellStyle(cell);
-          const conditionalStyle = this.getters.getConditionalStyle(cell.xc);
-          if (conditionalStyle) {
-            style = Object.assign({}, style, conditionalStyle);
-          }
+          // const conditionalStyle = this.getters.getConditionalStyle(cell.xc);
+          // if (conditionalStyle) {
+          // style = Object.assign({}, style, conditionalStyle);
+          // }
           const align = text
             ? (style && style.align) || computeAlign(cell, this.getters.shouldShowFormulas())
             : undefined;
