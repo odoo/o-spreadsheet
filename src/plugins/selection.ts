@@ -15,7 +15,6 @@ import { Mode, ModelConfig } from "../model";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import * as Y from "yjs";
 import { WHistory } from "../history";
-import { GlobalCRDT } from "../crdt_datatypes/global";
 
 export interface Selection {
   anchor: [number, number];
@@ -71,13 +70,13 @@ export class SelectionPlugin extends BasePlugin {
   // private doc2 = new Y.Doc();
 
   constructor(
-    repository: GlobalCRDT,
+    state: any,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(repository, getters, history, dispatch, config);
+    super(state, getters, history, dispatch, config);
 
     this.doc.on("updateV2", (update: Uint8Array) => {
       config.sendCommand(update);

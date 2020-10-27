@@ -151,7 +151,14 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.globalCRDT, this.getters, history, dispatch, this.config);
+      this.globalCRDT.init(Plugin.name);
+      const plugin = new Plugin(
+        this.globalCRDT.get(Plugin.name),
+        this.getters,
+        history,
+        dispatch,
+        this.config
+      );
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {

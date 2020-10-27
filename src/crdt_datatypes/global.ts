@@ -28,12 +28,20 @@ export class GlobalCRDT {
     this.pluginsState.set(key, value);
   }
 
+  init(key: string) {
+    this.pluginsState.set(key, new Y.Map<any>());
+  }
+
   undo() {
     this.undoManager.undo();
   }
 
   redo() {
     this.undoManager.redo();
+  }
+
+  get(key: string) {
+    return this.pluginsState.get(key);
   }
 
   import(changes) {

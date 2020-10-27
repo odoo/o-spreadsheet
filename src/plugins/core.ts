@@ -1,3 +1,5 @@
+import * as Y from "yjs";
+
 import { BasePlugin } from "../base_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { compile, rangeTokenize } from "../formulas/index";
@@ -39,7 +41,7 @@ import {
 import { CRDTSheets } from "../crdt_datatypes/sheet";
 import { WHistory } from "../history";
 import { ModelConfig } from "../model";
-import { GlobalCRDT } from "../crdt_datatypes/global";
+import { CRDTRepository } from "../crdt_datatypes/repository";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -53,8 +55,13 @@ const MIN_PADDING = 3;
 //   testProp1: string;
 //   testProp2: number;
 //   testProp3: Test2;
-//   testProp4: {[xc: string]: number};
+//   testProp4: { [xc: string]: number };
 // }
+
+export interface CoreState {
+  sheetIds: Y.Map<UID>;
+  cells: Y.Array<Cell>;
+}
 
 // /**
 //  * Repository Global: => role est de s'occuper du transfert des données, de l'écoute d'update
@@ -80,14 +87,6 @@ const MIN_PADDING = 3;
  * cell and sheet content.
  */
 export class CorePlugin extends BasePlugin {
-// export class CorePlugin extends BasePlugin<Repository<CoreState>> {
-  // test() {
-  //   this.repository.set("testProp1", "hello");
-  //   const xc = "test"+"sub1";
-  //   this.repository.set("testProp4", xc, 45);
-  //   this.repository.get("testProp3");
-  // }
-
   static getters = [
     "applyOffset",
     "getColsZone",
@@ -124,14 +123,17 @@ export class CorePlugin extends BasePlugin {
   private historizeActiveSheet: boolean = true;
 
   constructor(
-    // repository: Repository<CoreState>,
-    repository: GlobalCRDT,
+    state: any,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(repository, getters, history, dispatch, config);
+    super(state, getters, history, dispatch, config);
+    // this.repository = new CoreModel(this.repository.get("CorePlugin"));
+    this.repository = new CRDTRepository(state);
+    this.repository.set("cells", new Y.Array<Cell>());
+    this.repository.set("sheetIds", new Y.Map<UID>());
     this.sheets = new CRDTSheets(config.sendCommand); // TODO interface
   }
 
@@ -1441,7 +1443,8 @@ export class CorePlugin extends BasePlugin {
 
     this.sheets.doc.transact(() => {
       for (let sheet of data.sheets) {
-        this.sheetIds[sheet.name] = sheet.id;
+        this.repository.set("sheetIds", sheet.name, sheet.id);
+        // this.sheetIds[sheet.name] = sheet.id;
       }
 
       for (let sheet of data.sheets) {

@@ -1,5 +1,5 @@
 // import { GlobalCRDT } from "./crdt_datatypes/global";
-import { GlobalCRDT } from "./crdt_datatypes/global";
+import { Repository } from "./crdt_datatypes/repository";
 import { WHistory, WorkbookHistory } from "./history";
 import { Mode, ModelConfig } from "./model";
 import {
@@ -25,7 +25,7 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
  */
 
 export class BasePlugin implements CommandHandler {
-// export class BasePlugin<RepositoryType> implements CommandHandler {
+  // export class BasePlugin<RepositoryType> implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
@@ -33,10 +33,9 @@ export class BasePlugin implements CommandHandler {
   protected history: WorkbookHistory;
   protected currentMode: Mode;
   protected ui: UIActions;
-
+  protected repository: Repository<any> = null as any;
   constructor(
-    // protected repository: RepositoryType,
-    protected repository: GlobalCRDT,
+    state: any,
     protected getters: Getters,
     history: WHistory,
     protected dispatch: CommandDispatcher["dispatch"],
