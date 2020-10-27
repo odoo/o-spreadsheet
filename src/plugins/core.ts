@@ -39,38 +39,39 @@ import {
 import { CRDTSheets } from "../crdt_datatypes/sheet";
 import { WHistory } from "../history";
 import { ModelConfig } from "../model";
+import { GlobalCRDT } from "../crdt_datatypes/global";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
 
-interface Test2 {
-  testsub1: string;
-  testsub2: number;
-}
+// interface Test2 {
+//   testsub1: string;
+//   testsub2: number;
+// }
 
-interface CoreState {
-  testProp1: string;
-  testProp2: number;
-  testProp3: Test2;
-  testProp4: {[xc: string]: number};
-}
+// interface CoreState {
+//   testProp1: string;
+//   testProp2: number;
+//   testProp3: Test2;
+//   testProp4: {[xc: string]: number};
+// }
 
-/**
- * Repository Global: => role est de s'occuper du transfert des données, de l'écoute d'update
- *  - CorePlugin: CoreRepository
- *  - GridPlugin: GridRepository
- */
+// /**
+//  * Repository Global: => role est de s'occuper du transfert des données, de l'écoute d'update
+//  *  - CorePlugin: CoreRepository
+//  *  - GridPlugin: GridRepository
+//  */
 
-interface Repository<State> {
-  // Son role c'est de gerer toutes les données de Core Plugin (getters, setters, ...)
-  // Il n'y a que lui qui a la connaissance des CRDTS
-  // Découple le stockage de l'état de la logique business dans les plugins
+// interface Repository<State> {
+//   // Son role c'est de gerer toutes les données de Core Plugin (getters, setters, ...)
+//   // Il n'y a que lui qui a la connaissance des CRDTS
+//   // Découple le stockage de l'état de la logique business dans les plugins
 
-  set<T extends keyof State>(key: T, value: State[T]): void;
-  set<T extends keyof State, X extends keyof State[T]>(key: T, key2: X, value: State[T][X]): void;
+//   set<T extends keyof State>(key: T, value: State[T]): void;
+//   set<T extends keyof State, X extends keyof State[T]>(key: T, key2: X, value: State[T][X]): void;
 
-  get<T extends keyof State>(key: T): State[T];
-}
+//   get<T extends keyof State>(key: T): State[T];
+// }
 
 /**
  * Core Plugin
@@ -78,13 +79,14 @@ interface Repository<State> {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CorePlugin extends BasePlugin<Repository<CoreState>> {
-  test() {
-    this.repository.set("testProp1", "hello");
-    const xc = "test"+"sub1";
-    this.repository.set("testProp4", xc, 45);
-    this.repository.get("testProp3");
-  }
+export class CorePlugin extends BasePlugin {
+// export class CorePlugin extends BasePlugin<Repository<CoreState>> {
+  // test() {
+  //   this.repository.set("testProp1", "hello");
+  //   const xc = "test"+"sub1";
+  //   this.repository.set("testProp4", xc, 45);
+  //   this.repository.get("testProp3");
+  // }
 
   static getters = [
     "applyOffset",
@@ -122,7 +124,8 @@ export class CorePlugin extends BasePlugin<Repository<CoreState>> {
   private historizeActiveSheet: boolean = true;
 
   constructor(
-    repository: Repository<CoreState>,
+    // repository: Repository<CoreState>,
+    repository: GlobalCRDT,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
@@ -1432,9 +1435,9 @@ export class CorePlugin extends BasePlugin<Repository<CoreState>> {
     // we need to fill the sheetIds mapping first, because otherwise formulas
     // that depends on a sheet not already imported will not be able to be
     // compiled
-    this.repository.sheetsIds;
-    for (let sheet of data.sheets) {
-    }
+    // this.repository.sheetsIds;
+    // for (let sheet of data.sheets) {
+    // }
 
     this.sheets.doc.transact(() => {
       for (let sheet of data.sheets) {

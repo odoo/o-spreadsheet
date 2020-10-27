@@ -1,3 +1,4 @@
+// import { GlobalCRDT } from "./crdt_datatypes/global";
 import { GlobalCRDT } from "./crdt_datatypes/global";
 import { WHistory, WorkbookHistory } from "./history";
 import { Mode, ModelConfig } from "./model";
@@ -23,7 +24,8 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
  * how each of these model sub parts should interact with each other.
  */
 
-export class BasePlugin<RepositoryType> implements CommandHandler {
+export class BasePlugin implements CommandHandler {
+// export class BasePlugin<RepositoryType> implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
@@ -33,7 +35,8 @@ export class BasePlugin<RepositoryType> implements CommandHandler {
   protected ui: UIActions;
 
   constructor(
-    protected repository: RepositoryType,
+    // protected repository: RepositoryType,
+    protected repository: GlobalCRDT,
     protected getters: Getters,
     history: WHistory,
     protected dispatch: CommandDispatcher["dispatch"],

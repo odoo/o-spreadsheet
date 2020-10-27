@@ -19,5 +19,7 @@
       "sourceMap": true
 
     },
-    "include": ["src", "tests"]
+    // TODO Remove this, it's only for testing purpose !!!!!!
+    // "include": ["src", "tests"]
+    "include": ["src"]
   }
