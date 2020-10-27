@@ -40,15 +40,16 @@ export class GlobalCRDT {
     this.undoManager.redo();
   }
 
-  get(key: string) {
+  get(key: string): Y.Map<any> {
     return this.pluginsState.get(key);
   }
 
-  import(changes) {
+  import(changes: Uint8Array) {
     console.time("import");
     //TODO remove this
     this.doc = new Y.Doc();
     Y.applyUpdateV2(this.doc, changes);
+
     this.initUndoManager();
     console.timeEnd("import");
     this.subscribeToUpdates();
@@ -64,8 +65,13 @@ export class GlobalCRDT {
     return Y.encodeStateAsUpdateV2(this.doc);
   }
 
+  transaction(transactionCallback: () => void) {
+    this.doc.transact(transactionCallback, this.uuid);
+  }
+
   private subscribeToUpdates() {
     this.doc.on("updateV2", (update: Uint8Array) => {
+      console.log("update");
       if (!this.syncing) {
         this.sendCommand(update);
       }

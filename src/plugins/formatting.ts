@@ -586,8 +586,7 @@ export class FormattingPlugin extends BasePlugin {
   private getFormat(xc: string): FormatInfo {
     const format: FormatInfo = {};
     xc = this.getters.getMainCell(xc);
-    const activeSheet = this.getters.getActiveSheet();
-    const cell = activeSheet.getCell(xc);
+    const cell = this.getters.getCell(...toCartesian(xc));
     if (cell) {
       if (cell.border) {
         format["border"] = cell.border;

@@ -181,8 +181,7 @@ export class EditionPlugin extends BasePlugin {
     if (this.mode !== "inactive") {
       this.cancelEdition();
       const xc = this.getters.getMainCell(toXC(this.col, this.row));
-      const activeSheet = this.getters.getActiveSheet();
-      const cell = activeSheet.getCell(xc);
+      const cell = this.getters.getCell(...toCartesian(xc));
       let content = this.currentContent;
       this.setContent("");
       const didChange = cell ? cell.content !== content : content !== "";

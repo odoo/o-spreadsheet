@@ -495,7 +495,7 @@ export class RendererPlugin extends BasePlugin {
     // process all visible merges
     for (let merge of this.getters.getMerges(activeSheetId)) {
       if (overlap(merge, viewport)) {
-        const refCell = activeSheet.getCell(merge.topLeft);
+        const refCell = activeSheet.cells[merge.topLeft];
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
         if (refCell) {

@@ -38,10 +38,11 @@ import {
   Getters,
   CommandDispatcher,
 } from "../types/index";
-import { CRDTSheets } from "../crdt_datatypes/sheet";
 import { WHistory } from "../history";
 import { ModelConfig } from "../model";
 import { CRDTRepository } from "../crdt_datatypes/repository";
+import { createColsCRDT, createRowsCRDT } from "../crdt_datatypes/rows_crdt";
+import { createCellsCRDT } from "../crdt_datatypes/cells";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -61,6 +62,8 @@ const MIN_PADDING = 3;
 export interface CoreState {
   sheetIds: Y.Map<UID>;
   cells: Y.Array<Cell>;
+  showFormulas: boolean;
+  visibleSheets: Y.Array<UID>;
 }
 
 // /**
@@ -79,6 +82,149 @@ export interface CoreState {
 
 //   get<T extends keyof State>(key: T): State[T];
 // }
+
+class CoreRepository extends CRDTRepository<CoreState> {
+  setIdToSheetname(name: string, id: UID) {
+    this.state.get("sheetIds").set(name, id);
+  }
+  deleteSheetName(name: string) {
+    this.state.get("sheetIds").delete(name);
+  }
+  getSheetIdByName(name: string): UID {
+    return this.state.get("sheetIds").get(name);
+  }
+  isFormulasShown(): boolean {
+    return this.state.get("showFormulas");
+  }
+  getSheetMapping(): { [name: string]: UID } {
+    return this.state.get("sheetIds").toJSON();
+  }
+  getVisibleSheets(): UID[] {
+    return this.state.get("visibleSheets").toArray();
+  }
+  insertVisibleSheet(index: number, sheetId: UID) {
+    this.state.get("visibleSheets").insert(index, [sheetId]);
+  }
+  deleteVisibleSheet(index: number) {
+    this.state.get("visibleSheets").delete(index);
+  }
+  pushVisibleSheet(sheetId: UID) {
+    this.state.get("visibleSheets").push([sheetId]);
+  }
+
+  setColNumber(sheetId: UID, colNumber: number) {
+    this.state.get("sheets").get(sheetId).set("colNumber", colNumber);
+  }
+  getColNumber(sheetId: UID) {
+    return this.state.get("sheets").get(sheetId).get("colNumber");
+  }
+  setRowNumber(sheetId: UID, rowNumber: number) {
+    this.state.get("sheets").get(sheetId).set("rowNumber", rowNumber);
+  }
+  getRowNumber(sheetId: UID) {
+    return this.state.get("sheets").get(sheetId).get("rowNumber");
+  }
+  getSheetName(sheetId: UID) {
+    return this.state.get("sheets").get(sheetId).get("name");
+  }
+  getSheet(sheetId: UID): Sheet {
+    return this.state.get("sheets").get(sheetId).toJSON();
+  }
+  getAllSheets(): Record<UID, Sheet> {
+    return this.state.get("sheets").toJSON();
+  }
+  getCol(sheetId: UID, index: number): Col {
+    return this.state.get("sheets").get(sheetId).get("cols").get(index.toString()).toJSON();
+  }
+  setColSize(sheetId: UID, index: number, size: number) {
+    this.state.get("sheets").get(sheetId).get("cols").get(index).set("size", size);
+  }
+  setColStart(sheetId: UID, index: number, start: number) {
+    this.state.get("sheets").get(sheetId).get("cols").get(index).set("start", start);
+  }
+  setColEnd(sheetId: UID, index: number, end: number) {
+    this.state.get("sheets").get(sheetId).get("cols").get(index).set("end", end);
+  }
+  setCols(sheetId: UID, cols: Col[]) {
+    const sheet = this.state.get("sheets").get(sheetId);
+    sheet.set("cols", new Y.Array());
+    sheet.get("cols").push([cols]);
+  }
+  getCols(sheetId: UID) {
+    return this.state.get("sheets").get(sheetId).get("cols").toArray();
+  }
+  getRow(sheetId: UID, index: number): Row {
+    return this.state.get("sheets").get(sheetId).get("rows").get(index).toJSON();
+  }
+  setRows(sheetId: UID, rows: Row[]) {
+    const sheet = this.state.get("sheets").get(sheetId);
+    sheet.set("rows", createRowsCRDT(rows));
+    // for (let row of rows) {
+    //   sheet.get("rows").push(row);
+    // }
+  }
+
+  getCell(sheetId: UID, col: number, row: number): Cell | null {
+    return this.state
+      .get("sheets")
+      .get(sheetId)
+      .get("rows")
+      .get(row.toString())
+      .get("cells")
+      .get(col.toString());
+  }
+
+  *getCells(sheetId: UID): Generator<Cell> {
+    for (let [, cell] of this.state.get("sheets").get(sheetId).get("cells")) {
+      yield cell.toJSON();
+    }
+  }
+  getRows(sheetId: UID) {
+    return this.state.get("sheets").get(sheetId).get("rows").toArray();
+  }
+  setRowSize(sheetId: UID, index: number, size: number) {
+    this.state.get("sheets").get(sheetId).get("rows").get(index).set("size", size);
+  }
+  setRowStart(sheetId: UID, index: number, start: number) {
+    this.state.get("sheets").get(sheetId).get("rows").get(index).set("start", start);
+  }
+  setRowEnd(sheetId: UID, index: number, end: number) {
+    this.state.get("sheets").get(sheetId).get("rows").get(index).set("end", end);
+  }
+
+  resetCell(sheetId: UID, xc: string) {
+    const row = toCartesian(xc)[1];
+    this.state.get("sheets").get(sheetId).get("cells").delete(xc);
+    this.state.get("sheets").get(sheetId).get("rows").get(row.toString()).get("cells").delete(xc);
+  }
+
+  updateCell(sheetId: UID, cell: Cell) {
+    this.state.get("sheets").get(sheetId).get("cells").set(cell.xc, cell);
+    this.state
+      .get("sheets")
+      .get(sheetId)
+      .get("rows")
+      .get(cell.row.toString())
+      .get("cells")
+      .set(cell.col.toString(), cell);
+  }
+
+  deleteSheet(sheetId: UID) {
+    this.state.get("sheets").delete(sheetId);
+  }
+
+  addSheet(sheetData: SheetData) {
+    const sheet = new Y.Map();
+    sheet.set("id", sheetData.id);
+    sheet.set("name", sheetData.name);
+    sheet.set("colNumber", sheetData.colNumber);
+    sheet.set("rowNumber", sheetData.rowNumber);
+    sheet.set("cells", createCellsCRDT(sheetData.cells));
+    sheet.set("rows", createRowsCRDT(sheetData.rows));
+    sheet.set("cols", createColsCRDT(sheetData.cols));
+    this.state.get("sheets").set(sheetData.id, sheet);
+  }
+}
 
 /**
  * Core Plugin
@@ -112,84 +258,65 @@ export class CorePlugin extends BasePlugin {
     "getRangeFormattedValues",
   ];
 
-  private sheetIds: { [name: string]: UID } = {};
-  private showFormulas: boolean = false;
-  private visibleSheets: UID[] = []; // ids of visible sheets
-  private sheets: CRDTSheets; // TODO interface
-  private activeSheet: Sheet = null as any;
-
-  // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
-  // the main command.
-  private historizeActiveSheet: boolean = true;
+  protected repository: CoreRepository;
+  private activeSheetId: UID = (null as unknown) as UID;
 
   constructor(
-    state: any,
+    crdt: any,
     getters: Getters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(state, getters, history, dispatch, config);
+    super(crdt, getters, history, dispatch, config);
     // this.repository = new CoreModel(this.repository.get("CorePlugin"));
-    this.repository = new CRDTRepository(state);
+    this.repository = new CoreRepository(crdt, "CorePlugin");
     this.repository.set("cells", new Y.Array<Cell>());
     this.repository.set("sheetIds", new Y.Map<UID>());
-    this.sheets = new CRDTSheets(config.sendCommand); // TODO interface
+    this.repository.set("showFormulas", false);
+    this.repository.set("visibleSheets", new Y.Array<UID>());
+    this.repository.set("sheets", new Y.Map<any>()); // TODO interface
   }
-
-  // registerState(state:) {
-  //   state.add(this.sheets)
-  //   state.add(this.sheets)
-  //   state.add(this.sheets)
-  //   state.add(this.sheets)
-  // }
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  getCRDT() {
-    return this.sheets.getState();
-  }
-
-  importCRDT(data) {
-    console.log("Import data");
-    this.sheets.import(data);
-  }
-
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        this.historizeActiveSheet = false;
-        return { status: "SUCCESS" };
       case "REMOVE_COLUMNS":
-        return this.sheets.get(cmd.sheetId)!.cols.length > cmd.columns.length
+        return this.repository.getColNumber(cmd.sheetId) > cmd.columns.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
       case "REMOVE_ROWS":
-        return this.sheets.get(cmd.sheetId)!.rows.length > cmd.rows.length
+        return this.repository.getRowNumber(cmd.sheetId) > cmd.rows.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
       case "CREATE_SHEET":
       case "DUPLICATE_SHEET":
-        const { visibleSheets, sheets } = this;
-        return !cmd.name || !visibleSheets.find((id) => sheets[id].name === cmd.name)
+        return !cmd.name ||
+          !this.repository
+            .getVisibleSheets()
+            .find((id) => this.repository.getSheetName(id) === cmd.name)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       case "MOVE_SHEET":
-        const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
+        const currentIndex = this.repository
+          .getVisibleSheets()
+          .findIndex((id) => id === cmd.sheetId);
         if (currentIndex === -1) {
           return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
         }
         return (cmd.direction === "left" && currentIndex === 0) ||
-          (cmd.direction === "right" && currentIndex === this.visibleSheets.length - 1)
+          (cmd.direction === "right" &&
+            currentIndex === this.repository.getVisibleSheets().length - 1)
           ? { status: "CANCELLED", reason: CancelledReason.WrongSheetMove }
           : { status: "SUCCESS" };
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
       case "DELETE_SHEET_CONFIRMATION":
       case "DELETE_SHEET":
-        return this.visibleSheets.length > 1
+        return this.repository.getVisibleSheets().length > 1
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughSheets };
       default:
@@ -199,21 +326,13 @@ export class CorePlugin extends BasePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UNDO":
-        this.sheets.undo();
-        break;
-      case "REDO":
-        this.sheets.redo();
-        break;
-      case "CRDT_RECEIVED":
-        this.sheets.crdtReceived(cmd.data);
-        break;
       case "ACTIVATE_SHEET":
-        if (this.historizeActiveSheet) {
-          this.history.update(["activeSheet"], this.sheets.get(cmd.sheetIdTo)!);
-        } else {
-          this.activeSheet = this.sheets.get(cmd.sheetIdTo)!;
-        }
+        this.activeSheetId = cmd.sheetIdTo;
+        // if (this.historizeActiveSheet) {
+        //   this.history42.update(["activeSheet"], this.sheets.get(cmd.sheetIdTo)!);
+        // } else {
+        //   this.activeSheet = this.sheets.get(cmd.sheetIdTo)!;
+        // }
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -222,7 +341,7 @@ export class CorePlugin extends BasePlugin {
           cmd.cols || 26,
           cmd.rows || 100
         );
-        this.sheetIds[this.sheets.get(sheet)!.name] = sheet;
+        this.repository.setIdToSheetname(this.repository.getSheetName(sheet), sheet);
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", {
             sheetIdFrom: this.getters.getActiveSheetId(),
@@ -303,40 +422,34 @@ export class CorePlugin extends BasePlugin {
         break;
       case "REMOVE_COLUMNS":
         this.removeColumns(cmd.sheetId, cmd.columns);
-        this.history.update(
-          ["sheets", cmd.sheetId, "colNumber"],
-          this.sheets.get(cmd.sheetId)!.colNumber - cmd.columns.length
-        );
+        const newColNumber = this.repository.getColNumber(cmd.sheetId) - cmd.columns.length;
+        this.repository.setColNumber(cmd.sheetId, newColNumber);
         break;
       case "REMOVE_ROWS":
         this.removeRows(cmd.sheetId, cmd.rows);
-        this.history.update(
-          ["sheets", cmd.sheetId, "rowNumber"],
-          this.sheets.get(cmd.sheetId)!.rowNumber - cmd.rows.length
-        );
+        const newRowNumber = this.repository.getRowNumber(cmd.sheetId) - cmd.rows.length;
+        this.repository.setRowNumber(cmd.sheetId, newRowNumber);
         break;
-      case "ADD_COLUMNS":
+      case "ADD_COLUMNS": {
         this.addColumns(cmd.sheetId, cmd.column, cmd.position, cmd.quantity);
-        this.history.update(
-          ["activeSheet", "colNumber"],
-          this.activeSheet.colNumber + cmd.quantity
-        );
+        const newColNumber = this.repository.getColNumber(cmd.sheetId) + cmd.quantity;
+        this.repository.setColNumber(cmd.sheetId, newColNumber);
         break;
-      case "ADD_ROWS":
+      }
+      case "ADD_ROWS": {
         this.addRows(cmd.sheetId, cmd.row, cmd.position, cmd.quantity);
-        this.history.update(
-          ["activeSheet", "rowNumber"],
-          this.activeSheet.rowNumber + cmd.quantity
-        );
+        const newRowNumber = this.repository.getRowNumber(cmd.sheetId) + cmd.quantity;
+        this.repository.setRowNumber(cmd.sheetId, newRowNumber);
         break;
+      }
       case "SET_FORMULA_VISIBILITY":
-        this.showFormulas = cmd.show;
+        this.repository.set("showFormulas", cmd.show);
         break;
     }
   }
 
-  finalize() {
-    this.historizeActiveSheet = true;
+  get activeSheet(): Sheet {
+    return this.repository.getSheet(this.activeSheetId);
   }
 
   // ---------------------------------------------------------------------------
@@ -360,11 +473,11 @@ export class CorePlugin extends BasePlugin {
   }
 
   getCell(col: number, row: number): Cell | null {
-    return (this.activeSheet.rows[row] && this.activeSheet.rows[row].cells[col]) || null;
+    return this.repository.getCell(this.activeSheetId, col, row);
   }
 
   getCellText(cell: Cell): string {
-    const value = this.showFormulas ? cell.content : cell.value;
+    const value = this.repository.get("showFormulas") ? cell.content : cell.value;
     const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
     const dateTimeFormat = shouldFormat && cell.format!.match(/y|m|d|:/);
     const numberFormat = shouldFormat && !dateTimeFormat;
@@ -430,70 +543,62 @@ export class CorePlugin extends BasePlugin {
    * Returns the id (not the name) of the currently active sheet
    */
   getActiveSheetId(): UID {
-    return this.activeSheet.id;
+    return this.activeSheetId;
   }
 
   getActiveSheet(): Sheet {
-    return this.sheets.get(this.activeSheet.id)!;
+    return this.repository.getSheet(this.activeSheetId);
   }
 
   getSheet(sheetId: UID): Sheet {
-    return this.sheets.get(sheetId)!;
+    return this.repository.getSheet(sheetId);
   }
 
   getSheetName(sheetId: UID): string | undefined {
-    return this.sheets.get(sheetId)! && this.sheets.get(sheetId)!.name;
+    return this.repository.getSheetName(sheetId);
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {
-    return name && this.sheetIds[name];
+    return name && this.repository.getSheetIdByName(name);
   }
 
   getSheets(): Sheet[] {
-    const { visibleSheets, sheets } = this;
-    return visibleSheets.map((id) => sheets.get(id)!);
+    return this.repository.getVisibleSheets().map((id) => this.repository.getSheet(id));
   }
 
   getVisibleSheets(): UID[] {
-    return this.visibleSheets;
+    return this.repository.getVisibleSheets();
   }
 
-  getEvaluationSheets(): CRDTSheets {
-    // TODO interface
-    return this.sheets;
+  getEvaluationSheets(): Record<UID, Sheet> {
+    return this.repository.getAllSheets();
   }
 
-  // TO REMOVE: not used anymore outside tests ;)
-  getCells(): { [key: string]: Cell } {
-    const cells = {};
-    for (let cell of this.activeSheet.getCells()) {
-      cells[cell.xc] = cell;
-    }
-    return cells;
+  getCells(): Generator<Cell> {
+    return this.repository.getCells(this.activeSheetId);
   }
 
   getCol(sheetId: UID, index: number): Col {
-    return this.sheets.get(sheetId)!.cols[index];
+    return this.repository.getCol(sheetId, index);
   }
 
   getRow(sheetId: UID, index: number): Row {
-    return this.sheets.get(sheetId)!.rows[index];
+    return this.repository.getRow(sheetId, index);
   }
 
   /**
    * Returns all the cells of a col
    */
   getColCells(col: number): Cell[] {
-    return this.activeSheet.rows.reduce(
-      (acc: Cell[], cur) => (cur.cells[col] ? acc.concat(cur.cells[col]) : acc),
-      []
-    );
+    return this.repository
+      .getRows(this.activeSheetId)
+      .reduce((acc: Cell[], cur) => (cur.cells[col] ? acc.concat(cur.cells[col]) : acc), []);
   }
 
   getColsZone(start: number, end: number): Zone {
     return {
       top: 0,
-      bottom: this.activeSheet.rows.length - 1,
+      bottom: this.repository.getRowNumber(this.activeSheetId) - 1,
       left: start,
       right: end,
     };
@@ -504,11 +609,12 @@ export class CorePlugin extends BasePlugin {
       top: start,
       bottom: end,
       left: 0,
-      right: this.activeSheet.cols.length - 1,
+      right: this.repository.getColNumber(this.activeSheetId) - 1,
     };
   }
 
   getGridSize(): [number, number] {
+    // FIXME
     const activeSheet = this.activeSheet;
     const height = activeSheet.rows[activeSheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
     const width = activeSheet.cols[activeSheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
@@ -517,19 +623,24 @@ export class CorePlugin extends BasePlugin {
   }
 
   shouldShowFormulas(): boolean {
-    return this.showFormulas;
+    return this.repository.isFormulasShown();
   }
 
   getRangeValues(reference: string, defaultSheetId: UID): any[][] {
     const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
-    return mapCellsInZone(toZone(range), this.sheets.get(sheetId)!, (cell) => cell.value);
+    const sheetId = sheetName ? this.repository.getSheetIdByName(sheetName) : defaultSheetId;
+    return mapCellsInZone(toZone(range), this.repository.getSheet(sheetId), (cell) => cell.value);
   }
 
   getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
     const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
-    return mapCellsInZone(toZone(range), this.sheets.get(sheetId)!, this.getters.getCellText, "");
+    const sheetId = sheetName ? this.repository.getSheetIdByName(sheetName) : defaultSheetId;
+    return mapCellsInZone(
+      toZone(range),
+      this.repository.getSheet(sheetId),
+      this.getters.getCellText,
+      ""
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -552,28 +663,28 @@ export class CorePlugin extends BasePlugin {
   }
 
   private setColSize(sheetId: UID, index: number, size: number) {
-    const cols = this.sheets.get(sheetId)!.cols;
+    const cols = this.repository.getCols(sheetId);
     const col = cols[index];
     const delta = size - col.size;
-    this.history.update(["sheets", sheetId, "cols", index, "size"], size);
-    this.history.update(["sheets", sheetId, "cols", index, "end"], col.end + delta);
+    this.repository.setColSize(sheetId, index, size);
+    this.repository.setColEnd(sheetId, index, col.end + delta);
     for (let i = index + 1; i < cols.length; i++) {
       const col = cols[i];
-      this.history.update(["sheets", sheetId, "cols", i, "start"], col.start + delta);
-      this.history.update(["sheets", sheetId, "cols", i, "end"], col.end + delta);
+      this.repository.setColStart(sheetId, i, col.start + delta);
+      this.repository.setColEnd(sheetId, i, col.end + delta);
     }
   }
 
   private setRowSize(sheetId: UID, index: number, size: number) {
-    const rows = this.sheets.get(sheetId)!.rows;
+    const rows = this.repository.getRows(sheetId);
     const row = rows[index];
     const delta = size - row.size;
-    this.history.update(["sheets", sheetId, "rows", index, "size"], size);
-    this.history.update(["sheets", sheetId, "rows", index, "end"], row.end + delta);
+    this.repository.setRowSize(sheetId, index, size);
+    this.repository.setRowEnd(sheetId, index, row.end + delta);
     for (let i = index + 1; i < rows.length; i++) {
       const row = rows[i];
-      this.history.update(["sheets", sheetId, "rows", i, "start"], row.start + delta);
-      this.history.update(["sheets", sheetId, "rows", i, "end"], row.end + delta);
+      this.repository.setRowStart(sheetId, i, row.start + delta);
+      this.repository.setRowEnd(sheetId, i, row.end + delta);
     }
   }
 
@@ -741,7 +852,7 @@ export class CorePlugin extends BasePlugin {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
-    const sheet = this.sheets.get(sheetId)!;
+    const sheet = this.repository.getSheet(sheetId);
     for (let i in sheet.cols) {
       if (parseInt(i, 10) === base) {
         if (step !== -1) {
@@ -770,14 +881,14 @@ export class CorePlugin extends BasePlugin {
       start += size;
       colIndex++;
     }
-    this.history.update(["sheets", sheetId, "cols"], cols);
+    this.repository.setCols(sheetId, cols);
   }
 
   private processRowsHeaderDelete(index: number, sheetId: UID) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
-    const sheet = this.sheets.get(sheetId)!;
+    const sheet = this.repository.getSheet(sheetId);
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const row = sheet.rows[i];
@@ -795,7 +906,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.update(["sheets", sheetId, "rows"], rows);
+    this.repository.setRows(sheetId, rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -819,7 +930,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.update(["activeSheet", "rows"], rows);
+    this.repository.setRows(this.getActiveSheetId(), rows);
   }
 
   private addEmptyRow() {
@@ -834,13 +945,12 @@ export class CorePlugin extends BasePlugin {
       name,
       cells: {},
     });
-    const path = ["activeSheet", "rows"];
-    this.history.update(path, newRows);
+    this.repository.setRows(this.getActiveSheetId(), newRows);
   }
 
   private updateColumnsFormulas(base: number, step: number, sheetId: UID) {
     return this.visitFormulas(
-      this.sheets.get(sheetId)!.name,
+      this.repository.getSheet(sheetId).name,
       (value: string, sheet: string | undefined): string => {
         if (value.includes(":")) {
           return this.updateColumnsRange(value, sheet, base, step);
@@ -852,7 +962,7 @@ export class CorePlugin extends BasePlugin {
 
   private updateRowsFormulas(base: number, step: number, sheetId: UID) {
     return this.visitFormulas(
-      this.sheets.get(sheetId)!.name,
+      this.repository.getSheet(sheetId).name,
       (value: string, sheet: string | undefined): string => {
         if (value.includes(":")) {
           return this.updateRowsRange(value, sheet, base, step);
@@ -871,9 +981,9 @@ export class CorePlugin extends BasePlugin {
     const deleteCommands: Command[] = [];
     const addCommands: Command[] = [];
 
-    const sheet = this.sheets.get(sheetId)!;
+    const sheet = this.repository.getSheet(sheetId);
 
-    for (let cell of sheet.getCells()) {
+    for (let cell of Object.values(sheet.cells)) {
       if (shouldDelete(cell)) {
         const [col, row] = [cell.col, cell.row];
         deleteCommands.push({
@@ -899,9 +1009,9 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private updateCell(sheetId: UID, col: number, row: number, data: CellData) {
-    const sheet = this.sheets.get(sheetId)!;
+    const sheet = this.repository.getSheet(sheetId);
     // const current = sheet.rows[row].cells[col];
-    const current = sheet.getCell(toXC(col, row));
+    const current = sheet.cells[toXC(col, row)];
     const xc = (current && current.xc) || toXC(col, row);
     const hasContent = "content" in data;
 
@@ -916,9 +1026,9 @@ export class CorePlugin extends BasePlugin {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        // this.history.update(["sheets", sheetId, "cells", xc], undefined);
-        this.sheets.get(sheetId)!.resetCell(xc);
-        // this.history.update(["sheets", sheetId, "rows", row, "cells", col], undefined);
+        // this.history42.update(["sheets", sheetId, "cells", xc], undefined);
+        this.repository.resetCell(sheetId, xc);
+        // this.history42.update(["sheets", sheetId, "rows", row, "cells", col], undefined);
       }
       return;
     }
@@ -966,7 +1076,7 @@ export class CorePlugin extends BasePlugin {
       if (cell.type === "formula") {
         cell.error = undefined;
         try {
-          cell.formula = compile(content, sheetId, this.sheetIds, xc);
+          cell.formula = compile(content, sheetId, this.repository.getSheetMapping(), xc);
           cell.async = cell.formula.async;
         } catch (e) {
           cell.value = "#BAD_EXPR";
@@ -984,9 +1094,9 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    // this.history.update(["sheets", sheetId, "cells", xc], cell);
-    this.sheets.get(sheetId)!.updateCell(xc, cell);
-    // this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
+    // this.history42.update(["sheets", sheetId, "cells", xc], cell);
+    this.repository.updateCell(sheetId, cell);
+    // this.history42.update(["sheets", sheetId, "rows", row, "cells", col], cell);
   }
 
   private generateSheetName(): string {
@@ -1011,21 +1121,19 @@ export class CorePlugin extends BasePlugin {
       cols: createDefaultCols(cols),
       rows: createDefaultRows(rows),
     };
-    const visibleSheets = this.visibleSheets.slice();
+    const visibleSheets = this.repository.getVisibleSheets();
     const index = visibleSheets.findIndex((id) => this.getters.getActiveSheetId() === id);
-    visibleSheets.splice(index + 1, 0, sheet.id);
-    this.history.update(["visibleSheets"], visibleSheets);
-    this.sheets.addSheet(sheet);
-    // this.history.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
+    this.repository.insertVisibleSheet(index + 1, sheet.id);
+    this.repository.addSheet(sheet);
+    // this.history42.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
   }
 
   private moveSheet(sheetId: UID, direction: "left" | "right") {
-    const visibleSheets = this.visibleSheets.slice();
+    const visibleSheets = this.repository.getVisibleSheets();
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
-    const sheet = visibleSheets.splice(currentIndex, 1);
-    visibleSheets.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
-    this.history.update(["visibleSheets"], visibleSheets);
+    this.repository.deleteVisibleSheet(currentIndex);
+    this.repository.insertVisibleSheet(currentIndex + (direction === "left" ? -1 : 1), sheetId);
   }
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
@@ -1036,9 +1144,9 @@ export class CorePlugin extends BasePlugin {
     if (!name) {
       return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
     }
-    return this.visibleSheets.findIndex(
-      (id) => this.sheets.get(id)!.name.toLowerCase() === name
-    ) === -1
+    return this.repository
+      .getVisibleSheets()
+      .findIndex((id) => this.repository.getSheetName(id).toLowerCase() === name) === -1
       ? { status: "SUCCESS" }
       : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
   }
@@ -1058,13 +1166,15 @@ export class CorePlugin extends BasePlugin {
   }
 
   private renameSheet(sheetId: UID, name: string) {
-    const sheet = this.sheets.get(sheetId)!;
+    const sheet = this.repository.getSheet(sheetId);
     const oldName = sheet.name;
-    this.history.update(["sheets", sheetId, "name"], name.trim());
-    const sheetIds = Object.assign({}, this.sheetIds);
-    sheetIds[name] = sheet.id;
-    delete sheetIds[oldName];
-    this.history.update(["sheetIds"], sheetIds);
+    // this.history42.update(["sheets", sheetId, "name"], name.trim());
+    // const sheetIds = Object.assign({}, this.sheetIds);
+    // sheetIds[name] = sheet.id;
+    // delete sheetIds[oldName];
+    // this.history42.update(["sheetIds"], sheetIds);
+    this.repository.setIdToSheetname(sheet.id, name.trim());
+    this.repository.deleteSheetName(oldName);
     this.visitAllFormulasSymbols((value: string) => {
       let [val, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
@@ -1081,19 +1191,15 @@ export class CorePlugin extends BasePlugin {
   }
 
   private duplicateSheet(fromId: UID, toId: UID, toName: string) {
-    const sheet = this.sheets.get(fromId)!;
+    const sheet = this.repository.getSheet(fromId);
     const newSheet = JSON.parse(JSON.stringify(sheet));
     newSheet.id = toId;
     newSheet.name = toName;
-    const visibleSheets = this.visibleSheets.slice();
+    const visibleSheets = this.repository.getVisibleSheets();
     const currentIndex = visibleSheets.findIndex((id) => id === fromId);
-    visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
-    this.history.update(["visibleSheets"], visibleSheets);
-    this.history.update(["sheets"], Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
-
-    const sheetIds = Object.assign({}, this.sheetIds);
-    sheetIds[newSheet.name] = newSheet.id;
-    this.history.update(["sheetIds"], sheetIds);
+    this.repository.insertVisibleSheet(currentIndex + 1, newSheet.id);
+    this.repository.addSheet(newSheet);
+    this.repository.set("sheetIds", newSheet.name, newSheet.id);
     this.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: this.getters.getActiveSheetId(),
       sheetIdTo: toId,
@@ -1107,19 +1213,17 @@ export class CorePlugin extends BasePlugin {
   }
 
   private deleteSheet(sheetId: UID) {
-    const name = this.sheets.get(sheetId)!.name;
-    const sheets = Object.assign({}, this.sheets);
-    delete sheets[sheetId];
-    this.history.update(["sheets"], sheets);
+    const name = this.repository.getSheetName(sheetId);
+    this.repository.deleteSheet(sheetId);
 
-    const visibleSheets = this.visibleSheets.slice();
+    const visibleSheets = this.repository.getVisibleSheets();
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
-    visibleSheets.splice(currentIndex, 1);
-    this.history.update(["visibleSheets"], visibleSheets);
+    this.repository.deleteVisibleSheet(currentIndex);
 
-    const sheetIds = Object.assign({}, this.sheetIds);
-    delete sheetIds[name];
-    this.history.update(["sheetIds"], sheetIds);
+    // const sheetIds = Object.assign({}, this.sheetIds);
+    // delete sheetIds[name];
+    // this.history42.update(["sheetIds"], sheetIds);
+    this.repository.deleteSheetName(name);
     this.visitAllFormulasSymbols((value: string) => {
       let [, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
@@ -1380,9 +1484,8 @@ export class CorePlugin extends BasePlugin {
   }
 
   private visitAllFormulasSymbols(cb: (value: string, sheetId: UID) => string) {
-    for (let sheetId in this.sheets.ids) {
-      const sheet = this.sheets.get(sheetId)!;
-      for (let cell of sheet.getCells()) {
+    for (let sheet of Object.values(this.repository.getAllSheets())) {
+      for (let cell of Object.values(sheet.cells)) {
         if (cell.type === "formula") {
           const content = rangeTokenize(cell.content!)
             .map((t) => {
@@ -1422,7 +1525,7 @@ export class CorePlugin extends BasePlugin {
         if (sheetRef === sheetNameToFind) {
           return cb(value, sheetRef);
         }
-      } else if (this.sheetIds[sheetNameToFind] === sheetId) {
+      } else if (this.repository.getSheetIdByName(sheetNameToFind) === sheetId) {
         return cb(value, undefined);
       }
       return content;
@@ -1441,22 +1544,19 @@ export class CorePlugin extends BasePlugin {
     // for (let sheet of data.sheets) {
     // }
 
-    this.sheets.doc.transact(() => {
-      for (let sheet of data.sheets) {
-        this.repository.set("sheetIds", sheet.name, sheet.id);
-        // this.sheetIds[sheet.name] = sheet.id;
-      }
+    for (let sheet of data.sheets) {
+      this.repository.set("sheetIds", sheet.name, sheet.id);
+      // this.sheetIds[sheet.name] = sheet.id;
+    }
 
-      for (let sheet of data.sheets) {
-        this.importSheet(sheet);
-      }
-      this.activeSheet = this.sheets.get(data.activeSheet)!;
-    });
+    for (let sheet of data.sheets) {
+      this.importSheet(sheet);
+    }
+    this.activeSheetId = data.activeSheet;
   }
 
   importSheet(data: ImportSheetData) {
-    let { sheets, visibleSheets } = this;
-    const name = data.name || `Sheet${Object.keys(sheets).length + 1}`;
+    const name = data.name || `Sheet${Object.keys(this.repository.getAllSheets()).length + 1}`;
     const sheet: SheetData = {
       id: data.id,
       name: name,
@@ -1466,11 +1566,8 @@ export class CorePlugin extends BasePlugin {
       cols: createCols(data.cols || {}, data.colNumber),
       rows: createRows(data.rows || {}, data.rowNumber),
     };
-    visibleSheets = visibleSheets.slice();
-    visibleSheets.push(sheet.id);
-    this.history.update(["visibleSheets"], visibleSheets);
-    // this.history.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
-    this.sheets.addSheet(sheet);
+    this.repository.pushVisibleSheet(sheet.id);
+    this.repository.addSheet(sheet);
     // cells
     for (let xc in data.cells) {
       const cell = data.cells[xc];
@@ -1480,10 +1577,10 @@ export class CorePlugin extends BasePlugin {
   }
 
   export(data: WorkbookData) {
-    data.sheets = this.visibleSheets.map((id) => {
-      const sheet = this.sheets.get(id)!;
+    data.sheets = this.repository.getVisibleSheets().map((id) => {
+      const sheet = this.repository.getSheet(id);
       const cells: { [key: string]: CellData } = {};
-      for (let cell of sheet.getCells()) {
+      for (let cell of Object.values(sheet.cells)) {
         cells[cell.xc] = {
           content: cell.content,
           border: cell.border,

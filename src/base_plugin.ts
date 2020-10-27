@@ -1,5 +1,3 @@
-// import { GlobalCRDT } from "./crdt_datatypes/global";
-import { Repository } from "./crdt_datatypes/repository";
 import { WHistory, WorkbookHistory } from "./history";
 import { Mode, ModelConfig } from "./model";
 import {
@@ -33,7 +31,6 @@ export class BasePlugin implements CommandHandler {
   protected history: WorkbookHistory;
   protected currentMode: Mode;
   protected ui: UIActions;
-  protected repository: Repository<any> = null as any;
   constructor(
     state: any,
     protected getters: Getters,

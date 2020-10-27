@@ -33,10 +33,10 @@ export interface SheetData {
 }
 
 export type Sheet = {
-  updateCell: (xc: string, cell: Cell) => void;
-  resetCell: (xc: string) => void;
-  getCell: (xc: string) => Cell | null;
-  getCells: () => Generator<Cell>;
+  // updateCell: (xc: string, cell: Cell) => void;
+  // resetCell: (xc: string) => void;
+  // getCell: (xc: string) => Cell | null;
+  // getCells: () => Generator<Cell>;
   id: UID;
   name: string;
   colNumber: number;

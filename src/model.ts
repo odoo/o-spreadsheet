@@ -16,7 +16,6 @@ import {
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
-import { CorePlugin } from "./plugins/core";
 import { GlobalCRDT } from "./crdt_datatypes/global";
 
 /**
@@ -152,13 +151,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
       this.globalCRDT.init(Plugin.name);
-      const plugin = new Plugin(
-        this.globalCRDT.get(Plugin.name),
-        this.getters,
-        history,
-        dispatch,
-        this.config
-      );
+      const plugin = new Plugin(this.globalCRDT, this.getters, history, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -200,10 +193,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
             return allowDispatch;
           }
         }
-        const sheets = (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin)[
-          "sheets"
-        ];
-        sheets.doc.transact(() => {
+        this.globalCRDT.transaction(() => {
           this.status = Status.Running;
           for (const h of this.handlers) {
             h.beforeHandle(command);
@@ -216,7 +206,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           for (const h of this.handlers) {
             h.finalize(command);
           }
-        }, sheets.uuid);
+        });
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");
@@ -279,12 +269,17 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   getCRDTState() {
-    return (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).getCRDT();
-    // return this.globalCRDT.getState();
+    // return (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).getCRDT();
+    return this.globalCRDT.getState();
   }
 
-  importCRDT(crdt) {
-    // this.globalCRDT.import(crdt);
-    (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).importCRDT(crdt);
+  crdtReceived(crdt: Uint8Array) {
+    this.globalCRDT.crdtReceived(crdt);
+    this.trigger("update");
+  }
+
+  importCRDT(crdt: Uint8Array) {
+    this.globalCRDT.import(crdt);
+    // (this.handlers.find((p) => p instanceof CorePlugin)! as CorePlugin).importCRDT(crdt);
   }
 }

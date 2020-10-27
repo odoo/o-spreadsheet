@@ -80,9 +80,10 @@ class App extends Component {
       if (ev.data instanceof Blob) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.spread.comp.model.dispatch("CRDT_RECEIVED", {
-            data: new Uint8Array(e.target.result),
-          });
+          this.spread.comp.model.crdtReceived(new Uint8Array(e.target.result))
+          // this.spread.comp.model.dispatch("CRDT_RECEIVED", {
+          //   data: new Uint8Array(e.target.result),
+          // });
         };
         reader.readAsArrayBuffer(ev.data);
       }

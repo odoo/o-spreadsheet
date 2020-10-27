@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { Row, Cell } from "../types";
+import { Row, Cell, Col } from "../types";
 import { createCellsCRDT } from "./cells";
 
 export function createRowsCRDT(rows: Row[]): Y.Array<Y.Map<any>> {
@@ -18,6 +18,25 @@ export function createRowsCRDT(rows: Row[]): Y.Array<Y.Map<any>> {
       })
     );
     console.log(rows.length, "rows remaining");
+  }
+  return crdt;
+}
+
+export function createColsCRDT(cols: Col[]): Y.Array<Y.Map<any>> {
+  const crdt = new Y.Array<Y.Map<any>>();
+  // batch insertion
+  while (cols.length) {
+    crdt.push(
+      cols.splice(0, 1000).map((col) => {
+        const colCRDT = new Y.Map();
+        colCRDT.set("start", col.start);
+        colCRDT.set("end", col.end);
+        colCRDT.set("name", col.name);
+        colCRDT.set("size", col.size);
+        return colCRDT;
+      })
+    );
+    console.log(cols.length, "cols remaining");
   }
   return crdt;
 }

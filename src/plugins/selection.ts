@@ -78,9 +78,9 @@ export class SelectionPlugin extends BasePlugin {
   ) {
     super(state, getters, history, dispatch, config);
 
-    this.doc.on("updateV2", (update: Uint8Array) => {
-      config.sendCommand(update);
-    });
+    // this.doc.on("updateV2", (update: Uint8Array) => {
+    //   config.sendCommand(update);
+    // });
   }
   // ---------------------------------------------------------------------------
   // Command Handling

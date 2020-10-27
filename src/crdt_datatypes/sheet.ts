@@ -1,10 +1,11 @@
 import * as Y from "yjs";
-import { uuidv4 } from "../helpers/index";
-import { Sheet, Cell, SheetData, UID } from "../types";
+// import { uuidv4 } from "../helpers/index";
+import { Sheet, Cell } from "../types";
 import { Header, Row } from "../types";
-import { createCellsCRDT } from "./cells";
+// import { createCellsCRDT } from "./cells";
 import { RowEntity, createRowsCRDT } from "./rows_crdt";
 
+// @ts-ignore
 class SheetEntity implements Sheet {
   private _cells: Y.Map<any>;
   private _rows: Y.Array<any>;
@@ -98,87 +99,32 @@ class SheetEntity implements Sheet {
 }
 
 export class CRDTSheets {
-  public doc = new Y.Doc();
-  // @ts-ignore
-  private undoManager: Y.UndoManager;
-  private syncing: boolean = false;
-  public uuid: UID = uuidv4();
+  // private get sheets(): Y.Map<Y.Map<any>> {
+  //   return this.doc.getMap("sheets");
+  // }
 
-  private get sheets(): Y.Map<Y.Map<any>> {
-    return this.doc.getMap("sheets");
-  }
+  // get ids(): UID[] {
+  //   return [...this.sheets.keys()];
+  // }
 
-  constructor(private sendCommand: (data) => Promise<void>) {
-    this.sendCommand = sendCommand;
-    this.initUndoManager();
-  }
+  // get(sheetId: UID): Sheet | undefined {
+  //   const sheetCRDT = this.sheets.get(sheetId);
+  //   return sheetCRDT ? new SheetEntity(sheetCRDT) : undefined;
+  // }
 
-  initUndoManager() {
-    this.undoManager = new Y.UndoManager(this.sheets, {
-      captureTimeout: 500,
-      trackedOrigins: new Set([this.uuid]),
-    });
-  }
+  // addSheet(sheetData: SheetData) {
+  //   const sheet = new Y.Map();
+  //   sheet.set("id", sheetData.id);
+  //   sheet.set("name", sheetData.name);
+  //   sheet.set("colNumber", sheetData.colNumber);
+  //   sheet.set("rowNumber", sheetData.rowNumber);
+  //   sheet.set("cells", createCellsCRDT(sheetData.cells));
+  //   sheet.set("rows", createRowsCRDT(sheetData.rows));
+  //   sheet.set("cols", sheetData.cols);
+  //   this.sheets.set(sheetData.id, sheet);
+  // }
 
-  undo() {
-    this.undoManager.undo();
-  }
-
-  redo() {
-    this.undoManager.redo();
-  }
-
-  crdtReceived(data: Uint8Array) {
-    this.syncing = true;
-    Y.applyUpdateV2(this.doc, data);
-    this.syncing = false;
-  }
-
-  get ids(): UID[] {
-    return [...this.sheets.keys()];
-  }
-
-  get(sheetId: UID): Sheet | undefined {
-    const sheetCRDT = this.sheets.get(sheetId);
-    return sheetCRDT ? new SheetEntity(sheetCRDT) : undefined;
-  }
-
-  addSheet(sheetData: SheetData) {
-    const sheet = new Y.Map();
-    sheet.set("id", sheetData.id);
-    sheet.set("name", sheetData.name);
-    sheet.set("colNumber", sheetData.colNumber);
-    sheet.set("rowNumber", sheetData.rowNumber);
-    sheet.set("cells", createCellsCRDT(sheetData.cells));
-    sheet.set("rows", createRowsCRDT(sheetData.rows));
-    sheet.set("cols", sheetData.cols);
-    this.sheets.set(sheetData.id, sheet);
-  }
-
-  toObject(): Record<UID, Sheet> {
-    return this.sheets.toJSON();
-  }
-
-  import(changes) {
-    console.time("import");
-    this.doc = new Y.Doc();
-    Y.applyUpdateV2(this.doc, changes);
-    this.initUndoManager();
-    console.timeEnd("import");
-    this.subscribeToUpdates();
-    console.log(this.sheets.toJSON());
-  }
-
-  getState() {
-    console.log(this.sheets.toJSON());
-    return Y.encodeStateAsUpdateV2(this.doc);
-  }
-
-  private subscribeToUpdates() {
-    this.doc.on("updateV2", (update: Uint8Array) => {
-      if (!this.syncing) {
-        this.sendCommand(update);
-      }
-    });
-  }
+  // toObject(): Record<UID, Sheet> {
+  //   return this.sheets.toJSON();
+  // }
 }

@@ -125,8 +125,8 @@ export class EvaluationPlugin extends BasePlugin {
     } else {
       let sheetIds: { [name: string]: string } = {};
       const sheets = this.getters.getEvaluationSheets();
-      for (let sheetId in sheets) {
-        sheetIds[sheets[sheetId].name] = sheetId;
+      for (let sheet of Object.values(sheets)) {
+        sheetIds[sheet.name] = sheet.id;
       }
       compiledFormula = compile(formula, sheet, sheetIds);
       this.cache[cacheKey] = compiledFormula;
@@ -169,8 +169,7 @@ export class EvaluationPlugin extends BasePlugin {
 
   private evaluate() {
     this.COMPUTED.clear();
-    const activeSheet = this.getters.getActiveSheet();
-    this.evaluateCells(activeSheet.getCells(), this.getters.getActiveSheetId());
+    this.evaluateCells(this.getters.getCells(), this.getters.getActiveSheetId());
   }
 
   private evaluateCells(cells: Generator<Cell>, sheetId: string) {
@@ -265,9 +264,9 @@ export class EvaluationPlugin extends BasePlugin {
     const PENDING = this.PENDING;
     function readCell(xc: string, sheet: string): any {
       let cell;
-      const s = sheets.get(sheet);
+      const s = sheets[sheet];
       if (s) {
-        cell = s.getCell(xc);
+        cell = sheets.cells[xc];
       } else {
         throw new Error(_lt("Invalid sheet name"));
       }
