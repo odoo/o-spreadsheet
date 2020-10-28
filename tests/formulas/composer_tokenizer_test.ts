@@ -1,4 +1,5 @@
-import { composerTokenize } from "../../src/formulas/composer_tokenizer";
+import { composerTokenize, argumentToFocus } from "../../src/formulas/composer_tokenizer";
+import { args } from "../../src/functions/arguments";
 
 describe("composerTokenizer", () => {
   test("only range", () => {
@@ -42,15 +43,7 @@ describe("composerTokenizer", () => {
   }); //"= SUM ( C4 : C5 )"
 
   test("= SUM ( C4 : C5 )", () => {
-    expect(composerTokenize("= SUM ( C4 : C5 )")).toEqual([
-      { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 2, length: 1, type: "SPACE", value: " " },
-      { start: 2, end: 5, length: 3, type: "FUNCTION", value: "SUM" },
-      { start: 5, end: 6, length: 1, type: "SPACE", value: " " },
-      { start: 6, end: 7, length: 1, type: "LEFT_PAREN", value: "(", parenIndex: 1 },
-      { start: 7, end: 16, length: 9, type: "SYMBOL", value: " C4 : C5 " },
-      { start: 16, end: 17, length: 1, type: "RIGHT_PAREN", value: ")", parenIndex: 1 },
-    ]);
+    expect(composerTokenize("= SUM ( C4 : C5 )")).toMatchSnapshot();
   });
 });
 
@@ -65,6 +58,7 @@ describe("composerTokenizer base tests", () => {
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
       { start: 1, end: 2, length: 1, type: "NUMBER", value: "1" },
     ]);
+    expect(composerTokenize("=SUM(1 ,(1+2),ADD (2, 3),4)")).toMatchSnapshot();
   });
   test("longer operators >=", () => {
     expect(composerTokenize("= >= <= <")).toEqual([
@@ -120,18 +114,49 @@ describe("composerTokenizer base tests", () => {
     expect(composerTokenize("false")).toEqual([
       { start: 0, end: 5, length: 5, type: "SYMBOL", value: "false" },
     ]);
-    expect(composerTokenize("=AND(true,false)")).toEqual([
-      { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 4, length: 3, type: "FUNCTION", value: "AND" },
-      { start: 4, end: 5, length: 1, type: "LEFT_PAREN", value: "(", parenIndex: 1 },
-      { start: 5, end: 9, length: 4, type: "SYMBOL", value: "true" },
-      { start: 9, end: 10, length: 1, type: "COMMA", value: "," },
-      { start: 10, end: 15, length: 5, type: "SYMBOL", value: "false" },
-      { start: 15, end: 16, length: 1, type: "RIGHT_PAREN", parenIndex: 1, value: ")" },
-    ]);
+    expect(composerTokenize("=AND(true,false)")).toMatchSnapshot();
     expect(composerTokenize("=trueee")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
       { start: 1, end: 7, length: 6, type: "SYMBOL", value: "trueee" },
     ]);
+  });
+});
+
+describe("function argumentToFocus", () => {
+  test("focus simple arguments", () => {
+    const simpleArgs = args(`
+      arg1 (any)
+      arg2 (any)
+      arg3 (any)
+    `);
+    expect(argumentToFocus(simpleArgs, 0)).toBe(0);
+    expect(argumentToFocus(simpleArgs, 1)).toBe(1);
+    expect(argumentToFocus(simpleArgs, 2)).toBe(2);
+    expect(argumentToFocus(simpleArgs, 3)).toBe(-1);
+  });
+
+  test("focus arguments with one repeatable", () => {
+    const oneOptionalArg = args(`
+      arg1 (any)
+      arg2 (any, optional, repeating)
+    `);
+    expect(argumentToFocus(oneOptionalArg, 0)).toBe(0);
+    expect(argumentToFocus(oneOptionalArg, 1)).toBe(1);
+    expect(argumentToFocus(oneOptionalArg, 2)).toBe(1);
+    expect(argumentToFocus(oneOptionalArg, 42)).toBe(1);
+  });
+
+  test("focus arguments with more than one repeatable", () => {
+    const threeOptionalArg = args(`
+      arg1 (any)
+      arg2 (any, optional, repeating)
+      arg3 (any, optional, repeating)
+      arg3 (any, optional, repeating)
+    `);
+    expect(argumentToFocus(threeOptionalArg, 0)).toBe(0);
+    expect(argumentToFocus(threeOptionalArg, 1)).toBe(1);
+    expect(argumentToFocus(threeOptionalArg, 3)).toBe(3);
+    expect(argumentToFocus(threeOptionalArg, 5)).toBe(2);
+    expect(argumentToFocus(threeOptionalArg, 19)).toBe(1);
   });
 });

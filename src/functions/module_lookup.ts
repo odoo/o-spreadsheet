@@ -36,9 +36,9 @@ function linearSearch(range: any[], target: any): number {
 export const COLUMN: FunctionDescription = {
   description: _lt("Column number of a specified cell."),
   args: args(
-    `cell_reference (meta, optional, default='The cell in which the formula is entered by default') ${_lt(
-      "The cell whose column number will be returned. Column A corresponds to 1."
-    )}
+    `cell_reference (meta, optional, default=${_lt(
+      "The cell in which the formula is entered"
+    )}) ${_lt("The cell whose column number will be returned. Column A corresponds to 1.")}
     `
   ),
   returns: ["NUMBER"],
@@ -89,7 +89,7 @@ export const HLOOKUP: FunctionDescription = {
       index (number) ${_lt(
         "The row index of the value to be returned, where the first row in range is numbered 1."
       )}
-      is_sorted (boolean, optional, default = TRUE) ${_lt(
+      is_sorted (boolean, optional, default=TRUE) ${_lt(
         "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )}
   `),
@@ -219,9 +219,9 @@ export const MATCH: FunctionDescription = {
 export const ROW: FunctionDescription = {
   description: _lt("Row number of a specified cell."),
   args: args(
-    `cell_reference (meta, optional, default='The cell in which the formula is entered by default')) ${_lt(
-      "The cell whose row number will be returned."
-    )}`
+    `cell_reference (meta, optional, default=${_lt(
+      "The cell in which the formula is entered"
+    )})) ${_lt("The cell whose row number will be returned.")}`
   ),
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
@@ -269,7 +269,7 @@ export const VLOOKUP: FunctionDescription = {
       index (number) ${_lt(
         "The column index of the value to be returned, where the first column in range is numbered 1."
       )}
-      is_sorted (boolean, optional, default = TRUE) ${_lt(
+      is_sorted (boolean, optional, default=TRUE) ${_lt(
         "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )}
   `),

@@ -46,7 +46,7 @@ describe("args", () => {
         type: ["NUMBER"],
         name: "test",
         description: "descr",
-        default: 10,
+        default: "10",
       },
     ]);
   });
@@ -57,7 +57,7 @@ describe("args", () => {
         type: ["NUMBER"],
         name: "test",
         description: "descr",
-        default: "asdf",
+        default: '"asdf"',
       },
     ]);
   });

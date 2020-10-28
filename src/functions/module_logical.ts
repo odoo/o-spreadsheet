@@ -83,9 +83,9 @@ export const IFERROR: FunctionDescription = {
   description: _lt("Value if it is not an error, otherwise 2nd argument."),
   args: args(`
     value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
-    value_if_error (any, lazy, optional, default="") ${_lt(
-      "The value the function returns if value is an error."
-    )}
+    value_if_error (any, lazy, optional, default=${_lt("An empty value")}) ${_lt(
+    "The value the function returns if value is an error."
+  )}
   `),
   returns: ["ANY"],
   compute: function (value: () => any, valueIfError: () => any = () => ""): any {

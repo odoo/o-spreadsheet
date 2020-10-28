@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
+<div
+  class="o-formula-assistant"
+>
+  <div
+    class="o-formula-assistant-head"
+  >
+    <span>
+      FUNC1
+    </span>
+     ( 
+    <span
+      class="o-formula-assistant-focus"
+    >
+      <span>
+        <span>
+          f1Arg1
+        </span>
+      </span>
+    </span>
+    <span>
+      , 
+    </span>
+    <span>
+      <span>
+        <span>
+          f1Arg2
+        </span>
+      </span>
+    </span>
+     ) 
+  </div>
+  <div
+    class="o-formula-assistant-core"
+  >
+    <div
+      class="o-formula-assistant-gray"
+    >
+      ABOUT
+    </div>
+    <div>
+      func1 def
+    </div>
+  </div>
+  <div
+    class="o-formula-assistant-arg o-formula-assistant-gray o-formula-assistant-focus"
+  >
+    <div>
+      <span>
+        f1Arg1
+      </span>
+    </div>
+    <div
+      class="o-formula-assistant-arg-description"
+    >
+      f1 Arg1 def
+    </div>
+  </div>
+  <div
+    class="o-formula-assistant-arg o-formula-assistant-gray"
+  >
+    <div>
+      <span>
+        f1Arg2
+      </span>
+    </div>
+    <div
+      class="o-formula-assistant-arg-description"
+    >
+      f1 Arg2 def
+    </div>
+  </div>
+</div>
+`;

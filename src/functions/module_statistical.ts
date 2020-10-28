@@ -278,9 +278,9 @@ export const AVERAGEIF: FunctionDescription = {
   args: args(`
       criteria_range (any, range) ${_lt("The range to check against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
-      average_range (any, range, optional, default=criteria_range) ${_lt(
-        "The range to average. If not included, criteria_range is used for the average instead."
-      )}
+      average_range (any, range, optional, default=${_lt("criteria_range")}) ${_lt(
+    "The range to average. If not included, criteria_range is used for the average instead."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (criteriaRange: any, criterion: any, averageRange: any = undefined): number {
