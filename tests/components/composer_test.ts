@@ -216,6 +216,7 @@ describe("composer", () => {
     // @ts-ignore
     const cehMock = window.mockContentHelper as ContentEditableHelper;
     cehMock.removeAll();
+    composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     await nextTick();
@@ -379,6 +380,14 @@ describe("composer", () => {
     jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
     await typeInComposer("world", false);
     expect(styleSpy).toHaveBeenCalledWith("170px"); // scrollWidth + 50
+  });
+
+  test("clicking on the composer while in 'selecting' mode should put the composer in 'edition' mode", async () => {
+    await typeInComposer("=");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    composerEl.dispatchEvent(new MouseEvent("click"));
+    await nextTick();
+    expect(model.getters.getEditionMode()).toBe("editing");
   });
 });
 

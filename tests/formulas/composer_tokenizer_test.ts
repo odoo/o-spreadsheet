@@ -42,15 +42,7 @@ describe("composerTokenizer", () => {
   }); //"= SUM ( C4 : C5 )"
 
   test("= SUM ( C4 : C5 )", () => {
-    expect(composerTokenize("= SUM ( C4 : C5 )")).toEqual([
-      { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 2, length: 1, type: "SPACE", value: " " },
-      { start: 2, end: 5, length: 3, type: "FUNCTION", value: "SUM" },
-      { start: 5, end: 6, length: 1, type: "SPACE", value: " " },
-      { start: 6, end: 7, length: 1, type: "LEFT_PAREN", value: "(", parenIndex: 1 },
-      { start: 7, end: 16, length: 9, type: "SYMBOL", value: " C4 : C5 " },
-      { start: 16, end: 17, length: 1, type: "RIGHT_PAREN", value: ")", parenIndex: 1 },
-    ]);
+    expect(composerTokenize("= SUM ( C4 : C5 )")).toMatchSnapshot();
   });
 });
 
@@ -65,6 +57,7 @@ describe("composerTokenizer base tests", () => {
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
       { start: 1, end: 2, length: 1, type: "NUMBER", value: "1" },
     ]);
+    expect(composerTokenize("=SUM(1 ,(1+2),ADD (2, 3),4)")).toMatchSnapshot();
   });
   test("longer operators >=", () => {
     expect(composerTokenize("= >= <= <")).toEqual([
@@ -120,15 +113,7 @@ describe("composerTokenizer base tests", () => {
     expect(composerTokenize("false")).toEqual([
       { start: 0, end: 5, length: 5, type: "SYMBOL", value: "false" },
     ]);
-    expect(composerTokenize("=AND(true,false)")).toEqual([
-      { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
-      { start: 1, end: 4, length: 3, type: "FUNCTION", value: "AND" },
-      { start: 4, end: 5, length: 1, type: "LEFT_PAREN", value: "(", parenIndex: 1 },
-      { start: 5, end: 9, length: 4, type: "SYMBOL", value: "true" },
-      { start: 9, end: 10, length: 1, type: "COMMA", value: "," },
-      { start: 10, end: 15, length: 5, type: "SYMBOL", value: "false" },
-      { start: 15, end: 16, length: 1, type: "RIGHT_PAREN", parenIndex: 1, value: ")" },
-    ]);
+    expect(composerTokenize("=AND(true,false)")).toMatchSnapshot();
     expect(composerTokenize("=trueee")).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
       { start: 1, end: 7, length: 6, type: "SYMBOL", value: "trueee" },

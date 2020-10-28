@@ -5,9 +5,11 @@ import { Token, tokenize, TokenType } from "./tokenizer";
  * are only needed during the edition of a formula.
  *
  * The information added are:
- * - parenthesis matching
+ * - start, end and length of each token
  * - range detection (replaces the tokens that composes the range with 1 token)
- * - length, start and end of each token
+ * - parenthesis matching (only for parenthesis tokens)
+ * - parent function (only for tokens surrounded by a function)
+ * - arg position (only for tokens surrounded by a function)
  */
 
 export interface EnrichedToken extends Token {
@@ -15,6 +17,12 @@ export interface EnrichedToken extends Token {
   end: number;
   length: number;
   parenIndex?: number;
+  functionContext?: FunctionContext;
+}
+
+export interface FunctionContext {
+  parent: string;
+  argPosition: number;
 }
 
 /**
