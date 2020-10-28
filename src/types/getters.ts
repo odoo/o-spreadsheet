@@ -33,6 +33,8 @@ export interface Getters {
   getVisibleSheets: CorePlugin["getVisibleSheets"];
   getCol: CorePlugin["getCol"];
   getRow: CorePlugin["getRow"];
+  getCols: CorePlugin["getCols"];
+  getRows: CorePlugin["getRows"];
   getCells: CorePlugin["getCells"];
   getColCells: CorePlugin["getColCells"];
   getColsZone: CorePlugin["getColsZone"];

@@ -1,5 +1,6 @@
 const Y = require("yjs");
 const fs = require("fs");
+const sizeof = require("object-sizeof");
 
 const doc1 = new Y.Doc();
 const doc2 = new Y.Doc();
@@ -124,5 +125,33 @@ function load() {
   console.log(doc1.getMap("hello").toJSON());
 }
 
-save();
+function testGetPerf() {
+  doc1.getMap("hello").set("salut", new Y.Map());
+  doc1.getMap("hello").get("salut").set("test", "salut");
+  const map = doc1.getMap("hello");
+  console.time("Y get");
+  for (let i = 0; i <= 1000000; i++) {
+    map.get("salut").toJSON();
+  }
+  console.timeEnd("Y get");
+  console.time("JS get");
+  const js = { test: { salut: "salut" } };
+  for (let i = 0; i <= 1000000; i++) {
+    js.test;
+  }
+  console.timeEnd("JS get");
+  const jsMap = new Map();
+  jsMap.set("hello", new Map());
+  jsMap.get("hello").set("salut", "salut");
+  console.time("JS Map get");
+  for (let i = 0; i <= 1000000; i++) {
+    jsMap.get("hello").get("salut");
+  }
+  console.timeEnd("JS Map get");
+  console.log(`Size of YMap: ${sizeof(doc1)}`);
+  console.log(`Size of JS: ${sizeof(js)}`);
+  console.log(`Size of JS Map: ${sizeof(jsMap)}`);
+}
+testGetPerf();
+// save();
 //load();

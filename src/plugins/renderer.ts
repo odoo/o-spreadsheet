@@ -91,7 +91,7 @@ export class RendererPlugin extends BasePlugin {
     if (x < HEADER_WIDTH) {
       return -1;
     }
-    const cols = this.getters.getActiveSheet().cols;
+    const cols = this.getters.getCols(this.getters.getActiveSheetId());
     const adjustedX = x - HEADER_WIDTH + cols[left].start + 1;
     return searchIndex(cols, adjustedX);
   }
@@ -100,7 +100,7 @@ export class RendererPlugin extends BasePlugin {
     if (y < HEADER_HEIGHT) {
       return -1;
     }
-    const rows = this.getters.getActiveSheet().rows;
+    const rows = this.getters.getRows(this.getters.getActiveSheetId());
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
   }
@@ -165,7 +165,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private adjustViewportZoneX(viewport: Viewport) {
-    const { cols } = this.getters.getActiveSheet();
+    const cols = this.getters.getCols(this.getters.getActiveSheetId());
     const { width, offsetX } = viewport;
     viewport.left = this.getColIndex(offsetX + HEADER_WIDTH, 0);
     const x = width + offsetX - HEADER_WIDTH;
@@ -179,7 +179,7 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private adjustViewportZoneY(viewport: Viewport) {
-    const { rows } = this.getters.getActiveSheet();
+    const rows = this.getters.getRows(this.getters.getActiveSheetId());
     const { height, offsetY } = viewport;
     viewport.top = this.getRowIndex(offsetY + HEADER_HEIGHT, 0);
 

@@ -147,21 +147,30 @@ class CoreRepository extends CRDTRepository<CoreState> {
   }
   setCols(sheetId: UID, cols: Col[]) {
     const sheet = this.state.get("sheets").get(sheetId);
-    sheet.set("cols", new Y.Array());
-    sheet.get("cols").push([cols]);
+    sheet.set("cols", createColsCRDT(cols));
   }
-  getCols(sheetId: UID) {
-    return this.state.get("sheets").get(sheetId).get("cols").toArray();
+  getCols(sheetId: UID): Col[] {
+    return this.state
+      .get("sheets")
+      .get(sheetId)
+      .get("cols")
+      .toArray()
+      .map((col) => col.toJSON());
   }
   getRow(sheetId: UID, index: number): Row {
     return this.state.get("sheets").get(sheetId).get("rows").get(index).toJSON();
   }
+  getLastRowEnd(sheetId: UID): number {
+    const rows = this.state.get("sheets").get(sheetId).get("rows");
+    return rows.get(rows.length - 1).get("end");
+  }
+  getLastColEnd(sheetId: UID): number {
+    const cols = this.state.get("sheets").get(sheetId).get("cols");
+    return cols.get(cols.length - 1).get("end");
+  }
   setRows(sheetId: UID, rows: Row[]) {
     const sheet = this.state.get("sheets").get(sheetId);
     sheet.set("rows", createRowsCRDT(rows));
-    // for (let row of rows) {
-    //   sheet.get("rows").push(row);
-    // }
   }
 
   getCell(sheetId: UID, col: number, row: number): Cell | null {
@@ -179,8 +188,13 @@ class CoreRepository extends CRDTRepository<CoreState> {
       yield cell.toJSON();
     }
   }
-  getRows(sheetId: UID) {
-    return this.state.get("sheets").get(sheetId).get("rows").toArray();
+  getRows(sheetId: UID): Row[] {
+    return this.state
+      .get("sheets")
+      .get(sheetId)
+      .get("rows")
+      .toArray()
+      .map((row) => row.toJSON());
   }
   setRowSize(sheetId: UID, index: number, size: number) {
     this.state.get("sheets").get(sheetId).get("rows").get(index).set("size", size);
@@ -249,6 +263,8 @@ export class CorePlugin extends BasePlugin {
     "getVisibleSheets",
     "getEvaluationSheets",
     "getCol",
+    "getCols",
+    "getRows",
     "getRow",
     "getCells",
     "getColCells",
@@ -586,6 +602,14 @@ export class CorePlugin extends BasePlugin {
     return this.repository.getRow(sheetId, index);
   }
 
+  getCols(sheetId: UID): Col[] {
+    return this.repository.getCols(sheetId);
+  }
+
+  getRows(sheetId: UID): Row[] {
+    return this.repository.getRows(sheetId);
+  }
+
   /**
    * Returns all the cells of a col
    */
@@ -614,11 +638,8 @@ export class CorePlugin extends BasePlugin {
   }
 
   getGridSize(): [number, number] {
-    // FIXME
-    const activeSheet = this.activeSheet;
-    const height = activeSheet.rows[activeSheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
-    const width = activeSheet.cols[activeSheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
-
+    const height = this.repository.getLastRowEnd(this.activeSheetId) + DEFAULT_CELL_HEIGHT + 5;
+    const width = this.repository.getLastColEnd(this.activeSheetId) + DEFAULT_CELL_WIDTH;
     return [width, height];
   }
 
@@ -1009,9 +1030,7 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private updateCell(sheetId: UID, col: number, row: number, data: CellData) {
-    const sheet = this.repository.getSheet(sheetId);
-    // const current = sheet.rows[row].cells[col];
-    const current = sheet.cells[toXC(col, row)];
+    const current = this.repository.getCell(sheetId, col, row);
     const xc = (current && current.xc) || toXC(col, row);
     const hasContent = "content" in data;
 

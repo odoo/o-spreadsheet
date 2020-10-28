@@ -66,7 +66,6 @@ export class Spreadsheet extends Component<Props> {
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
-
   model = new Model(
     { json: this.props.data, crdt: this.props.crdtData },
     {

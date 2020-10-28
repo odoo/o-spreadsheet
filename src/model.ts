@@ -98,6 +98,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   constructor(datas: any = {}, config: Partial<ModelConfig> = {}) {
     super();
+    console.time("Model");
     DEBUG.model = this;
     const data = datas.json || {};
     const crdt = datas.crdt;
@@ -134,6 +135,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     // starting plugins
     this.dispatch("START");
+    console.timeEnd("Model");
   }
 
   destroy() {
@@ -187,6 +189,20 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     let status: Status = command.interactive ? Status.Interactive : this.status;
     switch (status) {
       case Status.Ready:
+        if (command.type === "UNDO") {
+          this.globalCRDT.undo();
+          if (this.config.mode !== "headless") {
+            this.trigger("update");
+          }
+          return { status: "SUCCESS" } as CommandSuccess;
+        }
+        if (command.type === "REDO") {
+          this.globalCRDT.redo();
+          if (this.config.mode !== "headless") {
+            this.trigger("update");
+          }
+          return { status: "SUCCESS" } as CommandSuccess;
+        }
         for (let handler of this.handlers) {
           const allowDispatch = handler.allowDispatch(command);
           if (allowDispatch.status === "CANCELLED") {
