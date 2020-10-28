@@ -207,9 +207,15 @@ class CoreRepository extends CRDTRepository<CoreState> {
   }
 
   resetCell(sheetId: UID, xc: string) {
-    const row = toCartesian(xc)[1];
+    const [col, row] = toCartesian(xc);
     this.state.get("sheets").get(sheetId).get("cells").delete(xc);
-    this.state.get("sheets").get(sheetId).get("rows").get(row.toString()).get("cells").delete(xc);
+    this.state
+      .get("sheets")
+      .get(sheetId)
+      .get("rows")
+      .get(row.toString())
+      .get("cells")
+      .delete(col.toString());
   }
 
   updateCell(sheetId: UID, cell: Cell) {
@@ -1486,9 +1492,9 @@ export class CorePlugin extends BasePlugin {
     y += freezeRow && updateFreeze ? 0 : offsetY;
     if (
       x < 0 ||
-      x >= this.getters.getSheet(sheetId || this.getters.getActiveSheetId()).colNumber ||
+      x >= this.repository.getColNumber(sheetId || this.getters.getActiveSheetId()) ||
       y < 0 ||
-      y >= this.getters.getSheet(sheetId || this.getters.getActiveSheetId()).rowNumber
+      y >= this.repository.getRowNumber(sheetId || this.getters.getActiveSheetId())
     ) {
       return "#REF";
     }

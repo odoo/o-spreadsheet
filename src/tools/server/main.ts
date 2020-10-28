@@ -186,7 +186,7 @@ let state = null;
 
 app.ws("/", function (ws, req) {
   ws.on("message", function (message) {
-    console.log("/");
+    console.log(`/ Length: ${message.length}`);
     Array.from(aWss.clients).forEach((client) => {
       if (client !== ws) {
         // @ts-ignore
