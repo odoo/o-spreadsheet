@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const expressWS = require("express-ws")(express());
 const app = expressWS.app;
+const gzip = require("gzip-js");
 
 const bodyParser = require("body-parser");
 
@@ -187,6 +188,13 @@ let state = null;
 app.ws("/", function (ws, req) {
   ws.on("message", function (message) {
     console.log(`/ Length: ${message.length}`);
+    console.time("GZip Zip");
+    const zip = gzip.zip(message);
+    console.timeEnd("GZip Zip");
+    console.time("GZip Unzip");
+    gzip.unzip(zip);
+    console.timeEnd("GZip Unzip");
+    console.log(`/ Length (Gzipped): ${zip.length}`);
     Array.from(aWss.clients).forEach((client) => {
       if (client !== ws) {
         // @ts-ignore
@@ -211,6 +219,7 @@ app.ws("/sync-state", function (ws, req) {
 
 app.get("/get-status", (req, res) => {
   console.log("get-status");
+  // res.send(true);
   if (first) {
     first = false;
     res.send(true);

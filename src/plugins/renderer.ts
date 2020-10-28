@@ -123,10 +123,10 @@ export class RendererPlugin extends BasePlugin {
    * @param viewport
    */
   snapViewportToCell(viewport: Viewport): Viewport {
-    const { cols, rows } = this.getters.getActiveSheet();
+    const activeSheetId = this.getters.getActiveSheetId();
     const adjustedViewport = Object.assign({}, viewport);
-    adjustedViewport.offsetX = cols[viewport.left].start;
-    adjustedViewport.offsetY = rows[viewport.top].start;
+    adjustedViewport.offsetX = this.getters.getCol(activeSheetId, viewport.left).start;
+    adjustedViewport.offsetY = this.getters.getRow(activeSheetId, viewport.top).start;
     return adjustedViewport;
   }
 
@@ -432,11 +432,11 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const activeSheet = this.getters.getActiveSheet();
-    const { cols, rows } = activeSheet;
+    const activeSheetId = this.getters.getActiveSheetId();
+    const cols = this.getters.getCols(activeSheetId);
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
-      let row = rows[rowNumber];
+      let row = this.getters.getRow(activeSheetId, rowNumber);
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cell = row.cells[colNumber];
         if (cell && !this.getters.isInMerge(cell.xc)) {
@@ -491,11 +491,10 @@ export class RendererPlugin extends BasePlugin {
       }
     }
 
-    const activeSheetId = this.getters.getActiveSheetId();
     // process all visible merges
     for (let merge of this.getters.getMerges(activeSheetId)) {
       if (overlap(merge, viewport)) {
-        const refCell = activeSheet.cells[merge.topLeft];
+        const refCell = this.getters.getCell(merge.left, merge.top);
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
         if (refCell) {
@@ -518,8 +517,10 @@ export class RendererPlugin extends BasePlugin {
         }
 
         const x = cols[merge.left].start - offsetX;
-        const y = rows[merge.top].start - offsetY;
-        const height = rows[merge.bottom].end - rows[merge.top].start;
+        const rowTop = this.getters.getRow(activeSheetId, merge.top);
+        const rowBottom = this.getters.getRow(activeSheetId, merge.bottom);
+        const y = rowTop.start - offsetY;
+        const height = rowBottom.end - rowTop.start;
         result.push({
           x: x,
           y: y,

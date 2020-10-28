@@ -120,7 +120,7 @@ class App extends Component {
 
     // For testing puposes we need to load all data every time
     this.data = JSON.parse(await rpc("get-json", "GET"));
-    this.data = makeLargeDataset(45, 100);
+    // this.data = makeLargeDataset(45, 1000);
     if (!first) {
       const crdtResponse = await this.getCRDT();
       // const enc = new TextEncoder();

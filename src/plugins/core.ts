@@ -42,7 +42,7 @@ import { WHistory } from "../history";
 import { ModelConfig } from "../model";
 import { CRDTRepository } from "../crdt_datatypes/repository";
 import { createColsCRDT, createRowsCRDT } from "../crdt_datatypes/rows_crdt";
-import { createCellsCRDT } from "../crdt_datatypes/cells";
+import { CellCRDT, createCellCRDT, createCellsCRDT } from "../crdt_datatypes/cells";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
@@ -174,13 +174,29 @@ class CoreRepository extends CRDTRepository<CoreState> {
   }
 
   getCell(sheetId: UID, col: number, row: number): Cell | null {
-    return this.state
+    const crdtCell = this.state
       .get("sheets")
       .get(sheetId)
       .get("rows")
       .get(row.toString())
       .get("cells")
       .get(col.toString());
+    if (!crdtCell) return null;
+    return {
+      value: crdtCell.get("value"),
+      content: crdtCell.get("content"),
+      style: crdtCell.get("style"),
+      error: crdtCell.get("error"),
+      col: crdtCell.get("col"),
+      row: crdtCell.get("row"),
+      type: crdtCell.get("type"),
+      xc: crdtCell.get("xc"),
+      async: crdtCell.get("async"),
+      border: crdtCell.get("border"),
+      format: crdtCell.get("format"),
+      formula: crdtCell.get("formula"),
+      pending: crdtCell.get("pending"),
+    };
   }
 
   *getCells(sheetId: UID): Generator<Cell> {
@@ -219,14 +235,15 @@ class CoreRepository extends CRDTRepository<CoreState> {
   }
 
   updateCell(sheetId: UID, cell: Cell) {
-    this.state.get("sheets").get(sheetId).get("cells").set(cell.xc, cell);
+    this.state.get("sheets").get(sheetId).get("cells").set(cell.xc, createCellCRDT(cell));
     this.state
       .get("sheets")
       .get(sheetId)
       .get("rows")
       .get(cell.row.toString())
       .get("cells")
-      .set(cell.col.toString(), cell);
+      // TODO only update part
+      .set(cell.col.toString(), createCellCRDT(cell));
   }
 
   deleteSheet(sheetId: UID) {
@@ -293,7 +310,7 @@ export class CorePlugin extends BasePlugin {
     super(crdt, getters, history, dispatch, config);
     // this.repository = new CoreModel(this.repository.get("CorePlugin"));
     this.repository = new CoreRepository(crdt, "CorePlugin");
-    this.repository.set("cells", new Y.Array<Cell>());
+    this.repository.set("cells", new Y.Array<CellCRDT>());
     this.repository.set("sheetIds", new Y.Map<UID>());
     this.repository.set("showFormulas", false);
     this.repository.set("visibleSheets", new Y.Array<UID>());
@@ -937,18 +954,19 @@ export class CorePlugin extends BasePlugin {
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
-    const rows: Row[] = [];
+    const newRows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
     let sizeIndex = 0;
-    const cellsQueue = this.activeSheet.rows.map((row) => row.cells);
-    for (let i in this.activeSheet.rows) {
-      const { size } = this.activeSheet.rows[sizeIndex];
+    const rows = this.repository.getRows(this.activeSheetId);
+    const cellsQueue = rows.map((row) => row.cells);
+    for (let i in rows) {
+      const { size } = rows[sizeIndex];
       if (parseInt(i, 10) < index || parseInt(i, 10) >= index + quantity) {
         sizeIndex++;
       }
       rowIndex++;
-      rows.push({
+      newRows.push({
         start,
         end: start + size,
         size,
