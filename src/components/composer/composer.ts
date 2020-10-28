@@ -1,14 +1,17 @@
 import * as owl from "@odoo/owl";
 import { EnrichedToken, composerTokenize, rangeReference } from "../../formulas/index";
-import { SpreadsheetEnv } from "../../types/index";
+import { SpreadsheetEnv, FunctionDescription } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
+import { FunctionDescriptionProvider } from "./formula_assistant";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { zoneToXc, DEBUG } from "../../helpers/index";
 import { ComposerSelection } from "../../plugins/ui/edition";
+import { functionRegistry } from "../../functions/index";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
 const { xml, css } = owl.tags;
+const functions = functionRegistry.content;
 
 export const FunctionColor = "#4a4e4d";
 export const OperatorColor = "#3da4ab";
@@ -56,6 +59,13 @@ const TEMPLATE = xml/* xml */ `
         provider="autoCompleteState.provider"
         t-on-completed="onCompleted"
     />
+    <FunctionDescriptionProvider
+        t-if="functionDescriptionState.showDescription and props.focus"
+        t-ref="o_function_description_provider"
+        functionName = "functionDescriptionState.functionName"
+        functionDescription = "functionDescriptionState.functionDescription"
+        argToFocus = "functionDescriptionState.argToFocus"
+    />
 </div>
   `;
 const CSS = css/* scss */ `
@@ -83,10 +93,23 @@ interface Props {
   focus: boolean;
 }
 
+interface AutoCompleteState {
+  showProvider: boolean;
+  provider: string;
+  search: string;
+}
+
+interface FunctionDescriptionState {
+  showDescription: boolean;
+  functionName: string;
+  functionDescription: FunctionDescription;
+  argToFocus: number;
+}
+
 export class Composer extends Component<Props, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { TextValueProvider };
+  static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
     focus: false,
@@ -100,10 +123,17 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   contentHelper: ContentEditableHelper;
 
-  autoCompleteState = useState({
+  autoCompleteState: AutoCompleteState = useState({
     showProvider: false,
     provider: "functions",
     search: "",
+  });
+
+  functionDescriptionState: FunctionDescriptionState = useState({
+    showDescription: false,
+    functionName: "",
+    functionDescription: {} as FunctionDescription,
+    argToFocus: 0,
   });
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
@@ -151,6 +181,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
 
   private processArrowKeys(ev: KeyboardEvent) {
     if (this.getters.isSelectingForComposer()) {
+      this.functionDescriptionState.showDescription = false;
       return;
     }
     ev.stopPropagation();
@@ -227,46 +258,46 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (!this.props.focus || !this.shouldProcessInputEvents) {
       return;
     }
+    this.dispatch("STOP_COMPOSER_SELECTION");
     const el = this.composerRef.el! as HTMLInputElement;
     const content = el.childNodes.length ? el.textContent! : "";
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
       selection: this.contentHelper.getCurrentSelection(),
     });
+    if (this.canStartComposerSelection()) {
+      this.dispatch("START_COMPOSER_SELECTION");
+    }
   }
 
   onKeyup(ev: KeyboardEvent) {
-    if (
-      !this.props.focus ||
-      ["Control", "Shift", "ArrowUp", "ArrowDown", "Tab", "Enter"].includes(ev.key)
-    ) {
-      // already processed in keydown
+    if (!this.props.focus || ["Control", "Shift", "Tab", "Enter"].includes(ev.key)) {
       return;
     }
+
+    if (this.autoCompleteState.showProvider && ["ArrowUp", "ArrowDown"].includes(ev.key)) {
+      return; // already processed in keydown
+    }
+
+    if (
+      this.getters.isSelectingForComposer() &&
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(ev.key)
+    ) {
+      return; // already processed in keydown
+    }
+
     ev.preventDefault();
     ev.stopPropagation();
 
-    // reset the state of the ref selector and autocomplete for safety.
-    // They will be set correctly if needed in `processTokenAtCursor`
     this.autoCompleteState.showProvider = false;
-    this.autoCompleteState.search = "";
     if (ev.ctrlKey && ev.key === " ") {
+      this.autoCompleteState.search = "";
       this.autoCompleteState.showProvider = true;
-    } else if (
-      ev.key === "ArrowLeft" ||
-      ev.key === "ArrowRight" ||
-      ev.key === "End" ||
-      ev.key === "Home"
-    ) {
-      const { start, end } = this.contentHelper.getCurrentSelection();
-      this.dispatch("CHANGE_COMPOSER_SELECTION", {
-        start,
-        end,
-      });
-    } else {
-      this.dispatch("STOP_COMPOSER_SELECTION");
-      this.processTokenAtCursor();
+      return;
     }
+
+    this.dispatch("CHANGE_COMPOSER_SELECTION", this.contentHelper.getCurrentSelection());
+    this.processTokenAtCursor();
   }
 
   onClick() {
@@ -275,6 +306,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         selection: this.contentHelper.getCurrentSelection(),
       });
     }
+    this.dispatch("STOP_COMPOSER_SELECTION");
     this.dispatch("CHANGE_COMPOSER_SELECTION", this.contentHelper.getCurrentSelection());
     this.processTokenAtCursor();
   }
@@ -374,26 +406,56 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     return this.getters.getEditionMode() !== "inactive" ? MatchingParenColor : undefined;
   }
 
+  private canStartComposerSelection(): boolean {
+    // todo: check the precise context of the surrounding tokens in which the selection can start
+    const tokenAtCursor = this.getters.getTokenAtCursor();
+    if (
+      tokenAtCursor &&
+      ["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(tokenAtCursor.type)
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Compute the state of the composer from the tokenAtCursor.
-   * If the token is a bool, function or symbol we have to initialize the autocomplete engine.
-   * If it's a comma, left_paren or operator we have to initialize the range selection.
+   * If the token is a function or symbol (that isn't a cell/range reference) we have to initialize
+   * the autocomplete engine otherwise we initialize the formula assistant.
    */
-  private processTokenAtCursor() {
-    const tokenAtCursor = this.getters.getTokenAtCursor();
-    const content = this.getters.getCurrentContent();
-    if (!tokenAtCursor || !content.startsWith("=")) {
-      return;
-    }
-    if (["BOOLEAN", "FUNCTION", "SYMBOL"].includes(tokenAtCursor.type)) {
-      if (tokenAtCursor.value.length > 0) {
-        this.autoCompleteState.search = tokenAtCursor.value;
-        this.autoCompleteState.showProvider = true;
+  private processTokenAtCursor(): void {
+    let value = this.getters.getCurrentContent();
+    this.tokens = composerTokenize(value);
+
+    this.autoCompleteState.showProvider = false;
+    this.functionDescriptionState.showDescription = false;
+
+    if (value.startsWith("=")) {
+      const tokenAtCursor = this.getters.getTokenAtCursor();
+      if (tokenAtCursor) {
+        const [xc] = tokenAtCursor.value.split("!").reverse();
+        if (
+          tokenAtCursor.type === "FUNCTION" ||
+          (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))
+        ) {
+          // initialize Autocomplete Dropdown
+          this.autoCompleteState.search = tokenAtCursor.value;
+          this.autoCompleteState.showProvider = true;
+        } else if (tokenAtCursor.functionContext) {
+          // initialize Formula Assistant
+          const tokenContext = tokenAtCursor.functionContext;
+          const parentFunction = tokenContext.parent.toUpperCase();
+          const description = functions[parentFunction];
+          const argPosition = tokenContext.argPosition;
+
+          this.functionDescriptionState = {
+            functionName: parentFunction,
+            functionDescription: description,
+            argToFocus: description.getArgToFocus(argPosition + 1) - 1,
+            showDescription: true,
+          };
+        }
       }
-    } else if (["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(tokenAtCursor.type)) {
-      // we need to reset the anchor of the selection to the active cell, so the next Arrow key down
-      // is relative the to the cell we edit
-      this.dispatch("START_COMPOSER_SELECTION");
     }
   }
 
@@ -432,9 +494,9 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         text: value,
       });
     }
-
-    this.autoCompleteState.search = "";
-    this.autoCompleteState.showProvider = false;
     this.processTokenAtCursor();
+    if (this.canStartComposerSelection()) {
+      this.dispatch("START_COMPOSER_SELECTION");
+    }
   }
 }

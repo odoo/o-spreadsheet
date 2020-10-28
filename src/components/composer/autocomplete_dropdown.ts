@@ -44,7 +44,7 @@ const TEMPLATE = xml/* xml */ `
 
 const CSS = css/* scss */ `
   .o-autocomplete-dropdown {
-    width: 260px;
+    width: 300px;
     margin: 4px;
     background-color: #fff;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);

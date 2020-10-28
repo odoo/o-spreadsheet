@@ -48,7 +48,7 @@ describe("args", () => {
         name: "test",
         description: "descr",
         default: true,
-        defaultValue: 10,
+        defaultValue: "10",
       },
     ]);
   });
@@ -60,7 +60,7 @@ describe("args", () => {
         name: "test",
         description: "descr",
         default: true,
-        defaultValue: "asdf",
+        defaultValue: '"asdf"',
       },
     ]);
   });

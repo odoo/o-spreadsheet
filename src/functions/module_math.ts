@@ -1092,9 +1092,9 @@ export const SUMIF: AddFunctionDescription = {
   args: args(`
       criteria_range (any, range) ${_lt("The range which is tested against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to range.")}
-      sum_range (any, range, default=criteria_range) ${_lt(
-        "The range to be summed, if different from range."
-      )}
+      sum_range (any, range, default=${_lt("criteria_range")}) ${_lt(
+    "The range to be summed, if different from range."
+  )}
     `),
   returns: ["NUMBER"],
   compute: function (criteriaRange: any, criterion: any, sumRange: any = undefined): number {

@@ -36,7 +36,7 @@ function linearSearch(range: any[], target: any): number {
 export const COLUMN: AddFunctionDescription = {
   description: _lt("Column number of a specified cell."),
   args: args(
-    `cell_reference (meta, default='The cell in which the formula is entered by default') ${_lt(
+    `cell_reference (meta, default=${_lt("The cell in which the formula is entered")}) ${_lt(
       "The cell whose column number will be returned. Column A corresponds to 1."
     )}
     `
@@ -219,9 +219,9 @@ export const MATCH: AddFunctionDescription = {
 export const ROW: AddFunctionDescription = {
   description: _lt("Row number of a specified cell."),
   args: args(
-    `cell_reference (meta, default='The cell in which the formula is entered by default')) ${_lt(
-      "The cell whose row number will be returned."
-    )}`
+    `cell_reference (meta, default=${_lt(
+      "The cell in which the formula is entered by default"
+    )}) ${_lt("The cell whose row number will be returned.")}`
   ),
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {

@@ -60,8 +60,7 @@ function makeArg(str: string): Arg {
     } else if (key === "LAZY") {
       isLazy = true;
     } else if (key.startsWith("DEFAULT=")) {
-      const value = param.trim().slice(8);
-      defaultValue = value[0] === '"' ? value.slice(1, -1) : parseFloat(value);
+      defaultValue = param.trim().slice(8);
     }
   }
   let description = parts[3].trim();
