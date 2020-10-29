@@ -28,7 +28,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<UID, Cell | undefined>>;
+  cells: Record<UID, Record<UID, Cell | undefined> | undefined>;
 }
 
 /**
@@ -48,7 +48,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   ];
 
   private showFormulas: boolean = false;
-  public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  public readonly cells: { [sheetId: string]: { [id: string]: Cell } | undefined } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -56,19 +56,26 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "DUPLICATE_SHEET":
+        const cells = this.cells[cmd.sheetIdFrom];
+        if (cells) {
+          this.cells[cmd.sheetIdTo] = JSON.parse(JSON.stringify(cells));
+        }
+        break;
       case "UPDATE_CELL":
         this.updateCell(this.getters.getSheet(cmd.sheetId)!, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          border: 0,
-          style: 0,
-          format: "",
-        });
+        const cell = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row);
+        if (cell) {
+          this.history.update("cells", cmd.sheetId, cell.id, undefined);
+          this.dispatch("UPDATE_CELL_POSITION", {
+            col: cmd.col,
+            row: cmd.row,
+            cellId: cell.id,
+            sheetId: cmd.sheetId,
+          });
+        }
         break;
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
@@ -103,6 +110,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           border: cell.border,
           style: cell.style,
           format: cell.format,
+          id: cell.id,
         };
         if (cell.type === "formula" && cell.formula) {
           cells[xc].formula = {
@@ -209,100 +217,260 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   // Cells
   // ---------------------------------------------------------------------------
 
+  private computeDerivedFormat(content: string): Cell["format"] {
+    if (isNumber(content) && content.includes("%")) {
+      return content.includes(".") ? "0.00%" : "0%";
+    }
+    return undefined;
+  }
+
+  private computeType(content: string): Cell["type"] {
+    if (content[0] === "=") {
+      return "formula";
+    }
+    if (isNumber(content)) {
+      return "number";
+    } else if (parseDateTime(content)) {
+      return "date";
+    }
+    return "text";
+  }
+
+  private computeFormulaValues(
+    content: string
+  ): { error: Cell["error"]; formula: Cell["formula"]; value: Cell["value"] } {
+    let error;
+    let formula;
+    let value;
+    try {
+      let formulaString: NormalizedFormula = normalize(content);
+      let compiledFormula = compile(formulaString);
+      formula = {
+        compiledFormula: compiledFormula,
+        dependencies: formulaString.dependencies,
+        text: formulaString.text,
+      };
+    } catch (e) {
+      value = "#BAD_EXPR";
+      error = _lt("Invalid Expression");
+    }
+    return { error, formula, value };
+  }
+
+  private computeValue(content: string): any {
+    if (isNumber(content)) {
+      return parseNumber(content);
+    }
+    let date = parseDateTime(content);
+    if (date) {
+      return date;
+    }
+    const contentUpperCase = content.toUpperCase();
+    if (contentUpperCase === "TRUE") {
+      return true;
+    }
+    if (contentUpperCase === "FALSE") {
+      return false;
+    }
+    return content;
+  }
+
+  private createCell(data: CellData): Cell {
+    const content = data.content || "";
+    const cell: Cell = {
+      id: data.id || uuidv4(),
+      content,
+      border: data.border,
+      style: data.style,
+      format: data.format || this.computeDerivedFormat(content),
+      type: this.computeType(content),
+      value: this.computeValue(content),
+    };
+    if (cell.type === "formula") {
+      const { error, formula, value } = this.computeFormulaValues(content);
+      cell.error = error;
+      cell.formula = formula;
+      cell.value = value;
+    } else if (cell.type === "date") {
+      cell.content = formatDateTime(cell.value);
+    }
+    return cell;
+  }
+
+  private isEmpty(cell: Cell): boolean {
+    return !cell.style && !cell.content && !cell.format && !cell.border;
+  }
+
   private updateCell(sheet: Sheet, col: number, row: number, data: CellData) {
-    const current = sheet.rows[row].cells[col];
-    const hasContent = "content" in data;
-
-    // Compute the new cell properties
-    const dataContent = data.content ? data.content.replace(nbspRegexp, "") : "";
-    let content = hasContent ? dataContent : (current && current.content) || "";
-    const style = "style" in data ? data.style : (current && current.style) || 0;
-    const border = "border" in data ? data.border : (current && current.border) || 0;
-    let format = "format" in data ? data.format : (current && current.format) || "";
-
-    // if all are empty, we need to delete the underlying cell object
-    if (!content && !style && !border && !format) {
-      if (current) {
-        // todo: make this work on other sheets
-        this.history.update("cells", sheet.id, current.id, undefined);
-        this.dispatch("UPDATE_CELL_POSITION", {
-          cellId: current.id,
-          col,
-          row,
-          sheetId: sheet.id,
-          cell: undefined,
-        });
-      }
-      return;
+    if ("content" in data) {
+      data = {
+        ...data,
+        content: data.content ? data.content.replace(nbspRegexp, "") : "",
+      };
     }
-
-    // compute the new cell value
-    const didContentChange =
-      (!current && dataContent) || (hasContent && current && current.content !== dataContent);
-    let cell: Cell;
-    if (current && !didContentChange) {
-      cell = { id: current.id, content, value: current.value, type: current.type };
-      if (cell.type === "formula") {
-        cell.error = current.error;
-        cell.pending = current.pending;
-        cell.formula = current.formula;
+    let cell = this.getters.getCell(sheet.id, col, row);
+    let newCell = false;
+    if (!cell) {
+      cell = this.createCell(data);
+      newCell = true;
+      if (this.isEmpty(cell)) {
+        return;
       }
+      // if (newCell) {
+      //   this.history.update("cells", sheet.id, newCell.id, newCell);
+      //   this.dispatch("UPDATE_CELL_POSITION", {
+      //     cell: newCell,
+      //     cellId: newCell.id,
+      //     col,
+      //     row,
+      //     sheetId: sheet.id,
+      //   });
+      // }
+      // return;
     } else {
-      // the current content cannot be reused, so we need to recompute the
-      // derived values
-      let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
-      let value: Cell["value"] = content;
-      if (isNumber(content)) {
-        value = parseNumber(content);
-        type = "number";
-        if (content.includes("%")) {
-          format = content.includes(".") ? "0.00%" : "0%";
-        }
-      }
-      let date = parseDateTime(content);
-      if (date) {
-        type = "date";
-        value = date;
-        content = formatDateTime(date);
-      }
-      const contentUpperCase = content.toUpperCase();
-      if (contentUpperCase === "TRUE") {
-        value = true;
-      }
-      if (contentUpperCase === "FALSE") {
-        value = false;
-      }
-      cell = { id: current?.id || uuidv4(), content, value, type };
-      if (cell.type === "formula") {
-        cell.error = undefined;
-        try {
-          let formulaString: NormalizedFormula = normalize(cell.content || "");
-          let compiledFormula = compile(formulaString);
-          cell.formula = {
-            compiledFormula: compiledFormula,
-            dependencies: formulaString.dependencies,
-            text: formulaString.text,
-          };
-        } catch (e) {
-          cell.value = "#BAD_EXPR";
-          cell.error = _lt("Invalid Expression");
-        }
-      }
+      // reference please
+      const cellInSheet = this.getters.getCell(sheet.id, col, row)!;
+      cell = this.cells[sheet.id]![cellInSheet.id];
     }
-    if (style) {
-      cell.style = style;
+    const didContentChange =
+      "content" in data && (cell.content !== data.content || (newCell && data.content));
+    const didStyleChange =
+      "style" in data && (cell.style !== data.style || (newCell && data.style));
+    const didBorderChange =
+      "border" in data && (cell.border !== data.border || (newCell && data.border));
+    const didFormatChange =
+      "format" in data && (cell.format !== data.format || (newCell && data.format));
+    if (didContentChange) {
+      const content = data.content || "";
+      const type = this.computeType(content);
+      const value = this.computeValue(content);
+      this.history.update("cells", sheet.id, cell.id, "content", content);
+      this.history.update("cells", sheet.id, cell.id, "value", value);
+      if (type === "formula") {
+        const { error, formula, value } = this.computeFormulaValues(content);
+        this.history.update("cells", sheet.id, cell.id, "error", error);
+        this.history.update("cells", sheet.id, cell.id, "formula", formula);
+        this.history.update("cells", sheet.id, cell.id, "value", value);
+      } else if (type === "date") {
+        this.history.update("cells", sheet.id, cell.id, "content", formatDateTime(value));
+      }
+      this.history.update("cells", sheet.id, cell.id, "type", type);
+      this.history.update(
+        "cells",
+        sheet.id,
+        cell.id,
+        "format",
+        this.computeDerivedFormat(content) || data.format || cell.format
+      );
     }
-    if (border) {
-      cell.border = border;
+    if (didFormatChange) {
+      this.history.update("cells", sheet.id, cell.id, "format", data.format || undefined);
     }
-    if (format) {
-      cell.format = format;
+    if (didStyleChange) {
+      this.history.update("cells", sheet.id, cell.id, "style", data.style || undefined);
     }
-    // todo: make this work on other sheets
-    this.history.update("cells", sheet.id, cell.id, cell);
-    this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
+    if (didBorderChange) {
+      this.history.update("cells", sheet.id, cell.id, "border", data.border || undefined);
+    }
+    if (this.isEmpty(cell)) {
+      this.dispatch("CLEAR_CELL", {
+        col,
+        row,
+        sheetId: sheet.id,
+      });
+    } else {
+      this.history.update("cells", sheet.id, cell.id, cell);
+      this.dispatch("UPDATE_CELL_POSITION", {
+        cell: this.cells[sheet.id]![cell.id],
+        cellId: cell.id,
+        col,
+        row,
+        sheetId: sheet.id,
+      });
+    }
+
+    // const hasContent = "content" in data;
+
+    // // Compute the new cell properties
+    // const dataContent = data.content ? data.content.replace(nbspRegexp, "") : "";
+    // let content = hasContent ? dataContent : (cell && cell.content) || "";
+    // const style = "style" in data ? data.style : (cell && cell.style) || 0;
+    // const border = "border" in data ? data.border : (cell && cell.border) || 0;
+    // let format = "format" in data ? data.format : (cell && cell.format) || "";
+
+    // // if all are empty, we need to delete the underlying cell object
+    // if (!content && !style && !border && !format) {
+    //   this.dispatch("CLEAR_CELL", {
+    //     col,
+    //     row,
+    //     sheetId: sheet.id,
+    //   });
+    //   return;
+    // }
+
+    // // compute the new cell value
+    // const didContentChange =
+    //   (!cell && dataContent) || (hasContent && cell && cell.content !== dataContent);
+    // if (cell && !didContentChange) {
+    //   cell = { id: cell.id, content, value: cell.value, type: cell.type };
+    //   if (cell.type === "formula") {
+    //     cell.error = cell.error;
+    //     cell.pending = cell.pending;
+    //     cell.formula = cell.formula;
+    //   }
+    // } else {
+    //   // the current content cannot be reused, so we need to recompute the
+    //   // derived values
+    //   let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
+    //   let value: Cell["value"] = content;
+    //   if (isNumber(content)) {
+    //     value = parseNumber(content);
+    //     type = "number";
+    //     if (content.includes("%")) {
+    //       format = content.includes(".") ? "0.00%" : "0%";
+    //     }
+    //   }
+    //   let date = parseDateTime(content);
+    //   if (date) {
+    //     type = "date";
+    //     value = date;
+    //     content = formatDateTime(date);
+    //   }
+    //   const contentUpperCase = content.toUpperCase();
+    //   if (contentUpperCase === "TRUE") {
+    //     value = true;
+    //   }
+    //   if (contentUpperCase === "FALSE") {
+    //     value = false;
+    //   }
+    //   cell = { id: cell?.id || data.id || uuidv4(), content, value, type };
+    //   if (cell.type === "formula") {
+    //     cell.error = undefined;
+    //     try {
+    //       let formulaString: NormalizedFormula = normalize(cell.content || "");
+    //       let compiledFormula = compile(formulaString);
+    //       cell.formula = {
+    //         compiledFormula: compiledFormula,
+    //         dependencies: formulaString.dependencies,
+    //         text: formulaString.text,
+    //       };
+    //     } catch (e) {
+    //       cell.value = "#BAD_EXPR";
+    //       cell.error = _lt("Invalid Expression");
+    //     }
+    //   }
+    // }
+    // if (style) {
+    //   cell.style = style;
+    // }
+    // if (border) {
+    //   cell.border = border;
+    // }
+    // if (format) {
+    //   cell.format = format;
+    // }
+    // // todo: make this work on other sheets
+    // this.history.update("cells", sheet.id, cell.id, cell);
+    // this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
   }
 }
-// ---------------------------------------------------------------------------
-// Import/Export
-// ---------------------------------------------------------------------------

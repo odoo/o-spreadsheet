@@ -184,8 +184,9 @@ export class FormattingPlugin extends BasePlugin {
         return parseInt(k, 10);
       }
     }
-    const id = this.nextId++;
-    this.styles[id] = style;
+    const id = this.nextId;
+    this.history.update("styles", id, style);
+    this.history.update("nextId", this.nextId + 1);
     return id;
   }
 

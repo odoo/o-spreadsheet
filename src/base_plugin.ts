@@ -52,8 +52,10 @@ export class BasePlugin<State = any> implements CommandHandler {
     config: ModelConfig
   ) {
     this.getters = getters;
+    history.addToRoot(this.constructor.name, this);
     this.history = Object.assign(Object.create(history), {
-      update: history.updateStateFromRoot.bind(history, this),
+      update: history.updateStateFromRoot.bind(history, this.constructor.name),
+      doNotHistorize: history.doNotHistorize.bind(history),
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;

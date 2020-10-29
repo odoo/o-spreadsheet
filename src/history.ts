@@ -1,4 +1,5 @@
 import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
+import { Update, SynchronizedState } from "./types/multi_user";
 
 /**
  * History Management System
@@ -9,9 +10,11 @@ import { Command, CommandHandler, CommandResult, CancelledReason } from "./types
 
 interface HistoryChange {
   root: any;
+  pluginName: string;
   path: (string | number)[];
   before: any;
   after: any;
+  history: boolean;
 }
 
 type Step = HistoryChange[];
@@ -22,6 +25,7 @@ type Step = HistoryChange[];
 export const MAX_HISTORY_STEPS = 99;
 
 export interface WorkbookHistory<Plugin> {
+  doNotHistorize: (callback: () => void) => void;
   update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
   update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
     key1: T,
@@ -88,7 +92,26 @@ export class WHistory implements CommandHandler {
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];
-  private historize: boolean = false;
+  private historize: boolean = true;
+  private root: { [key: string]: any } = {};
+
+  constructor(private synchronizedState?: SynchronizedState) {
+    if (this.synchronizedState) {
+      this.synchronizedState.onStateUpdated((updates: Update[]) => {
+        for (let update of updates) {
+          const [pluginName, ...path] = update.path;
+          this.updateStateFromRoot(pluginName as string, ...path, update.value);
+        }
+      });
+    }
+  }
+
+  doNotHistorize(callback: () => void) {
+    const historize = !!this.historize;
+    this.historize = false;
+    callback();
+    this.historize = historize;
+  }
 
   // getters
   canUndo(): boolean {
@@ -114,7 +137,7 @@ export class WHistory implements CommandHandler {
   }
 
   beforeHandle(cmd: Command) {
-    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO" && this.historize) {
+    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO") {
       this.current = [];
     }
   }
@@ -127,20 +150,22 @@ export class WHistory implements CommandHandler {
       case "REDO":
         this.redo();
         break;
-      case "START":
-        this.historize = true;
     }
   }
 
   finalize() {
     if (this.current && this.current.length) {
-      this.undoStack.push(this.current);
-      this.redoStack = [];
-      this.current = null;
-      if (this.undoStack.length > MAX_HISTORY_STEPS) {
-        this.undoStack.shift();
+      this.synchronizeChanges(this.current, "after");
+      const filteredCurrent = this.current.filter((change) => change.history);
+      if (filteredCurrent.length) {
+        this.undoStack.push(filteredCurrent);
+        this.redoStack = [];
+        if (this.undoStack.length > MAX_HISTORY_STEPS) {
+          this.undoStack.shift();
+        }
       }
     }
+    this.current = null;
   }
 
   undo() {
@@ -153,6 +178,7 @@ export class WHistory implements CommandHandler {
       let change = step[i];
       this.applyChange(change, "before");
     }
+    this.synchronizeChanges(step, "before");
   }
 
   redo() {
@@ -163,6 +189,18 @@ export class WHistory implements CommandHandler {
     this.undoStack.push(step);
     for (let change of step) {
       this.applyChange(change, "after");
+    }
+    this.synchronizeChanges(step, "after");
+  }
+
+  private synchronizeChanges(changes: HistoryChange[], target: "before" | "after") {
+    if (this.synchronizedState) {
+      this.synchronizedState.apply(
+        changes.map((historyChange) => ({
+          path: [historyChange.pluginName, ...historyChange.path],
+          value: historyChange[target],
+        }))
+      );
     }
   }
 
@@ -179,9 +217,14 @@ export class WHistory implements CommandHandler {
     }
   }
 
+  addToRoot(pluginName: string, root: any) {
+    this.root[pluginName] = root;
+  }
+
   updateStateFromRoot(...args: any[]) {
     const val: any = args.pop();
-    const [root, ...path] = args as [any, string | number];
+    const [pluginName, ...path] = args as [any, string | number];
+    const root = this.root[pluginName];
     let value = root as any;
     let key = path[path.length - 1];
     for (let pathIndex = 0; pathIndex <= path.length - 2; pathIndex++) {
@@ -198,15 +241,14 @@ export class WHistory implements CommandHandler {
       }
       value = value[p];
     }
-    if (value[key] === val) {
-      return;
-    }
     if (this.current) {
       this.current.push({
+        pluginName,
         root,
         path,
         before: value[key],
         after: val,
+        history: this.historize,
       });
     }
     if (val === undefined) {

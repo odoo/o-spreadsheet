@@ -350,10 +350,10 @@ export class SelectionPlugin extends BasePlugin {
         targetRow += deltaY;
       }
       if (targetCol >= 0 && targetRow >= 0) {
-        this.selectCell(targetCol, targetRow);
+        this.dispatch("SELECT_CELL", { col: targetCol, row: targetRow });
       }
     } else {
-      this.selectCell(refCol + deltaX, refRow + deltaY);
+      this.dispatch("SELECT_CELL", { col: refCol + deltaX, row: refRow + deltaY });
     }
   }
 

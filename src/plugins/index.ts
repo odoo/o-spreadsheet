@@ -1,3 +1,4 @@
+import * as owl from "@odoo/owl";
 import { PluginConstuctor } from "../base_plugin";
 import { Registry } from "../registry";
 import { ClipboardPlugin } from "./clipboard";
@@ -16,6 +17,8 @@ import { SelectionInputPlugin } from "./selection_inputs";
 import { FigurePlugin } from "./figures";
 import { SheetPlugin } from "./sheet";
 import { FindAndReplacePlugin } from "./find_and_replace";
+import { DebugPlugin } from "./debug";
+import { SelectionMultiuserPlugin } from "./selection_multiuser";
 
 export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("sheet", SheetPlugin)
@@ -25,6 +28,7 @@ export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("merge", MergePlugin)
   .add("formatting", FormattingPlugin)
   .add("selection", SelectionPlugin)
+  .add("selection_multi", SelectionMultiuserPlugin)
   .add("edition", EditionPlugin)
   .add("highlight", HighlightPlugin)
   .add("selectionInput", SelectionInputPlugin)
@@ -33,4 +37,9 @@ export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("chart", ChartPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
-  .add("find_and_replace", FindAndReplacePlugin);
+  .add("find_and_replace", FindAndReplacePlugin)
+  .add("autofill", AutofillPlugin);
+
+if (owl.config.mode === "dev") {
+}
+pluginRegistry.add("debug", DebugPlugin);

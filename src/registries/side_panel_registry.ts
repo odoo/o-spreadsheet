@@ -1,9 +1,12 @@
+import * as owl from "@odoo/owl";
+
 import { Registry } from "../registry";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { SpreadsheetEnv } from "../types";
 import { ChartPanel } from "../components/side_panel/chart_panel";
 import { _lt } from "../translation";
+import { DebugPanel } from "../components/side_panel/debug";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry
@@ -29,4 +32,11 @@ sidePanelRegistry.add("ChartPanel", {
 sidePanelRegistry.add("FindAndReplace", {
   title: _lt("Find and Replace"),
   Body: FindAndReplacePanel,
+});
+// TODO only in debug mode: does not work
+if (owl.config.mode === "dev") {
+}
+sidePanelRegistry.add("Debug", {
+  title: _lt("Debug 🐞"),
+  Body: DebugPanel,
 });

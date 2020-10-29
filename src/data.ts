@@ -7,7 +7,7 @@ import { normalize } from "./formulas/index";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 6;
+export const CURRENT_VERSION = 7;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -119,6 +119,22 @@ const MIGRATIONS: Migration[] = [
           const cell = sheet.cells[xc];
           if (cell.content && cell.content.startsWith("=")) {
             cell.formula = normalize(cell.content);
+          }
+        }
+      }
+      return data;
+    },
+  },
+  {
+    description: "cells now have a unique id",
+    from: 6,
+    to: 7,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets) {
+        for (let xc in sheet.cells) {
+          const cell = sheet.cells[xc];
+          if (!cell.id) {
+            cell.id = uuidv4();
           }
         }
       }

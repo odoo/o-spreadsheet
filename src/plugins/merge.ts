@@ -59,6 +59,11 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         return this.isPasteAllowed(cmd.target, force);
       case "ADD_MERGE":
         return this.isMergeAllowed(cmd.zone, force);
+      case "UPDATE_CELL":
+        const xc = toXC(cmd.col, cmd.row);
+        return this.getMainCell(xc) === xc
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.CellInMerge };
       default:
         return { status: "SUCCESS" };
     }

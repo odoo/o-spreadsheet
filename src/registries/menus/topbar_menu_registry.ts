@@ -123,6 +123,13 @@ topbarMenuRegistry
     action: ACTIONS.SET_FORMULA_VISIBILITY_ACTION,
     sequence: 10,
   })
+  .addChild("debug", ["view"], {
+    name: _lt("Debug"),
+    action: (env: SpreadsheetEnv) => {
+      env.openSidePanel("Debug");
+    },
+    sequence: 10,
+  })
   .addChild("format_number", ["format"], {
     name: _lt("Numbers"),
     sequence: 10,

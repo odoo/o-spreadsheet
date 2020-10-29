@@ -29,7 +29,7 @@ import { cellReference, rangeTokenize } from "../formulas/index";
 const MIN_PADDING = 3;
 
 export interface SheetState {
-  readonly activeSheet: Sheet;
+  readonly activeSheetId: UID;
   readonly sheets: Record<UID, Sheet | undefined>;
   readonly visibleSheets: UID[];
   readonly sheetIds: Record<string, UID | undefined>;
@@ -64,11 +64,11 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   readonly cellPosition: Record<UID, { col: number; row: number } | undefined> = {};
 
   // activeSheet cannot be made readonly because it is sometimes assigned outside of the context of history
-  activeSheet: Sheet = null as any;
+  activeSheetId: UID = null as any;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
-  private historizeActiveSheet: boolean = true;
+  // private historizeActiveSheet: boolean = true;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -105,7 +105,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
             reason: CancelledReason.InvalidSheetId,
           };
         }
-        this.historizeActiveSheet = false;
+        // this.historizeActiveSheet = false;
         return { status: "SUCCESS" };
       case "CREATE_SHEET":
       case "DUPLICATE_SHEET":
@@ -149,11 +149,11 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         this.clearZones(cmd.sheetId, cmd.target);
         break;
       case "ACTIVATE_SHEET":
-        if (this.historizeActiveSheet) {
-          this.history.update("activeSheet", this.sheets[cmd.sheetIdTo]!);
-        } else {
-          this.activeSheet = this.sheets[cmd.sheetIdTo]!;
-        }
+        this.history.update("activeSheetId", cmd.sheetIdTo);
+        // if (this.historizeActiveSheet) {
+        // } else {
+        //   this.activeSheetId = this.sheets[cmd.sheetIdTo]?.id!;
+        // }
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -165,7 +165,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         this.sheetIds[sheet.name] = sheet.id;
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getters.getActiveSheetId(),
+            sheetIdFrom: this.getActiveSheetId(),
             sheetIdTo: sheet.id,
           });
         }
@@ -257,7 +257,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   }
 
   finalize() {
-    this.historizeActiveSheet = true;
+    // this.historizeActiveSheet = true;
   }
 
   import(data: WorkbookData) {
@@ -271,7 +271,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
-    this.activeSheet = this.sheets[data.activeSheet]!;
+    this.activeSheetId = data.activeSheet;
   }
   importSheet(data: SheetData) {
     let { sheets, visibleSheets } = this;
@@ -304,7 +304,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         figures: [],
       };
     });
-    data.activeSheet = this.getters.getActiveSheetId();
+    data.activeSheet = this.getActiveSheetId();
   }
 
   // ---------------------------------------------------------------------------
@@ -315,11 +315,11 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
    * Returns the id (not the name) of the currently active sheet
    */
   getActiveSheetId(): UID {
-    return this.activeSheet.id;
+    return this.activeSheetId;
   }
 
   getActiveSheet(): Sheet {
-    return this.activeSheet;
+    return this.sheets[this.activeSheetId]!;
   }
 
   getSheet(sheetId: UID): Sheet | undefined {
@@ -385,7 +385,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
    * Returns all the cells of a col
    */
   getColCells(col: number): Cell[] {
-    return this.activeSheet.rows.reduce((acc: Cell[], cur) => {
+    return this.getActiveSheet().rows.reduce((acc: Cell[], cur) => {
       const cell = cur.cells[col];
       return cell !== undefined ? acc.concat(cell) : acc;
     }, []);
@@ -394,7 +394,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   getColsZone(start: number, end: number): Zone {
     return {
       top: 0,
-      bottom: this.getters.getActiveSheet().rows.length - 1,
+      bottom: this.getActiveSheet().rows.length - 1,
       left: start,
       right: end,
     };
@@ -405,12 +405,12 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       top: start,
       bottom: end,
       left: 0,
-      right: this.getters.getActiveSheet().cols.length - 1,
+      right: this.getActiveSheet().cols.length - 1,
     };
   }
 
   getGridSize(): [number, number] {
-    const activeSheet = this.getters.getActiveSheet();
+    const activeSheet = this.getActiveSheet();
     const height = activeSheet.rows[activeSheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
     const width = activeSheet.cols[activeSheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
 
@@ -436,7 +436,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   }
 
   private getRowMaxHeight(index: number): number {
-    const cells = Object.values(this.activeSheet.rows[index].cells);
+    const cells = Object.values(this.getActiveSheet().rows[index].cells);
     const sizes = cells.map(this.getters.getCellHeight);
     return Math.max(0, ...sizes);
   }
@@ -588,7 +588,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update("sheetIds", sheetIds);
     this.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getters.getActiveSheetId(),
+      sheetIdFrom: this.getActiveSheetId(),
       sheetIdTo: toId,
     });
   }

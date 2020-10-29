@@ -55,6 +55,29 @@ describe("core", () => {
       await waitForRecompute();
       expect(model.getters.getAggregate()).toBe("1044");
     });
+
+    test("clear cell", async () => {
+      const model = new Model();
+      setCellContent(model, "A1", "Hello Raoul");
+      const sheetId = model.getters.getActiveSheetId();
+      let cell = model.getters.getCell(sheetId, 0, 0);
+      expect(cell).toBeDefined();
+      const cellId = cell!.id;
+      expect(model.getters.getCellPosition(cell!.id)).toEqual({
+        col: 0,
+        row: 0,
+      });
+      model.dispatch("CLEAR_CELL", {
+        col: 0,
+        row: 0,
+        sheetId: model.getters.getActiveSheetId(),
+      });
+      cell = model.getters.getCell(sheetId, 0, 0);
+      expect(cell).toBeUndefined();
+      expect(() => {
+        model.getters.getCellPosition(cellId);
+      }).toThrow();
+    });
   });
 
   describe("format", () => {

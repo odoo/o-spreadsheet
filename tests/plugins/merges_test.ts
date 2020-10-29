@@ -1,6 +1,6 @@
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Style, Border } from "../../src/types/index";
+import { Style, Border, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
 import { getActiveXc, getCell, getMergeCellMap, getMerges, setCellContent } from "../helpers";
 
@@ -478,14 +478,26 @@ describe("merges", () => {
 
   test("merge, unmerge, select, undo: correct selection", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheetId = model.getters.getVisibleSheets()[0];
+    const zone = toZone("B2:B3");
 
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
+    model.dispatch("ADD_MERGE", { sheetId, zone });
+    model.dispatch("REMOVE_MERGE", { sheetId, zone });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     model.dispatch("UNDO");
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
+  });
+
+  test("Cannot update the content of a cell in a merge which is not the top left", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:A2") });
+    expect(model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 1, content: "Salut" })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.CellInMerge,
+    });
   });
 });
 

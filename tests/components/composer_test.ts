@@ -1,5 +1,12 @@
 import { Model } from "../../src/model";
-import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell, setCellContent } from "../helpers";
+import {
+  nextTick,
+  makeTestFixture,
+  GridParent,
+  getActiveXc,
+  getCell,
+  setCellContent,
+} from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";

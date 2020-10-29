@@ -752,6 +752,7 @@ export const enum CancelledReason {
   InvalidChartDefinition,
   InvalidAutofillSelection,
   WrongComposerSelection,
+  CellInMerge,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

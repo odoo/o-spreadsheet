@@ -16,6 +16,7 @@ import {
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
+import { SynchronizedState } from "./types/multi_user";
 
 /**
  * Model
@@ -50,6 +51,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  synchronizedState?: SynchronizedState;
 }
 
 const enum Status {
@@ -97,7 +99,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    const history = new WHistory();
+    const history = new WHistory(config.synchronizedState);
+    if (config.synchronizedState) {
+      config.synchronizedState.onStateUpdated(() => this.trigger("update"));
+    }
+    // listen syunchrionised state
+    // onUpdate: () => this.trigger("update"),
 
     this.getters = {
       canUndo: history.canUndo.bind(history),
@@ -112,12 +119,15 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
+      synchronizedState: config.synchronizedState,
     };
 
     // registering plugins
-    for (let Plugin of pluginRegistry.getAll()) {
-      this.setupPlugin(Plugin, workbookData);
-    }
+    history.doNotHistorize(() => {
+      for (let Plugin of pluginRegistry.getAll()) {
+        this.setupPlugin(Plugin, workbookData);
+      }
+    });
 
     // starting plugins
     this.dispatch("START");

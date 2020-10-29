@@ -6,6 +6,8 @@ import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/selection";
+import { WebsocketNetwork } from "../multi_user/network";
+import { NetworkSynchronizedState } from "../multi_user/synchronised_state";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -74,6 +76,7 @@ export class Spreadsheet extends Component<Props> {
       this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
+    synchronizedState: new NetworkSynchronizedState(new WebsocketNetwork()),
   });
   grid = useRef("grid");
 
