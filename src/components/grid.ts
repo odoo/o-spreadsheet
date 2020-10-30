@@ -56,6 +56,7 @@ interface ErrorTooltip {
   text: string;
   style: string;
 }
+
 function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): ErrorTooltip {
   const { browser, getters } = env;
   const { Date, setInterval, clearInterval } = browser;
@@ -66,17 +67,20 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
   const canvasRef = useRef("canvas");
   const tooltip = useState({ isOpen: false, text: "", style: "" });
   let interval;
+
   function updateMousePosition(e: MouseEvent) {
     x = e.offsetX;
     y = e.offsetY;
     lastMoved = Date.now();
   }
+
   function getPosition(): [number, number] {
     const viewport = getViewPort();
     const col = getters.getColIndex(x, viewport.left);
     const row = getters.getRowIndex(y, viewport.top);
     return [col, row];
   }
+
   function checkTiming() {
     if (tooltip.isOpen) {
       const [col, row] = getPosition();
@@ -132,15 +136,18 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
   const canvasRef = useRef("canvas");
   let x = null as number | null;
   let y = null as number | null;
+
   function onTouchStart(ev: TouchEvent) {
     if (ev.touches.length !== 1) return;
     x = ev.touches[0].clientX;
     y = ev.touches[0].clientY;
   }
+
   function onTouchEnd() {
     x = null;
     y = null;
   }
+
   function onTouchMove(ev: TouchEvent) {
     if (ev.touches.length !== 1) return;
     // On mobile browsers, swiping down is often associated with "pull to refresh".
@@ -156,6 +163,7 @@ function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMove
     x = currentX;
     y = currentY;
   }
+
   onMounted(() => {
     canvasRef.el!.addEventListener("touchstart", onTouchStart);
     canvasRef.el!.addEventListener("touchend", onTouchEnd);
@@ -345,6 +353,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   patched() {
     this.drawGrid();
   }
+
   focus() {
     if (!this.getters.isSelectingForComposer() && !this.getters.getSelectedFigureId()) {
       this.canvas.el!.focus();
@@ -379,18 +388,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
 
   getAutofillPosition() {
     const zone = this.getters.getSelectedZone();
-    const sheet = this.getters.getActiveSheetId();
+    const sheet = this.getters.getActiveSheet();
     return {
-      left:
-        this.getters.getCol(sheet, zone.right)!.end -
-        4 +
-        HEADER_WIDTH -
-        this.snappedViewport.offsetX,
-      top:
-        this.getters.getRow(sheet, zone.bottom)!.end -
-        4 +
-        HEADER_HEIGHT -
-        this.snappedViewport.offsetY,
+      left: sheet.cols[zone.right].end - 4 + HEADER_WIDTH - this.snappedViewport.offsetX,
+      top: sheet.rows[zone.bottom].end - 4 + HEADER_HEIGHT - this.snappedViewport.offsetY,
     };
   }
 
@@ -442,6 +443,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
     }
+
     const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
     const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
     this.moveCanvas(normalize(deltaX), normalize(deltaY));
@@ -511,6 +513,7 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
       this.dispatch("START_EDITION");
     }
   }
+
   // ---------------------------------------------------------------------------
   // Keyboard interactions
   // ---------------------------------------------------------------------------
