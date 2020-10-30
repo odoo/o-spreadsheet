@@ -1,11 +1,11 @@
 import { Model } from "../../src/model";
-import { BorderCommand } from "../../src/types/index";
+import { BorderCommand, Border } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
 
-function getBorder(model: Model, xc: string) {
+function getBorder(model: Model, xc: string): Border | null {
   const cell = model.getters.getCells()[xc];
-  return model.getters.getCellBorder(cell);
+  return cell ? model.getters.getCellBorder(cell) : null;
 }
 
 function setBorder(model: Model, command: BorderCommand) {

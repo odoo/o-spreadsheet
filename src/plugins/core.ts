@@ -37,13 +37,19 @@ import {
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 const MIN_PADDING = 3;
 
+export interface CoreState {
+  readonly activeSheet: Sheet;
+  readonly sheets: Record<UID, Sheet>;
+  readonly visibleSheets: UID[];
+  readonly sheetIds: { [name: string]: UID };
+}
 /**
  * Core Plugin
  *
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CorePlugin extends BasePlugin {
+export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   static getters = [
     "applyOffset",
     "getColsZone",
@@ -69,11 +75,11 @@ export class CorePlugin extends BasePlugin {
     "getRangeFormattedValues",
   ];
 
-  private sheetIds: { [name: string]: UID } = {};
   private showFormulas: boolean = false;
-  private visibleSheets: UID[] = []; // ids of visible sheets
-  private sheets: Record<UID, Sheet> = {};
-  private activeSheet: Sheet = null as any;
+  readonly sheetIds: { [name: string]: UID } = {};
+  readonly visibleSheets: UID[] = []; // ids of visible sheets
+  readonly sheets: Record<UID, Sheet> = {};
+  activeSheet: Sheet = null as any;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
@@ -127,7 +133,7 @@ export class CorePlugin extends BasePlugin {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         if (this.historizeActiveSheet) {
-          this.history.update(["activeSheet"], this.sheets[cmd.sheetIdTo]);
+          this.history.update("activeSheet", this.sheets[cmd.sheetIdTo]);
         } else {
           this.activeSheet = this.sheets[cmd.sheetIdTo];
         }
@@ -221,30 +227,28 @@ export class CorePlugin extends BasePlugin {
       case "REMOVE_COLUMNS":
         this.removeColumns(cmd.sheetId, cmd.columns);
         this.history.update(
-          ["sheets", cmd.sheetId, "colNumber"],
+          "sheets",
+          cmd.sheetId,
+          "colNumber",
           this.sheets[cmd.sheetId].colNumber - cmd.columns.length
         );
         break;
       case "REMOVE_ROWS":
         this.removeRows(cmd.sheetId, cmd.rows);
         this.history.update(
-          ["sheets", cmd.sheetId, "rowNumber"],
+          "sheets",
+          cmd.sheetId,
+          "rowNumber",
           this.sheets[cmd.sheetId].rowNumber - cmd.rows.length
         );
         break;
       case "ADD_COLUMNS":
         this.addColumns(cmd.sheetId, cmd.column, cmd.position, cmd.quantity);
-        this.history.update(
-          ["activeSheet", "colNumber"],
-          this.activeSheet.colNumber + cmd.quantity
-        );
+        this.history.update("activeSheet", "colNumber", this.activeSheet.colNumber + cmd.quantity);
         break;
       case "ADD_ROWS":
         this.addRows(cmd.sheetId, cmd.row, cmd.position, cmd.quantity);
-        this.history.update(
-          ["activeSheet", "rowNumber"],
-          this.activeSheet.rowNumber + cmd.quantity
-        );
+        this.history.update("activeSheet", "rowNumber", this.activeSheet.rowNumber + cmd.quantity);
         break;
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
@@ -379,7 +383,7 @@ export class CorePlugin extends BasePlugin {
     return this.sheets;
   }
 
-  getCells(): { [key: string]: Cell } {
+  getCells(): Record<UID, Cell | undefined> {
     return this.activeSheet.cells;
   }
 
@@ -395,10 +399,10 @@ export class CorePlugin extends BasePlugin {
    * Returns all the cells of a col
    */
   getColCells(col: number): Cell[] {
-    return this.activeSheet.rows.reduce(
-      (acc: Cell[], cur) => (cur.cells[col] ? acc.concat(cur.cells[col]) : acc),
-      []
-    );
+    return this.activeSheet.rows.reduce((acc: Cell[], cur) => {
+      const cell = cur.cells[col];
+      return cell !== undefined ? acc.concat(cell) : acc;
+    }, []);
   }
 
   getColsZone(start: number, end: number): Zone {
@@ -448,10 +452,7 @@ export class CorePlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   private getColMaxWidth(index: number): number {
-    const cells = this.activeSheet.rows.reduce(
-      (acc: Cell[], cur) => (cur.cells[index] ? acc.concat(cur.cells[index]) : acc),
-      []
-    );
+    const cells = this.getColCells(index);
     const sizes = cells.map(this.getters.getCellWidth);
     return Math.max(0, ...sizes);
   }
@@ -466,12 +467,12 @@ export class CorePlugin extends BasePlugin {
     const cols = this.sheets[sheetId].cols;
     const col = cols[index];
     const delta = size - col.size;
-    this.history.update(["sheets", sheetId, "cols", index, "size"], size);
-    this.history.update(["sheets", sheetId, "cols", index, "end"], col.end + delta);
+    this.history.update("sheets", sheetId, "cols", index, "size", size);
+    this.history.update("sheets", sheetId, "cols", index, "end", col.end + delta);
     for (let i = index + 1; i < cols.length; i++) {
       const col = cols[i];
-      this.history.update(["sheets", sheetId, "cols", i, "start"], col.start + delta);
-      this.history.update(["sheets", sheetId, "cols", i, "end"], col.end + delta);
+      this.history.update("sheets", sheetId, "cols", i, "start", col.start + delta);
+      this.history.update("sheets", sheetId, "cols", i, "end", col.end + delta);
     }
   }
 
@@ -479,12 +480,12 @@ export class CorePlugin extends BasePlugin {
     const rows = this.sheets[sheetId].rows;
     const row = rows[index];
     const delta = size - row.size;
-    this.history.update(["sheets", sheetId, "rows", index, "size"], size);
-    this.history.update(["sheets", sheetId, "rows", index, "end"], row.end + delta);
+    this.history.update("sheets", sheetId, "rows", index, "size", size);
+    this.history.update("sheets", sheetId, "rows", index, "end", row.end + delta);
     for (let i = index + 1; i < rows.length; i++) {
       const row = rows[i];
-      this.history.update(["sheets", sheetId, "rows", i, "start"], row.start + delta);
-      this.history.update(["sheets", sheetId, "rows", i, "end"], row.end + delta);
+      this.history.update("sheets", sheetId, "rows", i, "start", row.start + delta);
+      this.history.update("sheets", sheetId, "rows", i, "end", row.end + delta);
     }
   }
 
@@ -681,7 +682,7 @@ export class CorePlugin extends BasePlugin {
       start += size;
       colIndex++;
     }
-    this.history.update(["sheets", sheetId, "cols"], cols);
+    this.history.update("sheets", sheetId, "cols", cols);
   }
 
   private processRowsHeaderDelete(index: number, sheetId: UID) {
@@ -706,7 +707,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.update(["sheets", sheetId, "rows"], rows);
+    this.history.update("sheets", sheetId, "rows", rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -730,7 +731,7 @@ export class CorePlugin extends BasePlugin {
       });
       start += size;
     }
-    this.history.update(["activeSheet", "rows"], rows);
+    this.history.update("activeSheet", "rows", rows);
   }
 
   private addEmptyRow() {
@@ -745,8 +746,7 @@ export class CorePlugin extends BasePlugin {
       name,
       cells: {},
     });
-    const path = ["activeSheet", "rows"];
-    this.history.update(path, newRows);
+    this.history.update("activeSheet", "rows", newRows);
   }
 
   private updateColumnsFormulas(base: number, step: number, sheetId: UID) {
@@ -786,7 +786,7 @@ export class CorePlugin extends BasePlugin {
 
     for (let xc in sheet.cells) {
       let cell = sheet.cells[xc];
-      if (shouldDelete(cell)) {
+      if (cell !== undefined && shouldDelete(cell)) {
         const [col, row] = toCartesian(xc);
         deleteCommands.push({
           type: "CLEAR_CELL",
@@ -827,8 +827,8 @@ export class CorePlugin extends BasePlugin {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        this.history.update(["sheets", sheetId, "cells", xc], undefined);
-        this.history.update(["sheets", sheetId, "rows", row, "cells", col], undefined);
+        this.history.update("sheets", sheetId, "cells", xc, undefined);
+        this.history.update("sheets", sheetId, "rows", row, "cells", col, undefined);
       }
       return;
     }
@@ -896,8 +896,8 @@ export class CorePlugin extends BasePlugin {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    this.history.update(["sheets", sheetId, "cells", xc], cell);
-    this.history.update(["sheets", sheetId, "rows", row, "cells", col], cell);
+    this.history.update("sheets", sheetId, "cells", xc, cell);
+    this.history.update("sheets", sheetId, "rows", row, "cells", col, cell);
   }
 
   private generateSheetName(): string {
@@ -926,8 +926,8 @@ export class CorePlugin extends BasePlugin {
     const index = visibleSheets.findIndex((id) => this.getters.getActiveSheetId() === id);
     visibleSheets.splice(index + 1, 0, sheet.id);
     const sheets = this.sheets;
-    this.history.update(["visibleSheets"], visibleSheets);
-    this.history.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
+    this.history.update("visibleSheets", visibleSheets);
+    this.history.update("sheets", Object.assign({}, sheets, { [sheet.id]: sheet }));
     return sheet.id;
   }
 
@@ -936,7 +936,7 @@ export class CorePlugin extends BasePlugin {
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
     const sheet = visibleSheets.splice(currentIndex, 1);
     visibleSheets.splice(currentIndex + (direction === "left" ? -1 : 1), 0, sheet[0]);
-    this.history.update(["visibleSheets"], visibleSheets);
+    this.history.update("visibleSheets", visibleSheets);
   }
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
@@ -969,11 +969,11 @@ export class CorePlugin extends BasePlugin {
   private renameSheet(sheetId: UID, name: string) {
     const sheet = this.sheets[sheetId];
     const oldName = sheet.name;
-    this.history.update(["sheets", sheetId, "name"], name.trim());
+    this.history.update("sheets", sheetId, "name", name.trim());
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[name] = sheet.id;
     delete sheetIds[oldName];
-    this.history.update(["sheetIds"], sheetIds);
+    this.history.update("sheetIds", sheetIds);
     this.visitAllFormulasSymbols((value: string) => {
       let [val, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
@@ -997,12 +997,12 @@ export class CorePlugin extends BasePlugin {
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === fromId);
     visibleSheets.splice(currentIndex + 1, 0, newSheet.id);
-    this.history.update(["visibleSheets"], visibleSheets);
-    this.history.update(["sheets"], Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
+    this.history.update("visibleSheets", visibleSheets);
+    this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
-    this.history.update(["sheetIds"], sheetIds);
+    this.history.update("sheetIds", sheetIds);
     this.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: this.getters.getActiveSheetId(),
       sheetIdTo: toId,
@@ -1019,16 +1019,16 @@ export class CorePlugin extends BasePlugin {
     const name = this.sheets[sheetId].name;
     const sheets = Object.assign({}, this.sheets);
     delete sheets[sheetId];
-    this.history.update(["sheets"], sheets);
+    this.history.update("sheets", sheets);
 
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
     visibleSheets.splice(currentIndex, 1);
-    this.history.update(["visibleSheets"], visibleSheets);
+    this.history.update("visibleSheets", visibleSheets);
 
     const sheetIds = Object.assign({}, this.sheetIds);
     delete sheetIds[name];
-    this.history.update(["sheetIds"], sheetIds);
+    this.history.update("sheetIds", sheetIds);
     this.visitAllFormulasSymbols((value: string) => {
       let [, sheetRef] = value.split("!").reverse();
       if (sheetRef) {
@@ -1049,12 +1049,11 @@ export class CorePlugin extends BasePlugin {
 
   private clearZones(sheetId: UID, zones: Zone[]) {
     // TODO: get cells from the actual sheet
-    const cells = this.getters.getCells();
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          const xc = toXC(col, row);
-          if (xc in cells) {
+          const cell = this.getters.getCell(col, row);
+          if (cell !== null) {
             this.dispatch("UPDATE_CELL", {
               sheetId: sheetId,
               content: "",
@@ -1292,7 +1291,7 @@ export class CorePlugin extends BasePlugin {
     for (let sheetId in this.sheets) {
       const sheet = this.sheets[sheetId];
       for (let [xc, cell] of Object.entries(sheet.cells)) {
-        if (cell.type === "formula") {
+        if (cell !== undefined && cell.type === "formula") {
           const content = rangeTokenize(cell.content!)
             .map((t) => {
               if (t.type === "SYMBOL" && cellReference.test(t.value)) {
@@ -1370,8 +1369,8 @@ export class CorePlugin extends BasePlugin {
     };
     visibleSheets = visibleSheets.slice();
     visibleSheets.push(sheet.id);
-    this.history.update(["visibleSheets"], visibleSheets);
-    this.history.update(["sheets"], Object.assign({}, sheets, { [sheet.id]: sheet }));
+    this.history.update("visibleSheets", visibleSheets);
+    this.history.update("sheets", Object.assign({}, sheets, { [sheet.id]: sheet }));
     // cells
     for (let xc in data.cells) {
       const cell = data.cells[xc];
@@ -1385,17 +1384,19 @@ export class CorePlugin extends BasePlugin {
       const sheet = this.sheets[id];
       const cells: { [key: string]: CellData } = {};
       for (let [key, cell] of Object.entries(sheet.cells)) {
-        cells[key] = {
-          content: cell.content,
-          border: cell.border,
-          style: cell.style,
-          format: cell.format,
-        };
-        if (cell.type === "formula" && cell.formula) {
-          cells[key].formula = {
-            text: cell.formula.text || "",
-            dependencies: cell.formula.dependencies.slice() || [],
+        if (cell !== undefined) {
+          cells[key] = {
+            content: cell.content,
+            border: cell.border,
+            style: cell.style,
+            format: cell.format,
           };
+          if (cell.type === "formula" && cell.formula) {
+            cells[key].formula = {
+              text: cell.formula.text || "",
+              dependencies: cell.formula.dependencies.slice() || [],
+            };
+          }
         }
       }
       return {

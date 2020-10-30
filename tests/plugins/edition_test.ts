@@ -11,7 +11,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "a" });
     model.dispatch("STOP_EDITION");
     expect(Object.keys(model.getters.getCells())).toEqual(["A1"]);
-    expect(model.getters.getCells()["A1"].content).toBe("a");
+    expect(model.getters.getCells()["A1"]!.content).toBe("a");
 
     // removing
     model.dispatch("START_EDITION");
@@ -35,14 +35,14 @@ describe("edition", () => {
     });
 
     // removing
-    expect(model.getters.getCells()["A2"].content).toBe("a2");
+    expect(model.getters.getCells()["A2"]!.content).toBe("a2");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect("A2" in model.getters.getCells()).toBeTruthy();
-    expect(model.getters.getCells()["A2"].content).toBe("");
+    expect(model.getters.getCells()["A2"]!.content).toBe("");
   });
 
   test("editing a cell, then activating a new sheet: edition should be stopped", () => {

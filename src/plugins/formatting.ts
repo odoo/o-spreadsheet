@@ -586,9 +586,8 @@ export class FormattingPlugin extends BasePlugin {
   private getFormat(xc: string): FormatInfo {
     const format: FormatInfo = {};
     xc = this.getters.getMainCell(xc);
-    const cells = this.getters.getCells();
-    if (xc in cells) {
-      const cell = cells[xc];
+    const cell = this.getters.getCell(...toCartesian(xc));
+    if (cell !== null) {
       if (cell.border) {
         format["border"] = cell.border;
       }

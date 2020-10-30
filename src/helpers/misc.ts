@@ -36,4 +36,12 @@ export function clip(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
 }
 
+/**
+ * This helper function can be used as a type guard when filtering arrays.
+ * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)
+ */
+export function isDefined<T>(argument: T | undefined): argument is T {
+  return argument !== undefined;
+}
+
 export const DEBUG: { [key: string]: any } = {};

@@ -596,15 +596,15 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: '="test"' });
 
-    expect(model.getters.getCells()["B2"].content).toEqual('="test"');
-    expect(model.getters.getCells()["B2"].value).toEqual("test");
+    expect(model.getters.getCells()["B2"]!.content).toEqual('="test"');
+    expect(model.getters.getCells()["B2"]!.value).toEqual("test");
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
-    expect(model.getters.getCells()["B2"].content).toEqual('="test"');
-    expect(model.getters.getCells()["B2"].value).toEqual("test");
-    expect(model.getters.getCells()["D2"].content).toEqual('="test"');
-    expect(model.getters.getCells()["D2"].value).toEqual("test");
+    expect(model.getters.getCells()["B2"]!.content).toEqual('="test"');
+    expect(model.getters.getCells()["B2"]!.value).toEqual("test");
+    expect(model.getters.getCells()["D2"]!.content).toEqual('="test"');
+    expect(model.getters.getCells()["D2"]!.value).toEqual("test");
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 

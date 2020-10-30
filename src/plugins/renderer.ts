@@ -420,9 +420,8 @@ export class RendererPlugin extends BasePlugin {
   }
 
   private hasContent(col: number, row: number): boolean {
-    const cells = this.getters.getCells();
+    const cell = this.getters.getCell(col, row);
     const xc = toXC(col, row);
-    const cell = cells[xc];
     return (cell && cell.content) || (this.getters.isInMerge(xc) as any);
   }
 
@@ -433,12 +432,12 @@ export class RendererPlugin extends BasePlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows, cells } = this.getters.getActiveSheet();
+    const { cols, rows } = this.getters.getActiveSheet();
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
-        let cell = row.cells[colNumber];
+        let cell = this.getters.getCell(colNumber, rowNumber);
         if (cell && !this.getters.isInMerge(cell.xc)) {
           let col = cols[colNumber];
           const text = this.getters.getCellText(cell);
@@ -495,17 +494,24 @@ export class RendererPlugin extends BasePlugin {
     // process all visible merges
     for (let merge of this.getters.getMerges(activeSheet)) {
       if (overlap(merge, viewport)) {
-        const refCell = cells[merge.topLeft];
-        const bottomRight = cells[toXC(merge.right, merge.bottom)];
+        const refCell = this.getters.getCell(merge.left, merge.top);
+        const bottomRight = this.getters.getCell(merge.right, merge.bottom);
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
-        if (refCell || bottomRight) {
-          text = refCell ? this.getters.getCellText(refCell) : "";
-          textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
-          style = refCell ? this.getters.getCellStyle(refCell) : null;
-          align = text
-            ? (style && style.align) || computeAlign(refCell, this.getters.shouldShowFormulas())
-            : null;
+        if (refCell !== null || bottomRight !== null) {
+          if (refCell !== null) {
+            text = this.getters.getCellText(refCell);
+            textWidth = this.getters.getCellWidth(refCell);
+            style = this.getters.getCellStyle(refCell);
+            align = text
+              ? (style && style.align) || computeAlign(refCell, this.getters.shouldShowFormulas())
+              : null;
+          } else {
+            text = "";
+            textWidth = null;
+            style = null;
+            align = null;
+          }
           const borderTopLeft = refCell ? this.getters.getCellBorder(refCell) : null;
           const borderBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
           border = {

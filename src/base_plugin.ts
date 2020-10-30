@@ -11,6 +11,18 @@ import {
   CommandResult,
 } from "./types/index";
 
+export interface PluginConstuctor {
+  new (
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ): BasePlugin;
+  layers: LAYERS[];
+  getters: string[];
+  modes: Mode[];
+}
+
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 /**
  * BasePlugin
@@ -22,13 +34,13 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
  * how each of these model sub parts should interact with each other.
  */
 
-export class BasePlugin implements CommandHandler {
+export class BasePlugin<State = any> implements CommandHandler {
   static layers: LAYERS[] = [];
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
   protected getters: Getters;
-  protected history: WorkbookHistory;
+  protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
   protected ui: UIActions;
