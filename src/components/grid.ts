@@ -382,12 +382,12 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const sheet = this.getters.getActiveSheetId();
     return {
       left:
-        this.getters.getCol(sheet, zone.right).end -
+        this.getters.getCol(sheet, zone.right)!.end -
         4 +
         HEADER_WIDTH -
         this.snappedViewport.offsetX,
       top:
-        this.getters.getRow(sheet, zone.bottom).end -
+        this.getters.getRow(sheet, zone.bottom)!.end -
         4 +
         HEADER_HEIGHT -
         this.snappedViewport.offsetY,

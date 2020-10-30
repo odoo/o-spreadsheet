@@ -703,6 +703,7 @@ export const enum CancelledReason {
   WrongPasteSelection,
   EmptyClipboard,
   InvalidRange,
+  InvalidSheetId,
   InputAlreadyFocused,
   MaximumRangesReached,
   InvalidChartDefinition,

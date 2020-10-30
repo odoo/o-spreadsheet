@@ -81,6 +81,22 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
   });
 
+  test("Cannot delete an invalid sheet", async () => {
+    const model = new Model();
+    expect(model.dispatch("DELETE_SHEET", { sheetId: "invalid" })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
+  });
+
+  test("Cannot delete an invalid sheet; confirmation", async () => {
+    const model = new Model();
+    expect(model.dispatch("DELETE_SHEET_CONFIRMATION", { sheetId: "invalid" })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
+  });
+
   test("can read a value in same sheet", () => {
     const model = new Model();
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
@@ -107,6 +123,18 @@ describe("sheets", () => {
     model.dispatch("SET_VALUE", { xc: "A1", text: "=Sheet133!A1" });
 
     expect(getCell(model, "A1")!.value).toBe("#ERROR");
+  });
+
+  test("cannot activate an invalid sheet", () => {
+    const model = new Model();
+    const result = model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: model.getters.getActiveSheetId(),
+      sheetIdTo: "INVALID ID",
+    });
+    expect(result).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
   });
 
   test("evaluating multiple sheets", () => {
@@ -294,6 +322,19 @@ describe("sheets", () => {
     const name = "NEW_NAME";
     model.dispatch("RENAME_SHEET", { sheetId: sheet, name });
     expect(model.getters.getSheets().find((s) => s.id === sheet)!.name).toBe(name);
+  });
+
+  test("Cannot rename an invalid sheet", async () => {
+    const model = new Model();
+    expect(
+      model.dispatch("RENAME_SHEET", {
+        sheetId: "invalid",
+        name: "hello",
+      })
+    ).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
   });
 
   test("New sheet name is trimmed", () => {
@@ -568,8 +609,8 @@ describe("sheets", () => {
     model.dispatch("RESIZE_ROWS", { rows: [0], size: 1, sheetId: sheet });
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
-    expect(model.getters.getCol(model.getters.getActiveSheetId(), 0).size).not.toBe(1);
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 0).size).not.toBe(1);
+    expect(model.getters.getCol(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).not.toBe(1);
   });
 
   test("Merges are correctly duplicated", () => {

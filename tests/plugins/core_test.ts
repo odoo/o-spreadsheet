@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import { waitForRecompute, getCell } from "../helpers";
 import { LOADING } from "../../src/plugins/evaluation";
+import { CancelledReason } from "../../src/types";
 
 describe("core", () => {
   describe("aggregate", () => {
@@ -218,8 +219,8 @@ describe("core", () => {
       ],
     });
     expect(model.getters.getActiveSheetId()).not.toBe("2");
-    expect(model.getters.getSheet("2").rowNumber).toEqual(29);
-    expect(model.getters.getSheet("2").colNumber).toEqual(19);
+    expect(model.getters.getSheet("2")!.rowNumber).toEqual(29);
+    expect(model.getters.getSheet("2")!.colNumber).toEqual(19);
   });
 });
 
@@ -377,6 +378,20 @@ describe("history", () => {
     expect(model.getters.shouldShowFormulas()).toBe(false);
   });
 
+  test("Cannot update a cell in invalid sheet", async () => {
+    const model = new Model();
+    expect(
+      model.dispatch("UPDATE_CELL", {
+        sheetId: "invalid",
+        col: 1,
+        row: 1,
+        content: "hello",
+      })
+    ).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
+  });
   describe("getters", () => {
     test("getRangeFormattedValues", () => {
       const sheet1Id = "42";

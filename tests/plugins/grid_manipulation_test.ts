@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { getCell, getMergeCellMap, getMerges, getSheet, makeTestFixture } from "../helpers";
+import { CancelledReason } from "../../src/types";
 let model: Model;
 
 function undo() {
@@ -120,6 +121,17 @@ describe("Clear columns", () => {
       C2: { content: "", border: 1 },
     });
   });
+  test("cannot delete column in invalid sheet", () => {
+    expect(
+      model.dispatch("REMOVE_COLUMNS", {
+        columns: [0],
+        sheetId: "INVALID",
+      })
+    ).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
+  });
 });
 
 describe("Clear rows", () => {
@@ -154,6 +166,17 @@ describe("Clear rows", () => {
       B1: { content: "B1" },
       C1: { content: "C1" },
       C2: { content: "", style: 1 },
+    });
+  });
+  test("cannot delete row in invalid sheet", () => {
+    expect(
+      model.dispatch("REMOVE_ROWS", {
+        rows: [0],
+        sheetId: "INVALID",
+      })
+    ).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
     });
   });
 });
@@ -242,6 +265,19 @@ describe("Columns", () => {
         { start: size + 70, end: 2 * size + 70, size, name: "F" },
       ]);
       expect(model.getters.getActiveSheet().colNumber).toBe(6);
+    });
+    test("On addition in invalid sheet", () => {
+      expect(
+        model.dispatch("ADD_COLUMNS", {
+          column: 0,
+          position: "after",
+          quantity: 1,
+          sheetId: "INVALID",
+        })
+      ).toEqual({
+        status: "CANCELLED",
+        reason: CancelledReason.InvalidSheetId,
+      });
     });
   });
 
@@ -839,6 +875,19 @@ describe("Rows", () => {
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 144]);
       expect(model.getters.getActiveSheet().rowNumber).toBe(6);
+    });
+    test("cannot delete column in invalid sheet", () => {
+      expect(
+        model.dispatch("ADD_ROWS", {
+          row: 0,
+          position: "after",
+          quantity: 1,
+          sheetId: "INVALID",
+        })
+      ).toEqual({
+        status: "CANCELLED",
+        reason: CancelledReason.InvalidSheetId,
+      });
     });
 
     test("activate Sheet: same size", () => {

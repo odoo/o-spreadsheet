@@ -102,11 +102,11 @@ export class AutofillPlugin extends BasePlugin {
         this.lastCellSelected.col =
           cmd.col === -1
             ? this.lastCellSelected.col
-            : clip(cmd.col, 0, this.getters.getSheet(sheetId).colNumber);
+            : clip(cmd.col, 0, this.getters.getSheet(sheetId)!.colNumber);
         this.lastCellSelected.row =
           cmd.row === -1
             ? this.lastCellSelected.row
-            : clip(cmd.row, 0, this.getters.getSheet(sheetId).rowNumber);
+            : clip(cmd.row, 0, this.getters.getSheet(sheetId)!.rowNumber);
         if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
           return { status: "SUCCESS" };
         }
