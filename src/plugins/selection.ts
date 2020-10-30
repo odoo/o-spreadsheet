@@ -236,6 +236,7 @@ export class SelectionPlugin extends BasePlugin {
     for (let zone of this.selection.zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const r = this.getters.getRow(this.getters.getActiveSheetId(), row);
+        if (r === undefined) continue;
         for (let col = zone.left; col <= zone.right; col++) {
           const cell = r.cells[col];
           if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {

@@ -14,6 +14,7 @@ import {
   toZone,
   mapCellsInZone,
   getComposerSheetName,
+  isDefined,
 } from "../helpers/index";
 import { _lt } from "../translation";
 import {
@@ -39,9 +40,9 @@ const MIN_PADDING = 3;
 
 export interface CoreState {
   readonly activeSheet: Sheet;
-  readonly sheets: Record<UID, Sheet>;
+  readonly sheets: Record<UID, Sheet | undefined>;
   readonly visibleSheets: UID[];
-  readonly sheetIds: { [name: string]: UID };
+  readonly sheetIds: Record<string, UID | undefined>;
 }
 /**
  * Core Plugin
@@ -76,9 +77,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   ];
 
   private showFormulas: boolean = false;
-  readonly sheetIds: { [name: string]: UID } = {};
+  readonly sheetIds: Record<string, UID | undefined> = {};
   readonly visibleSheets: UID[] = []; // ids of visible sheets
-  readonly sheets: Record<UID, Sheet> = {};
+  readonly sheets: Record<UID, Sheet | undefined> = {};
   activeSheet: Sheet = null as any;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
@@ -91,21 +92,48 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "REMOVE_COLUMNS":
+      case "REMOVE_ROWS":
+      case "ADD_ROWS":
+      case "ADD_COLUMNS":
+      case "RESIZE_COLUMNS":
+      case "RESIZE_ROWS":
+      case "AUTORESIZE_COLUMNS":
+      case "AUTORESIZE_ROWS":
+      case "UPDATE_CELL":
+      case "RENAME_SHEET":
+      case "DELETE_SHEET":
+      case "DELETE_SHEET_CONFIRMATION":
+        if (this.sheets[cmd.sheetId] === undefined) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.InvalidSheetId,
+          };
+        }
+    }
+    switch (cmd.type) {
       case "ACTIVATE_SHEET":
         this.historizeActiveSheet = false;
+        if (this.sheets[cmd.sheetIdTo] === undefined) {
+          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+        }
         return { status: "SUCCESS" };
-      case "REMOVE_COLUMNS":
-        return this.sheets[cmd.sheetId].cols.length > cmd.columns.length
+      case "REMOVE_COLUMNS": {
+        const sheet = this.sheets[cmd.sheetId];
+        return sheet && sheet.cols.length > cmd.columns.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
-      case "REMOVE_ROWS":
-        return this.sheets[cmd.sheetId].rows.length > cmd.rows.length
+      }
+      case "REMOVE_ROWS": {
+        const sheet = this.sheets[cmd.sheetId];
+        return sheet && sheet.rows.length > cmd.rows.length
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.NotEnoughRows };
+      }
       case "CREATE_SHEET":
       case "DUPLICATE_SHEET":
         const { visibleSheets, sheets } = this;
-        return !cmd.name || !visibleSheets.find((id) => sheets[id].name === cmd.name)
+        return !cmd.name || !visibleSheets.find((id) => sheets[id]?.name === cmd.name)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
       case "MOVE_SHEET":
@@ -133,9 +161,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         if (this.historizeActiveSheet) {
-          this.history.update("activeSheet", this.sheets[cmd.sheetIdTo]);
+          this.history.update("activeSheet", this.sheets[cmd.sheetIdTo]!);
         } else {
-          this.activeSheet = this.sheets[cmd.sheetIdTo];
+          this.activeSheet = this.sheets[cmd.sheetIdTo]!;
         }
         break;
       case "CREATE_SHEET":
@@ -145,11 +173,11 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           cmd.cols || 26,
           cmd.rows || 100
         );
-        this.sheetIds[this.sheets[sheet].name] = sheet;
+        this.sheetIds[sheet.name] = sheet.id;
         if (cmd.activate) {
           this.dispatch("ACTIVATE_SHEET", {
             sheetIdFrom: this.getters.getActiveSheetId(),
-            sheetIdTo: sheet,
+            sheetIdTo: sheet.id,
           });
         }
         break;
@@ -158,9 +186,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
-          this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
+          this.interactiveRenameSheet(this.sheets[cmd.sheetId]!, _lt("Rename Sheet"));
         } else {
-          this.renameSheet(cmd.sheetId, cmd.name!);
+          this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
         }
         break;
       case "DUPLICATE_SHEET":
@@ -170,7 +198,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         this.interactiveDeleteSheet(cmd.sheetId);
         break;
       case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheetId);
+        this.deleteSheet(this.sheets[cmd.sheetId]!);
         break;
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
@@ -185,7 +213,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         });
         break;
       case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
+        this.updateCell(this.sheets[cmd.sheetId]!, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
@@ -202,7 +230,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         for (let col of cmd.cols) {
           const size = this.getColMaxWidth(col);
           if (size !== 0) {
-            this.setColSize(cmd.sheetId, col, size + 2 * MIN_PADDING);
+            this.setColSize(this.sheets[cmd.sheetId]!, col, size + 2 * MIN_PADDING);
           }
         }
         break;
@@ -210,44 +238,44 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         for (let col of cmd.rows) {
           const size = this.getRowMaxHeight(col);
           if (size !== 0) {
-            this.setRowSize(cmd.sheetId, col, size + 2 * MIN_PADDING);
+            this.setRowSize(this.sheets[cmd.sheetId]!, col, size + 2 * MIN_PADDING);
           }
         }
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.cols) {
-          this.setColSize(cmd.sheetId, col, cmd.size);
+          this.setColSize(this.sheets[cmd.sheetId]!, col, cmd.size);
         }
         break;
       case "RESIZE_ROWS":
         for (let row of cmd.rows) {
-          this.setRowSize(cmd.sheetId, row, cmd.size);
+          this.setRowSize(this.sheets[cmd.sheetId]!, row, cmd.size);
         }
         break;
       case "REMOVE_COLUMNS":
-        this.removeColumns(cmd.sheetId, cmd.columns);
+        this.removeColumns(this.sheets[cmd.sheetId]!, cmd.columns);
         this.history.update(
           "sheets",
           cmd.sheetId,
           "colNumber",
-          this.sheets[cmd.sheetId].colNumber - cmd.columns.length
+          this.sheets[cmd.sheetId]!.colNumber - cmd.columns.length
         );
         break;
       case "REMOVE_ROWS":
-        this.removeRows(cmd.sheetId, cmd.rows);
+        this.removeRows(this.sheets[cmd.sheetId]!, cmd.rows);
         this.history.update(
           "sheets",
           cmd.sheetId,
           "rowNumber",
-          this.sheets[cmd.sheetId].rowNumber - cmd.rows.length
+          this.sheets[cmd.sheetId]!.rowNumber - cmd.rows.length
         );
         break;
       case "ADD_COLUMNS":
-        this.addColumns(cmd.sheetId, cmd.column, cmd.position, cmd.quantity);
+        this.addColumns(this.sheets[cmd.sheetId]!, cmd.column, cmd.position, cmd.quantity);
         this.history.update("activeSheet", "colNumber", this.activeSheet.colNumber + cmd.quantity);
         break;
       case "ADD_ROWS":
-        this.addRows(cmd.sheetId, cmd.row, cmd.position, cmd.quantity);
+        this.addRows(this.sheets[cmd.sheetId]!, cmd.row, cmd.position, cmd.quantity);
         this.history.update("activeSheet", "rowNumber", this.activeSheet.rowNumber + cmd.quantity);
         break;
       case "SET_FORMULA_VISIBILITY":
@@ -358,12 +386,12 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return this.activeSheet;
   }
 
-  getSheet(sheetId: UID): Sheet {
+  getSheet(sheetId: UID): Sheet | undefined {
     return this.sheets[sheetId];
   }
 
   getSheetName(sheetId: UID): string | undefined {
-    return this.sheets[sheetId] && this.sheets[sheetId].name;
+    return this.sheets[sheetId]?.name;
   }
 
   getSheetIdByName(name: string | undefined): UID | undefined {
@@ -372,14 +400,14 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
   getSheets(): Sheet[] {
     const { visibleSheets, sheets } = this;
-    return visibleSheets.map((id) => sheets[id]);
+    return visibleSheets.map((id) => sheets[id]).filter(isDefined);
   }
 
   getVisibleSheets(): UID[] {
     return this.visibleSheets;
   }
 
-  getEvaluationSheets(): Record<UID, Sheet> {
+  getEvaluationSheets(): Record<UID, Sheet | undefined> {
     return this.sheets;
   }
 
@@ -387,12 +415,12 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return this.activeSheet.cells;
   }
 
-  getCol(sheetId: UID, index: number): Col {
-    return this.sheets[sheetId].cols[index];
+  getCol(sheetId: UID, index: number): Col | undefined {
+    return this.sheets[sheetId]?.cols[index];
   }
 
-  getRow(sheetId: UID, index: number): Row {
-    return this.sheets[sheetId].rows[index];
+  getRow(sheetId: UID, index: number): Row | undefined {
+    return this.sheets[sheetId]?.rows[index];
   }
 
   /**
@@ -438,13 +466,17 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   getRangeValues(reference: string, defaultSheetId: UID): any[][] {
     const [range, sheetName] = reference.split("!").reverse();
     const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
-    return mapCellsInZone(toZone(range), this.sheets[sheetId], (cell) => cell.value);
+    const sheet = sheetId ? this.sheets[sheetId] : undefined;
+    if (sheet === undefined) return [[]];
+    return mapCellsInZone(toZone(range), sheet, (cell) => cell.value);
   }
 
   getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
     const [range, sheetName] = reference.split("!").reverse();
     const sheetId = sheetName ? this.sheetIds[sheetName] : defaultSheetId;
-    return mapCellsInZone(toZone(range), this.sheets[sheetId], this.getters.getCellText, "");
+    const sheet = sheetId ? this.sheets[sheetId] : undefined;
+    if (sheet === undefined) return [[]];
+    return mapCellsInZone(toZone(range), sheet, this.getters.getCellText, "");
   }
 
   // ---------------------------------------------------------------------------
@@ -463,29 +495,29 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return Math.max(0, ...sizes);
   }
 
-  private setColSize(sheetId: UID, index: number, size: number) {
-    const cols = this.sheets[sheetId].cols;
+  private setColSize(sheet: Sheet, index: number, size: number) {
+    const cols = sheet.cols;
     const col = cols[index];
     const delta = size - col.size;
-    this.history.update("sheets", sheetId, "cols", index, "size", size);
-    this.history.update("sheets", sheetId, "cols", index, "end", col.end + delta);
+    this.history.update("sheets", sheet.id, "cols", index, "size", size);
+    this.history.update("sheets", sheet.id, "cols", index, "end", col.end + delta);
     for (let i = index + 1; i < cols.length; i++) {
       const col = cols[i];
-      this.history.update("sheets", sheetId, "cols", i, "start", col.start + delta);
-      this.history.update("sheets", sheetId, "cols", i, "end", col.end + delta);
+      this.history.update("sheets", sheet.id, "cols", i, "start", col.start + delta);
+      this.history.update("sheets", sheet.id, "cols", i, "end", col.end + delta);
     }
   }
 
-  private setRowSize(sheetId: UID, index: number, size: number) {
-    const rows = this.sheets[sheetId].rows;
+  private setRowSize(sheet: Sheet, index: number, size: number) {
+    const rows = sheet.rows;
     const row = rows[index];
     const delta = size - row.size;
-    this.history.update("sheets", sheetId, "rows", index, "size", size);
-    this.history.update("sheets", sheetId, "rows", index, "end", row.end + delta);
+    this.history.update("sheets", sheet.id, "rows", index, "size", size);
+    this.history.update("sheets", sheet.id, "rows", index, "end", row.end + delta);
     for (let i = index + 1; i < rows.length; i++) {
       const row = rows[i];
-      this.history.update("sheets", sheetId, "rows", i, "start", row.start + delta);
-      this.history.update("sheets", sheetId, "rows", i, "end", row.end + delta);
+      this.history.update("sheets", sheet.id, "rows", i, "start", row.start + delta);
+      this.history.update("sheets", sheet.id, "rows", i, "end", row.end + delta);
     }
   }
 
@@ -499,19 +531,19 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
    * @param sheetId ID of the sheet on which deletion should be applied
    * @param columns Columns to delete
    */
-  private removeColumns(sheetId: UID, columns: number[]) {
+  private removeColumns(sheet: Sheet, columns: number[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
     for (let column of columns) {
       // Update all the formulas.
-      this.updateColumnsFormulas(column, -1, sheetId);
+      this.updateColumnsFormulas(column, -1, sheet);
 
       // Move the cells.
-      this.moveCellsHorizontally(column, -1, sheetId);
+      this.moveCellsHorizontally(column, -1, sheet);
 
       // Effectively delete the element and recompute the left-right.
-      this.manageColumnsHeaders(column, -1, sheetId);
+      this.manageColumnsHeaders(column, -1, sheet);
     }
   }
 
@@ -523,10 +555,10 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
    * - Update the cols/rows (size, number, (cells), ...)
    * - Reevaluate the cells
    *
-   * @param sheetId ID of the sheet on which deletion should be applied
+   * @param sheet Sheet on which deletion should be applied
    * @param rows Rows to delete
    */
-  private removeRows(sheetId: UID, rows: number[]) {
+  private removeRows(sheet: Sheet, rows: number[]) {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     rows.sort((a, b) => b - a);
@@ -543,49 +575,49 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
     for (let group of consecutiveRows) {
       // Update all the formulas.
-      this.updateRowsFormulas(group[0], -group.length, sheetId);
+      this.updateRowsFormulas(group[0], -group.length, sheet);
 
       // Move the cells.
-      this.moveCellVerticallyBatched(group[group.length - 1], group[0], sheetId);
+      this.moveCellVerticallyBatched(group[group.length - 1], group[0], sheet);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
-      group.map((row) => this.processRowsHeaderDelete(row, sheetId));
+      group.map((row) => this.processRowsHeaderDelete(row, sheet));
     }
   }
 
-  private addColumns(sheetId: UID, column: number, position: "before" | "after", quantity: number) {
+  private addColumns(sheet: Sheet, column: number, position: "before" | "after", quantity: number) {
     // Update all the formulas.
-    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity, sheetId);
+    this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity, sheet);
 
     // Move the cells.
-    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheetId);
+    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheet);
 
     // Recompute the left-right/top-bottom.
-    this.manageColumnsHeaders(column, quantity, sheetId);
+    this.manageColumnsHeaders(column, quantity, sheet);
   }
 
-  private addRows(sheetId: UID, row: number, position: "before" | "after", quantity: number) {
+  private addRows(sheet: Sheet, row: number, position: "before" | "after", quantity: number) {
     for (let i = 0; i < quantity; i++) {
       this.addEmptyRow();
     }
     // Update all the formulas.
-    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheetId);
+    this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheet);
 
     // Move the cells.
-    this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheetId);
+    this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheet);
 
     // Recompute the left-right/top-bottom.
     this.processRowsHeaderAdd(row, quantity);
   }
 
-  private moveCellsHorizontally(base: number, step: number, sheetId: UID) {
+  private moveCellsHorizontally(base: number, step: number, sheet: Sheet) {
     return this.processCellsToMove(
       (cell) => cell.col >= base,
       (cell) => cell.col !== base || step !== -1,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheetId: sheetId,
+          sheetId: sheet.id,
           col: cell.col + step,
           row: cell.row,
           content: cell.content,
@@ -594,7 +626,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           format: cell.format,
         };
       },
-      sheetId
+      sheet
     );
   }
 
@@ -609,14 +641,14 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
    * @param deleteToRow the row index until which the deleting must continue
    * @param the sheet from which to remove
    */
-  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number, sheetId: UID) {
+  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number, sheet: Sheet) {
     return this.processCellsToMove(
       ({ row }) => row >= deleteFromRow,
       ({ row }) => row > deleteToRow,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheetId,
+          sheetId: sheet.id,
           col: cell.col,
           row: cell.row - (deleteToRow - deleteFromRow + 1),
           content: cell.content,
@@ -625,18 +657,18 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           format: cell.format,
         };
       },
-      sheetId
+      sheet
     );
   }
 
-  private moveCellsVertically(base: number, step: number, sheetId: UID) {
+  private moveCellsVertically(base: number, step: number, sheet: Sheet) {
     return this.processCellsToMove(
       (cell) => cell.row >= base,
       (cell) => cell.row !== base || step !== -1,
       (cell) => {
         return {
           type: "UPDATE_CELL",
-          sheetId: sheetId,
+          sheetId: sheet.id,
           col: cell.col,
           row: cell.row + step,
           content: cell.content,
@@ -645,15 +677,14 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           format: cell.format,
         };
       },
-      sheetId
+      sheet
     );
   }
 
-  private manageColumnsHeaders(base: number, step: number, sheetId: UID) {
+  private manageColumnsHeaders(base: number, step: number, sheet: Sheet) {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
-    const sheet = this.sheets[sheetId];
     for (let i in sheet.cols) {
       if (parseInt(i, 10) === base) {
         if (step !== -1) {
@@ -682,14 +713,13 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       start += size;
       colIndex++;
     }
-    this.history.update("sheets", sheetId, "cols", cols);
+    this.history.update("sheets", sheet.id, "cols", cols);
   }
 
-  private processRowsHeaderDelete(index: number, sheetId: UID) {
+  private processRowsHeaderDelete(index: number, sheet: Sheet) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
-    const sheet = this.sheets[sheetId];
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const row = sheet.rows[i];
@@ -707,7 +737,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       });
       start += size;
     }
-    this.history.update("sheets", sheetId, "rows", rows);
+    this.history.update("sheets", sheet.id, "rows", rows);
   }
 
   private processRowsHeaderAdd(index: number, quantity: number) {
@@ -749,40 +779,32 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     this.history.update("activeSheet", "rows", newRows);
   }
 
-  private updateColumnsFormulas(base: number, step: number, sheetId: UID) {
-    return this.visitFormulas(
-      this.sheets[sheetId].name,
-      (value: string, sheet: string | undefined): string => {
-        if (value.includes(":")) {
-          return this.updateColumnsRange(value, sheet, base, step);
-        }
-        return this.updateColumnsRef(value, sheet, base, step);
+  private updateColumnsFormulas(base: number, step: number, sheet: Sheet) {
+    return this.visitFormulas(sheet.name, (value: string, sheet: string | undefined): string => {
+      if (value.includes(":")) {
+        return this.updateColumnsRange(value, sheet, base, step);
       }
-    );
+      return this.updateColumnsRef(value, sheet, base, step);
+    });
   }
 
-  private updateRowsFormulas(base: number, step: number, sheetId: UID) {
-    return this.visitFormulas(
-      this.sheets[sheetId].name,
-      (value: string, sheet: string | undefined): string => {
-        if (value.includes(":")) {
-          return this.updateRowsRange(value, sheet, base, step);
-        }
-        return this.updateRowsRef(value, sheet, base, step);
+  private updateRowsFormulas(base: number, step: number, sheet: Sheet) {
+    return this.visitFormulas(sheet.name, (value: string, sheet: string | undefined): string => {
+      if (value.includes(":")) {
+        return this.updateRowsRange(value, sheet, base, step);
       }
-    );
+      return this.updateRowsRef(value, sheet, base, step);
+    });
   }
 
   private processCellsToMove(
     shouldDelete: (cell: Cell) => boolean,
     shouldAdd: (cell: Cell) => boolean,
     buildCellToAdd: (cell: Cell) => Command,
-    sheetId: UID
+    sheet: Sheet
   ) {
     const deleteCommands: Command[] = [];
     const addCommands: Command[] = [];
-
-    const sheet = this.sheets[sheetId];
 
     for (let xc in sheet.cells) {
       let cell = sheet.cells[xc];
@@ -810,8 +832,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   // Cells
   // ---------------------------------------------------------------------------
 
-  private updateCell(sheetId: UID, col: number, row: number, data: CellData) {
-    const sheet = this.sheets[sheetId];
+  private updateCell(sheet: Sheet, col: number, row: number, data: CellData) {
     const current = sheet.rows[row].cells[col];
     const xc = (current && current.xc) || toXC(col, row);
     const hasContent = "content" in data;
@@ -827,8 +848,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        this.history.update("sheets", sheetId, "cells", xc, undefined);
-        this.history.update("sheets", sheetId, "rows", row, "cells", col, undefined);
+        this.history.update("sheets", sheet.id, "cells", xc, undefined);
+        this.history.update("sheets", sheet.id, "rows", row, "cells", col, undefined);
       }
       return;
     }
@@ -896,8 +917,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       cell.format = format;
     }
     // todo: make this work on other sheets
-    this.history.update("sheets", sheetId, "cells", xc, cell);
-    this.history.update("sheets", sheetId, "rows", row, "cells", col, cell);
+    this.history.update("sheets", sheet.id, "cells", xc, cell);
+    this.history.update("sheets", sheet.id, "rows", row, "cells", col, cell);
   }
 
   private generateSheetName(): string {
@@ -912,7 +933,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return name;
   }
 
-  private createSheet(id: UID, name: string, cols: number, rows: number): string {
+  private createSheet(id: UID, name: string, cols: number, rows: number): Sheet {
     const sheet: Sheet = {
       id,
       name,
@@ -928,7 +949,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     const sheets = this.sheets;
     this.history.update("visibleSheets", visibleSheets);
     this.history.update("sheets", Object.assign({}, sheets, { [sheet.id]: sheet }));
-    return sheet.id;
+    return sheet;
   }
 
   private moveSheet(sheetId: UID, direction: "left" | "right") {
@@ -947,29 +968,28 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     if (!name) {
       return { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
     }
-    return this.visibleSheets.findIndex((id) => this.sheets[id].name.toLowerCase() === name) === -1
+    return this.visibleSheets.findIndex((id) => this.sheets[id]?.name.toLowerCase() === name) === -1
       ? { status: "SUCCESS" }
       : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
   }
 
-  private interactiveRenameSheet(sheetId: UID, title: string) {
-    const placeholder = this.getSheetName(sheetId)!;
+  private interactiveRenameSheet(sheet: Sheet, title: string) {
+    const placeholder = this.getSheetName(sheet.id)!;
     this.ui.editText(title, placeholder, (name: string | null) => {
       if (!name) {
         return;
       }
-      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
-      const sheetName = this.getSheetName(sheetId);
+      const result = this.dispatch("RENAME_SHEET", { sheetId: sheet.id, name });
+      const sheetName = this.getSheetName(sheet.id);
       if (result.status === "CANCELLED" && sheetName !== name) {
-        this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
+        this.interactiveRenameSheet(sheet, _lt("Please enter a valid sheet name"));
       }
     });
   }
 
-  private renameSheet(sheetId: UID, name: string) {
-    const sheet = this.sheets[sheetId];
+  private renameSheet(sheet: Sheet, name: string) {
     const oldName = sheet.name;
-    this.history.update("sheets", sheetId, "name", name.trim());
+    this.history.update("sheets", sheet.id, "name", name.trim());
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[name] = sheet.id;
     delete sheetIds[oldName];
@@ -1015,14 +1035,14 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     });
   }
 
-  private deleteSheet(sheetId: UID) {
-    const name = this.sheets[sheetId].name;
+  private deleteSheet(sheet: Sheet) {
+    const name = sheet.name;
     const sheets = Object.assign({}, this.sheets);
-    delete sheets[sheetId];
+    delete sheets[sheet.id];
     this.history.update("sheets", sheets);
 
     const visibleSheets = this.visibleSheets.slice();
-    const currentIndex = visibleSheets.findIndex((id) => id === sheetId);
+    const currentIndex = visibleSheets.findIndex((id) => id === sheet.id);
     visibleSheets.splice(currentIndex, 1);
     this.history.update("visibleSheets", visibleSheets);
 
@@ -1039,9 +1059,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       }
       return value;
     });
-    if (this.getActiveSheetId() === sheetId) {
+    if (this.getActiveSheetId() === sheet.id) {
       this.dispatch("ACTIVATE_SHEET", {
-        sheetIdFrom: sheetId,
+        sheetIdFrom: sheet.id,
         sheetIdTo: visibleSheets[Math.max(0, currentIndex - 1)],
       });
     }
@@ -1269,12 +1289,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     const freezeRow = symbol.includes("$", 1);
     x += freezeCol && updateFreeze ? 0 : offsetX;
     y += freezeRow && updateFreeze ? 0 : offsetY;
-    if (
-      x < 0 ||
-      x >= this.getters.getSheet(sheetId || this.getters.getActiveSheetId()).colNumber ||
-      y < 0 ||
-      y >= this.getters.getSheet(sheetId || this.getters.getActiveSheetId()).rowNumber
-    ) {
+    const sheet = this.getters.getSheet(sheetId || this.getters.getActiveSheetId());
+    if (!sheet || x < 0 || x >= sheet.colNumber || y < 0 || y >= sheet.rowNumber) {
       return "#REF";
     }
     const sheetName = sheetId && getComposerSheetName(this.getters.getSheetName(sheetId)!);
@@ -1288,8 +1304,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   }
 
   private visitAllFormulasSymbols(cb: (value: string, sheetId: UID) => string) {
-    for (let sheetId in this.sheets) {
-      const sheet = this.sheets[sheetId];
+    for (let sheet of Object.values(this.sheets).filter(isDefined)) {
       for (let [xc, cell] of Object.entries(sheet.cells)) {
         if (cell !== undefined && cell.type === "formula") {
           const content = rangeTokenize(cell.content!)
@@ -1352,7 +1367,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
-    this.activeSheet = this.sheets[data.activeSheet];
+    this.activeSheet = this.sheets[data.activeSheet]!;
   }
 
   importSheet(data: SheetData) {
@@ -1375,43 +1390,45 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     for (let xc in data.cells) {
       const cell = data.cells[xc];
       const [col, row] = toCartesian(xc);
-      this.updateCell(data.id, col, row, cell);
+      this.updateCell(sheet, col, row, cell);
     }
   }
 
   export(data: WorkbookData) {
-    data.sheets = this.visibleSheets.map((id) => {
-      const sheet = this.sheets[id];
-      const cells: { [key: string]: CellData } = {};
-      for (let [key, cell] of Object.entries(sheet.cells)) {
-        if (cell !== undefined) {
-          cells[key] = {
-            content: cell.content,
-            border: cell.border,
-            style: cell.style,
-            format: cell.format,
-          };
-          if (cell.type === "formula" && cell.formula) {
-            cells[key].formula = {
-              text: cell.formula.text || "",
-              dependencies: cell.formula.dependencies.slice() || [],
+    data.sheets = this.visibleSheets
+      .map((id) => this.sheets[id])
+      .filter(isDefined)
+      .map((sheet) => {
+        const cells: { [key: string]: CellData } = {};
+        for (let [key, cell] of Object.entries(sheet.cells)) {
+          if (cell !== undefined) {
+            cells[key] = {
+              content: cell.content,
+              border: cell.border,
+              style: cell.style,
+              format: cell.format,
             };
+            if (cell.type === "formula" && cell.formula) {
+              cells[key].formula = {
+                text: cell.formula.text || "",
+                dependencies: cell.formula.dependencies.slice() || [],
+              };
+            }
           }
         }
-      }
-      return {
-        id: sheet.id,
-        name: sheet.name,
-        colNumber: sheet.colNumber,
-        rowNumber: sheet.rowNumber,
-        rows: exportRows(sheet.rows),
-        cols: exportCols(sheet.cols),
-        merges: [], //exportMerges(sheet.merges),
-        cells: cells,
-        conditionalFormats: [],
-        figures: [],
-      };
-    });
+        return {
+          id: sheet.id,
+          name: sheet.name,
+          colNumber: sheet.colNumber,
+          rowNumber: sheet.rowNumber,
+          rows: exportRows(sheet.rows),
+          cols: exportCols(sheet.cols),
+          merges: [], //exportMerges(sheet.merges),
+          cells: cells,
+          conditionalFormats: [],
+          figures: [],
+        };
+      });
     data.activeSheet = this.getters.getActiveSheetId();
   }
 }

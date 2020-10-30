@@ -167,7 +167,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
   isMergeDestructive(zone: Zone): boolean {
     const { left, right, top, bottom } = zone;
     for (let row = top; row <= bottom; row++) {
-      const actualRow = this.getters.getRow(this.getters.getActiveSheetId(), row);
+      const actualRow = this.getters.getRow(this.getters.getActiveSheetId(), row)!;
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
           const cell = actualRow.cells[col];
@@ -421,8 +421,8 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
 
   private duplicateMerge(xc: string, col: number, row: number, sheetId: UID, cut?: boolean) {
     const merge = this.getMergeByXc(sheetId, xc);
-    if (!merge) return;
     const sheet = this.getters.getSheet(sheetId);
+    if (!merge || !sheet) return;
     const colNumber = sheet.colNumber - 1;
     const rowNumber = sheet.rowNumber - 1;
     const newMerge = {

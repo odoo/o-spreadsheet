@@ -289,10 +289,11 @@ export function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-export function getCell(model: Model, xc: string, sheet?: UID): Cell | null {
+export function getCell(model: Model, xc: string, sheetId?: UID): Cell | null {
   let [col, row] = toCartesian(xc);
-  if (sheet) {
-    return model.getters.getEvaluationSheets()[sheet].rows[row].cells[col] || null;
+  if (sheetId) {
+    const sheet = model.getters.getEvaluationSheets()[sheetId];
+    return (sheet && sheet.rows[row].cells[col]) || null;
   }
   return model.getters.getCell(col, row);
 }

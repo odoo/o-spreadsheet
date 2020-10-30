@@ -310,7 +310,7 @@ export class EvaluationPlugin extends BasePlugin {
      * that are actually present in the grid.
      */
     function _range(v1: string, v2: string, sheetId: UID): any[][] {
-      const sheet = sheets[sheetId];
+      const sheet = sheets[sheetId]!;
       let [left, top] = toCartesian(v1);
       let [right, bottom] = toCartesian(v2);
       right = Math.min(right, sheet.colNumber - 1);
@@ -376,7 +376,8 @@ export class EvaluationPlugin extends BasePlugin {
     function range(position: number, references: string[], sheetId: UID): any[][] {
       const referenceText = references[position];
       const [reference, sheetName] = referenceText.split("!").reverse();
-      const referenceSheetId = sheetName ? sheets[sheetName].id : sheetId;
+      const sheet = sheetName ? sheets[sheetName] : undefined;
+      const referenceSheetId = sheet ? sheet.id : sheetId;
 
       if (references[position] && !references[position].includes(":")) {
         //it's a cell reference, but it must be treated as a range
