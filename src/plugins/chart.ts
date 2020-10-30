@@ -8,6 +8,7 @@ import {
   Zone,
   CommandResult,
   CancelledReason,
+  UID,
 } from "../types/index";
 import { ChartConfiguration, ChartType } from "chart.js";
 import { BasePlugin } from "../base_plugin";
@@ -45,15 +46,19 @@ const GraphColors = [
   "rgb(158,218,229)",
 ];
 
-export class ChartPlugin extends BasePlugin {
+interface ChartState {
+  readonly chartRuntime: { [figureId: string]: ChartConfiguration | undefined };
+  readonly chartFigures: Set<string>;
+}
+
+export class ChartPlugin extends BasePlugin<ChartState> implements ChartState {
   static getters = ["getChartRuntime"];
   static layers = [LAYERS.Chart];
 
-  private chartFigures: Set<string> = new Set();
-
+  readonly chartFigures = new Set<string>();
   // contains the configuration of the chart with it's values like they should be displayed,
   // as well as all the options needed for the chart library to work correctly
-  private chartRuntime: { [figureId: string]: ChartConfiguration } = {};
+  readonly chartRuntime: { [figureId: string]: ChartConfiguration } = {};
   private outOfDate: Set<string> = new Set<string>();
 
   allowDispatch(cmd: Command): CommandResult {
@@ -90,33 +95,40 @@ export class ChartPlugin extends BasePlugin {
           },
         });
 
-        this.history.update(["chartFigures"], new Set(this.chartFigures).add(cmd.id));
-        this.history.update(["chartRuntime", cmd.id], this.mapDefinitionToRuntime(chartDefinition));
+        this.history.update("chartFigures", new Set(this.chartFigures).add(cmd.id));
+        this.history.update("chartRuntime", cmd.id, this.mapDefinitionToRuntime(chartDefinition));
         break;
       case "UPDATE_CHART": {
-        const chartDefinition = this.createChartDefinition(
+        const chartDefinition = this.getChartDefinition(cmd.id);
+        if (chartDefinition === undefined) {
+          break;
+        }
+        const newChartDefinition = this.createChartDefinition(
           cmd.definition,
-          this.getChartDefinition(cmd.id).sheetId
+          chartDefinition.sheetId
         );
         this.dispatch("UPDATE_FIGURE", {
           id: cmd.id,
-          data: chartDefinition,
+          data: newChartDefinition,
         });
-        this.history.update(["chartRuntime", cmd.id], this.mapDefinitionToRuntime(chartDefinition));
+        this.history.update(
+          "chartRuntime",
+          cmd.id,
+          this.mapDefinitionToRuntime(newChartDefinition)
+        );
         break;
       }
       case "DELETE_FIGURE":
         if (this.chartFigures.has(cmd.id)) {
           const figures = new Set(this.chartFigures);
           figures.delete(cmd.id);
-          this.history.update(["chartFigures"], figures);
-          this.history.update(["chartRuntime", cmd.id], undefined);
+          this.history.update("chartFigures", figures);
+          this.history.update("chartRuntime", cmd.id, undefined);
         }
         break;
       case "UPDATE_CELL":
         for (let chartId of this.chartFigures) {
-          const chart = this.getChartDefinition(chartId);
-          if (this.isCellUsedInChart(chart, cmd.col, cmd.row)) {
+          if (this.isCellUsedInChart(chartId, cmd.col, cmd.row)) {
             this.outOfDate.add(chartId);
           }
         }
@@ -151,7 +163,9 @@ export class ChartPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   getChartRuntime(figureId: string): ChartConfiguration | undefined {
     if (this.outOfDate.has(figureId)) {
-      this.chartRuntime[figureId] = this.mapDefinitionToRuntime(this.getChartDefinition(figureId));
+      const chartDefinition = this.getChartDefinition(figureId);
+      if (chartDefinition === undefined) return;
+      this.chartRuntime[figureId] = this.mapDefinitionToRuntime(chartDefinition);
       this.outOfDate.delete(figureId);
     }
     return this.chartRuntime[figureId];
@@ -161,8 +175,9 @@ export class ChartPlugin extends BasePlugin {
   // Private
   // ---------------------------------------------------------------------------
 
-  private getChartDefinition(figureId: string): ChartDefinition {
-    return this.getters.getFigure<ChartDefinition>(figureId).data;
+  private getChartDefinition(figureId: string): ChartDefinition | undefined {
+    const figure = this.getters.getFigure<ChartDefinition>(figureId);
+    return figure ? figure.data : undefined;
   }
 
   private createChartDefinition(
@@ -334,7 +349,11 @@ export class ChartPlugin extends BasePlugin {
     return runtime;
   }
 
-  private isCellUsedInChart(chart: ChartDefinition, col: number, row: number): boolean {
+  private isCellUsedInChart(chartId: UID, col: number, row: number): boolean {
+    const chart = this.getChartDefinition(chartId);
+    if (chart === undefined) {
+      return false;
+    }
     if (isInside(col, row, toZone(chart.labelRange))) {
       return true;
     }

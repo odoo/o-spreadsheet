@@ -21,8 +21,67 @@ type Step = HistoryChange[];
  */
 export const MAX_HISTORY_STEPS = 99;
 
-export interface WorkbookHistory {
-  update(path: (string | number)[], val: any): void;
+export interface WorkbookHistory<Plugin> {
+  update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
+  update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
+    key1: T,
+    key2: U,
+    val: NonNullable<Plugin[T]>[U]
+  ): void;
+  update<
+    T extends keyof Plugin,
+    U extends keyof NonNullable<Plugin[T]>,
+    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    val: NonNullable<NonNullable<Plugin[T]>[U]>[K]
+  ): void;
+  update<
+    T extends keyof Plugin,
+    U extends keyof NonNullable<Plugin[T]>,
+    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
+    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    val: NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]
+  ): void;
+  update<
+    T extends keyof Plugin,
+    U extends keyof NonNullable<Plugin[T]>,
+    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
+    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>,
+    W extends keyof NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    key5: W,
+    val: NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>[W]
+  ): void;
+  update<
+    T extends keyof Plugin,
+    U extends keyof NonNullable<Plugin[T]>,
+    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
+    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>,
+    W extends keyof NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>,
+    Y extends keyof NonNullable<
+      NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>[W]
+    >
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    key5: W,
+    key6: Y,
+    val: NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>[W]>[Y]
+  ): void;
 }
 
 export class WHistory implements CommandHandler {
@@ -117,10 +176,23 @@ export class WHistory implements CommandHandler {
     }
   }
 
-  updateStateFromRoot(root: any, path: (string | number)[], val: any) {
+  updateStateFromRoot(...args: any[]) {
+    const val: any = args.pop();
+    const [root, ...path] = args as [any, string | number];
     let value = root as any;
     let key = path[path.length - 1];
-    for (let p of path.slice(0, -1)) {
+    for (let pathIndex = 0; pathIndex <= path.length - 2; pathIndex++) {
+      const p = path[pathIndex];
+      if (value[p] === undefined) {
+        const nextPath = path[pathIndex + 1];
+        if (typeof nextPath === "string") {
+          value[p] = {};
+        } else if (typeof nextPath === "number") {
+          value[p] = [];
+        } else {
+          throw new Error(`Cannot create new path: ${path}`);
+        }
+      }
       value = value[p];
     }
     if (value[key] === val) {

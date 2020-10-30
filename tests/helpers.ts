@@ -143,7 +143,7 @@ export function getGrid(model: Model): GridResult {
   const result = {};
   for (let xc in model.getters.getCells()) {
     const cell = model.getters.getCells()[xc];
-    result[xc] = cell.value;
+    result[xc] = cell ? cell.value : undefined;
   }
   return result;
 }
@@ -292,7 +292,7 @@ export function getActiveXc(model: Model): string {
 export function getCell(model: Model, xc: string, sheet?: UID): Cell | null {
   let [col, row] = toCartesian(xc);
   if (sheet) {
-    return model.getters.getEvaluationSheets()[sheet].rows[row].cells[col];
+    return model.getters.getEvaluationSheets()[sheet].rows[row].cells[col] || null;
   }
   return model.getters.getCell(col, row);
 }
@@ -301,18 +301,28 @@ export function getSheet(model: Model, index: number = 0): Sheet {
   return model.getters.getSheets()[index];
 }
 
-export function getMerges(model: Model): { [key: number]: Merge } {
+export function getMerges(model: Model): Record<number, Merge> {
   const mergePlugin = model["handlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
-  return mergePlugin["merges"][model.getters.getActiveSheetId()];
+  const sheetMerges = mergePlugin["merges"][model.getters.getActiveSheetId()];
+  return sheetMerges
+    ? (Object.fromEntries(
+        Object.entries(sheetMerges).filter(([mergeId, merge]) => merge !== undefined)
+      ) as Record<number, Merge>)
+    : {};
 }
 
-export function getMergeCellMap(model: Model): { [key: string]: number } {
+export function getMergeCellMap(model: Model): Record<UID, number> {
   const mergePlugin = model["handlers"].find(
     (handler) => handler instanceof MergePlugin
   )! as MergePlugin;
-  return mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];
+  const sheetCellMap = mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];
+  return sheetCellMap
+    ? (Object.fromEntries(
+        Object.entries(sheetCellMap).filter(([mergeId, merge]) => merge !== undefined)
+      ) as Record<UID, number>)
+    : {};
 }
 
 export function zone(str: string): Zone {

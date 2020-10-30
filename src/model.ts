@@ -1,5 +1,5 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin } from "./base_plugin";
+import { BasePlugin, PluginConstuctor } from "./base_plugin";
 import { createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
 import { pluginRegistry } from "./plugins/index";
@@ -133,7 +133,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * This method is private for now, but if the need arise, there is no deep
    * reason why the model could not add dynamically a plugin while it is running.
    */
-  private setupPlugin(Plugin: typeof BasePlugin, data: WorkbookData) {
+  private setupPlugin(Plugin: PluginConstuctor, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {

@@ -1,4 +1,4 @@
-import { BasePlugin } from "../base_plugin";
+import { PluginConstuctor } from "../base_plugin";
 import { Registry } from "../registry";
 import { ClipboardPlugin } from "./clipboard";
 import { ConditionalFormatPlugin } from "./conditional_format";
@@ -15,7 +15,7 @@ import { HighlightPlugin } from "./highlight";
 import { SelectionInputPlugin } from "./selection_inputs";
 import { FigurePlugin } from "./figures";
 
-export const pluginRegistry = new Registry<typeof BasePlugin>()
+export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("core", CorePlugin)
   .add("evaluation", EvaluationPlugin)
   .add("clipboard", ClipboardPlugin)

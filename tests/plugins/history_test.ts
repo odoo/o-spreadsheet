@@ -1,4 +1,4 @@
-import { MAX_HISTORY_STEPS } from "../../src/history";
+import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell, waitForRecompute } from "../helpers";
@@ -7,6 +7,148 @@ import { CancelledReason } from "../../src/types/commands";
 // we test here the undo/redo feature
 
 describe("history", () => {
+  test("can update existing value", () => {
+    const history = new WHistory();
+    const state = {
+      A: 4,
+    };
+    history.updateStateFromRoot(state, "A", 5);
+    expect(state["A"]).toBe(5);
+  });
+
+  test("can set new value", () => {
+    const history = new WHistory();
+    const state = {
+      A: 4,
+    };
+    history.updateStateFromRoot(state, "B", 5);
+    expect(state["A"]).toBe(4);
+    expect(state["B"]).toBe(5);
+  });
+
+  test("can update existing nested value", () => {
+    const history = new WHistory();
+    const state = {
+      A: {
+        B: 4,
+      },
+    };
+    history.updateStateFromRoot(state, "A", "B", 5);
+    expect(state["A"]["B"]).toBe(5);
+  });
+
+  test("set new nested value", () => {
+    const history = new WHistory();
+    const state = {
+      A: {
+        B: 4,
+      },
+    };
+    history.updateStateFromRoot(state, "A", "C", 5);
+    expect(state["A"]["B"]).toBe(4);
+    expect(state["A"]["C"]).toBe(5);
+  });
+
+  test("update existing value nested in array", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", 0, "B", 5);
+    expect(state["A"][0]["B"]).toBe(5);
+  });
+
+  test("set new value nested in array", () => {
+    const history = new WHistory();
+    const state = {
+      A: [
+        {
+          B: 4,
+        },
+      ],
+    };
+    history.updateStateFromRoot(state, "A", 0, "C", 5);
+    expect(state["A"][0]["B"]).toBe(4);
+    expect(state["A"][0]["C"]).toBe(5);
+  });
+
+  test("create new path on-the-fly", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", "C", 5);
+    expect(state).toEqual({
+      A: {
+        B: {
+          C: 5,
+        },
+      },
+    });
+  });
+
+  test("create new path containing an array on-the-fly", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", 0, "C", 5);
+    expect(state).toEqual({
+      A: {
+        B: [
+          {
+            C: 5,
+          },
+        ],
+      },
+    });
+  });
+
+  test("create new array on-the-fly", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", 0, 5);
+    expect(state).toEqual({
+      A: {
+        B: [5],
+      },
+    });
+  });
+  test("create new sparse array on-the-fly", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", 99, 5);
+    const sparseArray: any[] = [];
+    sparseArray[99] = 5;
+    expect(state["A"]["B"]).toEqual(sparseArray);
+  });
+
+  test("cannot update an invalid key value", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    expect(() => {
+      history.updateStateFromRoot(state, "A", "B", true, 5);
+    }).toThrow();
+  });
+
+  test("cannot update an invalid path", () => {
+    const history = new WHistory();
+    const state = {
+      A: {},
+    };
+    expect(() => {
+      history.updateStateFromRoot(state, "A", "B", true, "C", 5);
+    }).toThrow();
+  });
+});
+
+describe("Model history", () => {
   test("can undo and redo two consecutive operations", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A2", text: "3" });

@@ -25,7 +25,7 @@ export interface Style {
 export interface Sheet {
   id: UID;
   name: string;
-  cells: { [key: string]: Cell };
+  cells: Record<string, Cell | undefined>;
   colNumber: number;
   rowNumber: number;
   cols: Col[];
@@ -94,7 +94,7 @@ export interface Header {
 }
 
 export interface Row extends Header {
-  cells: { [col: number]: Cell };
+  cells: Record<number, Cell | undefined>;
 }
 
 export type Col = Header;
