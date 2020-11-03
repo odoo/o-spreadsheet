@@ -170,7 +170,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
     case "LEFT_PAREN":
       const result = parseExpression(tokens, 5);
       if (!tokens.length || tokens[0].type !== "RIGHT_PAREN") {
-        throw new Error(_lt("unmatched left paren"));
+        throw new Error(_lt("unmatched left parenthesis"));
       }
       tokens.shift();
       return result;

@@ -26,7 +26,7 @@ export const DATE: FunctionDescription = {
     if (_year < 0 || 10000 <= _year) {
       throw new Error(
         _lt(
-          `function [[FUNCTION_NAME]] parameter year sould be greater or equal to 0 and lesser than 10000.`
+          `function [[FUNCTION_NAME]] parameter year should be greater or equal to 0 and lesser than 10000.`
         )
       );
     }
@@ -40,7 +40,7 @@ export const DATE: FunctionDescription = {
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
     if (delta < 0) {
-      throw new Error(_lt(`function [[FUNCTION_NAME]] result sould not be lesser than 01/01/1900`));
+      throw new Error(_lt(`function [[FUNCTION_NAME]] result should not be lesser than 01/01/1900`));
     }
 
     return {
@@ -509,7 +509,7 @@ export const TIME: FunctionDescription = {
     _hour %= 24;
 
     if (_hour < 0) {
-      throw new Error(_lt(`function [[FUNCTION_NAME]] result sould not be negative`));
+      throw new Error(_lt(`function [[FUNCTION_NAME]] result should not be negative`));
     }
 
     const jsDate = new Date(1899, 11, 30, _hour, _minute, _second);
