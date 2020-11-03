@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, getActiveXc, setCellContent } from "../helpers";
 import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
@@ -20,7 +20,7 @@ RowResizer.prototype._getMaxSize = () => 1000;
 
 function fillData() {
   for (let i = 0; i < 8; i++) {
-    model.dispatch("SET_VALUE", { xc: toXC(i, i), text: "i" });
+    setCellContent(model, toXC(i, i), "i");
   }
 }
 
@@ -294,14 +294,14 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a column", async () => {
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
     await dblClickColumn("B");
     expect(model.getters.getCol(model.getters.getActiveSheetId(), 1)!.size).toBe(1006);
   });
 
   test("Double click on column then undo, then redo", async () => {
-    model.dispatch("SET_VALUE", { xc: "C2", text: "C2" });
-    model.dispatch("SET_VALUE", { xc: "D2", text: "D2" });
+    setCellContent(model, "C2", "C2");
+    setCellContent(model, "D2", "D2");
     selectColumn("C");
     selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
@@ -327,15 +327,15 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a row", async () => {
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
     await dblClickRow(1);
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(21);
   });
 
   test("Double click on rows then undo, then redo", async () => {
     fillData();
-    model.dispatch("SET_VALUE", { xc: "C3", text: "C3" });
-    model.dispatch("SET_VALUE", { xc: "C4", text: "C4" });
+    setCellContent(model, "C3", "C3");
+    setCellContent(model, "C4", "C4");
     selectRow(2);
     selectRow(3, { ctrlKey: true });
     await dblClickRow(2);

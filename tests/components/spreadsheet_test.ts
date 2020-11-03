@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import { makeTestFixture, nextTick, MockClipboard } from "../helpers";
+import { makeTestFixture, nextTick, MockClipboard, setCellContent } from "../helpers";
 import { Model } from "../../src";
 import { SelectionMode } from "../../src/plugins/selection";
 import { triggerMouseEvent } from "../dom_helper";
@@ -80,7 +80,7 @@ describe("Spreadsheet", () => {
       args: args(``),
       returns: ["STRING"],
     });
-    parent.model.dispatch("SET_VALUE", { xc: "A1", text: "=GETACTIVESHEET()" });
+    setCellContent(parent.model, "A1", "=GETACTIVESHEET()");
     expect(env).toBeTruthy();
   });
 

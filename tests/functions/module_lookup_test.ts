@@ -1,4 +1,4 @@
-import { evaluateGrid, evaluateCell } from "../helpers";
+import { evaluateGrid, evaluateCell, setCellContent } from "../helpers";
 import { Model } from "../../src/model";
 
 describe("COLUMN formula", () => {
@@ -10,7 +10,7 @@ describe("COLUMN formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "kikoulol" });
+    setCellContent(model, "A1", "kikoulol");
     expect(() => model.getters.evaluateFormula("=COLUMN()")).toThrow();
     expect(() => model.getters.evaluateFormula("=COLUMN(A1)")).not.toThrow();
   });
@@ -320,7 +320,7 @@ describe("ROW formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "kikoulol" });
+    setCellContent(model, "A1", "kikoulol");
     expect(() => model.getters.evaluateFormula("=ROW()")).toThrow();
     expect(() => model.getters.evaluateFormula("=ROW(A1)")).not.toThrow();
   });

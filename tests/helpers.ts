@@ -31,6 +31,19 @@ const { useRef, useSubEnv } = hooks;
 // Helpers
 //------------------------------------------------------------------------------
 
+/**
+ * Set the content of a cell
+ */
+export function setCellContent(
+  model: Model,
+  xc: string,
+  content: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const [col, row] = toCartesian(xc);
+  model.dispatch("UPDATE_CELL", { col, row, sheetId, content });
+}
+
 export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
 }
@@ -160,7 +173,7 @@ export function getGrid(model: Model): GridResult {
 export function evaluateGrid(grid: GridDescr): GridResult {
   const model = new Model();
   for (let xc in grid) {
-    model.dispatch("SET_VALUE", { xc, text: grid[xc] });
+    setCellContent(model, xc, grid[xc]);
   }
   const result = {};
   for (let xc in grid) {
@@ -173,7 +186,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
 export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   const model = new Model();
   for (let xc in grid) {
-    model.dispatch("SET_VALUE", { xc, text: grid[xc] });
+    setCellContent(model, xc, grid[xc]);
   }
   const result = {};
   for (let xc in grid) {

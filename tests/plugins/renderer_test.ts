@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
 import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
+import { setCellContent } from "../helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };
@@ -64,7 +65,7 @@ describe("renderer", () => {
   test("snapshot for a simple grid rendering", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    setCellContent(model, "A1", "1");
     const instructions: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onSet: (key, value) => {
@@ -85,8 +86,8 @@ describe("renderer", () => {
   test("formulas evaluating to a string are properly aligned", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -101,7 +102,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
-    model.dispatch("SET_VALUE", { xc: "A1", text: "asdf" });
+    setCellContent(model, "A1", "asdf");
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
@@ -111,8 +112,8 @@ describe("renderer", () => {
 
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
 
@@ -127,7 +128,7 @@ describe("renderer", () => {
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "asdf" });
+    setCellContent(model, "A1", "asdf");
 
     textAligns = [];
     model.drawGrid(ctx);
@@ -137,8 +138,8 @@ describe("renderer", () => {
   test("formulas evaluating to a boolean are properly aligned", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -152,7 +153,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
-    model.dispatch("SET_VALUE", { xc: "A1", text: "true" });
+    setCellContent(model, "A1", "true");
     model.drawGrid(ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
@@ -162,8 +163,8 @@ describe("renderer", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A2:B2") });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=A1" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
 
@@ -178,7 +179,7 @@ describe("renderer", () => {
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "false" });
+    setCellContent(model, "A1", "false");
 
     textAligns = [];
     model.drawGrid(ctx);
@@ -188,7 +189,7 @@ describe("renderer", () => {
   test("errors are aligned to the center", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=A1" });
+    setCellContent(model, "A1", "=A1");
 
     let textAligns: string[] = [];
 
@@ -208,7 +209,7 @@ describe("renderer", () => {
   test("dates are aligned to the right", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "03/23/2010" });
+    setCellContent(model, "A1", "03/23/2010");
 
     let textAligns: string[] = [];
 
@@ -228,7 +229,7 @@ describe("renderer", () => {
   test("functions are aligned to the left", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(1,2)" });
+    setCellContent(model, "A1", "=SUM(1,2)");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     let textAligns: string[] = [];
 

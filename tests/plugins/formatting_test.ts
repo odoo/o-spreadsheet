@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import { getCell } from "../helpers";
 
 import "../canvas.mock";
+import { setCellContent } from "../helpers";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
@@ -22,7 +23,7 @@ function setDecimal(model: Model, step: number) {
 describe("formatting values (with formatters)", () => {
   test("can set a format to a cell", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    setCellContent(model, "A1", "3");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
@@ -32,7 +33,7 @@ describe("formatting values (with formatters)", () => {
 
   test("can set a date format to a cell containing a date", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3 14 2014" });
+    setCellContent(model, "A1", "3 14 2014");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3 14 2014");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "mm/dd/yyyy");
@@ -42,7 +43,7 @@ describe("formatting values (with formatters)", () => {
 
   test("can set a date format to a cell containing a number", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
+    setCellContent(model, "A1", "1");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("1");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "mm/dd/yyyy");
@@ -52,7 +53,7 @@ describe("formatting values (with formatters)", () => {
 
   test("can set a number format to a cell containing a date", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1/1/2000" });
+    setCellContent(model, "A1", "1/1/2000");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("1/1/2000");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
@@ -66,13 +67,13 @@ describe("formatting values (with formatters)", () => {
     setFormat(model, "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
-    model.dispatch("SET_VALUE", { xc: "A1", text: "0.431" });
+    setCellContent(model, "A1", "0.431");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("43.10%");
   });
 
   test("can set the default format to a cell with value = 0", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
+    setCellContent(model, "A1", "0");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "");
     expect(getCell(model, "A1")!.format).not.toBeDefined();
@@ -81,7 +82,7 @@ describe("formatting values (with formatters)", () => {
 
   test("can clear a format in a non empty cell", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    setCellContent(model, "A1", "3");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
     expect(getCell(model, "A1")!.format).toBeDefined();
@@ -109,17 +110,17 @@ describe("formatting values (with formatters)", () => {
 
   test("does not format errors", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    setCellContent(model, "A1", "3");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("300.00%");
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=A1" });
+    setCellContent(model, "A1", "=A1");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("#CYCLE");
   });
 
   test("Can set number format to text value", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "Test" });
+    setCellContent(model, "A1", "Test");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.00%");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("Test");
@@ -127,7 +128,7 @@ describe("formatting values (with formatters)", () => {
 
   test("Can set date format to text value", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "Test" });
+    setCellContent(model, "A1", "Test");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "mm/dd/yyyy");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("Test");
@@ -137,7 +138,7 @@ describe("formatting values (with formatters)", () => {
 describe("formatting values (when change decimal)", () => {
   test("Can't change decimal format of a cell that isn't 'number' type", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "kikou" });
+    setCellContent(model, "A1", "kikou");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("kikou");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setDecimal(model, 1);
@@ -147,7 +148,7 @@ describe("formatting values (when change decimal)", () => {
 
   test("Can't change decimal format of a cell when value not exist", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "42%" });
+    setCellContent(model, "A1", "42%");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
@@ -161,85 +162,85 @@ describe("formatting values (when change decimal)", () => {
   test("Can change decimal format of a cell that already has format", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "42" });
+    setCellContent(model, "A1", "42");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "0.0%");
     setDecimal(model, 1);
     expect(getCell(model, "A1")!.format).toBe("0.00%");
 
-    model.dispatch("SET_VALUE", { xc: "A2", text: "42" });
+    setCellContent(model, "A2", "42");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     setFormat(model, "0.0%");
     setDecimal(model, -1);
     expect(getCell(model, "A2")!.format).toBe("0%");
 
-    model.dispatch("SET_VALUE", { xc: "A3", text: "42" });
+    setCellContent(model, "A3", "42");
     model.dispatch("SELECT_CELL", { col: 0, row: 2 });
     setFormat(model, "0%");
     setDecimal(model, 1);
     expect(getCell(model, "A3")!.format).toBe("0.0%");
 
-    model.dispatch("SET_VALUE", { xc: "A4", text: "42" });
+    setCellContent(model, "A4", "42");
     model.dispatch("SELECT_CELL", { col: 0, row: 3 });
     setFormat(model, "0%");
     setDecimal(model, -1);
     expect(getCell(model, "A4")!.format).toBe("0%");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "24" });
+    setCellContent(model, "B1", "24");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     setFormat(model, "#,##0.0");
     setDecimal(model, 1);
     expect(getCell(model, "B1")!.format).toBe("#,##0.00");
 
-    model.dispatch("SET_VALUE", { xc: "B2", text: "24" });
+    setCellContent(model, "B2", "24");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setFormat(model, "#,##0.0");
     setDecimal(model, -1);
     expect(getCell(model, "B2")!.format).toBe("#,##0");
 
-    model.dispatch("SET_VALUE", { xc: "B3", text: "24" });
+    setCellContent(model, "B3", "24");
     model.dispatch("SELECT_CELL", { col: 1, row: 2 });
     setFormat(model, "#,##0");
     setDecimal(model, 1);
     expect(getCell(model, "B3")!.format).toBe("#,##0.0");
 
-    model.dispatch("SET_VALUE", { xc: "B4", text: "24" });
+    setCellContent(model, "B4", "24");
     model.dispatch("SELECT_CELL", { col: 1, row: 3 });
     setFormat(model, "#,##0");
     setDecimal(model, -1);
     expect(getCell(model, "B4")!.format).toBe("#,##0");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "707" });
+    setCellContent(model, "C1", "707");
     model.dispatch("SELECT_CELL", { col: 2, row: 0 });
     setFormat(model, "0.0E+00");
     setDecimal(model, 1);
     expect(getCell(model, "C1")!.format).toBe("0.00E+00");
 
-    model.dispatch("SET_VALUE", { xc: "C2", text: "707" });
+    setCellContent(model, "C2", "707");
     model.dispatch("SELECT_CELL", { col: 2, row: 1 });
     setFormat(model, "0.0E+00");
     setDecimal(model, -1);
     expect(getCell(model, "C2")!.format).toBe("0E+00");
 
-    model.dispatch("SET_VALUE", { xc: "C3", text: "707" });
+    setCellContent(model, "C3", "707");
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     setFormat(model, "0E+00");
     setDecimal(model, 1);
     expect(getCell(model, "C3")!.format).toBe("0.0E+00");
 
-    model.dispatch("SET_VALUE", { xc: "C4", text: "707" });
+    setCellContent(model, "C4", "707");
     model.dispatch("SELECT_CELL", { col: 2, row: 3 });
     setFormat(model, "0E+00");
     setDecimal(model, -1);
     expect(getCell(model, "C4")!.format).toBe("0E+00");
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: "39738" });
+    setCellContent(model, "D1", "39738");
     model.dispatch("SELECT_CELL", { col: 3, row: 0 });
     setFormat(model, "#,##0;#,##0.00");
     setDecimal(model, 1);
     expect(getCell(model, "D1")!.format).toBe("#,##0.0;#,##0.000");
 
-    model.dispatch("SET_VALUE", { xc: "D2", text: "39738" });
+    setCellContent(model, "D2", "39738");
     model.dispatch("SELECT_CELL", { col: 3, row: 1 });
     setFormat(model, "#,##0;#,##0.0");
     setDecimal(model, -1);
@@ -249,25 +250,25 @@ describe("formatting values (when change decimal)", () => {
   test("Can change decimal format of a cell that hasn't format (case 'number' type only)", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "123" });
+    setCellContent(model, "A1", "123");
     expect(getCell(model, "A1")!.format).toBe(undefined);
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setDecimal(model, 1);
     expect(getCell(model, "A1")!.format).toBe("0.0");
 
-    model.dispatch("SET_VALUE", { xc: "A2", text: "456" });
+    setCellContent(model, "A2", "456");
     expect(getCell(model, "A2")!.format).toBe(undefined);
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     setDecimal(model, -1);
     expect(getCell(model, "A2")!.format).toBe("0");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "123.456" });
+    setCellContent(model, "B1", "123.456");
     expect(getCell(model, "B1")!.format).toBe(undefined);
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     setDecimal(model, 1);
     expect(getCell(model, "B1")!.format).toBe("0.0000");
 
-    model.dispatch("SET_VALUE", { xc: "B2", text: "456.789" });
+    setCellContent(model, "B2", "456.789");
     expect(getCell(model, "B2")!.format).toBe(undefined);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setDecimal(model, -1);
@@ -279,7 +280,7 @@ describe("formatting values (when change decimal)", () => {
 
     const nineteenZerosA1 = "0.0000000000000000000";
     const twentyZerosA1 = "0.00000000000000000000";
-    model.dispatch("SET_VALUE", { xc: "A1", text: "123" });
+    setCellContent(model, "A1", "123");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, nineteenZerosA1);
     setDecimal(model, 1);
@@ -289,7 +290,7 @@ describe("formatting values (when change decimal)", () => {
 
     const seventeenZerosB1 = "0.00000000000000000%";
     const twentyZerosB1 = "0.00000000000000000000%";
-    model.dispatch("SET_VALUE", { xc: "B1", text: "9%" });
+    setCellContent(model, "B1", "9%");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     setFormat(model, seventeenZerosB1);
     setDecimal(model, 1);
@@ -302,7 +303,7 @@ describe("formatting values (when change decimal)", () => {
 
     const eighteenZerosC1 = "#,##0.000000000000000000";
     const twentyZerosC1 = "#,##0.00000000000000000000";
-    model.dispatch("SET_VALUE", { xc: "C1", text: "3456.789" });
+    setCellContent(model, "C1", "3456.789");
     model.dispatch("SELECT_CELL", { col: 2, row: 0 });
     setFormat(model, eighteenZerosC1);
     setDecimal(model, 1);
@@ -317,17 +318,17 @@ describe("formatting values (when change decimal)", () => {
 
     // give values ​​with different formats
 
-    model.dispatch("SET_VALUE", { xc: "A2", text: "9" });
+    setCellContent(model, "A2", "9");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     setFormat(model, "0.00%");
     expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("900.00%");
 
-    model.dispatch("SET_VALUE", { xc: "A3", text: "4567.8" });
+    setCellContent(model, "A3", "4567.8");
     model.dispatch("SELECT_CELL", { col: 0, row: 2 });
     setFormat(model, "#,##0");
     expect(model.getters.getCellText(getCell(model, "A3")!)).toBe("4,568");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "42.42" });
+    setCellContent(model, "C1", "42.42");
     model.dispatch("SELECT_CELL", { col: 2, row: 0 });
     setFormat(model, "0.000");
     expect(model.getters.getCellText(getCell(model, "C1")!)).toBe("42.420");
@@ -361,16 +362,16 @@ describe("formatting values (when change decimal)", () => {
 
     // give values ​​with different formats
 
-    model.dispatch("SET_VALUE", { xc: "A2", text: "Hey Jude" });
+    setCellContent(model, "A2", "Hey Jude");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
     setFormat(model, "0.00%");
     expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("Hey Jude");
 
-    model.dispatch("SET_VALUE", { xc: "A3", text: "12/12/2012" });
+    setCellContent(model, "A3", "12/12/2012");
     model.dispatch("SELECT_CELL", { col: 0, row: 2 });
     expect(model.getters.getCellText(getCell(model, "A3")!)).toBe("12/12/2012");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "LEBLEBI" });
+    setCellContent(model, "C1", "LEBLEBI");
     expect(model.getters.getCellText(getCell(model, "C1")!)).toBe("LEBLEBI");
 
     // select A1, then expand selection to A1:C3

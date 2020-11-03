@@ -1,5 +1,13 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc, getCell, Touch } from "../helpers";
+import {
+  makeTestFixture,
+  GridParent,
+  nextTick,
+  getActiveXc,
+  getCell,
+  Touch,
+  setCellContent,
+} from "../helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";
@@ -49,15 +57,15 @@ describe("Grid component", () => {
   });
 
   test("can click on a cell to select it", async () => {
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
+    setCellContent(model, "B2", "b2");
+    setCellContent(model, "B3", "b3");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     expect(getActiveXc(model)).toBe("C8");
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
+    setCellContent(model, "B2", "b2");
+    setCellContent(model, "B3", "b3");
     triggerMouseEvent(".o-overlay", "click", 300, 20);
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
@@ -66,8 +74,8 @@ describe("Grid component", () => {
   });
 
   test("can shift-click on a cell to update selection", async () => {
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "b3" });
+    setCellContent(model, "B2", "b2");
+    setCellContent(model, "B3", "b3");
     triggerMouseEvent("canvas", "mousedown", 300, 200, { shiftKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({
       top: 0,
@@ -317,7 +325,7 @@ describe("Grid component", () => {
 
   describe("paint format tool with grid selection", () => {
     test("can paste format with mouse", async () => {
-      model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+      setCellContent(model, "B2", "b2");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
       model.dispatch("SET_FORMATTING", {
         sheetId: "Sheet1",
@@ -333,7 +341,7 @@ describe("Grid component", () => {
     });
 
     test("can paste format with key", async () => {
-      model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+      setCellContent(model, "B2", "b2");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
       model.dispatch("SET_FORMATTING", {
         sheetId: "Sheet1",
@@ -374,7 +382,7 @@ describe("error tooltip", () => {
   });
 
   test("can display error tooltip", async () => {
-    model.dispatch("SET_VALUE", { xc: "C8", text: "=1/0" });
+    setCellContent(model, "C8", "=1/0");
     await nextTick();
     triggerMouseEvent("canvas", "mousemove", 300, 200);
 
@@ -401,7 +409,7 @@ describe("error tooltip", () => {
   test("can display error when move on merge", async () => {
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("ADD_MERGE", { sheetId: sheet, zone: toZone("C1:C8") });
-    model.dispatch("SET_VALUE", { xc: "C1", text: "=1/0" });
+    setCellContent(model, "C1", "=1/0");
     await nextTick();
     triggerMouseEvent("canvas", "mousemove", 300, 200); // C8
 
@@ -546,7 +554,7 @@ describe("figures", () => {
         data: undefined,
       },
     });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "content" });
+    setCellContent(model, "A1", "content");
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;

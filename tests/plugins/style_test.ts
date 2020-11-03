@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { getCell } from "../helpers";
+import { getCell, setCellContent } from "../helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
@@ -20,7 +20,7 @@ describe("styles", () => {
 
   test("can undo and redo a setStyle operation on an non empty cell", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B1", text: "some content" });
+    setCellContent(model, "B1", "some content");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
       sheetId: "Sheet1",
@@ -37,7 +37,7 @@ describe("styles", () => {
   test("can clear formatting (style)", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    setCellContent(model, "B1", "b1");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
@@ -71,7 +71,7 @@ describe("styles", () => {
 
   test("clearing format operation can be undone", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    setCellContent(model, "B1", "b1");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
       sheetId: "Sheet1",

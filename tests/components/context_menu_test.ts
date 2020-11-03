@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { GridParent, makeTestFixture, nextTick, getCell, Touch } from "../helpers";
+import { GridParent, makeTestFixture, nextTick, getCell, Touch, setCellContent } from "../helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { toXC } from "../../src/helpers";
 import { Menu } from "../../src/components/menu";
@@ -189,7 +189,7 @@ describe("Context Menu", () => {
 
   test("can copy/paste with context menu", async () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    setCellContent(model, "B1", "b1");
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -215,7 +215,7 @@ describe("Context Menu", () => {
 
   test("can cut/paste with context menu", async () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    setCellContent(model, "B1", "b1");
 
     const parent = new GridParent(model);
     await parent.mount(fixture);
@@ -305,7 +305,7 @@ describe("Context Menu", () => {
         action() {},
       });
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    setCellContent(model, "B1", "b1");
     const parent = new GridParent(model);
     await parent.mount(fixture);
     simulateContextMenu(230, 30);

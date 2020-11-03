@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { makeTestFixture, GridParent, nextTick, setCellContent } from "../helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types/commands";
 import * as owl from "@odoo/owl";
@@ -78,7 +78,7 @@ describe("Autofill component", () => {
   test("Can display tooltip with autofill", async () => {
     const autofill = fixture.querySelector(".o-autofill");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "test" });
+    setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -98,7 +98,7 @@ describe("Autofill component", () => {
   test("Tooltip is removed when cancelling autofill", async () => {
     const autofill = fixture.querySelector(".o-autofill");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "test" });
+    setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();
@@ -142,7 +142,7 @@ describe("Autofill component", () => {
         component: CustomTooltip,
       };
     });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "test" });
+    setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "mousedown", 4, 4);
     await nextTick();

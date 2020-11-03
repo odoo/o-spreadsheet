@@ -1,7 +1,7 @@
 import { Model } from "../../../src";
 import { Viewport, CancelledReason } from "../../../src/types";
 import "../../canvas.mock";
-import { testUndoRedo } from "../../helpers";
+import { setCellContent, testUndoRedo } from "../../helpers";
 
 let model: Model;
 const viewport: Viewport = {
@@ -229,10 +229,11 @@ describe("datasource tests", function () {
   });
 
   test("create chart with async as label", () => {
-    model.dispatch("SET_VALUE", { xc: "B7", text: "=WAIT(1000)" });
+    setCellContent(model, "B7", "=WAIT(1000)");
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["B7:B8"],

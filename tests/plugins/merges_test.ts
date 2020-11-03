@@ -2,7 +2,7 @@ import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style, Border } from "../../src/types/index";
 import "../canvas.mock";
-import { getActiveXc, getCell, getMergeCellMap, getMerges } from "../helpers";
+import { getActiveXc, getCell, getMergeCellMap, getMerges, setCellContent } from "../helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells()).map((cell) => {
@@ -14,7 +14,7 @@ function getCellsXC(model: Model): string[] {
 describe("merges", () => {
   test("can merge two cells", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
 
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
@@ -56,7 +56,7 @@ describe("merges", () => {
 
   test("a single cell is not merged", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
     const sheet1 = model.getters.getVisibleSheets()[0];
 
     expect(Object.keys(getMerges(model))).toEqual([]);
@@ -213,7 +213,7 @@ describe("merges", () => {
   test("merging destructively a selection ask for confirmation", async () => {
     const askConfirmation = jest.fn();
     const model = new Model({}, { askConfirmation });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
     model.dispatch("ALTER_SELECTION", { cell: [5, 5] });
     model.dispatch("ADD_MERGE", {
       sheetId: model.getters.getActiveSheetId(),

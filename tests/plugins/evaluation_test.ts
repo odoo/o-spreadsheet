@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { evaluateCell, evaluateGrid, getCell } from "../helpers";
+import { evaluateCell, evaluateGrid, getCell, setCellContent } from "../helpers";
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
@@ -92,14 +92,14 @@ describe("evaluateCells", () => {
 
   test("error in some function calls", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: '=Sum("asdf")' });
+    setCellContent(model, "A1", '=Sum("asdf")');
 
     expect(getCell(model, "A1")!.value).toBe("#ERROR");
     expect(getCell(model, "A1")!.error).toBe(
       `The function SUM expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=DECIMAL(1,100)" });
+    setCellContent(model, "A1", "=DECIMAL(1,100)");
     expect(getCell(model, "A1")!.error).toBe(
       `Function DECIMAL expects the parameter 'base' to be between 2 and 36 inclusive. Change 'base' from [100] to a value between 2 and 36.`
     );
@@ -107,74 +107,74 @@ describe("evaluateCells", () => {
 
   test("error in an addition", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "=A1+A2" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=A1+A2");
 
     expect(getCell(model, "A3")!.value).toBe(3);
-    model.dispatch("SET_VALUE", { xc: "A2", text: "asdf" });
+    setCellContent(model, "A2", "asdf");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
     expect(getCell(model, "A3")!.error).toBe(
       `The function ADD expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
-    model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
+    setCellContent(model, "A1", "33");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
+    setCellContent(model, "A2", "10");
     expect(getCell(model, "A3")!.value).toBe(43);
   });
 
   test("error in an subtraction", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "=A1-A2" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=A1-A2");
 
     expect(getCell(model, "A3")!.value).toBe(-1);
-    model.dispatch("SET_VALUE", { xc: "A2", text: "asdf" });
+    setCellContent(model, "A2", "asdf");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
+    setCellContent(model, "A1", "33");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
     expect(getCell(model, "A3")!.error).toBe(
       `The function MINUS expects a number value, but 'asdf' is a string, and cannot be coerced to a number.`
     );
-    model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
+    setCellContent(model, "A2", "10");
     expect(getCell(model, "A3")!.value).toBe(23);
   });
 
   test("error in a multiplication", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "=A1*A2" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=A1*A2");
 
     expect(getCell(model, "A3")!.value).toBe(2);
-    model.dispatch("SET_VALUE", { xc: "A2", text: "asdf" });
+    setCellContent(model, "A2", "asdf");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    model.dispatch("SET_VALUE", { xc: "A1", text: "33" });
+    setCellContent(model, "A1", "33");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
+    setCellContent(model, "A2", "10");
     expect(getCell(model, "A3")!.value).toBe(330);
   });
 
   test("error in a division", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "=A1/A2" });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=A1/A2");
 
     expect(getCell(model, "A3")!.value).toBe(0.5);
-    model.dispatch("SET_VALUE", { xc: "A2", text: "asdf" });
+    setCellContent(model, "A2", "asdf");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    model.dispatch("SET_VALUE", { xc: "A1", text: "30" });
+    setCellContent(model, "A1", "30");
     expect(getCell(model, "A3")!.value).toBe("#ERROR");
-    model.dispatch("SET_VALUE", { xc: "A2", text: "10" });
+    setCellContent(model, "A2", "10");
     expect(getCell(model, "A3")!.value).toBe(3);
   });
 
   test("error in range vlookup", () => {
     const model = new Model();
     expect(model.getters.getActiveSheet().rowNumber).toBeLessThan(200);
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=VLOOKUP(D12, A2:A200, 2, false)" });
+    setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCell(model, "A1")!.error!.toString()).toBe(
       "VLOOKUP evaluates to an out of bounds range."
@@ -183,29 +183,29 @@ describe("evaluateCells", () => {
 
   test("range", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "D4", text: "42" });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2:Z10)" });
+    setCellContent(model, "D4", "42");
+    setCellContent(model, "A1", "=sum(A2:Z10)");
 
     expect(getCell(model, "A1")!.value).toBe(42);
   });
 
   test("=Range", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=A2:A3" });
+    setCellContent(model, "A1", "=A2:A3");
     expect(getCell(model, "A1")!.value).toBe("#ERROR");
   });
 
   test("misc math formulas", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "42" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "2" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "2.3" });
-    model.dispatch("SET_VALUE", { xc: "C1", text: "=countblank(A1:A10)" });
-    model.dispatch("SET_VALUE", { xc: "C2", text: "=sum(A1,B1)" });
-    model.dispatch("SET_VALUE", { xc: "C3", text: "=countblank(B1:A1)" });
-    model.dispatch("SET_VALUE", { xc: "C4", text: "=floor(B3)" });
-    model.dispatch("SET_VALUE", { xc: "C5", text: "=floor(A8)" });
-    model.dispatch("SET_VALUE", { xc: "C6", text: "=sum(A1:A4,B1:B5)" });
+    setCellContent(model, "A1", "42");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "B3", "2.3");
+    setCellContent(model, "C1", "=countblank(A1:A10)");
+    setCellContent(model, "C2", "=sum(A1,B1)");
+    setCellContent(model, "C3", "=countblank(B1:A1)");
+    setCellContent(model, "C4", "=floor(B3)");
+    setCellContent(model, "C5", "=floor(A8)");
+    setCellContent(model, "C6", "=sum(A1:A4,B1:B5)");
 
     expect(getCell(model, "C1")!.value).toBe(8);
     expect(getCell(model, "C2")!.value).toBe(42);
@@ -217,11 +217,11 @@ describe("evaluateCells", () => {
 
   test("priority of operations", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=1 + 2 * 3" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=-2*-2" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "=-2^2" });
-    model.dispatch("SET_VALUE", { xc: "A4", text: "=-2^2 + 3" });
-    model.dispatch("SET_VALUE", { xc: "A5", text: "= - 1 + - 2 * - 3" });
+    setCellContent(model, "A1", "=1 + 2 * 3");
+    setCellContent(model, "A2", "=-2*-2");
+    setCellContent(model, "A3", "=-2^2");
+    setCellContent(model, "A4", "=-2^2 + 3");
+    setCellContent(model, "A5", "= - 1 + - 2 * - 3");
 
     expect(getCell(model, "A1")!.value).toBe(7);
     expect(getCell(model, "A2")!.value).toBe(4);
@@ -252,12 +252,12 @@ describe("evaluateCells", () => {
   test("various expressions with boolean", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "FALSE" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "TRUE" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "false" });
-    model.dispatch("SET_VALUE", { xc: "A4", text: "true" });
-    model.dispatch("SET_VALUE", { xc: "A5", text: "FaLsE" });
-    model.dispatch("SET_VALUE", { xc: "A6", text: "TrUe" });
+    setCellContent(model, "A1", "FALSE");
+    setCellContent(model, "A2", "TRUE");
+    setCellContent(model, "A3", "false");
+    setCellContent(model, "A4", "true");
+    setCellContent(model, "A5", "FaLsE");
+    setCellContent(model, "A6", "TrUe");
 
     expect(getCell(model, "A1")!.value).toBe(false);
     expect(getCell(model, "A2")!.value).toBe(true);
@@ -266,12 +266,12 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A5")!.value).toBe(false);
     expect(getCell(model, "A6")!.value).toBe(true);
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "=FALSE" });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "=TRUE" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "=false" });
-    model.dispatch("SET_VALUE", { xc: "B4", text: "=true" });
-    model.dispatch("SET_VALUE", { xc: "B5", text: "=FaLsE" });
-    model.dispatch("SET_VALUE", { xc: "B6", text: "=TrUe" });
+    setCellContent(model, "B1", "=FALSE");
+    setCellContent(model, "B2", "=TRUE");
+    setCellContent(model, "B3", "=false");
+    setCellContent(model, "B4", "=true");
+    setCellContent(model, "B5", "=FaLsE");
+    setCellContent(model, "B6", "=TrUe");
 
     expect(getCell(model, "B1")!.value).toBe(false);
     expect(getCell(model, "B2")!.value).toBe(true);
@@ -280,12 +280,12 @@ describe("evaluateCells", () => {
     expect(getCell(model, "B5")!.value).toBe(false);
     expect(getCell(model, "B6")!.value).toBe(true);
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: " FALSE " });
-    model.dispatch("SET_VALUE", { xc: "A2", text: " TRUE " });
-    model.dispatch("SET_VALUE", { xc: "A3", text: " false " });
-    model.dispatch("SET_VALUE", { xc: "A4", text: " true " });
-    model.dispatch("SET_VALUE", { xc: "A5", text: " FaLsE " });
-    model.dispatch("SET_VALUE", { xc: "A6", text: " TrUe " });
+    setCellContent(model, "A1", " FALSE ");
+    setCellContent(model, "A2", " TRUE ");
+    setCellContent(model, "A3", " false ");
+    setCellContent(model, "A4", " true ");
+    setCellContent(model, "A5", " FaLsE ");
+    setCellContent(model, "A6", " TrUe ");
 
     expect(getCell(model, "A1")!.value).toBe(" FALSE ");
     expect(getCell(model, "A2")!.value).toBe(" TRUE ");
@@ -294,12 +294,12 @@ describe("evaluateCells", () => {
     expect(getCell(model, "A5")!.value).toBe(" FaLsE ");
     expect(getCell(model, "A6")!.value).toBe(" TrUe ");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "= FALSE " });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "= TRUE " });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "= false " });
-    model.dispatch("SET_VALUE", { xc: "B4", text: "= true " });
-    model.dispatch("SET_VALUE", { xc: "B5", text: "= FaLsE " });
-    model.dispatch("SET_VALUE", { xc: "B6", text: "= TrUe " });
+    setCellContent(model, "B1", "= FALSE ");
+    setCellContent(model, "B2", "= TRUE ");
+    setCellContent(model, "B3", "= false ");
+    setCellContent(model, "B4", "= true ");
+    setCellContent(model, "B5", "= FaLsE ");
+    setCellContent(model, "B6", "= TrUe ");
 
     expect(getCell(model, "B1")!.value).toBe(false);
     expect(getCell(model, "B2")!.value).toBe(true);
@@ -312,41 +312,41 @@ describe("evaluateCells", () => {
   test("various expressions with whitespace", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "," });
-    model.dispatch("SET_VALUE", { xc: "A3", text: " " });
-    model.dispatch("SET_VALUE", { xc: "A4", text: " , " });
-    model.dispatch("SET_VALUE", { xc: "A5", text: " 42 " });
-    model.dispatch("SET_VALUE", { xc: "A6", text: " 42 , 24  " });
-    model.dispatch("SET_VALUE", { xc: "A7", text: " 43 ,     " });
-    model.dispatch("SET_VALUE", { xc: "A8", text: " 44   45  " });
+    setCellContent(model, "A1", "");
+    setCellContent(model, "A2", ",");
+    setCellContent(model, "A3", " ");
+    setCellContent(model, "A4", " , ");
+    setCellContent(model, "A5", " 42 ");
+    setCellContent(model, "A6", " 42 , 24  ");
+    setCellContent(model, "A7", " 43 ,     ");
+    setCellContent(model, "A8", " 44   45  ");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "=" });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "=," });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "= " });
-    model.dispatch("SET_VALUE", { xc: "B4", text: "= , " });
-    model.dispatch("SET_VALUE", { xc: "B5", text: "= 42 " });
-    model.dispatch("SET_VALUE", { xc: "B6", text: "= 42 , 24  " });
-    model.dispatch("SET_VALUE", { xc: "B7", text: "= 43 ,     " });
-    model.dispatch("SET_VALUE", { xc: "B8", text: "= 44   45  " });
+    setCellContent(model, "B1", "=");
+    setCellContent(model, "B2", "=,");
+    setCellContent(model, "B3", "= ");
+    setCellContent(model, "B4", "= , ");
+    setCellContent(model, "B5", "= 42 ");
+    setCellContent(model, "B6", "= 42 , 24  ");
+    setCellContent(model, "B7", "= 43 ,     ");
+    setCellContent(model, "B8", "= 44   45  ");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "=SUM()" });
-    model.dispatch("SET_VALUE", { xc: "C2", text: "=SUM(,)" });
-    model.dispatch("SET_VALUE", { xc: "C3", text: "=SUM( )" });
-    model.dispatch("SET_VALUE", { xc: "C4", text: "=SUM( , )" });
-    model.dispatch("SET_VALUE", { xc: "C5", text: "=SUM( 42 )" });
-    model.dispatch("SET_VALUE", { xc: "C6", text: "=SUM( 42 , 24  )" });
-    model.dispatch("SET_VALUE", { xc: "C7", text: "=SUM( 43 ,     )" });
-    model.dispatch("SET_VALUE", { xc: "C8", text: "=SUM( 44   45  )" });
+    setCellContent(model, "C1", "=SUM()");
+    setCellContent(model, "C2", "=SUM(,)");
+    setCellContent(model, "C3", "=SUM( )");
+    setCellContent(model, "C4", "=SUM( , )");
+    setCellContent(model, "C5", "=SUM( 42 )");
+    setCellContent(model, "C6", "=SUM( 42 , 24  )");
+    setCellContent(model, "C7", "=SUM( 43 ,     )");
+    setCellContent(model, "C8", "=SUM( 44   45  )");
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: "=COUNT()" });
-    model.dispatch("SET_VALUE", { xc: "D2", text: "=COUNT(,)" });
-    model.dispatch("SET_VALUE", { xc: "D3", text: "=COUNT( )" });
-    model.dispatch("SET_VALUE", { xc: "D4", text: "=COUNT( , )" });
-    model.dispatch("SET_VALUE", { xc: "D5", text: "=COUNT( 42 )" });
-    model.dispatch("SET_VALUE", { xc: "D6", text: "=COUNT( 42 , 24  )" });
-    model.dispatch("SET_VALUE", { xc: "D7", text: "=COUNT( 43 ,     )" });
-    model.dispatch("SET_VALUE", { xc: "D8", text: "=COUNT( 44   45  )" });
+    setCellContent(model, "D1", "=COUNT()");
+    setCellContent(model, "D2", "=COUNT(,)");
+    setCellContent(model, "D3", "=COUNT( )");
+    setCellContent(model, "D4", "=COUNT( , )");
+    setCellContent(model, "D5", "=COUNT( 42 )");
+    setCellContent(model, "D6", "=COUNT( 42 , 24  )");
+    setCellContent(model, "D7", "=COUNT( 43 ,     )");
+    setCellContent(model, "D8", "=COUNT( 44   45  )");
 
     expect(getCell(model, "A1")!).toBe(null);
     expect(getCell(model, "A2")!.value).toBe(",");
@@ -388,41 +388,41 @@ describe("evaluateCells", () => {
   test("various string expressions with whitespace", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: '""' });
-    model.dispatch("SET_VALUE", { xc: "A2", text: '","' });
-    model.dispatch("SET_VALUE", { xc: "A3", text: '" "' });
-    model.dispatch("SET_VALUE", { xc: "A4", text: '" , "' });
-    model.dispatch("SET_VALUE", { xc: "A5", text: '" 42  "' });
-    model.dispatch("SET_VALUE", { xc: "A6", text: '" 42 , 24  "' });
-    model.dispatch("SET_VALUE", { xc: "A7", text: '" 43 ,     "' });
-    model.dispatch("SET_VALUE", { xc: "A8", text: '" 44   45  "' });
+    setCellContent(model, "A1", '""');
+    setCellContent(model, "A2", '","');
+    setCellContent(model, "A3", '" "');
+    setCellContent(model, "A4", '" , "');
+    setCellContent(model, "A5", '" 42  "');
+    setCellContent(model, "A6", '" 42 , 24  "');
+    setCellContent(model, "A7", '" 43 ,     "');
+    setCellContent(model, "A8", '" 44   45  "');
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: '=""' });
-    model.dispatch("SET_VALUE", { xc: "B2", text: '=","' });
-    model.dispatch("SET_VALUE", { xc: "B3", text: '=" "' });
-    model.dispatch("SET_VALUE", { xc: "B4", text: '=" , "' });
-    model.dispatch("SET_VALUE", { xc: "B5", text: '=" 42  "' });
-    model.dispatch("SET_VALUE", { xc: "B6", text: '=" 42 , 24  "' });
-    model.dispatch("SET_VALUE", { xc: "B7", text: '=" 43 ,     "' });
-    model.dispatch("SET_VALUE", { xc: "B8", text: '=" 44   45  "' });
+    setCellContent(model, "B1", '=""');
+    setCellContent(model, "B2", '=","');
+    setCellContent(model, "B3", '=" "');
+    setCellContent(model, "B4", '=" , "');
+    setCellContent(model, "B5", '=" 42  "');
+    setCellContent(model, "B6", '=" 42 , 24  "');
+    setCellContent(model, "B7", '=" 43 ,     "');
+    setCellContent(model, "B8", '=" 44   45  "');
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: '=SUM("")' });
-    model.dispatch("SET_VALUE", { xc: "C2", text: '=SUM(",")' });
-    model.dispatch("SET_VALUE", { xc: "C3", text: '=SUM(" ")' });
-    model.dispatch("SET_VALUE", { xc: "C4", text: '=SUM(" , ")' });
-    model.dispatch("SET_VALUE", { xc: "C5", text: '=SUM(" 42  ")' });
-    model.dispatch("SET_VALUE", { xc: "C6", text: '=SUM(" 42 , 24  ")' });
-    model.dispatch("SET_VALUE", { xc: "C7", text: '=SUM(" 43 ,     ")' });
-    model.dispatch("SET_VALUE", { xc: "C8", text: '=SUM(" 44   45  ")' });
+    setCellContent(model, "C1", '=SUM("")');
+    setCellContent(model, "C2", '=SUM(",")');
+    setCellContent(model, "C3", '=SUM(" ")');
+    setCellContent(model, "C4", '=SUM(" , ")');
+    setCellContent(model, "C5", '=SUM(" 42  ")');
+    setCellContent(model, "C6", '=SUM(" 42 , 24  ")');
+    setCellContent(model, "C7", '=SUM(" 43 ,     ")');
+    setCellContent(model, "C8", '=SUM(" 44   45  ")');
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: '=COUNT("")' });
-    model.dispatch("SET_VALUE", { xc: "D2", text: '=COUNT(",")' });
-    model.dispatch("SET_VALUE", { xc: "D3", text: '=COUNT(" ")' });
-    model.dispatch("SET_VALUE", { xc: "D4", text: '=COUNT(" , ")' });
-    model.dispatch("SET_VALUE", { xc: "D5", text: '=COUNT(" 42  ")' });
-    model.dispatch("SET_VALUE", { xc: "D6", text: '=COUNT(" 42 , 24  ")' });
-    model.dispatch("SET_VALUE", { xc: "D7", text: '=COUNT(" 43 ,     ")' });
-    model.dispatch("SET_VALUE", { xc: "D8", text: '=COUNT(" 44   45  ")' });
+    setCellContent(model, "D1", '=COUNT("")');
+    setCellContent(model, "D2", '=COUNT(",")');
+    setCellContent(model, "D3", '=COUNT(" ")');
+    setCellContent(model, "D4", '=COUNT(" , ")');
+    setCellContent(model, "D5", '=COUNT(" 42  ")');
+    setCellContent(model, "D6", '=COUNT(" 42 , 24  ")');
+    setCellContent(model, "D7", '=COUNT(" 43 ,     ")');
+    setCellContent(model, "D8", '=COUNT(" 44   45  ")');
 
     expect(getCell(model, "A1")!.value).toBe('""');
     expect(getCell(model, "A2")!.value).toBe('","');
@@ -464,21 +464,21 @@ describe("evaluateCells", () => {
   test("various expressions with dot", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: "4.2" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "4." });
-    model.dispatch("SET_VALUE", { xc: "A3", text: ".2" });
+    setCellContent(model, "A1", "4.2");
+    setCellContent(model, "A2", "4.");
+    setCellContent(model, "A3", ".2");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "=4.2" });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "=4." });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "=.2" });
+    setCellContent(model, "B1", "=4.2");
+    setCellContent(model, "B2", "=4.");
+    setCellContent(model, "B3", "=.2");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "=SUM(4.2)" });
-    model.dispatch("SET_VALUE", { xc: "C2", text: "=SUM(4.)" });
-    model.dispatch("SET_VALUE", { xc: "C3", text: "=SUM(.2)" });
+    setCellContent(model, "C1", "=SUM(4.2)");
+    setCellContent(model, "C2", "=SUM(4.)");
+    setCellContent(model, "C3", "=SUM(.2)");
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: "=COUNT(4.2)" });
-    model.dispatch("SET_VALUE", { xc: "D2", text: "=COUNT(4.)" });
-    model.dispatch("SET_VALUE", { xc: "D3", text: "=COUNT(.2)" });
+    setCellContent(model, "D1", "=COUNT(4.2)");
+    setCellContent(model, "D2", "=COUNT(4.)");
+    setCellContent(model, "D3", "=COUNT(.2)");
 
     expect(getCell(model, "A1")!.value).toBe(4.2);
     expect(getCell(model, "A2")!.value).toBe(4);
@@ -499,21 +499,21 @@ describe("evaluateCells", () => {
 
   test("various string expressions with dot", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: '"4.2"' });
-    model.dispatch("SET_VALUE", { xc: "A2", text: '"4."' });
-    model.dispatch("SET_VALUE", { xc: "A3", text: '".2"' });
+    setCellContent(model, "A1", '"4.2"');
+    setCellContent(model, "A2", '"4."');
+    setCellContent(model, "A3", '".2"');
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: '="4.2"' });
-    model.dispatch("SET_VALUE", { xc: "B2", text: '="4."' });
-    model.dispatch("SET_VALUE", { xc: "B3", text: '=".2"' });
+    setCellContent(model, "B1", '="4.2"');
+    setCellContent(model, "B2", '="4."');
+    setCellContent(model, "B3", '=".2"');
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: '=SUM("4.2")' });
-    model.dispatch("SET_VALUE", { xc: "C2", text: '=SUM("4.")' });
-    model.dispatch("SET_VALUE", { xc: "C3", text: '=SUM(".2")' });
+    setCellContent(model, "C1", '=SUM("4.2")');
+    setCellContent(model, "C2", '=SUM("4.")');
+    setCellContent(model, "C3", '=SUM(".2")');
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: '=COUNT("4.2")' });
-    model.dispatch("SET_VALUE", { xc: "D2", text: '=COUNT("4.")' });
-    model.dispatch("SET_VALUE", { xc: "D3", text: '=COUNT(".2")' });
+    setCellContent(model, "D1", '=COUNT("4.2")');
+    setCellContent(model, "D2", '=COUNT("4.")');
+    setCellContent(model, "D3", '=COUNT(".2")');
 
     expect(getCell(model, "A1")!.value).toBe('"4.2"');
     expect(getCell(model, "A2")!.value).toBe('"4."');
@@ -534,33 +534,33 @@ describe("evaluateCells", () => {
 
   test("various expressions with dot and whitespace", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "42 .24" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "42. 24" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "42 ." });
-    model.dispatch("SET_VALUE", { xc: "A4", text: "42. " });
-    model.dispatch("SET_VALUE", { xc: "A5", text: " .24" });
-    model.dispatch("SET_VALUE", { xc: "A6", text: ". 24" });
+    setCellContent(model, "A1", "42 .24");
+    setCellContent(model, "A2", "42. 24");
+    setCellContent(model, "A3", "42 .");
+    setCellContent(model, "A4", "42. ");
+    setCellContent(model, "A5", " .24");
+    setCellContent(model, "A6", ". 24");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "=42 .24" });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "=42. 24" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "=42 ." });
-    model.dispatch("SET_VALUE", { xc: "B4", text: "=42. " });
-    model.dispatch("SET_VALUE", { xc: "B5", text: "= .24" });
-    model.dispatch("SET_VALUE", { xc: "B6", text: "=. 24" });
+    setCellContent(model, "B1", "=42 .24");
+    setCellContent(model, "B2", "=42. 24");
+    setCellContent(model, "B3", "=42 .");
+    setCellContent(model, "B4", "=42. ");
+    setCellContent(model, "B5", "= .24");
+    setCellContent(model, "B6", "=. 24");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "=SUM(42 .24)" });
-    model.dispatch("SET_VALUE", { xc: "C2", text: "=SUM(42. 24)" });
-    model.dispatch("SET_VALUE", { xc: "C3", text: "=SUM(42 .)" });
-    model.dispatch("SET_VALUE", { xc: "C4", text: "=SUM(42. )" });
-    model.dispatch("SET_VALUE", { xc: "C5", text: "=SUM( .24)" });
-    model.dispatch("SET_VALUE", { xc: "C6", text: "=SUM(. 24)" });
+    setCellContent(model, "C1", "=SUM(42 .24)");
+    setCellContent(model, "C2", "=SUM(42. 24)");
+    setCellContent(model, "C3", "=SUM(42 .)");
+    setCellContent(model, "C4", "=SUM(42. )");
+    setCellContent(model, "C5", "=SUM( .24)");
+    setCellContent(model, "C6", "=SUM(. 24)");
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: "=COUNT(42 .24)" });
-    model.dispatch("SET_VALUE", { xc: "D2", text: "=COUNT(42. 24)" });
-    model.dispatch("SET_VALUE", { xc: "D3", text: "=COUNT(42 .)" });
-    model.dispatch("SET_VALUE", { xc: "D4", text: "=COUNT(42. )" });
-    model.dispatch("SET_VALUE", { xc: "D5", text: "=COUNT( .24)" });
-    model.dispatch("SET_VALUE", { xc: "D6", text: "=COUNT(. 24)" });
+    setCellContent(model, "D1", "=COUNT(42 .24)");
+    setCellContent(model, "D2", "=COUNT(42. 24)");
+    setCellContent(model, "D3", "=COUNT(42 .)");
+    setCellContent(model, "D4", "=COUNT(42. )");
+    setCellContent(model, "D5", "=COUNT( .24)");
+    setCellContent(model, "D6", "=COUNT(. 24)");
 
     expect(getCell(model, "A1")!.value).toBe("42 .24");
     expect(getCell(model, "A2")!.value).toBe("42. 24");
@@ -593,33 +593,33 @@ describe("evaluateCells", () => {
 
   test("various string expressions with dot and whitespace", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: '"42 .24"' });
-    model.dispatch("SET_VALUE", { xc: "A2", text: '"42. 24"' });
-    model.dispatch("SET_VALUE", { xc: "A3", text: '"42 ."' });
-    model.dispatch("SET_VALUE", { xc: "A4", text: '"42. "' });
-    model.dispatch("SET_VALUE", { xc: "A5", text: '" .24"' });
-    model.dispatch("SET_VALUE", { xc: "A6", text: '". 24"' });
+    setCellContent(model, "A1", '"42 .24"');
+    setCellContent(model, "A2", '"42. 24"');
+    setCellContent(model, "A3", '"42 ."');
+    setCellContent(model, "A4", '"42. "');
+    setCellContent(model, "A5", '" .24"');
+    setCellContent(model, "A6", '". 24"');
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: '="42 .24"' });
-    model.dispatch("SET_VALUE", { xc: "B2", text: '="42. 24"' });
-    model.dispatch("SET_VALUE", { xc: "B3", text: '="42 ."' });
-    model.dispatch("SET_VALUE", { xc: "B4", text: '="42. "' });
-    model.dispatch("SET_VALUE", { xc: "B5", text: '=" .24"' });
-    model.dispatch("SET_VALUE", { xc: "B6", text: '=". 24"' });
+    setCellContent(model, "B1", '="42 .24"');
+    setCellContent(model, "B2", '="42. 24"');
+    setCellContent(model, "B3", '="42 ."');
+    setCellContent(model, "B4", '="42. "');
+    setCellContent(model, "B5", '=" .24"');
+    setCellContent(model, "B6", '=". 24"');
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: '=SUM("42 .24")' });
-    model.dispatch("SET_VALUE", { xc: "C2", text: '=SUM("42. 24")' });
-    model.dispatch("SET_VALUE", { xc: "C3", text: '=SUM("42 .")' });
-    model.dispatch("SET_VALUE", { xc: "C4", text: '=SUM("42. ")' });
-    model.dispatch("SET_VALUE", { xc: "C5", text: '=SUM(" .24")' });
-    model.dispatch("SET_VALUE", { xc: "C6", text: '=SUM(". 24")' });
+    setCellContent(model, "C1", '=SUM("42 .24")');
+    setCellContent(model, "C2", '=SUM("42. 24")');
+    setCellContent(model, "C3", '=SUM("42 .")');
+    setCellContent(model, "C4", '=SUM("42. ")');
+    setCellContent(model, "C5", '=SUM(" .24")');
+    setCellContent(model, "C6", '=SUM(". 24")');
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: '=COUNT("42 .24")' });
-    model.dispatch("SET_VALUE", { xc: "D2", text: '=COUNT("42. 24")' });
-    model.dispatch("SET_VALUE", { xc: "D3", text: '=COUNT("42 .")' });
-    model.dispatch("SET_VALUE", { xc: "D4", text: '=COUNT("42. ")' });
-    model.dispatch("SET_VALUE", { xc: "D5", text: '=COUNT(" .24")' });
-    model.dispatch("SET_VALUE", { xc: "D6", text: '=COUNT(". 24")' });
+    setCellContent(model, "D1", '=COUNT("42 .24")');
+    setCellContent(model, "D2", '=COUNT("42. 24")');
+    setCellContent(model, "D3", '=COUNT("42 .")');
+    setCellContent(model, "D4", '=COUNT("42. ")');
+    setCellContent(model, "D5", '=COUNT(" .24")');
+    setCellContent(model, "D6", '=COUNT(". 24")');
 
     expect(getCell(model, "A1")!.value).toBe('"42 .24"');
     expect(getCell(model, "A2")!.value).toBe('"42. 24"');
@@ -652,57 +652,57 @@ describe("evaluateCells", () => {
 
   test("various expressions with percent, dot and whitespace", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "%" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: " %" });
-    model.dispatch("SET_VALUE", { xc: "A3", text: "40%" });
-    model.dispatch("SET_VALUE", { xc: "A4", text: " 41% " });
-    model.dispatch("SET_VALUE", { xc: "A5", text: "42 %" });
-    model.dispatch("SET_VALUE", { xc: "A6", text: " 43 % " });
-    model.dispatch("SET_VALUE", { xc: "A7", text: "4.1%" });
-    model.dispatch("SET_VALUE", { xc: "A8", text: " 4.2% " });
-    model.dispatch("SET_VALUE", { xc: "A9", text: ".1%" });
-    model.dispatch("SET_VALUE", { xc: "A10", text: " .2% " });
-    model.dispatch("SET_VALUE", { xc: "A11", text: "3.%" });
-    model.dispatch("SET_VALUE", { xc: "A12", text: " 4.% " });
+    setCellContent(model, "A1", "%");
+    setCellContent(model, "A2", " %");
+    setCellContent(model, "A3", "40%");
+    setCellContent(model, "A4", " 41% ");
+    setCellContent(model, "A5", "42 %");
+    setCellContent(model, "A6", " 43 % ");
+    setCellContent(model, "A7", "4.1%");
+    setCellContent(model, "A8", " 4.2% ");
+    setCellContent(model, "A9", ".1%");
+    setCellContent(model, "A10", " .2% ");
+    setCellContent(model, "A11", "3.%");
+    setCellContent(model, "A12", " 4.% ");
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: "=%" });
-    model.dispatch("SET_VALUE", { xc: "B2", text: "= %" });
-    model.dispatch("SET_VALUE", { xc: "B3", text: "=40%" });
-    model.dispatch("SET_VALUE", { xc: "B4", text: "= 41% " });
-    model.dispatch("SET_VALUE", { xc: "B5", text: "=42 %" });
-    model.dispatch("SET_VALUE", { xc: "B6", text: "= 43 % " });
-    model.dispatch("SET_VALUE", { xc: "B7", text: "=4.1%" });
-    model.dispatch("SET_VALUE", { xc: "B8", text: "= 4.2% " });
-    model.dispatch("SET_VALUE", { xc: "B9", text: "=.1%" });
-    model.dispatch("SET_VALUE", { xc: "B10", text: "= .2% " });
-    model.dispatch("SET_VALUE", { xc: "B11", text: "=3.%" });
-    model.dispatch("SET_VALUE", { xc: "B12", text: "= 4.% " });
+    setCellContent(model, "B1", "=%");
+    setCellContent(model, "B2", "= %");
+    setCellContent(model, "B3", "=40%");
+    setCellContent(model, "B4", "= 41% ");
+    setCellContent(model, "B5", "=42 %");
+    setCellContent(model, "B6", "= 43 % ");
+    setCellContent(model, "B7", "=4.1%");
+    setCellContent(model, "B8", "= 4.2% ");
+    setCellContent(model, "B9", "=.1%");
+    setCellContent(model, "B10", "= .2% ");
+    setCellContent(model, "B11", "=3.%");
+    setCellContent(model, "B12", "= 4.% ");
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: "=SUM(%)" });
-    model.dispatch("SET_VALUE", { xc: "C2", text: "=SUM( %)" });
-    model.dispatch("SET_VALUE", { xc: "C3", text: "=SUM(40%)" });
-    model.dispatch("SET_VALUE", { xc: "C4", text: "=SUM( 41% )" });
-    model.dispatch("SET_VALUE", { xc: "C5", text: "=SUM(42 %)" });
-    model.dispatch("SET_VALUE", { xc: "C6", text: "=SUM( 43 % )" });
-    model.dispatch("SET_VALUE", { xc: "C7", text: "=SUM(4.1%)" });
-    model.dispatch("SET_VALUE", { xc: "C8", text: "=SUM( 4.2% )" });
-    model.dispatch("SET_VALUE", { xc: "C9", text: "=SUM(.1%)" });
-    model.dispatch("SET_VALUE", { xc: "C10", text: "=SUM( .2% )" });
-    model.dispatch("SET_VALUE", { xc: "C11", text: "=SUM(3.%)" });
-    model.dispatch("SET_VALUE", { xc: "C12", text: "=SUM( 4.% )" });
+    setCellContent(model, "C1", "=SUM(%)");
+    setCellContent(model, "C2", "=SUM( %)");
+    setCellContent(model, "C3", "=SUM(40%)");
+    setCellContent(model, "C4", "=SUM( 41% )");
+    setCellContent(model, "C5", "=SUM(42 %)");
+    setCellContent(model, "C6", "=SUM( 43 % )");
+    setCellContent(model, "C7", "=SUM(4.1%)");
+    setCellContent(model, "C8", "=SUM( 4.2% )");
+    setCellContent(model, "C9", "=SUM(.1%)");
+    setCellContent(model, "C10", "=SUM( .2% )");
+    setCellContent(model, "C11", "=SUM(3.%)");
+    setCellContent(model, "C12", "=SUM( 4.% )");
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: "=COUNT(%)" });
-    model.dispatch("SET_VALUE", { xc: "D2", text: "=COUNT( %)" });
-    model.dispatch("SET_VALUE", { xc: "D3", text: "=COUNT(40%)" });
-    model.dispatch("SET_VALUE", { xc: "D4", text: "=COUNT( 41% )" });
-    model.dispatch("SET_VALUE", { xc: "D5", text: "=COUNT(42 %)" });
-    model.dispatch("SET_VALUE", { xc: "D6", text: "=COUNT( 43 % )" });
-    model.dispatch("SET_VALUE", { xc: "D7", text: "=COUNT(4.1%)" });
-    model.dispatch("SET_VALUE", { xc: "D8", text: "=COUNT( 4.2% )" });
-    model.dispatch("SET_VALUE", { xc: "D9", text: "=COUNT(.1%)" });
-    model.dispatch("SET_VALUE", { xc: "D10", text: "=COUNT( .2% )" });
-    model.dispatch("SET_VALUE", { xc: "D11", text: "=COUNT(3.%)" });
-    model.dispatch("SET_VALUE", { xc: "D12", text: "=COUNT( 4.% )" });
+    setCellContent(model, "D1", "=COUNT(%)");
+    setCellContent(model, "D2", "=COUNT( %)");
+    setCellContent(model, "D3", "=COUNT(40%)");
+    setCellContent(model, "D4", "=COUNT( 41% )");
+    setCellContent(model, "D5", "=COUNT(42 %)");
+    setCellContent(model, "D6", "=COUNT( 43 % )");
+    setCellContent(model, "D7", "=COUNT(4.1%)");
+    setCellContent(model, "D8", "=COUNT( 4.2% )");
+    setCellContent(model, "D9", "=COUNT(.1%)");
+    setCellContent(model, "D10", "=COUNT( .2% )");
+    setCellContent(model, "D11", "=COUNT(3.%)");
+    setCellContent(model, "D12", "=COUNT( 4.% )");
 
     expect(getCell(model, "A1")!.value).toBe("%");
     expect(getCell(model, "A2")!.value).toBe(" %");
@@ -760,57 +760,57 @@ describe("evaluateCells", () => {
   test("various string expressions with percent, dot and whitespace", () => {
     const model = new Model();
 
-    model.dispatch("SET_VALUE", { xc: "A1", text: '"%"' });
-    model.dispatch("SET_VALUE", { xc: "A2", text: '" %"' });
-    model.dispatch("SET_VALUE", { xc: "A3", text: '"40%"' });
-    model.dispatch("SET_VALUE", { xc: "A4", text: '" 41% "' });
-    model.dispatch("SET_VALUE", { xc: "A5", text: '"42 %"' });
-    model.dispatch("SET_VALUE", { xc: "A6", text: '" 43 % "' });
-    model.dispatch("SET_VALUE", { xc: "A7", text: '"4.1%"' });
-    model.dispatch("SET_VALUE", { xc: "A8", text: '" 4.2% "' });
-    model.dispatch("SET_VALUE", { xc: "A9", text: '".1%"' });
-    model.dispatch("SET_VALUE", { xc: "A10", text: '" .2% "' });
-    model.dispatch("SET_VALUE", { xc: "A11", text: '"3.%"' });
-    model.dispatch("SET_VALUE", { xc: "A12", text: '" 4.% "' });
+    setCellContent(model, "A1", '"%"');
+    setCellContent(model, "A2", '" %"');
+    setCellContent(model, "A3", '"40%"');
+    setCellContent(model, "A4", '" 41% "');
+    setCellContent(model, "A5", '"42 %"');
+    setCellContent(model, "A6", '" 43 % "');
+    setCellContent(model, "A7", '"4.1%"');
+    setCellContent(model, "A8", '" 4.2% "');
+    setCellContent(model, "A9", '".1%"');
+    setCellContent(model, "A10", '" .2% "');
+    setCellContent(model, "A11", '"3.%"');
+    setCellContent(model, "A12", '" 4.% "');
 
-    model.dispatch("SET_VALUE", { xc: "B1", text: '="%"' });
-    model.dispatch("SET_VALUE", { xc: "B2", text: '=" %"' });
-    model.dispatch("SET_VALUE", { xc: "B3", text: '="40%"' });
-    model.dispatch("SET_VALUE", { xc: "B4", text: '=" 41% "' });
-    model.dispatch("SET_VALUE", { xc: "B5", text: '="42 %"' });
-    model.dispatch("SET_VALUE", { xc: "B6", text: '=" 43 % "' });
-    model.dispatch("SET_VALUE", { xc: "B7", text: '="4.1%"' });
-    model.dispatch("SET_VALUE", { xc: "B8", text: '=" 4.2% "' });
-    model.dispatch("SET_VALUE", { xc: "B9", text: '=".1%"' });
-    model.dispatch("SET_VALUE", { xc: "B10", text: '=" .2% "' });
-    model.dispatch("SET_VALUE", { xc: "B11", text: '="3.%"' });
-    model.dispatch("SET_VALUE", { xc: "B12", text: '=" 4.% "' });
+    setCellContent(model, "B1", '="%"');
+    setCellContent(model, "B2", '=" %"');
+    setCellContent(model, "B3", '="40%"');
+    setCellContent(model, "B4", '=" 41% "');
+    setCellContent(model, "B5", '="42 %"');
+    setCellContent(model, "B6", '=" 43 % "');
+    setCellContent(model, "B7", '="4.1%"');
+    setCellContent(model, "B8", '=" 4.2% "');
+    setCellContent(model, "B9", '=".1%"');
+    setCellContent(model, "B10", '=" .2% "');
+    setCellContent(model, "B11", '="3.%"');
+    setCellContent(model, "B12", '=" 4.% "');
 
-    model.dispatch("SET_VALUE", { xc: "C1", text: '=SUM("%")' });
-    model.dispatch("SET_VALUE", { xc: "C2", text: '=SUM(" %")' });
-    model.dispatch("SET_VALUE", { xc: "C3", text: '=SUM("40%")' });
-    model.dispatch("SET_VALUE", { xc: "C4", text: '=SUM(" 41% ")' });
-    model.dispatch("SET_VALUE", { xc: "C5", text: '=SUM("42 %")' });
-    model.dispatch("SET_VALUE", { xc: "C6", text: '=SUM(" 43 % ")' });
-    model.dispatch("SET_VALUE", { xc: "C7", text: '=SUM("4.1%")' });
-    model.dispatch("SET_VALUE", { xc: "C8", text: '=SUM(" 4.2% ")' });
-    model.dispatch("SET_VALUE", { xc: "C9", text: '=SUM(".1%")' });
-    model.dispatch("SET_VALUE", { xc: "C10", text: '=SUM(" .2% ")' });
-    model.dispatch("SET_VALUE", { xc: "C11", text: '=SUM("3.%")' });
-    model.dispatch("SET_VALUE", { xc: "C12", text: '=SUM(" 4.% ")' });
+    setCellContent(model, "C1", '=SUM("%")');
+    setCellContent(model, "C2", '=SUM(" %")');
+    setCellContent(model, "C3", '=SUM("40%")');
+    setCellContent(model, "C4", '=SUM(" 41% ")');
+    setCellContent(model, "C5", '=SUM("42 %")');
+    setCellContent(model, "C6", '=SUM(" 43 % ")');
+    setCellContent(model, "C7", '=SUM("4.1%")');
+    setCellContent(model, "C8", '=SUM(" 4.2% ")');
+    setCellContent(model, "C9", '=SUM(".1%")');
+    setCellContent(model, "C10", '=SUM(" .2% ")');
+    setCellContent(model, "C11", '=SUM("3.%")');
+    setCellContent(model, "C12", '=SUM(" 4.% ")');
 
-    model.dispatch("SET_VALUE", { xc: "D1", text: '=COUNT("%")' });
-    model.dispatch("SET_VALUE", { xc: "D2", text: '=COUNT(" %")' });
-    model.dispatch("SET_VALUE", { xc: "D3", text: '=COUNT("40%")' });
-    model.dispatch("SET_VALUE", { xc: "D4", text: '=COUNT(" 41% ")' });
-    model.dispatch("SET_VALUE", { xc: "D5", text: '=COUNT("42 %")' });
-    model.dispatch("SET_VALUE", { xc: "D6", text: '=COUNT(" 43 % ")' });
-    model.dispatch("SET_VALUE", { xc: "D7", text: '=COUNT("4.1%")' });
-    model.dispatch("SET_VALUE", { xc: "D8", text: '=COUNT(" 4.2% ")' });
-    model.dispatch("SET_VALUE", { xc: "D9", text: '=COUNT(".1%")' });
-    model.dispatch("SET_VALUE", { xc: "D10", text: '=COUNT(" .2% ")' });
-    model.dispatch("SET_VALUE", { xc: "D11", text: '=COUNT("3.%")' });
-    model.dispatch("SET_VALUE", { xc: "D12", text: '=COUNT(" 4.% ")' });
+    setCellContent(model, "D1", '=COUNT("%")');
+    setCellContent(model, "D2", '=COUNT(" %")');
+    setCellContent(model, "D3", '=COUNT("40%")');
+    setCellContent(model, "D4", '=COUNT(" 41% ")');
+    setCellContent(model, "D5", '=COUNT("42 %")');
+    setCellContent(model, "D6", '=COUNT(" 43 % ")');
+    setCellContent(model, "D7", '=COUNT("4.1%")');
+    setCellContent(model, "D8", '=COUNT(" 4.2% ")');
+    setCellContent(model, "D9", '=COUNT(".1%")');
+    setCellContent(model, "D10", '=COUNT(" .2% ")');
+    setCellContent(model, "D11", '=COUNT("3.%")');
+    setCellContent(model, "D12", '=COUNT(" 4.% ")');
 
     expect(getCell(model, "A1")!.value).toBe('"%"');
     expect(getCell(model, "A2")!.value).toBe('" %"');

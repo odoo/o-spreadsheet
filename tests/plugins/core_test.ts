@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { waitForRecompute, getCell } from "../helpers";
+import { waitForRecompute, getCell, setCellContent } from "../helpers";
 import { LOADING } from "../../src/plugins/evaluation";
 import { CancelledReason } from "../../src/types";
 
@@ -7,8 +7,8 @@ describe("core", () => {
   describe("aggregate", () => {
     test("properly compute sum of current cells", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
-      model.dispatch("SET_VALUE", { xc: "A3", text: "54" });
+      setCellContent(model, "A2", "3");
+      setCellContent(model, "A3", "54");
 
       expect(model.getters.getAggregate()).toBe(null);
 
@@ -22,9 +22,9 @@ describe("core", () => {
 
     test("ignore cells with an error", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "2" });
-      model.dispatch("SET_VALUE", { xc: "A2", text: "=A2" });
-      model.dispatch("SET_VALUE", { xc: "A3", text: "3" });
+      setCellContent(model, "A1", "2");
+      setCellContent(model, "A2", "=A2");
+      setCellContent(model, "A3", "3");
 
       // select A1
       model.dispatch("SELECT_CELL", { col: 0, row: 0 });
@@ -41,8 +41,8 @@ describe("core", () => {
 
     test("ignore async cells while they are not ready", async () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "=Wait(1000)" });
-      model.dispatch("SET_VALUE", { xc: "A2", text: "44" });
+      setCellContent(model, "A1", "=Wait(1000)");
+      setCellContent(model, "A2", "44");
 
       // select A1
       model.dispatch("SELECT_CELL", { col: 0, row: 0 });
@@ -60,7 +60,7 @@ describe("core", () => {
   describe("format", () => {
     test("format cell that point to an empty cell properly", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "=A2" });
+      setCellContent(model, "A1", "=A2");
 
       expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0");
     });
@@ -78,7 +78,7 @@ describe("core", () => {
 
     test("format cell with the zero value", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "0" });
+      setCellContent(model, "A1", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 0 });
       model.dispatch("SET_FORMATTER", {
         sheetId: model.getters.getActiveSheetId(),
@@ -86,7 +86,7 @@ describe("core", () => {
         formatter: "0.00000",
       });
       expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0.00000");
-      model.dispatch("SET_VALUE", { xc: "A2", text: "0" });
+      setCellContent(model, "A2", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 1 });
       model.dispatch("SET_FORMATTER", {
         sheetId: model.getters.getActiveSheetId(),
@@ -98,7 +98,7 @@ describe("core", () => {
 
     test("format a pendingcell: should not apply formatter to Loading...", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "B2", text: "=Wait(1000)" });
+      setCellContent(model, "B2", "=Wait(1000)");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
       model.dispatch("SET_FORMATTER", {
         sheetId: model.getters.getActiveSheetId(),
@@ -110,7 +110,7 @@ describe("core", () => {
 
     test("evaluate properly a cell with a style just recently applied", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(A2) + 1" });
+      setCellContent(model, "A1", "=sum(A2) + 1");
       model.dispatch("SET_FORMATTING", {
         sheetId: "Sheet1",
         target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
@@ -121,8 +121,8 @@ describe("core", () => {
 
     test("format cell to a boolean value", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "=false" });
-      model.dispatch("SET_VALUE", { xc: "A2", text: "=true" });
+      setCellContent(model, "A1", "=false");
+      setCellContent(model, "A2", "=true");
 
       expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("FALSE");
       expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("TRUE");
@@ -130,8 +130,8 @@ describe("core", () => {
 
     test("detect and format percentage values automatically", () => {
       const model = new Model();
-      model.dispatch("SET_VALUE", { xc: "A1", text: "3%" });
-      model.dispatch("SET_VALUE", { xc: "A2", text: "3.4%" });
+      setCellContent(model, "A1", "3%");
+      setCellContent(model, "A2", "3.4%");
 
       expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3%");
       expect(getCell(model, "A1")!.format).toBe("0%");
@@ -142,7 +142,7 @@ describe("core", () => {
 
   test("does not reevaluate cells if edition does not change content", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=rand()" });
+    setCellContent(model, "A1", "=rand()");
 
     expect(getCell(model, "A1")!.value).toBeDefined();
     const val = getCell(model, "A1")!.value;
@@ -277,7 +277,7 @@ describe("history", () => {
 
   test("can undo and redo a delete cell operation", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
+    setCellContent(model, "A2", "3");
 
     expect(getCell(model, "A2")!.content).toBe("3");
     model.dispatch("SELECT_CELL", { col: 0, row: 1 });
@@ -296,7 +296,7 @@ describe("history", () => {
 
   test("can delete a cell with a style", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTING", {
       sheetId: "Sheet1",
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
@@ -314,7 +314,7 @@ describe("history", () => {
 
   test("can delete a cell with a border", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
@@ -332,7 +332,7 @@ describe("history", () => {
 
   test("can delete a cell with a formatter", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "3" });
+    setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTER", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
@@ -350,16 +350,16 @@ describe("history", () => {
 
   test("setting a date to a cell will reformat it", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "03/2/2011" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: " 03/12/2011" });
+    setCellContent(model, "A1", "03/2/2011");
+    setCellContent(model, "A2", " 03/12/2011");
     expect(getCell(model, "A1")!.content).toBe("03/02/2011");
     expect(getCell(model, "A2")!.content).toBe("03/12/2011");
   });
 
   test("get cell formula text", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=SUM(1, 2)" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "This is Patrick" });
+    setCellContent(model, "A1", "=SUM(1, 2)");
+    setCellContent(model, "A2", "This is Patrick");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("=SUM(1, 2)");
     expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("This is Patrick");
