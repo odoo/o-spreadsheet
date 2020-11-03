@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { evaluateCellText, evaluateGrid, getCell, evaluateCell } from "../helpers";
+import { evaluateCellText, evaluateGrid, getCell, evaluateCell, setCellContent } from "../helpers";
 
 describe("evaluateCells", () => {
   test("Various date representations", () => {
@@ -48,7 +48,7 @@ describe("evaluateCells", () => {
 
   test("date representation is preserved when displayed", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "1/1/2020" });
+    setCellContent(model, "A1", "1/1/2020");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toEqual("1/1/2020");
   });
 

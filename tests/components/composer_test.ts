@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell } from "../helpers";
+import { nextTick, makeTestFixture, GridParent, getActiveXc, getCell, setCellContent } from "../helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
@@ -350,7 +350,7 @@ describe("composer", () => {
 
 describe("composer highlights color", () => {
   test("colors start with first color", async () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=a1+a2" });
+    setCellContent(model, "A1", "=a1+a2");
     await startComposition();
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
@@ -358,8 +358,8 @@ describe("composer highlights color", () => {
   });
 
   test("colors always start with first color", async () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=b1+b2" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "=b1+b3" });
+    setCellContent(model, "A1", "=b1+b2");
+    setCellContent(model, "A2", "=b1+b3");
     await startComposition();
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
@@ -375,14 +375,14 @@ describe("composer highlights color", () => {
   });
 
   test("highlight do not duplicate", async () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=a1+a1" });
+    setCellContent(model, "A1", "=a1+a1");
     await startComposition();
     expect(getHighlights(model).length).toBe(1);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
   });
 
   test("highlight range", async () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(a1:a10)" });
+    setCellContent(model, "A1", "=sum(a1:a10)");
     await startComposition();
     expect(getHighlights(model).length).toBe(1);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
@@ -390,13 +390,13 @@ describe("composer highlights color", () => {
   });
 
   test("highlight 'reverse' ranges", async () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=sum(B3:a1)" });
+    setCellContent(model, "A1", "=sum(B3:a1)");
     await startComposition();
     expect(getHighlights(model)[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
   test.each(["=A0", "=ZZ1", "=A101"])("Do not highlight invalid ref", async (ref) => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: ref });
+    setCellContent(model, "A1", ref);
     await startComposition();
     expect(getHighlights(model).length).toBe(0);
     expect(composerEl.textContent).toBe(ref);
@@ -404,7 +404,7 @@ describe("composer highlights color", () => {
 
   test("highlight cross-sheet ranges", async () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=B1+Sheet2!A1" });
+    setCellContent(model, "A1", "=B1+Sheet2!A1");
     await startComposition();
     const highlights = getHighlights(model);
     expect(highlights).toHaveLength(2);

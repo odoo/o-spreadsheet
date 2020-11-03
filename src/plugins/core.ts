@@ -70,19 +70,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           format: "",
         });
         break;
-
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
-        break;
-
-      case "SET_VALUE":
-        const [col, row] = toCartesian(cmd.xc);
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId ? cmd.sheetId : this.getters.getActiveSheetId(),
-          col,
-          row,
-          content: cmd.text,
-        });
         break;
     }
   }

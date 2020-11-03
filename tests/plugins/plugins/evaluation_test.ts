@@ -2,7 +2,7 @@ import { Model } from "../../../src/model";
 import { functionRegistry, args } from "../../../src/functions/index";
 
 import "../../canvas.mock";
-import { getCell } from "../../helpers";
+import { getCell, setCellContent } from "../../helpers";
 
 let model: Model = new Model();
 beforeEach(() => {
@@ -11,14 +11,14 @@ beforeEach(() => {
 
 describe("evaluate formula getter", () => {
   test("a ref in the current sheet", () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "12" });
+    setCellContent(model, "A1", "12");
     expect(model.getters.evaluateFormula("=A1")).toBe(12);
   });
 
   test("in another sheet", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42" });
     const sheet2 = model.getters.getVisibleSheets()[1];
-    model.dispatch("SET_VALUE", { xc: "A1", text: "11", sheetId: sheet2 });
+    setCellContent(model, "A1", "11", sheet2);
     expect(model.getters.evaluateFormula("=Sheet2!A1")).toBe(11);
   });
 
@@ -28,12 +28,12 @@ describe("evaluate formula getter", () => {
   });
 
   test("evaluate a cell in error", () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=mqsdlkjfqsdf(((--" });
+    setCellContent(model, "A1", "=mqsdlkjfqsdf(((--");
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });
 
   test("evaluate a pending cell (async)", () => {
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=wait(99999)" });
+    setCellContent(model, "A1", "=wait(99999)");
     expect(() => model.getters.evaluateFormula("=A1")).toThrow();
   });
 
@@ -45,7 +45,7 @@ describe("evaluate formula getter", () => {
       args: args(``),
       returns: ["NUMBER"],
     });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=GETVALUE()" });
+    setCellContent(model, "A1", "=GETVALUE()");
     expect(getCell(model, "A1")!.value).toBe(1);
     value = 2;
     model.dispatch("EVALUATE_CELLS");
@@ -56,9 +56,9 @@ describe("evaluate formula getter", () => {
     model.dispatch("CREATE_SHEET", { sheetId: "42" });
     const s = model.getters.getSheets();
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: s[1].id, sheetIdTo: s[0].id });
-    model.dispatch("SET_VALUE", { sheetId: s[1].id, xc: "A1", text: "12" });
-    model.dispatch("SET_VALUE", { sheetId: s[1].id, xc: "A2", text: "=A1" });
-    model.dispatch("SET_VALUE", { sheetId: s[0].id, xc: "A2", text: "=Sheet2!A1" });
+    setCellContent(model, "A1", "12", s[1].id);
+    setCellContent(model, "A2", "=A1", s[1].id);
+    setCellContent(model, "A2", "=Sheet2!A1", s[0].id);
     expect(getCell(model, "A2", s[0].id)!.value).toBe(12);
   });
 });

@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import { BorderCommand, Border } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import { getCell } from "../helpers";
+import { getCell, setCellContent } from "../helpers";
 
 function getBorder(model: Model, xc: string): Border | null {
   const cell = model.getters.getCellByXc(model.getters.getActiveSheetId(), xc);
@@ -58,7 +58,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2
-    model.dispatch("SET_VALUE", { xc: "B2", text: "content" });
+    setCellContent(model, "B2", "content");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
 
     // set a border top
@@ -238,7 +238,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2 and set its top border
-    model.dispatch("SET_VALUE", { xc: "B2", text: "content" });
+    setCellContent(model, "B2", "content");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "top");
 
@@ -252,7 +252,7 @@ describe("borders", () => {
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "some content" });
+    setCellContent(model, "B2", "some content");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "all");
 
@@ -265,7 +265,7 @@ describe("borders", () => {
 
   test("can clear formatting (border)", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B1", text: "b1" });
+    setCellContent(model, "B1", "b1");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     setBorder(model, "all");
 

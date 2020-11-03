@@ -9,7 +9,7 @@ import { BasePlugin } from "../src/base_plugin";
 import { pluginRegistry } from "../src/plugins/index";
 import { FigurePlugin } from "../src/plugins/figures";
 import { ChartPlugin } from "../src/plugins/chart";
-import { getCell } from "./helpers";
+import { getCell, setCellContent } from "./helpers";
 import { SheetPlugin } from "../src/plugins/sheet";
 
 describe("Model", () => {
@@ -52,7 +52,7 @@ describe("Model", () => {
 
   test("Model in headless mode should not evaluate cells", () => {
     const model = new Model({}, { mode: "headless" });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=1" });
+    setCellContent(model, "A1", "=1");
     expect(getCell(model, "A1")!.value).not.toBe("1");
   });
 

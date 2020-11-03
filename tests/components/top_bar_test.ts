@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
-import { getCell, makeTestFixture, nextTick, GridParent } from "../helpers";
+import { getCell, makeTestFixture, nextTick, GridParent, setCellContent } from "../helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
@@ -55,7 +55,7 @@ describe("TopBar component", () => {
 
   test("opening a second menu closes the first one", async () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -97,7 +97,7 @@ describe("TopBar component", () => {
 
   test("multiple selection zones => merge tools is disabled", async () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
 
     const parent = new Parent(model);
     await parent.mount(fixture);
@@ -215,7 +215,7 @@ describe("TopBar component", () => {
 
   test("opening, then closing same menu", async () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
+    setCellContent(model, "B2", "b2");
     const parent = new Parent(model);
     await parent.mount(fixture);
 

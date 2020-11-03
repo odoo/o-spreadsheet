@@ -1,5 +1,5 @@
 import { functionRegistry, args } from "../../src/functions/index";
-import { evaluateCell, getCell } from "../helpers";
+import { evaluateCell, getCell, setCellContent } from "../helpers";
 import { Model } from "../../src";
 
 describe("addFunction", () => {
@@ -32,7 +32,7 @@ describe("addFunction", () => {
       args: args(``),
       returns: ["STRING"],
     });
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=GETCOUCOU()" });
+    setCellContent(model, "A1", "=GETCOUCOU()");
     expect(getCell(model, "A1")!.value).toBe("Raoul");
   });
 

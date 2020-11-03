@@ -1,7 +1,7 @@
 import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, waitForRecompute } from "../helpers";
+import { getCell, setCellContent, waitForRecompute } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
@@ -151,8 +151,8 @@ describe("history", () => {
 describe("Model history", () => {
   test("can undo and redo two consecutive operations", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "5" });
+    setCellContent(model, "A2", "3");
+    setCellContent(model, "A2", "5");
 
     expect(getCell(model, "A2")!.content).toBe("5");
 
@@ -170,7 +170,7 @@ describe("Model history", () => {
 
   test("redo stack is nuked when new operation is performed", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A2", text: "3" });
+    setCellContent(model, "A2", "3");
 
     expect(getCell(model, "A2")!.content).toBe("3");
 
@@ -180,7 +180,7 @@ describe("Model history", () => {
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("SET_VALUE", { xc: "A4", text: "5" });
+    setCellContent(model, "A4", "5");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
   });
@@ -221,8 +221,8 @@ describe("Model history", () => {
 
   test("undo recomputes the cells", () => {
     const model = new Model();
-    model.dispatch("SET_VALUE", { xc: "A1", text: "=A2" });
-    model.dispatch("SET_VALUE", { xc: "A2", text: "11" });
+    setCellContent(model, "A1", "=A2");
+    setCellContent(model, "A2", "11");
     expect(getCell(model, "A1")!.value).toBe(11);
     model.dispatch("UNDO");
     expect(getCell(model, "A1")!.value).toBe(null);
