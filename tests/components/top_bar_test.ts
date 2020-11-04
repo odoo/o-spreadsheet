@@ -146,7 +146,7 @@ describe("TopBar component", () => {
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
 
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("paint format tools", async () => {
@@ -177,12 +177,12 @@ describe("TopBar component", () => {
     await parent.mount(fixture);
     const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;
     clearFormatTool.dispatchEvent(new Event("click"));
-    expect(getCell(model, "B1")).toBeNull();
+    expect(getCell(model, "B1")).toBeUndefined();
   });
 
   test("can set cell format", async () => {
     const model = new Model();
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
     const parent = new Parent(model);
     await parent.mount(fixture);
     const formatTool = fixture.querySelector('.o-tool[title="More formats"]')!;

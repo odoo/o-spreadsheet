@@ -317,7 +317,7 @@ export class AutofillPlugin extends BasePlugin {
   /**
    * Get the rule associated to the current cell
    */
-  private getRule(cell: Cell, cells: (Cell | null)[]): AutofillModifier | undefined {
+  private getRule(cell: Cell, cells: (Cell | undefined)[]): AutofillModifier | undefined {
     const rules = autofillRulesRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
     const rule = rules.find((rule) => rule.condition(cell, cells));
     return rule && rule.generateRule(cell, cells);
@@ -329,12 +329,12 @@ export class AutofillPlugin extends BasePlugin {
   private createGenerator(source: string[]): AutofillGenerator {
     const nextCells: GeneratorCell[] = [];
 
-    const cellsData: { col: number; row: number; cell: Cell | null }[] = [];
+    const cellsData: { col: number; row: number; cell?: Cell }[] = [];
     for (let xc of source) {
       const [col, row] = toCartesian(xc);
       const sheetId = this.getters.getActiveSheetId();
       const cell = this.getters.getCell(sheetId, col, row);
-      let cellData: { col: number; row: number; cell: Cell | null } = {
+      let cellData: { col: number; row: number; cell?: Cell } = {
         col,
         row,
         cell,

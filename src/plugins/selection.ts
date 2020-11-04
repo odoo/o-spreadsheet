@@ -186,11 +186,10 @@ export class SelectionPlugin extends BasePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getActiveCell(): Cell | null {
+  getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
     const xc = this.getters.getMainCell(this.activeXc);
-    // TODO Unify null and undefined
-    return this.getters.getCellByXc(sheetId, xc) || null;
+    return this.getters.getCellByXc(sheetId, xc);
   }
 
   getActiveCols(): Set<number> {

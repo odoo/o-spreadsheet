@@ -9,8 +9,8 @@ import { Registry } from "../registry";
  * (ordered by sequence), and we generate the AutofillModifier with generateRule
  */
 interface AutofillRule {
-  condition: (cell: Cell, cells: (Cell | null)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | null)[]) => AutofillModifier;
+  condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
+  generateRule: (cell: Cell, cells: (Cell | undefined)[]) => AutofillModifier;
   sequence: number;
 }
 
@@ -20,7 +20,7 @@ export const autofillRulesRegistry = new Registry<AutofillRule>();
  * Get the consecutive xc that are of type "number".
  * Return the one which contains the given cell
  */
-function getGroup(cell: Cell, cells: (Cell | null)[]): string[] {
+function getGroup(cell: Cell, cells: (Cell | undefined)[]): string[] {
   let group: string[] = [];
   let found: boolean = false;
   for (let x of cells) {
@@ -56,7 +56,7 @@ function getAverageIncrement(group: string[]) {
 
 autofillRulesRegistry
   .add("simple_value_copy", {
-    condition: (cell: Cell, cells: (Cell | null)[]) => {
+    condition: (cell: Cell, cells: (Cell | undefined)[]) => {
       return cells.length === 1 && ["text", "date", "number"].includes(cell.type);
     },
     generateRule: () => {
@@ -73,14 +73,14 @@ autofillRulesRegistry
   })
   .add("update_formula", {
     condition: (cell: Cell) => cell.type === "formula",
-    generateRule: (_, cells: (Cell | null)[]) => {
+    generateRule: (_, cells: (Cell | undefined)[]) => {
       return { type: "FORMULA_MODIFIER", increment: cells.length, current: 0 };
     },
     sequence: 30,
   })
   .add("increment_number", {
     condition: (cell: Cell) => cell.type === "number",
-    generateRule: (cell: Cell, cells: (Cell | null)[]) => {
+    generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
       const group = getGroup(cell, cells);
       let increment: number = 1;
       if (group.length == 2) {

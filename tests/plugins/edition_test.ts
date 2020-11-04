@@ -52,7 +52,7 @@ describe("edition", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("inactive");
-    expect(getCell(model, "A1")).toBe(null);
+    expect(getCell(model, "A1")).toBeUndefined();
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: sheet1,
@@ -77,7 +77,7 @@ describe("edition", () => {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",
     });
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("ignore stopping composer selection if not selecting", () => {

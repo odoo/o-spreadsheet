@@ -45,7 +45,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
     model.dispatch("PASTE", { target: target("D2") });
 
-    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "B2")).toBeUndefined();
     expect(getCell(model, "D2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
@@ -53,7 +53,7 @@ describe("clipboard", () => {
     // select D3 and paste. it should do nothing
     model.dispatch("PASTE", { target: target("D3:D3") });
 
-    expect(getCell(model, "D3")).toBeNull();
+    expect(getCell(model, "D3")).toBeUndefined();
   });
 
   test("paste without copied value", () => {
@@ -95,7 +95,7 @@ describe("clipboard", () => {
     // select D3 and paste. it should do nothing
     model.dispatch("PASTE", { target: target("D3:D3") });
 
-    expect(getCell(model, "D3")).toBeNull();
+    expect(getCell(model, "D3")).toBeUndefined();
   });
 
   test("can cut and paste a zone inside the cut zone", () => {
@@ -172,7 +172,7 @@ describe("clipboard", () => {
 
     model.dispatch("PASTE", { target: target("B2") });
 
-    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "B2")).toBeUndefined();
   });
 
   test("can copy a cell with borders", () => {
@@ -401,7 +401,7 @@ describe("clipboard", () => {
       type: "text",
       value: "b2",
     });
-    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "B2")).toBeUndefined();
   });
 
   test("getClipboardContent export formatted string", () => {
@@ -426,10 +426,10 @@ describe("clipboard", () => {
 
     model.dispatch("COPY", { target: target("B2:C3") });
 
-    expect(getCell(model, "D1")).toBeNull();
-    expect(getCell(model, "D2")).toBeNull();
-    expect(getCell(model, "E1")).toBeNull();
-    expect(getCell(model, "E2")).toBeNull();
+    expect(getCell(model, "D1")).toBeUndefined();
+    expect(getCell(model, "D2")).toBeUndefined();
+    expect(getCell(model, "E1")).toBeUndefined();
+    expect(getCell(model, "E2")).toBeUndefined();
 
     model.dispatch("PASTE", { target: target("D1:D1") });
 
@@ -488,7 +488,7 @@ describe("clipboard", () => {
     model.dispatch("SELECT_CELL", { col: 4, row: 0 });
     model.dispatch("PASTE", { target: target("E1") });
     expect(getCell(model, "E1")!.content).toBe("c1");
-    expect(getCell(model, "E2")).toBeNull();
+    expect(getCell(model, "E2")).toBeUndefined();
   });
 
   test("compatible multiple selections: each column is copied", () => {
@@ -537,7 +537,7 @@ describe("clipboard", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 1, right: 2 });
     expect(getCell(model, "C1")!.content).toBe("1");
     expect(getCell(model, "C2")!.content).toBe("2");
-    expect(getCell(model, "C3")).toBeNull();
+    expect(getCell(model, "C3")).toBeUndefined();
   });
 
   test("selection is not changed if pasting a single value into two zones", () => {
@@ -613,7 +613,7 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("D2") });
     expect(getCell(model, "D2")).toBeDefined();
     model.dispatch("UNDO");
-    expect(getCell(model, "D2")).toBeNull();
+    expect(getCell(model, "D2")).toBeUndefined();
   });
 
   test("can paste-format a cell with style", () => {
@@ -685,7 +685,7 @@ describe("clipboard", () => {
     expect(getCell(model, "C2")!.style).toBe(2);
 
     model.dispatch("UNDO");
-    expect(getCell(model, "C2")).toBeNull();
+    expect(getCell(model, "C2")).toBeUndefined();
   });
 
   test("can copy and paste value only", () => {
@@ -861,7 +861,7 @@ describe("clipboard", () => {
     expect(getCell(model, "C2")!.style).not.toBeDefined();
 
     model.dispatch("UNDO");
-    expect(getCell(model, "C2")).toBeNull();
+    expect(getCell(model, "C2")).toBeUndefined();
   });
 
   test("can copy and paste a formula and update the refs", () => {

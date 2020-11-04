@@ -160,7 +160,7 @@ describe("Model history", () => {
     expect(getCell(model, "A2")!.content).toBe("3");
 
     model.dispatch("UNDO");
-    expect(getCell(model, "A2")).toBeNull();
+    expect(getCell(model, "A2")).toBeUndefined();
 
     model.dispatch("REDO");
     expect(getCell(model, "A2")!.content).toBe("3");
@@ -175,7 +175,7 @@ describe("Model history", () => {
     expect(getCell(model, "A2")!.content).toBe("3");
 
     model.dispatch("UNDO");
-    expect(getCell(model, "A2")).toBeNull();
+    expect(getCell(model, "A2")).toBeUndefined();
 
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
@@ -201,7 +201,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "B2")!.border).toBeDefined();
     model.dispatch("UNDO");
-    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "B2")).toBeUndefined();
   });
 
   test("undo steps are dropped at some point", () => {
