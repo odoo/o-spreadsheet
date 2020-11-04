@@ -88,6 +88,7 @@ export class WHistory implements CommandHandler {
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];
+  private historize: boolean = false;
 
   // getters
   canUndo(): boolean {
@@ -113,7 +114,7 @@ export class WHistory implements CommandHandler {
   }
 
   beforeHandle(cmd: Command) {
-    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO") {
+    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO" && this.historize) {
       this.current = [];
     }
   }
@@ -126,6 +127,8 @@ export class WHistory implements CommandHandler {
       case "REDO":
         this.redo();
         break;
+      case "START":
+        this.historize = true;
     }
   }
 

@@ -27,35 +27,26 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
-    expect(model.getters.getCells()).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
-    });
+    expect(getCell(model, "B2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
-    expect(model.getters.getCells()).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
-      D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" },
-    });
+    expect(getCell(model, "B2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
+    expect(getCell(model, "D2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("can cut and paste a cell", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
-    expect(model.getters.getCells()).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
-    });
+    expect(getCell(model, "B2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
 
     model.dispatch("CUT", { target: target("B2") });
-    expect(model.getters.getCells()).toEqual({
-      B2: { col: 1, row: 1, content: "b2", type: "text", value: "b2", xc: "B2" },
-    });
+    expect(getCell(model, "B2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
     model.dispatch("PASTE", { target: target("D2") });
 
-    expect(model.getters.getCells()).toEqual({
-      D2: { col: 3, row: 1, content: "b2", type: "text", value: "b2", xc: "D2" },
-    });
+    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "D2")).toMatchObject({ content: "b2", type: "text", value: "b2" });
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
@@ -81,7 +72,7 @@ describe("clipboard", () => {
     expect(pasteZone).toEqual(zones);
   });
 
-  test("can cut and paste a cell in differents sheets", () => {
+  test("can cut and paste a cell in different sheets", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1" });
     model.dispatch("CUT", { target: target("A1") });
@@ -90,10 +81,12 @@ describe("clipboard", () => {
     const from = model.getters.getActiveSheetId();
     model.dispatch("SET_VALUE", { xc: "A1", text: "a1Sheet2" });
     model.dispatch("PASTE", { target: target("B2") });
-    expect(model.getters.getCells()).toEqual({
-      A1: { col: 0, row: 0, content: "a1Sheet2", type: "text", value: "a1Sheet2", xc: "A1" },
-      B2: { col: 1, row: 1, content: "a1", type: "text", value: "a1", xc: "B2" },
+    expect(getCell(model, "A1")).toMatchObject({
+      content: "a1Sheet2",
+      type: "text",
+      value: "a1Sheet2",
     });
+    expect(getCell(model, "B2")).toMatchObject({ content: "a1", type: "text", value: "a1" });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
     expect(model.getters.getCells()).toEqual({});
 
@@ -402,9 +395,13 @@ describe("clipboard", () => {
     model.dispatch("CUT", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2") });
 
-    expect(model.getters.getCells()).toEqual({
-      C2: { col: 2, style: 2, row: 1, content: "b2", type: "text", value: "b2", xc: "C2" },
+    expect(getCell(model, "C2")).toMatchObject({
+      style: 2,
+      content: "b2",
+      type: "text",
+      value: "b2",
     });
+    expect(getCell(model, "B2")).toBeNull();
   });
 
   test("getClipboardContent export formatted string", () => {
@@ -596,15 +593,15 @@ describe("clipboard", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: '="test"' });
 
-    expect(model.getters.getCells()["B2"]!.content).toEqual('="test"');
-    expect(model.getters.getCells()["B2"]!.value).toEqual("test");
+    expect(getCell(model, "B2")!.content).toEqual('="test"');
+    expect(getCell(model, "B2")!.value).toEqual("test");
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
-    expect(model.getters.getCells()["B2"]!.content).toEqual('="test"');
-    expect(model.getters.getCells()["B2"]!.value).toEqual("test");
-    expect(model.getters.getCells()["D2"]!.content).toEqual('="test"');
-    expect(model.getters.getCells()["D2"]!.value).toEqual("test");
+    expect(getCell(model, "B2")!.content).toEqual('="test"');
+    expect(getCell(model, "B2")!.value).toEqual("test");
+    expect(getCell(model, "D2")!.content).toEqual('="test"');
+    expect(getCell(model, "D2")!.value).toEqual("test");
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 

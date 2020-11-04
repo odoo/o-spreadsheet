@@ -437,55 +437,58 @@ export class RendererPlugin extends BasePlugin {
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
-        let cell = this.getters.getCell(colNumber, rowNumber);
-        if (cell && !this.getters.isInMerge(cell.xc)) {
-          let col = cols[colNumber];
-          const text = this.getters.getCellText(cell);
-          const textWidth = this.getters.getCellWidth(cell);
-          let style = this.getters.getCellStyle(cell);
-          const conditionalStyle = this.getters.getConditionalStyle(cell.xc);
-          if (conditionalStyle) {
-            style = Object.assign({}, style, conditionalStyle);
-          }
-          const align = text
-            ? (style && style.align) || computeAlign(cell, this.getters.shouldShowFormulas())
-            : undefined;
-          let clipRect: Rect | null = null;
-          if (text && textWidth > cols[cell.col].size) {
-            if (align === "left") {
-              let c = cell.col;
-              while (c < right && !this.hasContent(c + 1, cell.row)) {
-                c++;
-              }
-              const width = cols[c].end - col.start;
-              if (width < textWidth) {
-                clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
-              }
-            } else {
-              let c = cell.col;
-              while (c > left && !this.hasContent(c - 1, cell.row)) {
-                c--;
-              }
-              const width = col.end - cols[c].start;
-              if (width < textWidth) {
-                clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
+        let cell = row.cells[colNumber];
+        if (cell) {
+          let xc = toXC(colNumber, rowNumber);
+          if (!this.getters.isInMerge(xc)) {
+            let col = cols[colNumber];
+            const text = this.getters.getCellText(cell);
+            const textWidth = this.getters.getCellWidth(cell);
+            let style = this.getters.getCellStyle(cell);
+            const conditionalStyle = this.getters.getConditionalStyle(xc);
+            if (conditionalStyle) {
+              style = Object.assign({}, style, conditionalStyle);
+            }
+            const align = text
+              ? (style && style.align) || computeAlign(cell, this.getters.shouldShowFormulas())
+              : undefined;
+            let clipRect: Rect | null = null;
+            if (text && textWidth > cols[colNumber].size) {
+              if (align === "left") {
+                let c = colNumber;
+                while (c < right && !this.hasContent(c + 1, rowNumber)) {
+                  c++;
+                }
+                const width = cols[c].end - col.start;
+                if (width < textWidth) {
+                  clipRect = [col.start - offsetX, row.start - offsetY, width, row.size];
+                }
+              } else {
+                let c = colNumber;
+                while (c > left && !this.hasContent(c - 1, rowNumber)) {
+                  c--;
+                }
+                const width = col.end - cols[c].start;
+                if (width < textWidth) {
+                  clipRect = [cols[c].start - offsetX, row.start - offsetY, width, row.size];
+                }
               }
             }
-          }
 
-          result.push({
-            x: col.start - offsetX,
-            y: row.start - offsetY,
-            width: col.size,
-            height: row.size,
-            text,
-            textWidth,
-            border: this.getters.getCellBorder(cell),
-            style,
-            align,
-            clipRect,
-            error: cell.error,
-          });
+            result.push({
+              x: col.start - offsetX,
+              y: row.start - offsetY,
+              width: col.size,
+              height: row.size,
+              text,
+              textWidth,
+              border: this.getters.getCellBorder(cell),
+              style,
+              align,
+              clipRect,
+              error: cell.error,
+            });
+          }
         }
       }
     }
@@ -498,20 +501,13 @@ export class RendererPlugin extends BasePlugin {
         const bottomRight = this.getters.getCell(merge.right, merge.bottom);
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
-        if (refCell !== null || bottomRight !== null) {
-          if (refCell !== null) {
-            text = this.getters.getCellText(refCell);
-            textWidth = this.getters.getCellWidth(refCell);
-            style = this.getters.getCellStyle(refCell);
-            align = text
-              ? (style && style.align) || computeAlign(refCell, this.getters.shouldShowFormulas())
-              : null;
-          } else {
-            text = "";
-            textWidth = null;
-            style = null;
-            align = null;
-          }
+        if (refCell || bottomRight) {
+          text = refCell ? this.getters.getCellText(refCell) : "";
+          textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
+          style = refCell ? this.getters.getCellStyle(refCell) : null;
+          align = text
+            ? (style && style.align) || computeAlign(refCell!, this.getters.shouldShowFormulas())
+            : null;
           const borderTopLeft = refCell ? this.getters.getCellBorder(refCell) : null;
           const borderBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
           border = {

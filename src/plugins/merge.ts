@@ -26,7 +26,7 @@ type SheetMergeCellMap = Record<string, number | undefined>;
 
 interface MergeState {
   readonly merges: Record<UID, Record<number, Merge | undefined> | undefined>;
-  readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined>;
+  readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined>; // SheetId [ XC ] --> merge ID
   readonly pending: PendingMerges | null;
 }
 
@@ -480,11 +480,10 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
   }
 
   private updateMergesStyles(sheetId: string, isColumn: boolean) {
-    const sheet = this.getters.getSheets().find((s) => s.id === sheetId)!;
     const merges = Object.values(this.merges[sheetId] || {}).filter(isDefined);
     for (let merge of merges) {
       const xc = merge.topLeft;
-      const topLeft = sheet.cells[xc];
+      const topLeft = this.getters.getCellByXc(sheetId, xc);
       if (!topLeft) {
         continue;
       }
@@ -496,7 +495,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         y += 1;
       }
       this.dispatch("UPDATE_CELL", {
-        sheetId: sheet.id,
+        sheetId,
         col: x,
         row: y,
         style: topLeft.style,

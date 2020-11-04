@@ -29,8 +29,8 @@ export interface FunctionDescription {
   returns: [ArgType];
 }
 
-export interface EvalContext {
+export type EvalContext = {
   __lastFnCalled?: string;
   __originCellXC?: string;
   [key: string]: any;
-}
+};

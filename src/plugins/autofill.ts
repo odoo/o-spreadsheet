@@ -44,10 +44,10 @@ import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/
  * should be computed.
  */
 class AutofillGenerator {
-  private cells: GeneratorCell[];
-  private getters: Getters;
+  private readonly cells: GeneratorCell[];
+  private readonly getters: Getters;
   private index: number = 0;
-  private direction: DIRECTION;
+  private readonly direction: DIRECTION;
 
   constructor(cells: GeneratorCell[], getters: Getters, direction: DIRECTION) {
     this.cells = cells;

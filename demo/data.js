@@ -177,13 +177,13 @@ export const demoData = {
     5: {
       left: ["thin", "#000"],
       right: ["thin", "#000"],
-      top: ["thin", "#000"]
+      top: ["thin", "#000"],
     },
     6: {
       left: ["thin", "#000"],
       right: ["thin", "#000"],
-      bottom: ["thin", "#000"]
-    }
+      bottom: ["thin", "#000"],
+    },
   },
 };
 

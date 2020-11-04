@@ -1,7 +1,16 @@
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
 import { fontSizeMap } from "../fonts";
 import { stringify, toCartesian, toXC, maximumDecimalPlaces } from "../helpers/index";
-import { Border, BorderCommand, Cell, Command, Style, WorkbookData, Zone } from "../types/index";
+import {
+  Border,
+  BorderCommand,
+  Cell,
+  Command,
+  Style,
+  UID,
+  WorkbookData,
+  Zone,
+} from "../types/index";
 import { BasePlugin } from "../base_plugin";
 
 // -----------------------------------------------------------------------------
@@ -145,7 +154,8 @@ export class FormattingPlugin extends BasePlugin {
   // Styles
   // ---------------------------------------------------------------------------
 
-  private setStyle(sheet: string, target: Zone[], style: Style) {
+  //TODO: use the sheet in parameter
+  private setStyle(sheetId: UID, target: Zone[], style: Style) {
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
@@ -192,6 +202,7 @@ export class FormattingPlugin extends BasePlugin {
     }
     for (let [xc, borderId] of Object.entries(borderMap)) {
       const [col, row] = toCartesian(xc);
+      //TODO: use a getter that is sheet sensitive
       const cell = this.getters.getCell(col, row);
       const current = (cell && cell.border) || 0;
       if (current !== borderId) {
@@ -258,39 +269,35 @@ export class FormattingPlugin extends BasePlugin {
     }
   }
 
-  private clearBorder(
-    sheet: string,
-    col: number,
-    row: number,
-    borderMap: { [xc: string]: number }
-  ) {
+  private clearBorder(sheetId: UID, col: number, row: number, borderMap: { [xc: string]: number }) {
+    //TODO: use the sheet in parameter
     const activeSheet = this.getters.getActiveSheet();
-    const cell = this.getters.getCell(col, row);
-    const xc = cell ? cell.xc : toXC(col, row);
+    const xc = toXC(col, row);
     borderMap[xc] = 0;
     if (col > 0) {
-      this.clearSide(sheet, col - 1, row, "right", borderMap);
+      this.clearSide(sheetId, col - 1, row, "right", borderMap);
     }
     if (row > 0) {
-      this.clearSide(sheet, col, row - 1, "bottom", borderMap);
+      this.clearSide(sheetId, col, row - 1, "bottom", borderMap);
     }
     if (col < activeSheet.colNumber - 1) {
-      this.clearSide(sheet, col + 1, row, "left", borderMap);
+      this.clearSide(sheetId, col + 1, row, "left", borderMap);
     }
     if (row < activeSheet.rowNumber - 1) {
-      this.clearSide(sheet, col, row + 1, "top", borderMap);
+      this.clearSide(sheetId, col, row + 1, "top", borderMap);
     }
   }
 
   private clearSide(
-    sheet: string,
+    sheetId: UID,
     col: number,
     row: number,
     side: string,
     borderMap: { [xc: string]: number }
   ) {
+    //TODO: use a getter that is sheet sensitive
     const cell = this.getters.getCell(col, row);
-    const xc = cell ? cell.xc : toXC(col, row);
+    const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
     if (side in currentBorder) {
@@ -301,14 +308,15 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   private setBorderToMap(
-    sheet: string,
+    sheetId: UID,
     col: number,
     row: number,
     border: Border,
     borderMap: { [xc: string]: number }
   ) {
+    //TODO: use a getter that is sheet sensitive
     const cell = this.getters.getCell(col, row);
-    const xc = cell ? cell.xc : toXC(col, row);
+    const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
     const nextBorder = Object.assign({}, currentBorder, border);
@@ -358,12 +366,12 @@ export class FormattingPlugin extends BasePlugin {
   // Formatters
   // ---------------------------------------------------------------------------
 
-  private setFormatter(sheet: string, zones: Zone[], format: string) {
+  private setFormatter(sheetId: UID, zones: Zone[], format: string) {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
           this.dispatch("UPDATE_CELL", {
-            sheetId: sheet,
+            sheetId,
             col,
             row,
             format,
@@ -384,7 +392,7 @@ export class FormattingPlugin extends BasePlugin {
    * If several cells are in the zone, the format resulting from the change of the
    * first cell (with number type) will be applied to the whole zone.
    */
-  private setDecimal(sheet: string, zones: Zone[], step: number) {
+  private setDecimal(sheetId: UID, zones: Zone[], step: number) {
     // Find the first cell with a number value and get the format
     const numberFormat = this.searchNumberFormat(zones);
     if (numberFormat !== undefined) {
@@ -392,7 +400,7 @@ export class FormattingPlugin extends BasePlugin {
       // of the format
       const newFormat = this.changeDecimalFormat(numberFormat, step);
       // Aply the new format on the whole zone
-      this.setFormatter(sheet, zones, newFormat!);
+      this.setFormatter(sheetId, zones, newFormat!);
     }
   }
 
@@ -423,7 +431,7 @@ export class FormattingPlugin extends BasePlugin {
    * It is considered that the default format of a number is 0 followed by as many
    * 0 as there are decimal places.
    *
-   * Exemple:
+   * Example:
    * - 1 --> '0'
    * - 123 --> '0'
    * - 12345 --> '0'
@@ -524,7 +532,8 @@ export class FormattingPlugin extends BasePlugin {
   /**
    * This function computes the style/border of a row/col based on the neighbours.
    *
-   * @param index the index of the row/col of which we will change the style
+   * @param start
+   * @param end
    * @param isColumn true if element is a column, false if row
    * @param upper true if the style of the upper row/col should be used, false, if the lower should be used
    */
@@ -579,9 +588,6 @@ export class FormattingPlugin extends BasePlugin {
 
   /**
    * gets the currently used style/border of a cell based on it's coordinates
-   *
-   * @param x column number of a cell
-   * @param y row number of a cell
    */
   private getFormat(xc: string): FormatInfo {
     const format: FormatInfo = {};
