@@ -98,14 +98,14 @@ describe("formatting values (with formatters)", () => {
     setFormat(model, "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
     setFormat(model, "");
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("setting an empty format in an empty cell does nothing", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "");
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("does not format errors", () => {

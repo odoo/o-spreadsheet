@@ -297,8 +297,8 @@ describe("Autofill", () => {
       format: "m/d/yyyy",
     });
     autofill("A1", "A3");
-    expect(getCell(model, "A2")).toBeNull();
-    expect(getCell(model, "A3")).toBeNull();
+    expect(getCell(model, "A2")).toBeUndefined();
+    expect(getCell(model, "A3")).toBeUndefined();
   });
 
   test("Auto-autofill left", () => {
@@ -310,7 +310,7 @@ describe("Autofill", () => {
     model.dispatch("AUTOFILL_AUTO");
     expect(getCell(model, "B3")!.content).toBe("2");
     expect(getCell(model, "B4")!.content).toBe("2");
-    expect(getCell(model, "B5")).toBeNull();
+    expect(getCell(model, "B5")).toBeUndefined();
   });
 
   test("Auto-autofill right", () => {
@@ -322,7 +322,7 @@ describe("Autofill", () => {
     model.dispatch("AUTOFILL_AUTO");
     expect(getCell(model, "A3")!.content).toBe("2");
     expect(getCell(model, "A4")!.content).toBe("2");
-    expect(getCell(model, "A5")).toBeNull();
+    expect(getCell(model, "A5")).toBeUndefined();
   });
 
   test("autofill with merge in selection", () => {

@@ -121,7 +121,7 @@ describe("Clear columns", () => {
     });
 
     clearColumns([1, 2]);
-    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells())).toHaveLength(6);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
@@ -167,7 +167,7 @@ describe("Clear rows", () => {
     });
 
     clearRows([1, 2]);
-    expect(getCell(model, "B2")).toBeNull();
+    expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells())).toHaveLength(6);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "", style: 1, border: 1 });
@@ -380,9 +380,9 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1]);
-      expect(getCell(model, "B1")).toBeNull();
-      expect(getCell(model, "B2")).toBeNull();
-      expect(getCell(model, "B3")).toBeNull();
+      expect(getCell(model, "B1")).toBeUndefined();
+      expect(getCell(model, "B2")).toBeUndefined();
+      expect(getCell(model, "B3")).toBeUndefined();
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style: 1 },
         A2: { border: 1 },
@@ -1015,9 +1015,9 @@ describe("Rows", () => {
       });
       expect(Object.keys(model.getters.getCells())).toHaveLength(11);
       removeRows([1]);
-      expect(getCell(model, "A2")).toBeNull();
-      expect(getCell(model, "B2")).toBeNull();
-      expect(getCell(model, "C2")).toBeNull();
+      expect(getCell(model, "A2")).toBeUndefined();
+      expect(getCell(model, "B2")).toBeUndefined();
+      expect(getCell(model, "C2")).toBeUndefined();
       expect(Object.values(model.getters.getCells())).toHaveLength(7);
       expect(getCell(model, "A1")).toMatchObject({ style: 1 });
       expect(getCell(model, "A3")).toMatchObject({ style: 1 });

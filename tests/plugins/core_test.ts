@@ -155,7 +155,7 @@ describe("core", () => {
   test("getCell getter does not crash if invalid col/row", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getCell(sheetId, -1, -1)).toBe(null);
+    expect(model.getters.getCell(sheetId, -1, -1)).toBeUndefined();
   });
 
   test("single cell XC conversion", () => {
@@ -240,7 +240,7 @@ describe("history", () => {
     expect(model.getters.canRedo()).toBe(false);
 
     model.dispatch("UNDO");
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
@@ -286,13 +286,13 @@ describe("history", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
-    expect(getCell(model, "A2")).toBeNull();
+    expect(getCell(model, "A2")).toBeUndefined();
 
     model.dispatch("UNDO");
     expect(getCell(model, "A2")!.content).toBe("3");
 
     model.dispatch("REDO");
-    expect(getCell(model, "A2")).toBeNull();
+    expect(getCell(model, "A2")).toBeUndefined();
   });
 
   test("can delete a cell with a style", () => {

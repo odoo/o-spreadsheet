@@ -308,8 +308,8 @@ export function getCell(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): Cell | null {
-  return model.getters.getCellByXc(sheetId, xc) || null;
+): Cell | undefined {
+  return model.getters.getCellByXc(sheetId, xc);
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

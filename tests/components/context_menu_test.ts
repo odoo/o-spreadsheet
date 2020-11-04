@@ -236,7 +236,7 @@ describe("Context Menu", () => {
     // click on 'paste' menu item
     await simulateClick(".o-menu div[data-name='paste']");
 
-    expect(getCell(model, "B1")).toBeNull();
+    expect(getCell(model, "B1")).toBeUndefined();
     expect(getCell(model, "B2")!.content).toBe("b1");
   });
 

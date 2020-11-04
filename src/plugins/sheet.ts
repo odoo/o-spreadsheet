@@ -373,9 +373,9 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       .join("");
   }
 
-  getCell(sheetId: UID, col: number, row: number): Cell | null {
+  getCell(sheetId: UID, col: number, row: number): Cell | undefined {
     const sheet = this.getSheet(sheetId);
-    return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || null;
+    return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
   }
 
   getCellByXc(sheetId: UID, xc: string): Cell | undefined {

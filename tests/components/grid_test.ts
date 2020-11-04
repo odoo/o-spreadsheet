@@ -272,7 +272,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true })
       );
-      expect(getCell(model, "A1")).toBeNull();
+      expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "y", ctrlKey: true, bubbles: true })
@@ -290,7 +290,7 @@ describe("Grid component", () => {
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Z", ctrlKey: true, bubbles: true })
       );
-      expect(getCell(model, "A1")).toBeNull();
+      expect(getCell(model, "A1")).toBeUndefined();
       await nextTick();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Y", ctrlKey: true, bubbles: true })
@@ -335,7 +335,7 @@ describe("Grid component", () => {
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
       triggerMouseEvent("canvas", "mousedown", 300, 200);
-      expect(getCell(model, "C8")).toBeNull();
+      expect(getCell(model, "C8")).toBeUndefined();
       triggerMouseEvent("body", "mouseup", 300, 200);
       expect(getCell(model, "C8")!.style).toBe(2);
     });
@@ -350,7 +350,7 @@ describe("Grid component", () => {
       });
       const target = [{ left: 1, top: 1, bottom: 1, right: 1 }];
       model.dispatch("ACTIVATE_PAINT_FORMAT", { target });
-      expect(getCell(model, "C2")).toBeNull();
+      expect(getCell(model, "C2")).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
       );
@@ -484,7 +484,7 @@ describe("multi sheet with different sizes", function () {
       left: 0,
       right: 0,
     });
-    expect(model.getters.getActiveCell()).toBeNull();
+    expect(model.getters.getActiveCell()).toBeUndefined();
   });
 });
 

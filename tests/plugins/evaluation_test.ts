@@ -348,7 +348,7 @@ describe("evaluateCells", () => {
     setCellContent(model, "D7", "=COUNT( 43 ,     )");
     setCellContent(model, "D8", "=COUNT( 44   45  )");
 
-    expect(getCell(model, "A1")!).toBe(null);
+    expect(getCell(model, "A1")!).toBeUndefined();
     expect(getCell(model, "A2")!.value).toBe(",");
     expect(getCell(model, "A3")!.value).toBe(" ");
     expect(getCell(model, "A4")!.value).toBe(" , ");

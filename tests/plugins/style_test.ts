@@ -16,7 +16,7 @@ describe("styles", () => {
     expect(getCell(model, "B1")!.content).toBe("");
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("UNDO");
-    expect(getCell(model, "B1")).toBeNull();
+    expect(getCell(model, "B1")).toBeUndefined();
   });
 
   test("can undo and redo a setStyle operation on an non empty cell", () => {
@@ -67,7 +67,7 @@ describe("styles", () => {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
-    expect(getCell(model, "B1")).toBeNull();
+    expect(getCell(model, "B1")).toBeUndefined();
   });
 
   test("clearing format operation can be undone", () => {
@@ -97,7 +97,7 @@ describe("styles", () => {
       target: [toZone("A1")],
       style: { fillColor: "red" },
     });
-    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
   });
 });
