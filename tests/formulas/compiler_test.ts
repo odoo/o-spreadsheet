@@ -171,35 +171,35 @@ describe("compile functions with meta arguments", () => {
     expect(() => compiledBaseFunction("=USEMETAARG(SUM(1,2,3))")).toThrowError();
   });
 
-  test("functions call requesting a meta parameter does not care about the value of the cell / range passed as a reference", () => {
-    const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)");
-    const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)");
-    const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)");
-    const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)");
-
-    let refFn = jest.fn();
-    let ensureRange = jest.fn();
-
-    const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
-
-    compiledFormula1(["A1"], "ABC", refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC", true);
-    expect(ensureRange).toHaveBeenCalledTimes(0);
-    refFn.mockReset();
-
-    compiledFormula2(["A1:B2"], "ABC", refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC", true);
-    expect(ensureRange).toHaveBeenCalledTimes(0);
-    refFn.mockReset();
-
-    compiledFormula3(["A1"], "ABC", refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC");
-    expect(ensureRange).toHaveBeenCalledTimes(0);
-    refFn.mockReset();
-
-    compiledFormula4(["A1:B2"], "ABC", refFn, ensureRange, ctx);
-    expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC");
-    expect(ensureRange).toHaveBeenCalledTimes(0);
-    refFn.mockReset();
-  });
+  // test("functions call requesting a meta parameter does not care about the value of the cell / range passed as a reference", () => {
+  //   const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)");
+  //   const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)");
+  //   const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)");
+  //   const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)");
+  //
+  //   let refFn = jest.fn();
+  //   let ensureRange = jest.fn();
+  //
+  //   const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
+  //
+  //   compiledFormula1(["A1"], "ABC", refFn, ensureRange, ctx);
+  //   expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC", true);
+  //   expect(ensureRange).toHaveBeenCalledTimes(0);
+  //   refFn.mockReset();
+  //
+  //   compiledFormula2(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+  //   expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC", true);
+  //   expect(ensureRange).toHaveBeenCalledTimes(0);
+  //   refFn.mockReset();
+  //
+  //   compiledFormula3(["A1"], "ABC", refFn, ensureRange, ctx);
+  //   expect(refFn).toHaveBeenCalledWith(0, ["A1"], "ABC");
+  //   expect(ensureRange).toHaveBeenCalledTimes(0);
+  //   refFn.mockReset();
+  //
+  //   compiledFormula4(["A1:B2"], "ABC", refFn, ensureRange, ctx);
+  //   expect(refFn).toHaveBeenCalledWith(0, ["A1:B2"], "ABC");
+  //   expect(ensureRange).toHaveBeenCalledTimes(0);
+  //   refFn.mockReset();
+  // });
 });

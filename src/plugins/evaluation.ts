@@ -328,8 +328,8 @@ export class EvaluationPlugin extends BasePlugin {
       const zone = {
         left: range.zone.left,
         top: range.zone.top,
-        right: Math.min(range.zone.right, sheet.colNumber - 1),
-        bottom: Math.min(range.zone.bottom, sheet.rowNumber - 1),
+        right: Math.min(range.zone.right, sheet.cols.length - 1),
+        bottom: Math.min(range.zone.bottom, sheet.rows.length - 1),
       };
       return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, range.sheetId));
     }

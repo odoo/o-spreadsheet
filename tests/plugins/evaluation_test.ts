@@ -866,6 +866,27 @@ describe("evaluateCells", () => {
     expect(getCell(model, "D12")!.value).toBe(1);
   });
 
+  test("evaluation follows dependencies", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 4,
+          rowNumber: 4,
+          cells: {
+            A1: { content: "old" },
+            A2: { content: "=a1" },
+            A3: { content: "=a2" },
+          },
+        },
+      ],
+    });
+
+    expect(model.getters.getCellByXc("sheet1", "A3")!.value).toBe("old");
+    model.dispatch("UPDATE_CELL", { col: 0, row: 0, content: "new", sheetId: "sheet1" });
+    expect(model.getters.getCellByXc("sheet1", "A3")!.value).toBe("new");
+  });
+
   // TO DO: add tests for exp format (ex: 4E10)
   // RO DO: add tests for DATE string format (ex match: "28 02 2020")
 });
