@@ -195,11 +195,11 @@ describe("evaluateCells, async formulas", () => {
     setCellContent(model, "A1", "=CRASHING()");
     setCellContent(model, "A2", "=SUM(A1)");
     await asyncComputations();
-    expect(model.getters.getCell(0, 0)!.value).toEqual("#ERROR");
-    expect(model.getters.getCell(0, 1)!.value).toEqual(LOADING);
+    expect(getCell(model, "A1")!.value).toEqual("#ERROR");
+    expect(getCell(model, "A2")!.value).toEqual(LOADING);
     await asyncComputations();
-    expect(model.getters.getCell(0, 0)!.value).toEqual("#ERROR");
-    expect(model.getters.getCell(0, 1)!.value).toEqual("#ERROR");
+    expect(getCell(model, "A1")!.value).toEqual("#ERROR");
+    expect(getCell(model, "A2")!.value).toEqual("#ERROR");
   });
 
   test("async formulas in errors are re-evaluated", async () => {
@@ -219,10 +219,10 @@ describe("evaluateCells, async formulas", () => {
     setCellContent(model, "A2", "-1");
     setCellContent(model, "A1", "=ONLYPOSITIVE(A2)");
     await asyncComputations();
-    expect(model.getters.getCell(0, 0)!.value).toEqual("#ERROR");
+    expect(getCell(model, "A1")!.value).toEqual("#ERROR");
     setCellContent(model, "A2", "1");
     await asyncComputations();
-    expect(model.getters.getCell(0, 0)!.value).toEqual(1);
+    expect(getCell(model, "A1")!.value).toEqual(1);
   });
 
   test("async formulas rejected with a reason", async () => {
@@ -240,11 +240,11 @@ describe("evaluateCells, async formulas", () => {
     setCellContent(model, "A2", `=REJECT()`);
     setCellContent(model, "A3", `=REJECT(4)`);
     await asyncComputations();
-    expect(model.getters.getCell(0, 0)!.value).toBe("#ERROR");
-    expect(model.getters.getCell(0, 1)!.value).toBe("#ERROR");
-    expect(model.getters.getCell(0, 2)!.value).toBe("#ERROR");
-    expect(model.getters.getCell(0, 0)!.error).toBe("This is an error");
-    expect(model.getters.getCell(0, 1)!.error).toBe("");
-    expect(model.getters.getCell(0, 2)!.error).toBe("4");
+    expect(getCell(model, "A1")!.value).toBe("#ERROR");
+    expect(getCell(model, "A2")!.value).toBe("#ERROR");
+    expect(getCell(model, "A3")!.value).toBe("#ERROR");
+    expect(getCell(model, "A1")!.error).toBe("This is an error");
+    expect(getCell(model, "A2")!.error).toBe("");
+    expect(getCell(model, "A3")!.error).toBe("4");
   });
 });

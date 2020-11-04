@@ -1092,7 +1092,7 @@ describe("clipboard", () => {
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("B3") });
-    expect(model.getters.getCell(1, 2)!.content).toBe("=Sheet2!B3");
+    expect(getCell(model, "B3")!.content).toBe("=Sheet2!B3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
@@ -1102,7 +1102,7 @@ describe("clipboard", () => {
 
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("A2") });
-    expect(model.getters.getCell(0, 1)!.content).toBe("=#REF");
+    expect(getCell(model, "A2")!.content).toBe("=#REF");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
@@ -1112,7 +1112,7 @@ describe("clipboard", () => {
 
     model.dispatch("COPY", { target: target("A1") });
     model.dispatch("PASTE", { target: target("B1") });
-    expect(model.getters.getCell(1, 0)!.content).toBe("=SUM(Sheet2!B2:B5)");
+    expect(getCell(model, "B1")!.content).toBe("=SUM(Sheet2!B2:B5)");
   });
 });
 

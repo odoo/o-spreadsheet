@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getCell, createEqualCF, testUndoRedo, setCellContent } from "../helpers";
-import { toCartesian, uuidv4, toZone } from "../../src/helpers";
+import { uuidv4, toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 
 describe("sheets", () => {
@@ -389,11 +389,11 @@ describe("sheets", () => {
     const nextName = "NEXT NAME";
     model.dispatch("RENAME_SHEET", { sheetId: sheet2, name: nextName });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(model.getters.getCell(0, 0)!.content).toBe("='NEXT NAME'!A1");
+    expect(getCell(model, "A1")!.content).toBe("='NEXT NAME'!A1");
     model.dispatch("UNDO"); // Activate Sheet
     model.dispatch("UNDO"); // Rename sheet
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(model.getters.getCell(0, 0)!.content).toBe("=NEW_NAME!A1");
+    expect(getCell(model, "A1")!.content).toBe("=NEW_NAME!A1");
   });
 
   test("Rename a sheet will call editText", async () => {
@@ -699,14 +699,15 @@ describe("sheets", () => {
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
-    expect(model.getters.getCell(0, 0)!.content).toBe("=#REF");
+    expect(getCell(model, "A1")!.content).toBe("=#REF");
     model.dispatch("UNDO");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(model.getters.getCell(0, 0)!.content).toBe("=NEW_NAME!A1");
+    expect(getCell(model, "A1")!.content).toBe("=NEW_NAME!A1");
   });
 });
 
 function getText(model: Model, xc: string): string {
-  const cell = model.getters.getCell(...toCartesian(xc));
+  const sheetId = model.getters.getActiveSheetId();
+  const cell = model.getters.getCellByXc(sheetId, xc);
   return cell ? model.getters.getCellText(cell) : "";
 }

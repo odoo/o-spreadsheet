@@ -562,7 +562,7 @@ describe("figures", () => {
     figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
     await nextTick();
     expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(model.getters.getCell(0, 0)!.content).toBe("content");
+    expect(getCell(model, "A1")!.content).toBe("content");
   });
 
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {

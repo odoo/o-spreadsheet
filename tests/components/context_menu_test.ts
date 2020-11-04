@@ -295,13 +295,15 @@ describe("Context Menu", () => {
       .add("visible_action", {
         name: "visible_action",
         sequence: 1,
-        isVisible: (env) => env.getters.getCell(1, 0)!.value === "b1",
+        isVisible: (env) =>
+          env.getters.getCell(env.getters.getActiveSheetId(), 1, 0)!.value === "b1",
         action() {},
       })
       .add("hidden_action", {
         name: "hidden_action",
         sequence: 2,
-        isVisible: (env) => env.getters.getCell(1, 0)!.value !== "b1",
+        isVisible: (env) =>
+          env.getters.getCell(env.getters.getActiveSheetId(), 1, 0)!.value !== "b1",
         action() {},
       });
     const model = new Model();

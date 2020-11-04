@@ -291,7 +291,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     if (tl === br) {
       return;
     }
-    const topLeft = this.getters.getCell(left, top);
+    const topLeft = this.getters.getCell(sheetId, left, top);
 
     let id = this.nextId++;
     this.history.update("merges", sheetId, id, {
@@ -322,7 +322,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         this.history.update("mergeCellMap", sheetId, xc, id);
       }
     }
-    this.applyBorderMerge(zone, sheetId);
+    this.applyBorderMerge(sheetId, zone);
     for (let mergeId of previousMerges) {
       const { top, bottom, left, right } = this.getMergeById(sheetId, mergeId)!;
       for (let r = top; r <= bottom; r++) {
@@ -343,10 +343,10 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     }
   }
 
-  private applyBorderMerge(zone: Zone, sheetId: UID) {
+  private applyBorderMerge(sheetId: UID, zone: Zone) {
     const { left, right, top, bottom } = zone;
-    const topLeft = this.getters.getCell(left, top);
-    const bottomRight = this.getters.getCell(right, bottom) || topLeft;
+    const topLeft = this.getters.getCell(sheetId, left, top);
+    const bottomRight = this.getters.getCell(sheetId, right, bottom) || topLeft;
     const bordersTopLeft = topLeft ? this.getters.getCellBorder(topLeft) : null;
     const bordersBottomRight =
       (bottomRight ? this.getters.getCellBorder(bottomRight) : null) || bordersTopLeft;

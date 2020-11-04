@@ -154,6 +154,7 @@ export class ClipboardPlugin extends BasePlugin {
     clippedZones = clippedZones.map((z) => Object.assign({}, z));
 
     const cells: ClipboardCell[][] = [];
+    const activeSheetId = this.getters.getActiveSheetId();
     let { top, bottom } = clippedZones[0];
     for (let r = top; r <= bottom; r++) {
       const row: ClipboardCell[] = [];
@@ -161,7 +162,7 @@ export class ClipboardPlugin extends BasePlugin {
       for (let zone of clippedZones) {
         let { left, right } = zone;
         for (let c = left; c <= right; c++) {
-          const cell = this.getters.getCell(c, r);
+          const cell = this.getters.getCell(activeSheetId, c, r);
           row.push({
             cell: cell ? Object.assign({}, cell) : null,
             col: c,
@@ -174,7 +175,7 @@ export class ClipboardPlugin extends BasePlugin {
     this.shouldCut = cut;
     this.zones = clippedZones;
     this.cells = cells;
-    this.originSheetId = this.getters.getActiveSheetId();
+    this.originSheetId = activeSheetId;
   }
 
   private pasteFromClipboard(target: Zone[], content: string) {
@@ -341,8 +342,8 @@ export class ClipboardPlugin extends BasePlugin {
     onlyValue: boolean,
     onlyFormat: boolean
   ) {
-    const targetCell = this.getters.getCell(col, row);
     const sheetId = this.getters.getActiveSheetId();
+    const targetCell = this.getters.getCell(sheetId, col, row);
     if (origin) {
       let style = origin.style;
       let border = origin.border;
