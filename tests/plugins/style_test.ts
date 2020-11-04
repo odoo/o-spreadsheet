@@ -1,3 +1,4 @@
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { getCell, setCellContent } from "../helpers";
@@ -7,7 +8,7 @@ describe("styles", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
@@ -23,7 +24,7 @@ describe("styles", () => {
     setCellContent(model, "B1", "some content");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
@@ -57,7 +58,7 @@ describe("styles", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
@@ -74,7 +75,7 @@ describe("styles", () => {
     setCellContent(model, "B1", "b1");
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       style: { fillColor: "red" },
     });
@@ -86,5 +87,17 @@ describe("styles", () => {
     expect(getCell(model, "B1")!.style).not.toBeDefined();
     model.dispatch("UNDO");
     expect(getCell(model, "B1")!.style).toBeDefined();
+  });
+
+  test("Can set a format in another than the active one", () => {
+    const model = new Model();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
+    model.dispatch("SET_FORMATTING", {
+      sheetId: "42",
+      target: [toZone("A1")],
+      style: { fillColor: "red" },
+    });
+    expect(getCell(model, "A1")).toBeNull();
+    expect(getCell(model, "A1", "42")!.style).toBeDefined();
   });
 });

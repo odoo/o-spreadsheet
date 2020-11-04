@@ -135,7 +135,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -387,7 +387,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -621,7 +621,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -638,7 +638,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -656,7 +656,7 @@ describe("clipboard", () => {
     setCellContent(model, "C2", "c2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -674,7 +674,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -702,7 +702,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -783,7 +783,7 @@ describe("clipboard", () => {
     setCellContent(model, "C3", "c3");
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 2, right: 2, top: 2, bottom: 2 }],
       style: { bold: true },
     });
@@ -850,7 +850,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
@@ -891,7 +891,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });

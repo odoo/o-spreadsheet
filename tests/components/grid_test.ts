@@ -264,7 +264,7 @@ describe("Grid component", () => {
 
     test("can undo/redo with keyboard", async () => {
       model.dispatch("SET_FORMATTING", {
-        sheetId: "Sheet1",
+        sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
         style: { fillColor: "red" },
       });
@@ -282,7 +282,7 @@ describe("Grid component", () => {
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
       model.dispatch("SET_FORMATTING", {
-        sheetId: "Sheet1",
+        sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
         style: { fillColor: "red" },
       });
@@ -328,7 +328,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
       model.dispatch("SET_FORMATTING", {
-        sheetId: "Sheet1",
+        sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
         style: { bold: true },
       });
@@ -344,7 +344,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
       model.dispatch("SET_FORMATTING", {
-        sheetId: "Sheet1",
+        sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
         style: { bold: true },
       });

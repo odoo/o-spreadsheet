@@ -154,31 +154,30 @@ export class FormattingPlugin extends BasePlugin {
   // Styles
   // ---------------------------------------------------------------------------
 
-  //TODO: use the sheet in parameter
   private setStyle(sheetId: UID, target: Zone[], style: Style) {
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.setStyleToCell(col, row, style);
+          this.setStyleToCell(sheetId, col, row, style);
         }
       }
     }
   }
 
-  private setStyleToCell(col: number, row: number, style) {
-    const cell = this.getters.getCell(col, row);
+  private setStyleToCell(sheetId: UID, col: number, row: number, style: Style) {
+    const cell = this.getters.getCellByXc(sheetId, toXC(col, row));
     const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
     const nextStyle = Object.assign({}, currentStyle, style);
     const id = this.registerStyle(nextStyle);
     this.dispatch("UPDATE_CELL", {
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId,
       col,
       row,
       style: id,
     });
   }
 
-  private registerStyle(style) {
+  private registerStyle(style: Style) {
     const strStyle = stringify(style);
     for (let k in this.styles) {
       if (stringify(this.styles[k]) === strStyle) {
