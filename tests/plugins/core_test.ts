@@ -112,7 +112,7 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "=sum(A2) + 1");
       model.dispatch("SET_FORMATTING", {
-        sheetId: "Sheet1",
+        sheetId: model.getters.getActiveSheetId(),
         target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
         style: { bold: true },
       });
@@ -298,7 +298,7 @@ describe("history", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       style: { bold: true },
     });

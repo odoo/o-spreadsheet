@@ -131,7 +131,7 @@ describe("TopBar component", () => {
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
 
     model.dispatch("SET_FORMATTING", {
-      sheetId: "Sheet1",
+      sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
       style: { bold: true },
     });
