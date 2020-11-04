@@ -52,6 +52,7 @@ export type Range = {
   zone: Zone; // the zone the range actually spans
   sheetId: UID; // the sheet on which the range is defined
   onChange?: onRangeChange; // the callbacks that needs to be called if a range is modified
+  invalidSheetName?: string; // the name of any sheet that is invalid
 };
 export type ReferenceDenormalizer = (
   position: number,

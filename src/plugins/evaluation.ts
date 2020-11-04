@@ -352,8 +352,12 @@ export class EvaluationPlugin extends BasePlugin {
       isMeta: boolean = false
     ): any | any[][] {
       const range: Range = references[position];
+
       if (isMeta) {
         return evalContext.getters.getRangeString(range.id, sheetId);
+      }
+      if (range.invalidSheetName) {
+        throw new Error(_lt(`Invalid sheet name: ${range.invalidSheetName}`));
       }
       if (range.zone.left !== range.zone.right || range.zone.top !== range.zone.bottom) {
         // it's a range

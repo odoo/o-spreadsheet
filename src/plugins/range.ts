@@ -141,19 +141,33 @@ export class RangePlugin extends BasePlugin {
   getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string, onChange?: onRangeChange): Range {
     let xc = sheetXC;
     let sheetName = "";
+    let sheetId;
+    let invalidSheetName;
     if (sheetXC.includes("!")) {
       [xc, sheetName] = sheetXC.split("!").reverse();
       if (sheetName) {
-        let sheetId = this.getters.getSheetIdByName(sheetName);
+        sheetId = this.getters.getSheetIdByName(sheetName);
         if (!sheetId) {
-          throw _lt(`Cannot find sheet ${sheetName}`);
-        } else {
-          defaultSheetId = sheetId;
+          invalidSheetName = sheetName;
         }
+      } else {
+        invalidSheetName = sheetName;
       }
     }
+    let zone = toZone(xc);
 
-    return this.getRangeFromXC(defaultSheetId, xc, onChange);
+    let r: Range = {
+      id: uuidv4(),
+      sheetId: sheetId || defaultSheetId,
+      zone: zone,
+      onChange: onChange,
+      // isColFixed: false,
+      // isRowFixed: false,
+      invalidSheetName,
+    };
+
+    this.ranges[r.id] = r;
+    return r;
   }
 
   getRangeFromXC(sheetId: UID, xc: string, onChange?: onRangeChange): Range {
@@ -187,12 +201,16 @@ export class RangePlugin extends BasePlugin {
       throw Error(_lt(`Cannot find range id ${rangeId}`));
     }
 
-    let prefixSheet = r.sheetId !== forSheetId;
+    let prefixSheet = r.sheetId !== forSheetId || r.invalidSheetName;
     let sheetName: string = "";
     if (prefixSheet) {
-      const s = this.getters.getSheetName(r.sheetId);
-      if (s) {
-        sheetName = getComposerSheetName(s);
+      if (r.invalidSheetName) {
+        sheetName = r.invalidSheetName;
+      } else {
+        const s = this.getters.getSheetName(r.sheetId);
+        if (s) {
+          sheetName = getComposerSheetName(s);
+        }
       }
     }
     return `${prefixSheet ? sheetName + "!" : ""}${zoneToXc(r.zone)}`;
