@@ -47,6 +47,15 @@ export interface UpdateCellCommand extends BaseCommand {
   format?: string;
 }
 
+export interface UpdateCellPositionCommand extends BaseCommand {
+  type: "UPDATE_CELL_POSITION";
+  sheetId: UID;
+  col: number;
+  row: number;
+  cell?: Cell;
+  cellId: UID;
+}
+
 export interface ResizeColumnsCommand extends BaseCommand {
   type: "RESIZE_COLUMNS";
   sheetId: UID;
@@ -678,7 +687,8 @@ export type Command =
   | CreateFigureCommand
   | SelectFigureCommand
   | UpdateFigureCommand
-  | DeleteFigureCommand;
+  | DeleteFigureCommand
+  | UpdateCellPositionCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";

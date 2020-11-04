@@ -8,7 +8,6 @@ import { Model } from "../src/model";
 import {
   Cell,
   GridRenderingContext,
-  Sheet,
   SpreadsheetEnv,
   Zone,
   Style,
@@ -17,6 +16,7 @@ import {
   CommandTypes,
   Merge,
   UID,
+  Sheet,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/merge";
@@ -141,9 +141,10 @@ type GridResult = { [xc: string]: any };
 
 export function getGrid(model: Model): GridResult {
   const result = {};
-  for (let xc in model.getters.getCells()) {
-    const cell = model.getters.getCells()[xc];
-    result[xc] = cell ? cell.value : undefined;
+  for (let cellId in model.getters.getCells()) {
+    const { col, row } = model.getters.getCellPosition(cellId);
+    const cell = model.getters.getCell(col, row);
+    result[toXC(col, row)] = cell ? cell.value : undefined;
   }
   return result;
 }

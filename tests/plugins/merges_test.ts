@@ -1,22 +1,29 @@
-import { toZone } from "../../src/helpers/index";
+import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style, Border } from "../../src/types/index";
 import "../canvas.mock";
 import { getActiveXc, getCell, getMergeCellMap, getMerges } from "../helpers";
+
+function getCellsXC(model: Model): string[] {
+  return Object.values(model.getters.getCells()).map((cell) => {
+    const { col, row } = model.getters.getCellPosition(cell.id);
+    return toXC(col, row);
+  });
+}
 
 describe("merges", () => {
   test("can merge two cells", () => {
     const model = new Model();
     model.dispatch("SET_VALUE", { xc: "B2", text: "b2" });
 
-    expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
+    expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
 
-    expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
-    expect(model.getters.getCells().B2!.content).toBe("b2");
+    expect(getCellsXC(model)).toEqual(["B2"]);
+    expect(model.getters.getCellByXc(sheet1, "B2")!.content).toBe("b2");
     expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
     expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
@@ -42,7 +49,7 @@ describe("merges", () => {
 
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
-    expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
+    expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
   });
@@ -95,7 +102,7 @@ describe("merges", () => {
 
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(getActiveXc(model)).toBe("C3");
-    expect(Object.keys(model.getters.getCells())).toEqual(["B2"]);
+    expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
     const sheet1 = model.getters.getVisibleSheets()[0];
 
@@ -105,7 +112,7 @@ describe("merges", () => {
       style: { fillColor: "#333" },
     });
 
-    expect(Object.keys(model.getters.getCells())).toEqual(["B2", "B3", "C2", "C3"]);
+    expect(getCellsXC(model)).toEqual(["B2", "B3", "C2", "C3"]);
     expect(getCell(model, "B2")!.style).toBeDefined();
   });
 
@@ -126,7 +133,10 @@ describe("merges", () => {
     expect(model.getters.getActiveCell()).toBeNull(); // no active cell in C4
     model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
     expect(getActiveXc(model)).toBe("C3");
-    expect(model.getters.getActiveCell()!.xc).toBe("B2");
+    expect(model.getters.getCellPosition(model.getters.getActiveCell()!.id)).toEqual({
+      col: 1,
+      row: 1,
+    });
   });
 
   test("merge style is correct for inactive sheets", () => {

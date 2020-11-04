@@ -4,7 +4,7 @@ import "../helpers"; // to have getcontext mocks
 import { getCell } from "../helpers";
 
 function getBorder(model: Model, xc: string): Border | null {
-  const cell = model.getters.getCells()[xc];
+  const cell = model.getters.getCellByXc(model.getters.getActiveSheetId(), xc);
   return cell ? model.getters.getCellBorder(cell) : null;
 }
 

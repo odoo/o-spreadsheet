@@ -255,8 +255,9 @@ export class ConditionalFormatPlugin
             (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
           );
           const color = (r << 16) | (g << 8) | b;
-          computedStyle[cell.xc] = computedStyle[cell.xc] || {};
-          computedStyle[cell.xc].fillColor = "#" + colorNumberString(color);
+          const xc = toXC(col, row);
+          computedStyle[xc] = computedStyle[xc] || {};
+          computedStyle[xc].fillColor = "#" + colorNumberString(color);
         }
       }
     }

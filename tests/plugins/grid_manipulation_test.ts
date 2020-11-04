@@ -1,7 +1,8 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { getCell, getMergeCellMap, getMerges, getSheet, makeTestFixture } from "../helpers";
-import { CancelledReason } from "../../src/types";
+import { getCell, getMergeCellMap, getMerges, makeTestFixture } from "../helpers";
+import { CancelledReason, UID } from "../../src/types";
+import { toXC, toZone } from "../../src/helpers";
 let model: Model;
 
 function undo() {
@@ -58,6 +59,15 @@ function addRows(row: number, position: "before" | "after", quantity: number) {
   });
 }
 
+function getCellsObject(model: Model, sheetId: UID) {
+  const cells = {};
+  for (let cell of Object.values(model.getters.getCells(sheetId))) {
+    const { col, row } = model.getters.getCellPosition(cell.id);
+    cells[toXC(col, row)] = cell;
+  }
+  return cells;
+}
+
 const fullData = {
   sheets: [
     {
@@ -111,15 +121,14 @@ describe("Clear columns", () => {
     });
 
     clearColumns([1, 2]);
-    expect(model.getters.getCells().B2).toBeUndefined();
-    expect(model.getters.getCells()).toMatchObject({
-      A1: { content: "A1" },
-      A2: { content: "A2" },
-      A3: { content: "A3" },
-      B1: { content: "", style: 1, border: 1 },
-      C1: { content: "", style: 1 },
-      C2: { content: "", border: 1 },
-    });
+    expect(getCell(model, "B2")).toBeNull();
+    expect(Object.keys(model.getters.getCells())).toHaveLength(6);
+    expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
+    expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
+    expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
+    expect(getCell(model, "B1")).toMatchObject({ content: "", style: 1, border: 1 });
+    expect(getCell(model, "C1")).toMatchObject({ content: "", style: 1 });
+    expect(getCell(model, "C2")).toMatchObject({ content: "", border: 1 });
   });
   test("cannot delete column in invalid sheet", () => {
     expect(
@@ -158,15 +167,14 @@ describe("Clear rows", () => {
     });
 
     clearRows([1, 2]);
-    expect(model.getters.getCells().B2).toBeUndefined();
-    expect(model.getters.getCells()).toMatchObject({
-      A1: { content: "A1" },
-      A2: { content: "", style: 1, border: 1 },
-      A3: { content: "", border: 1 },
-      B1: { content: "B1" },
-      C1: { content: "C1" },
-      C2: { content: "", style: 1 },
-    });
+    expect(getCell(model, "B2")).toBeNull();
+    expect(Object.keys(model.getters.getCells())).toHaveLength(6);
+    expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
+    expect(getCell(model, "A2")).toMatchObject({ content: "", style: 1, border: 1 });
+    expect(getCell(model, "A3")).toMatchObject({ content: "", border: 1 });
+    expect(getCell(model, "B1")).toMatchObject({ content: "B1" });
+    expect(getCell(model, "C1")).toMatchObject({ content: "C1" });
+    expect(getCell(model, "C2")).toMatchObject({ content: "", style: 1 });
   });
   test("cannot delete row in invalid sheet", () => {
     expect(
@@ -237,8 +245,8 @@ describe("Columns", () => {
         columns: [0],
         sheetId: sheet2.id,
       });
-      expect(sheet1.cells.B2!.content).toBe("B2 in sheet1");
-      expect(sheet2.cells.A2!.content).toBe("B2 in sheet2");
+      expect(model.getters.getCellByXc(sheet1.id, "B2")!.content).toBe("B2 in sheet1");
+      expect(model.getters.getCellByXc(sheet2.id, "A2")!.content).toBe("B2 in sheet2");
     });
     test("On addition before", () => {
       addColumns(1, "before", 2);
@@ -348,6 +356,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 4,
             rowNumber: 4,
             cells: {
@@ -371,10 +380,10 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1]);
-      expect(model.getters.getCells().B1).toBeUndefined();
-      expect(model.getters.getCells().B2).toBeUndefined();
-      expect(model.getters.getCells().B3).toBeUndefined();
-      expect(model.getters.getCells()).toMatchObject({
+      expect(getCell(model, "B1")).toBeNull();
+      expect(getCell(model, "B2")).toBeNull();
+      expect(getCell(model, "B3")).toBeNull();
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style: 1 },
         A2: { border: 1 },
         A3: { style: 1, border: 1 },
@@ -387,7 +396,7 @@ describe("Columns", () => {
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(2, "after", 2);
-      expect(model.getters.getCells()).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style: 1 },
         A2: { border: 1 },
         A3: { style: 1, border: 1 },
@@ -414,6 +423,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 7,
             rowNumber: 4,
             cells: {
@@ -427,6 +437,7 @@ describe("Columns", () => {
             },
           },
           {
+            id: "sheet2",
             colNumber: 1,
             rowNumber: 3,
             cells: {
@@ -440,7 +451,7 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1, 2]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "=#REF" },
         A2: { content: "=#REF" },
         A3: { content: "=Sheet2!B1" },
@@ -449,7 +460,7 @@ describe("Columns", () => {
         B3: { content: "=$C1" },
         B4: { content: "=B3" },
       });
-      expect(getSheet(model, 1).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet2")).toMatchObject({
         A1: { content: "=B1" },
         A2: { content: "=#REF" },
         A3: { content: "=Sheet2!B1" },
@@ -483,11 +494,11 @@ describe("Columns", () => {
         columns: [0],
         sheetId: sheet2.id,
       });
-      expect(sheet1.cells).toMatchObject({
+      expect(getCellsObject(model, sheet1.id)).toMatchObject({
         B2: { content: "=Sheet1!B3" },
         C1: { content: "=Sheet2!A3" },
       });
-      expect(sheet2.cells).toMatchObject({
+      expect(getCellsObject(model, sheet2.id)).toMatchObject({
         A2: { content: "=Sheet1!B2" },
         B2: { content: "=Sheet2!A2" },
       });
@@ -496,6 +507,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -505,7 +517,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([0]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { content: "=SUM(A1:B1)" },
       });
     });
@@ -513,6 +525,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -522,7 +535,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([0, 1]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { content: "=SUM(A1:B1)" },
       });
     });
@@ -530,6 +543,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -539,7 +553,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([2]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { content: "=SUM(A1:B1)" },
       });
     });
@@ -547,6 +561,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "s1",
             colNumber: 9,
             rowNumber: 3,
             cells: {
@@ -556,7 +571,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([1, 2, 3, 4]);
-      expect(getSheet(model, 0).cells.A1!.content).toBe("=SUM(#REF)");
+      expect(model.getters.getCellByXc("s1", "A1")!.content).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on column deletion", () => {
       model = new Model({
@@ -600,6 +615,7 @@ describe("Columns", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -609,14 +625,14 @@ describe("Columns", () => {
         ],
       });
       removeColumns([2, 3]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { content: "=SUM(A1:B1)" },
       });
     });
     test("On addition", () => {
       addColumns(1, "before", 1);
       addColumns(0, "after", 1);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "=D1" },
         A2: { content: "=Sheet1!D1" },
         A3: { content: "=Sheet2!B1" },
@@ -625,7 +641,7 @@ describe("Columns", () => {
         F3: { content: "=$G1" },
         F4: { content: "=F3" },
       });
-      expect(getSheet(model, 1).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet2")).toMatchObject({
         A1: { content: "=B1" },
         A2: { content: "=Sheet1!D1" },
         A3: { content: "=Sheet2!B1" },
@@ -770,13 +786,14 @@ describe("Rows", () => {
         rows: [0],
         sheetId: sheet2.id,
       });
-      expect(sheet1.cells.B2!.content).toBe("B2 in sheet1");
-      expect(sheet2.cells.B1!.content).toBe("B2 in sheet2");
+      expect(model.getters.getCellByXc(sheet1.id, "B2")!.content).toBe("B2 in sheet1");
+      expect(model.getters.getCellByXc(sheet2.id, "B1")!.content).toBe("B2 in sheet2");
     });
     test("On deletion batch", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 1,
             rowNumber: 4,
             cells: {
@@ -789,7 +806,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([0, 2, 3]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "A2" },
       });
     });
@@ -797,6 +814,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 9,
             cells: {
@@ -806,7 +824,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([1, 2, 3, 4]);
-      expect(getSheet(model, 0).cells.A1!.content).toBe("=SUM(#REF)");
+      expect(model.getters.getCellByXc("sheet1", "A1")!.content).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on row deletion", () => {
       model = new Model({
@@ -968,6 +986,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 4,
             rowNumber: 4,
             cells: {
@@ -990,25 +1009,29 @@ describe("Rows", () => {
       });
     });
     test("On deletion", () => {
-      removeRows([1]);
-      expect(model.getters.getCells().A2).toBeUndefined();
-      expect(model.getters.getCells().B2).toBeUndefined();
-      expect(model.getters.getCells().C2).toBeUndefined();
-      expect(model.getters.getCells()).toMatchObject({
-        A1: { style: 1 },
-        A3: { style: 1 },
-        B1: { border: 1 },
-        B3: { border: 1 },
-        C1: { style: 1, border: 1 },
-        C3: { style: 1, border: 1 },
-        D2: { style: 1, border: 1 },
+      model.dispatch("ADD_MERGE", {
+        sheetId: model.getters.getActiveSheetId(),
+        zone: toZone("D2:D3"),
       });
+      expect(Object.keys(model.getters.getCells())).toHaveLength(11);
+      removeRows([1]);
+      expect(getCell(model, "A2")).toBeNull();
+      expect(getCell(model, "B2")).toBeNull();
+      expect(getCell(model, "C2")).toBeNull();
+      expect(Object.values(model.getters.getCells())).toHaveLength(7);
+      expect(getCell(model, "A1")).toMatchObject({ style: 1 });
+      expect(getCell(model, "A3")).toMatchObject({ style: 1 });
+      expect(getCell(model, "B1")).toMatchObject({ border: 1 });
+      expect(getCell(model, "B3")).toMatchObject({ border: 1 });
+      expect(getCell(model, "C1")).toMatchObject({ style: 1, border: 1 });
+      expect(getCell(model, "C3")).toMatchObject({ style: 1, border: 1 });
+      expect(getCell(model, "D2")).toMatchObject({ style: 1, border: 1 });
     });
 
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(2, "after", 2);
-      expect(model.getters.getCells()).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style: 1 },
         B1: { border: 1 },
         C1: { style: 1, border: 1 },
@@ -1035,6 +1058,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 4,
             rowNumber: 7,
             cells: {
@@ -1048,6 +1072,7 @@ describe("Rows", () => {
             },
           },
           {
+            id: "sheet2",
             colNumber: 3,
             rowNumber: 1,
             cells: {
@@ -1062,7 +1087,7 @@ describe("Rows", () => {
 
     test("On deletion", () => {
       removeRows([1, 2]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "=#REF" },
         A2: { content: "=A1" },
         B1: { content: "=#REF" },
@@ -1071,7 +1096,7 @@ describe("Rows", () => {
         C2: { content: "=A$3" },
         D2: { content: "=C2" },
       });
-      expect(getSheet(model, 1).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet2")).toMatchObject({
         A1: { content: "=A2" },
         B1: { content: "=#REF" },
         C1: { content: "=Sheet2!A2" },
@@ -1105,11 +1130,11 @@ describe("Rows", () => {
           rows: [0],
           sheetId: sheet2.id,
         });
-      expect(sheet1.cells).toMatchObject({
+      expect(getCellsObject(model, sheet1.id)).toMatchObject({
         B2: { content: "=Sheet1!A2" },
         C1: { content: "=Sheet2!A1" },
       });
-      expect(sheet2.cells).toMatchObject({
+      expect(getCellsObject(model, sheet2.id)).toMatchObject({
         A1: { content: "=B1" },
         B1: { content: "=Sheet1!A2" },
         C1: { content: "=Sheet2!A1" },
@@ -1119,6 +1144,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -1128,7 +1154,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([0]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { content: "=SUM(A1:A2)" },
       });
     });
@@ -1136,6 +1162,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 6,
             cells: {
@@ -1145,7 +1172,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([1, 2]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { content: "=SUM(A2:A3)" },
       });
     });
@@ -1153,6 +1180,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 1,
             rowNumber: 1000,
             cells: {
@@ -1171,7 +1199,7 @@ describe("Rows", () => {
       }
 
       removeRows(rows);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A5: { content: "=SUM(A6)" },
         A7: { content: "=SUM(A8)" },
       });
@@ -1180,6 +1208,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 3,
             rowNumber: 3,
             cells: {
@@ -1189,7 +1218,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([2]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { content: "=SUM(A1:A2)" },
       });
     });
@@ -1197,6 +1226,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 1,
             rowNumber: 8,
             cells: {
@@ -1206,7 +1236,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([2, 3]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "=SUM(A2:A3)" },
       });
     });
@@ -1214,6 +1244,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 1,
             rowNumber: 8,
             cells: {
@@ -1223,7 +1254,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([1, 2, 3, 4, 5, 6]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "=SUM(A2)" },
       });
     });
@@ -1231,6 +1262,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 4,
             rowNumber: 4,
             cells: {
@@ -1240,7 +1272,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([2, 3]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { content: "=SUM(A1:A2)" },
       });
     });
@@ -1248,6 +1280,7 @@ describe("Rows", () => {
       model = new Model({
         sheets: [
           {
+            id: "sheet1",
             colNumber: 2,
             rowNumber: 8,
             cells: {
@@ -1257,14 +1290,14 @@ describe("Rows", () => {
         ],
       });
       removeRows([3, 4, 5, 6, 7]);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         B2: { content: "=SUM(A1:A3)" },
       });
     });
     test("On addition", () => {
       addRows(1, "before", 1);
       addRows(0, "after", 1);
-      expect(getSheet(model, 0).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "=A4" },
         A6: { content: "=A1" },
         B1: { content: "=Sheet1!A4" },
@@ -1273,7 +1306,7 @@ describe("Rows", () => {
         C6: { content: "=A$7" },
         D6: { content: "=C6" },
       });
-      expect(getSheet(model, 1).cells).toMatchObject({
+      expect(getCellsObject(model, "sheet2")).toMatchObject({
         A1: { content: "=A2" },
         B1: { content: "=Sheet1!A4" },
         C1: { content: "=Sheet2!A2" },

@@ -13,31 +13,34 @@ import { HighlightPlugin } from "../plugins/highlight";
 import { SelectionInputPlugin } from "../plugins/selection_inputs";
 import { FigurePlugin } from "../plugins/figures";
 import { ChartPlugin } from "../plugins/chart";
+import { SheetPlugin } from "../plugins/sheet";
 
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
 export interface Getters {
-  applyOffset: CorePlugin["applyOffset"];
-  getCell: CorePlugin["getCell"];
+  applyOffset: SheetPlugin["applyOffset"];
+  getActiveSheetId: SheetPlugin["getActiveSheetId"];
+  getActiveSheet: SheetPlugin["getActiveSheet"];
+  getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
+  getSheet: SheetPlugin["getSheet"];
+  getSheetName: SheetPlugin["getSheetName"];
+  getSheetIdByName: SheetPlugin["getSheetIdByName"];
+  getSheets: SheetPlugin["getSheets"];
+  getVisibleSheets: SheetPlugin["getVisibleSheets"];
+  getCol: SheetPlugin["getCol"];
+  getRow: SheetPlugin["getRow"];
+  getCell: SheetPlugin["getCell"];
+  getCellPosition: SheetPlugin["getCellPosition"];
+  getColCells: SheetPlugin["getColCells"];
+  getColsZone: SheetPlugin["getColsZone"];
+  getRowsZone: SheetPlugin["getRowsZone"];
+  getGridSize: SheetPlugin["getGridSize"];
+  getCellByXc: SheetPlugin["getCellByXc"];
+
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
-
-  getActiveSheetId: CorePlugin["getActiveSheetId"];
-  getActiveSheet: CorePlugin["getActiveSheet"];
-  getEvaluationSheets: CorePlugin["getEvaluationSheets"];
-  getSheet: CorePlugin["getSheet"];
-  getSheetName: CorePlugin["getSheetName"];
-  getSheetIdByName: CorePlugin["getSheetIdByName"];
-  getSheets: CorePlugin["getSheets"];
-  getVisibleSheets: CorePlugin["getVisibleSheets"];
-  getCol: CorePlugin["getCol"];
-  getRow: CorePlugin["getRow"];
   getCells: CorePlugin["getCells"];
-  getColCells: CorePlugin["getColCells"];
-  getColsZone: CorePlugin["getColsZone"];
-  getRowsZone: CorePlugin["getRowsZone"];
-  getGridSize: CorePlugin["getGridSize"];
   getRangeValues: CorePlugin["getRangeValues"];
   getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
   shouldShowFormulas: CorePlugin["shouldShowFormulas"];
