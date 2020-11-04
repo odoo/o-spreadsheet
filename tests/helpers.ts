@@ -154,9 +154,10 @@ type GridResult = { [xc: string]: any };
 
 export function getGrid(model: Model): GridResult {
   const result = {};
+  const sheetId = model.getters.getActiveSheetId();
   for (let cellId in model.getters.getCells()) {
     const { col, row } = model.getters.getCellPosition(cellId);
-    const cell = model.getters.getCell(col, row);
+    const cell = model.getters.getCell(sheetId, col, row);
     result[toXC(col, row)] = cell ? cell.value : undefined;
   }
   return result;
@@ -303,13 +304,12 @@ export function getActiveXc(model: Model): string {
   return toXC(...model.getters.getPosition());
 }
 
-export function getCell(model: Model, xc: string, sheetId?: UID): Cell | null {
-  let [col, row] = toCartesian(xc);
-  if (sheetId) {
-    const sheet = model.getters.getEvaluationSheets()[sheetId];
-    return (sheet && sheet.rows[row].cells[col]) || null;
-  }
-  return model.getters.getCell(col, row);
+export function getCell(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Cell | null {
+  return model.getters.getCellByXc(sheetId, xc) || null;
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

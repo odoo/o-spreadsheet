@@ -96,7 +96,8 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
           return;
         }
         const mainXc = getters.getMainCell(toXC(col, row));
-        const cell = getters.getCell(...toCartesian(mainXc));
+        const sheetId = getters.getActiveSheetId();
+        const cell = getters.getCell(sheetId, ...toCartesian(mainXc));
         if (cell && cell.error) {
           tooltip.isOpen = true;
           tooltip.text = cell.error;

@@ -193,20 +193,19 @@ export class FormattingPlugin extends BasePlugin {
   // Borders
   // ---------------------------------------------------------------------------
 
-  private setBorder(sheet: string, zones: Zone[], command: BorderCommand) {
+  private setBorder(sheetId: UID, zones: Zone[], command: BorderCommand) {
     // this object aggregate the desired final border command for a cell
     const borderMap: { [xc: string]: number } = {};
     for (let zone of zones) {
-      this.aggregateBorderCommands(sheet, zone, command, borderMap);
+      this.aggregateBorderCommands(sheetId, zone, command, borderMap);
     }
     for (let [xc, borderId] of Object.entries(borderMap)) {
+      const cell = this.getters.getCellByXc(sheetId, xc);
       const [col, row] = toCartesian(xc);
-      //TODO: use a getter that is sheet sensitive
-      const cell = this.getters.getCell(col, row);
       const current = (cell && cell.border) || 0;
       if (current !== borderId) {
         this.dispatch("UPDATE_CELL", {
-          sheetId: sheet,
+          sheetId,
           col,
           row,
           border: borderId,
@@ -216,7 +215,7 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   private aggregateBorderCommands(
-    sheet: string,
+    sheet: UID,
     zone: Zone,
     command: BorderCommand,
     borderMap: { [xc: string]: number }
@@ -294,8 +293,7 @@ export class FormattingPlugin extends BasePlugin {
     side: string,
     borderMap: { [xc: string]: number }
   ) {
-    //TODO: use a getter that is sheet sensitive
-    const cell = this.getters.getCell(col, row);
+    const cell = this.getters.getCell(sheetId, col, row);
     const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
@@ -313,8 +311,7 @@ export class FormattingPlugin extends BasePlugin {
     border: Border,
     borderMap: { [xc: string]: number }
   ) {
-    //TODO: use a getter that is sheet sensitive
-    const cell = this.getters.getCell(col, row);
+    const cell = this.getters.getCell(sheetId, col, row);
     const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
@@ -409,10 +406,11 @@ export class FormattingPlugin extends BasePlugin {
    * undefined if no number value in the range.
    */
   private searchNumberFormat(zones: Zone[]): string | undefined {
+    const sheetId = this.getters.getActiveSheetId();
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
-          const cell = this.getters.getCell(col, row);
+          const cell = this.getters.getCell(sheetId, col, row);
           if (
             cell &&
             (cell.type === "number" || (cell.type === "formula" && typeof cell.value === "number"))
@@ -589,10 +587,11 @@ export class FormattingPlugin extends BasePlugin {
    * gets the currently used style/border of a cell based on it's coordinates
    */
   private getFormat(xc: string): FormatInfo {
+    const sheetId = this.getters.getActiveSheetId();
     const format: FormatInfo = {};
     xc = this.getters.getMainCell(xc);
-    const cell = this.getters.getCell(...toCartesian(xc));
-    if (cell !== null) {
+    const cell = this.getters.getCellByXc(sheetId, xc);
+    if (cell) {
       if (cell.border) {
         format["border"] = cell.border;
       }

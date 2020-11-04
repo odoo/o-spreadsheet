@@ -267,22 +267,23 @@ export class AutofillPlugin extends BasePlugin {
    */
   private autofillAuto() {
     const zone = this.getters.getSelectedZone();
+    const sheetId = this.getters.getActiveSheetId();
     let col = zone.left;
     let row = zone.bottom;
     if (col > 0) {
-      let left = this.getters.getCell(col - 1, row);
+      let left = this.getters.getCell(sheetId, col - 1, row);
       while (left && left.content) {
         row += 1;
-        left = this.getters.getCell(col - 1, row);
+        left = this.getters.getCell(sheetId, col - 1, row);
       }
     }
     if (row === zone.bottom) {
       col = zone.right;
       if (col <= this.getters.getActiveSheet().colNumber) {
-        let right = this.getters.getCell(col + 1, row);
+        let right = this.getters.getCell(sheetId, col + 1, row);
         while (right && right.content) {
           row += 1;
-          right = this.getters.getCell(col + 1, row);
+          right = this.getters.getCell(sheetId, col + 1, row);
         }
       }
     }
@@ -331,7 +332,8 @@ export class AutofillPlugin extends BasePlugin {
     const cellsData: { col: number; row: number; cell: Cell | null }[] = [];
     for (let xc of source) {
       const [col, row] = toCartesian(xc);
-      const cell = this.getters.getCell(col, row);
+      const sheetId = this.getters.getActiveSheetId();
+      const cell = this.getters.getCell(sheetId, col, row);
       let cellData: { col: number; row: number; cell: Cell | null } = {
         col,
         row,

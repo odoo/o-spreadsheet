@@ -1,4 +1,4 @@
-import { isEqual, toXC, union, clip, formatStandardNumber, toCartesian } from "../helpers/index";
+import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import {
   Command,
@@ -187,7 +187,10 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
 
   getActiveCell(): Cell | null {
-    return this.getters.getCell(...toCartesian(this.getters.getMainCell(this.activeXc)));
+    const sheetId = this.getters.getActiveSheetId();
+    const xc = this.getters.getMainCell(this.activeXc);
+    // TODO Unify null and undefined
+    return this.getters.getCellByXc(sheetId, xc) || null;
   }
 
   getActiveCols(): Set<number> {

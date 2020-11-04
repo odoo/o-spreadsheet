@@ -116,7 +116,7 @@ describe("core", () => {
         target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
         style: { bold: true },
       });
-      expect(model.getters.getCellText(model.getters.getCell(0, 0)!)).toEqual("1");
+      expect(model.getters.getCellText(getCell(model, "A1")!)).toEqual("1");
     });
 
     test("format cell to a boolean value", () => {
@@ -154,7 +154,8 @@ describe("core", () => {
 
   test("getCell getter does not crash if invalid col/row", () => {
     const model = new Model();
-    expect(model.getters.getCell(-1, -1)).toBe(null);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getCell(sheetId, -1, -1)).toBe(null);
   });
 
   test("single cell XC conversion", () => {
@@ -392,6 +393,18 @@ describe("history", () => {
       reason: CancelledReason.InvalidSheetId,
     });
   });
+
+  test("Can select a cell in another sheet", async () => {
+    const model = new Model({
+      sheets: [
+        { id: "1", cells: { A1: { content: "Sheet1A1" } } },
+        { id: "2", cells: { A1: { content: "Sheet2A1" } } },
+      ],
+    });
+    expect(model.getters.getCell("1", 0, 0)!.content).toBe("Sheet1A1");
+    expect(model.getters.getCell("2", 0, 0)!.content).toBe("Sheet2A1");
+  });
+
   describe("getters", () => {
     test("getRangeFormattedValues", () => {
       const sheet1Id = "42";
