@@ -25,8 +25,6 @@ export interface Style {
 export interface Sheet {
   id: UID;
   name: string;
-  colNumber: number;
-  rowNumber: number;
   cols: Col[];
   rows: Row[];
 }

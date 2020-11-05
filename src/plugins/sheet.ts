@@ -219,30 +219,18 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
 
       case "REMOVE_COLUMNS":
         this.removeColumns(this.sheets[cmd.sheetId]!, cmd.columns);
-        this.history.update(
-          "sheets",
-          cmd.sheetId,
-          "colNumber",
-          this.sheets[cmd.sheetId]!.colNumber - cmd.columns.length
-        );
         break;
       case "REMOVE_ROWS":
         this.removeRows(this.sheets[cmd.sheetId]!, cmd.rows);
-        this.history.update(
-          "sheets",
-          cmd.sheetId,
-          "rowNumber",
-          this.sheets[cmd.sheetId]!.rowNumber - cmd.rows.length
-        );
         break;
-      case "ADD_COLUMNS":
+      case "ADD_COLUMNS": {
         this.addColumns(this.sheets[cmd.sheetId]!, cmd.column, cmd.position, cmd.quantity);
-        this.history.update("activeSheet", "colNumber", this.activeSheet.colNumber + cmd.quantity);
         break;
-      case "ADD_ROWS":
+      }
+      case "ADD_ROWS": {
         this.addRows(this.sheets[cmd.sheetId]!, cmd.row, cmd.position, cmd.quantity);
-        this.history.update("activeSheet", "rowNumber", this.activeSheet.rowNumber + cmd.quantity);
         break;
+      }
       case "UPDATE_CELL_POSITION":
         if (cmd.cell) {
           this.history.update("cellPosition", cmd.cell.id, { row: cmd.row, col: cmd.col });
@@ -279,8 +267,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     const sheet: Sheet = {
       id: data.id,
       name: name,
-      colNumber: data.colNumber,
-      rowNumber: data.rowNumber,
       cols: createCols(data.cols || {}, data.colNumber),
       rows: createRows(data.rows || {}, data.rowNumber),
     };
@@ -296,8 +282,8 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       return {
         id: sheet.id,
         name: sheet.name,
-        colNumber: sheet.colNumber,
-        rowNumber: sheet.rowNumber,
+        colNumber: sheet.cols.length,
+        rowNumber: sheet.rows.length,
         rows: exportRows(sheet.rows),
         cols: exportCols(sheet.cols),
         merges: [], //exportMerges(sheet.merges),
@@ -502,14 +488,12 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     return name;
   }
 
-  private createSheet(id: UID, name: string, cols: number, rows: number): Sheet {
+  private createSheet(id: UID, name: string, colNumber: number, rowNumber: number): Sheet {
     const sheet: Sheet = {
       id,
       name,
-      colNumber: cols,
-      rowNumber: rows,
-      cols: createDefaultCols(cols),
-      rows: createDefaultRows(rows),
+      cols: createDefaultCols(colNumber),
+      rows: createDefaultRows(rowNumber),
     };
     const visibleSheets = this.visibleSheets.slice();
     const index = visibleSheets.findIndex((id) => this.getters.getActiveSheetId() === id);
@@ -1162,7 +1146,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     x += freezeCol && updateFreeze ? 0 : offsetX;
     y += freezeRow && updateFreeze ? 0 : offsetY;
     const sheet = this.getters.getSheet(sheetId || this.getters.getActiveSheetId());
-    if (!sheet || x < 0 || x >= sheet.colNumber || y < 0 || y >= sheet.rowNumber) {
+    if (!sheet || x < 0 || x >= sheet.cols.length || y < 0 || y >= sheet.rows.length) {
       return "#REF";
     }
     const sheetName = sheetId && getComposerSheetName(this.getters.getSheetName(sheetId)!);

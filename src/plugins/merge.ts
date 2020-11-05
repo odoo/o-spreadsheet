@@ -423,8 +423,8 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     const merge = this.getMergeByXc(sheetId, xc);
     const sheet = this.getters.getSheet(sheetId);
     if (!merge || !sheet) return;
-    const colNumber = sheet.colNumber - 1;
-    const rowNumber = sheet.rowNumber - 1;
+    const colNumber = sheet.cols.length - 1;
+    const rowNumber = sheet.rows.length - 1;
     const newMerge = {
       left: col,
       top: row,

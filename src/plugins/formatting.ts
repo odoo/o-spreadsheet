@@ -278,10 +278,10 @@ export class FormattingPlugin extends BasePlugin {
     if (row > 0) {
       this.clearSide(sheetId, col, row - 1, "bottom", borderMap);
     }
-    if (col < activeSheet.colNumber - 1) {
+    if (col < activeSheet.cols.length - 1) {
       this.clearSide(sheetId, col + 1, row, "left", borderMap);
     }
-    if (row < activeSheet.rowNumber - 1) {
+    if (row < activeSheet.rows.length - 1) {
       this.clearSide(sheetId, col, row + 1, "top", borderMap);
     }
   }
@@ -536,7 +536,7 @@ export class FormattingPlugin extends BasePlugin {
    */
   private onAddElements(start: number, end: number, isColumn: boolean, upper: boolean) {
     const activeSheet = this.getters.getActiveSheet();
-    const length = isColumn ? activeSheet.rowNumber : activeSheet.colNumber;
+    const length = isColumn ? activeSheet.rows.length : activeSheet.cols.length;
     const index = start + 1;
     for (let x = 0; x < length; x++) {
       const xc = isColumn ? toXC(index, x) : toXC(x, index);

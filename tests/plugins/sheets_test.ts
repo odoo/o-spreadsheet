@@ -53,8 +53,8 @@ describe("sheets", () => {
       sheetId: "42",
     });
     const activeSheet = model.getters.getActiveSheet();
-    expect(activeSheet.colNumber).toBe(4);
-    expect(activeSheet.rowNumber).toBe(2);
+    expect(activeSheet.cols.length).toBe(4);
+    expect(activeSheet.rows.length).toBe(2);
     expect(activeSheet.name).toBe("SheetTest");
   });
 
@@ -498,8 +498,8 @@ describe("sheets", () => {
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
     expect(getText(model, "A1")).toBe("42");
-    expect(model.getters.getActiveSheet().colNumber).toBe(5);
-    expect(model.getters.getActiveSheet().rowNumber).toBe(5);
+    expect(model.getters.getActiveSheet().cols.length).toBe(5);
+    expect(model.getters.getActiveSheet().rows.length).toBe(5);
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
   });
 

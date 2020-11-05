@@ -314,8 +314,8 @@ export class EvaluationPlugin extends BasePlugin {
       const sheet = sheets[sheetId]!;
       let [left, top] = toCartesian(v1);
       let [right, bottom] = toCartesian(v2);
-      right = Math.min(right, sheet.colNumber - 1);
-      bottom = Math.min(bottom, sheet.rowNumber - 1);
+      right = Math.min(right, sheet.cols.length - 1);
+      bottom = Math.min(bottom, sheet.rows.length - 1);
 
       if (left > right) {
         const tmp = left;
