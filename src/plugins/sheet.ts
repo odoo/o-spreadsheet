@@ -639,10 +639,9 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
 
       // Move the cells.
       this.moveCellsHorizontally(column, -1, sheet);
-
-      // Effectively delete the element and recompute the left-right.
-      this.manageColumnsHeaders(column, -1, sheet);
     }
+    // Effectively delete the element and recompute the left-right.
+    this.updateColumnsStructureOnDeletion(sheet, columns);
   }
 
   /**
@@ -691,7 +690,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheet);
 
     // Recompute the left-right/top-bottom.
-    this.manageColumnsHeaders(column, quantity, sheet);
+    this.updateColumnsStructureOnAddition(sheet, column, quantity);
   }
 
   private addRows(sheet: Sheet, row: number, position: "before" | "after", quantity: number) {
@@ -786,26 +785,60 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     );
   }
 
-  private manageColumnsHeaders(base: number, step: number, sheet: Sheet) {
+  /**
+   * Update the cols of the sheet after a deletion:
+   * - Rename the cols
+   * - Update start-end
+   *
+   * @param sheet Sheet on which the deletion occurs
+   * @param deletedColumns Indexes of the deleted columns
+   */
+  private updateColumnsStructureOnDeletion(sheet: Sheet, deletedColumns: number[]) {
+    const cols: Col[] = [];
+    let start = 0;
+    let colSizeIndex = 0;
+    for (let index in sheet.cols) {
+      if (deletedColumns.includes(parseInt(index, 10))) {
+        continue;
+      }
+      const { size } = sheet.cols[index];
+      cols.push({
+        name: numberToLetters(colSizeIndex),
+        size,
+        start,
+        end: start + size,
+      });
+      start += size;
+      colSizeIndex++;
+    }
+    this.history.update("sheets", sheet.id, "cols", cols);
+  }
+
+  /**
+   * Update the cols of the sheet after an addition:
+   * - Rename the cols
+   * - Update start-end
+   *
+   * @param sheet Sheet on which the deletion occurs
+   * @param addedColumn Index of the added columns
+   * @param columnsToAdd Number of the columns to add
+   */
+  private updateColumnsStructureOnAddition(sheet: Sheet, addedColumn: number, columnsToAdd: number) {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
     for (let i in sheet.cols) {
-      if (parseInt(i, 10) === base) {
-        if (step !== -1) {
-          const { size } = sheet.cols[colIndex];
-          for (let a = 0; a < step; a++) {
-            cols.push({
-              name: numberToLetters(colIndex),
-              size,
-              start,
-              end: start + size,
-            });
-            start += size;
-            colIndex++;
-          }
-        } else {
-          continue;
+      if (parseInt(i, 10) === addedColumn) {
+        const { size } = sheet.cols[colIndex];
+        for (let a = 0; a < columnsToAdd; a++) {
+          cols.push({
+            name: numberToLetters(colIndex),
+            size,
+            start,
+            end: start + size,
+          });
+          start += size;
+          colIndex++;
         }
       }
       const { size } = sheet.cols[i];
