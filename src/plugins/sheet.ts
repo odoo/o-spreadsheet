@@ -11,7 +11,7 @@ import {
   Sheet,
   SheetData,
   UID,
-  UpdateCellCommand,
+  UpdateCellPositionCommand,
   WorkbookData,
   Zone,
 } from "../types/index";
@@ -711,7 +711,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheet);
 
     // Move the cells.
-    this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheet);
+    this.moveCellOnRowsAddition(sheet, position === "before" ? row : row + 1, quantity);
 
     // Recompute the left-right/top-bottom.
     this.updateRowsStructureOnAddition(sheet, row, quantity);
@@ -821,26 +821,37 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     }
   }
 
-  private moveCellsVertically(base: number, step: number, sheet: Sheet) {
-    return this.processCellsToMove(
-      (row, col) => row >= base,
-      (row, col) => row !== base || step !== -1,
-      (cell, row, col) => {
-        //TODO: see if UPDATE_CELL_POSITION can work here instead of the full UPDATE_CELL
-        return {
-          type: "UPDATE_CELL",
-          sheetId: sheet.id,
-          cellId: cell.id,
-          col: col,
-          row: row + step,
-          border: cell.border,
-          style: cell.style,
-          content: cell.content,
-          format: cell.format,
-        };
-      },
-      sheet
-    );
+  /**
+   * Move the cells after rows addition
+   *
+   * @param sheet Sheet
+   * @param addedRow Row currently being added
+   * @param quantity Number of rows to add
+   */
+  private moveCellOnRowsAddition(sheet: Sheet, addedRow: number, quantity: number) {
+    const commands: UpdateCellPositionCommand[] = [];
+    for (let [index, row] of Object.entries(sheet.rows)) {
+      const rowIndex = parseInt(index, 10);
+      if (rowIndex >= addedRow) {
+        for (let i in row.cells) {
+          const colIndex = parseInt(i, 10);
+          const cell = row.cells[i];
+          if (cell) {
+            commands.unshift({
+              type: "UPDATE_CELL_POSITION",
+              sheetId: sheet.id,
+              cellId: cell.id,
+              cell: cell,
+              col: colIndex,
+              row: rowIndex + quantity,
+            });
+          }
+        }
+      }
+    }
+    for (let cmd of commands) {
+      this.dispatch(cmd.type, cmd);
+    }
   }
 
   /**
@@ -1010,46 +1021,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       }
       return this.updateRowsRef(value, sheet, base, step);
     });
-  }
-
-  private processCellsToMove(
-    shouldDelete: (row: number, col: number) => boolean,
-    shouldAdd: (row: number, col: number) => boolean,
-    buildCellToAdd: (cell: Cell, row: number, col: number) => UpdateCellCommand,
-    sheet: Sheet
-  ) {
-    const deleteCommands: Command[] = [];
-    const addCommands: Command[] = [];
-
-    for (let [r, currentRow] of Object.entries(this.sheets[sheet.id]?.rows || {})) {
-      if (currentRow) {
-        for (let c in currentRow.cells) {
-          const cell = currentRow.cells[c];
-          if (cell) {
-            const rowIndex = Number(r);
-            const colIndex = Number(c);
-            if (shouldDelete(rowIndex, colIndex)) {
-              deleteCommands.push({
-                type: "CLEAR_CELL",
-                sheetId: sheet.id,
-                col: colIndex,
-                row: rowIndex,
-              });
-              if (shouldAdd(rowIndex, colIndex)) {
-                addCommands.push(buildCellToAdd(cell, rowIndex, colIndex));
-              }
-            }
-          }
-        }
-      }
-    }
-
-    for (let cmd of deleteCommands) {
-      this.dispatch(cmd.type, cmd);
-    }
-    for (let cmd of addCommands) {
-      this.dispatch(cmd.type, cmd);
-    }
   }
 
   // ---------------------------------------------------------------------------
