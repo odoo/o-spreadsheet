@@ -650,7 +650,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       this.updateColumnsFormulas(column, -1, sheet);
 
       // Move the cells.
-      this.moveCellsHorizontally(column, -1, sheet);
+      this.moveCellOnColumnsDeletion(sheet, column);
     }
     // Effectively delete the element and recompute the left-right.
     this.updateColumnsStructureOnDeletion(sheet, columns);
@@ -715,6 +715,34 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
 
     // Recompute the left-right/top-bottom.
     this.updateRowsStructureOnAddition(sheet, row, quantity);
+  }
+
+  private moveCellOnColumnsDeletion(sheet: Sheet, deletedColumn: number) {
+    for (let [index, row] of Object.entries(sheet.rows)) {
+      const rowIndex = parseInt(index, 10);
+      for (let i in row.cells) {
+        const colIndex = parseInt(i, 10);
+        const cell = row.cells[i];
+        if (cell) {
+          if (colIndex === deletedColumn) {
+            this.dispatch("CLEAR_CELL", {
+              sheetId: sheet.id,
+              col: colIndex,
+              row: rowIndex,
+            });
+          }
+          if (colIndex > deletedColumn) {
+            this.dispatch("UPDATE_CELL_POSITION", {
+              sheetId: sheet.id,
+              cellId: cell.id,
+              cell: cell,
+              col: colIndex - 1,
+              row: rowIndex,
+            });
+          }
+        }
+      }
+    }
   }
 
   /**
