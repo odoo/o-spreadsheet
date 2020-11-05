@@ -1393,4 +1393,28 @@ describe("Rows", () => {
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
     });
   });
+
+  describe("Multi-sheet", () => {
+    test("Cann add a row in another sheet", () => {
+      const model = new Model({
+        sheets: [
+          { id: "1", colNumber: 3, rowNumber: 3 },
+          { id: "2", colNumber: 3, rowNumber: 3 },
+        ],
+        activeSheet: "1",
+      });
+      model.dispatch("ADD_ROWS", { sheetId: "2", row: 1, quantity: 2, position: "after" });
+      const sheet1 = model.getters.getSheet("1")!;
+      const sheet2 = model.getters.getSheet("2")!;
+      expect(sheet1.rows.length).toBe(3);
+      expect(sheet2.rows.length).toBe(5);
+      expect(sheet2.rows[4]).toEqual({
+        cells: {},
+        end: DEFAULT_CELL_HEIGHT * 5,
+        size: DEFAULT_CELL_HEIGHT,
+        start: DEFAULT_CELL_HEIGHT * 4,
+        name: "5",
+      });
+    });
+  });
 });
