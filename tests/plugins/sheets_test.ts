@@ -704,6 +704,23 @@ describe("sheets", () => {
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     expect(getCell(model, "A1")!.content).toBe("=NEW_NAME!A1");
   });
+
+  test("UPDATE_CELL_POSITION remove the old position if exist", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "test");
+    const cell = getCell(model, "A1")!;
+    model.dispatch("UPDATE_CELL_POSITION", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 1,
+      row: 1,
+      cell,
+      cellId: cell.id,
+    });
+    const sheet = model.getters.getActiveSheet();
+    expect(sheet.rows[0].cells[0]).toBeUndefined();
+    expect(sheet.rows[1].cells[1]!.id).toBe(cell.id);
+    expect(model.getters.getCellPosition(cell.id)).toEqual({ col: 1, row: 1 });
+  });
 });
 
 function getText(model: Model, xc: string): string {
