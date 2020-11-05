@@ -694,9 +694,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   }
 
   private addRows(sheet: Sheet, row: number, position: "before" | "after", quantity: number) {
-    for (let i = 0; i < quantity; i++) {
-      this.addEmptyRow();
-    }
+    this.addEmptyRows(sheet, quantity);
     // Update all the formulas.
     this.updateRowsFormulas(position === "before" ? row - 1 : row, quantity, sheet);
 
@@ -704,7 +702,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     this.moveCellsVertically(position === "before" ? row : row + 1, quantity, sheet);
 
     // Recompute the left-right/top-bottom.
-    this.processRowsHeaderAdd(row, quantity);
+    this.updateRowsStructureOnAddition(sheet, row, quantity);
   }
 
   /**
@@ -823,7 +821,11 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
    * @param addedColumn Index of the added columns
    * @param columnsToAdd Number of the columns to add
    */
-  private updateColumnsStructureOnAddition(sheet: Sheet, addedColumn: number, columnsToAdd: number) {
+  private updateColumnsStructureOnAddition(
+    sheet: Sheet,
+    addedColumn: number,
+    columnsToAdd: number
+  ) {
     const cols: Col[] = [];
     let start = 0;
     let colIndex = 0;
@@ -878,15 +880,24 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     this.history.update("sheets", sheet.id, "rows", rows);
   }
 
-  private processRowsHeaderAdd(index: number, quantity: number) {
+  /**
+   * Update the rows of the sheet after an addition:
+   * - Rename the rows
+   * - Update start-end
+   *
+   * @param sheet Sheet on which the deletion occurs
+   * @param addedRow Index of the added row
+   * @param rowsToAdd Number of the rows to add
+   */
+  private updateRowsStructureOnAddition(sheet: Sheet, addedRow: number, rowsToAdd: number) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
     let sizeIndex = 0;
-    const cellsQueue = this.activeSheet.rows.map((row) => row.cells);
-    for (let i in this.activeSheet.rows) {
-      const { size } = this.activeSheet.rows[sizeIndex];
-      if (parseInt(i, 10) < index || parseInt(i, 10) >= index + quantity) {
+    const cellsQueue = sheet.rows.map((row) => row.cells);
+    for (let i in sheet.rows) {
+      const { size } = sheet.rows[sizeIndex];
+      if (parseInt(i, 10) < addedRow || parseInt(i, 10) >= addedRow + rowsToAdd) {
         sizeIndex++;
       }
       rowIndex++;
@@ -899,22 +910,28 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       });
       start += size;
     }
-    this.history.update("activeSheet", "rows", rows);
+    this.history.update("sheets", sheet.id, "rows", rows);
   }
 
-  private addEmptyRow() {
-    const lastEnd = this.activeSheet.rows[this.activeSheet.rows.length - 1].end;
-    const name = (this.activeSheet.rows.length + 1).toString();
-    const newRows: Row[] = this.activeSheet.rows.slice();
-    const size = 0;
-    newRows.push({
-      start: lastEnd,
-      end: lastEnd + size,
-      size,
-      name,
-      cells: {},
-    });
-    this.history.update("activeSheet", "rows", newRows);
+  /**
+   * Add empty rows at the end of the rows
+   *
+   * @param sheet Sheet
+   * @param quantity Number of rows to add
+   */
+  private addEmptyRows(sheet: Sheet, quantity: number) {
+    const lastEnd = sheet.rows[sheet.rows.length - 1].end;
+    const rows: Row[] = sheet.rows.slice();
+    for (let i = 0; i < quantity; i++) {
+      rows.push({
+        start: lastEnd,
+        end: lastEnd,
+        size: 0,
+        name: (rows.length + 1).toString(),
+        cells: {},
+      });
+    }
+    this.history.update("sheets", sheet.id, "rows", rows);
   }
 
   private updateColumnsFormulas(base: number, step: number, sheet: Sheet) {
