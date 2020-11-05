@@ -233,6 +233,18 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       }
       case "UPDATE_CELL_POSITION":
         if (cmd.cell) {
+          const position = this.cellPosition[cmd.cellId];
+          if (position) {
+            this.history.update(
+              "sheets",
+              cmd.sheetId,
+              "rows",
+              position.row,
+              "cells",
+              position.col,
+              undefined
+            );
+          }
           this.history.update("cellPosition", cmd.cell.id, { row: cmd.row, col: cmd.col });
           //TODO : remove cell from the command, only store the cellId in sheets[sheet].row[rowIndex].cells[colIndex]
           this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cell);
