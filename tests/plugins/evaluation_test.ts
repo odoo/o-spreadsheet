@@ -173,7 +173,7 @@ describe("evaluateCells", () => {
 
   test("error in range vlookup", () => {
     const model = new Model();
-    expect(model.getters.getActiveSheet().rowNumber).toBeLessThan(200);
+    expect(model.getters.getActiveSheet().rows.length).toBeLessThan(200);
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCell(model, "A1")!.error!.toString()).toBe(

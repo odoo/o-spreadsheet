@@ -41,13 +41,13 @@ describe("addFunction", () => {
     functionRegistry.add("GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
-        return (this as any).getters.getActiveSheet().colNumber;
+        return (this as any).getters.getActiveSheet().cols.length;
       },
       args: args(``),
       returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
-      model.getters.getActiveSheet().colNumber
+      model.getters.getActiveSheet().cols.length
     );
   });
 });

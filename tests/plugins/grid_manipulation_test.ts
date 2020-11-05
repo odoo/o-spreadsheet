@@ -218,7 +218,7 @@ describe("Columns", () => {
         { start: 0, end: 10, size: 10, name: "A" },
         { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" },
       ]);
-      expect(model.getters.getActiveSheet().colNumber).toBe(2);
+      expect(model.getters.getActiveSheet().cols.length).toBe(2);
     });
     test("On delete cols in inactive sheet", () => {
       model = new Model({
@@ -259,7 +259,7 @@ describe("Columns", () => {
         { start: size + 30, end: size + 50, size: 20, name: "E" },
         { start: size + 50, end: 2 * size + 50, size, name: "F" },
       ]);
-      expect(model.getters.getActiveSheet().colNumber).toBe(6);
+      expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
     test("On addition after", () => {
       addColumns(2, "after", 2);
@@ -272,7 +272,7 @@ describe("Columns", () => {
         { start: size + 50, end: size + 70, size: 20, name: "E" },
         { start: size + 70, end: 2 * size + 70, size, name: "F" },
       ]);
-      expect(model.getters.getActiveSheet().colNumber).toBe(6);
+      expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
     test("On addition in invalid sheet", () => {
       expect(
@@ -759,7 +759,7 @@ describe("Rows", () => {
         { start: 0, end: 10, size: 10, name: "1", cells: {} },
         { start: 10, end: size + 10, size, name: "2", cells: {} },
       ]);
-      expect(model.getters.getActiveSheet().rowNumber).toBe(2);
+      expect(model.getters.getActiveSheet().rows.length).toBe(2);
     });
     test("On delete row in inactive sheet", () => {
       model = new Model({
@@ -877,7 +877,7 @@ describe("Rows", () => {
       ]);
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 124]);
-      expect(model.getters.getActiveSheet().rowNumber).toBe(6);
+      expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
     test("On addition after", () => {
       addRows(2, "after", 2);
@@ -892,7 +892,7 @@ describe("Rows", () => {
       ]);
       const dimensions = model.getters.getGridSize();
       expect(dimensions).toEqual([192, 144]);
-      expect(model.getters.getActiveSheet().rowNumber).toBe(6);
+      expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
     test("cannot delete column in invalid sheet", () => {
       expect(

@@ -285,8 +285,8 @@ describe("borders", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,
-      right: activeSheet.colNumber - 1,
-      bottom: activeSheet.rowNumber - 1,
+      right: activeSheet.cols.length - 1,
+      bottom: activeSheet.rows.length - 1,
     });
     setBorder(model, "all");
     expect(getCell(model, "B1")!.border).toBeDefined();

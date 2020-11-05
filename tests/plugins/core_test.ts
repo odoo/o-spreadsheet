@@ -220,8 +220,8 @@ describe("core", () => {
       ],
     });
     expect(model.getters.getActiveSheetId()).not.toBe("2");
-    expect(model.getters.getSheet("2")!.rowNumber).toEqual(29);
-    expect(model.getters.getSheet("2")!.colNumber).toEqual(19);
+    expect(model.getters.getSheet("2")!.rows.length).toEqual(29);
+    expect(model.getters.getSheet("2")!.cols.length).toEqual(19);
   });
 });
 
