@@ -687,7 +687,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       this.updateRowsFormulas(group[0], -group.length, sheet);
 
       // Move the cells.
-      this.moveCellVerticallyBatched(group[group.length - 1], group[0], sheet);
+      this.moveCellOnRowsDeletion(sheet, group[group.length - 1], group[0]);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
       group.map((row) => this.processRowsHeaderDelete(row, sheet));
@@ -779,26 +779,39 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
    * then take all the row starting at index 6 and add them back at index 3
    *
    */
-  private moveCellVerticallyBatched(deleteFromRow: number, deleteToRow: number, sheet: Sheet) {
-    return this.processCellsToMove(
-      (row, col) => row >= deleteFromRow,
-      (row, col) => row > deleteToRow,
-      (cell: Cell, row, col) => {
-        //TODO: see if UPDATE_CELL_POSITION can work here instead of the full UPDATE_CELL
-        return {
-          type: "UPDATE_CELL",
-          sheetId: sheet.id,
-          cellId: cell.id,
-          col: col,
-          row: row - (deleteToRow - deleteFromRow + 1),
-          border: cell.border,
-          style: cell.style,
-          content: cell.content,
-          format: cell.format,
-        };
-      },
-      sheet
-    );
+  private moveCellOnRowsDeletion(sheet: Sheet, deleteFromRow: number, deleteToRow: number) {
+    const numberRows = deleteToRow - deleteFromRow + 1;
+    for (let [index, row] of Object.entries(sheet.rows)) {
+      const rowIndex = parseInt(index, 10);
+      if (rowIndex >= deleteFromRow && rowIndex <= deleteToRow) {
+        for (let i in row.cells) {
+          const colIndex = parseInt(i, 10);
+          const cell = row.cells[i];
+          if (cell) {
+            this.dispatch("CLEAR_CELL", {
+              sheetId: sheet.id,
+              col: colIndex,
+              row: rowIndex,
+            });
+          }
+        }
+      }
+      if (rowIndex > deleteToRow) {
+        for (let i in row.cells) {
+          const colIndex = parseInt(i, 10);
+          const cell = row.cells[i];
+          if (cell) {
+            this.dispatch("UPDATE_CELL_POSITION", {
+              sheetId: sheet.id,
+              cellId: cell.id,
+              cell: cell,
+              col: colIndex,
+              row: rowIndex - numberRows,
+            });
+          }
+        }
+      }
+    }
   }
 
   private moveCellsVertically(base: number, step: number, sheet: Sheet) {
