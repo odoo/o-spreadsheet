@@ -699,7 +699,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     this.updateColumnsFormulas(position === "before" ? column - 1 : column, quantity, sheet);
 
     // Move the cells.
-    this.moveCellsHorizontally(position === "before" ? column : column + 1, quantity, sheet);
+    this.moveCellOnColumnsAddition(sheet, position === "before" ? column : column + 1, quantity);
 
     // Recompute the left-right/top-bottom.
     this.updateColumnsStructureOnAddition(sheet, column, quantity);
@@ -746,29 +746,36 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   }
 
   /**
-   * @param base  column currently being deleted or added
-   * @param step  -1 if deleting
+   * Move the cells after column addition
+   *
+   * @param sheet Sheet
+   * @param addedColumn Column currently being added
+   * @param quantity Number of columns to add
    */
-  private moveCellsHorizontally(base: number, step: number, sheet: Sheet) {
-    return this.processCellsToMove(
-      (row, col) => col >= base,
-      (row, col) => col !== base || step !== -1,
-      (cell: Cell, row: number, col: number) => {
-        //TODO: see if UPDATE_CELL_POSITION can work here instead of the full UPDATE_CELL
-        return {
-          type: "UPDATE_CELL",
-          sheetId: sheet.id,
-          cellId: cell.id,
-          col: col + step,
-          row: row,
-          border: cell.border,
-          style: cell.style,
-          content: cell.content,
-          format: cell.format,
-        };
-      },
-      sheet
-    );
+  private moveCellOnColumnsAddition(sheet: Sheet, addedColumn: number, quantity: number) {
+    const commands: Command[] = [];
+    for (let [index, row] of Object.entries(sheet.rows)) {
+      const rowIndex = parseInt(index, 10);
+      for (let i in row.cells) {
+        const colIndex = parseInt(i, 10);
+        const cell = row.cells[i];
+        if (cell) {
+          if (colIndex >= addedColumn) {
+            commands.unshift({
+              type: "UPDATE_CELL_POSITION",
+              sheetId: sheet.id,
+              cellId: cell.id,
+              cell: cell,
+              col: colIndex + quantity,
+              row: rowIndex,
+            });
+          }
+        }
+      }
+    }
+    for (let cmd of commands) {
+      this.dispatch(cmd.type, cmd);
+    }
   }
 
   /**
