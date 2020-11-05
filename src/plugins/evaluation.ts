@@ -42,10 +42,10 @@ export class EvaluationPlugin extends BasePlugin {
   static getters = ["evaluateFormula", "isIdle"];
   static modes: Mode[] = ["normal", "readonly"];
 
-  private isUpToDate: Set<UID> = new Set();
+  private isUpToDate: Set<UID> = new Set(); // Set<sheetIds>
   private loadingCells: number = 0;
   private isStarted: boolean = false;
-  private evalContext: EvalContext;
+  private readonly evalContext: EvalContext;
 
   /**
    * For all cells that are being currently computed (asynchronously).

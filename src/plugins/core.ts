@@ -29,7 +29,6 @@ import {
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 interface CoreState {
-  // this.cells[sheetId][cellId] --> cell|undefined
   cells: Record<UID, Record<UID, Cell | undefined>>;
 }
 
@@ -319,7 +318,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   }
 
   private cellDependencyChanged(cell: Cell, changeType: ChangeType) {
-    //console.log(`cell ${cell.xc} dep changed with ${changeType}`);
+    let pos = this.getters.getCellPosition(cell.id);
+    let xc = toXC(pos.col, pos.row);
+    console.log(`cell ${xc} dep changed with ${changeType}`);
 
     switch (changeType) {
       case "REMOVE":
@@ -331,9 +332,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         cell.pending = true;
         break;
     }
+    // if (cells) {
+    //   cells.push(cell);
+    // }
     //cell.formula(this.getters.getFormulaParameters());
   }
 }
-// ---------------------------------------------------------------------------
-// Import/Export
-// ---------------------------------------------------------------------------
