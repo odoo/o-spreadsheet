@@ -110,6 +110,7 @@ topbarMenuRegistry
     name: _lt("New sheet"),
     sequence: 60,
     action: ACTIONS.CREATE_SHEET_ACTION,
+    separator: true,
   })
   .addChild("view_formulas", ["view"], {
     name: (env: SpreadsheetEnv) =>
