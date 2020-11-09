@@ -438,8 +438,9 @@ export class RendererPlugin extends BasePlugin {
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
-        let cell = row.cells[colNumber];
-        if (cell) {
+        let cellId = row.cells[colNumber];
+        if (cellId) {
+          const cell = this.getters.getCellById(cellId)!;
           let xc = toXC(colNumber, rowNumber);
           if (!this.getters.isInMerge(xc)) {
             let col = cols[colNumber];
