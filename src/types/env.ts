@@ -1,7 +1,7 @@
 import { CommandDispatcher } from "./commands";
-import { Getters } from "./getters";
 import { Env } from "@odoo/owl/dist/types/component/component";
 import { TranslationFunction } from "../translation";
+import { Getters } from "../plugins";
 
 export interface SpreadsheetEnv extends Env {
   openSidePanel: (panel: string, panelProps?: any) => void;

@@ -11,6 +11,7 @@ import {
 } from "../types/index";
 import { Mode } from "../model";
 import { SELECTION_BORDER_COLOR } from "../constants";
+import { SelectionGetters } from ".";
 
 export interface Selection {
   anchor: [number, number];
@@ -34,7 +35,7 @@ export enum SelectionMode {
 /**
  * SelectionPlugin
  */
-export class SelectionPlugin extends BasePlugin {
+export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];
   static getters = [

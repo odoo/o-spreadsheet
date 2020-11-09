@@ -26,6 +26,7 @@ import {
   Cell,
 } from "../types/index";
 import { Mode } from "../model";
+import { RendererGetters } from ".";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
@@ -65,7 +66,7 @@ function searchIndex(headers: Header[], offset: number): number {
   return -1;
 }
 
-export class RendererPlugin extends BasePlugin {
+export class RendererPlugin extends BasePlugin<{}, RendererGetters> {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
     "getColIndex",

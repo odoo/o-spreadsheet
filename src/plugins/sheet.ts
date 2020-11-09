@@ -26,6 +26,7 @@ import {
 } from "../helpers/index";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { cellReference, rangeTokenize } from "../formulas/index";
+import { SheetGetters } from ".";
 const MIN_PADDING = 3;
 
 export interface SheetState {
@@ -36,7 +37,7 @@ export interface SheetState {
   readonly cellPosition: Record<UID, { col: number; row: number } | undefined>;
 }
 
-export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
+export class SheetPlugin extends BasePlugin<SheetState, SheetGetters> implements SheetState {
   static getters = [
     "applyOffset",
     "getActiveSheetId",

@@ -3,6 +3,7 @@ import { toXC, toCartesian, colors, getComposerSheetName } from "../helpers/inde
 import { Command, LAYERS, CancelledReason, CommandResult } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
+import { EditionGetters } from ".";
 
 export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
 
@@ -11,7 +12,7 @@ export interface ComposerSelection {
   end: number;
 }
 
-export class EditionPlugin extends BasePlugin {
+export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   static layers = [LAYERS.Highlights];
   static getters = [
     "getEditionMode",

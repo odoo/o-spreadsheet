@@ -12,6 +12,7 @@ import {
   Zone,
 } from "../types/index";
 import { BasePlugin } from "../base_plugin";
+import { FormattingGetters } from ".";
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers
@@ -60,7 +61,7 @@ function getTargetZone(zone: Zone, side: string): Zone {
  * - borders
  * - value formatters
  */
-export class FormattingPlugin extends BasePlugin {
+export class FormattingPlugin extends BasePlugin<{}, FormattingGetters> {
   static getters = [
     "getCurrentStyle",
     "getCellWidth",

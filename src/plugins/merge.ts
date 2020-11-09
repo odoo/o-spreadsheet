@@ -1,3 +1,4 @@
+import { MergeGetters } from ".";
 import { BasePlugin } from "../base_plugin";
 import {
   updateAddColumns,
@@ -39,7 +40,7 @@ interface MergeState {
   readonly pending: PendingMerges | null;
 }
 
-export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
+export class MergePlugin extends BasePlugin<MergeState, MergeGetters> implements MergeState {
   static getters = [
     "isMergeDestructive",
     "isInMerge",

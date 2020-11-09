@@ -8,7 +8,6 @@ import {
   Command,
   CommandDispatcher,
   EvalContext,
-  Getters,
   UID,
   ReferenceDenormalizer,
   EnsureRange,
@@ -16,6 +15,7 @@ import {
 } from "../types";
 import { _lt } from "../translation";
 import { compile, normalize } from "../formulas/index";
+import { EvaluationGetters } from ".";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];
@@ -34,7 +34,7 @@ type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export const LOADING = "Loading...";
 
-export class EvaluationPlugin extends BasePlugin {
+export class EvaluationPlugin extends BasePlugin<{}, EvaluationGetters> {
   static getters = ["evaluateFormula", "isIdle"];
   static modes: Mode[] = ["normal", "readonly"];
 
@@ -72,7 +72,7 @@ export class EvaluationPlugin extends BasePlugin {
   private COMPUTED: Set<Cell> = new Set();
 
   constructor(
-    getters: Getters,
+    getters: EvaluationGetters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig

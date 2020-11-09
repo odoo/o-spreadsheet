@@ -5,7 +5,6 @@ import {
   Cell,
   Command,
   DIRECTION,
-  Getters,
   GridRenderingContext,
   LAYERS,
   Zone,
@@ -17,6 +16,7 @@ import {
 } from "../types/index";
 import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
+import { AutofillGetters, Getters } from ".";
 
 /**
  * This plugin manage the autofill.
@@ -81,7 +81,7 @@ class AutofillGenerator {
  * Autofill Plugin
  *
  */
-export class AutofillPlugin extends BasePlugin {
+export class AutofillPlugin extends BasePlugin<{}, AutofillGetters> {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
   static modes: Mode[] = ["normal", "readonly"];

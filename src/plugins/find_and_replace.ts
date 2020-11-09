@@ -1,3 +1,4 @@
+import { FindAndReplaceGetters } from ".";
 import { BasePlugin } from "../base_plugin";
 import { toXC } from "../helpers/coordinates";
 import { Cell, Command, GridRenderingContext, LAYERS } from "../types/index";
@@ -37,7 +38,7 @@ interface SearchMatch {
  * the search with a new value.
  */
 
-export class FindAndReplacePlugin extends BasePlugin {
+export class FindAndReplacePlugin extends BasePlugin<{}, FindAndReplaceGetters> {
   static layers = [LAYERS.Search];
   static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"];
   private searchMatches: SearchMatch[] = [];

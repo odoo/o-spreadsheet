@@ -1,3 +1,4 @@
+import { CoreGetters } from ".";
 import { BasePlugin } from "../base_plugin";
 import { compile, normalize } from "../formulas/index";
 import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
@@ -37,7 +38,7 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
+export class CorePlugin extends BasePlugin<CoreState, CoreGetters> implements CoreState {
   static getters = [
     "getCellText",
     "zoneToXC",

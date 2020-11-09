@@ -2,11 +2,10 @@ import * as owl from "@odoo/owl";
 import { BasePlugin, PluginConstuctor } from "./base_plugin";
 import { createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
-import { pluginRegistry } from "./plugins/index";
+import { Getters, pluginRegistry } from "./plugins/index";
 import {
   CommandDispatcher,
   CommandHandler,
-  Getters,
   Command,
   WorkbookData,
   GridRenderingContext,
