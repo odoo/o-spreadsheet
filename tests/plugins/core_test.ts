@@ -4,6 +4,16 @@ import { LOADING } from "../../src/plugins/evaluation";
 import { CancelledReason } from "../../src/types";
 
 describe("core", () => {
+  describe("update cell", () => {
+    test("Can create a new cell with a content", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      const content = "test";
+      model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content });
+      expect(model.getters.getCell(sheetId, 0, 0)).toBeDefined();
+      expect(model.getters.getCell(sheetId, 0, 0)!.content).toBe(content);
+    });
+  });
   describe("aggregate", () => {
     test("properly compute sum of current cells", () => {
       const model = new Model();

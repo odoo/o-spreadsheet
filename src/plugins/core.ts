@@ -302,27 +302,27 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return content;
   }
 
-  private createCell(data: CellData): Cell {
-    const content = data.content || "";
-    const cell: Cell = {
-      id: data.id || uuidv4(),
-      content,
-      border: data.border,
-      style: data.style,
-      format: data.format || this.computeDerivedFormat(content),
-      type: this.computeType(content),
-      value: this.computeValue(content),
-    };
-    if (cell.type === "formula") {
-      const { error, formula, value } = this.computeFormulaValues(content);
-      cell.error = error;
-      cell.formula = formula;
-      cell.value = value;
-    } else if (cell.type === "date") {
-      cell.content = formatDateTime(cell.value);
-    }
-    return cell;
-  }
+  // private createCell(data: CellData): Cell {
+  //   const content = data.content || "";
+  //   const cell: Cell = {
+  //     id: data.id || uuidv4(),
+  //     content,
+  //     border: data.border,
+  //     style: data.style,
+  //     format: data.format || this.computeDerivedFormat(content),
+  //     type: this.computeType(content),
+  //     value: this.computeValue(content),
+  //   };
+  //   if (cell.type === "formula") {
+  //     const { error, formula, value } = this.computeFormulaValues(content);
+  //     cell.error = error;
+  //     cell.formula = formula;
+  //     cell.value = value;
+  //   } else if (cell.type === "date") {
+  //     cell.content = formatDateTime(cell.value);
+  //   }
+  //   return cell;
+  // }
 
   private isEmpty(cell: Cell): boolean {
     return !cell.style && !cell.content && !cell.format && !cell.border;
@@ -337,77 +337,61 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     }
     let cell = this.getters.getCell(sheet.id, col, row);
     let newCell = false;
+    const cellId = cell ? cell.id : data.id || uuidv4();
     if (!cell) {
-      cell = this.createCell(data);
+      this.history.update("cells", cellId, "id", cellId);
       newCell = true;
-      if (this.isEmpty(cell)) {
-        return;
-      }
-      // if (newCell) {
-      //   this.history.update("cells", sheet.id, newCell.id, newCell);
-      //   this.dispatch("UPDATE_CELL_POSITION", {
-      //     cell: newCell,
-      //     cellId: newCell.id,
-      //     col,
-      //     row,
-      //     sheetId: sheet.id,
-      //   });
-      // }
-      // return;
-    } else {
-      // reference please
-      cell = this.getters.getCell(sheet.id, col, row);
     }
-    cell = cell as Cell;
     const didContentChange =
-      "content" in data && (cell.content !== data.content || (newCell && data.content));
+      ("content" in data && cell && cell.content !== data.content) || newCell;
     const didStyleChange =
-      "style" in data && (cell.style !== data.style || (newCell && data.style));
+      "style" in data && ((cell && cell.style !== data.style) || (newCell && data.style));
     const didBorderChange =
-      "border" in data && (cell.border !== data.border || (newCell && data.border));
+      "border" in data && ((cell && cell.border !== data.border) || (newCell && data.border));
     const didFormatChange =
-      "format" in data && (cell.format !== data.format || (newCell && data.format));
+      "format" in data && ((cell && cell.format !== data.format) || (newCell && data.format));
     if (didContentChange) {
       const content = data.content || "";
       const type = this.computeType(content);
       const value = this.computeValue(content);
-      this.history.update("cells", cell.id, "content", content);
-      this.history.update("cells", cell.id, "value", value);
+      this.history.update("cells", cellId, "content", content);
+      this.history.update("cells", cellId, "value", value);
       if (type === "formula") {
         const { error, formula, value } = this.computeFormulaValues(content);
-        this.history.update("cells", cell.id, "error", error);
-        this.history.update("cells", cell.id, "formula", formula);
-        this.history.update("cells", cell.id, "value", value);
+        this.history.update("cells", cellId, "error", error);
+        this.history.update("cells", cellId, "formula", formula);
+        this.history.update("cells", cellId, "value", value);
       } else if (type === "date") {
-        this.history.update("cells", cell.id, "content", formatDateTime(value));
+        this.history.update("cells", cellId, "content", formatDateTime(value));
       }
-      this.history.update("cells", cell.id, "type", type);
+      this.history.update("cells", cellId, "type", type);
       this.history.update(
         "cells",
-        cell.id,
+        cellId,
         "format",
-        this.computeDerivedFormat(content) || data.format || cell.format
+        this.computeDerivedFormat(content) || data.format || (cell && cell.format)
       );
     }
     if (didFormatChange) {
-      this.history.update("cells", cell.id, "format", data.format || undefined);
+      this.history.update("cells", cellId, "format", data.format || undefined);
     }
     if (didStyleChange) {
-      this.history.update("cells", cell.id, "style", data.style || undefined);
+      this.history.update("cells", cellId, "style", data.style || undefined);
     }
     if (didBorderChange) {
-      this.history.update("cells", cell.id, "border", data.border || undefined);
+      this.history.update("cells", cellId, "border", data.border || undefined);
     }
-    if (this.isEmpty(cell)) {
+    // console.log(this.cells);
+    if (this.isEmpty(this.cells[cellId]!)) {
       this.dispatch("CLEAR_CELL", {
         col,
         row,
         sheetId: sheet.id,
       });
     } else {
-      this.history.update("cells", cell.id, cell);
+      // this.history.update("cells", cellId, cell);
       this.dispatch("UPDATE_CELL_POSITION", {
-        cellId: cell.id,
+        cellId,
         col,
         row,
         sheetId: sheet.id,
