@@ -713,13 +713,26 @@ describe("sheets", () => {
       sheetId: model.getters.getActiveSheetId(),
       col: 1,
       row: 1,
-      cell,
       cellId: cell.id,
     });
     const sheet = model.getters.getActiveSheet();
     expect(sheet.rows[0].cells[0]).toBeUndefined();
-    expect(sheet.rows[1].cells[1]!.id).toBe(cell.id);
+    expect(sheet.rows[1].cells[1]).toBe(cell.id);
     expect(model.getters.getCellPosition(cell.id)).toEqual({ col: 1, row: 1 });
+  });
+
+  test("Evaluation still work after duplicate sheet", () => {
+    const model = new Model();
+    setCellContent(model, "B1", "=A1");
+    const sheetIdFrom = model.getters.getActiveSheetId();
+    model.dispatch("DUPLICATE_SHEET", { name: "42", sheetIdFrom, sheetIdTo: "42" });
+    expect(model.getters.getCellByXc("42", "B1")!.content).toBe("=A1");
+    setCellContent(model, "A1", "5");
+    const sheet1B1 = model.getters.getCellByXc(sheetIdFrom, "B1")!.id;
+    const sheet2B1 = model.getters.getCellByXc("42", "B1")!.id;
+    expect(sheet1B1).not.toBe(sheet2B1);
+    expect(model.getters.getCell(sheetIdFrom, 1, 0)!.value).not.toBe(5);
+    expect(model.getters.getCell("42", 1, 0)!.value).toBe(5);
   });
 });
 

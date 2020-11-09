@@ -21,6 +21,7 @@ import { FindAndReplacePlugin } from "../plugins/find_and_replace";
 // -----------------------------------------------------------------------------
 export interface Getters {
   applyOffset: SheetPlugin["applyOffset"];
+  getCells: SheetPlugin["getCells"];
   getActiveSheetId: SheetPlugin["getActiveSheetId"];
   getActiveSheet: SheetPlugin["getActiveSheet"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
@@ -41,7 +42,7 @@ export interface Getters {
 
   getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
-  getCells: CorePlugin["getCells"];
+  getCellById: CorePlugin["getCellById"];
   getRangeValues: CorePlugin["getRangeValues"];
   getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
   shouldShowFormulas: CorePlugin["shouldShowFormulas"];

@@ -257,6 +257,8 @@ export class EvaluationPlugin extends BasePlugin {
           cell.error = undefined;
         }
       } catch (e) {
+        //console.trace(e);
+        //throw "bllou";
         handleError(e, cell);
       }
       visited[sheetId][xc] = true;
@@ -274,6 +276,7 @@ export class EvaluationPlugin extends BasePlugin {
       getters: this.getters,
     });
     const sheets = this.getters.getEvaluationSheets();
+    const getCellById = this.getters.getCellById.bind(this);
     const PENDING = this.PENDING;
     function readCell(xc: string, sheet: UID): any {
       let cell;
@@ -329,7 +332,11 @@ export class EvaluationPlugin extends BasePlugin {
       }
 
       const zone = { left, top, right, bottom };
-      return mapCellsInZone(zone, sheet, (cell) => getCellValue(cell, sheetId));
+      return mapCellsInZone(
+        zone,
+        sheet,
+        (cellId) => cellId && getCellValue(getCellById(cellId)!, sheetId)
+      );
     }
 
     /**
