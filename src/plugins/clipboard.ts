@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { clip } from "../helpers/index";
+import { clip, getRect } from "../helpers/index";
 import { Mode } from "../model";
 import {
   Cell,
@@ -460,7 +460,7 @@ export class ClipboardPlugin extends BasePlugin<{}, ClipboardGetters> {
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3.3 * thinLineWidth;
     for (const zone of zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = getRect(zone, viewport, this.getters.getActiveSheet());
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }

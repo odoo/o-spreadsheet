@@ -1,6 +1,6 @@
 import { BasePlugin } from "../base_plugin";
 import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../types/index";
-import { toZone, getNextColor, isEqual } from "../helpers/index";
+import { toZone, getNextColor, isEqual, getRect } from "../helpers/index";
 import { Mode } from "../model";
 import { HighlightGetters } from ".";
 
@@ -173,7 +173,7 @@ export class HighlightPlugin extends BasePlugin<{}, HighlightGetters> {
     for (let h of this.highlights.filter(
       (highlight) => highlight.sheet === this.getters.getActiveSheetId()
     )) {
-      const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
+      const [x, y, width, height] = getRect(h.zone, viewport, this.getters.getActiveSheet());
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
         ctx.strokeRect(x, y, width, height);

@@ -106,19 +106,6 @@ export class RendererPlugin extends BasePlugin<{}, RendererGetters> {
     return searchIndex(rows, adjustedY);
   }
 
-  getRect(zone: Zone, viewport: Viewport): Rect {
-    const { left, top, right, bottom } = zone;
-    let { offsetY, offsetX } = viewport;
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
-    const { cols, rows } = this.getters.getActiveSheet();
-    const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
-    const width = cols[right].end - offsetX - x;
-    const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
-    const height = rows[bottom].end - offsetY - y;
-    return [x, y, width, height];
-  }
-
   /**
    * Snap a viewport boundaries to exactly match the start of a cell.
    * @param viewport

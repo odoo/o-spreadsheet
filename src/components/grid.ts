@@ -6,7 +6,7 @@ import {
   SCROLLBAR_WIDTH,
   HEADER_HEIGHT,
 } from "../constants";
-import { isEqual, isInside, toXC, toCartesian } from "../helpers/index";
+import { isEqual, isInside, toXC, toCartesian, getRect } from "../helpers/index";
 import { Model } from "../model";
 import { SpreadsheetEnv, Viewport } from "../types/index";
 import { GridComposer } from "./composer/grid_composer";
@@ -104,9 +104,10 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
           tooltipCol = col;
           tooltipRow = row;
           const viewport = getViewPort();
-          const [x, y, width, height] = env.getters.getRect(
+          const [x, y, width, height] = getRect(
             { left: col, top: row, right: col, bottom: row },
-            viewport
+            viewport,
+            getters.getActiveSheet()
           );
           const hAlign = x + width + 200 < viewport.width ? "left" : "right";
           const hOffset =

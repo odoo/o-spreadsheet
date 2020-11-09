@@ -14,7 +14,7 @@ import {
   GeneratorCell,
   AutofillResult,
 } from "../types/index";
-import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
+import { union, toCartesian, toXC, isInside, clip, getRect } from "../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
 import { AutofillGetters, Getters } from ".";
 
@@ -49,9 +49,10 @@ class AutofillGenerator {
   private index: number = 0;
   private readonly direction: DIRECTION;
 
-  constructor(cells: GeneratorCell[], getters: Getters, direction: DIRECTION) {
+  constructor(cells: GeneratorCell[], getters: AutofillGetters, direction: DIRECTION) {
     this.cells = cells;
-    this.getters = getters;
+    // Getters here can be used in a global way, not only with the autofill getters
+    this.getters = getters as Getters;
     this.direction = direction;
   }
 
@@ -402,7 +403,7 @@ export class AutofillPlugin extends BasePlugin<{}, AutofillGetters> {
       return;
     }
     const { viewport, ctx, thinLineWidth } = renderingContext;
-    const [x, y, width, height] = this.getters.getRect(this.autofillZone, viewport);
+    const [x, y, width, height] = getRect(this.autofillZone, viewport, this.getters.getActiveSheet());
     if (width > 0 && height > 0) {
       ctx.strokeStyle = "black";
       ctx.lineWidth = thinLineWidth;

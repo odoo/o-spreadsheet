@@ -149,7 +149,6 @@ export interface ChartGetters extends FigureGetters {
 export interface RendererGetters extends ChartGetters {
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
-  getRect: RendererPlugin["getRect"];
   snapViewportToCell: RendererPlugin["snapViewportToCell"];
   adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
   adjustViewportZone: RendererPlugin["adjustViewportZone"];

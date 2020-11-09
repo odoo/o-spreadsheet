@@ -1,4 +1,4 @@
-import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
+import { isEqual, toXC, union, clip, formatStandardNumber, getRect } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import {
   Command,
@@ -489,7 +489,7 @@ export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
     ctx.lineWidth = 1.5 * thinLineWidth;
     ctx.globalCompositeOperation = "multiply";
     for (const zone of zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = getRect(zone, viewport, this.getters.getActiveSheet());
       if (width > 0 && height > 0) {
         ctx.fillRect(x, y, width, height);
         ctx.strokeRect(x, y, width, height);
@@ -515,7 +515,7 @@ export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
         right: col,
       };
     }
-    const [x, y, width, height] = this.getters.getRect(zone, viewport);
+    const [x, y, width, height] = getRect(zone, viewport, this.getters.getActiveSheet());
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }

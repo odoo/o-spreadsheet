@@ -1,6 +1,7 @@
 import { FindAndReplaceGetters } from ".";
 import { BasePlugin } from "../base_plugin";
 import { toXC } from "../helpers/coordinates";
+import { getRect } from "../helpers/zones";
 import { Cell, Command, GridRenderingContext, LAYERS } from "../types/index";
 
 const BORDER_COLOR: string = "#8B008B";
@@ -287,7 +288,11 @@ export class FindAndReplacePlugin extends BasePlugin<{}, FindAndReplaceGetters> 
       const right = merge ? merge.right : match.col;
       const top = merge ? merge.top : match.row;
       const bottom = merge ? merge.bottom : match.row;
-      const [x, y, width, height] = this.getters.getRect({ top, left, right, bottom }, viewport);
+      const [x, y, width, height] = getRect(
+        { top, left, right, bottom },
+        viewport,
+        this.getters.getActiveSheet()
+      );
       if (width > 0 && height > 0) {
         ctx.fillStyle = BACKGROUND_COLOR;
         ctx.fillRect(x, y, width, height);

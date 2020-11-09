@@ -1,4 +1,5 @@
-import { Zone, Sheet, Cell } from "../types";
+import { HEADER_WIDTH, HEADER_HEIGHT } from "../constants";
+import { Zone, Sheet, Cell, Viewport, Rect } from "../types";
 import { toCartesian, toXC } from "./coordinates";
 
 /**
@@ -260,4 +261,17 @@ export function mapCellsInZone<T, U>(
     }
   }
   return result;
+}
+
+export function getRect(zone: Zone, viewport: Viewport, sheet: Sheet): Rect {
+  const { left, top, right, bottom } = zone;
+  let { offsetY, offsetX } = viewport;
+  offsetX -= HEADER_WIDTH;
+  offsetY -= HEADER_HEIGHT;
+  const { cols, rows } = sheet;
+  const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
+  const width = cols[right].end - offsetX - x;
+  const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
+  const height = rows[bottom].end - offsetY - y;
+  return [x, y, width, height];
 }
