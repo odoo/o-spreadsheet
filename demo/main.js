@@ -33,7 +33,7 @@ class App extends Component {
     } catch (_) {
       window.localStorage.removeItem("o-spreadsheet");
     }
-    
+
     this.data = cacheData || demoData;
     useSubEnv({
       save: this.save.bind(this),
@@ -41,7 +41,6 @@ class App extends Component {
     //this.data = makeLargeDataset(20, 1000);
   }
 
-  
   mounted() {
     console.log("Mounted: ", Date.now() - start);
   }

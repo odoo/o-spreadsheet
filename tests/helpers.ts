@@ -75,8 +75,8 @@ export class MockClipboard {
     return Promise.resolve();
   }
 
-  addEventListener() { }
-  removeEventListener() { }
+  addEventListener() {}
+  removeEventListener() {}
   dispatchEvent() {
     return false;
   }
@@ -118,7 +118,8 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
     super();
     useSubEnv({
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-      toggleSidePanel: (panel: string, panelProps: any = {}) => this.toggleSidePanel(panel, panelProps),
+      toggleSidePanel: (panel: string, panelProps: any = {}) =>
+        this.toggleSidePanel(panel, panelProps),
       dispatch: model.dispatch,
       getters: model.getters,
       _t: GridParent._t,

@@ -40,6 +40,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   static getters = [
     "applyOffset",
     "getActiveSheetId",
+    "getCells",
     "getActiveSheet",
     "getSheetName",
     "getSheet",
@@ -232,7 +233,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         break;
       }
       case "UPDATE_CELL_POSITION":
-        if (cmd.cell) {
+        if (cmd.cellId) {
           const position = this.cellPosition[cmd.cellId];
           if (position) {
             this.history.update(
@@ -245,13 +246,14 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
               undefined
             );
           }
-          this.history.update("cellPosition", cmd.cell.id, { row: cmd.row, col: cmd.col });
-          //TODO : remove cell from the command, only store the cellId in sheets[sheet].row[rowIndex].cells[colIndex]
-          this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cell);
+          this.history.update("cellPosition", cmd.cellId, { row: cmd.row, col: cmd.col });
         } else {
-          this.history.update("cellPosition", cmd.cellId, undefined);
-          this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, undefined);
+          const cellIdToRemove = this.sheets[cmd.sheetId]?.rows[cmd.row].cells[cmd.col];
+          if (cellIdToRemove) {
+            this.history.update("cellPosition", cellIdToRemove, undefined);
+          }
         }
+        this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cellId);
         break;
     }
   }
@@ -310,6 +312,33 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  /**
+   * Get all the cells of the sheet
+   *
+   * @param sheetId Id of the sheet, activeSheet if not given
+   *
+   * @returns Cells
+   */
+  getCells(sheetId: UID = this.getters.getActiveSheetId()): Record<UID, Cell> {
+    if (!(sheetId in this.sheets)) {
+      throw new Error(`Sheet id ${sheetId} does not exist !`);
+    }
+    const cells = {};
+    const sheet = this.sheets[sheetId]!;
+    for (let col = 0; col < sheet.cols.length; col++) {
+      for (let row = 0; row < sheet.rows.length; row++) {
+        const cellId = sheet.rows[row].cells[col];
+        if (cellId) {
+          cells[cellId] = this.getters.getCellById(cellId);
+          if (!cells[cellId]) {
+            throw new Error(`Cell ${cellId} is undefined, at [${col},${row}]`);
+          }
+        }
+      }
+    }
+    return cells;
+  }
 
   /**
    * Returns the id (not the name) of the currently active sheet
@@ -372,13 +401,13 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   }
 
   getCell(sheetId: UID, col: number, row: number): Cell | undefined {
-    const sheet = this.getSheet(sheetId);
-    return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
+    const cellId = this.sheets[sheetId]?.rows[row]?.cells[col];
+    return cellId ? this.getters.getCellById(cellId) : undefined;
   }
 
   getCellByXc(sheetId: UID, xc: string): Cell | undefined {
     let [col, row] = toCartesian(xc);
-    return this.sheets[sheetId]?.rows[row]?.cells[col];
+    return this.getCell(sheetId, col, row);
   }
 
   /**
@@ -387,7 +416,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   getColCells(col: number): Cell[] {
     return this.getActiveSheet().rows.reduce((acc: Cell[], cur) => {
       const cell = cur.cells[col];
-      return cell !== undefined ? acc.concat(cell) : acc;
+      return cell !== undefined ? acc.concat(this.getters.getCellById(cell)!) : acc;
     }, []);
   }
 
@@ -437,7 +466,9 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
 
   private getRowMaxHeight(index: number): number {
     const cells = Object.values(this.getActiveSheet().rows[index].cells);
-    const sizes = cells.map(this.getters.getCellHeight);
+    const sizes = cells
+      .filter(isDefined)
+      .map((cellId) => this.getters.getCellHeight(this.getters.getCellById(cellId)!));
     return Math.max(0, ...sizes);
   }
 
@@ -575,7 +606,8 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
 
   private duplicateSheet(fromId: UID, toId: UID, toName: string) {
     const sheet = this.sheets[fromId];
-    const newSheet = JSON.parse(JSON.stringify(sheet));
+    const newSheet = JSON.parse(JSON.stringify(sheet)) as Sheet;
+    newSheet.rows.forEach((row) => (row.cells = {}));
     newSheet.id = toId;
     newSheet.name = toName;
     const visibleSheets = this.visibleSheets.slice();
@@ -722,8 +754,8 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       const rowIndex = parseInt(index, 10);
       for (let i in row.cells) {
         const colIndex = parseInt(i, 10);
-        const cell = row.cells[i];
-        if (cell) {
+        const cellId = row.cells[i];
+        if (cellId) {
           if (colIndex === deletedColumn) {
             this.dispatch("CLEAR_CELL", {
               sheetId: sheet.id,
@@ -734,8 +766,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
           if (colIndex > deletedColumn) {
             this.dispatch("UPDATE_CELL_POSITION", {
               sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
+              cellId,
               col: colIndex - 1,
               row: rowIndex,
             });
@@ -758,14 +789,13 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       const rowIndex = parseInt(index, 10);
       for (let i in row.cells) {
         const colIndex = parseInt(i, 10);
-        const cell = row.cells[i];
-        if (cell) {
+        const cellId = row.cells[i];
+        if (cellId) {
           if (colIndex >= addedColumn) {
             commands.unshift({
               type: "UPDATE_CELL_POSITION",
               sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
+              cellId,
               col: colIndex + quantity,
               row: rowIndex,
             });
@@ -806,12 +836,11 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       if (rowIndex > deleteToRow) {
         for (let i in row.cells) {
           const colIndex = parseInt(i, 10);
-          const cell = row.cells[i];
-          if (cell) {
+          const cellId = row.cells[i];
+          if (cellId) {
             this.dispatch("UPDATE_CELL_POSITION", {
               sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
+              cellId,
               col: colIndex,
               row: rowIndex - numberRows,
             });
@@ -835,13 +864,12 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       if (rowIndex >= addedRow) {
         for (let i in row.cells) {
           const colIndex = parseInt(i, 10);
-          const cell = row.cells[i];
-          if (cell) {
+          const cellId = row.cells[i];
+          if (cellId) {
             commands.unshift({
               type: "UPDATE_CELL_POSITION",
               sheetId: sheet.id,
-              cellId: cell.id,
-              cell: cell,
+              cellId,
               col: colIndex,
               row: rowIndex + quantity,
             });

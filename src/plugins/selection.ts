@@ -240,7 +240,11 @@ export class SelectionPlugin extends BasePlugin {
         const r = this.getters.getRow(this.getters.getActiveSheetId(), row);
         if (r === undefined) continue;
         for (let col = zone.left; col <= zone.right; col++) {
-          const cell = r.cells[col];
+          const cellId = r.cells[col];
+          let cell;
+          if (cellId) {
+            cell = this.getters.getCellById(cellId);
+          }
           if (cell && cell.type !== "text" && !cell.error && typeof cell.value === "number") {
             n++;
             aggregate += cell.value;

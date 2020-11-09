@@ -199,8 +199,8 @@ export class Spreadsheet extends Component<Props> {
     }
     let keyDownString = "";
     if (ev.ctrlKey || ev.metaKey) {
-       keyDownString += "CTRL+";
-       }
+      keyDownString += "CTRL+";
+    }
     keyDownString += ev.key.toUpperCase();
 
     let handler = this.keyDownMapping[keyDownString];

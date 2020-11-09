@@ -28,7 +28,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<UID, Cell | undefined> | undefined>;
+  cells: Record<UID, Cell | undefined>;
 }
 
 /**
@@ -41,14 +41,14 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   static getters = [
     "getCellText",
     "zoneToXC",
-    "getCells",
     "shouldShowFormulas",
     "getRangeValues",
     "getRangeFormattedValues",
+    "getCellById",
   ];
 
   private showFormulas: boolean = false;
-  public readonly cells: { [sheetId: string]: { [id: string]: Cell } | undefined } = {};
+  public readonly cells: Record<UID, Cell | undefined> = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -56,29 +56,26 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET":
-        const cells = this.cells[cmd.sheetIdFrom];
-        if (cells) {
-          this.cells[cmd.sheetIdTo] = JSON.parse(JSON.stringify(cells));
-        }
-        break;
       case "UPDATE_CELL":
         this.updateCell(this.getters.getSheet(cmd.sheetId)!, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
         const cell = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row);
         if (cell) {
-          this.history.update("cells", cmd.sheetId, cell.id, undefined);
+          this.history.update("cells", cell.id, undefined);
           this.dispatch("UPDATE_CELL_POSITION", {
             col: cmd.col,
             row: cmd.row,
-            cellId: cell.id,
+            cellId: undefined,
             sheetId: cmd.sheetId,
           });
         }
         break;
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
+        break;
+      case "DUPLICATE_SHEET":
+        this.duplicateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
         break;
     }
   }
@@ -102,8 +99,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   export(data: WorkbookData) {
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
-      for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
-        let position = this.getters.getCellPosition(cellId);
+      for (let cell of Object.values(this.getters.getCells(_sheet.id))) {
+        let position = this.getters.getCellPosition(cell.id);
         let xc = toXC(position.col, position.row);
         cells[xc] = {
           content: cell.content,
@@ -126,8 +123,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
-  getCells(sheetId?: string): { [key: string]: Cell } {
-    return this.cells[sheetId || this.getters.getActiveSheetId()] || {};
+
+  getCellById(cellId: UID): Cell | undefined {
+    return this.cells[cellId];
   }
 
   getCellText(cell: Cell): string {
@@ -202,7 +200,11 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
     const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(toZone(range), sheet, (cell) => cell.value);
+    return mapCellsInZone(
+      toZone(range),
+      sheet,
+      (cellId) => cellId && this.getCellById(cellId)!.value
+    );
   }
 
   getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
@@ -210,7 +212,12 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
     const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(toZone(range), sheet, this.getters.getCellText, "");
+    return mapCellsInZone(
+      toZone(range),
+      sheet,
+      (cellId) => cellId && this.getCellText(this.getCellById(cellId)!),
+      ""
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -222,6 +229,26 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       return content.includes(".") ? "0.00%" : "0%";
     }
     return undefined;
+  }
+  /**
+   * Duplicate all the cells in the base sheet (sheetIdFrom)
+   *
+   * @param sheetIdFrom Id of the base sheet
+   * @param sheetIdTo Id of the new sheet
+   */
+  private duplicateSheet(sheetIdFrom: UID, sheetIdTo: UID) {
+    const cells = this.getters.getCells(sheetIdFrom);
+    for (let cell of Object.values(cells)) {
+      const { col, row } = this.getters.getCellPosition(cell.id);
+      const id = uuidv4();
+      this.history.update("cells", id, { ...cell, id });
+      this.dispatch("UPDATE_CELL_POSITION", {
+        col,
+        row,
+        sheetId: sheetIdTo,
+        cellId: id,
+      });
+    }
   }
 
   private computeType(content: string): Cell["type"] {
@@ -329,9 +356,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       // return;
     } else {
       // reference please
-      const cellInSheet = this.getters.getCell(sheet.id, col, row)!;
-      cell = this.cells[sheet.id]![cellInSheet.id];
+      cell = this.getters.getCell(sheet.id, col, row);
     }
+    cell = cell as Cell;
     const didContentChange =
       "content" in data && (cell.content !== data.content || (newCell && data.content));
     const didStyleChange =
@@ -344,33 +371,32 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       const content = data.content || "";
       const type = this.computeType(content);
       const value = this.computeValue(content);
-      this.history.update("cells", sheet.id, cell.id, "content", content);
-      this.history.update("cells", sheet.id, cell.id, "value", value);
+      this.history.update("cells", cell.id, "content", content);
+      this.history.update("cells", cell.id, "value", value);
       if (type === "formula") {
         const { error, formula, value } = this.computeFormulaValues(content);
-        this.history.update("cells", sheet.id, cell.id, "error", error);
-        this.history.update("cells", sheet.id, cell.id, "formula", formula);
-        this.history.update("cells", sheet.id, cell.id, "value", value);
+        this.history.update("cells", cell.id, "error", error);
+        this.history.update("cells", cell.id, "formula", formula);
+        this.history.update("cells", cell.id, "value", value);
       } else if (type === "date") {
-        this.history.update("cells", sheet.id, cell.id, "content", formatDateTime(value));
+        this.history.update("cells", cell.id, "content", formatDateTime(value));
       }
-      this.history.update("cells", sheet.id, cell.id, "type", type);
+      this.history.update("cells", cell.id, "type", type);
       this.history.update(
         "cells",
-        sheet.id,
         cell.id,
         "format",
         this.computeDerivedFormat(content) || data.format || cell.format
       );
     }
     if (didFormatChange) {
-      this.history.update("cells", sheet.id, cell.id, "format", data.format || undefined);
+      this.history.update("cells", cell.id, "format", data.format || undefined);
     }
     if (didStyleChange) {
-      this.history.update("cells", sheet.id, cell.id, "style", data.style || undefined);
+      this.history.update("cells", cell.id, "style", data.style || undefined);
     }
     if (didBorderChange) {
-      this.history.update("cells", sheet.id, cell.id, "border", data.border || undefined);
+      this.history.update("cells", cell.id, "border", data.border || undefined);
     }
     if (this.isEmpty(cell)) {
       this.dispatch("CLEAR_CELL", {
@@ -379,9 +405,8 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         sheetId: sheet.id,
       });
     } else {
-      this.history.update("cells", sheet.id, cell.id, cell);
+      this.history.update("cells", cell.id, cell);
       this.dispatch("UPDATE_CELL_POSITION", {
-        cell: this.cells[sheet.id]![cell.id],
         cellId: cell.id,
         col,
         row,

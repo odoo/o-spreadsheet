@@ -89,7 +89,7 @@ export interface Header {
 }
 
 export interface Row extends Header {
-  cells: Record<number, Cell | undefined>;
+  cells: Record<number, UID | undefined>;
 }
 
 export type Col = Header;

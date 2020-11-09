@@ -172,10 +172,9 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
   isMergeDestructive(zone: Zone): boolean {
     const { left, right, top, bottom } = zone;
     for (let row = top; row <= bottom; row++) {
-      const actualRow = this.getters.getRow(this.getters.getActiveSheetId(), row)!;
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
-          const cell = actualRow.cells[col];
+          const cell = this.getters.getCell(this.getters.getActiveSheetId(), col, row);
           if (cell && cell.content) {
             return true;
           }

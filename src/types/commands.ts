@@ -53,8 +53,7 @@ export interface UpdateCellPositionCommand extends BaseCommand {
   sheetId: UID;
   col: number;
   row: number;
-  cell?: Cell;
-  cellId: UID;
+  cellId?: UID;
 }
 
 export interface ResizeColumnsCommand extends BaseCommand {

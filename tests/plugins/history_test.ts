@@ -271,12 +271,13 @@ describe("Model history", () => {
   test.skip("[THIS TEST IS FALSE, 42 is no more in the sheets...] ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("UPDATE_CELL", { sheetId: "42", col: 0, row: 0, content: "coucou" });
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",
     });
     model.dispatch("UNDO");
-    expect(model.getters.getActiveSheetId()).toBe("42");
+    expect(model.getters.getCell("42", 0, 0)).toBeUndefined();
   });
 
   test("ACTIVATE_SHEET with another command is saved", () => {
