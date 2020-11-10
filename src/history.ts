@@ -155,7 +155,6 @@ export class WHistory implements CommandHandler {
 
   finalize() {
     if (this.current && this.current.length) {
-      console.table(this.current);
       this.synchronizeChanges(this.current, "after");
       const filteredCurrent = this.current.filter((change) => change.history);
       if (filteredCurrent.length) {

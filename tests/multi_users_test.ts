@@ -6,7 +6,7 @@ import "./canvas.mock";
 import { toZone } from "../src/helpers";
 import { SelectionMultiuserPlugin } from "../src/plugins/selection_multiuser";
 import { ClientId } from "../src/types/multi_user";
-import { getCell } from "./helpers";
+import { getCell, setCellContent } from "./helpers";
 
 describe("Multi users synchronisation", () => {
   let network: MockNetwork;
@@ -163,6 +163,47 @@ describe("Multi users synchronisation", () => {
     expect(alice.getters.getCellStyle(aliceCell).fillColor).toBe("#555");
     expect(bob.getters.getCellStyle(aliceCell).fillColor).toBe("#555");
     expect(charly.getters.getCellStyle(aliceCell).fillColor).toBe("#555");
+  });
+
+  test("create two sheets concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      alice.dispatch("CREATE_SHEET", {
+        sheetId: "alice1",
+        activate: true,
+      });
+      bob.dispatch("CREATE_SHEET", {
+        sheetId: "bob1",
+        activate: true,
+      });
+    });
+    const aliceSheets = alice.getters.getSheets();
+    const bobSheets = bob.getters.getSheets();
+    const charlySheets = charly.getters.getSheets();
+    expect(aliceSheets).toEqual(bobSheets);
+    expect(aliceSheets).toEqual(charlySheets);
+    expect(aliceSheets).toHaveLength(3);
+    expect(alice.getters.getActiveSheetId()).toEqual("alice1");
+    expect(bob.getters.getActiveSheetId()).toEqual("bob1");
+    expect(charly.getters.getActiveSheetId()).toEqual(sheetId);
+  });
+
+  test("Two merges concurrently", () => {
+    setCellContent(alice, "C3", "test");
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      alice.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B2") });
+      bob.dispatch("ADD_MERGE", { sheetId, zone: toZone("B2:C3"), force: true });
+    });
+    expect(getCell(alice, "C3")).toBeDefined();
+    expect(getCell(alice, "C3")!.content).toEqual("test");
+    expect(getCell(bob, "C3")).toBeDefined();
+    expect(getCell(bob, "C3")!.content).toEqual("test");
+    const aliceMerges = alice.getters.getMerges(sheetId);
+    const bobMerges = bob.getters.getMerges(sheetId);
+    const charlyMerges = charly.getters.getMerges(sheetId);
+    expect(aliceMerges).toEqual(bobMerges);
+    expect(aliceMerges).toEqual(charlyMerges);
   });
 
   test("set content and remove style concurrently", () => {

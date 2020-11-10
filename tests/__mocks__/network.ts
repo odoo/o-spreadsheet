@@ -87,8 +87,8 @@ export class MockNetwork implements Network {
     if (updates.length) {
       this.conflictResolver.addUpdateToHistory(message.stateVector, updates);
       listeners = listeners.filter(({ clientId }) => this.isConnected(clientId));
-      console.log(message.clientId);
-      console.log(updates);
+      // console.log(message.clientId);
+      // console.log(updates);
       for (let { callback } of listeners) {
         callback({ ...message, updates });
       }
