@@ -124,6 +124,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     // registering plugins
     history.doNotHistorize(() => {
+      // probably broken, write a test please
       for (let Plugin of pluginRegistry.getAll()) {
         this.setupPlugin(Plugin, workbookData);
       }

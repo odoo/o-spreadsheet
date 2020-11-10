@@ -16,11 +16,24 @@ const conflictResolver = new ConflictResolver();
 
 const aWss = expressWSInstance.getWss();
 
-expressWSInstance.getWss().on("connection", (ws) => {
+expressWSInstance.getWss().on("connection", (ws: WebSocket) => {
   log("Connection");
 });
 
 app.ws("/", function (ws, req) {
+  ws.on("open", (event) => {
+    console.log(event);
+    const history = conflictResolver.getUpdateHistory();
+    if (history !== undefined) {
+      ws.send(
+        JSON.stringify({
+          updates: history.updates,
+          stateVector: history.stateVector,
+          // clientId: ?
+        })
+      );
+    }
+  });
   ws.on("message", async function (message: string) {
     log("/");
     const msg = JSON.parse(message);

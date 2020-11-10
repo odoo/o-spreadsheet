@@ -129,6 +129,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   }
 
   getCellText(cell: Cell): string {
+    if (cell === undefined) {
+      debugger;
+    }
     const value = this.showFormulas ? cell.content : cell.value;
     const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
     const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);

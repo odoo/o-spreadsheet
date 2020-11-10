@@ -79,6 +79,16 @@ export class ConflictResolver {
     );
   }
 
+  getUpdateHistory(): { stateVector: StateVector; updates: Update[] } | undefined {
+    if (this.updateHistory.length === 0) {
+      return;
+    }
+    return {
+      stateVector: this.updateHistory[this.updateHistory.length - 1].stateVector,
+      updates: this.updateHistory.map(({ path, value }) => ({ path, value })),
+    };
+  }
+
   /**
    * Let denote V1 and V2 the two argument state vectors.
    * Each vector holds

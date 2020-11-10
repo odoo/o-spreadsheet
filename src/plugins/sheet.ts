@@ -331,9 +331,9 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         const cellId = sheet.rows[row].cells[col];
         if (cellId) {
           cells[cellId] = this.getters.getCellById(cellId);
-          if (!cells[cellId]) {
-            throw new Error(`Cell ${cellId} is undefined, at [${col},${row}]`);
-          }
+          // if (!cells[cellId]) {
+          //   throw new Error(`Cell ${cellId} is undefined, at [${col},${row}]`);
+          // }
         }
       }
     }

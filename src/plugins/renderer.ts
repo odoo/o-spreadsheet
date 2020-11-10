@@ -440,9 +440,9 @@ export class RendererPlugin extends BasePlugin {
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cellId = row.cells[colNumber];
         if (cellId) {
-          const cell = this.getters.getCellById(cellId)!;
+          const cell = this.getters.getCellById(cellId);
           let xc = toXC(colNumber, rowNumber);
-          if (!this.getters.isInMerge(xc)) {
+          if (cell && !this.getters.isInMerge(xc)) {
             let col = cols[colNumber];
             const text = this.getters.getCellText(cell);
             const textWidth = this.getters.getCellWidth(cell);
