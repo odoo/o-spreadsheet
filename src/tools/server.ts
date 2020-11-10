@@ -22,17 +22,17 @@ expressWSInstance.getWss().on("connection", (ws: WebSocket) => {
 
 app.ws("/", function (ws, req) {
   ws.on("open", (event) => {
-    console.log(event);
-    const history = conflictResolver.getUpdateHistory();
-    if (history !== undefined) {
-      ws.send(
-        JSON.stringify({
-          updates: history.updates,
-          stateVector: history.stateVector,
-          // clientId: ?
-        })
-      );
-    }
+    // console.log(event);
+    // const history = conflictResolver.getUpdateHistory();
+    // if (history !== undefined) {
+    //   ws.send(
+    //     JSON.stringify({
+    //       updates: history.updates,
+    //       stateVector: history.stateVector,
+    //       // clientId: ?
+    //     })
+    //   );
+    // }
   });
   ws.on("message", async function (message: string) {
     log("/");

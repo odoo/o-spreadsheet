@@ -17,6 +17,7 @@ import {
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
 import { SynchronizedState } from "./types/multi_user";
+import { EventBus } from "@odoo/owl/dist/types/core/event_bus";
 
 /**
  * Model
@@ -52,6 +53,7 @@ export interface ModelConfig {
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
   synchronizedState?: SynchronizedState;
+  bus: EventBus;
 }
 
 const enum Status {
@@ -111,7 +113,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       canRedo: history.canRedo.bind(history),
     } as Getters;
     this.handlers = [history];
-
+    const bus: EventBus = new owl.core.EventBus();
     this.config = {
       mode: config.mode || "normal",
       openSidePanel: config.openSidePanel || (() => {}),
@@ -120,6 +122,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
       synchronizedState: config.synchronizedState,
+      bus,
     };
 
     // registering plugins

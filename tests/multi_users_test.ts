@@ -142,7 +142,7 @@ describe("Multi users synchronisation", () => {
     expect(getCell(charly, "A1")!.content).toBe("hello Bob");
   });
 
-  test("new user joins later", () => {
+  test.skip("new user joins later", () => {
     // arf cannot be tested like that, we would be testing the mock
     alice.dispatch("UPDATE_CELL", {
       col: 0,
@@ -301,7 +301,7 @@ describe("Multi users synchronisation", () => {
     expect(charly.getters.getMerges(sheetId)).toHaveLength(0);
   });
 
-  test("active cell is transfered to other users", () => {
+  test.skip("active cell is transfered to other users", () => {
     alice.dispatch("SELECT_CELL", {
       col: 2,
       row: 2,
@@ -448,6 +448,25 @@ describe("Multi users synchronisation", () => {
       expect(getCell(alice, "B2")!.content).toBe("hello in B2");
       expect(getCell(bob, "B2")!.content).toBe("hello in B2");
       expect(getCell(charly, "B2")!.content).toBe("hello in B2");
+    });
+  });
+
+  describe("Evaluation", () => {
+    test("Evaluation is correctly triggered after cell updated", () => {
+      setCellContent(alice, "A1", "=5");
+      expect(getCell(alice, "A1")!.value).toBe(5);
+      expect(getCell(bob, "A1")!.value).toBe(5);
+    });
+    test("Cell value is correctly re-evaluated after undo", () => {
+      setCellContent(alice, "A1", "=5");
+      expect(getCell(alice, "A1")!.value).toBe(5);
+      expect(getCell(bob, "A1")!.value).toBe(5);
+      setCellContent(alice, "A1", "=10");
+      expect(getCell(alice, "A1")!.value).toBe(10);
+      expect(getCell(bob, "A1")!.value).toBe(10);
+      alice.dispatch("UNDO");
+      expect(getCell(alice, "A1")!.value).toBe(5);
+      expect(getCell(bob, "A1")!.value).toBe(5);
     });
   });
 

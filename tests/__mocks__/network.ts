@@ -90,7 +90,7 @@ export class MockNetwork implements Network {
       // console.log(message.clientId);
       // console.log(updates);
       for (let { callback } of listeners) {
-        callback({ ...message, updates });
+        callback(JSON.parse(JSON.stringify({ ...message, updates })));
       }
       this.keepMessageForDisconnectedClients({ ...message, updates });
     }

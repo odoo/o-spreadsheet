@@ -22,7 +22,13 @@ import {
   NormalizedFormula,
   Sheet,
   WorkbookData,
+  Getters,
+  CommandDispatcher,
+  CommandResult,
 } from "../types/index";
+import { WHistory } from "../history";
+import { ModelConfig } from "../model";
+import { Update } from "../types/multi_user";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 
@@ -49,10 +55,47 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
   private showFormulas: boolean = false;
   public readonly cells: Record<UID, Cell | undefined> = {};
+  private events: Set<string> = new Set<string>();
+
+  constructor(
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, history, dispatch, config);
+    config.synchronizedState?.onStateUpdated((updates: Update[]) => {
+      const events = new Set<string>();
+      console.table(this.cells);
+      for (let update of updates) {
+        // c'est pas fou
+        if (update.path[0] === "CorePlugin" && update.path[1] === "cells") {
+          events.add("cell-updated");
+          if (update.path[3] === "content") {
+            // et ca ca l'est encore moins
+            const cell = this.cells[update.path[2]] as Cell;
+            console.log(cell, update.path[2]);
+            const { error, formula, value } = this.computeFormulaValues(cell.content);
+            cell.error = error; // Will not work with undo
+            cell.formula = formula; // Will not work with undo
+            cell.value = value; // Will not work with undo
+          }
+        }
+      }
+      for (let event of events.values()) {
+        this.bus.trigger(event);
+      }
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+  //
+  allowDispatch(cmd: Command): CommandResult {
+    this.events.clear();
+    return { status: "SUCCESS" };
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -77,6 +120,13 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
         break;
+    }
+  }
+
+  finalize() {
+    // C'est pas fou
+    for (let event of this.events.values()) {
+      this.bus.trigger(event);
     }
   }
 
@@ -305,28 +355,6 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return content;
   }
 
-  // private createCell(data: CellData): Cell {
-  //   const content = data.content || "";
-  //   const cell: Cell = {
-  //     id: data.id || uuidv4(),
-  //     content,
-  //     border: data.border,
-  //     style: data.style,
-  //     format: data.format || this.computeDerivedFormat(content),
-  //     type: this.computeType(content),
-  //     value: this.computeValue(content),
-  //   };
-  //   if (cell.type === "formula") {
-  //     const { error, formula, value } = this.computeFormulaValues(content);
-  //     cell.error = error;
-  //     cell.formula = formula;
-  //     cell.value = value;
-  //   } else if (cell.type === "date") {
-  //     cell.content = formatDateTime(cell.value);
-  //   }
-  //   return cell;
-  // }
-
   private isEmpty(cell: Cell): boolean {
     return !cell.style && !cell.content && !cell.format && !cell.border;
   }
@@ -361,6 +389,9 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       this.history.update("cells", cellId, "value", value);
       if (type === "formula") {
         const { error, formula, value } = this.computeFormulaValues(content);
+        // this.cells[cellId]!.error = error; // Will not work with undo
+        // this.cells[cellId]!.formula = formula; // Will not work with undo
+        // this.cells[cellId]!.value = value; // Will not work with undo
         this.history.update("cells", cellId, "error", error);
         this.history.update("cells", cellId, "formula", formula);
         this.history.update("cells", cellId, "value", value);
@@ -400,89 +431,6 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         sheetId: sheet.id,
       });
     }
-
-    // const hasContent = "content" in data;
-
-    // // Compute the new cell properties
-    // const dataContent = data.content ? data.content.replace(nbspRegexp, "") : "";
-    // let content = hasContent ? dataContent : (cell && cell.content) || "";
-    // const style = "style" in data ? data.style : (cell && cell.style) || 0;
-    // const border = "border" in data ? data.border : (cell && cell.border) || 0;
-    // let format = "format" in data ? data.format : (cell && cell.format) || "";
-
-    // // if all are empty, we need to delete the underlying cell object
-    // if (!content && !style && !border && !format) {
-    //   this.dispatch("CLEAR_CELL", {
-    //     col,
-    //     row,
-    //     sheetId: sheet.id,
-    //   });
-    //   return;
-    // }
-
-    // // compute the new cell value
-    // const didContentChange =
-    //   (!cell && dataContent) || (hasContent && cell && cell.content !== dataContent);
-    // if (cell && !didContentChange) {
-    //   cell = { id: cell.id, content, value: cell.value, type: cell.type };
-    //   if (cell.type === "formula") {
-    //     cell.error = cell.error;
-    //     cell.pending = cell.pending;
-    //     cell.formula = cell.formula;
-    //   }
-    // } else {
-    //   // the current content cannot be reused, so we need to recompute the
-    //   // derived values
-    //   let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
-    //   let value: Cell["value"] = content;
-    //   if (isNumber(content)) {
-    //     value = parseNumber(content);
-    //     type = "number";
-    //     if (content.includes("%")) {
-    //       format = content.includes(".") ? "0.00%" : "0%";
-    //     }
-    //   }
-    //   let date = parseDateTime(content);
-    //   if (date) {
-    //     type = "date";
-    //     value = date;
-    //     content = formatDateTime(date);
-    //   }
-    //   const contentUpperCase = content.toUpperCase();
-    //   if (contentUpperCase === "TRUE") {
-    //     value = true;
-    //   }
-    //   if (contentUpperCase === "FALSE") {
-    //     value = false;
-    //   }
-    //   cell = { id: cell?.id || data.id || uuidv4(), content, value, type };
-    //   if (cell.type === "formula") {
-    //     cell.error = undefined;
-    //     try {
-    //       let formulaString: NormalizedFormula = normalize(cell.content || "");
-    //       let compiledFormula = compile(formulaString);
-    //       cell.formula = {
-    //         compiledFormula: compiledFormula,
-    //         dependencies: formulaString.dependencies,
-    //         text: formulaString.text,
-    //       };
-    //     } catch (e) {
-    //       cell.value = "#BAD_EXPR";
-    //       cell.error = _lt("Invalid Expression");
-    //     }
-    //   }
-    // }
-    // if (style) {
-    //   cell.style = style;
-    // }
-    // if (border) {
-    //   cell.border = border;
-    // }
-    // if (format) {
-    //   cell.format = format;
-    // }
-    // // todo: make this work on other sheets
-    // this.history.update("cells", sheet.id, cell.id, cell);
-    // this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
+    this.events.add("cell-updated");
   }
 }

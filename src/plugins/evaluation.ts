@@ -79,6 +79,10 @@ export class EvaluationPlugin extends BasePlugin {
   ) {
     super(getters, history, dispatch, config);
     this.evalContext = config.evalContext;
+    this.bus.on("cell-updated", this, () => {
+      this.isUpToDate.clear();
+      this.evaluateAll();
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -90,11 +94,11 @@ export class EvaluationPlugin extends BasePlugin {
       case "START":
         this.evaluate();
         break;
-      case "UPDATE_CELL":
-        if ("content" in cmd) {
-          this.isUpToDate.clear();
-        }
-        break;
+      // case "UPDATE_CELL":
+      //   if ("content" in cmd) {
+      //     this.isUpToDate.clear();
+      //   }
+      //   break;
       case "EVALUATE_CELLS":
         const activeSheet = this.getters.getActiveSheetId();
         if (cmd.onlyWaiting) {
@@ -115,6 +119,10 @@ export class EvaluationPlugin extends BasePlugin {
   }
 
   finalize() {
+    this.evaluateAll();
+  }
+
+  evaluateAll() {
     const activeSheet = this.getters.getActiveSheetId();
     if (!this.isUpToDate.has(activeSheet)) {
       this.evaluate();
