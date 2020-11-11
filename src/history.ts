@@ -15,13 +15,19 @@ import {
  */
 
 interface HistoryChange {
+  type: "old_history";
   root: any;
   path: (string | number)[];
   before: any;
   after: any;
 }
 
-type Step = HistoryChange[];
+interface EventHistory {
+  type: "event_history";
+  event: Event;
+}
+
+type Step = (HistoryChange | EventHistory)[];
 
 /**
  * Max Number of history steps kept in memory
@@ -151,52 +157,77 @@ export class WHistory implements CommandHandler {
   }
 
   finalize() {
+    if (this.current && this.eventStack) {
+      for (let event of this.eventStack) {
+        this.current.push({ type: "event_history", event });
+      }
+    }
     if (this.current && this.current.length) {
       this.undoStack.push(this.current);
-      this.undoEvent.push(this.eventStack);
       this.redoStack = [];
-      this.redoEvent = [];
       this.current = null;
+      this.eventStack = null;
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
-        this.undoEvent.shift();
       }
     }
   }
 
   undo() {
-    const step = this.undoStack.pop();
+    let step = this.undoStack.pop();
     if (!step) {
       return;
     }
-    this.redoStack.push(step);
+    this.eventStack = [];
+    const eventsToDo: Event[] = [];
     for (let i = step.length - 1; i >= 0; i--) {
       let change = step[i];
-      this.applyChange(change, "before");
+      if (change.type === "old_history") {
+        this.applyChange(change, "before");
+      } else {
+        // this.applyEvent(change.event);
+        eventsToDo.unshift(change.event);
+      }
     }
-    const events = this.undoEvent.pop();
-    this.eventStack = [];
-    for (let event of events) {
-      this.applyEvent(event);
+    for (let change of eventsToDo) {
+      this.applyEvent(change);
     }
-    this.redoEvent.push(this.eventStack);
+
+    step = step.filter((s) => s.type === "old_history");
+    for (let event of this.eventStack) {
+      step.push({ type: "event_history", event });
+    }
+    this.eventStack = null;
+    this.redoStack.push(step);
   }
 
   redo() {
-    const step = this.redoStack.pop();
+    let step = this.redoStack.pop();
     if (!step) {
       return;
     }
-    this.undoStack.push(step);
-    for (let change of step) {
-      this.applyChange(change, "after");
-    }
-    const events = this.redoEvent.pop();
     this.eventStack = [];
-    for (let event of events) {
-      this.applyEvent(event);
+    for (let change of step) {
+      if (change.type === "old_history") {
+        this.applyChange(change, "after");
+      } else {
+        this.applyEvent(change.event);
+      }
     }
-    this.undoEvent.push(this.eventStack);
+    step = step.filter((s) => s.type === "old_history");
+    for (let event of this.eventStack) {
+      step.push({ type: "event_history", event });
+    }
+    this.undoStack.push(step);
+    this.eventStack = null;
+  }
+
+  log(step: (HistoryChange | EventHistory)[], name: string) {
+    console.log(name);
+    console.table(step.filter((s) => s.type === "old_history"));
+    console.table(
+      step.filter((s) => s.type === "event_history").map((s) => (s as EventHistory).event)
+    );
   }
 
   private applyChange(change: HistoryChange, target: "before" | "after") {
@@ -246,6 +277,7 @@ export class WHistory implements CommandHandler {
     }
     if (this.current) {
       this.current.push({
+        type: "old_history",
         root,
         path,
         before: value[key],
