@@ -149,6 +149,29 @@ describe("history", () => {
 });
 
 describe("Model history", () => {
+  test("Can undo a cell deletion", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "test");
+    expect(getCell(model, "A1")!.content).toBe("test");
+    model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      content: undefined,
+    });
+    expect(getCell(model, "A1")).toBeUndefined();
+    model.dispatch("UNDO");
+    expect(getCell(model, "A1")!.content).toBe("test");
+    expect(getCell(model, "A1")!.value).toBe("test");
+    expect(getCell(model, "A1")!.type).toBe("text");
+    model.dispatch("REDO");
+    expect(getCell(model, "A1")).toBeUndefined();
+    model.dispatch("UNDO");
+    expect(getCell(model, "A1")!.content).toBe("test");
+    expect(getCell(model, "A1")!.value).toBe("test");
+    expect(getCell(model, "A1")!.type).toBe("text");
+  });
+
   test("can undo and redo two consecutive operations", () => {
     const model = new Model();
     setCellContent(model, "A2", "3");

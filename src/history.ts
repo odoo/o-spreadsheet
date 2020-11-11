@@ -1,3 +1,4 @@
+import { EventBus } from "@odoo/owl/dist/types/core/event_bus";
 import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
 
 /**
@@ -22,6 +23,7 @@ type Step = HistoryChange[];
 export const MAX_HISTORY_STEPS = 99;
 
 export interface WorkbookHistory<Plugin> {
+  addEvent(event: any);
   update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
   update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
     key1: T,
@@ -86,17 +88,26 @@ export interface WorkbookHistory<Plugin> {
 
 export class WHistory implements CommandHandler {
   private current: Step | null = null;
+  private eventStack: any[] | null = null;
   private undoStack: Step[] = [];
+  private undoEvent: any[] = [];
   private redoStack: Step[] = [];
+  private redoEvent: any[] = [];
   private historize: boolean = false;
+  private bus: EventBus | undefined;
+
+  //TODO It's only for keeping tests
+  constructor(bus?: EventBus) {
+    this.bus = bus;
+  }
 
   // getters
   canUndo(): boolean {
-    return this.undoStack.length > 0;
+    return this.undoStack.length > 0 || this.undoEvent.length > 0;
   }
 
   canRedo(): boolean {
-    return this.redoStack.length > 0;
+    return this.redoStack.length > 0 || this.redoEvent.length > 0;
   }
 
   allowDispatch(cmd: Command): CommandResult {
@@ -116,6 +127,7 @@ export class WHistory implements CommandHandler {
   beforeHandle(cmd: Command) {
     if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO" && this.historize) {
       this.current = [];
+      this.eventStack = [];
     }
   }
 
@@ -135,12 +147,20 @@ export class WHistory implements CommandHandler {
   finalize() {
     if (this.current && this.current.length) {
       this.undoStack.push(this.current);
+      this.undoEvent.push(this.eventStack);
       this.redoStack = [];
+      this.redoEvent = [];
       this.current = null;
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
+        this.undoEvent.shift();
       }
     }
+  }
+
+  logEvents(events, name) {
+    const array = events.map((ev) => ev.name);
+    console.log(name, array);
   }
 
   undo() {
@@ -153,6 +173,13 @@ export class WHistory implements CommandHandler {
       let change = step[i];
       this.applyChange(change, "before");
     }
+    const events = this.undoEvent.pop();
+    this.logEvents(events, "undo");
+    this.eventStack = [];
+    for (let event of events) {
+      this.applyEvent(event);
+    }
+    this.redoEvent.push(this.eventStack);
   }
 
   redo() {
@@ -164,6 +191,13 @@ export class WHistory implements CommandHandler {
     for (let change of step) {
       this.applyChange(change, "after");
     }
+    const events = this.redoEvent.pop();
+    this.logEvents(events, "redo");
+    this.eventStack = [];
+    for (let event of events) {
+      this.applyEvent(event);
+    }
+    this.undoEvent.push(this.eventStack);
   }
 
   private applyChange(change: HistoryChange, target: "before" | "after") {
@@ -177,6 +211,17 @@ export class WHistory implements CommandHandler {
     } else {
       val[key] = change[target];
     }
+  }
+
+  addEvent(event) {
+    if (this.eventStack) {
+      this.eventStack.push(event);
+    }
+  }
+
+  applyEvent(event) {
+    console.table(event.data);
+    this.bus && this.bus.trigger(event.name, event.data);
   }
 
   updateStateFromRoot(...args: any[]) {

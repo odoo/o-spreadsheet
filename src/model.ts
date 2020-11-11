@@ -16,6 +16,7 @@ import {
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
+import { EventBus } from "@odoo/owl/dist/types/core/event_bus";
 
 /**
  * Model
@@ -50,6 +51,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  bus: EventBus;
 }
 
 const enum Status {
@@ -97,14 +99,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    const history = new WHistory();
-
-    this.getters = {
-      canUndo: history.canUndo.bind(history),
-      canRedo: history.canRedo.bind(history),
-    } as Getters;
-    this.handlers = [history];
-
     this.config = {
       mode: config.mode || "normal",
       openSidePanel: config.openSidePanel || (() => {}),
@@ -112,7 +106,16 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
+      bus: new owl.core.EventBus(),
     };
+    const history = new WHistory(this.config.bus);
+
+    this.getters = {
+      canUndo: history.canUndo.bind(history),
+      canRedo: history.canRedo.bind(history),
+    } as Getters;
+    this.handlers = [history];
+
 
     // registering plugins
     for (let Plugin of pluginRegistry.getAll()) {

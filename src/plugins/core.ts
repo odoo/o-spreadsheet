@@ -12,6 +12,8 @@ import {
   uuidv4,
   toCartesian,
 } from "../helpers/index";
+import { WHistory } from "../history";
+import { ModelConfig } from "../model";
 import { _lt } from "../translation";
 import {
   Cell,
@@ -22,6 +24,8 @@ import {
   NormalizedFormula,
   Sheet,
   WorkbookData,
+  CommandDispatcher,
+  Getters,
 } from "../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -54,21 +58,146 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  constructor(
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, history, dispatch, config);
+    this.bus.on(
+      "cell-created",
+      this,
+      (ev: { id: UID; style: number; border: number; format: string }) => {
+        this.cells[ev.id] = {
+          id: ev.id,
+          style: ev.style,
+          border: ev.border,
+          format: ev.format,
+          content: "",
+          value: "",
+          type: "text",
+        };
+        this.history.addEvent({ name: "cell-deleted", data: { id: ev.id } });
+      }
+    );
+    this.bus.on("style-updated", this, (ev: { id: UID; style: number }) => {
+      this.onStyleUpdated(ev.id, ev.style);
+    });
+    this.bus.on("format-updated", this, (ev: { id: UID; format: string }) => {
+      if (!(ev.id in this.cells)) {
+        return;
+      }
+      const oldFormat = this.cells[ev.id]!.format;
+      this.history.addEvent({ name: "format-updated", data: { id: ev.id, format: oldFormat } });
+      this.cells[ev.id]!.format = ev.format;
+    });
+    this.bus.on("border-updated", this, (ev: { id: UID; border: number }) => {
+      if (!(ev.id in this.cells)) {
+        return;
+      }
+      const oldBorder = this.cells[ev.id]!.border;
+      this.history.addEvent({ name: "border-updated", data: { id: ev.id, border: oldBorder } });
+      this.cells[ev.id]!.border = ev.border;
+    });
+    this.bus.on("content-updated", this, (ev: { id: UID; content: string }) => {
+      if (!(ev.id in this.cells)) {
+        return;
+      }
+      const oldContent = this.cells[ev.id]!.content;
+      this.history.addEvent({ name: "content-updated", data: { id: ev.id, content: oldContent } });
+      let content = ev.content;
+      let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
+      let value: Cell["value"] = content;
+      let error: Cell["error"];
+      let formula: Cell["formula"];
+      if (isNumber(content)) {
+        value = parseNumber(content);
+        type = "number";
+        if (content.includes("%")) {
+          this.cells[ev.id]!.format = content.includes(".") ? "0.00%" : "0%";
+        }
+      }
+      let date = parseDateTime(content);
+      if (date) {
+        type = "date";
+        value = date;
+        content = formatDateTime(date);
+      }
+      const contentUpperCase = content.toUpperCase();
+      if (contentUpperCase === "TRUE") {
+        value = true;
+      }
+      if (contentUpperCase === "FALSE") {
+        value = false;
+      }
+      if (type === "formula") {
+        error = undefined;
+        try {
+          let formulaString: NormalizedFormula = normalize(content || "");
+          let compiledFormula = compile(formulaString);
+          formula = {
+            compiledFormula: compiledFormula,
+            dependencies: formulaString.dependencies,
+            text: formulaString.text,
+          };
+        } catch (e) {
+          value = "#BAD_EXPR";
+          error = _lt("Invalid Expression");
+        }
+      }
+      this.cells[ev.id]!.content = content;
+      this.cells[ev.id]!.value = value;
+      this.cells[ev.id]!.formula = formula;
+      this.cells[ev.id]!.error = error;
+      this.cells[ev.id]!.type = type;
+    });
+    this.bus.on("cell-deleted", this, (ev: { id: UID }) => {
+      const cell = this.cells[ev.id]!;
+      this.history.addEvent({
+        name: "cell-created",
+        data: {
+          id: cell.id,
+          style: cell.style,
+          format: cell.format,
+          border: cell.border,
+        },
+      });
+      if (cell.content) {
+        this.history.addEvent({
+          name: "content-updated",
+          data: { id: cell.id, content: cell.content },
+        });
+      }
+      delete this.cells[ev.id];
+    });
+  }
+
+  onStyleUpdated(cellId: UID, style: number) {
+    const cell = this.cells[cellId];
+    if (!cell) {
+      return;
+    }
+    this.history.addEvent({ name: "style-updated", data: { id: cellId, style: cell.style } });
+    cell.style = style;
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UPDATE_CELL":
         this.updateCell(this.getters.getSheet(cmd.sheetId)!, cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          border: 0,
-          style: 0,
-          format: "",
-        });
+        const cell = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row);
+        if (cell) {
+          this.bus.trigger("cell-deleted", { id: cell.id });
+          this.dispatch("UPDATE_CELL_POSITION", {
+            cellId: undefined,
+            col: cmd.col,
+            row: cmd.row,
+            sheetId: cmd.sheetId,
+          });
+        }
         break;
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
@@ -244,7 +373,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   }
 
   private updateCell(sheet: Sheet, col: number, row: number, data: CellData) {
-    const current = this.getters.getCell(sheet.id, col, row);
+    let current = this.getters.getCell(sheet.id, col, row);
     const hasContent = "content" in data;
 
     // Compute the new cell properties
@@ -258,7 +387,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     if (!content && !style && !border && !format) {
       if (current) {
         // todo: make this work on other sheets
-        this.history.update("cells", current.id, undefined);
+        this.bus.trigger("cell-deleted", { id: current.id });
         this.dispatch("UPDATE_CELL_POSITION", {
           cellId: undefined,
           col,
@@ -270,69 +399,48 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     }
 
     // compute the new cell value
-    const didContentChange =
-      (!current && dataContent) || (hasContent && current && current.content !== dataContent);
-    let cell: Cell;
-    if (current && !didContentChange) {
-      cell = { id: current.id, content, value: current.value, type: current.type };
-      if (cell.type === "formula") {
-        cell.error = current.error;
-        cell.pending = current.pending;
-        cell.formula = current.formula;
-      }
+    const didContentChange = !current || (hasContent && current && current.content !== dataContent);
+    if (!current) {
+      const id = uuidv4();
+      this.bus.trigger("cell-created", {
+        id,
+        style: data.style,
+        border: data.border,
+        format: data.format,
+      });
+      this.bus.trigger("content-updated", { id, content });
+      current = this.cells[id]!;
     } else {
-      // the current content cannot be reused, so we need to recompute the
-      // derived values
-      let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
-      let value: Cell["value"] = content;
-      if (isNumber(content)) {
-        value = parseNumber(content);
-        type = "number";
-        if (content.includes("%")) {
-          format = content.includes(".") ? "0.00%" : "0%";
+      if (didContentChange) {
+        this.bus.trigger("content-updated", { id: current.id, content });
+      }
+      if (style || ("style" in data && !data.style)) {
+        if ("style" in data && !data.style) {
+          this.bus.trigger("style-updated", { id: current.id, style: undefined });
+        } else {
+          this.bus.trigger("style-updated", { id: current.id, style: style });
         }
       }
-      let date = parseDateTime(content);
-      if (date) {
-        type = "date";
-        value = date;
-        content = formatDateTime(date);
+      if (border || ("border" in data && !data.border)) {
+        if ("border" in data && !data.border) {
+          this.bus.trigger("border-updated", { id: current.id, border: undefined });
+        } else {
+          this.bus.trigger("border-updated", { id: current.id, border: border });
+        }
       }
-      const contentUpperCase = content.toUpperCase();
-      if (contentUpperCase === "TRUE") {
-        value = true;
-      }
-      if (contentUpperCase === "FALSE") {
-        value = false;
-      }
-      cell = { id: current?.id || uuidv4(), content, value, type };
-      if (cell.type === "formula") {
-        cell.error = undefined;
-        try {
-          let formulaString: NormalizedFormula = normalize(cell.content || "");
-          let compiledFormula = compile(formulaString);
-          cell.formula = {
-            compiledFormula: compiledFormula,
-            dependencies: formulaString.dependencies,
-            text: formulaString.text,
-          };
-        } catch (e) {
-          cell.value = "#BAD_EXPR";
-          cell.error = _lt("Invalid Expression");
+      if (format || ("format" in data && !data.format)) {
+        if ("format" in data && !data.format) {
+          this.bus.trigger("format-updated", { id: current.id, format: undefined });
+        } else {
+          this.bus.trigger("format-updated", { id: current.id, format: format });
         }
       }
     }
-    if (style) {
-      cell.style = style;
-    }
-    if (border) {
-      cell.border = border;
-    }
-    if (format) {
-      cell.format = format;
-    }
-    // todo: make this work on other sheets
-    this.history.update("cells", cell.id, cell);
-    this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId: sheet.id });
+    this.dispatch("UPDATE_CELL_POSITION", {
+      cellId: current.id,
+      col,
+      row,
+      sheetId: sheet.id,
+    });
   }
 }

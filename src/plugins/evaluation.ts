@@ -79,6 +79,15 @@ export class EvaluationPlugin extends BasePlugin {
   ) {
     super(getters, history, dispatch, config);
     this.evalContext = config.evalContext;
+    this.bus.on("content-updated", this, () => {
+      this.isUpToDate.clear();
+    });
+    this.bus.on("cell-deleted", this, () => {
+      this.isUpToDate.clear();
+    });
+    this.bus.on("cell-created", this, () => {
+      this.isUpToDate.clear();
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -89,11 +98,6 @@ export class EvaluationPlugin extends BasePlugin {
     switch (cmd.type) {
       case "START":
         this.evaluate();
-        break;
-      case "UPDATE_CELL":
-        if ("content" in cmd) {
-          this.isUpToDate.clear();
-        }
         break;
       case "EVALUATE_CELLS":
         const activeSheet = this.getters.getActiveSheetId();
