@@ -91,7 +91,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     if (cell.content) {
       this.history.addEvent({
         type: "content-updated",
-        id: cell.id,
+        cellId: cell.id,
         content: cell.content,
       });
     }
@@ -115,11 +115,11 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   }
 
   onContentUpdated(event: ContentUpdatedEvent) {
-    if (!(event.id in this.cells)) {
+    if (!(event.cellId in this.cells)) {
       return;
     }
-    const oldContent = this.cells[event.id]!.content;
-    this.history.addEvent({ type: "content-updated", id: event.id, content: oldContent });
+    const oldContent = this.cells[event.cellId]!.content;
+    this.history.addEvent({ type: "content-updated", cellId: event.cellId, content: oldContent });
     let content = event.content;
     let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
     let value: Cell["value"] = content;
@@ -129,7 +129,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
       value = parseNumber(content);
       type = "number";
       if (content.includes("%")) {
-        this.cells[event.id]!.format = content.includes(".") ? "0.00%" : "0%";
+        this.cells[event.cellId]!.format = content.includes(".") ? "0.00%" : "0%";
       }
     }
     let date = parseDateTime(content);
@@ -160,48 +160,48 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         error = _lt("Invalid Expression");
       }
     }
-    this.cells[event.id]!.content = content;
-    this.cells[event.id]!.value = value;
-    this.cells[event.id]!.formula = formula;
-    this.cells[event.id]!.error = error;
-    this.cells[event.id]!.type = type;
+    this.cells[event.cellId]!.content = content;
+    this.cells[event.cellId]!.value = value;
+    this.cells[event.cellId]!.formula = formula;
+    this.cells[event.cellId]!.error = error;
+    this.cells[event.cellId]!.type = type;
   }
 
   onStyleUpdated(event: StyleUpdatedEvent) {
-    const cellId = event.id;
+    const cellId = event.cellId;
     const style = event.style;
     const cell = this.cells[cellId];
     if (!cell) {
       return;
     }
-    this.history.addEvent({ type: "style-updated", id: cellId, style: cell.style });
+    this.history.addEvent({ type: "style-updated", cellId: cellId, style: cell.style });
     cell.style = style;
   }
 
   onFormatUpdated(event: FormatUpdatedEvent) {
-    if (!(event.id in this.cells)) {
+    if (!(event.cellId in this.cells)) {
       return;
     }
-    const oldFormat = this.cells[event.id]!.format;
+    const oldFormat = this.cells[event.cellId]!.format;
     this.history.addEvent({
       type: "format-updated",
-      id: event.id,
+      cellId: event.cellId,
       format: oldFormat,
     });
-    this.cells[event.id]!.format = event.format;
+    this.cells[event.cellId]!.format = event.format;
   }
 
   onBorderUpdated(event: BorderUpdatedEvent) {
-    if (!(event.id in this.cells)) {
+    if (!(event.cellId in this.cells)) {
       return;
     }
-    const oldBorder = this.cells[event.id]!.border;
+    const oldBorder = this.cells[event.cellId]!.border;
     this.history.addEvent({
       type: "border-updated",
-      id: event.id,
+      cellId: event.cellId,
       border: oldBorder,
     });
-    this.cells[event.id]!.border = event.border;
+    this.cells[event.cellId]!.border = event.border;
   }
 
   handle(cmd: Command) {
@@ -268,6 +268,7 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   getCellById(cellId: UID): Cell | undefined {
+    // TODO PRO: we should return Cell, not Cell | undefined and throw an error if the cell is undefined
     return this.cells[cellId];
   }
 
@@ -431,31 +432,31 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         border: data.border,
         format: data.format,
       });
-      this.bus.trigger("content-updated", { id, content });
+      this.bus.trigger("content-updated", { cellId: id, content });
       current = this.cells[id]!;
     } else {
       if (didContentChange) {
-        this.bus.trigger("content-updated", { id: current.id, content });
+        this.bus.trigger("content-updated", { cellId: current.id, content });
       }
       if (style || ("style" in data && !data.style)) {
         if ("style" in data && !data.style) {
-          this.bus.trigger("style-updated", { id: current.id, style: undefined });
+          this.bus.trigger("style-updated", { cellId: current.id, style: undefined });
         } else {
-          this.bus.trigger("style-updated", { id: current.id, style: style });
+          this.bus.trigger("style-updated", { cellId: current.id, style: style });
         }
       }
       if (border || ("border" in data && !data.border)) {
         if ("border" in data && !data.border) {
-          this.bus.trigger("border-updated", { id: current.id, border: undefined });
+          this.bus.trigger("border-updated", { cellId: current.id, border: undefined });
         } else {
-          this.bus.trigger("border-updated", { id: current.id, border: border });
+          this.bus.trigger("border-updated", { cellId: current.id, border: border });
         }
       }
       if (format || ("format" in data && !data.format)) {
         if ("format" in data && !data.format) {
-          this.bus.trigger("format-updated", { id: current.id, format: undefined });
+          this.bus.trigger("format-updated", { cellId: current.id, format: undefined });
         } else {
-          this.bus.trigger("format-updated", { id: current.id, format: format });
+          this.bus.trigger("format-updated", { cellId: current.id, format: format });
         }
       }
     }

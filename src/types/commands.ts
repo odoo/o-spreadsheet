@@ -801,23 +801,23 @@ export interface CellDeletedEvent {
 
 export interface ContentUpdatedEvent {
   type: "content-updated";
-  id: UID;
+  cellId: UID;
   content: string;
 }
 
 export interface StyleUpdatedEvent {
   type: "style-updated";
-  id: UID;
+  cellId: UID;
   style?: number;
 }
 export interface BorderUpdatedEvent {
   type: "border-updated";
-  id: UID;
+  cellId: UID;
   border?: number;
 }
 export interface FormatUpdatedEvent {
   type: "format-updated";
-  id: UID;
+  cellId: UID;
   format?: string;
 }
 
