@@ -1,4 +1,4 @@
-import { EventBus } from "@odoo/owl/dist/types/core/event_bus";
+// import { EventBus } from "@odoo/owl/dist/types/core/event_bus";
 import { WHistory, WorkbookHistory } from "./history";
 import { Mode, ModelConfig } from "./model";
 import {
@@ -10,6 +10,7 @@ import {
   LAYERS,
   WorkbookData,
   CommandResult,
+  EventDispatcher,
 } from "./types/index";
 
 export interface PluginConstuctor {
@@ -45,7 +46,7 @@ export class BasePlugin<State = any> implements CommandHandler {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
   protected ui: UIActions;
-  protected bus: EventBus;
+  protected bus: EventDispatcher;
 
   constructor(
     getters: Getters,

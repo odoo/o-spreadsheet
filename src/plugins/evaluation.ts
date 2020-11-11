@@ -79,15 +79,13 @@ export class EvaluationPlugin extends BasePlugin {
   ) {
     super(getters, history, dispatch, config);
     this.evalContext = config.evalContext;
-    this.bus.on("content-updated", this, () => {
-      this.isUpToDate.clear();
-    });
-    this.bus.on("cell-deleted", this, () => {
-      this.isUpToDate.clear();
-    });
-    this.bus.on("cell-created", this, () => {
-      this.isUpToDate.clear();
-    });
+    this.bus.on("content-updated", this, this.markAsUpdate);
+    this.bus.on("cell-deleted", this, this.markAsUpdate);
+    this.bus.on("cell-created", this, this.markAsUpdate);
+  }
+
+  markAsUpdate() {
+    this.isUpToDate.clear();
   }
 
   // ---------------------------------------------------------------------------

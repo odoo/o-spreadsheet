@@ -1,5 +1,11 @@
-import { EventBus } from "@odoo/owl/dist/types/core/event_bus";
-import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
+import {
+  Command,
+  Event,
+  CommandHandler,
+  CommandResult,
+  CancelledReason,
+  EventDispatcher,
+} from "./types/index";
 
 /**
  * History Management System
@@ -23,7 +29,7 @@ type Step = HistoryChange[];
 export const MAX_HISTORY_STEPS = 99;
 
 export interface WorkbookHistory<Plugin> {
-  addEvent(event: any);
+  addEvent(event: Event): void;
   update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
   update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
     key1: T,
@@ -88,16 +94,16 @@ export interface WorkbookHistory<Plugin> {
 
 export class WHistory implements CommandHandler {
   private current: Step | null = null;
-  private eventStack: any[] | null = null;
+  private eventStack: Event[] | null = null;
   private undoStack: Step[] = [];
   private undoEvent: any[] = [];
   private redoStack: Step[] = [];
   private redoEvent: any[] = [];
   private historize: boolean = false;
-  private bus: EventBus | undefined;
+  private bus: EventDispatcher | undefined;
 
   //TODO It's only for keeping tests
-  constructor(bus?: EventBus) {
+  constructor(bus?: EventDispatcher) {
     this.bus = bus;
   }
 
@@ -158,11 +164,6 @@ export class WHistory implements CommandHandler {
     }
   }
 
-  logEvents(events, name) {
-    const array = events.map((ev) => ev.name);
-    console.log(name, array);
-  }
-
   undo() {
     const step = this.undoStack.pop();
     if (!step) {
@@ -174,7 +175,6 @@ export class WHistory implements CommandHandler {
       this.applyChange(change, "before");
     }
     const events = this.undoEvent.pop();
-    this.logEvents(events, "undo");
     this.eventStack = [];
     for (let event of events) {
       this.applyEvent(event);
@@ -192,7 +192,6 @@ export class WHistory implements CommandHandler {
       this.applyChange(change, "after");
     }
     const events = this.redoEvent.pop();
-    this.logEvents(events, "redo");
     this.eventStack = [];
     for (let event of events) {
       this.applyEvent(event);
@@ -213,15 +212,14 @@ export class WHistory implements CommandHandler {
     }
   }
 
-  addEvent(event) {
+  addEvent(event: Event) {
     if (this.eventStack) {
       this.eventStack.push(event);
     }
   }
 
-  applyEvent(event) {
-    console.table(event.data);
-    this.bus && this.bus.trigger(event.name, event.data);
+  applyEvent(event: Event) {
+    this.bus && this.bus.trigger(event.type, event);
   }
 
   updateStateFromRoot(...args: any[]) {

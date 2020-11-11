@@ -773,4 +773,62 @@ export interface CommandDispatcher {
   ): CommandResult;
 }
 
+export interface EventDispatcher {
+  on<T extends EventTypes, E extends Extract<Event, { type: T }>>(
+    type: T,
+    owner: any,
+    callback: (r: Omit<E, "type">) => void
+  ): void;
+  trigger<T extends EventTypes, E extends Extract<Event, { type: T }>>(type: T): void;
+  trigger<T extends EventTypes, E extends Extract<Event, { type: T }>>(
+    type: T,
+    r: Omit<E, "type">
+  ): void;
+}
+
+export interface CellCreatedEvent {
+  type: "cell-created";
+  cellId: UID;
+  style?: number;
+  border?: number;
+  format?: string;
+}
+
+export interface CellDeletedEvent {
+  type: "cell-deleted";
+  cellId: UID;
+}
+
+export interface ContentUpdatedEvent {
+  type: "content-updated";
+  id: UID;
+  content: string;
+}
+
+export interface StyleUpdatedEvent {
+  type: "style-updated";
+  id: UID;
+  style?: number;
+}
+export interface BorderUpdatedEvent {
+  type: "border-updated";
+  id: UID;
+  border?: number;
+}
+export interface FormatUpdatedEvent {
+  type: "format-updated";
+  id: UID;
+  format?: string;
+}
+
+export type Event =
+  | CellCreatedEvent
+  | ContentUpdatedEvent
+  | StyleUpdatedEvent
+  | BorderUpdatedEvent
+  | FormatUpdatedEvent
+  | CellDeletedEvent;
+
+export type EventTypes = Event["type"];
+
 export type CommandTypes = Command["type"];
