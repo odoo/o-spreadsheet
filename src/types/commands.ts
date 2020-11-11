@@ -821,7 +821,23 @@ export interface FormatUpdatedEvent {
   format?: string;
 }
 
+export interface AddMergeEvent {
+  type: "add-merge";
+  mergeId: number; //TODO Change to UID
+  zone: Zone;
+  topLeftXc: string; //TODO Change to topLeftId
+  sheetId: UID; // TODO Remove
+}
+
+export interface RemoveMergeEvent {
+  type: "remove-merge";
+  mergeId: number; //TODO Change to UID
+  sheetId: UID; //TODO Remove
+}
+
 export type Event =
+  | RemoveMergeEvent
+  | AddMergeEvent
   | CellCreatedEvent
   | ContentUpdatedEvent
   | StyleUpdatedEvent

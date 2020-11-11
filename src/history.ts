@@ -15,7 +15,7 @@ import {
  */
 
 interface HistoryChange {
-  type: "old_history";
+  type: "old_history"; //TODO This interface should be removed when all the history.update are removed
   root: any;
   path: (string | number)[];
   before: any;

@@ -6,12 +6,18 @@ import {
   updateRemoveRows,
 } from "../helpers/grid_manipulation";
 import { isEqual, toCartesian, toXC, union, overlap, clip, isDefined } from "../helpers/index";
+import { WHistory } from "../history";
+import { ModelConfig } from "../model";
 import { _lt } from "../translation";
 import {
+  AddMergeEvent,
   CancelledReason,
   Command,
+  CommandDispatcher,
   CommandResult,
+  Getters,
   Merge,
+  RemoveMergeEvent,
   UID,
   WorkbookData,
   Zone,
@@ -47,6 +53,67 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
 
   readonly merges: Record<UID, Record<number, Merge | undefined> | undefined> = {};
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined> = {};
+
+  constructor(
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, history, dispatch, config);
+    this.bus.on("add-merge", this, this.onMergeAdded);
+    this.bus.on("remove-merge", this, this.onMergeRemoved);
+  }
+
+  onMergeRemoved(event: RemoveMergeEvent) {
+    const mergeId = event.mergeId;
+    const sheetId = event.sheetId;
+    const merge = this.getMergeById(sheetId, mergeId);
+    console.table(merge);
+    if (!merge) {
+      return;
+    }
+    const { top, bottom, left, right, topLeft } = merge;
+    for (let r = top; r <= bottom; r++) {
+      for (let c = left; c <= right; c++) {
+        const xc = toXC(c, r);
+        delete this.mergeCellMap[sheetId]![xc];
+        // this.history.update("mergeCellMap", sheetId, xc, undefined);
+      }
+    }
+    delete this.merges[sheetId]![mergeId];
+    // this.history.update("merges", sheetId, mergeId, undefined);
+    this.history.addEvent({
+      type: "add-merge",
+      mergeId: event.mergeId,
+      zone: { top, bottom, left, right },
+      sheetId,
+      topLeftXc: topLeft,
+    });
+  }
+
+  onMergeAdded(event: AddMergeEvent) {
+    this.merges[event.sheetId]![event.mergeId] = {
+      id: event.mergeId,
+      left: event.zone.left,
+      top: event.zone.top,
+      bottom: event.zone.bottom,
+      right: event.zone.right,
+      topLeft: event.topLeftXc,
+    };
+    for (let row = event.zone.top; row <= event.zone.bottom; row++) {
+      for (let col = event.zone.left; col <= event.zone.right; col++) {
+        const xc = toXC(col, row);
+        this.mergeCellMap[event.sheetId]![xc] = event.mergeId;
+        // this.history.update("mergeCellMap", event.sheetId, xc, event.mergeId);
+      }
+    }
+    this.history.addEvent({
+      type: "remove-merge",
+      mergeId: event.mergeId,
+      sheetId: event.sheetId,
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -293,14 +360,6 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     const topLeft = this.getters.getCell(sheetId, left, top);
 
     let id = this.nextId++;
-    this.history.update("merges", sheetId, id, {
-      id,
-      left,
-      top,
-      right,
-      bottom,
-      topLeft: tl,
-    });
     let previousMerges: Set<number> = new Set();
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
@@ -318,28 +377,18 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         if (merge) {
           previousMerges.add(merge.id);
         }
-        this.history.update("mergeCellMap", sheetId, xc, id);
       }
     }
-    this.applyBorderMerge(sheetId, zone);
     for (let mergeId of previousMerges) {
-      const { top, bottom, left, right } = this.getMergeById(sheetId, mergeId)!;
-      for (let r = top; r <= bottom; r++) {
-        for (let c = left; c <= right; c++) {
-          const xc = toXC(c, r);
-          const merge = this.getMergeByXc(sheetId, xc);
-          if (!merge || merge.id !== id) {
-            this.history.update("mergeCellMap", sheetId, xc, undefined);
-            this.dispatch("CLEAR_CELL", {
-              sheetId: sheetId,
-              col: c,
-              row: r,
-            });
-          }
-        }
-      }
-      this.history.update("merges", sheetId, mergeId, undefined);
+      this.bus.trigger("remove-merge", { mergeId, sheetId });
     }
+    this.bus.trigger("add-merge", {
+      sheetId,
+      mergeId: id,
+      zone: { left, top, right, bottom },
+      topLeftXc: tl,
+    });
+    this.applyBorderMerge(sheetId, zone);
   }
 
   private applyBorderMerge(sheetId: UID, zone: Zone) {
