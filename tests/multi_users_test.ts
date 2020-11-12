@@ -470,7 +470,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  describe.skip("Limitations", () => {
+  describe("Limitations", () => {
     test("update the style and content of the same cell concurrently", () => {
       network.concurrent(() => {
         alice.dispatch("UPDATE_CELL", {
@@ -640,6 +640,34 @@ describe("Multi users synchronisation", () => {
       expect(getCell(charly, "A1")).toBeDefined();
       expect(getCell(charly, "A1")!.style).toEqual({ fillColor: "#555" });
       expect(getCell(charly, "A1")!.content).toBe("");
+    });
+
+    test("Undo after add column", () => {
+      setCellContent(alice, "B1", "test");
+      const sheetId = alice.getters.getActiveSheetId();
+      bob.dispatch("ADD_COLUMNS", { column: 1, position: "before", sheetId, quantity: 1 });
+      setCellContent(bob, "B1", "salut");
+      expect(getCell(alice, "C1")!.content).toBe("test");
+      expect(getCell(bob, "C1")!.content).toBe("test");
+
+      alice.dispatch("UNDO");
+      expect(getCell(alice, "B1")!.content).toBe("salut"); //B1 is undefined, as the undo of cell-position remove the cell at [0,1]
+      expect(getCell(bob, "B1")!.content).toBe("salut");
+      expect(getCell(alice, "C1")).toBeUndefined();
+      expect(getCell(bob, "C1")).toBeUndefined();
+    });
+
+    test("Undo after add column2", () => {
+      setCellContent(alice, "B1", "test");
+      const sheetId = alice.getters.getActiveSheetId();
+      bob.dispatch("SET_FORMATTING", {
+        sheetId,
+        target: [toZone("B1")],
+        style: { fillColor: "orange" },
+      });
+      alice.dispatch("UNDO");
+      expect(getCell(alice, "B1")).toBeDefined();
+      expect(getCell(bob, "B1")).toBeDefined();
     });
   });
 });

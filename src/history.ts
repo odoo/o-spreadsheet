@@ -174,6 +174,8 @@ export class WHistory implements CommandHandler {
     if (!step) {
       return;
     }
+    console.table(step);
+    console.log(step[step.length - 1].path);
     this.redoStack.push(step);
     for (let i = step.length - 1; i >= 0; i--) {
       let change = step[i];
