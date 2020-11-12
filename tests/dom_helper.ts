@@ -32,7 +32,11 @@ export function triggerMouseEvent(
   }
 }
 
-export function setInputValueAndTrigger(selector: string | any, value: string, eventType: string): void {
+export function setInputValueAndTrigger(
+  selector: string | any,
+  value: string,
+  eventType: string
+): void {
   let rangeInput;
   if (typeof selector === "string") {
     rangeInput = document.querySelector(selector) as HTMLInputElement;
