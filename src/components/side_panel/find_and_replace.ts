@@ -5,11 +5,12 @@ import { FindAndReplaceTerms } from "./translations_terms";
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
 
-const TEMPLATE = xml/* xml */ `<div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">
+const TEMPLATE = xml/* xml */ `
+<div class="o-find-and-replace" tabindex="0" t-on-focusin="onFocusSidePanel">
   <div class="o-section">
     <div t-esc="env._t('${FindAndReplaceTerms.Search}')" class="o-section-title"/>
     <div class="o-input-search-container">
-      <input type="text" class="o-input o-input-with-count" t-on-input="onInput">
+      <input type="text" class="o-input o-input-with-count" t-on-input="onInput" t-on-keydown="onKeydownSearch">
       </input>
       <div class="o-input-count" t-if="hasSearchResult">
         <t t-esc="env.getters.getCurrentSelectedMatchIndex()+1"/>
@@ -41,7 +42,7 @@ const TEMPLATE = xml/* xml */ `<div class="o-find-and-replace" tabindex="0" t-on
 
   <div class="o-section">
     <div t-esc="env._t('${FindAndReplaceTerms.Replace}')" class="o-section-title"/>
-    <input type="text" class="o-input" t-model="state.replaceWith"/>
+    <input type="text" class="o-input" t-model="state.replaceWith" t-on-keydown="onKeydownReplace"/>
     <label class="o-far-checkbox">
       <input t-att-disabled="state.searchOptions.searchFormulas" type="checkbox"
              t-model="state.replaceOptions.modifyFormulas"/>
@@ -114,6 +115,20 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetEnv> {
   onInput(ev) {
     this.state.toSearch = ev.target.value;
     this.debouncedUpdateSearch();
+  }
+
+  onKeydownSearch(ev: KeyboardEvent) {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      this.onSelectNextCell();
+    }
+  }
+
+  onKeydownReplace(ev: KeyboardEvent) {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      this.replace();
+    }
   }
 
   onFocusSidePanel() {

@@ -118,6 +118,16 @@ describe("find and replace sidePanel component", () => {
       expect(parent.env.dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
+    test("Going to next with Enter key", async () => {
+      setInputValueAndTrigger(selectors.inputSearch, "1", "input");
+      jest.runAllTimers();
+      document
+        .querySelector(selectors.inputSearch)!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      await nextTick();
+      expect(parent.env.dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
+    });
+
     test("clicking on previous", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "1", "input");
       jest.runAllTimers();
@@ -243,6 +253,21 @@ describe("find and replace sidePanel component", () => {
       triggerMouseEvent(document.querySelector(selectors.replaceAllButton), "click");
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", {
+        replaceOptions: { modifyFormulas: false },
+        replaceWith: "kikou",
+      });
+    });
+
+    test("Can replace with Enter key", async () => {
+      setInputValueAndTrigger(selectors.inputSearch, "hell", "input");
+      setInputValueAndTrigger(selectors.inputReplace, "kikou", "input");
+      jest.runAllTimers();
+      parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+      document
+        .querySelector(selectors.inputReplace)!
+        .dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+      await nextTick();
+      expect(parent.env.dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", {
         replaceOptions: { modifyFormulas: false },
         replaceWith: "kikou",
       });
