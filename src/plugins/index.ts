@@ -16,6 +16,7 @@ import { SelectionInputPlugin } from "./selection_inputs";
 import { FigurePlugin } from "./figures";
 import { SheetPlugin } from "./sheet";
 import { FindAndReplacePlugin } from "./find_and_replace";
+import { MultiUserPlugin } from "./multiuser";
 
 export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("sheet", SheetPlugin)
@@ -33,4 +34,5 @@ export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("chart", ChartPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
-  .add("find_and_replace", FindAndReplacePlugin);
+  .add("find_and_replace", FindAndReplacePlugin)
+  .add("multiuser", MultiUserPlugin);

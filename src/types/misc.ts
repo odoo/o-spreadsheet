@@ -2,6 +2,30 @@
 // MISC
 // -----------------------------------------------------------------------------
 
+import { Command } from "./commands";
+
+export interface NetworkConfig {
+  sendCommand: (command: Command) => void;
+}
+export interface OTMessage {
+  clientId: string;
+  revision: number;
+  command: Command;
+}
+
+export interface OTAck {
+  type: "ACK";
+  revision: number;
+}
+
+export interface OTCommand {
+  type: "COMMAND";
+  revision: number;
+  command: Command;
+}
+
+export type OTResponse = OTAck | OTCommand;
+
 export type UID = string;
 
 export interface Zone {

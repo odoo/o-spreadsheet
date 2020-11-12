@@ -8,6 +8,8 @@ import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/selection";
 import { ComposerSelection } from "../plugins/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
+import { OTMessage, OTResponse } from "../types/misc";
+import { OtClient } from "../ot_client";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -99,6 +101,8 @@ export class Spreadsheet extends Component<Props> {
     grid: false,
   });
 
+  otClient: OtClient;
+
   // last string that was cut or copied. It is necessary so we can make the
   // difference between a paste coming from the sheet itself, or from the
   // os clipboard
@@ -124,6 +128,18 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+    this.otClient = new OtClient(0, this.broadcast.bind(this), this.model);
+    this.model.on("command-dispatched", this, (ev) => {
+      this.otClient.localCommand(ev.command);
+    });
+  }
+
+  sequentialReception(message: OTResponse) {
+    this.otClient.onReceived(message);
+  }
+
+  private broadcast(message: OTMessage) {
+    this.trigger("network-command", { command: message });
   }
 
   get focusTopBarComposer(): boolean {
@@ -220,8 +236,8 @@ export class Spreadsheet extends Component<Props> {
     }
     let keyDownString = "";
     if (ev.ctrlKey || ev.metaKey) {
-       keyDownString += "CTRL+";
-       }
+      keyDownString += "CTRL+";
+    }
     keyDownString += ev.key.toUpperCase();
 
     let handler = this.keyDownMapping[keyDownString];

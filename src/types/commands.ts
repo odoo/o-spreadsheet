@@ -635,7 +635,13 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
   replaceOptions: ReplaceOptions;
 }
 
+export interface MultiuserCommand extends BaseCommand {
+  type: "MULTIUSER";
+  events: Event[];
+}
+
 export type Command =
+  | MultiuserCommand
   | NewInputCommand
   | RemoveInputCommand
   | FocusInputCommand

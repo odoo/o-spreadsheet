@@ -35,6 +35,7 @@ type Step = (HistoryChange | EventHistory)[];
 export const MAX_HISTORY_STEPS = 99;
 
 export interface WorkbookHistory<Plugin> {
+  getAllEvents(): Event[];
   addEvent(event: Event): void;
   update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
   update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
@@ -171,6 +172,15 @@ export class WHistory implements CommandHandler {
         this.undoStack.shift();
       }
     }
+  }
+
+  getAllEvents(): Event[] {
+    if (this.undoStack.length > 0) {
+      return this.undoStack[this.undoStack.length - 1]
+        .filter((x) => x.type === "event_history")
+        .map((x) => (x as EventHistory).event);
+    }
+    return [];
   }
 
   undo() {

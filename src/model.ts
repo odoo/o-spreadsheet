@@ -13,6 +13,7 @@ import {
   LAYERS,
   CommandSuccess,
   EvalContext,
+  NetworkConfig,
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
@@ -51,6 +52,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  network: NetworkConfig;
   bus: EventBus;
 }
 
@@ -106,6 +108,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
+      network: {
+        sendCommand: (command: Command) => {
+          this.trigger("command-dispatched", { command });
+        },
+      },
       bus: new owl.core.EventBus(),
     };
     const history = new WHistory(this.config.bus);
@@ -115,7 +122,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       canRedo: history.canRedo.bind(history),
     } as Getters;
     this.handlers = [history];
-
 
     // registering plugins
     for (let Plugin of pluginRegistry.getAll()) {
