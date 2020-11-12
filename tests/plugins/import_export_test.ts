@@ -174,7 +174,7 @@ test("complete import, then export", () => {
         id: "someuuid",
         colNumber: 10,
         rowNumber: 10,
-        merges: ["A1:A2", "B1:C1"],
+        merges: ["A1:A2"],
         cols: {
           0: { size: 42 },
         },
