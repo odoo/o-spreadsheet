@@ -1,11 +1,11 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // ISERROR
 // -----------------------------------------------------------------------------
-export const ISERROR: FunctionDescription = {
+export const ISERROR: AddFunctionDescription = {
   description: _lt("Whether a value is an error."),
   args: args(`value (any, lazy) ${_lt("The value to be verified as an error type.")}`),
   returns: ["BOOLEAN"],
@@ -22,7 +22,7 @@ export const ISERROR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISLOGICAL
 // -----------------------------------------------------------------------------
-export const ISLOGICAL: FunctionDescription = {
+export const ISLOGICAL: AddFunctionDescription = {
   description: _lt("Whether a value is `true` or `false`."),
   args: args(`value (any) ${_lt("The value to be verified as a logical TRUE or FALSE.")}`),
   returns: ["BOOLEAN"],
@@ -34,7 +34,7 @@ export const ISLOGICAL: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISNONTEXT
 // -----------------------------------------------------------------------------
-export const ISNONTEXT: FunctionDescription = {
+export const ISNONTEXT: AddFunctionDescription = {
   description: _lt("Whether a value is non-textual."),
   args: args(`value (any) ${_lt("The value to be checked.")}`),
   returns: ["BOOLEAN"],
@@ -47,7 +47,7 @@ export const ISNONTEXT: FunctionDescription = {
 // ISNUMBER
 // -----------------------------------------------------------------------------
 
-export const ISNUMBER: FunctionDescription = {
+export const ISNUMBER: AddFunctionDescription = {
   description: _lt("Whether a value is a number."),
   args: args(`value (any) ${_lt("The value to be verified as a number.")}`),
   returns: ["BOOLEAN"],
@@ -59,7 +59,7 @@ export const ISNUMBER: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISTEXT
 // -----------------------------------------------------------------------------
-export const ISTEXT: FunctionDescription = {
+export const ISTEXT: AddFunctionDescription = {
   description: _lt("Whether a value is text."),
   args: args(`value (any) ${_lt("The value to be verified as text.")}`),
   returns: ["BOOLEAN"],

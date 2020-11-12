@@ -1,12 +1,12 @@
 import { args } from "./arguments";
 import { toBoolean, visitBooleans } from "./helpers";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // WAIT
 // -----------------------------------------------------------------------------
-export const WAIT: FunctionDescription = {
+export const WAIT: AddFunctionDescription = {
   description: _lt("Wait"),
   args: args(`ms (number) ${_lt("wait time in milliseconds")}`),
   returns: ["ANY"],
@@ -23,7 +23,7 @@ export const WAIT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // AND
 // -----------------------------------------------------------------------------
-export const AND: FunctionDescription = {
+export const AND: AddFunctionDescription = {
   description: _lt("Logical `and` operator."),
   args: args(`
       logical_expression1 (boolean, range<boolean>) ${_lt(
@@ -52,7 +52,7 @@ export const AND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // IF
 // -----------------------------------------------------------------------------
-export const IF: FunctionDescription = {
+export const IF: AddFunctionDescription = {
   description: _lt("Returns value depending on logical expression."),
   args: args(`
       logical_expression (boolean) ${_lt(
@@ -79,7 +79,7 @@ export const IF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // IFERROR
 // -----------------------------------------------------------------------------
-export const IFERROR: FunctionDescription = {
+export const IFERROR: AddFunctionDescription = {
   description: _lt("Value if it is not an error, otherwise 2nd argument."),
   args: args(`
     value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
@@ -102,22 +102,20 @@ export const IFERROR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // IFS
 // -----------------------------------------------------------------------------
-export const IFS: FunctionDescription = {
+export const IFS: AddFunctionDescription = {
   description: _lt("Returns a value depending on multiple logical expressions."),
   args: args(`
       condition1 (boolean, lazy) ${_lt(
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
       )}
       value1 (any, lazy) ${_lt("The returned value if condition1 is TRUE.")}
-      additional_values (any, lazy, optional, repeating) ${_lt(
-        "Additional conditions and values to be evaluated if the previous ones are FALSE."
+      condition2 (boolean, lazy, optional, repeating) ${_lt(
+        "Additional conditions to be evaluated if the previous ones are FALSE."
       )}
-    `),
-  // @compatibility: on google sheets, args definitions are next:
-  // condition1 (boolean) The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those.
-  // value1 (any) The returned value if condition1 is TRUE.
-  // condition2 (boolean, optional, repeating) Additional conditions to be evaluated if the previous ones are FALSE.
-  // value2 (any, optional, repeating) Additional values to be returned if their corresponding conditions are TRUE.
+      value2 (any, lazy, optional, repeating) ${_lt(
+        "Additional values to be returned if their corresponding conditions are TRUE."
+      )}
+  `),
   returns: ["ANY"],
   compute: function (): any {
     if (arguments.length % 2 === 1) {
@@ -135,7 +133,7 @@ export const IFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // NOT
 // -----------------------------------------------------------------------------
-export const NOT: FunctionDescription = {
+export const NOT: AddFunctionDescription = {
   description: _lt("Returns opposite of provided logical value."),
   args: args(
     `logical_expression (boolean) ${_lt(
@@ -152,7 +150,7 @@ export const NOT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // OR
 // -----------------------------------------------------------------------------
-export const OR: FunctionDescription = {
+export const OR: AddFunctionDescription = {
   description: _lt("Logical `or` operator."),
   args: args(`
       logical_expression1 (boolean, range<boolean>) ${_lt(
@@ -181,7 +179,7 @@ export const OR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // XOR
 // -----------------------------------------------------------------------------
-export const XOR: FunctionDescription = {
+export const XOR: AddFunctionDescription = {
   description: _lt("Logical `xor` operator."),
   args: args(`
       logical_expression1 (boolean, range<boolean>) ${_lt(

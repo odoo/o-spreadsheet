@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, Arg, NormalizedFormula } from "../types/index";
+import { CompiledFormula, NormalizedFormula } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
 
@@ -62,54 +62,72 @@ export function compile(str: NormalizedFormula): CompiledFormula {
      */
     function compileFunctionArgs(ast: ASTAsyncFuncall | ASTFuncall): string[] {
       const functionDefinition = functions[ast.value.toUpperCase()];
-      let argDefinition: Arg;
-
-      const result: string[] = [];
       const currentFunctionArguments = ast.args;
 
-      for (let i = 0; i < currentFunctionArguments.length; i++) {
-        const arg = currentFunctionArguments[i];
-        argDefinition = functionDefinition.args[i] || argDefinition!;
-        const types = argDefinition && argDefinition.type;
-        let argValue: any;
-        // detect when an argument need to be evaluated as a meta argument
-        const isMeta = types && types.includes("META");
-        // detect when an argument need to be evaluated as a lazy argument
-        const isLazy = argDefinition && argDefinition.lazy;
-        argValue = compileAST(arg, isLazy, isMeta);
-        // transform cell value into a range
-        if (arg.type === "REFERENCE") {
-          const hasRange = types.find(
-            (t) =>
-              t === "RANGE" ||
-              t === "RANGE<BOOLEAN>" ||
-              t === "RANGE<NUMBER>" ||
-              t === "RANGE<STRING>"
-          );
-          if (hasRange) {
-            argValue = `range(${arg.value}, deps, sheetId)`;
-          }
-        }
-        result.push(argValue);
-      }
-      const isRepeating = functionDefinition.args.length
-        ? functionDefinition.args[functionDefinition.args.length - 1].repeating
-        : false;
-      let minArg = 0;
-      let maxArg = isRepeating ? Infinity : functionDefinition.args.length;
-      for (let arg of functionDefinition.args) {
-        if (!arg.optional) {
-          minArg++;
-        }
-      }
-      if (result.length < minArg || result.length > maxArg) {
+      // check if arguments are supplied in the correct quantities
+
+      const nbrArg = currentFunctionArguments.length;
+
+      if (nbrArg < functionDefinition.minArgRequired) {
         throw new Error(
-          _lt(`
-          Invalid number of arguments for the ${ast.value.toUpperCase()} function.
-          Expected ${functionDefinition.args.length}, but got ${result.length} instead.`)
+          _lt(`Invalid number of arguments for the ${ast.value.toUpperCase()} function.
+          Expected ${functionDefinition.minArgRequired} minimum, but got ${nbrArg} instead.`)
         );
       }
-      return result;
+
+      if (nbrArg > functionDefinition.maxArgPossible) {
+        throw new Error(
+          _lt(`Invalid number of arguments for the ${ast.value.toUpperCase()} function.
+          Expected ${functionDefinition.maxArgPossible} maximum, but got ${nbrArg} instead.`)
+        );
+      }
+
+      const repeatingArg = functionDefinition.nbrArgRepeating;
+      if (repeatingArg > 1) {
+        const argBeforeRepeat = functionDefinition.args.length - repeatingArg;
+        const nbrRepeatingArg = nbrArg - argBeforeRepeat;
+        if (nbrRepeatingArg % repeatingArg !== 0) {
+          throw new Error(
+            _lt(`Invalid number of arguments for the ${ast.value.toUpperCase()} function.
+            Expected all arguments after position ${argBeforeRepeat} to be supplied by groups of ${repeatingArg} arguments`)
+          );
+        }
+      }
+
+      let listArgs: string[] = [];
+      for (let i = 0; i < nbrArg; i++) {
+        const argPosition = functionDefinition.getArgToFocus(i + 1) - 1;
+        if (0 <= argPosition && argPosition < functionDefinition.args.length) {
+          const currentArg = currentFunctionArguments[i];
+          const argDefinition = functionDefinition.args[argPosition];
+          const argTypes = argDefinition.type;
+
+          // detect when an argument need to be evaluated as a meta argument
+          const isMeta = argTypes.includes("META");
+          // detect when an argument need to be evaluated as a lazy argument
+          const isLazy = argDefinition.lazy;
+
+          // compile arguments
+          let argValue = compileAST(currentArg, isLazy, isMeta);
+
+          // asking for a range & get a cell --> transform cell value into a range
+          if (currentArg.type === "REFERENCE") {
+            const hasRange = argTypes.find(
+              (t) =>
+                t === "RANGE" ||
+                t === "RANGE<BOOLEAN>" ||
+                t === "RANGE<NUMBER>" ||
+                t === "RANGE<STRING>"
+            );
+            if (hasRange) {
+              argValue = `range(${currentArg.value}, deps, sheetId)`;
+            }
+          }
+          listArgs.push(argValue);
+        }
+      }
+
+      return listArgs;
     }
 
     /**

@@ -1,4 +1,4 @@
-import { ArgType, Arg } from "../types";
+import { ArgType, Arg, AddFunctionDescription, FunctionDescription } from "../types";
 import { _lt } from "../translation";
 
 //------------------------------------------------------------------------------
@@ -85,6 +85,76 @@ function makeArg(str: string): Arg {
   return result;
 }
 
+/**
+ * This function adds on description more general information derived from the
+ * arguments.
+ *
+ * This information is useful during compilation.
+ */
+export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDescription {
+  let countArg = 0;
+  let minArg = 0;
+  let repeatingArg = 0;
+  for (let arg of addDescr.args) {
+    countArg++;
+    if (!arg.optional) {
+      minArg++;
+    }
+    if (arg.repeating) {
+      repeatingArg++;
+    }
+  }
+  const descr = addDescr as FunctionDescription;
+  descr.minArgRequired = minArg;
+  descr.maxArgPossible = repeatingArg ? Infinity : countArg;
+  descr.nbrArgRepeating = repeatingArg;
+  descr.getArgToFocus = argTargeting(countArg, repeatingArg);
+
+  return descr;
+}
+
+/**
+ * Returns a function allowing finding which argument corresponds a position
+ * in a function. This is particularly useful for functions with repeatable
+ * arguments.
+ *
+ * Indeed the function makes it possible to etablish corespondance between
+ * arguments when the number of arguments supplied is greater than the number of
+ * arguments defined by the function.
+ *
+ * Ex:
+ *
+ * in the formula "=SUM(11, 55, 66)" which is defined like this "SUM(value1, [value2, ...])"
+ * - 11 corresponds to the value1 argument => position will be 1
+ * - 55 corresponds to the value2 argument => position will be 2
+ * - 66 corresponds to the value2 argument => position will be 2
+ *
+ * in the formula "=AVERAGE.WEIGHTED(1, 2, 3, 4, 5, 6)" which is defined like this
+ * "AVERAGE.WEIGHTED(values, weights, [additional_values, ...], [additional_weights, ...])"
+ * - 1 corresponds to the values argument => position will be 1
+ * - 2 corresponds to the weights argument => position will be 2
+ * - 3 corresponds to the [additional_values, ...] argument => position will be 3
+ * - 4 corresponds to the [additional_weights, ...] argument => position will be 4
+ * - 5 corresponds to the [additional_values, ...] argument => position will be 3
+ * - 6 corresponds to the [additional_weights, ...] argument => position will be 4
+ */
+function argTargeting(countArg, repeatingArg): (argPosition: number) => number {
+  if (!repeatingArg) {
+    return (argPosition) => argPosition;
+  }
+  if (repeatingArg === 1) {
+    return (argPosition) => Math.min(argPosition, countArg);
+  }
+  const argBeforeRepeat = countArg - repeatingArg;
+  return (argPosition) => {
+    if (argPosition <= argBeforeRepeat) {
+      return argPosition;
+    }
+    const argAfterRepeat = (argPosition - argBeforeRepeat) % repeatingArg || repeatingArg;
+    return argBeforeRepeat + argAfterRepeat;
+  };
+}
+
 //------------------------------------------------------------------------------
 // Argument validation
 //------------------------------------------------------------------------------
@@ -101,10 +171,10 @@ export function validateArguments(args: Arg[]) {
       );
     }
 
-    if (previousArgRepeating) {
+    if (previousArgRepeating && !current.repeating) {
       throw new Error(
         _lt(
-          "Function ${name} has at least 2 arguments that are repeating. The maximum repeating arguments is 1."
+          "Function ${name} has no-repeatable arguments declared after repeatable ones. All repeatable arguments must be declared last."
         )
       );
     }

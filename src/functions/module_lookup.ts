@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import {
   toNumber,
   toBoolean,
@@ -33,7 +33,7 @@ function linearSearch(range: any[], target: any): number {
 // COLUMN
 // -----------------------------------------------------------------------------
 
-export const COLUMN: FunctionDescription = {
+export const COLUMN: AddFunctionDescription = {
   description: _lt("Column number of a specified cell."),
   args: args(
     `cell_reference (meta, optional, default='The cell in which the formula is entered by default') ${_lt(
@@ -65,7 +65,7 @@ export const COLUMN: FunctionDescription = {
 // COLUMNS
 // -----------------------------------------------------------------------------
 
-export const COLUMNS: FunctionDescription = {
+export const COLUMNS: AddFunctionDescription = {
   description: _lt("Number of columns in a specified array or range."),
   args: args(`range (meta) ${_lt("The range whose column count will be returned.")}`),
   returns: ["NUMBER"],
@@ -79,7 +79,7 @@ export const COLUMNS: FunctionDescription = {
 // HLOOKUP
 // -----------------------------------------------------------------------------
 
-export const HLOOKUP: FunctionDescription = {
+export const HLOOKUP: AddFunctionDescription = {
   description: _lt(`Horizontal lookup`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
@@ -121,7 +121,7 @@ export const HLOOKUP: FunctionDescription = {
 // LOOKUP
 // -----------------------------------------------------------------------------
 
-export const LOOKUP: FunctionDescription = {
+export const LOOKUP: AddFunctionDescription = {
   description: _lt(`Look up a value.`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
@@ -173,7 +173,7 @@ export const LOOKUP: FunctionDescription = {
 // MATCH
 // -----------------------------------------------------------------------------
 
-export const MATCH: FunctionDescription = {
+export const MATCH: AddFunctionDescription = {
   description: _lt(`Position of item in range that matches value.`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
@@ -216,7 +216,7 @@ export const MATCH: FunctionDescription = {
 // ROW
 // -----------------------------------------------------------------------------
 
-export const ROW: FunctionDescription = {
+export const ROW: AddFunctionDescription = {
   description: _lt("Row number of a specified cell."),
   args: args(
     `cell_reference (meta, optional, default='The cell in which the formula is entered by default')) ${_lt(
@@ -245,7 +245,7 @@ export const ROW: FunctionDescription = {
 // ROWS
 // -----------------------------------------------------------------------------
 
-export const ROWS: FunctionDescription = {
+export const ROWS: AddFunctionDescription = {
   description: _lt("Number of rows in a specified array or range."),
   args: args(`range (meta) ${_lt("The range whose row count will be returned.")}`),
   returns: ["NUMBER"],
@@ -259,7 +259,7 @@ export const ROWS: FunctionDescription = {
 // VLOOKUP
 // -----------------------------------------------------------------------------
 
-export const VLOOKUP: FunctionDescription = {
+export const VLOOKUP: AddFunctionDescription = {
   description: _lt(`Vertical lookup.`),
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}

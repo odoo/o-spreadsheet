@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import {
   toNumber,
   strictToNumber,
@@ -13,7 +13,7 @@ import { _lt } from "../translation";
 // -----------------------------------------------------------------------------
 // ACOS
 // -----------------------------------------------------------------------------
-export const ACOS: FunctionDescription = {
+export const ACOS: AddFunctionDescription = {
   description: _lt("Inverse cosine of a value, in radians."),
   args: args(`
     value (number) ${_lt(
@@ -37,7 +37,7 @@ export const ACOS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ACOSH
 // -----------------------------------------------------------------------------
-export const ACOSH: FunctionDescription = {
+export const ACOSH: AddFunctionDescription = {
   description: _lt("Inverse hyperbolic cosine of a number."),
   args: args(`
     value (number) ${_lt(
@@ -61,7 +61,7 @@ export const ACOSH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ACOT
 // -----------------------------------------------------------------------------
-export const ACOT: FunctionDescription = {
+export const ACOT: AddFunctionDescription = {
   description: _lt("Inverse cotangent of a value."),
   args: args(`
     value (number) ${_lt("The value for which to calculate the inverse cotangent.")}
@@ -80,7 +80,7 @@ export const ACOT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ACOTH
 // -----------------------------------------------------------------------------
-export const ACOTH: FunctionDescription = {
+export const ACOTH: AddFunctionDescription = {
   description: _lt("Inverse hyperbolic cotangent of a value."),
   args: args(`
     value (number) ${_lt(
@@ -104,7 +104,7 @@ export const ACOTH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ASIN
 // -----------------------------------------------------------------------------
-export const ASIN: FunctionDescription = {
+export const ASIN: AddFunctionDescription = {
   description: _lt("Inverse sine of a value, in radians."),
   args: args(`
     value (number) ${_lt(
@@ -128,7 +128,7 @@ export const ASIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ASINH
 // -----------------------------------------------------------------------------
-export const ASINH: FunctionDescription = {
+export const ASINH: AddFunctionDescription = {
   description: _lt("Inverse hyperbolic sine of a number."),
   args: args(`
     value (number) ${_lt("The value for which to calculate the inverse hyperbolic sine.")}
@@ -142,7 +142,7 @@ export const ASINH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ATAN
 // -----------------------------------------------------------------------------
-export const ATAN: FunctionDescription = {
+export const ATAN: AddFunctionDescription = {
   description: _lt("Inverse tangent of a value, in radians."),
   args: args(`
     value (number) ${_lt("The value for which to calculate the inverse tangent.")}
@@ -156,7 +156,7 @@ export const ATAN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ATAN2
 // -----------------------------------------------------------------------------
-export const ATAN2: FunctionDescription = {
+export const ATAN2: AddFunctionDescription = {
   description: _lt("Angle from the X axis to a point (x,y), in radians."),
   args: args(`
     x (number) ${_lt(
@@ -180,7 +180,7 @@ export const ATAN2: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ATANH
 // -----------------------------------------------------------------------------
-export const ATANH: FunctionDescription = {
+export const ATANH: AddFunctionDescription = {
   description: _lt("Inverse hyperbolic tangent of a number."),
   args: args(`
     value (number) ${_lt(
@@ -204,7 +204,7 @@ export const ATANH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CEILING
 // -----------------------------------------------------------------------------
-export const CEILING: FunctionDescription = {
+export const CEILING: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     value (number) ${_lt("The value to round up to the nearest integer multiple of factor.")}
@@ -231,7 +231,7 @@ export const CEILING: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CEILING.MATH
 // -----------------------------------------------------------------------------
-export const CEILING_MATH: FunctionDescription = {
+export const CEILING_MATH: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
@@ -267,7 +267,7 @@ export const CEILING_MATH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CEILING.PRECISE
 // -----------------------------------------------------------------------------
-export const CEILING_PRECISE: FunctionDescription = {
+export const CEILING_PRECISE: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
@@ -284,7 +284,7 @@ export const CEILING_PRECISE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COS
 // -----------------------------------------------------------------------------
-export const COS: FunctionDescription = {
+export const COS: AddFunctionDescription = {
   description: _lt("Cosine of an angle provided in radians."),
   args: args(`
     angle (number) ${_lt("The angle to find the cosine of, in radians.")}
@@ -298,7 +298,7 @@ export const COS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COSH
 // -----------------------------------------------------------------------------
-export const COSH: FunctionDescription = {
+export const COSH: AddFunctionDescription = {
   description: _lt("Hyperbolic cosine of any real number."),
   args: args(`
     value (number) ${_lt("Any real value to calculate the hyperbolic cosine of.")}
@@ -312,7 +312,7 @@ export const COSH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COT
 // -----------------------------------------------------------------------------
-export const COT: FunctionDescription = {
+export const COT: AddFunctionDescription = {
   description: _lt("Cotangent of an angle provided in radians."),
   args: args(`
     angle (number) ${_lt("The angle to find the cotangent of, in radians.")}
@@ -332,7 +332,7 @@ export const COT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COTH
 // -----------------------------------------------------------------------------
-export const COTH: FunctionDescription = {
+export const COTH: AddFunctionDescription = {
   description: _lt("Hyperbolic cotangent of any real number."),
   args: args(`
     value (number) ${_lt("Any real value to calculate the hyperbolic cotangent of.")}
@@ -352,7 +352,7 @@ export const COTH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COUNTBLANK
 // -----------------------------------------------------------------------------
-export const COUNTBLANK: FunctionDescription = {
+export const COUNTBLANK: AddFunctionDescription = {
   description: _lt("Number of empty values."),
   args: args(`
     value1 (any, range) ${_lt("The first value or range in which to count the number of blanks.")}
@@ -373,7 +373,7 @@ export const COUNTBLANK: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COUNTIF
 // -----------------------------------------------------------------------------
-export const COUNTIF: FunctionDescription = {
+export const COUNTIF: AddFunctionDescription = {
   description: _lt("A conditional count across a range."),
   args: args(`
     range (any, range) ${_lt("The range that is tested against criterion.")}
@@ -392,20 +392,16 @@ export const COUNTIF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // COUNTIFS
 // -----------------------------------------------------------------------------
-export const COUNTIFS: FunctionDescription = {
+export const COUNTIFS: AddFunctionDescription = {
   description: _lt("Count values depending on multiple criteria."),
   args: args(`
-    criteria_range (any, range) ${_lt("The range to check against criterion1.")}
-    criterion (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-    additional_values (any, optional, repeating) ${_lt(
-      "Additional criteria_range and criterion to check."
+    criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
+    criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
+    criteria_range2 (any, range, optional, repeating) ${_lt(
+      "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
     )}
+    criterion2 (string, optional, repeating) ${_lt("Additional criteria to check.")}
   `),
-  // @compatibility: on google sheets, args definitions are next:
-  // criteria_range1 (any, range) The range to check against criterion1.
-  // criterion1 (string) The pattern or test to apply to criteria_range1.
-  // criteria_range2 (any, range, optional repeating) Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.
-  // criterion2 (string, optional repeating) Additional criteria to check.
   returns: ["NUMBER"],
   compute: function (): number {
     let count = 0;
@@ -433,7 +429,7 @@ function isDefined(value: any): boolean {
   }
 }
 
-export const COUNTUNIQUE: FunctionDescription = {
+export const COUNTUNIQUE: AddFunctionDescription = {
   description: _lt("Counts number of unique values in a range."),
   args: args(`
     value1 (any, range) ${_lt("The first value or range to consider for uniqueness.")}
@@ -451,7 +447,7 @@ export const COUNTUNIQUE: FunctionDescription = {
 // COUNTUNIQUEIFS
 // -----------------------------------------------------------------------------
 
-export const COUNTUNIQUEIFS: FunctionDescription = {
+export const COUNTUNIQUEIFS: AddFunctionDescription = {
   description: _lt("Counts number of unique values in a range, filtered by a set of criteria."),
   args: args(`
     range (any, range) ${_lt(
@@ -461,16 +457,13 @@ export const COUNTUNIQUEIFS: FunctionDescription = {
     criterion1 (string) ${_lt(
       "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
     )}
-    additional_values (any, optional, repeating) ${_lt(
-      "Additional criteria_range and criterion to check."
+    criteria_range2 (any, range, optional, repeating) ${_lt(
+      "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
+    )}
+    criterion2 (string, optional, repeating) ${_lt(
+      "The pattern or test to apply to criteria_range2."
     )}
   `),
-  // @compatibility: on google sheets, args definitions are next:
-  // range (any, range) The range of cells from which the number of unique values will be counted.
-  // criteria_range1 (any, range) The range of cells over which to evaluate criterion1.
-  // criterion1 (string) The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set.
-  // criteria_range2 (any, range, optional, repeating) Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair.
-  // criterion2 (string, optional, repeating) The pattern or test to apply to criteria_range2.
   returns: ["NUMBER"],
   compute: function (range, ...args): number {
     let uniqueValues = new Set();
@@ -487,7 +480,7 @@ export const COUNTUNIQUEIFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CSC
 // -----------------------------------------------------------------------------
-export const CSC: FunctionDescription = {
+export const CSC: AddFunctionDescription = {
   description: _lt("Cosecant of an angle provided in radians."),
   args: args(`
     angle (number) ${_lt("The angle to find the cosecant of, in radians.")}
@@ -505,7 +498,7 @@ export const CSC: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CSCH
 // -----------------------------------------------------------------------------
-export const CSCH: FunctionDescription = {
+export const CSCH: AddFunctionDescription = {
   description: _lt("Hyperbolic cosecant of any real number."),
   args: args(`
     value (number) ${_lt("Any real value to calculate the hyperbolic cosecant of.")}
@@ -528,7 +521,7 @@ const decimalErrorParameter2 = (parameterName, base, value) =>
     `Function DECIMAL expects the parameter '${parameterName}' to be a valid base ${base} representation. Change '${parameterName}' from [${value}] to a valid base ${base} representation.`
   );
 
-export const DECIMAL: FunctionDescription = {
+export const DECIMAL: AddFunctionDescription = {
   description: _lt("Converts from another base to decimal."),
   args: args(`
     value (string) ${_lt("The number to convert.")},
@@ -571,7 +564,7 @@ export const DECIMAL: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DEGREES
 // -----------------------------------------------------------------------------
-export const DEGREES: FunctionDescription = {
+export const DEGREES: AddFunctionDescription = {
   description: _lt(`Converts an angle value in radians to degrees.`),
   args: args(`
     angle (number)  ${_lt("The angle to convert from radians to degrees.")}
@@ -585,7 +578,7 @@ export const DEGREES: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // EXP
 // -----------------------------------------------------------------------------
-export const EXP: FunctionDescription = {
+export const EXP: AddFunctionDescription = {
   description: _lt(`Euler's number, e (~2.718) raised to a power.`),
   args: args(`
     value (number) ${_lt("The exponent to raise e.")}
@@ -599,7 +592,7 @@ export const EXP: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // FLOOR
 // -----------------------------------------------------------------------------
-export const FLOOR: FunctionDescription = {
+export const FLOOR: AddFunctionDescription = {
   description: _lt(`Rounds number down to nearest multiple of factor.`),
   args: args(`
     value (number) ${_lt("The value to round down to the nearest integer multiple of factor.")}
@@ -626,7 +619,7 @@ export const FLOOR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // FLOOR.MATH
 // -----------------------------------------------------------------------------
-export const FLOOR_MATH: FunctionDescription = {
+export const FLOOR_MATH: AddFunctionDescription = {
   description: _lt(`Rounds number down to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt(
@@ -663,7 +656,7 @@ export const FLOOR_MATH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // FLOOR.PRECISE
 // -----------------------------------------------------------------------------
-export const FLOOR_PRECISE: FunctionDescription = {
+export const FLOOR_PRECISE: AddFunctionDescription = {
   description: _lt(`Rounds number down to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt(
@@ -682,7 +675,7 @@ export const FLOOR_PRECISE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISEVEN
 // -----------------------------------------------------------------------------
-export const ISEVEN: FunctionDescription = {
+export const ISEVEN: AddFunctionDescription = {
   description: _lt(`Whether the provided value is even.`),
   args: args(`
     value (number) ${_lt("The value to be verified as even.")}
@@ -698,7 +691,7 @@ export const ISEVEN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISO.CEILING
 // -----------------------------------------------------------------------------
-export const ISO_CEILING: FunctionDescription = {
+export const ISO_CEILING: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
       number (number) ${_lt(
@@ -717,7 +710,7 @@ export const ISO_CEILING: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISODD
 // -----------------------------------------------------------------------------
-export const ISODD: FunctionDescription = {
+export const ISODD: AddFunctionDescription = {
   description: _lt(`Whether the provided value is even.`),
   args: args(`
     value (number) ${_lt("The value to be verified as even.")}
@@ -733,7 +726,7 @@ export const ISODD: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // LN
 // -----------------------------------------------------------------------------
-export const LN: FunctionDescription = {
+export const LN: AddFunctionDescription = {
   description: _lt(`The logarithm of a number, base e (euler's number).`),
   args: args(`
     value (number) ${_lt("The value for which to calculate the logarithm, base e.")}
@@ -755,7 +748,7 @@ export const LN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // MOD
 // -----------------------------------------------------------------------------
-export const MOD: FunctionDescription = {
+export const MOD: AddFunctionDescription = {
   description: _lt(`Modulo (remainder) operator.`),
   args: args(`
       dividend (number) ${_lt("The number to be divided to find the remainder.")}
@@ -785,7 +778,7 @@ export const MOD: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ODD
 // -----------------------------------------------------------------------------
-export const ODD: FunctionDescription = {
+export const ODD: AddFunctionDescription = {
   description: _lt(`Rounds a number up to the nearest odd integer.`),
   args: args(`
       value (number) ${_lt("The value to round to the next greatest odd number.")}
@@ -803,7 +796,7 @@ export const ODD: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // PI
 // -----------------------------------------------------------------------------
-export const PI: FunctionDescription = {
+export const PI: AddFunctionDescription = {
   description: _lt(`The number pi.`),
   args: [],
   returns: ["NUMBER"],
@@ -815,7 +808,7 @@ export const PI: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // POWER
 // -----------------------------------------------------------------------------
-export const POWER: FunctionDescription = {
+export const POWER: AddFunctionDescription = {
   description: _lt(`A number raised to a power.`),
   args: args(`
       base (number) ${_lt("The number to raise to the exponent power.")}
@@ -843,7 +836,7 @@ export const POWER: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // PRODUCT
 // -----------------------------------------------------------------------------
-export const PRODUCT: FunctionDescription = {
+export const PRODUCT: AddFunctionDescription = {
   description: _lt("Result of multiplying a series of numbers together."),
   args: args(`
       factor1 (number, range<number>) ${_lt(
@@ -882,7 +875,7 @@ export const PRODUCT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // RAND
 // -----------------------------------------------------------------------------
-export const RAND: FunctionDescription = {
+export const RAND: AddFunctionDescription = {
   description: _lt("A random number between 0 inclusive and 1 exclusive."),
   args: [],
   returns: ["NUMBER"],
@@ -894,7 +887,7 @@ export const RAND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // RANDBETWEEN
 // -----------------------------------------------------------------------------
-export const RANDBETWEEN: FunctionDescription = {
+export const RANDBETWEEN: AddFunctionDescription = {
   description: _lt("Random integer between two values, inclusive."),
   args: args(`
       low (number) ${_lt("The low end of the random range.")}
@@ -926,7 +919,7 @@ export const RANDBETWEEN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ROUND
 // -----------------------------------------------------------------------------
-export const ROUND: FunctionDescription = {
+export const ROUND: AddFunctionDescription = {
   description: _lt("Rounds a number according to standard rules."),
   args: args(`
       value (number) ${_lt("The value to round to places number of places.")}
@@ -954,7 +947,7 @@ export const ROUND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ROUNDDOWN
 // -----------------------------------------------------------------------------
-export const ROUNDDOWN: FunctionDescription = {
+export const ROUNDDOWN: AddFunctionDescription = {
   description: _lt(`Rounds down a number.`),
   args: args(`
       value (number) ${_lt("The value to round to places number of places, always rounding down.")}
@@ -982,7 +975,7 @@ export const ROUNDDOWN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ROUNDUP
 // -----------------------------------------------------------------------------
-export const ROUNDUP: FunctionDescription = {
+export const ROUNDUP: AddFunctionDescription = {
   description: _lt(`Rounds up a number.`),
   args: args(`
       value (number) ${_lt("The value to round to places number of places, always rounding up.")}
@@ -1010,7 +1003,7 @@ export const ROUNDUP: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SEC
 // -----------------------------------------------------------------------------
-export const SEC: FunctionDescription = {
+export const SEC: AddFunctionDescription = {
   description: _lt("Secant of an angle provided in radians."),
   args: args(`
     angle (number) ${_lt("The angle to find the secant of, in radians.")}
@@ -1024,7 +1017,7 @@ export const SEC: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SECH
 // -----------------------------------------------------------------------------
-export const SECH: FunctionDescription = {
+export const SECH: AddFunctionDescription = {
   description: _lt("Hyperbolic secant of any real number."),
   args: args(`
     value (number) ${_lt("Any real value to calculate the hyperbolic secant of.")}
@@ -1038,7 +1031,7 @@ export const SECH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SIN
 // -----------------------------------------------------------------------------
-export const SIN: FunctionDescription = {
+export const SIN: AddFunctionDescription = {
   description: _lt("Sine of an angle provided in radians."),
   args: args(`
       angle (number) ${_lt("The angle to find the sine of, in radians.")}
@@ -1052,7 +1045,7 @@ export const SIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SINH
 // -----------------------------------------------------------------------------
-export const SINH: FunctionDescription = {
+export const SINH: AddFunctionDescription = {
   description: _lt("Hyperbolic sine of any real number."),
   args: args(`
     value (number) ${_lt("Any real value to calculate the hyperbolic sine of.")}
@@ -1066,7 +1059,7 @@ export const SINH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SQRT
 // -----------------------------------------------------------------------------
-export const SQRT: FunctionDescription = {
+export const SQRT: AddFunctionDescription = {
   description: _lt("Positive square root of a positive number."),
   args: args(`
       value (number) ${_lt("The number for which to calculate the positive square root.")}
@@ -1089,7 +1082,7 @@ export const SQRT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SUM
 // -----------------------------------------------------------------------------
-export const SUM: FunctionDescription = {
+export const SUM: AddFunctionDescription = {
   description: _lt("Sum of a series of numbers and/or cells."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first number or range to add together.")}
@@ -1106,7 +1099,7 @@ export const SUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SUMIF
 // -----------------------------------------------------------------------------
-export const SUMIF: FunctionDescription = {
+export const SUMIF: AddFunctionDescription = {
   description: _lt("A conditional sum across a range."),
   args: args(`
       criteria_range (any, range) ${_lt("The range which is tested against criterion.")}
@@ -1134,22 +1127,15 @@ export const SUMIF: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SUMIFS
 // -----------------------------------------------------------------------------
-export const SUMIFS: FunctionDescription = {
+export const SUMIFS: AddFunctionDescription = {
   description: _lt("Sums a range depending on multiple criteria."),
   args: args(`
       sum_range (any, range) ${_lt("The range to sum.")}
       criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      additional_values (any, optional, repeating) ${_lt(
-        "Additional criteria_range and criterion to check."
-      )}
+      criteria_range2 (any, range, optional, repeating) ${_lt("Additional ranges to check.")}
+      criterion2 (string, optional, repeating) ${_lt("Additional criteria to check.")}
     `),
-  // @compatibility: on google sheets, args definitions are next:
-  // sum_range (any, range) The range to sum.
-  // criteria_range1 (any, range) The range to check against criterion1.
-  // criterion1 (string) The pattern or test to apply to criteria_range1.
-  // criteria_range2 (any, range, optional, repeating) Additional ranges to check.
-  // criterion2 (string, optional, repeating) Additional criteria to check.
   returns: ["NUMBER"],
   compute: function (sumRange, ...args): number {
     let sum = 0;
@@ -1166,7 +1152,7 @@ export const SUMIFS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TAN
 // -----------------------------------------------------------------------------
-export const TAN: FunctionDescription = {
+export const TAN: AddFunctionDescription = {
   description: _lt("Tangent of an angle provided in radians."),
   args: args(`
     angle (number) ${_lt("The angle to find the tangent of, in radians.")}
@@ -1180,7 +1166,7 @@ export const TAN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TANH
 // -----------------------------------------------------------------------------
-export const TANH: FunctionDescription = {
+export const TANH: AddFunctionDescription = {
   description: _lt("Hyperbolic tangent of any real number."),
   args: args(`
     value (number) ${_lt("Any real value to calculate the hyperbolic tangent of.")}
@@ -1194,7 +1180,7 @@ export const TANH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TRUNC
 // -----------------------------------------------------------------------------
-export const TRUNC: FunctionDescription = {
+export const TRUNC: AddFunctionDescription = {
   description: _lt("Truncates a number."),
   args: args(`
       value (number) ${_lt("The value to be truncated.")}

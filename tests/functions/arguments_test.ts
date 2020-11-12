@@ -1,4 +1,5 @@
-import { args, validateArguments } from "../../src/functions/arguments";
+import { args, validateArguments, addMetaInfoFromArg } from "../../src/functions/arguments";
+import { AddFunctionDescription } from "../../src/types";
 
 describe("args", () => {
   test("various", () => {
@@ -153,29 +154,40 @@ describe("arguments validation", () => {
     expect(() => validateArguments(args(`metaArg (meta, boolean)`))).toThrow();
   });
 
-  test("The maximum repeating arguments is 1", () => {
+  test("All repeatable arguments must be declared last", () => {
     expect(() =>
       validateArguments(
         args(`
-      arg1 (any)
-      arg2 (any, repeating)
-    `)
+          arg1 (any)
+          arg2 (any, optional, repeating)
+        `)
       )
     ).not.toThrow();
     expect(() =>
       validateArguments(
         args(`
-      arg1 (any, repeating)
-      arg2 (any, repeating)
-    `)
+          arg1 (any)
+          arg2 (any, optional, repeating)
+          arg3 (any, optional, repeating)
+        `)
+      )
+    ).not.toThrow();
+    expect(() =>
+      validateArguments(
+        args(`
+          arg1 (any)
+          arg2 (any, optional, repeating)
+          arg3 (any)
+        `)
       )
     ).toThrow();
     expect(() =>
       validateArguments(
         args(`
-      arg1 (any, repeating)
-      arg2 (any)
-    `)
+          arg1 (any)
+          arg2 (any, optional, repeating)
+          arg3 (any, optional)
+        `)
       )
     ).toThrow();
   });
@@ -208,5 +220,110 @@ describe("arguments validation", () => {
     `)
       )
     ).toThrow();
+  });
+});
+
+describe("function addMetaInfoFromArg", () => {
+  test("with basic arguments", () => {
+    const basicFunction = {
+      description: "basic function",
+      compute: () => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"] },
+      ],
+      returns: ["ANY"],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg(basicFunction);
+    expect(descr.minArgRequired).toBe(2);
+    expect(descr.maxArgPossible).toBe(2);
+    expect(descr.nbrArgRepeating).toBe(0);
+
+    const getArgToFocus = descr.getArgToFocus!;
+    expect(getArgToFocus(-1)).toBe(-1);
+    expect(getArgToFocus(1)).toBe(1);
+    expect(getArgToFocus(2)).toBe(2);
+    expect(getArgToFocus(42)).toBe(42);
+  });
+
+  test("with optional arguments", () => {
+    const useOptional = {
+      description: "function with optional argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], optional: true },
+      ],
+      returns: ["ANY"],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg(useOptional);
+    expect(descr.minArgRequired).toBe(1);
+    expect(descr.maxArgPossible).toBe(2);
+    expect(descr.nbrArgRepeating).toBe(0);
+
+    const getArgToFocus = descr.getArgToFocus!;
+    expect(getArgToFocus(-1)).toBe(-1);
+    expect(getArgToFocus(1)).toBe(1);
+    expect(getArgToFocus(2)).toBe(2);
+    expect(getArgToFocus(42)).toBe(42);
+  });
+
+  test("with repeatable argument", () => {
+    const useRepeatable = {
+      description: "function with repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
+      ],
+      returns: ["ANY"],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg(useRepeatable);
+    expect(descr.minArgRequired).toBe(1);
+    expect(descr.maxArgPossible).toBe(Infinity);
+    expect(descr.nbrArgRepeating).toBe(1);
+
+    const getArgToFocus = descr.getArgToFocus!;
+    expect(getArgToFocus(-1)).toBe(-1);
+    expect(getArgToFocus(1)).toBe(1);
+    expect(getArgToFocus(2)).toBe(2);
+    expect(getArgToFocus(42)).toBe(2);
+  });
+
+  test("with more than one repeatable argument", () => {
+    const useRepeatables = {
+      description: "function with many repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
+        { name: "arg3", description: "", type: ["ANY"], optional: true, repeating: true },
+      ],
+      returns: ["ANY"],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg(useRepeatables);
+    expect(descr.minArgRequired).toBe(1);
+    expect(descr.maxArgPossible).toBe(Infinity);
+    expect(descr.nbrArgRepeating).toBe(2);
+
+    const getArgToFocus = descr.getArgToFocus!;
+    expect(getArgToFocus(-1)).toBe(-1);
+    expect(getArgToFocus(1)).toBe(1);
+    expect(getArgToFocus(2)).toBe(2);
+    expect(getArgToFocus(3)).toBe(3);
+    expect(getArgToFocus(5)).toBe(3);
+    expect(getArgToFocus(8)).toBe(2);
   });
 });
