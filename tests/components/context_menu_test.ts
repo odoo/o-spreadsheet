@@ -108,6 +108,7 @@ const subMenu: FullMenuItem[] = [
 class ContextMenuParent extends Component<any, SpreadsheetEnv> {
   static template = xml/* xml */ `
       <Menu
+        isOpen="true"
         t-on-close="onClose"
         position="position"
         menuItems="menus"

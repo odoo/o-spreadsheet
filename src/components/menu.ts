@@ -6,7 +6,7 @@ import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { isChildEvent } from "./helpers/dom_helpers";
 
 const { xml, css } = tags;
-const { useExternalListener, useRef } = hooks;
+const { useExternalListener } = hooks;
 
 const MENU_WIDTH = 200;
 const MENU_ITEM_HEIGHT = 32;
@@ -18,7 +18,7 @@ const SEPARATOR_HEIGHT = 1;
 
 const TEMPLATE = xml/* xml */ `
     <div>
-      <div class="o-menu" t-att-style="style" t-on-scroll="onScroll" t-on-wheel.stop="">
+      <div t-if="props.isOpen" class="o-menu" t-att-style="style" t-on-scroll="onScroll" t-on-wheel.stop="">
         <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem.id">
           <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
           <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
@@ -40,11 +40,10 @@ const TEMPLATE = xml/* xml */ `
           </div>
         </t>
       </div>
-      <Menu t-if="subMenu.isOpen"
+      <Menu t-if="props.isOpen" isOpen="subMenu.isOpen"
         position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
-        t-ref="subMenuRef"
         t-on-close="subMenu.isOpen=false"/>
     </div>`;
 
@@ -97,6 +96,7 @@ interface MenuPosition {
 }
 
 interface Props {
+  isOpen: boolean;
   position: MenuPosition;
   menuItems: FullMenuItem[];
   depth: number;
@@ -115,9 +115,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   static style = CSS;
   static defaultProps = {
     depth: 1,
+    isOpen: false,
   };
   private subMenu: MenuState;
-  subMenuRef = useRef("subMenuRef");
 
   constructor() {
     super(...arguments);
@@ -129,6 +129,12 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
       scrollOffset: 0,
       menuItems: [],
     });
+  }
+
+  async willUpdateProps(nextProps: Props) {
+    if (nextProps.menuItems !== this.props.menuItems) {
+      this.subMenu.isOpen = false;
+    }
   }
 
   get subMenuPosition(): MenuPosition {
@@ -211,7 +217,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   private onClick(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    if (this.el && isChildEvent(this.el, ev)) {
+    if (!this.props.isOpen || (this.el && isChildEvent(this.el, ev))) {
       return;
     }
     this.close();
@@ -219,7 +225,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   private onContextMenu(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    if (this.el && isChildEvent(this.el, ev)) {
+    if (!this.props.isOpen || (this.el && isChildEvent(this.el, ev))) {
       return;
     }
     this.subMenu.isOpen = false;
@@ -237,13 +243,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return menu.isEnabled(this.env);
   }
 
-  closeSubMenus() {
-    if (this.subMenuRef.comp) {
-      (<Menu>this.subMenuRef.comp).closeSubMenus();
-    }
-    this.subMenu.isOpen = false;
-  }
-
   onScroll(ev) {
     this.subMenu.scrollOffset = ev.target.scrollTop;
   }
@@ -253,7 +252,6 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
    * correct position according to available surrounding space.
    */
   openSubMenu(menu: FullMenuItem, position: number) {
-    this.closeSubMenus();
     this.subMenu.isOpen = true;
     this.subMenu.menuItems = cellMenuRegistry.getChildren(menu, this.env);
     const { width, height } = this.props.position;

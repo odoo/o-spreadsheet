@@ -15,7 +15,7 @@ import { setStyle, setFormatter, topbarComponentRegistry } from "../registries/i
 import { isChildEvent } from "./helpers/dom_helpers";
 const { Component, useState, hooks } = owl;
 const { xml, css } = owl.tags;
-const { useExternalListener, useRef } = hooks;
+const { useExternalListener } = hooks;
 
 type Tool =
   | ""
@@ -59,10 +59,9 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
             <t t-esc="getMenuName(menu)"/>
           </div>
           </t>
-          <Menu t-if="state.menuState.isOpen"
+          <Menu isOpen="state.menuState.isOpen"
                 position="state.menuState.position"
                 menuItems="state.menuState.menuItems"
-                t-ref="menuRef"
                 t-on-close="state.menuState.isOpen=false"/>
         </div>
         <div class="o-topbar-topright">
@@ -342,7 +341,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   fillColor: string = "white";
   textColor: string = "black";
   menus: FullMenuItem[] = [];
-  menuRef = useRef("menuRef");
   composerStyle = `
     line-height: 34px;
     border-bottom: 1px solid #e0e2e4;
@@ -421,9 +419,6 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.state.menuState.isOpen = false;
     this.isSelectingMenu = false;
     this.openedEl = null;
-    if (this.menuRef.comp) {
-      (<Menu>this.menuRef.comp).closeSubMenus();
-    }
   }
 
   updateCellState() {

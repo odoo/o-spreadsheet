@@ -44,6 +44,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         >
           Format
         </div>
+        <div />
       </div>
       <div
         class="o-topbar-topright"
@@ -375,6 +376,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
       />
     </div>
     <div />
+    <div />
     <div
       class="o-scrollbar vertical"
     >
@@ -460,6 +462,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
         </span>
       </div>
     </div>
+    <div />
   </div>
 </div>
 `;

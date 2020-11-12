@@ -202,7 +202,7 @@ const TEMPLATE = xml/* xml */ `
       <Autofill position="getAutofillPosition()" viewport="snappedViewport"/>
     </t>
     <Overlay t-on-open-contextmenu="onOverlayContextMenu" viewport="snappedViewport"/>
-    <Menu t-if="menuState.isOpen"
+    <Menu isOpen="menuState.isOpen"
       menuItems="menuState.menuItems"
       position="menuState.position"
       t-on-close.stop="menuState.isOpen=false"/>

@@ -41,6 +41,7 @@ exports[`TopBar component can set cell format 1`] = `
       >
         Format
       </div>
+      <div />
     </div>
     <div
       class="o-topbar-topright"
@@ -421,6 +422,7 @@ exports[`TopBar component simple rendering 1`] = `
       >
         Format
       </div>
+      <div />
     </div>
     <div
       class="o-topbar-topright"

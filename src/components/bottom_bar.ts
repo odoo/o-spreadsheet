@@ -31,7 +31,7 @@ const TEMPLATE = xml/* xml */ `
     </div>
     <t t-set="aggregate" t-value="getters.getAggregate()"/>
     <div t-if="aggregate !== null" class="o-aggregate">Sum: <t t-esc="aggregate"/></div>
-    <Menu t-if="menuState.isOpen"
+    <Menu isOpen="menuState.isOpen"
           position="menuState.position"
           menuItems="menuState.menuItems"
           t-on-close="menuState.isOpen=false"/>
