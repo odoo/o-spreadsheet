@@ -184,10 +184,10 @@ describe("MATCH formula", () => {
     expect(uAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(uAsA.B2).toBe(1);
     expect(uAsA.B3).toBe(1);
-    expect(uAsA.B4).toBe(5);
-    expect(uAsA.B5).toBe(5);
-    expect(uAsA.B6).toBe(5);
-    expect(uAsA.B7).toBe(5);
+    expect(uAsA.B4).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B5).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B6).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B7).toBe(4); // @compatibility: on googlesheets, return 5
     expect(uAsA.B8).toBe(6);
 
     const unsortedAsUnsorted = { ...rangeUnsorted, ...evAsUnsorted };
@@ -207,9 +207,9 @@ describe("MATCH formula", () => {
 
     expect(uAsD.D1).toBe(6);
     expect(uAsD.D2).toBe(6);
-    expect(uAsD.D3).toBe(5); // @compatibility: on googlesheets, return 6
-    expect(uAsD.D4).toBe(3);
-    expect(uAsD.D5).toBe(2);
+    expect(uAsD.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 3
+    expect(uAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
     expect(uAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
     expect(uAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(uAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
@@ -221,10 +221,10 @@ describe("MATCH formula", () => {
 
     expect(dAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(dAsA.B2).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(dAsA.B3).toBe(6);
-    expect(dAsA.B4).toBe(6);
-    expect(dAsA.B5).toBe(6);
-    expect(dAsA.B6).toBe(6);
+    expect(dAsA.B3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B5).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B6).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
     expect(dAsA.B7).toBe(6);
     expect(dAsA.B8).toBe(6);
 
@@ -362,6 +362,83 @@ describe("ROWS formula", () => {
 });
 
 describe("VLOOKUP formula", () => {
+  describe("sorted values with different type", () => {
+    test("with undefined values", () => {
+      // prettier-ignore
+      const rangesGrid = {
+        A1: "42",      B1: "42",      C1: undefined, D1: undefined, E1: undefined, Z1: "1",
+        A2: undefined, B2: undefined, C2: undefined, D2: undefined, E2: undefined, Z2: "2",
+        A3: undefined, B3: "42",      C3: undefined, D3: "42",      E3: undefined, Z3: "3",
+        A4: undefined, B4: undefined, C4: undefined, D4: undefined, E4: undefined, Z4: "4",
+        A5: undefined, B5: undefined, C5: "42",      D5: "42",      E5: undefined, Z5: "5",
+      };
+      const grid = evaluateGrid({
+        ...rangesGrid,
+        A9: "=VLOOKUP(42, A1:Z5, 26, TRUE)",
+        B9: "=VLOOKUP(42, B1:Z5, 25, TRUE)",
+        C9: "=VLOOKUP(42, C1:Z5, 24, TRUE)",
+        D9: "=VLOOKUP(42, D1:Z5, 23, TRUE)",
+        E9: "=VLOOKUP(42, E1:Z5, 22, TRUE)",
+      });
+      expect(grid.A9).toBe(1);
+      expect(grid.B9).toBe(3);
+      expect(grid.C9).toBe(5);
+      expect(grid.D9).toBe(5);
+      expect(grid.E9).toBe("#ERROR");
+    });
+
+    test("lookup string with string and number values", () => {
+      // prettier-ignore
+      const rangesGrid  = {
+        A1: "coucou", B1: "coucou", C1: "42",    D1: "42",     E1: "42", F1: "42",    Z1: "1",
+        A2: "42",     B2: "42",     C2: "42",    D2: "42",     E2: "42", F2: "42",    Z2: "2",
+        A3: "42",     B3: "coucou", C3: "42",    D3: "coucou", E3: "42", F3: `="42"`, Z3: "3",
+        A4: "42",     B4: "42",     C4: "42",    D4: "42",     E4: "42", F4: "42",    Z4: "4",
+        A5: "42",     B5: "42",     C5:"coucou", D5: "coucou", E5: "42", F5: "42",    Z5: "5",
+      };
+
+      const grid = evaluateGrid({
+        ...rangesGrid,
+        A9: '=VLOOKUP("coucou", A1:Z5, 26, TRUE)',
+        B9: '=VLOOKUP("coucou", B1:Z5, 25, TRUE)',
+        C9: '=VLOOKUP("coucou", C1:Z5, 24, TRUE)',
+        D9: '=VLOOKUP("coucou", D1:Z5, 23, TRUE)',
+        E9: '=VLOOKUP("coucou", E1:Z5, 22, TRUE)',
+        F9: '=VLOOKUP("42", F1:Z5, 21, TRUE)',
+      });
+      expect(grid.A9).toBe(1);
+      expect(grid.B9).toBe(3);
+      expect(grid.C9).toBe(5);
+      expect(grid.D9).toBe(5);
+      expect(grid.E9).toBe("#ERROR");
+      expect(grid.F9).toBe(3);
+    });
+
+    test("lookup number with number and string values", () => {
+      // prettier-ignore
+      const rangesGrid = {
+        A1: "666", B1: "666", C1: "abc", D1: "abc", E1: "abc", Z1: "1",
+        A2: "abc", B2: "abc", C2: "abc", D2: "abc", E2: "abc", Z2: "2",
+        A3: "abc", B3: "666", C3: "abc", D3: "666", E3: "abc", Z3: "3",
+        A4: "abc", B4: "abc", C4: "abc", D4: "abc", E4: "abc", Z4: "4",
+        A5: "abc", B5: "abc", C5: "666", D5: "666", E5: "abc", Z5: "5",
+      };
+      const grid = evaluateGrid({
+        ...rangesGrid,
+        A9: "=VLOOKUP(666, A1:Z5, 26, TRUE)",
+        B9: "=VLOOKUP(666, B1:Z5, 25, TRUE)",
+        C9: "=VLOOKUP(666, C1:Z5, 24, TRUE)",
+        D9: "=VLOOKUP(666, D1:Z5, 23, TRUE)",
+        E9: "=VLOOKUP(666, E1:Z5, 22, TRUE)",
+      });
+      expect(grid.A9).toBe(1);
+      expect(grid.B9).toBe(3);
+      expect(grid.C9).toBe(5);
+      expect(grid.D9).toBe(5);
+      expect(grid.E9).toBe("#ERROR");
+    });
+  });
+
   // prettier-ignore
   const commonGrid = {
     B1: "B1", C1: "C1", D1: "D1", E1: "E1",
@@ -449,9 +526,11 @@ describe("VLOOKUP formula", () => {
           ...gridSorted,
           Z1: "=VLOOKUP( X1, A1:E6, 3, TRUE )",
           Z2: "=VLOOKUP( X2, A1:E6, 3, TRUE )",
+          Z3: "=VLOOKUP( X2, A10:A16, 1, TRUE )",
         });
         expect(grid.Z1).toBe("C4");
         expect(grid.Z2).toBe("C6");
+        expect(grid.Z3).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
       });
 
       test("if all values in the search column are greater than the search key --> return #ERROR ", () => {
@@ -516,11 +595,6 @@ describe("VLOOKUP formula", () => {
         expect(gridU.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
         expect(gridU.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
       });
-    });
-
-    test("if unsorted values are evaluated as sorted --> may return an incorrect value", () => {
-      const gridU = evaluateGrid({ ...gridUnsorted, Z1: "=VLOOKUP( A4, A1:E6, 3, TRUE )" });
-      expect(gridU.Z1).not.toBe("C4");
     });
   });
 });
@@ -678,11 +752,6 @@ describe("HLOOKUP formula", () => {
         expect(gridU.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
         expect(gridU.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
       });
-    });
-
-    test("if unsorted values are evaluated as sorted --> may return an incorrect value", () => {
-      const gridU = evaluateGrid({ ...gridUnsorted, Z1: "=HLOOKUP( D1, A1:F5, 3, TRUE )" });
-      expect(gridU.Z1).not.toBe("D3");
     });
   });
 });

@@ -399,27 +399,67 @@ export function visitMatchingRanges(
  * - [3, 6, 10], 9 => 1
  * - [3, 6, 10], 42 => 2
  * - [3, 6, 10], 2 => -1
+ * - [3, undefined, 6, undefined, 10], 9 => 2
+ * - [3, 6, undefined, undefined, undefined, 10], 2 => -1
  */
 export function dichotomicPredecessorSearch(range: any[], target: any): number {
-  const typeofTarget = typeof target;
-  let min = 0;
-  let max = range.length - 1;
-  let avg = Math.ceil((min + max) / 2);
-  let current = range[avg];
-  while (max - min > 0) {
-    if (typeofTarget === typeof current && current <= target) {
-      min = avg;
-    } else {
-      max = avg - 1;
-    }
-    avg = Math.ceil((min + max) / 2);
-    current = range[avg];
-  }
-  if (target < current) {
-    // all values in the range are greater than the target, -1 is returned.
+  const targetType = typeof target;
+
+  let valMin: any;
+  let valMinIndex: number | undefined = undefined;
+
+  let indexLeft = 0;
+  let indexRight = range.length - 1;
+
+  if (typeof range[indexLeft] === targetType && target < range[indexLeft]) {
     return -1;
   }
-  return avg;
+
+  if (typeof range[indexRight] === targetType && range[indexRight] <= target) {
+    return indexRight;
+  }
+
+  let indexMedian: number;
+  let currentIndex: number;
+  let currentVal: any;
+  let currentType: any;
+
+  while (indexRight - indexLeft >= 0) {
+    indexMedian = Math.ceil((indexLeft + indexRight) / 2);
+
+    currentIndex = indexMedian;
+    currentVal = range[currentIndex];
+    currentType = typeof currentVal;
+
+    // 1 - linear search to find value with the same type
+    while (indexLeft <= currentIndex && targetType !== currentType) {
+      currentIndex--;
+      currentVal = range[currentIndex];
+      currentType = typeof currentVal;
+    }
+
+    // 2 - check if value match
+    if (currentType === targetType && currentVal <= target) {
+      if (
+        valMin === undefined ||
+        valMin < currentVal ||
+        (valMin === currentVal && valMinIndex! < currentIndex)
+      ) {
+        valMin = currentVal;
+        valMinIndex = currentIndex;
+      }
+    }
+
+    // 3 - give new indexs for the Binary search
+    if (currentType === targetType && currentVal > target) {
+      indexRight = currentIndex - 1;
+    } else {
+      indexLeft = indexMedian + 1;
+    }
+  }
+
+  // note that valMinIndex could be 0
+  return valMinIndex !== undefined ? valMinIndex : -1;
 }
 
 /**
@@ -434,24 +474,64 @@ export function dichotomicPredecessorSearch(range: any[], target: any): number {
  * - [10, 6, 3], 9 => 0
  * - [10, 6, 3], 42 => -1
  * - [10, 6, 3], 2 => 2
+ * - [10, undefined, 6, undefined, 3], 9 => 0
+ * - [10, 6, undefined, undefined, undefined, 3], 2 => 5
  */
 export function dichotomicSuccessorSearch(range: any[], target: any): number {
-  const typeofTarget = typeof target;
-  let min = 0;
-  let max = range.length - 1;
-  let avg = Math.floor((min + max) / 2);
-  let current = range[avg];
-  while (max - min > 0) {
-    if (typeofTarget === typeof current && target >= current) {
-      max = avg;
-    } else {
-      min = avg + 1;
+  const targetType = typeof target;
+
+  let valMax: any;
+  let valMaxIndex: number | undefined = undefined;
+
+  let indexLeft = 0;
+  let indexRight = range.length - 1;
+
+  if (typeof range[indexLeft] === targetType && target > range[indexLeft]) {
+    return -1;
+  }
+
+  if (typeof range[indexRight] === targetType && range[indexRight] > target) {
+    return indexRight;
+  }
+
+  let indexMedian: number;
+  let currentIndex: number;
+  let currentVal: any;
+  let currentType: any;
+
+  while (indexRight - indexLeft >= 0) {
+    indexMedian = Math.ceil((indexLeft + indexRight) / 2);
+    currentIndex = indexMedian;
+    currentVal = range[currentIndex];
+    currentType = typeof currentVal;
+
+    // 1 - linear search to find value with the same type
+    while (indexLeft <= currentIndex && targetType !== currentType) {
+      currentIndex--;
+      currentVal = range[currentIndex];
+      currentType = typeof currentVal;
     }
-    avg = Math.floor((min + max) / 2);
-    current = range[avg];
+
+    // 2 - check if value match
+    if (currentType === targetType && currentVal >= target) {
+      if (
+        valMax === undefined ||
+        valMax > currentVal ||
+        (valMax === currentVal && valMaxIndex! > currentIndex)
+      ) {
+        valMax = currentVal;
+        valMaxIndex = currentIndex;
+      }
+    }
+
+    // 3 - give new indexs for the Binary search
+    if (currentType === targetType && currentVal <= target) {
+      indexRight = currentIndex - 1;
+    } else {
+      indexLeft = indexMedian + 1;
+    }
   }
-  if (target > current) {
-    return avg - 1;
-  }
-  return avg;
+
+  // note that valMaxIndex could be 0
+  return valMaxIndex !== undefined ? valMaxIndex : -1;
 }

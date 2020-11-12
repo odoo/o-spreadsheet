@@ -201,7 +201,7 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
   }
 }
 
-type GridDescr = { [xc: string]: string };
+type GridDescr = { [xc: string]: string | undefined };
 type FormattedGridDescr = GridDescr;
 type GridResult = { [xc: string]: any };
 
@@ -227,7 +227,9 @@ export function getGrid(model: Model): GridResult {
 export function evaluateGrid(grid: GridDescr): GridResult {
   const model = new Model();
   for (let xc in grid) {
-    setCellContent(model, xc, grid[xc]);
+    if (grid[xc] !== undefined) {
+      setCellContent(model, xc, grid[xc]!);
+    }
   }
   const result = {};
   for (let xc in grid) {
@@ -240,7 +242,9 @@ export function evaluateGrid(grid: GridDescr): GridResult {
 export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   const model = new Model();
   for (let xc in grid) {
-    setCellContent(model, xc, grid[xc]);
+    if (grid[xc] !== undefined) {
+      setCellContent(model, xc, grid[xc]!);
+    }
   }
   const result = {};
   for (let xc in grid) {
@@ -265,7 +269,7 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
 
 export function evaluateCellText(xc: string, grid: GridDescr): string {
   const gridResult = evaluateGridText(grid);
-  return gridResult[xc];
+  return gridResult[xc] || "";
 }
 
 //------------------------------------------------------------------------------
