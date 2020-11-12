@@ -40,7 +40,9 @@ export const DATE: FunctionDescription = {
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
     if (delta < 0) {
-      throw new Error(_lt(`function [[FUNCTION_NAME]] result should not be lesser than 01/01/1900`));
+      throw new Error(
+        _lt(`function [[FUNCTION_NAME]] result should not be lesser than 01/01/1900`)
+      );
     }
 
     return {
