@@ -5,7 +5,16 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../helpers/grid_manipulation";
-import { isEqual, toCartesian, toXC, union, overlap, clip, isDefined } from "../helpers/index";
+import {
+  isEqual,
+  toCartesian,
+  toXC,
+  union,
+  overlap,
+  clip,
+  isDefined,
+  toZone,
+} from "../helpers/index";
 import { _lt } from "../translation";
 import {
   CancelledReason,
@@ -43,7 +52,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
   ];
 
   private nextId: number = 1;
-  readonly pending: PendingMerges | null = null;
+  pending: PendingMerges | null = null;
 
   readonly merges: Record<UID, Record<number, Merge | undefined> | undefined> = {};
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined> = {};
@@ -140,10 +149,15 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
           this.duplicateMerge(xc, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
         }
         break;
-    }
-    if (this.pending) {
-      this.importMerges(this.pending.sheet, this.pending.merges);
-      this.history.update("pending", null);
+      case "ADD_COLUMNS":
+      case "ADD_ROWS":
+      case "REMOVE_COLUMNS":
+      case "REMOVE_ROWS":
+        if (this.pending) {
+          this.importMerges(this.pending.sheet, this.pending.merges);
+          this.pending = null;
+        }
+        break;
     }
   }
 
@@ -322,7 +336,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         this.history.update("mergeCellMap", sheetId, xc, id);
       }
     }
-    this.applyBorderMerge(sheetId, zone);
+
     for (let mergeId of previousMerges) {
       const { top, bottom, left, right } = this.getMergeById(sheetId, mergeId)!;
       for (let r = top; r <= bottom; r++) {
@@ -340,52 +354,6 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         }
       }
       this.history.update("merges", sheetId, mergeId, undefined);
-    }
-  }
-
-  private applyBorderMerge(sheetId: UID, zone: Zone) {
-    const { left, right, top, bottom } = zone;
-    const topLeft = this.getters.getCell(sheetId, left, top);
-    const bottomRight = this.getters.getCell(sheetId, right, bottom) || topLeft;
-    const bordersTopLeft = topLeft ? this.getters.getCellBorder(topLeft) : null;
-    const bordersBottomRight =
-      (bottomRight ? this.getters.getCellBorder(bottomRight) : null) || bordersTopLeft;
-    this.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: [{ left, right, top, bottom }],
-      border: "clear",
-    });
-    if (bordersBottomRight && bordersBottomRight.right) {
-      const zone = [{ left: right, right, top, bottom }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "right",
-      });
-    }
-    if (bordersTopLeft && bordersTopLeft.left) {
-      const zone = [{ left, right: left, top, bottom }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "left",
-      });
-    }
-    if (bordersTopLeft && bordersTopLeft.top) {
-      const zone = [{ left, right, top, bottom: top }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "top",
-      });
-    }
-    if (bordersBottomRight && bordersBottomRight.bottom) {
-      const zone = [{ left, right, top: bottom, bottom }];
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        target: zone,
-        border: "bottom",
-      });
     }
   }
 
@@ -476,7 +444,7 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     }
     this.updateMergesStyles(sheetId, isCol);
     this.removeAllMerges(sheetId);
-    this.history.update("pending", { sheet: sheetId, merges: updatedMerges });
+    this.pending = { sheet: sheetId, merges: updatedMerges };
   }
 
   private updateMergesStyles(sheetId: string, isColumn: boolean) {
@@ -564,25 +532,8 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
   }
 
   private importMerges(sheetId: string, merges: string[]) {
-    for (let m of merges) {
-      let id = this.nextId++;
-      const [tl, br] = m.split(":");
-      const [left, top] = toCartesian(tl);
-      const [right, bottom] = toCartesian(br);
-      this.history.update("merges", sheetId, id, {
-        id,
-        left,
-        top,
-        right,
-        bottom,
-        topLeft: tl,
-      });
-      for (let row = top; row <= bottom; row++) {
-        for (let col = left; col <= right; col++) {
-          const xc = toXC(col, row);
-          this.history.update("mergeCellMap", sheetId, xc, id);
-        }
-      }
+    for (let merge of merges) {
+      this.addMerge(sheetId, toZone(merge));
     }
   }
   export(data: WorkbookData) {

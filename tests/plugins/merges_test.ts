@@ -487,6 +487,35 @@ describe("merges", () => {
     model.dispatch("UNDO");
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
   });
+
+  test("import merge with style", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 4,
+          rowNumber: 5,
+          cells: {
+            B4: { style: 1, border: 1 },
+          },
+          merges: ["B4:C5"],
+        },
+      ],
+      styles: { 1: { textColor: "#fe0000" } },
+      borders: { 1: { top: ["thin", "#000"] } },
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getMerge(sheetId, "B4")).toBeTruthy();
+    expect(model.getters.getMerge(sheetId, "C4")).toBeTruthy();
+    expect(getCell(model, "B4")!.style).toBe(1);
+    expect(getCell(model, "B4")!.border).toBe(1);
+    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("B4:C5") });
+    expect(getCell(model, "B4")!.style).toBe(1);
+    expect(getCell(model, "C4")!.style).toBe(1);
+    expect(getCell(model, "B4")!.border).toBe(1);
+    expect(getCell(model, "C4")!.border).toBe(1);
+    expect(getCell(model, "C5")!.border).toBeUndefined();
+  });
 });
 
 function getStyle(model: Model, xc: string): Style {
