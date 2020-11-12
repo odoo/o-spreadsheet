@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import { toNativeDate, InternalDate, parseDateTime } from "../functions/dates";
 import { toNumber, toString, visitAny } from "./helpers";
 import { _lt } from "../translation";
@@ -9,7 +9,7 @@ const INITIAL_1900_DAY = new Date(1899, 11, 30);
 // -----------------------------------------------------------------------------
 // DATE
 // -----------------------------------------------------------------------------
-export const DATE: FunctionDescription = {
+export const DATE: AddFunctionDescription = {
   description: _lt("Converts year/month/day into a date."),
   args: args(`
     year (number) ${_lt("The year component of the date.")}")}
@@ -56,7 +56,7 @@ export const DATE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DATEVALUE
 // -----------------------------------------------------------------------------
-export const DATEVALUE: FunctionDescription = {
+export const DATEVALUE: AddFunctionDescription = {
   description: _lt("Converts a date string to a date value."),
   args: args(`
       date_string (string) ${_lt("The string representing the date.")}
@@ -77,7 +77,7 @@ export const DATEVALUE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DAY
 // -----------------------------------------------------------------------------
-export const DAY: FunctionDescription = {
+export const DAY: AddFunctionDescription = {
   description: _lt("Day of the month that a specific date falls on."),
   args: args(`
       date (string) ${_lt("The date from which to extract the day.")}
@@ -91,7 +91,7 @@ export const DAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DAYS
 // -----------------------------------------------------------------------------
-export const DAYS: FunctionDescription = {
+export const DAYS: AddFunctionDescription = {
   description: _lt("Number of days between two dates."),
   args: args(`
       end_date (date) ${_lt("The end of the date range.")}
@@ -109,7 +109,7 @@ export const DAYS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // EDATE
 // -----------------------------------------------------------------------------
-export const EDATE: FunctionDescription = {
+export const EDATE: AddFunctionDescription = {
   description: _lt("Date a number of months before/after another date."),
   args: args(`
     start_date (date) ${_lt("The date from which to calculate the result.")}
@@ -139,7 +139,7 @@ export const EDATE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // EOMONTH
 // -----------------------------------------------------------------------------
-export const EOMONTH: FunctionDescription = {
+export const EOMONTH: AddFunctionDescription = {
   description: _lt("Last day of a month before or after a date."),
   args: args(`
     start_date (date) ${_lt("The date from which to calculate the result.")}
@@ -168,7 +168,7 @@ export const EOMONTH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // HOUR
 // -----------------------------------------------------------------------------
-export const HOUR: FunctionDescription = {
+export const HOUR: AddFunctionDescription = {
   description: _lt("Hour component of a specific time."),
   args: args(`
     time (date) ${_lt("The time from which to calculate the hour component.")}
@@ -182,7 +182,7 @@ export const HOUR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // ISOWEEKNUM
 // -----------------------------------------------------------------------------
-export const ISOWEEKNUM: FunctionDescription = {
+export const ISOWEEKNUM: AddFunctionDescription = {
   description: _lt("ISO week number of the year."),
   args: args(`
     date (date) ${_lt(
@@ -267,7 +267,7 @@ export const ISOWEEKNUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // MINUTE
 // -----------------------------------------------------------------------------
-export const MINUTE: FunctionDescription = {
+export const MINUTE: AddFunctionDescription = {
   description: _lt("Minute component of a specific time."),
   args: args(`
       time (date) ${_lt("The time from which to calculate the minute component.")}
@@ -281,7 +281,7 @@ export const MINUTE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // MONTH
 // -----------------------------------------------------------------------------
-export const MONTH: FunctionDescription = {
+export const MONTH: AddFunctionDescription = {
   description: _lt("Month of the year a specific date falls in"),
   args: args(`
       date (date) ${_lt("The date from which to extract the month.")}
@@ -295,7 +295,7 @@ export const MONTH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // NETWORKDAYS
 // -----------------------------------------------------------------------------
-export const NETWORKDAYS: FunctionDescription = {
+export const NETWORKDAYS: AddFunctionDescription = {
   description: _lt("Net working days between two provided days."),
   args: args(`
       start_date (date) ${_lt(
@@ -396,7 +396,7 @@ function weekendToDayNumber(weekend: any): number[] {
   throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 3 requires a number or a string.`));
 }
 
-export const NETWORKDAYS_INTL: FunctionDescription = {
+export const NETWORKDAYS_INTL: AddFunctionDescription = {
   description: _lt("Net working days between two dates (specifying weekends)."),
   args: args(`
       start_date (date) ${_lt(
@@ -455,7 +455,7 @@ export const NETWORKDAYS_INTL: FunctionDescription = {
 // NOW
 // -----------------------------------------------------------------------------
 
-export const NOW: FunctionDescription = {
+export const NOW: AddFunctionDescription = {
   description: _lt("Current date and time as a date value."),
   args: [],
   returns: ["DATE"],
@@ -475,7 +475,7 @@ export const NOW: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SECOND
 // -----------------------------------------------------------------------------
-export const SECOND: FunctionDescription = {
+export const SECOND: AddFunctionDescription = {
   description: _lt("Minute component of a specific time."),
   args: args(`
       time (date) ${_lt("The time from which to calculate the second component.")}
@@ -489,7 +489,7 @@ export const SECOND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TIME
 // -----------------------------------------------------------------------------
-export const TIME: FunctionDescription = {
+export const TIME: AddFunctionDescription = {
   description: _lt("Converts hour/minute/second into a time."),
   args: args(`
     hour (number) ${_lt("The hour component of the time.")}
@@ -527,7 +527,7 @@ export const TIME: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TIMEVALUE
 // -----------------------------------------------------------------------------
-export const TIMEVALUE: FunctionDescription = {
+export const TIMEVALUE: AddFunctionDescription = {
   description: _lt("Converts a time string into its serial number representation."),
   args: args(`
       time_string (string) ${_lt("The string that holds the time representation.")}
@@ -550,7 +550,7 @@ export const TIMEVALUE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TODAY
 // -----------------------------------------------------------------------------
-export const TODAY: FunctionDescription = {
+export const TODAY: AddFunctionDescription = {
   description: _lt("Current date as a date value."),
   args: [],
   returns: ["DATE"],
@@ -569,7 +569,7 @@ export const TODAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // WEEKDAY
 // -----------------------------------------------------------------------------
-export const WEEKDAY: FunctionDescription = {
+export const WEEKDAY: AddFunctionDescription = {
   description: _lt("Day of the week of the date provided (as number)."),
   args: args(`
     date (date) ${_lt(
@@ -599,7 +599,7 @@ export const WEEKDAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // WEEKNUM
 // -----------------------------------------------------------------------------
-export const WEEKNUM: FunctionDescription = {
+export const WEEKNUM: AddFunctionDescription = {
   description: _lt("Week number of the year."),
   args: args(`
     date (date) ${_lt(
@@ -650,7 +650,7 @@ export const WEEKNUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // WORKDAY
 // -----------------------------------------------------------------------------
-export const WORKDAY: FunctionDescription = {
+export const WORKDAY: AddFunctionDescription = {
   description: _lt("Number of working days from start date."),
   args: args(`
       start_date (date) ${_lt("The date from which to begin counting.")}
@@ -670,7 +670,7 @@ export const WORKDAY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // WORKDAY.INTL
 // -----------------------------------------------------------------------------
-export const WORKDAY_INTL: FunctionDescription = {
+export const WORKDAY_INTL: AddFunctionDescription = {
   description: _lt("Net working days between two dates (specifying weekends)."),
   args: args(`
       start_date (date) ${_lt("The date from which to begin counting.")}
@@ -734,7 +734,7 @@ export const WORKDAY_INTL: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // YEAR
 // -----------------------------------------------------------------------------
-export const YEAR: FunctionDescription = {
+export const YEAR: AddFunctionDescription = {
   description: _lt("Year specified by a given date."),
   args: args(`
     date (date) ${_lt("The date from which to extract the year.")}

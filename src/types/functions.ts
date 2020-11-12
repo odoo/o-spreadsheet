@@ -20,13 +20,20 @@ export interface Arg {
   default?: any;
 }
 
-export interface FunctionDescription {
+export interface AddFunctionDescription {
   description: string;
   compute: (this: EvalContext, ...args: any[]) => any;
   async?: boolean;
   category?: string;
   args: Arg[];
   returns: [ArgType];
+}
+
+export interface FunctionDescription extends AddFunctionDescription {
+  minArgRequired: number;
+  maxArgPossible: number;
+  nbrArgRepeating: number;
+  getArgToFocus: (argPosition: number) => number;
 }
 
 export type EvalContext = {

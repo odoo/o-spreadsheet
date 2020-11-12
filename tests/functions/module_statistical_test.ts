@@ -114,7 +114,7 @@ describe("AVERAGE.WEIGHTED formula", () => {
     expect(evaluateCell("A1", { A1: "=average.weighted( ,  )" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average.weighted(0, 0)" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
     expect(evaluateCell("A1", { A1: "=average.weighted(0, 1)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=average.weighted(1, 1, 3)" })).toEqual("#ERROR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=average.weighted(1, 1, 3)" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=average.weighted(1, 1, 3, 3)" })).toBe(2.5);
     expect(evaluateCell("A1", { A1: "=average.weighted( , 1, 3, 3)" })).toBe(2.25);
     expect(evaluateCell("A1", { A1: "=average.weighted(1, 1, 3,  )" })).toBe(1);
@@ -144,7 +144,7 @@ describe("AVERAGE.WEIGHTED formula", () => {
     expect(evaluateCell("A1", { A1: "=average.weighted(A2, A3)", A2: "0", A3: "1" })).toBe(0);
     expect(
       evaluateCell("A1", { A1: "=average.weighted(A2, A3, A4)", A2: "1", A3: "1", A4: "3" })
-    ).toEqual("#ERROR"); // @compatibility: on google sheets, return #N/A
+    ).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(
       evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",

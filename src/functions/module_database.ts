@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import { visitMatchingRanges, toString } from "./helpers";
 import { COUNT, AVERAGE, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 import { PRODUCT, SUM } from "./module_math";
@@ -125,7 +125,7 @@ const databaseArgs = args(`
 // -----------------------------------------------------------------------------
 // DAVERAGE
 // -----------------------------------------------------------------------------
-export const DAVERAGE: FunctionDescription = {
+export const DAVERAGE: AddFunctionDescription = {
   description: _lt("Average of a set of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -138,7 +138,7 @@ export const DAVERAGE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DCOUNT
 // -----------------------------------------------------------------------------
-export const DCOUNT: FunctionDescription = {
+export const DCOUNT: AddFunctionDescription = {
   description: _lt("Counts values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -151,7 +151,7 @@ export const DCOUNT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DCOUNTA
 // -----------------------------------------------------------------------------
-export const DCOUNTA: FunctionDescription = {
+export const DCOUNTA: AddFunctionDescription = {
   description: _lt("Counts values and text from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -164,7 +164,7 @@ export const DCOUNTA: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DGET
 // -----------------------------------------------------------------------------
-export const DGET: FunctionDescription = {
+export const DGET: AddFunctionDescription = {
   description: _lt("Single value from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -180,7 +180,7 @@ export const DGET: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DMAX
 // -----------------------------------------------------------------------------
-export const DMAX: FunctionDescription = {
+export const DMAX: AddFunctionDescription = {
   description: _lt("Maximum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -193,7 +193,7 @@ export const DMAX: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DMIN
 // -----------------------------------------------------------------------------
-export const DMIN: FunctionDescription = {
+export const DMIN: AddFunctionDescription = {
   description: _lt("Minimum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -206,7 +206,7 @@ export const DMIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DPRODUCT
 // -----------------------------------------------------------------------------
-export const DPRODUCT: FunctionDescription = {
+export const DPRODUCT: AddFunctionDescription = {
   description: _lt("Product of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -219,7 +219,7 @@ export const DPRODUCT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DSTDEV
 // -----------------------------------------------------------------------------
-export const DSTDEV: FunctionDescription = {
+export const DSTDEV: AddFunctionDescription = {
   description: _lt("Standard deviation of population sample from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -232,7 +232,7 @@ export const DSTDEV: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DSTDEVP
 // -----------------------------------------------------------------------------
-export const DSTDEVP: FunctionDescription = {
+export const DSTDEVP: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -245,7 +245,7 @@ export const DSTDEVP: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DSUM
 // -----------------------------------------------------------------------------
-export const DSUM: FunctionDescription = {
+export const DSUM: AddFunctionDescription = {
   description: _lt("Sum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -258,7 +258,7 @@ export const DSUM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DVAR
 // -----------------------------------------------------------------------------
-export const DVAR: FunctionDescription = {
+export const DVAR: AddFunctionDescription = {
   description: _lt("Variance of population sample from table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
@@ -271,7 +271,7 @@ export const DVAR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DVARP
 // -----------------------------------------------------------------------------
-export const DVARP: FunctionDescription = {
+export const DVARP: AddFunctionDescription = {
   description: _lt("Variance of a population from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],

@@ -1,12 +1,12 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import { toNumber, toString, reduceArgs, toBoolean } from "./helpers";
 import { _lt } from "../translation";
 
 // -----------------------------------------------------------------------------
 // CHAR
 // -----------------------------------------------------------------------------
-export const CHAR: FunctionDescription = {
+export const CHAR: AddFunctionDescription = {
   description: _lt("Gets character associated with number."),
   args: args(`
       table_number (number) ${_lt(
@@ -28,7 +28,7 @@ export const CHAR: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CONCATENATE
 // -----------------------------------------------------------------------------
-export const CONCATENATE: FunctionDescription = {
+export const CONCATENATE: AddFunctionDescription = {
   description: _lt("Appends strings to one another."),
   args: args(`
       string1 (string, range<string>) ${_lt("The initial string.")}
@@ -45,7 +45,7 @@ export const CONCATENATE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // EXACT
 // -----------------------------------------------------------------------------
-export const EXACT: FunctionDescription = {
+export const EXACT: AddFunctionDescription = {
   description: _lt("Tests whether two strings are identical."),
   args: args(`
       string1 (string) ${_lt("The first string to compare.")}
@@ -60,7 +60,7 @@ export const EXACT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // FIND
 // -----------------------------------------------------------------------------
-export const FIND: FunctionDescription = {
+export const FIND: AddFunctionDescription = {
   description: _lt("First position of string found in text, case-sensitive."),
   args: args(`
       search_for (string) ${_lt("The string to look for within text_to_search.")}
@@ -101,7 +101,7 @@ export const FIND: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // JOIN
 // -----------------------------------------------------------------------------
-export const JOIN: FunctionDescription = {
+export const JOIN: AddFunctionDescription = {
   description: _lt("Concatenates elements of arrays with delimiter."),
   args: args(`
       delimiter (string) ${_lt("The character or string to place between each concatenated value.")}
@@ -122,7 +122,7 @@ export const JOIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // LEFT
 // -----------------------------------------------------------------------------
-export const LEFT: FunctionDescription = {
+export const LEFT: AddFunctionDescription = {
   description: _lt("Substring from beginning of specified string."),
   args: args(`
       text (string) ${_lt("The string from which the left portion will be returned.")}
@@ -147,7 +147,7 @@ export const LEFT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // LEN
 // -----------------------------------------------------------------------------
-export const LEN: FunctionDescription = {
+export const LEN: AddFunctionDescription = {
   description: _lt("Length of a string."),
   args: args(`
       text (string) ${_lt("The string whose length will be returned.")}
@@ -161,7 +161,7 @@ export const LEN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // LOWER
 // -----------------------------------------------------------------------------
-export const LOWER: FunctionDescription = {
+export const LOWER: AddFunctionDescription = {
   description: _lt("Converts a specified string to lowercase."),
   args: args(`
       text (string) ${_lt("The string to convert to lowercase.")}
@@ -175,7 +175,7 @@ export const LOWER: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // REPLACE
 // -----------------------------------------------------------------------------
-export const REPLACE: FunctionDescription = {
+export const REPLACE: AddFunctionDescription = {
   description: _lt("Replaces part of a text string with different text."),
   args: args(`
       text (string) ${_lt("The text, a part of which will be replaced.")}
@@ -204,7 +204,7 @@ export const REPLACE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // RIGHT
 // -----------------------------------------------------------------------------
-export const RIGHT: FunctionDescription = {
+export const RIGHT: AddFunctionDescription = {
   description: _lt("A substring from the end of a specified string."),
   args: args(`
       text (string) ${_lt("The string from which the right portion will be returned.")}
@@ -231,7 +231,7 @@ export const RIGHT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SEARCH
 // -----------------------------------------------------------------------------
-export const SEARCH: FunctionDescription = {
+export const SEARCH: AddFunctionDescription = {
   description: _lt("First position of string found in text, ignoring case."),
   args: args(`
       search_for (string) ${_lt("The string to look for within text_to_search.")}
@@ -272,7 +272,7 @@ export const SEARCH: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // SUBSTITUTE
 // -----------------------------------------------------------------------------
-export const SUBSTITUTE: FunctionDescription = {
+export const SUBSTITUTE: AddFunctionDescription = {
   description: _lt("Replaces existing text with new text in a string."),
   args: args(`
       text_to_search (string) ${_lt("The text within which to search and replace.")}
@@ -318,7 +318,7 @@ export const SUBSTITUTE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TEXTJOIN
 // -----------------------------------------------------------------------------
-export const TEXTJOIN: FunctionDescription = {
+export const TEXTJOIN: AddFunctionDescription = {
   description: _lt("Combines text from multiple strings and/or arrays."),
   args: args(`
       delimiter (string) ${_lt(
@@ -349,7 +349,7 @@ export const TEXTJOIN: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // TRIM
 // -----------------------------------------------------------------------------
-export const TRIM: FunctionDescription = {
+export const TRIM: AddFunctionDescription = {
   description: _lt("Removes space characters."),
   args: args(`
       text (string) ${_lt("The text or reference to a cell containing text to be trimmed.")}
@@ -363,7 +363,7 @@ export const TRIM: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // UPPER
 // -----------------------------------------------------------------------------
-export const UPPER: FunctionDescription = {
+export const UPPER: AddFunctionDescription = {
   description: _lt("Converts a specified string to uppercase."),
   args: args(`
       text (string) ${_lt("The string to convert to uppercase.")}

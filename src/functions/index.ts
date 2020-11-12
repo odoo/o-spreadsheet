@@ -1,6 +1,6 @@
 import { Registry } from "../registry";
-import { FunctionDescription } from "../types";
-import { validateArguments } from "./arguments";
+import { FunctionDescription, AddFunctionDescription } from "../types";
+import { validateArguments, addMetaInfoFromArg } from "./arguments";
 import * as info from "./module_info";
 import * as logical from "./module_logical";
 import * as database from "./module_database";
@@ -13,7 +13,7 @@ import * as text from "./module_text";
 
 export { args } from "./arguments";
 
-const functions: { [category: string]: { [name: string]: FunctionDescription } } = {
+const functions: { [category: string]: { [name: string]: AddFunctionDescription } } = {
   database,
   date,
   info,
@@ -31,8 +31,9 @@ const functions: { [category: string]: { [name: string]: FunctionDescription } }
 class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: { [key: string]: Function } = {};
 
-  add(name: string, descr: FunctionDescription) {
+  add(name: string, addDescr: AddFunctionDescription) {
     name = name.toUpperCase().replace("_", ".");
+    const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
     this.mapping[name] = descr.compute;
     super.add(name, descr);
@@ -45,8 +46,8 @@ export const functionRegistry = new FunctionRegistry();
 for (let category in functions) {
   const fns = functions[category];
   for (let name in fns) {
-    const descr = fns[name];
-    descr.category = category;
-    functionRegistry.add(name, descr);
+    const addDescr = fns[name];
+    addDescr.category = category;
+    functionRegistry.add(name, addDescr);
   }
 }

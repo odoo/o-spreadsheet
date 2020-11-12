@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { FunctionDescription } from "../types";
+import { AddFunctionDescription } from "../types";
 import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 import { InternalDate } from "./dates";
@@ -8,7 +8,7 @@ import { _lt } from "../translation";
 // -----------------------------------------------------------------------------
 // ADD
 // -----------------------------------------------------------------------------
-export const ADD: FunctionDescription = {
+export const ADD: AddFunctionDescription = {
   description: _lt(`Sum of two numbers.`),
   args: args(`
       value1 (number) ${_lt("The first addend.")}
@@ -32,7 +32,7 @@ export const ADD: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // CONCAT
 // -----------------------------------------------------------------------------
-export const CONCAT: FunctionDescription = {
+export const CONCAT: AddFunctionDescription = {
   description: _lt(`Concatenation of two values.`),
   args: args(`
       value1 (string) ${_lt("The value to which value2 will be appended.")}
@@ -47,7 +47,7 @@ export const CONCAT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // DIVIDE
 // -----------------------------------------------------------------------------
-export const DIVIDE: FunctionDescription = {
+export const DIVIDE: AddFunctionDescription = {
   description: _lt(`One number divided by another.`),
   args: args(`
       dividend (number) ${_lt("The number to be divided.")}
@@ -72,7 +72,7 @@ function isEmpty(value: any): boolean {
 
 const getNeutral = { number: 0, string: "", boolean: false };
 
-export const EQ: FunctionDescription = {
+export const EQ: AddFunctionDescription = {
   description: _lt(`Equal.`),
   args: args(`
       value1 (any) ${_lt("The first value.")}
@@ -119,7 +119,7 @@ function applyRelationalOperator(
   return cb(value1, value2);
 }
 
-export const GT: FunctionDescription = {
+export const GT: AddFunctionDescription = {
   description: _lt(`Strictly greater than.`),
   args: args(`
       value1 (any) ${_lt("The value to test as being greater than value2.")}
@@ -136,7 +136,7 @@ export const GT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // GTE
 // -----------------------------------------------------------------------------
-export const GTE: FunctionDescription = {
+export const GTE: AddFunctionDescription = {
   description: _lt(`Greater than or equal to.`),
   args: args(`
       value1 (any) ${_lt("The value to test as being greater than or equal to value2.")}
@@ -153,7 +153,7 @@ export const GTE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // LT
 // -----------------------------------------------------------------------------
-export const LT: FunctionDescription = {
+export const LT: AddFunctionDescription = {
   description: _lt(`Less than.`),
   args: args(`
       value1 (any) ${_lt("The value to test as being less than value2.")}
@@ -168,7 +168,7 @@ export const LT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // LTE
 // -----------------------------------------------------------------------------
-export const LTE: FunctionDescription = {
+export const LTE: AddFunctionDescription = {
   description: _lt(`Less than or equal to.`),
   args: args(`
       value1 (any) ${_lt("The value to test as being less than or equal to value2.")}
@@ -183,7 +183,7 @@ export const LTE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // MINUS
 // -----------------------------------------------------------------------------
-export const MINUS: FunctionDescription = {
+export const MINUS: AddFunctionDescription = {
   description: _lt(`Difference of two numbers.`),
   args: args(`
       value1 (number) ${_lt("The minuend, or number to be subtracted from.")}
@@ -198,7 +198,7 @@ export const MINUS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // MULTIPLY
 // -----------------------------------------------------------------------------
-export const MULTIPLY: FunctionDescription = {
+export const MULTIPLY: AddFunctionDescription = {
   description: _lt(`Product of two numbers`),
   args: args(`
       factor1 (number) ${_lt("The first multiplicand.")}
@@ -213,7 +213,7 @@ export const MULTIPLY: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // NE
 // -----------------------------------------------------------------------------
-export const NE: FunctionDescription = {
+export const NE: AddFunctionDescription = {
   description: _lt(`Not equal.`),
   args: args(`
       value1 (any) ${_lt("The first value.")}
@@ -228,7 +228,7 @@ export const NE: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // POW
 // -----------------------------------------------------------------------------
-export const POW: FunctionDescription = {
+export const POW: AddFunctionDescription = {
   description: _lt(`A number raised to a power.`),
   args: args(`
       base (number) ${_lt("The number to raise to the exponent power.")}
@@ -243,7 +243,7 @@ export const POW: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // UMINUS
 // -----------------------------------------------------------------------------
-export const UMINUS: FunctionDescription = {
+export const UMINUS: AddFunctionDescription = {
   description: _lt(`A number with the sign reversed.`),
   args: args(`
       value (number) ${_lt(
@@ -259,7 +259,7 @@ export const UMINUS: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // UNARY_PERCENT
 // -----------------------------------------------------------------------------
-export const UNARY_PERCENT: FunctionDescription = {
+export const UNARY_PERCENT: AddFunctionDescription = {
   description: _lt(`Value interpreted as a percentage.`),
   args: args(`
       percentage (number) ${_lt("The value to interpret as a percentage.")}
@@ -273,7 +273,7 @@ export const UNARY_PERCENT: FunctionDescription = {
 // -----------------------------------------------------------------------------
 // UPLUS
 // -----------------------------------------------------------------------------
-export const UPLUS: FunctionDescription = {
+export const UPLUS: AddFunctionDescription = {
   description: _lt(`A specified number, unchanged.`),
   args: args(`
       value (any) ${_lt("The number to return.")}
