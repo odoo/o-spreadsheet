@@ -18,7 +18,6 @@ import { overlap, toXC } from "../helpers/index";
 import {
   Box,
   Rect,
-  Zone,
   Viewport,
   Header,
   LAYERS,

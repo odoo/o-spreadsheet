@@ -18,7 +18,6 @@ import {
   Cell,
   CellData,
   Command,
-  Zone,
   UID,
   NormalizedFormula,
   Sheet,
@@ -41,7 +40,6 @@ interface CoreState {
 export class CorePlugin extends BasePlugin<CoreState, CoreGetters> implements CoreState {
   static getters = [
     "getCellText",
-    "zoneToXC",
     "getCells",
     "shouldShowFormulas",
     "getRangeValues",
@@ -154,36 +152,6 @@ export class CorePlugin extends BasePlugin<CoreState, CoreGetters> implements Co
         return "0";
     }
     return value.toString();
-  }
-
-  /**
-   * Converts a zone to a XC coordinate system
-   *
-   * The conversion also treats merges as one single cell
-   *
-   * Examples:
-   * {top:0,left:0,right:0,bottom:0} ==> A1
-   * {top:0,left:0,right:1,bottom:1} ==> A1:B2
-   *
-   * if A1:B2 is a merge:
-   * {top:0,left:0,right:1,bottom:1} ==> A1
-   * {top:1,left:0,right:1,bottom:2} ==> A1:B3
-   *
-   * if A1:B2 and A4:B5 are merges:
-   * {top:1,left:0,right:1,bottom:3} ==> A1:A5
-   */
-  zoneToXC(zone: Zone): string {
-    zone = this.getters.expandZone(zone);
-    const topLeft = toXC(zone.left, zone.top);
-    const botRight = toXC(zone.right, zone.bottom);
-    if (
-      topLeft != botRight &&
-      this.getters.getMainCell(topLeft) !== this.getters.getMainCell(botRight)
-    ) {
-      return topLeft + ":" + botRight;
-    }
-
-    return topLeft;
   }
 
   shouldShowFormulas(): boolean {

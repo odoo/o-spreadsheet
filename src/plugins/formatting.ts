@@ -38,6 +38,8 @@ type FormatInfo = {
   format?: string;
 };
 
+const MIN_PADDING = 3;
+
 function getTargetZone(zone: Zone, side: string): Zone {
   const { left, right, top, bottom } = zone;
   switch (side) {
@@ -114,12 +116,49 @@ export class FormattingPlugin extends BasePlugin<{}, FormattingGetters> {
         const end_row = start_row + cmd.quantity + 1;
         this.onAddElements(start_row, end_row, false, cmd.position === "before");
         break;
+
+      case "AUTORESIZE_COLUMNS":
+        for (let col of cmd.cols) {
+          const size = this.getColMaxWidth(col);
+          if (size !== 0) {
+            this.dispatch("RESIZE_COLUMNS", {
+              sheetId: cmd.sheetId,
+              cols: [col],
+              size: size + 2 * MIN_PADDING,
+            });
+          }
+        }
+        break;
+      case "AUTORESIZE_ROWS":
+        for (let row of cmd.rows) {
+          const size = this.getRowMaxHeight(row);
+          if (size !== 0) {
+            this.dispatch("RESIZE_ROWS", {
+              sheetId: cmd.sheetId,
+              rows: [row],
+              size: size + 2 * MIN_PADDING,
+            });
+          }
+        }
+        break;
     }
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  private getColMaxWidth(index: number): number {
+    const cells = this.getters.getColCells(index);
+    const sizes = cells.map(this.getters.getCellWidth);
+    return Math.max(0, ...sizes);
+  }
+
+  private getRowMaxHeight(index: number): number {
+    const cells = Object.values(this.getters.getActiveSheet().rows[index].cells);
+    const sizes = cells.map(this.getters.getCellHeight);
+    return Math.max(0, ...sizes);
+  }
 
   getCellWidth(cell: Cell): number {
     const styleId = cell.style || 0;
@@ -151,10 +190,7 @@ export class FormattingPlugin extends BasePlugin<{}, FormattingGetters> {
     return cell.border ? this.borders[cell.border] : null;
   }
 
-  getCurrentStyle(): Style {
-    const cell = this.getters.getActiveCell();
-    return cell && cell.style ? this.styles[cell.style] : {};
-  }
+
 
   // ---------------------------------------------------------------------------
   // Styles

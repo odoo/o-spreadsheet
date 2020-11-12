@@ -8,6 +8,7 @@ import {
   GridRenderingContext,
   CommandResult,
   CancelledReason,
+  Style,
 } from "../types/index";
 import { Mode } from "../model";
 import { SELECTION_BORDER_COLOR } from "../constants";
@@ -30,6 +31,8 @@ export enum SelectionMode {
   selecting,
   readyToExpand, //The next selection will add another zone to the current selection
   expanding,
+  editing,
+  resettingPosition,
 }
 
 /**
@@ -49,12 +52,14 @@ export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
     "getPosition",
     "getSelectionMode",
     "isSelected",
+    "isSelectingForComposer",
   ];
 
   private selection: Selection = {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
     anchor: [0, 0],
   };
+  private position: [number, number] | undefined;
   private activeCol: number = 0;
   private activeRow: number = 0;
   private activeXc: string = "A1";
@@ -180,6 +185,29 @@ export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
           this.onAddRows(cmd.quantity);
         }
         break;
+      case "START_COMPOSER_SELECTION":
+        this.mode = SelectionMode.resettingPosition;
+        const [col, row] = this.position!;
+        this.dispatch("SELECT_CELL", {
+          col,
+          row,
+        });
+        this.mode = SelectionMode.selecting;
+        break;
+      case "STOP_COMPOSER_SELECTION":
+        if (this.mode === SelectionMode.selecting) {
+          this.mode = SelectionMode.editing;
+        }
+        break;
+      case "START_EDITION":
+        this.mode = SelectionMode.editing;
+        this.position = this.getters.getPosition();
+        break;
+      case "STOP_EDITION":
+        if (cmd.cancel) {
+          this.mode = SelectionMode.idle;
+        }
+        break;
     }
   }
 
@@ -191,6 +219,12 @@ export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
     const sheetId = this.getters.getActiveSheetId();
     const xc = this.getters.getMainCell(this.activeXc);
     return this.getters.getCellByXc(sheetId, xc);
+  }
+
+  getCurrentStyle(): Style {
+    // TODO I think we should remove it
+    const cell = this.getActiveCell();
+    return cell ? this.getters.getCellStyle(cell) : {};
   }
 
   getActiveCols(): Set<number> {
@@ -258,6 +292,10 @@ export class SelectionPlugin extends BasePlugin<{}, SelectionGetters> {
 
   isSelected(zone: Zone): boolean {
     return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
+  }
+
+  isSelectingForComposer(): boolean {
+    return this.mode === SelectionMode.selecting || this.mode === SelectionMode.resettingPosition;
   }
 
   // ---------------------------------------------------------------------------

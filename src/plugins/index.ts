@@ -64,7 +64,6 @@ export interface SheetGetters extends WHistoryGetters {
 
 export interface CoreGetters extends SheetGetters {
   getCellText: CorePlugin["getCellText"];
-  zoneToXC: CorePlugin["zoneToXC"];
   getCells: CorePlugin["getCells"];
   getRangeValues: CorePlugin["getRangeValues"];
   getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
@@ -84,6 +83,7 @@ export interface ClipboardGetters extends EvaluationGetters {
 
 export interface MergeGetters extends ClipboardGetters {
   expandZone: MergePlugin["expandZone"];
+  zoneToXC: MergePlugin["zoneToXC"];
   isMergeDestructive: MergePlugin["isMergeDestructive"];
   isInMerge: MergePlugin["isInMerge"];
   getMainCell: MergePlugin["getMainCell"];
@@ -97,6 +97,8 @@ export interface FormattingGetters extends MergeGetters {
   getCellWidth: FormattingPlugin["getCellWidth"];
   getTextWidth: FormattingPlugin["getTextWidth"];
   getCellHeight: FormattingPlugin["getCellHeight"];
+  getCellStyle: FormattingPlugin["getCellStyle"];
+  getCellBorder: FormattingPlugin["getCellBorder"];
 }
 
 export interface SelectionGetters extends FormattingGetters {
@@ -110,11 +112,10 @@ export interface SelectionGetters extends FormattingGetters {
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
+  isSelectingForComposer: SelectionPlugin["isSelectingForComposer"];
 }
 
 export interface EditionGetters extends SelectionGetters {
-  getEditionMode: EditionPlugin["getEditionMode"];
-  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
   getCurrentContent: EditionPlugin["getCurrentContent"];
   getEditionSheet: EditionPlugin["getEditionSheet"];
   getComposerSelection: EditionPlugin["getComposerSelection"];

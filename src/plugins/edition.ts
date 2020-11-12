@@ -4,8 +4,7 @@ import { Command, LAYERS, CancelledReason, CommandResult } from "../types/index"
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
 import { EditionGetters } from ".";
-
-export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
+import { SelectionMode } from "./selection";
 
 export interface ComposerSelection {
   start: number;
@@ -16,7 +15,6 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   static layers = [LAYERS.Highlights];
   static getters = [
     "getEditionMode",
-    "isSelectingForComposer",
     "getCurrentContent",
     "getEditionSheet",
     "getComposerSelection",
@@ -26,7 +24,6 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
 
   private col: number = 0;
   private row: number = 0;
-  private mode: EditionMode = "inactive";
   private sheet: string = "";
   private currentContent: string = "";
   private selectionStart: number = 0;
@@ -58,7 +55,7 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        if (this.mode !== "selecting") {
+        if (this.getters.getSelectionMode() === SelectionMode.selecting) {
           this.stopEdition();
         }
         break;
@@ -75,21 +72,10 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
         this.selectionEnd = cmd.end;
         break;
       case "START_COMPOSER_SELECTION":
-        this.mode = "resettingPosition";
-        this.dispatch("SELECT_CELL", {
-          col: this.col,
-          row: this.row,
-        });
-        this.mode = "selecting";
         // We set this variable to store the start of the selection, to allow
         // to replace selections (ex: select twice a cell should only be added
         // once)
         this.selectionInitialStart = this.selectionStart;
-        break;
-      case "STOP_COMPOSER_SELECTION":
-        if (this.mode === "selecting") {
-          this.mode = "editing";
-        }
         break;
       case "START_EDITION":
         this.startEdition(cmd.text, cmd.selection);
@@ -105,7 +91,7 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
         break;
       case "SET_CURRENT_CONTENT":
         this.setContent(cmd.content, cmd.selection);
-        if (this.mode !== "inactive") {
+        if (this.getters.getSelectionMode() !== SelectionMode.idle) {
           this.highlightRanges();
         }
         break;
@@ -119,19 +105,19 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
         }
         break;
       case "ACTIVATE_SHEET":
-        if (this.mode === "inactive") {
+        if (this.getters.getSelectionMode() === SelectionMode.idle) {
           this.setActiveContent();
         }
         break;
       case "SELECT_CELL":
       case "SET_SELECTION":
       case "MOVE_POSITION":
-        if (this.mode === "editing") {
+        if (this.getters.getSelectionMode() === SelectionMode.editing) {
           this.dispatch("STOP_EDITION");
-        } else if (this.mode === "selecting") {
+        } else if (this.getters.getSelectionMode() === SelectionMode.selecting) {
           this.insertSelectedRange();
         }
-        if (this.mode === "inactive") {
+        if (this.getters.getSelectionMode() === SelectionMode.idle) {
           this.setActiveContent();
         }
         break;
@@ -141,10 +127,6 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  getEditionMode(): EditionMode {
-    return this.mode;
-  }
 
   getCurrentContent(): string {
     return this.currentContent;
@@ -159,10 +141,6 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
       start: this.selectionStart,
       end: this.selectionEnd,
     };
-  }
-
-  isSelectingForComposer(): boolean {
-    return this.mode === "selecting" || this.mode === "resettingPosition";
   }
 
   /**
@@ -188,7 +166,6 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
       const cell = this.getters.getActiveCell();
       str = cell ? cell.content || "" : "";
     }
-    this.mode = "editing";
     this.setContent(str, selection);
     this.dispatch("REMOVE_ALL_HIGHLIGHTS");
     const [col, row] = this.getters.getPosition();
@@ -198,7 +175,7 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   }
 
   private stopEdition() {
-    if (this.mode !== "inactive") {
+    if (this.getters.getSelectionMode() !== SelectionMode.idle) {
       this.cancelEdition();
       const xc = this.getters.getMainCell(toXC(this.col, this.row));
       const sheetId = this.getters.getActiveSheetId();
@@ -244,7 +221,6 @@ export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   }
 
   private cancelEdition() {
-    this.mode = "inactive";
     this.dispatch("REMOVE_ALL_HIGHLIGHTS");
   }
 
