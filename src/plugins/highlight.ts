@@ -170,14 +170,17 @@ export class HighlightPlugin extends BasePlugin {
   drawGrid(renderingContext: GridRenderingContext) {
     // rendering selection highlights
     const { ctx, viewport, thinLineWidth } = renderingContext;
-    ctx.lineWidth = 3 * thinLineWidth;
-    for (let h of this.highlights.filter(
-      (highlight) => highlight.sheet === this.getters.getActiveSheet()
-    )) {
+    const sheetId = this.getters.getActiveSheet();
+    const lineWidth = 3 * thinLineWidth;
+    ctx.lineWidth = lineWidth;
+    for (let h of this.highlights.filter((highlight) => highlight.sheet === sheetId)) {
       const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
-        ctx.strokeRect(x, y, width, height);
+        ctx.strokeRect(x + lineWidth / 2, y + lineWidth / 2, width - lineWidth, height - lineWidth);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = h.color! + "20";
+        ctx.fillRect(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth);
       }
     }
   }
