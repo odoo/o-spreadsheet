@@ -28,6 +28,12 @@ export type OTResponse = OTAck | OTCommand;
 
 export type UID = string;
 
+export interface CellPosition {
+  col: number;
+  row: number;
+  sheetId: UID;
+}
+
 export interface Zone {
   left: number;
   right: number;

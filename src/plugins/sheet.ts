@@ -2,9 +2,15 @@ import { BasePlugin } from "../base_plugin";
 import {
   CancelledReason,
   Cell,
+  CellCreatedEvent,
+  CellDeletedEvent,
+  CellMovedEvent,
+  CellPosition,
   Col,
   Command,
+  CommandDispatcher,
   CommandResult,
+  Getters,
   HeaderData,
   RenameSheetCommand,
   Row,
@@ -26,6 +32,8 @@ import {
 } from "../helpers/index";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { cellReference, rangeTokenize } from "../formulas/index";
+import { WHistory } from "../history";
+import { ModelConfig } from "../model";
 const MIN_PADDING = 3;
 
 export interface SheetState {
@@ -33,7 +41,7 @@ export interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;
   readonly visibleSheets: UID[];
   readonly sheetIds: Record<string, UID | undefined>;
-  readonly cellPosition: Record<UID, { col: number; row: number } | undefined>;
+  readonly cellPosition: Record<UID, CellPosition | undefined>;
 }
 
 export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
@@ -62,7 +70,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   readonly sheetIds: Record<string, UID | undefined> = {};
   readonly visibleSheets: UID[] = []; // ids of visible sheets
   readonly sheets: Record<UID, Sheet | undefined> = {};
-  readonly cellPosition: Record<UID, { col: number; row: number } | undefined> = {};
+  readonly cellPosition: Record<UID, CellPosition | undefined> = {};
 
   // activeSheet cannot be made readonly because it is sometimes assigned outside of the context of history
   activeSheet: Sheet = null as any;
@@ -70,6 +78,36 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
   private historizeActiveSheet: boolean = true;
+
+  constructor(
+    getters: Getters,
+    history: WHistory,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, history, dispatch, config);
+    this.bus.on("cell-created", this, this.onCellCreated);
+    this.bus.on("cell-deleted", this, this.onCellDeleted);
+    this.bus.on("cell-moved", this, this.onCellMoved);
+  }
+
+  onCellCreated(event: CellCreatedEvent) {
+    this.cellPosition[event.cellId] = { col: event.col, row: event.row, sheetId: event.sheetId };
+    this.sheets[event.sheetId]!.rows[event.row].cells[event.col] = event.cellId;
+  }
+
+  onCellDeleted(event: CellDeletedEvent) {
+    const position = this.getCellPosition(event.cellId);
+    delete this.cellPosition[event.cellId];
+    delete this.sheets[position.sheetId]!.rows[position.row].cells[position.col];
+  }
+
+  onCellMoved(event: CellMovedEvent) {
+    const position = this.getCellPosition(event.cellId);
+    delete this.sheets[position.sheetId]!.rows[position.row].cells[position.col];
+    this.cellPosition[event.cellId] = { col: event.col, row: event.row, sheetId: event.sheetId };
+    this.sheets[event.sheetId]!.rows[event.row].cells[event.col] = event.cellId;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -236,19 +274,14 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         if (cmd.cellId) {
           const position = this.cellPosition[cmd.cellId];
           if (position) {
-            this.history.update(
-              "sheets",
-              cmd.sheetId,
-              "rows",
-              position.row,
-              "cells",
-              position.col,
-              undefined
-            );
+            this.bus.trigger("cell-moved", {
+              cellId: cmd.cellId,
+              row: cmd.row,
+              col: cmd.col,
+              sheetId: cmd.sheetId,
+            });
           }
-          this.history.update("cellPosition", cmd.cellId, { row: cmd.row, col: cmd.col });
         }
-        this.history.update("sheets", cmd.sheetId, "rows", cmd.row, "cells", cmd.col, cmd.cellId);
         break;
     }
   }
@@ -438,7 +471,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     return [width, height];
   }
 
-  getCellPosition(cellId: UID): { col: number; row: number } {
+  getCellPosition(cellId: UID): CellPosition {
     const cell = this.cellPosition[cellId];
     if (!cell) {
       throw new Error(`asking for a cell position that doesn't exist, cell id: ${cellId}`);

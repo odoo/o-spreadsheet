@@ -81,12 +81,16 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
 
   onCellDeleted(event: CellDeletedEvent) {
     const cell = this.cells[event.cellId]!;
+    const position = this.getters.getCellPosition(cell.id)!;
     this.history.addEvent({
       type: "cell-created",
       cellId: cell.id,
       style: cell.style,
       format: cell.format,
       border: cell.border,
+      col: position.col,
+      row: position.row,
+      sheetId: position.sheetId,
     });
     if (cell.content) {
       this.history.addEvent({
@@ -393,13 +397,6 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     const cell = this.getCellById(cellId);
     if (cell) {
       this.bus.trigger("cell-deleted", { cellId: cellId });
-      const position = this.getters.getCellPosition(cellId);
-      this.dispatch("UPDATE_CELL_POSITION", {
-        cellId: undefined,
-        col: position.col,
-        row: position.row,
-        sheetId,
-      });
     }
   }
 
@@ -431,33 +428,35 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
         style: data.style,
         border: data.border,
         format: data.format,
+        row,
+        col,
+        sheetId: sheet.id,
       });
       this.bus.trigger("content-updated", { cellId: id, content });
-      current = this.cells[id]!;
-    } else {
-      if (didContentChange) {
-        this.bus.trigger("content-updated", { cellId: current.id, content });
+      return;
+    }
+    if (didContentChange) {
+      this.bus.trigger("content-updated", { cellId: current.id, content });
+    }
+    if (style || ("style" in data && !data.style)) {
+      if ("style" in data && !data.style) {
+        this.bus.trigger("style-updated", { cellId: current.id, style: undefined });
+      } else {
+        this.bus.trigger("style-updated", { cellId: current.id, style: style });
       }
-      if (style || ("style" in data && !data.style)) {
-        if ("style" in data && !data.style) {
-          this.bus.trigger("style-updated", { cellId: current.id, style: undefined });
-        } else {
-          this.bus.trigger("style-updated", { cellId: current.id, style: style });
-        }
+    }
+    if (border || ("border" in data && !data.border)) {
+      if ("border" in data && !data.border) {
+        this.bus.trigger("border-updated", { cellId: current.id, border: undefined });
+      } else {
+        this.bus.trigger("border-updated", { cellId: current.id, border: border });
       }
-      if (border || ("border" in data && !data.border)) {
-        if ("border" in data && !data.border) {
-          this.bus.trigger("border-updated", { cellId: current.id, border: undefined });
-        } else {
-          this.bus.trigger("border-updated", { cellId: current.id, border: border });
-        }
-      }
-      if (format || ("format" in data && !data.format)) {
-        if ("format" in data && !data.format) {
-          this.bus.trigger("format-updated", { cellId: current.id, format: undefined });
-        } else {
-          this.bus.trigger("format-updated", { cellId: current.id, format: format });
-        }
+    }
+    if (format || ("format" in data && !data.format)) {
+      if ("format" in data && !data.format) {
+        this.bus.trigger("format-updated", { cellId: current.id, format: undefined });
+      } else {
+        this.bus.trigger("format-updated", { cellId: current.id, format: format });
       }
     }
     this.dispatch("UPDATE_CELL_POSITION", {

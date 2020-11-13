@@ -795,9 +795,20 @@ export interface EventDispatcher {
 export interface CellCreatedEvent {
   type: "cell-created";
   cellId: UID;
+  sheetId: UID;
+  col: number;
+  row: number;
   style?: number;
   border?: number;
   format?: string;
+}
+
+export interface CellMovedEvent {
+  type: "cell-moved";
+  cellId: UID;
+  sheetId: UID;
+  col: number;
+  row: number;
 }
 
 export interface CellDeletedEvent {
@@ -842,6 +853,7 @@ export interface RemoveMergeEvent {
 }
 
 export type Event =
+  | CellMovedEvent
   | RemoveMergeEvent
   | AddMergeEvent
   | CellCreatedEvent
