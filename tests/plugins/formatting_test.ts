@@ -3,6 +3,11 @@ import { getCell } from "../helpers";
 
 import "../canvas.mock";
 import { setCellContent } from "../helpers";
+import { UID } from "../../src/types/misc";
+import { FormattingPlugin } from "../../src/plugins/formatting";
+import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../src/constants";
+import { fontSizeMap } from "../../src/fonts";
+import { toZone } from "../../src/helpers";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
@@ -132,6 +137,75 @@ describe("formatting values (with formatters)", () => {
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "mm/dd/yyyy");
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("Test");
+  });
+});
+
+describe("Autoresize", () => {
+  let model: Model;
+  let sheetId: UID;
+  const sizes = [10, 20];
+  const padding = 2 * PADDING_AUTORESIZE;
+  const rowSize = fontSizeMap[DEFAULT_FONT_SIZE];
+
+  beforeEach(() => {
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+    const formattingPlugin = model["handlers"].find(
+      (p) => p instanceof FormattingPlugin
+    )! as FormattingPlugin;
+    formattingPlugin.getTextWidth = jest.fn((text: string) => {
+      if (text === "size0") return sizes[0];
+      return sizes[1];
+    });
+  });
+
+  test("Can autoresize a column", () => {
+    setCellContent(model, "A1", "size0");
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getCol(sheetId, 0)?.size).toBe(sizes[0] + padding);
+  });
+
+  test("Can autoresize two columns", () => {
+    setCellContent(model, "A1", "size0");
+    setCellContent(model, "C1", "size1");
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
+    expect(model.getters.getCol(sheetId, 0)?.size).toBe(sizes[0] + padding);
+    expect(model.getters.getCol(sheetId, 2)?.size).toBe(sizes[1] + padding);
+  });
+
+  test("Can autoresize a row", () => {
+    setCellContent(model, "A1", "test");
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    expect(model.getters.getRow(sheetId, 0)?.size).toBe(rowSize + padding);
+  });
+
+  test("Can autoresize two rows", () => {
+    setCellContent(model, "A1", "test");
+    setCellContent(model, "A3", "test");
+    model.dispatch("SET_FORMATTING", { sheetId, target: [toZone("A3")], style: { fontSize: 24 } });
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
+    expect(model.getters.getRow(sheetId, 0)?.size).toBe(rowSize + padding);
+    expect(model.getters.getRow(sheetId, 2)?.size).toBe(fontSizeMap[24] + padding);
+  });
+
+  test("Can autoresize a column in another sheet", () => {
+    const initialSize = model.getters.getCol(sheetId, 0)?.size;
+    const newSheetId = "42";
+    model.dispatch("CREATE_SHEET", { sheetId: newSheetId });
+    setCellContent(model, "A1", "size0", newSheetId);
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
+    expect(model.getters.getCol(sheetId, 0)?.size).toBe(initialSize);
+    expect(model.getters.getCol(newSheetId, 0)?.size).toBe(sizes[0] + padding);
+  });
+
+  test("Can autoresize a row in another sheet", () => {
+    const initialSize = model.getters.getRow(sheetId, 0)?.size;
+    const newSheetId = "42";
+    model.dispatch("CREATE_SHEET", { sheetId: newSheetId });
+    setCellContent(model, "A1", "test", newSheetId);
+    model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
+    expect(model.getters.getRow(sheetId, 0)?.size).toBe(initialSize);
+    expect(model.getters.getRow(newSheetId, 0)?.size).toBe(rowSize + padding);
   });
 });
 

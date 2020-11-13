@@ -369,8 +369,9 @@ export class SheetPlugin extends BasePlugin<SheetState, SheetGetters> implements
   /**
    * Returns all the cells of a col
    */
-  getColCells(col: number): Cell[] {
-    return this.activeSheet.rows.reduce((acc: Cell[], cur) => {
+  getColCells(sheetId: UID, col: number): Cell[] {
+    const sheet = this.getSheet(sheetId)!;
+    return sheet.rows.reduce((acc: Cell[], cur) => {
       const cell = cur.cells[col];
       return cell !== undefined ? acc.concat(cell) : acc;
     }, []);

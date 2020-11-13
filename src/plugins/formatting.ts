@@ -1,4 +1,9 @@
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
+import {
+  DEFAULT_FONT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT_WEIGHT,
+  PADDING_AUTORESIZE,
+} from "../constants";
 import { fontSizeMap } from "../fonts";
 import { stringify, toCartesian, toXC, maximumDecimalPlaces, toZone } from "../helpers/index";
 import {
@@ -13,8 +18,6 @@ import {
   Zone,
 } from "../types/index";
 import { BasePlugin } from "../base_plugin";
-
-const MIN_PADDING = 3;
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers
@@ -31,7 +34,7 @@ const commandToSides = {
 const DEFAULT_STYLE: Style = {
   fillColor: "white",
   textColor: "black",
-  fontSize: 11,
+  fontSize: DEFAULT_FONT_SIZE,
 };
 
 type FormatInfo = {
@@ -116,26 +119,24 @@ export class FormattingPlugin extends BasePlugin<{}, FormattingGetters> {
         this.onAddElements(start_row, end_row, false, cmd.position === "before");
         break;
       case "AUTORESIZE_COLUMNS":
-        // TODO This command do not work with other sheet than active one
         for (let col of cmd.cols) {
-          const size = this.getColMaxWidth(col);
+          const size = this.getColMaxWidth(cmd.sheetId, col);
           if (size !== 0) {
             this.dispatch("RESIZE_COLUMNS", {
               cols: [col],
-              size: size + 2 * MIN_PADDING,
+              size: size + 2 * PADDING_AUTORESIZE,
               sheetId: cmd.sheetId,
             });
           }
         }
         break;
       case "AUTORESIZE_ROWS":
-        // TODO This command do not work with other sheet than active one
         for (let row of cmd.rows) {
-          const size = this.getRowMaxHeight(row);
+          const size = this.getRowMaxHeight(cmd.sheetId, row);
           if (size !== 0) {
             this.dispatch("RESIZE_ROWS", {
               rows: [row],
-              size: size + 2 * MIN_PADDING,
+              size: size + 2 * PADDING_AUTORESIZE,
               sheetId: cmd.sheetId,
             });
           }
@@ -663,14 +664,15 @@ export class FormattingPlugin extends BasePlugin<{}, FormattingGetters> {
   // Grid size
   // ---------------------------------------------------------------------------
 
-  private getColMaxWidth(index: number): number {
-    const cells = this.getters.getColCells(index);
+  private getColMaxWidth(sheetId: UID, index: number): number {
+    const cells = this.getters.getColCells(sheetId, index);
     const sizes = cells.map(this.getters.getCellWidth);
     return Math.max(0, ...sizes);
   }
 
-  private getRowMaxHeight(index: number): number {
-    const cells = Object.values(this.getters.getActiveSheet().rows[index].cells);
+  private getRowMaxHeight(sheetId: UID, index: number): number {
+    const sheet = this.getters.getSheet(sheetId)!;
+    const cells = Object.values(sheet.rows[index].cells);
     const sizes = cells.map(this.getters.getCellHeight);
     return Math.max(0, ...sizes);
   }
