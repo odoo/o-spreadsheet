@@ -10,6 +10,7 @@ import {
   Row,
   Sheet,
   SheetData,
+  SheetGetters,
   UID,
   UpdateCellPositionCommand,
   WorkbookData,
@@ -26,7 +27,6 @@ import {
 } from "../helpers/index";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { cellReference, rangeTokenize } from "../formulas/index";
-const MIN_PADDING = 3;
 
 export interface SheetState {
   readonly activeSheet: Sheet;
@@ -36,26 +36,27 @@ export interface SheetState {
   readonly cellPosition: Record<UID, { col: number; row: number } | undefined>;
 }
 
-export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
+export class SheetPlugin extends BasePlugin<SheetState, SheetGetters> implements SheetState {
   static getters = [
-    "applyOffset",
-    "getActiveSheetId",
+    "applyOffset", //TODO Strange, should not be a getters but an helper
     "getActiveSheet",
-    "getSheetName",
+    "getActiveSheetId",
+    "getCell",
+    "getCellByXc",
+    "getCellPosition",
+    "getCells",
+    "getCol",
+    "getColCells",
+    "getColsZone",
+    "getGridSize",
+    "getRow",
+    "getRowsZone",
     "getSheet",
     "getSheetIdByName",
+    "getSheetName",
     "getSheets",
-    "getVisibleSheets",
     "getEvaluationSheets",
-    "getCol",
-    "getRow",
-    "getCell",
-    "getCellPosition",
-    "getColCells",
-    "getGridSize",
-    "getColsZone",
-    "getRowsZone",
-    "getCellByXc",
+    "getVisibleSheets",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -168,22 +169,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
             sheetIdFrom: this.getters.getActiveSheetId(),
             sheetIdTo: sheet.id,
           });
-        }
-        break;
-      case "AUTORESIZE_COLUMNS":
-        for (let col of cmd.cols) {
-          const size = this.getColMaxWidth(col);
-          if (size !== 0) {
-            this.setColSize(this.sheets[cmd.sheetId]!, col, size + 2 * MIN_PADDING);
-          }
-        }
-        break;
-      case "AUTORESIZE_ROWS":
-        for (let col of cmd.rows) {
-          const size = this.getRowMaxHeight(col);
-          if (size !== 0) {
-            this.setRowSize(this.sheets[cmd.sheetId]!, col, size + 2 * MIN_PADDING);
-          }
         }
         break;
       case "RESIZE_COLUMNS":
@@ -425,21 +410,33 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     return cell;
   }
 
+  /**
+   * Get all the cells of the sheet
+   *
+   * @param sheetId Id of the sheet, activeSheet if not given
+   *
+   * @returns Cells
+   */
+  getCells(sheetId: UID = this.getters.getActiveSheetId()): Record<UID, Cell> {
+    if (!(sheetId in this.sheets)) {
+      throw new Error(`Sheet id ${sheetId} does not exist !`);
+    }
+    const cells = {};
+    const sheet = this.sheets[sheetId]!;
+    for (let col = 0; col < sheet.cols.length; col++) {
+      for (let row = 0; row < sheet.rows.length; row++) {
+        const cell = sheet.rows[row].cells[col];
+        if (cell) {
+          cells[cell.id] = cell;
+        }
+      }
+    }
+    return cells;
+  }
+
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
-
-  private getColMaxWidth(index: number): number {
-    const cells = this.getters.getColCells(index);
-    const sizes = cells.map(this.getters.getCellWidth);
-    return Math.max(0, ...sizes);
-  }
-
-  private getRowMaxHeight(index: number): number {
-    const cells = Object.values(this.activeSheet.rows[index].cells);
-    const sizes = cells.map(this.getters.getCellHeight);
-    return Math.max(0, ...sizes);
-  }
 
   private setColSize(sheet: Sheet, index: number, size: number) {
     const cols = sheet.cols;
@@ -1242,7 +1239,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   private visitAllFormulasSymbols(cb: (value: string, sheetId: UID) => string) {
     for (let sheetId in this.sheets) {
       //const sheet = this.sheets[sheetId];
-      const cells = this.getters.getCells(sheetId);
+      const cells = this.getCells(sheetId);
       for (let [cellId, cell] of Object.entries(cells)) {
         if (cell.type === "formula") {
           const content = rangeTokenize(cell.content!)

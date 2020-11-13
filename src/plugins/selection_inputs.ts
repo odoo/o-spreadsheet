@@ -1,5 +1,12 @@
 import { BasePlugin } from "../base_plugin";
-import { Command, LAYERS, Highlight, CancelledReason, CommandResult } from "../types/index";
+import {
+  Command,
+  LAYERS,
+  Highlight,
+  CancelledReason,
+  CommandResult,
+  SelectionInputGetters,
+} from "../types/index";
 import { Mode } from "../model";
 import { uuidv4, getNextColor } from "../helpers/index";
 import { SelectionMode } from "./selection";
@@ -18,7 +25,7 @@ interface RangeInputValue {
  * it requires an intermediary internal state to work.
  * This plugin handles this internal state.
  */
-export class SelectionInputPlugin extends BasePlugin {
+export class SelectionInputPlugin extends BasePlugin<{}, SelectionInputGetters> {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getSelectionInput", "getSelectionInputValue"];

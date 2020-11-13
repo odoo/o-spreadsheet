@@ -14,8 +14,9 @@ import {
   Tooltip,
   GeneratorCell,
   AutofillResult,
+  AutofillGetters,
 } from "../types/index";
-import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
+import { union, toCartesian, toXC, isInside, clip, getRect } from "../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
 
 /**
@@ -81,7 +82,7 @@ class AutofillGenerator {
  * Autofill Plugin
  *
  */
-export class AutofillPlugin extends BasePlugin {
+export class AutofillPlugin extends BasePlugin<{}, AutofillGetters> {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
   static modes: Mode[] = ["normal", "readonly"];
@@ -359,7 +360,8 @@ export class AutofillPlugin extends BasePlugin {
       };
       nextCells.push({ data, rule });
     }
-    return new AutofillGenerator(nextCells, this.getters, this.direction!);
+    // this.getters as Getters is intented, as in the autofillGenerator (runtime), we have all the getters available
+    return new AutofillGenerator(nextCells, this.getters as Getters, this.direction!);
   }
 
   private saveZone(top: number, bottom: number, left: number, right: number) {
@@ -402,7 +404,8 @@ export class AutofillPlugin extends BasePlugin {
       return;
     }
     const { viewport, ctx, thinLineWidth } = renderingContext;
-    const [x, y, width, height] = this.getters.getRect(this.autofillZone, viewport);
+    const sheet = this.getters.getActiveSheet();
+    const [x, y, width, height] = getRect(this.autofillZone, viewport, sheet);
     if (width > 0 && height > 0) {
       ctx.strokeStyle = "black";
       ctx.lineWidth = thinLineWidth;

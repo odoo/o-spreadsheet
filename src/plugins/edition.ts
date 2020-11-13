@@ -1,6 +1,6 @@
 import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../formulas/index";
 import { toXC, toCartesian, colors, getComposerSheetName } from "../helpers/index";
-import { Command, LAYERS, CancelledReason, CommandResult } from "../types/index";
+import { Command, LAYERS, CancelledReason, CommandResult, EditionGetters } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
 
@@ -11,15 +11,15 @@ export interface ComposerSelection {
   end: number;
 }
 
-export class EditionPlugin extends BasePlugin {
+export class EditionPlugin extends BasePlugin<{}, EditionGetters> {
   static layers = [LAYERS.Highlights];
   static getters = [
-    "getEditionMode",
-    "isSelectingForComposer",
-    "getCurrentContent",
-    "getEditionSheet",
     "getComposerSelection",
+    "getCurrentContent",
+    "getEditionMode",
+    "getEditionSheet",
     "getTokenAtCursor",
+    "isSelectingForComposer",
   ];
   static modes: Mode[] = ["normal", "readonly"];
 

@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { clip } from "../helpers/index";
+import { clip, getRect } from "../helpers/index";
 import { Mode } from "../model";
 import {
   Cell,
@@ -11,6 +11,7 @@ import {
   CommandResult,
   UID,
   Sheet,
+  ClipboardGetters,
 } from "../types/index";
 import { _lt } from "../translation";
 
@@ -26,9 +27,9 @@ interface ClipboardCell {
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardPlugin extends BasePlugin {
+export class ClipboardPlugin extends BasePlugin<{}, ClipboardGetters> {
   static layers = [LAYERS.Clipboard];
-  static getters = ["getClipboardContent", "isPaintingFormat", "getPasteZones"];
+  static getters = ["getClipboardContent", "getPasteZones", "isPaintingFormat"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private status: "empty" | "visible" | "invisible" = "empty";
@@ -46,7 +47,8 @@ export class ClipboardPlugin extends BasePlugin {
 
   allowDispatch(cmd: Command): CommandResult {
     if (cmd.type === "PASTE") {
-      return this.isPasteAllowed(cmd.target);
+      const force = "force" in cmd ? !!cmd.force : false;
+      return this.isPasteAllowed(cmd.target, force);
     }
     return {
       status: "SUCCESS",
@@ -215,7 +217,7 @@ export class ClipboardPlugin extends BasePlugin {
     });
   }
 
-  private isPasteAllowed(target: Zone[]): CommandResult {
+  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
     const { zones, cells, status } = this;
     // cannot paste if we have a clipped zone larger than a cell and multiple
     // zones selected
@@ -223,6 +225,17 @@ export class ClipboardPlugin extends BasePlugin {
       return { status: "CANCELLED", reason: CancelledReason.EmptyClipboard };
     } else if (target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
       return { status: "CANCELLED", reason: CancelledReason.WrongPasteSelection };
+    }
+    if (!force) {
+      const pasteZones = this.getters.getPasteZones(target);
+      for (let zone of pasteZones) {
+        if (this.getters.doesIntersectMerge(zone)) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.WillRemoveExistingMerge,
+          };
+        }
+      }
     }
     return { status: "SUCCESS" };
   }
@@ -458,8 +471,9 @@ export class ClipboardPlugin extends BasePlugin {
     ctx.setLineDash([8, 5]);
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3.3 * thinLineWidth;
+    const sheet = this.getters.getActiveSheet();
     for (const zone of zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = getRect(zone, viewport, sheet);
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }

@@ -19,101 +19,134 @@ import { FindAndReplacePlugin } from "../plugins/find_and_replace";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
-export interface Getters {
+export interface WHistoryGetters {
+  canUndo: WHistory["canUndo"];
+  canRedo: WHistory["canRedo"];
+}
+
+export interface SheetGetters extends WHistoryGetters {
   applyOffset: SheetPlugin["applyOffset"];
-  getActiveSheetId: SheetPlugin["getActiveSheetId"];
   getActiveSheet: SheetPlugin["getActiveSheet"];
-  getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
-  getSheet: SheetPlugin["getSheet"];
-  getSheetName: SheetPlugin["getSheetName"];
-  getSheetIdByName: SheetPlugin["getSheetIdByName"];
-  getSheets: SheetPlugin["getSheets"];
-  getVisibleSheets: SheetPlugin["getVisibleSheets"];
-  getCol: SheetPlugin["getCol"];
-  getRow: SheetPlugin["getRow"];
+  getActiveSheetId: SheetPlugin["getActiveSheetId"];
   getCell: SheetPlugin["getCell"];
+  getCellByXc: SheetPlugin["getCellByXc"];
   getCellPosition: SheetPlugin["getCellPosition"];
+  getCells: SheetPlugin["getCells"];
+  getCol: SheetPlugin["getCol"];
   getColCells: SheetPlugin["getColCells"];
   getColsZone: SheetPlugin["getColsZone"];
-  getRowsZone: SheetPlugin["getRowsZone"];
+  getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getGridSize: SheetPlugin["getGridSize"];
-  getCellByXc: SheetPlugin["getCellByXc"];
+  getRow: SheetPlugin["getRow"];
+  getRowsZone: SheetPlugin["getRowsZone"];
+  getSheet: SheetPlugin["getSheet"];
+  getSheetIdByName: SheetPlugin["getSheetIdByName"];
+  getSheetName: SheetPlugin["getSheetName"];
+  getSheets: SheetPlugin["getSheets"];
+  getVisibleSheets: SheetPlugin["getVisibleSheets"];
+}
 
+export interface CoreGetters extends SheetGetters {
   getCellText: CorePlugin["getCellText"];
-  zoneToXC: CorePlugin["zoneToXC"];
-  getCells: CorePlugin["getCells"];
-  getRangeValues: CorePlugin["getRangeValues"];
   getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
+  getRangeValues: CorePlugin["getRangeValues"];
   shouldShowFormulas: CorePlugin["shouldShowFormulas"];
+}
 
-  getClipboardContent: ClipboardPlugin["getClipboardContent"];
-  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
-  getPasteZones: ClipboardPlugin["getPasteZones"];
+export interface EvaluationGetters extends CoreGetters {
+  evaluateFormula: EvaluationPlugin["evaluateFormula"];
+  isIdle: EvaluationPlugin["isIdle"];
+}
 
+export interface MergeGetters extends EvaluationGetters {
+  doesIntersectMerge: MergePlugin["doesIntersectMerge"];
+  expandZone: MergePlugin["expandZone"];
+  getMainCell: MergePlugin["getMainCell"];
+  getMerge: MergePlugin["getMerge"];
+  getMerges: MergePlugin["getMerges"];
+  isInMerge: MergePlugin["isInMerge"];
+  isInSameMerge: MergePlugin["isInSameMerge"];
+  isMergeDestructive: MergePlugin["isMergeDestructive"];
+  zoneToXC: MergePlugin["zoneToXC"];
+}
+
+export interface FormattingGetters extends MergeGetters {
+  getCellBorder: FormattingPlugin["getCellBorder"];
+  getCellHeight: FormattingPlugin["getCellHeight"];
+  getCellStyle: FormattingPlugin["getCellStyle"];
   getCellWidth: FormattingPlugin["getCellWidth"];
   getTextWidth: FormattingPlugin["getTextWidth"];
-  getCellHeight: FormattingPlugin["getCellHeight"];
+}
 
-  expandZone: MergePlugin["expandZone"];
-  isMergeDestructive: MergePlugin["isMergeDestructive"];
-  isInMerge: MergePlugin["isInMerge"];
-  getMainCell: MergePlugin["getMainCell"];
-  doesIntersectMerge: MergePlugin["doesIntersectMerge"];
-  isInSameMerge: MergePlugin["isInSameMerge"];
-  getMerges: MergePlugin["getMerges"];
-  getMerge: MergePlugin["getMerge"];
-
+export interface SelectionGetters extends FormattingGetters {
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
-  getSelectedZones: SelectionPlugin["getSelectedZones"];
-  getSelectedZone: SelectionPlugin["getSelectedZone"];
-  getSelection: SelectionPlugin["getSelection"];
-  getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
+  getCurrentStyle: SelectionPlugin["getCurrentStyle"];
+  getPosition: SelectionPlugin["getPosition"];
+  getSelectedZone: SelectionPlugin["getSelectedZone"];
+  getSelectedZones: SelectionPlugin["getSelectedZones"];
+  getSelection: SelectionPlugin["getSelection"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
+}
 
+export interface ClipboardGetters extends SelectionGetters {
+  getClipboardContent: ClipboardPlugin["getClipboardContent"];
+  getPasteZones: ClipboardPlugin["getPasteZones"];
+  isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
+}
+
+export interface EditionGetters extends ClipboardGetters {
+  getComposerSelection: EditionPlugin["getComposerSelection"];
+  getCurrentContent: EditionPlugin["getCurrentContent"];
+  getEditionMode: EditionPlugin["getEditionMode"];
+  getEditionSheet: EditionPlugin["getEditionSheet"];
+  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
+  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
+}
+
+export interface HighlightGetters extends EditionGetters {
   getHighlights: HighlightPlugin["getHighlights"];
+}
 
+export interface SelectionInputGetters extends HighlightGetters {
+  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
+  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
+}
+
+export interface ConditionalFormatGetters extends SelectionInputGetters {
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
   getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
+}
 
-  getColIndex: RendererPlugin["getColIndex"];
-  getRowIndex: RendererPlugin["getRowIndex"];
-  getRect: RendererPlugin["getRect"];
-  snapViewportToCell: RendererPlugin["snapViewportToCell"];
-  adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
-  adjustViewportZone: RendererPlugin["adjustViewportZone"];
-
-  getCurrentStyle: FormattingPlugin["getCurrentStyle"];
-  getCellStyle: FormattingPlugin["getCellStyle"];
-  getCellBorder: FormattingPlugin["getCellBorder"];
-
-  canUndo: WHistory["canUndo"];
-  canRedo: WHistory["canRedo"];
-
-  evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  isIdle: EvaluationPlugin["isIdle"];
-
-  getEditionMode: EditionPlugin["getEditionMode"];
-  isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
-  getCurrentContent: EditionPlugin["getCurrentContent"];
-  getEditionSheet: EditionPlugin["getEditionSheet"];
-  getComposerSelection: EditionPlugin["getComposerSelection"];
-  getTokenAtCursor: EditionPlugin["getTokenAtCursor"];
-
-  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
-
-  getSelectionInput: SelectionInputPlugin["getSelectionInput"];
-  getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
+export interface FigureGetters extends ConditionalFormatGetters {
+  getFigure: FigurePlugin["getFigure"];
   getFigures: FigurePlugin["getFigures"];
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
-  getFigure: FigurePlugin["getFigure"];
-
-  getChartRuntime: ChartPlugin["getChartRuntime"];
-
-  getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
-  getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
 }
+
+export interface ChartGetters extends FigureGetters {
+  getChartRuntime: ChartPlugin["getChartRuntime"];
+}
+
+export interface RendererGetters extends ChartGetters {
+  adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
+  adjustViewportZone: RendererPlugin["adjustViewportZone"];
+  getColIndex: RendererPlugin["getColIndex"];
+  getRowIndex: RendererPlugin["getRowIndex"];
+  snapViewportToCell: RendererPlugin["snapViewportToCell"];
+}
+
+export interface AutofillGetters extends RendererGetters {
+  getAutofillTooltip: AutofillPlugin["getAutofillTooltip"];
+}
+
+export interface FindAndReplaceGetters extends AutofillGetters {
+  getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
+  getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
+}
+
+export interface Getters extends FindAndReplaceGetters {}

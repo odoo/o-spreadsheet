@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { Command, WorkbookData, Figure, Viewport, UID } from "../types/index";
+import { Command, WorkbookData, Figure, Viewport, UID, FigureGetters } from "../types/index";
 import { uuidv4, isDefined } from "../helpers/index";
 
 interface FigureState {
@@ -7,8 +7,8 @@ interface FigureState {
   readonly sheetFigures: Record<UID, Figure<any>[] | undefined>;
 }
 
-export class FigurePlugin extends BasePlugin<FigureState> implements FigureState {
-  static getters = ["getFigures", "getSelectedFigureId", "getFigure"];
+export class FigurePlugin extends BasePlugin<FigureState, FigureGetters> implements FigureState {
+  static getters = ["getFigure", "getFigures", "getSelectedFigureId"];
 
   private selectedFigureId: string | null = null;
 

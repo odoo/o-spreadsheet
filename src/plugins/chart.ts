@@ -9,6 +9,7 @@ import {
   CommandResult,
   CancelledReason,
   UID,
+  ChartGetters,
 } from "../types/index";
 import { ChartConfiguration, ChartType } from "chart.js";
 import { BasePlugin } from "../base_plugin";
@@ -51,7 +52,7 @@ interface ChartState {
   readonly chartFigures: Set<string>;
 }
 
-export class ChartPlugin extends BasePlugin<ChartState> implements ChartState {
+export class ChartPlugin extends BasePlugin<ChartState, ChartGetters> implements ChartState {
   static getters = ["getChartRuntime"];
   static layers = [LAYERS.Chart];
 

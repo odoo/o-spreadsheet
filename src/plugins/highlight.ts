@@ -1,12 +1,19 @@
 import { BasePlugin } from "../base_plugin";
-import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../types/index";
-import { toZone, getNextColor, isEqual } from "../helpers/index";
+import {
+  Command,
+  LAYERS,
+  Zone,
+  GridRenderingContext,
+  Highlight,
+  HighlightGetters,
+} from "../types/index";
+import { toZone, getNextColor, isEqual, getRect } from "../helpers/index";
 import { Mode } from "../model";
 
 /**
  * HighlightPlugin
  */
-export class HighlightPlugin extends BasePlugin {
+export class HighlightPlugin extends BasePlugin<{}, HighlightGetters> {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"];
@@ -168,11 +175,10 @@ export class HighlightPlugin extends BasePlugin {
   drawGrid(renderingContext: GridRenderingContext) {
     // rendering selection highlights
     const { ctx, viewport, thinLineWidth } = renderingContext;
+    const sheet = this.getters.getActiveSheet();
     ctx.lineWidth = 3 * thinLineWidth;
-    for (let h of this.highlights.filter(
-      (highlight) => highlight.sheet === this.getters.getActiveSheetId()
-    )) {
-      const [x, y, width, height] = this.getters.getRect(h.zone, viewport);
+    for (let h of this.highlights.filter((highlight) => highlight.sheet === sheet.id)) {
+      const [x, y, width, height] = getRect(h.zone, viewport, sheet);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
         ctx.strokeRect(x, y, width, height);

@@ -259,6 +259,7 @@ describe("Model history", () => {
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    setCellContent(model, "A1", "test");
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",

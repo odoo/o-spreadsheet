@@ -18,12 +18,12 @@ import { overlap, toXC } from "../helpers/index";
 import {
   Box,
   Rect,
-  Zone,
   Viewport,
   Header,
   LAYERS,
   GridRenderingContext,
   Cell,
+  RendererGetters,
 } from "../types/index";
 import { Mode } from "../model";
 
@@ -65,15 +65,14 @@ function searchIndex(headers: Header[], offset: number): number {
   return -1;
 }
 
-export class RendererPlugin extends BasePlugin {
+export class RendererPlugin extends BasePlugin<{}, RendererGetters> {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
-    "getColIndex",
-    "getRowIndex",
-    "getRect",
-    "snapViewportToCell",
     "adjustViewportPosition",
     "adjustViewportZone",
+    "getColIndex",
+    "getRowIndex",
+    "snapViewportToCell",
   ];
   static modes: Mode[] = ["normal", "readonly"];
 
@@ -103,19 +102,6 @@ export class RendererPlugin extends BasePlugin {
     const rows = this.getters.getActiveSheet().rows;
     const adjustedY = y - HEADER_HEIGHT + rows[top].start + 1;
     return searchIndex(rows, adjustedY);
-  }
-
-  getRect(zone: Zone, viewport: Viewport): Rect {
-    const { left, top, right, bottom } = zone;
-    let { offsetY, offsetX } = viewport;
-    offsetX -= HEADER_WIDTH;
-    offsetY -= HEADER_HEIGHT;
-    const { cols, rows } = this.getters.getActiveSheet();
-    const x = Math.max(cols[left].start - offsetX, HEADER_WIDTH);
-    const width = cols[right].end - offsetX - x;
-    const y = Math.max(rows[top].start - offsetY, HEADER_HEIGHT);
-    const height = rows[bottom].end - offsetY - y;
-    return [x, y, width, height];
   }
 
   /**

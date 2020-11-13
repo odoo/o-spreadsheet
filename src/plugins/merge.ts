@@ -21,6 +21,7 @@ import {
   Command,
   CommandResult,
   Merge,
+  MergeGetters,
   UID,
   WorkbookData,
   Zone,
@@ -39,16 +40,17 @@ interface MergeState {
   readonly pending: PendingMerges | null;
 }
 
-export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
+export class MergePlugin extends BasePlugin<MergeState, MergeGetters> implements MergeState {
   static getters = [
+    "doesIntersectMerge",
+    "expandZone",
+    "getMainCell",
+    "getMerge",
+    "getMerges",
     "isMergeDestructive",
     "isInMerge",
     "isInSameMerge",
-    "getMainCell",
-    "expandZone",
-    "doesIntersectMerge",
-    "getMerges",
-    "getMerge",
+    "zoneToXC",
   ];
 
   private nextId: number = 1;
@@ -64,8 +66,6 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     const force = "force" in cmd ? !!cmd.force : false;
 
     switch (cmd.type) {
-      case "PASTE":
-        return this.isPasteAllowed(cmd.target, force);
       case "ADD_MERGE":
         return this.isMergeAllowed(cmd.zone, force);
       default:
@@ -258,6 +258,32 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
     }
     const activeSheet = this.getters.getActiveSheetId();
     return this.getMergeByXc(activeSheet, xc)!.topLeft;
+  }
+
+  /**
+   * Converts a zone to a XC coordinate system
+   *
+   * The conversion also treats merges as one single cell
+   *
+   * Examples:
+   * {top:0,left:0,right:0,bottom:0} ==> A1
+   * {top:0,left:0,right:1,bottom:1} ==> A1:B2
+   *
+   * if A1:B2 is a merge:
+   * {top:0,left:0,right:1,bottom:1} ==> A1
+   * {top:1,left:0,right:1,bottom:2} ==> A1:B3
+   *
+   * if A1:B2 and A4:B5 are merges:
+   * {top:1,left:0,right:1,bottom:3} ==> A1:A5
+   */
+  zoneToXC(zone: Zone): string {
+    zone = this.expandZone(zone);
+    const topLeft = toXC(zone.left, zone.top);
+    const botRight = toXC(zone.right, zone.bottom);
+    if (topLeft != botRight && this.getMainCell(topLeft) !== this.getMainCell(botRight)) {
+      return topLeft + ":" + botRight;
+    }
+    return topLeft;
   }
 
   // ---------------------------------------------------------------------------
@@ -471,27 +497,6 @@ export class MergePlugin extends BasePlugin<MergeState> implements MergeState {
         format: topLeft.format,
       });
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Copy/Cut/Paste and Merge
-  // ---------------------------------------------------------------------------
-
-  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
-    if (!force) {
-      const pasteZones = this.getters.getPasteZones(target);
-      for (let zone of pasteZones) {
-        if (this.doesIntersectMerge(zone)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.WillRemoveExistingMerge,
-          };
-        }
-      }
-    }
-    return {
-      status: "SUCCESS",
-    };
   }
 
   // ---------------------------------------------------------------------------

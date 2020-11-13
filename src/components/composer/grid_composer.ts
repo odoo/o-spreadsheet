@@ -3,6 +3,7 @@ import { SpreadsheetEnv, Zone, Rect, Viewport } from "../../types/index";
 
 import { Composer } from "./composer";
 import { fontSizeMap } from "../../fonts";
+import { getRect } from "../../helpers/zones";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -48,8 +49,9 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     const [col, row] = this.getters.getPosition();
+    const sheet = this.getters.getActiveSheet();
     this.zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
-    this.rect = this.getters.getRect(this.zone, this.props.viewport);
+    this.rect = getRect(this.zone, this.props.viewport, sheet);
   }
 
   get containerStyle(): string {

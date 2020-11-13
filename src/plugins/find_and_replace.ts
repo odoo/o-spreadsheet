@@ -1,6 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { toXC } from "../helpers/coordinates";
-import { Cell, Command, GridRenderingContext, LAYERS } from "../types/index";
+import { getRect } from "../helpers/zones";
+import { Cell, Command, FindAndReplaceGetters, GridRenderingContext, LAYERS } from "../types/index";
 
 const BORDER_COLOR: string = "#8B008B";
 const BACKGROUND_COLOR: string = "#8B008B33";
@@ -37,9 +38,9 @@ interface SearchMatch {
  * the search with a new value.
  */
 
-export class FindAndReplacePlugin extends BasePlugin {
+export class FindAndReplacePlugin extends BasePlugin<{}, FindAndReplaceGetters> {
   static layers = [LAYERS.Search];
-  static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"];
+  static getters = ["getCurrentSelectedMatchIndex", "getSearchMatches"];
   private searchMatches: SearchMatch[] = [];
   private selectedMatchIndex: number | null = null;
   private currentSearchRegex: RegExp | null = null;
@@ -279,14 +280,15 @@ export class FindAndReplacePlugin extends BasePlugin {
 
   drawGrid(renderingContext: GridRenderingContext) {
     const { ctx, viewport } = renderingContext;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheet = this.getters.getActiveSheet();
+    const sheetId = sheet.id;
     for (const match of this.searchMatches) {
       const merge = this.getters.getMerge(sheetId, toXC(match.col, match.row));
       const left = merge ? merge.left : match.col;
       const right = merge ? merge.right : match.col;
       const top = merge ? merge.top : match.row;
       const bottom = merge ? merge.bottom : match.row;
-      const [x, y, width, height] = this.getters.getRect({ top, left, right, bottom }, viewport);
+      const [x, y, width, height] = getRect({ top, left, right, bottom }, viewport, sheet);
       if (width > 0 && height > 0) {
         ctx.fillStyle = BACKGROUND_COLOR;
         ctx.fillRect(x, y, width, height);

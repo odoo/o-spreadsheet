@@ -16,6 +16,7 @@ import {
   ColorScaleRule,
   Command,
   ConditionalFormat,
+  ConditionalFormatGetters,
   Style,
   WorkbookData,
   Zone,
@@ -30,7 +31,7 @@ interface ConditionalFormatState {
   readonly cfRules: { [sheet: string]: ConditionalFormat[] };
 }
 export class ConditionalFormatPlugin
-  extends BasePlugin<ConditionalFormatState>
+  extends BasePlugin<ConditionalFormatState, ConditionalFormatGetters>
   implements ConditionalFormatState {
   static getters = ["getConditionalFormats", "getConditionalStyle", "getRulesSelection"];
 

@@ -6,12 +6,15 @@ import {
   BorderCommand,
   Cell,
   Command,
+  FormattingGetters,
   Style,
   UID,
   WorkbookData,
   Zone,
 } from "../types/index";
 import { BasePlugin } from "../base_plugin";
+
+const MIN_PADDING = 3;
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers
@@ -60,14 +63,13 @@ function getTargetZone(zone: Zone, side: string): Zone {
  * - borders
  * - value formatters
  */
-export class FormattingPlugin extends BasePlugin {
+export class FormattingPlugin extends BasePlugin<{}, FormattingGetters> {
   static getters = [
-    "getCurrentStyle",
-    "getCellWidth",
-    "getTextWidth",
+    "getCellBorder",
     "getCellHeight",
     "getCellStyle",
-    "getCellBorder",
+    "getCellWidth",
+    "getTextWidth",
   ];
   private ctx = document.createElement("canvas").getContext("2d")!;
 
@@ -113,6 +115,32 @@ export class FormattingPlugin extends BasePlugin {
         const end_row = start_row + cmd.quantity + 1;
         this.onAddElements(start_row, end_row, false, cmd.position === "before");
         break;
+      case "AUTORESIZE_COLUMNS":
+        // TODO This command do not work with other sheet than active one
+        for (let col of cmd.cols) {
+          const size = this.getColMaxWidth(col);
+          if (size !== 0) {
+            this.dispatch("RESIZE_COLUMNS", {
+              cols: [col],
+              size: size + 2 * MIN_PADDING,
+              sheetId: cmd.sheetId,
+            });
+          }
+        }
+        break;
+      case "AUTORESIZE_ROWS":
+        // TODO This command do not work with other sheet than active one
+        for (let row of cmd.rows) {
+          const size = this.getRowMaxHeight(row);
+          if (size !== 0) {
+            this.dispatch("RESIZE_ROWS", {
+              rows: [row],
+              size: size + 2 * MIN_PADDING,
+              sheetId: cmd.sheetId,
+            });
+          }
+        }
+        break;
     }
   }
 
@@ -148,11 +176,6 @@ export class FormattingPlugin extends BasePlugin {
 
   getCellBorder(cell: Cell): Border | null {
     return cell.border ? this.borders[cell.border] : null;
-  }
-
-  getCurrentStyle(): Style {
-    const cell = this.getters.getActiveCell();
-    return cell && cell.style ? this.styles[cell.style] : {};
   }
 
   // ---------------------------------------------------------------------------
@@ -634,6 +657,22 @@ export class FormattingPlugin extends BasePlugin {
       const zone = [{ left, right, top: bottom, bottom }];
       this.setBorder(sheetId, zone, "bottom");
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid size
+  // ---------------------------------------------------------------------------
+
+  private getColMaxWidth(index: number): number {
+    const cells = this.getters.getColCells(index);
+    const sizes = cells.map(this.getters.getCellWidth);
+    return Math.max(0, ...sizes);
+  }
+
+  private getRowMaxHeight(index: number): number {
+    const cells = Object.values(this.getters.getActiveSheet().rows[index].cells);
+    const sizes = cells.map(this.getters.getCellHeight);
+    return Math.max(0, ...sizes);
   }
 
   // ---------------------------------------------------------------------------

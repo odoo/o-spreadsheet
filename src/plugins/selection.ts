@@ -1,4 +1,4 @@
-import { isEqual, toXC, union, clip, formatStandardNumber } from "../helpers/index";
+import { isEqual, toXC, union, clip, formatStandardNumber, getRect } from "../helpers/index";
 import { BasePlugin } from "../base_plugin";
 import {
   Command,
@@ -8,6 +8,8 @@ import {
   GridRenderingContext,
   CommandResult,
   CancelledReason,
+  Style,
+  Getters,
 } from "../types/index";
 import { Mode } from "../model";
 import { SELECTION_BORDER_COLOR } from "../constants";
@@ -34,18 +36,20 @@ export enum SelectionMode {
 /**
  * SelectionPlugin
  */
-export class SelectionPlugin extends BasePlugin {
+//TODO Still one to do
+export class SelectionPlugin extends BasePlugin<{}, Getters> {
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];
   static getters = [
     "getActiveCell",
     "getActiveCols",
     "getActiveRows",
-    "getSelectedZones",
-    "getSelectedZone",
     "getAggregate",
-    "getSelection",
+    "getCurrentStyle",
     "getPosition",
+    "getSelectedZone",
+    "getSelectedZones",
+    "getSelection",
     "getSelectionMode",
     "isSelected",
   ];
@@ -185,6 +189,11 @@ export class SelectionPlugin extends BasePlugin {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  getCurrentStyle(): Style {
+    const cell = this.getActiveCell();
+    return cell ? this.getters.getCellStyle(cell) : {};
+  }
 
   getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
@@ -487,8 +496,9 @@ export class SelectionPlugin extends BasePlugin {
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
     ctx.globalCompositeOperation = "multiply";
+    const sheet = this.getters.getActiveSheet();
     for (const zone of zones) {
-      const [x, y, width, height] = this.getters.getRect(zone, viewport);
+      const [x, y, width, height] = getRect(zone, viewport, sheet);
       if (width > 0 && height > 0) {
         ctx.fillRect(x, y, width, height);
         ctx.strokeRect(x, y, width, height);
@@ -514,7 +524,7 @@ export class SelectionPlugin extends BasePlugin {
         right: col,
       };
     }
-    const [x, y, width, height] = this.getters.getRect(zone, viewport);
+    const [x, y, width, height] = getRect(zone, viewport, sheet);
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }
