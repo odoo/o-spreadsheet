@@ -117,7 +117,7 @@ Array [
   "context.lineWidth=0.12;",
   "context.strokeStyle=\\"#111\\";",
   "context.textBaseline=\\"middle\\";",
-  "context.font=\\"400 13px 'Roboto', arial\\";",
+  "context.font=\\"400 15px 'Roboto', arial\\";",
   "context.fillStyle=\\"#000\\";",
   "context.textAlign=\\"right\\";",
   "context.save()",

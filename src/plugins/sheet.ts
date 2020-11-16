@@ -26,7 +26,6 @@ import {
 } from "../helpers/index";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { cellReference, rangeTokenize } from "../formulas/index";
-const MIN_PADDING = 3;
 
 export interface SheetState {
   readonly activeSheet: Sheet;
@@ -168,22 +167,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
             sheetIdFrom: this.getters.getActiveSheetId(),
             sheetIdTo: sheet.id,
           });
-        }
-        break;
-      case "AUTORESIZE_COLUMNS":
-        for (let col of cmd.cols) {
-          const size = this.getColMaxWidth(col);
-          if (size !== 0) {
-            this.setColSize(this.sheets[cmd.sheetId]!, col, size + 2 * MIN_PADDING);
-          }
-        }
-        break;
-      case "AUTORESIZE_ROWS":
-        for (let col of cmd.rows) {
-          const size = this.getRowMaxHeight(col);
-          if (size !== 0) {
-            this.setRowSize(this.sheets[cmd.sheetId]!, col, size + 2 * MIN_PADDING);
-          }
         }
         break;
       case "RESIZE_COLUMNS":
@@ -384,8 +367,8 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   /**
    * Returns all the cells of a col
    */
-  getColCells(col: number): Cell[] {
-    return this.activeSheet.rows.reduce((acc: Cell[], cur) => {
+  getColCells(sheetId: UID, col: number): Cell[] {
+    return this.getSheet(sheetId)!.rows.reduce((acc: Cell[], cur) => {
       const cell = cur.cells[col];
       return cell !== undefined ? acc.concat(cell) : acc;
     }, []);
@@ -428,18 +411,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
-
-  private getColMaxWidth(index: number): number {
-    const cells = this.getters.getColCells(index);
-    const sizes = cells.map(this.getters.getCellWidth);
-    return Math.max(0, ...sizes);
-  }
-
-  private getRowMaxHeight(index: number): number {
-    const cells = Object.values(this.activeSheet.rows[index].cells);
-    const sizes = cells.map(this.getters.getCellHeight);
-    return Math.max(0, ...sizes);
-  }
 
   private setColSize(sheet: Sheet, index: number, size: number) {
     const cols = sheet.cols;
