@@ -9,7 +9,7 @@ import {
   setCellContent,
 } from "../helpers";
 import { Model } from "../../src";
-import { SelectionMode } from "../../src/plugins/selection";
+import { SelectionMode } from "../../src/plugins/ui/selection";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEBUG } from "../../src/helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>

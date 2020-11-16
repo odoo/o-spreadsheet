@@ -1,22 +1,22 @@
-import { MergePlugin } from "../plugins/merge";
-import { ClipboardPlugin } from "../plugins/clipboard";
-import { SelectionPlugin } from "../plugins/selection";
-import { CellPlugin } from "../plugins/cell";
-import { ConditionalFormatPlugin } from "../plugins/conditional_format";
-import { RendererPlugin } from "../plugins/renderer";
-import { FormattingPlugin } from "../plugins/formatting";
+import { MergePlugin } from "../plugins/core/merge";
+import { ClipboardPlugin } from "../plugins/ui/clipboard";
+import { SelectionPlugin } from "../plugins/ui/selection";
+import { CellPlugin } from "../plugins/core/cell";
+import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
+import { RendererPlugin } from "../plugins/ui/renderer";
+import { FormattingPlugin } from "../plugins/core/formatting";
 import { WHistory } from "../history";
-import { EvaluationPlugin } from "../plugins/evaluation";
-import { EditionPlugin } from "../plugins/edition";
-import { AutofillPlugin } from "../plugins/autofill";
-import { HighlightPlugin } from "../plugins/highlight";
-import { SelectionInputPlugin } from "../plugins/selection_inputs";
-import { FigurePlugin } from "../plugins/figures";
-import { ChartPlugin } from "../plugins/chart";
-import { SheetPlugin } from "../plugins/sheet";
-import { FindAndReplacePlugin } from "../plugins/find_and_replace";
-import { UIOptionsPlugin } from "../plugins/ui_options";
-import { SheetUIPlugin } from "../plugins/ui_sheet";
+import { EvaluationPlugin } from "../plugins/ui/evaluation";
+import { EditionPlugin } from "../plugins/ui/edition";
+import { AutofillPlugin } from "../plugins/ui/autofill";
+import { HighlightPlugin } from "../plugins/ui/highlight";
+import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { FigurePlugin } from "../plugins/core/figures";
+import { ChartPlugin } from "../plugins/core/chart";
+import { SheetPlugin } from "../plugins/core/sheet";
+import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
+import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
+import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 
 // -----------------------------------------------------------------------------
 // Getters

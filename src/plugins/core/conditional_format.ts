@@ -1,4 +1,4 @@
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin } from "../../base_plugin";
 import {
   colorNumberString,
   toXC,
@@ -9,7 +9,7 @@ import {
   updateRemoveRows,
   isInside,
   recomputeZones,
-} from "../helpers/index";
+} from "../../helpers/index";
 import {
   Cell,
   CellIsRule,
@@ -19,8 +19,8 @@ import {
   Style,
   WorkbookData,
   Zone,
-} from "../types/index";
-import { _lt } from "../translation";
+} from "../../types/index";
+import { _lt } from "../../translation";
 
 // -----------------------------------------------------------------------------
 // Constants

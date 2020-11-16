@@ -9,12 +9,12 @@ import {
   CommandResult,
   CancelledReason,
   UID,
-} from "../types/index";
+} from "../../types/index";
 import { ChartConfiguration, ChartType } from "chart.js";
-import { BasePlugin } from "../base_plugin";
-import { isInside, toXC, toZone, zoneToXc } from "../helpers/index";
-import { rangeReference } from "../formulas/parser";
-import { chartTerms } from "../components/side_panel/translations_terms";
+import { BasePlugin } from "../../base_plugin";
+import { isInside, toXC, toZone, zoneToXc } from "../../helpers/index";
+import { rangeReference } from "../../formulas/parser";
+import { chartTerms } from "../../components/side_panel/translations_terms";
 
 /**
  * Chart plugin

@@ -4,7 +4,7 @@ import { SpreadsheetEnv } from "../../types/index";
 import { TextValueProvider } from "./autocomplete_dropdown";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { zoneToXc, DEBUG } from "../../helpers/index";
-import { ComposerSelection } from "../../plugins/edition";
+import { ComposerSelection } from "../../plugins/ui/edition";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;

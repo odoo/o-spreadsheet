@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { toXC } from "../helpers/coordinates";
-import { Cell, Command, GridRenderingContext, LAYERS } from "../types/index";
+import { BasePlugin } from "../../base_plugin";
+import { toXC } from "../../helpers/coordinates";
+import { Cell, Command, GridRenderingContext, LAYERS } from "../../types/index";
 
 const BORDER_COLOR: string = "#8B008B";
 const BACKGROUND_COLOR: string = "#8B008B33";

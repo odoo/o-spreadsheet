@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { waitForRecompute, getCell, setCellContent, getCellContent } from "../helpers";
-import { LOADING } from "../../src/plugins/evaluation";
+import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
 
 describe("core", () => {

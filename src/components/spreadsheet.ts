@@ -5,8 +5,8 @@ import { BottomBar } from "./bottom_bar";
 import { Grid } from "./grid";
 import { SidePanel } from "./side_panel/side_panel";
 import { TopBar } from "./top_bar";
-import { SelectionMode } from "../plugins/selection";
-import { ComposerSelection } from "../plugins/edition";
+import { SelectionMode } from "../plugins/ui/selection";
+import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 
 const { Component, useState } = owl;

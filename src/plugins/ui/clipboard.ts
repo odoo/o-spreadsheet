@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { clip, getCellText } from "../helpers/index";
-import { Mode } from "../model";
+import { BasePlugin } from "../../base_plugin";
+import { clip, getCellText } from "../../helpers/index";
+import { Mode } from "../../model";
 import {
   Cell,
   Command,
@@ -11,8 +11,8 @@ import {
   CommandResult,
   UID,
   Sheet,
-} from "../types/index";
-import { _lt } from "../translation";
+} from "../../types/index";
+import { _lt } from "../../translation";
 
 interface ClipboardCell {
   cell: Cell | null;

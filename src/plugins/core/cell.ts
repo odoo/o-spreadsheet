@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { compile, normalize } from "../formulas/index";
-import { formatDateTime, parseDateTime } from "../functions/dates";
+import { BasePlugin } from "../../base_plugin";
+import { compile, normalize } from "../../formulas/index";
+import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
   isNumber,
   parseNumber,
@@ -10,8 +10,8 @@ import {
   uuidv4,
   toCartesian,
   getCellText,
-} from "../helpers/index";
-import { _lt } from "../translation";
+} from "../../helpers/index";
+import { _lt } from "../../translation";
 import {
   Cell,
   CellData,
@@ -21,7 +21,7 @@ import {
   NormalizedFormula,
   Sheet,
   WorkbookData,
-} from "../types/index";
+} from "../../types/index";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 

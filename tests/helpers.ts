@@ -19,8 +19,8 @@ import {
   Sheet,
 } from "../src/types";
 import "./canvas.mock";
-import { MergePlugin } from "../src/plugins/merge";
-import { ComposerSelection } from "../src/plugins/edition";
+import { MergePlugin } from "../src/plugins/core/merge";
+import { ComposerSelection } from "../src/plugins/ui/edition";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;

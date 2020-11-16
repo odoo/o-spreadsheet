@@ -1,8 +1,8 @@
-import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../formulas/index";
-import { toXC, toCartesian, colors, getComposerSheetName, getCellText } from "../helpers/index";
-import { Command, LAYERS, CancelledReason, CommandResult } from "../types/index";
-import { BasePlugin } from "../base_plugin";
-import { Mode } from "../model";
+import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../../formulas/index";
+import { toXC, toCartesian, colors, getComposerSheetName, getCellText } from "../../helpers/index";
+import { Command, LAYERS, CancelledReason, CommandResult } from "../../types/index";
+import { BasePlugin } from "../../base_plugin";
+import { Mode } from "../../model";
 
 export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
 

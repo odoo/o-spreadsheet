@@ -3,8 +3,8 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
   PADDING_AUTORESIZE,
-} from "../constants";
-import { fontSizeMap } from "../fonts";
+} from "../../constants";
+import { fontSizeMap } from "../../fonts";
 import {
   stringify,
   toCartesian,
@@ -12,7 +12,7 @@ import {
   maximumDecimalPlaces,
   toZone,
   getCellText,
-} from "../helpers/index";
+} from "../../helpers/index";
 import {
   Border,
   BorderCommand,
@@ -22,8 +22,8 @@ import {
   UID,
   WorkbookData,
   Zone,
-} from "../types/index";
-import { BasePlugin } from "../base_plugin";
+} from "../../types/index";
+import { BasePlugin } from "../../base_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers

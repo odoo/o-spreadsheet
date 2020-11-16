@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import { CancelledReason, Zone, ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
-import { ClipboardPlugin } from "../../src/plugins/clipboard";
+import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
 import { getCell, getCellContent, getGrid, setCellContent, target, zone } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
