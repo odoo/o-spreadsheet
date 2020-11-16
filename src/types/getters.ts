@@ -18,9 +18,9 @@ import { HighlightPlugin } from "../plugins/ui/highlight";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { SelectionPlugin } from "../plugins/ui/selection";
 import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { SortPlugin } from "../plugins/ui/sort";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
-
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
@@ -131,4 +131,6 @@ export type Getters = CoreGetters & {
 
   getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
   getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
+
+  getContiguousZone: SortPlugin["getContiguousZone"];
 };

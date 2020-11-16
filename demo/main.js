@@ -49,6 +49,9 @@ class App extends Component {
     if (window.confirm(ev.detail.content)) {
       ev.detail.confirm();
     }
+    else {
+      ev.detail.cancel();
+    }
   }
 
   notifyUser(ev) {

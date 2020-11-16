@@ -43,31 +43,44 @@ cellMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
+  .add("sort_ascending", {
+    name: _lt("Ascending Sort"),
+    sequence: 50,
+    action: ACTIONS.SORT_CELLS_ASCENDING,
+    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+  })
+  .add("sort_descending", {
+    name: _lt("Descending Sort"),
+    sequence: 60,
+    action: ACTIONS.SORT_CELLS_DESCENDING,
+    separator: true,
+    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+  })
   .add("add_row_before", {
     name: ACTIONS.CELL_INSERT_ROWS_BEFORE_NAME,
-    sequence: 50,
+    sequence: 70,
     action: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   })
   .add("add_column_before", {
     name: ACTIONS.CELL_INSERT_COLUMNS_BEFORE_NAME,
-    sequence: 70,
+    sequence: 90,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
     separator: true,
   })
   .add("delete_row", {
     name: ACTIONS.REMOVE_ROWS_NAME,
-    sequence: 90,
+    sequence: 110,
     action: ACTIONS.REMOVE_ROWS_ACTION,
   })
   .add("delete_column", {
     name: ACTIONS.REMOVE_COLUMNS_NAME,
-    sequence: 100,
+    sequence: 120,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
     separator: true,
   })
   .add("clear_cell", {
     name: _lt("Clear cell"),
-    sequence: 110,
+    sequence: 130,
     action: ACTIONS.DELETE_CONTENT_ACTION,
     isEnabled: (env: SpreadsheetEnv) => {
       const cell = env.getters.getActiveCell();
@@ -76,7 +89,7 @@ cellMenuRegistry
   })
   .add("conditional_formatting", {
     name: _lt("Conditional formatting"),
-    sequence: 120,
+    sequence: 140,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
   });

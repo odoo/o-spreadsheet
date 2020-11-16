@@ -38,29 +38,42 @@ colMenuRegistry
     sequence: 20,
     action: ACTIONS.PASTE_FORMAT_ACTION,
   })
+  .add("sort_ascending", {
+    name: _lt("Ascending Sort"),
+    sequence: 50,
+    action: ACTIONS.SORT_CELLS_ASCENDING,
+    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+  })
+  .add("sort_descending", {
+    name: _lt("Descending Sort"),
+    sequence: 60,
+    action: ACTIONS.SORT_CELLS_DESCENDING,
+    isVisible: ACTIONS.SORT_CELLS_VISIBILITY,
+    separator: true,
+  })
   .add("add_column_before", {
     name: ACTIONS.COLUMN_INSERT_COLUMNS_BEFORE_NAME,
-    sequence: 50,
+    sequence: 70,
     action: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
   })
   .add("add_column_after", {
     name: ACTIONS.COLUMN_INSERT_COLUMNS_AFTER_NAME,
-    sequence: 60,
+    sequence: 80,
     action: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
   })
   .add("delete_column", {
     name: ACTIONS.REMOVE_COLUMNS_NAME,
-    sequence: 70,
+    sequence: 90,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
   })
   .add("clear_column", {
     name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
-    sequence: 80,
+    sequence: 100,
     action: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
     separator: true,
   })
   .add("conditional_formatting", {
     name: _lt("Conditional formatting"),
-    sequence: 90,
+    sequence: 110,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
   });

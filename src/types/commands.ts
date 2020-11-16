@@ -642,6 +642,15 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
   replaceOptions: ReplaceOptions;
 }
 
+export interface SortCommand extends BaseCommand {
+  type: "SORT_CELLS";
+  sheetId: UID;
+  anchor: [number, number];
+  zone: Zone;
+  sortDirection: SortDirection;
+}
+export type SortDirection = "ascending" | "descending";
+
 export type Command =
   | NewInputCommand
   | RemoveInputCommand
@@ -728,7 +737,8 @@ export type Command =
   | SelectSearchPreviousCommand
   | SelectSearchNextCommand
   | ReplaceSearchCommand
-  | ReplaceAllSearchCommand;
+  | ReplaceAllSearchCommand
+  | SortCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";
@@ -773,6 +783,7 @@ export const enum CancelledReason {
   MinInvalidFormula,
   MidInvalidFormula,
   MaxInvalidFormula,
+  InvalidSortZone,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

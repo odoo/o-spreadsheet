@@ -1,5 +1,6 @@
 import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
+import { toZone } from "../src/helpers";
 import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./helpers";
@@ -544,6 +545,52 @@ describe("Menu Item actions", () => {
       sheetId: env.getters.getActiveSheetId(),
       target: env.getters.getSelectedZones(),
       style: { fontSize: fontSize.pt },
+    });
+  });
+
+  test("Edit -> Sort ascending", () => {
+    doAction(["edit", "sort_ascending"], env);
+    const { anchor, zones } = env.getters.getSelection();
+    expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
+      sheetId: env.getters.getActiveSheetId(),
+      anchor: anchor,
+      zone: zones[0],
+      sortDirection: "ascending",
+      interactive: true,
+    });
+  });
+
+  test("Edit -> Sort descending", () => {
+    doAction(["edit", "sort_descending"], env);
+    const { anchor, zones } = env.getters.getSelection();
+    expect(env.dispatch).toHaveBeenCalledWith("SORT_CELLS", {
+      sheetId: env.getters.getActiveSheetId(),
+      anchor: anchor,
+      zone: zones[0],
+      sortDirection: "descending",
+      interactive: true,
+    });
+  });
+
+  describe("Edit -> Sort", () => {
+    const path_ascending = ["edit", "sort_ascending"];
+    const path_descending = ["edit", "sort_descending"];
+
+    test("A selected zone", () => {
+      model.dispatch("SET_SELECTION", { anchor: [0, 0], zones: [toZone("A1:A2")] });
+      expect(getName(path_ascending, env)).toBe("Ascending Sort");
+      expect(getNode(path_ascending).isVisible(env)).toBeTruthy();
+      expect(getName(path_descending, env)).toBe("Descending Sort");
+      expect(getNode(path_descending).isVisible(env)).toBeTruthy();
+    });
+
+    test("Multiple selected zones", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:A2"), toZone("B1:B2")],
+      });
+      expect(getNode(path_ascending).isVisible(env)).toBeFalsy();
+      expect(getNode(path_descending).isVisible(env)).toBeFalsy();
     });
   });
 });

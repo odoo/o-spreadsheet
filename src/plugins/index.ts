@@ -19,6 +19,7 @@ import { HighlightPlugin } from "./ui/highlight";
 import { RendererPlugin } from "./ui/renderer";
 import { SelectionPlugin } from "./ui/selection";
 import { SelectionInputPlugin } from "./ui/selection_inputs";
+import { SortPlugin } from "./ui/sort";
 import { UIOptionsPlugin } from "./ui/ui_options";
 import { SheetUIPlugin } from "./ui/ui_sheet";
 import { UIPluginConstuctor } from "./ui_plugin";
@@ -46,4 +47,5 @@ export const uiPluginRegistry = new Registry<UIPluginConstuctor>()
   .add("selectionInput", SelectionInputPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
-  .add("find_and_replace", FindAndReplacePlugin);
+  .add("find_and_replace", FindAndReplacePlugin)
+  .add("sort", SortPlugin);

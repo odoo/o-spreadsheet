@@ -429,3 +429,33 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
 export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("FindAndReplace", {});
 };
+
+//------------------------------------------------------------------------------
+// Sorting action
+//------------------------------------------------------------------------------
+
+export const SORT_CELLS_ASCENDING = (env: SpreadsheetEnv) => {
+  const { anchor, zones } = env.getters.getSelection();
+  env.dispatch("SORT_CELLS", {
+    interactive: true,
+    sheetId: env.getters.getActiveSheetId(),
+    anchor: anchor,
+    zone: zones[0],
+    sortDirection: "ascending",
+  });
+};
+
+export const SORT_CELLS_DESCENDING = (env: SpreadsheetEnv) => {
+  const { anchor, zones } = env.getters.getSelection();
+  env.dispatch("SORT_CELLS", {
+    interactive: true,
+    sheetId: env.getters.getActiveSheetId(),
+    anchor: anchor,
+    zone: zones[0],
+    sortDirection: "descending",
+  });
+};
+
+export const SORT_CELLS_VISIBILITY = (env: SpreadsheetEnv) => {
+  return env.getters.getSelectedZones().length === 1;
+};
