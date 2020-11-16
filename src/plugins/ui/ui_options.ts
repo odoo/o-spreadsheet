@@ -1,8 +1,8 @@
-import { BasePlugin } from "../../base_plugin";
+import { UIPlugin } from "../ui_plugin";
 import { Command } from "../../types/index";
 import { Mode } from "../../model";
 
-export class UIOptionsPlugin extends BasePlugin {
+export class UIOptionsPlugin extends UIPlugin {
   static modes: Mode[] = ["normal", "readonly"];
   static getters = ["shouldShowFormulas"];
   private showFormulas: boolean = false;

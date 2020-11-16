@@ -11,7 +11,7 @@ import {
   UID,
 } from "../../types/index";
 import { ChartConfiguration, ChartType } from "chart.js";
-import { BasePlugin } from "../../base_plugin";
+import { CorePlugin } from "../core_plugin";
 import { isInside, toXC, toZone, zoneToXc } from "../../helpers/index";
 import { rangeReference } from "../../formulas/parser";
 import { chartTerms } from "../../components/side_panel/translations_terms";
@@ -51,7 +51,7 @@ interface ChartState {
   readonly chartFigures: Set<string>;
 }
 
-export class ChartPlugin extends BasePlugin<ChartState> implements ChartState {
+export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = ["getChartRuntime"];
   static layers = [LAYERS.Chart];
 

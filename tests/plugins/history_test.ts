@@ -259,12 +259,28 @@ describe("Model history", () => {
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    setCellContent(model, "A1", "this will be undone");
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",
     });
     model.dispatch("UNDO");
     expect(model.getters.getActiveSheetId()).toBe("42");
+  });
+
+  test.skip("create and activate sheet, then undo", () => {
+    // The active sheet is currently not changed when the sheet
+    // creation is undone
+    const model = new Model();
+    const originActiveSheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: originActiveSheetId,
+      sheetIdTo: "42",
+    });
+    expect(model.getters.getActiveSheetId()).toBe("42");
+    model.dispatch("UNDO");
+    expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
   test("ACTIVATE_SHEET with another command is saved", () => {

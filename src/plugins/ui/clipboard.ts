@@ -1,4 +1,3 @@
-import { BasePlugin } from "../../base_plugin";
 import { clip, getCellText } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
@@ -13,6 +12,7 @@ import {
   Sheet,
 } from "../../types/index";
 import { _lt } from "../../translation";
+import { UIPlugin } from "../ui_plugin";
 
 interface ClipboardCell {
   cell: Cell | null;
@@ -26,7 +26,7 @@ interface ClipboardCell {
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardPlugin extends BasePlugin {
+export class ClipboardPlugin extends UIPlugin {
   static layers = [LAYERS.Clipboard];
   static getters = ["getClipboardContent", "isPaintingFormat", "getPasteZones"];
   static modes: Mode[] = ["normal", "readonly"];

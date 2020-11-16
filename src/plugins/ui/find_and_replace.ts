@@ -1,6 +1,6 @@
-import { BasePlugin } from "../../base_plugin";
 import { toXC } from "../../helpers/coordinates";
 import { Cell, Command, GridRenderingContext, LAYERS } from "../../types/index";
+import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: string = "#8B008B";
 const BACKGROUND_COLOR: string = "#8B008B33";
@@ -37,7 +37,7 @@ interface SearchMatch {
  * the search with a new value.
  */
 
-export class FindAndReplacePlugin extends BasePlugin {
+export class FindAndReplacePlugin extends UIPlugin {
   static layers = [LAYERS.Search];
   static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"];
   private searchMatches: SearchMatch[] = [];
@@ -143,7 +143,7 @@ export class FindAndReplacePlugin extends BasePlugin {
    * Find matches using the current regex
    */
   private findMatches() {
-    const cells = this.getters.getCells();
+    const cells = this.getters.getCells(this.getters.getActiveSheetId());
     const matches: SearchMatch[] = [];
 
     let field = this.searchOptions.searchFormulas ? "content" : "value";

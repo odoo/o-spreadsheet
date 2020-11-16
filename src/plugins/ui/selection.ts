@@ -1,5 +1,4 @@
 import { isEqual, toXC, union, clip, formatStandardNumber } from "../../helpers/index";
-import { BasePlugin } from "../../base_plugin";
 import {
   Command,
   Zone,
@@ -11,6 +10,7 @@ import {
 } from "../../types/index";
 import { Mode } from "../../model";
 import { SELECTION_BORDER_COLOR } from "../../constants";
+import { UIPlugin } from "../ui_plugin";
 
 export interface Selection {
   anchor: [number, number];
@@ -34,7 +34,7 @@ export enum SelectionMode {
 /**
  * SelectionPlugin
  */
-export class SelectionPlugin extends BasePlugin {
+export class SelectionPlugin extends UIPlugin {
   static layers = [LAYERS.Selection];
   static modes: Mode[] = ["normal", "readonly"];
   static getters = [

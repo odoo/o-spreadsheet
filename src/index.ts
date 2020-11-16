@@ -1,7 +1,7 @@
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
 import { numberToLetters, toXC, toZone, toCartesian, uuidv4, formatDecimal } from "./helpers/index";
-import { pluginRegistry } from "./plugins/index";
+import { uiPluginRegistry, corePluginRegistry } from "./plugins/index";
 import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
@@ -35,7 +35,7 @@ import {
  */
 
 export const __info__ = {};
-export { BasePlugin } from "./base_plugin";
+export { BasePlugin } from "./plugins/base_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
 export { parse, astToFormula } from "./formulas/parser";
@@ -60,7 +60,8 @@ export const registries = {
   cellMenuRegistry,
   colMenuRegistry,
   functionRegistry,
-  pluginRegistry,
+  uiPluginRegistry,
+  corePluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,
   sheetMenuRegistry,

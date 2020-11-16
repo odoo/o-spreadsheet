@@ -1,11 +1,11 @@
-import { BasePlugin } from "../../base_plugin";
 import { CancelledReason, Command, CommandResult, Sheet, UID } from "../../types";
+import { UIPlugin } from "../ui_plugin";
 
 interface UIState {
   activeSheet: Sheet;
 }
 
-export class SheetUIPlugin extends BasePlugin<UIState> {
+export class SheetUIPlugin extends UIPlugin<UIState> {
   static getters = ["getActiveSheet", "getActiveSheetId"];
   activeSheet: Sheet = this.getters.getSheets()[0];
 
@@ -20,13 +20,13 @@ export class SheetUIPlugin extends BasePlugin<UIState> {
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        if (!this.getters.getSheet(cmd.sheetIdTo)) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.InvalidSheetId,
-          };
+        try {
+          this.getters.getSheet(cmd.sheetIdTo);
+          this.historizeActiveSheet = false;
+          break;
+        } catch (error) {
+          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
         }
-        this.historizeActiveSheet = false;
         break;
     }
     return { status: "SUCCESS" };
@@ -34,8 +34,26 @@ export class SheetUIPlugin extends BasePlugin<UIState> {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "CREATE_SHEET":
+        if (cmd.activate) {
+          this.dispatch("ACTIVATE_SHEET", {
+            sheetIdFrom: this.getActiveSheetId(),
+            sheetIdTo: cmd.sheetId,
+          });
+        }
+        break;
+      case "DUPLICATE_SHEET":
+        this.duplicateSheet(cmd.sheetIdTo);
+        break;
+      case "START":
+        this.historizeActiveSheet = false;
+        this.dispatch("ACTIVATE_SHEET", {
+          sheetIdTo: this.getters.getSheets()[0].id,
+          sheetIdFrom: this.getters.getSheets()[0].id,
+        });
+        break;
       case "ACTIVATE_SHEET":
-        const sheet = this.getters.getSheet(cmd.sheetIdTo)!;
+        const sheet = this.getters.getSheet(cmd.sheetIdTo);
         if (this.historizeActiveSheet) {
           this.history.update("activeSheet", sheet);
         } else {
@@ -43,6 +61,13 @@ export class SheetUIPlugin extends BasePlugin<UIState> {
         }
         break;
     }
+  }
+
+  duplicateSheet(sheetId: UID) {
+    this.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.getActiveSheetId(),
+      sheetIdTo: sheetId,
+    });
   }
 
   finalize() {

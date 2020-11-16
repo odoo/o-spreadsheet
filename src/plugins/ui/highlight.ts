@@ -1,12 +1,12 @@
-import { BasePlugin } from "../../base_plugin";
 import { Command, LAYERS, Zone, GridRenderingContext, Highlight } from "../../types/index";
 import { toZone, getNextColor, isEqual } from "../../helpers/index";
 import { Mode } from "../../model";
+import { UIPlugin } from "../ui_plugin";
 
 /**
  * HighlightPlugin
  */
-export class HighlightPlugin extends BasePlugin {
+export class HighlightPlugin extends UIPlugin {
   static modes: Mode[] = ["normal", "readonly"];
   static layers = [LAYERS.Highlights];
   static getters = ["getHighlights"];
@@ -93,8 +93,8 @@ export class HighlightPlugin extends BasePlugin {
         (x) =>
           x.zone.top >= 0 &&
           x.zone.left >= 0 &&
-          x.zone.bottom < this.getters.getSheet(x.sheet)!.rows.length &&
-          x.zone.right < this.getters.getSheet(x.sheet)!.cols.length
+          x.zone.bottom < this.getters.getSheet(x.sheet).rows.length &&
+          x.zone.right < this.getters.getSheet(x.sheet).cols.length
       );
   }
 

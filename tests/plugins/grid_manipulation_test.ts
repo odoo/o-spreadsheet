@@ -14,8 +14,9 @@ function redo() {
 }
 
 function clearColumns(indexes: number[]) {
+  const sheetId = model.getters.getActiveSheetId();
   const target = indexes.map((index) => {
-    return model.getters.getColsZone(index, index);
+    return model.getters.getColsZone(sheetId, index, index);
   });
   model.dispatch("DELETE_CONTENT", {
     target,
@@ -24,8 +25,9 @@ function clearColumns(indexes: number[]) {
 }
 
 function clearRows(indexes: number[]) {
+  const sheetId = model.getters.getActiveSheetId();
   const target = indexes.map((index) => {
-    return model.getters.getRowsZone(index, index);
+    return model.getters.getRowsZone(sheetId, index, index);
   });
   model.dispatch("DELETE_CONTENT", {
     target,
@@ -122,7 +124,7 @@ describe("Clear columns", () => {
 
     clearColumns([1, 2]);
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells())).toHaveLength(6);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(6);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
@@ -168,7 +170,7 @@ describe("Clear rows", () => {
 
     clearRows([1, 2]);
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells())).toHaveLength(6);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(6);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "", style: 1, border: 1 });
     expect(getCell(model, "A3")).toMatchObject({ content: "", border: 1 });
@@ -875,7 +877,7 @@ describe("Rows", () => {
         { start: size + 30, end: size + 50, size: 20, name: "5", cells: {} },
         { start: size + 50, end: 2 * size + 50, size, name: "6", cells: {} },
       ]);
-      const dimensions = model.getters.getGridSize();
+      const dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
@@ -890,7 +892,7 @@ describe("Rows", () => {
         { start: size + 50, end: size + 70, size: 20, name: "5", cells: {} },
         { start: size + 70, end: 2 * size + 70, size, name: "6", cells: {} },
       ]);
-      const dimensions = model.getters.getGridSize();
+      const dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 144]);
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
@@ -910,13 +912,13 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(2, "after", 1);
-      let dimensions = model.getters.getGridSize();
+      let dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
       model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
       const from = model.getters.getActiveSheetId();
       model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
-      dimensions = model.getters.getGridSize();
+      dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
     });
   });
@@ -1013,12 +1015,13 @@ describe("Rows", () => {
         sheetId: model.getters.getActiveSheetId(),
         zone: toZone("D2:D3"),
       });
-      expect(Object.keys(model.getters.getCells())).toHaveLength(11);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(11);
       removeRows([1]);
       expect(getCell(model, "A2")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "C2")).toBeUndefined();
-      expect(Object.values(model.getters.getCells())).toHaveLength(7);
+      expect(Object.values(model.getters.getCells(sheetId))).toHaveLength(7);
       expect(getCell(model, "A1")).toMatchObject({ style: 1 });
       expect(getCell(model, "A3")).toMatchObject({ style: 1 });
       expect(getCell(model, "B1")).toMatchObject({ border: 1 });
@@ -1404,8 +1407,8 @@ describe("Rows", () => {
         activeSheet: "1",
       });
       model.dispatch("ADD_ROWS", { sheetId: "2", row: 1, quantity: 2, position: "after" });
-      const sheet1 = model.getters.getSheet("1")!;
-      const sheet2 = model.getters.getSheet("2")!;
+      const sheet1 = model.getters.getSheet("1");
+      const sheet2 = model.getters.getSheet("2");
       expect(sheet1.rows.length).toBe(3);
       expect(sheet2.rows.length).toBe(5);
       expect(sheet2.rows[4]).toEqual({

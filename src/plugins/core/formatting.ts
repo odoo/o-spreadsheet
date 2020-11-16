@@ -22,8 +22,11 @@ import {
   UID,
   WorkbookData,
   Zone,
+  Sheet,
+  CommandResult,
+  CancelledReason,
 } from "../../types/index";
-import { BasePlugin } from "../../base_plugin";
+import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants / Types / Helpers
@@ -72,7 +75,7 @@ function getTargetZone(zone: Zone, side: string): Zone {
  * - borders
  * - value formatters
  */
-export class FormattingPlugin extends BasePlugin {
+export class FormattingPlugin extends CorePlugin {
   static getters = [
     "getCurrentStyle",
     "getCellWidth",
@@ -91,6 +94,19 @@ export class FormattingPlugin extends BasePlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  allowDispatch(cmd: Command): CommandResult {
+    switch (cmd.type) {
+      case "SET_FORMATTING":
+        try {
+          this.getters.getSheet(cmd.sheetId);
+          break;
+        } catch (error) {
+          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+        }
+    }
+    return { status: "SUCCESS" };
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_MERGE":
@@ -103,7 +119,8 @@ export class FormattingPlugin extends BasePlugin {
           this.setStyle(cmd.sheetId, cmd.target, cmd.style);
         }
         if (cmd.border) {
-          this.setBorder(cmd.sheetId, cmd.target, cmd.border);
+          const sheet = this.getters.getSheet(cmd.sheetId);
+          this.setBorder(sheet, cmd.target, cmd.border);
         }
         break;
       case "CLEAR_FORMATTING":
@@ -202,7 +219,7 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   private getRowMaxHeight(sheetId: UID, index: number): number {
-    const sheet = this.getters.getSheet(sheetId)!;
+    const sheet = this.getters.getSheet(sheetId);
     const cells = Object.values(sheet.rows[index].cells);
     const sizes = cells.map(this.getters.getCellHeight);
     return Math.max(0, ...sizes);
@@ -251,19 +268,19 @@ export class FormattingPlugin extends BasePlugin {
   // Borders
   // ---------------------------------------------------------------------------
 
-  private setBorder(sheetId: UID, zones: Zone[], command: BorderCommand) {
+  private setBorder(sheet: Sheet, zones: Zone[], command: BorderCommand) {
     // this object aggregate the desired final border command for a cell
     const borderMap: { [xc: string]: number } = {};
     for (let zone of zones) {
-      this.aggregateBorderCommands(sheetId, zone, command, borderMap);
+      this.aggregateBorderCommands(sheet, zone, command, borderMap);
     }
     for (let [xc, borderId] of Object.entries(borderMap)) {
-      const cell = this.getters.getCellByXc(sheetId, xc);
+      const cell = this.getters.getCellByXc(sheet.id, xc);
       const [col, row] = toCartesian(xc);
       const current = (cell && cell.border) || 0;
       if (current !== borderId) {
         this.dispatch("UPDATE_CELL", {
-          sheetId,
+          sheetId: sheet.id,
           col,
           row,
           border: borderId,
@@ -273,7 +290,7 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   private aggregateBorderCommands(
-    sheet: UID,
+    sheet: Sheet,
     zone: Zone,
     command: BorderCommand,
     borderMap: { [xc: string]: number }
@@ -325,33 +342,31 @@ export class FormattingPlugin extends BasePlugin {
     }
   }
 
-  private clearBorder(sheetId: UID, col: number, row: number, borderMap: { [xc: string]: number }) {
-    //TODO: use the sheet in parameter
-    const activeSheet = this.getters.getActiveSheet();
+  private clearBorder(sheet: Sheet, col: number, row: number, borderMap: { [xc: string]: number }) {
     const xc = toXC(col, row);
     borderMap[xc] = 0;
     if (col > 0) {
-      this.clearSide(sheetId, col - 1, row, "right", borderMap);
+      this.clearSide(sheet, col - 1, row, "right", borderMap);
     }
     if (row > 0) {
-      this.clearSide(sheetId, col, row - 1, "bottom", borderMap);
+      this.clearSide(sheet, col, row - 1, "bottom", borderMap);
     }
-    if (col < activeSheet.cols.length - 1) {
-      this.clearSide(sheetId, col + 1, row, "left", borderMap);
+    if (col < sheet.cols.length - 1) {
+      this.clearSide(sheet, col + 1, row, "left", borderMap);
     }
-    if (row < activeSheet.rows.length - 1) {
-      this.clearSide(sheetId, col, row + 1, "top", borderMap);
+    if (row < sheet.rows.length - 1) {
+      this.clearSide(sheet, col, row + 1, "top", borderMap);
     }
   }
 
   private clearSide(
-    sheetId: UID,
+    sheet: Sheet,
     col: number,
     row: number,
     side: string,
     borderMap: { [xc: string]: number }
   ) {
-    const cell = this.getters.getCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheet.id, col, row);
     const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
@@ -363,13 +378,13 @@ export class FormattingPlugin extends BasePlugin {
   }
 
   private setBorderToMap(
-    sheetId: UID,
+    sheet: Sheet,
     col: number,
     row: number,
     border: Border,
     borderMap: { [xc: string]: number }
   ) {
-    const cell = this.getters.getCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheet.id, col, row);
     const xc = toXC(col, row);
     const currentBorderId = xc in borderMap ? borderMap[xc] : cell && cell.border ? cell.border : 0;
     const currentBorder = this.borders[currentBorderId] || {};
@@ -663,29 +678,33 @@ export class FormattingPlugin extends BasePlugin {
     return format;
   }
 
-  addMerge(sheetId: UID, zone: Zone) {
+  private addMerge(sheetId: UID, zone: Zone) {
+    const sheet = this.getters.getSheet(sheetId);
+    if (!sheet) {
+      return;
+    }
     const { left, right, top, bottom } = zone;
     const topLeft = this.getters.getCell(sheetId, left, top);
     const bottomRight = this.getters.getCell(sheetId, right, bottom) || topLeft;
     const bordersTopLeft = topLeft ? this.getCellBorder(topLeft) : null;
     const bordersBottomRight =
       (bottomRight ? this.getCellBorder(bottomRight) : null) || bordersTopLeft;
-    this.setBorder(sheetId, [{ left, right, top, bottom }], "clear");
+    this.setBorder(sheet, [{ left, right, top, bottom }], "clear");
     if (bordersBottomRight && bordersBottomRight.right) {
       const zone = [{ left: right, right, top, bottom }];
-      this.setBorder(sheetId, zone, "right");
+      this.setBorder(sheet, zone, "right");
     }
     if (bordersTopLeft && bordersTopLeft.left) {
       const zone = [{ left, right: left, top, bottom }];
-      this.setBorder(sheetId, zone, "left");
+      this.setBorder(sheet, zone, "left");
     }
     if (bordersTopLeft && bordersTopLeft.top) {
       const zone = [{ left, right, top, bottom: top }];
-      this.setBorder(sheetId, zone, "top");
+      this.setBorder(sheet, zone, "top");
     }
     if (bordersBottomRight && bordersBottomRight.bottom) {
       const zone = [{ left, right, top: bottom, bottom }];
-      this.setBorder(sheetId, zone, "bottom");
+      this.setBorder(sheet, zone, "bottom");
     }
   }
 

@@ -1,4 +1,3 @@
-import { BasePlugin } from "../../base_plugin";
 import {
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
@@ -26,6 +25,7 @@ import {
   Cell,
 } from "../../types/index";
 import { Mode } from "../../model";
+import { UIPlugin } from "../ui_plugin";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
@@ -65,7 +65,7 @@ function searchIndex(headers: Header[], offset: number): number {
   return -1;
 }
 
-export class RendererPlugin extends BasePlugin {
+export class RendererPlugin extends UIPlugin {
   static layers = [LAYERS.Background, LAYERS.Headers];
   static getters = [
     "getColIndex",

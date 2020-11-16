@@ -1,8 +1,6 @@
 import * as owl from "@odoo/owl";
-import { BasePlugin, PluginConstuctor } from "./base_plugin";
 import { createEmptyWorkbookData, load } from "./data";
 import { WHistory } from "./history";
-import { pluginRegistry } from "./plugins/index";
 import {
   CommandDispatcher,
   CommandHandler,
@@ -16,6 +14,9 @@ import {
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG } from "./helpers/index";
+import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
+import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
+import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 
 /**
  * Model
@@ -73,7 +74,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * This list simply keeps the renderers+layer information so the drawing code
    * can just iterate on it
    */
-  private renderers: [BasePlugin, LAYERS][] = [];
+  private renderers: [UIPlugin, LAYERS][] = [];
 
   /**
    * Internal status of the model. Important for command handling coordination
@@ -115,8 +116,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     };
 
     // registering plugins
-    for (let Plugin of pluginRegistry.getAll()) {
+    for (let Plugin of corePluginRegistry.getAll()) {
       this.setupPlugin(Plugin, workbookData);
+    }
+
+    for (let Plugin of uiPluginRegistry.getAll()) {
+      this.setupUiPlugin(Plugin);
     }
 
     // starting plugins
@@ -127,13 +132,31 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     delete DEBUG.model;
   }
 
+  private setupUiPlugin(Plugin: UIPluginConstuctor) {
+    const dispatch = this.dispatch.bind(this);
+    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+    if (Plugin.modes.includes(this.config.mode)) {
+      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      for (let name of Plugin.getters) {
+        if (!(name in plugin)) {
+          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
+        }
+        this.getters[name] = plugin[name].bind(plugin);
+      }
+      this.handlers.push(plugin);
+      const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
+      this.renderers.push(...layers);
+      this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+    }
+  }
+
   /**
    * Initialise and properly configure a plugin.
    *
    * This method is private for now, but if the need arise, there is no deep
    * reason why the model could not add dynamically a plugin while it is running.
    */
-  private setupPlugin(Plugin: PluginConstuctor, data: WorkbookData) {
+  private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
@@ -146,9 +169,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.getters[name] = plugin[name].bind(plugin);
       }
       this.handlers.push(plugin);
-      const layers = Plugin.layers.map((l) => [plugin, l] as [BasePlugin, LAYERS]);
-      this.renderers.push(...layers);
-      this.renderers.sort((p1, p2) => p1[1] - p2[1]);
     }
   }
 
@@ -244,7 +264,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   exportData(): WorkbookData {
     const data = createEmptyWorkbookData();
     for (let handler of this.handlers) {
-      if (handler instanceof BasePlugin) {
+      if (handler instanceof CorePlugin) {
         handler.export(data);
       }
     }

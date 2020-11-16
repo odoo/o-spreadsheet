@@ -1,4 +1,4 @@
-import { BasePlugin } from "../../base_plugin";
+import { CorePlugin } from "../core_plugin";
 import {
   colorNumberString,
   toXC,
@@ -30,7 +30,7 @@ interface ConditionalFormatState {
   readonly cfRules: { [sheet: string]: ConditionalFormat[] };
 }
 export class ConditionalFormatPlugin
-  extends BasePlugin<ConditionalFormatState>
+  extends CorePlugin<ConditionalFormatState>
   implements ConditionalFormatState {
   static getters = ["getConditionalFormats", "getConditionalStyle", "getRulesSelection"];
 

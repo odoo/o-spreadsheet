@@ -21,7 +21,10 @@ import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
-export interface Getters {
+
+export interface CoreGetters {
+  canUndo: WHistory["canUndo"];
+  canRedo: WHistory["canRedo"];
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];
@@ -61,6 +64,20 @@ export interface Getters {
   getMerges: MergePlugin["getMerges"];
   getMerge: MergePlugin["getMerge"];
 
+  getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
+  getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
+  getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
+
+  evaluateFormula: EvaluationPlugin["evaluateFormula"];
+  isIdle: EvaluationPlugin["isIdle"];
+  getFigures: FigurePlugin["getFigures"];
+  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
+  getFigure: FigurePlugin["getFigure"];
+
+  getChartRuntime: ChartPlugin["getChartRuntime"];
+}
+
+export type Getters = CoreGetters & {
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
@@ -79,10 +96,6 @@ export interface Getters {
 
   getHighlights: HighlightPlugin["getHighlights"];
 
-  getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
-  getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
-  getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
-
   getColIndex: RendererPlugin["getColIndex"];
   getRowIndex: RendererPlugin["getRowIndex"];
   getRect: RendererPlugin["getRect"];
@@ -93,12 +106,6 @@ export interface Getters {
   getCurrentStyle: FormattingPlugin["getCurrentStyle"];
   getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
-
-  canUndo: WHistory["canUndo"];
-  canRedo: WHistory["canRedo"];
-
-  evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  isIdle: EvaluationPlugin["isIdle"];
 
   getEditionMode: EditionPlugin["getEditionMode"];
   isSelectingForComposer: EditionPlugin["isSelectingForComposer"];
@@ -111,12 +118,7 @@ export interface Getters {
 
   getSelectionInput: SelectionInputPlugin["getSelectionInput"];
   getSelectionInputValue: SelectionInputPlugin["getSelectionInputValue"];
-  getFigures: FigurePlugin["getFigures"];
-  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
-  getFigure: FigurePlugin["getFigure"];
-
-  getChartRuntime: ChartPlugin["getChartRuntime"];
 
   getSearchMatches: FindAndReplacePlugin["getSearchMatches"];
   getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
-}
+};

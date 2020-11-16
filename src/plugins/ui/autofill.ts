@@ -1,4 +1,3 @@
-import { BasePlugin } from "../../base_plugin";
 import { Mode } from "../../model";
 import {
   AutofillModifier,
@@ -17,6 +16,7 @@ import {
 } from "../../types/index";
 import { union, toCartesian, toXC, isInside, clip } from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
+import { UIPlugin } from "../ui_plugin";
 
 /**
  * This plugin manage the autofill.
@@ -81,7 +81,7 @@ class AutofillGenerator {
  * Autofill Plugin
  *
  */
-export class AutofillPlugin extends BasePlugin {
+export class AutofillPlugin extends UIPlugin {
   static layers = [LAYERS.Autofill];
   static getters = ["getAutofillTooltip"];
   static modes: Mode[] = ["normal", "readonly"];
@@ -102,11 +102,11 @@ export class AutofillPlugin extends BasePlugin {
         this.lastCellSelected.col =
           cmd.col === -1
             ? this.lastCellSelected.col
-            : clip(cmd.col, 0, this.getters.getSheet(sheetId)!.cols.length);
+            : clip(cmd.col, 0, this.getters.getSheet(sheetId).cols.length);
         this.lastCellSelected.row =
           cmd.row === -1
             ? this.lastCellSelected.row
-            : clip(cmd.row, 0, this.getters.getSheet(sheetId)!.rows.length);
+            : clip(cmd.row, 0, this.getters.getSheet(sheetId).rows.length);
         if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
           return { status: "SUCCESS" };
         }
