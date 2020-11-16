@@ -64,6 +64,30 @@ exports[`Context Menu context menu simple rendering 1`] = `
   </div>
   <div
     class="o-menu-item"
+    data-name="sort_ascending"
+    title="Ascending Sort"
+  >
+    Ascending Sort
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item o-separator"
+    data-name="sort_descending"
+    title="Descending Sort"
+  >
+    Descending Sort
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
+  </div>
+  <div
+    class="o-menu-item"
     data-name="add_row_before"
     title="Insert row"
   >

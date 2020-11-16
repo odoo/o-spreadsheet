@@ -11,6 +11,11 @@ export interface Zone {
   bottom: number;
 }
 
+export interface ZoneDimension {
+  height: number;
+  width: number;
+}
+
 export type Align = "left" | "right" | "center" | undefined;
 export interface Style {
   bold?: boolean;
