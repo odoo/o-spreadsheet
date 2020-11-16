@@ -29,7 +29,7 @@ describe("figure plugin", () => {
       },
     });
     const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === data.activeSheet)!;
+    const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
 
     expect(sheet.figures).toEqual([
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
@@ -104,7 +104,7 @@ describe("figure plugin", () => {
       },
     });
     const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === data.activeSheet)!;
+    const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
 
     expect(sheet.figures).toEqual([
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100, data: 123 },
