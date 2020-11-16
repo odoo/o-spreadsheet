@@ -3,7 +3,7 @@ import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
 import { getCell, makeTestFixture, nextTick, GridParent, setCellContent } from "../helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { triggerMouseEvent } from "../dom_helper";
+import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { ConditionalFormat } from "../../src/types";
 import { _lt } from "../../src/translation";
@@ -70,6 +70,18 @@ describe("TopBar component", () => {
     await nextTick();
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
+  });
+
+  test("opening menu", async () => {
+    const model = new Model();
+    const parent = new Parent(model);
+    await parent.mount(fixture);
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    await simulateClick(".o-topbar-topleft .o-topbar-menu");
+    // window.dispatchEvent(new Event("click"));
+    triggerMouseEvent(window, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("merging cell button state is correct", async () => {

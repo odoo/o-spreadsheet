@@ -132,6 +132,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   async willUpdateProps(nextProps: Props) {
+    console.log(nextProps);
     if (nextProps.menuItems !== this.props.menuItems) {
       this.subMenu.isOpen = false;
     }
@@ -216,7 +217,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   private onClick(ev: MouseEvent) {
+    debugger;
     // Don't close a root menu when clicked to open the submenus.
+    console.log("click", this.props.menuItems);
     if (!this.props.isOpen || (this.el && isChildEvent(this.el, ev))) {
       return;
     }
