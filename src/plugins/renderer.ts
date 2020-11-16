@@ -14,7 +14,7 @@ import {
   CELL_BORDER_COLOR,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { overlap, toXC } from "../helpers/index";
+import { overlap, toXC, getCellText } from "../helpers/index";
 import {
   Box,
   Rect,
@@ -443,7 +443,7 @@ export class RendererPlugin extends BasePlugin {
           let xc = toXC(colNumber, rowNumber);
           if (!this.getters.isInMerge(xc)) {
             let col = cols[colNumber];
-            const text = this.getters.getCellText(cell);
+            const text = getCellText(cell);
             const textWidth = this.getters.getCellWidth(cell);
             let style = this.getters.getCellStyle(cell);
             const conditionalStyle = this.getters.getConditionalStyle(xc);
@@ -503,7 +503,7 @@ export class RendererPlugin extends BasePlugin {
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
         if (refCell || bottomRight) {
-          text = refCell ? this.getters.getCellText(refCell) : "";
+          text = refCell ? getCellText(refCell) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
           style = refCell ? this.getters.getCellStyle(refCell) : null;
           align = text

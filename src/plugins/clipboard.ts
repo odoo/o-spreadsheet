@@ -1,5 +1,5 @@
 import { BasePlugin } from "../base_plugin";
-import { clip } from "../helpers/index";
+import { clip, getCellText } from "../helpers/index";
 import { Mode } from "../model";
 import {
   Cell,
@@ -107,7 +107,9 @@ export class ClipboardPlugin extends BasePlugin {
     return (
       this.cells
         .map((cells) => {
-          return cells.map((c) => (c.cell ? this.getters.getCellText(c.cell) : "")).join("\t");
+          return cells
+            .map((c) => (c.cell ? getCellText(c.cell, this.getters.shouldShowFormulas()) : ""))
+            .join("\t");
         })
         .join("\n") || "\t"
     );

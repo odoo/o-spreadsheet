@@ -28,7 +28,6 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import { cellReference, rangeTokenize } from "../formulas/index";
 
 export interface SheetState {
-  readonly activeSheet: Sheet;
   readonly sheets: Record<UID, Sheet | undefined>;
   readonly visibleSheets: UID[];
   readonly sheetIds: Record<string, UID | undefined>;
@@ -38,8 +37,6 @@ export interface SheetState {
 export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   static getters = [
     "applyOffset",
-    "getActiveSheetId",
-    "getActiveSheet",
     "getSheetName",
     "getSheet",
     "getSheetIdByName",
@@ -61,13 +58,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   readonly visibleSheets: UID[] = []; // ids of visible sheets
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<UID, { col: number; row: number } | undefined> = {};
-
-  // activeSheet cannot be made readonly because it is sometimes assigned outside of the context of history
-  activeSheet: Sheet = null as any;
-
-  // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
-  // the main command.
-  private historizeActiveSheet: boolean = true;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -97,15 +87,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         }
     }
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        if (this.sheets[cmd.sheetIdTo] === undefined) {
-          return {
-            status: "CANCELLED",
-            reason: CancelledReason.InvalidSheetId,
-          };
-        }
-        this.historizeActiveSheet = false;
-        return { status: "SUCCESS" };
       case "CREATE_SHEET":
       case "DUPLICATE_SHEET":
         const { visibleSheets, sheets } = this;
@@ -146,13 +127,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     switch (cmd.type) {
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
-        break;
-      case "ACTIVATE_SHEET":
-        if (this.historizeActiveSheet) {
-          this.history.update("activeSheet", this.sheets[cmd.sheetIdTo]!);
-        } else {
-          this.activeSheet = this.sheets[cmd.sheetIdTo]!;
-        }
         break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
@@ -239,10 +213,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     }
   }
 
-  finalize() {
-    this.historizeActiveSheet = true;
-  }
-
   import(data: WorkbookData) {
     // we need to fill the sheetIds mapping first, because otherwise formulas
     // that depends on a sheet not already imported will not be able to be
@@ -254,7 +224,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     for (let sheet of data.sheets) {
       this.importSheet(sheet);
     }
-    this.activeSheet = this.sheets[data.activeSheet]!;
   }
   importSheet(data: SheetData) {
     let { sheets, visibleSheets } = this;
@@ -287,23 +256,11 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
         figures: [],
       };
     });
-    data.activeSheet = this.getters.getActiveSheetId();
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  /**
-   * Returns the id (not the name) of the currently active sheet
-   */
-  getActiveSheetId(): UID {
-    return this.activeSheet.id;
-  }
-
-  getActiveSheet(): Sheet {
-    return this.activeSheet;
-  }
 
   getSheet(sheetId: UID): Sheet | undefined {
     return this.sheets[sheetId];
@@ -594,7 +551,7 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       }
       return value;
     });
-    if (this.getActiveSheetId() === sheet.id) {
+    if (this.getters.getActiveSheetId() === sheet.id) {
       this.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: sheet.id,
         sheetIdTo: visibleSheets[Math.max(0, currentIndex - 1)],

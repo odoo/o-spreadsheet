@@ -3,7 +3,7 @@ import { Grid } from "../src/components/grid";
 import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import { toCartesian, toXC } from "../src/helpers/index";
+import { toCartesian, toXC, getCellText } from "../src/helpers/index";
 import { Model } from "../src/model";
 import {
   Cell,
@@ -244,10 +244,14 @@ export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   }
   const result = {};
   for (let xc in grid) {
-    const cell = getCell(model, xc);
-    result[xc] = cell ? model.getters.getCellText(cell) : "";
+    result[xc] = getCellContent(model, xc);
   }
   return result;
+}
+
+export function getCellContent(model: Model, xc: string): string {
+  const cell = getCell(model, xc);
+  return cell ? getCellText(cell, model.getters.shouldShowFormulas()) : "";
 }
 
 /**
