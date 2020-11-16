@@ -1,5 +1,5 @@
 import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../formulas/index";
-import { toXC, toCartesian, colors, getComposerSheetName } from "../helpers/index";
+import { toXC, toCartesian, colors, getComposerSheetName, getCellText } from "../helpers/index";
 import { Command, LAYERS, CancelledReason, CommandResult } from "../types/index";
 import { BasePlugin } from "../base_plugin";
 import { Mode } from "../model";
@@ -352,11 +352,7 @@ export class EditionPlugin extends BasePlugin {
       this.col = col;
       this.row = row;
     }
-    const content = anchor
-      ? anchor.content
-        ? anchor.content
-        : this.getters.getCellText(anchor)
-      : "";
+    const content = anchor ? (anchor.content ? anchor.content : getCellText(anchor)) : "";
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
     });

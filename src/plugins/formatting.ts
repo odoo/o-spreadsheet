@@ -5,7 +5,14 @@ import {
   PADDING_AUTORESIZE,
 } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { stringify, toCartesian, toXC, maximumDecimalPlaces, toZone } from "../helpers/index";
+import {
+  stringify,
+  toCartesian,
+  toXC,
+  maximumDecimalPlaces,
+  toZone,
+  getCellText,
+} from "../helpers/index";
 import {
   Border,
   BorderCommand,
@@ -151,7 +158,7 @@ export class FormattingPlugin extends BasePlugin {
 
   getCellWidth(cell: Cell): number {
     const styleId = cell.style || 0;
-    const text = this.getters.getCellText(cell);
+    const text = getCellText(cell, this.getters.shouldShowFormulas());
     return this.getTextWidth(text, styleId);
   }
 

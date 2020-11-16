@@ -1,6 +1,6 @@
 // HELPERS
 
-import { parseNumber, isNumber } from "../helpers/index";
+import { parseNumber, isNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>

@@ -1,9 +1,7 @@
 import { BasePlugin } from "../base_plugin";
 import { compile, normalize } from "../formulas/index";
-import { formatDateTime, InternalDate, parseDateTime } from "../functions/dates";
+import { formatDateTime, parseDateTime } from "../functions/dates";
 import {
-  formatNumber,
-  formatStandardNumber,
   isNumber,
   parseNumber,
   toXC,
@@ -11,6 +9,7 @@ import {
   mapCellsInZone,
   uuidv4,
   toCartesian,
+  getCellText,
 } from "../helpers/index";
 import { _lt } from "../translation";
 import {
@@ -38,16 +37,8 @@ interface CoreState {
  * cell and sheet content.
  */
 export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
-  static getters = [
-    "getCellText",
-    "zoneToXC",
-    "getCells",
-    "shouldShowFormulas",
-    "getRangeValues",
-    "getRangeFormattedValues",
-  ];
+  static getters = ["zoneToXC", "getCells", "getRangeValues", "getRangeFormattedValues"];
 
-  private showFormulas: boolean = false;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
   // ---------------------------------------------------------------------------
@@ -69,9 +60,6 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
           style: 0,
           format: "",
         });
-        break;
-      case "SET_FORMULA_VISIBILITY":
-        this.showFormulas = cmd.show;
         break;
     }
   }
@@ -122,39 +110,6 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return this.cells[sheetId || this.getters.getActiveSheetId()] || {};
   }
 
-  getCellText(cell: Cell): string {
-    const value = this.showFormulas ? cell.content : cell.value;
-    const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
-    const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);
-    const numberFormat = shouldFormat && !dateTimeFormat;
-    switch (typeof value) {
-      case "string":
-        return value;
-      case "boolean":
-        return value ? "TRUE" : "FALSE";
-      case "number":
-        if (dateTimeFormat) {
-          return formatDateTime({ value } as InternalDate, cell.format);
-        }
-        if (numberFormat) {
-          return formatNumber(value, cell.format!);
-        }
-        return formatStandardNumber(value);
-      case "object":
-        if (dateTimeFormat) {
-          return formatDateTime(value as InternalDate, cell.format);
-        }
-        if (numberFormat) {
-          return formatNumber(value.value, cell.format!);
-        }
-        if (value && value.format!.match(/[ymd:]/)) {
-          return formatDateTime(value);
-        }
-        return "0";
-    }
-    return value.toString();
-  }
-
   /**
    * Converts a zone to a XC coordinate system
    *
@@ -185,10 +140,6 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     return topLeft;
   }
 
-  shouldShowFormulas(): boolean {
-    return this.showFormulas;
-  }
-
   getRangeValues(reference: string, defaultSheetId: UID): any[][] {
     const [range, sheetName] = reference.split("!").reverse();
     const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
@@ -202,7 +153,12 @@ export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
     const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
     const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(toZone(range), sheet, this.getters.getCellText, "");
+    return mapCellsInZone(
+      toZone(range),
+      sheet,
+      (cell) => getCellText(cell, this.getters.shouldShowFormulas()),
+      ""
+    );
   }
 
   // ---------------------------------------------------------------------------

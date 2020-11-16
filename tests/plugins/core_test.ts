@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { waitForRecompute, getCell, setCellContent } from "../helpers";
+import { waitForRecompute, getCell, setCellContent, getCellContent } from "../helpers";
 import { LOADING } from "../../src/plugins/evaluation";
 import { CancelledReason } from "../../src/types";
 
@@ -62,7 +62,7 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "=A2");
 
-      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0");
+      expect(getCellContent(model, "A1")).toBe("0");
     });
 
     test("format cell without content: empty string", () => {
@@ -73,7 +73,7 @@ describe("core", () => {
         target: model.getters.getSelectedZones(),
         border: "bottom",
       });
-      expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("");
+      expect(getCellContent(model, "B2")).toBe("");
     });
 
     test("format cell with the zero value", () => {
@@ -85,7 +85,7 @@ describe("core", () => {
         target: model.getters.getSelectedZones(),
         formatter: "0.00000",
       });
-      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0.00000");
+      expect(getCellContent(model, "A1")).toBe("0.00000");
       setCellContent(model, "A2", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 1 });
       model.dispatch("SET_FORMATTER", {
@@ -93,7 +93,7 @@ describe("core", () => {
         target: model.getters.getSelectedZones(),
         formatter: "0.00%",
       });
-      expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("0.00%");
+      expect(getCellContent(model, "A2")).toBe("0.00%");
     });
 
     test("format a pendingcell: should not apply formatter to Loading...", () => {
@@ -105,7 +105,7 @@ describe("core", () => {
         target: model.getters.getSelectedZones(),
         formatter: "#,##0.00",
       });
-      expect(model.getters.getCellText(getCell(model, "B2")!)).toBe(LOADING);
+      expect(getCellContent(model, "B2")).toBe(LOADING);
     });
 
     test("evaluate properly a cell with a style just recently applied", () => {
@@ -116,7 +116,7 @@ describe("core", () => {
         target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
         style: { bold: true },
       });
-      expect(model.getters.getCellText(getCell(model, "A1")!)).toEqual("1");
+      expect(getCellContent(model, "A1")).toEqual("1");
     });
 
     test("format cell to a boolean value", () => {
@@ -124,8 +124,8 @@ describe("core", () => {
       setCellContent(model, "A1", "=false");
       setCellContent(model, "A2", "=true");
 
-      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("FALSE");
-      expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("TRUE");
+      expect(getCellContent(model, "A1")).toBe("FALSE");
+      expect(getCellContent(model, "A2")).toBe("TRUE");
     });
 
     test("detect and format percentage values automatically", () => {
@@ -133,9 +133,9 @@ describe("core", () => {
       setCellContent(model, "A1", "3%");
       setCellContent(model, "A2", "3.4%");
 
-      expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3%");
+      expect(getCellContent(model, "A1")).toBe("3%");
       expect(getCell(model, "A1")!.format).toBe("0%");
-      expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("3.40%");
+      expect(getCellContent(model, "A2")).toBe("3.40%");
       expect(getCell(model, "A2")!.format).toBe("0.00%");
     });
   });
@@ -304,13 +304,13 @@ describe("history", () => {
       style: { bold: true },
     });
 
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
+    expect(getCellContent(model, "A1")).toBe("3");
 
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
     });
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
+    expect(getCellContent(model, "A1")).toBe("");
   });
 
   test("can delete a cell with a border", () => {
@@ -322,13 +322,13 @@ describe("history", () => {
       border: "bottom",
     });
 
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
+    expect(getCellContent(model, "A1")).toBe("3");
 
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
     });
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
+    expect(getCellContent(model, "A1")).toBe("");
   });
 
   test("can delete a cell with a formatter", () => {
@@ -340,13 +340,13 @@ describe("history", () => {
       formatter: "#,##0.00",
     });
 
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3.00");
+    expect(getCellContent(model, "A1")).toBe("3.00");
 
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
     });
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("");
+    expect(getCellContent(model, "A1")).toBe("");
   });
 
   test("setting a date to a cell will reformat it", () => {
@@ -362,11 +362,11 @@ describe("history", () => {
     setCellContent(model, "A1", "=SUM(1, 2)");
     setCellContent(model, "A2", "This is Patrick");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("=SUM(1, 2)");
-    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("This is Patrick");
+    expect(getCellContent(model, "A1")).toBe("=SUM(1, 2)");
+    expect(getCellContent(model, "A2")).toBe("This is Patrick");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
-    expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("3");
-    expect(model.getters.getCellText(getCell(model, "A2")!)).toBe("This is Patrick");
+    expect(getCellContent(model, "A1")).toBe("3");
+    expect(getCellContent(model, "A2")).toBe("This is Patrick");
   });
 
   test("set formula visibility is idempotent", () => {

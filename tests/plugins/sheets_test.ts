@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, createEqualCF, testUndoRedo, setCellContent } from "../helpers";
+import { getCell, createEqualCF, testUndoRedo, setCellContent, getCellContent } from "../helpers";
 import { uuidv4, toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 
@@ -277,12 +277,12 @@ describe("sheets", () => {
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     setCellContent(model, "A1", "=Sheet2!A1");
-    expect(getText(model, "A1")).toEqual("0");
+    expect(getCellContent(model, "A1")).toEqual("0");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
     setCellContent(model, "A1", "3");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
-    expect(getText(model, "A1")).toEqual("3");
+    expect(getCellContent(model, "A1")).toEqual("3");
   });
 
   test("can move a sheet", () => {
@@ -497,7 +497,7 @@ describe("sheets", () => {
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
-    expect(getText(model, "A1")).toBe("42");
+    expect(getCellContent(model, "A1")).toBe("42");
     expect(model.getters.getActiveSheet().cols.length).toBe(5);
     expect(model.getters.getActiveSheet().rows.length).toBe(5);
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
@@ -530,7 +530,7 @@ describe("sheets", () => {
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
-    expect(getText(model, "A1")).toBe("42");
+    expect(getCellContent(model, "A1")).toBe("42");
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
     expect(model.getters.getConditionalFormats()).toHaveLength(1);
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -561,11 +561,11 @@ describe("sheets", () => {
     expect(model.getters.getSheets()).toHaveLength(2);
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
-    expect(getText(model, "A1")).toBe("42");
+    expect(getCellContent(model, "A1")).toBe("42");
     setCellContent(model, "A1", "24");
-    expect(getText(model, "A1")).toBe("24");
+    expect(getCellContent(model, "A1")).toBe("24");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: newSheet, sheetIdTo: sheet });
-    expect(getText(model, "A1")).toBe("42");
+    expect(getCellContent(model, "A1")).toBe("42");
   });
 
   test("Figures are correctly duplicated", () => {
@@ -722,9 +722,3 @@ describe("sheets", () => {
     expect(model.getters.getCellPosition(cell.id)).toEqual({ col: 1, row: 1 });
   });
 });
-
-function getText(model: Model, xc: string): string {
-  const sheetId = model.getters.getActiveSheetId();
-  const cell = model.getters.getCellByXc(sheetId, xc);
-  return cell ? model.getters.getCellText(cell) : "";
-}

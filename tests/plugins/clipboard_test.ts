@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { CancelledReason, Zone, ConditionalFormat, Style } from "../../src/types/index";
 import "../canvas.mock";
 import { ClipboardPlugin } from "../../src/plugins/clipboard";
-import { getCell, getGrid, setCellContent, target, zone } from "../helpers";
+import { getCell, getCellContent, getGrid, setCellContent, target, zone } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
@@ -202,12 +202,12 @@ describe("clipboard", () => {
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
-    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("45.10%");
+    expect(getCellContent(model, "B2")).toBe("45.10%");
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2") });
 
-    expect(model.getters.getCellText(getCell(model, "C2")!)).toBe("45.10%");
+    expect(getCellContent(model, "C2")).toBe("45.10%");
   });
 
   test("can copy and paste merged content", () => {
@@ -742,12 +742,12 @@ describe("clipboard", () => {
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
-    expect(model.getters.getCellText(getCell(model, "B2")!)).toBe("45.10%");
+    expect(getCellContent(model, "B2")).toBe("45.10%");
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
 
-    expect(model.getters.getCellText(getCell(model, "C2")!)).toBe("0.451");
+    expect(getCellContent(model, "C2")).toBe("0.451");
   });
 
   test("can copy a cell with a conditional format and paste value only", () => {
@@ -825,12 +825,12 @@ describe("clipboard", () => {
       target: model.getters.getSelectedZones(),
       formatter: "0.00%",
     });
-    expect(model.getters.getCellText(getCell(model, "C3")!)).toBe("45.10%");
+    expect(getCellContent(model, "C3")).toBe("45.10%");
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C3"), onlyValue: true });
 
-    expect(model.getters.getCellText(getCell(model, "C3")!)).toBe("4200.00%");
+    expect(getCellContent(model, "C3")).toBe("4200.00%");
   });
 
   test("can copy a formula and paste value only", () => {

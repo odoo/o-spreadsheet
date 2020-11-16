@@ -15,14 +15,14 @@ import { FigurePlugin } from "../plugins/figures";
 import { ChartPlugin } from "../plugins/chart";
 import { SheetPlugin } from "../plugins/sheet";
 import { FindAndReplacePlugin } from "../plugins/find_and_replace";
+import { UIOptionsPlugin } from "../plugins/ui_options";
+import { SheetUIPlugin } from "../plugins/ui_sheet";
 
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
 export interface Getters {
   applyOffset: SheetPlugin["applyOffset"];
-  getActiveSheetId: SheetPlugin["getActiveSheetId"];
-  getActiveSheet: SheetPlugin["getActiveSheet"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];
   getSheetName: SheetPlugin["getSheetName"];
@@ -39,12 +39,10 @@ export interface Getters {
   getGridSize: SheetPlugin["getGridSize"];
   getCellByXc: SheetPlugin["getCellByXc"];
 
-  getCellText: CorePlugin["getCellText"];
   zoneToXC: CorePlugin["zoneToXC"];
   getCells: CorePlugin["getCells"];
   getRangeValues: CorePlugin["getRangeValues"];
   getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
-  shouldShowFormulas: CorePlugin["shouldShowFormulas"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
@@ -73,6 +71,11 @@ export interface Getters {
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
+
+  getActiveSheetId: SheetUIPlugin["getActiveSheetId"];
+  getActiveSheet: SheetUIPlugin["getActiveSheet"];
+
+  shouldShowFormulas: UIOptionsPlugin["shouldShowFormulas"];
 
   getHighlights: HighlightPlugin["getHighlights"];
 
