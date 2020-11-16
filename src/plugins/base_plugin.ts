@@ -1,27 +1,6 @@
-import { WHistory, WorkbookHistory } from "./history";
-import { Mode, ModelConfig } from "./model";
-import {
-  Command,
-  CommandDispatcher,
-  CommandHandler,
-  Getters,
-  GridRenderingContext,
-  LAYERS,
-  WorkbookData,
-  CommandResult,
-} from "./types/index";
-
-export interface PluginConstuctor {
-  new (
-    getters: Getters,
-    history: WHistory,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ): BasePlugin;
-  layers: LAYERS[];
-  getters: string[];
-  modes: Mode[];
-}
+import { WHistory, WorkbookHistory } from "../history";
+import { Mode, ModelConfig } from "../model";
+import { Command, CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 /**
@@ -32,32 +11,26 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
  *
  * This file introduce the BasePlugin, which is the common class that defines
  * how each of these model sub parts should interact with each other.
+ * There are two kind of plugins: core plugins handling persistent data
+ * and UI plugins handling transient data.
  */
 
 export class BasePlugin<State = any> implements CommandHandler {
-  static layers: LAYERS[] = [];
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
-  protected getters: Getters;
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
   protected ui: UIActions;
 
-  constructor(
-    getters: Getters,
-    history: WHistory,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
-    this.getters = getters;
+  constructor(history: WHistory, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;
-    this.ui = config;
+    this.ui = config; //TODO We should remove this, and put this only in UIPlugins
   }
 
   // ---------------------------------------------------------------------------
@@ -94,17 +67,4 @@ export class BasePlugin<State = any> implements CommandHandler {
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
   finalize(command: Command): void {}
-
-  // ---------------------------------------------------------------------------
-  // Grid rendering
-  // ---------------------------------------------------------------------------
-
-  drawGrid(ctx: GridRenderingContext, layer: LAYERS) {}
-
-  // ---------------------------------------------------------------------------
-  // Import/Export
-  // ---------------------------------------------------------------------------
-
-  import(data: WorkbookData) {}
-  export(data: WorkbookData) {}
 }

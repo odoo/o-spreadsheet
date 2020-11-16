@@ -208,7 +208,7 @@ type GridResult = { [xc: string]: any };
 export function getGrid(model: Model): GridResult {
   const result = {};
   const sheetId = model.getters.getActiveSheetId();
-  for (let cellId in model.getters.getCells()) {
+  for (let cellId in model.getters.getCells(sheetId)) {
     const { col, row } = model.getters.getCellPosition(cellId);
     const cell = model.getters.getCell(sheetId, col, row);
     result[toXC(col, row)] = cell ? cell.value : undefined;

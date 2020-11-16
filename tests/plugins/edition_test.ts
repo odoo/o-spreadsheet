@@ -7,17 +7,18 @@ import { toZone, toCartesian } from "../../src/helpers";
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
     const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
     // adding
     model.dispatch("START_EDITION", { text: "a" });
     model.dispatch("STOP_EDITION");
-    expect(Object.keys(model.getters.getCells())).toHaveLength(1);
+    expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(1);
     expect(getCell(model, "A1")!.content).toBe("a");
 
     // removing
     model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", { content: "" });
     model.dispatch("STOP_EDITION");
-    expect(model.getters.getCells()).toEqual({});
+    expect(model.getters.getCells(sheetId)).toEqual({});
   });
 
   test("deleting a cell with style does not remove it", () => {

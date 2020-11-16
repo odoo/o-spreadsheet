@@ -119,8 +119,9 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetEnv) => {
 };
 
 export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetEnv) => {
+  const sheetId = env.getters.getActiveSheetId();
   const target = [...env.getters.getActiveRows()].map((index) =>
-    env.getters.getRowsZone(index, index)
+    env.getters.getRowsZone(sheetId, index, index)
   );
   env.dispatch("DELETE_CONTENT", {
     target,
@@ -147,8 +148,9 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetEnv) => {
 };
 
 export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
+  const sheetId = env.getters.getActiveSheetId();
   const target = [...env.getters.getActiveCols()].map((index) =>
-    env.getters.getColsZone(index, index)
+    env.getters.getColsZone(sheetId, index, index)
   );
   env.dispatch("DELETE_CONTENT", {
     target,

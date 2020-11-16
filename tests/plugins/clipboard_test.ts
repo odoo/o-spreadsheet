@@ -88,7 +88,7 @@ describe("clipboard", () => {
     });
     expect(getCell(model, "B2")).toMatchObject({ content: "a1", type: "text", value: "a1" });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
-    expect(model.getters.getCells()).toEqual({});
+    expect(model.getters.getCells(to)).toEqual({});
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
@@ -1123,7 +1123,7 @@ describe("clipboard: pasting outside of sheet", () => {
     const activeSheet = model.getters.getActiveSheet();
     const currentRowNumber = activeSheet.rows.length;
 
-    model.dispatch("COPY", { target: [model.getters.getColsZone(0, 0)] });
+    model.dispatch("COPY", { target: [model.getters.getColsZone(activeSheet.id, 0, 0)] });
     model.dispatch("PASTE", { target: target("B2") });
     expect(activeSheet.rows.length).toBe(currentRowNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");
@@ -1136,7 +1136,7 @@ describe("clipboard: pasting outside of sheet", () => {
     const activeSheet = model.getters.getActiveSheet();
     const currentColNumber = activeSheet.cols.length;
 
-    model.dispatch("COPY", { target: [model.getters.getRowsZone(0, 0)] });
+    model.dispatch("COPY", { target: [model.getters.getRowsZone(activeSheet.id, 0, 0)] });
     model.dispatch("PASTE", { target: target("B2") });
     expect(activeSheet.cols.length).toBe(currentColNumber + 1);
     expect(getCell(model, "B2")!.content).toBe("txt");

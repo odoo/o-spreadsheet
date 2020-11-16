@@ -5,29 +5,30 @@ import { CancelledReason } from "../../src/types";
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
     const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
-    const initialSize = model.getters.getCol(sheet, 1)!.size;
-    const initialTop = model.getters.getCol(sheet, 2)!.start;
-    const initialWidth = model.getters.getGridSize()[0];
+    const sheet = model.getters.getActiveSheet();
+    const sheetId = sheet.id;
+    const initialSize = model.getters.getCol(sheetId, 1)!.size;
+    const initialTop = model.getters.getCol(sheetId, 2)!.start;
+    const initialWidth = model.getters.getGridSize(sheet)[0];
 
     model.dispatch("RESIZE_COLUMNS", {
-      sheetId: sheet,
+      sheetId: sheetId,
       cols: [1],
-      size: model.getters.getCol(sheet, 1)!.size + 100,
+      size: model.getters.getCol(sheetId, 1)!.size + 100,
     });
-    expect(model.getters.getCol(sheet, 1)!.size).toBe(196);
-    expect(model.getters.getCol(sheet, 2)!.start).toBe(initialTop + 100);
-    expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
+    expect(model.getters.getCol(sheetId, 1)!.size).toBe(196);
+    expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
+    expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
 
     model.dispatch("UNDO");
-    expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
-    expect(model.getters.getCol(sheet, 2)!.start).toBe(initialTop);
-    expect(model.getters.getGridSize()[0]).toBe(initialWidth);
+    expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize);
+    expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop);
+    expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth);
 
     model.dispatch("REDO");
-    expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize + 100);
-    expect(model.getters.getCol(sheet, 2)!.start).toBe(initialTop + 100);
-    expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
+    expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize + 100);
+    expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
+    expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
   });
 
   test("Cannot resize column in invalid sheet", async () => {
@@ -83,24 +84,25 @@ describe("Model resizer", () => {
 
   test("Can resize one row, then undo", async () => {
     const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
-    const initialSize = model.getters.getRow(sheet, 1)!.size;
-    const initialTop = model.getters.getRow(sheet, 2)!.start;
-    const initialHeight = model.getters.getGridSize()[1];
+    const sheet = model.getters.getActiveSheet();
+    const sheetId = sheet.id;
+    const initialSize = model.getters.getRow(sheetId, 1)!.size;
+    const initialTop = model.getters.getRow(sheetId, 2)!.start;
+    const initialHeight = model.getters.getGridSize(sheet)[1];
 
     model.dispatch("RESIZE_ROWS", {
-      sheetId: sheet,
+      sheetId: sheetId,
       rows: [1],
       size: initialSize + 100,
     });
-    expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize + 100);
-    expect(model.getters.getRow(sheet, 2)!.start).toBe(initialTop + 100);
-    expect(model.getters.getGridSize()[1]).toBe(initialHeight + 100);
+    expect(model.getters.getRow(sheetId, 1)!.size).toBe(initialSize + 100);
+    expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop + 100);
+    expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight + 100);
 
     model.dispatch("UNDO");
-    expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 2)!.start).toBe(initialTop);
-    expect(model.getters.getGridSize()[1]).toBe(initialHeight);
+    expect(model.getters.getRow(sheetId, 1)!.size).toBe(initialSize);
+    expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop);
+    expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight);
   });
 
   test("Can resize row of inactive sheet", async () => {
@@ -141,10 +143,10 @@ describe("Model resizer", () => {
       size: model.getters.getCol(sheet2, 1)!.size + 100,
     });
 
-    const initialWidth = model.getters.getGridSize()[0];
+    const initialWidth = model.getters.getGridSize(model.getters.getActiveSheet())[0];
 
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
-    expect(model.getters.getGridSize()[0]).toBe(initialWidth - 100);
+    expect(model.getters.getGridSize(model.getters.getActiveSheet())[0]).toBe(initialWidth - 100);
   });
 
   test("Can resize multiple columns", async () => {
@@ -184,21 +186,21 @@ describe("Model resizer", () => {
 
   test("resizing cols/rows update the total width/height", async () => {
     const model = new Model();
-
-    const [initialWidth, initialHeight] = model.getters.getGridSize();
-    const sheet = model.getters.getActiveSheetId();
+    const sheet = model.getters.getActiveSheet();
+    const sheetId = sheet.id;
+    const [initialWidth, initialHeight] = model.getters.getGridSize(sheet);
     model.dispatch("RESIZE_COLUMNS", {
       sheetId: model.getters.getActiveSheetId(),
       cols: [1],
-      size: model.getters.getCol(sheet, 1)!.size + 100,
+      size: model.getters.getCol(sheetId, 1)!.size + 100,
     });
-    expect(model.getters.getGridSize()[0]).toBe(initialWidth + 100);
+    expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
 
     model.dispatch("RESIZE_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
       rows: [1],
-      size: model.getters.getRow(sheet, 1)!.size + 42,
+      size: model.getters.getRow(sheetId, 1)!.size + 42,
     });
-    expect(model.getters.getGridSize()[1]).toBe(initialHeight + 42);
+    expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight + 42);
   });
 });

@@ -1,4 +1,4 @@
-import { BasePlugin } from "../../base_plugin";
+import { CorePlugin } from "../core_plugin";
 import { compile, normalize } from "../../formulas/index";
 import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
@@ -36,7 +36,7 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
+export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   static getters = ["zoneToXC", "getCells", "getRangeValues", "getRangeFormattedValues"];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -48,7 +48,7 @@ export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        this.updateCell(this.getters.getSheet(cmd.sheetId)!, cmd.col, cmd.row, cmd);
+        this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
         break;
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
@@ -70,7 +70,7 @@ export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      const imported_sheet = this.getters.getSheet(sheet.id)!;
+      const imported_sheet = this.getters.getSheet(sheet.id);
       // cells
       for (let xc in sheet.cells) {
         const cell = sheet.cells[xc];
@@ -106,8 +106,8 @@ export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
-  getCells(sheetId?: string): { [key: string]: Cell } {
-    return this.cells[sheetId || this.getters.getActiveSheetId()] || {};
+  getCells(sheetId: UID): Record<UID, Cell> {
+    return this.cells[sheetId] || {};
   }
 
   /**
@@ -179,7 +179,6 @@ export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
     // if all are empty, we need to delete the underlying cell object
     if (!content && !style && !border && !format) {
       if (current) {
-        // todo: make this work on other sheets
         this.history.update("cells", sheet.id, current.id, undefined);
         this.dispatch("UPDATE_CELL_POSITION", {
           cellId: current.id,
@@ -254,7 +253,6 @@ export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
     if (format) {
       cell.format = format;
     }
-    // todo: make this work on other sheets
     this.history.update("cells", sheet.id, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cell, cellId: cell.id, col, row, sheetId: sheet.id });
   }

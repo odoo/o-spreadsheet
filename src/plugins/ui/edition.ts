@@ -1,8 +1,8 @@
 import { tokenize, composerTokenize, rangeReference, EnrichedToken } from "../../formulas/index";
 import { toXC, toCartesian, colors, getComposerSheetName, getCellText } from "../../helpers/index";
 import { Command, LAYERS, CancelledReason, CommandResult } from "../../types/index";
-import { BasePlugin } from "../../base_plugin";
 import { Mode } from "../../model";
+import { UIPlugin } from "../ui_plugin";
 
 export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
 
@@ -11,7 +11,7 @@ export interface ComposerSelection {
   end: number;
 }
 
-export class EditionPlugin extends BasePlugin {
+export class EditionPlugin extends UIPlugin {
   static layers = [LAYERS.Highlights];
   static getters = [
     "getEditionMode",

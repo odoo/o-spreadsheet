@@ -5,7 +5,7 @@ import "../canvas.mock";
 import { getActiveXc, getCell, getMergeCellMap, getMerges, setCellContent } from "../helpers";
 
 function getCellsXC(model: Model): string[] {
-  return Object.values(model.getters.getCells()).map((cell) => {
+  return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
     const { col, row } = model.getters.getCellPosition(cell.id);
     return toXC(col, row);
   });

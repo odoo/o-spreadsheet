@@ -1,4 +1,4 @@
-import { BasePlugin } from "../../base_plugin";
+import { CorePlugin } from "../core_plugin";
 import {
   CancelledReason,
   Cell,
@@ -34,7 +34,7 @@ export interface SheetState {
   readonly cellPosition: Record<UID, { col: number; row: number } | undefined>;
 }
 
-export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
+export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   static getters = [
     "applyOffset",
     "getSheetName",
@@ -136,12 +136,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
           cmd.rows || 100
         );
         this.sheetIds[sheet.name] = sheet.id;
-        if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getters.getActiveSheetId(),
-            sheetIdTo: sheet.id,
-          });
-        }
         break;
       case "RESIZE_COLUMNS":
         for (let col of cmd.cols) {
@@ -262,8 +256,12 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getSheet(sheetId: UID): Sheet | undefined {
-    return this.sheets[sheetId];
+  getSheet(sheetId: UID): Sheet {
+    const sheet = this.sheets[sheetId];
+    if (!sheet) {
+      throw new Error(`Sheet ${sheetId} not found.`);
+    }
+    return sheet;
   }
 
   getSheetName(sheetId: UID): string | undefined {
@@ -325,35 +323,33 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
    * Returns all the cells of a col
    */
   getColCells(sheetId: UID, col: number): Cell[] {
-    return this.getSheet(sheetId)!.rows.reduce((acc: Cell[], cur) => {
+    return this.getSheet(sheetId).rows.reduce((acc: Cell[], cur) => {
       const cell = cur.cells[col];
       return cell !== undefined ? acc.concat(cell) : acc;
     }, []);
   }
 
-  getColsZone(start: number, end: number): Zone {
+  getColsZone(sheetId: UID, start: number, end: number): Zone {
     return {
       top: 0,
-      bottom: this.getters.getActiveSheet().rows.length - 1,
+      bottom: this.getSheet(sheetId).rows.length - 1,
       left: start,
       right: end,
     };
   }
 
-  getRowsZone(start: number, end: number): Zone {
+  getRowsZone(sheetId: UID, start: number, end: number): Zone {
     return {
       top: start,
       bottom: end,
       left: 0,
-      right: this.getters.getActiveSheet().cols.length - 1,
+      right: this.getSheet(sheetId).cols.length - 1,
     };
   }
 
-  getGridSize(): [number, number] {
-    const activeSheet = this.getters.getActiveSheet();
-    const height = activeSheet.rows[activeSheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
-    const width = activeSheet.cols[activeSheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
-
+  getGridSize(sheet: Sheet): [number, number] {
+    const height = sheet.rows[sheet.rows.length - 1].end + DEFAULT_CELL_HEIGHT + 5;
+    const width = sheet.cols[sheet.cols.length - 1].end + DEFAULT_CELL_WIDTH;
     return [width, height];
   }
 
@@ -515,10 +511,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update("sheetIds", sheetIds);
-    this.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getters.getActiveSheetId(),
-      sheetIdTo: toId,
-    });
   }
 
   private interactiveDeleteSheet(sheetId: UID) {
@@ -536,8 +528,15 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === sheet.id);
     visibleSheets.splice(currentIndex, 1);
-    this.history.update("visibleSheets", visibleSheets);
 
+    if (this.getters.getActiveSheetId() === sheet.id) {
+      this.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: sheet.id,
+        sheetIdTo: visibleSheets[Math.max(0, currentIndex - 1)],
+      });
+    }
+
+    this.history.update("visibleSheets", visibleSheets);
     const sheetIds = Object.assign({}, this.sheetIds);
     delete sheetIds[name];
     this.history.update("sheetIds", sheetIds);
@@ -551,12 +550,6 @@ export class SheetPlugin extends BasePlugin<SheetState> implements SheetState {
       }
       return value;
     });
-    if (this.getters.getActiveSheetId() === sheet.id) {
-      this.dispatch("ACTIVATE_SHEET", {
-        sheetIdFrom: sheet.id,
-        sheetIdTo: visibleSheets[Math.max(0, currentIndex - 1)],
-      });
-    }
   }
 
   /**

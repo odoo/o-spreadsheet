@@ -1,4 +1,3 @@
-import { PluginConstuctor } from "../base_plugin";
 import { Registry } from "../registry";
 import { ClipboardPlugin } from "./ui/clipboard";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
@@ -18,23 +17,27 @@ import { SheetPlugin } from "./core/sheet";
 import { FindAndReplacePlugin } from "./ui/find_and_replace";
 import { SheetUIPlugin } from "./ui/ui_sheet";
 import { UIOptionsPlugin } from "./ui/ui_options";
+import { CorePluginConstructor } from "./core_plugin";
+import { UIPluginConstuctor } from "./ui_plugin";
 
-export const pluginRegistry = new Registry<PluginConstuctor>()
+export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
   .add("cell", CellPlugin)
-  .add("ui_options", UIOptionsPlugin)
-  .add("ui_sheet", SheetUIPlugin)
   .add("evaluation", EvaluationPlugin)
-  .add("clipboard", ClipboardPlugin)
   .add("merge", MergePlugin)
   .add("formatting", FormattingPlugin)
+  .add("conditional formatting", ConditionalFormatPlugin)
+  .add("figures", FigurePlugin)
+  .add("chart", ChartPlugin);
+
+export const uiPluginRegistry = new Registry<UIPluginConstuctor>()
+  .add("ui_sheet", SheetUIPlugin)
+  .add("ui_options", UIOptionsPlugin)
+  .add("clipboard", ClipboardPlugin)
   .add("selection", SelectionPlugin)
   .add("edition", EditionPlugin)
   .add("highlight", HighlightPlugin)
   .add("selectionInput", SelectionInputPlugin)
-  .add("conditional formatting", ConditionalFormatPlugin)
-  .add("figures", FigurePlugin)
-  .add("chart", ChartPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin);

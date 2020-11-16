@@ -5,14 +5,25 @@ import { CellPlugin } from "../src/plugins/core/cell";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { FormattingPlugin } from "../src/plugins/core/formatting";
 import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
-import { BasePlugin } from "../src/base_plugin";
-import { pluginRegistry } from "../src/plugins/index";
+import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { FigurePlugin } from "../src/plugins/core/figures";
 import { ChartPlugin } from "../src/plugins/core/chart";
 import { getCell, setCellContent } from "./helpers";
 import { SheetPlugin } from "../src/plugins/core/sheet";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
+import { UIPlugin } from "../src/plugins/ui_plugin";
+
+function getNbrPlugin(mode: Mode): number {
+  return (
+    corePluginRegistry
+      .getAll()
+      .reduce((acc, plugin) => (plugin.modes.includes(mode) ? acc + 1 : acc), 0) +
+    uiPluginRegistry
+      .getAll()
+      .reduce((acc, plugin) => (plugin.modes.includes(mode) ? acc + 1 : acc), 0)
+  );
+}
 
 describe("Model", () => {
   test("can create model in headless mode", () => {
@@ -21,36 +32,30 @@ describe("Model", () => {
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
-    expect(model["handlers"][3]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(FormattingPlugin);
-    expect(model["handlers"][6]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][7]).toBeInstanceOf(FigurePlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(ChartPlugin);
+    expect(model["handlers"][3]).toBeInstanceOf(MergePlugin);
+    expect(model["handlers"][4]).toBeInstanceOf(FormattingPlugin);
+    expect(model["handlers"][5]).toBeInstanceOf(ConditionalFormatPlugin);
+    expect(model["handlers"][6]).toBeInstanceOf(FigurePlugin);
+    expect(model["handlers"][7]).toBeInstanceOf(ChartPlugin);
+    expect(model["handlers"][8]).toBeInstanceOf(SheetUIPlugin);
     expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {
     const model = new Model();
-    const nbr = pluginRegistry
-      .getAll()
-      .reduce((acc, plugin) => (plugin.modes.includes("normal") ? acc + 1 : acc), 0);
+    const nbr = getNbrPlugin("normal");
     expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for WHistory
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    const nbr = pluginRegistry
-      .getAll()
-      .reduce((acc, plugin) => (plugin.modes.includes("headless") ? acc + 1 : acc), 0);
+    const nbr = getNbrPlugin("headless");
     expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for WHistory
   });
 
   test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
-    const nbr = pluginRegistry
-      .getAll()
-      .reduce((acc, plugin) => (plugin.modes.includes("readonly") ? acc + 1 : acc), 0);
+    const nbr = getNbrPlugin("readonly");
     expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for WHistory
   });
 
@@ -61,18 +66,18 @@ describe("Model", () => {
   });
 
   test("can add a Plugin only in headless mode", () => {
-    class NormalPlugin extends BasePlugin {
+    class NormalPlugin extends UIPlugin {
       static modes: Mode[] = ["normal"];
     }
-    class HeadlessPlugin extends BasePlugin {
+    class HeadlessPlugin extends UIPlugin {
       static modes: Mode[] = ["headless"];
     }
-    class ReadOnlyPlugin extends BasePlugin {
+    class ReadOnlyPlugin extends UIPlugin {
       static modes: Mode[] = ["readonly"];
     }
-    pluginRegistry.add("normalPlugin", NormalPlugin);
-    pluginRegistry.add("headlessPlugin", HeadlessPlugin);
-    pluginRegistry.add("readonlyPlugin", ReadOnlyPlugin);
+    uiPluginRegistry.add("normalPlugin", NormalPlugin);
+    uiPluginRegistry.add("headlessPlugin", HeadlessPlugin);
+    uiPluginRegistry.add("readonlyPlugin", ReadOnlyPlugin);
     const modelNormal = new Model();
     expect(modelNormal["handlers"][modelNormal["handlers"].length - 1]).toBeInstanceOf(
       NormalPlugin

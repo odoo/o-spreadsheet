@@ -7,7 +7,7 @@ import { PADDING_AUTORESIZE, DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
 import { FormattingPlugin } from "../../src/plugins/core/formatting";
-import { UID } from "../../src/types";
+import { CancelledReason, UID } from "../../src/types";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
@@ -137,6 +137,19 @@ describe("formatting values (with formatters)", () => {
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
     setFormat(model, "mm/dd/yyyy");
     expect(getCellContent(model, "A1")).toBe("Test");
+  });
+
+  test("Cannot set format in invalid sheet", () => {
+    const model = new Model();
+    expect(
+      model.dispatch("SET_FORMATTING", {
+        sheetId: "invalid sheet Id",
+        target: [toZone("A1")],
+      })
+    ).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
   });
 });
 

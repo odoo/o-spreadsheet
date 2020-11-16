@@ -1,4 +1,4 @@
-import { BasePlugin } from "../../base_plugin";
+import { CorePlugin } from "../core_plugin";
 import { Command, WorkbookData, Figure, Viewport, UID } from "../../types/index";
 import { uuidv4, isDefined } from "../../helpers/index";
 
@@ -7,7 +7,7 @@ interface FigureState {
   readonly sheetFigures: Record<UID, Figure<any>[] | undefined>;
 }
 
-export class FigurePlugin extends BasePlugin<FigureState> implements FigureState {
+export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
   static getters = ["getFigures", "getSelectedFigureId", "getFigure"];
 
   private selectedFigureId: string | null = null;
