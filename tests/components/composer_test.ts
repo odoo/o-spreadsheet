@@ -12,7 +12,7 @@ import {
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";
-import { HighlightPlugin } from "../../src/plugins/highlight";
+import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );

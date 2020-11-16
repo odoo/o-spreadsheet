@@ -1,6 +1,6 @@
-import { BasePlugin } from "../base_plugin";
-import { Command, WorkbookData, Figure, Viewport, UID } from "../types/index";
-import { uuidv4, isDefined } from "../helpers/index";
+import { BasePlugin } from "../../base_plugin";
+import { Command, WorkbookData, Figure, Viewport, UID } from "../../types/index";
+import { uuidv4, isDefined } from "../../helpers/index";
 
 interface FigureState {
   readonly figures: Record<UID, Figure<any> | undefined>;

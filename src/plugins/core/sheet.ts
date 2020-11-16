@@ -1,4 +1,4 @@
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin } from "../../base_plugin";
 import {
   CancelledReason,
   Cell,
@@ -14,8 +14,8 @@ import {
   UpdateCellPositionCommand,
   WorkbookData,
   Zone,
-} from "../types/index";
-import { _lt } from "../translation";
+} from "../../types/index";
+import { _lt } from "../../translation";
 import {
   getComposerSheetName,
   getUnquotedSheetName,
@@ -23,9 +23,9 @@ import {
   numberToLetters,
   toCartesian,
   toXC,
-} from "../helpers/index";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { cellReference, rangeTokenize } from "../formulas/index";
+} from "../../helpers/index";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
+import { cellReference, rangeTokenize } from "../../formulas/index";
 
 export interface SheetState {
   readonly sheets: Record<UID, Sheet | undefined>;

@@ -1,18 +1,18 @@
 import { Model, Mode } from "../src/model";
 import "./canvas.mock";
 import { WHistory } from "../src/history";
-import { CellPlugin } from "../src/plugins/cell";
-import { MergePlugin } from "../src/plugins/merge";
-import { FormattingPlugin } from "../src/plugins/formatting";
-import { ConditionalFormatPlugin } from "../src/plugins/conditional_format";
+import { CellPlugin } from "../src/plugins/core/cell";
+import { MergePlugin } from "../src/plugins/core/merge";
+import { FormattingPlugin } from "../src/plugins/core/formatting";
+import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
 import { BasePlugin } from "../src/base_plugin";
 import { pluginRegistry } from "../src/plugins/index";
-import { FigurePlugin } from "../src/plugins/figures";
-import { ChartPlugin } from "../src/plugins/chart";
+import { FigurePlugin } from "../src/plugins/core/figures";
+import { ChartPlugin } from "../src/plugins/core/chart";
 import { getCell, setCellContent } from "./helpers";
-import { SheetPlugin } from "../src/plugins/sheet";
-import { FindAndReplacePlugin } from "../src/plugins/find_and_replace";
-import { SheetUIPlugin } from "../src/plugins/ui_sheet";
+import { SheetPlugin } from "../src/plugins/core/sheet";
+import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
+import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 
 describe("Model", () => {
   test("can create model in headless mode", () => {

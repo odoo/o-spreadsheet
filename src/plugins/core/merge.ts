@@ -1,10 +1,10 @@
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin } from "../../base_plugin";
 import {
   updateAddColumns,
   updateAddRows,
   updateRemoveColumns,
   updateRemoveRows,
-} from "../helpers/grid_manipulation";
+} from "../../helpers/grid_manipulation";
 import {
   isEqual,
   toCartesian,
@@ -14,8 +14,8 @@ import {
   clip,
   isDefined,
   toZone,
-} from "../helpers/index";
-import { _lt } from "../translation";
+} from "../../helpers/index";
+import { _lt } from "../../translation";
 import {
   CancelledReason,
   Command,
@@ -24,7 +24,7 @@ import {
   UID,
   WorkbookData,
   Zone,
-} from "../types/index";
+} from "../../types/index";
 
 interface PendingMerges {
   sheet: string;

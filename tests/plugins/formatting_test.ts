@@ -6,7 +6,7 @@ import { setCellContent } from "../helpers";
 import { PADDING_AUTORESIZE, DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
-import { FormattingPlugin } from "../../src/plugins/formatting";
+import { FormattingPlugin } from "../../src/plugins/core/formatting";
 import { UID } from "../../src/types";
 
 function setFormat(model: Model, format: string) {

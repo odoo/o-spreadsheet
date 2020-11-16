@@ -1,4 +1,4 @@
-import { BasePlugin } from "../base_plugin";
+import { BasePlugin } from "../../base_plugin";
 import {
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
@@ -12,9 +12,9 @@ import {
   HEADER_FONT_SIZE,
   HEADER_BORDER_COLOR,
   CELL_BORDER_COLOR,
-} from "../constants";
-import { fontSizeMap } from "../fonts";
-import { overlap, toXC, getCellText } from "../helpers/index";
+} from "../../constants";
+import { fontSizeMap } from "../../fonts";
+import { overlap, toXC, getCellText } from "../../helpers/index";
 import {
   Box,
   Rect,
@@ -24,8 +24,8 @@ import {
   LAYERS,
   GridRenderingContext,
   Cell,
-} from "../types/index";
-import { Mode } from "../model";
+} from "../../types/index";
+import { Mode } from "../../model";
 
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...

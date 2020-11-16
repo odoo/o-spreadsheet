@@ -10,7 +10,7 @@ import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
 import "../canvas.mock";
 import { triggerMouseEvent } from "../dom_helper";
-import { SelectionMode } from "../../src/plugins/selection";
+import { SelectionMode } from "../../src/plugins/ui/selection";
 
 let fixture: HTMLElement;
 let model: Model;

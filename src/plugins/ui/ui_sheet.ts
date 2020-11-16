@@ -1,5 +1,12 @@
-import { BasePlugin } from "../base_plugin";
-import { CancelledReason, Command, CommandResult, Sheet, UID, WorkbookData } from "../types/index";
+import { BasePlugin } from "../../base_plugin";
+import {
+  CancelledReason,
+  Command,
+  CommandResult,
+  Sheet,
+  UID,
+  WorkbookData,
+} from "../../types/index";
 
 interface UIState {
   activeSheet: Sheet;

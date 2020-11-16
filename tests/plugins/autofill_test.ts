@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { AutofillPlugin } from "../../src/plugins/autofill";
+import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { ConditionalFormat } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";

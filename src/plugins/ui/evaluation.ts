@@ -1,8 +1,8 @@
-import { BasePlugin } from "../base_plugin";
-import { functionRegistry } from "../functions/index";
-import { mapCellsInZone, toCartesian, toXC } from "../helpers/index";
-import { WHistory } from "../history";
-import { Mode, ModelConfig } from "../model";
+import { BasePlugin } from "../../base_plugin";
+import { functionRegistry } from "../../functions/index";
+import { mapCellsInZone, toCartesian, toXC } from "../../helpers/index";
+import { WHistory } from "../../history";
+import { Mode, ModelConfig } from "../../model";
 import {
   Cell,
   Command,
@@ -13,9 +13,9 @@ import {
   ReferenceDenormalizer,
   EnsureRange,
   NormalizedFormula,
-} from "../types";
-import { _lt } from "../translation";
-import { compile, normalize } from "../formulas/index";
+} from "../../types";
+import { _lt } from "../../translation";
+import { compile, normalize } from "../../formulas/index";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];

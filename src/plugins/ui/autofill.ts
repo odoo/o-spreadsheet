@@ -1,5 +1,5 @@
-import { BasePlugin } from "../base_plugin";
-import { Mode } from "../model";
+import { BasePlugin } from "../../base_plugin";
+import { Mode } from "../../model";
 import {
   AutofillModifier,
   Cell,
@@ -14,9 +14,9 @@ import {
   Tooltip,
   GeneratorCell,
   AutofillResult,
-} from "../types/index";
-import { union, toCartesian, toXC, isInside, clip } from "../helpers/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "../registries/index";
+} from "../../types/index";
+import { union, toCartesian, toXC, isInside, clip } from "../../helpers/index";
+import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 
 /**
  * This plugin manage the autofill.
