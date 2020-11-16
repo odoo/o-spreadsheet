@@ -33,9 +33,6 @@ export function load(data?: any): WorkbookData {
   // sensible default values
   data = Object.assign(createEmptyWorkbookData(), data, { version: CURRENT_VERSION });
   data.sheets = data.sheets.map((s, i) => Object.assign(createEmptySheet(`Sheet${i + 1}`), s));
-  if (!data.sheets.map((s) => s.id).includes(data.activeSheet)) {
-    data.activeSheet = data.sheets[0].id;
-  }
 
   if (data.sheets.length === 0) {
     data.sheets.push(createEmptySheet());
@@ -149,11 +146,9 @@ export function createEmptyWorkbookData(): WorkbookData {
   const data = {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet("Sheet1")],
-    activeSheet: "",
     entities: {},
     styles: {},
     borders: {},
   };
-  data.activeSheet = data.sheets[0].id;
   return data;
 }

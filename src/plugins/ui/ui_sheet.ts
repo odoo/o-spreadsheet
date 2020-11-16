@@ -1,12 +1,5 @@
 import { BasePlugin } from "../../base_plugin";
-import {
-  CancelledReason,
-  Command,
-  CommandResult,
-  Sheet,
-  UID,
-  WorkbookData,
-} from "../../types/index";
+import { CancelledReason, Command, CommandResult, Sheet, UID } from "../../types";
 
 interface UIState {
   activeSheet: Sheet;
@@ -14,7 +7,7 @@ interface UIState {
 
 export class SheetUIPlugin extends BasePlugin<UIState> {
   static getters = ["getActiveSheet", "getActiveSheetId"];
-  activeSheet: Sheet = null as any;
+  activeSheet: Sheet = this.getters.getSheets()[0];
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
@@ -54,14 +47,6 @@ export class SheetUIPlugin extends BasePlugin<UIState> {
 
   finalize() {
     this.historizeActiveSheet = true;
-  }
-
-  import(data: WorkbookData) {
-    this.activeSheet = this.getters.getSheet(data.activeSheet)!;
-  }
-
-  export(data: WorkbookData) {
-    data.activeSheet = this.getActiveSheetId();
   }
 
   // ---------------------------------------------------------------------------

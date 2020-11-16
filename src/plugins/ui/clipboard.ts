@@ -35,7 +35,7 @@ export class ClipboardPlugin extends BasePlugin {
   private shouldCut?: boolean;
   private zones: Zone[] = [];
   private cells?: ClipboardCell[][];
-  private originSheetId: UID = this.getters.getActiveSheetId();
+  private originSheetId: UID = null as any;
   private _isPaintingFormat: boolean = false;
   private pasteOnlyValue: boolean = false;
   private pasteOnlyFormat: boolean = false;

@@ -24,7 +24,6 @@ describe("load data", () => {
           figures: [],
         },
       ],
-      activeSheet: "123",
     });
 
     expect(load({})).toEqual({
@@ -46,7 +45,6 @@ describe("load data", () => {
           figures: [],
         },
       ],
-      activeSheet: "124",
     });
   });
 
@@ -74,7 +72,6 @@ describe("load data", () => {
           figures: [],
         },
       ],
-      activeSheet: "asdf",
     });
   });
 
@@ -103,7 +100,6 @@ describe("load data", () => {
           figures: [],
         },
       ],
-      activeSheet: "13",
     });
   });
 
@@ -169,7 +165,6 @@ describe("load data", () => {
           figures: [],
         },
       ],
-      activeSheet: "134",
     });
   });
 });

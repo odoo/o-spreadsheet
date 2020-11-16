@@ -16,7 +16,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 6", () => {
+  test("Can upgrade from 1 to 7", () => {
     mockUuidV4To(333);
     const model = new Model({
       version: 1,
@@ -37,7 +37,6 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.activeSheet).toBe("My sheet");
     expect(data.version).toBe(6);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
@@ -211,7 +210,6 @@ test("complete import, then export", () => {
         figures: [],
       },
     ],
-    activeSheet: "someuuid_2",
     entities: {},
     styles: {
       99: { bold: true, textColor: "#3A3791", fontSize: 12 },
@@ -246,7 +244,6 @@ test("import then export (figures)", () => {
         figures: [{ id: "otheruuid", x: 100, y: 100, width: 100, height: 100 }],
       },
     ],
-    activeSheet: "someuuid",
     entities: {},
     styles: {},
     borders: {},
