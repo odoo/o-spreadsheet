@@ -60,6 +60,7 @@ describe("BottomBar component", () => {
     expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", {
       activate: true,
       sheetId: "42",
+      position: 1,
     });
   });
 
@@ -108,7 +109,7 @@ describe("BottomBar component", () => {
 
   test("Can move right a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -121,7 +122,7 @@ describe("BottomBar component", () => {
 
   test("Can move left a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -218,7 +219,7 @@ describe("BottomBar component", () => {
 
   test("Can delete a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -253,7 +254,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     await parent.mount(fixture);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-list-sheets", "click");
@@ -269,7 +270,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     await parent.mount(fixture);
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();

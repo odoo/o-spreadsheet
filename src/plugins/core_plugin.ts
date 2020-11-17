@@ -1,12 +1,12 @@
 import { WHistory } from "../history";
 import { ModelConfig, Mode } from "../model";
 import { CommandDispatcher, WorkbookData } from "../types";
-import { Getters } from "../types/getters";
+import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 
 export interface CorePluginConstructor {
   new (
-    getters: Getters,
+    getters: CoreGetters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
@@ -22,10 +22,10 @@ export interface CorePluginConstructor {
  * They should not be concerned about UI parts or transient state.
  */
 export class CorePlugin<State = any> extends BasePlugin<State> {
-  protected getters: Getters;
+  protected getters: CoreGetters;
 
   constructor(
-    getters: Getters,
+    getters: CoreGetters,
     history: WHistory,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig

@@ -67,7 +67,8 @@ autofillModifiersRegistry
           y = 0;
           break;
       }
-      const content = getters.applyOffset(data.content!, x, y);
+      const sheetId = getters.getActiveSheetId();
+      const content = getters.applyOffset(sheetId, data.content!, x, y);
       return {
         cellData: Object.assign({}, data, { content }),
         tooltip: content ? { props: { content } } : undefined,

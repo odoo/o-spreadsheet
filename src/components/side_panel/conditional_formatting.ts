@@ -253,8 +253,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   constructor(parent, props) {
     super(parent, props);
-    if (props.selection && this.getters.getRulesSelection(props.selection).length === 1) {
-      this.openCf(this.getters.getRulesSelection(props.selection)[0]);
+    const sheetId = this.getters.getActiveSheetId();
+    if (props.selection && this.getters.getRulesSelection(sheetId, props.selection).length === 1) {
+      this.openCf(this.getters.getRulesSelection(sheetId, props.selection)[0]);
     }
   }
 
@@ -263,12 +264,17 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   }
 
   async willUpdateProps(nextProps) {
-    if (nextProps.selection && nextProps.selection !== this.props.selection)
-      if (nextProps.selection && this.getters.getRulesSelection(nextProps.selection).length === 1) {
-        this.openCf(this.getters.getRulesSelection(nextProps.selection)[0]);
+    if (nextProps.selection && nextProps.selection !== this.props.selection) {
+      const sheetId = this.getters.getActiveSheetId();
+      if (
+        nextProps.selection &&
+        this.getters.getRulesSelection(sheetId, nextProps.selection).length === 1
+      ) {
+        this.openCf(this.getters.getRulesSelection(sheetId, nextProps.selection)[0]);
       } else {
         this.resetState();
       }
+    }
   }
 
   resetState() {
@@ -354,7 +360,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         values: [],
         style: { fillColor: "#FF0000" },
       },
-      ranges: this.getters.getSelectedZones().map(this.getters.zoneToXC),
+      ranges: this.getters
+        .getSelectedZones()
+        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
       id: uuidv4(),
     };
   }
@@ -366,7 +374,9 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         maximum: { type: "value", color: 0xeeffee },
         type: "ColorScaleRule",
       },
-      ranges: this.getters.getSelectedZones().map(this.getters.zoneToXC),
+      ranges: this.getters
+        .getSelectedZones()
+        .map((zone) => this.getters.zoneToXC(this.getters.getActiveSheetId(), zone)),
       id: uuidv4(),
     };
   }

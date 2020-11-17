@@ -436,7 +436,12 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     this.inMerge = false;
     if (!this.cannotMerge) {
       const [col, row] = this.getters.getPosition();
-      const zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+      const zone = this.getters.expandZone(this.getters.getActiveSheetId(), {
+        left: col,
+        right: col,
+        top: row,
+        bottom: row,
+      });
       this.inMerge = isEqual(zones[0], zone);
     }
     this.undoTool = this.getters.canUndo();

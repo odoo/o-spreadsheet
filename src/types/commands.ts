@@ -77,6 +77,7 @@ export interface ResizeRowsCommand extends BaseCommand {
 export interface CreateSheetCommand extends BaseCommand {
   type: "CREATE_SHEET";
   sheetId: UID;
+  position: number;
   name?: string;
   cols?: number;
   rows?: number;
@@ -743,6 +744,7 @@ export const enum CancelledReason {
   NotEnoughSheets,
   WrongSheetName,
   WrongSheetMove,
+  WrongSheetPosition,
   SelectionOutOfBound,
   WrongPasteSelection,
   EmptyClipboard,

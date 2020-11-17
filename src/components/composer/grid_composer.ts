@@ -48,7 +48,12 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   constructor() {
     super(...arguments);
     const [col, row] = this.getters.getPosition();
-    this.zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+    this.zone = this.getters.expandZone(this.getters.getActiveSheetId(), {
+      left: col,
+      right: col,
+      top: row,
+      bottom: row,
+    });
     this.rect = this.getters.getRect(this.zone, this.props.viewport);
   }
 

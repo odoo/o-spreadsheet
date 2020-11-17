@@ -582,7 +582,7 @@ describe("figures", () => {
   });
 
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     model.dispatch("CREATE_FIGURE", {
       sheetId: "42",
       figure: {

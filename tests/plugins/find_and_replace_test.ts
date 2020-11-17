@@ -114,7 +114,7 @@ describe("basic search", () => {
 
   test("new search when changing sheet", () => {
     const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
     const sheet2 = model.getters.getActiveSheetId();
     updateCell("B1", "hello");
     updateCell("B2", "Hello");

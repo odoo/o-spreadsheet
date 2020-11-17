@@ -146,11 +146,13 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
 
   getFigures(): FigureInfo[] {
     const selectedId = this.getters.getSelectedFigureId();
-    return this.getters.getFigures(this.props.viewport).map((f) => ({
-      id: f.id,
-      isSelected: f.id === selectedId,
-      figure: f,
-    }));
+    return this.getters
+      .getFigures(this.getters.getActiveSheetId(), this.props.viewport)
+      .map((f) => ({
+        id: f.id,
+        isSelected: f.id === selectedId,
+        figure: f,
+      }));
   }
 
   getDims(info: FigureInfo) {

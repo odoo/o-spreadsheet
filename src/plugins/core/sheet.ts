@@ -87,12 +87,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
     }
     switch (cmd.type) {
-      case "CREATE_SHEET":
-      case "DUPLICATE_SHEET":
+      case "CREATE_SHEET": {
+        const { visibleSheets, sheets } = this;
+        if (cmd.position > visibleSheets.length || cmd.position < 0) {
+          return { status: "CANCELLED", reason: CancelledReason.WrongSheetPosition };
+        }
+        return !cmd.name || !visibleSheets.find((id) => sheets[id]!.name === cmd.name)
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      }
+      case "DUPLICATE_SHEET": {
         const { visibleSheets, sheets } = this;
         return !cmd.name || !visibleSheets.find((id) => sheets[id]!.name === cmd.name)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
+      }
       case "MOVE_SHEET":
         const currentIndex = this.visibleSheets.findIndex((id) => id === cmd.sheetId);
         if (currentIndex === -1) {
@@ -133,7 +142,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.sheetId,
           cmd.name || this.generateSheetName(),
           cmd.cols || 26,
-          cmd.rows || 100
+          cmd.rows || 100,
+          cmd.position
         );
         this.sheetIds[sheet.name] = sheet.id;
         break;
@@ -293,16 +303,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.sheets[sheetId]?.rows[index];
   }
 
-  applyOffset(formula: string, offsetX: number, offsetY: number): string {
+  applyOffset(sheetId: UID, formula: string, offsetX: number, offsetY: number): string {
     return rangeTokenize(formula)
       .map((t) => {
         if (t.type === "SYMBOL" && cellReference.test(t.value)) {
           const [xcs, sheetName] = t.value.split("!").reverse();
-          const sheetId = this.getSheetIdByName(sheetName);
+          const refSheetId = this.getSheetIdByName(sheetName);
           if (xcs.includes(":")) {
-            return this.updateRange(xcs, offsetX, offsetY, sheetId);
+            return this.updateRange(sheetId, xcs, offsetX, offsetY, refSheetId);
           }
-          return this.updateReference(xcs, offsetX, offsetY, sheetId);
+          return this.updateReference(sheetId, xcs, offsetX, offsetY, refSheetId);
         }
         return t.value;
       })
@@ -424,7 +434,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return name;
   }
 
-  private createSheet(id: UID, name: string, colNumber: number, rowNumber: number): Sheet {
+  private createSheet(
+    id: UID,
+    name: string,
+    colNumber: number,
+    rowNumber: number,
+    position: number
+  ): Sheet {
     const sheet: Sheet = {
       id,
       name,
@@ -432,8 +448,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       rows: createDefaultRows(rowNumber),
     };
     const visibleSheets = this.visibleSheets.slice();
-    const index = visibleSheets.findIndex((id) => this.getters.getActiveSheetId() === id);
-    visibleSheets.splice(index + 1, 0, sheet.id);
+    visibleSheets.splice(position, 0, sheet.id);
     const sheets = this.sheets;
     this.history.update("visibleSheets", visibleSheets);
     this.history.update("sheets", Object.assign({}, sheets, { [sheet.id]: sheet }));
@@ -488,9 +503,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         sheetRef = getUnquotedSheetName(sheetRef);
         if (sheetRef === oldName) {
           if (val.includes(":")) {
-            return this.updateRange(val, 0, 0, sheet.id);
+            return this.updateRange(sheet.id, val, 0, 0, sheet.id);
           }
-          return this.updateReference(val, 0, 0, sheet.id);
+          return this.updateReference(sheet.id, val, 0, 0, sheet.id);
         }
       }
       return value;
@@ -528,13 +543,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const visibleSheets = this.visibleSheets.slice();
     const currentIndex = visibleSheets.findIndex((id) => id === sheet.id);
     visibleSheets.splice(currentIndex, 1);
-
-    if (this.getters.getActiveSheetId() === sheet.id) {
-      this.dispatch("ACTIVATE_SHEET", {
-        sheetIdFrom: sheet.id,
-        sheetIdTo: visibleSheets[Math.max(0, currentIndex - 1)],
-      });
-    }
 
     this.history.update("visibleSheets", visibleSheets);
     const sheetIds = Object.assign({}, this.sheetIds);
@@ -927,20 +935,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private updateColumnsFormulas(base: number, step: number, sheet: Sheet) {
-    return this.visitFormulas(sheet.name, (value: string, sheet: string | undefined): string => {
+    return this.visitFormulas(sheet.name, (value: string, sheetRef: string | undefined): string => {
       if (value.includes(":")) {
-        return this.updateColumnsRange(value, sheet, base, step);
+        return this.updateColumnsRange(sheet.id, value, sheetRef, base, step);
       }
-      return this.updateColumnsRef(value, sheet, base, step);
+      return this.updateColumnsRef(sheet.id, value, sheetRef, base, step);
     });
   }
 
   private updateRowsFormulas(base: number, step: number, sheet: Sheet) {
-    return this.visitFormulas(sheet.name, (value: string, sheet: string | undefined): string => {
+    return this.visitFormulas(sheet.name, (value: string, sheetRef: string | undefined): string => {
       if (value.includes(":")) {
-        return this.updateRowsRange(value, sheet, base, step);
+        return this.updateRowsRange(sheet.id, value, sheetRef, base, step);
       }
-      return this.updateRowsRef(value, sheet, base, step);
+      return this.updateRowsRef(sheet.id, value, sheetRef, base, step);
     });
   }
 
@@ -951,14 +959,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Update a reference by applying an offset to the column
    *
+   * @param sheetId Id of the sheet in which the formula is
    * @param ref Reference to update
-   * @param sheetId Id of the sheet, if cross-sheet reference
+   * @param refSheetId Id of the ref sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    */
   private updateColumnsRef = (
+    sheetId: UID,
     ref: string,
-    sheetId: UID | undefined,
+    refSheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
@@ -966,22 +976,31 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (x === base && step === -1) {
       return "#REF";
     }
-    return this.updateReference(ref, x > base ? step : 0, 0, this.getSheetIdByName(sheetId), false);
+    return this.updateReference(
+      sheetId,
+      ref,
+      x > base ? step : 0,
+      0,
+      this.getSheetIdByName(refSheetId),
+      false
+    );
   };
 
   /**
    * Update a part of a range by appling an offset. If the current column is
    * removed, adapt the range accordingly
    *
+   * @param sheetId Id of the sheet in which the range is
    * @param ref Reference to update
-   * @param sheetId Id of the sheet, if cross-sheet reference
+   * @param refSheetId Id of the ref sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    * @param direction 1 if it's the left part, -1 if it's the right part
    */
   private updateColumnsRangePart = (
+    sheetId: UID,
     ref: string,
-    sheetId: UID | undefined,
+    refSheetId: UID | undefined,
     base: number,
     step: number,
     direction: number
@@ -990,27 +1009,31 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (x === base && step === -1) {
       x += direction;
     }
-    const [xcRef] = this.updateColumnsRef(toXC(x, y), sheetId, base, step).split("!").reverse();
+    const [xcRef] = this.updateColumnsRef(sheetId, toXC(x, y), refSheetId, base, step)
+      .split("!")
+      .reverse();
     return xcRef;
   };
 
   /**
    * Update a full range by appling an offset.
    *
+   * @param sheetId Id of the sheet in which the range is
    * @param ref Reference to update
-   * @param sheetId Id of the sheet, if cross-sheet reference
+   * @param refSheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    */
   private updateColumnsRange = (
+    sheetId: UID,
     ref: string,
-    sheetId: UID | undefined,
+    refSheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
     let [left, right] = ref.split(":");
-    left = this.updateColumnsRangePart(left, sheetId, base, step, 1);
-    right = this.updateColumnsRangePart(right, sheetId, base, step, -1);
+    left = this.updateColumnsRangePart(sheetId, left, refSheetId, base, step, 1);
+    right = this.updateColumnsRangePart(sheetId, right, refSheetId, base, step, -1);
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
@@ -1023,20 +1046,22 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return left;
     }
     const range = `${left}:${right}`;
-    return sheetId ? `${sheetId}!${range}` : range;
+    return refSheetId ? `${refSheetId}!${range}` : range;
   };
 
   /**
    * Update a reference by applying an offset to the row
    *
+   * @param sheetId ID of the sheet in which the reference is
    * @param ref Reference to update
-   * @param sheetId Id of the sheet, if cross-sheet reference
+   * @param refSheetId Id of the ref sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added or -1 if removed
    */
   private updateRowsRef = (
+    sheetId: UID,
     ref: string,
-    sheetId: UID | undefined,
+    refSheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
@@ -1044,22 +1069,31 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (base + step < y && y <= base) {
       return "#REF";
     }
-    return this.updateReference(ref, 0, y > base ? step : 0, this.getSheetIdByName(sheetId), false);
+    return this.updateReference(
+      sheetId,
+      ref,
+      0,
+      y > base ? step : 0,
+      this.getSheetIdByName(refSheetId),
+      false
+    );
   };
 
   /**
    * Update a part of a range by applying an offset. If the current row is
    * removed, adapt the range accordingly
    *
+   * @param sheetId Id of the sheet in which the range is
    * @param value
-   * @param sheetId Id of the sheet, if cross-sheet reference
+   * @param refSheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added/removed (negative when removed)
    * @param direction 1 if it's the left part, -1 if it's the right part
    */
   private updateRowsRangePart = (
+    sheetId: UID,
     value: string,
-    sheetId: UID | undefined,
+    refSheetId: UID | undefined,
     base: number,
     step: number,
     direction: number
@@ -1071,27 +1105,31 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       }
       step = 0;
     }
-    const [xcRef] = this.updateRowsRef(toXC(x, y), sheetId, base, step).split("!").reverse();
+    const [xcRef] = this.updateRowsRef(sheetId, toXC(x, y), refSheetId, base, step)
+      .split("!")
+      .reverse();
     return xcRef;
   };
 
   /**
    * Update a full range by applying an offset.
    *
+   * @param sheetId ID of the sheet in which the range is
    * @param value
-   * @param sheetId Id of the sheet, if cross-sheet reference
+   * @param refSheetId Id of the sheet, if cross-sheet reference
    * @param base Index of the element added/removed
    * @param step Number of elements added/removed (negative when removed)
    */
   private updateRowsRange = (
+    sheetId: UID,
     value: string,
-    sheetId: UID | undefined,
+    refSheetId: UID | undefined,
     base: number,
     step: number
   ): string => {
     let [left, right] = value.split(":");
-    left = this.updateRowsRangePart(left, sheetId, base, step, 1);
-    right = this.updateRowsRangePart(right, sheetId, base, step, -1);
+    left = this.updateRowsRangePart(sheetId, left, refSheetId, base, step, 1);
+    right = this.updateRowsRangePart(sheetId, right, refSheetId, base, step, -1);
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
@@ -1104,7 +1142,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return left;
     }
     const range = `${left}:${right}`;
-    return sheetId ? `${sheetId}!${range}` : range;
+    return refSheetId ? `${refSheetId}!${range}` : range;
   };
 
   // ---------------------------------------------------------------------------
@@ -1115,14 +1153,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * Update a range with some offsets
    */
   private updateRange(
+    sheetId: UID,
     symbol: string,
     offsetX: number,
     offsetY: number,
-    sheetId: UID | undefined
+    refSheetId: UID | undefined
   ): string {
     let [left, right] = symbol.split(":");
-    left = this.updateReference(left, offsetX, offsetY, sheetId);
-    right = this.updateReference(right, offsetX, offsetY, sheetId);
+    left = this.updateReference(sheetId, left, offsetX, offsetY, refSheetId);
+    right = this.updateReference(sheetId, right, offsetX, offsetY, refSheetId);
     if (left === "#REF" || right === "#REF") {
       return "#REF";
     }
@@ -1135,10 +1174,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * Update a reference with some offsets.
    */
   private updateReference(
+    sheetId: UID,
     symbol: string,
     offsetX: number,
     offsetY: number,
-    sheetId: UID | undefined,
+    referenceSheetId: UID | undefined,
     updateFreeze: boolean = true
   ): string {
     const xc = symbol.replace(/\$/g, "");
@@ -1147,11 +1187,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const freezeRow = symbol.includes("$", 1);
     x += freezeCol && updateFreeze ? 0 : offsetX;
     y += freezeRow && updateFreeze ? 0 : offsetY;
-    const sheet = this.getters.getSheet(sheetId || this.getters.getActiveSheetId());
+    const sheet = this.getters.getSheet(referenceSheetId || sheetId);
     if (!sheet || x < 0 || x >= sheet.cols.length || y < 0 || y >= sheet.rows.length) {
       return "#REF";
     }
-    const sheetName = sheetId && getComposerSheetName(this.getters.getSheetName(sheetId)!);
+    const sheetName =
+      referenceSheetId && getComposerSheetName(this.getters.getSheetName(referenceSheetId)!);
     return (
       (sheetName ? `${sheetName}!` : "") +
       (freezeCol ? "$" : "") +

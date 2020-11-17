@@ -1,17 +1,26 @@
-import { CancelledReason, Command, CommandResult, Sheet, UID } from "../../types";
+import { CancelledReason, Command, CommandResult, Sheet, UID, Cell } from "../../types";
 import { UIPlugin } from "../ui_plugin";
+import { getCellText } from "../../helpers/index";
+import {
+  DEFAULT_FONT_WEIGHT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT,
+  PADDING_AUTORESIZE,
+} from "../../constants";
+import { fontSizeMap } from "../../fonts";
 
 interface UIState {
   activeSheet: Sheet;
 }
 
 export class SheetUIPlugin extends UIPlugin<UIState> {
-  static getters = ["getActiveSheet", "getActiveSheetId"];
-  activeSheet: Sheet = this.getters.getSheets()[0];
+  static getters = ["getActiveSheet", "getActiveSheetId", "getCellWidth", "getCellHeight"];
+  activeSheet: Sheet = null as any;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
   private historizeActiveSheet: boolean = true;
+  private ctx = document.createElement("canvas").getContext("2d")!;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -30,6 +39,22 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
         break;
     }
     return { status: "SUCCESS" };
+  }
+
+  beforeHandle(cmd: Command) {
+    switch (cmd.type) {
+      case "DELETE_SHEET":
+        if (this.getActiveSheetId() === cmd.sheetId) {
+          const currentIndex = this.getters
+            .getVisibleSheets()
+            .findIndex((sheetId) => sheetId === this.getActiveSheetId());
+          this.dispatch("ACTIVATE_SHEET", {
+            sheetIdFrom: this.getActiveSheetId(),
+            sheetIdTo: this.getters.getVisibleSheets()[Math.max(0, currentIndex - 1)],
+          });
+        }
+        break;
+    }
   }
 
   handle(cmd: Command) {
@@ -60,6 +85,30 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           this.activeSheet = sheet;
         }
         break;
+      case "AUTORESIZE_COLUMNS":
+        for (let col of cmd.cols) {
+          const size = this.getColMaxWidth(cmd.sheetId, col);
+          if (size !== 0) {
+            this.dispatch("RESIZE_COLUMNS", {
+              cols: [col],
+              size: size + 2 * PADDING_AUTORESIZE,
+              sheetId: cmd.sheetId,
+            });
+          }
+        }
+        break;
+      case "AUTORESIZE_ROWS":
+        for (let row of cmd.rows) {
+          const size = this.getRowMaxHeight(cmd.sheetId, row);
+          if (size !== 0) {
+            this.dispatch("RESIZE_ROWS", {
+              rows: [row],
+              size: size + 2 * PADDING_AUTORESIZE,
+              sheetId: cmd.sheetId,
+            });
+          }
+        }
+        break;
     }
   }
 
@@ -84,5 +133,39 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   getActiveSheetId(): UID {
     return this.activeSheet.id;
+  }
+
+  getCellWidth(cell: Cell): number {
+    const text = getCellText(cell, this.getters.shouldShowFormulas());
+    const style = this.getters.getCellStyle(cell);
+    const italic = style.italic ? "italic " : "";
+    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+    const size = fontSizeMap[sizeInPt];
+    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+    return this.ctx.measureText(text).width;
+  }
+
+  getCellHeight(cell: Cell): number {
+    const style = this.getters.getCellStyle(cell);
+    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+    return fontSizeMap[sizeInPt];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid manipulation
+  // ---------------------------------------------------------------------------
+
+  private getColMaxWidth(sheetId: UID, index: number): number {
+    const cells = this.getters.getColCells(sheetId, index);
+    const sizes = cells.map((cell: Cell) => this.getCellWidth(cell));
+    return Math.max(0, ...sizes);
+  }
+
+  private getRowMaxHeight(sheetId: UID, index: number): number {
+    const sheet = this.getters.getSheet(sheetId);
+    const cells = Object.values(sheet.rows[index].cells);
+    const sizes = cells.map((cell: Cell) => this.getCellHeight(cell));
+    return Math.max(0, ...sizes);
   }
 }

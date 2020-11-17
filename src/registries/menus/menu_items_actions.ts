@@ -375,7 +375,11 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
-  env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4() });
+  const position =
+    env.getters
+      .getVisibleSheets()
+      .findIndex((sheetId) => sheetId === env.getters.getActiveSheetId()) + 1;
+  env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4(), position });
 };
 
 //------------------------------------------------------------------------------

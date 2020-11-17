@@ -433,7 +433,11 @@ describe("Menu Item actions", () => {
   test("Insert -> new sheet", () => {
     mockUuidV4To(42);
     doAction(["insert", "insert_sheet"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", { activate: true, sheetId: "42" });
+    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", {
+      activate: true,
+      sheetId: "42",
+      position: 1,
+    });
   });
 
   describe("Format -> numbers", () => {

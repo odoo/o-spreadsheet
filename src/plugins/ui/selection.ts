@@ -7,6 +7,7 @@ import {
   GridRenderingContext,
   CommandResult,
   CancelledReason,
+  Style,
 } from "../../types/index";
 import { Mode } from "../../model";
 import { SELECTION_BORDER_COLOR } from "../../constants";
@@ -41,6 +42,7 @@ export class SelectionPlugin extends UIPlugin {
     "getActiveCell",
     "getActiveCols",
     "getActiveRows",
+    "getCurrentStyle",
     "getSelectedZones",
     "getSelectedZone",
     "getAggregate",
@@ -188,7 +190,7 @@ export class SelectionPlugin extends UIPlugin {
 
   getActiveCell(): Cell | undefined {
     const sheetId = this.getters.getActiveSheetId();
-    const xc = this.getters.getMainCell(this.activeXc);
+    const xc = this.getters.getMainCell(sheetId, this.activeXc);
     return this.getters.getCellByXc(sheetId, xc);
   }
 
@@ -214,6 +216,11 @@ export class SelectionPlugin extends UIPlugin {
       }
     }
     return activeRows;
+  }
+
+  getCurrentStyle(): Style {
+    const cell = this.getters.getActiveCell();
+    return cell ? this.getters.getCellStyle(cell) : {};
   }
 
   getSelectedZones(): Zone[] {
@@ -321,7 +328,8 @@ export class SelectionPlugin extends UIPlugin {
    */
   private selectCell(col: number, row: number) {
     const xc = toXC(col, row);
-    let zone = this.getters.expandZone({ left: col, right: col, top: row, bottom: row });
+    const sheetId = this.getters.getActiveSheetId();
+    let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
 
     if (this.mode === SelectionMode.expanding) {
       this.selection.zones.push(zone);
@@ -342,10 +350,11 @@ export class SelectionPlugin extends UIPlugin {
   movePosition(deltaX: number, deltaY: number) {
     const [refCol, refRow] = this.getReferenceCoords();
     const activeReference = toXC(refCol, refRow);
-    if (this.getters.isInMerge(activeReference)) {
+    const sheetId = this.getters.getActiveSheetId();
+    if (this.getters.isInMerge(sheetId, activeReference)) {
       let targetCol = refCol;
       let targetRow = refRow;
-      while (this.getters.isInSameMerge(activeReference, toXC(targetCol, targetRow))) {
+      while (this.getters.isInSameMerge(sheetId, activeReference, toXC(targetCol, targetRow))) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
@@ -362,7 +371,8 @@ export class SelectionPlugin extends UIPlugin {
     if (strict) {
       this.selection.zones = zones;
     } else {
-      this.selection.zones = zones.map(this.getters.expandZone);
+      const sheetId = this.getters.getActiveSheetId();
+      this.selection.zones = zones.map((zone: Zone) => this.getters.expandZone(sheetId, zone));
     }
     this.selection.anchor = anchor;
   }
@@ -376,7 +386,7 @@ export class SelectionPlugin extends UIPlugin {
     let result: Zone | null = lastZone;
     const activeSheet = this.getters.getActiveSheet();
     const expand = (z: Zone) => {
-      const { left, right, top, bottom } = this.getters.expandZone(z);
+      const { left, right, top, bottom } = this.getters.expandZone(activeSheet.id, z);
       return {
         left: Math.max(0, left),
         right: Math.min(activeSheet.cols.length - 1, right),
@@ -504,7 +514,7 @@ export class SelectionPlugin extends UIPlugin {
     ctx.strokeStyle = "#3266ca";
     ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
-    if (this.getters.isInMerge(activeXc)) {
+    if (this.getters.isInMerge(activeSheet, activeXc)) {
       zone = this.getters.getMerge(activeSheet, activeXc)!;
     } else {
       zone = {

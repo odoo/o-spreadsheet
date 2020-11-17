@@ -88,7 +88,10 @@ describe("Chart sidepanel component", () => {
         type: "line",
       },
     });
-    const [figure] = model.getters.getFigures(viewport) as ChartFigure[];
+    const [figure] = model.getters.getFigures(
+      model.getters.getActiveSheetId(),
+      viewport
+    ) as ChartFigure[];
     const { parent } = await createChartPanel({ model, figure });
     parent.env.dispatch = jest.fn(() => ({ status: "SUCCESS" }));
     await simulateClick(".o-sidePanelButton");

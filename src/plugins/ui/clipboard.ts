@@ -1,4 +1,4 @@
-import { clip, getCellText } from "../../helpers/index";
+import { clip, getCellText, toXC } from "../../helpers/index";
 import { Mode } from "../../model";
 import {
   Cell,
@@ -45,8 +45,9 @@ export class ClipboardPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: Command): CommandResult {
+    const force = "force" in cmd ? !!cmd.force : false;
     if (cmd.type === "PASTE") {
-      return this.isPasteAllowed(cmd.target);
+      return this.isPasteAllowed(cmd.target, force);
     }
     return {
       status: "SUCCESS",
@@ -73,6 +74,10 @@ export class ClipboardPlugin extends UIPlugin {
         }
         break;
       case "PASTE_CELL":
+        const xc = toXC(cmd.originCol, cmd.originRow);
+        if (this.getters.getMainCell(cmd.sheetId, xc) === xc) {
+          this.pasteMerge(xc, cmd.col, cmd.row, cmd.sheetId, cmd.cut);
+        }
         this.pasteCell(cmd.origin, cmd.col, cmd.row, cmd.onlyValue, cmd.onlyFormat);
         break;
       case "PASTE_FROM_OS_CLIPBOARD":
@@ -217,7 +222,8 @@ export class ClipboardPlugin extends UIPlugin {
     });
   }
 
-  private isPasteAllowed(target: Zone[]): CommandResult {
+  private isPasteAllowed(target: Zone[], force: boolean): CommandResult {
+    const sheetId = this.getters.getActiveSheetId();
     const { zones, cells, status } = this;
     // cannot paste if we have a clipped zone larger than a cell and multiple
     // zones selected
@@ -225,6 +231,17 @@ export class ClipboardPlugin extends UIPlugin {
       return { status: "CANCELLED", reason: CancelledReason.EmptyClipboard };
     } else if (target.length > 1 && (cells.length > 1 || cells[0].length > 1)) {
       return { status: "CANCELLED", reason: CancelledReason.WrongPasteSelection };
+    }
+    if (!force) {
+      const pasteZones = this.getters.getPasteZones(target);
+      for (let zone of pasteZones) {
+        if (this.getters.doesIntersectMerge(sheetId, zone)) {
+          return {
+            status: "CANCELLED",
+            reason: CancelledReason.WillRemoveExistingMerge,
+          };
+        }
+      }
     }
     return { status: "SUCCESS" };
   }
@@ -315,6 +332,27 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
+  private pasteMerge(xc: string, col: number, row: number, sheetId: UID, cut?: boolean) {
+    const merge = this.getters.getMerge(sheetId, xc);
+    const sheet = this.getters.getSheet(sheetId);
+    if (!merge || !sheet) return;
+    if (cut) {
+      this.dispatch("REMOVE_MERGE", {
+        sheetId: sheetId,
+        zone: merge,
+      });
+    }
+    this.dispatch("ADD_MERGE", {
+      sheetId: this.getters.getActiveSheetId(),
+      zone: {
+        left: col,
+        top: row,
+        right: col + merge.right - merge.left,
+        bottom: row + merge.bottom - merge.top,
+      },
+    });
+  }
+
   private addMissingDimensions(sheet: Sheet, width, height, col, row) {
     const { cols, rows } = sheet;
     const missingRows = height + row - rows.length;
@@ -371,7 +409,7 @@ export class ClipboardPlugin extends UIPlugin {
         const position = this.getters.getCellPosition(origin.id);
         const offsetX = col - position.col;
         const offsetY = row - position.row;
-        content = this.getters.applyOffset(content, offsetX, offsetY);
+        content = this.getters.applyOffset(sheetId, content, offsetX, offsetY);
       }
       const newCell = {
         style,

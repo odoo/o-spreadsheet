@@ -388,7 +388,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill cross-sheet references", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
     expect(getCell(model, "A2")!.content).toBe("=Sheet2!A2");

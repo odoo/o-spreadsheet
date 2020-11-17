@@ -115,7 +115,7 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });

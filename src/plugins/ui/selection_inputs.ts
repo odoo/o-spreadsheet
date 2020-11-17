@@ -274,9 +274,10 @@ export class SelectionInputPlugin extends UIPlugin {
    * Convert highlights to the input format
    */
   private highlightsToInput(highlights: Highlight[]): RangeInputValue[] {
+    const sheetId = this.getters.getActiveSheetId();
     return highlights.map((h) =>
       Object.freeze({
-        xc: this.getters.zoneToXC(h.zone),
+        xc: this.getters.zoneToXC(sheetId, h.zone),
         id: uuidv4(),
         color: h.color,
       })
