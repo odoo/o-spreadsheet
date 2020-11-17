@@ -528,20 +528,20 @@ describe("sheets", () => {
     setCellContent(model, "A1", "42");
     model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
-    const newSheet = model.getters.getSheets()[1].id;
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
+    const newSheetId = model.getters.getSheets()[1].id;
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheetId });
     expect(getCellContent(model, "A1")).toBe("42");
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
-    expect(model.getters.getConditionalFormats()).toHaveLength(1);
+    expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A2"], "42", { fillColor: "blue" }, "1"),
       sheetId: model.getters.getActiveSheetId(),
     });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "blue" });
-    expect(model.getters.getConditionalFormats()).toHaveLength(1);
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: newSheet, sheetIdTo: sheet });
+    expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: newSheetId, sheetIdTo: sheet });
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "orange" });
-    expect(model.getters.getConditionalFormats()).toHaveLength(1);
+    expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
   });
 
   test("Cells are correctly duplicated", () => {
