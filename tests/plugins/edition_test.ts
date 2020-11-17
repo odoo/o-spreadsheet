@@ -51,7 +51,7 @@ describe("edition", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBeUndefined();
     model.dispatch("ACTIVATE_SHEET", {
@@ -68,7 +68,7 @@ describe("edition", () => {
     model.dispatch("START_COMPOSER_SELECTION");
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", name: "Sheet2", position: 1 });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
@@ -360,6 +360,7 @@ describe("edition", () => {
     model.dispatch("CREATE_SHEET", {
       sheetId: "42",
       activate: true,
+      position: 1,
     });
     expect(model.getters.getCurrentContent()).toBe("");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: sheet1Id });

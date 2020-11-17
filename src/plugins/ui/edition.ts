@@ -199,8 +199,8 @@ export class EditionPlugin extends UIPlugin {
   private stopEdition() {
     if (this.mode !== "inactive") {
       this.cancelEdition();
-      const xc = this.getters.getMainCell(toXC(this.col, this.row));
       const sheetId = this.getters.getActiveSheetId();
+      const xc = this.getters.getMainCell(sheetId, toXC(this.col, this.row));
       const cell = this.getters.getCellByXc(sheetId, xc);
       let content = this.currentContent;
       this.setContent("");
@@ -274,7 +274,8 @@ export class EditionPlugin extends UIPlugin {
    */
   private insertSelectedRange() {
     const [zone] = this.getters.getSelectedZones();
-    let selectedXc = this.getters.zoneToXC(zone);
+    const sheetId = this.getters.getActiveSheetId();
+    let selectedXc = this.getters.zoneToXC(sheetId, zone);
     const { end } = this.getters.getComposerSelection();
     this.dispatch("CHANGE_COMPOSER_SELECTION", {
       start: this.selectionInitialStart,
@@ -345,7 +346,8 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private setActiveContent() {
-    const mainCell = this.getters.getMainCell(toXC(...this.getters.getPosition()));
+    const sheetId = this.getters.getActiveSheetId();
+    const mainCell = this.getters.getMainCell(sheetId, toXC(...this.getters.getPosition()));
     const anchor = this.getters.getCell(this.getters.getActiveSheetId(), ...toCartesian(mainCell));
     if (anchor) {
       const { col, row } = this.getters.getCellPosition(anchor.id);

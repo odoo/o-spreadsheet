@@ -77,7 +77,7 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "a1");
     model.dispatch("CUT", { target: target("A1") });
     const to = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
     const from = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "a1Sheet2");
     model.dispatch("PASTE", { target: target("B2") });
@@ -222,10 +222,10 @@ describe("clipboard", () => {
     });
     model.dispatch("COPY", { target: target("B1") });
     model.dispatch("PASTE", { target: target("B4") });
-    expect(model.getters.isInMerge("B4")).toBe(true);
-    expect(model.getters.isInMerge("B5")).toBe(true);
-    expect(model.getters.isInMerge("C4")).toBe(true);
-    expect(model.getters.isInMerge("B5")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B4")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B5")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C4")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B5")).toBe(true);
   });
 
   test("can cut and paste merged content", () => {
@@ -240,14 +240,14 @@ describe("clipboard", () => {
     });
     model.dispatch("CUT", { target: target("B1") });
     model.dispatch("PASTE", { target: target("B4") });
-    expect(model.getters.isInMerge("B1")).toBe(false);
-    expect(model.getters.isInMerge("B2")).toBe(false);
-    expect(model.getters.isInMerge("C1")).toBe(false);
-    expect(model.getters.isInMerge("B2")).toBe(false);
-    expect(model.getters.isInMerge("B4")).toBe(true);
-    expect(model.getters.isInMerge("B5")).toBe(true);
-    expect(model.getters.isInMerge("C4")).toBe(true);
-    expect(model.getters.isInMerge("B5")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B1")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B2")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C1")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B2")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B4")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B5")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C4")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B5")).toBe(true);
   });
 
   test("paste on existing merge removes existing merge", () => {
@@ -262,12 +262,12 @@ describe("clipboard", () => {
     });
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.isInMerge("B2")).toBe(true);
-    expect(model.getters.isInMerge("B3")).toBe(true);
-    expect(model.getters.isInMerge("B4")).toBe(false);
-    expect(model.getters.isInMerge("C2")).toBe(false);
-    expect(model.getters.isInMerge("C3")).toBe(false);
-    expect(model.getters.isInMerge("C4")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B3")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B4")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C2")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C3")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C4")).toBe(false);
   });
 
   test("copy/paste a merge from one page to another", () => {
@@ -289,10 +289,10 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.isInMerge("A1")).toBe(true);
-    expect(model.getters.isInMerge("A2")).toBe(true);
-    expect(model.getters.isInMerge("B1")).toBe(true);
-    expect(model.getters.isInMerge("B2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "A1")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "A2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B1")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B2")).toBe(true);
   });
 
   test("Pasting content that will destroy a merge will ask for confirmation", async () => {
@@ -346,13 +346,13 @@ describe("clipboard", () => {
       status: "CANCELLED",
       reason: CancelledReason.WillRemoveExistingMerge,
     });
-    expect(model.getters.isInMerge("A1")).toBe(false);
-    expect(model.getters.isInMerge("A2")).toBe(false);
-    expect(model.getters.isInMerge("B1")).toBe(false);
-    expect(model.getters.isInMerge("B2")).toBe(true);
-    expect(model.getters.isInMerge("B3")).toBe(true);
-    expect(model.getters.isInMerge("C2")).toBe(true);
-    expect(model.getters.isInMerge("C3")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "A1")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "A2")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B1")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B3")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C3")).toBe(true);
   });
 
   test("Pasting content that will destroy a merge will be applied if forced", async () => {
@@ -373,13 +373,13 @@ describe("clipboard", () => {
     const selection = model.getters.getSelection().zones;
     model.dispatch("COPY", { target: selection });
     model.dispatch("PASTE", { target: target("A1"), force: true });
-    expect(model.getters.isInMerge("A1")).toBe(true);
-    expect(model.getters.isInMerge("A2")).toBe(true);
-    expect(model.getters.isInMerge("B1")).toBe(true);
-    expect(model.getters.isInMerge("B2")).toBe(true);
-    expect(model.getters.isInMerge("B3")).toBe(false);
-    expect(model.getters.isInMerge("C2")).toBe(false);
-    expect(model.getters.isInMerge("C3")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "A1")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "A2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B1")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B2")).toBe(true);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "B3")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C2")).toBe(false);
+    expect(model.getters.isInMerge(model.getters.getActiveSheetId(), "C3")).toBe(false);
   });
 
   test("cutting a cell with style remove the cell", () => {
@@ -1087,7 +1087,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
     setCellContent(model, "B2", "=Sheet2!B2");
 
     model.dispatch("COPY", { target: target("B2") });
@@ -1097,7 +1097,13 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", rows: 2, cols: 2 });
+    model.dispatch("CREATE_SHEET", {
+      sheetId: "42",
+      name: "Sheet2",
+      rows: 2,
+      cols: 2,
+      position: 1,
+    });
     setCellContent(model, "A1", "=Sheet2!A1:A2");
 
     model.dispatch("COPY", { target: target("A1") });
@@ -1107,7 +1113,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
     setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
 
     model.dispatch("COPY", { target: target("A1") });
@@ -1151,6 +1157,7 @@ describe("clipboard: pasting outside of sheet", () => {
       name: "sheet2",
       rows: 2,
       cols: 2,
+      position: 1,
     });
     model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       text: "A\nque\tcoucou\nBOB",
@@ -1167,6 +1174,7 @@ describe("clipboard: pasting outside of sheet", () => {
       name: "sheet3",
       rows: 2,
       cols: 2,
+      position: 1,
     });
     model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       text: "A\nque\tcoucou\tPatrick",

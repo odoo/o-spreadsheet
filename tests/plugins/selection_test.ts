@@ -370,7 +370,7 @@ describe("multiple sheets", () => {
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);

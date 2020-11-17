@@ -1,5 +1,5 @@
 import { functionRegistry } from "../../functions/index";
-import { mapCellsInZone, toCartesian, toXC } from "../../helpers/index";
+import { mapCellsInZone, toCartesian, toXC, toZone, getCellText } from "../../helpers/index";
 import { WHistory } from "../../history";
 import { Mode, ModelConfig } from "../../model";
 import {
@@ -35,7 +35,7 @@ type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 export const LOADING = "Loading...";
 
 export class EvaluationPlugin extends UIPlugin {
-  static getters = ["evaluateFormula", "isIdle"];
+  static getters = ["evaluateFormula", "isIdle", "getRangeFormattedValues", "getRangeValues"];
   static modes: Mode[] = ["normal", "readonly"];
 
   private isUpToDate: Set<UID> = new Set();
@@ -136,6 +136,27 @@ export class EvaluationPlugin extends UIPlugin {
 
   isIdle() {
     return this.loadingCells === 0;
+  }
+
+  getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
+    const [range, sheetName] = reference.split("!").reverse();
+    const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
+    const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
+    if (sheet === undefined) return [[]];
+    return mapCellsInZone(
+      toZone(range),
+      sheet,
+      (cell) => getCellText(cell, this.getters.shouldShowFormulas()),
+      ""
+    );
+  }
+
+  getRangeValues(reference: string, defaultSheetId: UID): any[][] {
+    const [range, sheetName] = reference.split("!").reverse();
+    const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
+    const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
+    if (sheet === undefined) return [[]];
+    return mapCellsInZone(toZone(range), sheet, (cell) => cell.value);
   }
 
   // ---------------------------------------------------------------------------

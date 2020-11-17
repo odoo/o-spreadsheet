@@ -46,16 +46,10 @@ export interface CoreGetters {
 
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];
-  getRangeValues: CellPlugin["getRangeValues"];
-  getRangeFormattedValues: CellPlugin["getRangeFormattedValues"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
   getPasteZones: ClipboardPlugin["getPasteZones"];
-
-  getCellWidth: FormattingPlugin["getCellWidth"];
-  getTextWidth: FormattingPlugin["getTextWidth"];
-  getCellHeight: FormattingPlugin["getCellHeight"];
 
   expandZone: MergePlugin["expandZone"];
   isMergeDestructive: MergePlugin["isMergeDestructive"];
@@ -70,12 +64,12 @@ export interface CoreGetters {
   getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
   getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
 
-  evaluateFormula: EvaluationPlugin["evaluateFormula"];
-  isIdle: EvaluationPlugin["isIdle"];
   getFigures: FigurePlugin["getFigures"];
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
+  getCellStyle: FormattingPlugin["getCellStyle"];
+  getCellBorder: FormattingPlugin["getCellBorder"];
   getChartDefinition: ChartPlugin["getChartDefinition"];
 }
 
@@ -83,6 +77,7 @@ export type Getters = CoreGetters & {
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
+  getCurrentStyle: SelectionPlugin["getCurrentStyle"];
   getSelectedZones: SelectionPlugin["getSelectedZones"];
   getSelectedZone: SelectionPlugin["getSelectedZone"];
   getSelection: SelectionPlugin["getSelection"];
@@ -93,6 +88,13 @@ export type Getters = CoreGetters & {
 
   getActiveSheetId: SheetUIPlugin["getActiveSheetId"];
   getActiveSheet: SheetUIPlugin["getActiveSheet"];
+  getCellWidth: SheetUIPlugin["getCellWidth"];
+  getCellHeight: SheetUIPlugin["getCellHeight"];
+
+  getRangeFormattedValues: EvaluationPlugin["getRangeFormattedValues"];
+  evaluateFormula: EvaluationPlugin["evaluateFormula"];
+  isIdle: EvaluationPlugin["isIdle"];
+  getRangeValues: EvaluationPlugin["getRangeValues"];
 
   shouldShowFormulas: UIOptionsPlugin["shouldShowFormulas"];
   getChartRuntime: EvaluationChartPlugin["getChartRuntime"];
@@ -107,10 +109,6 @@ export type Getters = CoreGetters & {
   snapViewportToCell: RendererPlugin["snapViewportToCell"];
   adjustViewportPosition: RendererPlugin["adjustViewportPosition"];
   adjustViewportZone: RendererPlugin["adjustViewportZone"];
-
-  getCurrentStyle: FormattingPlugin["getCurrentStyle"];
-  getCellStyle: FormattingPlugin["getCellStyle"];
-  getCellBorder: FormattingPlugin["getCellBorder"];
 
   getEditionMode: EditionPlugin["getEditionMode"];
   isSelectingForComposer: EditionPlugin["isSelectingForComposer"];

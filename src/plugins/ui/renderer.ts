@@ -423,7 +423,7 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     const xc = toXC(col, row);
-    return (cell && cell.content) || (this.getters.isInMerge(xc) as any);
+    return (cell && cell.content) || (this.getters.isInMerge(sheetId, xc) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -433,7 +433,7 @@ export class RendererPlugin extends UIPlugin {
     offsetY -= HEADER_HEIGHT;
 
     const result: Box[] = [];
-    const { cols, rows } = this.getters.getActiveSheet();
+    const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       let row = rows[rowNumber];
@@ -441,7 +441,7 @@ export class RendererPlugin extends UIPlugin {
         let cell = row.cells[colNumber];
         if (cell) {
           let xc = toXC(colNumber, rowNumber);
-          if (!this.getters.isInMerge(xc)) {
+          if (!this.getters.isInMerge(sheetId, xc)) {
             let col = cols[colNumber];
             const text = getCellText(cell);
             const textWidth = this.getters.getCellWidth(cell);

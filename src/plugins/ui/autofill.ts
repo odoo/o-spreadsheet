@@ -132,6 +132,7 @@ export class AutofillPlugin extends UIPlugin {
         this.autofillAuto();
         break;
       case "AUTOFILL_CELL":
+        this.autoFillMerge(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
         const sheetId = this.getters.getActiveSheetId();
         this.dispatch("UPDATE_CELL", {
           sheetId,
@@ -391,6 +392,36 @@ export class AutofillPlugin extends UIPlugin {
     return Math.abs(position[first].number) >= Math.abs(position[second].number)
       ? position[first].value
       : position[second].value;
+  }
+
+  private autoFillMerge(originCol: number, originRow: number, col: number, row: number) {
+    const xcOrigin = toXC(originCol, originRow);
+    const xcTarget = toXC(col, row);
+    const activeSheet = this.getters.getActiveSheet();
+    if (
+      this.getters.isInMerge(activeSheet.id, xcTarget) &&
+      !this.getters.isInMerge(activeSheet.id, xcOrigin)
+    ) {
+      const zone = this.getters.getMerge(activeSheet.id, xcTarget);
+      if (zone) {
+        this.dispatch("REMOVE_MERGE", {
+          sheetId: activeSheet.id,
+          zone,
+        });
+      }
+    }
+    const originMerge = this.getters.getMerge(activeSheet.id, xcOrigin);
+    if (originMerge?.topLeft === xcOrigin) {
+      this.dispatch("ADD_MERGE", {
+        sheetId: activeSheet.id,
+        zone: {
+          top: row,
+          bottom: row + originMerge.bottom - originMerge.top,
+          left: col,
+          right: col + originMerge.right - originMerge.left,
+        },
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------

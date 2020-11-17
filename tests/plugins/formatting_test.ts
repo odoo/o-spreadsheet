@@ -6,8 +6,8 @@ import { setCellContent } from "../helpers";
 import { PADDING_AUTORESIZE, DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
-import { FormattingPlugin } from "../../src/plugins/core/formatting";
-import { CancelledReason, UID } from "../../src/types";
+import { CancelledReason, UID, Cell } from "../../src/types";
+import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 
 function setFormat(model: Model, format: string) {
   model.dispatch("SET_FORMATTER", {
@@ -421,11 +421,11 @@ describe("Autoresize", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    const formattingPlugin = model["handlers"].find(
-      (p) => p instanceof FormattingPlugin
-    )! as FormattingPlugin;
-    formattingPlugin.getTextWidth = jest.fn((text: string) => {
-      if (text === "size0") return sizes[0];
+    const sheetUIPlugin = model["handlers"].find(
+      (p) => p instanceof SheetUIPlugin
+    )! as SheetUIPlugin;
+    sheetUIPlugin.getCellWidth = jest.fn((cell: Cell) => {
+      if (cell.content === "size0") return sizes[0];
       return sizes[1];
     });
   });
@@ -462,7 +462,7 @@ describe("Autoresize", () => {
   test("Can autoresize a column in another sheet", () => {
     const initialSize = model.getters.getCol(sheetId, 0)?.size;
     const newSheetId = "42";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId });
+    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 1 });
     setCellContent(model, "A1", "size0", newSheetId);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getCol(sheetId, 0)?.size).toBe(initialSize);
@@ -472,7 +472,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row in another sheet", () => {
     const initialSize = model.getters.getRow(sheetId, 0)?.size;
     const newSheetId = "42";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId });
+    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 1 });
     setCellContent(model, "A1", "test", newSheetId);
     model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRow(sheetId, 0)?.size).toBe(initialSize);

@@ -1,18 +1,5 @@
-import {
-  DEFAULT_FONT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT_WEIGHT,
-  PADDING_AUTORESIZE,
-} from "../../constants";
-import { fontSizeMap } from "../../fonts";
-import {
-  stringify,
-  toCartesian,
-  toXC,
-  maximumDecimalPlaces,
-  toZone,
-  getCellText,
-} from "../../helpers/index";
+import { DEFAULT_FONT_SIZE } from "../../constants";
+import { stringify, toCartesian, toXC, maximumDecimalPlaces, toZone } from "../../helpers/index";
 import {
   Border,
   BorderCommand,
@@ -76,15 +63,7 @@ function getTargetZone(zone: Zone, side: string): Zone {
  * - value formatters
  */
 export class FormattingPlugin extends CorePlugin {
-  static getters = [
-    "getCurrentStyle",
-    "getCellWidth",
-    "getTextWidth",
-    "getCellHeight",
-    "getCellStyle",
-    "getCellBorder",
-  ];
-  private ctx = document.createElement("canvas").getContext("2d")!;
+  static getters = ["getCellStyle", "getCellBorder"];
 
   private styles: { [key: number]: Style } = {};
   private borders: { [key: number]: Border } = {};
@@ -124,7 +103,7 @@ export class FormattingPlugin extends CorePlugin {
         }
         break;
       case "CLEAR_FORMATTING":
-        this.clearFormatting(cmd.target);
+        this.clearFormatting(cmd.sheetId, cmd.target);
         break;
       case "SET_FORMATTER":
         this.setFormatter(cmd.sheetId, cmd.target, cmd.formatter);
@@ -135,37 +114,16 @@ export class FormattingPlugin extends CorePlugin {
       case "ADD_COLUMNS":
         const start_col = cmd.position === "before" ? cmd.column - 1 : cmd.column;
         const end_col = start_col + cmd.quantity + 1;
-        this.onAddElements(start_col, end_col, true, cmd.position === "before");
+        const sheet = this.getters.getSheet(cmd.sheetId)!;
+        this.onAddElements(sheet, start_col, end_col, true, cmd.position === "before");
         break;
-      case "ADD_ROWS":
+      case "ADD_ROWS": {
         const start_row = cmd.position === "before" ? cmd.row - 1 : cmd.row;
         const end_row = start_row + cmd.quantity + 1;
-        this.onAddElements(start_row, end_row, false, cmd.position === "before");
+        const sheet = this.getters.getSheet(cmd.sheetId)!;
+        this.onAddElements(sheet, start_row, end_row, false, cmd.position === "before");
         break;
-      case "AUTORESIZE_COLUMNS":
-        for (let col of cmd.cols) {
-          const size = this.getColMaxWidth(cmd.sheetId, col);
-          if (size !== 0) {
-            this.dispatch("RESIZE_COLUMNS", {
-              cols: [col],
-              size: size + 2 * PADDING_AUTORESIZE,
-              sheetId: cmd.sheetId,
-            });
-          }
-        }
-        break;
-      case "AUTORESIZE_ROWS":
-        for (let row of cmd.rows) {
-          const size = this.getRowMaxHeight(cmd.sheetId, row);
-          if (size !== 0) {
-            this.dispatch("RESIZE_ROWS", {
-              rows: [row],
-              size: size + 2 * PADDING_AUTORESIZE,
-              sheetId: cmd.sheetId,
-            });
-          }
-        }
-        break;
+      }
     }
   }
 
@@ -173,56 +131,12 @@ export class FormattingPlugin extends CorePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellWidth(cell: Cell): number {
-    const styleId = cell.style || 0;
-    const text = getCellText(cell, this.getters.shouldShowFormulas());
-    return this.getTextWidth(text, styleId);
-  }
-
-  getTextWidth(text: string, styleId: number = 0): number {
-    const style = this.styles[styleId];
-    const italic = style.italic ? "italic " : "";
-    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    const size = fontSizeMap[sizeInPt];
-    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-    return this.ctx.measureText(text).width;
-  }
-
-  getCellHeight(cell: Cell): number {
-    const style = this.styles[cell ? cell.style || 0 : 0];
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    return fontSizeMap[sizeInPt];
-  }
-
   getCellStyle(cell: Cell): Style {
     return cell.style ? this.styles[cell.style] : {};
   }
 
   getCellBorder(cell: Cell): Border | null {
     return cell.border ? this.borders[cell.border] : null;
-  }
-
-  getCurrentStyle(): Style {
-    const cell = this.getters.getActiveCell();
-    return cell && cell.style ? this.styles[cell.style] : {};
-  }
-
-  // ---------------------------------------------------------------------------
-  // Grid manipulation
-  // ---------------------------------------------------------------------------
-
-  private getColMaxWidth(sheetId: UID, index: number): number {
-    const cells = this.getters.getColCells(sheetId, index);
-    const sizes = cells.map(this.getters.getCellWidth);
-    return Math.max(0, ...sizes);
-  }
-
-  private getRowMaxHeight(sheetId: UID, index: number): number {
-    const sheet = this.getters.getSheet(sheetId);
-    const cells = Object.values(sheet.rows[index].cells);
-    const sizes = cells.map(this.getters.getCellHeight);
-    return Math.max(0, ...sizes);
   }
 
   // ---------------------------------------------------------------------------
@@ -415,12 +329,12 @@ export class FormattingPlugin extends CorePlugin {
   /**
    * Note that here, formatting refers to styles+border, not value formatters
    */
-  private clearFormatting(zones: Zone[]) {
+  private clearFormatting(sheetId: UID, zones: Zone[]) {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
-            sheetId: this.getters.getActiveSheetId(),
+            sheetId,
             col,
             row,
             style: 0,
@@ -463,7 +377,7 @@ export class FormattingPlugin extends CorePlugin {
    */
   private setDecimal(sheetId: UID, zones: Zone[], step: number) {
     // Find the first cell with a number value and get the format
-    const numberFormat = this.searchNumberFormat(zones);
+    const numberFormat = this.searchNumberFormat(sheetId, zones);
     if (numberFormat !== undefined) {
       // Depending on the step sign, increase or decrease the decimal representation
       // of the format
@@ -478,8 +392,7 @@ export class FormattingPlugin extends CorePlugin {
    * number value. Returns a default format if the cell hasn't format. Returns
    * undefined if no number value in the range.
    */
-  private searchNumberFormat(zones: Zone[]): string | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+  private searchNumberFormat(sheetId: UID, zones: Zone[]): string | undefined {
     for (let zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
@@ -602,27 +515,33 @@ export class FormattingPlugin extends CorePlugin {
   /**
    * This function computes the style/border of a row/col based on the neighbours.
    *
+   * @param sheet
    * @param start
    * @param end
    * @param isColumn true if element is a column, false if row
    * @param upper true if the style of the upper row/col should be used, false, if the lower should be used
    */
-  private onAddElements(start: number, end: number, isColumn: boolean, upper: boolean) {
-    const activeSheet = this.getters.getActiveSheet();
-    const length = isColumn ? activeSheet.rows.length : activeSheet.cols.length;
+  private onAddElements(
+    sheet: Sheet,
+    start: number,
+    end: number,
+    isColumn: boolean,
+    upper: boolean
+  ) {
+    const length = isColumn ? sheet.rows.length : sheet.cols.length;
     const index = start + 1;
     for (let x = 0; x < length; x++) {
       const xc = isColumn ? toXC(index, x) : toXC(x, index);
-      if (this.getters.isInMerge(xc)) {
+      if (this.getters.isInMerge(sheet.id, xc)) {
         continue;
       }
       const format: FormatInfo = {};
       let lowerFormat: FormatInfo = isColumn
-        ? this.getFormat(toXC(start, x))
-        : this.getFormat(toXC(x, start));
+        ? this.getFormat(sheet.id, toXC(start, x))
+        : this.getFormat(sheet.id, toXC(x, start));
       let upperFormat: FormatInfo = isColumn
-        ? this.getFormat(toXC(end, x))
-        : this.getFormat(toXC(x, end));
+        ? this.getFormat(sheet.id, toXC(end, x))
+        : this.getFormat(sheet.id, toXC(x, end));
       if (upper) {
         if (upperFormat.style) {
           format["style"] = upperFormat.style;
@@ -644,7 +563,7 @@ export class FormattingPlugin extends CorePlugin {
       if (Object.keys(format).length !== 0) {
         for (let i = index; i < end; i++) {
           this.dispatch("UPDATE_CELL", {
-            sheetId: this.getters.getActiveSheetId(),
+            sheetId: sheet.id,
             col: isColumn ? i : x,
             row: isColumn ? x : i,
             style: format.style,
@@ -659,10 +578,9 @@ export class FormattingPlugin extends CorePlugin {
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    */
-  private getFormat(xc: string): FormatInfo {
-    const sheetId = this.getters.getActiveSheetId();
+  private getFormat(sheetId: UID, xc: string): FormatInfo {
     const format: FormatInfo = {};
-    xc = this.getters.getMainCell(xc);
+    xc = this.getters.getMainCell(sheetId, xc);
     const cell = this.getters.getCellByXc(sheetId, xc);
     if (cell) {
       if (cell.border) {

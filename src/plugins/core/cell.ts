@@ -1,16 +1,7 @@
 import { CorePlugin } from "../core_plugin";
 import { compile, normalize } from "../../formulas/index";
 import { formatDateTime, parseDateTime } from "../../functions/dates";
-import {
-  isNumber,
-  parseNumber,
-  toXC,
-  toZone,
-  mapCellsInZone,
-  uuidv4,
-  toCartesian,
-  getCellText,
-} from "../../helpers/index";
+import { isNumber, parseNumber, toXC, uuidv4, toCartesian } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -37,7 +28,7 @@ interface CoreState {
  * cell and sheet content.
  */
 export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
-  static getters = ["zoneToXC", "getCells", "getRangeValues", "getRangeFormattedValues"];
+  static getters = ["zoneToXC", "getCells"];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
@@ -126,39 +117,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * if A1:B2 and A4:B5 are merges:
    * {top:1,left:0,right:1,bottom:3} ==> A1:A5
    */
-  zoneToXC(zone: Zone): string {
-    zone = this.getters.expandZone(zone);
+  zoneToXC(sheetId: UID, zone: Zone): string {
+    zone = this.getters.expandZone(sheetId, zone);
     const topLeft = toXC(zone.left, zone.top);
     const botRight = toXC(zone.right, zone.bottom);
     if (
       topLeft != botRight &&
-      this.getters.getMainCell(topLeft) !== this.getters.getMainCell(botRight)
+      this.getters.getMainCell(sheetId, topLeft) !== this.getters.getMainCell(sheetId, botRight)
     ) {
       return topLeft + ":" + botRight;
     }
 
     return topLeft;
-  }
-
-  getRangeValues(reference: string, defaultSheetId: UID): any[][] {
-    const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
-    const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
-    if (sheet === undefined) return [[]];
-    return mapCellsInZone(toZone(range), sheet, (cell) => cell.value);
-  }
-
-  getRangeFormattedValues(reference: string, defaultSheetId: UID): string[][] {
-    const [range, sheetName] = reference.split("!").reverse();
-    const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : defaultSheetId;
-    const sheet = sheetId ? this.getters.getSheet(sheetId) : undefined;
-    if (sheet === undefined) return [[]];
-    return mapCellsInZone(
-      toZone(range),
-      sheet,
-      (cell) => getCellText(cell, this.getters.shouldShowFormulas()),
-      ""
-    );
   }
 
   // ---------------------------------------------------------------------------

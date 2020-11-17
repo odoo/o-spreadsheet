@@ -91,7 +91,7 @@ describe("styles", () => {
 
   test("Can set a format in another than the active one", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
     model.dispatch("SET_FORMATTING", {
       sheetId: "42",
       target: [toZone("A1")],

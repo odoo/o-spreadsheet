@@ -29,10 +29,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         break;
 
       case "AUTOFILL_CELL":
-        const sheet = this.getters.getActiveSheetId();
-        const cfOrigin = this.getters.getRulesByCell(toXC(cmd.originCol, cmd.originRow));
+        const sheetId = this.getters.getActiveSheetId();
+        const cfOrigin = this.getters.getRulesByCell(sheetId, toXC(cmd.originCol, cmd.originRow));
         for (const cf of cfOrigin) {
-          this.adaptRules(sheet, cf, [toXC(cmd.col, cmd.row)], []);
+          this.adaptRules(sheetId, cf, [toXC(cmd.col, cmd.row)], []);
         }
         break;
       case "PASTE_CELL":

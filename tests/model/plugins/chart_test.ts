@@ -66,7 +66,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [
         { dataRange: "B2:B4", labelCell: "B1" },
         { dataRange: "C2:C4", labelCell: "C1" },
@@ -91,7 +91,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [
         { dataRange: "B2:B4", labelCell: "B1" },
         { dataRange: "C2:C4", labelCell: "C1" },
@@ -115,7 +115,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [
         { dataRange: "B2:B4", labelCell: undefined },
         { dataRange: "C2:C4", labelCell: undefined },
@@ -142,7 +142,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [
         { dataRange: "B8:D8", labelCell: "A8" },
         { dataRange: "B9:D9", labelCell: "A9" },
@@ -166,7 +166,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [
         { dataRange: "B8:D8", labelCell: undefined },
         { dataRange: "B9:D9", labelCell: undefined },
@@ -190,7 +190,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [],
       labelRange: "Sheet1!B7:D7",
       sheetId: model.getters.getActiveSheetId(),
@@ -212,7 +212,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(viewport)[0].data).toEqual({
+    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
       dataSets: [
         {
           dataRange: "B8",

@@ -107,7 +107,7 @@ describe("Model resizer", () => {
 
   test("Can resize row of inactive sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, size: 42, rows: [0] });
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);
@@ -122,7 +122,7 @@ describe("Model resizer", () => {
 
   test("Can resize column of inactive sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, size: 42, cols: [0] });
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);
@@ -131,7 +131,7 @@ describe("Model resizer", () => {
 
   test("changing sheets update the sizes", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42" });
+    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
 

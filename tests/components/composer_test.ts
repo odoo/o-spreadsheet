@@ -308,7 +308,7 @@ describe("composer", () => {
   test("type '=', select a cell in another sheet", async () => {
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", activate: true, position: 1 });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -343,7 +343,7 @@ describe("composer", () => {
   test("type =, select a cell in another sheet with space in name", async () => {
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", activate: true, position: 1 });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -357,7 +357,7 @@ describe("composer", () => {
   test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
     await typeInComposer("=");
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", activate: true });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", activate: true, position: 1 });
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
     await nextTick();
@@ -437,7 +437,7 @@ describe("composer highlights color", () => {
   });
 
   test("highlight cross-sheet ranges", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2" });
+    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
     setCellContent(model, "A1", "=B1+Sheet2!A1");
     await startComposition();
     const highlights = getHighlights(model);

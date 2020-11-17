@@ -1,6 +1,6 @@
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Style, Border } from "../../src/types/index";
+import { Style, Border, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
 import { getActiveXc, getCell, getMergeCellMap, getMerges, setCellContent } from "../helpers";
 
@@ -65,6 +65,20 @@ describe("merges", () => {
 
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
+  });
+
+  test("merge is clipped to sheet dimension", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 2,
+          rowNumber: 2,
+        },
+      ],
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:C3") });
+    expect(model.getters.getMerge(sheetId, "A1")).toMatchObject(toZone("A1:B2"));
   });
 
   test("editing a merge cell actually edits the top left", () => {
@@ -189,10 +203,14 @@ describe("merges", () => {
       ],
     });
     // B2 is not top left, so it is destructive
-    expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeTruthy();
+    expect(
+      model.getters.isMergeDestructive(model.getters.getActiveSheet(), toZone("A1:C4"))
+    ).toBeTruthy();
 
     // B2 is top left, so it is not destructive
-    expect(model.getters.isMergeDestructive(toZone("B2:C4"))).toBeFalsy();
+    expect(
+      model.getters.isMergeDestructive(model.getters.getActiveSheet(), toZone("B2:C4"))
+    ).toBeFalsy();
   });
 
   test("a merge with only style should not be considered destructive", () => {
@@ -207,7 +225,9 @@ describe("merges", () => {
       styles: { 1: {} },
     });
 
-    expect(model.getters.isMergeDestructive(toZone("A1:C4"))).toBeFalsy();
+    expect(
+      model.getters.isMergeDestructive(model.getters.getActiveSheet(), toZone("A1:C4"))
+    ).toBeFalsy();
   });
 
   test("merging destructively a selection ask for confirmation", async () => {
@@ -227,6 +247,7 @@ describe("merges", () => {
     const model = new Model({
       sheets: [
         {
+          id: "Sheet1",
           colNumber: 10,
           rowNumber: 10,
           cells: {
@@ -486,6 +507,14 @@ describe("merges", () => {
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     model.dispatch("UNDO");
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
+  });
+
+  test("Cannot add a merge in a non-existing sheet", () => {
+    const model = new Model();
+    expect(model.dispatch("ADD_MERGE", { sheetId: "BLABLA", zone: toZone("A1:A2") })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
   });
 
   test("import merge with style", () => {

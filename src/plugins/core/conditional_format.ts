@@ -93,21 +93,21 @@ export class ConditionalFormatPlugin
     return this.cfRules[sheetId] || [];
   }
 
-  getRulesSelection(selection: [Zone]): string[] {
+  getRulesSelection(sheetId: UID, selection: [Zone]): string[] {
     const ruleIds: Set<string> = new Set();
     selection.forEach((zone) => {
-      const zoneRuleId = this.getRulesByZone(zone);
+      const zoneRuleId = this.getRulesByZone(sheetId, zone);
       zoneRuleId.forEach((ruleId) => {
         ruleIds.add(ruleId);
       });
     });
     return Array.from(ruleIds);
   }
-  getRulesByZone(zone: Zone): Set<string> {
+  getRulesByZone(sheetId: UID, zone: Zone): Set<string> {
     const ruleIds: Set<string> = new Set();
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const cellRules = this.getRulesByCell(toXC(col, row));
+        const cellRules = this.getRulesByCell(sheetId, toXC(col, row));
         cellRules.forEach((rule) => {
           ruleIds.add(rule.id);
         });
@@ -115,10 +115,9 @@ export class ConditionalFormatPlugin
     }
     return ruleIds;
   }
-  getRulesByCell(cellXc: string): Set<ConditionalFormat> {
-    const currentSheet = this.getters.getActiveSheetId();
+  getRulesByCell(sheetId: UID, cellXc: string): Set<ConditionalFormat> {
     const rulesId: Set<ConditionalFormat> = new Set();
-    for (let cf of this.cfRules[currentSheet]) {
+    for (let cf of this.cfRules[sheetId]) {
       for (let ref of cf.ranges) {
         const zone: Zone = toZone(ref);
         for (let row = zone.top; row <= zone.bottom; row++) {
