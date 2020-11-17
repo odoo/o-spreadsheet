@@ -3,6 +3,8 @@ import { Mode, ModelConfig } from "../model";
 import { CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
+type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
+
 export interface UIPluginConstuctor {
   new (
     getters: Getters,
@@ -23,6 +25,7 @@ export class UIPlugin<State = any> extends BasePlugin {
   static layers: LAYERS[] = [];
 
   protected getters: Getters;
+  protected ui: UIActions;
 
   constructor(
     getters: Getters,
@@ -32,6 +35,7 @@ export class UIPlugin<State = any> extends BasePlugin {
   ) {
     super(history, dispatch, config);
     this.getters = getters;
+    this.ui = config;
   }
 
   // ---------------------------------------------------------------------------

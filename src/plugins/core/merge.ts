@@ -130,9 +130,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         );
         break;
       case "ADD_MERGE":
-        if (cmd.interactive) {
-          this.interactiveMerge(cmd.sheetId, cmd.zone);
-        } else {
+        if (!cmd.interactive) {
           this.addMerge(this.getters.getSheet(cmd.sheetId)!, cmd.zone);
         }
         break;
@@ -362,21 +360,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       for (let c = left; c <= right; c++) {
         const xc = toXC(c, r);
         this.history.update("mergeCellMap", sheetId, xc, undefined);
-      }
-    }
-  }
-
-  private interactiveMerge(sheet: string, zone: Zone) {
-    const result = this.dispatch("ADD_MERGE", { sheetId: sheet, zone });
-
-    if (result.status === "CANCELLED") {
-      if (result.reason === CancelledReason.MergeIsDestructive) {
-        this.ui.askConfirmation(
-          _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
-          () => {
-            this.dispatch("ADD_MERGE", { sheetId: sheet, zone, force: true });
-          }
-        );
       }
     }
   }

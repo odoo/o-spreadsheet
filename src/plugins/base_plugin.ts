@@ -2,7 +2,6 @@ import { WHistory, WorkbookHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
 import { Command, CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
 
-type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
 /**
  * BasePlugin
  *
@@ -22,7 +21,6 @@ export class BasePlugin<State = any> implements CommandHandler {
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
-  protected ui: UIActions;
 
   constructor(history: WHistory, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.history = Object.assign(Object.create(history), {
@@ -30,7 +28,6 @@ export class BasePlugin<State = any> implements CommandHandler {
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;
-    this.ui = config; //TODO We should remove this, and put this only in UIPlugins
   }
 
   // ---------------------------------------------------------------------------

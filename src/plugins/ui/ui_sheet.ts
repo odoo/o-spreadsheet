@@ -1,4 +1,4 @@
-import { CancelledReason, Command, CommandResult, Sheet, UID, Cell } from "../../types";
+import { CancelledReason, Command, CommandResult, Sheet, UID, Cell, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 import { getCellText } from "../../helpers/index";
 import {
@@ -8,6 +8,7 @@ import {
   PADDING_AUTORESIZE,
 } from "../../constants";
 import { fontSizeMap } from "../../fonts";
+import { _lt } from "../../translation";
 
 interface UIState {
   activeSheet: Sheet;
@@ -69,6 +70,19 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetIdTo);
+        break;
+      case "RENAME_SHEET":
+        if (cmd.interactive) {
+          this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
+        }
+        break;
+      case "DELETE_SHEET_CONFIRMATION":
+        this.interactiveDeleteSheet(cmd.sheetId);
+        break;
+      case "ADD_MERGE":
+        if (cmd.interactive) {
+          this.interactiveMerge(cmd.sheetId, cmd.zone);
+        }
         break;
       case "START":
         this.historizeActiveSheet = false;
@@ -167,5 +181,40 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
     const cells = Object.values(sheet.rows[index].cells);
     const sizes = cells.map((cell: Cell) => this.getCellHeight(cell));
     return Math.max(0, ...sizes);
+  }
+
+  private interactiveRenameSheet(sheetId: UID, title: string) {
+    const placeholder = this.getters.getSheetName(sheetId)!;
+    this.ui.editText(title, placeholder, (name: string | null) => {
+      if (!name) {
+        return;
+      }
+      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
+      const sheetName = this.getters.getSheetName(sheetId);
+      if (result.status === "CANCELLED" && sheetName !== name) {
+        this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
+      }
+    });
+  }
+
+  private interactiveDeleteSheet(sheetId: UID) {
+    this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
+      this.dispatch("DELETE_SHEET", { sheetId: sheetId });
+    });
+  }
+
+  private interactiveMerge(sheet: string, zone: Zone) {
+    const result = this.dispatch("ADD_MERGE", { sheetId: sheet, zone });
+
+    if (result.status === "CANCELLED") {
+      if (result.reason === CancelledReason.MergeIsDestructive) {
+        this.ui.askConfirmation(
+          _lt("Merging these cells will only preserve the top-leftmost value. Merge anyway?"),
+          () => {
+            this.dispatch("ADD_MERGE", { sheetId: sheet, zone, force: true });
+          }
+        );
+      }
+    }
   }
 }

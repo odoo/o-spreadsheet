@@ -162,17 +162,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.moveSheet(cmd.sheetId, cmd.direction);
         break;
       case "RENAME_SHEET":
-        if (cmd.interactive) {
-          this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
-        } else {
+        if (!cmd.interactive) {
           this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
         }
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetIdFrom, cmd.sheetIdTo, cmd.name);
-        break;
-      case "DELETE_SHEET_CONFIRMATION":
-        this.interactiveDeleteSheet(cmd.sheetId);
         break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);
@@ -476,20 +471,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       : { status: "CANCELLED", reason: CancelledReason.WrongSheetName };
   }
 
-  private interactiveRenameSheet(sheetId: UID, title: string) {
-    const placeholder = this.getSheetName(sheetId)!;
-    this.ui.editText(title, placeholder, (name: string | null) => {
-      if (!name) {
-        return;
-      }
-      const result = this.dispatch("RENAME_SHEET", { sheetId: sheetId, name });
-      const sheetName = this.getSheetName(sheetId);
-      if (result.status === "CANCELLED" && sheetName !== name) {
-        this.interactiveRenameSheet(sheetId, _lt("Please enter a valid sheet name"));
-      }
-    });
-  }
-
   private renameSheet(sheet: Sheet, name: string) {
     const oldName = sheet.name;
     this.history.update("sheets", sheet.id, "name", name.trim());
@@ -526,12 +507,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheetIds = Object.assign({}, this.sheetIds);
     sheetIds[newSheet.name] = newSheet.id;
     this.history.update("sheetIds", sheetIds);
-  }
-
-  private interactiveDeleteSheet(sheetId: UID) {
-    this.ui.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
-      this.dispatch("DELETE_SHEET", { sheetId: sheetId });
-    });
   }
 
   private deleteSheet(sheet: Sheet) {
