@@ -12,11 +12,13 @@ import { AutofillPlugin } from "../plugins/ui/autofill";
 import { HighlightPlugin } from "../plugins/ui/highlight";
 import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
 import { FigurePlugin } from "../plugins/core/figures";
-import { ChartPlugin } from "../plugins/core/chart";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { FindAndReplacePlugin } from "../plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
+import { EvaluationChartPlugin } from "../plugins/ui/evaluation_chart";
+import { EvaluationConditionalFormatPlugin } from "../plugins/ui/evaluation_conditional_format";
+import { ChartPlugin } from "../plugins/core/chart";
 
 // -----------------------------------------------------------------------------
 // Getters
@@ -65,8 +67,8 @@ export interface CoreGetters {
   getMerge: MergePlugin["getMerge"];
 
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
-  getConditionalStyle: ConditionalFormatPlugin["getConditionalStyle"];
   getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
+  getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
 
   evaluateFormula: EvaluationPlugin["evaluateFormula"];
   isIdle: EvaluationPlugin["isIdle"];
@@ -74,7 +76,7 @@ export interface CoreGetters {
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
-  getChartRuntime: ChartPlugin["getChartRuntime"];
+  getChartDefinition: ChartPlugin["getChartDefinition"];
 }
 
 export type Getters = CoreGetters & {
@@ -93,6 +95,9 @@ export type Getters = CoreGetters & {
   getActiveSheet: SheetUIPlugin["getActiveSheet"];
 
   shouldShowFormulas: UIOptionsPlugin["shouldShowFormulas"];
+  getChartRuntime: EvaluationChartPlugin["getChartRuntime"];
+
+  getConditionalStyle: EvaluationConditionalFormatPlugin["getConditionalStyle"];
 
   getHighlights: HighlightPlugin["getHighlights"];
 

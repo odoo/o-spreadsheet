@@ -15,7 +15,7 @@ import {
 } from "../../types";
 import { _lt } from "../../translation";
 import { compile, normalize } from "../../formulas/index";
-import { CorePlugin } from "../core_plugin";
+import { UIPlugin } from "../ui_plugin";
 function* makeObjectIterator(obj: Object) {
   for (let i in obj) {
     yield obj[i];
@@ -34,7 +34,7 @@ type FormulaParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 
 export const LOADING = "Loading...";
 
-export class EvaluationPlugin extends CorePlugin {
+export class EvaluationPlugin extends UIPlugin {
   static getters = ["evaluateFormula", "isIdle"];
   static modes: Mode[] = ["normal", "readonly"];
 
@@ -71,8 +71,6 @@ export class EvaluationPlugin extends CorePlugin {
    */
   private COMPUTED: Set<Cell> = new Set();
 
-  private evaluationSheetId?: UID;
-
   constructor(
     getters: Getters,
     history: WHistory,
@@ -89,26 +87,22 @@ export class EvaluationPlugin extends CorePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        this.evaluationSheetId = cmd.sheetIdTo;
-        break;
       case "UPDATE_CELL":
         if ("content" in cmd) {
           this.isUpToDate.clear();
         }
         break;
       case "EVALUATE_CELLS":
-        if (this.evaluationSheetId) {
-          if (cmd.onlyWaiting) {
-            const cells = new Set(this.WAITING);
-            this.WAITING.clear();
-            this.evaluateCells(makeSetIterator(cells), this.evaluationSheetId);
-          } else {
-            this.WAITING.clear();
-            this.evaluate(this.evaluationSheetId);
-          }
-          this.isUpToDate.add(this.evaluationSheetId);
+        const sheetId = this.getters.getActiveSheetId();
+        if (cmd.onlyWaiting) {
+          const cells = new Set(this.WAITING);
+          this.WAITING.clear();
+          this.evaluateCells(makeSetIterator(cells), sheetId);
+        } else {
+          this.WAITING.clear();
+          this.evaluate(sheetId);
         }
+        this.isUpToDate.add(sheetId);
         break;
       case "UNDO":
       case "REDO":
@@ -118,9 +112,10 @@ export class EvaluationPlugin extends CorePlugin {
   }
 
   finalize() {
-    if (this.evaluationSheetId && !this.isUpToDate.has(this.evaluationSheetId)) {
-      this.evaluate(this.evaluationSheetId);
-      this.isUpToDate.add(this.evaluationSheetId);
+    const sheetId = this.getters.getActiveSheetId();
+    if (!this.isUpToDate.has(sheetId)) {
+      this.evaluate(sheetId);
+      this.isUpToDate.add(sheetId);
     }
     if (this.loadingCells > 0) {
       this.startScheduler();
@@ -131,12 +126,12 @@ export class EvaluationPlugin extends CorePlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formula: string, sheet: UID = this.getters.getActiveSheetId()): any {
+  evaluateFormula(formula: string, sheetId: UID = this.getters.getActiveSheetId()): any {
     let formulaString: NormalizedFormula = normalize(formula);
 
     const compiledFormula = compile(formulaString);
     const params = this.getFormulaParameters(() => {});
-    return compiledFormula(formulaString.dependencies, sheet, ...params);
+    return compiledFormula(formulaString.dependencies, sheetId, ...params);
   }
 
   isIdle() {

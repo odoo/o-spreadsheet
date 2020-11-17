@@ -414,4 +414,5 @@ describe("undo/redo", () => {
       },
     });
   });
+  test("undo/redo chart dataset rebuild the chart runtime", () => {});
 });

@@ -48,7 +48,7 @@ const TEMPLATE = xml/* xml */ `
   <div class="o-cf">
     <t t-if="state.mode === 'list'">
       <div class="o-cf-preview-list" >
-          <div t-on-click="onRuleClick(cf)" t-foreach="getters.getConditionalFormats()" t-as="cf" t-key="cf.id">
+          <div t-on-click="onRuleClick(cf)" t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
               <t t-call="${PREVIEW_TEMPLATE}"/>
           </div>
       </div>
@@ -257,6 +257,11 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
       this.openCf(this.getters.getRulesSelection(props.selection)[0]);
     }
   }
+
+  get conditionalFormats(): ConditionalFormat[] {
+    return this.getters.getConditionalFormats(this.getters.getActiveSheetId());
+  }
+
   async willUpdateProps(nextProps) {
     if (nextProps.selection && nextProps.selection !== this.props.selection)
       if (nextProps.selection && this.getters.getRulesSelection(nextProps.selection).length === 1) {
@@ -331,9 +336,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
   }
 
   openCf(cfId) {
-    const rules = this.getters.getConditionalFormats();
-    const cfIndex = rules.findIndex((c) => c.id === cfId);
-    const cf = rules[cfIndex];
+    const cfIndex = this.conditionalFormats.findIndex((c) => c.id === cfId);
+    const cf = this.conditionalFormats[cfIndex];
     if (cf) {
       this.state.mode = "edit";
       this.state.currentCF = cf;

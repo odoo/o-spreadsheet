@@ -22,7 +22,7 @@ describe("conditional format", () => {
       cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(model.getters.getConditionalFormats()).toEqual([
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toEqual([
       {
         rule: {
           values: ["2"],
@@ -67,7 +67,7 @@ describe("conditional format", () => {
       sheetIdFrom: activeSheet.id,
       sheetIdTo: "42",
     });
-    expect(model.getters.getConditionalFormats()).toEqual([
+    expect(model.getters.getConditionalFormats("42")).toEqual([
       {
         rule: {
           values: ["4"],
@@ -88,15 +88,16 @@ describe("conditional format", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
     setCellContent(model, "A4", "4");
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1"),
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "4", { fillColor: "#0000FF" }, "2"),
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
     });
-    expect(model.getters.getConditionalFormats()).toEqual([
+    expect(model.getters.getConditionalFormats(sheetId)).toEqual([
       {
         rule: {
           values: ["2"],
@@ -175,7 +176,10 @@ describe("conditional format", () => {
     });
     const workbookData = model.exportData();
     const newModel = new Model(workbookData);
-    expect(newModel.getters.getConditionalFormats()).toBe(model.getters.getConditionalFormats());
+    const sheetId = model.getters.getActiveSheetId();
+    expect(newModel.getters.getConditionalFormats(sheetId)).toBe(
+      model.getters.getConditionalFormats(sheetId)
+    );
   });
 
   test("works after value update", () => {
@@ -293,11 +297,12 @@ describe("conditional format", () => {
           },
         ],
       });
+      const sheetId = model.getters.getActiveSheetId();
       model.dispatch("REMOVE_ROWS", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId,
         rows: [1, 3],
       });
-      expect(model.getters.getConditionalFormats()).toEqual([
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:A1"], rule },
         { id: "3", ranges: ["C2:C2"], rule },
         { id: "4", ranges: ["D1:D1"], rule },
@@ -330,11 +335,13 @@ describe("conditional format", () => {
           },
         ],
       });
+      const sheetId = model.getters.getActiveSheetId();
+
       model.dispatch("REMOVE_COLUMNS", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId,
         columns: [1, 3],
       });
-      expect(model.getters.getConditionalFormats()).toEqual([
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:A1"], rule },
         { id: "3", ranges: ["B3:B3"], rule },
         { id: "4", ranges: ["A4:A4"], rule },
@@ -364,19 +371,20 @@ describe("conditional format", () => {
           },
         ],
       });
+      const sheetId = model.getters.getActiveSheetId();
       model.dispatch("ADD_COLUMNS", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId,
         column: 1,
         position: "before",
         quantity: 1,
       });
       model.dispatch("ADD_COLUMNS", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId,
         column: 2,
         position: "after",
         quantity: 2,
       });
-      expect(model.getters.getConditionalFormats()).toEqual([
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:F1"], rule },
         { id: "2", ranges: ["A2:C2"], rule },
         { id: "3", ranges: ["C3:F3"], rule },
@@ -403,19 +411,20 @@ describe("conditional format", () => {
           },
         ],
       });
+      const sheetId = model.getters.getActiveSheetId();
       model.dispatch("ADD_ROWS", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId,
         row: 1,
         position: "before",
         quantity: 1,
       });
       model.dispatch("ADD_ROWS", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId,
         row: 2,
         position: "after",
         quantity: 2,
       });
-      expect(model.getters.getConditionalFormats()).toEqual([
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:A6"], rule },
         { id: "2", ranges: ["B1:B3"], rule },
         { id: "3", ranges: ["C3:C6"], rule },

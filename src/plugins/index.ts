@@ -14,6 +14,8 @@ import { HighlightPlugin } from "./ui/highlight";
 import { SelectionInputPlugin } from "./ui/selection_inputs";
 import { FigurePlugin } from "./core/figures";
 import { SheetPlugin } from "./core/sheet";
+import { EvaluationChartPlugin } from "./ui/evaluation_chart";
+import { EvaluationConditionalFormatPlugin } from "./ui/evaluation_conditional_format";
 import { FindAndReplacePlugin } from "./ui/find_and_replace";
 import { SheetUIPlugin } from "./ui/ui_sheet";
 import { UIOptionsPlugin } from "./ui/ui_options";
@@ -23,7 +25,6 @@ import { UIPluginConstuctor } from "./ui_plugin";
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
   .add("cell", CellPlugin)
-  .add("evaluation", EvaluationPlugin)
   .add("merge", MergePlugin)
   .add("formatting", FormattingPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
@@ -33,6 +34,9 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 export const uiPluginRegistry = new Registry<UIPluginConstuctor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
+  .add("evaluation", EvaluationPlugin)
+  .add("evaluation_cf", EvaluationConditionalFormatPlugin)
+  .add("evaluation_chart", EvaluationChartPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("selection", SelectionPlugin)
   .add("edition", EditionPlugin)
