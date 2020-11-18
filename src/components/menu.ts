@@ -132,7 +132,10 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   }
 
   async willUpdateProps(nextProps: Props) {
-    console.log(nextProps);
+    if (this.isFile(nextProps)) {
+      console.log(this.props.isOpen, "=>", nextProps.isOpen);
+      debugger;
+    }
     if (nextProps.menuItems !== this.props.menuItems) {
       this.subMenu.isOpen = false;
     }
@@ -216,10 +219,15 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
     return this.props.menuItems.slice(0, index).length * MENU_ITEM_HEIGHT;
   }
 
+  private isFile(props = this.props) {
+    return props.menuItems.map((menu) => menu.name)[0] === "Save";
+  }
+
   private onClick(ev: MouseEvent) {
-    debugger;
     // Don't close a root menu when clicked to open the submenus.
-    console.log("click", this.props.menuItems);
+    if (this.isFile()) {
+      console.log("click", this.props.isOpen);
+    }
     if (!this.props.isOpen || (this.el && isChildEvent(this.el, ev))) {
       return;
     }
