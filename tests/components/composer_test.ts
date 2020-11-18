@@ -387,4 +387,14 @@ describe("composer highlights color", () => {
     expect(highlights[1].sheet).toBe("42");
     expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
+
+  test("composer is resized when input content is larger than composer", async () => {
+    await typeInComposer("Hello");
+    const composerEl = fixture.querySelector("div.o-composer")! as HTMLElement;
+    const styleSpy = jest.spyOn(composerEl.style, "width", "set");
+    jest.spyOn(composerEl, "clientWidth", "get").mockImplementation(() => 100);
+    jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
+    await typeInComposer("world", false);
+    expect(styleSpy).toHaveBeenCalledWith("140px"); // scrollWidth + padding 20px
+  });
 });
