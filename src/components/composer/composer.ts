@@ -260,7 +260,7 @@ export class Composer extends Component<any, SpreadsheetEnv> {
     }
     const el = this.composerRef.el! as HTMLInputElement;
     if (el.clientWidth !== el.scrollWidth) {
-      el.style.width = (el.scrollWidth + 20) as any;
+      el.style.width = `${el.scrollWidth + 20}px`;
     }
     const content = el.childNodes.length ? el.textContent! : "";
     this.dispatch("SET_CURRENT_CONTENT", { content });
