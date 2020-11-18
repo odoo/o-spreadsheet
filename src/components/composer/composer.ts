@@ -443,26 +443,33 @@ export class Composer extends Component<any, SpreadsheetEnv> {
   autoComplete(value: string) {
     this.saveSelection();
     if (value) {
-      if (this.tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(this.tokenAtCursor.type)) {
-        this.selectionStart = this.tokenAtCursor.start;
-        this.selectionEnd = this.tokenAtCursor.end;
-      }
+      if (this.tokenAtCursor) {
+        let start = this.tokenAtCursor.end;
+        let end = this.tokenAtCursor.end;
 
-      if (this.autoCompleteState.provider === "functions") {
-        if (this.tokens.length && this.tokenAtCursor) {
-          const currentTokenIndex = this.tokens.indexOf(this.tokenAtCursor);
+        if (["SYMBOL", "FUNCTION"].includes(this.tokenAtCursor.type)) {
+          start = this.tokenAtCursor.start;
+        }
+
+        if (this.autoCompleteState.provider && this.tokens.length) {
+          value += "(";
+
+          const currentTokenIndex = this.tokens
+            .map((token) => token.start)
+            .indexOf(this.tokenAtCursor.start);
           if (currentTokenIndex + 1 < this.tokens.length) {
             const nextToken = this.tokens[currentTokenIndex + 1];
-            if (nextToken.type !== "LEFT_PAREN") {
-              value += "(";
+            if (nextToken.type === "LEFT_PAREN") {
+              end++;
             }
-          } else {
-            value += "(";
           }
         }
+        this.selectionStart = start;
+        this.selectionEnd = end;
       }
       this.addText(value);
     }
+
     this.autoCompleteState.search = "";
     this.autoCompleteState.showProvider = false;
     this.processContent();

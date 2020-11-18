@@ -10,8 +10,10 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: any;
+
 async function typeInComposer(text: string) {
-  composerEl.append(text);
+  const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
+  cehMock.insertText(text, "#000");
   composerEl.dispatchEvent(new Event("input"));
   composerEl.dispatchEvent(new Event("keyup"));
   await nextTick();
@@ -254,6 +256,22 @@ describe("Autocomplete parenthesis", () => {
     composerEl.dispatchEvent(new KeyboardEvent("keyup"));
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("=if(1,2)");
+  });
+
+  test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
+    await typeInComposer("=S(");
+    // go behind the letter "S"
+    const cehMock = parent.grid.comp.composer.comp.contentHelper as ContentEditableHelper;
+    cehMock.selectRange(2, 2);
+    // type U to display the autocomplete-dropdown with the SUM function
+    await typeInComposer("U");
+    expect(model.getters.getCurrentContent()).toBe("=SU(");
+    expect(document.activeElement).toBe(composerEl);
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+    // select the SUM function
+    fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
+    await nextTick();
+    expect(model.getters.getCurrentContent()).toBe("=SUM(");
   });
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
