@@ -400,32 +400,39 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   private autoComplete(value: string) {
     if (value) {
       const tokenAtCursor = this.getters.getTokenAtCursor();
-      if (tokenAtCursor && ["SYMBOL", "FUNCTION"].includes(tokenAtCursor.type)) {
-        const start = tokenAtCursor.start;
-        const end = tokenAtCursor.end;
+      if (tokenAtCursor) {
+        let start = tokenAtCursor.end;
+        let end = tokenAtCursor.end;
+
+        if (["SYMBOL", "FUNCTION"].includes(tokenAtCursor.type)) {
+          start = tokenAtCursor.start;
+        }
+
+        if (this.autoCompleteState.provider && this.tokens.length) {
+          value += "(";
+
+          const currentTokenIndex = this.tokens
+            .map((token) => token.start)
+            .indexOf(tokenAtCursor.start);
+          if (currentTokenIndex + 1 < this.tokens.length) {
+            const nextToken = this.tokens[currentTokenIndex + 1];
+            if (nextToken.type === "LEFT_PAREN") {
+              end++;
+            }
+          }
+        }
+
         this.dispatch("CHANGE_COMPOSER_SELECTION", {
           start,
           end,
         });
       }
 
-      if (this.autoCompleteState.provider === "functions") {
-        if (this.tokens.length && tokenAtCursor) {
-          const currentTokenIndex = this.tokens.indexOf(tokenAtCursor);
-          if (currentTokenIndex + 1 < this.tokens.length) {
-            const nextToken = this.tokens[currentTokenIndex + 1];
-            if (nextToken.type !== "LEFT_PAREN") {
-              value += "(";
-            }
-          } else {
-            value += "(";
-          }
-        }
-      }
       this.dispatch("REPLACE_COMPOSER_SELECTION", {
         text: value,
       });
     }
+
     this.autoCompleteState.search = "";
     this.autoCompleteState.showProvider = false;
     this.processTokenAtCursor();

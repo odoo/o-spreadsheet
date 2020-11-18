@@ -38,8 +38,14 @@ export class ContentEditableHelper {
     } else {
       this.el!.append(value);
     }
-    this.currentState.cursorEnd = this.currentState.cursorStart + value.length;
-    this.manualRange = false;
+    if (this.currentState.cursorStart === this.currentState.cursorEnd) {
+      const position = this.currentState.cursorStart + value.length;
+      this.currentState.cursorEnd = position;
+      this.currentState.cursorStart = position;
+    } else {
+      this.currentState.cursorEnd = this.currentState.cursorStart + value.length;
+      this.manualRange = false;
+    }
     this.colors[value] = color;
 
     this.el!.dispatchEvent(new Event("input"));
