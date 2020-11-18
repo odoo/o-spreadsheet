@@ -3,6 +3,7 @@ import { BACKGROUND_GRAY_COLOR, BOTTOMBAR_HEIGHT, HEADER_WIDTH } from "../consta
 import { SpreadsheetEnv } from "../types";
 import { PLUS, LIST, TRIANGLE_DOWN_ICON } from "./icons";
 import { MenuState, Menu } from "./menu";
+import { DropdownMenu } from "./dropdown_menu";
 import { sheetMenuRegistry, MenuItemRegistry } from "../registries/index";
 import { uuidv4 } from "../helpers/index";
 const { Component } = owl;
@@ -16,17 +17,19 @@ const { useState } = owl.hooks;
 const TEMPLATE = xml/* xml */ `
   <div class="o-spreadsheet-bottom-bar">
     <div class="o-sheet-item o-add-sheet" t-on-click="addSheet">${PLUS}</div>
-    <div class="o-sheet-item o-list-sheets" t-on-click="listSheets">${LIST}</div>
+    <DropdownMenu class="o-sheet-item o-list-sheets" menuItems="() => sheetMenuItems">${LIST}</DropdownMenu>
     <div class="o-all-sheets">
       <t t-foreach="getters.getSheets()" t-as="sheet" t-key="sheet.id">
-        <div class="o-sheet-item o-sheet" t-on-click="activateSheet(sheet.id)"
-             t-on-contextmenu.prevent="onContextMenu(sheet.id)"
-             t-att-title="sheet.name"
-             t-att-data-id="sheet.id"
-             t-att-class="{active: sheet.id === getters.getActiveSheetId()}">
-          <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="onDblClick(sheet.id)"/>
-          <span class="o-sheet-icon" t-on-click.stop="onIconClick(sheet.id)">${TRIANGLE_DOWN_ICON}</span>
-        </div>
+        <DropdownMenu rightClick="true" menuItems="() => sheetEditionMenu(sheet.id)">
+          <div class="o-sheet-item o-sheet" t-on-click="activateSheet(sheet.id)"
+              t-on-contextmenu.prevent="onContextMenu(sheet.id)"
+              t-att-title="sheet.name"
+              t-att-data-id="sheet.id"
+              t-att-class="{active: sheet.id === getters.getActiveSheetId()}">
+            <span class="o-sheet-name" t-esc="sheet.name" t-on-dblclick="onDblClick(sheet.id)"/>
+            <span class="o-sheet-icon" t-on-click.stop="onIconClick(sheet.id)">${TRIANGLE_DOWN_ICON}</span>
+          </div>
+        </DropdownMenu>
       </t>
     </div>
     <t t-set="aggregate" t-value="getters.getAggregate()"/>
@@ -116,10 +119,30 @@ const CSS = css/* scss */ `
 export class BottomBar extends Component<{}, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { Menu };
+  static components = { Menu, DropdownMenu };
 
   getters = this.env.getters;
   menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+
+  get sheetMenuItems() {
+    console.log("qsdmflkjqsdmlfj");
+    const registry = new MenuItemRegistry();
+    const from = this.getters.getActiveSheetId();
+    let i = 0;
+    for (let sheet of this.getters.getSheets()) {
+      registry.add(sheet.id, {
+        name: sheet.name,
+        sequence: i,
+        action: (env) => env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
+      });
+      i++;
+    }
+    return registry.getAll().filter((x) => x.isVisible(this.env));
+  }
+
+  get sheetEditionMenu() {
+    return sheetMenuRegistry.getAll().filter((x) => x.isVisible(this.env));
+  }
 
   mounted() {
     this.focusSheet();
@@ -138,21 +161,6 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
 
   addSheet() {
     this.env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4() });
-  }
-
-  listSheets(ev: MouseEvent) {
-    const registry = new MenuItemRegistry();
-    const from = this.getters.getActiveSheetId();
-    let i = 0;
-    for (let sheet of this.getters.getSheets()) {
-      registry.add(sheet.id, {
-        name: sheet.name,
-        sequence: i,
-        action: (env) => env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheet.id }),
-      });
-      i++;
-    }
-    this.openContextMenu(ev.currentTarget as HTMLElement, registry);
   }
 
   activateSheet(name: string) {
@@ -193,10 +201,9 @@ export class BottomBar extends Component<{}, SpreadsheetEnv> {
     }
   }
 
-  onContextMenu(sheet: string, ev: MouseEvent) {
+  onContextMenu(sheet: string) {
     if (this.getters.getActiveSheetId() !== sheet) {
       this.activateSheet(sheet);
     }
-    this.openContextMenu(ev.currentTarget as HTMLElement, sheetMenuRegistry);
   }
 }

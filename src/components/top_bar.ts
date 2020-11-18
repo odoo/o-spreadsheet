@@ -8,7 +8,7 @@ import { ColorPicker } from "./color_picker";
 import { FullMenuItem } from "../registries/menu_items_registry";
 import { topbarMenuRegistry } from "../registries/menus/topbar_menu_registry";
 import { DEFAULT_FONT_SIZE } from "../constants";
-import { MenuState, Menu } from "./menu";
+import { MenuState, Menu, MenuPosition } from "./menu";
 import { Composer } from "./composer/composer";
 
 import { setStyle, setFormatter, topbarComponentRegistry } from "../registries/index";
@@ -400,18 +400,26 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   }
 
   toggleContextMenu(menu: FullMenuItem, ev: MouseEvent) {
-    this.closeMenus();
-    const x = (ev.target as HTMLElement).offsetLeft;
-    const y = (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop;
-    this.state.menuState.isOpen = true;
-    const width = this.el!.clientWidth;
-    const height = this.el!.parentElement!.clientHeight;
-    this.state.menuState.position = { x, y, width, height };
+    if (this.openedEl === ev.target) {
+      this.closeMenus();
+    } else {
+      this.openMenu(menu, {
+        x: (ev.target as HTMLElement).offsetLeft,
+        y: (ev.target as HTMLElement).clientHeight + (ev.target as HTMLElement).offsetTop,
+        width: this.el!.clientWidth,
+        height: this.el!.parentElement!.clientHeight,
+      });
+      this.state.menuState.isOpen = true;
+      this.openedEl = ev.target as HTMLElement;
+    }
+  }
+
+  private openMenu(menu: FullMenuItem, position: MenuPosition) {
+    this.state.menuState.position = position;
     this.state.menuState.menuItems = topbarMenuRegistry
       .getChildren(menu, this.env)
       .filter((item) => !item.isVisible || item.isVisible(this.env));
     this.isSelectingMenu = true;
-    this.openedEl = ev.target as HTMLElement;
   }
 
   closeMenus() {
