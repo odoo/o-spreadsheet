@@ -6,6 +6,7 @@ import {
   resetFunctions,
   getCell,
   typeInComposer as typeInComposerHelper,
+  startGridComposition,
 } from "../helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
@@ -17,7 +18,10 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: any;
-async function typeInComposer(text: string) {
+async function typeInComposer(text: string, fromScratch: boolean = true) {
+  if (fromScratch) {
+    composerEl = await startGridComposition();
+  }
   await typeInComposerHelper(composerEl, text);
 }
 
@@ -261,6 +265,24 @@ describe("Autocomplete parenthesis", () => {
     composerEl.dispatchEvent(new KeyboardEvent("keyup"));
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("=if(1,2)");
+  });
+
+  test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
+    await typeInComposer("=S(");
+    // go behind the letter "S"
+    model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 2, end: 2 });
+    await nextTick();
+    // show autocomplete
+    await typeInComposer("U", false);
+    expect(model.getters.getCurrentContent()).toBe("=SU(");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
+    expect(document.activeElement).toBe(composerEl);
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+    // select the SUM function
+    fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
+    await nextTick();
+    expect(model.getters.getCurrentContent()).toBe("=SUM(");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
