@@ -121,7 +121,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   constructor() {
     super(...arguments);
-    useExternalListener(window, "click", this.onClick);
+    useExternalListener(window, "click", this.onClick, { capture: true });
     useExternalListener(window, "contextmenu", this.onContextMenu);
     this.subMenu = useState({
       isOpen: false,
@@ -134,7 +134,7 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   async willUpdateProps(nextProps: Props) {
     if (this.isFile(nextProps)) {
       console.log(this.props.isOpen, "=>", nextProps.isOpen);
-      debugger;
+      // debugger;
     }
     if (nextProps.menuItems !== this.props.menuItems) {
       this.subMenu.isOpen = false;
@@ -226,8 +226,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
   private onClick(ev: MouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
     if (this.isFile()) {
-      console.log("click", this.props.isOpen);
+      console.log("click", this.props.isOpen, this.el && isChildEvent(this.el, ev));
     }
+
     if (!this.props.isOpen || (this.el && isChildEvent(this.el, ev))) {
       return;
     }

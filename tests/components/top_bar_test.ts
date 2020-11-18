@@ -3,7 +3,7 @@ import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
 import { getCell, makeTestFixture, nextTick, GridParent, setCellContent } from "../helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { triggerMouseEvent, simulateClick } from "../dom_helper";
+import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
 import { ConditionalFormat } from "../../src/types";
 import { _lt } from "../../src/translation";
@@ -72,16 +72,17 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-color-line").length).toBe(0);
   });
 
-  test("opening menu", async () => {
+  test("click a top bar element opens and closes the menu", async () => {
     const model = new Model();
     const parent = new Parent(model);
     await parent.mount(fixture);
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
-    await simulateClick(".o-topbar-topleft .o-topbar-menu");
-    // window.dispatchEvent(new Event("click"));
-    triggerMouseEvent(window, "click");
+    triggerMouseEvent(".o-topbar-topleft .o-topbar-menu", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    triggerMouseEvent(".o-topbar-topleft .o-topbar-menu", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
   test("merging cell button state is correct", async () => {
