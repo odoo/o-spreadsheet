@@ -1,7 +1,7 @@
 import { Model, Mode } from "../src/model";
 import "./canvas.mock";
 import { WHistory } from "../src/history";
-import { CorePlugin } from "../src/plugins/core";
+import { CellPlugin } from "../src/plugins/cell";
 import { MergePlugin } from "../src/plugins/merge";
 import { FormattingPlugin } from "../src/plugins/formatting";
 import { ConditionalFormatPlugin } from "../src/plugins/conditional_format";
@@ -20,7 +20,7 @@ describe("Model", () => {
     expect(model["handlers"]).toHaveLength(10);
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
-    expect(model["handlers"][2]).toBeInstanceOf(CorePlugin);
+    expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
     expect(model["handlers"][3]).toBeInstanceOf(SheetUIPlugin);
     expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
     expect(model["handlers"][5]).toBeInstanceOf(FormattingPlugin);

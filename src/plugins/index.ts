@@ -2,7 +2,7 @@ import { PluginConstuctor } from "../base_plugin";
 import { Registry } from "../registry";
 import { ClipboardPlugin } from "./clipboard";
 import { ConditionalFormatPlugin } from "./conditional_format";
-import { CorePlugin } from "./core";
+import { CellPlugin } from "./cell";
 import { EditionPlugin } from "./edition";
 import { EvaluationPlugin } from "./evaluation";
 import { FormattingPlugin } from "./formatting";
@@ -21,7 +21,7 @@ import { SheetUIPlugin } from "./ui_sheet";
 
 export const pluginRegistry = new Registry<PluginConstuctor>()
   .add("sheet", SheetPlugin)
-  .add("core", CorePlugin)
+  .add("cell", CellPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("evaluation", EvaluationPlugin)

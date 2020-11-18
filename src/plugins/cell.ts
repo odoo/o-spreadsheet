@@ -36,7 +36,7 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CorePlugin extends BasePlugin<CoreState> implements CoreState {
+export class CellPlugin extends BasePlugin<CoreState> implements CoreState {
   static getters = ["zoneToXC", "getCells", "getRangeValues", "getRangeFormattedValues"];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
