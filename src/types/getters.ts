@@ -1,7 +1,7 @@
 import { MergePlugin } from "../plugins/merge";
 import { ClipboardPlugin } from "../plugins/clipboard";
 import { SelectionPlugin } from "../plugins/selection";
-import { CorePlugin } from "../plugins/core";
+import { CellPlugin } from "../plugins/cell";
 import { ConditionalFormatPlugin } from "../plugins/conditional_format";
 import { RendererPlugin } from "../plugins/renderer";
 import { FormattingPlugin } from "../plugins/formatting";
@@ -39,10 +39,10 @@ export interface Getters {
   getGridSize: SheetPlugin["getGridSize"];
   getCellByXc: SheetPlugin["getCellByXc"];
 
-  zoneToXC: CorePlugin["zoneToXC"];
-  getCells: CorePlugin["getCells"];
-  getRangeValues: CorePlugin["getRangeValues"];
-  getRangeFormattedValues: CorePlugin["getRangeFormattedValues"];
+  zoneToXC: CellPlugin["zoneToXC"];
+  getCells: CellPlugin["getCells"];
+  getRangeValues: CellPlugin["getRangeValues"];
+  getRangeFormattedValues: CellPlugin["getRangeFormattedValues"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
