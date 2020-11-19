@@ -320,10 +320,141 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
-  test("typing a formula with a space should put the composer in 'selecting' mode", async () => {
-    await startComposition();
-    await typeInComposer("= ");
-    expect(model.getters.getEditionMode()).toBe("selecting");
+  describe("change selecting mode when typing specific token value", () => {
+    const matchingValues = [",", "+", "*", "="];
+    const mismatchingValues = ["1", '"coucou"', "TRUE", "SUM", "A2"];
+    const formulas = ["=", "=SUM", "=SUM(", "=SUM(A2"];
+
+    describe.each(formulas)("typing %s followed by", (formula) => {
+      test.each(matchingValues.concat(["("]))(
+        "a matching value --> activate 'selecting' mode",
+        async (matchingValue) => {
+          await startComposition();
+          await typeInComposer(formula + matchingValue);
+          expect(model.getters.getEditionMode()).toBe("selecting");
+        }
+      );
+
+      test.each(mismatchingValues.concat([")"]))(
+        "a mismatching value --> not activate 'selecting' mode",
+        async (mismatchingValue) => {
+          await startComposition();
+          await typeInComposer(formula + mismatchingValue);
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
+        }
+      );
+
+      test.each(matchingValues.concat(["("]))(
+        "a matching value & spaces --> activate 'selecting' mode",
+        async (matchingValue) => {
+          await startComposition();
+          await typeInComposer(formula + matchingValue + "   ");
+          expect(model.getters.getEditionMode()).toBe("selecting");
+        }
+      );
+
+      test.each(mismatchingValues.concat([")"]))(
+        "a mismatching value & spaces --> not activate 'selecting' mode",
+        async (mismatchingValue) => {
+          await startComposition();
+          await typeInComposer(formula + mismatchingValue + "   ");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
+        }
+      );
+
+      test.each(matchingValues.concat([")"]))(
+        "a matching value & located before matching value --> activate 'selecting' mode",
+        async (matchingValue) => {
+          await startComposition();
+          await typeInComposer(matchingValue);
+          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+          await nextTick();
+          await typeInComposer(formula + ",");
+          expect(model.getters.getEditionMode()).toBe("selecting");
+        }
+      );
+
+      test.each(mismatchingValues.concat(["("]))(
+        "a matching value & located before mismatching value --> not activate 'selecting' mode",
+        async (mismatchingValue) => {
+          await startComposition();
+          await typeInComposer(mismatchingValue);
+          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+          await nextTick();
+          await typeInComposer(formula + ",");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
+        }
+      );
+
+      test.each(matchingValues.concat([")"]))(
+        "a matching value & spaces & located before matching value --> activate 'selecting' mode",
+        async (matchingValue) => {
+          await startComposition();
+          await typeInComposer(matchingValue);
+          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+          await nextTick();
+          await typeInComposer(formula + ",  ");
+          expect(model.getters.getEditionMode()).toBe("selecting");
+        }
+      );
+
+      test.each(mismatchingValues.concat(["("]))(
+        "a matching value & spaces & located before mismatching value --> not activate 'selecting' mode",
+        async (mismatchingValue) => {
+          await startComposition();
+          await typeInComposer(mismatchingValue);
+          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+          await nextTick();
+          await typeInComposer(formula + ",  ");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
+        }
+      );
+
+      test.each(matchingValues.concat([")"]))(
+        "a matching value & located before spaces & matching value --> activate 'selecting' mode",
+        async (matchingValue) => {
+          await startComposition();
+          await typeInComposer("   " + matchingValue);
+          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+          await nextTick();
+          await typeInComposer(formula + ",");
+          expect(model.getters.getEditionMode()).toBe("selecting");
+        }
+      );
+
+      test.each(mismatchingValues.concat(["("]))(
+        "a matching value & located before spaces & mismatching value --> not activate 'selecting' mode",
+        async (mismatchingValue) => {
+          await startComposition();
+          await typeInComposer("   " + mismatchingValue);
+          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+          await nextTick();
+          await typeInComposer(formula + ",");
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
+        }
+      );
+    });
+
+    test.each([",", "+", "*", ")", "("])(
+      "typing a matching values (except '=') --> not activate 'selecting' mode",
+      async (value) => {
+        await startComposition();
+        await typeInComposer(value);
+        expect(model.getters.getEditionMode()).not.toBe("selecting");
+      }
+    );
+
+    test("typing '='--> activate 'selecting' mode", async () => {
+      await startComposition();
+      await typeInComposer("=");
+      expect(model.getters.getEditionMode()).toBe("selecting");
+    });
+
+    test("typing '=' & spaces --> activate 'selecting' mode", async () => {
+      await startComposition();
+      await typeInComposer("=   ");
+      expect(model.getters.getEditionMode()).toBe("selecting");
+    });
   });
 
   test("type '=', select a cell in another sheet", async () => {
@@ -361,7 +492,7 @@ describe("composer", () => {
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 
-  test("type =, select a cell in another sheet with space in name", async () => {
+  test("type '=', select a cell in another sheet with space in name", async () => {
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
     model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet 2", activate: true, position: 1 });

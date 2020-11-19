@@ -140,15 +140,15 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   tokens: EnrichedToken[] = [];
 
   keyMapping: { [key: string]: Function } = {
-    Enter: this.processEnterKey,
-    Escape: this.processEscapeKey,
-    Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
-    F2: () => console.warn("Not implemented"),
-    F4: () => console.warn("Not implemented"),
     ArrowUp: this.processArrowKeys,
     ArrowDown: this.processArrowKeys,
     ArrowLeft: this.processArrowKeys,
     ArrowRight: this.processArrowKeys,
+    Enter: this.processEnterKey,
+    Escape: this.processEscapeKey,
+    F2: () => console.warn("Not implemented"),
+    F4: () => console.warn("Not implemented"),
+    Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
   };
 
   constructor() {
@@ -259,9 +259,8 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     }
     this.dispatch("STOP_COMPOSER_SELECTION");
     const el = this.composerRef.el! as HTMLInputElement;
-    const content = el.childNodes.length ? el.textContent! : "";
     this.dispatch("SET_CURRENT_CONTENT", {
-      content,
+      content: el.childNodes.length ? el.textContent! : "",
       selection: this.contentHelper.getCurrentSelection(),
     });
   }
@@ -413,13 +412,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let value = this.getters.getCurrentContent();
-    this.tokens = composerTokenize(value);
-
+    let content = this.getters.getCurrentContent();
     this.autoCompleteState.showProvider = false;
     this.functionDescriptionState.showDescription = false;
 
-    if (value.startsWith("=")) {
+    if (content.startsWith("=")) {
       const tokenAtCursor = this.getters.getTokenAtCursor();
       if (tokenAtCursor) {
         const [xc] = tokenAtCursor.value.split("!").reverse();

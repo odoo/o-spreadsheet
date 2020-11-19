@@ -386,14 +386,41 @@ export class EditionPlugin extends UIPlugin {
     });
   }
 
+  /**
+   * Function used to determine when composer selection can start.
+   * Three conditions are necessary:
+   * - the previous token is among ["COMMA", "LEFT_PAREN", "OPERATOR"]
+   * - the next token is missing or is among ["COMMA", "RIGHT_PAREN", "OPERATOR"]
+   * - Previous and next tokens can be separated by spaces
+   */
   private canStartComposerSelection(): boolean {
     if (this.isSelectingForComposer()) return false;
-    // todo: check the precise context of the surrounding tokens in which the selection can start
+    const tokens = composerTokenize(this.currentContent);
     const tokenAtCursor = this.getTokenAtCursor();
-    if (
-      tokenAtCursor &&
-      ["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(tokenAtCursor.type)
-    ) {
+    if (this.currentContent.startsWith("=") && tokenAtCursor) {
+      const tokenIdex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
+
+      let count = tokenIdex;
+      let curentToken = tokenAtCursor;
+      // check previous token
+      while (!["COMMA", "LEFT_PAREN", "OPERATOR"].includes(curentToken.type)) {
+        if (curentToken.type !== "SPACE" || count < 1) {
+          return false;
+        }
+        count--;
+        curentToken = tokens[count];
+      }
+
+      count = tokenIdex + 1;
+      curentToken = tokens[count];
+      // check next token
+      while (curentToken && !["COMMA", "RIGHT_PAREN", "OPERATOR"].includes(curentToken.type)) {
+        if (curentToken.type !== "SPACE") {
+          return false;
+        }
+        count++;
+        curentToken = tokens[count];
+      }
       return true;
     }
     return false;
