@@ -139,10 +139,10 @@ describe("lookup", () => {
     expect(uAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(uAsA.B2).toBe(1);
     expect(uAsA.B3).toBe(1);
-    expect(uAsA.B4).toBe(5);
-    expect(uAsA.B5).toBe(5);
-    expect(uAsA.B6).toBe(5);
-    expect(uAsA.B7).toBe(5);
+    expect(uAsA.B4).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B5).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B6).toBe(4); // @compatibility: on googlesheets, return 5
+    expect(uAsA.B7).toBe(4); // @compatibility: on googlesheets, return 5
     expect(uAsA.B8).toBe(6);
 
     const unsortedAsUnsorted = { ...rangeUnsorted, ...evAsUnsorted };
@@ -162,9 +162,9 @@ describe("lookup", () => {
 
     expect(uAsD.D1).toBe(6);
     expect(uAsD.D2).toBe(6);
-    expect(uAsD.D3).toBe(5); // @compatibility: on googlesheets, return 6
-    expect(uAsD.D4).toBe(3);
-    expect(uAsD.D5).toBe(2);
+    expect(uAsD.D3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 3
+    expect(uAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
     expect(uAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
     expect(uAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(uAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
@@ -176,10 +176,10 @@ describe("lookup", () => {
 
     expect(dAsA.B1).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(dAsA.B2).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
-    expect(dAsA.B3).toBe(6);
-    expect(dAsA.B4).toBe(6);
-    expect(dAsA.B5).toBe(6);
-    expect(dAsA.B6).toBe(6);
+    expect(dAsA.B3).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B5).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(dAsA.B6).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
     expect(dAsA.B7).toBe(6);
     expect(dAsA.B8).toBe(6);
 
@@ -269,265 +269,224 @@ describe("lookup", () => {
   // VLOOKUP
   //----------------------------------------------------------------------------
 
-  // prettier-ignore
-  const gridSorted = {
-    A1: "1", B1: "res 1",
-    A2: "2", B2: "res 2.1",
-    A3: "2", B3: "res 2.2",
-    A4: "3", B4: "res 3",
-    A5: "5", B5: "res 5",
-    A6: "6", B6: "res 6",
-  };
+  describe("VLOOKUP formula", () => {
+    describe("sorted values with different type", () => {
+      test("with undefined values", () => {
+        // prettier-ignore
+        const rangesGrid = {
+          A1: "42",      B1: "42",      C1: undefined, D1: undefined, E1: undefined, Z1: "1",
+          A2: undefined, B2: undefined, C2: undefined, D2: undefined, E2: undefined, Z2: "2",
+          A3: undefined, B3: "42",      C3: undefined, D3: "42",      E3: undefined, Z3: "3",
+          A4: undefined, B4: undefined, C4: undefined, D4: undefined, E4: undefined, Z4: "4",
+          A5: undefined, B5: undefined, C5: "42",      D5: "42",      E5: undefined, Z5: "5",
+        };
+        const grid = evaluateGrid({
+          ...rangesGrid,
+          A9: "=VLOOKUP(42, A1:Z5, 26, TRUE)",
+          B9: "=VLOOKUP(42, B1:Z5, 25, TRUE)",
+          C9: "=VLOOKUP(42, C1:Z5, 24, TRUE)",
+          D9: "=VLOOKUP(42, D1:Z5, 23, TRUE)",
+          E9: "=VLOOKUP(42, E1:Z5, 22, TRUE)",
+        });
+        expect(grid.A9).toBe(1);
+        expect(grid.B9).toBe(3);
+        expect(grid.C9).toBe(5);
+        expect(grid.D9).toBe(5);
+        expect(grid.E9).toBe("#ERROR");
+      });
 
-  // prettier-ignore
-  const gridNotSorted = {
-    A1: "1", B1: "res 1",
-    A2: "2", B2: "res 2.1",
-    A3: "3", B3: "res 3",
-    A4: "2", B4: "res 2.2",
-    A5: "5", B5: "res 5",
-    A6: "6", B6: "res 6",
-  };
+      test("lookup string with string and number values", () => {
+        // prettier-ignore
+        const rangesGrid  = {
+          A1: "coucou", B1: "coucou", C1: "42",    D1: "42",     E1: "42", F1: "42",    Z1: "1",
+          A2: "42",     B2: "42",     C2: "42",    D2: "42",     E2: "42", F2: "42",    Z2: "2",
+          A3: "42",     B3: "coucou", C3: "42",    D3: "coucou", E3: "42", F3: `="42"`, Z3: "3",
+          A4: "42",     B4: "42",     C4: "42",    D4: "42",     E4: "42", F4: "42",    Z4: "4",
+          A5: "42",     B5: "42",     C5:"coucou", D5: "coucou", E5: "42", F5: "42",    Z5: "5",
+        };
 
-  // prettier-ignore
-  const evAsSorted = {
-   C1: "=VLOOKUP( 0, A1:B6, 1, TRUE )",   D1: "=VLOOKUP( 0, A1:B6, 2, TRUE )",
-   C2: "=VLOOKUP( 1, A1:B6, 1, TRUE )",   D2: "=VLOOKUP( 1, A1:B6, 2, TRUE )",
-   C3: "=VLOOKUP( 2, A1:B6, 1, TRUE )",   D3: "=VLOOKUP( 2, A1:B6, 2, TRUE )",
-   C4: "=VLOOKUP( 3, A1:B6, 1, TRUE )",   D4: "=VLOOKUP( 3, A1:B6, 2, TRUE )",
-   C5: "=VLOOKUP( 4, A1:B6, 1, TRUE )",   D5: "=VLOOKUP( 4, A1:B6, 2, TRUE )",
-   C6: "=VLOOKUP( 5, A1:B6, 1, TRUE )",   D6: "=VLOOKUP( 5, A1:B6, 2, TRUE )",
-   C7: "=VLOOKUP( 6, A1:B6, 1, TRUE )",   D7: "=VLOOKUP( 6, A1:B6, 2, TRUE )",
-   C8: "=VLOOKUP( 7, A1:B6, 1, TRUE )",   D8: "=VLOOKUP( 7, A1:B6, 2, TRUE )",
+        const grid = evaluateGrid({
+          ...rangesGrid,
+          A9: '=VLOOKUP("coucou", A1:Z5, 26, TRUE)',
+          B9: '=VLOOKUP("coucou", B1:Z5, 25, TRUE)',
+          C9: '=VLOOKUP("coucou", C1:Z5, 24, TRUE)',
+          D9: '=VLOOKUP("coucou", D1:Z5, 23, TRUE)',
+          E9: '=VLOOKUP("coucou", E1:Z5, 22, TRUE)',
+          F9: '=VLOOKUP("42", F1:Z5, 21, TRUE)',
+        });
+        expect(grid.A9).toBe(1);
+        expect(grid.B9).toBe(3);
+        expect(grid.C9).toBe(5);
+        expect(grid.D9).toBe(5);
+        expect(grid.E9).toBe("#ERROR");
+        expect(grid.F9).toBe(3);
+      });
 
-   E1: "=VLOOKUP( 0, A1:B6, 0, TRUE )",   F1: "=VLOOKUP( 0, A1:B6, 3, TRUE )",
-   E2: "=VLOOKUP( 1, A1:B6, 0, TRUE )",   F2: "=VLOOKUP( 1, A1:B6, 3, TRUE )",
+      test("lookup number with number and string values", () => {
+        // prettier-ignore
+        const rangesGrid = {
+          A1: "666", B1: "666", C1: "abc", D1: "abc", E1: "abc", Z1: "1",
+          A2: "abc", B2: "abc", C2: "abc", D2: "abc", E2: "abc", Z2: "2",
+          A3: "abc", B3: "666", C3: "abc", D3: "666", E3: "abc", Z3: "3",
+          A4: "abc", B4: "abc", C4: "abc", D4: "abc", E4: "abc", Z4: "4",
+          A5: "abc", B5: "abc", C5: "666", D5: "666", E5: "abc", Z5: "5",
+        };
+        const grid = evaluateGrid({
+          ...rangesGrid,
+          A9: "=VLOOKUP(666, A1:Z5, 26, TRUE)",
+          B9: "=VLOOKUP(666, B1:Z5, 25, TRUE)",
+          C9: "=VLOOKUP(666, C1:Z5, 24, TRUE)",
+          D9: "=VLOOKUP(666, D1:Z5, 23, TRUE)",
+          E9: "=VLOOKUP(666, E1:Z5, 22, TRUE)",
+        });
+        expect(grid.A9).toBe(1);
+        expect(grid.B9).toBe(3);
+        expect(grid.C9).toBe(5);
+        expect(grid.D9).toBe(5);
+        expect(grid.E9).toBe("#ERROR");
+      });
+    });
 
-   G1: "=VLOOKUP( 1, A1:B6, 2.8, TRUE )",
-  };
+    // prettier-ignore
+    const commonGrid = {
+      B1: "B1", C1: "C1", D1: "D1", E1: "E1",
+      B2: "B2", C2: "C2", D2: "D2", E2: "E2",
+      B3: "B3", C3: "C3", D3: "D3", E3: "E3",
+      B4: "B4", C4: "C4", D4: "D4", E4: "E4",
+      B5: "B5", C5: "C5", D5: "D5", E5: "E5",
+      B6: "B6", C6: "C6", D6: "D6", E6: "E6",
+    };
+    test("if index not between 1 and the number of columns --> return #ERROR", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: '=VLOOKUP( "B4", B1:E5, 0)',
+        Z2: '=VLOOKUP( "B4", B1:E5, 5)',
+      });
+      expect(grid.Z1).toBe("#ERROR"); // @compatibility: on googlesheets, return #VALUE!
+      expect(grid.Z2).toBe("#ERROR"); // @compatibility: on googlesheets, return #VALUE!
+    });
+    test("if float index --> index rounded down", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: '=VLOOKUP( "B4", B1:E5, 2.9)',
+        Z2: '=VLOOKUP( "B4", B1:E5, 4.3)',
+      });
+      expect(grid.Z1).toBe("C4");
+      expect(grid.Z2).toBe("E4");
+    });
+    // prettier-ignore
+    const numSorted = {
+      A1: "1", A2: "2", A3: "=A2", A4: "3", A5: "5", A6: "=A5",
+      X1: "4", X2: "6", X3: "-3", X4: "0" // other testing values
+    };
+    // prettier-ignore
+    const numUnsorted = {
+      A1: "1", A2: "2", A3: "5", A4: "3", A5: "=A2", A6: "=A3",
+      X1: "4", X2: "6" // other testing values
+    };
+    // prettier-ignore
+    const stringSorted = {
+      A1: 'ab', A2: 'abc',  A3: "=A2", A4: 'abcd', A5: 'ba', A6: "=A5",
+      X1: "abcde", X2: "bac", X3: "a", X4: "aa" // other testing values
+    };
+    // prettier-ignore
+    const stringUnsorted = {
+      A1: 'ab', A2: 'abc', A3: 'ba', A4: 'abcd', A5: '=A2', A6: '=A3',
+      X1: "abcde", X2: "bac" // other testing values
+    };
+    describe.each([
+      ["numerical values", numSorted, numUnsorted],
+      ["string values", stringSorted, stringUnsorted],
+    ])("search on %s", (typeValues, colSorted, colUnsorted) => {
+      const gridSorted = { ...colSorted, ...commonGrid };
+      const gridUnsorted = { ...colUnsorted, ...commonGrid };
+      describe("if values are evaluated as sorted", () => {
+        test("if find a value --> return the match value (normal behavior)", () => {
+          const grid = evaluateGrid({
+            ...gridSorted,
+            Z1: "=VLOOKUP( A4, A1:E6, 3, TRUE )",
+            Z2: "=VLOOKUP( A1, A1:E6, 4, TRUE )",
+          });
+          expect(grid.Z1).toBe("C4");
+          expect(grid.Z2).toBe("D1");
+        });
+        test("if find multiple values --> return match to last value", () => {
+          const grid = evaluateGrid({
+            ...gridSorted,
+            Z1: "=VLOOKUP( A2, A1:E6, 3, TRUE )",
+            Z2: "=VLOOKUP( A5, A1:E6, 3, TRUE )",
+          });
+          expect(grid.Z1).toBe("C3");
+          expect(grid.Z2).toBe("C6");
+        });
+        test("if not find value --> return match to the nearest value (less than the search key)", () => {
+          const grid = evaluateGrid({
+            ...gridSorted,
+            Z1: "=VLOOKUP( X1, A1:E6, 3, TRUE )",
+            Z2: "=VLOOKUP( X2, A1:E6, 3, TRUE )",
+            Z3: "=VLOOKUP( X2, A10:A16, 1, TRUE )",
+          });
+          expect(grid.Z1).toBe("C4");
+          expect(grid.Z2).toBe("C6");
+          expect(grid.Z3).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        });
 
-  // prettier-ignore
-  const evAsNotSorted = {
-    C1: "=VLOOKUP( 0, A1:B6, 1, FALSE )",   D1: "=VLOOKUP( 0, A1:B6, 2, FALSE )",
-    C2: "=VLOOKUP( 1, A1:B6, 1, FALSE )",   D2: "=VLOOKUP( 1, A1:B6, 2, FALSE )",
-    C3: "=VLOOKUP( 2, A1:B6, 1, FALSE )",   D3: "=VLOOKUP( 2, A1:B6, 2, FALSE )",
-    C4: "=VLOOKUP( 3, A1:B6, 1, FALSE )",   D4: "=VLOOKUP( 3, A1:B6, 2, FALSE )",
-    C5: "=VLOOKUP( 4, A1:B6, 1, FALSE )",   D5: "=VLOOKUP( 4, A1:B6, 2, FALSE )",
-    C6: "=VLOOKUP( 5, A1:B6, 1, FALSE )",   D6: "=VLOOKUP( 5, A1:B6, 2, FALSE )",
-    C7: "=VLOOKUP( 6, A1:B6, 1, FALSE )",   D7: "=VLOOKUP( 6, A1:B6, 2, FALSE )",
-    C8: "=VLOOKUP( 7, A1:B6, 1, FALSE )",   D8: "=VLOOKUP( 7, A1:B6, 2, FALSE )",
-
-    E1: "=VLOOKUP( 0, A1:B6, 0, FALSE )",   F1: "=VLOOKUP( 0, A1:B6, 3, FALSE )",
-    E2: "=VLOOKUP( 1, A1:B6, 0, FALSE )",   F2: "=VLOOKUP( 1, A1:B6, 3, FALSE )",
- 
-    G1: "=VLOOKUP( 1, A1:B6, 2.8, FALSE )",    
-  };
-
-  // prettier-ignore
-  test("VLOOKUP: grid (sorted) evaluate as sorted" , () => {
-
-    const gridSortedEvAsSorted = {...gridSorted, ...evAsSorted};
-    const sAsS = evaluateGrid(gridSortedEvAsSorted);
-
-    // case is_sorted is true: If all values in the search column are greater 
-    // than the search key, #ERROR is returned.
-    // @compatibility: on google sheets return #N/A
-    expect(sAsS.C1).toEqual("#ERROR");  expect(sAsS.D1).toEqual("#ERROR");
-
-    // normal behavior: 
-    expect(sAsS.C2).toEqual(1);  expect(sAsS.D2).toEqual("res 1");
-    expect(sAsS.C4).toEqual(3);  expect(sAsS.D4).toEqual("res 3");
-    expect(sAsS.C6).toEqual(5);  expect(sAsS.D6).toEqual("res 5");
-    expect(sAsS.C7).toEqual(6);  expect(sAsS.D7).toEqual("res 6");
-    
-    // multiple matching values: contrary to 'is_sorted = FALSE' 
-    // return the last founded value and no the first
-    expect(sAsS.C3).toEqual(2);  expect(sAsS.D3).toEqual("res 2.2");
-
-    // no present value: return the nearest match 
-    // (less than or equal to the search key)
-    expect(sAsS.C5).toEqual(3);  expect(sAsS.D5).toEqual("res 3");
-    expect(sAsS.C8).toEqual(6);  expect(sAsS.D8).toEqual("res 6");
-
-    // error on index: if index is not between 1 and the number of columns in 
-    // range, #ERROR is returned"
-    // @compatibility: on googlesheets, return #VALUE!
-    expect(sAsS.E1).toEqual("#ERROR"); expect(sAsS.F1).toEqual("#ERROR");
-    expect(sAsS.E2).toEqual("#ERROR"); expect(sAsS.F2).toEqual("#ERROR");
-    
-    // float index 
-    expect(sAsS.G1).toEqual("res 1");
-  });
-
-  // prettier-ignore
-  test("VLOOKUP: grid (not sorted) evaluate as sorted" , () => {
-
-    const gridNotSortedEvAsSorted = {...gridNotSorted, ...evAsSorted};
-    const nsAsS = evaluateGrid(gridNotSortedEvAsSorted);
-
-    // case is_sorted is true: If all values in the search column are greater 
-    // than the search key, #ERROR is returned.
-    // @compatibility: on google sheets return #N/A
-    expect(nsAsS.C1).toEqual("#ERROR");  expect(nsAsS.D1).toEqual("#ERROR");
-
-    // normal behavior: 
-    expect(nsAsS.C2).toEqual(1);  expect(nsAsS.D2).toEqual("res 1");
-    expect(nsAsS.C6).toEqual(5);  expect(nsAsS.D6).toEqual("res 5");
-    expect(nsAsS.C7).toEqual(6);  expect(nsAsS.D7).toEqual("res 6");
-    
-    // multiple matching values: contrary to 'is_sorted = FALSE' 
-    // return the last founded value and no the first
-    expect(nsAsS.C3).toEqual(2);  expect(nsAsS.D3).toEqual("res 2.2");
-
-    // if is_sorted is set to TRUE or omitted, and the first column of the range 
-    // is not in sorted order, an incorrect value might be returned.
-    expect(nsAsS.C4).toEqual(2);  expect(nsAsS.D4).toEqual("res 2.2");
-    expect(nsAsS.C5).toEqual(2);  expect(nsAsS.D5).toEqual("res 2.2");
-
-    // no present value: return the nearest match 
-    // (less than or equal to the search key)
-    expect(nsAsS.C8).toEqual(6);  expect(nsAsS.D8).toEqual("res 6");
-
-    // error on index: if index is not between 1 and the number of columns in 
-    // range, #ERROR is returned
-    // @compatibility: on googlesheets, return #VALUE!
-    expect(nsAsS.E1).toEqual("#ERROR"); expect(nsAsS.F1).toEqual("#ERROR");
-    expect(nsAsS.E2).toEqual("#ERROR"); expect(nsAsS.F2).toEqual("#ERROR");
-    
-    // float index 
-    expect(nsAsS.G1).toEqual("res 1");
-  });
-
-  // prettier-ignore
-  test("VLOOKUP: grid (sorted and not sorted) evaluate as not sorted" , () => {
-
-    const gridSortedEvAsNotSorted = {...gridSorted, ...evAsNotSorted};
-    const sAsNs = evaluateGrid(gridSortedEvAsNotSorted);
-  
-    const gridNotSortedEvAsNotSorted = {...gridNotSorted, ...evAsNotSorted};
-    const nsAsNs = evaluateGrid(gridNotSortedEvAsNotSorted);
-
-    // case is_sorted is false: #ERROR is returned if no such value is found.
-    // @compatibility: on google sheets return #N/A
-    expect(sAsNs.C1).toEqual("#ERROR");  expect(sAsNs.D1).toEqual("#ERROR");
-    expect(sAsNs.C5).toEqual("#ERROR");  expect(sAsNs.D5).toEqual("#ERROR");
-    expect(sAsNs.C8).toEqual("#ERROR");  expect(sAsNs.D8).toEqual("#ERROR");
-    expect(nsAsNs.C1).toEqual("#ERROR");  expect(nsAsNs.D1).toEqual("#ERROR");
-    expect(nsAsNs.C5).toEqual("#ERROR");  expect(nsAsNs.D5).toEqual("#ERROR");
-    expect(nsAsNs.C8).toEqual("#ERROR");  expect(nsAsNs.D8).toEqual("#ERROR");
-
-    // normal behavior: 
-    expect(sAsNs.C2).toEqual(1);  expect(sAsNs.D2).toEqual("res 1");
-    expect(sAsNs.C4).toEqual(3);  expect(sAsNs.D4).toEqual("res 3");
-    expect(sAsNs.C6).toEqual(5);  expect(sAsNs.D6).toEqual("res 5");
-    expect(sAsNs.C7).toEqual(6);  expect(sAsNs.D7).toEqual("res 6");
-    expect(nsAsNs.C2).toEqual(1);  expect(nsAsNs.D2).toEqual("res 1");
-    expect(nsAsNs.C4).toEqual(3);  expect(nsAsNs.D4).toEqual("res 3");
-    expect(nsAsNs.C6).toEqual(5);  expect(nsAsNs.D6).toEqual("res 5");
-    expect(nsAsNs.C7).toEqual(6);  expect(nsAsNs.D7).toEqual("res 6");
-    
-    // multiple matching values: contrary to 'is_sorted = TRUE' 
-    // return the first founded value and no the last
-    expect(sAsNs.C3).toEqual(2);  expect(sAsNs.D3).toEqual("res 2.1");
-    expect(nsAsNs.C3).toEqual(2);  expect(nsAsNs.D3).toEqual("res 2.1");
-
-    // error on index: if index is not between 1 and the number of columns in 
-    // range, #ERROR is returned
-    // @compatibility: on googlesheets, return #VALUE!
-    expect(sAsNs.E1).toEqual("#ERROR"); expect(sAsNs.F1).toEqual("#ERROR");
-    expect(sAsNs.E2).toEqual("#ERROR"); expect(sAsNs.F2).toEqual("#ERROR");
-    expect(nsAsNs.E1).toEqual("#ERROR"); expect(nsAsNs.F1).toEqual("#ERROR");
-    expect(nsAsNs.E2).toEqual("#ERROR"); expect(nsAsNs.F2).toEqual("#ERROR");
-
-    // float index 
-    expect(sAsNs.G1).toEqual("res 1");
-    expect(nsAsNs.G1).toEqual("res 1");
-  });
-
-  // prettier-ignore
-  const gridOfStringSorted = {
-    A1: '="1"',   B1: "res 1",
-    A2: '="10"',  B2: "res 10",
-    A3: '="100"', B3: "res 100",
-    A4: '="2"',   B4: "res 2.1",
-    A5: '="2"',   B5: "res 2.2",
-  };
-
-  // prettier-ignore
-  const gridOfStringNotSorted = {
-    A1: '="1"',   B1: "res 1",
-    A2: '="2"',   B2: "res 2.1",
-    A3: '="2"',   B3: "res 2.2",
-    A4: '="10"',  B4: "res 10",
-    A5: '="100"', B5: "res 100",
-  };
-
-  // prettier-ignore
-  const evAsSortedString = {
-    C1: '=VLOOKUP( "1",   A1:B5, 1, TRUE )',   D1: '=VLOOKUP( "1",   A1:B5, 2, TRUE )',
-    C2: '=VLOOKUP( "2",   A1:B5, 1, TRUE )',   D2: '=VLOOKUP( "2",   A1:B5, 2, TRUE )',
-    C3: '=VLOOKUP( "5",   A1:B5, 1, TRUE )',   D3: '=VLOOKUP( "5",   A1:B5, 2, TRUE )',
-    C4: '=VLOOKUP( "10",  A1:B5, 1, TRUE )',   D4: '=VLOOKUP( "10",  A1:B5, 2, TRUE )',
-    C5: '=VLOOKUP( "100", A1:B5, 1, TRUE )',   D5: '=VLOOKUP( "100", A1:B5, 2, TRUE )',
-   };
-
-  // prettier-ignore
-  const evAsNotSortedString = {
-    C1: '=VLOOKUP( "1",   A1:B5, 1, FALSE )',   D1: '=VLOOKUP( "1",   A1:B5, 2, FALSE )',
-    C2: '=VLOOKUP( "2",   A1:B5, 1, FALSE )',   D2: '=VLOOKUP( "2",   A1:B5, 2, FALSE )',
-    C3: '=VLOOKUP( "5",   A1:B5, 1, FALSE )',   D3: '=VLOOKUP( "5",   A1:B5, 2, FALSE )',
-    C4: '=VLOOKUP( "10",  A1:B5, 1, FALSE )',   D4: '=VLOOKUP( "10",  A1:B5, 2, FALSE )',
-    C5: '=VLOOKUP( "100", A1:B5, 1, FALSE )',   D5: '=VLOOKUP( "100", A1:B5, 2, FALSE )',
-   };
-
-  // prettier-ignore
-  test("VLOOKUP: grid of STRING (sorted) evaluate as sorted" , () => {
-
-    const gridOfStringSortedEvAsSortedString = {...gridOfStringSorted, ...evAsSortedString};
-    const ssAsSs = evaluateGrid(gridOfStringSortedEvAsSortedString);
-
-    expect(ssAsSs.C1).toEqual("1");    expect(ssAsSs.D1).toEqual("res 1");
-    expect(ssAsSs.C2).toEqual("2");    expect(ssAsSs.D2).toEqual("res 2.2");
-    expect(ssAsSs.C3).toEqual("2");    expect(ssAsSs.D3).toEqual("res 2.2");
-    expect(ssAsSs.C4).toEqual("10");   expect(ssAsSs.D4).toEqual("res 10");
-    expect(ssAsSs.C5).toEqual("100");  expect(ssAsSs.D5).toEqual("res 100");
-  });
-
-  // prettier-ignore
-  test("VLOOKUP: grid of STRING (not sorted) evaluate as sorted" , () => {
-
-    const gridOfStringNotSortedEvAsSortedString = {...gridOfStringNotSorted, ...evAsSortedString};
-    const nssAsSs = evaluateGrid(gridOfStringNotSortedEvAsSortedString);
-
-    expect(nssAsSs.C1).toEqual("1");   expect(nssAsSs.D1).toEqual("res 1");
-    expect(nssAsSs.C2).toEqual("100"); expect(nssAsSs.D2).toEqual("res 100");
-    expect(nssAsSs.C3).toEqual("100"); expect(nssAsSs.D3).toEqual("res 100");
-    expect(nssAsSs.C4).toEqual("1");   expect(nssAsSs.D4).toEqual("res 1");
-    expect(nssAsSs.C5).toEqual("1");   expect(nssAsSs.D5).toEqual("res 1");
-  });
-
-  // prettier-ignore
-  test("VLOOKUP: grid of STRING (sorted and not sorted) evaluate as not sorted" , () => {
-
-    const gridOfStringSortedEvAsNotSortedString = {...gridOfStringSorted, ...evAsNotSortedString};
-    const ssAsNss = evaluateGrid(gridOfStringSortedEvAsNotSortedString);
-
-    const gridOfStringNotSortedEvAsNotSortedString = {...gridOfStringNotSorted, ...evAsNotSortedString};
-    const nssAsNss = evaluateGrid(gridOfStringNotSortedEvAsNotSortedString);
-
-    expect(ssAsNss.C1).toEqual("1");   expect(ssAsNss.D1).toEqual("res 1");
-    expect(nssAsNss.C1).toEqual("1");   expect(nssAsNss.D1).toEqual("res 1");
-
-    expect(ssAsNss.C2).toEqual("2"); expect(ssAsNss.D2).toEqual("res 2.1");
-    expect(nssAsNss.C2).toEqual("2"); expect(nssAsNss.D2).toEqual("res 2.1");
-
-    expect(ssAsNss.C3).toEqual("#ERROR"); expect(ssAsNss.D3).toEqual("#ERROR");
-    expect(nssAsNss.C3).toEqual("#ERROR"); expect(nssAsNss.D3).toEqual("#ERROR");
-
-    expect(ssAsNss.C4).toEqual("10");   expect(ssAsNss.D4).toEqual("res 10");
-    expect(nssAsNss.C4).toEqual("10");   expect(nssAsNss.D4).toEqual("res 10");
-
-    expect(ssAsNss.C5).toEqual("100");   expect(ssAsNss.D5).toEqual("res 100");
-    expect(nssAsNss.C5).toEqual("100");   expect(nssAsNss.D5).toEqual("res 100");
+        test("if all values in the search column are greater than the search key --> return #ERROR ", () => {
+          const grid = evaluateGrid({
+            ...gridSorted,
+            Z1: "=VLOOKUP( X3, A1:E6, 3, TRUE )",
+            Z2: "=VLOOKUP( X4, A1:E6, 3, TRUE )",
+          });
+          expect(grid.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+          expect(grid.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        });
+      });
+      describe("if values are evaluated as unsorted", () => {
+        test("if find a value --> return the match value (normal behavior)", () => {
+          const gridS = evaluateGrid({
+            ...gridSorted,
+            Z1: "=VLOOKUP( A4, A1:E6, 3, FALSE )",
+            Z2: "=VLOOKUP( A1, A1:E6, 4, FALSE )",
+          });
+          expect(gridS.Z1).toBe("C4");
+          expect(gridS.Z2).toBe("D1");
+          const gridU = evaluateGrid({
+            ...gridUnsorted,
+            Z1: "=VLOOKUP( A4, A1:E6, 3, FALSE )",
+            Z2: "=VLOOKUP( A1, A1:E6, 4, FALSE )",
+          });
+          expect(gridU.Z1).toBe("C4");
+          expect(gridU.Z2).toBe("D1");
+        });
+        test("if find multiple values --> return match to first value", () => {
+          const gridS = evaluateGrid({
+            ...gridSorted,
+            Z1: "=VLOOKUP( A2, A1:E6, 3, FALSE )",
+            Z2: "=VLOOKUP( A5, A1:E6, 3, FALSE )",
+          });
+          expect(gridS.Z1).toBe("C2");
+          expect(gridS.Z2).toBe("C5");
+          const gridU = evaluateGrid({
+            ...gridUnsorted,
+            Z1: "=VLOOKUP( A2, A1:E6, 3, FALSE )",
+            Z2: "=VLOOKUP( A3, A1:E6, 3, FALSE )",
+          });
+          expect(gridU.Z1).toBe("C2");
+          expect(gridU.Z2).toBe("C3");
+        });
+        test("if not find value --> #ERROR is returned ", () => {
+          const formulas = {
+            Z1: "=VLOOKUP( X1, A1:E6, 3, FALSE )",
+            Z2: "=VLOOKUP( X2, A1:E6, 3, FALSE )",
+          };
+          const gridS = evaluateGrid({ ...gridSorted, ...formulas });
+          expect(gridS.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+          expect(gridS.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+          const gridU = evaluateGrid({ ...gridUnsorted, ...formulas });
+          expect(gridU.Z1).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+          expect(gridU.Z2).toBe("#ERROR"); // @compatibility: on google sheets return #N/A
+        });
+      });
+    });
   });
 });
