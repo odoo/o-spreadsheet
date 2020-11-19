@@ -119,23 +119,28 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    expect(model.getters.getHighlights()).toStrictEqual([{
-      color: "#888",
-      sheet: sheet1,
-      zone: { bottom: 1, left: 1, right: 1, top: 1 },
-    }, {
-      color: "#888",
-      sheet: "42",
-      zone: { bottom: 1, left: 1, right: 1, top: 1 },
-    }]);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        sheet: sheet1,
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+      {
+        color: "#888",
+        sheet: "42",
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
     model.dispatch("REMOVE_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    expect(model.getters.getHighlights()).toStrictEqual([{
-      color: "#888",
-      sheet: sheet1,
-      zone: { bottom: 1, left: 1, right: 1, top: 1 },
-    }]);
+    expect(model.getters.getHighlights()).toStrictEqual([
+      {
+        color: "#888",
+        sheet: sheet1,
+        zone: { bottom: 1, left: 1, right: 1, top: 1 },
+      },
+    ]);
   });
 
   test("highlight cell selection", () => {

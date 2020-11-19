@@ -357,10 +357,12 @@ describe("Autofill", () => {
 
   test("autofill with merge greater than the grid size", () => {
     model = new Model({
-      sheets: [{
-        colNumber: 1,
-        rowNumber: 5,
-      }],
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 5,
+        },
+      ],
     });
     const sheet1 = model.getters.getActiveSheet();
     model.dispatch("ADD_MERGE", { sheet: sheet1, zone: toZone("A1:A2") });
