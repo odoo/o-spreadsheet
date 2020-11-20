@@ -32,9 +32,7 @@ export const CONCATENATE: AddFunctionDescription = {
   description: _lt("Appends strings to one another."),
   args: args(`
       string1 (string, range<string>) ${_lt("The initial string.")}
-      string2 (string, range<string>, optional, repeating) ${_lt(
-        "More strings to append in sequence."
-      )}
+      string2 (string, range<string>, repeating) ${_lt("More strings to append in sequence.")}
   `),
   returns: ["STRING"],
   compute: function (): string {
@@ -65,7 +63,7 @@ export const FIND: AddFunctionDescription = {
   args: args(`
       search_for (string) ${_lt("The string to look for within text_to_search.")}
       text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, optional, default=1 ) ${_lt(
+      starting_at (number, default=1 ) ${_lt(
         "The character within text_to_search at which to start the search."
       )}
   `),
@@ -108,7 +106,7 @@ export const JOIN: AddFunctionDescription = {
       value_or_array1 (string, range<string>) ${_lt(
         "The value or values to be appended using delimiter."
       )}
-      value_or_array2 (string, range<string>, optional, repeating) ${_lt(
+      value_or_array2 (string, range<string>, repeating) ${_lt(
         "More values to be appended using delimiter."
       )}
   `),
@@ -126,7 +124,7 @@ export const LEFT: AddFunctionDescription = {
   description: _lt("Substring from beginning of specified string."),
   args: args(`
       text (string) ${_lt("The string from which the left portion will be returned.")}
-      number_of_characters (number, optional, default=1) ${_lt(
+      number_of_characters (number, default=1) ${_lt(
         "The number of characters to return from the left side of string."
       )}
   `),
@@ -208,7 +206,7 @@ export const RIGHT: AddFunctionDescription = {
   description: _lt("A substring from the end of a specified string."),
   args: args(`
       text (string) ${_lt("The string from which the right portion will be returned.")}
-      number_of_characters (number, optional, default=1) ${_lt(
+      number_of_characters (number, default=1) ${_lt(
         "The number of characters to return from the right side of string."
       )}
   `),
@@ -236,7 +234,7 @@ export const SEARCH: AddFunctionDescription = {
   args: args(`
       search_for (string) ${_lt("The string to look for within text_to_search.")}
       text_to_search (string) ${_lt("The text to search for the first occurrence of search_for.")}
-      starting_at (number, optional, default=1 ) ${_lt(
+      starting_at (number, default=1 ) ${_lt(
         "The character within text_to_search at which to start the search."
       )}
   `),
@@ -330,7 +328,7 @@ export const TEXTJOIN: AddFunctionDescription = {
       text1 (string, range<string>) ${_lt(
         "Any text item. This could be a string, or an array of strings in a range."
       )}
-      text2 (string, range<string>, optional, repeating) ${_lt("Additional text item(s).")}
+      text2 (string, range<string>, repeating) ${_lt("Additional text item(s).")}
   `),
   returns: ["STRING"],
   compute: function (delimiter: any, ignoreEmpty: any, ...textsOrArrays: any): string {

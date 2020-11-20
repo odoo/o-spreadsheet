@@ -323,8 +323,8 @@ function evaluatePredicate(value: any, criterion: Predicate): boolean {
  *
  * - range1 (range): The range to check against predicate1.
  * - predicate1 (string): The pattern or test to apply to range1.
- * - range2: (range, optional, repeatable) ranges to check.
- * - predicate2 (string, optional, repeatable): Additional pattern or test to apply to range2.
+ * - range2: (range, repeatable) ranges to check.
+ * - predicate2 (string, repeatable): Additional pattern or test to apply to range2.
  *
  * - cb(i: number, j: number) => void: the callback function.
  *

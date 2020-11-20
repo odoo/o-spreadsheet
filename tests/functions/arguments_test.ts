@@ -47,7 +47,8 @@ describe("args", () => {
         type: ["NUMBER"],
         name: "test",
         description: "descr",
-        default: 10,
+        default: true,
+        defaultValue: 10,
       },
     ]);
   });
@@ -58,7 +59,8 @@ describe("args", () => {
         type: ["NUMBER"],
         name: "test",
         description: "descr",
-        default: "asdf",
+        default: true,
+        defaultValue: "asdf",
       },
     ]);
   });
@@ -104,7 +106,7 @@ describe("args", () => {
   });
 
   test("accept optional flag", () => {
-    expect(args(`test (boolean,optional)`)).toEqual([
+    expect(args(`test (boolean, optional)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -112,7 +114,7 @@ describe("args", () => {
         optional: true,
       },
     ]);
-    expect(args(`test (boolean,optional,string)`)).toEqual([
+    expect(args(`test (boolean ,optional, string)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -122,7 +124,7 @@ describe("args", () => {
     ]);
   });
   test("accept repeating flag", () => {
-    expect(args(`test (boolean,repeating)`)).toEqual([
+    expect(args(`test (boolean, repeating)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -130,7 +132,7 @@ describe("args", () => {
         repeating: true,
       },
     ]);
-    expect(args(`test (boolean,repeating,number)`)).toEqual([
+    expect(args(`test (boolean, repeating, number)`)).toEqual([
       {
         description: "",
         name: "test",
@@ -159,7 +161,7 @@ describe("arguments validation", () => {
       validateArguments(
         args(`
           arg1 (any)
-          arg2 (any, optional, repeating)
+          arg2 (any, repeating)
         `)
       )
     ).not.toThrow();
@@ -167,8 +169,8 @@ describe("arguments validation", () => {
       validateArguments(
         args(`
           arg1 (any)
-          arg2 (any, optional, repeating)
-          arg3 (any, optional, repeating)
+          arg2 (any, repeating)
+          arg3 (any, repeating)
         `)
       )
     ).not.toThrow();
@@ -176,7 +178,7 @@ describe("arguments validation", () => {
       validateArguments(
         args(`
           arg1 (any)
-          arg2 (any, optional, repeating)
+          arg2 (any, repeating)
           arg3 (any)
         `)
       )
@@ -185,7 +187,7 @@ describe("arguments validation", () => {
       validateArguments(
         args(`
           arg1 (any)
-          arg2 (any, optional, repeating)
+          arg2 (any, repeating)
           arg3 (any, optional)
         `)
       )
@@ -207,7 +209,7 @@ describe("arguments validation", () => {
         args(`
     arg1 (any)
     arg2 (any, optional)
-    arg3 (any, optional, repeating)
+    arg3 (any, repeating)
   `)
       )
     ).not.toThrow();
@@ -282,7 +284,7 @@ describe("function addMetaInfoFromArg", () => {
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
-        { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
+        { name: "arg2", description: "", type: ["ANY"], repeating: true },
       ],
       returns: ["ANY"],
     } as AddFunctionDescription;
@@ -307,8 +309,8 @@ describe("function addMetaInfoFromArg", () => {
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
-        { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
-        { name: "arg3", description: "", type: ["ANY"], optional: true, repeating: true },
+        { name: "arg2", description: "", type: ["ANY"], repeating: true },
+        { name: "arg3", description: "", type: ["ANY"], repeating: true },
       ],
       returns: ["ANY"],
     } as AddFunctionDescription;

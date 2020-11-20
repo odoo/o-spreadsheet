@@ -208,9 +208,7 @@ export const CEILING: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     value (number) ${_lt("The value to round up to the nearest integer multiple of factor.")}
-    factor (number, optional, default=1) ${_lt(
-      "The number to whose multiples value will be rounded."
-    )}
+    factor (number, default=1) ${_lt("The number to whose multiples value will be rounded.")}
   `),
   returns: ["NUMBER"],
   compute: function (value: any, factor: any = 1): number {
@@ -235,10 +233,10 @@ export const CEILING_MATH: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-    significance (number, optional, default=1) ${_lt(
+    significance (number, default=1) ${_lt(
       "The number to whose multiples number will be rounded. The sign of significance will be ignored."
     )}
-    mode (number, optional, default=0) ${_lt(
+    mode (number, default=0) ${_lt(
       "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero."
     )}
   `),
@@ -271,9 +269,7 @@ export const CEILING_PRECISE: AddFunctionDescription = {
   description: _lt(`Rounds number up to nearest multiple of factor.`),
   args: args(`
     number (number) ${_lt("The value to round up to the nearest integer multiple of significance.")}
-    significance (number, optional, default=1) ${_lt(
-      "The number to whose multiples number will be rounded."
-    )}
+    significance (number, default=1) ${_lt("The number to whose multiples number will be rounded.")}
   `),
   returns: ["NUMBER"],
   compute: function (number: any, significance: any): number {
@@ -356,7 +352,7 @@ export const COUNTBLANK: AddFunctionDescription = {
   description: _lt("Number of empty values."),
   args: args(`
     value1 (any, range) ${_lt("The first value or range in which to count the number of blanks.")}
-    value2 (any, range, optional, repeating) ${_lt(
+    value2 (any, range, repeating) ${_lt(
       "Additional values or ranges in which to count the number of blanks."
     )}
   `),
@@ -397,10 +393,10 @@ export const COUNTIFS: AddFunctionDescription = {
   args: args(`
     criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
     criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-    criteria_range2 (any, range, optional, repeating) ${_lt(
+    criteria_range2 (any, range, repeating) ${_lt(
       "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
     )}
-    criterion2 (string, optional, repeating) ${_lt("Additional criteria to check.")}
+    criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
   `),
   returns: ["NUMBER"],
   compute: function (): number {
@@ -433,9 +429,7 @@ export const COUNTUNIQUE: AddFunctionDescription = {
   description: _lt("Counts number of unique values in a range."),
   args: args(`
     value1 (any, range) ${_lt("The first value or range to consider for uniqueness.")}
-    value2 (any, range, optional, repeating) ${_lt(
-      "Additional values or ranges to consider for uniqueness."
-    )}
+    value2 (any, range, repeating) ${_lt("Additional values or ranges to consider for uniqueness.")}
   `),
   returns: ["NUMBER"],
   compute: function (): number {
@@ -457,12 +451,10 @@ export const COUNTUNIQUEIFS: AddFunctionDescription = {
     criterion1 (string) ${_lt(
       "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
     )}
-    criteria_range2 (any, range, optional, repeating) ${_lt(
+    criteria_range2 (any, range, repeating) ${_lt(
       "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
     )}
-    criterion2 (string, optional, repeating) ${_lt(
-      "The pattern or test to apply to criteria_range2."
-    )}
+    criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
   `),
   returns: ["NUMBER"],
   compute: function (range, ...args): number {
@@ -596,9 +588,7 @@ export const FLOOR: AddFunctionDescription = {
   description: _lt(`Rounds number down to nearest multiple of factor.`),
   args: args(`
     value (number) ${_lt("The value to round down to the nearest integer multiple of factor.")}
-    factor (number, optional, default=1) ${_lt(
-      "The number to whose multiples value will be rounded."
-    )}
+    factor (number, default=1) ${_lt("The number to whose multiples value will be rounded.")}
   `),
   returns: ["NUMBER"],
   compute: function (value: any, factor: any = 1): number {
@@ -625,10 +615,10 @@ export const FLOOR_MATH: AddFunctionDescription = {
     number (number) ${_lt(
       "The value to round down to the nearest integer multiple of significance."
     )}
-    significance (number, optional, default=1) ${_lt(
+    significance (number, default=1) ${_lt(
       "The number to whose multiples number will be rounded. The sign of significance will be ignored."
     )}
-    mode (number, optional, default=0) ${_lt(
+    mode (number, default=0) ${_lt(
       "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero."
     )}
   `),
@@ -662,9 +652,7 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
     number (number) ${_lt(
       "The value to round down to the nearest integer multiple of significance."
     )}
-    significance (number, optional, default=1) ${_lt(
-      "The number to whose multiples number will be rounded."
-    )}
+    significance (number, default=1) ${_lt("The number to whose multiples number will be rounded.")}
   `),
   returns: ["NUMBER"],
   compute: function (number: number, significance: number = 1): number {
@@ -697,7 +685,7 @@ export const ISO_CEILING: AddFunctionDescription = {
       number (number) ${_lt(
         "The value to round up to the nearest integer multiple of significance."
       )}
-      significance (number, optional, default=1) ${_lt(
+      significance (number, default=1) ${_lt(
         "The number to whose multiples number will be rounded."
       )}
     `),
@@ -842,7 +830,7 @@ export const PRODUCT: AddFunctionDescription = {
       factor1 (number, range<number>) ${_lt(
         "The first number or range to calculate for the product."
       )}
-      factor2 (number, range<number>, optional, repeating) ${_lt(
+      factor2 (number, range<number>, repeating) ${_lt(
         "More numbers or ranges to calculate for the product."
       )}
     `),
@@ -923,7 +911,7 @@ export const ROUND: AddFunctionDescription = {
   description: _lt("Rounds a number according to standard rules."),
   args: args(`
       value (number) ${_lt("The value to round to places number of places.")}
-      places (number, optional, default=0) ${_lt("The number of decimal places to which to round.")}
+      places (number, default=0) ${_lt("The number of decimal places to which to round.")}
     `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any = 0): number {
@@ -951,7 +939,7 @@ export const ROUNDDOWN: AddFunctionDescription = {
   description: _lt(`Rounds down a number.`),
   args: args(`
       value (number) ${_lt("The value to round to places number of places, always rounding down.")}
-      places (number, optional, default=0) ${_lt("The number of decimal places to which to round.")}
+      places (number, default=0) ${_lt("The number of decimal places to which to round.")}
     `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any = 0): number {
@@ -979,7 +967,7 @@ export const ROUNDUP: AddFunctionDescription = {
   description: _lt(`Rounds up a number.`),
   args: args(`
       value (number) ${_lt("The value to round to places number of places, always rounding up.")}
-      places (number, optional, default=0) ${_lt("The number of decimal places to which to round.")}
+      places (number, default=0) ${_lt("The number of decimal places to which to round.")}
     `),
   returns: ["NUMBER"],
   compute: function (value: any, places: any): number {
@@ -1086,7 +1074,7 @@ export const SUM: AddFunctionDescription = {
   description: _lt("Sum of a series of numbers and/or cells."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first number or range to add together.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional numbers or ranges to add to value1."
       )}
     `),
@@ -1104,7 +1092,7 @@ export const SUMIF: AddFunctionDescription = {
   args: args(`
       criteria_range (any, range) ${_lt("The range which is tested against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to range.")}
-      sum_range (any, range, optional, default=criteria_range) ${_lt(
+      sum_range (any, range, default=criteria_range) ${_lt(
         "The range to be summed, if different from range."
       )}
     `),
@@ -1133,8 +1121,8 @@ export const SUMIFS: AddFunctionDescription = {
       sum_range (any, range) ${_lt("The range to sum.")}
       criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, optional, repeating) ${_lt("Additional ranges to check.")}
-      criterion2 (string, optional, repeating) ${_lt("Additional criteria to check.")}
+      criteria_range2 (any, range, repeating) ${_lt("Additional ranges to check.")}
+      criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
     `),
   returns: ["NUMBER"],
   compute: function (sumRange, ...args): number {
@@ -1184,7 +1172,7 @@ export const TRUNC: AddFunctionDescription = {
   description: _lt("Truncates a number."),
   args: args(`
       value (number) ${_lt("The value to be truncated.")}
-      places (number, optional, default=0) ${_lt(
+      places (number, default=0) ${_lt(
         "The number of significant digits to the right of the decimal point to retain."
       )}
     `),

@@ -36,7 +36,7 @@ function linearSearch(range: any[], target: any): number {
 export const COLUMN: AddFunctionDescription = {
   description: _lt("Column number of a specified cell."),
   args: args(
-    `cell_reference (meta, optional, default='The cell in which the formula is entered by default') ${_lt(
+    `cell_reference (meta, default='The cell in which the formula is entered by default') ${_lt(
       "The cell whose column number will be returned. Column A corresponds to 1."
     )}
     `
@@ -89,7 +89,7 @@ export const HLOOKUP: AddFunctionDescription = {
       index (number) ${_lt(
         "The row index of the value to be returned, where the first row in range is numbered 1."
       )}
-      is_sorted (boolean, optional, default = TRUE) ${_lt(
+      is_sorted (boolean, default=TRUE) ${_lt(
         "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )}
   `),
@@ -178,7 +178,7 @@ export const MATCH: AddFunctionDescription = {
   args: args(`
       search_key (any) ${_lt("The value to search for. For example, 42, 'Cats', or I24.")}
       range (any, range) ${_lt("The one-dimensional array to be searched.")}
-      search_type (number, optional, default=1) ${_lt(
+      search_type (number, default=1) ${_lt(
         "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
       )}
   `),
@@ -219,7 +219,7 @@ export const MATCH: AddFunctionDescription = {
 export const ROW: AddFunctionDescription = {
   description: _lt("Row number of a specified cell."),
   args: args(
-    `cell_reference (meta, optional, default='The cell in which the formula is entered by default')) ${_lt(
+    `cell_reference (meta, default='The cell in which the formula is entered by default')) ${_lt(
       "The cell whose row number will be returned."
     )}`
   ),
@@ -269,7 +269,7 @@ export const VLOOKUP: AddFunctionDescription = {
       index (number) ${_lt(
         "The column index of the value to be returned, where the first column in range is numbered 1."
       )}
-      is_sorted (boolean, optional, default = TRUE) ${_lt(
+      is_sorted (boolean, default=TRUE) ${_lt(
         "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )}
   `),
