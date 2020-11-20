@@ -405,7 +405,7 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
       end_date (date) ${_lt(
         "The end date of the period from which to calculate the number of net working days."
       )}
-      weekend (any, optional, default=1) ${_lt(
+      weekend (any, default=1) ${_lt(
         "A number or string representing which days of the week are considered weekends."
       )}
       holidays (date, range<date>, optional) ${_lt(
@@ -575,7 +575,7 @@ export const WEEKDAY: AddFunctionDescription = {
     date (date) ${_lt(
       "The date for which to determine the day of the week. Must be a reference to a cell containing a date, a function returning a date type, or a number."
     )}
-    type (number, optional, default=1) ${_lt(
+    type (number, default=1) ${_lt(
       "A number indicating which numbering system to use to represent weekdays. By default, counts starting with Sunday = 1."
     )}
   `),
@@ -605,7 +605,7 @@ export const WEEKNUM: AddFunctionDescription = {
     date (date) ${_lt(
       "The date for which to determine the week number. Must be a reference to a cell containing a date, a function returning a date type, or a number."
     )}
-    type (number, optional, default=1) ${_lt(
+    type (number, default=1) ${_lt(
       "A number representing the day that a week starts on. Sunday = 1."
     )}
     `),
@@ -677,7 +677,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
       num_days (number) ${_lt(
         "The number of working days to advance from start_date. If negative, counts backwards."
       )}
-      weekend (any, optional, default=1) ${_lt(
+      weekend (any, default=1) ${_lt(
         "A number or string representing which days of the week are considered weekends."
       )}
       holidays (date, range<date>, optional) ${_lt(

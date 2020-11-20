@@ -17,7 +17,8 @@ export interface Arg {
   description: string;
   name: string;
   type: ArgType[];
-  default?: any;
+  default?: boolean;
+  defaultValue?: any;
 }
 
 export interface AddFunctionDescription {

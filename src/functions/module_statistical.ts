@@ -97,7 +97,7 @@ export const AVEDEV: AddFunctionDescription = {
   description: _lt("Average magnitude of deviations from mean."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the sample."
     )}
   `),
@@ -131,7 +131,7 @@ export const AVERAGE: AddFunctionDescription = {
       value1 (number, range<number>) ${_lt(
         "The first value or range to consider when calculating the average value."
       )}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the average value."
       )}
     `),
@@ -168,10 +168,8 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
   args: args(`
       values (number, range<number>) ${_lt("Values to average.")}
       weights (number, range<number>) ${_lt("Weights for each corresponding value.")}
-      additional_values (number, range<number>, optional, repeating) ${_lt(
-        "Additional values to average."
-      )}
-      additional_weights (number, range<number>, optional, repeating) ${_lt("Additional weights.")}
+      additional_values (number, range<number>, repeating) ${_lt("Additional values to average.")}
+      additional_weights (number, range<number>, repeating) ${_lt("Additional weights.")}
     `),
   returns: ["NUMBER"],
   compute: function (): number {
@@ -244,7 +242,7 @@ export const AVERAGEA: AddFunctionDescription = {
       value1 (number, range<number>) ${_lt(
         "The first value or range to consider when calculating the average value."
       )}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the average value."
       )}
     `),
@@ -276,7 +274,7 @@ export const AVERAGEIF: AddFunctionDescription = {
   args: args(`
       criteria_range (any, range) ${_lt("The range to check against criterion.")}
       criterion (string) ${_lt("The pattern or test to apply to criteria_range.")}
-      average_range (any, range, optional, default=criteria_range) ${_lt(
+      average_range (any, range, default=criteria_range) ${_lt(
         "The range to average. If not included, criteria_range is used for the average instead."
       )}
     `),
@@ -315,8 +313,8 @@ export const AVERAGEIFS: AddFunctionDescription = {
       average_range (any, range) ${_lt("The range to average.")}
       criteria_range1 (any, range) ${_lt("The range to check against criterion1.")}
       criterion1 (string) ${_lt("The pattern or test to apply to criteria_range1.")}
-      criteria_range2 (any, range, optional, repeating) ${_lt("Additional ranges to check.")}
-      criterion2 (string, optional, repeating) ${_lt("Additional criteria to check.")}
+      criteria_range2 (any, range, repeating) ${_lt("Additional ranges to check.")}
+      criterion2 (string, repeating) ${_lt("Additional criteria to check.")}
     `),
   returns: ["NUMBER"],
   compute: function (averageRange, ...args): number {
@@ -345,7 +343,7 @@ export const COUNT: AddFunctionDescription = {
   description: _lt(`The number of numeric values in dataset.`),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range to consider when counting.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to consider when counting."
     )}
   `),
@@ -376,9 +374,7 @@ export const COUNTA: AddFunctionDescription = {
   description: _lt(`The number of values in a dataset.`),
   args: args(`
     value1 (any, range) ${_lt("The first value or range to consider when counting.")}
-    value2 (any, range, optional, repeating) ${_lt(
-      "Additional values or ranges to consider when counting."
-    )}
+    value2 (any, range, repeating) ${_lt("Additional values or ranges to consider when counting.")}
   `),
   returns: ["NUMBER"],
   compute: function (): number {
@@ -480,7 +476,7 @@ export const MAX: AddFunctionDescription = {
       value1 (number, range<number>) ${_lt(
         "The first value or range to consider when calculating the maximum value."
       )}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the maximum value."
       )}
     `),
@@ -500,7 +496,7 @@ export const MAXA: AddFunctionDescription = {
       value1 (any, range) ${_lt(
         "The first value or range to consider when calculating the maximum value."
       )}
-      value2 (ant, range, optional, repeating) ${_lt(
+      value2 (ant, range, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the maximum value."
       )}
     `),
@@ -541,12 +537,10 @@ export const MAXIFS: AddFunctionDescription = {
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      criteria_range2 (any, range, optional, repeating) ${_lt(
+      criteria_range2 (any, range, repeating) ${_lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )}
-      criterion2 (string, optional, repeating) ${_lt(
-        "The pattern or test to apply to criteria_range2."
-      )}
+      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
     `),
   returns: ["NUMBER"],
   compute: function (range, ...args): number {
@@ -570,7 +564,7 @@ export const MIN: AddFunctionDescription = {
       value1 (number, range<number>) ${_lt(
         "The first value or range to consider when calculating the minimum value."
       )}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the minimum value."
       )}
     `),
@@ -590,7 +584,7 @@ export const MINA: AddFunctionDescription = {
       value1 (number, range<number>) ${_lt(
         "The first value or range to consider when calculating the minimum value."
       )}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to consider when calculating the minimum value."
       )}
     `),
@@ -631,12 +625,10 @@ export const MINIFS: AddFunctionDescription = {
       criterion1 (string) ${_lt(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )}
-      criteria_range2 (any, range, optional, repeating) ${_lt(
+      criteria_range2 (any, range, repeating) ${_lt(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )}
-      criterion2 (string, optional, repeating) ${_lt(
-        "The pattern or test to apply to criteria_range2."
-      )}
+      criterion2 (string, repeating) ${_lt("The pattern or test to apply to criteria_range2.")}
     `),
   returns: ["NUMBER"],
   compute: function (range, ...args): number {
@@ -695,7 +687,7 @@ export const STDEV: AddFunctionDescription = {
   description: _lt("Standard deviation."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to include in the sample."
       )}
     `),
@@ -712,7 +704,7 @@ export const STDEV_P: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to include in the population."
       )}
     `),
@@ -729,7 +721,7 @@ export const STDEV_S: AddFunctionDescription = {
   description: _lt("Standard deviation."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to include in the sample."
       )}
     `),
@@ -746,7 +738,7 @@ export const STDEVA: AddFunctionDescription = {
   description: _lt("Standard deviation of sample (text as 0)."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the sample."
     )}
   `),
@@ -763,7 +755,7 @@ export const STDEVP: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the population."
     )}
   `),
@@ -780,7 +772,7 @@ export const STDEVPA: AddFunctionDescription = {
   description: _lt("Standard deviation of entire population (text as 0)."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the population."
     )}
   `),
@@ -797,7 +789,7 @@ export const VAR: AddFunctionDescription = {
   description: _lt("Variance."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to include in the sample."
       )}
     `),
@@ -814,7 +806,7 @@ export const VAR_P: AddFunctionDescription = {
   description: _lt("Variance of entire population."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to include in the population."
       )}
     `),
@@ -831,7 +823,7 @@ export const VAR_S: AddFunctionDescription = {
   description: _lt("Variance."),
   args: args(`
       value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-      value2 (number, range<number>, optional, repeating) ${_lt(
+      value2 (number, range<number>, repeating) ${_lt(
         "Additional values or ranges to include in the sample."
       )}
     `),
@@ -848,7 +840,7 @@ export const VARA: AddFunctionDescription = {
   description: _lt("Variance of sample (text as 0)."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the sample.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the sample."
     )}
   `),
@@ -865,7 +857,7 @@ export const VARP: AddFunctionDescription = {
   description: _lt("Variance of entire population."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the population."
     )}
   `),
@@ -882,7 +874,7 @@ export const VARPA: AddFunctionDescription = {
   description: _lt("Variance of entire population (text as 0)."),
   args: args(`
     value1 (number, range<number>) ${_lt("The first value or range of the population.")}
-    value2 (number, range<number>, optional, repeating) ${_lt(
+    value2 (number, range<number>, repeating) ${_lt(
       "Additional values or ranges to include in the population."
     )}
   `),

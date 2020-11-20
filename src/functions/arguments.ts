@@ -44,7 +44,7 @@ function makeArg(str: string): Arg {
   let isOptional = false;
   let isRepeating = false;
   let isLazy = false;
-  let defaultVal;
+  let defaultValue;
 
   for (let param of parts[2].split(",")) {
     const key = param.trim().toUpperCase();
@@ -61,7 +61,7 @@ function makeArg(str: string): Arg {
       isLazy = true;
     } else if (key.startsWith("DEFAULT=")) {
       const value = param.trim().slice(8);
-      defaultVal = value[0] === '"' ? value.slice(1, -1) : parseFloat(value);
+      defaultValue = value[0] === '"' ? value.slice(1, -1) : parseFloat(value);
     }
   }
   let description = parts[3].trim();
@@ -79,8 +79,9 @@ function makeArg(str: string): Arg {
   if (isLazy) {
     result.lazy = true;
   }
-  if (defaultVal !== undefined) {
-    result.default = defaultVal;
+  if (defaultValue !== undefined) {
+    result.default = true;
+    result.defaultValue = defaultValue;
   }
   return result;
 }
@@ -97,7 +98,7 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
   let repeatingArg = 0;
   for (let arg of addDescr.args) {
     countArg++;
-    if (!arg.optional) {
+    if (!arg.optional && !arg.repeating && !arg.default) {
       minArg++;
     }
     if (arg.repeating) {
@@ -126,8 +127,8 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
  *
  * in the formula "=SUM(11, 55, 66)" which is defined like this "SUM(value1, [value2, ...])"
  * - 11 corresponds to the value1 argument => position will be 1
- * - 55 corresponds to the value2 argument => position will be 2
- * - 66 corresponds to the value2 argument => position will be 2
+ * - 55 corresponds to the [value2, ...] argument => position will be 2
+ * - 66 corresponds to the [value2, ...] argument => position will be 2
  *
  * in the formula "=AVERAGE.WEIGHTED(1, 2, 3, 4, 5, 6)" which is defined like this
  * "AVERAGE.WEIGHTED(values, weights, [additional_values, ...], [additional_weights, ...])"
@@ -162,6 +163,7 @@ function argTargeting(countArg, repeatingArg): (argPosition: number) => number {
 export function validateArguments(args: Arg[]) {
   let previousArgRepeating: boolean | undefined = false;
   let previousArgOptional: boolean | undefined = false;
+  let previousArgDefault: boolean | undefined = false;
   for (let current of args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
@@ -178,8 +180,9 @@ export function validateArguments(args: Arg[]) {
         )
       );
     }
-
-    if (previousArgOptional && !current.optional) {
+    const previousIsOptional = previousArgOptional || previousArgRepeating || previousArgDefault;
+    const currentIsntOptional = !(current.optional || current.repeating || current.default);
+    if (previousIsOptional && currentIsntOptional) {
       throw new Error(
         _lt(
           "Function ${name} has at mandatory arguments declared after optional ones. All optional arguments must be after all mandatory arguments."
@@ -188,5 +191,6 @@ export function validateArguments(args: Arg[]) {
     }
     previousArgRepeating = current.repeating;
     previousArgOptional = current.optional;
+    previousArgDefault = current.default;
   }
 }

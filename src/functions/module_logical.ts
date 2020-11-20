@@ -29,7 +29,7 @@ export const AND: AddFunctionDescription = {
       logical_expression1 (boolean, range<boolean>) ${_lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )}
-      logical_expression1 (boolean, range<boolean>, optional, repeating) ${_lt(
+      logical_expression1 (boolean, range<boolean>, repeating) ${_lt(
         "More expressions that represent logical values."
       )}
     `),
@@ -61,7 +61,7 @@ export const IF: AddFunctionDescription = {
       value_if_true (any, lazy) ${_lt(
         "The value the function returns if logical_expression is TRUE."
       )}
-      value_if_false (any, lazy, optional, default=FALSE) ${_lt(
+      value_if_false (any, lazy, default=FALSE) ${_lt(
         "The value the function returns if logical_expression is FALSE."
       )}
     `),
@@ -83,7 +83,7 @@ export const IFERROR: AddFunctionDescription = {
   description: _lt("Value if it is not an error, otherwise 2nd argument."),
   args: args(`
     value (any, lazy) ${_lt("The value to return if value itself is not an error.")}
-    value_if_error (any, lazy, optional, default="") ${_lt(
+    value_if_error (any, lazy, default="") ${_lt(
       "The value the function returns if value is an error."
     )}
   `),
@@ -109,10 +109,10 @@ export const IFS: AddFunctionDescription = {
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
       )}
       value1 (any, lazy) ${_lt("The returned value if condition1 is TRUE.")}
-      condition2 (boolean, lazy, optional, repeating) ${_lt(
+      condition2 (boolean, lazy, repeating) ${_lt(
         "Additional conditions to be evaluated if the previous ones are FALSE."
       )}
-      value2 (any, lazy, optional, repeating) ${_lt(
+      value2 (any, lazy, repeating) ${_lt(
         "Additional values to be returned if their corresponding conditions are TRUE."
       )}
   `),
@@ -156,7 +156,7 @@ export const OR: AddFunctionDescription = {
       logical_expression1 (boolean, range<boolean>) ${_lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )}
-      logical_expression2 (boolean, range<boolean>, optional, repeating) ${_lt(
+      logical_expression2 (boolean, range<boolean>, repeating) ${_lt(
         "More expressions that evaluate to logical values."
       )}
     `),
@@ -185,7 +185,7 @@ export const XOR: AddFunctionDescription = {
       logical_expression1 (boolean, range<boolean>) ${_lt(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )}
-      logical_expression2 (boolean, range<boolean>, optional, repeating) ${_lt(
+      logical_expression2 (boolean, range<boolean>, repeating) ${_lt(
         "More expressions that evaluate to logical values."
       )}
     `),
