@@ -247,6 +247,53 @@ describe("datasource tests", function () {
     expect(datasets[0].label!.toString()).toEqual("Series");
   });
 
+  test("can delete an imported chart", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["B7:B8"],
+        seriesHasTitle: true,
+        labelRange: "B7",
+        type: "line",
+      },
+    });
+    const newModel = new Model(model.exportData());
+    expect(newModel.getters.getFigures(sheetId, viewport)).toHaveLength(1);
+    expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
+    newModel.dispatch("DELETE_FIGURE", { id: "1" });
+    expect(newModel.getters.getFigures(sheetId, viewport)).toHaveLength(0);
+    expect(newModel.getters.getChartRuntime("1")).toBeUndefined();
+  });
+
+  test("update dataset of imported chart", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        seriesHasTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    const newModel = new Model(model.exportData());
+    let chart = newModel.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    newModel.dispatch("UPDATE_CELL", {
+      col: 1,
+      row: 1,
+      sheetId,
+      content: "99",
+    });
+    chart = newModel.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+  });
+
   test.skip("delete a data source column", () => {
     model.dispatch("CREATE_CHART", {
       id: "1",

@@ -6,6 +6,7 @@ import {
   Zone,
   CommandResult,
   CancelledReason,
+  WorkbookData,
 } from "../../types/index";
 import { toXC, toZone, zoneToXc } from "../../helpers/index";
 import { rangeReference } from "../../formulas/parser";
@@ -93,6 +94,20 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   getChartDefinition(figureId: string): ChartDefinition | undefined {
     const figure = this.getters.getFigure<ChartDefinition>(figureId);
     return figure ? figure.data : undefined;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Import/Export
+  // ---------------------------------------------------------------------------
+
+  import(data: WorkbookData) {
+    for (let sheet of data.sheets) {
+      for (let f of sheet.figures) {
+        if (f.tag === "chart") {
+          this.chartFigures.add(f.id);
+        }
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
