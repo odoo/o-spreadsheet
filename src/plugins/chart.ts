@@ -147,6 +147,7 @@ export class ChartPlugin extends BasePlugin {
       for (let f of sheet.figures) {
         if (f.tag === "chart") {
           this.outOfDate.add(f.id);
+          this.chartFigures.add(f.id);
         }
       }
     }
