@@ -152,6 +152,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           return null;
         }
         return this.getters.evaluateFormula(`=${functionName}(${range})`);
+      case "number":
+        return Number(threshold.value);
       default:
         return null;
     }

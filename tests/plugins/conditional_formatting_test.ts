@@ -876,143 +876,381 @@ describe("conditional formats types", () => {
         });
       }
     );
-    test("1 point, value scale", () => {
-      setCellContent(model, "A1", "10");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1"],
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+    describe("cell values", () => {
+      test("1 point, value scale", () => {
+        setCellContent(model, "A1", "10");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1"],
+            { type: "value", color: 0xff00ff, value: "" },
+            { type: "value", color: 0x123456, value: "" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
       });
-      expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
+
+      test("2 points, value scale", () => {
+        setCellContent(model, "A1", "10");
+        setCellContent(model, "A2", "11");
+        setCellContent(model, "A3", "17");
+        setCellContent(model, "A4", "19");
+        setCellContent(model, "A5", "20");
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "value", color: 0xff00ff, value: "" },
+            { type: "value", color: 0x123456, value: "" }
+          ),
+          sheetId,
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([
+          {
+            rule: {
+              type: "ColorScaleRule",
+              maximum: {
+                color: 1193046,
+                type: "value",
+                value: "",
+              },
+              midpoint: undefined,
+              minimum: {
+                color: 16711935,
+                type: "value",
+                value: "",
+              },
+            },
+            id: "1",
+            ranges: ["A1:A5"],
+          },
+        ]);
+      });
+
+      test("2 points, value scale with other min and max", () => {
+        setCellContent(model, "A1", "100");
+        setCellContent(model, "A2", "110");
+        setCellContent(model, "A3", "170");
+        setCellContent(model, "A4", "190");
+        setCellContent(model, "A5", "200");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "value", color: 0xff00ff, value: "" },
+            { type: "value", color: 0x123456, value: "" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+      });
+
+      test("2 points, value scale with minimum = 0", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "1");
+        setCellContent(model, "A3", "7");
+        setCellContent(model, "A4", "9");
+        setCellContent(model, "A5", "10");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "value", color: 0xff00ff, value: "" },
+            { type: "value", color: 0x123456, value: "" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+      });
+
+      test("2 points, value scale with any value 0", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "-5");
+        setCellContent(model, "A3", "5");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "value", color: 0xff0000, value: "" },
+            { type: "value", color: 0x00ff00, value: "" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#808000" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#ff0000" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#00ff00" });
+      });
+
+      test("2 points, value scale with same min/max", () => {
+        setCellContent(model, "A1", "10");
+        setCellContent(model, "A2", "10");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A2"],
+            { type: "value", color: 0xff00ff, value: "" },
+            { type: "value", color: 0x123456, value: "" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
+        expect(model.getters.getConditionalStyle("A2")).toEqual(undefined);
+      });
+
+      test("async values do not crash the evaluation", () => {
+        setCellContent(model, "A1", "=wait(100)");
+        setCellContent(model, "A2", "110");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A2"],
+            { type: "value", color: 0xff00ff, value: "" },
+            { type: "value", color: 0x123456, value: "" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(true).toBeTruthy(); // no error
+      });
     });
-
-    test("2 points, value scale", () => {
-      setCellContent(model, "A1", "10");
-      setCellContent(model, "A2", "11");
-      setCellContent(model, "A3", "17");
-      setCellContent(model, "A4", "19");
-      setCellContent(model, "A5", "20");
-
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A5"],
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+    describe("fixed values", () => {
+      test("basic exemple", () => {
+        setCellContent(model, "A1", "10");
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1"],
+            { type: "number", color: 0xff00ff, value: "1" },
+            { type: "number", color: 0x123456, value: "4" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([
+          {
+            rule: {
+              type: "ColorScaleRule",
+              maximum: {
+                color: 1193046,
+                type: "number",
+                value: "4",
+              },
+              midpoint: undefined,
+              minimum: {
+                color: 16711935,
+                type: "number",
+                value: "1",
+              },
+            },
+            id: "1",
+            ranges: ["A1"],
+          },
+        ]);
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#123456" });
       });
 
-      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
-      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
-      expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
-      expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
-      expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
-    });
+      test("2 points, value scale", () => {
+        setCellContent(model, "A1", "10");
+        setCellContent(model, "A2", "11");
+        setCellContent(model, "A3", "17");
+        setCellContent(model, "A4", "19");
+        setCellContent(model, "A5", "20");
 
-    test("2 points, value scale with other min and max", () => {
-      setCellContent(model, "A1", "100");
-      setCellContent(model, "A2", "110");
-      setCellContent(model, "A3", "170");
-      setCellContent(model, "A4", "190");
-      setCellContent(model, "A5", "200");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff00ff, value: "10" },
+            { type: "number", color: 0x123456, value: "20" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A5"],
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
       });
 
-      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
-      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
-      expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
-      expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
-      expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
-    });
+      test("2 points, value scale with other min and max", () => {
+        setCellContent(model, "A1", "100");
+        setCellContent(model, "A2", "110");
+        setCellContent(model, "A3", "170");
+        setCellContent(model, "A4", "190");
+        setCellContent(model, "A5", "200");
 
-    test("2 points, value scale with minimum = 0", () => {
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "7");
-      setCellContent(model, "A4", "9");
-      setCellContent(model, "A5", "10");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff00ff, value: "90" },
+            { type: "number", color: 0x123456, value: "210" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A5"],
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#eb04f1" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#d809e3" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#61238e" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#3a2b72" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#263064" });
       });
 
-      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
-      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
-      expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
-      expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
-      expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
-    });
+      test("2 points, value scale with minimum = 0", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "1");
+        setCellContent(model, "A3", "7");
+        setCellContent(model, "A4", "9");
+        setCellContent(model, "A5", "10");
 
-    test("2 points, value scale with any value 0", () => {
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "-5");
-      setCellContent(model, "A3", "5");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff00ff, value: "0" },
+            { type: "number", color: 0x123456, value: "10" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A5"],
-          { type: "value", color: 0xff0000 },
-          { type: "value", color: 0x00ff00 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
       });
 
-      expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#808000" });
-      expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#ff0000" });
-      expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#00ff00" });
-    });
+      test("2 points, value scale with max value smaller than max value in cell and min value bigger than min in cell", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "50");
+        setCellContent(model, "A3", "100");
 
-    test("2 points, value scale with same min/max", () => {
-      setCellContent(model, "A1", "10");
-      setCellContent(model, "A2", "10");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A2"],
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff0000, value: "25" },
+            { type: "number", color: 0x00ff00, value: "75" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#807f00" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#00ff00" });
       });
 
-      expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
-      expect(model.getters.getConditionalStyle("A2")).toEqual(undefined);
-    });
+      test("with middlepoint", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "10");
+        setCellContent(model, "A3", "20");
+        setCellContent(model, "A4", "30");
+        setCellContent(model, "A5", "40");
+        setCellContent(model, "A6", "50");
+        setCellContent(model, "A7", "60");
 
-    test("async values do not crash the evaluation", () => {
-      setCellContent(model, "A1", "=wait(100)");
-      setCellContent(model, "A2", "110");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A7"],
+            { type: "number", color: 0xff0000, value: "0" },
+            { type: "number", color: 0x00ff00, value: "60" },
+            { type: "number", color: 0x0000ff, value: "30" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "1",
-          ["A1:A2"],
-          { type: "value", color: 0xff00ff },
-          { type: "value", color: 0x123456 }
-        ),
-        sheetId: model.getters.getActiveSheetId(),
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#aa0055" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#5500aa" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#0000ff" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#0055aa" });
+        expect(model.getters.getConditionalStyle("A6")).toEqual({ fillColor: "#00aa55" });
+        expect(model.getters.getConditionalStyle("A7")).toEqual({ fillColor: "#00ff00" });
       });
-      expect(true).toBeTruthy(); // no error
+      test("min > max will not create a cf rule", () => {
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff0000, value: "75" },
+            { type: "number", color: 0x00ff00, value: "25" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+      });
+
+      test("min > middlepoint will not create a cf rule", () => {
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff0000, value: "75" },
+            { type: "number", color: 0x00ff00, value: "100" },
+            { type: "number", color: 0x0000ff, value: "50" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+      });
+
+      test("middlepoint > max will not create a cf rule", () => {
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "number", color: 0xff0000, value: "0" },
+            { type: "number", color: 0x00ff00, value: "100" },
+            { type: "number", color: 0x0000ff, value: "150" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+      });
+
+      test("async values do not crash the evaluation", () => {
+        setCellContent(model, "A1", "=wait(100)");
+        setCellContent(model, "A2", "110");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A2"],
+            { type: "number", color: 0xff00ff, value: "0" },
+            { type: "number", color: 0x123456, value: "1000" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(true).toBeTruthy(); // no error
+      });
     });
   });
   describe("icon scale", () => {});

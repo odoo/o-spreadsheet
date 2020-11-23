@@ -48,9 +48,13 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
           <t t-esc="env._t('${colorScale.Formula}')"/>
         </option>
       </select>
-
-      <input type="text" t-model="threshold.value" class="o-threshold-value"
-            t-att-disabled="threshold.type !== 'number'"/>
+      <input type="text" class="o-threshold-value"
+        t-model="stateColorScale[thresholdType].value"
+        t-if="['number', 'percentage', 'percentile', 'formula'].includes(threshold.type)"
+      />
+      <input type="text" class="o-threshold-value"
+        t-else="" disabled="1"
+      />
   </div>`;
 
 const TEMPLATE = xml/* xml */ `
