@@ -1,4 +1,5 @@
 import { Model } from "../../src/model";
+import { CancelledReason } from "../../src/types/index";
 import { createEqualCF, createColorScale, setCellContent } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -713,6 +714,168 @@ describe("conditional formats types", () => {
   });
 
   describe("color scale", () => {
+    test("midpoint 'none' is ignored", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          ["A1"],
+          { type: "value", color: 0xff00ff, value: "1" },
+          { type: "value", color: 0x123456, value: "10" },
+          { type: "none", color: 0 } // midpoint
+        ),
+        sheetId,
+      });
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual([
+        {
+          rule: {
+            type: "ColorScaleRule",
+            minimum: {
+              color: 0xff00ff,
+              type: "value",
+              value: "1",
+            },
+            maximum: {
+              color: 0x123456,
+              type: "value",
+              value: "10",
+            },
+          },
+          id: "1",
+          ranges: ["A1"],
+        },
+      ]);
+    });
+
+    describe.each(["", "aaaa", "=SUM(1, 2)"])(
+      "dispatch is not allowed if value is not a number",
+      (value) => {
+        test("minimum is NaN", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            cf: {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: "number", color: 1, value: value },
+                maximum: { type: "number", color: 1, value: "1000" },
+              },
+            },
+          });
+          expect(result).toEqual({
+            status: "CANCELLED",
+            reason: CancelledReason.NaN,
+          });
+        });
+        test("midpoint is NaN", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            cf: {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: "number", color: 1, value: "1" },
+                midpoint: { type: "number", color: 1, value: value },
+                maximum: { type: "number", color: 1, value: "1000" },
+              },
+            },
+          });
+          expect(result).toEqual({
+            status: "CANCELLED",
+            reason: CancelledReason.NaN,
+          });
+        });
+        test("maximum is NaN", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            cf: {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: "number", color: 1, value: "1" },
+                maximum: { type: "number", color: 1, value: value },
+              },
+            },
+          });
+          expect(result).toEqual({
+            status: "CANCELLED",
+            reason: CancelledReason.NaN,
+          });
+        });
+      }
+    );
+
+    describe.each([
+      ["number", "number", "number"],
+      ["percentage", "percentage", "percentage"],
+    ])(
+      "dispatch is not allowed if points not ascending (min: %s , mid: %s, max: %s )",
+      (
+        minType: "number" | "percentage",
+        midType: "number" | "percentage" | "none",
+        maxType: "number" | "percentage"
+      ) => {
+        test("min bigger than max", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            cf: {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: minType, color: 1, value: "10" },
+                maximum: { type: maxType, color: 1, value: "1" },
+              },
+            },
+          });
+          expect(result).toEqual({
+            status: "CANCELLED",
+            reason: CancelledReason.MinBiggerThanMax,
+          });
+        });
+        test.skip("mid bigger than max", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            cf: {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: minType, color: 1, value: "1" },
+                midpoint: { type: midType, color: 1, value: "100" },
+                maximum: { type: maxType, color: 1, value: "10" },
+              },
+            },
+          });
+          expect(result).toEqual({
+            status: "CANCELLED",
+            reason: CancelledReason.MidBiggerThanMax,
+          });
+        });
+        test.skip("min bigger than mid", () => {
+          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+            sheetId: model.getters.getActiveSheetId(),
+            cf: {
+              id: "1",
+              ranges: ["A1"],
+              rule: {
+                type: "ColorScaleRule",
+                minimum: { type: minType, color: 1, value: "5" },
+                midpoint: { type: midType, color: 1, value: "1" },
+                maximum: { type: maxType, color: 1, value: "10" },
+              },
+            },
+          });
+          expect(result).toEqual({
+            status: "CANCELLED",
+            reason: CancelledReason.MinBiggerThanMid,
+          });
+        });
+      }
+    );
     test("1 point, value scale", () => {
       setCellContent(model, "A1", "10");
       model.dispatch("ADD_CONDITIONAL_FORMAT", {

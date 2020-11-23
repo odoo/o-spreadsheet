@@ -3,7 +3,7 @@ import * as icons from "../icons";
 import { ColorPicker } from "../color_picker";
 import { CellIsRule, ConditionalFormat, SpreadsheetEnv, Style } from "../../types";
 import { _lt } from "../../translation";
-import { terms, cellIsOperators } from "./translations_terms";
+import { conditionalFormatingTerms, cellIsOperators } from "./translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
@@ -16,13 +16,13 @@ export const PREVIEW_TEMPLATE = xml/* xml */ `
                        font-style:{{currentStyle.italic?'italic':'normal'}};
                        color:{{currentStyle.textColor}};
                        background-color:{{currentStyle.fillColor}};"
-         t-esc="previewText || env._t('${terms.PREVIEWTEXT}')" />
+         t-esc="previewText || env._t('${conditionalFormatingTerms.PREVIEWTEXT}')" />
 `;
 
 const TEMPLATE = xml/* xml */ `
 <div>
-    <div class="o-section-title" t-esc="env._t('${terms.CF_TITLE}')"></div>
-    <div class="o-cf-title-text" t-esc="env._t('${terms.IS_RULE}')"></div>
+    <div class="o-section-title" t-esc="env._t('${conditionalFormatingTerms.CF_TITLE}')"></div>
+    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.IS_RULE}')"></div>
     <select t-model="state.condition.operator" class="o-input o-cell-is-operator">
         <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
             <option t-att-value="op" t-esc="cellIsOperators[op]"/>
@@ -32,36 +32,36 @@ const TEMPLATE = xml/* xml */ `
     <t t-if="state.condition.operator === 'Between' || state.condition.operator === 'NotBetween'">
         <input type="text" placeholder="and value" t-model="state.condition.value2" class="o-input"/>
     </t>
-    <div class="o-cf-title-text" t-esc="env._t('${terms.FORMATTING_STYLE}')"></div>
+    <div class="o-cf-title-text" t-esc="env._t('${conditionalFormatingTerms.FORMATTING_STYLE}')"></div>
 
     <t t-call="${PREVIEW_TEMPLATE}">
         <t t-set="currentStyle" t-value="state.style"/>
     </t>
     <div class="o-tools">
-        <div class="o-tool" t-att-title="env._t('${terms.BOLD}')" t-att-class="{active:state.style.bold}" t-on-click="toggleTool('bold')">
+        <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.BOLD}')" t-att-class="{active:state.style.bold}" t-on-click="toggleTool('bold')">
             ${icons.BOLD_ICON}
         </div>
-        <div class="o-tool" t-att-title="env._t('${terms.ITALIC}')" t-att-class="{active:state.style.italic}" t-on-click="toggleTool('italic')">
+        <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.ITALIC}')" t-att-class="{active:state.style.italic}" t-on-click="toggleTool('italic')">
             ${icons.ITALIC_ICON}
         </div>
-        <div class="o-tool" t-att-title="env._t('${terms.STRIKETHROUGH}')" t-att-class="{active:state.style.strikethrough}"
+        <div class="o-tool" t-att-title="env._t('${conditionalFormatingTerms.STRIKETHROUGH}')" t-att-class="{active:state.style.strikethrough}"
              t-on-click="toggleTool('strikethrough')">${icons.STRIKE_ICON}
         </div>
         <div class="o-tool o-dropdown o-with-color">
-              <span t-att-title="env._t('${terms.TEXTCOLOR}')" t-attf-style="border-color:{{state.style.textColor}}"
+              <span t-att-title="env._t('${conditionalFormatingTerms.TEXTCOLOR}')" t-attf-style="border-color:{{state.style.textColor}}"
                     t-on-click.stop="toggleMenu('textColorTool')">${icons.TEXT_COLOR_ICON}</span>
                     <ColorPicker t-if="state.textColorTool" t-on-color-picked="setColor('textColor')" t-key="textColor"/>
         </div>
         <div class="o-divider"/>
         <div class="o-tool  o-dropdown o-with-color">
-              <span t-att-title="env._t('${terms.FILLCOLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
+              <span t-att-title="env._t('${conditionalFormatingTerms.FILLCOLOR}')" t-attf-style="border-color:{{state.style.fillColor}}"
                     t-on-click.stop="toggleMenu('fillColorTool')">${icons.FILL_COLOR_ICON}</span>
                     <ColorPicker t-if="state.fillColorTool" t-on-color-picked="setColor('fillColor')" t-key="fillColor"/>
         </div>
     </div>
     <div class="o-sidePanelButtons">
-      <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${terms.CANCEL}')"></button>
-      <button t-on-click="onSave" class="o-sidePanelButton o-cf-save" t-esc="env._t('${terms.SAVE}')"></button>
+      <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel" t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"></button>
+      <button t-on-click="onSave" class="o-sidePanelButton o-cf-save" t-esc="env._t('${conditionalFormatingTerms.SAVE}')"></button>
     </div>
 </div>
 `;

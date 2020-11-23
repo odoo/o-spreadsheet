@@ -10,7 +10,7 @@ import {
   SingleColorRules,
   Zone,
 } from "../../types";
-import { cellIsOperators } from "./translations_terms";
+import { cellIsOperators, conditionalFormatingTerms } from "./translations_terms";
 
 const { Component, useState } = owl;
 const { xml, css } = owl.tags;
@@ -67,6 +67,7 @@ const TEMPLATE = xml/* xml */ `
               <t t-component="editors[state.currentCF.rule.type]"
                   t-key="state.currentCF.id"
                   conditionalFormat="state.currentCF"
+                  error="state.error"
                   t-on-cancel-edit="onCancel"
                   t-on-modify-rule="onSave" />
             </div>
@@ -244,6 +245,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     currentRanges: [] as string[],
     mode: "list" as "list" | "edit" | "add",
     toRuleType: "CellIsRule",
+    error: undefined as string | undefined,
   });
 
   editors = {
@@ -299,9 +301,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
                background-color:${backgroundColor};`;
     } else {
       const colorScale = rule as ColorScaleRule;
-      return `background-image: linear-gradient(to right, #${colorNumberString(
-        colorScale.minimum.color
-      )}, #${colorNumberString(colorScale.maximum.color)})`;
+      const minColor = colorNumberString(colorScale.minimum.color);
+      const midColor = colorScale.midpoint ? colorNumberString(colorScale.midpoint.color) : null;
+      const maxColor = colorNumberString(colorScale.maximum.color);
+      const baseString = "background-image: linear-gradient(to right, #";
+      return midColor
+        ? baseString + minColor + ", #" + midColor + ", #" + maxColor + ")"
+        : baseString + minColor + ", #" + maxColor + ")";
     }
   }
 
@@ -311,7 +317,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
 
   onSave(ev: CustomEvent) {
     if (this.state.currentCF) {
-      this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
+      const result = this.env.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: ev.detail.rule,
           ranges: this.state.currentRanges,
@@ -319,8 +325,13 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
         },
         sheetId: this.getters.getActiveSheetId(),
       });
+      if (result.status === "CANCELLED") {
+        this.state.error = this.env._t(conditionalFormatingTerms.Errors[result.reason]);
+      } else {
+        this.state.error = undefined;
+        this.state.mode = "list";
+      }
     }
-    this.state.mode = "list";
   }
 
   onCancel() {
@@ -371,6 +382,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     return {
       rule: {
         minimum: { type: "value", color: 0 },
+        midpoint: { type: "none", color: 0xeeffff },
         maximum: { type: "value", color: 0xeeffee },
         type: "ColorScaleRule",
       },

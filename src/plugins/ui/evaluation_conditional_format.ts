@@ -4,14 +4,21 @@ import {
   Cell,
   CellIsRule,
   ColorScaleRule,
-  Zone,
-  Style,
+  ColorScaleThreshold,
   ConditionalFormat,
-  UID,
-} from "../../types";
-import { colorNumberString, toZone, toXC, isInside, recomputeZones } from "../../helpers/index";
+  Style,
+  Zone,
+  ColorScaleMidPointThreshold,
+} from "../../types/index";
 import { _lt } from "../../translation";
+import { clip } from "../../helpers/misc";
+import { toXC, toZone, colorNumberString, recomputeZones, isInside } from "../../helpers/index";
+import { UID } from "../../types/index";
 import { Mode } from "../../model";
+
+// -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalStyle"];
@@ -19,6 +26,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName.cellXC = Style
   private computedStyles: { [sheet: string]: { [cellXc: string]: Style } } = {};
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -130,49 +141,144 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     }
   }
 
-  /**
-   * Execute the complete color scale for the range of the conditional format for a 2 colors rule
-   */
-  private applyColorScale(range: string, rule: ColorScaleRule): void {
-    const minValue = Number(this.getters.evaluateFormula(`=min(${range})`));
-    const maxValue = Number(this.getters.evaluateFormula(`=max(${range})`));
-    if (Number.isNaN(minValue) || Number.isNaN(maxValue)) {
-      return;
+  private parsePoint(
+    range: string,
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    functionName: "min" | "max" | "none"
+  ): null | number {
+    switch (threshold.type) {
+      case "value":
+        if (functionName === "none") {
+          return null;
+        }
+        return this.getters.evaluateFormula(`=${functionName}(${range})`);
+      default:
+        return null;
     }
-    const deltaValue = maxValue - minValue;
-    if (!deltaValue) {
-      return;
-    }
-    const deltaColorR = ((rule.minimum.color >> 16) % 256) - ((rule.maximum.color >> 16) % 256);
-    const deltaColorG = ((rule.minimum.color >> 8) % 256) - ((rule.maximum.color >> 8) % 256);
-    const deltaColorB = (rule.minimum.color % 256) - (rule.maximum.color % 256);
+  }
 
-    const colorDiffUnitR = deltaColorR / deltaValue;
-    const colorDiffUnitG = deltaColorG / deltaValue;
-    const colorDiffUnitB = deltaColorB / deltaValue;
+  private applyColorScale(range: string, rule: ColorScaleRule): void {
+    const minValue: number | null = this.parsePoint(range, rule.minimum, "min");
+    const midValue: number | null = rule.midpoint
+      ? this.parsePoint(range, rule.midpoint, "none")
+      : null;
+    const maxValue: number | null = this.parsePoint(range, rule.maximum, "max");
+    if (
+      minValue === null ||
+      maxValue === null ||
+      minValue >= maxValue ||
+      (midValue && (minValue >= midValue || midValue >= maxValue))
+    ) {
+      return;
+    }
     const zone: Zone = toZone(range);
     const activeSheetId = this.getters.getActiveSheetId();
     const computedStyle = this.computedStyles[activeSheetId];
+    const colorCellArgs: {
+      minValue: number;
+      minColor: number;
+      colorDiffUnit: [number, number, number];
+    }[] = [];
+    if (rule.midpoint && midValue) {
+      colorCellArgs.push({
+        minValue,
+        minColor: rule.minimum.color,
+        colorDiffUnit: this.computeColorDiffUnits(
+          minValue,
+          midValue,
+          rule.minimum.color,
+          rule.midpoint.color
+        ),
+      });
+      colorCellArgs.push({
+        minValue: midValue,
+        minColor: rule.midpoint.color,
+        colorDiffUnit: this.computeColorDiffUnits(
+          midValue,
+          maxValue,
+          rule.midpoint.color,
+          rule.maximum.color
+        ),
+      });
+    } else {
+      colorCellArgs.push({
+        minValue,
+        minColor: rule.minimum.color,
+        colorDiffUnit: this.computeColorDiffUnits(
+          minValue,
+          maxValue,
+          rule.minimum.color,
+          rule.maximum.color
+        ),
+      });
+    }
+
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getCell(activeSheetId, col, row);
         if (cell && !Number.isNaN(Number.parseFloat(cell.value))) {
-          const r = Math.round(
-            ((rule.minimum.color >> 16) % 256) - colorDiffUnitR * (cell.value - minValue)
-          );
-          const g = Math.round(
-            ((rule.minimum.color >> 8) % 256) - colorDiffUnitG * (cell.value - minValue)
-          );
-          const b = Math.round(
-            (rule.minimum.color % 256) - colorDiffUnitB * (cell.value - minValue)
-          );
-          const color = (r << 16) | (g << 8) | b;
+          let value = clip(cell.value, minValue, maxValue);
+          let color;
+          if (colorCellArgs.length === 2 && midValue) {
+            color =
+              value <= midValue
+                ? this.colorCell(
+                    value,
+                    colorCellArgs[0].minValue,
+                    colorCellArgs[0].minColor,
+                    colorCellArgs[0].colorDiffUnit
+                  )
+                : this.colorCell(
+                    value,
+                    colorCellArgs[1].minValue,
+                    colorCellArgs[1].minColor,
+                    colorCellArgs[1].colorDiffUnit
+                  );
+          } else {
+            color = this.colorCell(
+              value,
+              colorCellArgs[0].minValue,
+              colorCellArgs[0].minColor,
+              colorCellArgs[0].colorDiffUnit
+            );
+          }
           const xc = toXC(col, row);
           computedStyle[xc] = computedStyle[xc] || {};
           computedStyle[xc].fillColor = "#" + colorNumberString(color);
         }
       }
     }
+  }
+
+  private computeColorDiffUnits(
+    minValue: number,
+    maxValue: number,
+    minColor: number,
+    maxColor: number
+  ): [number, number, number] {
+    const deltaValue = maxValue - minValue;
+
+    const deltaColorR = ((minColor >> 16) % 256) - ((maxColor >> 16) % 256);
+    const deltaColorG = ((minColor >> 8) % 256) - ((maxColor >> 8) % 256);
+    const deltaColorB = (minColor % 256) - (maxColor % 256);
+
+    const colorDiffUnitR = deltaColorR / deltaValue;
+    const colorDiffUnitG = deltaColorG / deltaValue;
+    const colorDiffUnitB = deltaColorB / deltaValue;
+    return [colorDiffUnitR, colorDiffUnitG, colorDiffUnitB];
+  }
+
+  private colorCell(
+    value: number,
+    minValue: number,
+    minColor: number,
+    colorDiffUnit: [number, number, number]
+  ) {
+    const [colorDiffUnitR, colorDiffUnitG, colorDiffUnitB] = colorDiffUnit;
+    const r = Math.round(((minColor >> 16) % 256) - colorDiffUnitR * (value - minValue));
+    const g = Math.round(((minColor >> 8) % 256) - colorDiffUnitG * (value - minValue));
+    const b = Math.round((minColor % 256) - colorDiffUnitB * (value - minValue));
+    return (r << 16) | (g << 8) | b;
   }
 
   /**

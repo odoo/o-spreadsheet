@@ -10,10 +10,12 @@ import { Style } from "./misc";
 
 export interface ConditionalFormat {
   id: string;
-  rule: SingleColorRules | ColorScaleRule; //| DataBarRule | IconSetRule; // the rules to apply, in order;
+  rule: ConditionalFormatRule; // the rules to apply, in order;
   stopIfTrue?: boolean; // the next rules must not be evaluated/applied if this rule is true
   ranges: string[]; // the cells/ranges on which to apply this conditional formatting
 }
+
+export type ConditionalFormatRule = SingleColorRules | ColorScaleRule; //| DataBarRule | IconSetRule;
 
 export type SingleColorRules =
   | CellIsRule
@@ -47,22 +49,24 @@ export interface ExpressionRule extends SingleColorRule {
   type: "ExpressionRule";
 }
 
-export type ThresholdTypes = "value" | "number" | "percent" | "percentile" | "formula";
-export type ColorScaleThreshold = { color: number; type: ThresholdTypes; value?: number };
+export type ColorScaleThreshold = {
+  color: number;
+  type: "value" | "number" | "percentage" | "formula";
+  value?: string;
+};
+
+export type ColorScaleMidPointThreshold = {
+  color: number;
+  type: "none" | "number" | "percentage" | "formula";
+  value?: string;
+};
 
 export interface ColorScaleRule {
   type: "ColorScaleRule";
   minimum: ColorScaleThreshold;
   maximum: ColorScaleThreshold;
-  midpoint?: ColorScaleThreshold;
+  midpoint?: ColorScaleMidPointThreshold;
 }
-// for future use
-// export interface DataBarRule {
-//   type: "ColorScaleRule";
-// }
-// export interface IconSetRule {
-//   type: "IconSetRule";
-// }
 export interface ContainsTextRule extends TextRule {
   type: "ContainsTextRule";
 }

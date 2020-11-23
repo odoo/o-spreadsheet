@@ -755,6 +755,12 @@ export const enum CancelledReason {
   InvalidChartDefinition,
   InvalidAutofillSelection,
   WrongComposerSelection,
+  MinBiggerThanMax,
+  MidBiggerThanMax,
+  MinBiggerThanMid,
+  NaN,
+  InvalidNumberOfArgs,
+  InvalidFormula,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

@@ -6,9 +6,22 @@ import {
   updateAddRows,
   updateRemoveColumns,
   updateRemoveRows,
+  isDefined,
 } from "../../helpers/index";
-import { Command, ConditionalFormat, WorkbookData, Zone, UID } from "../../types/index";
+import {
+  Command,
+  ConditionalFormat,
+  WorkbookData,
+  Zone,
+  UID,
+  CancelledReason,
+  ColorScaleRule,
+  SingleColorRules,
+  ConditionalFormatRule,
+  CommandResult,
+} from "../../types/index";
 import { _lt } from "../../translation";
+import { compile, normalize } from "../../formulas/index";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -27,6 +40,20 @@ export class ConditionalFormatPlugin
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+
+  allowDispatch(cmd: Command): CommandResult {
+    if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
+      const error = this.checkCFRule(cmd.cf.rule);
+      return error
+        ? { status: "CANCELLED", reason: error }
+        : {
+            status: "SUCCESS",
+          };
+    }
+    return {
+      status: "SUCCESS",
+    };
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -143,7 +170,7 @@ export class ConditionalFormatPlugin
   private addConditionalFormatting(cf: ConditionalFormat, sheet: string) {
     const currentCF = this.cfRules[sheet].slice();
     const replaceIndex = currentCF.findIndex((c) => c.id === cf.id);
-
+    cf.rule = this.cleanRule(cf.rule);
     if (replaceIndex > -1) {
       currentCF.splice(replaceIndex, 1, cf);
     } else {
@@ -152,6 +179,84 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
+  private cleanRule(rule: ConditionalFormatRule): ConditionalFormatRule {
+    switch (rule.type) {
+      case "ColorScaleRule":
+        if (rule.midpoint?.type === "none") {
+          delete rule.midpoint;
+        }
+        return rule;
+      default:
+        return rule;
+    }
+  }
+
+  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CancelledReason | null {
+    switch (rule.type) {
+      case "CellIsRule":
+        if (rule.operator === "Between" || rule.operator === "NotBetween") {
+          if (rule.values.length !== 2) {
+            return CancelledReason.InvalidNumberOfArgs;
+          }
+        } else {
+          if (rule.values.length !== 1) {
+            return CancelledReason.InvalidNumberOfArgs;
+          }
+        }
+        break;
+      case "ColorScaleRule": {
+        return this.checkColorScaleRule(rule);
+      }
+    }
+    return null;
+  }
+
+  private checkColorScaleRule(rule: ColorScaleRule): CancelledReason | null {
+    const NaNValues = [rule.minimum, rule.midpoint, rule.maximum]
+      .filter(isDefined)
+      .filter(({ type }) => ["number", "percentage"].includes(type))
+      .filter(({ value }) => value === "" || isNaN(value as any));
+    if (NaNValues.length) {
+      return CancelledReason.NaN;
+    }
+    try {
+      [rule.minimum, rule.midpoint, rule.maximum]
+        .filter(isDefined)
+        .filter(({ type }) => type === "formula")
+        .forEach(({ value }) => compile(normalize(value || "")));
+    } catch (error) {
+      return CancelledReason.InvalidFormula;
+    }
+
+    const minValue = rule.minimum.value;
+    const midValue = rule.midpoint?.value;
+    const maxValue = rule.maximum.value;
+
+    if (
+      ["number", "percentage"].includes(rule.minimum.type) &&
+      rule.minimum.type === rule.maximum.type &&
+      Number(minValue) >= Number(maxValue)
+    ) {
+      return CancelledReason.MinBiggerThanMax;
+    }
+    if (
+      rule.midpoint &&
+      ["number", "percentage"].includes(rule.midpoint.type) &&
+      rule.minimum.type === rule.midpoint.type &&
+      Number(minValue) >= Number(midValue)
+    ) {
+      return CancelledReason.MinBiggerThanMid;
+    }
+    if (
+      rule.midpoint &&
+      ["number", "percentage"].includes(rule.midpoint.type) &&
+      rule.midpoint.type === rule.maximum.type &&
+      Number(midValue) >= Number(maxValue)
+    ) {
+      return CancelledReason.MidBiggerThanMax;
+    }
+    return null;
+  }
   private adaptcfRules(sheet: string, updateCb: (range: string) => string | null) {
     const currentCfs = this.cfRules[sheet];
     const newCfs: ConditionalFormat[] = [];

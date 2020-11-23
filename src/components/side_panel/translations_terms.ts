@@ -1,6 +1,7 @@
 import { _lt } from "../../translation";
+import { CancelledReason } from "../../types/index";
 
-export const terms = {
+export const conditionalFormatingTerms = {
   CF_TITLE: _lt("Format rules"),
   IS_RULE: _lt("Format cells if..."),
   FORMATTING_STYLE: _lt("Formatting style"),
@@ -12,6 +13,26 @@ export const terms = {
   CANCEL: _lt("Cancel"),
   SAVE: _lt("Save"),
   PREVIEWTEXT: _lt("Preview text"),
+  Errors: {
+    [CancelledReason.NaN]: _lt("Must write a number"),
+    [CancelledReason.MinBiggerThanMax]: _lt("Minimum must be smaller then Maximum"),
+    [CancelledReason.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
+    [CancelledReason.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
+    [CancelledReason.InvalidFormula]: _lt("Invalid formula"),
+  },
+};
+
+export const colorScale = {
+  CellValues: _lt("Cell values"),
+  FixedNumber: _lt("Fixed number"),
+  Percentage: _lt("Percentage"),
+  Formula: _lt("Formula"),
+  FormatRules: _lt("Format rules"),
+  None: _lt("None"),
+  Preview: _lt("Preview"),
+  Minpoint: _lt("Minpoint"),
+  MaxPoint: _lt("MaxPoint"),
+  MidPoint: _lt("MidPoint"),
 };
 
 export const cellIsOperators = {

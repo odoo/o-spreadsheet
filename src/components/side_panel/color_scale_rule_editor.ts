@@ -3,33 +3,50 @@ import * as icons from "../icons";
 
 import { ColorPicker } from "../color_picker";
 import { colorNumberString } from "../../helpers/index";
-import { ColorScaleRule, ConditionalFormat, SpreadsheetEnv } from "../../types";
+import {
+  ColorScaleMidPointThreshold,
+  ColorScaleRule,
+  ColorScaleThreshold,
+  ConditionalFormat,
+  SpreadsheetEnv,
+} from "../../types";
+import { colorScale, conditionalFormatingTerms } from "./translations_terms";
 
 const { Component, useState, hooks } = owl;
 const { useExternalListener } = hooks;
 const { xml, css } = owl.tags;
 
 export const PREVIEW_TEMPLATE = xml/* xml */ `
-    <div class="o-cf-preview-gradient" t-attf-style="background-image: linear-gradient(to right, #{{colorNumberString(state.minimum.color)}}, #{{colorNumberString(state.maximum.color)}})">
-      <div t-esc="previewText">Preview text</div>
-    </div>
+  <div class="o-cf-preview-gradient" t-attf-style="{{getPreviewGradient()}}">
+    <t t-esc="env._t('${conditionalFormatingTerms.PREVIEWTEXT}')"/>
+  </div>
 `;
 
 const THRESHOLD_TEMPLATE = xml/* xml */ `
   <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
       <div class="o-tools">
         <div class="o-tool  o-dropdown o-with-color">
-        <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
-              t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
-              <ColorPicker t-if="state[thresholdType+'ColorTool']" t-on-color-picked="setColor(thresholdType)"/>
-          </div>
+          <span title="Fill Color"  t-attf-style="border-color:#{{colorNumberString(threshold.color)}}"
+                t-on-click.stop="toggleMenu(thresholdType+'ColorTool')">${icons.FILL_COLOR_ICON}</span>
+          <ColorPicker t-if="stateColorScale[thresholdType+'ColorTool']" t-on-color-picked="setColor(thresholdType)"/>
+        </div>
       </div>
       <select name="valueType" t-model="threshold.type" t-on-click="closeMenus">
-          <option value="value">Cell values</option>
-<!--          <option value="number">Fixed number</option>--> <!-- not yet implemented -->
-<!--          <option value="percentage">Percentage</option>-->
-<!--          <option value="percentile">Percentile</option>-->
-<!--          <option value="formula">Formula</option>-->
+        <option value="value" t-if="thresholdType!=='midpoint'">
+          <t t-esc="env._t('${colorScale.CellValues}')"/>
+        </option>
+        <option value="none" t-if="thresholdType==='midpoint'">
+          <t t-esc="env._t('${colorScale.None}')"/>
+        </option>
+        <option value="number">
+          <t t-esc="env._t('${colorScale.FixedNumber}')"/>
+        </option>
+        <option value="percentage">
+          <t t-esc="env._t('${colorScale.Percentage}')"/>
+        </option>
+        <option value="formula">
+          <t t-esc="env._t('${colorScale.Formula}')"/>
+        </option>
       </select>
 
       <input type="text" t-model="threshold.value" class="o-threshold-value"
@@ -38,22 +55,46 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
 
 const TEMPLATE = xml/* xml */ `
   <div>
-      <div class="o-section-title">Format rules</div>
-      <div class="o-cf-title-text">Preview</div>
+      <div class="o-section-title">
+        <t t-esc="env._t('${colorScale.FormatRules}')"/>
+      </div>
+      <div class="o-cf-title-text">
+        <t t-esc="env._t('${colorScale.Preview}')"/>
+      </div>
       <t t-call="${PREVIEW_TEMPLATE}"/>
-      <div class="o-cf-title-text">Minpoint</div>
+      <div class="o-cf-title-text">
+        <t t-esc="env._t('${colorScale.Minpoint}')"/>
+      </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
-          <t t-set="threshold" t-value="state.minimum" ></t>
+          <t t-set="threshold" t-value="stateColorScale.minimum" ></t>
           <t t-set="thresholdType" t-value="'minimum'" ></t>
       </t>
-      <div class="o-cf-title-text">MaxPoint</div>
+      <div class="o-cf-title-text">
+        <t t-esc="env._t('${colorScale.MidPoint}')"/>
+      </div>
       <t t-call="${THRESHOLD_TEMPLATE}">
-          <t t-set="threshold" t-value="state.maximum" ></t>
+          <t t-set="threshold" t-value="stateColorScale.midpoint" ></t>
+          <t t-set="thresholdType" t-value="'midpoint'" ></t>
+      </t>
+      <div class="o-cf-title-text">
+        <t t-esc="env._t('${colorScale.MaxPoint}')"/>
+      </div>
+      <t t-call="${THRESHOLD_TEMPLATE}">
+          <t t-set="threshold" t-value="stateColorScale.maximum" ></t>
           <t t-set="thresholdType" t-value="'maximum'" ></t>
       </t>
+      <div class="o-cf-error" t-if="props.error">
+        <t t-esc="props.error"/>
+      </div>
       <div class="o-sidePanelButtons">
-        <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel">Cancel</button>
-        <button t-on-click="onSave" class="o-sidePanelButton o-cf-save">Save</button>
+        <button t-on-click="onCancel" class="o-sidePanelButton o-cf-cancel">
+          <t t-esc="env._t('${conditionalFormatingTerms.CANCEL}')"/>
+        </button>
+        <button class="o-sidePanelButton o-cf-save"
+          t-on-click="onSave"
+        >
+          <t t-esc="env._t('${conditionalFormatingTerms.SAVE}')"/>
+        </button>
       </div>
   </div>`;
 
@@ -78,10 +119,23 @@ const CSS = css/* scss */ `
     border: 1px solid darkgrey;
     padding: 10px;
   }
+  .o-cf-error {
+    color: red;
+    margin-top: 10px;
+  }
 `;
 
 interface Props {
   conditionalFormat: ConditionalFormat;
+}
+
+interface ColorScaleRuleState {
+  minimum: ColorScaleThreshold;
+  maximum: ColorScaleThreshold;
+  midpoint: ColorScaleMidPointThreshold;
+  minimumColorTool: boolean;
+  maximumColorTool: boolean;
+  midpointColorTool: boolean;
 }
 
 export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
@@ -91,30 +145,25 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
 
   cf = this.props.conditionalFormat;
   colorNumberString = colorNumberString;
-  rule = this.cf ? (this.cf.rule as ColorScaleRule) : null;
-  state = useState({
-    minimum: this.rule
-      ? Object.assign({}, this.rule.minimum)
-      : { color: 0xffffff, type: "value", value: null },
-    maximum: this.rule
-      ? Object.assign({}, this.rule.maximum)
-      : { color: 0x000000, type: "value", value: null },
-    midpoint:
-      this.rule && Object.assign({}, this.rule.midpoint)
-        ? this.rule.midpoint
-        : { color: 0xffffff, type: "value", value: null },
+  rule = this.cf.rule as ColorScaleRule;
+  stateColorScale = useState<ColorScaleRuleState>({
+    minimum: this.rule.minimum,
+    maximum: this.rule.maximum,
+    midpoint: this.rule.midpoint ? this.rule.midpoint : { color: 0x444, type: "none" },
     maximumColorTool: false,
     minimumColorTool: false,
+    midpointColorTool: false,
   });
+
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.closeMenus);
   }
 
   toggleMenu(tool) {
-    const current = this.state[tool];
+    const current = this.stateColorScale[tool];
     this.closeMenus();
-    this.state[tool] = !current;
+    this.stateColorScale[tool] = !current;
   }
 
   toggleTool(tool: string) {
@@ -122,23 +171,37 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   }
   setColor(target: string, ev: CustomEvent) {
     const color: string = ev.detail.color;
-    this.state[target].color = Number.parseInt(color.substr(1), 16);
+    this.stateColorScale[target].color = Number.parseInt(color.substr(1), 16);
     this.closeMenus();
   }
+
+  getPreviewGradient() {
+    const minColor = colorNumberString(this.stateColorScale.minimum.color);
+    const midColor = colorNumberString(this.stateColorScale.midpoint.color);
+    const maxColor = colorNumberString(this.stateColorScale.maximum.color);
+    const baseString = "background-image: linear-gradient(to right, #";
+    return this.stateColorScale.midpoint.type === "none"
+      ? baseString + minColor + ", #" + maxColor + ")"
+      : baseString + minColor + ", #" + midColor + ", #" + maxColor + ")";
+  }
+
   closeMenus() {
-    this.state.minimumColorTool = false;
-    this.state.maximumColorTool = false;
+    this.stateColorScale.minimumColorTool = false;
+    this.stateColorScale.midpointColorTool = false;
+    this.stateColorScale.maximumColorTool = false;
   }
 
   onSave() {
-    this.trigger("modify-rule", {
-      rule: {
-        type: "ColorScaleRule",
-        minimum: this.state.minimum,
-        maximum: this.state.maximum,
-        midpoint: this.state.midpoint,
-      },
-    });
+    const minimum = { ...this.stateColorScale.minimum };
+    const midpoint = { ...this.stateColorScale.midpoint };
+    const maximum = { ...this.stateColorScale.maximum };
+    const rule = {
+      type: "ColorScaleRule",
+      minimum,
+      maximum,
+      midpoint,
+    };
+    this.trigger("modify-rule", { rule });
   }
   onCancel() {
     this.trigger("cancel-edit");
