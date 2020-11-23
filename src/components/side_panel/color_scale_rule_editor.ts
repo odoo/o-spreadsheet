@@ -114,9 +114,9 @@ const CSS = css/* scss */ `
     flex-direction: horizontal;
 
     .o-threshold-value {
-      width: 5em;
       margin-left: 15px;
-      margin-right: 15px;
+      width: 100%;
+      min-width: 0px; // input overflows in Firefox otherwise
     }
   }
   .o-cf-preview-gradient {

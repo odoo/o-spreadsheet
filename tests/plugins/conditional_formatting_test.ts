@@ -1,6 +1,12 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types/index";
-import { createEqualCF, createColorScale, setCellContent } from "../helpers";
+import {
+  createEqualCF,
+  createColorScale,
+  setCellContent,
+  getCell,
+  waitForRecompute,
+} from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -1447,6 +1453,139 @@ describe("conditional formats types", () => {
         });
         expect(true).toBeTruthy(); // no error
       });
+    });
+    describe("formula scale", () => {
+      test("add formula conditional format", () => {
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "formula", color: 0xff0000, value: "=A1" },
+            { type: "formula", color: 0x0000ff, value: "=A3" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([
+          {
+            rule: {
+              type: "ColorScaleRule",
+              minimum: {
+                color: 0xff0000,
+                type: "formula",
+                value: "=A1",
+              },
+              midpoint: undefined,
+              maximum: {
+                color: 0x0000ff,
+                type: "formula",
+                value: "=A3",
+              },
+            },
+            id: "1",
+            ranges: ["A1:A5"],
+          },
+        ]);
+      });
+
+      test("compute style based on formula", () => {
+        setCellContent(model, "A1", "1");
+        setCellContent(model, "A2", "2");
+        setCellContent(model, "A3", "3");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A3"],
+            { type: "formula", color: 0xff0000, value: "=A1" },
+            { type: "formula", color: 0x0000ff, value: "=A3" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#800080" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#0000ff" });
+      });
+
+      test("bad expression", () => {
+        const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A3"],
+            { type: "formula", color: 0xff0000, value: "=THIS DOES NOT COMPILE" },
+            { type: "formula", color: 0x0000ff, value: "=A3" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(result).toEqual({
+          status: "CANCELLED",
+          reason: CancelledReason.InvalidFormula,
+        });
+      });
+
+      test.each([undefined, ""])("empty formula value", (emptyFormula) => {
+        const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A3"],
+            { type: "formula", color: 0xff0000, value: emptyFormula },
+            { type: "formula", color: 0x0000ff, value: "=A3" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(result).toEqual({
+          status: "CANCELLED",
+          reason: CancelledReason.InvalidFormula,
+        });
+      });
+      test("error while evaluating formula", () => {
+        setCellContent(model, "A1", "=A1");
+        expect(getCell(model, "A1")!.error).toBeTruthy();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1"],
+            { type: "formula", color: 0xff0000, value: "=A1" },
+            { type: "formula", color: 0x0000ff, value: "=A3" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+      });
+
+      test("formula depending on async cell", async () => {
+        setCellContent(model, "A1", "1");
+        setCellContent(model, "B1", "=WAIT(1)");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1"],
+            { type: "formula", color: 0xff0000, value: "=B1" },
+            { type: "formula", color: 0x0000ff, value: "=2" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+        await waitForRecompute();
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
+      });
+
+      // TODO
+      test.skip("async formula", async () => {
+        setCellContent(model, "A1", "1");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1"],
+            { type: "formula", color: 0xff0000, value: "=WAIT(1)" },
+            { type: "formula", color: 0x0000ff, value: "=2" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
+      });
+
+      test("formula date", () => {});
+      test("formula string", () => {});
     });
   });
   describe("icon scale", () => {});

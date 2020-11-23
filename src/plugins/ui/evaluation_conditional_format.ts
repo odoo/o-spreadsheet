@@ -159,6 +159,9 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         const max = this.getters.evaluateFormula(`=max(${range})`);
         const delta = max - min;
         return min + (delta * Number(threshold.value)) / 100;
+      case "formula":
+        const value = threshold.value && this.getters.evaluateFormula(threshold.value);
+        return !(value instanceof Promise) ? value : null;
       default:
         return null;
     }
