@@ -154,6 +154,11 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         return this.getters.evaluateFormula(`=${functionName}(${range})`);
       case "number":
         return Number(threshold.value);
+      case "percentage":
+        const min = this.getters.evaluateFormula(`=min(${range})`);
+        const max = this.getters.evaluateFormula(`=max(${range})`);
+        const delta = max - min;
+        return min + (delta * Number(threshold.value)) / 100;
       default:
         return null;
     }

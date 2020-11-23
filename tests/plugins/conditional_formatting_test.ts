@@ -1252,6 +1252,202 @@ describe("conditional formats types", () => {
         expect(true).toBeTruthy(); // no error
       });
     });
+    describe("percentage values", () => {
+      test("basic exemple", () => {
+        setCellContent(model, "A1", "10");
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1"],
+            { type: "percentage", color: 0xff00ff, value: "0" },
+            { type: "percentage", color: 0x123456, value: "100" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([
+          {
+            rule: {
+              type: "ColorScaleRule",
+              maximum: {
+                color: 1193046,
+                type: "percentage",
+                value: "100",
+              },
+              midpoint: undefined,
+              minimum: {
+                color: 16711935,
+                type: "percentage",
+                value: "0",
+              },
+            },
+            id: "1",
+            ranges: ["A1"],
+          },
+        ]);
+        expect(model.getters.getConditionalStyle("A1")).toEqual(undefined);
+      });
+
+      test("2 points, value scale", () => {
+        setCellContent(model, "A1", "10");
+        setCellContent(model, "A2", "11");
+        setCellContent(model, "A3", "17");
+        setCellContent(model, "A4", "19");
+        setCellContent(model, "A5", "20");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "percentage", color: 0xff00ff, value: "0" },
+            { type: "percentage", color: 0x123456, value: "100" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+      });
+
+      test("2 points, value scale with other min and max", () => {
+        setCellContent(model, "A1", "100");
+        setCellContent(model, "A2", "110");
+        setCellContent(model, "A3", "170");
+        setCellContent(model, "A4", "190");
+        setCellContent(model, "A5", "200");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "percentage", color: 0xff00ff, value: "-10" },
+            { type: "percentage", color: 0x123456, value: "110" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#eb04f1" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#d809e3" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#61238e" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#3a2b72" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#263064" });
+      });
+
+      test("2 points, value scale with minimum = 0", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "1");
+        setCellContent(model, "A3", "7");
+        setCellContent(model, "A4", "9");
+        setCellContent(model, "A5", "10");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "percentage", color: 0xff00ff, value: "0" },
+            { type: "percentage", color: 0x123456, value: "100" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff00ff" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#e705ee" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#592489" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#2a2f67" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#123456" });
+      });
+      test("with middlepoint", () => {
+        setCellContent(model, "A1", "0");
+        setCellContent(model, "A2", "10");
+        setCellContent(model, "A3", "20");
+        setCellContent(model, "A4", "30");
+        setCellContent(model, "A5", "40");
+        setCellContent(model, "A6", "50");
+        setCellContent(model, "A7", "60");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A7"],
+            { type: "percentage", color: 0xff0000, value: "0" },
+            { type: "percentage", color: 0x00ff00, value: "100" },
+            { type: "percentage", color: 0x0000ff, value: "50" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+
+        expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#ff0000" });
+        expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#aa0055" });
+        expect(model.getters.getConditionalStyle("A3")).toEqual({ fillColor: "#5500aa" });
+        expect(model.getters.getConditionalStyle("A4")).toEqual({ fillColor: "#0000ff" });
+        expect(model.getters.getConditionalStyle("A5")).toEqual({ fillColor: "#0055aa" });
+        expect(model.getters.getConditionalStyle("A6")).toEqual({ fillColor: "#00aa55" });
+        expect(model.getters.getConditionalStyle("A7")).toEqual({ fillColor: "#00ff00" });
+      });
+      test("min > max will not create a cf rule", () => {
+        const sheetId = model.getters.getActiveSheetId();
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "percentage", color: 0xff0000, value: "75" },
+            { type: "percentage", color: 0x00ff00, value: "25" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+      });
+
+      test("min > middlepoint will not create a cf rule", () => {
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "percentage", color: 0xff0000, value: "75" },
+            { type: "percentage", color: 0x00ff00, value: "100" },
+            { type: "percentage", color: 0x0000ff, value: "50" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+      });
+
+      test("middlepoint > max will not create a cf rule", () => {
+        const sheetId = model.getters.getActiveSheetId();
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A5"],
+            { type: "percentage", color: 0xff0000, value: "0" },
+            { type: "percentage", color: 0x00ff00, value: "100" },
+            { type: "percentage", color: 0x0000ff, value: "150" }
+          ),
+          sheetId,
+        });
+        expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
+      });
+
+      test("async values do not crash the evaluation", () => {
+        setCellContent(model, "A1", "=wait(100)");
+        setCellContent(model, "A2", "110");
+
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: createColorScale(
+            "1",
+            ["A1:A2"],
+            { type: "percentage", color: 0xff00ff, value: "0" },
+            { type: "percentage", color: 0x123456, value: "100" }
+          ),
+          sheetId: model.getters.getActiveSheetId(),
+        });
+        expect(true).toBeTruthy(); // no error
+      });
+    });
   });
   describe("icon scale", () => {});
 });
