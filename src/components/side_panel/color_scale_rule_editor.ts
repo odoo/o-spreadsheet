@@ -37,6 +37,12 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
         <option value="none" t-if="thresholdType==='midpoint'">
           <t t-esc="env._t('${colorScale.None}')"/>
         </option>
+        <option value="number">
+          <t t-esc="env._t('${colorScale.FixedNumber}')"/>
+        </option>
+        <option value="percentage">
+          <t t-esc="env._t('${colorScale.Percentage}')"/>
+        </option>
       </select>
       <input type="text" class="o-threshold-value"
         t-model="stateColorScale[thresholdType].value"

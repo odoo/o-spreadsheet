@@ -341,6 +341,175 @@ describe("UI of conditional formats", () => {
     });
   });
 
+  test("can create a new ColorScaleRule with fixed values", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
+    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20", "input");
+
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "52",
+        ranges: ["B2:B5"],
+        rule: {
+          maximum: {
+            color: 0xffff00,
+            type: "number",
+            value: "20",
+          },
+          minimum: {
+            color: 0x0000ff,
+            type: "number",
+            value: "10",
+          },
+          type: "ColorScaleRule",
+        },
+      },
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+
+  test("can create a new ColorScaleRule with percent values", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "percentage", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
+    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentage", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
+
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "52",
+        ranges: ["B2:B5"],
+        rule: {
+          maximum: {
+            color: 0xffff00,
+            type: "percentage",
+            value: "90",
+          },
+          minimum: {
+            color: 0x0000ff,
+            type: "percentage",
+            value: "10",
+          },
+          type: "ColorScaleRule",
+        },
+      },
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+
+  test("can create a new ColorScaleRule with a midpoint", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0", "input");
+
+    triggerMouseEvent(selectors.colorScaleEditor.midColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerOrange, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50", "input");
+
+    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100", "input");
+
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "52",
+        ranges: ["B2:B5"],
+        rule: {
+          maximum: {
+            color: 0xffff00,
+            type: "number",
+            value: "100",
+          },
+          midpoint: {
+            color: 0xff9900,
+            type: "number",
+            value: "50",
+          },
+          minimum: {
+            color: 0x0000ff,
+            type: "number",
+            value: "0",
+          },
+          type: "ColorScaleRule",
+        },
+      },
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
     triggerMouseEvent(selectors.closePanel, "click");
     await nextTick();
@@ -376,4 +545,202 @@ describe("UI of conditional formats", () => {
   });
 
   test("switching sheet changes the content of CF and cancels the edition", async () => {});
+
+  test("will not dispatch if minvalue > maxvalue", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10", "input");
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Minimum must be smaller then Maximum");
+  });
+
+  test("will show error if minvalue > midvalue", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "60", "input");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50", "input");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10", "input");
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Minimum must be smaller then Maximum");
+  });
+
+  test("will show error if midvalue > maxvalue", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
+    await nextTick();
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Midpoint must be smaller then Maximum");
+  });
+  test.each(["", "aaaa", "=SUM(1, 2)"])(
+    "will display error if wrong minValue",
+    async (invalidValue) => {
+      mockUuidV4To("44");
+
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+      await nextTick();
+
+      // change every value
+      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none", "change");
+      setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+      await nextTick();
+      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue, "input");
+      setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
+      await nextTick();
+
+      let error = document.querySelector(selectors.colorScaleEditor.error);
+      expect(error).toBe(null);
+
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+      expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+      error = document.querySelector(selectors.colorScaleEditor.error);
+      expect(error!.textContent).toBe("Must write a number");
+    }
+  );
+
+  test.each(["", "aaaa", "=SUM(1, 2)"])(
+    "will display error if wrong midValue",
+    async (invalidValue) => {
+      mockUuidV4To("44");
+
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+      await nextTick();
+
+      // change every value
+      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
+      setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+      await nextTick();
+      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
+      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue, "input");
+      setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
+      await nextTick();
+
+      let error = document.querySelector(selectors.colorScaleEditor.error);
+      expect(error).toBe(null);
+
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+      expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+      error = document.querySelector(selectors.colorScaleEditor.error);
+      expect(error!.textContent).toBe("Must write a number");
+    }
+  );
+
+  test.each(["", "aaaa", "=SUM(1, 2)"])(
+    "will display error if wrong maxValue",
+    async (invalidValue) => {
+      mockUuidV4To("44");
+
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
+
+      triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+      await nextTick();
+
+      // change every value
+      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+      setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+      setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none", "change");
+      setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+      await nextTick();
+      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1", "input");
+      setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, invalidValue, "input");
+      await nextTick();
+
+      let error = document.querySelector(selectors.colorScaleEditor.error);
+      expect(error).toBe(null);
+
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
+      expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+      error = document.querySelector(selectors.colorScaleEditor.error);
+      expect(error!.textContent).toBe("Must write a number");
+    }
+  );
 });

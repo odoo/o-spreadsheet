@@ -1,5 +1,6 @@
 import { CorePlugin } from "../core_plugin";
 import {
+  isDefined,
   toXC,
   toZone,
   updateAddColumns,
@@ -197,6 +198,40 @@ export class ConditionalFormatPlugin
   }
 
   private checkColorScaleRule(rule: ColorScaleRule): CancelledReason | null {
+    const NaNValues = [rule.minimum, rule.midpoint, rule.maximum]
+      .filter(isDefined)
+      .filter(({ type }) => ["number", "percentage"].includes(type))
+      .filter(({ value }) => value === "" || isNaN(value as any));
+    if (NaNValues.length) {
+      return CancelledReason.NaN;
+    }
+    const minValue = rule.minimum.value;
+    const midValue = rule.midpoint?.value;
+    const maxValue = rule.maximum.value;
+
+    if (
+      ["number", "percentage"].includes(rule.minimum.type) &&
+      rule.minimum.type === rule.maximum.type &&
+      Number(minValue) >= Number(maxValue)
+    ) {
+      return CancelledReason.MinBiggerThanMax;
+    }
+    if (
+      rule.midpoint &&
+      ["number", "percentage"].includes(rule.midpoint.type) &&
+      rule.minimum.type === rule.midpoint.type &&
+      Number(minValue) >= Number(midValue)
+    ) {
+      return CancelledReason.MinBiggerThanMid;
+    }
+    if (
+      rule.midpoint &&
+      ["number", "percentage"].includes(rule.midpoint.type) &&
+      rule.midpoint.type === rule.maximum.type &&
+      Number(midValue) >= Number(maxValue)
+    ) {
+      return CancelledReason.MidBiggerThanMax;
+    }
     return null;
   }
   private adaptcfRules(sheet: string, updateCb: (range: string) => string | null) {
