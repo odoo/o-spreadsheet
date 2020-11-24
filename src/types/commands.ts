@@ -763,10 +763,16 @@ export const enum CancelledReason {
   MinBiggerThanMax,
   MidBiggerThanMax,
   MinBiggerThanMid,
-  NaN,
   InvalidNumberOfArgs,
-  InvalidFormula,
-  AsyncFormulaNotSupported,
+  MinNaN,
+  MidNaN,
+  MaxNaN,
+  MinAsyncFormulaNotSupported,
+  MidAsyncFormulaNotSupported,
+  MaxAsyncFormulaNotSupported,
+  MinInvalidFormula,
+  MidInvalidFormula,
+  MaxInvalidFormula,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

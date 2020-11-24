@@ -43,6 +43,9 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
         <option value="percentage">
           <t t-esc="env._t('${colorScale.Percentage}')"/>
         </option>
+        <option value="formula">
+          <t t-esc="env._t('${colorScale.Formula}')"/>
+        </option>
       </select>
       <input type="text" class="o-threshold-value"
         t-model="stateColorScale[thresholdType].value"
@@ -166,6 +169,7 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
     minimumColorTool: false,
     midpointColorTool: false,
   });
+
   constructor() {
     super(...arguments);
     useExternalListener(window as any, "click", this.closeMenus);
@@ -195,6 +199,7 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
       ? baseString + minColor + ", #" + maxColor + ")"
       : baseString + minColor + ", #" + midColor + ", #" + maxColor + ")";
   }
+
   closeMenus() {
     this.stateColorScale.minimumColorTool = false;
     this.stateColorScale.midpointColorTool = false;

@@ -1,6 +1,5 @@
 import { CorePlugin } from "../core_plugin";
 import {
-  isDefined,
   toXC,
   toZone,
   updateAddColumns,
@@ -18,8 +17,11 @@ import {
   ColorScaleRule,
   SingleColorRules,
   CommandResult,
+  ColorScaleThreshold,
+  ColorScaleMidPointThreshold,
 } from "../../types/index";
 import { _lt } from "../../translation";
+import { compile, normalize } from "../../formulas/index";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -168,7 +170,6 @@ export class ConditionalFormatPlugin
   private addConditionalFormatting(cf: ConditionalFormat, sheet: string) {
     const currentCF = this.cfRules[sheet].slice();
     const replaceIndex = currentCF.findIndex((c) => c.id === cf.id);
-
     if (replaceIndex > -1) {
       currentCF.splice(replaceIndex, 1, cf);
     } else {
@@ -197,18 +198,60 @@ export class ConditionalFormatPlugin
     return null;
   }
 
+  private checkPoint(
+    threshold: ColorScaleThreshold | ColorScaleMidPointThreshold,
+    thresholdName: string
+  ): CancelledReason | undefined {
+    if (
+      ["number", "percentage"].includes(threshold.type) &&
+      (threshold.value === "" || isNaN(threshold.value as any))
+    ) {
+      switch (thresholdName) {
+        case "min":
+          return CancelledReason.MinNaN;
+        case "max":
+          return CancelledReason.MaxNaN;
+        case "mid":
+          return CancelledReason.MidNaN;
+      }
+    }
+    try {
+      if (threshold.type === "formula") {
+        const compiledFormula = compile(normalize(threshold.value || ""));
+        if (compiledFormula.async) {
+          switch (thresholdName) {
+            case "min":
+              return CancelledReason.MinAsyncFormulaNotSupported;
+            case "max":
+              return CancelledReason.MaxAsyncFormulaNotSupported;
+            case "mid":
+              return CancelledReason.MidAsyncFormulaNotSupported;
+          }
+        }
+      }
+    } catch (error) {
+      switch (thresholdName) {
+        case "min":
+          return CancelledReason.MinInvalidFormula;
+        case "max":
+          return CancelledReason.MaxInvalidFormula;
+        case "mid":
+          return CancelledReason.MidInvalidFormula;
+      }
+    }
+    return;
+  }
   private checkColorScaleRule(rule: ColorScaleRule): CancelledReason | null {
-    const NaNValues = [rule.minimum, rule.midpoint, rule.maximum]
-      .filter(isDefined)
-      .filter(({ type }) => ["number", "percentage"].includes(type))
-      .filter(({ value }) => value === "" || isNaN(value as any));
-    if (NaNValues.length) {
-      return CancelledReason.NaN;
+    const error =
+      this.checkPoint(rule.minimum, "min") ||
+      this.checkPoint(rule.maximum, "max") ||
+      (rule.midpoint && this.checkPoint(rule.midpoint, "mid"));
+    if (error) {
+      return error;
     }
     const minValue = rule.minimum.value;
     const midValue = rule.midpoint?.value;
     const maxValue = rule.maximum.value;
-
     if (
       ["number", "percentage"].includes(rule.minimum.type) &&
       rule.minimum.type === rule.maximum.type &&
