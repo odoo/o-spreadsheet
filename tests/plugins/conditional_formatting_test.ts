@@ -761,7 +761,7 @@ describe("conditional formats types", () => {
           });
           expect(result).toEqual({
             status: "CANCELLED",
-            reason: CancelledReason.NaN,
+            reason: CancelledReason.MinNaN,
           });
         });
         test("midpoint is NaN", () => {
@@ -780,7 +780,7 @@ describe("conditional formats types", () => {
           });
           expect(result).toEqual({
             status: "CANCELLED",
-            reason: CancelledReason.NaN,
+            reason: CancelledReason.MidNaN,
           });
         });
         test("maximum is NaN", () => {
@@ -798,7 +798,7 @@ describe("conditional formats types", () => {
           });
           expect(result).toEqual({
             status: "CANCELLED",
-            reason: CancelledReason.NaN,
+            reason: CancelledReason.MaxNaN,
           });
         });
       }

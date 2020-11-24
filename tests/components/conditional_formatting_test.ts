@@ -644,6 +644,40 @@ describe("UI of conditional formats", () => {
     error = document.querySelector(selectors.colorScaleEditor.error);
     expect(error!.textContent).toBe("Midpoint must be smaller then Maximum");
   });
+
+  test("will show error if async formula used", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "number", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "2", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=WAIT(1000)", "input");
+    await nextTick();
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Some formulas are not supported for the Maxpoint");
+  });
+
   test.each(["", "aaaa", "=SUM(1, 2)"])(
     "will display error if wrong minValue",
     async (invalidValue) => {
@@ -673,7 +707,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       error = document.querySelector(selectors.colorScaleEditor.error);
-      expect(error!.textContent).toBe("Must write a number");
+      expect(error!.textContent).toBe("The minpoint must be a number");
     }
   );
 
@@ -696,7 +730,7 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
       await nextTick();
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
-      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue, "input");
+      setInputValueAndTrigger(selectors.colorScaleEditor.midValue, invalidValue, "input");
       setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25", "input");
       await nextTick();
 
@@ -707,7 +741,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       error = document.querySelector(selectors.colorScaleEditor.error);
-      expect(error!.textContent).toBe("Must write a number");
+      expect(error!.textContent).toBe("The midpoint must be a number");
     }
   );
 
@@ -740,7 +774,98 @@ describe("UI of conditional formats", () => {
       await nextTick();
       expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       error = document.querySelector(selectors.colorScaleEditor.error);
-      expect(error!.textContent).toBe("Must write a number");
+      expect(error!.textContent).toBe("The maxpoint must be a number");
     }
   );
+
+  test("will display error if there is an invalid formula for the min", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "=SUM(1", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=SUM(1,2)", "input");
+    await nextTick();
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Invalid Minpoint formula");
+  });
+
+  test("will display error if there is an invalid formula for the mid", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "formula", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "=SUM(1", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3", "input");
+    await nextTick();
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Invalid Midpoint formula");
+  });
+
+  test("will display error if there is an invalid formula for the max", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none", "change");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=SUM(1", "input");
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "=SUM(1,2)", "input");
+    await nextTick();
+
+    let error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error).toBe(null);
+
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
+    error = document.querySelector(selectors.colorScaleEditor.error);
+    expect(error!.textContent).toBe("Invalid Maxpoint formula");
+  });
 });
