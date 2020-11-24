@@ -371,6 +371,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetEnv>
     return {
       rule: {
         minimum: { type: "value", color: 0 },
+        midpoint: undefined,
         maximum: { type: "value", color: 0xeeffee },
         type: "ColorScaleRule",
       },

@@ -7,7 +7,17 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../../helpers/index";
-import { Command, ConditionalFormat, WorkbookData, Zone, UID } from "../../types/index";
+import {
+  Command,
+  ConditionalFormat,
+  WorkbookData,
+  Zone,
+  UID,
+  CancelledReason,
+  ColorScaleRule,
+  SingleColorRules,
+  CommandResult,
+} from "../../types/index";
 import { _lt } from "../../translation";
 
 // -----------------------------------------------------------------------------
@@ -27,6 +37,20 @@ export class ConditionalFormatPlugin
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+
+  allowDispatch(cmd: Command): CommandResult {
+    if (cmd.type === "ADD_CONDITIONAL_FORMAT") {
+      const error = this.checkCFRule(cmd.cf.rule);
+      return error
+        ? { status: "CANCELLED", reason: error }
+        : {
+            status: "SUCCESS",
+          };
+    }
+    return {
+      status: "SUCCESS",
+    };
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -152,6 +176,29 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
+  private checkCFRule(rule: ColorScaleRule | SingleColorRules): CancelledReason | null {
+    switch (rule.type) {
+      case "CellIsRule":
+        if (rule.operator === "Between" || rule.operator === "NotBetween") {
+          if (rule.values.length !== 2) {
+            return CancelledReason.InvalidNumberOfArgs;
+          }
+        } else {
+          if (rule.values.length !== 1) {
+            return CancelledReason.InvalidNumberOfArgs;
+          }
+        }
+        break;
+      case "ColorScaleRule": {
+        return this.checkColorScaleRule(rule);
+      }
+    }
+    return null;
+  }
+
+  private checkColorScaleRule(rule: ColorScaleRule): CancelledReason | null {
+    return null;
+  }
   private adaptcfRules(sheet: string, updateCb: (range: string) => string | null) {
     const currentCfs = this.cfRules[sheet];
     const newCfs: ConditionalFormat[] = [];
