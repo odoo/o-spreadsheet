@@ -559,15 +559,32 @@ describe("Columns", () => {
         A2: { content: "=SUM(A1:B1)" },
       });
     });
+    test("delete almost all columns of a range", () => {
+      model = new Model({
+        sheets: [
+          {
+            id: "s1",
+            colNumber: 9,
+            rowNumber: 9,
+            cells: {
+              A1: { content: "=SUM(A2:E5)" },
+            },
+          },
+        ],
+      });
+      removeColumns([1, 2, 3, 4]);
+      expect(model.getters.getCellByXc("s1", "A1")!.content).toBe("=SUM(A2:A5)");
+    });
+
     test("delete all columns of a range", () => {
       model = new Model({
         sheets: [
           {
             id: "s1",
             colNumber: 9,
-            rowNumber: 3,
+            rowNumber: 9,
             cells: {
-              A1: { content: "=SUM(A2:E5)" },
+              A1: { content: "=SUM(B2:E5)" },
             },
           },
         ],
