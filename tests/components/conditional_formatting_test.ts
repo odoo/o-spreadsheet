@@ -200,7 +200,6 @@ describe("UI of conditional formats", () => {
           minimum: {
             color: 0x0000ff,
             type: "value",
-            value: "33",
           },
           type: "ColorScaleRule",
         },
@@ -325,7 +324,6 @@ describe("UI of conditional formats", () => {
           minimum: {
             color: 0x0000ff,
             type: "value",
-            value: "33",
           },
           type: "ColorScaleRule",
         },
