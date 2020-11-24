@@ -7,6 +7,7 @@ import { ContentEditableHelper } from "./content_editable_helper";
 import { zoneToXc, DEBUG } from "../../helpers/index";
 import { ComposerSelection } from "../../plugins/ui/edition";
 import { functionRegistry } from "../../functions/index";
+import { useThrottled } from "../../helpers/hooks";
 
 const { Component } = owl;
 const { useRef, useState } = owl.hooks;
@@ -151,6 +152,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     ArrowLeft: this.processArrowKeys,
     ArrowRight: this.processArrowKeys,
   };
+  private readonly throttledProcessContent = useThrottled(
+    (isFocused: boolean) => this.processContent(isFocused),
+    100
+  );
 
   constructor() {
     super(...arguments);
@@ -172,7 +177,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
   }
 
   async willUpdateProps(nextProps: Props) {
-    this.processContent(nextProps.focus);
+    this.throttledProcessContent(nextProps.focus);
   }
 
   // ---------------------------------------------------------------------------
