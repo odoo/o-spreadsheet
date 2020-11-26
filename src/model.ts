@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
-import { WHistory } from "./history";
+import { StateReplicator2000 } from "./history";
 import {
   CommandDispatcher,
   CommandHandler,
@@ -11,12 +11,15 @@ import {
   LAYERS,
   CommandSuccess,
   EvalContext,
+  isCoreCommand,
+  CommandResult,
 } from "./types/index";
 import { _lt } from "./translation";
-import { DEBUG, setIsFastStrategy } from "./helpers/index";
+import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
+import { Message, Network } from "./types/multi_users";
 
 /**
  * Model
@@ -51,6 +54,8 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  userId: string;
+  network?: Network;
 }
 
 const enum Status {
@@ -66,6 +71,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * basically a list of all plugins and the history manager (not a plugin)
    */
   private handlers: CommandHandler<Command>[];
+
+  private stateReplicator2000: StateReplicator2000;
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -93,18 +100,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   getters: Getters;
 
-  constructor(data: any = {}, config: Partial<ModelConfig> = {}) {
+  constructor(data: any = {}, config: Partial<ModelConfig> = {}, messages: Message[] = []) {
     super();
     DEBUG.model = this;
 
     const workbookData = load(data);
-    const history = new WHistory();
-
-    this.getters = {
-      canUndo: history.canUndo.bind(history),
-      canRedo: history.canRedo.bind(history),
-    } as Getters;
-    this.handlers = [history];
 
     this.config = {
       mode: config.mode || "normal",
@@ -113,8 +113,28 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
+      network: config.network,
+      userId: config.userId || uuidv4(),
     };
 
+    // this.history = new WHistory(this.dispatchCore.bind(this));
+    this.stateReplicator2000 = new StateReplicator2000(
+      this.dispatchCore.bind(this),
+      this.config.userId,
+      this.config.network
+    );
+    this.stateReplicator2000.on("update", this, () => this.trigger("update"));
+    this.stateReplicator2000.import(workbookData);
+
+    // this.externalCommandHandler = config.externalCommandHandler;
+    this.getters = {
+      canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
+      canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
+      getUserId: this.stateReplicator2000.getUserId.bind(this.stateReplicator2000),
+    } as Getters;
+    this.handlers = [this.stateReplicator2000];
+
+    setIsFastStrategy(true);
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupPlugin(Plugin, workbookData);
@@ -123,9 +143,15 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     for (let Plugin of uiPluginRegistry.getAll()) {
       this.setupUiPlugin(Plugin);
     }
-
+    setIsFastStrategy(false);
     // starting plugins
     this.dispatch("START");
+    // TODO find a better way please :)
+    for (let msg of messages) {
+      console.log(msg);
+      this.stateReplicator2000.onMessageReceived({ ...msg, clientId: "undefined" }); // LOL
+    }
+    this.trigger("update");
   }
 
   destroy() {
@@ -134,9 +160,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstuctor) {
     const dispatch = this.dispatch.bind(this);
-    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.stateReplicator2000, dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
@@ -157,13 +182,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const dispatch = this.dispatch.bind(this);
-    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
-
-    setIsFastStrategy(true);
+    const dispatch = this.dispatchCore.bind(this);
 
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.stateReplicator2000, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -179,6 +201,65 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  private checkDispatchAllowed(cmd: Command): CommandResult | undefined {
+    for (let handler of this.handlers) {
+      const allowDispatch = handler.allowDispatch(cmd);
+      if (allowDispatch.status === "CANCELLED") {
+        return allowDispatch;
+      }
+    }
+    return undefined;
+  }
+
+  private dispatchToHandlers(command: Command) {
+    if (isCoreCommand(command)) {
+      this.stateReplicator2000.addStep(command);
+    }
+    for (const h of this.handlers) {
+      h.beforeHandle(command);
+    }
+    for (const h of this.handlers) {
+      h.handle(command);
+    }
+  }
+
+  private finalize(command: Command) {
+    this.status = Status.Finalizing;
+    for (const h of this.handlers) {
+      h.finalize(command);
+    }
+  }
+
+  dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+    const command: Command = Object.assign({ type }, payload);
+    let status: Status = command.interactive ? Status.Interactive : this.status;
+    switch (status) {
+      case Status.Ready:
+        const error = this.checkDispatchAllowed(command);
+        if (error) {
+          return error;
+        }
+        this.status = Status.Running;
+        this.stateReplicator2000.transact(command, () => {
+          // this.startTransaction(command);
+          this.dispatchToHandlers(command);
+          this.finalize(command);
+        });
+        this.status = Status.Ready;
+        if (this.config.mode !== "headless") {
+          this.trigger("update");
+        }
+        break;
+      case Status.Running:
+      case Status.Interactive:
+        this.dispatchToHandlers(command);
+        break;
+      case Status.Finalizing:
+        throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+    }
+    return { status: "SUCCESS" } as CommandSuccess;
+  };
+
   /**
    * The dispatch method is the only entry point to manipulate date in the model.
    * This is through this method that commands are dispatched, most of the time
@@ -191,47 +272,61 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    *    component)
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
-  dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  dispatchCore: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
-    let status: Status = command.interactive ? Status.Interactive : this.status;
-    switch (status) {
-      case Status.Ready:
-        for (let handler of this.handlers) {
-          const allowDispatch = handler.allowDispatch(command);
-          if (allowDispatch.status === "CANCELLED") {
-            return allowDispatch;
-          }
-        }
-        this.status = Status.Running;
-        for (const h of this.handlers) {
-          h.beforeHandle(command);
-        }
-        for (const h of this.handlers) {
-          h.handle(command);
-        }
-        this.status = Status.Finalizing;
-        for (const h of this.handlers) {
-          h.finalize(command);
-        }
-        this.status = Status.Ready;
-        if (this.config.mode !== "headless") {
-          this.trigger("update");
-        }
-        break;
-      case Status.Running:
-      case Status.Interactive:
-        for (const h of this.handlers) {
-          h.beforeHandle(command);
-        }
-        for (const h of this.handlers) {
-          h.handle(command);
-        }
-        break;
-      case Status.Finalizing:
-        throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+    for (const h of this.handlers) {
+      h.beforeHandle(command);
+    }
+    for (const h of this.handlers) {
+      h.handle(command);
     }
     return { status: "SUCCESS" } as CommandSuccess;
   };
+  // dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  //   const command: Command = Object.assign({ type }, payload);
+  //   let status: Status = command.interactive ? Status.Interactive : this.status;
+  //   switch (status) {
+  //     case Status.Ready:
+  //       for (let handler of this.handlers) {
+  //         const allowDispatch = handler.allowDispatch(command);
+  //         if (allowDispatch.status === "CANCELLED") {
+  //           return allowDispatch;
+  //         }
+  //       }
+  //       this.status = Status.Running;
+  //       this.history.startStep(command);
+  //       this.network.startTransaction(command);
+  //       for (const h of this.handlers) {
+  //         h.beforeHandle(command);
+  //       }
+  //       for (const h of this.handlers) {
+  //         h.handle(command);
+  //       }
+  //       this.status = Status.Finalizing;
+  //       for (const h of this.handlers) {
+  //         h.finalize(command);
+  //       }
+  //       this.history.finalizeStep();
+  //       this.network.finalizeTransaction();
+  //       this.status = Status.Ready;
+  //       if (this.config.mode !== "headless") {
+  //         this.trigger("update");
+  //       }
+  //       break;
+  //     case Status.Running:
+  //     case Status.Interactive:
+  //       for (const h of this.handlers) {
+  //         h.beforeHandle(command);
+  //       }
+  //       for (const h of this.handlers) {
+  //         h.handle(command);
+  //       }
+  //       break;
+  //     case Status.Finalizing:
+  //       throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+  //   }
+  //   return { status: "SUCCESS" } as CommandSuccess;
+  // };
 
   // ---------------------------------------------------------------------------
   // Grid Rendering
@@ -266,11 +361,14 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   exportData(): WorkbookData {
     const data = createEmptyWorkbookData();
+    this.stateReplicator2000.revertToSharedRevision()
     for (let handler of this.handlers) {
       if (handler instanceof CorePlugin) {
         handler.export(data);
       }
     }
+    this.stateReplicator2000.export(data);
+    this.stateReplicator2000.recoverLocalRevisions();
     return data;
   }
 }

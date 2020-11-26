@@ -9,6 +9,7 @@ import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
 // -----------------------------------------------------------------------------
 
 /**
+ * TODO: redo this comment
  * There are two kinds of commands: Primitive and Local
  *
  * - Primitive commands are commands that
@@ -33,6 +34,59 @@ import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
 
 export interface BaseCommand {
   interactive?: boolean;
+}
+
+// Exported to be used in ot_completude_test.ts
+export const coreTypes = new Set<CoreCommandTypes>([
+  // ...
+
+  /** CELLS */
+  "UPDATE_CELL",
+  "UPDATE_CELL_POSITION",
+  "CLEAR_CELL",
+  "DELETE_CONTENT",
+
+  /** GRID SHAPE */
+  "ADD_COLUMNS",
+  "ADD_ROWS",
+  "REMOVE_COLUMNS",
+  "REMOVE_ROWS",
+  "RESIZE_COLUMNS",
+  "RESIZE_ROWS",
+
+  /** MERGE */
+  "ADD_MERGE",
+  "REMOVE_MERGE",
+
+  /** SHEETS MANIPULATION */
+  "CREATE_SHEET",
+  "DELETE_SHEET",
+  "DUPLICATE_SHEET",
+  "MOVE_SHEET",
+  "RENAME_SHEET",
+
+  /** CONDITIONAL FORMAT */
+  "ADD_CONDITIONAL_FORMAT",
+  "REMOVE_CONDITIONAL_FORMAT",
+
+  /** FIGURES */
+  "CREATE_FIGURE",
+  "DELETE_FIGURE",
+  "UPDATE_FIGURE",
+
+  /** FORMATTING */
+  "SET_FORMATTING",
+  "CLEAR_FORMATTING",
+  "SET_BORDER",
+  "SET_DECIMAL",
+
+  /** CHART */
+  "CREATE_CHART",
+  "UPDATE_CHART",
+]);
+
+export function isCoreCommand(cmd: Command): cmd is CoreCommand {
+  return coreTypes.has(cmd.type as any);
 }
 
 // Core Commands
@@ -179,7 +233,7 @@ export interface AddConditionalFormatCommand extends BaseCommand {
 export interface RemoveConditionalFormatCommand extends BaseCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
-  sheetId: UID;
+  sheetId: UID; //TODO PRO Not needed I think
 }
 
 //------------------------------------------------------------------------------
@@ -205,15 +259,10 @@ export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
 //------------------------------------------------------------------------------
 // Formatting
 //------------------------------------------------------------------------------
-export interface CreateStyleCommand extends BaseCommand {
-  type: "CREATE_STYLE";
-  style: Style;
-}
-
-export interface CreateBorderCommand extends BaseCommand {
-  type: "CREATE_BORDER";
-  border: Border;
-}
+// export interface CreateStyleCommand {
+//   type: "CREATE_STYLE";
+//   style: Style;
+// }
 
 //------------------------------------------------------------------------------
 // Chart
@@ -637,12 +686,6 @@ export interface ChangeRangeCommand extends BaseCommand {
   value: string;
 }
 
-export interface CreateFigureCommand extends BaseCommand {
-  type: "CREATE_FIGURE";
-  figure: Figure<any>;
-  sheetId: UID;
-}
-
 export interface SelectFigureCommand extends BaseCommand {
   type: "SELECT_FIGURE";
   id: string;
@@ -686,6 +729,7 @@ export type CoreCommand =
   | UpdateCellPositionCommand
   | ClearCellCommand //TODO check if necessary
   | DeleteContentCommand //TODO Check if necessary
+  | SetDecimalCommand //TODO Check this
 
   /** GRID SHAPE */
   | AddColumnsCommand
@@ -716,12 +760,9 @@ export type CoreCommand =
   | UpdateFigureCommand
 
   /** FORMATTING */
-  | CreateStyleCommand //TODO Remove it
-  | CreateBorderCommand //TODO Remove it
   | SetFormattingCommand
   | ClearFormattingCommand
-  | SetBorderCommand //TODO Check if necessary
-  | SetDecimalCommand //TODO Check this
+  | SetBorderCommand
 
   /** CHART */
   | CreateChartCommand

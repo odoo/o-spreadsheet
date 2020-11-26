@@ -1,6 +1,6 @@
-import { WHistory, WorkbookHistory } from "../history";
+import { StateReplicator2000 } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
+import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
 
 /**
  * BasePlugin
@@ -22,7 +22,11 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(history: WHistory, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
+  constructor(
+    history: StateReplicator2000,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
     });

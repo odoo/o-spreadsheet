@@ -483,9 +483,17 @@ describe("merges", () => {
     // redo
     model.dispatch("REDO");
     expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
-    expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },
-    });
+    const id = getMergeCellMap(model).B2;
+    expect(Object.values(getMerges(model))).toEqual([
+      {
+        bottom: 2,
+        id,
+        left: 1,
+        right: 1,
+        top: 1,
+        topLeft: "B2",
+      },
+    ]);
   });
 
   test("merge, undo, select, redo: correct selection", () => {

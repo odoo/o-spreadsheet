@@ -8,6 +8,8 @@ import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
+import { WebsocketNetwork } from "../ot/network";
+import { Message, Network } from "../types/multi_users";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -67,6 +69,8 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
+  network?: Network | "default";
+  messages?: Message[];
 }
 
 const t = (s: string): string => s;
@@ -77,15 +81,20 @@ export class Spreadsheet extends Component<Props> {
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
-  model = new Model(this.props.data, {
-    notifyUser: (content: string) => this.trigger("notify-user", { content }),
-    askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-      this.trigger("ask-confirmation", { content, confirm, cancel }),
-    editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
-      this.trigger("edit-text", { title, placeholder, callback }),
-    openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-    evalContext: { env: this.env },
-  });
+  model = new Model(
+    this.props.data,
+    {
+      notifyUser: (content: string) => this.trigger("notify-user", { content }),
+      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+        this.trigger("ask-confirmation", { content, confirm, cancel }),
+      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
+        this.trigger("edit-text", { title, placeholder, callback }),
+      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
+      evalContext: { env: this.env },
+      network: this.props.network === "default" ? new WebsocketNetwork() : this.props.network,
+    },
+    this.props.messages
+  );
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {

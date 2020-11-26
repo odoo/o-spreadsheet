@@ -37,3 +37,9 @@ export const DEFAULT_STYLE: Style = {
   textColor: "black",
   fontSize: DEFAULT_FONT_SIZE,
 };
+
+// Max Number of history steps kept in memory
+export const MAX_HISTORY_STEPS = 99;
+
+// Id of the first revision
+export const DEFAULT_REVISION_ID = "START_REVISION"

@@ -79,6 +79,15 @@ export function setBorder(model: Model, border: BorderCommand, xc?: string) {
   });
 }
 
+export function clearCell(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const [col, row] = toCartesian(xc);
+  model.dispatch("CLEAR_CELL", { col, row, sheetId });
+}
+
 /**
  * Set the content of a cell
  */
