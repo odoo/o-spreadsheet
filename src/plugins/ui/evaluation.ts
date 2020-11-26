@@ -1,6 +1,6 @@
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
-import { WHistory } from "../../history";
+import { StateReplicator2000 } from "../../history";
 import { Mode, ModelConfig } from "../../model";
 import {
   Cell,
@@ -75,7 +75,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   constructor(
     getters: Getters,
-    history: WHistory,
+    history: StateReplicator2000,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {

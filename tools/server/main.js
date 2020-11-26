@@ -7,11 +7,11 @@ app.use(cors());
 app.use(express.json());
 
 const aWss = expressWS.getWss("/");
-let timestamp = 0;
+const messages = []; // { id: UID, message: NetworkMessage }
 
 expressWS.getWss().on("connection", (ws) => {
-  log("Connection");
-  //clients.push(ws);
+  ws.send(JSON.stringify({ type: "CONNECTION", messages }));
+  log(`Connection: ${messages.length} messages sent`);
 });
 
 function log(message) {
@@ -22,18 +22,13 @@ app.ws("/", function (ws, req) {
   ws.on("message", function (message) {
     const msg = JSON.parse(message);
     if (msg.type === "multiuser_command") {
-      console.log(JSON.stringify(msg.payload));
+      log(JSON.stringify(msg.payload.commands));
+      messages.push(msg.payload);
       aWss.clients.forEach(function each(client) {
-        client.send(JSON.stringify(msg));
+        client.send(JSON.stringify(msg.payload));
       });
     }
   });
-});
-
-app.post("/timestamp", (req, res) => {
-  timestamp = timestamp + 1;
-  console.log(`Timestamp: ${timestamp}`);
-  res.send(JSON.stringify({ timestamp }));
 });
 
 app.listen(9000);
