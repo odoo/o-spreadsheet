@@ -2,6 +2,7 @@ import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
 import { makeTestFixture, nextTick, mockUuidV4To } from "../helpers";
+import { createSheet } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -57,10 +58,14 @@ describe("BottomBar component", () => {
 
     mockUuidV4To(42);
     triggerMouseEvent(".o-add-sheet", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", {
-      activate: true,
+    const activeSheetId = parent.env.getters.getActiveSheetId();
+    expect(parent.env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: "42",
       position: 1,
+    });
+    expect(parent.env.dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
+      sheetIdTo: "42",
+      sheetIdFrom: activeSheetId,
     });
   });
 
@@ -109,7 +114,7 @@ describe("BottomBar component", () => {
 
   test("Can move right a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -122,7 +127,9 @@ describe("BottomBar component", () => {
 
   test("Can move left a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    const sheetIdFrom = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42" });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo: "42" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -219,7 +226,7 @@ describe("BottomBar component", () => {
 
   test("Can delete a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 
@@ -254,7 +261,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     await parent.mount(fixture);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     triggerMouseEvent(".o-list-sheets", "click");
@@ -270,7 +277,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     const parent = new Parent(model);
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     await parent.mount(fixture);
     triggerMouseEvent(".o-list-sheets", "click");
     await nextTick();

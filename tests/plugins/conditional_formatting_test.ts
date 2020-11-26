@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { createEqualCF, createColorScale, setCellContent } from "../helpers";
+import { createEqualCF, createColorScale } from "../helpers";
+import { setCellContent, createSheet, redo, undo } from "../commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -57,7 +58,7 @@ describe("conditional format", () => {
 
   test("Add conditional formating on inactive sheet", () => {
     model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [activeSheet, sheet] = model.getters.getSheets();
     expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -159,12 +160,12 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
 
-    model.dispatch("UNDO");
+    undo(model);
 
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
 
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
@@ -186,13 +187,13 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("C2")).toEqual({ fillColor: "#FF0000" });
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getConditionalStyle("B1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("B2")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("C1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getConditionalStyle("B1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
     expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
@@ -207,7 +208,7 @@ describe("conditional format", () => {
     const workbookData = model.exportData();
     const newModel = new Model(workbookData);
     const sheetId = model.getters.getActiveSheetId();
-    expect(newModel.getters.getConditionalFormats(sheetId)).toBe(
+    expect(newModel.getters.getConditionalFormats(sheetId)).toEqual(
       model.getters.getConditionalFormats(sheetId)
     );
   });

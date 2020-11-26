@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, getCellContent, getCellText, setCellContent } from "../helpers";
+import { getCell, getCellContent, getCellText } from "../getters_helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
 import { CancelledReason } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 
@@ -51,7 +52,7 @@ describe("edition", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBeUndefined();
     model.dispatch("ACTIVATE_SHEET", {
@@ -67,7 +68,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { activate: true, sheetId: "42", name: "Sheet2" });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
@@ -91,7 +92,7 @@ describe("edition", () => {
     const model = new Model();
     const name = "NEW_NAME";
     const sheet2 = "42";
-    model.dispatch("CREATE_SHEET", { name, sheetId: sheet2, position: 1 });
+    createSheet(model, { sheetId: sheet2, name });
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";
@@ -246,6 +247,7 @@ describe("edition", () => {
 
   test("replace selection with smaller text", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "12345",
     });
@@ -265,6 +267,7 @@ describe("edition", () => {
 
   test("replace selection with longer text", () => {
     const model = new Model();
+    model.dispatch("START_EDITION");
     model.dispatch("SET_CURRENT_CONTENT", {
       content: "12345",
     });
@@ -369,11 +372,7 @@ describe("edition", () => {
     const model = new Model();
     const sheet1Id = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "Hello from sheet1");
-    model.dispatch("CREATE_SHEET", {
-      sheetId: "42",
-      activate: true,
-      position: 1,
-    });
+    createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getCurrentContent()).toBe("");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: sheet1Id });
     expect(model.getters.getCurrentContent()).toBe("Hello from sheet1");
@@ -421,38 +420,38 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("Hello");
   });
 
-  test("content is updated if cell content is updated", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 2,
-          rowNumber: 2,
-          cells: { B1: { content: "Hello" } },
-        },
-      ],
-    });
-    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
-    expect(model.getters.getCurrentContent()).toBe("Hello");
-    model.dispatch("UPDATE_CELL", {
-      col: 2,
-      row: 0,
-      content: "update another cell",
-      sheetId: model.getters.getActiveSheetId(),
-    });
-    expect(model.getters.getCurrentContent()).toBe("Hello");
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 0,
-      content: "Hi",
-      sheetId: model.getters.getActiveSheetId(),
-    });
-    expect(model.getters.getCurrentContent()).toBe("Hi");
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 0,
-      content: "",
-      sheetId: model.getters.getActiveSheetId(),
-    });
-    expect(model.getters.getCurrentContent()).toBe("");
-  });
+  // test("content is updated if cell content is updated", () => {
+  //   const model = new Model({
+  //     sheets: [
+  //       {
+  //         colNumber: 2,
+  //         rowNumber: 2,
+  //         cells: { B1: { content: "Hello" } },
+  //       },
+  //     ],
+  //   });
+  //   model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+  //   expect(model.getters.getCurrentContent()).toBe("Hello");
+  //   model.dispatch("UPDATE_CELL", {
+  //     col: 2,
+  //     row: 0,
+  //     content: "update another cell",
+  //     sheetId: model.getters.getActiveSheetId(),
+  //   });
+  //   expect(model.getters.getCurrentContent()).toBe("Hello");
+  //   model.dispatch("UPDATE_CELL", {
+  //     col: 1,
+  //     row: 0,
+  //     content: "Hi",
+  //     sheetId: model.getters.getActiveSheetId(),
+  //   });
+  //   expect(model.getters.getCurrentContent()).toBe("Hi");
+  //   model.dispatch("UPDATE_CELL", {
+  //     col: 1,
+  //     row: 0,
+  //     content: "",
+  //     sheetId: model.getters.getActiveSheetId(),
+  //   });
+  //   expect(model.getters.getCurrentContent()).toBe("");
+  // });
 });

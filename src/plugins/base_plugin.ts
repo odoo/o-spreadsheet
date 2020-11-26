@@ -1,6 +1,6 @@
-import { WHistory, WorkbookHistory } from "../history";
+import { StateManager } from "../state_manager";
 import { Mode, ModelConfig } from "../model";
-import { CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
+import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
 
 /**
  * BasePlugin
@@ -22,9 +22,10 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(history: WHistory, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
+  constructor(history: StateManager, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
+      selectCell: history.selectCell.bind(history),
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;
@@ -63,5 +64,5 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
    * subcommands) has been completely handled.  For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
-  finalize(command: C): void {}
+  finalize(): void {}
 }

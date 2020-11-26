@@ -1,5 +1,7 @@
 import { Model } from "../../src/model";
-import { patch, waitForRecompute, asyncComputations, getCell, setCellContent } from "../helpers";
+import { patch, waitForRecompute, asyncComputations } from "../helpers";
+import { getCell } from "../getters_helpers";
+import { setCellContent } from "../commands_helpers";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { functionRegistry, args } from "../../src/functions";
 import { FormulaCell } from "../../src/types";

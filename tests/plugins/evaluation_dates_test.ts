@@ -1,12 +1,8 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import {
-  evaluateCellText,
-  evaluateGrid,
-  evaluateCell,
-  setCellContent,
-  getCellContent,
-} from "../helpers";
+import { evaluateCellText, evaluateGrid, evaluateCell } from "../helpers";
+import { getCellContent } from "../getters_helpers";
+import { setCellContent } from "../commands_helpers";
 
 describe("evaluateCells", () => {
   test("Various date representations", () => {

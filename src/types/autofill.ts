@@ -43,7 +43,7 @@ export interface AutofillCellData extends Omit<CellData, "border" | "style"> {
   col: number;
   row: number;
   border?: Border;
-  style?: Style;
+  style?: Style | null;
 }
 export interface GeneratorCell {
   data: AutofillCellData;

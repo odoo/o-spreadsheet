@@ -339,8 +339,9 @@ export class SelectionPlugin extends UIPlugin {
    * range in the selection.
    */
   private selectCell(col: number, row: number) {
-    const xc = toXC(col, row);
     const sheetId = this.getters.getActiveSheetId();
+    this.history.selectCell(sheetId, col, row);
+    const xc = toXC(col, row);
     let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
 
     if (this.mode === SelectionMode.expanding) {
@@ -468,7 +469,7 @@ export class SelectionPlugin extends UIPlugin {
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
-    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+    this.setSelection([anchorCol, anchorRow], zones);
   }
 
   private onAddColumns(quantity: number) {
@@ -479,7 +480,7 @@ export class SelectionPlugin extends UIPlugin {
       top: selection.top,
       bottom: selection.bottom,
     };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+    this.setSelection([zone.left, zone.top], [zone], true);
   }
 
   private onAddRows(quantity: number) {
@@ -490,7 +491,7 @@ export class SelectionPlugin extends UIPlugin {
       top: selection.top + quantity,
       bottom: selection.bottom + quantity,
     };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+    this.setSelection([zone.left, zone.top], [zone], true);
   }
 
   // ---------------------------------------------------------------------------

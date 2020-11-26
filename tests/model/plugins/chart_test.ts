@@ -1,7 +1,8 @@
 import { Model } from "../../../src";
 import { Viewport, CancelledReason } from "../../../src/types";
 import "../../canvas.mock";
-import { setCellContent, testUndoRedo } from "../../helpers";
+import { testUndoRedo } from "../../helpers";
+import { setCellContent } from "../../commands_helpers";
 
 let model: Model;
 const viewport: Viewport = {

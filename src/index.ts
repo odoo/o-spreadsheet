@@ -21,6 +21,7 @@ import {
   sidePanelRegistry,
   sheetMenuRegistry,
   topbarComponentRegistry,
+  otRegistry,
 } from "./registries/index";
 
 import {
@@ -44,6 +45,7 @@ import {
 
 export const __info__ = {};
 export { CorePlugin } from "./plugins/core_plugin";
+export { coreTypes } from "./types/commands";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
@@ -77,6 +79,7 @@ export const registries = {
   sheetMenuRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
+  otRegistry,
 };
 
 export const helpers = {

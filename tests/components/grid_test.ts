@@ -1,14 +1,7 @@
 import { Model } from "../../src/model";
-import {
-  makeTestFixture,
-  GridParent,
-  nextTick,
-  getActiveXc,
-  getCell,
-  Touch,
-  setCellContent,
-  getCellContent,
-} from "../helpers";
+import { makeTestFixture, GridParent, nextTick, Touch } from "../helpers";
+import { getActiveXc, getCell, getCellContent } from "../getters_helpers";
+import { setCellContent, createSheet } from "../commands_helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";
@@ -617,7 +610,7 @@ describe("figures", () => {
   });
 
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     model.dispatch("CREATE_FIGURE", {
       sheetId: "42",
       figure: {

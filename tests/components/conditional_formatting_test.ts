@@ -6,11 +6,11 @@ import {
   createEqualCF,
   createColorScale,
   mockUuidV4To,
-  target,
   nextTick,
 } from "../helpers";
 import "../canvas.mock";
 import { Model } from "../../src";
+import { toZone } from "../../src/helpers/zones";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -262,7 +262,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "47",
+          id: "49",
           ranges: ["A1:A3"],
           rule: {
             operator: "BeginsWith",
@@ -278,8 +278,8 @@ describe("UI of conditional formats", () => {
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
-      model.dispatch("COPY", { target: target("A1:A2") });
-      model.dispatch("PASTE", { target: target("C1") });
+      model.dispatch("COPY", { target: [toZone("A1:A2")] });
+      model.dispatch("PASTE", { target: [toZone("C1")] });
       await nextTick();
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe(
         "A1:A2,C1:C2"
@@ -323,7 +323,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "51",
+        id: "55",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -373,7 +373,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "56",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -425,7 +425,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "56",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -477,7 +477,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "56",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -537,7 +537,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "56",
         ranges: ["B2:B5"],
         rule: {
           maximum: {

@@ -1,4 +1,4 @@
-import { WHistory } from "../history";
+import { StateManager } from "../state_manager";
 import { Mode, ModelConfig } from "../model";
 import { CommandDispatcher, Command, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
@@ -8,7 +8,7 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
 export interface UIPluginConstuctor {
   new (
     getters: Getters,
-    history: WHistory,
+    history: StateManager,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ): UIPlugin;
@@ -29,7 +29,7 @@ export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
 
   constructor(
     getters: Getters,
-    history: WHistory,
+    history: StateManager,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {

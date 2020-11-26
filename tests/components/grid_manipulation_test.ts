@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc } from "../helpers";
+import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { getActiveXc } from "../getters_helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types/commands";
 

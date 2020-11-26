@@ -31,16 +31,18 @@ sheetMenuRegistry
     name: _lt("Duplicate"),
     sequence: 20,
     action: (env) => {
-      const sheet = env.getters.getActiveSheetId();
+      const sheetIdFrom = env.getters.getActiveSheetId();
       const name = getDuplicateSheetName(
         env,
-        env.getters.getSheets().find((s) => s.id === sheet)!.name
+        env.getters.getSheets().find((s) => s.id === sheetIdFrom)!.name
       );
+      const sheetIdTo = uuidv4();
       env.dispatch("DUPLICATE_SHEET", {
-        sheetIdFrom: sheet,
-        sheetIdTo: uuidv4(),
+        sheetIdFrom,
+        sheetIdTo,
         name,
       });
+      env.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
     },
   })
   .add("rename", {

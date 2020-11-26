@@ -4,6 +4,7 @@ import { FindAndReplacePanel } from "../components/side_panel/find_and_replace";
 import { SpreadsheetEnv } from "../types";
 import { ChartPanel } from "../components/side_panel/chart_panel";
 import { _lt } from "../translation";
+import { CollaborativeDebugPanel } from "../components/side_panel/collaborative_debug_panel";
 
 //------------------------------------------------------------------------------
 // Side Panel Registry
@@ -29,4 +30,9 @@ sidePanelRegistry.add("ChartPanel", {
 sidePanelRegistry.add("FindAndReplace", {
   title: _lt("Find and Replace"),
   Body: FindAndReplacePanel,
+});
+
+sidePanelRegistry.add("CollaborativeDebug", {
+  title: "Collaborative Debug",
+  Body: CollaborativeDebugPanel,
 });
