@@ -37,6 +37,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         this.history.update("sheetFigures", cmd.sheetId, sheetFigures);
         break;
       case "UPDATE_FIGURE":
+        if (!this.figures[cmd.id]) {
+          break;
+        }
         if (cmd.x !== undefined) {
           this.history.update("figures", cmd.id, "x", Math.max(cmd.x, 0));
         }

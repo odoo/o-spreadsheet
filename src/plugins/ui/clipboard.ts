@@ -12,6 +12,7 @@ import {
   UID,
   Zone,
   Border,
+  Style,
 } from "../../types/index";
 import { _lt } from "../../translation";
 import { UIPlugin } from "../ui_plugin";
@@ -435,7 +436,7 @@ export class ClipboardPlugin extends UIPlugin {
       this.dispatch("SET_BORDER", { sheetId, col, row, border: originBorder || undefined });
     }
     if (origin) {
-      let style = origin.style;
+      let style: Style | undefined | null = origin.style || null;
       let format = origin.format;
       let content: string = this.getters.getCellValue(origin, originSheet, true) || "";
 
@@ -477,8 +478,8 @@ export class ClipboardPlugin extends UIPlugin {
           sheetId: sheetId,
           col,
           row,
-          style: undefined,
-          format: undefined,
+          style: null,
+          format: "",
         });
       } else {
         this.dispatch("CLEAR_CELL", {

@@ -69,15 +69,17 @@ class App extends Component {
   }
 }
 
-App.template = xml`
+App.template = xml/* xml */ `
   <div>
-    <Spreadsheet data="data" t-key="key"
+    <Spreadsheet data="data"
+      t-key="key"
+      network="'default'"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"
       t-on-save-content="saveContent"/>
   </div>`;
-App.style = css`
+App.style = css/* scss */ `
   html {
     height: 100%;
     body {

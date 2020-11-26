@@ -1,3 +1,4 @@
+import { DEFAULT_REVISION_ID } from "../src/constants";
 import { CURRENT_VERSION, load } from "../src/data";
 import { mockUuidV4To } from "./helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -10,9 +11,10 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
-          id: "123",
+          id: "Sheet1",
           name: "Sheet1",
           cells: {},
           colNumber: 26,
@@ -31,9 +33,10 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
-          id: "124",
+          id: "Sheet1",
           name: "Sheet1",
           cells: {},
           colNumber: 26,
@@ -58,6 +61,7 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
           id: "asdf",
@@ -76,7 +80,6 @@ describe("load data", () => {
   });
 
   test("assign sheet id if missing", () => {
-    mockUuidV4To(12);
     expect(
       load({
         sheets: [{ name: "Sheet1", merges: ["A1:B2"] }],
@@ -86,9 +89,10 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
-          id: "13",
+          id: "Sheet1",
           name: "Sheet1",
           cells: {},
           colNumber: 26,
@@ -151,9 +155,10 @@ describe("load data", () => {
       borders: {},
       styles: {},
       entities: {},
+      revisionId: DEFAULT_REVISION_ID,
       sheets: [
         {
-          id: "134",
+          id: "Sheet1",
           name: "Sheet1",
           cells: {},
           colNumber: 26,

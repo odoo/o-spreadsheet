@@ -38,7 +38,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 type UpdateCellData = {
   content?: string;
   formula?: NormalizedFormula;
-  style?: Style;
+  style?: Style | null;
   format?: string;
 };
 
@@ -101,7 +101,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           col: cmd.col,
           row: cmd.row,
           content: "",
-          style: undefined,
+          style: null,
           format: "",
         });
         break;
@@ -278,11 +278,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
+          // commandHelpers.updateCell(sheetId, col, row, { style: undefined});
           this.dispatch("UPDATE_CELL", {
             sheetId,
             col,
             row,
-            style: undefined,
+            style: null,
           });
         }
       }
@@ -578,7 +579,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = after.content ? after.content.replace(nbspRegexp, "") : "";
-    const style = "style" in after ? after.style : (before && before.style) || 0;
+    const style = after.style !== undefined ? after.style : (before && before.style) || 0;
     let format = "format" in after ? after.format : (before && before.format) || "";
 
     /* Read the following IF as:

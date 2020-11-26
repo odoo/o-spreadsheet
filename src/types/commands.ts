@@ -9,23 +9,22 @@ import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
 // -----------------------------------------------------------------------------
 
 /**
- * There are two kinds of commands: Primitive and Local
+ * There are two kinds of commands: CoreCommands and LocalCommands
  *
- * - Primitive commands are commands that
- *    1. manipulate the imported/exported spreadsheet state
- *    2. are "low level" => cannot be converted into lower level commands
- *    3. make sense when sent by the network to another user
+ * - CoreCommands are commands that
+ *   1. manipulate the imported/exported spreadsheet state
+ *   2. are shared in collaborative environment
  *
- * - Local commands: every other command.
- *    1. manipulate the local state (such as the selection, or the clipboard)
- *    2. can often be converted into primitive commands
- *    3. do not make sense to send by network to another user.
+ * - LocalCommands: every other command
+ *   1. manipulate the local state
+ *   2. can be converted into CoreCommands
+ *   3. are not shared in collaborative environment
  *
- * For example, "RESIZE_COLUMNS" is a primitive command. "AUTORESIZE_COLUMNS"
+ * For example, "RESIZE_COLUMNS" is a CoreCommand. "AUTORESIZE_COLUMNS"
  * can be (locally) converted into a "RESIZE_COLUMNS", and therefore, is not a
- * primitive command.
+ * CoreCommand.
  *
- * Primitive commands should be "device agnostic". This means that they should
+ * CoreCommands should be "device agnostic". This means that they should
  * contain all the information necessary to perform their job. Local commands
  * can use inferred information from the local internal state, such as the
  * active sheet.
@@ -33,6 +32,60 @@ import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
 
 export interface BaseCommand {
   interactive?: boolean;
+}
+
+export const coreTypes = new Set<CoreCommandTypes>([
+  /** History */
+  "UNDO",
+  "REDO",
+
+  /** CELLS */
+  "UPDATE_CELL",
+  "UPDATE_CELL_POSITION",
+  "CLEAR_CELL",
+  "DELETE_CONTENT",
+
+  /** GRID SHAPE */
+  "ADD_COLUMNS",
+  "ADD_ROWS",
+  "REMOVE_COLUMNS",
+  "REMOVE_ROWS",
+  "RESIZE_COLUMNS",
+  "RESIZE_ROWS",
+
+  /** MERGE */
+  "ADD_MERGE",
+  "REMOVE_MERGE",
+
+  /** SHEETS MANIPULATION */
+  "CREATE_SHEET",
+  "DELETE_SHEET",
+  "DUPLICATE_SHEET",
+  "MOVE_SHEET",
+  "RENAME_SHEET",
+
+  /** CONDITIONAL FORMAT */
+  "ADD_CONDITIONAL_FORMAT",
+  "REMOVE_CONDITIONAL_FORMAT",
+
+  /** FIGURES */
+  "CREATE_FIGURE",
+  "DELETE_FIGURE",
+  "UPDATE_FIGURE",
+
+  /** FORMATTING */
+  "SET_FORMATTING",
+  "CLEAR_FORMATTING",
+  "SET_BORDER",
+  "SET_DECIMAL",
+
+  /** CHART */
+  "CREATE_CHART",
+  "UPDATE_CHART",
+]);
+
+export function isCoreCommand(cmd: Command): cmd is CoreCommand {
+  return coreTypes.has(cmd.type as any);
 }
 
 // Core Commands
@@ -47,7 +100,7 @@ export interface UpdateCellCommand extends BaseCommand {
   col: number;
   row: number;
   content?: string;
-  style?: Style;
+  style?: Style | null;
   format?: string;
 }
 
@@ -134,7 +187,6 @@ export interface CreateSheetCommand extends BaseCommand {
   name?: string;
   cols?: number;
   rows?: number;
-  activate?: boolean;
 }
 
 export interface DeleteSheetCommand extends BaseCommand {
@@ -166,7 +218,6 @@ export interface RenameSheetCommand extends BaseCommand {
 //------------------------------------------------------------------------------
 
 /**
- * todo: add sheet argument...
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */
@@ -205,15 +256,10 @@ export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
 //------------------------------------------------------------------------------
 // Formatting
 //------------------------------------------------------------------------------
-export interface CreateStyleCommand extends BaseCommand {
-  type: "CREATE_STYLE";
-  style: Style;
-}
-
-export interface CreateBorderCommand extends BaseCommand {
-  type: "CREATE_BORDER";
-  border: Border;
-}
+// export interface CreateStyleCommand {
+//   type: "CREATE_STYLE";
+//   style: Style;
+// }
 
 //------------------------------------------------------------------------------
 // Chart
@@ -309,7 +355,7 @@ export interface AutoFillCellCommand extends BaseCommand {
   col: number;
   row: number;
   content?: string;
-  style?: Style;
+  style?: Style | null;
   border?: Border;
   format?: string;
 }
@@ -637,12 +683,6 @@ export interface ChangeRangeCommand extends BaseCommand {
   value: string;
 }
 
-export interface CreateFigureCommand extends BaseCommand {
-  type: "CREATE_FIGURE";
-  figure: Figure<any>;
-  sheetId: UID;
-}
-
 export interface SelectFigureCommand extends BaseCommand {
   type: "SELECT_FIGURE";
   id: string;
@@ -681,11 +721,16 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
 }
 
 export type CoreCommand =
+  /** History */
+  | UndoCommand
+  | RedoCommand
+
   /** CELLS */
   | UpdateCellCommand
   | UpdateCellPositionCommand
-  | ClearCellCommand //TODO check if necessary
-  | DeleteContentCommand //TODO Check if necessary
+  | ClearCellCommand
+  | DeleteContentCommand
+  | SetDecimalCommand
 
   /** GRID SHAPE */
   | AddColumnsCommand
@@ -716,19 +761,15 @@ export type CoreCommand =
   | UpdateFigureCommand
 
   /** FORMATTING */
-  | CreateStyleCommand //TODO Remove it
-  | CreateBorderCommand //TODO Remove it
   | SetFormattingCommand
   | ClearFormattingCommand
-  | SetBorderCommand //TODO Check if necessary
-  | SetDecimalCommand //TODO Check this
+  | SetBorderCommand
 
   /** CHART */
   | CreateChartCommand
   | UpdateChartCommand;
 
-export type Command =
-  | CoreCommand
+export type LocalCommand =
   | NewInputCommand
   | RemoveInputCommand
   | FocusInputCommand
@@ -771,8 +812,6 @@ export type Command =
   | SetCurrentContentCommand
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
-  | UndoCommand
-  | RedoCommand
   | StartCommand
   | AutofillCommand
   | AutofillSelectCommand
@@ -787,6 +826,7 @@ export type Command =
   | ReplaceSearchCommand
   | ReplaceAllSearchCommand;
 
+export type Command = CoreCommand | LocalCommand;
 export interface CommandSuccess {
   status: "SUCCESS";
 }
@@ -838,7 +878,7 @@ export interface CommandHandler<T> {
   allowDispatch(command: T): CommandResult;
   beforeHandle(command: T): void;
   handle(command: T): void;
-  finalize(command: T): void;
+  finalize(): void;
 }
 
 export interface CommandDispatcher {

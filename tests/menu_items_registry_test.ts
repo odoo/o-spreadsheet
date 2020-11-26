@@ -438,10 +438,14 @@ describe("Menu Item actions", () => {
   test("Insert -> new sheet", () => {
     mockUuidV4To(42);
     doAction(["insert", "insert_sheet"], env);
-    expect(env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", {
-      activate: true,
+    const activeSheetId = env.getters.getActiveSheetId();
+    expect(env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: "42",
       position: 1,
+    });
+    expect(env.dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
+      sheetIdTo: "42",
+      sheetIdFrom: activeSheetId,
     });
   });
 

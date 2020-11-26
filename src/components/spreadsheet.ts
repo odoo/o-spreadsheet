@@ -8,6 +8,11 @@ import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
+import { WebsocketNetwork } from "../collaborative/network";
+import { Client, Network, RemoteRevisionMessage } from "../types/multi_users";
+import { CollaborativeSession } from "../collaborative/collaborative_session";
+import { _lt } from "../translation";
+import { uuidv4 } from "../helpers/index";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -67,6 +72,9 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
+  network?: Network | "default"; // rename prop
+  messages?: RemoteRevisionMessage[]; // TODO rename messages
+  client?: Client;
 }
 
 const t = (s: string): string => s;
@@ -77,15 +85,33 @@ export class Spreadsheet extends Component<Props> {
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
-  model = new Model(this.props.data, {
-    notifyUser: (content: string) => this.trigger("notify-user", { content }),
-    askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
-      this.trigger("ask-confirmation", { content, confirm, cancel }),
-    editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
-      this.trigger("edit-text", { title, placeholder, callback }),
-    openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
-    evalContext: { env: this.env },
-  });
+  collaborativeSession?: CollaborativeSession =
+    this.props.network === "default"
+      ? new CollaborativeSession(
+          new WebsocketNetwork(),
+          this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
+        )
+      : this.props.network
+      ? new CollaborativeSession(
+          this.props.network,
+          this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
+        )
+      : undefined;
+
+  model = new Model(
+    this.props.data,
+    {
+      notifyUser: (content: string) => this.trigger("notify-user", { content }),
+      askConfirmation: (content: string, confirm: () => any, cancel?: () => any) =>
+        this.trigger("ask-confirmation", { content, confirm, cancel }),
+      editText: (title: string, placeholder: string, callback: (text: string | null) => any) =>
+        this.trigger("edit-text", { title, placeholder, callback }),
+      openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
+      evalContext: { env: this.env },
+      collaborativeSession: this.collaborativeSession,
+    },
+    this.props.messages
+  );
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {
@@ -124,6 +150,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+    useExternalListener(window, "beforeunload", this.notifyLeft.bind(this));
   }
 
   get focusTopBarComposer(): boolean {
@@ -139,7 +166,15 @@ export class Spreadsheet extends Component<Props> {
   }
 
   willUnmount() {
+    this.notifyLeft();
     this.model.off("update", this);
+  }
+
+  private notifyLeft() {
+    // TODO rename
+    if (this.collaborativeSession) {
+      this.collaborativeSession.leave();
+    }
   }
 
   destroy() {

@@ -59,10 +59,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           } else {
             sheetIdTo = currentSheets[Math.max(0, currentIndex - 1)];
           }
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo,
-          });
+          this.activeSheet = this.getters.getSheet(sheetIdTo);
         }
         break;
     }
@@ -70,17 +67,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo: cmd.sheetId,
-          });
-        }
-        break;
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetIdTo);
-        break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
           this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
@@ -133,14 +119,16 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           }
         }
         break;
+      case "UNDO":
+        // TODO factorize this behavior with DELETE_SHEET
+        const activeSheetId = this.getters
+          .getVisibleSheets()
+          .find((sheetId) => sheetId === this.getActiveSheetId());
+        if (!activeSheetId) {
+          this.activeSheet = this.getters.getSheet(this.getters.getVisibleSheets()[0]);
+        }
+        break;
     }
-  }
-
-  duplicateSheet(sheetId: UID) {
-    this.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getActiveSheetId(),
-      sheetIdTo: sheetId,
-    });
   }
 
   finalize() {
