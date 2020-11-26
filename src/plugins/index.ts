@@ -22,6 +22,7 @@ import { UIOptionsPlugin } from "./ui/ui_options";
 import { CorePluginConstructor } from "./core_plugin";
 import { UIPluginConstuctor } from "./ui_plugin";
 import { RangePlugin } from "./core/range";
+import { NetworkPlugin } from "./core/network";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
@@ -31,7 +32,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
-  .add("chart", ChartPlugin);
+  .add("chart", ChartPlugin)
+  .add("network", NetworkPlugin);
 
 export const uiPluginRegistry = new Registry<UIPluginConstuctor>()
   .add("ui_sheet", SheetUIPlugin)

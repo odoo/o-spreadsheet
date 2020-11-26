@@ -35,6 +35,11 @@ export interface BaseCommand {
   interactive?: boolean;
 }
 
+export interface ExternalCommand extends BaseCommand {
+  type: "EXTERNAL";
+  commands: CoreCommand[];
+}
+
 // Core Commands
 // ------------------------------------------------
 
@@ -680,7 +685,14 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
   replaceOptions: ReplaceOptions;
 }
 
+export interface UndoSelectiveCommand extends BaseCommand {
+  type: "SELECTIVE_UNDO";
+  id: UID;
+}
+
 export type CoreCommand =
+  | ExternalCommand
+
   /** CELLS */
   | UpdateCellCommand
   | UpdateCellPositionCommand
@@ -772,6 +784,7 @@ export type Command =
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
   | UndoCommand
+  | UndoSelectiveCommand
   | RedoCommand
   | StartCommand
   | AutofillCommand

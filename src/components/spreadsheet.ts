@@ -8,6 +8,7 @@ import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
+import { WebsocketNetwork } from "../ot/network";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -67,6 +68,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
+  getTicket?: () => Promise<number>;
 }
 
 const t = (s: string): string => s;
@@ -85,6 +87,7 @@ export class Spreadsheet extends Component<Props> {
       this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
+    network: new WebsocketNetwork(),
   });
   grid = useRef("grid");
 
@@ -125,6 +128,24 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
   }
+
+  // sequentialReception(networkCommand: Required<NetworkCommand>) {
+  //   this.soct4.sequentialReception(networkCommand);
+  // }
+
+  // private broadcast(newtworkCommand: NetworkCommand) {
+  //   // if (this.props.sendCommand !== undefined) {
+  //   //   this.props.sendCommand(newtworkCommand);
+  //   // }
+  //   this.trigger("network-command", { command: newtworkCommand });
+  // }
+
+  // private async getTicket() {
+  //   if (this.props.getTicket !== undefined) {
+  //     return this.props.getTicket();
+  //   }
+  //   return -1;
+  // }
 
   get focusTopBarComposer(): boolean {
     return this.model.getters.getEditionMode() !== "inactive" && this.composer.topBar;

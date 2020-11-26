@@ -14,6 +14,7 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { RangePlugin } from "../src/plugins/core/range";
+import { NetworkPlugin } from "../src/plugins/core/network";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -39,8 +40,9 @@ describe("Model", () => {
     expect(model["handlers"][6]).toBeInstanceOf(ConditionalFormatPlugin);
     expect(model["handlers"][7]).toBeInstanceOf(FigurePlugin);
     expect(model["handlers"][8]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(FindAndReplacePlugin);
+    expect(model["handlers"][9]).toBeInstanceOf(NetworkPlugin);
+    expect(model["handlers"][10]).toBeInstanceOf(SheetUIPlugin);
+    expect(model["handlers"][11]).toBeInstanceOf(FindAndReplacePlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {

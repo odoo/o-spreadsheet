@@ -1,9 +1,16 @@
+import { uuidv4 } from "./helpers/index";
+import { inverseCommand } from "./helpers/inverse_commands";
+import { transform } from "./ot/ot";
 import {
   Command,
   CommandHandler,
   CommandResult,
   CancelledReason,
   CoreCommand,
+  CommandDispatcher,
+  UndoCommand,
+  RedoCommand,
+  UID,
 } from "./types/index";
 
 /**
@@ -13,14 +20,20 @@ import {
  * as expected.
  */
 
+interface Step {
+  id: UID;
+  timestamp: number;
+  command: CoreCommand;
+  inverse: CoreCommand;
+  changes: HistoryChange[];
+}
+
 interface HistoryChange {
   root: any;
   path: (string | number)[];
   before: any;
   after: any;
 }
-
-type Step = HistoryChange[];
 
 /**
  * Max Number of history steps kept in memory
@@ -90,11 +103,13 @@ export interface WorkbookHistory<Plugin> {
   ): void;
 }
 
-export class WHistory implements CommandHandler<CoreCommand> {
+export class WHistory implements CommandHandler<CoreCommand | UndoCommand | RedoCommand> {
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];
   private historize: boolean = false;
+
+  constructor(private dispatch: CommandDispatcher["dispatch"]) {}
 
   // getters
   canUndo(): boolean {
@@ -119,9 +134,63 @@ export class WHistory implements CommandHandler<CoreCommand> {
     return { status: "SUCCESS" };
   }
 
-  beforeHandle(cmd: Command) {
+  selectiveUndo(id: UID) {
+    const index = this.undoStack.findIndex((step) => step.id === id);
+    if (index === -1) {
+      throw new Error(`No history step with id ${id}`);
+    }
+    const toRedo: Step[] = this.undoStack.slice(index + 1);
+
+    for (let x of toRedo.reverse()) {
+      for (let i = x.changes.length - 1; i >= 0; i--) {
+        let change = x.changes[i];
+        this.applyChange(change, "before");
+      }
+    }
+    toRedo.reverse();
+
+    this.undoStack = this.undoStack.slice(0, index + 1);
+    const step = this.undoStack.pop();
+    if (!step) {
+      return;
+    }
+    const executed = step.inverse;
+    for (let i = step.changes.length - 1; i >= 0; i--) {
+      let change = step.changes[i];
+      this.applyChange(change, "before");
+    }
+    for (let step of toRedo) {
+      const command = transform(step.command, executed, step.timestamp, -1)[0];
+      if (command) {
+        this.current = {
+          id: step.id,
+          timestamp: step.timestamp,
+          command,
+          inverse: inverseCommand(command),
+          changes: [],
+        };
+        this.dispatch(command.type, command);
+
+        if (this.current.changes.length) {
+          this.undoStack.push(this.current);
+        }
+        this.current = null;
+      }
+    }
+    // init this.current { id, timestamp, changes [] }
+  }
+
+  beforeHandle(cmd: CoreCommand | UndoCommand | RedoCommand) {
+    if (true /* is core cmd */) {
+    }
     if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO" && this.historize) {
-      this.current = [];
+      this.current = {
+        id: uuidv4(),
+        timestamp: 1,
+        command: cmd,
+        inverse: inverseCommand(cmd),
+        changes: [],
+      };
     }
   }
 
@@ -129,6 +198,11 @@ export class WHistory implements CommandHandler<CoreCommand> {
     switch (cmd.type) {
       case "UNDO":
         this.undo();
+        // const id = this.undoStack[this.undoStack.length - 1].id;
+        // this.undo(id);
+        break;
+      case "SELECTIVE_UNDO":
+        this.selectiveUndo(cmd.id);
         break;
       case "REDO":
         this.redo();
@@ -139,15 +213,43 @@ export class WHistory implements CommandHandler<CoreCommand> {
   }
 
   finalize() {
-    if (this.current && this.current.length) {
+    if (this.current && this.current.changes.length) {
       this.undoStack.push(this.current);
       this.redoStack = [];
-      this.current = null;
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
       }
     }
+    this.current = null;
   }
+
+  // undo(id: UID) {
+  //   const index = this.undoStack.findIndex((update) => update.id === id);
+  //   if (index < 0) {
+  //     throw new Error("Id of update not found");
+  //   }
+  //   // Reset the state
+  //   const elements = this.undoStack.splice(index);
+  //   for (let i = elements.length - 1; i >= 0; i--) {
+  //     this.undoOne(elements[i]);
+  //   }
+  //   const undoElement = elements.shift()!;
+  //   const command = undoElement.inverse;
+  //   for (let element of elements) {
+  //     const cmd = element.command;
+  //     const cmds = transform(cmd, command, element.timestamp, undoElement.timestamp);
+  //     for (let c of cmds) {
+  //       this.dispatch(c.type, c);
+  //     }
+  //   }
+  // }
+
+  // undoOne(update: HistoryUpdate) {
+  //   for (let i = update.changes.length - 1; i >= 0; i--) {
+  //     let change = update.changes[i];
+  //     this.applyChange(change, "before");
+  //   }
+  // }
 
   undo() {
     const step = this.undoStack.pop();
@@ -155,8 +257,8 @@ export class WHistory implements CommandHandler<CoreCommand> {
       return;
     }
     this.redoStack.push(step);
-    for (let i = step.length - 1; i >= 0; i--) {
-      let change = step[i];
+    for (let i = step.changes.length - 1; i >= 0; i--) {
+      let change = step.changes[i];
       this.applyChange(change, "before");
     }
   }
@@ -167,7 +269,7 @@ export class WHistory implements CommandHandler<CoreCommand> {
       return;
     }
     this.undoStack.push(step);
-    for (let change of step) {
+    for (let change of step.changes) {
       this.applyChange(change, "after");
     }
   }
@@ -221,7 +323,7 @@ export class WHistory implements CommandHandler<CoreCommand> {
       return;
     }
     if (this.current) {
-      this.current.push({
+      this.current.changes.push({
         root,
         path,
         before: value[key],

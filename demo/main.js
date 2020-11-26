@@ -4,7 +4,7 @@ owl.config.mode = "dev";
 const { whenReady } = owl.utils;
 const { Component } = owl;
 const { xml, css } = owl.tags;
-const { useSubEnv } = owl.hooks;
+const { useSubEnv, useRef } = owl.hooks;
 
 const Spreadsheet = o_spreadsheet.Spreadsheet;
 const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
@@ -28,6 +28,7 @@ class App extends Component {
   constructor() {
     super();
     this.key = 1;
+    this.spread = useRef("spread");
     let cacheData;
     try {
       cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
@@ -38,6 +39,25 @@ class App extends Component {
     useSubEnv({
       save: this.save.bind(this),
     });
+    this.queue = [];
+    this.isConnected = false;
+    // this.socket = new WebSocket(`ws://localhost:9000`);
+    // this.socket.addEventListener("open", () => {
+    //   this.isConnected = true;
+    //   this.processQueue();
+    // });
+    // this.socket.addEventListener("error", (e) => {
+    //   console.log(e);
+    // });
+    // this.socket.addEventListener("message", (ev) => {
+    //   const msg = JSON.parse(ev.data);
+    //   if (msg.type === "multiuser_command") {
+    //     this.spread.comp.sequentialReception(msg.payload.command);
+    //     // const command = Object.assign(msg.payload.payload, { type: msg.payload.type });
+    //     // should not be broadcast directly
+    //     // this.spread.comp.model.dispatch("MULTIUSER", { command });
+    //   }
+    // });
     // this.data = makeLargeDataset(20, 10_000);
   }
 
@@ -67,11 +87,60 @@ class App extends Component {
   save(content) {
     window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
   }
+  processQueue() {
+    for (let msg of this.queue) {
+      this.socket.send(msg);
+    }
+  }
+
+  sendCommand(ev) {
+    const command = ev.detail;
+    const msg = JSON.stringify({ type: "multiuser_command", payload: command });
+    if (!this.isConnected) {
+      this.queue.push(msg);
+    } else {
+      this.socket.send(msg);
+    }
+  }
+
+  async getTicket() {
+    return (await jsonRPC(`http://localhost:9000/timestamp`, {})).timestamp;
+
+    function jsonRPC(url, data) {
+      return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+        xhr.setRequestHeader("Content-type", "application/json");
+        // const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+        // xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        xhr.onload = function () {
+          if (this.status >= 200 && this.status < 300) {
+            resolve(JSON.parse(xhr.response));
+          } else {
+            reject({
+              status: this.status,
+              statusText: xhr.statusText,
+            });
+          }
+        };
+        xhr.onerror = function () {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText,
+          });
+        };
+        xhr.send(JSON.stringify(data));
+      });
+    }
+  }
 }
 
 App.template = xml`
   <div>
     <Spreadsheet data="data" t-key="key"
+      t-ref="spread"
+      getTicket="getTicket"
+      t-on-network-command="sendCommand"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"

@@ -17,6 +17,7 @@ import { DEBUG, setIsFastStrategy } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
+import { Network } from "./types/multi_users";
 
 /**
  * Model
@@ -51,6 +52,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  network?: Network;
 }
 
 const enum Status {
@@ -98,8 +100,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    const history = new WHistory();
+    const history = new WHistory(this.dispatch.bind(this));
 
+    // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
       canUndo: history.canUndo.bind(history),
       canRedo: history.canRedo.bind(history),
@@ -113,6 +116,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
+      network: config.network,
     };
 
     // registering plugins
@@ -202,6 +206,18 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
             return allowDispatch;
           }
         }
+        // if (!this.isMultiUser) {
+        //   if (
+        //     type === "UPDATE_CELL" ||
+        //     type === "CREATE_SHEET" ||
+        //     type === "MOVE_SHEET" ||
+        //     type === "DUPLICATE_SHEET"
+        //   ) {
+        //     // this.config.network.sendCommand(command.type, command);
+        //     this.trigger("command-dispatched", { command });
+        //     this.externalCommandHandler?.handle(command);
+        //   }
+        // }
         this.status = Status.Running;
         for (const h of this.handlers) {
           h.beforeHandle(command);
@@ -220,6 +236,17 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         break;
       case Status.Running:
       case Status.Interactive:
+        // if (!this.isMultiUser) {
+        //   if (
+        //     type === "UPDATE_CELL" ||
+        //     type === "CREATE_SHEET" ||
+        //     type === "MOVE_SHEET" ||
+        //     type === "DUPLICATE_SHEET"
+        //   ) {
+        //     // this.config.network.sendCommand(command.type, command);
+        //     this.trigger("command-dispatched", { command });
+        //   }
+        // }
         for (const h of this.handlers) {
           h.beforeHandle(command);
         }
