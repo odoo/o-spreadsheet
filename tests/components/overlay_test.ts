@@ -5,12 +5,15 @@ import {
   MIN_ROW_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_CELL_HEIGHT,
+  DEFAULT_FONT_SIZE,
+  PADDING_AUTORESIZE,
 } from "../../src/constants";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { ColResizer, RowResizer } from "../../src/components/overlay";
 import "../canvas.mock";
 import { triggerMouseEvent } from "../dom_helper";
 import { SelectionMode } from "../../src/plugins/ui/selection";
+import { fontSizeMap } from "../../src/fonts";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -329,7 +332,8 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a row", async () => {
     setCellContent(model, "B2", "b2");
     await dblClickRow(1);
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(21);
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(size);
   });
 
   test("Double click on rows then undo, then redo", async () => {
@@ -341,11 +345,12 @@ describe("Resizer component", () => {
     await dblClickRow(2);
     const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getRow(sheet, 0)!.size;
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 2)!.size).toBe(21);
-    expect(model.getters.getRow(sheet, 3)!.size).toBe(21);
+    expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
+    expect(model.getters.getRow(sheet, 3)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + 21 * 2);
+    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
     model.dispatch("UNDO");
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2)!.size).toBe(initialSize);
@@ -354,10 +359,10 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 4);
     model.dispatch("REDO");
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 2)!.size).toBe(21);
-    expect(model.getters.getRow(sheet, 3)!.size).toBe(21);
+    expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
+    expect(model.getters.getRow(sheet, 3)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
-    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + 21 * 2);
+    expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
   });
 
   test("Select B, shift D then BCD selected", () => {
@@ -498,13 +503,14 @@ describe("Resizer component", () => {
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).toBe(21);
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(21);
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 2)!.size).toBe(21);
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).toBe(size);
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(size);
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 2)!.size).toBe(size);
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 3)!.size).toBe(
       DEFAULT_CELL_HEIGHT
     );
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 4)!.size).toBe(21);
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 4)!.size).toBe(size);
   });
 
   test("Select 123 5, dblclick 6 then resize only 6", async () => {
@@ -528,7 +534,8 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 4)!.size).toBe(
       DEFAULT_CELL_HEIGHT
     );
-    expect(model.getters.getRow(model.getters.getActiveSheetId(), 5)!.size).toBe(21);
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    expect(model.getters.getRow(model.getters.getActiveSheetId(), 5)!.size).toBe(size);
   });
 
   test("Select A, drag to C then ABC selected", async () => {
