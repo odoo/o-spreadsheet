@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_REVISION_ID } from "../../src/constants";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
@@ -168,6 +168,7 @@ describe("Export", () => {
 test("complete import, then export", () => {
   const modelData = {
     version: CURRENT_VERSION,
+    revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
         id: "someuuid",
@@ -229,6 +230,7 @@ test("complete import, then export", () => {
 test("import then export (figures)", () => {
   const modelData = {
     version: CURRENT_VERSION,
+    revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
         id: "someuuid",

@@ -1,4 +1,4 @@
-import { WHistory } from "../history";
+import { StateReplicator2000 } from "../history";
 import { ModelConfig, Mode } from "../model";
 import { CoreCommand, CoreCommandDispatcher, WorkbookData } from "../types";
 import { CoreGetters } from "../types/getters";
@@ -7,7 +7,7 @@ import { BasePlugin } from "./base_plugin";
 export interface CorePluginConstructor {
   new (
     getters: CoreGetters,
-    history: WHistory,
+    history: StateReplicator2000,
     dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ): CorePlugin;
@@ -26,7 +26,7 @@ export class CorePlugin<State = any, C = CoreCommand> extends BasePlugin<State, 
 
   constructor(
     getters: CoreGetters,
-    history: WHistory,
+    history: StateReplicator2000,
     protected dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ) {

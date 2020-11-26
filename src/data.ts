@@ -1,6 +1,6 @@
 import { SheetData, WorkbookData } from "./types/index";
-import { uuidv4 } from "./helpers/index";
 import { normalize } from "./formulas/index";
+import { DEFAULT_REVISION_ID } from "./constants";
 
 /**
  * This is the current state version number. It should be incremented each time
@@ -129,7 +129,7 @@ const MIGRATIONS: Migration[] = [
 // -----------------------------------------------------------------------------
 function createEmptySheet(name: string = "Sheet1"): SheetData {
   return {
-    id: uuidv4(),
+    id: name,
     name,
     colNumber: 26,
     rowNumber: 100,
@@ -149,6 +149,7 @@ export function createEmptyWorkbookData(): WorkbookData {
     entities: {},
     styles: {},
     borders: {},
+    revisionId: DEFAULT_REVISION_ID,
   };
   return data;
 }

@@ -1,14 +1,16 @@
-import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
+import { StateReplicator2000 } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
+import { MAX_HISTORY_STEPS } from "../../src/constants";
 
 // we test here the undo/redo feature
 
 describe("history", () => {
+  const dispatch = new Model().dispatch;
   test("can update existing value", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: 4,
     };
@@ -17,7 +19,7 @@ describe("history", () => {
   });
 
   test("can set new value", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: 4,
     };
@@ -27,7 +29,7 @@ describe("history", () => {
   });
 
   test("can update existing nested value", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {
         B: 4,
@@ -38,7 +40,7 @@ describe("history", () => {
   });
 
   test("set new nested value", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {
         B: 4,
@@ -50,7 +52,7 @@ describe("history", () => {
   });
 
   test("update existing value nested in array", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -59,7 +61,7 @@ describe("history", () => {
   });
 
   test("set new value nested in array", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: [
         {
@@ -73,7 +75,7 @@ describe("history", () => {
   });
 
   test("create new path on-the-fly", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -88,7 +90,7 @@ describe("history", () => {
   });
 
   test("create new path containing an array on-the-fly", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -105,7 +107,7 @@ describe("history", () => {
   });
 
   test("create new array on-the-fly", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -117,7 +119,7 @@ describe("history", () => {
     });
   });
   test("create new sparse array on-the-fly", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -128,7 +130,7 @@ describe("history", () => {
   });
 
   test("cannot update an invalid key value", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -138,31 +140,13 @@ describe("history", () => {
   });
 
   test("cannot update an invalid path", () => {
-    const history = new WHistory();
+    const history = new StateReplicator2000(dispatch, "userId");
     const state = {
       A: {},
     };
     expect(() => {
       history.updateStateFromRoot(state, "A", "B", true, "C", 5);
     }).toThrow();
-  });
-
-  test("delete array, then rebuild it on-the-fly, undo/redo", () => {
-    const history = new WHistory();
-    const state = { A: [[77]] };
-    history.beforeHandle({ type: "START" });
-    history.handle({ type: "START" });
-    history.beforeHandle({ type: "START_EDITION" });
-    history.handle({ type: "START_EDITION" });
-    history.updateStateFromRoot(state, "A", 0, undefined);
-    history.updateStateFromRoot(state, "A", 0, 0, 5);
-    expect(state).toEqual({ A: [[5]] });
-    history.finalize();
-
-    history.undo();
-    expect(state).toEqual({ A: [[77]] });
-    history.redo();
-    expect(state).toEqual({ A: [[5]] });
   });
 });
 

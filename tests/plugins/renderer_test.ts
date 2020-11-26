@@ -445,7 +445,7 @@ describe("renderer", () => {
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
-    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "1", true);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "Sheet1", true);
   });
   test("CF on empty cell", () => {
     const model = new Model({

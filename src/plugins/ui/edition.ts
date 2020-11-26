@@ -105,6 +105,7 @@ export class EditionPlugin extends UIPlugin {
         this.replaceSelection(cmd.text);
         break;
       case "UPDATE_CELL":
+        // TODO check
         const [col, row] = this.getters.getPosition();
         if (col === this.col && row === this.row) {
           this.setActiveContent();

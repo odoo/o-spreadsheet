@@ -44,6 +44,7 @@ import {
 
 export const __info__ = {};
 export { CorePlugin } from "./plugins/core_plugin";
+export { coreTypes } from "./types/commands";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
