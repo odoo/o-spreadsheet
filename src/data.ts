@@ -1,5 +1,6 @@
+import { DEFAULT_REVISION_ID } from "./constants";
 import { normalize } from "./formulas/index";
-import { toXC, toZone, uuidv4 } from "./helpers/index";
+import { toXC, toZone } from "./helpers/index";
 import { SheetData, WorkbookData } from "./types/index";
 
 /**
@@ -155,7 +156,7 @@ const MIGRATIONS: Migration[] = [
 // -----------------------------------------------------------------------------
 function createEmptySheet(name: string = "Sheet1"): SheetData {
   return {
-    id: uuidv4(),
+    id: name,
     name,
     colNumber: 26,
     rowNumber: 100,
@@ -175,6 +176,7 @@ export function createEmptyWorkbookData(): WorkbookData {
     entities: {},
     styles: {},
     borders: {},
+    revisionId: DEFAULT_REVISION_ID,
   };
   return data;
 }

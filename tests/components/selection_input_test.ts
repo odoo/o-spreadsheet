@@ -1,6 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input";
+import { createSheet, undo } from "../commands_helpers";
 import { simulateClick } from "../dom_helper";
 import { makeTestFixture, nextTick } from "../helpers";
 
@@ -260,7 +261,7 @@ describe("Selection Input", () => {
   test("go back to initial sheet when selection is finished", async () => {
     const { model } = await createSelectionInput();
     const sheet1Id = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: false, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     await createSelectionInput();
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: "42" });
     model.dispatch("ADD_HIGHLIGHTS", {
@@ -277,7 +278,7 @@ describe("Selection Input", () => {
   test("undo after selection won't change active sheet", async () => {
     const { model } = await createSelectionInput();
     const sheet1Id = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: false, position: 1 });
+    createSheet(model, { sheetId: "42" });
     await createSelectionInput();
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: "42" });
     model.dispatch("ADD_HIGHLIGHTS", {
@@ -288,7 +289,7 @@ describe("Selection Input", () => {
     await nextTick();
     await simulateClick(".o-selection-ok");
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
   });
 });

@@ -1,6 +1,13 @@
-import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { ApplyRangeChange, CommandDispatcher, RangeProvider, UID, WorkbookData } from "../types";
+import { StateObserver } from "../state_observer";
+import {
+  ApplyRangeChange,
+  CoreCommand,
+  CoreCommandDispatcher,
+  RangeProvider,
+  UID,
+  WorkbookData,
+} from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
@@ -8,9 +15,9 @@ import { RangeAdapter } from "./core/range";
 export interface CorePluginConstructor {
   new (
     getters: CoreGetters,
-    history: WHistory,
+    stateObserver: StateObserver,
     range: RangeAdapter,
-    dispatch: CommandDispatcher["dispatch"],
+    dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ): CorePlugin;
   getters: string[];
@@ -23,18 +30,20 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any> extends BasePlugin<State> implements RangeProvider {
+export class CorePlugin<State = any, C = CoreCommand>
+  extends BasePlugin<State, C>
+  implements RangeProvider {
   protected getters: CoreGetters;
   protected range: RangeAdapter;
 
   constructor(
     getters: CoreGetters,
-    history: WHistory,
+    stateObserver: StateObserver,
     range: RangeAdapter,
-    dispatch: CommandDispatcher["dispatch"],
+    protected dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(history, dispatch, config);
+    super(stateObserver, dispatch, config);
     this.range = range;
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;

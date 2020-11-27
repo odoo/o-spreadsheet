@@ -361,9 +361,9 @@ export class AutofillPlugin extends UIPlugin {
         row,
         col,
         content: cellData.cell ? this.getters.getCellText(cellData.cell, sheetId, true) : "",
-        style: cellData.cell ? cellData.cell.style : undefined,
+        style: cellData.cell?.style || null,
         border: this.getters.getCellBorder(sheetId, col, row) || undefined,
-        format: cellData.cell ? cellData.cell.format : undefined,
+        format: cellData.cell ? cellData.cell.format : "",
       };
 
       nextCells.push({ data, rule });

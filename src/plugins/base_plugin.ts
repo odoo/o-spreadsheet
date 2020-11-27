@@ -1,6 +1,6 @@
-import { WHistory, WorkbookHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { Command, CommandDispatcher, CommandHandler, CommandResult } from "../types/index";
+import { StateObserver } from "../state_observer";
+import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
 
 /**
  * BasePlugin
@@ -14,7 +14,7 @@ import { Command, CommandDispatcher, CommandHandler, CommandResult } from "../ty
  * and UI plugins handling transient data.
  */
 
-export class BasePlugin<State = any> implements CommandHandler {
+export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   static getters: string[] = [];
   static modes: Mode[] = ["headless", "normal", "readonly"];
 
@@ -22,9 +22,14 @@ export class BasePlugin<State = any> implements CommandHandler {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(history: WHistory, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
-    this.history = Object.assign(Object.create(history), {
-      update: history.updateStateFromRoot.bind(history, this),
+  constructor(
+    stateObserver: StateObserver,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    this.history = Object.assign(Object.create(stateObserver), {
+      update: stateObserver.addChange.bind(stateObserver, this),
+      selectCell: () => {},
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;
@@ -41,7 +46,7 @@ export class BasePlugin<State = any> implements CommandHandler {
    *
    * There should not be any side effects in this method.
    */
-  allowDispatch(command: Command): CommandResult {
+  allowDispatch(command: C): CommandResult {
     return { status: "SUCCESS" };
   }
 
@@ -50,18 +55,18 @@ export class BasePlugin<State = any> implements CommandHandler {
    * command is handled in another plugin. This should only be used if it is not
    * possible to do the work in the handle method.
    */
-  beforeHandle(command: Command): void {}
+  beforeHandle(command: C): void {}
 
   /**
    * This is the standard place to handle any command. Most of the plugin
    * command handling work should take place here.
    */
-  handle(command: Command): void {}
+  handle(command: C): void {}
 
   /**
    * Sometimes, it is useful to perform some work after a command (and all its
    * subcommands) has been completely handled.  For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
-  finalize(command: Command): void {}
+  finalize(): void {}
 }

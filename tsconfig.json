@@ -18,5 +18,15 @@
     "allowJs": true,
     "sourceMap": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
+  "typedocOptions": {
+    "entryPoints": ["src/index.ts"],
+    "out": "doc/tsdoc",
+    "name": "o-spreadsheet API",
+    "readme": "none",
+    "excludePrivate": true,
+    "hideGenerator": true,
+    "disableSources": true,
+    "excludeExternals": true
+  }
 }

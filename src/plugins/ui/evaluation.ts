@@ -1,8 +1,8 @@
 import { compile, normalize } from "../../formulas/index";
 import { functionRegistry } from "../../functions/index";
 import { mapCellsInZone, toXC, toZone } from "../../helpers/index";
-import { WHistory } from "../../history";
 import { Mode, ModelConfig } from "../../model";
+import { StateObserver } from "../../state_observer";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -75,11 +75,11 @@ export class EvaluationPlugin extends UIPlugin {
 
   constructor(
     getters: Getters,
-    history: WHistory,
+    state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(getters, history, dispatch, config);
+    super(getters, state, dispatch, config);
     this.evalContext = config.evalContext;
   }
 

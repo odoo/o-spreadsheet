@@ -10,6 +10,7 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatInternal,
+  CoreCommand,
   SingleColorRules,
   UID,
   WorkbookData,
@@ -98,7 +99,7 @@ export class ConditionalFormatPlugin
     };
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.cfRules[cmd.sheetId] = [];

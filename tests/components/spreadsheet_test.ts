@@ -4,14 +4,10 @@ import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
 import { DEBUG } from "../../src/helpers";
 import { SelectionMode } from "../../src/plugins/ui/selection";
+import { Client } from "../../src/types";
+import { createSheet, setCellContent } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
-import {
-  makeTestFixture,
-  MockClipboard,
-  nextTick,
-  setCellContent,
-  typeInComposer,
-} from "../helpers";
+import { makeTestFixture, MockClipboard, nextTick, typeInComposer } from "../helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -31,17 +27,19 @@ Object.defineProperty(navigator, "clipboard", {
 });
 
 class Parent extends Component<any> {
-  static template = xml`<Spreadsheet t-ref="spreadsheet" data="data"/>`;
+  static template = xml/* xml */ `<Spreadsheet t-ref="spreadsheet" data="data" client="client"/>`;
   static components = { Spreadsheet };
   private spreadsheet: any = useRef("spreadsheet");
   readonly data: any;
+  readonly client: Client;
   get model(): Model {
     return this.spreadsheet.comp.model;
   }
 
-  constructor(data?) {
+  constructor(data?, client?) {
     super();
     this.data = data;
+    this.client = client;
   }
 }
 
@@ -58,6 +56,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  parent.destroy();
   fixture.remove();
 });
 
@@ -218,6 +217,14 @@ describe("Spreadsheet", () => {
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
   });
+
+  test("Can instantiate a spreadsheet with a given client id-name", async () => {
+    const client = { id: "alice", name: "Alice" };
+    const parent = new Parent({}, client);
+    await parent.mount(fixture);
+    expect(parent.model.getters.getClient()).toEqual(client);
+    parent.destroy();
+  });
 });
 
 describe("Composer interactions", () => {
@@ -320,5 +327,14 @@ describe("Composer interactions", () => {
     parent.model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     await nextTick();
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  test("The spreadsheet does not render after onbeforeunload", async () => {
+    window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
+    await nextTick();
+    createSheet(parent.model, {});
+    await nextTick();
+    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
+    expect(sheets).toHaveLength(parent.model.getters.getVisibleSheets().length - 1);
   });
 });

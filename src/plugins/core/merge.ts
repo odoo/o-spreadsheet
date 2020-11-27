@@ -9,8 +9,8 @@ import { _lt } from "../../translation";
 import {
   CancelledReason,
   CellType,
-  Command,
   CommandResult,
+  CoreCommand,
   Merge,
   Sheet,
   UID,
@@ -54,7 +54,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: CoreCommand): CommandResult {
     const force = "force" in cmd ? !!cmd.force : false;
 
     switch (cmd.type) {
@@ -65,7 +65,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  beforeHandle(cmd: Command) {
+  beforeHandle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "REMOVE_COLUMNS":
         this.exportAndRemoveMerges(
@@ -100,7 +100,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.history.update("merges", cmd.sheetId, {});

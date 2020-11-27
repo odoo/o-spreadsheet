@@ -2,20 +2,12 @@ import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { computeTextWidth } from "../../helpers/index";
 import { _lt } from "../../translation";
-import { CancelledReason, Cell, Command, CommandResult, Sheet, UID, Zone } from "../../types";
+import { CancelledReason, Cell, Command, CommandResult, UID, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
-interface UIState {
-  activeSheet: Sheet;
-}
+export class SheetUIPlugin extends UIPlugin {
+  static getters = ["getCellWidth", "getCellHeight"];
 
-export class SheetUIPlugin extends UIPlugin<UIState> {
-  static getters = ["getActiveSheet", "getActiveSheetId", "getCellWidth", "getCellHeight"];
-  activeSheet: Sheet = null as any;
-
-  // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
-  // the main command.
-  private historizeActiveSheet: boolean = true;
   private ctx = document.createElement("canvas").getContext("2d")!;
 
   // ---------------------------------------------------------------------------
@@ -24,10 +16,11 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET":
+      case "AUTORESIZE_ROWS":
+      case "AUTORESIZE_COLUMNS":
+      case "DELETE_SHEET_CONFIRMATION":
         try {
-          this.getters.getSheet(cmd.sheetIdTo);
-          this.historizeActiveSheet = false;
+          this.getters.getSheet(cmd.sheetId);
           break;
         } catch (error) {
           return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
@@ -36,42 +29,8 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
     return { status: "SUCCESS" };
   }
 
-  beforeHandle(cmd: Command) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        if (this.getActiveSheetId() === cmd.sheetId) {
-          const currentIndex = this.getters
-            .getVisibleSheets()
-            .findIndex((sheetId) => sheetId === this.getActiveSheetId());
-          let sheetIdTo: UID;
-          const currentSheets = this.getters.getVisibleSheets();
-          if (currentIndex === 0) {
-            sheetIdTo = currentSheets[1];
-          } else {
-            sheetIdTo = currentSheets[Math.max(0, currentIndex - 1)];
-          }
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo,
-          });
-        }
-        break;
-    }
-  }
-
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo: cmd.sheetId,
-          });
-        }
-        break;
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetIdTo);
-        break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
           this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
@@ -83,21 +42,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
       case "ADD_MERGE":
         if (cmd.interactive) {
           this.interactiveMerge(cmd.sheetId, cmd.zone);
-        }
-        break;
-      case "START":
-        this.historizeActiveSheet = false;
-        this.dispatch("ACTIVATE_SHEET", {
-          sheetIdTo: this.getters.getSheets()[0].id,
-          sheetIdFrom: this.getters.getSheets()[0].id,
-        });
-        break;
-      case "ACTIVATE_SHEET":
-        const sheet = this.getters.getSheet(cmd.sheetIdTo);
-        if (this.historizeActiveSheet) {
-          this.history.update("activeSheet", sheet);
-        } else {
-          this.activeSheet = sheet;
         }
         break;
       case "AUTORESIZE_COLUMNS":
@@ -127,28 +71,9 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
     }
   }
 
-  duplicateSheet(sheetId: UID) {
-    this.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getActiveSheetId(),
-      sheetIdTo: sheetId,
-    });
-  }
-
-  finalize() {
-    this.historizeActiveSheet = true;
-  }
-
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  getActiveSheet(): Sheet {
-    return this.activeSheet;
-  }
-
-  getActiveSheetId(): UID {
-    return this.activeSheet.id;
-  }
 
   getCellWidth(cell: Cell): number {
     const text = this.getters.getCellText(

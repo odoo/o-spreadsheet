@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
-import { evaluateCell, evaluateGrid, setCellContent } from "../helpers";
+import { setCellContent } from "../commands_helpers";
+import { evaluateCell, evaluateGrid } from "../helpers";
 
 describe("COLUMN formula", () => {
   test("functional tests without argument", () => {

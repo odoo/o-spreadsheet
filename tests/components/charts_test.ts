@@ -254,38 +254,6 @@ describe("figures", () => {
     expect((mockChartData.config.options.title as any).text).toBe("piechart");
   });
 
-  test("chart is focused after creation", async () => {
-    model.dispatch("CREATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid2",
-      definition: {
-        dataSets: ["B1:B4"],
-        labelRange: "A2:A4",
-        dataSetsHaveTitle: true,
-        title: "newchart",
-        type: "line",
-      },
-    });
-    await nextTick();
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid2");
-  });
-
-  test("chart is focused after update", async () => {
-    model.dispatch("UPDATE_CHART", {
-      sheetId: model.getters.getActiveSheetId(),
-      id: "someuuid",
-      definition: {
-        dataSets: ["B1:B4"],
-        labelRange: "A2:A4",
-        dataSetsHaveTitle: true,
-        title: "updated chart",
-        type: "bar",
-      },
-    });
-    await nextTick();
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-  });
-
   test("deleting chart will close sidePanel", async () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
     await simulateClick(".o-figure");

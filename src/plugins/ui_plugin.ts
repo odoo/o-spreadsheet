@@ -1,6 +1,6 @@
-import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
+import { StateObserver } from "../state_observer";
+import { Command, CommandDispatcher, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
 type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSidePanel" | "editText">;
@@ -8,7 +8,7 @@ type UIActions = Pick<ModelConfig, "askConfirmation" | "notifyUser" | "openSideP
 export interface UIPluginConstructor {
   new (
     getters: Getters,
-    history: WHistory,
+    state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ): UIPlugin;
@@ -21,7 +21,7 @@ export interface UIPluginConstructor {
  * UI plugins handle any transient data required to display a spreadsheet.
  * They can draw on the grid canvas.
  */
-export class UIPlugin<State = any> extends BasePlugin {
+export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
   static layers: LAYERS[] = [];
 
   protected getters: Getters;
@@ -29,11 +29,11 @@ export class UIPlugin<State = any> extends BasePlugin {
 
   constructor(
     getters: Getters,
-    history: WHistory,
+    state: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(history, dispatch, config);
+    super(state, dispatch, config);
     this.getters = getters;
     this.ui = config;
   }

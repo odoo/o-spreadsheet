@@ -1,7 +1,8 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
-import { createColorScale, createEqualCF, setCellContent } from "../helpers";
+import { addColumns, addRows, createSheet, redo, setCellContent, undo } from "../commands_helpers";
+import { createColorScale, createEqualCF } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -62,7 +63,7 @@ describe("conditional format", () => {
 
   test("Add conditional formatting on inactive sheet", () => {
     model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [activeSheet, sheet] = model.getters.getSheets();
     expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -178,12 +179,12 @@ describe("conditional format", () => {
       fillColor: "#FF0000",
     });
 
-    model.dispatch("UNDO");
+    undo(model);
 
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
     expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
 
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
@@ -207,7 +208,7 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle(...toCartesian("B2"))).toEqual({
       fillColor: "#FF0000",
     });
-    model.dispatch("ADD_COLUMNS", { sheetId, column: 0, position: "after", quantity: 1 });
+    addColumns(model, "after", "A", 1);
     expect(model.getters.getConditionalFormats(sheetId)).toStrictEqual([
       {
         id: "1",
@@ -229,7 +230,7 @@ describe("conditional format", () => {
       fillColor: "#FF0000",
     });
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getConditionalFormats(sheetId)).toStrictEqual([
       {
         id: "1",
@@ -251,7 +252,7 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toBeUndefined();
     expect(model.getters.getConditionalStyle(...toCartesian("C2"))).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getConditionalStyle(...toCartesian("B1"))).toBeUndefined();
     expect(model.getters.getConditionalStyle(...toCartesian("B2"))).toBeUndefined();
     expect(model.getters.getConditionalStyle(...toCartesian("C1"))).toEqual({
@@ -480,18 +481,8 @@ describe("conditional format", () => {
         ],
       });
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_COLUMNS", {
-        sheetId,
-        column: 1,
-        position: "before",
-        quantity: 1,
-      });
-      model.dispatch("ADD_COLUMNS", {
-        sheetId,
-        column: 2,
-        position: "after",
-        quantity: 2,
-      });
+      addColumns(model, "before", "B", 1);
+      addColumns(model, "after", "C", 2);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:F1"], rule },
         { id: "2", ranges: ["A2:C2"], rule },
@@ -520,18 +511,8 @@ describe("conditional format", () => {
         ],
       });
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_ROWS", {
-        sheetId,
-        row: 1,
-        position: "before",
-        quantity: 1,
-      });
-      model.dispatch("ADD_ROWS", {
-        sheetId,
-        row: 2,
-        position: "after",
-        quantity: 2,
-      });
+      addRows(model, "before", 1, 1);
+      addRows(model, "after", 2, 2);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:A6"], rule },
         { id: "2", ranges: ["B1:B3"], rule },

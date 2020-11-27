@@ -1,4 +1,5 @@
 import { demoData } from "./data.js";
+import { WebsocketTransport } from "./transport.js";
 owl.config.mode = "dev";
 
 const { whenReady } = owl.utils;
@@ -6,20 +7,16 @@ const { Component } = owl;
 const { xml, css } = owl.tags;
 const { useSubEnv } = owl.hooks;
 
-const Spreadsheet = o_spreadsheet.Spreadsheet;
-const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
+const { Spreadsheet } = o_spreadsheet;
+const { topbarMenuRegistry } = o_spreadsheet.registries;
 
-menuItemRegistry.add("file", { name: "File", sequence: 10 });
-menuItemRegistry.addChild("save", ["file"], {
-  name: "Save",
-  shortCut: "Ctrl+S",
-  sequence: 30,
-  action: (env) => env.save(env.export()),
-});
-menuItemRegistry.addChild("clear", ["file"], {
-  name: "Clear save",
-  sequence: 30,
-  action: (env) => window.localStorage.removeItem("o-spreadsheet"),
+topbarMenuRegistry.addChild("clear", ["file"], {
+  name: "Clear & reload",
+  sequence: 10,
+  action: async (env) => {
+    await fetch("http://localhost:9000/clear");
+    document.location.reload();
+  },
 });
 
 let start;
@@ -28,17 +25,19 @@ class App extends Component {
   constructor() {
     super();
     this.key = 1;
-    let cacheData;
-    try {
-      cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
-    } catch (_) {
-      window.localStorage.removeItem("o-spreadsheet");
-    }
-    this.data = cacheData || demoData;
-    useSubEnv({
-      save: this.save.bind(this),
-    });
+    this.transportService = new WebsocketTransport();
+    this.data = demoData;
     // this.data = makeLargeDataset(20, 10_000);
+    this.stateUpdateMessages = [];
+  }
+
+  async willStart() {
+    /**
+     * This fetch is used to get the list of revisions of the server since the
+     * start of the session.
+     */
+    const result = await fetch("http://localhost:9000");
+    this.stateUpdateMessages = await result.json();
   }
 
   mounted() {
@@ -48,8 +47,7 @@ class App extends Component {
   askConfirmation(ev) {
     if (window.confirm(ev.detail.content)) {
       ev.detail.confirm();
-    }
-    else {
+    } else {
       ev.detail.cancel();
     }
   }
@@ -62,25 +60,19 @@ class App extends Component {
     const text = window.prompt(ev.detail.title, ev.detail.placeholder);
     ev.detail.callback(text);
   }
-
-  saveContent(ev) {
-    this.save(ev.detail.data);
-  }
-
-  save(content) {
-    window.localStorage.setItem("o-spreadsheet", JSON.stringify(content));
-  }
 }
 
-App.template = xml`
+App.template = xml/* xml */ `
   <div>
-    <Spreadsheet data="data" t-key="key"
+    <Spreadsheet data="data"
+      t-key="key"
+      stateUpdateMessages="stateUpdateMessages"
+      transportService="transportService"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
-      t-on-edit-text="editText"
-      t-on-save-content="saveContent"/>
+      t-on-edit-text="editText"/>
   </div>`;
-App.style = css`
+App.style = css/* scss */ `
   html {
     height: 100%;
     body {

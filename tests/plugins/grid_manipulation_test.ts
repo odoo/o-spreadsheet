@@ -3,12 +3,17 @@ import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import {
-  getBorder,
-  getCell,
-  getCellContent,
-  getCellText,
+  addColumns,
+  addRows,
+  createSheet,
+  deleteColumns,
+  deleteRows,
+  redo,
+  undo,
+} from "../commands_helpers";
+import { getBorder, getCell, getCellContent, getCellText, getMerges } from "../getters_helpers";
+import {
   getMergeCellMap,
-  getMerges,
   makeTestFixture,
   mockUuidV4To,
   toPosition,
@@ -16,14 +21,6 @@ import {
 } from "../helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-
-function undo() {
-  model.dispatch("UNDO");
-}
-
-function redo() {
-  model.dispatch("REDO");
-}
 
 function clearColumns(indexes: string[]) {
   const sheetId = model.getters.getActiveSheetId();
@@ -46,32 +43,6 @@ function clearRows(indexes: number[]) {
   model.dispatch("DELETE_CONTENT", {
     target,
     sheetId: model.getters.getActiveSheetId(),
-  });
-}
-
-function removeColumns(columns: number[]) {
-  model.dispatch("REMOVE_COLUMNS", { sheetId: model.getters.getActiveSheetId(), columns });
-}
-
-function removeRows(rows: number[]) {
-  model.dispatch("REMOVE_ROWS", { sheetId: model.getters.getActiveSheetId(), rows });
-}
-
-function addColumns(column: number, position: "before" | "after", quantity: number) {
-  model.dispatch("ADD_COLUMNS", {
-    sheetId: model.getters.getActiveSheetId(),
-    position,
-    column,
-    quantity,
-  });
-}
-
-function addRows(row: number, position: "before" | "after", quantity: number) {
-  model.dispatch("ADD_ROWS", {
-    sheetId: model.getters.getActiveSheetId(),
-    position,
-    row,
-    quantity,
   });
 }
 
@@ -239,7 +210,7 @@ describe("Columns", () => {
       });
     });
     test("On deletion", () => {
-      removeColumns([0, 2]);
+      deleteColumns(model, ["A", "C"]);
       expect(model.getters.getActiveSheet().cols).toEqual([
         { start: 0, end: 10, size: 10, name: "A" },
         { start: 10, end: 10 + DEFAULT_CELL_WIDTH, size: DEFAULT_CELL_WIDTH, name: "B" },
@@ -277,12 +248,12 @@ describe("Columns", () => {
       expect(getCellContent(model, "A2", sheet2.id)).toBe("B2 in sheet2");
     });
     test("On addition before first", () => {
-      addColumns(0, "before", 1);
+      addColumns(model, "before", "A", 1);
       expect(model.getters.getActiveSheet().cols).toHaveLength(5);
       expect(model.getters.getActiveSheet().rows).toHaveLength(1);
     });
     test("On addition before", () => {
-      addColumns(1, "before", 2);
+      addColumns(model, "before", "B", 2);
       const size = DEFAULT_CELL_WIDTH;
       expect(model.getters.getActiveSheet().cols).toEqual([
         { start: 0, end: size, size, name: "A" },
@@ -295,7 +266,7 @@ describe("Columns", () => {
       expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
     test("On addition after", () => {
-      addColumns(2, "after", 2);
+      addColumns(model, "after", "C", 2);
       const size = DEFAULT_CELL_WIDTH;
       expect(model.getters.getActiveSheet().cols).toEqual([
         { start: 0, end: size, size, name: "A" },
@@ -308,14 +279,8 @@ describe("Columns", () => {
       expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
     test("On addition in invalid sheet", () => {
-      expect(
-        model.dispatch("ADD_COLUMNS", {
-          column: 0,
-          position: "after",
-          quantity: 1,
-          sheetId: "INVALID",
-        })
-      ).toEqual({
+      const sheetId = "invalid";
+      expect(addColumns(model, "after", "A", 1, sheetId)).toEqual({
         status: "CANCELLED",
         reason: CancelledReason.InvalidSheetId,
       });
@@ -336,7 +301,7 @@ describe("Columns", () => {
     });
 
     test("On deletion", () => {
-      removeColumns([1, 3]);
+      deleteColumns(model, ["B", "D"]);
       expect(getMerges(model)).toEqual({
         5: { id: 5, topLeft: toPosition("A1"), top: 0, bottom: 0, left: 0, right: 2 },
         6: { id: 6, topLeft: toPosition("B2"), top: 1, bottom: 1, left: 1, right: 2 },
@@ -348,8 +313,8 @@ describe("Columns", () => {
     });
 
     test("On addition", () => {
-      addColumns(1, "before", 1);
-      addColumns(0, "after", 1);
+      addColumns(model, "before", "B", 1);
+      addColumns(model, "after", "A", 1);
       expect(getMerges(model)).toEqual({
         9: { id: 9, topLeft: toPosition("A1"), top: 0, bottom: 0, left: 0, right: 6 },
         10: { id: 10, topLeft: toPosition("D2"), top: 1, bottom: 1, left: 3, right: 6 },
@@ -383,14 +348,14 @@ describe("Columns", () => {
       });
       expect(getBorder(model, "A1")).toEqual({ bottom: s });
       expect(getBorder(model, "A2")).toEqual({ top: s });
-      addColumns(0, "before", 1);
+      addColumns(model, "before", "A", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
       expect(getBorder(model, "B1")).toEqual({ bottom: s });
       expect(getBorder(model, "B2")).toEqual({ top: s });
       expect(getBorder(model, "C1")).toBeNull();
       expect(getBorder(model, "C2")).toBeNull();
-      addColumns(1, "after", 1);
+      addColumns(model, "after", "B", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
       expect(getBorder(model, "B1")).toEqual({ bottom: s });
@@ -421,7 +386,7 @@ describe("Columns", () => {
       expect(getBorder(model, "A4")).toEqual({ left: s, right: s });
       expect(getBorder(model, "B4")).toEqual({ left: s, right: s });
       expect(getBorder(model, "C4")).toEqual({ left: s });
-      addColumns(0, "before", 1);
+      addColumns(model, "before", "A", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
       expect(getBorder(model, "B1")).toEqual({ bottom: s });
@@ -432,7 +397,7 @@ describe("Columns", () => {
       expect(getBorder(model, "B4")).toEqual({ left: s, right: s });
       expect(getBorder(model, "C4")).toEqual({ left: s, right: s });
       expect(getBorder(model, "C4")).toEqual({ left: s, right: s });
-      addColumns(1, "after", 1);
+      addColumns(model, "after", "B", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
       expect(getBorder(model, "B1")).toEqual({ bottom: s });
@@ -452,12 +417,7 @@ describe("Columns", () => {
         target: [toZone("B2")],
         border: "external",
       });
-      model.dispatch("ADD_COLUMNS", {
-        column: 1,
-        position: "after",
-        quantity: 1,
-        sheetId,
-      });
+      addColumns(model, "after", "B", 1);
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
       expect(getBorder(model, "C2")).toEqual({ left: s });
     });
@@ -471,12 +431,7 @@ describe("Columns", () => {
         target: [toZone("B2")],
         border: "external",
       });
-      model.dispatch("ADD_COLUMNS", {
-        column: 1,
-        position: "before",
-        quantity: 1,
-        sheetId,
-      });
+      addColumns(model, "before", "B", 1);
       expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s, left: s, right: s });
       expect(getBorder(model, "B2")).toEqual({ right: s });
     });
@@ -528,7 +483,7 @@ describe("Columns", () => {
       });
     });
     test("On deletion", () => {
-      removeColumns([1]);
+      deleteColumns(model, ["B"]);
       const style = { textColor: "#fe0000" };
       const s = ["thin", "#000"];
       expect(getCell(model, "B1")).toBeUndefined();
@@ -560,8 +515,8 @@ describe("Columns", () => {
       expect(getBorder(model, "D1")).toEqual({ bottom: s });
       expect(getBorder(model, "D2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "D3")).toEqual({ top: s });
-      addColumns(1, "before", 1);
-      addColumns(2, "after", 2);
+      addColumns(model, "before", "B", 1);
+      addColumns(model, "after", "C", 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style },
         A3: { style },
@@ -635,7 +590,7 @@ describe("Columns", () => {
       });
     });
     test("On deletion", () => {
-      removeColumns([1, 2]);
+      deleteColumns(model, ["B", "C"]);
       expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
       expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
@@ -691,7 +646,7 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([0]);
+      deleteColumns(model, ["A"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
@@ -709,7 +664,7 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([0, 1]);
+      deleteColumns(model, ["A", "B"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
@@ -727,7 +682,7 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([2]);
+      deleteColumns(model, ["C"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
@@ -745,7 +700,7 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([1, 2, 3, 4]);
+      deleteColumns(model, ["B", "C", "D", "E"]);
       expect(getCellText(model, "A1", "s1")).toBe("=SUM(A2:A5)");
     });
 
@@ -762,7 +717,7 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([1, 2, 3, 4]);
+      deleteColumns(model, ["B", "C", "D", "E"]);
       expect(getCellText(model, "A1", "s1")).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on column deletion", () => {
@@ -780,7 +735,7 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([0]);
+      deleteColumns(model, ["A"]);
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("update cross sheet range on column deletion in inactive sheet", () => {
@@ -816,14 +771,14 @@ describe("Columns", () => {
           },
         ],
       });
-      removeColumns([2, 3]);
+      deleteColumns(model, ["C", "D"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A2: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:B1") }] },
       });
     });
     test("On addition", () => {
-      addColumns(1, "before", 1);
-      addColumns(0, "after", 1);
+      addColumns(model, "before", "B", 1);
+      addColumns(model, "after", "A", 1);
       expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
       expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
@@ -833,27 +788,27 @@ describe("Columns", () => {
     test("On deletion", () => {
       model = new Model(fullData);
       const beforeRemove = model.exportData();
-      removeColumns([0, 2]);
+      deleteColumns(model, ["A", "C"]);
       const afterRemove = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(beforeRemove);
-      redo();
-      expect(model.exportData()).toEqual(afterRemove);
+      undo(model);
+      expect(model).toExport(beforeRemove);
+      redo(model);
+      expect(model).toExport(afterRemove);
     });
     test("On addition", () => {
       model = new Model(fullData);
       const beforeAdd = model.exportData();
-      addColumns(1, "before", 4);
+      addColumns(model, "before", "B", 4);
       const afterAdd1 = model.exportData();
-      addColumns(4, "after", 4);
+      addColumns(model, "after", "E", 4);
       const afterAdd2 = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(afterAdd1);
-      redo();
-      expect(model.exportData()).toEqual(afterAdd2);
-      undo();
-      undo();
-      expect(model.exportData()).toEqual(beforeAdd);
+      undo(model);
+      expect(model).toExport(afterAdd1);
+      redo(model);
+      expect(model).toExport(afterAdd2);
+      undo(model);
+      undo(model);
+      expect(model).toExport(beforeAdd);
     });
   });
 
@@ -867,7 +822,7 @@ describe("Columns", () => {
         strict: true,
       });
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
-      addColumns(1, "before", 1);
+      addColumns(model, "before", "B", 1);
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 2, right: 4, top: 0 });
     });
     test("On add left 3", () => {
@@ -879,32 +834,32 @@ describe("Columns", () => {
         strict: true,
       });
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
-      addColumns(1, "before", 3);
+      addColumns(model, "before", "B", 3);
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 4, right: 6, top: 0 });
     });
     test("On add right 1", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      const zone = toZone("B1:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
-      addColumns(1, "after", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
+      addColumns(model, "after", "B", 1);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E3"));
     });
     test("On add right 3", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      const zone = toZone("B1:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
-      addColumns(1, "after", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
+      addColumns(model, "after", "B", 3);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:G3"));
     });
   });
 });
@@ -933,7 +888,7 @@ describe("Rows", () => {
       });
     });
     test("On deletion", () => {
-      removeRows([0, 2]);
+      deleteRows(model, [0, 2]);
       const size = DEFAULT_CELL_HEIGHT;
       expect(model.getters.getActiveSheet().rows).toEqual([
         { start: 0, end: 10, size: 10, name: "1", cells: {} },
@@ -985,7 +940,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([0, 2, 3]);
+      deleteRows(model, [0, 2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { content: "A2" },
       });
@@ -1003,7 +958,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([1, 2, 3, 4]);
+      deleteRows(model, [1, 2, 3, 4]);
       expect(getCellText(model, "A1")).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on row deletion", () => {
@@ -1021,7 +976,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([0]);
+      deleteRows(model, [0]);
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("update cross sheet range on row deletion in inactive sheet", () => {
@@ -1045,12 +1000,12 @@ describe("Rows", () => {
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("On addition before first", () => {
-      addRows(0, "before", 1);
+      addRows(model, "before", 0, 1);
       expect(model.getters.getActiveSheet().cols).toHaveLength(1);
       expect(model.getters.getActiveSheet().rows).toHaveLength(5);
     });
     test("On addition before", () => {
-      addRows(1, "before", 2);
+      addRows(model, "before", 1, 2);
       const size = DEFAULT_CELL_HEIGHT;
       expect(model.getters.getActiveSheet().rows).toEqual([
         { start: 0, end: size, size, name: "1", cells: {} },
@@ -1065,7 +1020,7 @@ describe("Rows", () => {
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
     test("On addition after", () => {
-      addRows(2, "after", 2);
+      addRows(model, "after", 2, 2);
       const size = DEFAULT_CELL_HEIGHT;
       expect(model.getters.getActiveSheet().rows).toEqual([
         { start: 0, end: size, size, name: "1", cells: {} },
@@ -1080,25 +1035,19 @@ describe("Rows", () => {
       expect(model.getters.getActiveSheet().rows.length).toBe(6);
     });
     test("cannot delete column in invalid sheet", () => {
-      expect(
-        model.dispatch("ADD_ROWS", {
-          row: 0,
-          position: "after",
-          quantity: 1,
-          sheetId: "INVALID",
-        })
-      ).toEqual({
+      const sheetId = "invalid";
+      expect(addRows(model, "after", 0, 1, sheetId)).toEqual({
         status: "CANCELLED",
         reason: CancelledReason.InvalidSheetId,
       });
     });
 
     test("activate Sheet: same size", () => {
-      addRows(2, "after", 1);
+      addRows(model, "after", 2, 1);
       let dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
-      model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+      createSheet(model, { activate: true, sheetId: "42" });
       const from = model.getters.getActiveSheetId();
       model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
       dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
@@ -1119,7 +1068,7 @@ describe("Rows", () => {
       });
     });
     test("On deletion", () => {
-      removeRows([1, 3]);
+      deleteRows(model, [1, 3]);
       expect(getMerges(model)).toEqual({
         5: { id: 5, topLeft: toPosition("A1"), top: 0, bottom: 2, left: 0, right: 0 },
         6: { id: 6, topLeft: toPosition("B2"), top: 1, bottom: 2, left: 1, right: 1 },
@@ -1130,8 +1079,8 @@ describe("Rows", () => {
       );
     });
     test("On addition", () => {
-      addRows(1, "before", 1);
-      addRows(0, "after", 1);
+      addRows(model, "before", 1, 1);
+      addRows(model, "after", 0, 1);
       expect(getMerges(model)).toEqual({
         9: { id: 9, topLeft: toPosition("A1"), top: 0, bottom: 6, left: 0, right: 0 },
         10: { id: 10, topLeft: toPosition("B4"), top: 3, bottom: 6, left: 1, right: 1 },
@@ -1185,7 +1134,7 @@ describe("Rows", () => {
       const style = { textColor: "#fe0000" };
       const sheetId = model.getters.getActiveSheetId();
       expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(8);
-      removeRows([1]);
+      deleteRows(model, [1]);
       expect(getCell(model, "A2")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "C2")).toBeUndefined();
@@ -1206,7 +1155,7 @@ describe("Rows", () => {
 
     test("On addition", () => {
       const s = ["thin", "#000"];
-      addRows(1, "before", 1);
+      addRows(model, "before", 1, 1);
       const style = { textColor: "#fe0000" };
       expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
@@ -1218,7 +1167,7 @@ describe("Rows", () => {
       expect(getBorder(model, "C3")).toEqual({ top: s });
       expect(getBorder(model, "C4")).toEqual({ bottom: s });
       expect(getBorder(model, "C5")).toEqual({ top: s });
-      addRows(2, "after", 2);
+      addRows(model, "after", 2, 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: { style },
         C1: { style },
@@ -1260,12 +1209,7 @@ describe("Rows", () => {
         target: [toZone("B2")],
         border: "external",
       });
-      model.dispatch("ADD_ROWS", {
-        row: 1,
-        position: "after",
-        quantity: 1,
-        sheetId,
-      });
+      addRows(model, "after", 1, 1);
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
     });
@@ -1279,12 +1223,7 @@ describe("Rows", () => {
         target: [toZone("B2")],
         border: "external",
       });
-      model.dispatch("ADD_ROWS", {
-        row: 1,
-        position: "before",
-        quantity: 1,
-        sheetId,
-      });
+      addRows(model, "before", 1, 1);
       expect(getBorder(model, "B2")).toEqual({ bottom: s });
       expect(getBorder(model, "B3")).toEqual({ top: s, bottom: s, left: s, right: s });
     });
@@ -1339,7 +1278,7 @@ describe("Rows", () => {
     });
 
     test("On deletion", () => {
-      removeRows([1, 2]);
+      deleteRows(model, [1, 2]);
       expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
       expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
@@ -1388,7 +1327,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([0]);
+      deleteRows(model, [0]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:A2") }] },
       });
@@ -1406,7 +1345,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([1, 2]);
+      deleteRows(model, [1, 2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A2:A3") }] },
       });
@@ -1433,7 +1372,7 @@ describe("Rows", () => {
         rows.push(i);
       }
 
-      removeRows(rows);
+      deleteRows(model, rows);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A5: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A6") }] },
         A7: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A8") }] },
@@ -1452,7 +1391,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([2]);
+      deleteRows(model, [2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: { formula: { text: "=SUM(|0|)" }, dependencies: [{ zone: toZone("A1:A2") }] },
       });
@@ -1470,7 +1409,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([2, 3]);
+      deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: {
           dependencies: [{ zone: { top: 1, left: 0, bottom: 2, right: 0 } }],
@@ -1492,7 +1431,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([1, 2, 3, 4, 5, 6]);
+      deleteRows(model, [1, 2, 3, 4, 5, 6]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         A1: {
           dependencies: [{ zone: { top: 1, left: 0, bottom: 1, right: 0 } }],
@@ -1514,7 +1453,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([2, 3]);
+      deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         B1: {
           dependencies: [{ zone: { top: 0, left: 0, bottom: 1, right: 0 } }],
@@ -1538,7 +1477,7 @@ describe("Rows", () => {
           },
         ],
       });
-      removeRows([3, 4, 5, 6, 7]);
+      deleteRows(model, [3, 4, 5, 6, 7]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
         B2: {
           dependencies: [{ zone: { top: 0, left: 0, bottom: 2, right: 0 } }],
@@ -1548,8 +1487,8 @@ describe("Rows", () => {
       });
     });
     test("On addition", () => {
-      addRows(1, "before", 1);
-      addRows(0, "after", 1);
+      addRows(model, "before", 1, 1);
+      addRows(model, "after", 0, 1);
       expect(getCellsObject(model, "sheet1")).toMatchSnapshot();
       expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
@@ -1559,28 +1498,28 @@ describe("Rows", () => {
     test("On deletion", () => {
       model = new Model(fullData);
       const beforeRemove = model.exportData();
-      removeRows([0, 2]);
+      deleteRows(model, [0, 2]);
       const afterRemove = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(beforeRemove);
-      redo();
-      expect(model.exportData()).toEqual(afterRemove);
+      undo(model);
+      expect(model).toExport(beforeRemove);
+      redo(model);
+      expect(model).toExport(afterRemove);
     });
 
     test("On addition", () => {
       model = new Model(fullData);
       const beforeAdd = model.exportData();
-      addRows(2, "before", 2);
+      addRows(model, "before", 2, 2);
       const afterAdd1 = model.exportData();
-      addRows(4, "after", 4);
+      addRows(model, "after", 4, 4);
       const afterAdd2 = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(afterAdd1);
-      redo();
-      expect(model.exportData()).toEqual(afterAdd2);
-      undo();
-      undo();
-      expect(model.exportData()).toEqual(beforeAdd);
+      undo(model);
+      expect(model).toExport(afterAdd1);
+      redo(model);
+      expect(model).toExport(afterAdd2);
+      undo(model);
+      undo(model);
+      expect(model).toExport(beforeAdd);
     });
   });
 
@@ -1594,7 +1533,7 @@ describe("Rows", () => {
         strict: true,
       });
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
-      addRows(0, "before", 1);
+      addRows(model, "before", 0, 1);
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 2, right: 3, top: 1 });
     });
     test("On add top 3", () => {
@@ -1606,32 +1545,32 @@ describe("Rows", () => {
         strict: true,
       });
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
-      addRows(0, "before", 3);
+      addRows(model, "before", 0, 3);
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 4, left: 2, right: 3, top: 3 });
     });
     test("On add bottom 1", () => {
       model = new Model(fullData);
-      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
+      const zone = toZone("C1:D2");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
-      addRows(0, "after", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
+      addRows(model, "after", 0, 1);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D3"));
     });
     test("On add bottom 3", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      const zone = toZone("C1:D2");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
-      addRows(0, "after", 3);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
+      addRows(model, "after", 0, 3);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D5"));
     });
   });
 
@@ -1644,7 +1583,8 @@ describe("Rows", () => {
         ],
         activeSheet: "1",
       });
-      model.dispatch("ADD_ROWS", { sheetId: "2", row: 1, quantity: 2, position: "after" });
+      const sheetId = "2";
+      addRows(model, "after", 1, 2, sheetId);
       const sheet1 = model.getters.getSheet("1");
       const sheet2 = model.getters.getSheet("2");
       expect(sheet1.rows.length).toBe(3);

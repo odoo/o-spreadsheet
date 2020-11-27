@@ -11,8 +11,9 @@ import { Model } from "../model";
 import { cellMenuRegistry } from "../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../registries/menus/row_menu_registry";
-import { SpreadsheetEnv, Viewport } from "../types/index";
+import { Client, SpreadsheetEnv, UID, Viewport } from "../types/index";
 import { Autofill } from "./autofill";
+import { ClientTag } from "./collaborative_client_tag";
 import { GridComposer } from "./composer/grid_composer";
 import { FiguresContainer } from "./figures/container";
 import { startDnd } from "./helpers/drag_and_drop";
@@ -51,28 +52,20 @@ const keyDownMappingIgnore: string[] = ["CTRL+C", "CTRL+V"];
 // Error Tooltip Hook
 // -----------------------------------------------------------------------------
 
-interface ErrorTooltip {
-  isOpen: boolean;
-  text: string;
-  style: string;
+interface HoveredPosition {
+  col?: number;
+  row?: number;
 }
 
-function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): ErrorTooltip {
+export function useCellHovered(env: SpreadsheetEnv, getViewPort: () => Viewport) {
+  const hoveredPosition: HoveredPosition = useState({});
   const { browser, getters } = env;
   const { Date, setInterval, clearInterval } = browser;
+  const canvasRef = useRef("canvas");
   let x = 0;
   let y = 0;
   let lastMoved = 0;
-  let tooltipCol: number, tooltipRow: number;
-  const canvasRef = useRef("canvas");
-  const tooltip = useState({ isOpen: false, text: "", style: "" });
   let interval;
-
-  function updateMousePosition(e: MouseEvent) {
-    x = e.offsetX;
-    y = e.offsetY;
-    lastMoved = Date.now();
-  }
 
   function getPosition(): [number, number] {
     const viewport = getViewPort();
@@ -82,42 +75,24 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
   }
 
   function checkTiming() {
-    if (tooltip.isOpen) {
-      const [col, row] = getPosition();
-      if (col !== tooltipCol || row !== tooltipRow) {
-        tooltip.isOpen = false;
-      }
-    } else {
-      const delta = Date.now() - lastMoved;
-      if (400 < delta && delta < 600) {
-        // mouse did not move for a short while
-        const [col, row] = getPosition();
-        if (col < 0 || row < 0) {
-          return;
-        }
-        const sheetId = getters.getActiveSheetId();
-        const [mainCol, mainRow] = getters.getMainCell(sheetId, col, row);
-        const cell = getters.getCell(sheetId, mainCol, mainRow);
-        if (cell && cell.error) {
-          tooltip.isOpen = true;
-          tooltip.text = cell.error;
-          tooltipCol = col;
-          tooltipRow = row;
-          const viewport = getViewPort();
-          const [x, y, width, height] = env.getters.getRect(
-            { left: col, top: row, right: col, bottom: row },
-            viewport
-          );
-          const hAlign = x + width + 200 < viewport.width ? "left" : "right";
-          const hOffset =
-            hAlign === "left" ? x + width : viewport.width - x + (SCROLLBAR_WIDTH + 2);
-          const vAlign = y + 120 < viewport.height ? "top" : "bottom";
-          const vOffset =
-            vAlign === "top" ? y : viewport.height - y - height + (SCROLLBAR_WIDTH + 2);
-          tooltip.style = `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`;
-        }
-      }
+    const [col, row] = getPosition();
+    const delta = Date.now() - lastMoved;
+    if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
+      hoveredPosition.col = undefined;
+      hoveredPosition.row = undefined;
     }
+    if (400 < delta && delta < 600) {
+      if (col < 0 || row < 0) {
+        return;
+      }
+      hoveredPosition.col = col;
+      hoveredPosition.row = row;
+    }
+  }
+  function updateMousePosition(e: MouseEvent) {
+    x = e.offsetX;
+    y = e.offsetY;
+    lastMoved = Date.now();
   }
 
   onMounted(() => {
@@ -129,8 +104,7 @@ function useErrorTooltip(env: SpreadsheetEnv, getViewPort: () => Viewport): Erro
     canvasRef.el!.removeEventListener("mousemove", updateMousePosition);
     clearInterval(interval);
   });
-
-  return tooltip;
+  return hoveredPosition;
 }
 
 function useTouchMove(handler: (deltaX: number, deltaY: number) => void, canMoveUp: () => boolean) {
@@ -195,6 +169,14 @@ const TEMPLATE = xml/* xml */ `
       tabindex="-1"
       t-on-contextmenu="onCanvasContextMenu"
        />
+    <t t-foreach="connectedClients" t-as="client" t-key="getClientPositionKey(client)">
+      <ClientTag name="client.name"
+                 color="getClientColor(client.id)"
+                 col="client.position.col"
+                 row="client.position.row"
+                 active="isCellHovered(client.position.col, client.position.row)"
+                 viewport="snappedViewport"/>
+    </t>
     <t t-if="errorTooltip.isOpen">
       <div class="o-error-tooltip" t-esc="errorTooltip.text" t-att-style="errorTooltip.style"/>
     </t>
@@ -269,7 +251,7 @@ const CSS = css/* scss */ `
 export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   static template = TEMPLATE;
   static style = CSS;
-  static components = { GridComposer, Overlay, Menu, Autofill, FiguresContainer };
+  static components = { GridComposer, Overlay, Menu, Autofill, FiguresContainer, ClientTag };
 
   private menuState: MenuState = useState({
     isOpen: false,
@@ -303,7 +285,36 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
   // the col/row structure, so, the offsets are correct for computations necessary
   // to align elements to the grid.
   private snappedViewport: Viewport = this.viewport;
-  errorTooltip = useErrorTooltip(this.env, () => this.snappedViewport);
+  // errorTooltip = useErrorTooltip(this.env, () => this.snappedViewport);
+  hoveredCell = useCellHovered(this.env, () => this.snappedViewport);
+
+  get errorTooltip() {
+    const { col, row } = this.hoveredCell;
+    if (!col || !row) {
+      return { isOpen: false };
+    }
+    const sheetId = this.getters.getActiveSheetId();
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
+
+    if (cell && cell.error) {
+      const viewport = this.snappedViewport;
+      const [x, y, width, height] = this.getters.getRect(
+        { left: col, top: row, right: col, bottom: row },
+        viewport
+      );
+      const hAlign = x + width + 200 < viewport.width ? "left" : "right";
+      const hOffset = hAlign === "left" ? x + width : viewport.width - x + (SCROLLBAR_WIDTH + 2);
+      const vAlign = y + 120 < viewport.height ? "top" : "bottom";
+      const vOffset = vAlign === "top" ? y : viewport.height - y - height + (SCROLLBAR_WIDTH + 2);
+      return {
+        isOpen: true,
+        style: `${hAlign}:${hOffset}px;${vAlign}:${vOffset}px`,
+        text: cell.error,
+      };
+    }
+    return { isOpen: false };
+  }
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
@@ -343,6 +354,14 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.vScrollbar = new ScrollBar(this.vScrollbarRef.el, "vertical");
     this.hScrollbar = new ScrollBar(this.hScrollbarRef.el, "horizontal");
     useTouchMove(this.moveCanvas.bind(this), () => this.vScrollbar.scroll > 0);
+  }
+
+  get connectedClients(): Client[] {
+    const activeSheetId = this.getters.getActiveSheetId();
+    return [...this.getters.getConnectedClients()]
+      .filter((client) => client.id !== this.getters.getClient().id)
+      .filter((client) => client.position)
+      .filter((client) => client.position?.sheetId === activeSheetId);
   }
 
   mounted() {
@@ -455,6 +474,14 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     this.hScrollbar.scroll = this.hScrollbar.scroll + deltaX;
   }
 
+  getClientPositionKey(client: Client) {
+    return `${client.id}-${client.position?.sheetId}-${client.position?.col}-${client.position?.row}`;
+  }
+
+  getClientColor(id: UID) {
+    return this.props.model.getters.getClientColor(id);
+  }
+
   onMouseWheel(ev: WheelEvent) {
     function normalize(val: number): number {
       return val * (ev.deltaMode === 0 ? 1 : DEFAULT_CELL_HEIGHT);
@@ -463,6 +490,10 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     const deltaX = ev.shiftKey ? ev.deltaY : ev.deltaX;
     const deltaY = ev.shiftKey ? ev.deltaX : ev.deltaY;
     this.moveCanvas(normalize(deltaX), normalize(deltaY));
+  }
+
+  isCellHovered(col: number, row: number): boolean {
+    return this.hoveredCell.col === col && this.hoveredCell.row === row;
   }
 
   // ---------------------------------------------------------------------------

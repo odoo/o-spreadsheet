@@ -2,7 +2,8 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { GridRenderingContext, Viewport } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
-import { createEqualCF, mockUuidV4To, setCellContent } from "../helpers";
+import { setCellContent } from "../commands_helpers";
+import { createEqualCF, mockUuidV4To } from "../helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };
@@ -445,7 +446,7 @@ describe("renderer", () => {
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
-    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "1", true);
+    expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "Sheet1", true);
   });
   test("CF on empty cell", () => {
     const model = new Model({

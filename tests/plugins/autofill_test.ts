@@ -3,17 +3,10 @@ import { toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
-import "../helpers"; // to have getcontext mocks
-import {
-  getCell,
-  getCellContent,
-  getCellText,
-  getMergeCellMap,
-  getMerges,
-  setCellContent,
-  toPosition,
-  XCToMergeCellMap,
-} from "../helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
+import { getCell, getCellContent, getCellText, getMerges } from "../getters_helpers"; // to have getcontext mocks
+import "../helpers";
+import { getMergeCellMap, toPosition, XCToMergeCellMap } from "../helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -460,7 +453,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill cross-sheet references", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2");

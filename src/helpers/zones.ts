@@ -52,6 +52,98 @@ export function zoneToXc(zone: Zone): string {
 }
 
 /**
+ * Expand a zone after inserting columns or rows.
+ */
+export function expandZoneOnInsertion(
+  zone: Zone,
+  start: "left" | "top",
+  base: number,
+  position: "after" | "before",
+  quantity: number
+): Zone {
+  const dimension = start === "left" ? "columns" : "rows";
+  const baseElement = position === "before" ? base - 1 : base;
+  const end = start === "left" ? "right" : "bottom";
+  if (zone[start] <= baseElement && zone[end] >= baseElement) {
+    return createAdaptedZone(zone, dimension, "RESIZE", quantity);
+  }
+  if (baseElement < zone[start]) {
+    return createAdaptedZone(zone, dimension, "MOVE", quantity);
+  }
+  return { ...zone };
+}
+
+/**
+ * Update the selection after column/row addition
+ */
+export function updateSelectionOnInsertion(
+  selection: Zone,
+  start: "left" | "top",
+  base: number,
+  position: "after" | "before",
+  quantity: number
+): Zone {
+  const dimension = start === "left" ? "columns" : "rows";
+  const baseElement = position === "before" ? base - 1 : base;
+  const end = start === "left" ? "right" : "bottom";
+  if (selection[start] <= baseElement && selection[end] > baseElement) {
+    return createAdaptedZone(selection, dimension, "RESIZE", quantity);
+  }
+  if (baseElement < selection[start]) {
+    return createAdaptedZone(selection, dimension, "MOVE", quantity);
+  }
+  return { ...selection };
+}
+/**
+ * Update the selection after column/row deletion
+ */
+export function updateSelectionOnDeletion(
+  zone: Zone,
+  start: "left" | "top",
+  elements: number[]
+): Zone {
+  const end = start === "left" ? "right" : "bottom";
+  let newStart = zone[start];
+  let newEnd = zone[end];
+  for (let removedElement of elements.sort((a, b) => b - a)) {
+    if (zone[start] >= removedElement) {
+      newStart--;
+      newEnd--;
+    }
+    if (zone[start] <= removedElement && zone[end] >= removedElement) {
+      newEnd--;
+    }
+  }
+  return { ...zone, [start]: newStart, [end]: newEnd };
+}
+
+/**
+ * Reduce a zone after deletion of elements
+ */
+export function reduceZoneOnDeletion(
+  zone: Zone,
+  start: "left" | "top",
+  elements: number[]
+): Zone | undefined {
+  const end = start === "left" ? "right" : "bottom";
+  let newStart = zone[start];
+  let newEnd = zone[end];
+  for (let removedElement of elements.sort((a, b) => b - a)) {
+    if (zone[start] > removedElement) {
+      newStart--;
+      newEnd--;
+    }
+    if (zone[start] <= removedElement && zone[end] >= removedElement) {
+      newEnd--;
+    }
+  }
+  if (newStart > newEnd) {
+    return undefined;
+  }
+  return { ...zone, [start]: newStart, [end]: newEnd };
+}
+
+/**
  * Compute the union of two zones. It is the smallest zone which contains the
  * two arguments.
  */
@@ -235,7 +327,7 @@ function mergeColumns(
       });
     }
 
-    //All the zones from inProgressZones that are not transferred in newInprogress
+    //All the zones from inProgressZones that are not transferred in newInProgress
     //are zones that were not extended and are therefore final.
     const difference = inProgressZones.filter((x) => !newInProgress.includes(x));
     for (let x of difference) {

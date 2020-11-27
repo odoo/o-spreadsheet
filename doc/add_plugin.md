@@ -1,6 +1,6 @@
 # Plugins
 
-A plugin is a way for o-spreadsheet to organise features in order not to interfere with one another.
+A plugin is a way for o-spreadsheet to organize features in order not to interfere with one another.
 
 All plugins can :
 
@@ -41,7 +41,7 @@ class MyPlugin extends spreadsheet.CorePlugin {
   // Command handling
   // ---------------------------------------------------------------------
   allowDispatch(cmd) {
-    // every plugin are called for every command, only process the commands that is interresting for this plugin
+    // every plugin are called for every command, only process the commands that is interesting for this plugin
     switch (cmd.type) {
       case "DO_SOMETHING":
         if (cmd.toPutInFirstProp === "bla") {
@@ -84,14 +84,14 @@ class MyPlugin extends spreadsheet.CorePlugin {
   }
 }
 
-// makes the new plugin to be instanciated for every spreadsheet mode
+// makes the new plugin to be instantiated for every spreadsheet mode
 MyPlugin.modes = ["normal", "headless", "readonly"];
 
 // makes the function getSomething accessible from anywhere that has a reference to model.getters
 MyPlugin.getters = ["getSomething"];
 
 // add the new "MyPlugin" to the plugin registry.
-// It will be automatically instanciated by o-spreadsheet when you mount the spreadsheet component or when you create a new Model()
+// It will be automatically instantiated by o-spreadsheet when you mount the spreadsheet component or when you create a new Model()
 const pluginRegistry = spreadsheet.registries.pluginRegistry;
 pluginRegistry.add("MyPlugin", MyPlugin);
 

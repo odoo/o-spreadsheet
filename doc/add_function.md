@@ -70,9 +70,9 @@ The properties of a function are:
   - `"STRING"`
   - `"DATE"`
 - `returnFormat`(string | object): when you want your formula return a result with a format. This is especially useful when the formula returns a number.
-  - `"FormatFromArgument"` --> if the first argument of the formula is a reference to a cell or range, the format of the reference will be returned. Ex: in `=SUM(A2, A3, A4)` where the parameter `returowrnFormat` is defined as `"FormatFromArgument"`, the final formula format will be the format of the `A2` reference.
+  - `"FormatFromArgument"` --> if the first argument of the formula is a reference to a cell or range, the format of the reference will be returned. Ex: in `=SUM(A2, A3, A4)` where the parameter `returnFormat` is defined as `"FormatFromArgument"`, the final formula format will be the format of the `A2` reference.
   - `specificFormat` (string): a string that can be interpreted by spreadsheet. Ex: in `=TIME(A2, A3, A4)`
-    where the parameter `returowrnFormat` is defined as `{specificFormat: "hh:mm:ss"}`, the final formula format will be `"hh:mm:ss"`.
+    where the parameter `returnFormat` is defined as `{specificFormat: "hh:mm:ss"}`, the final formula format will be `"hh:mm:ss"`.
 
 ## Example
 
@@ -90,7 +90,7 @@ const spreadsheet = o_spreadsheet; // obtain the reference to the global o_sprea
         variance (number, repeating) that other parameter // create the second parameter, that is a number, and can accept as many values as the user specifies
       `),
 
-      compute: function(first, ...variance) { // this function will be called when a cell has the formula =NEW.FOMULA(...) and will receive the parameters in the order specified by the user
+      compute: function(first, ...variance) { // this function will be called when a cell has the formula =NEW.FORMULA(...) and will receive the parameters in the order specified by the user
         // do something with the parameters
         return first * variance[0];
       }
@@ -117,7 +117,7 @@ const NEW_FORMULA : {
       throw new Error ("function [[FUNCTION_NAME]] doesn't want the parameters to be 0")
     }
 
-    // this.env contains the (OWL) environment of the speadsheet,
+    // this.env contains the (OWL) environment of the spreadsheet,
     // that means it contains `this.env.services.rpc` to make calls to the server.
     // don't forget to mark the formula as async if you need to wait for a rpc
     const env = this.env;

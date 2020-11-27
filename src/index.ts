@@ -27,6 +27,8 @@ import {
   cellMenuRegistry,
   colMenuRegistry,
   createFullMenuItem,
+  inverseCommandRegistry,
+  otRegistry,
   rowMenuRegistry,
   sheetMenuRegistry,
   sidePanelRegistry,
@@ -42,6 +44,7 @@ import {
  */
 
 export const __info__ = {};
+export { Revision } from "./collaborative/revisions";
 export { Spreadsheet } from "./components/index";
 export { DATETIME_FORMAT } from "./constants";
 export { functionCache } from "./formulas/compiler";
@@ -52,6 +55,18 @@ export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { setTranslationMethod } from "./translation";
+export { Client } from "./types/collaborative/session";
+export {
+  ClientJoinedMessage,
+  ClientLeftMessage,
+  ClientMovedMessage,
+  CollaborationMessage,
+  RemoteRevisionMessage,
+  RevisionRedoneMessage,
+  RevisionUndoneMessage,
+  TransportService,
+} from "./types/collaborative/transport_service";
+export { coreTypes } from "./types/commands";
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,
@@ -77,6 +92,8 @@ export const registries = {
   sheetMenuRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
+  otRegistry,
+  inverseCommandRegistry,
 };
 
 export const helpers = {

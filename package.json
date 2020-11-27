@@ -4,11 +4,14 @@
   "description": "A spreadsheet component",
   "main": "index.js",
   "scripts": {
-    "serve": "live-server --open=demo",
-    "dev": "npm-run-all  build --parallel serve \"build:* -- --watch\"",
+    "serve": "live-server --open=demo --ignore=logs,./",
+    "dev": "npm-run-all build --parallel server serve \"build:* -- --watch\"",
+    "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --outDir dist/js --incremental",
     "build:bundle": "rollup -c -m",
     "build": "npm run build:js && npm run build:bundle",
+    "doc": "typedoc",
+    "precommit": "npm run prettier && npm run doc",
     "test": "jest",
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md} --write"
@@ -29,7 +32,11 @@
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.23",
     "babel-eslint": "^10.1.0",
+    "cors": "^2.8.5",
     "eslint": "^6.8.0",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "fs": "^0.0.1-security",
     "git-rev-sync": "^2.1.0",
     "jest": "^25.3.0",
     "jest-environment-jsdom": "^25.3.0",
@@ -40,6 +47,8 @@
     "prettier-plugin-organize-imports": "^1.1.1",
     "rollup": "^2.38.5",
     "ts-jest": "^25.3.1",
+    "typedoc": "^0.20.20",
+    "typedoc-plugin-markdown": "^3.4.5",
     "typescript": "^3.9.7"
   },
   "prettier": {

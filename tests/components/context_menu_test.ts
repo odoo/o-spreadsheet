@@ -5,16 +5,10 @@ import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { ConditionalFormat, SpreadsheetEnv } from "../../src/types";
+import { setCellContent } from "../commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
-import {
-  getCell,
-  getCellContent,
-  GridParent,
-  makeTestFixture,
-  nextTick,
-  setCellContent,
-  Touch,
-} from "../helpers";
+import { getCell, getCellContent } from "../getters_helpers";
+import { GridParent, makeTestFixture, nextTick, Touch } from "../helpers";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;

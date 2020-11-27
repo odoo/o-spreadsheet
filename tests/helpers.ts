@@ -3,95 +3,31 @@ import { Grid } from "../src/components/grid";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { TopBar } from "../src/components/top_bar";
 import { functionRegistry } from "../src/functions/index";
-import { lettersToNumber, toCartesian, toXC, toZone } from "../src/helpers/index";
+import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { ComposerSelection } from "../src/plugins/ui/edition";
 import {
-  Border,
-  BorderCommand,
-  Cell,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
   ConditionalFormat,
   GridRenderingContext,
-  Merge,
   Position,
-  Sheet,
   SpreadsheetEnv,
   Style,
-  UID,
   Zone,
 } from "../src/types";
 import "./canvas.mock";
+import { redo, setCellContent, undo } from "./commands_helpers";
+import { getCell, getCellContent } from "./getters_helpers";
+import "./jest_extend";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
 const { xml } = tags;
 const { useRef, useSubEnv } = hooks;
-
-//------------------------------------------------------------------------------
-// Helpers
-//------------------------------------------------------------------------------
-
-export function addColumns(
-  model: Model,
-  position: "before" | "after",
-  column: string,
-  quantity: number,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  model.dispatch("ADD_COLUMNS", {
-    sheetId,
-    position,
-    column: lettersToNumber(column),
-    quantity,
-  });
-}
-
-export function addRows(
-  model: Model,
-  position: "before" | "after",
-  row: number,
-  quantity: number,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  model.dispatch("ADD_ROWS", {
-    sheetId,
-    position,
-    row,
-    quantity,
-  });
-}
-
-/**
- * Set a border to a given zone or the selected zones
- * @param model S
- * @param command
- */
-export function setBorder(model: Model, border: BorderCommand, xc?: string) {
-  const target = xc ? [toZone(xc)] : model.getters.getSelectedZones();
-  model.dispatch("SET_FORMATTING", {
-    sheetId: model.getters.getActiveSheetId(),
-    target,
-    border,
-  });
-}
-
-/**
- * Set the content of a cell
- */
-export function setCellContent(
-  model: Model,
-  xc: string,
-  content: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  const [col, row] = toCartesian(xc);
-  model.dispatch("UPDATE_CELL", { col, row, sheetId, content });
-}
 
 export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
@@ -135,10 +71,10 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   const before = model.exportData();
   model.dispatch(command, args);
   const after = model.exportData();
-  model.dispatch("UNDO");
-  expect(model.exportData()).toEqual(before);
-  model.dispatch("REDO");
-  expect(model.exportData()).toEqual(after);
+  undo(model);
+  expect(model).toExport(before);
+  redo(model);
+  expect(model).toExport(after);
 }
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
@@ -407,68 +343,6 @@ export function resetFunctions() {
   Object.keys(functions).forEach((k) => {
     delete functions[k];
   });
-}
-
-export function getActiveXc(model: Model): string {
-  return toXC(...model.getters.getPosition());
-}
-
-export function getCell(
-  model: Model,
-  xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-): Cell | undefined {
-  let [col, row] = toCartesian(xc);
-  return model.getters.getCell(sheetId, col, row);
-}
-
-/**
- * gets the string representation of the content of a cell (the value for formula cell, or the formula, depending on ShowFormula)
- */
-export function getCellContent(
-  model: Model,
-  xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-): string {
-  const cell = getCell(model, xc, sheetId);
-  return cell ? model.getters.getCellText(cell, sheetId, model.getters.shouldShowFormulas()) : "";
-}
-
-/**
- * get the string representation of the content of a cell, and always formula for formula cells
- */
-export function getCellText(
-  model: Model,
-  xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  const cell = getCell(model, xc, sheetId);
-  return cell ? model.getters.getCellText(cell, sheetId, true) : "";
-}
-
-export function getSheet(model: Model, index: number = 0): Sheet {
-  return model.getters.getSheets()[index];
-}
-
-export function getBorder(
-  model: Model,
-  xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-): Border | null {
-  const [col, row] = toCartesian(xc);
-  return model.getters.getCellBorder(sheetId, col, row);
-}
-
-export function getMerges(model: Model): Record<number, Merge> {
-  const mergePlugin = model["handlers"].find(
-    (handler) => handler instanceof MergePlugin
-  )! as MergePlugin;
-  const sheetMerges = mergePlugin["merges"][model.getters.getActiveSheetId()];
-  return sheetMerges
-    ? (Object.fromEntries(
-        Object.entries(sheetMerges).filter(([mergeId, merge]) => merge !== undefined)
-      ) as Record<number, Merge>)
-    : {};
 }
 
 export function getMergeCellMap(model: Model): Record<number, Record<number, number | undefined>> {
