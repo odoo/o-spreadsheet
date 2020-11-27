@@ -19,7 +19,6 @@ import {
   CellData,
   CellPosition,
   CellType,
-  Command,
   FormulaCell,
   NormalizedFormula,
   Range,
@@ -30,6 +29,7 @@ import {
   AddColumnsCommand,
   AddRowsCommand,
   Zone,
+  CoreCommand,
 } from "../../types/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 
@@ -69,19 +69,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "SET_FORMATTING":
-        if (cmd.style) {
+        if ("style" in cmd) {
           this.setStyle(cmd.sheetId, cmd.target, cmd.style);
         }
+        if ("format" in cmd && cmd.format !== undefined) {
+          this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
+        }
         break;
-
       case "SET_DECIMAL":
         this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
-        break;
-      case "SET_FORMATTER":
-        this.setFormatter(cmd.sheetId, cmd.target, cmd.formatter);
         break;
       case "CLEAR_FORMATTING":
         this.clearStyles(cmd.sheetId, cmd.target);
