@@ -267,7 +267,7 @@ export class CorePlugin extends BasePlugin {
   }
 
   getCellText(cell: Cell): string {
-    const value = this.showFormulas ? cell.content : cell.value;
+    const value: unknown = this.showFormulas ? cell.content : cell.value;
     const shouldFormat = (value || value === 0) && cell.format && !cell.error && !cell.pending;
     const dateTimeFormat = shouldFormat && cell.format!.match(/y|m|d|:/);
     const numberFormat = shouldFormat && !dateTimeFormat;
@@ -278,25 +278,28 @@ export class CorePlugin extends BasePlugin {
         return value ? "TRUE" : "FALSE";
       case "number":
         if (dateTimeFormat) {
-          return formatDateTime({ value } as InternalDate, cell.format);
+          return formatDateTime({ value, format: cell.format! });
         }
         if (numberFormat) {
           return formatNumber(value, cell.format!);
         }
         return formatStandardNumber(value);
       case "object":
-        if (dateTimeFormat) {
-          return formatDateTime(value as InternalDate, cell.format);
+        if (!value) return "0";
+        if ("value" in value && "format" in value) {
+          if (dateTimeFormat) {
+            return formatDateTime(value as InternalDate, cell.format);
+          }
+          if (numberFormat) {
+            return formatNumber((value as any).value, cell.format!);
+          }
+          if (value && (value as InternalDate).format.match(/y|m|d|:/)) {
+            return formatDateTime(value as InternalDate);
+          }
         }
-        if (numberFormat) {
-          return formatNumber(value.value, cell.format!);
-        }
-        if (value && value.format!.match(/y|m|d|:/)) {
-          return formatDateTime(value);
-        }
-        return "0";
+        return value.toString();
     }
-    return value.toString();
+    return "";
   }
 
   /**
