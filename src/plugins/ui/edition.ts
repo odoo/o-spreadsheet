@@ -1,12 +1,31 @@
 import { DATETIME_FORMAT } from "../../constants";
 import { composerTokenize, EnrichedToken, rangeReference, tokenize } from "../../formulas/index";
 import { formatDateTime } from "../../functions/dates";
-import { colors, getComposerSheetName } from "../../helpers/index";
+import {
+  colors,
+  getComposerSheetName,
+  updateSelectionOnDeletion,
+  updateSelectionOnInsertion,
+} from "../../helpers/index";
 import { Mode } from "../../model";
-import { CancelledReason, Cell, CellType, Command, CommandResult, LAYERS } from "../../types/index";
+import { _lt } from "../../translation";
+import {
+  AddColumnsCommand,
+  AddRowsCommand,
+  CancelledReason,
+  Cell,
+  CellType,
+  Command,
+  CommandResult,
+  LAYERS,
+  RemoveColumnsCommand,
+  RemoveRowsCommand,
+} from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export type EditionMode = "editing" | "selecting" | "inactive" | "resettingPosition";
+
+const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
 
 export interface ComposerSelection {
   start: number;
@@ -124,6 +143,24 @@ export class EditionPlugin extends UIPlugin {
           this.setActiveContent();
         }
         break;
+      case "ADD_COLUMNS":
+        this.onAddColumns(cmd);
+        break;
+      case "ADD_ROWS":
+        this.onAddRows(cmd);
+        break;
+      case "REMOVE_COLUMNS":
+        this.onColumnsRemoved(cmd);
+        break;
+      case "REMOVE_ROWS":
+        this.onRowsRemoved(cmd);
+        break;
+      case "DELETE_SHEET":
+        if (cmd.sheetId === this.sheet && this.mode !== "inactive") {
+          this.dispatch("STOP_EDITION", { cancel: true });
+          this.ui.notifyUser(CELL_DELETED_MESSAGE);
+        }
+        break;
     }
   }
 
@@ -176,6 +213,60 @@ export class EditionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------------
+
+  private onColumnsRemoved(cmd: RemoveColumnsCommand) {
+    if (cmd.columns.includes(this.col) && this.mode !== "inactive") {
+      this.dispatch("STOP_EDITION", { cancel: true });
+      this.ui.notifyUser(CELL_DELETED_MESSAGE);
+      return;
+    }
+    const { top, left } = updateSelectionOnDeletion(
+      { left: this.col, right: this.col, top: this.row, bottom: this.row },
+      "left",
+      cmd.columns
+    );
+    this.col = left;
+    this.row = top;
+  }
+
+  private onRowsRemoved(cmd: RemoveRowsCommand) {
+    if (cmd.rows.includes(this.row) && this.mode !== "inactive") {
+      this.dispatch("STOP_EDITION", { cancel: true });
+      this.ui.notifyUser(CELL_DELETED_MESSAGE);
+      return;
+    }
+    const { top, left } = updateSelectionOnDeletion(
+      { left: this.col, right: this.col, top: this.row, bottom: this.row },
+      "top",
+      cmd.rows
+    );
+    this.col = left;
+    this.row = top;
+  }
+
+  private onAddColumns(cmd: AddColumnsCommand) {
+    const { top, left } = updateSelectionOnInsertion(
+      { left: this.col, right: this.col, top: this.row, bottom: this.row },
+      "left",
+      cmd.column,
+      cmd.position,
+      cmd.quantity
+    );
+    this.col = left;
+    this.row = top;
+  }
+
+  private onAddRows(cmd: AddRowsCommand) {
+    const { top, left } = updateSelectionOnInsertion(
+      { left: this.col, right: this.col, top: this.row, bottom: this.row },
+      "top",
+      cmd.row,
+      cmd.position,
+      cmd.quantity
+    );
+    this.col = left;
+    this.row = top;
+  }
 
   /**
    * Enable the selecting mode

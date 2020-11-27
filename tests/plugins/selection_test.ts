@@ -2,7 +2,8 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
 import "../canvas.mock";
-import { getActiveXc } from "../helpers";
+import { createSheet, selectCell } from "../commands_helpers";
+import { getActiveXc } from "../getters_helpers";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
@@ -370,8 +371,7 @@ describe("multiple sheets", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
@@ -382,5 +382,15 @@ describe("multiple sheets", () => {
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1, sheetIdTo: sheet2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
+  });
+
+  test("Selection is updated when deleting the active sheet", () => {
+    const model = new Model();
+    selectCell(model, "B2");
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42" });
+    model.dispatch("DELETE_SHEET", { sheetId });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(model.getters.getActiveSheetId()).toBe("42");
   });
 });

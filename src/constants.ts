@@ -43,3 +43,13 @@ export const DATETIME_FORMAT = /[ymd:]/;
 
 // Ranges
 export const INCORRECT_RANGE_STRING = "#REF";
+
+// Max Number of history steps kept in memory
+export const MAX_HISTORY_STEPS = 99;
+
+// Id of the first revision
+export const DEFAULT_REVISION_ID = "START_REVISION";
+
+export const DEBOUNCE_TIME = 200;
+
+export const MESSAGE_VERSION = 1;

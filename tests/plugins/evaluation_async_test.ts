@@ -2,7 +2,9 @@ import { args, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { FormulaCell } from "../../src/types";
-import { asyncComputations, getCell, patch, setCellContent, waitForRecompute } from "../helpers";
+import { setCellContent } from "../commands_helpers";
+import { getCell } from "../getters_helpers";
+import { asyncComputations, patch, waitForRecompute } from "../helpers";
 
 describe("evaluateCells, async formulas", () => {
   test("async formula", async () => {

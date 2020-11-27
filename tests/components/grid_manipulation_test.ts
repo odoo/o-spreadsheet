@@ -1,7 +1,8 @@
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/commands";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
-import { getActiveXc, GridParent, makeTestFixture, nextTick } from "../helpers";
+import { getActiveXc } from "../getters_helpers";
+import { GridParent, makeTestFixture, nextTick } from "../helpers";
 
 const COLUMN_D = { x: 340, y: 10 };
 const ROW_5 = { x: 30, y: 100 };

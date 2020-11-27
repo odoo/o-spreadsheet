@@ -1,7 +1,9 @@
 import { Model } from "../../src/model";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
-import { getCell, getCellContent, setCellContent, waitForRecompute } from "../helpers";
+import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
+import { getCell, getCellContent } from "../getters_helpers";
+import { waitForRecompute } from "../helpers";
 
 describe("core", () => {
   describe("aggregate", () => {
@@ -80,30 +82,30 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-      model.dispatch("SET_FORMATTER", {
+      model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
-        formatter: "0.00000",
+        format: "0.00000",
       });
       expect(getCellContent(model, "A1")).toBe("0.00000");
       setCellContent(model, "A2", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 1 });
-      model.dispatch("SET_FORMATTER", {
+      model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
-        formatter: "0.00%",
+        format: "0.00%",
       });
       expect(getCellContent(model, "A2")).toBe("0.00%");
     });
 
-    test("format a pendingcell: should not apply formatter to Loading...", () => {
+    test("format a pendingcell: should not apply format to Loading...", () => {
       const model = new Model();
       setCellContent(model, "B2", "=Wait(1000)");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-      model.dispatch("SET_FORMATTER", {
+      model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
-        formatter: "#,##0.00",
+        format: "#,##0.00",
       });
       expect(getCellContent(model, "B2")).toBe(LOADING);
     });
@@ -253,7 +255,7 @@ describe("core", () => {
 
   test("can get row/col of inactive sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, rows: [0], size: 24 });
     model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, columns: [0], size: 42 });
@@ -288,19 +290,16 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("START_EDITION", { text: "abc" });
-    model.dispatch("STOP_EDITION");
-
-    expect(getCellContent(model, "A1")).toBe("abc");
+    setCellContent(model, "A1", "abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -321,12 +320,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -344,10 +343,10 @@ describe("history", () => {
     });
     expect(getCell(model, "A2")).toBeUndefined();
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
@@ -387,13 +386,13 @@ describe("history", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("can delete a cell with a formatter", () => {
+  test("can delete a cell with a format", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
-    model.dispatch("SET_FORMATTER", {
+    model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      formatter: "#,##0.00",
+      format: "#,##0.00",
     });
 
     expect(getCellContent(model, "A1")).toBe("3.00");

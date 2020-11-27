@@ -3,7 +3,8 @@ import { parseDateTime } from "../../src/functions/dates";
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, CellType, UID } from "../../src/types";
-import { setCellContent } from "../helpers";
+import "../canvas.mock";
+import { redo, setCellContent, undo } from "../commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -67,9 +68,9 @@ describe("Basic Sorting", () => {
       A5: { content: "23" },
       A6: { content: "42" },
     });
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject(cells);
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "8" },
@@ -231,7 +232,7 @@ describe("Basic Sorting", () => {
       A9: { content: "Machette" },
       A10: cellFormula('=CONCAT("Zor", "glub")'),
     });
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "23" },
       A2: { content: "4" },
@@ -244,7 +245,7 @@ describe("Basic Sorting", () => {
       A10: { value: parseDateTime("2020/09/01")!.value },
       A11: cellFormula("=B1/B2"),
     });
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
@@ -745,7 +746,7 @@ describe("Sort Merges", () => {
       anchor: anchor,
       zones: [contiguousZone],
     });
-    model.dispatch("UNDO");
+    undo(model);
     const result = model.dispatch("SORT_CELLS", {
       sheetId: sheetId,
       anchor: anchor,
@@ -781,7 +782,7 @@ describe("Sort Merges", () => {
       anchor: anchor,
       zones: [contiguousZone],
     });
-    model.dispatch("UNDO");
+    undo(model);
     const result = model.dispatch("SORT_CELLS", {
       sheetId: sheetId,
       anchor: anchor,

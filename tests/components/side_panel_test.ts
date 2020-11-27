@@ -50,6 +50,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  parent.destroy();
   fixture.remove();
   sidePanelRegistry.content = sidePanelContent;
 });

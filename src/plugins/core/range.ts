@@ -14,6 +14,7 @@ import {
   Command,
   CommandHandler,
   CommandResult,
+  CoreCommand,
   Getters,
   Range,
   RangePart,
@@ -21,7 +22,7 @@ import {
   UID,
 } from "../../types/index";
 
-export class RangeAdapter implements CommandHandler {
+export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: Getters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   constructor(getters: Getters) {
@@ -144,7 +145,7 @@ export class RangeAdapter implements CommandHandler {
     }
   }
 
-  finalize(command: Command) {}
+  finalize() {}
 
   /**
    * Return a modified adapting function that verifies that after adapting a range, the range is still valid.

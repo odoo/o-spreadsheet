@@ -3,6 +3,7 @@ import { INCORRECT_RANGE_STRING } from "../../src/constants";
 import { corePluginRegistry } from "../../src/plugins";
 import { ApplyRangeChange, BaseCommand, Command, Range, UID } from "../../src/types";
 import "../canvas.mock";
+import { addColumns, addRows } from "../commands_helpers";
 import { mockUuidV4To } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -140,204 +141,104 @@ describe("range plugin", () => {
 
     describe("create a range and add a column", () => {
       test("after, in the middle", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 2,
-          quantity: 1,
-          position: "after",
-        });
+        addColumns(m, "after", "C", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
       test("after, in the start", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 1,
-          quantity: 1,
-          position: "after",
-        });
+        addColumns(m, "after", "B", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
       test("after, in the end", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 3,
-          quantity: 1,
-          position: "after",
-        });
+        addColumns(m, "after", "D", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
       test("after, before the start", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 0,
-          quantity: 1,
-          position: "after",
-        });
+        addColumns(m, "after", "A", 1);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E4"]);
       });
 
       test("after, after the end", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 4,
-          quantity: 1,
-          position: "after",
-        });
+        addColumns(m, "after", "E", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
       test("before, in the middle", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 2,
-          quantity: 1,
-          position: "before",
-        });
+        addColumns(m, "before", "C", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
       test("before, in the start", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 1,
-          quantity: 1,
-          position: "before",
-        });
+        addColumns(m, "before", "B", 1);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E4"]);
       });
 
       test("before, in the end", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 3,
-          quantity: 1,
-          position: "before",
-        });
+        addColumns(m, "before", "D", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
       test("before, before the start", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 0,
-          quantity: 1,
-          position: "before",
-        });
+        addColumns(m, "before", "A", 1);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E4"]);
       });
 
       test("before, before the end", () => {
-        m.dispatch("ADD_COLUMNS", {
-          sheetId: m.getters.getActiveSheetId(),
-          column: 4,
-          quantity: 1,
-          position: "before",
-        });
+        addColumns(m, "before", "E", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
 
     describe("create a range and add a row", () => {
       test("after, in the middle", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 2,
-          quantity: 1,
-          position: "after",
-        });
+        addRows(m, "after", 2, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
       test("after, in the start", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 1,
-          quantity: 1,
-          position: "after",
-        });
+        addRows(m, "after", 1, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
       test("after, in the end", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 3,
-          quantity: 1,
-          position: "after",
-        });
+        addRows(m, "after", 3, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
       test("after, before the start", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 0,
-          quantity: 1,
-          position: "after",
-        });
+        addRows(m, "after", 0, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B3:D5"]);
       });
 
       test("after, after the end", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 4,
-          quantity: 1,
-          position: "after",
-        });
+        addRows(m, "after", 4, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
       test("before, in the middle", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 2,
-          quantity: 1,
-          position: "before",
-        });
+        addRows(m, "before", 2, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
       test("before, in the start", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 1,
-          quantity: 1,
-          position: "before",
-        });
+        addRows(m, "before", 1, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B3:D5"]);
       });
 
       test("before, in the end", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 3,
-          quantity: 1,
-          position: "before",
-        });
+        addRows(m, "before", 3, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
       test("before, before the start", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 0,
-          quantity: 1,
-          position: "before",
-        });
+        addRows(m, "before", 0, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B3:D5"]);
       });
 
       test("before, before the end", () => {
-        m.dispatch("ADD_ROWS", {
-          sheetId: m.getters.getActiveSheetId(),
-          row: 5,
-          quantity: 1,
-          position: "before",
-        });
+        addRows(m, "before", 5, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });

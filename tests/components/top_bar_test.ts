@@ -5,15 +5,10 @@ import { Model } from "../../src/model";
 import { topbarComponentRegistry } from "../../src/registries";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ConditionalFormat } from "../../src/types";
+import { setCellContent } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
-import {
-  getBorder,
-  getCell,
-  GridParent,
-  makeTestFixture,
-  nextTick,
-  setCellContent,
-} from "../helpers";
+import { getBorder, getCell } from "../getters_helpers";
+import { GridParent, makeTestFixture, nextTick } from "../helpers";
 
 const { xml } = tags;
 const { useSubEnv } = hooks;

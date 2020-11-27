@@ -29,10 +29,18 @@ export class Registry<T> {
    * Get an item from the registry
    */
   get(key: string): T {
-    if (!(key in this.content)) {
-      throw new Error(`Cannot find ${key} in this registry!`);
+    /**
+     * Note: key in {} is ~12 times slower than {}[key].
+     * So, we check the absence of key only when the direct access returns
+     * a falsy value. It's done to ensure that the registry can contains falsy values
+     */
+    const content = this.content[key];
+    if (!content) {
+      if (!(key in this.content)) {
+        throw new Error(`Cannot find ${key} in this registry!`);
+      }
     }
-    return this.content[key];
+    return content;
   }
 
   /**

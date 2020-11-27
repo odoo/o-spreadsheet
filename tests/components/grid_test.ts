@@ -1,17 +1,12 @@
 import { Grid } from "../../src/components/grid";
+import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
+import { setCellContent } from "../commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
-import {
-  getActiveXc,
-  getCell,
-  getCellContent,
-  GridParent,
-  makeTestFixture,
-  nextTick,
-  setCellContent,
-  Touch,
-} from "../helpers";
+import { getActiveXc, getCell, getCellContent } from "../getters_helpers";
+import { GridParent, makeTestFixture, nextTick, Touch } from "../helpers";
+import { MockTransportService } from "../__mocks__/transport_service";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -49,6 +44,7 @@ describe("Grid component", () => {
   });
 
   afterEach(() => {
+    parent.destroy();
     fixture.remove();
   });
 
@@ -407,6 +403,22 @@ describe("Grid component", () => {
       expect(getVerticalScroll()).toBe(baseVertical);
       expect(getHorizontalScroll()).toBe(baseHorizontal + 1500);
     });
+  });
+});
+
+describe("Multi User selection", () => {
+  test("Do not render multi user selection with invalid sheet", async () => {
+    const transportService = new MockTransportService();
+    const model = new Model({}, { transportService });
+    const parent = new GridParent(model);
+    await parent.mount(fixture);
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "david", name: "David", position: { sheetId: "invalid", col: 1, row: 1 } },
+    });
+    await nextTick();
+    parent.destroy();
   });
 });
 

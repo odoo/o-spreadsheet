@@ -1,7 +1,7 @@
 import { args, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
+import { getCellText } from "../getters_helpers";
 import {
-  getCellText,
   GridParent,
   makeTestFixture,
   nextTick,
@@ -38,6 +38,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  parent.destroy();
   fixture.remove();
 });
 

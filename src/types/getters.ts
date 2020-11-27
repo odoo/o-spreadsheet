@@ -1,4 +1,5 @@
-import { WHistory } from "../history";
+import { Session } from "../collaborative/session";
+import { LocalHistory } from "../history/local_history";
 import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
@@ -18,6 +19,7 @@ import { HighlightPlugin } from "../plugins/ui/highlight";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { SelectionPlugin } from "../plugins/ui/selection";
 import { SelectionInputPlugin } from "../plugins/ui/selection_inputs";
+import { SelectionMultiUserPlugin } from "../plugins/ui/selection_multiuser";
 import { SortPlugin } from "../plugins/ui/sort";
 import { UIOptionsPlugin } from "../plugins/ui/ui_options";
 import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
@@ -26,8 +28,9 @@ import { SheetUIPlugin } from "../plugins/ui/ui_sheet";
 // -----------------------------------------------------------------------------
 
 export interface CoreGetters {
-  canUndo: WHistory["canUndo"];
-  canRedo: WHistory["canRedo"];
+  canUndo: LocalHistory["canUndo"];
+  canRedo: LocalHistory["canRedo"];
+
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];
@@ -71,8 +74,6 @@ export interface CoreGetters {
 
   getFigures: FigurePlugin["getFigures"];
   getFigure: FigurePlugin["getFigure"];
-  getVisibleFigures: FigurePlugin["getVisibleFigures"];
-  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
 
   getCellBorder: BordersPlugin["getCellBorder"];
 
@@ -84,6 +85,8 @@ export interface CoreGetters {
 }
 
 export type Getters = CoreGetters & {
+  getActiveSheetId: SelectionPlugin["getActiveSheetId"];
+  getActiveSheet: SelectionPlugin["getActiveSheet"];
   getActiveCell: SelectionPlugin["getActiveCell"];
   getActiveCols: SelectionPlugin["getActiveCols"];
   getActiveRows: SelectionPlugin["getActiveRows"];
@@ -91,13 +94,17 @@ export type Getters = CoreGetters & {
   getSelectedZones: SelectionPlugin["getSelectedZones"];
   getSelectedZone: SelectionPlugin["getSelectedZone"];
   getSelection: SelectionPlugin["getSelection"];
+  getSelectedFigureId: SelectionPlugin["getSelectedFigureId"];
+  getVisibleFigures: SelectionPlugin["getVisibleFigures"];
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
 
-  getActiveSheetId: SheetUIPlugin["getActiveSheetId"];
-  getActiveSheet: SheetUIPlugin["getActiveSheet"];
+  getClient: Session["getClient"];
+  getConnectedClients: Session["getConnectedClients"];
+  isFullySynchronized: Session["isFullySynchronized"];
+
   getCellWidth: SheetUIPlugin["getCellWidth"];
   getCellHeight: SheetUIPlugin["getCellHeight"];
 
@@ -136,4 +143,6 @@ export type Getters = CoreGetters & {
   getCurrentSelectedMatchIndex: FindAndReplacePlugin["getCurrentSelectedMatchIndex"];
 
   getContiguousZone: SortPlugin["getContiguousZone"];
+
+  getClientColor: SelectionMultiUserPlugin["getClientColor"];
 };

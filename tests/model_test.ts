@@ -1,4 +1,3 @@
-import { WHistory } from "../src/history";
 import { Mode, Model } from "../src/model";
 import { BordersPlugin } from "../src/plugins/core/borders";
 import { CellPlugin } from "../src/plugins/core/cell";
@@ -14,7 +13,8 @@ import { SortPlugin } from "../src/plugins/ui/sort";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import "./canvas.mock";
-import { getCell, setCellContent } from "./helpers";
+import { setCellContent } from "./commands_helpers";
+import { getCell } from "./getters_helpers";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -30,43 +30,42 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(12);
-    expect(model["handlers"][0]).toBeInstanceOf(WHistory);
-    expect(model["handlers"][1]).toBeInstanceOf(RangeAdapter);
-    expect(model["handlers"][2]).toBeInstanceOf(SheetPlugin);
-    expect(model["handlers"][3]).toBeInstanceOf(CellPlugin);
-    expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(BordersPlugin);
-    expect(model["handlers"][6]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][7]).toBeInstanceOf(FigurePlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(FindAndReplacePlugin);
-    expect(model["handlers"][11]).toBeInstanceOf(SortPlugin);
+    expect(model["handlers"]).toHaveLength(11);
+    expect(model["handlers"][0]).toBeInstanceOf(RangeAdapter);
+    expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
+    expect(model["handlers"][2]).toBeInstanceOf(CellPlugin);
+    expect(model["handlers"][3]).toBeInstanceOf(MergePlugin);
+    expect(model["handlers"][4]).toBeInstanceOf(BordersPlugin);
+    expect(model["handlers"][5]).toBeInstanceOf(ConditionalFormatPlugin);
+    expect(model["handlers"][6]).toBeInstanceOf(FigurePlugin);
+    expect(model["handlers"][7]).toBeInstanceOf(ChartPlugin);
+    expect(model["handlers"][8]).toBeInstanceOf(SheetUIPlugin);
+    expect(model["handlers"][9]).toBeInstanceOf(FindAndReplacePlugin);
+    expect(model["handlers"][10]).toBeInstanceOf(SortPlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {
     const model = new Model();
     const nbr = getNbrPlugin("normal");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for WHistory +1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
     const model = new Model({}, { mode: "headless" });
     const nbr = getNbrPlugin("headless");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for WHistory +1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
   });
 
   test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
     const nbr = getNbrPlugin("readonly");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+1 for WHistory +1 for Range
+    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for Range
   });
 
   test("Model in headless mode should not evaluate cells", () => {
-    const model = new Model({}, { mode: "headless" });
-    setCellContent(model, "A1", "=1");
-    expect(getCell(model, "A1")!.value).not.toBe("1");
+    const model = new Model({ sheets: [{ id: "sheet1" }] }, { mode: "headless" });
+    setCellContent(model, "A1", "=1", "sheet1");
+    expect(getCell(model, "A1", "sheet1")!.value).not.toBe("1");
   });
 
   test("can add a Plugin only in headless mode", () => {

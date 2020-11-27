@@ -45,7 +45,6 @@ export class EvaluationChartPlugin extends UIPlugin {
       case "CREATE_CHART":
         const chartDefinition = this.getters.getChartDefinition(cmd.id)!;
         this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
-        this.dispatch("SELECT_FIGURE", { id: cmd.id });
         break;
       case "DELETE_FIGURE":
         delete this.chartRuntime[cmd.id];
@@ -62,11 +61,7 @@ export class EvaluationChartPlugin extends UIPlugin {
         for (let chartId of Object.keys(this.chartRuntime)) {
           this.outOfDate.add(chartId);
         }
-    }
-  }
-
-  finalize(cmd: Command) {
-    switch (cmd.type) {
+        break;
       case "EVALUATE_CELLS":
       case "START":
         // if there was an async evaluation of cell, there is no way to know which was updated so all charts must be updated
