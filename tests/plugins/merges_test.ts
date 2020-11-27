@@ -23,7 +23,7 @@ describe("merges", () => {
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
 
     expect(getCellsXC(model)).toEqual(["B2"]);
-    expect(model.getters.getCellByXc(sheet1, "B2")!.content).toBe("b2");
+    expect(model.getters.getCellWithContent(sheet1, 1, 1)!.content).toBe("b2");
     expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
     expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: "B2" },

@@ -31,8 +31,8 @@ describe("Model", () => {
     const model = new Model({}, { mode: "headless" });
     expect(model["handlers"]).toHaveLength(11);
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
-    expect(model["handlers"][1]).toBeInstanceOf(RangePlugin);
-    expect(model["handlers"][2]).toBeInstanceOf(SheetPlugin);
+    expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
+    expect(model["handlers"][2]).toBeInstanceOf(RangePlugin);
     expect(model["handlers"][3]).toBeInstanceOf(CellPlugin);
     expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
     expect(model["handlers"][5]).toBeInstanceOf(FormattingPlugin);

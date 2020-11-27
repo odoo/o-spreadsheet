@@ -423,7 +423,7 @@ export class RendererPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
     const xc = toXC(col, row);
-    return (cell && cell.content) || (this.getters.isInMerge(sheetId, xc) as any);
+    return (cell && cell.type !== "empty") || (this.getters.isInMerge(sheetId, xc) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {

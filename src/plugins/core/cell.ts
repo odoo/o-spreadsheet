@@ -31,7 +31,7 @@ interface CoreState {
  * cell and sheet content.
  */
 export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
-  static getters = ["zoneToXC", "getCells"];
+  static getters = ["zoneToXC", "getCells", "getFormulaCellContent"];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
@@ -80,13 +80,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
         let position = this.getters.getCellPosition(cellId);
         let xc = toXC(position.col, position.row);
+
         cells[xc] = {
-          content: cell.content,
           border: cell.border,
           style: cell.style,
           format: cell.format,
+          content: cell.content ? cell.content : "",
         };
         if (cell.type === "formula" && cell.formula) {
+          if (!cell.content) {
+            cells[xc].content = this.getFormulaCellContent(cell, _sheet.id);
+          }
           cells[xc].formula = {
             text: cell.formula.text || "",
             dependencies:
@@ -101,8 +105,24 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
-  getCells(sheetId: UID): Record<UID, Cell> {
+  getCells(sheetId: UID): Record<UID, Omit<Cell, "content">> {
     return this.cells[sheetId] || {};
+  }
+
+  getFormulaCellContent(cell: Cell, sheetId: UID): string {
+    let newDependencies = cell.dependencies?.map((x, i) => {
+      return {
+        stringDependency: this.getters.getRangeString(x.id, sheetId),
+        stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
+      };
+    });
+    let newContent = cell.formula?.text || "";
+    if (newDependencies) {
+      for (let d of newDependencies) {
+        newContent = newContent.replace(d.stringPosition, d.stringDependency);
+      }
+    }
+    return newContent;
   }
 
   /**
@@ -180,25 +200,30 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // derived values
       let type: Cell["type"] = content[0] === "=" ? "formula" : "text";
       let value: Cell["value"] = content;
-      if (isNumber(content)) {
-        value = parseNumber(content);
-        type = "number";
-        if (content.includes("%")) {
-          format = content.includes(".") ? "0.00%" : "0%";
+
+      if (content === "") {
+        type = "empty";
+      } else {
+        if (isNumber(content)) {
+          value = parseNumber(content);
+          type = "number";
+          if (content.includes("%")) {
+            format = content.includes(".") ? "0.00%" : "0%";
+          }
         }
-      }
-      let date = parseDateTime(content);
-      if (date) {
-        type = "date";
-        value = date;
-        content = formatDateTime(date);
-      }
-      const contentUpperCase = content.toUpperCase();
-      if (contentUpperCase === "TRUE") {
-        value = true;
-      }
-      if (contentUpperCase === "FALSE") {
-        value = false;
+        let date = parseDateTime(content);
+        if (date) {
+          type = "date";
+          value = date;
+          content = formatDateTime(date);
+        }
+        const contentUpperCase = content.toUpperCase();
+        if (contentUpperCase === "TRUE") {
+          value = true;
+        }
+        if (contentUpperCase === "FALSE") {
+          value = false;
+        }
       }
       cell = { id: current?.id || uuidv4(), content, value, type };
       if (cell.type === "formula") {
@@ -254,20 +279,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * @private
    */
   private cellDependencyChanged(cell: Cell, changeType: ChangeType, sheetId: UID) {
-    let newDependencies = cell.dependencies?.map((x, i) => {
-      return {
-        stringDependency: this.getters.getRangeString(x.id, sheetId),
-        stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
-      };
-    });
-    let newContent = cell.formula?.text || "";
-    if (newDependencies) {
-      for (let d of newDependencies) {
-        newContent = newContent.replace(d.stringPosition, d.stringDependency);
-      }
-
-      cell.content = newContent;
-    }
+    cell.content = undefined;
     cell.value = "To recompute";
   }
 }

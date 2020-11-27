@@ -370,7 +370,8 @@ export function getCell(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): Cell | undefined {
-  return model.getters.getCellByXc(sheetId, xc);
+  let [col, row] = toCartesian(xc);
+  return model.getters.getCellWithContent(sheetId, col, row);
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

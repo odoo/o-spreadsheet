@@ -126,6 +126,29 @@ export class RangePlugin extends CorePlugin<RangeState> {
         }
 
         break;
+      case "DELETE_SHEET":
+        for (let range of Object.values(this.ranges)
+          .filter(isDefined)
+          .filter((r) => r.sheetId === cmd.sheetId)) {
+          this.notifyRemove.add(range.id);
+        }
+        break;
+      case "CREATE_SHEET":
+      case "RENAME_SHEET":
+        for (let range of Object.values(this.ranges).filter(isDefined)) {
+          if (range.sheetId === cmd.sheetId) {
+            this.notifyChange.add(range.id);
+          }
+          if (cmd.name && range.invalidSheetName === cmd.name) {
+            let newSheetId = this.getters.getSheetIdByName(cmd.name);
+            if (newSheetId) {
+              this.history.update("ranges", range.id, "invalidSheetName", undefined);
+              this.history.update("ranges", range.id, "sheetId", newSheetId);
+              this.notifyChange.add(range.id);
+            }
+          }
+        }
+        break;
     }
 
     // ensure that even if a range has been updated after being removed, the last thing to happen to a removed range is being removed

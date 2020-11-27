@@ -383,7 +383,7 @@ export class ClipboardPlugin extends UIPlugin {
     onlyFormat: boolean
   ) {
     const sheetId = this.getters.getActiveSheetId();
-    const targetCell = this.getters.getCell(sheetId, col, row);
+    const targetCell = this.getters.getCellWithContent(sheetId, col, row);
     if (origin) {
       let style = origin.style;
       let border = origin.border;

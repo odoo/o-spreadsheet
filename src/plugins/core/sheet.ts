@@ -16,13 +16,7 @@ import {
   Zone,
 } from "../../types/index";
 import { _lt } from "../../translation";
-import {
-  getComposerSheetName,
-  getUnquotedSheetName,
-  isDefined,
-  numberToLetters,
-  toCartesian,
-} from "../../helpers/index";
+import { getComposerSheetName, isDefined, numberToLetters, toCartesian } from "../../helpers/index";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { cellReference, rangeTokenize } from "../../formulas/index";
 
@@ -51,6 +45,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getColsZone",
     "getRowsZone",
     "getCellByXc",
+    "getCellWithContent",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -317,12 +312,22 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       .join("");
   }
 
-  getCell(sheetId: UID, col: number, row: number): Cell | undefined {
+  getCell(sheetId: UID, col: number, row: number): Omit<Cell, "content"> | undefined {
     const sheet = this.getSheet(sheetId);
     return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
   }
 
-  getCellByXc(sheetId: UID, xc: string): Cell | undefined {
+  getCellWithContent(sheetId: UID, col: number, row: number): Cell | undefined {
+    const sheet = this.getSheet(sheetId);
+    const cell = (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
+    if (!cell) return cell;
+    if (!cell.content && cell.formula) {
+      return { ...cell, content: this.getters.getFormulaCellContent(cell, sheetId) };
+    }
+    return cell;
+  }
+
+  getCellByXc(sheetId: UID, xc: string): Omit<Cell, "content"> | undefined {
     let [col, row] = toCartesian(xc);
     return this.sheets[sheetId]?.rows[row]?.cells[col];
   }
@@ -330,7 +335,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   /**
    * Returns all the cells of a col
    */
-  getColCells(sheetId: UID, col: number): Cell[] {
+  getColCells(sheetId: UID, col: number): Omit<Cell, "content">[] {
     return this.getSheet(sheetId).rows.reduce((acc: Cell[], cur) => {
       const cell = cur.cells[col];
       return cell !== undefined ? acc.concat(cell) : acc;
@@ -481,19 +486,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     sheetIds[name] = sheet.id;
     delete sheetIds[oldName];
     this.history.update("sheetIds", sheetIds);
-    this.visitAllFormulasSymbols((value: string) => {
-      let [val, sheetRef] = value.split("!").reverse();
-      if (sheetRef) {
-        sheetRef = getUnquotedSheetName(sheetRef);
-        if (sheetRef === oldName) {
-          if (val.includes(":")) {
-            return this.updateRange(sheet.id, val, 0, 0, sheet.id);
-          }
-          return this.updateReference(sheet.id, val, 0, 0, sheet.id);
-        }
-      }
-      return value;
-    });
   }
 
   private duplicateSheet(fromId: UID, toId: UID, toName: string) {
@@ -526,16 +518,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheetIds = Object.assign({}, this.sheetIds);
     delete sheetIds[name];
     this.history.update("sheetIds", sheetIds);
-    this.visitAllFormulasSymbols((value: string) => {
-      let [, sheetRef] = value.split("!").reverse();
-      if (sheetRef) {
-        sheetRef = getUnquotedSheetName(sheetRef);
-        if (sheetRef === name) {
-          return "#REF";
-        }
-      }
-      return value;
-    });
   }
 
   /**
@@ -967,33 +949,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       (freezeRow ? "$" : "") +
       String(y + 1)
     );
-  }
-  private visitAllFormulasSymbols(cb: (value: string, sheetId: UID) => string) {
-    for (let sheetId in this.sheets) {
-      //const sheet = this.sheets[sheetId];
-      const cells = this.getters.getCells(sheetId);
-      for (let [cellId, cell] of Object.entries(cells)) {
-        if (cell.type === "formula") {
-          const content = rangeTokenize(cell.content!)
-            .map((t) => {
-              if (t.type === "SYMBOL" && cellReference.test(t.value)) {
-                return cb(t.value, sheetId);
-              }
-              return t.value;
-            })
-            .join("");
-          if (content !== cell.content) {
-            const position = this.getters.getCellPosition(cellId);
-            this.dispatch("UPDATE_CELL", {
-              sheetId: sheetId,
-              col: position.col,
-              row: position.row,
-              content,
-            });
-          }
-        }
-      }
-    }
   }
 }
 

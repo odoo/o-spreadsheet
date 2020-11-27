@@ -24,8 +24,8 @@ import { UIPluginConstuctor } from "./ui_plugin";
 import { RangePlugin } from "./core/range";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
-  .add("range", RangePlugin)
   .add("sheet", SheetPlugin)
+  .add("range", RangePlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("formatting", FormattingPlugin)

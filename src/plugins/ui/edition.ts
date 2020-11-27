@@ -201,14 +201,14 @@ export class EditionPlugin extends UIPlugin {
       this.cancelEdition();
       const sheetId = this.getters.getActiveSheetId();
       const xc = this.getters.getMainCell(sheetId, toXC(this.col, this.row));
-      const cell = this.getters.getCellByXc(sheetId, xc);
+      const [col, row] = toCartesian(xc);
+      const cell = this.getters.getCellWithContent(sheetId, col, row);
       let content = this.currentContent;
       this.setContent("");
       const didChange = cell ? cell.content !== content : content !== "";
       if (!didChange) {
         return;
       }
-      const [col, row] = toCartesian(xc);
       if (content) {
         if (content.startsWith("=")) {
           const tokens = tokenize(content);
@@ -348,7 +348,10 @@ export class EditionPlugin extends UIPlugin {
   private setActiveContent() {
     const sheetId = this.getters.getActiveSheetId();
     const mainCell = this.getters.getMainCell(sheetId, toXC(...this.getters.getPosition()));
-    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), ...toCartesian(mainCell));
+    const anchor = this.getters.getCellWithContent(
+      this.getters.getActiveSheetId(),
+      ...toCartesian(mainCell)
+    );
     if (anchor) {
       const { col, row } = this.getters.getCellPosition(anchor.id);
       this.col = col;

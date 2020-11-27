@@ -41,7 +41,7 @@ export interface Border {
 }
 
 export interface NewCell {
-  content: string;
+  content?: string;
   style?: number;
   border?: number;
   format?: string;
@@ -91,7 +91,7 @@ export interface Cell extends NewCell {
     compiledFormula: CompiledFormula;
   };
   dependencies?: Range[];
-  type: "formula" | "text" | "number" | "date";
+  type: "formula" | "text" | "number" | "date" | "empty";
 }
 
 export interface Header {

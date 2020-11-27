@@ -272,19 +272,19 @@ export class AutofillPlugin extends UIPlugin {
     let col = zone.left;
     let row = zone.bottom;
     if (col > 0) {
-      let left = this.getters.getCell(sheetId, col - 1, row);
-      while (left && left.content) {
+      let left = this.getters.getCellWithContent(sheetId, col - 1, row);
+      while (left && (left.content || left.formula)) {
         row += 1;
-        left = this.getters.getCell(sheetId, col - 1, row);
+        left = this.getters.getCellWithContent(sheetId, col - 1, row);
       }
     }
     if (row === zone.bottom) {
       col = zone.right;
       if (col <= this.getters.getActiveSheet().cols.length) {
-        let right = this.getters.getCell(sheetId, col + 1, row);
-        while (right && right.content) {
+        let right = this.getters.getCellWithContent(sheetId, col + 1, row);
+        while (right && (right.content || right.formula)) {
           row += 1;
-          right = this.getters.getCell(sheetId, col + 1, row);
+          right = this.getters.getCellWithContent(sheetId, col + 1, row);
         }
       }
     }

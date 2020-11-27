@@ -420,8 +420,8 @@ describe("history", () => {
         { id: "2", cells: { A1: { content: "Sheet2A1" } } },
       ],
     });
-    expect(model.getters.getCell("1", 0, 0)!.content).toBe("Sheet1A1");
-    expect(model.getters.getCell("2", 0, 0)!.content).toBe("Sheet2A1");
+    expect(model.getters.getCellWithContent("1", 0, 0)!.content).toBe("Sheet1A1");
+    expect(model.getters.getCellWithContent("2", 0, 0)!.content).toBe("Sheet2A1");
   });
 
   describe("getters", () => {
