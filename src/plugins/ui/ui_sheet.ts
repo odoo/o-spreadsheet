@@ -24,6 +24,15 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "AUTORESIZE_ROWS":
+      case "AUTORESIZE_COLUMNS":
+      case "DELETE_SHEET_CONFIRMATION":
+        try {
+          this.getters.getSheet(cmd.sheetId);
+          break;
+        } catch (error) {
+          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+        }
       case "ACTIVATE_SHEET":
         try {
           this.getters.getSheet(cmd.sheetIdTo);
