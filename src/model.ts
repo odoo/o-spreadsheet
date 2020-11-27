@@ -65,7 +65,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * Handlers are classes that can handle a command. In practice, this is
    * basically a list of all plugins and the history manager (not a plugin)
    */
-  private handlers: CommandHandler[];
+  private handlers: CommandHandler<Command>[];
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
