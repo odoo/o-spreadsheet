@@ -201,14 +201,14 @@ describe("clipboard", () => {
     expect(getBorder(model, "C2")).toEqual({ bottom: ["thin", "#000"] });
   });
 
-  test("can copy a cell with a formatter", () => {
+  test("can copy a cell with a format", () => {
     const model = new Model();
     setCellContent(model, "B2", "0.451");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("SET_FORMATTER", {
+    model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
-      formatter: "0.00%",
+      format: "0.00%",
     });
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
@@ -785,14 +785,14 @@ describe("clipboard", () => {
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("can copy a cell with a formatter and paste value only", () => {
+  test("can copy a cell with a format and paste value only", () => {
     const model = new Model();
     setCellContent(model, "B2", "0.451");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("SET_FORMATTER", {
+    model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
-      formatter: "0.00%",
+      format: "0.00%",
     });
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
@@ -873,10 +873,10 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "42");
     setCellContent(model, "C3", "0.451");
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
-    model.dispatch("SET_FORMATTER", {
+    model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
-      formatter: "0.00%",
+      format: "0.00%",
     });
     expect(getCellContent(model, "C3")).toBe("45.10%");
 
