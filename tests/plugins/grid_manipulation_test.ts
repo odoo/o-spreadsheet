@@ -2,6 +2,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
+import { createSheet, redo, undo } from "../commands_helpers";
 import {
   getBorder,
   getCell,
@@ -16,14 +17,6 @@ import {
 } from "../helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-
-function undo() {
-  model.dispatch("UNDO");
-}
-
-function redo() {
-  model.dispatch("REDO");
-}
 
 function clearColumns(indexes: string[]) {
   const sheetId = model.getters.getActiveSheetId();
@@ -835,10 +828,10 @@ describe("Columns", () => {
       const beforeRemove = model.exportData();
       removeColumns([0, 2]);
       const afterRemove = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(beforeRemove);
-      redo();
-      expect(model.exportData()).toEqual(afterRemove);
+      undo(model);
+      expect(model).toExport(beforeRemove);
+      redo(model);
+      expect(model).toExport(afterRemove);
     });
     test("On addition", () => {
       model = new Model(fullData);
@@ -847,13 +840,13 @@ describe("Columns", () => {
       const afterAdd1 = model.exportData();
       addColumns(4, "after", 4);
       const afterAdd2 = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(afterAdd1);
-      redo();
-      expect(model.exportData()).toEqual(afterAdd2);
-      undo();
-      undo();
-      expect(model.exportData()).toEqual(beforeAdd);
+      undo(model);
+      expect(model).toExport(afterAdd1);
+      redo(model);
+      expect(model).toExport(afterAdd2);
+      undo(model);
+      undo(model);
+      expect(model).toExport(beforeAdd);
     });
   });
 
@@ -884,27 +877,27 @@ describe("Columns", () => {
     });
     test("On add right 1", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      const zone = toZone("B1:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
       addColumns(1, "after", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E3"));
     });
     test("On add right 3", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      const zone = toZone("B1:D3");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
-      addColumns(1, "after", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
+      addColumns(1, "after", 3);
+      expect(model.getters.getSelectedZone()).toEqual(toZone("B1:G3"));
     });
   });
 });
@@ -1098,7 +1091,7 @@ describe("Rows", () => {
       let dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
-      model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+      createSheet(model, { activate: true, sheetId: "42" });
       const from = model.getters.getActiveSheetId();
       model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
       dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
@@ -1561,10 +1554,10 @@ describe("Rows", () => {
       const beforeRemove = model.exportData();
       removeRows([0, 2]);
       const afterRemove = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(beforeRemove);
-      redo();
-      expect(model.exportData()).toEqual(afterRemove);
+      undo(model);
+      expect(model).toExport(beforeRemove);
+      redo(model);
+      expect(model).toExport(afterRemove);
     });
 
     test("On addition", () => {
@@ -1574,13 +1567,13 @@ describe("Rows", () => {
       const afterAdd1 = model.exportData();
       addRows(4, "after", 4);
       const afterAdd2 = model.exportData();
-      undo();
-      expect(model.exportData()).toEqual(afterAdd1);
-      redo();
-      expect(model.exportData()).toEqual(afterAdd2);
-      undo();
-      undo();
-      expect(model.exportData()).toEqual(beforeAdd);
+      undo(model);
+      expect(model).toExport(afterAdd1);
+      redo(model);
+      expect(model).toExport(afterAdd2);
+      undo(model);
+      undo(model);
+      expect(model).toExport(beforeAdd);
     });
   });
 
@@ -1611,27 +1604,27 @@ describe("Rows", () => {
     });
     test("On add bottom 1", () => {
       model = new Model(fullData);
-      const zone = { left: 2, right: 3, top: 0, bottom: 1 };
+      const zone = toZone("C1:D2");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
       addRows(0, "after", 1);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 1, left: 2, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D3"));
     });
     test("On add bottom 3", () => {
       model = new Model(fullData);
-      const zone = { left: 1, right: 3, top: 0, bottom: 2 };
+      const zone = toZone("C1:D2");
       model.dispatch("SET_SELECTION", {
         zones: [zone],
         anchor: [zone.left, zone.top],
         strict: true,
       });
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(zone);
       addRows(0, "after", 3);
-      expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
+      expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D5"));
     });
   });
 

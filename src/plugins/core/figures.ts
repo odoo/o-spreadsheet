@@ -1,5 +1,5 @@
 import { isDefined } from "../../helpers/index";
-import { Command, Figure, UID, Viewport, WorkbookData } from "../../types/index";
+import { CoreCommand, Figure, UID, WorkbookData } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
@@ -7,15 +7,14 @@ interface FigureState {
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
-  static getters = ["getVisibleFigures", "getFigures", "getSelectedFigureId", "getFigure"];
-  private selectedFigureId: string | null = null;
+  static getters = ["getFigures", "getFigure"];
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.figures[cmd.sheetId] = {};
@@ -31,22 +30,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         const figure: Partial<Figure> = update;
         this.updateFigure(sheetId, figure);
         break;
-      case "SELECT_FIGURE":
-        this.selectedFigureId = cmd.id;
-        break;
       case "DELETE_FIGURE":
         this.removeFigure(cmd.id, cmd.sheetId);
         break;
-      // some commands should not remove the current selection
-      case "EVALUATE_CELLS":
-      case "DISABLE_SELECTION_INPUT":
-      case "HIGHLIGHT_SELECTION":
-      case "RESET_PENDING_HIGHLIGHT":
-      case "REMOVE_ALL_HIGHLIGHTS":
-      case "ENABLE_NEW_SELECTION_INPUT":
-        break;
-      default:
-        this.selectedFigureId = null;
     }
   }
 
@@ -81,9 +67,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   private removeFigure(id: string, sheetId: UID) {
-    if (this.selectedFigureId === id) {
-      this.selectedFigureId = null;
-    }
     this.history.update("figures", sheetId, id, undefined);
   }
 
@@ -91,30 +74,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // Getters
   // ---------------------------------------------------------------------------
 
-  getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
-    const result: Figure[] = [];
-    const figures = Object.values(this.figures[sheetId] || {});
-    const { offsetX, offsetY, width, height } = viewport;
-    for (let figure of figures) {
-      if (!figure) {
-        continue;
-      }
-      if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
-        continue;
-      }
-      if (figure.y >= offsetY + height || figure.y + figure.height <= offsetY) {
-        continue;
-      }
-      result.push(figure);
-    }
-    return result;
-  }
-  getFigures(sheetId: UID) {
-    return this.figures[sheetId] || [];
-  }
-
-  getSelectedFigureId(): UID | null {
-    return this.selectedFigureId;
+  getFigures(sheetId: UID): Figure[] {
+    return Object.values(this.figures[sheetId] || {}).filter(isDefined);
   }
 
   getFigure(sheetId: string, figureId: string): Figure | undefined {

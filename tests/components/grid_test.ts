@@ -1,6 +1,7 @@
 import { Grid } from "../../src/components/grid";
 import { toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
+import { setCellContent } from "../commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../dom_helper";
 import {
   getActiveXc,
@@ -9,7 +10,6 @@ import {
   GridParent,
   makeTestFixture,
   nextTick,
-  setCellContent,
   Touch,
 } from "../helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>

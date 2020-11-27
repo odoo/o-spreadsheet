@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import { toCartesian, zoneToXc } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 import "../canvas.mock";
+import { createSheet } from "../commands_helpers";
 
 function select(model: Model, xc: string) {
   const [col, row] = toCartesian(xc);
@@ -427,7 +428,7 @@ describe("selection input plugin", () => {
 
   test("can select a range in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { A1: "#000" },
     });
@@ -439,7 +440,7 @@ describe("selection input plugin", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { A1: "#000" },
     });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("FOCUS_RANGE", { id, rangeId: null });
     let [range] = model.getters.getSelectionInput(id);
     model.dispatch("FOCUS_RANGE", { id, rangeId: range.id });
@@ -464,7 +465,7 @@ describe("selection input plugin", () => {
 
   test("mixing ranges from different sheets in the same input in another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("CHANGE_RANGE", {
       id,
       rangeId: idOfRange(model, id, 0),
@@ -479,7 +480,7 @@ describe("selection input plugin", () => {
 
   test("manually adding a range from another sheet", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A1"] });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("A1");
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
     model.dispatch("CHANGE_RANGE", { id, rangeId: idOfRange(model, id, 0), value: "A1, C5" });

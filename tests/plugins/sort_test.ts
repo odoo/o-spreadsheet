@@ -3,7 +3,8 @@ import { parseDateTime } from "../../src/functions/dates";
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CancelledReason, CellType, UID } from "../../src/types";
-import { setCellContent } from "../helpers";
+import "../canvas.mock";
+import { setCellContent } from "../commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

@@ -3,6 +3,7 @@ import { toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
 import { DIRECTION } from "../../src/types/index";
+import { createSheet, setCellContent } from "../commands_helpers";
 import "../helpers"; // to have getcontext mocks
 import {
   getCell,
@@ -10,7 +11,6 @@ import {
   getCellText,
   getMergeCellMap,
   getMerges,
-  setCellContent,
   toPosition,
   XCToMergeCellMap,
 } from "../helpers";
@@ -460,7 +460,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill cross-sheet references", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2");

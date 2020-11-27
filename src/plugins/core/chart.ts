@@ -3,8 +3,8 @@ import { uuidv4, zoneToXc } from "../../helpers/index";
 import {
   CancelledReason,
   ChartDefinition,
-  Command,
   CommandResult,
+  CoreCommand,
   CreateChartDefinition,
   DataSet,
   FigureData,
@@ -28,7 +28,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = ["getChartDefinition", "getChartDefinitionUI"];
   readonly chartFigures = {};
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: CoreCommand): CommandResult {
     const success: CommandResult = { status: "SUCCESS" };
     switch (cmd.type) {
       case "UPDATE_CHART":
@@ -44,7 +44,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
         const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
@@ -67,8 +67,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         break;
       }
       case "DUPLICATE_SHEET": {
-        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetIdFrom);
-        for (let fig of Object.values(sheetFiguresFrom)) {
+        for (let fig of this.getters.getFigures(cmd.sheetIdFrom)) {
           if (fig?.tag === "chart") {
             const id = uuidv4();
             const chartDefinition = { ...this.chartFigures[fig.id], id };
@@ -142,7 +141,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     if (data.sheets) {
       for (let sheet of data.sheets) {
         const sheetFigures = this.getters.getFigures(sheet.id);
-        const figures = Object.values(sheetFigures) as FigureData<any>[];
+        const figures = sheetFigures as FigureData<any>[];
         for (let figure of figures) {
           if (figure && figure.tag === "chart") {
             figure.data = this.getChartDefinitionUI(sheet.id, figure.id);

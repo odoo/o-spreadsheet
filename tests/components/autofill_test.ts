@@ -2,8 +2,9 @@ import * as owl from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/commands";
+import { setCellContent } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
-import { GridParent, makeTestFixture, nextTick, setCellContent } from "../helpers";
+import { GridParent, makeTestFixture, nextTick } from "../helpers";
 
 const { Component } = owl;
 const { xml } = owl.tags;

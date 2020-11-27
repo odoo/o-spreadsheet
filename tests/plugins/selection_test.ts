@@ -2,6 +2,7 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
 import "../canvas.mock";
+import { createSheet } from "../commands_helpers";
 import { getActiveXc } from "../helpers";
 
 describe("selection", () => {
@@ -370,8 +371,7 @@ describe("multiple sheets", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);

@@ -1,14 +1,32 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { clip, formatStandardNumber, isEqual, union } from "../../helpers/index";
-import { Mode } from "../../model";
 import {
+  clip,
+  formatStandardNumber,
+  isEqual,
+  union,
+  updateSelectionOnDeletion,
+  updateSelectionOnInsertion,
+} from "../../helpers/index";
+import { Mode, ModelConfig } from "../../model";
+import { StateObserver } from "../../state_observer";
+import {
+  AddColumnsCommand,
+  AddRowsCommand,
   CancelledReason,
   Cell,
+  ClientPosition,
   Command,
+  CommandDispatcher,
   CommandResult,
+  Figure,
+  Getters,
   GridRenderingContext,
   LAYERS,
+  RemoveColumnsCommand,
+  RemoveRowsCommand,
   Style,
+  UID,
+  Viewport,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
@@ -45,6 +63,8 @@ export class SelectionPlugin extends UIPlugin {
     "getSelectedZones",
     "getSelectedZone",
     "getAggregate",
+    "getSelectedFigureId",
+    "getVisibleFigures",
     "getSelection",
     "getPosition",
     "getSelectionMode",
@@ -55,10 +75,22 @@ export class SelectionPlugin extends UIPlugin {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
     anchor: [0, 0],
   };
+  private selectedFigureId: string | null = null;
   private activeCol: number = 0;
   private activeRow: number = 0;
   private mode = SelectionMode.idle;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
+  private moveClient: (position: ClientPosition) => void;
+
+  constructor(
+    getters: Getters,
+    state: StateObserver,
+    dispatch: CommandDispatcher["dispatch"],
+    config: ModelConfig
+  ) {
+    super(getters, state, dispatch, config);
+    this.moveClient = config.moveClient;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -125,6 +157,28 @@ export class SelectionPlugin extends UIPlugin {
   }
   handle(cmd: Command) {
     switch (cmd.type) {
+      // some commands should not remove the current selection
+      case "CREATE_SHEET":
+      case "DELETE_SHEET":
+      case "CREATE_FIGURE":
+      case "CREATE_CHART":
+      case "UPDATE_FIGURE":
+      case "EVALUATE_CELLS":
+      case "DISABLE_SELECTION_INPUT":
+      case "HIGHLIGHT_SELECTION":
+      case "RESET_PENDING_HIGHLIGHT":
+      case "REMOVE_ALL_HIGHLIGHTS":
+      case "ENABLE_NEW_SELECTION_INPUT":
+        break;
+      case "DELETE_FIGURE":
+        if (this.selectedFigureId === cmd.id) {
+          this.selectedFigureId = null;
+        }
+        break;
+      default:
+        this.selectedFigureId = null;
+    }
+    switch (cmd.type) {
       case "START":
         this.selectCell(0, 0);
         break;
@@ -180,19 +234,26 @@ export class SelectionPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
-      case "REMOVE_COLUMNS":
-      case "REMOVE_ROWS":
         this.updateSelection();
         break;
+      case "REMOVE_COLUMNS":
+        this.onColumnsRemoved(cmd);
+        break;
+      case "REMOVE_ROWS":
+        this.onRowsRemoved(cmd);
+        break;
       case "ADD_COLUMNS":
-        if (cmd.position === "before") {
-          this.onAddColumns(cmd.quantity);
-        }
+        this.onAddColumns(cmd);
         break;
       case "ADD_ROWS":
-        if (cmd.position === "before") {
-          this.onAddRows(cmd.quantity);
-        }
+        this.onAddRows(cmd);
+        break;
+      case "CREATE_FIGURE":
+        this.selectedFigureId = cmd.figure.id;
+        break;
+      case "UPDATE_CHART":
+      case "SELECT_FIGURE":
+        this.selectedFigureId = cmd.id;
         break;
     }
   }
@@ -248,6 +309,10 @@ export class SelectionPlugin extends UIPlugin {
     return this.selection;
   }
 
+  getSelectedFigureId(): string | null {
+    return this.selectedFigureId;
+  }
+
   getPosition(): [number, number] {
     return [this.activeCol, this.activeRow];
   }
@@ -277,6 +342,24 @@ export class SelectionPlugin extends UIPlugin {
 
   isSelected(zone: Zone): boolean {
     return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
+  }
+
+  getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
+    const result: Figure[] = [];
+    const { offsetX, offsetY, width, height } = viewport;
+    for (let figure of this.getters.getFigures(sheetId)) {
+      if (!figure) {
+        continue;
+      }
+      if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
+        continue;
+      }
+      if (figure.y >= offsetY + height || figure.y + figure.height <= offsetY) {
+        continue;
+      }
+      result.push(figure);
+    }
+    return result;
   }
 
   // ---------------------------------------------------------------------------
@@ -341,6 +424,7 @@ export class SelectionPlugin extends UIPlugin {
    */
   private selectCell(col: number, row: number) {
     const sheetId = this.getters.getActiveSheetId();
+    this.moveClient({ sheetId, col, row });
     let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
 
     if (this.mode === SelectionMode.expanding) {
@@ -466,29 +550,37 @@ export class SelectionPlugin extends UIPlugin {
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
-    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+    this.setSelection([anchorCol, anchorRow], zones);
   }
 
-  private onAddColumns(quantity: number) {
-    const selection = this.getSelectedZone();
-    const zone = {
-      left: selection.left + quantity,
-      right: selection.right + quantity,
-      top: selection.top,
-      bottom: selection.bottom,
-    };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+  private onColumnsRemoved(cmd: RemoveColumnsCommand) {
+    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "left", cmd.columns);
+    this.setSelection([zone.left, zone.top], [zone], true);
+    this.updateSelection();
   }
 
-  private onAddRows(quantity: number) {
+  private onRowsRemoved(cmd: RemoveRowsCommand) {
+    const zone = updateSelectionOnDeletion(this.getSelectedZone(), "top", cmd.rows);
+    this.setSelection([zone.left, zone.top], [zone], true);
+    this.updateSelection();
+  }
+
+  private onAddColumns(cmd: AddColumnsCommand) {
     const selection = this.getSelectedZone();
-    const zone = {
-      left: selection.left,
-      right: selection.right,
-      top: selection.top + quantity,
-      bottom: selection.bottom + quantity,
-    };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+    const zone = updateSelectionOnInsertion(
+      selection,
+      "left",
+      cmd.column,
+      cmd.position,
+      cmd.quantity
+    );
+    this.setSelection([zone.left, zone.top], [zone], true);
+  }
+
+  private onAddRows(cmd: AddRowsCommand) {
+    const selection = this.getSelectedZone();
+    const zone = updateSelectionOnInsertion(selection, "top", cmd.row, cmd.position, cmd.quantity);
+    this.setSelection([zone.left, zone.top], [zone], true);
   }
 
   // ---------------------------------------------------------------------------

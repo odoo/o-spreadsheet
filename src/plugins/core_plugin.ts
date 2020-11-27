@@ -1,14 +1,14 @@
-import { WHistory } from "../history";
 import { Mode, ModelConfig } from "../model";
-import { CommandDispatcher, WorkbookData } from "../types";
+import { StateObserver } from "../state_observer";
+import { CoreCommand, CoreCommandDispatcher, WorkbookData } from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 
 export interface CorePluginConstructor {
   new (
     getters: CoreGetters,
-    history: WHistory,
-    dispatch: CommandDispatcher["dispatch"],
+    stateObserver: StateObserver,
+    dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ): CorePlugin;
   getters: string[];
@@ -21,16 +21,16 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any> extends BasePlugin<State> {
+export class CorePlugin<State = any, C = CoreCommand> extends BasePlugin<State, C> {
   protected getters: CoreGetters;
 
   constructor(
     getters: CoreGetters,
-    history: WHistory,
-    dispatch: CommandDispatcher["dispatch"],
+    stateObserver: StateObserver,
+    protected dispatch: CoreCommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
-    super(history, dispatch, config);
+    super(stateObserver, dispatch, config);
     this.getters = getters;
   }
 

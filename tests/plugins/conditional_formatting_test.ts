@@ -1,7 +1,8 @@
 import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CancelledReason, ConditionalFormattingOperatorValues } from "../../src/types";
-import { createColorScale, createEqualCF, setCellContent } from "../helpers";
+import { createSheet, redo, setCellContent, undo } from "../commands_helpers";
+import { createColorScale, createEqualCF } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -62,7 +63,7 @@ describe("conditional format", () => {
 
   test("Add conditional formatting on inactive sheet", () => {
     model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [activeSheet, sheet] = model.getters.getSheets();
     expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -178,12 +179,12 @@ describe("conditional format", () => {
       fillColor: "#FF0000",
     });
 
-    model.dispatch("UNDO");
+    undo(model);
 
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
     expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
 
     expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
       fillColor: "#FF0000",
@@ -246,7 +247,7 @@ describe("conditional format", () => {
     const workbookData = model.exportData();
     const newModel = new Model(workbookData);
     const sheetId = model.getters.getActiveSheetId();
-    expect(newModel.getters.getConditionalFormats(sheetId)).toBe(
+    expect(newModel.getters.getConditionalFormats(sheetId)).toEqual(
       model.getters.getConditionalFormats(sheetId)
     );
   });

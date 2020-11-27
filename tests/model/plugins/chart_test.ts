@@ -2,7 +2,8 @@ import { Model } from "../../../src";
 import { toZone } from "../../../src/helpers/zones";
 import { CancelledReason, Viewport } from "../../../src/types";
 import "../../canvas.mock";
-import { mockUuidV4To, setCellContent, testUndoRedo, waitForRecompute } from "../../helpers";
+import { selectCell, setCellContent } from "../../commands_helpers";
+import { mockUuidV4To, testUndoRedo, waitForRecompute } from "../../helpers";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -59,9 +60,10 @@ beforeEach(() => {
 
 describe("datasource tests", function () {
   test("create chart with column datasets", () => {
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
@@ -75,35 +77,35 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B1:B4"),
           },
           labelCell: {
             invalidSheetName: undefined,
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B1"),
           },
         },
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("C1:C4"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("C1"),
           },
         },
       ],
       labelRange: {
         prefixSheet: true,
-        sheetId: "2",
+        sheetId,
         zone: toZone("A2:A4"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -111,9 +113,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with rectangle dataset", () => {
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:C4"],
@@ -127,35 +130,35 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B1:B4"),
           },
           labelCell: {
             invalidSheetName: undefined,
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B1"),
           },
         },
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("C1:C4"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("C1"),
           },
         },
       ],
       labelRange: {
         prefixSheet: true,
-        sheetId: "2",
+        sheetId,
         zone: toZone("A2:A4"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -163,10 +166,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with column datasets without series title", () => {
-    const activeSheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: activeSheetId,
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["B2:B4", "C2:C4"],
@@ -180,7 +183,7 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B2:B4"),
           },
           labelCell: undefined,
@@ -188,7 +191,7 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("C2:C4"),
           },
           labelCell: undefined,
@@ -196,10 +199,10 @@ describe("datasource tests", function () {
       ],
       labelRange: {
         prefixSheet: false,
-        sheetId: "2",
+        sheetId,
         zone: toZone("A2:A4"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -207,9 +210,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with row datasets", () => {
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["A8:D8", "A9:D9"],
@@ -223,34 +227,34 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A8:D8"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A8"),
           },
         },
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A9:D9"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A9"),
           },
         },
       ],
       labelRange: {
         prefixSheet: false,
-        sheetId: "2",
+        sheetId,
         zone: toZone("B7:D7"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -258,10 +262,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with row datasets without series title", () => {
-    const activeSheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: activeSheetId,
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B8:D8", "Sheet1!B9:D9"],
@@ -275,7 +279,7 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B8:D8"),
           },
           labelCell: undefined,
@@ -283,7 +287,7 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B9:D9"),
           },
           labelCell: undefined,
@@ -291,10 +295,10 @@ describe("datasource tests", function () {
       ],
       labelRange: {
         prefixSheet: false,
-        sheetId: "2",
+        sheetId,
         zone: toZone("B7:D7"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -302,10 +306,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with only the dataset title (no data)", () => {
-    const activeSheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: activeSheetId,
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B8"],
@@ -318,10 +322,10 @@ describe("datasource tests", function () {
       dataSets: [],
       labelRange: {
         prefixSheet: true,
-        sheetId: "2",
+        sheetId,
         zone: toZone("B7:D7"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -329,9 +333,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with a dataset of one cell (no title)", () => {
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["B8"],
@@ -345,7 +350,7 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B8"),
           },
           labelCell: undefined,
@@ -353,10 +358,10 @@ describe("datasource tests", function () {
       ],
       labelRange: {
         prefixSheet: false,
-        sheetId: "2",
+        sheetId,
         zone: toZone("B7"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });
@@ -468,34 +473,34 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A8:D8"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A8"),
           },
         },
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A9:D9"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("A9"),
           },
         },
       ],
       labelRange: {
         prefixSheet: true,
-        sheetId: "2",
+        sheetId,
         zone: toZone("C7:D7"),
       },
-      sheetId: "2",
+      sheetId,
       title: "hello1",
       type: "bar",
     });
@@ -586,6 +591,35 @@ describe("datasource tests", function () {
     expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidDataSet });
   });
 
+  test("chart is focused after creation and update", () => {
+    model.dispatch("CREATE_CHART", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      definition: {
+        dataSets: ["B1:B4"],
+        labelRange: "A2:A4",
+        dataSetsHaveTitle: true,
+        title: "hello",
+        type: "bar",
+      },
+    });
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    selectCell(model, "A1");
+    expect(model.getters.getSelectedFigureId()).toBeNull();
+    model.dispatch("UPDATE_CHART", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      definition: {
+        dataSets: ["B1:B4"],
+        labelRange: "A2:A4",
+        dataSetsHaveTitle: true,
+        title: "updated chart",
+        type: "bar",
+      },
+    });
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+  });
+
   test("create chart with invalid labels", () => {
     const result = model.dispatch("CREATE_CHART", {
       id: "1",
@@ -602,9 +636,10 @@ describe("datasource tests", function () {
   });
 
   test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       definition: {
         title: "test 1",
         dataSets: ["Coucou!B1:B4", "Sheet1!B1:B4"],
@@ -619,22 +654,22 @@ describe("datasource tests", function () {
         {
           dataRange: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B1:B4"),
           },
           labelCell: {
             prefixSheet: false,
-            sheetId: "2",
+            sheetId,
             zone: toZone("B1"),
           },
         },
       ],
       labelRange: {
         prefixSheet: true,
-        sheetId: "2",
+        sheetId,
         zone: toZone("A2:A4"),
       },
-      sheetId: "2",
+      sheetId,
       title: "test 1",
       type: "line",
     });

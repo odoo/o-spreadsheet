@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
 import "../canvas.mock";
+import { createSheet, selectCell, undo } from "../commands_helpers";
 
 const viewport: Viewport = {
   left: 0,
@@ -14,7 +15,7 @@ const viewport: Viewport = {
 };
 
 describe("figure plugin", () => {
-  test("can create a figure", () => {
+  test("can create a simple figure", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
@@ -56,7 +57,7 @@ describe("figure plugin", () => {
     expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport).length).toBe(
       1
     );
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport).length).toBe(
       0
     );
@@ -64,13 +65,11 @@ describe("figure plugin", () => {
 
   test("can create a figure in a different sheet", () => {
     const model = new Model();
-    const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "sheet2", position: 1 });
-    const sheet2 = model.getters.getActiveSheetId();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    const sheetId = "Sheet2";
+    createSheet(model, { sheetId }); // The sheet is not activated
 
     model.dispatch("CREATE_FIGURE", {
-      sheetId: sheet2,
+      sheetId,
       figure: {
         id: "someuuid",
         tag: "hey",
@@ -81,7 +80,7 @@ describe("figure plugin", () => {
       },
     });
     const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === sheet2)!;
+    const sheet = data.sheets.find((s) => s.id === sheetId)!;
 
     expect(sheet.figures).toEqual([
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
@@ -141,13 +140,8 @@ describe("figure plugin", () => {
         height: 100,
       },
     });
-
-    expect(model.getters.getSelectedFigureId()).toBe(null);
-
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-
-    model.dispatch("SELECT_CELL", { col: 3, row: 1 });
+    selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBe(null);
   });
 
@@ -164,8 +158,8 @@ describe("figure plugin", () => {
         height: 100,
       },
     });
-
-    expect(model.getters.getSelectedFigureId()).toBe(null);
+    selectCell(model, "A1");
+    expect(model.getters.getSelectedFigureId()).toBeNull();
 
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
@@ -233,7 +227,7 @@ describe("figure plugin", () => {
     expect(x1).toBe(100);
     expect(y1).toBe(200);
 
-    model.dispatch("UNDO");
+    undo(model);
     const { x: x2, y: y2 } = model.getters.getVisibleFigures(
       model.getters.getActiveSheetId(),
       viewport
@@ -288,7 +282,7 @@ describe("figure plugin", () => {
     model.dispatch("DELETE_FIGURE", { sheetId, id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(0);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(1);
   });

@@ -49,4 +49,5 @@ export interface WorkbookData {
   styles: { [key: number]: Style };
   borders: { [key: number]: Border };
   entities: { [key: string]: { [key: string]: any } };
+  revisionId: UID;
 }

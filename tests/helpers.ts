@@ -3,13 +3,12 @@ import { Grid } from "../src/components/grid";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { TopBar } from "../src/components/top_bar";
 import { functionRegistry } from "../src/functions/index";
-import { lettersToNumber, toCartesian, toXC, toZone } from "../src/helpers/index";
+import { toCartesian, toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { ComposerSelection } from "../src/plugins/ui/edition";
 import {
   Border,
-  BorderCommand,
   Cell,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -25,73 +24,14 @@ import {
   Zone,
 } from "../src/types";
 import "./canvas.mock";
+import { redo, setCellContent, undo } from "./commands_helpers";
+import "./jest_extend";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
 const { xml } = tags;
 const { useRef, useSubEnv } = hooks;
-
-//------------------------------------------------------------------------------
-// Helpers
-//------------------------------------------------------------------------------
-
-export function addColumns(
-  model: Model,
-  position: "before" | "after",
-  column: string,
-  quantity: number,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  model.dispatch("ADD_COLUMNS", {
-    sheetId,
-    position,
-    column: lettersToNumber(column),
-    quantity,
-  });
-}
-
-export function addRows(
-  model: Model,
-  position: "before" | "after",
-  row: number,
-  quantity: number,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  model.dispatch("ADD_ROWS", {
-    sheetId,
-    position,
-    row,
-    quantity,
-  });
-}
-
-/**
- * Set a border to a given zone or the selected zones
- * @param model S
- * @param command
- */
-export function setBorder(model: Model, border: BorderCommand, xc?: string) {
-  const target = xc ? [toZone(xc)] : model.getters.getSelectedZones();
-  model.dispatch("SET_FORMATTING", {
-    sheetId: model.getters.getActiveSheetId(),
-    target,
-    border,
-  });
-}
-
-/**
- * Set the content of a cell
- */
-export function setCellContent(
-  model: Model,
-  xc: string,
-  content: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
-  const [col, row] = toCartesian(xc);
-  model.dispatch("UPDATE_CELL", { col, row, sheetId, content });
-}
 
 export function nextMicroTick(): Promise<void> {
   return Promise.resolve();
@@ -135,10 +75,10 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   const before = model.exportData();
   model.dispatch(command, args);
   const after = model.exportData();
-  model.dispatch("UNDO");
-  expect(model.exportData()).toEqual(before);
-  model.dispatch("REDO");
-  expect(model.exportData()).toEqual(after);
+  undo(model);
+  expect(model).toExport(before);
+  redo(model);
+  expect(model).toExport(after);
 }
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
