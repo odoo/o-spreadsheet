@@ -11,6 +11,8 @@ export interface ComposerSelection {
   end: number;
 }
 
+export const SelectionIndicator = "ⵌ";
+
 export class EditionPlugin extends UIPlugin {
   static layers = [LAYERS.Highlights];
   static getters = [
@@ -75,6 +77,7 @@ export class EditionPlugin extends UIPlugin {
         this.selectionEnd = cmd.end;
         break;
       case "STOP_COMPOSER_SELECTION":
+        this.removeSelectionIndicator();
         if (this.mode === "selecting") {
           this.mode = "editing";
         }
@@ -88,6 +91,7 @@ export class EditionPlugin extends UIPlugin {
           this.cancelEdition();
           this.resetContent();
         } else {
+          this.removeSelectionIndicator();
           this.stopEdition();
         }
         break;
@@ -118,6 +122,7 @@ export class EditionPlugin extends UIPlugin {
         if (this.mode === "editing") {
           this.dispatch("STOP_EDITION");
         } else if (this.mode === "selecting") {
+          this.removeSelectionIndicator();
           this.insertSelectedRange();
         }
         if (this.mode === "inactive") {
@@ -177,6 +182,7 @@ export class EditionPlugin extends UIPlugin {
    */
   private startComposerSelection() {
     this.mode = "resettingPosition";
+    this.insertSelectionIndicator();
     const [col, row] = this.getters.getPosition();
     this.dispatch("SELECT_CELL", {
       col,
@@ -314,6 +320,22 @@ export class EditionPlugin extends UIPlugin {
       selectedXc = `${sheetName}!${selectedXc}`;
     }
     this.replaceSelection(selectedXc);
+  }
+
+  //insert a visual symbol to indicate the user that selection started
+  private insertSelectionIndicator() {
+    const content =
+      this.currentContent.slice(0, this.selectionStart) +
+      SelectionIndicator +
+      this.currentContent.slice(this.selectionStart);
+    this.setContent(content, {
+      start: this.selectionStart,
+      end: this.selectionStart,
+    });
+  }
+
+  private removeSelectionIndicator() {
+    this.currentContent = this.currentContent.replace(SelectionIndicator, "");
   }
 
   /**

@@ -84,18 +84,18 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("SZZ");
     });
 
-    test("=S+TAB complete the function --> =sum(", async () => {
+    test("=S+TAB complete the function --> =sum(ⵌ", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=SUM(");
+      expect(model.getters.getCurrentContent()).toBe("=SUM(ⵌ");
     });
 
-    test("=S+ENTER complete the function --> =sum(", async () => {
+    test("=S+ENTER complete the function --> =sum(ⵌ", async () => {
       await typeInComposer("=S");
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=SUM(");
+      expect(model.getters.getCurrentContent()).toBe("=SUM(ⵌ");
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -176,7 +176,7 @@ describe("Functions autocomplete", () => {
         .querySelector(".o-autocomplete-dropdown")!
         .children[1].dispatchEvent(new MouseEvent("click"));
       await nextTick();
-      expect(composerEl.textContent).toBe("=SZZ(");
+      expect(composerEl.textContent).toBe("=SZZ(ⵌ");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -210,7 +210,17 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
       await nextTick();
-      expect(model.getters.getCurrentContent()).toBe("=IF(");
+      expect(model.getters.getCurrentContent()).toBe("=IF(ⵌ");
+    });
+    test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
+      await typeInComposer("=");
+      composerEl.dispatchEvent(new KeyboardEvent("keyup", { key: " ", ctrlKey: true }));
+      await nextTick();
+      composerEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
+      await nextTick();
+      expect(
+        fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
+      ).toBe("SUM");
     });
   });
 });
@@ -270,6 +280,7 @@ describe("Autocomplete parenthesis", () => {
   test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
     await typeInComposer("=S(");
     // go behind the letter "S"
+    model.dispatch("STOP_COMPOSER_SELECTION");
     model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 2, end: 2 });
     await nextTick();
     // show autocomplete
@@ -281,7 +292,7 @@ describe("Autocomplete parenthesis", () => {
     // select the SUM function
     fixture.querySelector(".o-autocomplete-value-focus")!.dispatchEvent(new MouseEvent("click"));
     await nextTick();
-    expect(model.getters.getCurrentContent()).toBe("=SUM(");
+    expect(model.getters.getCurrentContent()).toBe("=SUM(ⵌ");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
 

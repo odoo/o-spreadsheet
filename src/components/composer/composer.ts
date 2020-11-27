@@ -5,7 +5,7 @@ import { TextValueProvider } from "./autocomplete_dropdown";
 import { FunctionDescriptionProvider } from "./formula_assistant";
 import { ContentEditableHelper } from "./content_editable_helper";
 import { zoneToXc, DEBUG } from "../../helpers/index";
-import { ComposerSelection } from "../../plugins/ui/edition";
+import { ComposerSelection, SelectionIndicator } from "../../plugins/ui/edition";
 import { functionRegistry } from "../../functions/index";
 
 const { Component } = owl;
@@ -18,6 +18,7 @@ export const OperatorColor = "#3da4ab";
 export const StringColor = "#f6cd61";
 export const NumberColor = "#02c39a";
 export const MatchingParenColor = "pink";
+export const SelectionIndicatorColor = "#e8e8e8";
 
 interface ComposerFocusedEventData {
   content?: string;
@@ -47,6 +48,7 @@ const TEMPLATE = xml/* xml */ `
       spellcheck="false"
 
       t-on-keydown="onKeydown"
+      t-on-beforeinput="onBeforeinput"
       t-on-input="onInput"
       t-on-keyup="onKeyup"
 
@@ -250,6 +252,10 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     ev.stopPropagation();
   }
 
+  onBeforeinput() {
+    this.dispatch("STOP_COMPOSER_SELECTION");
+  }
+
   /*
    * Triggered automatically by the content-editable between the keydown and key up
    * */
@@ -257,7 +263,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (!this.props.focus || !this.shouldProcessInputEvents) {
       return;
     }
-    this.dispatch("STOP_COMPOSER_SELECTION");
     const el = this.composerRef.el! as HTMLInputElement;
     this.dispatch("SET_CURRENT_CONTENT", {
       content: el.childNodes.length ? el.textContent! : "",
@@ -288,6 +293,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     if (ev.ctrlKey && ev.key === " ") {
       this.autoCompleteState.search = "";
       this.autoCompleteState.showProvider = true;
+      this.dispatch("STOP_COMPOSER_SELECTION");
       return;
     }
 
@@ -353,6 +359,13 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
               tokenAtCursor.parenIndex === token.parenIndex
             ) {
               this.contentHelper.insertText(token.value, this.parenthesisColor());
+            } else {
+              this.contentHelper.insertText(token.value);
+            }
+            break;
+          case "UNKNOWN":
+            if (token.value === SelectionIndicator) {
+              this.contentHelper.insertText(token.value, SelectionIndicatorColor);
             } else {
               this.contentHelper.insertText(token.value);
             }

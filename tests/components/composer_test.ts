@@ -107,7 +107,7 @@ describe("ranges and highlights", () => {
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=A2");
     await typeInComposer("+", false);
-    expect(model.getters.getCurrentContent()).toBe("=A2+");
+    expect(model.getters.getCurrentContent()).toBe("=A2+ⵌ");
     expect(model.getters.getEditionMode()).toBe("selecting");
     await keydown("ArrowDown");
     expect(model.getters.getCurrentContent()).toBe("=A2+A2");
@@ -212,7 +212,7 @@ describe("composer", () => {
 
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
     composerEl = await startComposition("=");
-    expect(composerEl.textContent).toBe("=");
+    expect(composerEl.textContent).toBe("=ⵌ");
   });
 
   test("starting the edition with a key stroke B, the composer should have the focus after the key input", async () => {
@@ -227,6 +227,7 @@ describe("composer", () => {
     const cehMock = window.mockContentHelper as ContentEditableHelper;
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("input"));
+    composerEl.dispatchEvent(new Event("beforeinput"));
     composerEl.dispatchEvent(new Event("keyup"));
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     await nextTick();
@@ -236,7 +237,7 @@ describe("composer", () => {
 
   test("type '=' in the sheet and select a cell", async () => {
     composerEl = await startComposition("=");
-    expect(composerEl.textContent).toBe("=");
+    expect(composerEl.textContent).toBe("=ⵌ");
     expect(model.getters.getEditionMode()).toBe("selecting");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
     window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
@@ -323,42 +324,61 @@ describe("composer", () => {
   describe("change selecting mode when typing specific token value", () => {
     const matchingValues = [",", "+", "*", "="];
     const mismatchingValues = ["1", '"coucou"', "TRUE", "SUM", "A2"];
-    const formulas = ["=", "=SUM", "=SUM(", "=SUM(A2"];
+    const formulas = ["=", "=SUM("];
 
     describe.each(formulas)("typing %s followed by", (formula) => {
       test.each(matchingValues.concat(["("]))(
         "a matching value --> activate 'selecting' mode",
         async (matchingValue) => {
+          const content = formula + matchingValue;
           await startComposition();
-          await typeInComposer(formula + matchingValue);
+          await typeInComposer(content);
           expect(model.getters.getEditionMode()).toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(content + "ⵌ");
         }
       );
 
       test.each(mismatchingValues.concat([")"]))(
         "a mismatching value --> not activate 'selecting' mode",
         async (mismatchingValue) => {
+          const content = formula + mismatchingValue;
           await startComposition();
-          await typeInComposer(formula + mismatchingValue);
+          await typeInComposer(content);
           expect(model.getters.getEditionMode()).not.toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(content);
         }
       );
 
       test.each(matchingValues.concat(["("]))(
         "a matching value & spaces --> activate 'selecting' mode",
         async (matchingValue) => {
+          const content = formula + matchingValue;
           await startComposition();
-          await typeInComposer(formula + matchingValue + "   ");
+          await typeInComposer(content + "   ");
           expect(model.getters.getEditionMode()).toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(content + "   ⵌ");
         }
       );
 
       test.each(mismatchingValues.concat([")"]))(
         "a mismatching value & spaces --> not activate 'selecting' mode",
         async (mismatchingValue) => {
+          const content = formula + mismatchingValue;
           await startComposition();
-          await typeInComposer(formula + mismatchingValue + "   ");
+          await typeInComposer(content + "   ");
           expect(model.getters.getEditionMode()).not.toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(content + "   ");
+        }
+      );
+
+      test.each(mismatchingValues.concat([")"]))(
+        "a UNKNOWN token & a matching value --> not activate 'selecting' mode",
+        async (matchingValue) => {
+          const content = formula + "'" + matchingValue;
+          await startComposition();
+          await typeInComposer(content);
+          expect(model.getters.getEditionMode()).not.toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(content);
         }
       );
 
@@ -367,22 +387,29 @@ describe("composer", () => {
         async (matchingValue) => {
           await startComposition();
           await typeInComposer(matchingValue);
-          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
-          await nextTick();
+          await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(formula + ",ⵌ" + matchingValue);
         }
       );
+
+      async function moveToStart() {
+        model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
+        await nextTick();
+        model.dispatch("STOP_COMPOSER_SELECTION");
+        await nextTick();
+      }
 
       test.each(mismatchingValues.concat(["("]))(
         "a matching value & located before mismatching value --> not activate 'selecting' mode",
         async (mismatchingValue) => {
           await startComposition();
           await typeInComposer(mismatchingValue);
-          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
-          await nextTick();
+          await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).not.toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(formula + "," + mismatchingValue);
         }
       );
 
@@ -391,10 +418,10 @@ describe("composer", () => {
         async (matchingValue) => {
           await startComposition();
           await typeInComposer(matchingValue);
-          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
-          await nextTick();
+          await moveToStart();
           await typeInComposer(formula + ",  ");
           expect(model.getters.getEditionMode()).toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(formula + ",  ⵌ" + matchingValue);
         }
       );
 
@@ -403,10 +430,10 @@ describe("composer", () => {
         async (mismatchingValue) => {
           await startComposition();
           await typeInComposer(mismatchingValue);
-          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
-          await nextTick();
+          await moveToStart();
           await typeInComposer(formula + ",  ");
           expect(model.getters.getEditionMode()).not.toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(formula + ",  " + mismatchingValue);
         }
       );
 
@@ -415,10 +442,10 @@ describe("composer", () => {
         async (matchingValue) => {
           await startComposition();
           await typeInComposer("   " + matchingValue);
-          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
-          await nextTick();
+          await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(formula + ",ⵌ   " + matchingValue);
         }
       );
 
@@ -427,10 +454,10 @@ describe("composer", () => {
         async (mismatchingValue) => {
           await startComposition();
           await typeInComposer("   " + mismatchingValue);
-          model.dispatch("CHANGE_COMPOSER_SELECTION", { start: 0, end: 0 });
-          await nextTick();
+          await moveToStart();
           await typeInComposer(formula + ",");
           expect(model.getters.getEditionMode()).not.toBe("selecting");
+          expect(model.getters.getCurrentContent()).toBe(formula + ",   " + mismatchingValue);
         }
       );
     });
@@ -441,6 +468,7 @@ describe("composer", () => {
         await startComposition();
         await typeInComposer(value);
         expect(model.getters.getEditionMode()).not.toBe("selecting");
+        expect(model.getters.getCurrentContent()).toBe(value);
       }
     );
 
@@ -448,12 +476,14 @@ describe("composer", () => {
       await startComposition();
       await typeInComposer("=");
       expect(model.getters.getEditionMode()).toBe("selecting");
+      expect(model.getters.getCurrentContent()).toBe("=ⵌ");
     });
 
     test("typing '=' & spaces --> activate 'selecting' mode", async () => {
       await startComposition();
       await typeInComposer("=   ");
       expect(model.getters.getEditionMode()).toBe("selecting");
+      expect(model.getters.getCurrentContent()).toBe("=   ⵌ");
     });
   });
 
