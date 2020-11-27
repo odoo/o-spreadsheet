@@ -61,6 +61,24 @@ describe("core", () => {
     expect(model.getters.getCellText(getCell(model, "A1")!)).toBe("0");
   });
 
+  test.each([
+    [undefined, ""],
+    [{ hello: 1 }, "[object Object]"],
+    [{ hello: 1, toString: () => "hello" }, "hello"],
+    [null, "0"],
+  ])("getCellText of cell with %j value", (a, expected) => {
+    const model = new Model();
+    expect(
+      model.getters.getCellText({
+        value: a,
+        col: 0,
+        row: 0,
+        type: "text",
+        xc: "A1",
+      })
+    ).toBe(expected);
+  });
+
   test("format cell without content: empty string", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
