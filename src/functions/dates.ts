@@ -261,7 +261,7 @@ function formatJSDate(date: Date, format: string): string {
         case "yyyy":
           return date.getFullYear();
         default:
-          throw new Error(_lt("invalid format"));
+          throw new Error(`invalid format: ${format}`);
       }
     })
     .join(sep);
@@ -296,7 +296,7 @@ function formatJSTime(date: Date, format: string): string {
           case "ss":
             return date.getSeconds().toString().padStart(2, "0");
           default:
-            throw new Error("invalid format");
+            throw new Error(`invalid format: ${format}`);
         }
       })
       .join(":") + meridian

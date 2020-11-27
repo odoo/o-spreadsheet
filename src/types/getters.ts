@@ -70,10 +70,10 @@ export interface CoreGetters {
   getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
 
   getFigures: FigurePlugin["getFigures"];
-  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
   getCellBorder: BordersPlugin["getCellBorder"];
+
   getChartDefinition: ChartPlugin["getChartDefinition"];
 
   getRangeString: RangePlugin["getRangeString"];
@@ -88,6 +88,7 @@ export type Getters = CoreGetters & {
   getSelectedZones: SelectionPlugin["getSelectedZones"];
   getSelectedZone: SelectionPlugin["getSelectedZone"];
   getSelection: SelectionPlugin["getSelection"];
+  getSelectedFigureId: SelectionPlugin["getSelectedFigureId"];
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];

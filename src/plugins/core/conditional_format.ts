@@ -7,7 +7,7 @@ import {
   updateRemoveColumns,
   updateRemoveRows,
 } from "../../helpers/index";
-import { Command, ConditionalFormat, WorkbookData, Zone, UID } from "../../types/index";
+import { CoreCommand, ConditionalFormat, WorkbookData, Zone, UID } from "../../types/index";
 import { _lt } from "../../translation";
 
 // -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ export class ConditionalFormatPlugin
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.cfRules[cmd.sheetId] = [];

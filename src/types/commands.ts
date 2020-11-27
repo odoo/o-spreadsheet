@@ -35,8 +35,12 @@ export interface BaseCommand {
   interactive?: boolean;
 }
 
-// Primitive Commands
+// Core Commands
 // ------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Cells
+//------------------------------------------------------------------------------
 export interface UpdateCellCommand extends BaseCommand {
   type: "UPDATE_CELL";
   sheetId: UID;
@@ -56,6 +60,38 @@ export interface UpdateCellPositionCommand extends BaseCommand {
   cellId: UID;
 }
 
+//------------------------------------------------------------------------------
+// Grid Shape
+//------------------------------------------------------------------------------
+
+export interface AddColumnsCommand extends BaseCommand {
+  type: "ADD_COLUMNS";
+  column: number;
+  sheetId: UID;
+  quantity: number;
+  position: "before" | "after";
+}
+
+export interface AddRowsCommand extends BaseCommand {
+  type: "ADD_ROWS";
+  row: number;
+  sheetId: UID;
+  quantity: number;
+  position: "before" | "after";
+}
+
+export interface RemoveColumnsCommand extends BaseCommand {
+  type: "REMOVE_COLUMNS";
+  columns: number[];
+  sheetId: UID;
+}
+
+export interface RemoveRowsCommand extends BaseCommand {
+  type: "REMOVE_ROWS";
+  rows: number[];
+  sheetId: UID;
+}
+
 export interface ResizeColumnsCommand extends BaseCommand {
   type: "RESIZE_COLUMNS";
   sheetId: UID;
@@ -70,47 +106,9 @@ export interface ResizeRowsCommand extends BaseCommand {
   size: number;
 }
 
-/**
- * Todo: add a string "id" field, and change the code to use internally a uuid.
- */
-export interface CreateSheetCommand extends BaseCommand {
-  type: "CREATE_SHEET";
-  sheetId: UID;
-  position: number;
-  name?: string;
-  cols?: number;
-  rows?: number;
-  activate?: boolean;
-}
-
-export interface MoveSheetCommand extends BaseCommand {
-  type: "MOVE_SHEET";
-  sheetId: UID;
-  direction: "left" | "right";
-}
-
-export interface RenameSheetCommand extends BaseCommand {
-  type: "RENAME_SHEET";
-  sheetId: UID;
-  name?: string;
-}
-
-export interface DuplicateSheetCommand extends BaseCommand {
-  type: "DUPLICATE_SHEET";
-  sheetIdFrom: UID;
-  sheetIdTo: UID;
-  name: string;
-}
-
-export interface DeleteSheetCommand extends BaseCommand {
-  type: "DELETE_SHEET";
-  sheetId: UID;
-}
-
-export interface DeleteSheetConfirmationCommand extends BaseCommand {
-  type: "DELETE_SHEET_CONFIRMATION";
-  sheetId: UID;
-}
+//------------------------------------------------------------------------------
+// Merge
+//------------------------------------------------------------------------------
 
 export interface AddMergeCommand extends BaseCommand {
   type: "ADD_MERGE";
@@ -125,41 +123,47 @@ export interface RemoveMergeCommand extends BaseCommand {
   zone: Zone;
 }
 
-export interface AddFormattingCommand extends BaseCommand {
-  type: "SET_FORMATTING";
+//------------------------------------------------------------------------------
+// Sheets Manipulation
+//------------------------------------------------------------------------------
+
+export interface CreateSheetCommand extends BaseCommand {
+  type: "CREATE_SHEET";
   sheetId: UID;
-  target: Zone[];
-  style?: Style;
-  border?: BorderCommand;
+  position: number;
+  name?: string;
+  cols?: number;
+  rows?: number;
+  activate?: boolean;
 }
 
-export interface SetBorderCommand extends BaseCommand {
-  type: "SET_BORDER";
+export interface DeleteSheetCommand extends BaseCommand {
+  type: "DELETE_SHEET";
   sheetId: UID;
-  col: number;
-  row: number;
-  border: Border | undefined;
 }
 
-export interface ClearFormattingCommand extends BaseCommand {
-  type: "CLEAR_FORMATTING";
-  sheetId: UID;
-  target: Zone[];
+export interface DuplicateSheetCommand extends BaseCommand {
+  type: "DUPLICATE_SHEET";
+  sheetIdFrom: UID;
+  sheetIdTo: UID;
+  name: string;
 }
 
-export interface SetFormatterCommand extends BaseCommand {
-  type: "SET_FORMATTER";
+export interface MoveSheetCommand extends BaseCommand {
+  type: "MOVE_SHEET";
   sheetId: UID;
-  target: Zone[];
-  formatter: string;
+  direction: "left" | "right";
 }
 
-export interface SetDecimalCommand extends BaseCommand {
-  type: "SET_DECIMAL";
+export interface RenameSheetCommand extends BaseCommand {
+  type: "RENAME_SHEET";
   sheetId: UID;
-  target: Zone[];
-  step: number;
+  name?: string;
 }
+
+//------------------------------------------------------------------------------
+// Conditional Format
+//------------------------------------------------------------------------------
 
 /**
  * todo: add sheet argument...
@@ -178,36 +182,93 @@ export interface RemoveConditionalFormatCommand extends BaseCommand {
   sheetId: UID;
 }
 
-export interface RemoveColumnsCommand extends BaseCommand {
-  type: "REMOVE_COLUMNS";
-  columns: number[];
+//------------------------------------------------------------------------------
+// Figures
+//------------------------------------------------------------------------------
+
+export interface CreateFigureCommand extends BaseCommand {
+  type: "CREATE_FIGURE";
+  figure: Figure<any>;
   sheetId: UID;
 }
 
-export interface RemoveRowsCommand extends BaseCommand {
-  type: "REMOVE_ROWS";
-  rows: number[];
-  sheetId: UID;
+export interface DeleteFigureCommand extends BaseCommand {
+  type: "DELETE_FIGURE";
+  id: string;
 }
 
-export interface AddColumnsCommand extends BaseCommand {
-  type: "ADD_COLUMNS";
-  column: number;
-  sheetId: UID;
-  quantity: number;
-  position: "before" | "after";
+export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
+  type: "UPDATE_FIGURE";
+  id: string;
 }
 
-export interface AddRowsCommand extends BaseCommand {
-  type: "ADD_ROWS";
-  row: number;
-  sheetId: UID;
-  quantity: number;
-  position: "before" | "after";
+//------------------------------------------------------------------------------
+// Formatting
+//------------------------------------------------------------------------------
+export interface CreateStyleCommand extends BaseCommand {
+  type: "CREATE_STYLE";
+  style: Style;
+}
+
+export interface CreateBorderCommand extends BaseCommand {
+  type: "CREATE_BORDER";
+  border: Border;
+}
+
+//------------------------------------------------------------------------------
+// Chart
+//------------------------------------------------------------------------------
+
+export interface CreateChartCommand extends BaseCommand {
+  type: "CREATE_CHART";
+  id: string;
+  sheetId: string;
+  definition: CreateChartDefinition;
+}
+
+export interface UpdateChartCommand extends BaseCommand {
+  type: "UPDATE_CHART";
+  id: string;
+  definition: CreateChartDefinition;
 }
 
 // Local Commands
 // ------------------------------------------------
+export interface DeleteSheetConfirmationCommand extends BaseCommand {
+  type: "DELETE_SHEET_CONFIRMATION";
+  sheetId: UID;
+}
+
+export interface SetFormattingCommand extends BaseCommand {
+  type: "SET_FORMATTING";
+  sheetId: UID;
+  target: Zone[];
+  style?: Style;
+  border?: BorderCommand;
+  format?: string;
+}
+
+export interface SetBorderCommand extends BaseCommand {
+  type: "SET_BORDER";
+  sheetId: UID;
+  col: number;
+  row: number;
+  border: Border | undefined;
+}
+
+export interface ClearFormattingCommand extends BaseCommand {
+  type: "CLEAR_FORMATTING";
+  sheetId: UID;
+  target: Zone[];
+}
+
+export interface SetDecimalCommand extends BaseCommand {
+  type: "SET_DECIMAL";
+  sheetId: UID;
+  target: Zone[];
+  step: number;
+}
+
 export interface CopyCommand extends BaseCommand {
   type: "COPY";
   target: Zone[];
@@ -587,29 +648,6 @@ export interface SelectFigureCommand extends BaseCommand {
   id: string;
 }
 
-export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
-  type: "UPDATE_FIGURE";
-  id: string;
-}
-
-export interface DeleteFigureCommand extends BaseCommand {
-  type: "DELETE_FIGURE";
-  id: string;
-}
-
-export interface CreateChartCommand extends BaseCommand {
-  type: "CREATE_CHART";
-  id: string;
-  sheetId: string;
-  definition: CreateChartDefinition;
-}
-
-export interface UpdateChartCommand extends BaseCommand {
-  type: "UPDATE_CHART";
-  id: string;
-  definition: CreateChartDefinition;
-}
-
 export interface UpdateSearchCommand extends BaseCommand {
   type: "UPDATE_SEARCH";
   toSearch: string;
@@ -642,14 +680,61 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
   replaceOptions: ReplaceOptions;
 }
 
+export type CoreCommand =
+  /** CELLS */
+  | UpdateCellCommand
+  | UpdateCellPositionCommand
+  | ClearCellCommand //TODO check if necessary
+  | DeleteContentCommand //TODO Check if necessary
+
+  /** GRID SHAPE */
+  | AddColumnsCommand
+  | AddRowsCommand
+  | RemoveColumnsCommand
+  | RemoveRowsCommand
+  | ResizeColumnsCommand
+  | ResizeRowsCommand
+
+  /** MERGE */
+  | AddMergeCommand
+  | RemoveMergeCommand
+
+  /** SHEETS MANIPULATION */
+  | CreateSheetCommand
+  | DeleteSheetCommand
+  | DuplicateSheetCommand
+  | MoveSheetCommand
+  | RenameSheetCommand
+
+  /** CONDITIONAL FORMAT */
+  | AddConditionalFormatCommand
+  | RemoveConditionalFormatCommand
+
+  /** FIGURES */
+  | CreateFigureCommand
+  | DeleteFigureCommand
+  | UpdateFigureCommand
+
+  /** FORMATTING */
+  | CreateStyleCommand //TODO Remove it
+  | CreateBorderCommand //TODO Remove it
+  | SetFormattingCommand
+  | ClearFormattingCommand
+  | SetBorderCommand //TODO Check if necessary
+  | SetDecimalCommand //TODO Check this
+
+  /** CHART */
+  | CreateChartCommand
+  | UpdateChartCommand;
+
 export type Command =
+  | CoreCommand
   | NewInputCommand
   | RemoveInputCommand
   | FocusInputCommand
   | AddEmptyRangeCommand
   | RemoveRangeCommand
   | ChangeRangeCommand
-  | UpdateCellCommand
   | CopyCommand
   | CutCommand
   | PasteCommand
@@ -657,16 +742,9 @@ export type Command =
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | ActivatePaintFormatCommand
-  | ResizeRowsCommand
-  | ResizeColumnsCommand
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
   | MovePositionCommand
-  | CreateSheetCommand
-  | MoveSheetCommand
-  | RenameSheetCommand
-  | DuplicateSheetCommand
-  | DeleteSheetCommand
   | DeleteSheetConfirmationCommand
   | ActivateSheetCommand
   | StartSelectionCommand
@@ -679,10 +757,7 @@ export type Command =
   | SelectRowCommand
   | SelectAllCommand
   | AlterSelectionCommand
-  | DeleteContentCommand
   | EvaluateCellsCommand
-  | AddConditionalFormatCommand
-  | RemoveConditionalFormatCommand
   | AddHighlightsCommand
   | RemoveHighlightsCommand
   | RemoveAllHighlightsCommand
@@ -693,35 +768,17 @@ export type Command =
   | StopComposerSelectionCommand
   | StartEditionCommand
   | StopEditionCommand
-  | AddMergeCommand
-  | RemoveMergeCommand
   | SetCurrentContentCommand
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
-  | SetBorderCommand
-  | AddFormattingCommand
-  | ClearFormattingCommand
-  | SetFormatterCommand
-  | SetDecimalCommand
-  | ClearCellCommand
   | UndoCommand
   | RedoCommand
   | StartCommand
-  | RemoveRowsCommand
-  | RemoveColumnsCommand
-  | AddRowsCommand
-  | CreateChartCommand
-  | UpdateChartCommand
-  | AddColumnsCommand
   | AutofillCommand
   | AutofillSelectCommand
   | ShowFormulaCommand
   | AutofillAutoCommand
-  | CreateFigureCommand
   | SelectFigureCommand
-  | UpdateFigureCommand
-  | DeleteFigureCommand
-  | UpdateCellPositionCommand
   | UpdateSearchCommand
   | RefreshSearchCommand
   | ClearSearchCommand
@@ -764,11 +821,11 @@ export const enum CancelledReason {
 
 export type CommandResult = CommandSuccess | CommandCancelled;
 
-export interface CommandHandler {
-  allowDispatch(command: Command): CommandResult;
-  beforeHandle(command: Command): void;
-  handle(command: Command): void;
-  finalize(command: Command): void;
+export interface CommandHandler<T> {
+  allowDispatch(command: T): CommandResult;
+  beforeHandle(command: T): void;
+  handle(command: T): void;
+  finalize(command: T): void;
 }
 
 export interface CommandDispatcher {
@@ -781,4 +838,15 @@ export interface CommandDispatcher {
   ): CommandResult;
 }
 
+export interface CoreCommandDispatcher {
+  dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
+    type: {} extends Omit<C, "type"> ? T : never
+  ): CommandResult;
+  dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): CommandResult;
+}
+
 export type CommandTypes = Command["type"];
+export type CoreCommandTypes = CoreCommand["type"];
