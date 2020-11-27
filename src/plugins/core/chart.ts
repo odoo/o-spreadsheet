@@ -1,5 +1,4 @@
 import {
-  Command,
   ChartDefinition,
   CreateChartDefinition,
   DataSet,
@@ -7,6 +6,7 @@ import {
   CommandResult,
   CancelledReason,
   WorkbookData,
+  CoreCommand,
 } from "../../types/index";
 import { toXC, toZone, zoneToXc } from "../../helpers/index";
 import { rangeReference } from "../../formulas/parser";
@@ -27,7 +27,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   readonly chartFigures = new Set<string>();
 
-  allowDispatch(cmd: Command): CommandResult {
+  allowDispatch(cmd: CoreCommand): CommandResult {
     const success: CommandResult = { status: "SUCCESS" };
     switch (cmd.type) {
       case "UPDATE_CHART":
@@ -44,7 +44,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
         const chartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);

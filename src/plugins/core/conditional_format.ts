@@ -18,6 +18,7 @@ import {
   CommandResult,
   ColorScaleThreshold,
   ColorScaleMidPointThreshold,
+  CoreCommand,
 } from "../../types/index";
 import { _lt } from "../../translation";
 import { compile, normalize } from "../../formulas/index";
@@ -54,7 +55,7 @@ export class ConditionalFormatPlugin
     };
   }
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.cfRules[cmd.sheetId] = [];

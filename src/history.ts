@@ -1,4 +1,10 @@
-import { Command, CommandHandler, CommandResult, CancelledReason } from "./types/index";
+import {
+  Command,
+  CommandHandler,
+  CommandResult,
+  CancelledReason,
+  CoreCommand,
+} from "./types/index";
 
 /**
  * History Management System
@@ -84,7 +90,7 @@ export interface WorkbookHistory<Plugin> {
   ): void;
 }
 
-export class WHistory implements CommandHandler {
+export class WHistory implements CommandHandler<CoreCommand> {
   private current: Step | null = null;
   private undoStack: Step[] = [];
   private redoStack: Step[] = [];

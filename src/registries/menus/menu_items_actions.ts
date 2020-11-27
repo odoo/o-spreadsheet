@@ -26,11 +26,11 @@ function getRowsNumber(env: SpreadsheetEnv): number {
   }
 }
 
-export function setFormatter(env: SpreadsheetEnv, formatter: string) {
-  env.dispatch("SET_FORMATTER", {
+export function setFormatter(env: SpreadsheetEnv, format: string) {
+  env.dispatch("SET_FORMATTING", {
     sheetId: env.getters.getActiveSheetId(),
     target: env.getters.getSelectedZones(),
-    formatter,
+    format
   });
 }
 

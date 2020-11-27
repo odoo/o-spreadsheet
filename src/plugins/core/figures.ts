@@ -1,5 +1,5 @@
 import { CorePlugin } from "../core_plugin";
-import { Command, WorkbookData, Figure, Viewport, UID } from "../../types/index";
+import { CoreCommand, WorkbookData, Figure, Viewport, UID } from "../../types/index";
 import { uuidv4, isDefined } from "../../helpers/index";
 
 interface FigureState {
@@ -8,9 +8,7 @@ interface FigureState {
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
-  static getters = ["getFigures", "getSelectedFigureId", "getFigure"];
-
-  private selectedFigureId: string | null = null;
+  static getters = ["getFigures", "getFigure"];
 
   readonly figures: Record<UID, Figure<any> | undefined> = {};
   readonly sheetFigures: Record<UID, Figure<any>[] | undefined> = {};
@@ -18,7 +16,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "DUPLICATE_SHEET":
         for (let fig of this.sheetFigures[cmd.sheetIdFrom] || []) {
@@ -55,9 +53,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
           this.history.update("figures", cmd.id, "data", cmd.data);
         }
         break;
-      case "SELECT_FIGURE":
-        this.selectedFigureId = cmd.id;
-        break;
       case "DELETE_FIGURE":
         this.history.update("figures", cmd.id, undefined);
         for (let s in this.sheetFigures) {
@@ -67,15 +62,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
             const copy = figures.slice();
             copy.splice(deletedFigureIndex, 1);
             this.history.update("sheetFigures", s, copy);
-            this.selectedFigureId = null;
           }
         }
         break;
-      // some commands should not remove the current selection
-      case "EVALUATE_CELLS":
-        break;
-      default:
-        this.selectedFigureId = null;
     }
   }
 
@@ -106,10 +95,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       result.push(figure);
     }
     return result;
-  }
-
-  getSelectedFigureId(): string | null {
-    return this.selectedFigureId;
   }
 
   getFigure<T>(figureId: string): Figure<T> | undefined {

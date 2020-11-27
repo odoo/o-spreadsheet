@@ -80,30 +80,30 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-      model.dispatch("SET_FORMATTER", {
+      model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
-        formatter: "0.00000",
+        format: "0.00000",
       });
       expect(getCellContent(model, "A1")).toBe("0.00000");
       setCellContent(model, "A2", "0");
       model.dispatch("SELECT_CELL", { col: 0, row: 1 });
-      model.dispatch("SET_FORMATTER", {
+      model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
-        formatter: "0.00%",
+        format: "0.00%",
       });
       expect(getCellContent(model, "A2")).toBe("0.00%");
     });
 
-    test("format a pendingcell: should not apply formatter to Loading...", () => {
+    test("format a pendingcell: should not apply format to Loading...", () => {
       const model = new Model();
       setCellContent(model, "B2", "=Wait(1000)");
       model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-      model.dispatch("SET_FORMATTER", {
+      model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
-        formatter: "#,##0.00",
+        format: "#,##0.00",
       });
       expect(getCellContent(model, "B2")).toBe(LOADING);
     });
@@ -387,13 +387,13 @@ describe("history", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("can delete a cell with a formatter", () => {
+  test("can delete a cell with a format", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
-    model.dispatch("SET_FORMATTER", {
+    model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      formatter: "#,##0.00",
+      format: "#,##0.00",
     });
 
     expect(getCellContent(model, "A1")).toBe("3.00");

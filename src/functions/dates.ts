@@ -243,7 +243,7 @@ function formatJSDate(jsDate: Date, format: string): string {
         case "yyyy":
           return jsDate.getFullYear();
         default:
-          throw new Error(_lt("invalid format"));
+          throw new Error(`invalid format: ${format}`);
       }
     })
     .join(sep);
@@ -278,7 +278,7 @@ function formatJSTime(jsDate: Date, format: string): string {
           case "ss":
             return jsDate.getSeconds().toString().padStart(2, "0");
           default:
-            throw new Error("invalid format");
+            throw new Error(`invalid format: ${format}`);
         }
       })
       .join(":") + meridian

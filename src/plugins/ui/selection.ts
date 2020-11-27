@@ -45,6 +45,7 @@ export class SelectionPlugin extends UIPlugin {
     "getSelectedZones",
     "getSelectedZone",
     "getAggregate",
+    "getSelectedFigureId",
     "getSelection",
     "getPosition",
     "getSelectionMode",
@@ -55,6 +56,7 @@ export class SelectionPlugin extends UIPlugin {
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
     anchor: [0, 0],
   };
+  private selectedFigureId: string | null = null;
   private activeCol: number = 0;
   private activeRow: number = 0;
   private mode = SelectionMode.idle;
@@ -108,6 +110,9 @@ export class SelectionPlugin extends UIPlugin {
     };
   }
   handle(cmd: Command) {
+    if (cmd.type !== "UPDATE_FIGURE" && cmd.type !== "EVALUATE_CELLS") {
+      this.selectedFigureId = null;
+    }
     switch (cmd.type) {
       case "START":
         this.selectCell(0, 0);
@@ -178,6 +183,9 @@ export class SelectionPlugin extends UIPlugin {
           this.onAddRows(cmd.quantity);
         }
         break;
+      case "SELECT_FIGURE":
+        this.selectedFigureId = cmd.id;
+        break;
     }
   }
 
@@ -230,6 +238,10 @@ export class SelectionPlugin extends UIPlugin {
 
   getSelection(): Selection {
     return this.selection;
+  }
+
+  getSelectedFigureId(): string | null {
+    return this.selectedFigureId;
   }
 
   getPosition(): [number, number] {

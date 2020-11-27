@@ -10,10 +10,10 @@ import { CancelledReason, UID, Cell } from "../../src/types";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 
 function setFormat(model: Model, format: string) {
-  model.dispatch("SET_FORMATTER", {
+  model.dispatch("SET_FORMATTING", {
     sheetId: model.getters.getActiveSheetId(),
     target: model.getters.getSelectedZones(),
-    formatter: format,
+    format,
   });
 }
 
