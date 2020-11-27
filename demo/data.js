@@ -10,6 +10,7 @@ export const demoData = {
   sheets: [
     {
       name: "Sheet1",
+      id: "sheet1",
       colNumber: 26,
       rowNumber: 120,
       cols: { 1: {}, 3: {} },
@@ -113,6 +114,7 @@ export const demoData = {
     },
     {
       name: "Sheet2",
+      id: "sheet2",
       cells: {
         B2: { content: "42" },
       },
