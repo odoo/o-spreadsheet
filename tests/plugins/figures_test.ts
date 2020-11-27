@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { Viewport } from "../../src/types";
+import { createSheet, undo } from "../commands_helpers";
 
 const viewport: Viewport = {
   left: 0,
@@ -56,19 +57,17 @@ describe("figure plugin", () => {
     });
 
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(1);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(0);
   });
 
   test("can create a figure in a different sheet", () => {
     const model = new Model();
-    const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "sheet2", position: 1 });
-    const sheet2 = model.getters.getActiveSheetId();
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
+    const sheetId = "Sheet2";
+    createSheet(model, { sheetId }); // The sheet is not activated
 
     model.dispatch("CREATE_FIGURE", {
-      sheetId: sheet2,
+      sheetId,
       figure: {
         id: "someuuid",
         tag: "hey",
@@ -80,7 +79,7 @@ describe("figure plugin", () => {
       },
     });
     const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === sheet2)!;
+    const sheet = data.sheets.find((s) => s.id === sheetId)!;
 
     expect(sheet.figures).toEqual([
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
@@ -244,7 +243,7 @@ describe("figure plugin", () => {
     expect(y1).toBe(200);
     expect(data1).toBe("Coucou");
 
-    model.dispatch("UNDO");
+    undo(model);
     const { x: x2, y: y2, data: data2 } = model.getters.getFigures(
       model.getters.getActiveSheetId(),
       viewport
@@ -296,7 +295,7 @@ describe("figure plugin", () => {
     model.dispatch("DELETE_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(0);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(1);
   });

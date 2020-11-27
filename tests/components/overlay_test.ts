@@ -1,5 +1,7 @@
 import { Model } from "../../src/model";
-import { makeTestFixture, GridParent, nextTick, getActiveXc, setCellContent } from "../helpers";
+import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { getActiveXc } from "../getters_helpers";
+import { setCellContent, redo, undo } from "../commands_helpers";
 import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
@@ -315,13 +317,13 @@ describe("Resizer component", () => {
     expect(model.getters.getCol(sheet, 3)!.size).toBe(1006);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 4)!.start).toBe(initialSize * 2 + 2012);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 2)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 3)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 4)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 4)!.start).toBe(initialSize * 4);
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getCol(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheet, 2)!.size).toBe(1006);
     expect(model.getters.getCol(sheet, 3)!.size).toBe(1006);
@@ -351,13 +353,13 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(sheet, 3)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 4)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 4)!.start).toBe(initialSize * 4);
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(size);

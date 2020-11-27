@@ -10,10 +10,10 @@ import {
   getCellText,
   getMergeCellMap,
   getMerges,
-  setCellContent,
   toPosition,
   XCToMergeCellMap,
 } from "../helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -460,7 +460,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill cross-sheet references", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2");

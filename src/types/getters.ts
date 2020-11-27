@@ -5,7 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { BordersPlugin } from "../plugins/core/borders";
-import { WHistory } from "../history";
+import { History } from "../history";
 import { RangePlugin } from "../plugins/core/range";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EditionPlugin } from "../plugins/ui/edition";
@@ -26,8 +26,12 @@ import { ChartPlugin } from "../plugins/core/chart";
 // -----------------------------------------------------------------------------
 
 export interface CoreGetters {
-  canUndo: WHistory["canUndo"];
-  canRedo: WHistory["canRedo"];
+  canUndo: History["canUndo"];
+  canRedo: History["canRedo"];
+  getUserId: History["getUserId"];
+  getConnectedClients: History["getConnectedClients"];
+  getRevisionLogs: History["getRevisionLogs"];
+
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];
@@ -70,10 +74,10 @@ export interface CoreGetters {
   getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
 
   getFigures: FigurePlugin["getFigures"];
-  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
   getCellBorder: BordersPlugin["getCellBorder"];
+
   getChartDefinition: ChartPlugin["getChartDefinition"];
 
   getRangeString: RangePlugin["getRangeString"];
@@ -88,6 +92,7 @@ export type Getters = CoreGetters & {
   getSelectedZones: SelectionPlugin["getSelectedZones"];
   getSelectedZone: SelectionPlugin["getSelectedZone"];
   getSelection: SelectionPlugin["getSelection"];
+  getSelectedFigureId: SelectionPlugin["getSelectedFigureId"];
   getPosition: SelectionPlugin["getPosition"];
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];

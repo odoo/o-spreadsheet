@@ -6,8 +6,8 @@ import {
   resetFunctions,
   typeInComposer as typeInComposerHelper,
   startGridComposition,
-  getCellText,
 } from "../helpers";
+import { getCellText } from "../getters_helpers";
 import { args, functionRegistry } from "../../src/functions/index";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 jest.mock("../../src/components/composer/content_editable_helper", () =>

@@ -19,7 +19,6 @@ import {
   CellData,
   CellPosition,
   CellType,
-  Command,
   FormulaCell,
   NormalizedFormula,
   Range,
@@ -30,6 +29,7 @@ import {
   AddColumnsCommand,
   AddRowsCommand,
   Zone,
+  CoreCommand,
 } from "../../types/index";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 import { DATETIME_FORMAT } from "../../constants";
@@ -39,7 +39,7 @@ const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
 type UpdateCellData = {
   content?: string;
   formula?: NormalizedFormula;
-  style?: Style;
+  style?: Style | null;
   format?: string;
 };
 
@@ -70,19 +70,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "SET_FORMATTING":
-        if (cmd.style) {
+        if ("style" in cmd) {
           this.setStyle(cmd.sheetId, cmd.target, cmd.style);
         }
+        if ("format" in cmd && cmd.format !== undefined) {
+          this.setFormatter(cmd.sheetId, cmd.target, cmd.format);
+        }
         break;
-
       case "SET_DECIMAL":
         this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
-        break;
-      case "SET_FORMATTER":
-        this.setFormatter(cmd.sheetId, cmd.target, cmd.formatter);
         break;
       case "CLEAR_FORMATTING":
         this.clearStyles(cmd.sheetId, cmd.target);
@@ -103,7 +102,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           col: cmd.col,
           row: cmd.row,
           content: "",
-          style: undefined,
+          style: null,
           format: "",
         });
         break;
@@ -281,11 +280,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
+          // commandHelpers.updateCell(sheetId, col, row, { style: undefined});
           this.dispatch("UPDATE_CELL", {
             sheetId,
             col,
             row,
-            style: undefined,
+            style: null,
           });
         }
       }
@@ -580,7 +580,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = after.content ? after.content.replace(nbspRegexp, "") : "";
-    const style = "style" in after ? after.style : (before && before.style) || 0;
+    const style = after.style !== undefined ? after.style : (before && before.style) || 0;
     let format = "format" in after ? after.format : (before && before.format) || "";
 
     /* Read the following IF as:

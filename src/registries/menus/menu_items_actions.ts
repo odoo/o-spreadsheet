@@ -26,11 +26,11 @@ function getRowsNumber(env: SpreadsheetEnv): number {
   }
 }
 
-export function setFormatter(env: SpreadsheetEnv, formatter: string) {
-  env.dispatch("SET_FORMATTER", {
+export function setFormatter(env: SpreadsheetEnv, format: string) {
+  env.dispatch("SET_FORMATTING", {
     sheetId: env.getters.getActiveSheetId(),
     target: env.getters.getSelectedZones(),
-    formatter,
+    format,
   });
 }
 
@@ -375,11 +375,12 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
+  const activeSheetId = env.getters.getActiveSheetId();
   const position =
-    env.getters
-      .getVisibleSheets()
-      .findIndex((sheetId) => sheetId === env.getters.getActiveSheetId()) + 1;
-  env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4(), position });
+    env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
+  const sheetId = uuidv4();
+  env.dispatch("CREATE_SHEET", { sheetId, position });
+  env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
 };
 
 //------------------------------------------------------------------------------
@@ -428,4 +429,8 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
 
 export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("FindAndReplace", {});
+};
+
+export const OPEN_COLLABORATIVE_DEBUG_ACTION = (env: SpreadsheetEnv) => {
+  env.openSidePanel("CollaborativeDebug", {});
 };

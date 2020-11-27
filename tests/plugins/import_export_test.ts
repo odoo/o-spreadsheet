@@ -1,9 +1,11 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_REVISION_ID } from "../../src/constants";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { CURRENT_VERSION } from "../../src/data";
-import { getMerges, mockUuidV4To, toPosition } from "../helpers";
+import { getMerges, toPosition } from "../helpers";
+import { mockUuidV4To } from "../helpers";
+import "../jest_extend";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
@@ -168,6 +170,7 @@ describe("Export", () => {
 test("complete import, then export", () => {
   const modelData = {
     version: CURRENT_VERSION,
+    revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
         id: "someuuid",
@@ -220,7 +223,7 @@ test("complete import, then export", () => {
     },
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(modelData);
+  expect(model).toExport(modelData);
   // We test here a that two import with the same data give the same result.
   const model2 = new Model(modelData);
   expect(model2.exportData()).toEqual(modelData);
@@ -229,6 +232,7 @@ test("complete import, then export", () => {
 test("import then export (figures)", () => {
   const modelData = {
     version: CURRENT_VERSION,
+    revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
         id: "someuuid",
@@ -248,5 +252,5 @@ test("import then export (figures)", () => {
     borders: {},
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(modelData);
+  expect(model).toExport(modelData);
 });

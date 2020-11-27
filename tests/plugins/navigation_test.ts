@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { getActiveXc } from "../helpers";
+import { getActiveXc } from "../getters_helpers";
 import { Viewport } from "../../src/types";
 
 function getViewport(

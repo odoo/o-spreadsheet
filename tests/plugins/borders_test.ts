@@ -3,15 +3,8 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import {
-  setBorder,
-  getBorder,
-  getCell,
-  setCellContent,
-  addColumns,
-  addRows,
-  getCellContent,
-} from "../helpers";
+import { getBorder, getCell, getCellContent } from "../getters_helpers";
+import { setBorder, setCellContent, addColumns, addRows, undo } from "../commands_helpers";
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {
@@ -251,7 +244,7 @@ describe("borders", () => {
 
     expect(getCellContent(model, "B2")).toBe("some content");
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "B2")).toBe("some content");
     expect(getBorder(model, "B2")).toBeNull();
   });

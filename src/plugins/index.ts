@@ -22,6 +22,7 @@ import { UIOptionsPlugin } from "./ui/ui_options";
 import { CorePluginConstructor } from "./core_plugin";
 import { UIPluginConstuctor } from "./ui_plugin";
 import { RangePlugin } from "./core/range";
+import { SelectionMultiuserPlugin } from "./ui/selection_multiuser";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
@@ -46,4 +47,5 @@ export const uiPluginRegistry = new Registry<UIPluginConstuctor>()
   .add("selectionInput", SelectionInputPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
+  .add("selection_multiuser", SelectionMultiuserPlugin)
   .add("find_and_replace", FindAndReplacePlugin);

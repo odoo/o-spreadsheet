@@ -1,8 +1,9 @@
 import { Model } from "../../src/model";
-import { getCell, getCellContent } from "../helpers";
+import { getCell, getCellContent } from "../getters_helpers";
+import { createSheet } from "../commands_helpers";
 
 import "../canvas.mock";
-import { setCellContent } from "../helpers";
+import { setCellContent } from "../commands_helpers";
 import { PADDING_AUTORESIZE, DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";
@@ -10,10 +11,10 @@ import { CancelledReason, UID, Cell } from "../../src/types";
 import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 
 function setFormat(model: Model, format: string) {
-  model.dispatch("SET_FORMATTER", {
+  model.dispatch("SET_FORMATTING", {
     sheetId: model.getters.getActiveSheetId(),
     target: model.getters.getSelectedZones(),
-    formatter: format,
+    format,
   });
 }
 
@@ -462,7 +463,7 @@ describe("Autoresize", () => {
   test("Can autoresize a column in another sheet", () => {
     const initialSize = model.getters.getCol(sheetId, 0)?.size;
     const newSheetId = "42";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 1 });
+    createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "size0", newSheetId);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getCol(sheetId, 0)?.size).toBe(initialSize);
@@ -472,7 +473,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row in another sheet", () => {
     const initialSize = model.getters.getRow(sheetId, 0)?.size;
     const newSheetId = "42";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 1 });
+    createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "test", newSheetId);
     model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRow(sheetId, 0)?.size).toBe(initialSize);

@@ -24,6 +24,15 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
+      case "AUTORESIZE_ROWS":
+      case "AUTORESIZE_COLUMNS":
+      case "DELETE_SHEET_CONFIRMATION":
+        try {
+          this.getters.getSheet(cmd.sheetId);
+          break;
+        } catch (error) {
+          return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
+        }
       case "ACTIVATE_SHEET":
         try {
           this.getters.getSheet(cmd.sheetIdTo);
@@ -50,10 +59,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           } else {
             sheetIdTo = currentSheets[Math.max(0, currentIndex - 1)];
           }
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo,
-          });
+          this.activeSheet = this.getters.getSheet(sheetIdTo);
         }
         break;
     }
@@ -61,17 +67,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo: cmd.sheetId,
-          });
-        }
-        break;
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetIdTo);
-        break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
           this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
@@ -93,12 +88,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
         });
         break;
       case "ACTIVATE_SHEET":
-        const sheet = this.getters.getSheet(cmd.sheetIdTo);
-        if (this.historizeActiveSheet) {
-          this.history.update("activeSheet", sheet);
-        } else {
-          this.activeSheet = sheet;
-        }
+        this.setActiveSheet(cmd.sheetIdTo);
         break;
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
@@ -124,14 +114,15 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           }
         }
         break;
+      case "UNDO":
+        const activeSheetId = this.getters
+          .getVisibleSheets()
+          .find((sheetId) => sheetId === this.getActiveSheetId());
+        if (!activeSheetId) {
+          this.setActiveSheet(this.getters.getVisibleSheets()[0]);
+        }
+        break;
     }
-  }
-
-  duplicateSheet(sheetId: UID) {
-    this.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getActiveSheetId(),
-      sheetIdTo: sheetId,
-    });
   }
 
   finalize() {
@@ -214,6 +205,15 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           }
         );
       }
+    }
+  }
+
+  private setActiveSheet(id: UID) {
+    const sheet = this.getters.getSheet(id);
+    if (this.historizeActiveSheet) {
+      this.history.update("activeSheet", sheet);
+    } else {
+      this.activeSheet = sheet;
     }
   }
 }

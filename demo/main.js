@@ -1,4 +1,5 @@
 import { demoData } from "./data.js";
+import { WebsocketTransport } from "./transport.js";
 owl.config.mode = "dev";
 
 const { whenReady } = owl.utils;
@@ -28,6 +29,7 @@ class App extends Component {
   constructor() {
     super();
     this.key = 1;
+    this.transportService = new WebsocketTransport();
     let cacheData;
     try {
       cacheData = JSON.parse(window.localStorage.getItem("o-spreadsheet"));
@@ -69,15 +71,17 @@ class App extends Component {
   }
 }
 
-App.template = xml`
+App.template = xml/* xml */ `
   <div>
-    <Spreadsheet data="data" t-key="key"
+    <Spreadsheet data="data"
+      t-key="key"
+      transportService="transportService"
       t-on-ask-confirmation="askConfirmation"
       t-on-notify-user="notifyUser"
       t-on-edit-text="editText"
       t-on-save-content="saveContent"/>
   </div>`;
-App.style = css`
+App.style = css/* scss */ `
   html {
     height: 100%;
     body {
