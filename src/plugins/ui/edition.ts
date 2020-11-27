@@ -202,7 +202,7 @@ export class EditionPlugin extends UIPlugin {
       const sheetId = this.getters.getActiveSheetId();
       const xc = this.getters.getMainCell(sheetId, toXC(this.col, this.row));
       const [col, row] = toCartesian(xc);
-      const cell = this.getters.getCellWithContent(sheetId, col, row);
+      const cell = this.getters.getCell(sheetId, col, row);
       let content = this.currentContent;
       this.setContent("");
       const didChange = cell ? cell.content !== content : content !== "";
@@ -348,10 +348,7 @@ export class EditionPlugin extends UIPlugin {
   private setActiveContent() {
     const sheetId = this.getters.getActiveSheetId();
     const mainCell = this.getters.getMainCell(sheetId, toXC(...this.getters.getPosition()));
-    const anchor = this.getters.getCellWithContent(
-      this.getters.getActiveSheetId(),
-      ...toCartesian(mainCell)
-    );
+    const anchor = this.getters.getCell(this.getters.getActiveSheetId(), ...toCartesian(mainCell));
     if (anchor) {
       const { col, row } = this.getters.getCellPosition(anchor.id);
       this.col = col;

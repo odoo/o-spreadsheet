@@ -371,7 +371,7 @@ export function getCell(
   sheetId: UID = model.getters.getActiveSheetId()
 ): Cell | undefined {
   let [col, row] = toCartesian(xc);
-  return model.getters.getCellWithContent(sheetId, col, row);
+  return model.getters.getCell(sheetId, col, row);
 }
 
 export function getSheet(model: Model, index: number = 0): Sheet {

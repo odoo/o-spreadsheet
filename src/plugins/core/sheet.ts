@@ -45,7 +45,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getColsZone",
     "getRowsZone",
     "getCellByXc",
-    "getCellWithContent",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -312,32 +311,38 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       .join("");
   }
 
-  getCell(sheetId: UID, col: number, row: number): Omit<Cell, "content"> | undefined {
-    const sheet = this.getSheet(sheetId);
-    return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
-  }
+  // getCell(sheetId: UID, col: number, row: number): Omit<Cell, "content"> | undefined {
+  //   const sheet = this.getSheet(sheetId);
+  //   return (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
+  // }
 
-  getCellWithContent(sheetId: UID, col: number, row: number): Cell | undefined {
+  getCell(sheetId: UID, col: number, row: number): Cell | undefined {
     const sheet = this.getSheet(sheetId);
     const cell = (sheet && sheet.rows[row] && sheet.rows[row].cells[col]) || undefined;
     if (!cell) return cell;
-    if (!cell.content && cell.formula) {
-      return { ...cell, content: this.getters.getFormulaCellContent(cell, sheetId) };
-    }
-    return cell;
+    const getFormulaCellContent = this.getters.getFormulaCellContent.bind(this);
+    return {
+      ...cell,
+      get content(): string {
+        if (!cell?.content && cell?.formula) {
+          return getFormulaCellContent(cell, sheetId);
+        }
+        return cell?.content!;
+      },
+    };
   }
 
-  getCellByXc(sheetId: UID, xc: string): Omit<Cell, "content"> | undefined {
+  getCellByXc(sheetId: UID, xc: string): Cell | undefined {
     let [col, row] = toCartesian(xc);
-    return this.sheets[sheetId]?.rows[row]?.cells[col];
+    return this.getCell(sheetId, col, row);
   }
 
   /**
    * Returns all the cells of a col
    */
-  getColCells(sheetId: UID, col: number): Omit<Cell, "content">[] {
-    return this.getSheet(sheetId).rows.reduce((acc: Cell[], cur) => {
-      const cell = cur.cells[col];
+  getColCells(sheetId: UID, col: number): Cell[] {
+    return this.getSheet(sheetId).rows.reduce((acc: Cell[], cur, row) => {
+      const cell = this.getCell(sheetId, col, row);
       return cell !== undefined ? acc.concat(cell) : acc;
     }, []);
   }

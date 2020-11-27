@@ -441,10 +441,10 @@ describe("range plugin", () => {
       expect(m.getters.getCell("s1", 0, 3)!.value).toBe(8);
       m.dispatch("REMOVE_ROWS", { rows: [1], sheetId: "s1" });
       expect(m.getters.getCell("s1", 0, 2)!.value).toBe(6);
-      expect(m.getters.getCellWithContent("s1", 0, 2)!.content).toBe("=sum(A1:A2)");
+      expect(m.getters.getCell("s1", 0, 2)!.content).toBe("=sum(A1:A2)");
       m.dispatch("UNDO");
       expect(m.getters.getCell("s1", 0, 3)!.value).toBe(8);
-      expect(m.getters.getCellWithContent("s1", 0, 3)!.content).toBe("=sum(A1:A3)");
+      expect(m.getters.getCell("s1", 0, 3)!.content).toBe("=sum(A1:A3)");
     });
   });
 });

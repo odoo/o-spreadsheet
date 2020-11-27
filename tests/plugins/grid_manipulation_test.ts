@@ -65,7 +65,7 @@ function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
   for (let cell of Object.values(model.getters.getCells(sheetId))) {
     const { col, row } = model.getters.getCellPosition(cell.id);
-    cell = model.getters.getCellWithContent(sheetId, col, row)!;
+    cell = model.getters.getCell(sheetId, col, row)!;
     cells[toXC(col, row)] = cell;
   }
   return cells;
@@ -248,8 +248,8 @@ describe("Columns", () => {
         columns: [0],
         sheetId: sheet2.id,
       });
-      expect(model.getters.getCellWithContent(sheet1.id, 1, 1)!.content).toBe("B2 in sheet1");
-      expect(model.getters.getCellWithContent(sheet2.id, 0, 1)!.content).toBe("B2 in sheet2");
+      expect(model.getters.getCell(sheet1.id, 1, 1)!.content).toBe("B2 in sheet1");
+      expect(model.getters.getCell(sheet2.id, 0, 1)!.content).toBe("B2 in sheet2");
     });
     test("On addition before", () => {
       addColumns(1, "before", 2);
@@ -574,7 +574,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([1, 2, 3, 4]);
-      expect(model.getters.getCellWithContent("s1", 0, 0)!.content).toBe("=SUM(A2:A5)");
+      expect(model.getters.getCell("s1", 0, 0)!.content).toBe("=SUM(A2:A5)");
     });
 
     test("delete all columns of a range", () => {
@@ -591,7 +591,7 @@ describe("Columns", () => {
         ],
       });
       removeColumns([1, 2, 3, 4]);
-      expect(model.getters.getCellWithContent("s1", 0, 0)!.content).toBe("=SUM(#REF)");
+      expect(model.getters.getCell("s1", 0, 0)!.content).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on column deletion", () => {
       model = new Model({
@@ -806,8 +806,8 @@ describe("Rows", () => {
         rows: [0],
         sheetId: sheet2.id,
       });
-      expect(model.getters.getCellWithContent(sheet1.id, 1, 1)!.content).toBe("B2 in sheet1");
-      expect(model.getters.getCellWithContent(sheet2.id, 1, 0)!.content).toBe("B2 in sheet2");
+      expect(model.getters.getCell(sheet1.id, 1, 1)!.content).toBe("B2 in sheet1");
+      expect(model.getters.getCell(sheet2.id, 1, 0)!.content).toBe("B2 in sheet2");
     });
     test("On deletion batch", () => {
       model = new Model({
@@ -844,7 +844,7 @@ describe("Rows", () => {
         ],
       });
       removeRows([1, 2, 3, 4]);
-      expect(model.getters.getCellWithContent("sheet1", 0, 0)!.content).toBe("=SUM(#REF)");
+      expect(model.getters.getCell("sheet1", 0, 0)!.content).toBe("=SUM(#REF)");
     });
     test("update cross sheet range on row deletion", () => {
       model = new Model({
