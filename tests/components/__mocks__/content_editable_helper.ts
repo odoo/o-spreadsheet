@@ -24,7 +24,7 @@ export class ContentEditableHelper {
     this.currentState.cursorStart = start;
     this.currentState.cursorEnd = end;
   }
-  insertText(value, color: string = "#000") {
+  insertText(value, color?: string) {
     const text = this.el!.textContent!;
 
     if (this.manualRange) {

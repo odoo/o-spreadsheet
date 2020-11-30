@@ -58,16 +58,25 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   }
 
   get containerStyle(): string {
+    const isFormula = this.getters.getCurrentContent().startsWith("=");
     const style = this.getters.getCurrentStyle();
-    const [x, y, , height] = this.rect;
+    const fillColor = isFormula ? "#ffffff" : style.fillColor || "#ffffff";
+    const textColor = style.textColor;
+    const [x, y, width, height] = this.rect;
     const weight = `font-weight:${style.bold ? "bold" : 500};`;
     const italic = style.italic ? `font-style: italic;` : ``;
     const strikethrough = style.strikethrough ? `text-decoration:line-through;` : ``;
-    return `left: ${x - 1}px;
+    let composerStyle = `left: ${x - 1}px;
         top:${y}px;
         height:${height + 1}px;
+        width:${width}px;
         font-size:${fontSizeMap[style.fontSize || 10]}px;
         ${weight}${italic}${strikethrough}`;
+    composerStyle = composerStyle + `background: ${fillColor};`;
+    if (textColor && !isFormula) {
+      composerStyle = composerStyle + `color: ${textColor}`;
+    }
+    return composerStyle;
   }
 
   get composerStyle(): string {
@@ -83,7 +92,6 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
   mounted() {
     const el = this.el!;
     el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 1) + "px") as string;
-    el.style.height = (this.rect[3] + 1 + "px") as string;
   }
 
   onWidthChanged(ev: CustomEvent) {

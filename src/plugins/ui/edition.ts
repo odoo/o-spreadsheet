@@ -104,6 +104,7 @@ export class EditionPlugin extends UIPlugin {
         const [col, row] = this.getters.getPosition();
         if (col === this.col && row === this.row) {
           this.setActiveContent();
+          this.mode = "inactive";
         }
         break;
       case "ACTIVATE_SHEET":
