@@ -503,7 +503,8 @@ export class RendererPlugin extends BasePlugin {
         if (refCell || bottomRight) {
           text = refCell ? this.getters.getCellText(refCell) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
-          style = refCell ? this.getters.getCellStyle(refCell) : null;
+          const cfStyle = this.getters.getConditionalStyle(merge.topLeft);
+          style = cfStyle ? cfStyle : refCell ? this.getters.getCellStyle(refCell) : null;
           align = text
             ? (style && style.align) || computeAlign(refCell, this.getters.shouldShowFormulas())
             : null;
