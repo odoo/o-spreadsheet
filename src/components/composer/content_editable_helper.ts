@@ -77,7 +77,7 @@ export class ContentEditableHelper {
    * insert text at the current selection point. If a selection of 1 or more elements is done,
    * the selection is replaced by the text to be inserted
    * */
-  insertText(value: string, color: string = "#000") {
+  insertText(value: string, color?: string) {
     if (!value) return;
     if (document.activeElement === this.el) {
       document.execCommand("foreColor", false, color);
@@ -85,7 +85,9 @@ export class ContentEditableHelper {
     } else {
       const span = document.createElement("span");
       span.innerText = value;
-      span.style.color = color;
+      if (color) {
+        span.style.color = color;
+      }
       this.el.appendChild(span);
     }
   }

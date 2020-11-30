@@ -77,7 +77,6 @@ const CSS = css/* scss */ `
     flex-grow: 1;
     .o-composer {
       caret-color: black;
-      background-color: white;
       padding-left: 2px;
       padding-right: 2px;
       word-break: break-all;
@@ -342,7 +341,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
             if (rangeReference.test(xc)) {
               this.contentHelper.insertText(value, this.rangeColor(xc, sheet));
             } else {
-              this.contentHelper.insertText(value);
+              this.contentHelper.insertText(value, "#000");
             }
             break;
           case "LEFT_PAREN":

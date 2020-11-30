@@ -75,6 +75,14 @@ describe("ranges and highlights", () => {
     ).toBe(colors[0]);
   });
 
+  test("=SU, the = should be colored", async () => {
+    await typeInComposer("=SU");
+    // @ts-ignore
+    const contentColors = (window.mockContentHelper as ContentEditableHelper).colors;
+    expect(contentColors["="]).toBe("#3da4ab");
+    expect(contentColors["SU"]).toBe("#000");
+  });
+
   test("=+Click range, the range ref should be colored", async () => {
     await typeInComposer("=");
     triggerMouseEvent("canvas", "mousedown", 300, 200);
@@ -392,6 +400,50 @@ describe("composer", () => {
     jest.spyOn(composerEl, "scrollWidth", "get").mockImplementation(() => 120);
     await typeInComposer("world", false);
     expect(styleSpy).toHaveBeenCalledWith("170px"); // scrollWidth + 50
+  });
+
+  test("composer text is colored with cell text color", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { textColor: "#123456" },
+    });
+    await typeInComposer("Hello");
+    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+    expect(gridComposer.style.color).toBe("rgb(18, 52, 86)");
+  });
+
+  test("composer formula is not colored with cell text color", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { textColor: "#123456" },
+    });
+    await typeInComposer("=");
+    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+    expect(gridComposer.style.color).toBe("");
+  });
+
+  test("composer background is colored with cell background color", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { fillColor: "#123456" },
+    });
+    await typeInComposer("Hello");
+    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+    expect(gridComposer.style.background).toBe("rgb(18, 52, 86)");
+  });
+
+  test("composer background is not colored with cell background color if formula", async () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { textColor: "#123456" },
+    });
+    await typeInComposer("=");
+    const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
+    expect(gridComposer.style.background).toBe("rgb(255, 255, 255)");
   });
 
   test("clicking on the composer while in 'selecting' mode should put the composer in 'edition' mode", async () => {
