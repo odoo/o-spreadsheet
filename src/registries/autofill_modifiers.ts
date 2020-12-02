@@ -1,12 +1,12 @@
 import {
   Getters,
-  CellData,
   DIRECTION,
   AutofillModifier,
   IncrementModifier,
   CopyModifier,
   FormulaModifier,
   Tooltip,
+  AutofillCellData,
 } from "../types/index";
 import { Registry } from "../registry";
 
@@ -17,17 +17,17 @@ import { Registry } from "../registry";
 interface AutofillModifierImplementation {
   apply: (
     rule: AutofillModifier,
-    data: CellData,
+    data: AutofillCellData,
     getters: Getters,
     direction: DIRECTION
-  ) => { cellData: CellData; tooltip?: Tooltip };
+  ) => { cellData: AutofillCellData; tooltip?: Tooltip };
 }
 
 export const autofillModifiersRegistry = new Registry<AutofillModifierImplementation>();
 
 autofillModifiersRegistry
   .add("INCREMENT_MODIFIER", {
-    apply: (rule: IncrementModifier, data: CellData) => {
+    apply: (rule: IncrementModifier, data: AutofillCellData) => {
       rule.current += rule.increment;
       const content = (parseFloat(data.content!) + rule.current).toString();
       return {
@@ -37,7 +37,7 @@ autofillModifiersRegistry
     },
   })
   .add("COPY_MODIFIER", {
-    apply: (rule: CopyModifier, data: CellData) => {
+    apply: (rule: CopyModifier, data: AutofillCellData) => {
       return {
         cellData: data,
         tooltip: data.content ? { props: { content: data.content } } : undefined,
@@ -45,7 +45,12 @@ autofillModifiersRegistry
     },
   })
   .add("FORMULA_MODIFIER", {
-    apply: (rule: FormulaModifier, data: CellData, getters: Getters, direction: DIRECTION) => {
+    apply: (
+      rule: FormulaModifier,
+      data: AutofillCellData,
+      getters: Getters,
+      direction: DIRECTION
+    ) => {
       rule.current += rule.increment;
       let x = 0;
       let y = 0;

@@ -40,9 +40,9 @@ describe("Migrations", () => {
     expect(data.version).toBe(6);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
-    expect(data.sheets[0].cells.A1.formula).toBeDefined();
-    expect(data.sheets[0].cells.A1.formula!.text).toBeDefined();
-    expect(data.sheets[0].cells.A1.formula!.dependencies).toBeDefined();
+    expect(data.sheets[0].cells.A1!.formula).toBeDefined();
+    expect(data.sheets[0].cells.A1!.formula!.text).toBeDefined();
+    expect(data.sheets[0].cells.A1!.formula!.dependencies).toBeDefined();
   });
 });
 
@@ -161,7 +161,7 @@ describe("Export", () => {
       ],
     });
     const exp = model.exportData();
-    expect(exp.sheets![0].cells!.A1.format).toBe("0.00%");
+    expect(exp.sheets![0].cells!.A1!.format).toBe("0.00%");
   });
 });
 
@@ -185,7 +185,7 @@ test("complete import, then export", () => {
           B1: {
             formula: { text: "=|0|", dependencies: ["A1"] },
             style: 99,
-            border: 8,
+            border: 1,
             format: "0.00%",
           },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
@@ -214,7 +214,7 @@ test("complete import, then export", () => {
       99: { bold: true, textColor: "#3A3791", fontSize: 12 },
     },
     borders: {
-      8: {
+      1: {
         top: ["thin", "#000"] as BorderDescr,
       },
     },

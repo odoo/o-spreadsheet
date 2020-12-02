@@ -37,6 +37,21 @@ export function clip(val: number, min: number, max: number): number {
 }
 
 /**
+ * Create a range from start (included) to end (excluded)
+ * range(10, 13) => [10, 11, 12]
+ */
+export function range(start: number, end: number) {
+  if (end <= start) {
+    return [];
+  }
+  const array: number[] = Array(end - start);
+  for (let i = 0; i < end - start; i++) {
+    array[i] = start + i;
+  }
+  return array;
+}
+
+/**
  * This helper function can be used as a type guard when filtering arrays.
  * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)
  */

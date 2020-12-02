@@ -11,6 +11,7 @@ import {
   Sheet,
   UID,
   Zone,
+  Border,
 } from "../../types/index";
 import { _lt } from "../../translation";
 import { UIPlugin } from "../ui_plugin";
@@ -18,6 +19,7 @@ import { InternalDate } from "../../functions/dates";
 
 interface ClipboardCell {
   cell: Cell | null;
+  border: Border | null;
   col: number;
   row: number;
   sheetId: UID;
@@ -84,6 +86,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.pasteCell(
           cmd.originSheet,
           cmd.origin,
+          cmd.originBorder,
           cmd.col,
           cmd.row,
           cmd.onlyValue,
@@ -186,6 +189,7 @@ export class ClipboardPlugin extends UIPlugin {
           const cell = this.getters.getCell(activeSheetId, c, r);
           row.push({
             cell: cell ? Object.assign({}, cell) : null,
+            border: this.getters.getCellBorder(activeSheetId, c, r),
             col: c,
             row: r,
             sheetId: activeSheetId,
@@ -319,6 +323,10 @@ export class ClipboardPlugin extends UIPlugin {
             col: cell.col,
             row: cell.row,
           });
+          this.dispatch("CLEAR_FORMATTING", {
+            sheetId: this.originSheetId,
+            target: [{ top: cell.row, bottom: cell.row, left: cell.col, right: cell.col }],
+          });
         }
       }
     }
@@ -334,6 +342,7 @@ export class ClipboardPlugin extends UIPlugin {
         const originCell = rowCells[c];
         this.dispatch("PASTE_CELL", {
           origin: originCell.cell,
+          originBorder: originCell.border,
           originCol: originCell.col,
           originRow: originCell.row,
           originSheet: originCell.sheetId,
@@ -401,6 +410,7 @@ export class ClipboardPlugin extends UIPlugin {
   pasteCell(
     originSheet: UID,
     origin: Cell | null,
+    originBorder: Border | null,
     col: number,
     row: number,
     onlyValue: boolean,
@@ -408,15 +418,17 @@ export class ClipboardPlugin extends UIPlugin {
   ) {
     const sheetId = this.getters.getActiveSheetId();
     const targetCell = this.getters.getCell(sheetId, col, row);
+
+    if (!onlyValue || onlyFormat) {
+      this.dispatch("SET_BORDER", { sheetId, col, row, border: originBorder || undefined });
+    }
     if (origin) {
       let style = origin.style;
-      let border = origin.border;
       let format = origin.format;
       let content: string = this.getters.getCellValue(origin, originSheet, true) || "";
 
       if (onlyValue) {
         style = targetCell ? targetCell.style : undefined;
-        border = targetCell ? targetCell.border : undefined;
         format = targetCell ? targetCell.format : undefined;
 
         if (targetCell) {
@@ -436,7 +448,6 @@ export class ClipboardPlugin extends UIPlugin {
       }
       const newCell = {
         style,
-        border,
         format,
         sheetId,
         col,
@@ -445,7 +456,6 @@ export class ClipboardPlugin extends UIPlugin {
       if (!onlyFormat) {
         newCell["content"] = content;
       }
-
       this.dispatch("UPDATE_CELL", newCell);
     } else if (targetCell) {
       if (onlyValue) {
@@ -461,7 +471,6 @@ export class ClipboardPlugin extends UIPlugin {
           col,
           row,
           style: undefined,
-          border: undefined,
           format: undefined,
         });
       } else {

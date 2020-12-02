@@ -1,3 +1,5 @@
+import { BorderDescr, Style } from "./types";
+
 // Colors
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
@@ -25,3 +27,13 @@ export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = 10;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial";
+
+// Borders
+export const DEFAULT_BORDER_DESC: BorderDescr = ["thin", "#000"];
+
+// Style
+export const DEFAULT_STYLE: Style = {
+  fillColor: "white",
+  textColor: "black",
+  fontSize: DEFAULT_FONT_SIZE,
+};

@@ -3,7 +3,7 @@ import { Grid } from "../src/components/grid";
 import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import { toCartesian, toXC } from "../src/helpers/index";
+import { toCartesian, toXC, toZone, lettersToNumber } from "../src/helpers/index";
 import { Model } from "../src/model";
 import {
   Cell,
@@ -17,6 +17,8 @@ import {
   Merge,
   UID,
   Sheet,
+  Border,
+  BorderCommand,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/core/merge";
@@ -31,6 +33,50 @@ const { useRef, useSubEnv } = hooks;
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+
+export function addColumns(
+  model: Model,
+  position: "before" | "after",
+  column: string,
+  quantity: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  model.dispatch("ADD_COLUMNS", {
+    sheetId,
+    position,
+    column: lettersToNumber(column),
+    quantity,
+  });
+}
+
+export function addRows(
+  model: Model,
+  position: "before" | "after",
+  row: number,
+  quantity: number,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  model.dispatch("ADD_ROWS", {
+    sheetId,
+    position,
+    row,
+    quantity,
+  });
+}
+
+/**
+ * Set a border to a given zone or the selected zones
+ * @param model S
+ * @param command
+ */
+export function setBorder(model: Model, border: BorderCommand, xc?: string) {
+  const target = xc ? [toZone(xc)] : model.getters.getSelectedZones();
+  model.dispatch("SET_FORMATTING", {
+    sheetId: model.getters.getActiveSheetId(),
+    target,
+    border,
+  });
+}
 
 /**
  * Set the content of a cell
@@ -395,6 +441,15 @@ export function getCellText(
 
 export function getSheet(model: Model, index: number = 0): Sheet {
   return model.getters.getSheets()[index];
+}
+
+export function getBorder(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Border | null {
+  const [col, row] = toCartesian(xc);
+  return model.getters.getCellBorder(sheetId, col, row);
 }
 
 export function getMerges(model: Model): Record<number, Merge> {

@@ -1,14 +1,16 @@
 import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
-import { Style, Border, CancelledReason } from "../../src/types/index";
+import { Style, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
 import {
   getActiveXc,
-  getCell,
   getCellContent,
+  getBorder,
+  getCell,
   getMergeCellMap,
   getMerges,
   setCellContent,
+  target,
 } from "../helpers";
 
 function getCellsXC(model: Model): string[] {
@@ -369,22 +371,18 @@ describe("merges", () => {
 
   test("merging => setting border => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    model.dispatch("ALTER_SELECTION", { cell: [1, 0] });
-
-    expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
-
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
     model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
+      sheetId,
+      target: target("A1"),
       border: "external",
     });
     const line = ["thin", "#000"];
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
 
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -410,17 +408,17 @@ describe("merges", () => {
 
   test("setting border to topleft => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getVisibleSheets()[0];
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+      sheetId,
+      target: target("A1"),
       border: "external",
     });
     const line = ["thin", "#000"];
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
-    model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("A1:B1") });
+    model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("A1:B1") });
     expect(getBorder(model, "A1")).toEqual({ left: line, bottom: line, top: line });
     expect(getBorder(model, "B1")).toEqual({ right: line, bottom: line, top: line });
   });
@@ -430,7 +428,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
+      target: target("A1"),
       border: "external",
       style: { fillColor: "red" },
     });
@@ -546,22 +544,17 @@ describe("merges", () => {
     expect(model.getters.getMerge(sheetId, "B4")).toBeTruthy();
     expect(model.getters.getMerge(sheetId, "C4")).toBeTruthy();
     expect(getCell(model, "B4")!.style).toBe(1);
-    expect(getCell(model, "B4")!.border).toBe(1);
+    expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
     model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("B4:C5") });
     expect(getCell(model, "B4")!.style).toBe(1);
     expect(getCell(model, "C4")!.style).toBe(1);
-    expect(getCell(model, "B4")!.border).toBe(1);
-    expect(getCell(model, "C4")!.border).toBe(1);
-    expect(getCell(model, "C5")!.border).toBeUndefined();
+    expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
+    expect(getBorder(model, "C5")).toBeNull();
   });
 });
 
 function getStyle(model: Model, xc: string): Style {
   const cell = getCell(model, xc)!;
   return cell && model.getters.getCellStyle(cell);
-}
-
-function getBorder(model: Model, xc: string): Border | null {
-  const cell = getCell(model, xc)!;
-  return cell && model.getters.getCellBorder(cell);
 }

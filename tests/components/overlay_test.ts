@@ -332,7 +332,7 @@ describe("Resizer component", () => {
   test("Double click: Modify the size of a row", async () => {
     setCellContent(model, "B2", "b2");
     await dblClickRow(1);
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(size);
   });
 
@@ -345,7 +345,7 @@ describe("Resizer component", () => {
     await dblClickRow(2);
     const sheet = model.getters.getActiveSheetId();
     const initialSize = model.getters.getRow(sheet, 0)!.size;
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
     expect(model.getters.getRow(sheet, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheet, 2)!.size).toBe(size);
     expect(model.getters.getRow(sheet, 3)!.size).toBe(size);
@@ -503,7 +503,7 @@ describe("Resizer component", () => {
     selectRow(2, { shiftKey: true });
     selectRow(4, { ctrlKey: true });
     await dblClickRow(4);
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 0)!.size).toBe(size);
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 1)!.size).toBe(size);
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 2)!.size).toBe(size);
@@ -534,7 +534,7 @@ describe("Resizer component", () => {
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 4)!.size).toBe(
       DEFAULT_CELL_HEIGHT
     );
-    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2* PADDING_AUTORESIZE;
+    const size = fontSizeMap[DEFAULT_FONT_SIZE] + 2 * PADDING_AUTORESIZE;
     expect(model.getters.getRow(model.getters.getActiveSheetId(), 5)!.size).toBe(size);
   });
 

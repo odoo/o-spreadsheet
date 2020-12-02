@@ -228,8 +228,8 @@ export function makeLargeDataset(cols, rows) {
     sheets: [
       {
         name: "Sheet1",
-        colNumber: 45,
-        rowNumber: 1000000,
+        colNumber: cols,
+        rowNumber: rows,
         cols: { 1: {}, 3: {} },
         rows: {},
         cells: computeCells(cols, rows),

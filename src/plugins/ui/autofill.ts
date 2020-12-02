@@ -13,6 +13,7 @@ import {
   Tooltip,
   GeneratorCell,
   AutofillResult,
+  AutofillCellData,
 } from "../../types/index";
 import { union, toCartesian, toXC, isInside, clip } from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
@@ -139,9 +140,14 @@ export class AutofillPlugin extends UIPlugin {
           col: cmd.col,
           row: cmd.row,
           style: cmd.style,
-          border: cmd.border,
           content: cmd.content,
           format: cmd.format,
+        });
+        this.dispatch("SET_BORDER", {
+          sheetId,
+          col: cmd.col,
+          row: cmd.row,
+          border: cmd.border,
         });
     }
   }
@@ -350,16 +356,15 @@ export class AutofillPlugin extends UIPlugin {
       } else {
         rule = { type: "COPY_MODIFIER" };
       }
-      const data = {
-        row: cellData.row,
-        col: cellData.col,
-        content: "",
+      const { col, row } = cellData;
+      const data: AutofillCellData = {
+        row,
+        col,
+        content: cellData.cell ? this.getters.getCellText(cellData.cell, sheetId, true) : "",
         style: cellData.cell ? cellData.cell.style : undefined,
-        border: cellData.cell ? cellData.cell.border : undefined,
+        border: this.getters.getCellBorder(sheetId, col, row) || undefined,
         format: cellData.cell ? cellData.cell.format : undefined,
       };
-
-      data.content = cellData.cell ? this.getters.getCellText(cellData.cell, sheetId, true) : "";
 
       nextCells.push({ data, rule });
     }
