@@ -8,6 +8,7 @@ import {
   dichotomicPredecessorSearch,
   reduceNumbersTextAs0,
   visitMatchingRanges,
+  visitNumbers,
 } from "./helpers";
 import { isNumber } from "../helpers/index";
 import { _lt } from "../translation";
@@ -87,6 +88,42 @@ function variance(args: IArguments | any[], isSample: boolean, textAs0: boolean)
   return (
     reduceFuction(args, (acc, a) => acc + Math.pow(a - average, 2), 0) /
     (count - (isSample ? 1 : 0))
+  );
+}
+
+function centile(data: any, percent: any, isInclusive: boolean): number {
+  const _percent = toNumber(percent);
+  if (_percent < 0 || 1 < _percent || (!isInclusive && (_percent === 0 || _percent === 1))) {
+    throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`));
+  }
+  let sortedArray: number[] = [];
+  let index: number;
+  let count = 0;
+  visitAny(data, (d) => {
+    if (typeof d === "number") {
+      index = dichotomicPredecessorSearch(sortedArray, d);
+      sortedArray.splice(index + 1, 0, d);
+      count++;
+    }
+  });
+  if (count === 0) {
+    throw new Error(_lt(`[[FUNCTION_NAME]] has no valid input data.`));
+  }
+  let percentIndex = (count + (isInclusive ? -1 : 1)) * _percent;
+  if (!isInclusive) {
+    if (percentIndex < 1 || count < percentIndex) {
+      throw new Error(_lt(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`));
+    }
+    percentIndex--;
+  }
+  if (Number.isInteger(percentIndex)) {
+    return sortedArray[percentIndex];
+  }
+  const indexSup = Math.ceil(percentIndex);
+  const indexLow = Math.floor(percentIndex);
+  return (
+    sortedArray[indexSup] * (percentIndex - indexLow) +
+    sortedArray[indexLow] * (indexSup - percentIndex)
   );
 }
 
@@ -556,6 +593,29 @@ export const MAXIFS: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// MEDIAN
+// -----------------------------------------------------------------------------
+export const MEDIAN: AddFunctionDescription = {
+  description: _lt("Median value in a numeric dataset."),
+  args: args(`
+      value1 (any, range) ${_lt(
+        "The first value or range to consider when calculating the median value."
+      )}
+      value2 (any, range, repeating) ${_lt(
+        "Additional values or ranges to consider when calculating the median value."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (): number {
+    let data: any[] = [];
+    visitNumbers(arguments, (arg) => {
+      data.push(arg);
+    });
+    return centile([data], 0.5, true);
+  },
+};
+
+// -----------------------------------------------------------------------------
 // MIN
 // -----------------------------------------------------------------------------
 export const MIN: AddFunctionDescription = {
@@ -640,6 +700,104 @@ export const MINIFS: AddFunctionDescription = {
       }
     });
     return result === Infinity ? 0 : result;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// PERCENTILE
+// -----------------------------------------------------------------------------
+export const PERCENTILE: AddFunctionDescription = {
+  description: _lt("Value at a given percentile of a dataset."),
+  args: args(`
+      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+      percentile (number) ${_lt(
+        "The percentile whose value within data will be calculated and returned."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (data: any, percentile: any): number {
+    return PERCENTILE_INC.compute(data, percentile);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// PERCENTILE.EXC
+// -----------------------------------------------------------------------------
+export const PERCENTILE_EXC: AddFunctionDescription = {
+  description: _lt("Value at a given percentile of a dataset exclusive of 0 and 1."),
+  args: args(`
+      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+      percentile (number) ${_lt(
+        "The percentile, exclusive of 0 and 1, whose value within 'data' will be calculated and returned."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (data: any, percentile: any): number {
+    return centile(data, percentile, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// PERCENTILE.INC
+// -----------------------------------------------------------------------------
+export const PERCENTILE_INC: AddFunctionDescription = {
+  description: _lt("Value at a given percentile of a dataset."),
+  args: args(`
+      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+      percentile (number) ${_lt(
+        "The percentile whose value within data will be calculated and returned."
+      )}
+    `),
+  returns: ["NUMBER"],
+  compute: function (data: any, percentile: any): number {
+    return centile(data, percentile, true);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// QUARTILE
+// -----------------------------------------------------------------------------
+export const QUARTILE: AddFunctionDescription = {
+  description: _lt("Value nearest to a specific quartile of a dataset."),
+  args: args(`
+      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+      quartile_number (number) ${_lt("Which quartile value to return.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (data: any, quartileNumber: any): number {
+    return QUARTILE_INC.compute(data, quartileNumber);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// QUARTILE.EXC
+// -----------------------------------------------------------------------------
+export const QUARTILE_EXC: AddFunctionDescription = {
+  description: _lt("Value nearest to a specific quartile of a dataset exclusive of 0 and 4."),
+  args: args(`
+      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+      quartile_number (number) ${_lt("Which quartile value, exclusive of 0 and 4, to return.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (data: any, quartileNumber: any): number {
+    const _quartileNumber = Math.trunc(toNumber(quartileNumber));
+    return centile(data, 0.25 * _quartileNumber, false);
+  },
+};
+
+// -----------------------------------------------------------------------------
+// QUARTILE.INC
+// -----------------------------------------------------------------------------
+export const QUARTILE_INC: AddFunctionDescription = {
+  description: _lt("Value nearest to a specific quartile of a dataset."),
+  args: args(`
+      data (any, range) ${_lt("The array or range containing the dataset to consider.")}
+      quartile_number (number) ${_lt("Which quartile value to return.")}
+    `),
+  returns: ["NUMBER"],
+  compute: function (data: any, quartileNumber: any): number {
+    const _quartileNumber = Math.trunc(toNumber(quartileNumber));
+    return centile(data, 0.25 * _quartileNumber, true);
   },
 };
 

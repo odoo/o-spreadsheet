@@ -1001,6 +1001,74 @@ describe("MAXIFS formula", () => {
   });
 });
 
+describe("MEDIAN formula", () => {
+  test("take at least 1 argument", () => {
+    expect(evaluateCell("A1", { A1: "=MEDIAN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=MEDIAN(42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=MEDIAN(42, 43, 60)" })).toBe(43);
+  });
+
+  describe("business logic", () => {
+    test("return the median", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(666)" })).toBe(666);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(42, 43, 50)" })).toBe(43);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(-1, 6, 7, 234, 163845)" })).toBe(7);
+    });
+    test("take the average when the number of arguments is even", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(1, 49, 50, 51)" })).toBe(49.5);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(-5, -1, 0, 100)" })).toBe(-0.5);
+    });
+    test("arguments order does not matter", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(10,2,3)" })).toBe(3);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(2,3,10)" })).toBe(3);
+    });
+  });
+
+  describe("casting", () => {
+    test("empty arguments are considered as 0", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(,)" })).toBe(0);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(,,1,2,3)" })).toBe(1);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(5,  , 7,  , 3)" })).toBe(3);
+    });
+
+    test("strings which can be cast in number are interpreted as numbers", () => {
+      expect(evaluateCell("A1", { A1: '=MEDIAN("42")' })).toBe(42);
+      expect(evaluateCell("A1", { A1: '=MEDIAN("2", "24", "26")' })).toBe(24);
+      expect(evaluateCell("A1", { A1: '=MEDIAN("2", 24, "26")' })).toBe(24);
+    });
+
+    test("strings which cannot be cast in number return an error", () => {
+      expect(evaluateCell("A1", { A1: '=MEDIAN(2, "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      expect(evaluateCell("A1", { A1: '=MEDIAN(2, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      expect(evaluateCell("A1", { A1: '=MEDIAN(2, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    });
+
+    test("boolean arguments are interpreted as numbers", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(TRUE, FALSE, FALSE)" })).toBe(0);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(TRUE, FALSE)" })).toBe(0.5);
+    });
+
+    test("empty cells are ignored", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)" })).toBe(3);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2, A3)", A3: "42" })).toBe(42);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2:A4)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2:A4)", A3: "6", A4: "8" })).toBe(7);
+    });
+
+    test("cells that are not numbers are ignored", () => {
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2)", A2: "42" })).toBe(42);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2)", A2: "TRUE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)", A2: "42" })).toBe(4.5);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)", A2: "TRUE" })).toBe(3);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)", A2: "coucou" })).toBe(3);
+      expect(evaluateCell("A1", { A1: "=MEDIAN(A2, 2, 3, 6)", A2: '"42"' })).toBe(3);
+    });
+  });
+});
+
 describe("MIN formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MIN()" })).toEqual("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1259,6 +1327,394 @@ describe("MINIFS formula", () => {
     expect(gridResult.A12).toBe(22);
     expect(gridResult.A13).toBe(24);
     expect(gridResult.A14).toBe(9);
+  });
+});
+
+describe.each([["PERCENTILE"], ["PERCENTILE.INC"], ["PERCENTILE.EXC"]])(
+  "%s formula",
+  (percentile) => {
+    percentile = "=" + percentile;
+
+    test("take 2 arguments", () => {
+      expect(evaluateCell("A1", { A1: percentile + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+      expect(evaluateCell("A1", { A1: percentile + "(42)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+      expect(evaluateCell("A1", { A1: percentile + "(42, 0.5)" })).toBe(42);
+      expect(evaluateCell("A1", { A1: percentile + "(42, 43, 60)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    });
+
+    describe("business logic", () => {
+      if (percentile === "=PERCENTILE.EXC") {
+        // prettier-ignore
+        const data = {
+          A2: "1", A3: "5", A4: "6", A5: "12",
+        };
+
+        test("return the percentile", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A5, 0.2)", ...data })).toBe(1);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A5, 0.4)", ...data })).toBe(5);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A5, 0.8)", ...data })).toBe(12);
+        });
+
+        test("take pro rata when percentile is between 2 values", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A5, 0.35)", ...data })).toBe(4);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A5, 0.7)", ...data })).toBe(9);
+        });
+
+        test("when there is only one data, percentile can only be 0.5 ", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(666, 0.49)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: percentile + "(666, 0.5)" })).toBe(666);
+          expect(evaluateCell("A1", { A1: percentile + "(666, 0.51)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        });
+
+        test("data order does not matter", () => {
+          const unsortedData = { A2: "12", A3: "1", A4: "5", A5: "6" };
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0.6)", ...data })).toBe(6);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0.6)", ...unsortedData })).toBe(6);
+        });
+
+        test("2nd argument must be between 1/(n+1) and n/(n+1) with n the number of data", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0)", ...data })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0.19)", ...data })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0.81)", ...data })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 1)", ...data })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        });
+      } else {
+        // prettier-ignore
+        const data = {
+        A2: "1", A3: "5", A4: "6", A5: "12", A6: "12", A7: "20", A8: "21",
+        A9: "42", A10: "42", A11: "44", A12: "47",
+      };
+
+        test("return the percentile", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 0)", ...data })).toBe(1);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 1)", ...data })).toBe(47);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 0.2)", ...data })).toBe(6);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 0.9)", ...data })).toBe(44);
+        });
+
+        test("take pro rata when percentile is between 2 values", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 0.15)", ...data })).toBe(5.5);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 0.14)", ...data })).toBe(5.4);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A12, 0.53)", ...data })).toBe(20.3);
+        });
+
+        test("when there is only one data, the percentile does not matter", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(666, 0)" })).toBe(666);
+          expect(evaluateCell("A1", { A1: percentile + "(666, 0.2)" })).toBe(666);
+          expect(evaluateCell("A1", { A1: percentile + "(666, 1)" })).toBe(666);
+        });
+
+        test("data order does not matter", () => {
+          const sortedData = { A2: "1", A3: "5", A4: "6", A5: "12", A6: "12" };
+          const unsortedData = { A2: "12", A3: "6", A4: "5", A5: "1", A6: "12" };
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0.75)", ...sortedData })).toBe(12);
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A6, 0.75)", ...unsortedData })).toBe(
+            12
+          );
+        });
+
+        test("2nd argument must be between 0 and 1", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(666, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: percentile + "(666, 1.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: percentile + "(666, -0.1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        });
+      }
+    });
+
+    describe("casting", () => {
+      describe("on 1st argument", () => {
+        test("empty argument/cell/cell(s) in range are ignored", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(, 0.5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A4, 0.5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2:A4, 0.5)", A3: "6", A4: "8" })).toBe(7);
+        });
+
+        test("argument/cell/cell(s) in range that are not numbers are ignored", () => {
+          expect(evaluateCell("A1", { A1: percentile + "(42, 0.5)" })).toBe(42);
+          expect(evaluateCell("A1", { A1: percentile + '("", 0.5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + '(" ", 0.5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + '("42", 0.5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + '("coucou", 0.5)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(TRUE, 0.5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)", A2: "42" })).toBe(42);
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+          expect(evaluateCell("A1", { A1: percentile + "(A2, 0.5)", A2: "TRUE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+
+          expect(
+            evaluateCell("A1", { A1: percentile + "(A2:A4, 0.5)", A2: "42", A3: "6", A4: "8" })
+          ).toBe(8);
+          expect(
+            evaluateCell("A1", { A1: percentile + "(A2:A4, 0.5)", A2: '"42"', A3: "6", A4: "8" })
+          ).toBe(7);
+          expect(
+            evaluateCell("A1", { A1: percentile + "(A2:A4, 0.5)", A2: "coucou", A3: "6", A4: "8" })
+          ).toBe(7);
+          expect(
+            evaluateCell("A1", { A1: percentile + "(A2:A4, 0.5)", A2: "TRUE", A3: "6", A4: "8" })
+          ).toBe(7);
+        });
+      });
+
+      describe("on 2nd argument", () => {
+        test("empty argument/cell are considered as 0", () => {
+          if (percentile === "=PERCENTILE.EXC") {
+            expect(evaluateCell("A1", { A1: percentile + "(A2:A3, )", A2: "6", A3: "7" })).toBe(
+              "#ERROR"
+            ); // @compatibility: on google sheets, return #VALUE!
+            expect(
+              evaluateCell("A1", { A1: percentile + "(A2:A3, A4)", A2: "-12", A3: "-9" })
+            ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          } else {
+            expect(evaluateCell("A1", { A1: percentile + "(A2:A3, )", A2: "6", A3: "7" })).toBe(6);
+            expect(
+              evaluateCell("A1", { A1: percentile + "(A2:A3, A4)", A2: "-12", A3: "-9" })
+            ).toBe(-12);
+          }
+        });
+
+        test("string/string in cell which can be cast in number are interpreted as numbers", () => {
+          expect(evaluateCell("A1", { A1: percentile + '(A2:A3, "0.5")', A2: "6", A3: "7" })).toBe(
+            6.5
+          );
+          expect(
+            evaluateCell("A1", { A1: percentile + "(A2:A3, A4)", A2: "6", A3: "7", A4: '="0.5"' })
+          ).toBe(6.5);
+        });
+
+        test("string/string in cell which cannot be cast in number return an error", () => {
+          expect(evaluateCell("A1", { A1: percentile + '(A2:A3, " ")', A2: "6", A3: "7" })).toBe(
+            "#ERROR"
+          ); // @compatibility: on google sheets, return #VALUE!
+          expect(
+            evaluateCell("A1", { A1: percentile + '(A2:A3, "kikou")', A2: "6", A3: "7" })
+          ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          expect(
+            evaluateCell("A1", { A1: percentile + "(A2:A3, A4)", A2: "6", A3: "7", A4: "coucou" })
+          ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        });
+
+        test("boolean/boolean in cell are interpreted as numbers", () => {
+          if (percentile === "=PERCENTILE.EXC") {
+            expect(evaluateCell("A1", { A1: percentile + "(A2:A3, TRUE)", A2: "6", A3: "7" })).toBe(
+              "#ERROR"
+            ); // @compatibility: on google sheets, return #VALUE!
+            expect(
+              evaluateCell("A1", { A1: percentile + "(A2:A3, FALSE)", A2: "6", A3: "7" })
+            ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+            expect(
+              evaluateCell("A1", { A1: percentile + "(A2:A3, A4)", A2: "6", A3: "7", A4: "TRUE" })
+            ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+          } else {
+            expect(evaluateCell("A1", { A1: percentile + "(A2:A3, TRUE)", A2: "6", A3: "7" })).toBe(
+              7
+            );
+            expect(
+              evaluateCell("A1", { A1: percentile + "(A2:A3, FALSE)", A2: "6", A3: "7" })
+            ).toBe(6);
+            expect(
+              evaluateCell("A1", { A1: percentile + "(A2:A3, A4)", A2: "6", A3: "7", A4: "TRUE" })
+            ).toBe(7);
+          }
+        });
+      });
+    });
+  }
+);
+
+describe.each([["QUARTILE"], ["QUARTILE.INC"], ["QUARTILE.EXC"]])("%s formula", (quartile) => {
+  quartile = "=" + quartile;
+
+  test("take 2 arguments", () => {
+    expect(evaluateCell("A1", { A1: quartile + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: quartile + "(42)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: quartile + "(42, 2)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: quartile + "(42, 2, 60)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  describe("business logic", () => {
+    if (quartile === "=QUARTILE.EXC") {
+      // prettier-ignore
+      const data1 = {A2: "1", A3: "5", A4: "6"};
+      test("return the quartile", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 1)", ...data1 })).toBe(1);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 2)", ...data1 })).toBe(5);
+      });
+
+      const data2 = { A2: "1", A3: "5", A4: "6", A5: "12" };
+      test("take pro rata when quartile is between 2 values", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A5, 1)", ...data2 })).toBe(2);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A5, 2)", ...data2 })).toBe(5.5);
+      });
+
+      test("when there is only one or two data, quartile can only be 2 ", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(666, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: quartile + "(666, 2)" })).toBe(666);
+        expect(evaluateCell("A1", { A1: quartile + "(666, 3)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+
+        const data3 = { A2: "1", A3: "5" };
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A3, 1)", ...data3 })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A3, 2)", ...data3 })).toBe(3);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A3, 3)", ...data3 })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+
+      test("data order does not matter", () => {
+        const unsortedData = { A2: "6", A3: "1", A4: "5" };
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 3)", ...data1 })).toBe(6);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 3)", ...unsortedData })).toBe(6);
+      });
+
+      test("2nd argument must be between 1 and 3", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 0)", ...data1 })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 4)", ...data1 })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+
+      test("if 2nd argument is't integer, it is truncated", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 1.9)", ...data1 })).toBe(1);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 3.9)", ...data1 })).toBe(6);
+      });
+    } else {
+      // prettier-ignore
+      const data1 = {A2: "1", A3: "5", A4: "6", A5: "12", A6: "21" };
+      test("return the quartile", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 0)", ...data1 })).toBe(1);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 1)", ...data1 })).toBe(5);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 2)", ...data1 })).toBe(6);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 4)", ...data1 })).toBe(21);
+      });
+
+      // prettier-ignore
+      const data2 = {A2: "1", A3: "5", A4: "6", A5: "12" };
+      test("take pro rata when quartile is between 2 values", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A5, 2)", ...data2 })).toBe(5.5);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A5, 1)", ...data2 })).toBe(4);
+      });
+
+      test("when there is only one data, the quartile does not matter", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(666, 0)" })).toBe(666);
+        expect(evaluateCell("A1", { A1: quartile + "(666, 1)" })).toBe(666);
+        expect(evaluateCell("A1", { A1: quartile + "(666, 3)" })).toBe(666);
+      });
+
+      test("data order does not matter", () => {
+        const unsortedData = { A2: "12", A3: "6", A4: "5", A5: "1", A6: "21" };
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 3)", ...data1 })).toBe(12);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 3)", ...unsortedData })).toBe(12);
+      });
+
+      test("2nd argument must be between 0 and 4", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(666, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: quartile + "(666, 5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+
+      test("if 2nd argument is't integer, it is truncated", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 0.9)", ...data1 })).toBe(1);
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A6, 4.9)", ...data1 })).toBe(21);
+      });
+    }
+  });
+
+  describe("casting", () => {
+    describe("on 1st argument", () => {
+      test("empty argument/cell/cell(s) in range are ignored", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2:A4, 2)", A3: "6", A4: "8" })).toBe(7);
+      });
+
+      test("argument/cell/cell(s) in range that are not numbers are ignored", () => {
+        expect(evaluateCell("A1", { A1: quartile + "(42, 2)" })).toBe(42);
+        expect(evaluateCell("A1", { A1: quartile + '("", 2)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + '(" ", 2)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + '("42", 2)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + '("coucou", 2)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(TRUE, 2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)", A2: "42" })).toBe(42);
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+        expect(evaluateCell("A1", { A1: quartile + "(A2, 2)", A2: "TRUE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+
+        expect(
+          evaluateCell("A1", { A1: quartile + "(A2:A4, 2)", A2: "42", A3: "6", A4: "8" })
+        ).toBe(8);
+        expect(
+          evaluateCell("A1", { A1: quartile + "(A2:A4, 2)", A2: '"42"', A3: "6", A4: "8" })
+        ).toBe(7);
+        expect(
+          evaluateCell("A1", { A1: quartile + "(A2:A4, 2)", A2: "coucou", A3: "6", A4: "8" })
+        ).toBe(7);
+        expect(
+          evaluateCell("A1", { A1: quartile + "(A2:A4, 2)", A2: "TRUE", A3: "6", A4: "8" })
+        ).toBe(7);
+      });
+    });
+
+    describe("on 2nd argument", () => {
+      test("empty argument/cell are considered as 0", () => {
+        if (quartile === "=QUARTILE.EXC") {
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, )", A2: "6", A3: "7" })).toBe(
+            "#ERROR"
+          ); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, A4)", A2: "-12", A3: "-9" })).toBe(
+            "#ERROR"
+          ); // @compatibility: on google sheets, return #VALUE!
+        } else {
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, )", A2: "6", A3: "7" })).toBe(6);
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, A4)", A2: "-12", A3: "-9" })).toBe(
+            -12
+          );
+        }
+      });
+
+      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: quartile + '(A2:A3, "2")', A2: "6", A3: "7" })).toBe(6.5);
+        expect(
+          evaluateCell("A1", { A1: quartile + "(A2:A3, A4)", A2: "6", A3: "7", A4: '="2"' })
+        ).toBe(6.5);
+      });
+
+      test("string/string in cell which cannot be cast in number return an error", () => {
+        expect(evaluateCell("A1", { A1: quartile + '(A2:A3, " ")', A2: "6", A3: "7" })).toBe(
+          "#ERROR"
+        ); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: quartile + '(A2:A3, "kikou")', A2: "6", A3: "7" })).toBe(
+          "#ERROR"
+        ); // @compatibility: on google sheets, return #VALUE!
+        expect(
+          evaluateCell("A1", { A1: quartile + "(A2:A3, A4)", A2: "6", A3: "7", A4: "coucou" })
+        ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+
+      test("boolean/boolean in cell are interpreted as numbers", () => {
+        if (quartile === "=QUARTILE.EXC") {
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, TRUE)", A2: "6", A3: "7" })).toBe(
+            "#ERROR"
+          ); // @compatibility: on google sheets, return #VALUE!
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, FALSE)", A2: "6", A3: "7" })).toBe(
+            "#ERROR"
+          ); // @compatibility: on google sheets, return #VALUE!
+          expect(
+            evaluateCell("A1", { A1: quartile + "(A2:A3, A4)", A2: "6", A3: "7", A4: "TRUE" })
+          ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        } else {
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, TRUE)", A2: "6", A3: "7" })).toBe(
+            6.25
+          );
+          expect(evaluateCell("A1", { A1: quartile + "(A2:A3, FALSE)", A2: "6", A3: "7" })).toBe(6);
+          expect(
+            evaluateCell("A1", { A1: quartile + "(A2:A3, A4)", A2: "6", A3: "7", A4: "TRUE" })
+          ).toBe(6.25);
+        }
+      });
+    });
   });
 });
 
