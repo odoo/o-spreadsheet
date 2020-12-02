@@ -24,6 +24,7 @@ import { SpreadsheetEnv } from "../types/env";
  */
 export interface MenuItem {
   name: string | ((env: SpreadsheetEnv) => string);
+  shortCut?: string;
   sequence: number;
   id?: string;
   isVisible?: (env: SpreadsheetEnv) => boolean;
@@ -40,6 +41,7 @@ type menuChildren = FullMenuItem[] | ((env: SpreadsheetEnv) => FullMenuItem[]);
 const DEFAULT_MENU_ITEM = (key: string) => ({
   isVisible: () => true,
   isEnabled: () => true,
+  shortCut: "",
   action: false,
   children: [],
   separator: false,
@@ -98,6 +100,9 @@ export class MenuItemRegistry extends Registry<FullMenuItem> {
       return node.name(env);
     }
     return node.name;
+  }
+  getShortCut(node: FullMenuItem): string {
+    return node.shortCut ? node.shortCut : "";
   }
 
   /**

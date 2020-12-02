@@ -8,15 +8,18 @@ rowMenuRegistry
   .add("cut", {
     name: _lt("Cut"),
     sequence: 10,
+    shortCut: "Ctrl+X",
     action: ACTIONS.CUT_ACTION,
   })
   .add("copy", {
     name: _lt("Copy"),
+    shortCut: "Ctrl+C",
     sequence: 20,
     action: ACTIONS.COPY_ACTION,
   })
   .add("paste", {
     name: _lt("Paste"),
+    shortCut: "Ctrl+V",
     sequence: 30,
     action: ACTIONS.PASTE_ACTION,
   })

@@ -11,6 +11,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Cut"
   >
     Cut
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item"
@@ -18,6 +23,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Copy"
   >
     Copy
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item"
@@ -25,6 +35,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Paste"
   >
     Paste
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item o-menu-root o-separator"
@@ -32,6 +47,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Paste special"
   >
     Paste special
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
     <svg
       class="o-icon"
     >
@@ -48,6 +68,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Insert row"
   >
     Insert row
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item o-separator"
@@ -55,6 +80,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Insert column"
   >
     Insert column
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item"
@@ -62,6 +92,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Delete row 8"
   >
     Delete row 8
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item o-separator"
@@ -69,6 +104,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Delete column C"
   >
     Delete column C
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item disabled"
@@ -76,6 +116,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Clear cell"
   >
     Clear cell
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
   <div
     class="o-menu-item"
@@ -83,6 +128,11 @@ exports[`Context Menu context menu simple rendering 1`] = `
     title="Conditional formatting"
   >
     Conditional formatting
+    <span
+      class="o-menu-item-shortcut"
+    >
+      
+    </span>
   </div>
 </div>
 `;

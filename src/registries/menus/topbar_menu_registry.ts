@@ -15,32 +15,38 @@ topbarMenuRegistry
   .add("data", { name: _lt("Data"), sequence: 60 })
   .addChild("save", ["file"], {
     name: _lt("Save"),
+    shortCut: "Ctrl+S",
     sequence: 10,
     action: () => console.log("Not implemented"),
   })
   .addChild("undo", ["edit"], {
     name: _lt("Undo"),
+    shortCut: "Ctrl+Z",
     sequence: 10,
     action: ACTIONS.UNDO_ACTION,
   })
   .addChild("redo", ["edit"], {
     name: _lt("Redo"),
+    shortCut: "Ctrl+Y",
     sequence: 20,
     action: ACTIONS.REDO_ACTION,
     separator: true,
   })
   .addChild("copy", ["edit"], {
     name: _lt("Copy"),
+    shortCut: "Ctrl+C",
     sequence: 30,
     action: ACTIONS.COPY_ACTION,
   })
   .addChild("cut", ["edit"], {
     name: _lt("Cut"),
+    shortCut: "Ctrl+X",
     sequence: 40,
     action: ACTIONS.CUT_ACTION,
   })
   .addChild("paste", ["edit"], {
     name: _lt("Paste"),
+    shortCut: "Ctrl+V",
     sequence: 50,
     action: ACTIONS.PASTE_ACTION,
   })
@@ -61,6 +67,7 @@ topbarMenuRegistry
   })
   .addChild("find_and_replace", ["edit"], {
     name: _lt("Find and replace"),
+    shortCut: "Ctrl+H",
     sequence: 65,
     action: ACTIONS.OPEN_FAR_SIDEPANEL_ACTION,
     separator: true,
