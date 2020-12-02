@@ -129,13 +129,13 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2") });
 
-    expect(getCell(model, "B2")!.style).toBe(2);
-    expect(getCell(model, "C2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
   test("can copy into a cell with style", () => {
@@ -148,7 +148,7 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it
     setCellContent(model, "A1", "a1");
@@ -173,7 +173,7 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
@@ -448,7 +448,7 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("C2") });
 
     expect(getCell(model, "C2")).toMatchObject({
-      style: 2,
+      style: { bold: true },
       content: "b2",
       type: "text",
       value: "b2",
@@ -677,12 +677,12 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2"), onlyFormat: true });
     expect(getCellContent(model, "C2")).toBe("");
-    expect(getCell(model, "C2")!.style).toBe(2);
+    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
   test("can copy and paste format", () => {
@@ -694,12 +694,12 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2"), onlyFormat: true });
     expect(getCellContent(model, "C2")).toBe("");
-    expect(getCell(model, "C2")!.style).toBe(2);
+    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
   test("paste format does not remove content", () => {
@@ -712,13 +712,13 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2"), onlyFormat: true });
 
     expect(getCellContent(model, "C2")).toBe("c2");
-    expect(getCell(model, "C2")!.style).toBe(2);
+    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
   test("can undo a paste format", () => {
@@ -734,7 +734,7 @@ describe("clipboard", () => {
     model.dispatch("PASTE", { target: target("C2"), onlyFormat: true });
 
     expect(getCellContent(model, "C2")).toBe("");
-    expect(getCell(model, "C2")!.style).toBe(2);
+    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
 
     model.dispatch("UNDO");
     expect(getCell(model, "C2")).toBeUndefined();
@@ -758,7 +758,7 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
@@ -839,13 +839,13 @@ describe("clipboard", () => {
       target: [{ left: 2, right: 2, top: 2, bottom: 2 }],
       style: { bold: true },
     });
-    expect(getCell(model, "C3")!.style).toBe(2);
+    expect(getCell(model, "C3")!.style).toEqual({ bold: true });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C3"), onlyValue: true });
 
     expect(getCellContent(model, "C3")).toBe("b2");
-    expect(getCell(model, "C3")!.style).toBe(2);
+    expect(getCell(model, "C3")!.style).toEqual({ bold: true });
   });
 
   test("paste value only does not remove border", () => {
@@ -960,7 +960,7 @@ describe("clipboard", () => {
       target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
       style: { bold: true },
     });
-    expect(getCell(model, "B2")!.style).toBe(2);
+    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // select A1 and copy format
     model.dispatch("COPY", { target: target("A1") });

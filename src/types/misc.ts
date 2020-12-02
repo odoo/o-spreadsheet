@@ -92,7 +92,7 @@ export enum CellType {
 
 export interface CellBase {
   id: UID;
-  style?: number;
+  style?: Style;
   border?: number;
   format?: string;
   error?: string;

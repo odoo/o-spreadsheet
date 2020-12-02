@@ -8,7 +8,7 @@
  *  - Formula: update the formula, with the same behaviour than paste
  */
 
-import { Border } from "./misc";
+import { Border, Style } from "./misc";
 import { CellData } from "./workbook_data";
 
 export interface IncrementModifier {
@@ -39,10 +39,11 @@ export interface AutofillResult {
   tooltip?: Tooltip;
 }
 
-export interface AutofillCellData extends Omit<CellData, "border"> {
+export interface AutofillCellData extends Omit<CellData, "border" | "style"> {
   col: number;
   row: number;
   border?: Border;
+  style?: Style;
 }
 export interface GeneratorCell {
   data: AutofillCellData;

@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
-import { Border, ConditionalFormat } from "../../src/types";
+import { Border, ConditionalFormat, Style } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
@@ -116,17 +116,18 @@ describe("Autofill", () => {
     const border: Border = {
       left: ["thin", "#000"],
     };
+    const style: Style = { textColor: "orange" };
     model.dispatch("UPDATE_CELL", {
       col,
       row,
       sheetId,
-      style: 1,
+      style,
       format: "m/d/yyyy",
     });
     model.dispatch("SET_BORDER", { sheetId, col, row, border });
     autofill("A1", "A2");
     const cell = getCell(model, "A2")!;
-    expect(cell.style).toBe(1);
+    expect(cell.style).toEqual(style);
     expect(model.getters.getCellBorder(sheetId, 0, 1)).toEqual(border);
     expect(cell.format).toBe("m/d/yyyy");
   });
@@ -270,12 +271,13 @@ describe("Autofill", () => {
       const border: Border = {
         left: ["thin", "#000"],
       };
+      const style: Style = { textColor: "orange" };
       model.dispatch("UPDATE_CELL", {
         sheetId,
         col,
         row,
         content: "test",
-        style: 1,
+        style,
         format: "m/d/yyyy",
       });
       model.dispatch("SET_BORDER", { sheetId, col, row, border });
@@ -313,11 +315,12 @@ describe("Autofill", () => {
     const border: Border = {
       left: ["thin", "#000"],
     };
+    const style: Style = { textColor: "orange" };
     model.dispatch("UPDATE_CELL", {
       sheetId,
       col,
       row,
-      style: 1,
+      style,
       format: "m/d/yyyy",
     });
     model.dispatch("SET_BORDER", { sheetId, col, row, border });

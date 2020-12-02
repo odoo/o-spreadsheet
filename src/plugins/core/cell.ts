@@ -7,11 +7,11 @@ import {
   toXC,
   uuidv4,
   toCartesian,
-  stringify,
   range,
   maximumDecimalPlaces,
   formatStandardNumber,
   formatNumber,
+  stringify,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
@@ -31,10 +31,16 @@ import {
   AddRowsCommand,
   Zone,
 } from "../../types/index";
-import { DEFAULT_STYLE } from "../../constants";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
+
+type UpdateCellData = {
+  content?: string;
+  formula?: NormalizedFormula;
+  style?: Style;
+  format?: string;
+};
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -58,8 +64,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
-  private styles: { [key: number]: Style } = {};
-  private nextId: number = 1;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -98,7 +102,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           col: cmd.col,
           row: cmd.row,
           content: "",
-          style: 0,
+          style: undefined,
           format: "",
         });
         break;
@@ -279,7 +283,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             sheetId,
             col,
             row,
-            style: 0,
+            style: undefined,
           });
         }
       }
@@ -327,28 +331,39 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   import(data: WorkbookData) {
     // Styles
-    if (data.styles) {
-      this.styles = data.styles;
-    }
-    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
-    let nextId = 1;
-    for (let k in this.styles) {
-      nextId = Math.max(k as any, nextId);
-    }
-    this.nextId = nextId + 1;
     for (let sheet of data.sheets) {
       const imported_sheet = this.getters.getSheet(sheet.id);
       // cells
       for (let xc in sheet.cells) {
         const cell = sheet.cells[xc];
         const [col, row] = toCartesian(xc);
-        this.updateCell(imported_sheet, col, row, cell!);
+        const style = (cell && cell.style && data.styles[cell.style]) || undefined;
+        this.updateCell(imported_sheet, col, row, {
+          content: cell?.content,
+          formula: cell?.formula,
+          format: cell?.format,
+          style,
+        });
       }
     }
   }
 
   export(data: WorkbookData) {
-    data.styles = this.styles;
+    let styleId = 0;
+    const styles: { [styleId: number]: Style } = {};
+    /**
+     * Get the id of the given style. If the style does not exist, it creates
+     * one.
+     */
+    function getStyleId(style: Style) {
+      for (let [key, value] of Object.entries(styles)) {
+        if (stringify(value) === stringify(style)) {
+          return parseInt(key, 10);
+        }
+      }
+      styles[++styleId] = style;
+      return styleId;
+    }
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
       for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
@@ -356,7 +371,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         let xc = toXC(position.col, position.row);
 
         cells[xc] = {
-          style: cell.style,
+          style: cell.style && getStyleId(cell.style),
           format: cell.format,
         };
 
@@ -378,6 +393,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       _sheet.cells = cells;
     }
+    data.styles = styles;
   }
 
   // ---------------------------------------------------------------------------
@@ -473,7 +489,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(cell: Cell): Style {
-    return cell.style ? this.styles[cell.style] : {};
+    return cell.style || {};
   }
 
   /**
@@ -506,39 +522,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return topLeft;
   }
 
-  private setStyle(sheetId: UID, target: Zone[], style: Style) {
+  private setStyle(sheetId: UID, target: Zone[], style: Style | undefined) {
     for (let zone of target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.setStyleToCell(sheetId, col, row, style);
+          const cell = this.getters.getCell(sheetId, col, row);
+          this.dispatch("UPDATE_CELL", {
+            sheetId,
+            col,
+            row,
+            style: style ? { ...cell?.style, ...style } : undefined,
+          });
         }
       }
     }
-  }
-
-  private setStyleToCell(sheetId: UID, col: number, row: number, style: Style) {
-    const cell = this.getters.getCellByXc(sheetId, toXC(col, row));
-    const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
-    const nextStyle = Object.assign({}, currentStyle, style);
-    const id = this.registerStyle(nextStyle);
-    this.dispatch("UPDATE_CELL", {
-      sheetId,
-      col,
-      row,
-      style: id,
-    });
-  }
-
-  private registerStyle(style: Style) {
-    const strStyle = stringify(style);
-    for (let k in this.styles) {
-      if (stringify(this.styles[k]) === strStyle) {
-        return parseInt(k, 10);
-      }
-    }
-    const id = this.nextId++;
-    this.styles[id] = style;
-    return id;
   }
 
   /**
@@ -572,8 +569,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    */
-  private getFormat(sheetId: UID, xc: string): { style?: number; format?: string } {
-    const format: { style?: number; format?: string } = {};
+  private getFormat(sheetId: UID, xc: string): { style?: Style; format?: string } {
+    const format: { style?: Style; format?: string } = {};
     xc = this.getters.getMainCell(sheetId, xc);
     const cell = this.getters.getCellByXc(sheetId, xc);
     if (cell) {
@@ -587,7 +584,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return format;
   }
 
-  private updateCell(sheet: Sheet, col: number, row: number, after: CellData) {
+  private updateCell(sheet: Sheet, col: number, row: number, after: UpdateCellData) {
     const before = sheet.rows[row].cells[col];
     const hasContent = "content" in after || "formula" in after;
 

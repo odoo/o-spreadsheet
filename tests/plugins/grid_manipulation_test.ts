@@ -140,14 +140,15 @@ describe("Clear columns", () => {
       merges: ["A3:B3"],
     });
     clearColumns(["B", "C"]);
+    const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
-    expect(getCell(model, "B1")).toMatchObject({ style: 1 });
+    expect(getCell(model, "B1")).toMatchObject({ style });
     expect(getBorder(model, "B1")).toEqual(border);
-    expect(getCell(model, "C1")).toMatchObject({ style: 1 });
+    expect(getCell(model, "C1")).toMatchObject({ style });
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
@@ -188,15 +189,16 @@ describe("Clear rows", () => {
     });
 
     clearRows([1, 2]);
+    const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
     expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
-    expect(getCell(model, "A2")).toMatchObject({ style: 1 });
+    expect(getCell(model, "A2")).toMatchObject({ style });
     expect(getBorder(model, "A2")).toEqual(border);
     expect(getBorder(model, "A3")).toEqual(border);
     expect(getCell(model, "B1")).toMatchObject({ content: "B1" });
     expect(getCell(model, "C1")).toMatchObject({ content: "C1" });
-    expect(getCell(model, "C2")).toMatchObject({ style: 1 });
+    expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
     expect(
@@ -541,16 +543,17 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       removeColumns([1]);
+      const style = { textColor: "#fe0000" };
       const s = ["thin", "#000"];
       expect(getCell(model, "B1")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "B3")).toBeUndefined();
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { style: 1 },
-        A3: { style: 1 },
-        B4: { style: 1 },
-        C1: { style: 1 },
-        C3: { style: 1 },
+        A1: { style },
+        A3: { style },
+        B4: { style },
+        C1: { style },
+        C3: { style },
       });
       expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "A3")).toEqual({ top: s });
@@ -560,6 +563,7 @@ describe("Columns", () => {
     });
     test("On addition", () => {
       const s = ["thin", "#000"];
+      const style = { textColor: "#fe0000" };
       expect(getBorder(model, "A1")).toEqual({ bottom: s });
       expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "A3")).toEqual({ top: s });
@@ -573,15 +577,15 @@ describe("Columns", () => {
       addColumns(1, "before", 1);
       addColumns(2, "after", 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { style: 1 },
-        A3: { style: 1 },
-        B1: { style: 1 },
-        B3: { style: 1, format: "0.00%" },
-        B4: { style: 1 },
-        C1: { style: 1 },
-        C3: { style: 1, format: "0.00%" },
-        C4: { style: 1 },
-        E1: { style: 1 },
+        A1: { style },
+        A3: { style },
+        B1: { style },
+        B3: { style, format: "0.00%" },
+        B4: { style },
+        C1: { style },
+        C3: { style, format: "0.00%" },
+        C4: { style },
+        E1: { style },
       });
       expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "A3")).toEqual({ top: s });
@@ -1205,6 +1209,7 @@ describe("Rows", () => {
     });
     test("On deletion", () => {
       const s = ["thin", "#000"];
+      const style = { textColor: "#fe0000" };
       const sheetId = model.getters.getActiveSheetId();
       expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(8);
       removeRows([1]);
@@ -1212,14 +1217,14 @@ describe("Rows", () => {
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "C2")).toBeUndefined();
       expect(Object.values(model.getters.getCells(sheetId))).toHaveLength(5);
-      expect(getCell(model, "A1")).toMatchObject({ style: 1 });
-      expect(getCell(model, "A3")).toMatchObject({ style: 1 });
+      expect(getCell(model, "A1")).toMatchObject({ style });
+      expect(getCell(model, "A3")).toMatchObject({ style });
       expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
-      expect(getCell(model, "C1")).toMatchObject({ style: 1 });
-      expect(getCell(model, "C3")).toMatchObject({ style: 1 });
-      expect(getCell(model, "D2")).toMatchObject({ style: 1 });
+      expect(getCell(model, "C1")).toMatchObject({ style });
+      expect(getCell(model, "C3")).toMatchObject({ style });
+      expect(getCell(model, "D2")).toMatchObject({ style });
       expect(getBorder(model, "C1")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "C3")).toEqual({ top: s });
@@ -1229,6 +1234,7 @@ describe("Rows", () => {
     test("On addition", () => {
       const s = ["thin", "#000"];
       addRows(1, "before", 1);
+      const style = { textColor: "#fe0000" };
       expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
@@ -1241,15 +1247,15 @@ describe("Rows", () => {
       expect(getBorder(model, "C5")).toEqual({ top: s });
       addRows(2, "after", 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
-        A1: { style: 1 },
-        C1: { style: 1 },
-        A2: { style: 1 },
-        C2: { style: 1, format: "0.00%" },
-        D2: { style: 1 },
-        A3: { style: 1 },
-        C3: { style: 1, format: "0.00%" },
-        D3: { style: 1 },
-        A5: { style: 1 },
+        A1: { style },
+        C1: { style },
+        A2: { style },
+        C2: { style, format: "0.00%" },
+        D2: { style },
+        A3: { style },
+        C3: { style, format: "0.00%" },
+        D3: { style },
+        A5: { style },
       });
       expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });

@@ -543,11 +543,11 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getMerge(sheetId, "B4")).toBeTruthy();
     expect(model.getters.getMerge(sheetId, "C4")).toBeTruthy();
-    expect(getCell(model, "B4")!.style).toBe(1);
+    expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
     model.dispatch("REMOVE_MERGE", { sheetId, zone: toZone("B4:C5") });
-    expect(getCell(model, "B4")!.style).toBe(1);
-    expect(getCell(model, "C4")!.style).toBe(1);
+    expect(getCell(model, "B4")!.style).toEqual({ textColor: "#fe0000" });
+    expect(getCell(model, "C4")!.style).toEqual({ textColor: "#fe0000" });
     expect(getBorder(model, "B4")).toEqual({ top: ["thin", "#000"] });
     expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
     expect(getBorder(model, "C5")).toBeNull();
