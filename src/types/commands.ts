@@ -43,7 +43,7 @@ export interface UpdateCellCommand extends BaseCommand {
   col: number;
   row: number;
   content?: string;
-  style?: number;
+  style?: Style;
   format?: string;
 }
 
@@ -248,7 +248,7 @@ export interface AutoFillCellCommand extends BaseCommand {
   col: number;
   row: number;
   content?: string;
-  style?: number;
+  style?: Style;
   border?: Border;
   format?: string;
 }

@@ -184,7 +184,7 @@ test("complete import, then export", () => {
           A1: { content: "hello" },
           B1: {
             formula: { text: "=|0|", dependencies: ["A1"] },
-            style: 99,
+            style: 1,
             border: 1,
             format: "0.00%",
           },
@@ -211,7 +211,7 @@ test("complete import, then export", () => {
     ],
     entities: {},
     styles: {
-      99: { bold: true, textColor: "#3A3791", fontSize: 12 },
+      1: { bold: true, textColor: "#3A3791", fontSize: 12 },
     },
     borders: {
       1: {
