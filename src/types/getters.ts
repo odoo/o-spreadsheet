@@ -50,6 +50,7 @@ export interface CoreGetters {
   getFormulaCellContent: CellPlugin["getFormulaCellContent"];
   getCellText: CellPlugin["getCellText"];
   getCellValue: CellPlugin["getCellValue"];
+  getCellStyle: CellPlugin["getCellStyle"];
 
   getClipboardContent: ClipboardPlugin["getClipboardContent"];
   isPaintingFormat: ClipboardPlugin["isPaintingFormat"];
@@ -72,7 +73,6 @@ export interface CoreGetters {
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
-  getCellStyle: FormattingPlugin["getCellStyle"];
   getCellBorder: FormattingPlugin["getCellBorder"];
   getChartDefinition: ChartPlugin["getChartDefinition"];
 
