@@ -444,12 +444,12 @@ export class RendererPlugin extends UIPlugin {
         const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
         const col = cols[colNumber];
         let xc = toXC(colNumber, rowNumber);
+        const conditionalStyle = this.getters.getConditionalStyle(xc);
         if (!this.getters.isInMerge(sheetId, xc)) {
           if (cell) {
             const text = this.getters.getCellText(cell, sheetId, showFormula);
             const textWidth = this.getters.getCellWidth(cell);
             let style = this.getters.getCellStyle(cell);
-            const conditionalStyle = this.getters.getConditionalStyle(xc);
             if (conditionalStyle) {
               style = Object.assign({}, style, conditionalStyle);
             }
@@ -501,7 +501,7 @@ export class RendererPlugin extends UIPlugin {
               text: "",
               textWidth: 0,
               border,
-              style: null,
+              style: conditionalStyle ? conditionalStyle : null,
               align: undefined,
               clipRect: null,
               error: undefined,
@@ -528,9 +528,7 @@ export class RendererPlugin extends UIPlugin {
           text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
           style = refCell ? this.getters.getCellStyle(refCell) : null;
-          align = text
-            ? (style && style.align) || computeAlign(refCell!, showFormula)
-            : null;
+          align = text ? (style && style.align) || computeAlign(refCell!, showFormula) : null;
           border = {
             bottom: borderBottomRight ? borderBottomRight.bottom : null,
             left: borderTopLeft ? borderTopLeft.left : null,
