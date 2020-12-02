@@ -4,7 +4,7 @@ import { SelectionPlugin } from "../plugins/ui/selection";
 import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { RendererPlugin } from "../plugins/ui/renderer";
-import { FormattingPlugin } from "../plugins/core/formatting";
+import { BordersPlugin } from "../plugins/core/borders";
 import { WHistory } from "../history";
 import { RangePlugin } from "../plugins/core/range";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
@@ -73,7 +73,7 @@ export interface CoreGetters {
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
 
-  getCellBorder: FormattingPlugin["getCellBorder"];
+  getCellBorder: BordersPlugin["getCellBorder"];
   getChartDefinition: ChartPlugin["getChartDefinition"];
 
   getRangeString: RangePlugin["getRangeString"];

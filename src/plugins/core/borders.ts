@@ -16,7 +16,7 @@ import {
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
-interface FormattingPluginState {
+interface BordersPluginState {
   readonly borders: Record<UID, (BorderDescription[] | undefined)[] | undefined>;
 }
 /**
@@ -25,12 +25,10 @@ interface FormattingPluginState {
  * This plugin manages all things related to a cell look:
  * - borders
  */
-export class FormattingPlugin
-  extends CorePlugin<FormattingPluginState>
-  implements FormattingPluginState {
+export class BordersPlugin extends CorePlugin<BordersPluginState> implements BordersPluginState {
   static getters = ["getCellBorder"];
 
-  public readonly borders: FormattingPluginState["borders"] = {};
+  public readonly borders: BordersPluginState["borders"] = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling

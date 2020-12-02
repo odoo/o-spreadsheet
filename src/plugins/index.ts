@@ -4,7 +4,7 @@ import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { CellPlugin } from "./core/cell";
 import { EditionPlugin } from "./ui/edition";
 import { EvaluationPlugin } from "./ui/evaluation";
-import { FormattingPlugin } from "./core/formatting";
+import { BordersPlugin } from "./core/borders";
 import { MergePlugin } from "./core/merge";
 import { RendererPlugin } from "./ui/renderer";
 import { SelectionPlugin } from "./ui/selection";
@@ -28,7 +28,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("range", RangePlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
-  .add("formatting", FormattingPlugin)
+  .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin);

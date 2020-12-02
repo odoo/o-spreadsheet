@@ -3,7 +3,7 @@ import "./canvas.mock";
 import { WHistory } from "../src/history";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { MergePlugin } from "../src/plugins/core/merge";
-import { FormattingPlugin } from "../src/plugins/core/formatting";
+import { BordersPlugin } from "../src/plugins/core/borders";
 import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format";
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { FigurePlugin } from "../src/plugins/core/figures";
@@ -35,7 +35,7 @@ describe("Model", () => {
     expect(model["handlers"][2]).toBeInstanceOf(RangePlugin);
     expect(model["handlers"][3]).toBeInstanceOf(CellPlugin);
     expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(FormattingPlugin);
+    expect(model["handlers"][5]).toBeInstanceOf(BordersPlugin);
     expect(model["handlers"][6]).toBeInstanceOf(ConditionalFormatPlugin);
     expect(model["handlers"][7]).toBeInstanceOf(FigurePlugin);
     expect(model["handlers"][8]).toBeInstanceOf(ChartPlugin);
