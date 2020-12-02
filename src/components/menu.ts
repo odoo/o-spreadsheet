@@ -34,6 +34,7 @@ const TEMPLATE = xml/* xml */ `
               'disabled': !isMenuEnabled,
             }">
             <t t-esc="getName(menuItem)"/>
+            <span class="o-menu-item-shortcut" t-esc="getShortCut(menuItem)"/>
             <t t-if="isMenuRoot">
               ${icons.TRIANGLE_RIGHT_ICON}
             </t>
@@ -59,10 +60,11 @@ const CSS = css/* scss */ `
     z-index: 10;
     padding: 5px 0px;
     .o-menu-item {
+      display: flex;
+      justify-content: space-between;
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
       padding: 7px 20px;
-      padding-right: 2px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -84,6 +86,9 @@ const CSS = css/* scss */ `
       &.o-menu-root {
         display: flex;
         justify-content: space-between;
+      }
+      .o-menu-item-shortcut {
+        color: grey;
       }
     }
   }
@@ -227,6 +232,9 @@ export class Menu extends Component<Props, SpreadsheetEnv> {
 
   getName(menu: FullMenuItem) {
     return cellMenuRegistry.getName(menu, this.env);
+  }
+  getShortCut(menu: FullMenuItem) {
+    return cellMenuRegistry.getShortCut(menu);
   }
 
   isRoot(menu: FullMenuItem) {

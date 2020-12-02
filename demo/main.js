@@ -12,6 +12,7 @@ const menuItemRegistry = o_spreadsheet.registries.topbarMenuRegistry;
 menuItemRegistry.add("file", { name: "File", sequence: 10 });
 menuItemRegistry.addChild("save", ["file"], {
   name: "Save",
+  shortCut: "Ctrl+S",
   sequence: 30,
   action: (env) => env.save(env.export()),
 });
