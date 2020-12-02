@@ -1,7 +1,14 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
-import { getCell, makeTestFixture, nextTick, GridParent, setCellContent } from "../helpers";
+import {
+  getCell,
+  makeTestFixture,
+  nextTick,
+  GridParent,
+  setCellContent,
+  getBorder,
+} from "../helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
@@ -172,7 +179,7 @@ describe("TopBar component", () => {
       target: model.getters.getSelectedZones(),
       border: "all",
     });
-    expect(getCell(model, "B1")!.border).toBeDefined();
+    expect(getBorder(model, "B1")).toBeDefined();
     const parent = new Parent(model);
     await parent.mount(fixture);
     const clearFormatTool = fixture.querySelector('.o-tool[title="Clear Format"]')!;

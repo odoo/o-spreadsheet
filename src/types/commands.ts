@@ -1,5 +1,5 @@
 import { Zone, Style, BorderCommand, ConditionalFormat, CreateChartDefinition } from "./index";
-import { Cell, UID } from "./misc";
+import { Border, Cell, UID } from "./misc";
 import { Figure } from "./workbook_data";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
@@ -44,7 +44,6 @@ export interface UpdateCellCommand extends BaseCommand {
   row: number;
   content?: string;
   style?: number;
-  border?: number;
   format?: string;
 }
 
@@ -132,6 +131,14 @@ export interface AddFormattingCommand extends BaseCommand {
   target: Zone[];
   style?: Style;
   border?: BorderCommand;
+}
+
+export interface SetBorderCommand extends BaseCommand {
+  type: "SET_BORDER";
+  sheetId: UID;
+  col: number;
+  row: number;
+  border: Border | undefined;
 }
 
 export interface ClearFormattingCommand extends BaseCommand {
@@ -223,6 +230,7 @@ export interface PasteCellCommand extends BaseCommand {
   type: "PASTE_CELL";
   origin: Cell | null;
   originSheet: UID;
+  originBorder: Border | null;
   originCol: number;
   originRow: number;
   col: number;
@@ -241,7 +249,7 @@ export interface AutoFillCellCommand extends BaseCommand {
   row: number;
   content?: string;
   style?: number;
-  border?: number;
+  border?: Border;
   format?: string;
 }
 
@@ -690,6 +698,7 @@ export type Command =
   | SetCurrentContentCommand
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
+  | SetBorderCommand
   | AddFormattingCommand
   | ClearFormattingCommand
   | SetFormatterCommand

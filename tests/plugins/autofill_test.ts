@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { AutofillPlugin } from "../../src/plugins/ui/autofill";
-import { ConditionalFormat } from "../../src/types";
+import { Border, ConditionalFormat } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
@@ -110,18 +110,24 @@ describe("Autofill", () => {
   });
 
   test("Autofill keep style, border and format", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const col = 0;
+    const row = 0;
+    const border: Border = {
+      left: ["thin", "#000"],
+    };
     model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId: model.getters.getActiveSheetId(),
+      col,
+      row,
+      sheetId,
       style: 1,
-      border: 2,
       format: "m/d/yyyy",
     });
+    model.dispatch("SET_BORDER", { sheetId, col, row, border });
     autofill("A1", "A2");
     const cell = getCell(model, "A2")!;
     expect(cell.style).toBe(1);
-    expect(cell.border).toBe(2);
+    expect(model.getters.getCellBorder(sheetId, 0, 1)).toEqual(border);
     expect(cell.format).toBe("m/d/yyyy");
   });
 
@@ -258,19 +264,25 @@ describe("Autofill", () => {
 
     test("Autofill should override selected zone", () => {
       setCellContent(model, "A1", "1");
+      const sheetId = model.getters.getActiveSheetId();
+      const col = 0;
+      const row = 1;
+      const border: Border = {
+        left: ["thin", "#000"],
+      };
       model.dispatch("UPDATE_CELL", {
-        sheetId: model.getters.getActiveSheetId(),
-        col: 0,
-        row: 1,
+        sheetId,
+        col,
+        row,
         content: "test",
         style: 1,
-        border: 1,
         format: "m/d/yyyy",
       });
+      model.dispatch("SET_BORDER", { sheetId, col, row, border });
       autofill("A1", "A2");
       const cell = getCell(model, "A2")!;
       expect(cell.style).toBeUndefined();
-      expect(cell.border).toBeUndefined();
+      expect(model.getters.getCellBorder(sheetId, col, row)).toBeNull();
       expect(cell.format).toBeUndefined();
       expect(cell["content"]).toBe("1");
     });
@@ -295,17 +307,25 @@ describe("Autofill", () => {
 
   test("Autofill empty cell should erase others", () => {
     setCellContent(model, "A2", "1");
+    const sheetId = model.getters.getActiveSheetId();
+    const col = 0;
+    const row = 2;
+    const border: Border = {
+      left: ["thin", "#000"],
+    };
     model.dispatch("UPDATE_CELL", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 2,
+      sheetId,
+      col,
+      row,
       style: 1,
-      border: 1,
       format: "m/d/yyyy",
     });
+    model.dispatch("SET_BORDER", { sheetId, col, row, border });
     autofill("A1", "A3");
     expect(getCell(model, "A2")).toBeUndefined();
     expect(getCell(model, "A3")).toBeUndefined();
+    expect(model.getters.getCellBorder(sheetId, 0, 1)).toBeNull();
+    expect(model.getters.getCellBorder(sheetId, 0, 2)).toBeNull();
   });
 
   test("Auto-autofill left", () => {

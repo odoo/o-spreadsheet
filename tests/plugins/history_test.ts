@@ -1,7 +1,7 @@
 import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
+import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
@@ -217,7 +217,7 @@ describe("Model history", () => {
       border: "all",
     });
 
-    expect(getCell(model, "B2")!.border).toBeDefined();
+    expect(getBorder(model, "B2")).toBeDefined();
     model.dispatch("UNDO");
     expect(getCell(model, "B2")).toBeUndefined();
   });

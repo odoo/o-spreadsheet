@@ -438,13 +438,14 @@ export class RendererPlugin extends UIPlugin {
     const { cols, rows, id: sheetId } = this.getters.getActiveSheet();
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
-      let row = rows[rowNumber];
+      const row = rows[rowNumber];
       for (let colNumber = left; colNumber <= right; colNumber++) {
         let cell = row.cells[colNumber];
-        if (cell) {
-          let xc = toXC(colNumber, rowNumber);
-          if (!this.getters.isInMerge(sheetId, xc)) {
-            let col = cols[colNumber];
+        const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
+        const col = cols[colNumber];
+        let xc = toXC(colNumber, rowNumber);
+        if (!this.getters.isInMerge(sheetId, xc)) {
+          if (cell) {
             const text = this.getters.getCellText(cell, sheetId, showFormula);
             const textWidth = this.getters.getCellWidth(cell);
             let style = this.getters.getCellStyle(cell);
@@ -485,11 +486,25 @@ export class RendererPlugin extends UIPlugin {
               height: row.size,
               text,
               textWidth,
-              border: this.getters.getCellBorder(cell),
+              border,
               style,
               align,
               clipRect,
               error: cell.error,
+            });
+          } else {
+            result.push({
+              x: col.start - offsetX,
+              y: row.start - offsetY,
+              width: col.size,
+              height: row.size,
+              text: "",
+              textWidth: 0,
+              border,
+              style: null,
+              align: undefined,
+              clipRect: null,
+              error: undefined,
             });
           }
         }
@@ -501,16 +516,21 @@ export class RendererPlugin extends UIPlugin {
     for (let merge of this.getters.getMerges(activeSheetId)) {
       if (overlap(merge, viewport)) {
         const refCell = this.getters.getCell(activeSheetId, merge.left, merge.top);
-        const bottomRight = this.getters.getCell(activeSheetId, merge.right, merge.bottom);
+        const borderTopLeft = this.getters.getCellBorder(activeSheetId, merge.left, merge.top);
+        const borderBottomRight = this.getters.getCellBorder(
+          activeSheetId,
+          merge.right + 1,
+          merge.bottom + 1
+        );
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
-        if (refCell || bottomRight) {
+        if (refCell || borderBottomRight || borderTopLeft) {
           text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
           style = refCell ? this.getters.getCellStyle(refCell) : null;
-          align = text ? (style && style.align) || computeAlign(refCell!, showFormula) : null;
-          const borderTopLeft = refCell ? this.getters.getCellBorder(refCell) : null;
-          const borderBottomRight = bottomRight ? this.getters.getCellBorder(bottomRight) : null;
+          align = text
+            ? (style && style.align) || computeAlign(refCell!, showFormula)
+            : null;
           border = {
             bottom: borderBottomRight ? borderBottomRight.bottom : null,
             left: borderTopLeft ? borderTopLeft.left : null,

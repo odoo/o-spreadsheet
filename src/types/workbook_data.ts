@@ -35,7 +35,7 @@ export interface SheetData {
   name: string;
   colNumber: number;
   rowNumber: number;
-  cells: { [key: string]: CellData };
+  cells: { [key: string]: CellData | undefined };
   merges: string[];
   figures: Figure<any>[];
   cols: { [key: number]: HeaderData };

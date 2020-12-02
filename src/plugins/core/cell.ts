@@ -60,7 +60,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           col: cmd.col,
           row: cmd.row,
           content: "",
-          border: 0,
           style: 0,
           format: "",
         });
@@ -79,7 +78,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (let xc in sheet.cells) {
         const cell = sheet.cells[xc];
         const [col, row] = toCartesian(xc);
-        this.updateCell(imported_sheet, col, row, cell);
+        this.updateCell(imported_sheet, col, row, cell!);
       }
     }
   }
@@ -92,7 +91,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         let xc = toXC(position.col, position.row);
 
         cells[xc] = {
-          border: cell.border,
           style: cell.style,
           format: cell.format,
         };
@@ -250,7 +248,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     // Compute the new cell properties
     const afterContent = after.content ? after.content.replace(nbspRegexp, "") : "";
     const style = "style" in after ? after.style : (before && before.style) || 0;
-    const border = "border" in after ? after.border : (before && before.border) || 0;
     let format = "format" in after ? after.format : (before && before.format) || "";
 
     /* Read the following IF as:
@@ -264,7 +261,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       ((hasContent && !afterContent && !after.formula) ||
         (!hasContent && (before?.type === CellType.empty || !before))) &&
       !style &&
-      !border &&
       !format
     ) {
       if (before) {
@@ -393,11 +389,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       cell.style = style;
     } else {
       delete cell.style;
-    }
-    if (border) {
-      cell.border = border;
-    } else {
-      delete cell.border;
     }
     if (format) {
       cell.format = format;

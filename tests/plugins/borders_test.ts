@@ -1,20 +1,17 @@
+import { DEFAULT_BORDER_DESC as b, DEFAULT_BORDER_DESC } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { BorderCommand, Border } from "../../src/types/index";
+import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import { getCell, getCellContent, setCellContent } from "../helpers";
-
-function getBorder(model: Model, xc: string): Border | null {
-  const cell = model.getters.getCellByXc(model.getters.getActiveSheetId(), xc);
-  return cell ? model.getters.getCellBorder(cell) : null;
-}
-
-function setBorder(model: Model, command: BorderCommand) {
-  model.dispatch("SET_FORMATTING", {
-    sheetId: model.getters.getActiveSheetId(),
-    target: model.getters.getSelectedZones(),
-    border: command,
-  });
-}
+import {
+  setBorder,
+  getBorder,
+  getCell,
+  setCellContent,
+  addColumns,
+  addRows,
+  getCellContent,
+} from "../helpers";
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {
@@ -23,16 +20,14 @@ describe("borders", () => {
     // select B2, set its top border, then clear it
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "top");
-    expect(getCell(model, "B2")!.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
     setBorder(model, "clear");
 
-    expect(getCell(model, "B2")).toBeUndefined();
+    expect(getBorder(model, "B2")).toBeNull();
 
     // select B2, set its left border, then clear it
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "left");
-    expect(getCell(model, "B2")!.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ left: ["thin", "#000"] });
     setBorder(model, "clear");
     expect(getCell(model, "B2")).toBeUndefined();
@@ -40,7 +35,6 @@ describe("borders", () => {
     // select B2, set its bottom border, then clear it
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "bottom");
-    expect(getCell(model, "B2")!.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
     setBorder(model, "clear");
     expect(getCell(model, "B2")).toBeUndefined();
@@ -48,7 +42,6 @@ describe("borders", () => {
     // select B2, set its right border, then clear it
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "right");
-    expect(getCell(model, "B2")!.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ right: ["thin", "#000"] });
     setBorder(model, "clear");
     expect(getCell(model, "B2")).toBeUndefined();
@@ -64,12 +57,11 @@ describe("borders", () => {
     // set a border top
     setBorder(model, "top");
 
-    expect(getCell(model, "B2")!.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
 
     // clear borders
     setBorder(model, "clear");
-    expect(getCell(model, "B2")!.border).not.toBeDefined();
+    expect(getBorder(model, "B2")).toBeNull();
   });
 
   test("can add and remove a top border, on a selection", () => {
@@ -82,9 +74,7 @@ describe("borders", () => {
     // set a border top
     setBorder(model, "top");
 
-    expect(getCell(model, "B2")!.border).toBeDefined();
     expect(getBorder(model, "B2")).toEqual({ top: ["thin", "#000"] });
-    expect(getCell(model, "C2")!.border).toBeDefined();
     expect(getBorder(model, "C2")).toEqual({ top: ["thin", "#000"] });
   });
 
@@ -94,7 +84,7 @@ describe("borders", () => {
     // select C3 and add a border
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     setBorder(model, "top");
-    expect(getCell(model, "C3")!.border).toBeDefined();
+    expect(getBorder(model, "C3")).toBeDefined();
 
     // select A1:E6
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
@@ -187,13 +177,12 @@ describe("borders", () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
 
-    // set external borders
     setBorder(model, "h");
     const s = ["thin", "#000"];
-    expect(getCell(model, "B2")).toBeUndefined();
-    expect(getCell(model, "C2")).toBeUndefined();
-    expect(getBorder(model, "B3")).toEqual({ top: s });
-    expect(getBorder(model, "C3")).toEqual({ top: s });
+    expect(getBorder(model, "B2")).toEqual({ bottom: s });
+    expect(getBorder(model, "C2")).toEqual({ bottom: s });
+    expect(getBorder(model, "B3")).toEqual({ top: s, bottom: s });
+    expect(getBorder(model, "C3")).toEqual({ top: s, bottom: s });
     expect(getBorder(model, "B4")).toEqual({ top: s });
     expect(getBorder(model, "C4")).toEqual({ top: s });
   });
@@ -201,19 +190,21 @@ describe("borders", () => {
   test("setting internal vertical borders in a zone works", () => {
     const model = new Model();
 
-    // select B2, then expand selection to B2:C4
+    // select B2, then expand selection to B2:D4
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
+    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
 
-    // set external borders
     setBorder(model, "v");
     const s = ["thin", "#000"];
-    expect(getCell(model, "B2")).toBeUndefined();
-    expect(getCell(model, "B3")).toBeUndefined();
-    expect(getCell(model, "B4")).toBeUndefined();
-    expect(getBorder(model, "C2")).toEqual({ left: s });
-    expect(getBorder(model, "C3")).toEqual({ left: s });
-    expect(getBorder(model, "C4")).toEqual({ left: s });
+    expect(getBorder(model, "B2")).toEqual({ right: s });
+    expect(getBorder(model, "B3")).toEqual({ right: s });
+    expect(getBorder(model, "B4")).toEqual({ right: s });
+    expect(getBorder(model, "C2")).toEqual({ left: s, right: s });
+    expect(getBorder(model, "C3")).toEqual({ left: s, right: s });
+    expect(getBorder(model, "C4")).toEqual({ left: s, right: s });
+    expect(getBorder(model, "D2")).toEqual({ left: s });
+    expect(getBorder(model, "D3")).toEqual({ left: s });
+    expect(getBorder(model, "D4")).toEqual({ left: s });
   });
 
   test("setting internal  borders in a zone works", () => {
@@ -221,17 +212,19 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
-    model.dispatch("ALTER_SELECTION", { cell: [2, 3] });
+    model.dispatch("ALTER_SELECTION", { cell: [3, 3] });
 
-    // set external borders
     setBorder(model, "hv");
     const s = ["thin", "#000"];
-    expect(getCell(model, "B2")).toBeUndefined();
-    expect(getBorder(model, "C2")).toEqual({ left: s });
-    expect(getBorder(model, "B3")).toEqual({ top: s });
-    expect(getBorder(model, "C3")).toEqual({ top: s, left: s });
-    expect(getBorder(model, "B4")).toEqual({ top: s });
-    expect(getBorder(model, "C4")).toEqual({ top: s, left: s });
+    expect(getBorder(model, "B2")).toEqual({ bottom: s, right: s });
+    expect(getBorder(model, "B3")).toEqual({ bottom: s, top: s, right: s });
+    expect(getBorder(model, "B4")).toEqual({ top: s, right: s });
+    expect(getBorder(model, "C2")).toEqual({ left: s, right: s, bottom: s });
+    expect(getBorder(model, "C3")).toEqual({ top: s, left: s, bottom: s, right: s });
+    expect(getBorder(model, "C4")).toEqual({ top: s, left: s, right: s });
+    expect(getBorder(model, "D2")).toEqual({ left: s, bottom: s });
+    expect(getBorder(model, "D3")).toEqual({ top: s, left: s, bottom: s });
+    expect(getBorder(model, "D4")).toEqual({ top: s, left: s });
   });
 
   test("deleting a cell with a border does not remove the border", () => {
@@ -242,12 +235,12 @@ describe("borders", () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     setBorder(model, "top");
 
-    expect(getCell(model, "B2")!.border).toBeDefined();
+    expect(getBorder(model, "B2")).toBeDefined();
     model.dispatch("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
-    expect(getCell(model, "B2")!.border).toBeDefined();
+    expect(getBorder(model, "B2")).toBeDefined();
   });
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
@@ -257,10 +250,10 @@ describe("borders", () => {
     setBorder(model, "all");
 
     expect(getCellContent(model, "B2")).toBe("some content");
-    expect(getCell(model, "B2")!.border).toBeDefined();
+    expect(getBorder(model, "B2")).toBeDefined();
     model.dispatch("UNDO");
     expect(getCellContent(model, "B2")).toBe("some content");
-    expect(getCell(model, "B2")!.border).not.toBeDefined();
+    expect(getBorder(model, "B2")).toBeNull();
   });
 
   test("can clear formatting (border)", () => {
@@ -269,12 +262,12 @@ describe("borders", () => {
     model.dispatch("SELECT_CELL", { col: 1, row: 0 });
     setBorder(model, "all");
 
-    expect(getCell(model, "B1")!.border).toBeDefined();
+    expect(getBorder(model, "B1")).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
-    expect(getCell(model, "B1")!.border).not.toBeDefined();
+    expect(getBorder(model, "B1")).toBeNull();
   });
 
   test("can clear formatting (border) after selecting all cells", () => {
@@ -289,8 +282,113 @@ describe("borders", () => {
       bottom: activeSheet.rows.length - 1,
     });
     setBorder(model, "all");
-    expect(getCell(model, "B1")!.border).toBeDefined();
+    expect(getBorder(model, "B1")).toBeDefined();
     setBorder(model, "clear");
     expect(getCell(model, "B1")).toBeUndefined();
+  });
+
+  test("set all border of a cell", () => {
+    const model = new Model();
+    const s: BorderDescr = ["thin", "#000"];
+    model.dispatch("SET_BORDER", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      border: { bottom: s, top: s, left: s, right: s },
+    });
+    expect(getBorder(model, "A1")).toEqual({ bottom: s, top: s, left: s, right: s });
+  });
+
+  test("cut & paste a border", () => {
+    const model = new Model();
+    setBorder(model, "external", "B2");
+    const s = DEFAULT_BORDER_DESC;
+    expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, right: s, left: s });
+    model.dispatch("CUT", { target: [toZone("B2")] });
+    model.dispatch("PASTE", { target: [toZone("C4")] });
+    expect(getBorder(model, "C4")).toEqual({ top: s, bottom: s, right: s, left: s });
+    expect(getBorder(model, "B2")).toBeNull();
+  });
+});
+
+describe("Grid manipulation", () => {
+  let model: Model;
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("ADD_COLUMNS before with external borders", () => {
+    setBorder(model, "external", "B2");
+    addColumns(model, "before", "B", 1);
+    expect(getBorder(model, "B2")).toEqual({ right: b });
+    expect(getBorder(model, "C2")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "D2")).toEqual({ left: b });
+  });
+
+  test.skip("[ok] ADD_COLUMNS before with external borders in the column before", () => {
+    setBorder(model, "external", "B2");
+    addColumns(model, "before", "C", 1);
+    expect(getBorder(model, "A2")).toEqual({ right: b });
+    expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "C2")).toEqual({ left: b });
+    expect(getBorder(model, "D2")).toBeNull();
+  });
+
+  test("ADD_COLUMNS before with external borders in the column before", () => {
+    setBorder(model, "external", "B2");
+    addColumns(model, "before", "C", 1);
+    expect(getBorder(model, "A2")).toEqual({ right: b });
+    expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
+    // because of border continuity
+    expect(getBorder(model, "C2")).toEqual({ left: b, right: b });
+    expect(getBorder(model, "D2")).toEqual({ left: b });
+  });
+
+  test("ADD_COLUMNS before with external borders in the column after", () => {
+    setBorder(model, "external", "B2");
+    addColumns(model, "before", "A", 1);
+    expect(getBorder(model, "A2")).toBeNull();
+    expect(getBorder(model, "B2")).toEqual({ right: b });
+    expect(getBorder(model, "C2")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "D2")).toEqual({ left: b });
+  });
+
+  test("ADD_ROWS before with external borders", () => {
+    setBorder(model, "external", "B2");
+    addRows(model, "before", 1, 1);
+    expect(getBorder(model, "B2")).toEqual({ bottom: b });
+    expect(getBorder(model, "B3")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "C2")).toBeNull();
+    expect(getBorder(model, "B4")).toEqual({ top: b });
+  });
+
+  test.skip("[ok] ADD_ROWS before with external borders in the column before", () => {
+    setBorder(model, "external", "B2");
+    addRows(model, "before", 2, 1);
+    expect(getBorder(model, "A2")).toEqual({ right: b });
+    expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "C2")).toEqual({ left: b });
+    expect(getBorder(model, "B3")).toEqual({ top: b });
+    expect(getBorder(model, "B4")).toBeNull();
+  });
+
+  test("ADD_ROWS before with external borders in the column before", () => {
+    setBorder(model, "external", "B2");
+    addRows(model, "before", 2, 1);
+    expect(getBorder(model, "A2")).toEqual({ right: b });
+    expect(getBorder(model, "B2")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "C2")).toEqual({ left: b });
+    // because of border continuity
+    expect(getBorder(model, "B3")).toEqual({ top: b, bottom: b });
+    expect(getBorder(model, "B4")).toEqual({ top: b });
+  });
+
+  test("ADD_ROWS before with external borders in the column after", () => {
+    setBorder(model, "external", "B2");
+    addRows(model, "before", 0, 1);
+    expect(getBorder(model, "B2")).toEqual({ bottom: b });
+    expect(getBorder(model, "B3")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "C2")).toBeNull();
+    expect(getBorder(model, "B4")).toEqual({ top: b });
   });
 });

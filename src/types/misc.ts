@@ -155,6 +155,8 @@ export type BorderCommand =
   | "bottom"
   | "clear";
 
+export type BorderDescription = { vertical?: BorderDescr; horizontal?: BorderDescr } | undefined;
+
 export const enum DIRECTION {
   UP,
   DOWN,

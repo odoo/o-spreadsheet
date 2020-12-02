@@ -416,12 +416,21 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       if (!isColumn && merge.top !== merge.bottom) {
         y += 1;
       }
+      const [col, row] = toCartesian(xc);
+      const border = this.getters.getCellBorder(sheetId, col, row);
+      if (border) {
+        this.dispatch("SET_BORDER", {
+          sheetId,
+          col,
+          row,
+          border,
+        });
+      }
       this.dispatch("UPDATE_CELL", {
         sheetId,
         col: x,
         row: y,
         style: topLeft.style,
-        border: topLeft.border,
         format: topLeft.format,
       });
     }

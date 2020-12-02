@@ -6,6 +6,7 @@ import {
   getCell,
   getCellContent,
   getCellText,
+  getBorder,
   getGrid,
   setCellContent,
   target,
@@ -185,20 +186,19 @@ describe("clipboard", () => {
 
   test("can copy a cell with borders", () => {
     const model = new Model();
-    setCellContent(model, "B2", "b2");
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
-    expect(getCell(model, "B2")!.border).toBe(2);
+    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2") });
 
-    expect(getCell(model, "B2")!.border).toBe(2);
-    expect(getCell(model, "C2")!.border).toBe(2);
+    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
+    expect(getBorder(model, "C2")).toEqual({ bottom: ["thin", "#000"] });
   });
 
   test("can copy a cell with a formatter", () => {
@@ -776,13 +776,13 @@ describe("clipboard", () => {
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
-    expect(getCell(model, "B2")!.border).toBe(2);
+    expect(getBorder(model, "B2")).toEqual({ bottom: ["thin", "#000"] });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C2"), onlyValue: true });
 
     expect(getCell(model, "C2")!.value).toBe("b2");
-    expect(getCell(model, "C2")!.border).not.toBeDefined();
+    expect(getBorder(model, "C2")).toBeNull();
   });
 
   test("can copy a cell with a formatter and paste value only", () => {
@@ -858,13 +858,14 @@ describe("clipboard", () => {
       target: model.getters.getSelectedZones(),
       border: "bottom",
     });
-    expect(getCell(model, "C3")!.border).toBe(2);
+    expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
+    expect(getBorder(model, "C4")).toEqual({ top: ["thin", "#000"] });
 
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("C3"), onlyValue: true });
 
     expect(getCellContent(model, "C3")).toBe("b2");
-    expect(getCell(model, "C3")!.border).toBe(2);
+    expect(getBorder(model, "C3")).toEqual({ bottom: ["thin", "#000"] });
   });
 
   test("paste value only does not remove formating", () => {
