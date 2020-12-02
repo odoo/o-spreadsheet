@@ -2,13 +2,16 @@ import { CorePlugin } from "../core_plugin";
 import { compile, normalize } from "../../formulas/index";
 import { formatDateTime, InternalDate, parseDateTime } from "../../functions/dates";
 import {
-  formatNumber,
-  formatStandardNumber,
   isNumber,
   parseNumber,
-  toCartesian,
   toXC,
   uuidv4,
+  toCartesian,
+  stringify,
+  range,
+  maximumDecimalPlaces,
+  formatStandardNumber,
+  formatNumber,
 } from "../../helpers/index";
 import { _lt } from "../../translation";
 import {
@@ -23,8 +26,12 @@ import {
   Sheet,
   UID,
   WorkbookData,
+  Style,
+  AddColumnsCommand,
+  AddRowsCommand,
   Zone,
 } from "../../types/index";
+import { DEFAULT_STYLE } from "../../constants";
 import { FORMULA_REF_IDENTIFIER } from "../../formulas/tokenizer";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
@@ -41,9 +48,18 @@ interface CoreState {
  * cell and sheet content.
  */
 export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
-  static getters = ["zoneToXC", "getCells", "getFormulaCellContent", "getCellText", "getCellValue"];
+  static getters = [
+    "zoneToXC",
+    "getCells",
+    "getFormulaCellContent",
+    "getCellText",
+    "getCellValue",
+    "getCellStyle",
+  ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  private styles: { [key: number]: Style } = {};
+  private nextId: number = 1;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -51,9 +67,31 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "SET_FORMATTING":
+        if (cmd.style) {
+          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
+        }
+        break;
+
+      case "SET_DECIMAL":
+        this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
+        break;
+      case "SET_FORMATTER":
+        this.setFormatter(cmd.sheetId, cmd.target, cmd.formatter);
+        break;
+      case "CLEAR_FORMATTING":
+        this.clearStyles(cmd.sheetId, cmd.target);
+        break;
+      case "ADD_COLUMNS":
+        this.handleAddColumns(cmd);
+        break;
+      case "ADD_ROWS":
+        this.handleAddRows(cmd);
+        break;
       case "UPDATE_CELL":
         this.updateCell(this.getters.getSheet(cmd.sheetId), cmd.col, cmd.row, cmd);
         break;
+
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
           sheetId: cmd.sheetId,
@@ -67,11 +105,237 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
+  /**
+   * Set a format to all the cells in a zone
+   */
+  private setFormatter(sheetId: UID, zones: Zone[], format: string) {
+    for (let zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.dispatch("UPDATE_CELL", {
+            sheetId,
+            col,
+            row,
+            format,
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * This function allows to adjust the quantity of decimal places after a decimal
+   * point on cells containing number value. It does this by changing the cells
+   * format. Values aren't modified.
+   *
+   * The change of the decimal quantity is done one by one, the sign of the step
+   * variable indicates whether we are increasing or decreasing.
+   *
+   * If several cells are in the zone, the format resulting from the change of the
+   * first cell (with number type) will be applied to the whole zone.
+   */
+  private setDecimal(sheetId: UID, zones: Zone[], step: number) {
+    // Find the first cell with a number value and get the format
+    const numberFormat = this.searchNumberFormat(sheetId, zones);
+    if (numberFormat !== undefined) {
+      // Depending on the step sign, increase or decrease the decimal representation
+      // of the format
+      const newFormat = this.changeDecimalFormat(numberFormat, step);
+      // Aply the new format on the whole zone
+      this.setFormatter(sheetId, zones, newFormat!);
+    }
+  }
+
+  /**
+   * Take a range of cells and return the format of the first cell containing a
+   * number value. Returns a default format if the cell hasn't format. Returns
+   * undefined if no number value in the range.
+   */
+  private searchNumberFormat(sheetId: UID, zones: Zone[]): string | undefined {
+    for (let zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          const cell = this.getters.getCell(sheetId, col, row);
+          if (
+            cell &&
+            (cell.type === CellType.number ||
+              (cell.type === CellType.formula && typeof cell.value === "number"))
+          ) {
+            return cell.format || this.setDefaultNumberFormat(cell.value as any);
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Function used to give the default format of a cell with a number for value.
+   * It is considered that the default format of a number is 0 followed by as many
+   * 0 as there are decimal places.
+   *
+   * Example:
+   * - 1 --> '0'
+   * - 123 --> '0'
+   * - 12345 --> '0'
+   * - 42.1 --> '0.0'
+   * - 456.0001 --> '0.0000'
+   */
+  private setDefaultNumberFormat(cellValue: number): string {
+    const strValue = cellValue.toString();
+    const parts = strValue.split(".");
+    if (parts.length === 1) {
+      return "0";
+    }
+    return "0." + Array(parts[1].length + 1).join("0");
+  }
+
+  /**
+   * This function take a cell format representation and return a new format representtion
+   * with more or lesse decimal places.
+   *
+   * If the format doesn't look like a digital format (means that not contain '0')
+   * or if this one cannot be increased or decreased, the returned format will be
+   * the same.
+   *
+   * This function aims to work with all possible formats as well as custom formats.
+   *
+   * Examples of format changed by this function:
+   * - "0" (step = 1) --> "0.0"
+   * - "0.000%" (step = 1) --> "0.0000%"
+   * - "0.00" (step = -1) --> "0.0"
+   * - "0%" (step = -1) --> "0%"
+   * - "#,##0.0" (step = -1) --> "#,##0"
+   * - "#,##0;0.0%;0.000" (step = 1) --> "#,##0.0;0.00%;0.0000"
+   */
+  private changeDecimalFormat(format: string, step: number): string {
+    const sign = Math.sign(step);
+    // According to the representation of the cell format. A format can contain
+    // up to 4 sub-formats which can be applied depending on the value of the cell
+    // (among positive / negative / zero / text), each of these sub-format is separated
+    // by ';' in the format. We need to make the change on each sub-format.
+    const subFormats = format.split(";");
+    let newSubFormats: string[] = [];
+
+    for (let subFormat of subFormats) {
+      const decimalPointPosition = subFormat.indexOf(".");
+      const exponentPosition = subFormat.toUpperCase().indexOf("E");
+      let newSubFormat: string;
+
+      // the 1st step is to find the part of the zeros located before the
+      // exponent (when existed)
+      const subPart = exponentPosition > -1 ? subFormat.slice(0, exponentPosition) : subFormat;
+      const zerosAfterDecimal =
+        decimalPointPosition > -1 ? subPart.slice(decimalPointPosition).match(/0/g)!.length : 0;
+
+      // the 2nd step is to add (or remove) zero after the last zeros obtained in
+      // step 1
+      const lastZeroPosition = subPart.lastIndexOf("0");
+      if (lastZeroPosition > -1) {
+        if (sign > 0) {
+          // in this case we want to add decimal information
+          if (zerosAfterDecimal < maximumDecimalPlaces) {
+            newSubFormat =
+              subFormat.slice(0, lastZeroPosition + 1) +
+              (zerosAfterDecimal === 0 ? ".0" : "0") +
+              subFormat.slice(lastZeroPosition + 1);
+          } else {
+            newSubFormat = subFormat;
+          }
+        } else {
+          // in this case we want to remove decimal information
+          if (zerosAfterDecimal > 0) {
+            // remove last zero
+            newSubFormat =
+              subFormat.slice(0, lastZeroPosition) + subFormat.slice(lastZeroPosition + 1);
+            // if a zero always exist after decimal point else remove decimal point
+            if (zerosAfterDecimal === 1) {
+              newSubFormat =
+                newSubFormat.slice(0, decimalPointPosition) +
+                newSubFormat.slice(decimalPointPosition + 1);
+            }
+          } else {
+            // zero after decimal isn't present, we can't remove zero
+            newSubFormat = subFormat;
+          }
+        }
+      } else {
+        // no zeros are present in this format, we do nothing
+        newSubFormat = subFormat;
+      }
+      newSubFormats.push(newSubFormat);
+    }
+    return newSubFormats.join(";");
+  }
+
+  /**
+   * Clear the styles of zones
+   */
+  private clearStyles(sheetId: UID, zones: Zone[]) {
+    for (let zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.dispatch("UPDATE_CELL", {
+            sheetId,
+            col,
+            row,
+            style: 0,
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Copy the style of the reference column to the new columns.
+   */
+  private handleAddColumns(cmd: AddColumnsCommand) {
+    // The new columns have already been inserted in the sheet at this point.
+    const sheet = this.getters.getSheet(cmd.sheetId);
+    let insertedColumns: number[];
+    let styleColumn: number;
+    if (cmd.position === "before") {
+      insertedColumns = range(cmd.column, cmd.column + cmd.quantity);
+      styleColumn = cmd.column + cmd.quantity;
+    } else {
+      insertedColumns = range(cmd.column + 1, cmd.column + cmd.quantity + 1);
+      styleColumn = cmd.column;
+    }
+    this.copyColumnStyle(sheet, styleColumn, insertedColumns);
+  }
+
+  /**
+   * Copy the style of the reference row to the new rows.
+   */
+  private handleAddRows(cmd: AddRowsCommand) {
+    const sheet = this.getters.getSheet(cmd.sheetId);
+    let insertedRows: number[];
+    let styleRow: number;
+    if (cmd.position === "before") {
+      insertedRows = range(cmd.row, cmd.row + cmd.quantity);
+      styleRow = cmd.row + cmd.quantity;
+    } else {
+      styleRow = cmd.row;
+      insertedRows = range(cmd.row + 1, cmd.row + cmd.quantity + 1);
+    }
+    this.copyRowStyle(sheet, styleRow, insertedRows);
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
+    // Styles
+    if (data.styles) {
+      this.styles = data.styles;
+    }
+    this.styles[0] = Object.assign({}, DEFAULT_STYLE, this.styles[0]);
+    let nextId = 1;
+    for (let k in this.styles) {
+      nextId = Math.max(k as any, nextId);
+    }
+    this.nextId = nextId + 1;
     for (let sheet of data.sheets) {
       const imported_sheet = this.getters.getSheet(sheet.id);
       // cells
@@ -84,6 +348,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   export(data: WorkbookData) {
+    data.styles = this.styles;
     for (let _sheet of data.sheets) {
       const cells: { [key: string]: CellData } = {};
       for (let [cellId, cell] of Object.entries(this.cells[_sheet.id] || {})) {
@@ -207,6 +472,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return (value && (value as any).toString()) || "";
   }
 
+  getCellStyle(cell: Cell): Style {
+    return cell.style ? this.styles[cell.style] : {};
+  }
+
   /**
    * Converts a zone to a XC coordinate system
    *
@@ -237,9 +506,86 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return topLeft;
   }
 
-  // ---------------------------------------------------------------------------
-  // Cells
-  // ---------------------------------------------------------------------------
+  private setStyle(sheetId: UID, target: Zone[], style: Style) {
+    for (let zone of target) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.setStyleToCell(sheetId, col, row, style);
+        }
+      }
+    }
+  }
+
+  private setStyleToCell(sheetId: UID, col: number, row: number, style: Style) {
+    const cell = this.getters.getCellByXc(sheetId, toXC(col, row));
+    const currentStyle = cell && cell.style ? this.styles[cell.style] : {};
+    const nextStyle = Object.assign({}, currentStyle, style);
+    const id = this.registerStyle(nextStyle);
+    this.dispatch("UPDATE_CELL", {
+      sheetId,
+      col,
+      row,
+      style: id,
+    });
+  }
+
+  private registerStyle(style: Style) {
+    const strStyle = stringify(style);
+    for (let k in this.styles) {
+      if (stringify(this.styles[k]) === strStyle) {
+        return parseInt(k, 10);
+      }
+    }
+    const id = this.nextId++;
+    this.styles[id] = style;
+    return id;
+  }
+
+  /**
+   * Copy the style of one column to other columns.
+   */
+  private copyColumnStyle(sheet: Sheet, refColumn: number, targetCols: number[]) {
+    for (let row = 0; row < sheet.rows.length; row++) {
+      const format = this.getFormat(sheet.id, toXC(refColumn, row));
+      if (format.style || format.format) {
+        for (let col of targetCols) {
+          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+        }
+      }
+    }
+  }
+
+  /**
+   * Copy the style of one row to other rows.
+   */
+  private copyRowStyle(sheet: Sheet, refRow: number, targetRows: number[]) {
+    for (let col = 0; col < sheet.cols.length; col++) {
+      const format = this.getFormat(sheet.id, toXC(col, refRow));
+      if (format.style || format.format) {
+        for (let row of targetRows) {
+          this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
+        }
+      }
+    }
+  }
+
+  /**
+   * gets the currently used style/border of a cell based on it's coordinates
+   */
+  private getFormat(sheetId: UID, xc: string): { style?: number; format?: string } {
+    const format: { style?: number; format?: string } = {};
+    xc = this.getters.getMainCell(sheetId, xc);
+    const cell = this.getters.getCellByXc(sheetId, xc);
+    if (cell) {
+      if (cell.style) {
+        format["style"] = cell.style;
+      }
+      if (cell.format) {
+        format["format"] = cell.format;
+      }
+    }
+    return format;
+  }
 
   private updateCell(sheet: Sheet, col: number, row: number, after: CellData) {
     const before = sheet.rows[row].cells[col];
