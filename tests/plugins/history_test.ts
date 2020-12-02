@@ -146,6 +146,24 @@ describe("history", () => {
       history.updateStateFromRoot(state, "A", "B", true, "C", 5);
     }).toThrow();
   });
+
+  test("delete array, then rebuild it on-the-fly, undo/redo", () => {
+    const history = new WHistory();
+    const state = { A: [[77]] };
+    history.beforeHandle({ type: "START" });
+    history.handle({ type: "START" });
+    history.beforeHandle({ type: "START_EDITION" });
+    history.handle({ type: "START_EDITION" });
+    history.updateStateFromRoot(state, "A", 0, undefined);
+    history.updateStateFromRoot(state, "A", 0, 0, 5);
+    expect(state).toEqual({ A: [[5]] });
+    history.finalize();
+
+    history.undo();
+    expect(state).toEqual({ A: [[77]] });
+    history.redo();
+    expect(state).toEqual({ A: [[5]] });
+  });
 });
 
 describe("Model history", () => {
