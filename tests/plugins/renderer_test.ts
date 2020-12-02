@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
 import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
-import { setCellContent, mockUuidV4To } from "../helpers";
+import { setCellContent, mockUuidV4To, createEqualCF } from "../helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };
@@ -253,5 +253,40 @@ describe("renderer", () => {
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(expect.objectContaining({}), "1", true);
+  });
+  test("CF on empty cell", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 1,
+        },
+      ],
+    });
+    let fillStyle: any[] = [];
+    let fillStyleColor1Called = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && value === "#DC6CDF") {
+          fillStyleColor1Called = true;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleColor1Called) {
+          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([]);
+    fillStyle = [];
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1"], "", { fillColor: "#DC6CDF" }, "1"),
+      sheetId: model.getters.getActiveSheetId(),
+    });
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
   });
 });
