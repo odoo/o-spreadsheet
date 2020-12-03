@@ -166,8 +166,7 @@ export class ConditionalFormatPlugin
       if (updatedRanges.length === 0) {
         continue;
       }
-      cf.ranges = updatedRanges;
-      newCfs.push(cf);
+      newCfs.push({ ...cf, ranges: updatedRanges });
     }
     this.history.update("cfRules", sheet, newCfs);
   }

@@ -169,6 +169,35 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
   });
 
+  test("Still correct after ADD_COLUMNS and UNDO/REDO", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "B1", "1");
+    setCellContent(model, "B2", "1");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["B1", "B2"], "1", { fillColor: "#FF0000" }, "1"),
+      sheetId,
+    });
+    expect(model.getters.getConditionalStyle("B1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("B2")).toEqual({ fillColor: "#FF0000" });
+    model.dispatch("ADD_COLUMNS", { sheetId, column: 0, position: "after", quantity: 1 });
+    expect(model.getters.getConditionalStyle("B1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("C2")).toEqual({ fillColor: "#FF0000" });
+
+    model.dispatch("UNDO");
+    expect(model.getters.getConditionalStyle("B1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("B2")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("C1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
+
+    model.dispatch("REDO");
+    expect(model.getters.getConditionalStyle("B1")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
+    expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
+    expect(model.getters.getConditionalStyle("C2")).toEqual({ fillColor: "#FF0000" });
+  });
+
   test("is saved/restored", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF(["A1:A4"], "2", { fillColor: "#FF0000" }, "1"),
