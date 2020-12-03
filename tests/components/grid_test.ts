@@ -318,6 +318,40 @@ describe("Grid component", () => {
       });
     });
 
+    test("toggle bold with Ctrl+B", async () => {
+      setCellContent(model, "A1", "hello");
+      expect(getCell(model, "A1")!.style).not.toBeDefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "B", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toBe(2);
+      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ bold: true });
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "B", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toBe(3);
+      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ bold: false });
+    });
+
+    test("toggle Italic with Ctrl+I", async () => {
+      setCellContent(model, "A1", "hello");
+      expect(getCell(model, "A1")!.style).not.toBeDefined();
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "I", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toBe(2);
+      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ italic: true });
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "I", ctrlKey: true, bubbles: true })
+      );
+      await nextTick();
+      expect(getCell(model, "A1")!.style).toBe(3);
+      expect(model.getters.getCellStyle(model.getters.getActiveCell()!)).toEqual({ italic: false });
+    });
+
     test("can save the sheet with CTRL+S", async () => {
       let saveContentCalled = false;
       parent.el!.addEventListener("save-requested", () => {

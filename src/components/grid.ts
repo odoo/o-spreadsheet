@@ -324,6 +324,18 @@ export class Grid extends Component<{ model: Model }, SpreadsheetEnv> {
     },
     "CTRL+Z": () => this.dispatch("UNDO"),
     "CTRL+Y": () => this.dispatch("REDO"),
+    "CTRL+B": () =>
+      this.dispatch("SET_FORMATTING", {
+        sheetId: this.getters.getActiveSheetId(),
+        target: this.getters.getSelectedZones(),
+        style: { bold: !this.getters.getCurrentStyle().bold },
+      }),
+    "CTRL+I": () =>
+      this.dispatch("SET_FORMATTING", {
+        sheetId: this.getters.getActiveSheetId(),
+        target: this.getters.getSelectedZones(),
+        style: { italic: !this.getters.getCurrentStyle().italic },
+      }),
   };
 
   constructor() {

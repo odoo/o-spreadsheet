@@ -177,11 +177,13 @@ topbarMenuRegistry
   .addChild("format_bold", ["format"], {
     name: _lt("Bold"),
     sequence: 20,
+    shortCut: "Ctrl+B",
     action: ACTIONS.FORMAT_BOLD_ACTION,
   })
   .addChild("format_italic", ["format"], {
     name: _lt("Italic"),
     sequence: 30,
+    shortCut: "Ctrl+I",
     action: ACTIONS.FORMAT_ITALIC_ACTION,
   })
   // .addChild("format_underline", ["format"], {
