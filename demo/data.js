@@ -10,7 +10,6 @@ export const demoData = {
   sheets: [
     {
       name: "Sheet1",
-      id: "sheet1",
       colNumber: 26,
       rowNumber: 120,
       cols: { 1: {}, 3: {} },
@@ -114,7 +113,6 @@ export const demoData = {
     },
     {
       name: "Sheet2",
-      id: "sheet2",
       cells: {
         B2: { content: "42" },
       },
@@ -229,7 +227,7 @@ function computeCells(cols, rows) {
 
 export function makeLargeDataset(cols, rows) {
   return {
-    version: 1,
+    version: 6,
     sheets: [
       {
         name: "Sheet1",

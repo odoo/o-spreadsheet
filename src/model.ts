@@ -13,7 +13,7 @@ import {
   EvalContext,
 } from "./types/index";
 import { _lt } from "./translation";
-import { DEBUG } from "./helpers/index";
+import { DEBUG, setIsFastStrategy } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
@@ -159,6 +159,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+
+    setIsFastStrategy(true);
+
     if (Plugin.modes.includes(this.config.mode)) {
       const plugin = new Plugin(this.getters, history, dispatch, this.config);
       plugin.import(data);
