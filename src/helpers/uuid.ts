@@ -1,8 +1,19 @@
 /*
  * https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
  * */
+
+let isFastIdStrategy = false;
+let fastIdStart = 0;
+
+export function setIsFastStrategy(isFast: boolean) {
+  isFastIdStrategy = isFast;
+}
+
 export function uuidv4(): string {
-  if (window.crypto && window.crypto.getRandomValues) {
+  if (isFastIdStrategy) {
+    fastIdStart++;
+    return String(fastIdStart);
+  } else if (window.crypto && window.crypto.getRandomValues) {
     //@ts-ignore
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
       (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
