@@ -347,6 +347,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
     line-height: 34px;
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
+    background-color: white;
   `;
 
   constructor() {
