@@ -413,10 +413,6 @@ export interface RemoveAllHighlightsCommand extends BaseCommand {
   type: "REMOVE_ALL_HIGHLIGHTS";
 }
 
-export interface StartComposerSelectionCommand extends BaseCommand {
-  type: "START_COMPOSER_SELECTION";
-}
-
 export interface StopComposerSelectionCommand extends BaseCommand {
   type: "STOP_COMPOSER_SELECTION";
 }
@@ -686,7 +682,6 @@ export type Command =
   | AddPendingHighlightCommand
   | ResetPendingHighlightCommand
   | SetColorCommand
-  | StartComposerSelectionCommand
   | StopComposerSelectionCommand
   | StartEditionCommand
   | StopEditionCommand

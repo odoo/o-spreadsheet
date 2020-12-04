@@ -275,7 +275,8 @@ describe("selection", () => {
     });
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(getActiveXc(model)).toBe("C3");
-    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("START_EDITION", { text: "=" });
+    expect(model.getters.getEditionMode()).toBe("selecting");
     model.dispatch("SELECT_CELL", { col: 3, row: 3 });
     expect(getActiveXc(model)).toBe("C3"); // active cell is not modified but the selection is
 
@@ -296,7 +297,7 @@ describe("selection", () => {
     });
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
 
-    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("START_EDITION", { text: "=" });
     model.dispatch("SELECT_CELL", { col: 3, row: 3 });
     model.dispatch("ALTER_SELECTION", { cell: [4, 4] });
 
@@ -311,7 +312,7 @@ describe("selection", () => {
     const model = new Model();
     model.dispatch("SELECT_CELL", { col: 0, row: 0 });
 
-    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("START_EDITION", { text: "=" });
     model.dispatch("SELECT_CELL", { col: 3, row: 3 });
 
     model.dispatch("ALTER_SELECTION", { delta: [0, 1] });

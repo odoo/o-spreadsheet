@@ -74,18 +74,6 @@ export class EditionPlugin extends UIPlugin {
         this.selectionStart = cmd.start;
         this.selectionEnd = cmd.end;
         break;
-      case "START_COMPOSER_SELECTION":
-        this.mode = "resettingPosition";
-        this.dispatch("SELECT_CELL", {
-          col: this.col,
-          row: this.row,
-        });
-        this.mode = "selecting";
-        // We set this variable to store the start of the selection, to allow
-        // to replace selections (ex: select twice a cell should only be added
-        // once)
-        this.selectionInitialStart = this.selectionStart;
-        break;
       case "STOP_COMPOSER_SELECTION":
         if (this.mode === "selecting") {
           this.mode = "editing";
@@ -182,6 +170,23 @@ export class EditionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------------
+
+  /**
+   * Enable the selecting mode
+   */
+  private startComposerSelection() {
+    this.mode = "resettingPosition";
+    const [col, row] = this.getters.getPosition();
+    this.dispatch("SELECT_CELL", {
+      col,
+      row,
+    });
+    this.mode = "selecting";
+    // We set this variable to store the start of the selection, to allow
+    // to replace selections (ex: select twice a cell should only be added
+    // once)
+    this.selectionInitialStart = this.selectionStart;
+  }
 
   private getCellContent(cell: Cell) {
     switch (cell.type) {
@@ -280,6 +285,9 @@ export class EditionPlugin extends UIPlugin {
     } else {
       this.selectionStart = this.selectionEnd = text.length;
     }
+    if (this.canStartComposerSelection()) {
+      this.startComposerSelection();
+    }
   }
 
   /**
@@ -311,7 +319,7 @@ export class EditionPlugin extends UIPlugin {
    * Replace the current selection by a new text.
    * The cursor is then set at the end of the text.
    */
-  replaceSelection(text) {
+  private replaceSelection(text) {
     const start = this.selectionStart;
     const end = this.selectionEnd;
     this.currentContent =
@@ -375,5 +383,18 @@ export class EditionPlugin extends UIPlugin {
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
     });
+  }
+
+  private canStartComposerSelection(): boolean {
+    if (this.isSelectingForComposer()) return false;
+    // todo: check the precise context of the surrounding tokens in which the selection can start
+    const tokenAtCursor = this.getTokenAtCursor();
+    if (
+      tokenAtCursor &&
+      ["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(tokenAtCursor.type)
+    ) {
+      return true;
+    }
+    return false;
   }
 }

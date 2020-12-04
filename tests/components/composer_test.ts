@@ -226,6 +226,16 @@ describe("composer", () => {
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
+  test("type '=' in the sheet and select a cell", async () => {
+    composerEl = await startComposition("=");
+    expect(composerEl.textContent).toBe("=");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    triggerMouseEvent("canvas", "mousedown", 300, 200);
+    window.dispatchEvent(new MouseEvent("mouseup", { clientX: 300, clientY: 200 }));
+    await nextTick();
+    expect(composerEl.textContent).toBe("=C8");
+  });
+
   test("type '=', select twice a cell", async () => {
     await typeInComposer("=");
     expect(model.getters.getEditionMode()).toBe("selecting");
