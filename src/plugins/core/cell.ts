@@ -102,7 +102,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             cells[xc].formula = {
               text: cell.formula.text || "",
               dependencies:
-                cell.dependencies?.map((d) => this.getters.getRangeString(d.id, _sheet.id)) || [],
+                cell.dependencies?.map((d) => this.getters.getRangeString(d, _sheet.id)) || [],
             };
             break;
           case CellType.date:
@@ -127,7 +127,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
     let newDependencies = cell.dependencies?.map((x, i) => {
       return {
-        stringDependency: this.getters.getRangeString(x.id, sheetId),
+        stringDependency: this.getters.getRangeString(x, sheetId),
         stringPosition: `${FORMULA_REF_IDENTIFIER}${i}${FORMULA_REF_IDENTIFIER}`,
       };
     });

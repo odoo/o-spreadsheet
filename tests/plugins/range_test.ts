@@ -4,6 +4,7 @@ import { corePluginRegistry } from "../../src/plugins";
 import { BaseCommand, Command, Range } from "../../src/types";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { INCORRECT_RANGE_STRING } from "../../src/plugins/core/range";
+import { toZone } from "../../src/helpers";
 
 let m;
 let notificationSpy;
@@ -14,10 +15,16 @@ export interface UseRange extends BaseCommand {
   rangesXC: string[];
 }
 
-type TestCommands = Command | UseRange;
+export interface UseTransientRange extends BaseCommand {
+  type: "USE_TRANSIENT_RANGE";
+  sheetId: string;
+  rangesXC: string[];
+}
+
+type TestCommands = Command | UseRange | UseTransientRange;
 
 class PluginTestRange extends CorePlugin {
-  static getters = ["getUsedRanges"];
+  static getters = ["getUsedRanges", "getRanges"];
 
   ranges: Range[] = [];
 
@@ -28,11 +35,22 @@ class PluginTestRange extends CorePlugin {
           this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r, this.rangeChanged));
         }
         break;
+      case "USE_TRANSIENT_RANGE":
+        for (let r of cmd.rangesXC) {
+          this.ranges.push(
+            this.getters.getRangeFromSheetXC(cmd.sheetId, r, this.rangeChanged, true)
+          );
+        }
+        break;
     }
   }
 
   getUsedRanges() {
-    return this.ranges.map((range) => this.getters.getRangeString(range.id, "s1"));
+    return this.ranges.map((range) => this.getters.getRangeString(range, "s1"));
+  }
+
+  getRanges() {
+    return this.ranges;
   }
 
   rangeChanged() {
@@ -339,16 +357,16 @@ describe("range plugin", () => {
 
   describe("restoring a range as string", () => {
     test("range created from right to left have correct left (smaller) and right (bigger)", () => {
-      let { id } = m.getters.getRangeFromSheetXC("s2", "c1:a1");
-      expect(m.getters.getRangeString(id, "s1")).toBe("'s 2'!A1:C1");
+      let r = m.getters.getRangeFromSheetXC("s2", "c1:a1");
+      expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1:C1");
     });
     test("range created from bottom to top have correct top (smaller) and bottom (bigger)", () => {
-      let { id } = m.getters.getRangeFromSheetXC("s2", "a10:a1");
-      expect(m.getters.getRangeString(id, "s1")).toBe("'s 2'!A1:A10");
+      let r = m.getters.getRangeFromSheetXC("s2", "a10:a1");
+      expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1:A10");
     });
     test("test withing a sheet that has a space", () => {
-      let { id } = m.getters.getRangeFromSheetXC("s2", "a1");
-      expect(m.getters.getRangeString(id, "s1")).toBe("'s 2'!A1");
+      let r = m.getters.getRangeFromSheetXC("s2", "a1");
+      expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1");
     });
 
     test.each([
@@ -377,8 +395,8 @@ describe("range plugin", () => {
       ["s1!A$1:B$1"],
       ["s1!$A$1:$B$1"],
     ])("test withing a fixed row", (range) => {
-      let { id } = m.getters.getRangeFromSheetXC("s1", range);
-      expect(m.getters.getRangeString(id, "s1")).toBe(range);
+      let r = m.getters.getRangeFromSheetXC("s1", range);
+      expect(m.getters.getRangeString(r, "s1")).toBe(range);
     });
 
     test.each([
@@ -407,17 +425,17 @@ describe("range plugin", () => {
       ["s1!A$1:B$1", "s1!A$1:B$1"],
       ["s1!$A$1:$B$1", "s1!$A$1:$B$1"],
     ])("test withing a fixed row, displayed for another sheet", (range, expectedString) => {
-      let { id } = m.getters.getRangeFromSheetXC("s1", range);
-      expect(m.getters.getRangeString(id, "s2")).toBe(expectedString);
+      let r = m.getters.getRangeFromSheetXC("s1", range);
+      expect(m.getters.getRangeString(r, "s2")).toBe(expectedString);
     });
 
     test("can create a range from a sheet that doesn't exist", () => {
-      let { id } = m.getters.getRangeFromSheetXC("s2", "NOTTHERE!a1");
-      expect(m.getters.getRangeString(id, "s1")).toBe("NOTTHERE!A1");
+      let r = m.getters.getRangeFromSheetXC("s2", "NOTTHERE!a1");
+      expect(m.getters.getRangeString(r, "s1")).toBe("NOTTHERE!A1");
     });
 
     test("requesting a range that doesn't exist", () => {
-      expect(m.getters.getRangeString("s1", "not there")).toBe(INCORRECT_RANGE_STRING);
+      expect(m.getters.getRangeString(undefined, "not there")).toBe(INCORRECT_RANGE_STRING);
     });
   });
 
@@ -450,6 +468,28 @@ describe("range plugin", () => {
       expect(m.getters.getFormulaCellContent("s1", m.getters.getCell("s1", 0, 3))).toBe(
         "=sum(A1:A3)"
       );
+    });
+  });
+
+  describe("use transient ranges do not update the ranges", () => {
+    beforeEach(() => {
+      m.dispatch("USE_TRANSIENT_RANGE", {
+        sheetId: m.getters.getActiveSheetId(),
+        rangesXC: ["C3:D6"],
+      });
+    });
+    test("before, before the end", () => {
+      m.dispatch("ADD_ROWS", {
+        sheetId: m.getters.getActiveSheetId(),
+        row: 5,
+        quantity: 1,
+        position: "before",
+      });
+      expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "C3:D6"]);
+      expect(m.getters.getRanges()).toMatchObject([
+        { zone: toZone("B2:D4") },
+        { zone: toZone("C3:D6") },
+      ]);
     });
   });
 });

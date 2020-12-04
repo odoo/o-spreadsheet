@@ -144,7 +144,7 @@ export class EvaluationPlugin extends UIPlugin {
 
     const ranges: Range[] = [];
     for (let xc of formulaString.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc, undefined, true));
     }
 
     return compiledFormula(ranges, sheetId, ...params);
@@ -378,7 +378,7 @@ export class EvaluationPlugin extends UIPlugin {
       const range: Range = references[position];
 
       if (isMeta) {
-        return evalContext.getters.getRangeString(range.id, sheetId);
+        return evalContext.getters.getRangeString(range, sheetId);
       }
       if (range.invalidSheetName) {
         throw new Error(_lt(`Invalid sheet name: ${range.invalidSheetName}`));

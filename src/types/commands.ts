@@ -31,7 +31,7 @@ import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
  * active sheet.
  */
 
-interface BaseCommand {
+export interface BaseCommand {
   interactive?: boolean;
 }
 
