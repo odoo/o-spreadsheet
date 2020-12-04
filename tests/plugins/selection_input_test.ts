@@ -62,7 +62,7 @@ describe("selection input plugin", () => {
   test("focused input should not change when selecting a zone for composer", () => {
     model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
     model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
-    model.dispatch("START_COMPOSER_SELECTION");
+    model.dispatch("START_EDITION", { text: "="});
     select(model, "C2");
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("");
   });

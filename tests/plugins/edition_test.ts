@@ -65,7 +65,6 @@ describe("edition", () => {
     const model = new Model();
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "=" });
-    model.dispatch("START_COMPOSER_SELECTION");
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", name: "Sheet2", position: 1 });
@@ -302,7 +301,6 @@ describe("edition", () => {
       start: 1,
       end: 1,
     });
-    model.dispatch("START_COMPOSER_SELECTION");
 
     model.dispatch("SET_SELECTION", {
       anchor: [0, 0],
@@ -389,6 +387,17 @@ describe("edition", () => {
     expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
     model.dispatch("SELECT_CELL", { col, row });
     expect(model.getters.getCurrentContent()).toBe("");
+  });
+
+  test("select an empty cell, start selecting mode at the composer position", () => {
+    const model = new Model();
+    const [col, row] = toCartesian("A2");
+    expect(model.getters.getCell(model.getters.getActiveSheetId(), col, row)).toBeUndefined();
+    model.dispatch("SELECT_CELL", { col, row });
+    model.dispatch("START_EDITION", { text: "=" });
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    expect(model.getters.getCurrentContent()).toBe("=B2");
   });
 
   test("content is the raw cell content, not the evaluated text", () => {

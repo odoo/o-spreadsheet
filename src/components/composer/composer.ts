@@ -265,9 +265,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       content,
       selection: this.contentHelper.getCurrentSelection(),
     });
-    if (this.canStartComposerSelection()) {
-      this.dispatch("START_COMPOSER_SELECTION");
-    }
   }
 
   onKeyup(ev: KeyboardEvent) {
@@ -406,18 +403,6 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
     return this.getters.getEditionMode() !== "inactive" ? MatchingParenColor : undefined;
   }
 
-  private canStartComposerSelection(): boolean {
-    // todo: check the precise context of the surrounding tokens in which the selection can start
-    const tokenAtCursor = this.getters.getTokenAtCursor();
-    if (
-      tokenAtCursor &&
-      ["COMMA", "LEFT_PAREN", "OPERATOR", "SPACE"].includes(tokenAtCursor.type)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
   /**
    * Compute the state of the composer from the tokenAtCursor.
    * If the token is a function or symbol (that isn't a cell/range reference) we have to initialize
@@ -495,8 +480,5 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
       });
     }
     this.processTokenAtCursor();
-    if (this.canStartComposerSelection()) {
-      this.dispatch("START_COMPOSER_SELECTION");
-    }
   }
 }
