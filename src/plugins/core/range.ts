@@ -167,7 +167,12 @@ export class RangePlugin extends CorePlugin<RangeState> {
    * @param onChange a function that will be called if this range is modified. Note that this function will be called
    *                 in the finalize of the command, so it cannot use `dispatch` or `this.history`
    */
-  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string, onChange?: onRangeChange): Range {
+  getRangeFromSheetXC(
+    defaultSheetId: UID,
+    sheetXC: string,
+    onChange?: onRangeChange,
+    transient: boolean = false
+  ): Range {
     let xc = sheetXC;
     let sheetName: string = "";
     let sheetId: UID | undefined;
@@ -223,8 +228,9 @@ export class RangePlugin extends CorePlugin<RangeState> {
       invalidSheetName,
       prefixSheet,
     };
-
-    this.ranges[r.id] = r;
+    if (!transient) {
+      this.ranges[r.id] = r;
+    }
     return r;
   }
 
@@ -233,51 +239,54 @@ export class RangePlugin extends CorePlugin<RangeState> {
    * The string will be prefixed with the sheet name if the call specified a sheet id in `forSheetId`
    * different than the sheet on which the range has been created.
    *
-   * @param rangeId the id of the range (received from getRangeFromXC or getRangeFromZone)
+   * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
    */
-  getRangeString(rangeId: UID, forSheetId: UID): string {
-    const r = this.ranges[rangeId];
-    if (!r) {
+  getRangeString(range: Range, forSheetId: UID): string {
+    if (!range) {
       return INCORRECT_RANGE_STRING;
     }
 
-    if (r.zone.bottom - r.zone.top < 0 || r.zone.right - r.zone.left < 0) {
+    if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
       return INCORRECT_RANGE_STRING;
     }
-    let prefixSheet = r.sheetId !== forSheetId || r.invalidSheetName || r.prefixSheet;
+    let prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
     let sheetName: string = "";
     if (prefixSheet) {
-      if (r.invalidSheetName) {
-        sheetName = r.invalidSheetName;
+      if (range.invalidSheetName) {
+        sheetName = range.invalidSheetName;
       } else {
-        const s = this.getters.getSheetName(r.sheetId);
+        const s = this.getters.getSheetName(range.sheetId);
         if (s) {
           sheetName = getComposerSheetName(s);
         }
       }
     }
 
+    if (prefixSheet && !sheetName) {
+      return INCORRECT_RANGE_STRING;
+    }
+
     let ref: string[] = Array(9);
-    ref.push(r.parts && r.parts[0].colFixed ? "$" : "");
-    ref.push(numberToLetters(r.zone.left));
-    ref.push(r.parts && r.parts[0].rowFixed ? "$" : "");
-    ref.push(String(r.zone.top + 1));
-    if (r.parts && r.parts.length === 2) {
+    ref[0] = range.parts && range.parts[0].colFixed ? "$" : "";
+    ref[1] = numberToLetters(range.zone.left);
+    ref[2] = range.parts && range.parts[0].rowFixed ? "$" : "";
+    ref[3] = String(range.zone.top + 1);
+    if (range.parts && range.parts.length === 2) {
       // this if converts A2:A2 into A2 except if any part of the original range had fixed row or column (with $)
       if (
-        r.zone.top !== r.zone.bottom ||
-        r.zone.left !== r.zone.right ||
-        r.parts[0].rowFixed ||
-        r.parts[0].colFixed ||
-        r.parts[1].rowFixed ||
-        r.parts[1].colFixed
+        range.zone.top !== range.zone.bottom ||
+        range.zone.left !== range.zone.right ||
+        range.parts[0].rowFixed ||
+        range.parts[0].colFixed ||
+        range.parts[1].rowFixed ||
+        range.parts[1].colFixed
       ) {
-        ref.push(":");
-        ref.push(r.parts[1].colFixed ? "$" : "");
-        ref.push(numberToLetters(r.zone.right));
-        ref.push(r.parts[1].rowFixed ? "$" : "");
-        ref.push(String(r.zone.bottom + 1));
+        ref[4] = ":";
+        ref[5] = range.parts[1].colFixed ? "$" : "";
+        ref[6] = numberToLetters(range.zone.right);
+        ref[7] = range.parts[1].rowFixed ? "$" : "";
+        ref[8] = String(range.zone.bottom + 1);
       }
     }
 
