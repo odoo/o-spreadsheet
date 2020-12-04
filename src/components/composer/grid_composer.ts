@@ -7,6 +7,9 @@ import { fontSizeMap } from "../../fonts";
 const { Component } = owl;
 const { xml, css } = owl.tags;
 
+const SCROLLBAR_WIDTH = 14;
+const SCROLLBAR_HIGHT = 15;
+
 const TEMPLATE = xml/* xml */ `
   <div class="o-grid-composer" t-att-style="containerStyle">
     <Composer
@@ -14,6 +17,7 @@ const TEMPLATE = xml/* xml */ `
       inputStyle="composerStyle"
       t-on-keydown="onKeydown"
       t-on-content-width-changed="onWidthChanged"
+      t-on-content-height-changed="onHeigthChanged"
     />
   </div>
 `;
@@ -91,12 +95,20 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
 
   mounted() {
     const el = this.el!;
-    el.style.width = (Math.max(el.scrollWidth + 10, this.rect[2] + 1) + "px") as string;
+    const width = Math.max(el.scrollWidth, this.rect[2]);
+    this.resizeWidth(width, 0);
+    const height = Math.max(el.scrollHeight, this.rect[3]);
+    this.resizeHeigth(height);
   }
 
   onWidthChanged(ev: CustomEvent) {
-    const padding = this.props.focus ? 40 : 0;
-    this.resize(ev.detail.newWidth + padding);
+    const paddingWidth = this.props.focus ? 40 : 0;
+    this.resizeWidth(ev.detail.newWidth + paddingWidth, 10);
+  }
+
+  onHeigthChanged(ev: CustomEvent) {
+    const paddingHeight = this.props.focus ? 2 : 0;
+    this.resizeHeigth(ev.detail.newHeight + paddingHeight);
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -107,9 +119,27 @@ export class GridComposer extends Component<Props, SpreadsheetEnv> {
     }
   }
 
-  private resize(width: number) {
+  private resizeWidth(width: number, step: number) {
     const el = this.el! as HTMLInputElement;
-    el.style.width = (Math.max(width + 10, this.rect[2] + 0.5) + "px") as string;
-    el.style.height = (this.rect[3] + 0.5 + "px") as string;
+    const maxWidth = el.parentElement!.clientWidth - this.rect[0] - SCROLLBAR_WIDTH;
+    let newWidth = Math.max(width + step, this.rect[2] + 0.5);
+    if (newWidth > maxWidth) {
+      el.style.whiteSpace = "normal";
+      newWidth = maxWidth;
+    } else {
+      el.style.whiteSpace = "none";
+    }
+    el.style.width = (newWidth + "px") as string;
+  }
+
+  private resizeHeigth(height: number) {
+    const el = this.el! as HTMLInputElement;
+    const maxHeight = el.parentElement!.clientHeight - this.rect[1] - SCROLLBAR_HIGHT;
+    let newHeight = Math.max(height + 1, this.rect[3]);
+    if (newHeight > maxHeight) {
+      el.style.overflow = "hidden";
+      newHeight = maxHeight;
+    }
+    el.style.height = (newHeight + "px") as string;
   }
 }

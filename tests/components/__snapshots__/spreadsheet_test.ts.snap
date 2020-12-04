@@ -335,6 +335,7 @@ exports[`Spreadsheet simple rendering snapshot 1`] = `
     line-height: 34px;
     border-bottom: 1px solid #e0e2e4;
     border-left: 1px solid #e0e2e4;
+    background-color: white;
   "
           tabindex="1"
         >

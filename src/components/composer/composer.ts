@@ -376,6 +376,11 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
         newWidth: this.composerRef.el!.scrollWidth,
       });
     }
+    if (this.composerRef.el!.clientHeight !== this.composerRef.el!.scrollHeight) {
+      this.trigger("content-height-changed", {
+        newHeight: this.composerRef.el!.scrollHeight,
+      });
+    }
     this.shouldProcessInputEvents = true;
   }
 
