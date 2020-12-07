@@ -1,7 +1,7 @@
 import { args } from "./arguments";
 import { AddFunctionDescription } from "../types";
-import { toNativeDate, InternalDate, parseDateTime } from "../functions/dates";
-import { toNumber, toString, visitAny } from "./helpers";
+import { parseDateTime } from "../functions/dates";
+import { toNumber, toString, toJsDate, visitAny } from "./helpers";
 import { _lt } from "../translation";
 
 const INITIAL_1900_DAY = new Date(1899, 11, 30);
@@ -17,7 +17,8 @@ export const DATE: AddFunctionDescription = {
     day (number) ${_lt("The day component of the date.")}")}
     `),
   returns: ["DATE"],
-  compute: function (year: any, month: any, day: any): InternalDate {
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (year: any, month: any, day: any): number {
     let _year = Math.trunc(toNumber(year));
     const _month = Math.trunc(toNumber(month));
     const _day = Math.trunc(toNumber(day));
@@ -45,11 +46,7 @@ export const DATE: AddFunctionDescription = {
       );
     }
 
-    return {
-      value: Math.round(delta / 86400000),
-      format: "m/d/yyyy",
-      jsDate: jsDate,
-    };
+    return Math.round(delta / 86400000);
   },
 };
 
@@ -64,13 +61,13 @@ export const DATEVALUE: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (dateString: any): number {
     const _dateString = toString(dateString);
-    const datetime = parseDateTime(_dateString);
-    if (datetime === null) {
+    const internalDate = parseDateTime(_dateString);
+    if (internalDate === null) {
       throw new Error(
         _lt(`[[FUNCTION_NAME]] parameter '${_dateString}' cannot be parsed to date/time.`)
       );
     }
-    return Math.trunc(datetime.value);
+    return Math.trunc(internalDate.value);
   },
 };
 
@@ -84,7 +81,7 @@ export const DAY: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getDate();
+    return toJsDate(date).getDate();
   },
 };
 
@@ -99,8 +96,8 @@ export const DAYS: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (endDate: any, startDate: any): number {
-    const _endDate = toNativeDate(endDate);
-    const _startDate = toNativeDate(startDate);
+    const _endDate = toJsDate(endDate);
+    const _startDate = toJsDate(startDate);
     const dateDif = _endDate.getTime() - _startDate.getTime();
     return Math.round(dateDif / 86400000);
   },
@@ -118,8 +115,9 @@ export const EDATE: AddFunctionDescription = {
     )}
     `),
   returns: ["DATE"],
-  compute: function (startDate: any, months: any): InternalDate {
-    const _startDate = toNativeDate(startDate);
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (startDate: any, months: any): number {
+    const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
     const yStart = _startDate.getFullYear();
@@ -128,11 +126,7 @@ export const EDATE: AddFunctionDescription = {
     const jsDate = new Date(yStart, mStart + _months, dStart);
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
-    return {
-      value: Math.round(delta / 86400000),
-      format: "m/d/yyyy",
-      jsDate: jsDate,
-    };
+    return Math.round(delta / 86400000);
   },
 };
 
@@ -148,8 +142,9 @@ export const EOMONTH: AddFunctionDescription = {
     )}
     `),
   returns: ["DATE"],
-  compute: function (startDate: any, months: any): InternalDate {
-    const _startDate = toNativeDate(startDate);
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (startDate: any, months: any): number {
+    const _startDate = toJsDate(startDate);
     const _months = Math.trunc(toNumber(months));
 
     const yStart = _startDate.getFullYear();
@@ -157,11 +152,7 @@ export const EOMONTH: AddFunctionDescription = {
     const jsDate = new Date(yStart, mStart + _months + 1, 0);
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
-    return {
-      value: Math.round(delta / 86400000),
-      format: "m/d/yyyy",
-      jsDate: jsDate,
-    };
+    return Math.round(delta / 86400000);
   },
 };
 
@@ -175,7 +166,7 @@ export const HOUR: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getHours();
+    return toJsDate(date).getHours();
   },
 };
 
@@ -191,7 +182,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    const _date = toNativeDate(date);
+    const _date = toJsDate(date);
     const y = _date.getFullYear();
 
     // 1 - As the 1st week of a year can start the previous year or after the 1st
@@ -274,7 +265,7 @@ export const MINUTE: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getMinutes();
+    return toJsDate(date).getMinutes();
   },
 };
 
@@ -288,7 +279,7 @@ export const MONTH: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getMonth() + 1;
+    return toJsDate(date).getMonth() + 1;
   },
 };
 
@@ -419,14 +410,14 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
     weekend: any = 1,
     holidays: any = undefined
   ): number {
-    const _startDate = toNativeDate(startDate);
-    const _endDate = toNativeDate(endDate);
+    const _startDate = toJsDate(startDate);
+    const _endDate = toJsDate(endDate);
 
     const daysWeekend = weekendToDayNumber(weekend);
     let timesHoliday = new Set();
     if (holidays !== undefined) {
       visitAny(holidays, (h) => {
-        const holiday = toNativeDate(h);
+        const holiday = toJsDate(h);
         timesHoliday.add(holiday.getTime());
       });
     }
@@ -459,16 +450,13 @@ export const NOW: AddFunctionDescription = {
   description: _lt("Current date and time as a date value."),
   args: [],
   returns: ["DATE"],
-  compute: function (): InternalDate {
+  returnFormat: { specificFormat: "m/d/yyyy hh:mm:ss" },
+  compute: function (): number {
     let today = new Date();
     today.setMilliseconds(0);
     const delta = today.getTime() - INITIAL_1900_DAY.getTime();
     const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
-    return {
-      value: Math.floor(delta / 86400000) + time,
-      format: "m/d/yyyy hh:mm:ss",
-      jsDate: today,
-    };
+    return Math.floor(delta / 86400000) + time;
   },
 };
 
@@ -482,7 +470,7 @@ export const SECOND: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getSeconds();
+    return toJsDate(date).getSeconds();
   },
 };
 
@@ -497,7 +485,8 @@ export const TIME: AddFunctionDescription = {
     second (number) ${_lt("The second component of the time.")}
     `),
   returns: ["DATE"],
-  compute: function (hour: any, minute: any, second: any): InternalDate {
+  returnFormat: { specificFormat: "hh:mm:ss a" },
+  compute: function (hour: any, minute: any, second: any): number {
     let _hour = Math.trunc(toNumber(hour));
     let _minute = Math.trunc(toNumber(minute));
     let _second = Math.trunc(toNumber(second));
@@ -514,13 +503,7 @@ export const TIME: AddFunctionDescription = {
       throw new Error(_lt(`function [[FUNCTION_NAME]] result should not be negative`));
     }
 
-    const jsDate = new Date(1899, 11, 30, _hour, _minute, _second);
-
-    return {
-      value: _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60),
-      format: "hh:mm:ss a",
-      jsDate: jsDate,
-    };
+    return _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60);
   },
 };
 
@@ -535,13 +518,13 @@ export const TIMEVALUE: AddFunctionDescription = {
   returns: ["NUMBER"],
   compute: function (timeString: any): number {
     const _timeString = toString(timeString);
-    const datetime = parseDateTime(_timeString);
-    if (datetime === null) {
+    const internalDate = parseDateTime(_timeString);
+    if (internalDate === null) {
       throw new Error(
         _lt(`[[FUNCTION_NAME]] parameter '${_timeString}' cannot be parsed to date/time.`)
       );
     }
-    const result = datetime.value - Math.trunc(datetime.value);
+    const result = internalDate.value - Math.trunc(internalDate.value);
 
     return result < 0 ? 1 + result : result;
   },
@@ -554,15 +537,12 @@ export const TODAY: AddFunctionDescription = {
   description: _lt("Current date as a date value."),
   args: [],
   returns: ["DATE"],
-  compute: function (): InternalDate {
+  returnFormat: { specificFormat: "m/d/yyyy" },
+  compute: function (): number {
     const today = new Date();
     const jsDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
-    return {
-      value: Math.round(delta / 86400000),
-      format: "m/d/yyyy",
-      jsDate: jsDate,
-    };
+    return Math.round(delta / 86400000);
   },
 };
 
@@ -581,7 +561,7 @@ export const WEEKDAY: AddFunctionDescription = {
   `),
   returns: ["NUMBER"],
   compute: function (date: any, type: any = 1): number {
-    const _date = toNativeDate(date);
+    const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
     const m = _date.getDay();
     switch (_type) {
@@ -611,7 +591,7 @@ export const WEEKNUM: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any, type: any = 1): number {
-    const _date = toNativeDate(date);
+    const _date = toJsDate(date);
     const _type = Math.round(toNumber(type));
 
     let startDayOfWeek: number;
@@ -662,6 +642,7 @@ export const WORKDAY: AddFunctionDescription = {
       )}
       `),
   returns: ["NUMBER"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
   compute: function (startDate: any, numDays: any, holidays: any = undefined): number {
     return WORKDAY_INTL.compute(startDate, numDays, 1, holidays);
   },
@@ -685,13 +666,14 @@ export const WORKDAY_INTL: AddFunctionDescription = {
       )}
     `),
   returns: ["DATE"],
+  returnFormat: { specificFormat: "m/d/yyyy" },
   compute: function (
     startDate: any,
     numDays: any,
     weekend: any = 1,
     holidays: any = undefined
-  ): InternalDate {
-    let _startDate = toNativeDate(startDate);
+  ): number {
+    let _startDate = toJsDate(startDate);
     let _numDays = Math.trunc(toNumber(numDays));
 
     if (weekend === "1111111") {
@@ -702,7 +684,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
     let timesHoliday = new Set();
     if (holidays !== undefined) {
       visitAny(holidays, (h) => {
-        const holiday = toNativeDate(h);
+        const holiday = toJsDate(h);
         timesHoliday.add(holiday.getTime());
       });
     }
@@ -723,11 +705,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
     }
 
     const delta = timeStepDate - INITIAL_1900_DAY.getTime();
-    return {
-      value: Math.round(delta / 86400000),
-      format: "m/d/yyyy",
-      jsDate: stepDate,
-    };
+    return Math.round(delta / 86400000);
   },
 };
 
@@ -741,6 +719,6 @@ export const YEAR: AddFunctionDescription = {
     `),
   returns: ["NUMBER"],
   compute: function (date: any): number {
-    return toNativeDate(date).getFullYear();
+    return toJsDate(date).getFullYear();
   },
 };

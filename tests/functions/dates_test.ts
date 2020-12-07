@@ -1,4 +1,4 @@
-import { parseDateTime, toNativeDate, formatDateTime } from "../../src/functions/dates";
+import { parseDateTime, formatDateTime } from "../../src/functions/dates";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -192,7 +192,7 @@ describe("date helpers: can detect and parse various dates", () => {
   });
 
   test("can infer a year if not given completely", () => {
-    const getYear = (str) => toNativeDate(parseDateTime(str)!).getFullYear();
+    const getYear = (str) => parseDateTime(str)!.jsDate!.getFullYear();
 
     expect(getYear("1/1/0")).toBe(2000);
     expect(getYear("1/1/8")).toBe(2008);
@@ -210,42 +210,56 @@ describe("date helpers: can detect and parse various dates", () => {
 });
 
 describe("formatDateTime", () => {
-  test("month day year, with / as separator", () => {
-    expect(formatDateTime(parseDateTime("01/02/1954")!)).toBe("01/02/1954");
-    expect(formatDateTime(parseDateTime("1/2/3")!)).toBe("1/2/2003");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "m/d/yyyy")).toBe("1/2/1954");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "mm/dd/yyyy")).toBe("01/02/1954");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "mm/dd")).toBe("01/02");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "m/d")).toBe("1/2");
+  const internalDate = parseDateTime("01/02/1954")!;
+  const value = internalDate.value;
+
+  test.each([
+    [internalDate.format, "01/02/1954"],
+    ["m/d/yyyy", "1/2/1954"],
+    ["mm/dd/yyyy", "01/02/1954"],
+    ["mm/dd", "01/02"],
+    ["m/d", "1/2"],
+  ])("month day year, with / as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 
-  test("month day year, with - as separator", () => {
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "m-d-yyyy")).toBe("1-2-1954");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "mm-dd-yyyy")).toBe("01-02-1954");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "mm-dd")).toBe("01-02");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "m-d")).toBe("1-2");
+  test.each([
+    ["m-d-yyyy", "1-2-1954"],
+    ["mm-dd-yyyy", "01-02-1954"],
+    ["mm-dd", "01-02"],
+    ["m-d", "1-2"],
+  ])("month day year, with - as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 
-  test("month day year, with ' ' as separator", () => {
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "m d yyyy")).toBe("1 2 1954");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "mm dd yyyy")).toBe("01 02 1954");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "mm dd")).toBe("01 02");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "m d")).toBe("1 2");
+  test.each([
+    ["m d yyyy", "1 2 1954"],
+    ["mm dd yyyy", "01 02 1954"],
+    ["mm dd", "01 02"],
+    ["m d", "1 2"],
+  ])("month day year, with '  as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 
-  test("year month day, with / as separator", () => {
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "yyyy/m/d")).toBe("1954/1/2");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "yyyy/mm/dd")).toBe("1954/01/02");
+  test.each([
+    ["yyyy/m/d", "1954/1/2"],
+    ["yyyy/mm/dd", "1954/01/02"],
+  ])("year month day, with / as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 
-  test("year month day, with - as separator", () => {
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "yyyy-m-d")).toBe("1954-1-2");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "yyyy-mm-dd")).toBe("1954-01-02");
+  test.each([
+    ["yyyy-m-d", "1954-1-2"],
+    ["yyyy-mm-dd", "1954-01-02"],
+  ])("year month day, with - as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 
-  test("year month day, with ' ' as separator", () => {
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "yyyy m d")).toBe("1954 1 2");
-    expect(formatDateTime(parseDateTime("01/02/1954")!, "yyyy mm dd")).toBe("1954 01 02");
+  test.each([
+    ["yyyy m d", "1954 1 2"],
+    ["yyyy mm dd", "1954 01 02"],
+  ])("year month day, with ' ' as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 });
 
@@ -476,33 +490,58 @@ describe("date helpers: can detect and parse various times", () => {
 });
 
 describe("formatDateTime", () => {
-  test("hours minutes 'hh:mm'", () => {
+  const internalDate = parseDateTime("01/02/1954")!;
+  const value = internalDate.value;
+
+  test.each([
+    [internalDate.format, "01/02/1954"],
+    ["m/d/yyyy", "1/2/1954"],
+    ["mm/dd/yyyy", "01/02/1954"],
+    ["mm/dd", "01/02"],
+    ["m/d", "1/2"],
+  ])("month day year, with / as separator", (format, result) => {
+    expect(formatDateTime({ value, format })).toBe(result);
+  });
+
+  test("hours minutes 'hh:mm', without format", () => {
     expect(formatDateTime(parseDateTime("0:0")!)).toBe("00:00");
     expect(formatDateTime(parseDateTime("6:0")!)).toBe("06:00");
     expect(formatDateTime(parseDateTime("12:9")!)).toBe("12:09");
     expect(formatDateTime(parseDateTime("00012:09")!)).toBe("12:09");
     expect(formatDateTime(parseDateTime("12:00000009")!)).toBe("12:09");
     expect(formatDateTime(parseDateTime("11:69")!)).toBe("12:09");
-
-    expect(formatDateTime(parseDateTime("12:08:06")!, "hh:mm")).toBe("12:08");
-    expect(formatDateTime(parseDateTime("05:09 PM")!, "hh:mm")).toBe("17:09");
-    expect(formatDateTime(parseDateTime("012:008:006 AM")!, "hh:mm")).toBe("00:08");
-    expect(formatDateTime(parseDateTime("30:00:00")!, "hh:mm")).toBe("06:00");
   });
 
-  test("hours minutes seconds 'hh:mm:ss'", () => {
+  test.each([
+    ["12:08:06", "12:08"],
+    ["05:09 PM", "17:09"],
+    ["012:008:006 AM", "00:08"],
+    ["30:00:00", "06:00"],
+  ])("hours minutes 'hh:mm', with format", (date, result) => {
+    const value = parseDateTime(date)!.value;
+    const format = "hh:mm";
+    expect(formatDateTime({ value, format })).toBe(result);
+  });
+
+  test("hours minutes seconds 'hh:mm:ss', without format", () => {
     expect(formatDateTime(parseDateTime("12:0:0")!)).toBe("12:00:00");
     expect(formatDateTime(parseDateTime("12:8:6")!)).toBe("12:08:06");
     expect(formatDateTime(parseDateTime("0012:008:006")!)).toBe("12:08:06");
     expect(formatDateTime(parseDateTime("11:59:546")!)).toBe("12:08:06");
-
-    expect(formatDateTime(parseDateTime("12:08")!, "hh:mm:ss")).toBe("12:08:00");
-    expect(formatDateTime(parseDateTime("05:09 PM")!, "hh:mm:ss")).toBe("17:09:00");
-    expect(formatDateTime(parseDateTime("012:008:006 AM")!, "hh:mm:ss")).toBe("00:08:06");
-    expect(formatDateTime(parseDateTime("30:00:00")!, "hh:mm:ss")).toBe("06:00:00");
   });
 
-  test("hours minutes meridian 'hh:mm a", () => {
+  test.each([
+    ["12:08", "12:08:00"],
+    ["05:09 PM", "17:09:00"],
+    ["012:008:006 AM", "00:08:06"],
+    ["30:00:00", "06:00:00"],
+  ])("hours minutes seconds 'hh:mm:ss', with format", (date, result) => {
+    const value = parseDateTime(date)!.value;
+    const format = "hh:mm:ss";
+    expect(formatDateTime({ value, format })).toBe(result);
+  });
+
+  test("hours minutes meridian 'hh:mm a', without format", () => {
     expect(formatDateTime(parseDateTime("0 AM")!)).toBe("12:00 AM");
     expect(formatDateTime(parseDateTime("0 PM")!)).toBe("12:00 PM");
     expect(formatDateTime(parseDateTime("6AM")!)).toBe("06:00 AM");
@@ -519,37 +558,55 @@ describe("formatDateTime", () => {
     expect(formatDateTime(parseDateTime("00012:0009 AM")!)).toBe("12:09 AM");
     expect(formatDateTime(parseDateTime("11:69 AM")!)).toBe("12:09 PM");
     expect(formatDateTime(parseDateTime("18:00 AM")!)).toBe("06:00 AM");
-
-    expect(formatDateTime(parseDateTime("12:08")!, "hh:mm a")).toBe("12:08 PM");
-    expect(formatDateTime(parseDateTime("12:08:06")!, "hh:mm a")).toBe("12:08 PM");
-    expect(formatDateTime(parseDateTime("012:008:006 AM")!, "hh:mm a")).toBe("12:08 AM");
-    expect(formatDateTime(parseDateTime("30:00:00")!, "hh:mm a")).toBe("06:00 AM");
   });
 
-  test("hours minutes seconds meridian 'hh:mm:ss a", () => {
+  test.each([
+    ["12:08", "12:08 PM"],
+    ["12:08:06", "12:08 PM"],
+    ["012:008:006 AM", "12:08 AM"],
+    ["30:00:00", "06:00 AM"],
+  ])("hours minutes meridian 'hh:mm a', with format", (date, result) => {
+    const value = parseDateTime(date)!.value;
+    const format = "hh:mm a";
+    expect(formatDateTime({ value, format })).toBe(result);
+  });
+
+  test("hours minutes seconds meridian 'hh:mm:ss a', without format", () => {
     expect(formatDateTime(parseDateTime("00:00:00 AM")!)).toBe("12:00:00 AM");
     expect(formatDateTime(parseDateTime("00:00:00 PM")!)).toBe("12:00:00 PM");
     expect(formatDateTime(parseDateTime("12:00:00 AM")!)).toBe("12:00:00 AM");
     expect(formatDateTime(parseDateTime("012:008:006 AM")!)).toBe("12:08:06 AM");
     expect(formatDateTime(parseDateTime("11:59:546   AM")!)).toBe("12:08:06 PM");
-
-    expect(formatDateTime(parseDateTime("12:08")!, "hh:mm:ss a")).toBe("12:08:00 PM");
-    expect(formatDateTime(parseDateTime("12:08:06")!, "hh:mm:ss a")).toBe("12:08:06 PM");
-    expect(formatDateTime(parseDateTime("05:09 PM")!, "hh:mm:ss a")).toBe("05:09:00 PM");
-    expect(formatDateTime(parseDateTime("30:00:00")!, "hh:mm:ss a")).toBe("06:00:00 AM");
   });
 
-  test("duration 'hhhh:mm:ss", () => {
+  test.each([
+    ["12:08", "12:08:00 PM"],
+    ["12:08:06", "12:08:06 PM"],
+    ["05:09 PM", "05:09:00 PM"],
+    ["30:00:00", "06:00:00 AM"],
+  ])("hours minutes meridian 'hh:mm:ss a', with format", (date, result) => {
+    const value = parseDateTime(date)!.value;
+    const format = "hh:mm:ss a";
+    expect(formatDateTime({ value, format })).toBe(result);
+  });
+
+  test("duration 'hhhh:mm:ss', without format", () => {
     expect(formatDateTime(parseDateTime("30:00")!)).toBe("30:00:00");
     expect(formatDateTime(parseDateTime("24:08:06")!)).toBe("24:08:06");
     expect(formatDateTime(parseDateTime("36:09 AM")!)).toBe("24:09:00"); // @compatibility: on google sheets, parsing impposible
     expect(formatDateTime(parseDateTime("24 PM")!)).toBe("24:00:00"); // @compatibility: on google sheets, parsing impposible
     expect(formatDateTime(parseDateTime("11:59:546   PM")!)).toBe("24:08:06");
+  });
 
-    expect(formatDateTime(parseDateTime("12:08")!, "hhhh:mm:ss")).toBe("12:08:00");
-    expect(formatDateTime(parseDateTime("12:08:06")!, "hhhh:mm:ss")).toBe("12:08:06");
-    expect(formatDateTime(parseDateTime("05:09 PM")!, "hhhh:mm:ss")).toBe("17:09:00");
-    expect(formatDateTime(parseDateTime("012:008:006 AM")!, "hhhh:mm:ss")).toBe("0:08:06");
+  test.each([
+    ["12:08", "12:08:00"],
+    ["12:08:06", "12:08:06"],
+    ["05:09 PM", "17:09:00"],
+    ["012:008:006 AM", "0:08:06"],
+  ])("hours minutes meridian 'hh:mm:ss a', with format", (date, result) => {
+    const value = parseDateTime(date)!.value;
+    const format = "hhhh:mm:ss";
+    expect(formatDateTime({ value, format })).toBe(result);
   });
 });
 

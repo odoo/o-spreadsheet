@@ -406,7 +406,7 @@ describe("formatting values (when change decimal)", () => {
     expect(getCellContent(model, "C1")).toBe("LEBLEBI");
 
     expect(getCell(model, "A2")!.format).toBe("0.00%");
-    expect(getCell(model, "A3")!.format).toBe(undefined);
+    expect(getCell(model, "A3")!.format).toBe("m/d/yyyy");
     expect(getCell(model, "C1")!.format).toBe(undefined);
   });
 });

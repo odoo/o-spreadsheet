@@ -149,6 +149,12 @@ describe("core", () => {
         expect(getCell(model, "A2")!.format).toBe(undefined);
       });
 
+      test("from formula with return format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "=TIME(42,42,42)");
+        expect(getCell(model, "A1")!.format).toBe("hh:mm:ss a");
+      });
+
       describe("from formula depending on the reference", () => {
         test("with the reference declared before the formula", () => {
           const model = new Model();
@@ -532,11 +538,6 @@ describe("history", () => {
           },
         ],
       });
-      const date = {
-        format: "m-d-yyyy",
-        value: 44196,
-        jsDate: new Date("12-31-2020"),
-      };
       expect(model.getters.getRangeValues("A1:A3", sheet1Id)).toEqual([[1000, undefined, 2000]]);
       expect(model.getters.getRangeValues("$A$1:$A$3", sheet1Id)).toEqual([
         [1000, undefined, 2000],
@@ -545,10 +546,10 @@ describe("history", () => {
         [1000, undefined, 2000],
       ]);
       expect(model.getters.getRangeValues("Sheet2!A1:A3", sheet2Id)).toEqual([
-        [21000, undefined, date],
+        [21000, undefined, 44196],
       ]);
       expect(model.getters.getRangeValues("Sheet2!A1:A3", sheet1Id)).toEqual([
-        [21000, undefined, date],
+        [21000, undefined, 44196],
       ]);
       expect(model.getters.getRangeValues("B2", sheet1Id)).toEqual([[true]]);
       expect(model.getters.getRangeValues("Sheet1!B2", sheet1Id)).toEqual([[true]]);

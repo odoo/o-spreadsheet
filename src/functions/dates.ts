@@ -1,5 +1,3 @@
-import { toNumber } from "./helpers";
-
 // -----------------------------------------------------------------------------
 // Date Type
 // -----------------------------------------------------------------------------
@@ -184,7 +182,7 @@ function parseTime(str: string): InternalDate | null {
 // Conversion
 // -----------------------------------------------------------------------------
 
-function numberToDate(value: number): Date {
+export function numberToJsDate(value: number): Date {
   const truncValue = Math.trunc(value);
   let date = new Date(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
 
@@ -202,34 +200,18 @@ function numberToDate(value: number): Date {
   return date;
 }
 
-export function toNativeDate(date: any): Date {
-  if (typeof date === "object" && date !== null) {
-    if (!date.jsDate) {
-      date.jsDate = new Date(date.value * 86400 * 1000 - DATE_JS_1900_OFFSET);
-    }
-    return date.jsDate;
-  }
-  if (typeof date === "string") {
-    let result = parseDateTime(date);
-    if (result !== null && result.jsDate) {
-      return result.jsDate;
-    }
-  }
-  return numberToDate(toNumber(date));
-}
-
 // -----------------------------------------------------------------------------
 // Formatting
 // -----------------------------------------------------------------------------
 
-export function formatDateTime(date: InternalDate, format?: string): string {
+export function formatDateTime(internalDate: InternalDate): string {
   // TODO: unify the format functions for date and datetime
   // This requires some code to 'parse' or 'tokenize' the format, keep it in a
   // cache, and use it in a single mapping, that recognizes the special list
   // of tokens dd,d,m,y,h, ... and preserves the rest
 
-  const dateTimeFormat = format || date.format;
-  const jsDate = toNativeDate(date);
+  const dateTimeFormat = internalDate.format;
+  const jsDate = internalDate.jsDate || numberToJsDate(internalDate.value);
   const indexH = dateTimeFormat.indexOf("h");
   let strDate = "";
   let strTime = "";
@@ -244,22 +226,22 @@ export function formatDateTime(date: InternalDate, format?: string): string {
   return strDate + (strDate && strTime ? " " : "") + strTime;
 }
 
-function formatJSDate(date: Date, format: string): string {
+function formatJSDate(jsDate: Date, format: string): string {
   const sep = format.match(/\/|-|\s/)![0];
   const parts = format.split(sep);
   return parts
     .map((p) => {
       switch (p) {
         case "d":
-          return date.getDate();
+          return jsDate.getDate();
         case "dd":
-          return date.getDate().toString().padStart(2, "0");
+          return jsDate.getDate().toString().padStart(2, "0");
         case "m":
-          return date.getMonth() + 1;
+          return jsDate.getMonth() + 1;
         case "mm":
-          return String(date.getMonth() + 1).padStart(2, "0");
+          return String(jsDate.getMonth() + 1).padStart(2, "0");
         case "yyyy":
-          return date.getFullYear();
+          return jsDate.getFullYear();
         default:
           throw new Error(_lt("invalid format"));
       }
@@ -267,10 +249,10 @@ function formatJSDate(date: Date, format: string): string {
     .join(sep);
 }
 
-function formatJSTime(date: Date, format: string): string {
+function formatJSTime(jsDate: Date, format: string): string {
   let parts = format.split(/:|\s/);
 
-  const dateHours = date.getHours();
+  const dateHours = jsDate.getHours();
   const isMeridian = parts[parts.length - 1] === "a";
   let hours = dateHours;
   let meridian = "";
@@ -286,15 +268,15 @@ function formatJSTime(date: Date, format: string): string {
         switch (p) {
           case "hhhh":
             const helapsedHours = Math.floor(
-              (date.getTime() - INITIAL_1900_DAY) / (60 * 60 * 1000)
+              (jsDate.getTime() - INITIAL_1900_DAY) / (60 * 60 * 1000)
             );
             return helapsedHours.toString();
           case "hh":
             return hours.toString().padStart(2, "0");
           case "mm":
-            return date.getMinutes().toString().padStart(2, "0");
+            return jsDate.getMinutes().toString().padStart(2, "0");
           case "ss":
-            return date.getSeconds().toString().padStart(2, "0");
+            return jsDate.getSeconds().toString().padStart(2, "0");
           default:
             throw new Error("invalid format");
         }
