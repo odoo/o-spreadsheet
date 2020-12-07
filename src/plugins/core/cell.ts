@@ -1,6 +1,6 @@
 import { CorePlugin } from "../core_plugin";
 import { compile, normalize } from "../../formulas/index";
-import { formatDateTime, InternalDate, parseDateTime } from "../../functions/dates";
+import { formatDateTime, parseDateTime } from "../../functions/dates";
 import {
   isNumber,
   parseNumber,
@@ -438,9 +438,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "number":
         return formatStandardNumber(value);
       case "object":
-        if (value && (value as InternalDate).format!.match(/[ymd:]/)) {
-          return formatDateTime(value as InternalDate);
-        }
         return "0";
     }
     return (value && (value as any).toString()) || "";
@@ -458,32 +455,23 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       value = cell.value;
     }
-    const shouldFormat = (value || value === 0) && cell.format && !cell.error;
-    const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);
-    const numberFormat = shouldFormat && !dateTimeFormat;
     switch (typeof value) {
       case "string":
         return value;
       case "boolean":
         return value ? "TRUE" : "FALSE";
       case "number":
+        const shouldFormat = (value || value === 0) && cell.format && !cell.error;
+        const dateTimeFormat = shouldFormat && cell.format!.match(/[ymd:]/);
         if (dateTimeFormat) {
-          return formatDateTime({ value } as InternalDate, cell.format!);
+          return formatDateTime({ value, format: cell.format! });
         }
+        const numberFormat = shouldFormat && !dateTimeFormat;
         if (numberFormat) {
           return formatNumber(value, cell.format!);
         }
         return formatStandardNumber(value);
       case "object":
-        if (dateTimeFormat) {
-          return formatDateTime(value as InternalDate, cell.format!);
-        }
-        if (numberFormat) {
-          return formatNumber((value as any).value, cell.format!);
-        }
-        if (value && (value as InternalDate).format!.match(/[ymd:]/)) {
-          return formatDateTime(value as InternalDate);
-        }
         return "0";
     }
     return (value && (value as any).toString()) || "";
@@ -684,14 +672,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format = afterContent.includes(".") ? "0.00%" : "0%";
         }
       } else {
-        const date = parseDateTime(afterContent);
-        if (date) {
+        const internaldate = parseDateTime(afterContent);
+        if (internaldate !== null) {
           cell = {
             id: cellId,
             type: CellType.date,
-            content: formatDateTime(date),
-            value: date,
+            content: formatDateTime(internaldate),
+            value: internaldate.value,
           };
+          if (!format) {
+            format = internaldate.format;
+          }
         } else {
           const contentUpperCase = afterContent.toUpperCase();
           cell = {

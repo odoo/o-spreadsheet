@@ -1,6 +1,7 @@
 // HELPERS
 
 import { parseNumber, isNumber } from "../helpers/numbers";
+import { parseDateTime, numberToJsDate } from "../functions/dates";
 import { _lt } from "../translation";
 
 const expectNumberValueError = (value: string) =>
@@ -17,6 +18,10 @@ export function toNumber(value: any): number {
     case "string":
       if (isNumber(value) || value === "") {
         return parseNumber(value);
+      }
+      const internalDate = parseDateTime(value);
+      if (internalDate) {
+        return internalDate.value;
       }
       throw new Error(expectNumberValueError(value));
     default:
@@ -200,6 +205,10 @@ export function visitBooleans(args: IArguments, cb: (a: boolean) => boolean): vo
     },
     (arg) => (arg !== null ? cb(strictToBoolean(arg)) : true)
   );
+}
+
+export function toJsDate(value: any): Date {
+  return numberToJsDate(toNumber(value));
 }
 
 // -----------------------------------------------------------------------------

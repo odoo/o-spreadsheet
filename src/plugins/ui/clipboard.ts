@@ -15,7 +15,6 @@ import {
 } from "../../types/index";
 import { _lt } from "../../translation";
 import { UIPlugin } from "../ui_plugin";
-import { InternalDate } from "../../functions/dates";
 
 interface ClipboardCell {
   cell: Cell | null;
@@ -431,12 +430,7 @@ export class ClipboardPlugin extends UIPlugin {
         style = targetCell ? targetCell.style : undefined;
         format = targetCell ? targetCell.format : undefined;
 
-        if (targetCell) {
-          if (targetCell.type === CellType.date) {
-            format = (targetCell.value as InternalDate).format;
-          }
-        }
-        if (origin.type === CellType.formula || origin.type === CellType.date) {
+        if (origin.type === CellType.formula) {
           content = this.valueToContent(origin.value);
         }
       } else if (!onlyFormat && origin.type === CellType.formula) {
@@ -491,8 +485,6 @@ export class ClipboardPlugin extends UIPlugin {
         return cellValue;
       case "boolean":
         return cellValue ? "TRUE" : "FALSE";
-      case "object":
-        return cellValue.value.toString();
       default:
         return "";
     }

@@ -1,5 +1,5 @@
-import { evaluateCell, evaluateGrid } from "../helpers";
-import { parseDateTime } from "../../src/functions/dates";
+import { evaluateCell, evaluateCellText, evaluateGrid, evaluateGridText } from "../helpers";
+import {} from "../../src/functions/dates";
 
 describe("DATE formula", () => {
   test("functional tests on cell arguments", () => {
@@ -37,31 +37,31 @@ describe("DATE formula", () => {
       A30: "=DATE(B30, C30, D30)", B30: "0"     , C30: "-12" , D30: "-5",
     };
 
-    const gridResult = evaluateGrid(grid);
+    const gridResult = evaluateGridText(grid);
     expect(gridResult.A2).toBe("#ERROR");
-    expect(gridResult.A3).toEqual(parseDateTime("1/1/1900"));
-    expect(gridResult.A4).toEqual(parseDateTime("12/5/2028"));
-    expect(gridResult.A6).toEqual(parseDateTime("1/5/2029"));
-    expect(gridResult.A7).toEqual(parseDateTime("7/26/2028"));
-    expect(gridResult.A8).toEqual(parseDateTime("12/5/2028"));
-    expect(gridResult.A10).toEqual(parseDateTime("12/5/2028"));
-    expect(gridResult.A11).toEqual(parseDateTime("12/5/2028"));
-    expect(gridResult.A12).toEqual(parseDateTime("12/5/2028"));
-    expect(gridResult.A14).toEqual(parseDateTime("12/5/2019"));
-    expect(gridResult.A15).toEqual(parseDateTime("12/5/1919"));
-    expect(gridResult.A16).toEqual(parseDateTime("12/5/3750"));
-    expect(gridResult.A17).toEqual(parseDateTime("12/5/3799"));
-    expect(gridResult.A18).toEqual(parseDateTime("12/5/1900"));
-    expect(gridResult.A19).toEqual(parseDateTime("11/30/1911"));
+    expect(gridResult.A3).toBe("1/1/1900");
+    expect(gridResult.A4).toBe("12/5/2028");
+    expect(gridResult.A6).toBe("1/5/2029");
+    expect(gridResult.A7).toBe("7/26/2028");
+    expect(gridResult.A8).toBe("12/5/2028");
+    expect(gridResult.A10).toBe("12/5/2028");
+    expect(gridResult.A11).toBe("12/5/2028");
+    expect(gridResult.A12).toBe("12/5/2028");
+    expect(gridResult.A14).toBe("12/5/2019");
+    expect(gridResult.A15).toBe("12/5/1919");
+    expect(gridResult.A16).toBe("12/5/3750");
+    expect(gridResult.A17).toBe("12/5/3799");
+    expect(gridResult.A18).toBe("12/5/1900");
+    expect(gridResult.A19).toBe("11/30/1911");
     expect(gridResult.A20).toBe("#ERROR");
-    expect(gridResult.A21).toEqual(parseDateTime("2/5/1998"));
-    expect(gridResult.A22).toEqual(parseDateTime("2/5/3797"));
+    expect(gridResult.A21).toBe("2/5/1998");
+    expect(gridResult.A22).toBe("2/5/3797");
     expect(gridResult.A24).toBe("#ERROR");
-    expect(gridResult.A25).toEqual(parseDateTime("12/5/9999"));
+    expect(gridResult.A25).toBe("12/5/9999");
     expect(gridResult.A26).toBe("#ERROR");
     expect(gridResult.A27).toBe("#ERROR");
-    expect(gridResult.A28).toEqual(parseDateTime("12/5/1900"));
-    expect(gridResult.A29).toEqual(parseDateTime("11/25/1998"));
+    expect(gridResult.A28).toBe("12/5/1900");
+    expect(gridResult.A29).toBe("11/25/1998");
     expect(gridResult.A30).toBe("#ERROR");
   });
 
@@ -74,11 +74,11 @@ describe("DATE formula", () => {
       A36: "=DATE(B36, C36, D36)", B36: '="5"', C36:"12", D36:"TRUE"  ,
     };
 
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A33).toEqual(parseDateTime("12/5/2028"));
-    expect(gridResult.A34).toEqual(parseDateTime("12/1/2028"));
-    expect(gridResult.A35).toEqual(parseDateTime("12/1/1901"));
-    expect(gridResult.A36).toEqual(parseDateTime("12/1/1905"));
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A33).toBe("12/5/2028");
+    expect(gridResult.A34).toBe("12/1/2028");
+    expect(gridResult.A35).toBe("12/1/1901");
+    expect(gridResult.A36).toBe("12/1/1905");
   });
 });
 
@@ -147,13 +147,13 @@ describe("EDATE formula", () => {
       A5: '=EDATE("7/24/1969", 1234)',
       A6: '=EDATE("7/21/1969", 1.9)',
     };
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A1).toEqual(parseDateTime("7/20/1969"));
-    expect(gridResult.A2).toEqual(parseDateTime("8/21/1969"));
-    expect(gridResult.A3).toEqual(parseDateTime("5/22/1969"));
-    expect(gridResult.A4).toEqual(parseDateTime("6/23/1968"));
-    expect(gridResult.A5).toEqual(parseDateTime("5/24/2072"));
-    expect(gridResult.A6).toEqual(parseDateTime("8/21/1969"));
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("7/20/1969");
+    expect(gridResult.A2).toBe("8/21/1969");
+    expect(gridResult.A3).toBe("5/22/1969");
+    expect(gridResult.A4).toBe("6/23/1968");
+    expect(gridResult.A5).toBe("5/24/2072");
+    expect(gridResult.A6).toBe("8/21/1969");
   });
 
   test("casting tests on cell arguments", () => {
@@ -161,9 +161,9 @@ describe("EDATE formula", () => {
       A7: '=EDATE("7/21/1969", "1")',
       A8: '=EDATE("7/21/1969", True)',
     };
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A7).toEqual(parseDateTime("8/21/1969"));
-    expect(gridResult.A8).toEqual(parseDateTime("8/21/1969"));
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A7).toBe("8/21/1969");
+    expect(gridResult.A8).toBe("8/21/1969");
   });
 });
 
@@ -177,13 +177,13 @@ describe("EOMONTH formula", () => {
       A5: '=EOMONTH("7/24/2020", 1234)',
       A6: '=EOMONTH("7/25/2020", 1.9)',
     };
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A1).toEqual(parseDateTime("7/31/2020"));
-    expect(gridResult.A2).toEqual(parseDateTime("8/31/2020"));
-    expect(gridResult.A3).toEqual(parseDateTime("5/31/2020"));
-    expect(gridResult.A4).toEqual(parseDateTime("2/29/2020"));
-    expect(gridResult.A5).toEqual(parseDateTime("5/31/2123"));
-    expect(gridResult.A6).toEqual(parseDateTime("8/31/2020"));
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("7/31/2020");
+    expect(gridResult.A2).toBe("8/31/2020");
+    expect(gridResult.A3).toBe("5/31/2020");
+    expect(gridResult.A4).toBe("2/29/2020");
+    expect(gridResult.A5).toBe("5/31/2123");
+    expect(gridResult.A6).toBe("8/31/2020");
   });
 
   test("casting tests on cell arguments", () => {
@@ -191,9 +191,9 @@ describe("EOMONTH formula", () => {
       A7: '=EOMONTH("7/21/1920", "1")',
       A8: '=EOMONTH("7/21/2020", True)',
     };
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A7).toEqual(parseDateTime("8/31/1920"));
-    expect(gridResult.A8).toEqual(parseDateTime("8/31/2020"));
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A7).toBe("8/31/1920");
+    expect(gridResult.A8).toBe("8/31/2020");
   });
 });
 
@@ -450,10 +450,8 @@ describe("NOW formula", () => {
 
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
-    const now = evaluateCell("A1", { A1: "=NOW()" });
-    expect(now.value).toBe(51958.171875);
-    expect(now.format).toBe("m/d/yyyy hh:mm:ss");
-    expect(now.jsDate.getTime()).toBe(new Date(2042, 3, 2, 4, 7, 30).getTime());
+    expect(evaluateCell("A1", { A1: "=NOW()" })).toBe(51958.171875);
+    expect(evaluateCellText("A1", { A1: "=NOW()" })).toBe("4/2/2042 04:07:30");
     MockDate.reset();
   });
 });
@@ -493,17 +491,17 @@ describe("TIME formula", () => {
       A11:  "=TIME(B11, C11,  D11 )", B11: "1",  C11: "-61", D11: "-61",
     };
 
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.A1).toEqual(parseDateTime("9:11:31 AM"));
-    expect(gridResult.A2).toEqual(parseDateTime("2:59:59 PM"));
-    expect(gridResult.A3).toEqual(parseDateTime("2:00:00 AM"));
-    expect(gridResult.A4).toEqual(parseDateTime("3:01:00 AM"));
-    expect(gridResult.A5).toEqual(parseDateTime("2:01:20 PM"));
-    expect(gridResult.A6).toEqual(parseDateTime("4:50:02 PM"));
-    expect(gridResult.A7).toEqual(parseDateTime("3:02:02 AM"));
-    expect(gridResult.A8).toEqual(parseDateTime("3:02:02 AM"));
-    expect(gridResult.A9).toEqual(parseDateTime("2:58:01 PM"));
-    expect(gridResult.A10).toEqual(parseDateTime("1:54:01 PM"));
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.A1).toBe("09:11:31 AM"); // @compatibility on Google Sheet return 9:11:31 AM
+    expect(gridResult.A2).toBe("02:59:59 PM"); // @compatibility on Google Sheet return 2:59:59 PM
+    expect(gridResult.A3).toBe("02:00:00 AM"); // @compatibility on Google Sheet return 2:00:00 AM
+    expect(gridResult.A4).toBe("03:01:00 AM"); // @compatibility on Google Sheet return 3:01:00 AM
+    expect(gridResult.A5).toBe("02:01:20 PM"); // @compatibility on Google Sheet return 2:01:20 PM
+    expect(gridResult.A6).toBe("04:50:02 PM"); // @compatibility on Google Sheet return 4:50:02 PM
+    expect(gridResult.A7).toBe("03:02:02 AM"); // @compatibility on Google Sheet return 3:02:02 AM
+    expect(gridResult.A8).toBe("03:02:02 AM"); // @compatibility on Google Sheet return 3:02:02 AM
+    expect(gridResult.A9).toBe("02:58:01 PM"); // @compatibility on Google Sheet return 2:58:01 PM
+    expect(gridResult.A10).toBe("01:54:01 PM"); // @compatibility on Google Sheet return 1:54:01 PM
     expect(gridResult.A11).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
 });
@@ -524,23 +522,12 @@ describe("TIMEVALUE formula", () => {
 });
 
 describe("TODAY formula", () => {
-  test("functional tests on simple arguments", () => {
-    let timeNow = new Date();
-    timeNow.setHours(0);
-    timeNow.setMinutes(0);
-    timeNow.setSeconds(0);
-    timeNow.setMilliseconds(0);
-
-    const today = evaluateCell("A1", { A1: "=TODAY()" });
-    expect(today.jsDate.getTime()).toBeGreaterThanOrEqual(timeNow.getTime());
-    expect(today.jsDate.getTime()).toBeLessThanOrEqual(new Date().getTime());
-
-    expect(today.jsDate.getHours()).toBe(0);
-    expect(today.jsDate.getMinutes()).toBe(0);
-    expect(today.jsDate.getSeconds()).toBe(0);
-    expect(today.jsDate.getMilliseconds()).toBe(0);
-
-    expect(today.value - Math.abs(today.value)).toBe(0);
+  const MockDate = require("mockdate");
+  test("functional tests on simple arguments", async () => {
+    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    expect(evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);
+    expect(evaluateCellText("A1", { A1: "=TODAY()" })).toBe("4/2/2042");
+    MockDate.reset();
   });
 });
 
@@ -713,7 +700,7 @@ describe("WORKDAY formula", () => {
     const grid = {
       A1: "1/1/2013" , A2: "1/21/2013", A3: "2/18/2013", A4: "5/27/2013",
       A5: "1/21/2013", A6: "1/12/2013", A7: "1/2/2013" , A8: "12/31/2012",
-    
+
       A11: "1/1/2013", B11: "3"  , C11: "=WORKDAY(A11, B11)",
       A12: "1/1/2013", B12: "3"  , C12: "=WORKDAY(A12, B12, A1)",
       A13: "1/1/2013", B13: "3"  , C13: '=WORKDAY(A13, B13, A7)',
@@ -724,17 +711,17 @@ describe("WORKDAY formula", () => {
       A18: "1/1/2013", B18: "-3" , C18: "=WORKDAY(A18, B18, A1)",
       A19: "1/1/2013", B19: "-3" , C19: "=WORKDAY(A19, B19, A8)",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = evaluateGridText(grid);
 
-    expect(gridResult.C11).toEqual(parseDateTime("1/4/2013"));
-    expect(gridResult.C12).toEqual(parseDateTime("1/4/2013"));
-    expect(gridResult.C13).toEqual(parseDateTime("1/7/2013"));
-    expect(gridResult.C14).toEqual(parseDateTime("8/16/2013"));
-    expect(gridResult.C15).toEqual(parseDateTime("8/19/2013"));
-    expect(gridResult.C16).toEqual(parseDateTime("3/5/2013"));
-    expect(gridResult.C17).toEqual(parseDateTime("12/27/2012"));
-    expect(gridResult.C18).toEqual(parseDateTime("12/27/2012"));
-    expect(gridResult.C19).toEqual(parseDateTime("12/26/2012"));
+    expect(gridResult.C11).toBe("1/4/2013");
+    expect(gridResult.C12).toBe("1/4/2013");
+    expect(gridResult.C13).toBe("1/7/2013");
+    expect(gridResult.C14).toBe("8/16/2013");
+    expect(gridResult.C15).toBe("8/19/2013");
+    expect(gridResult.C16).toBe("3/5/2013");
+    expect(gridResult.C17).toBe("12/27/2012");
+    expect(gridResult.C18).toBe("12/27/2012");
+    expect(gridResult.C19).toBe("12/26/2012");
   });
 });
 
@@ -767,30 +754,30 @@ describe("WORKDAY.INTL formula", () => {
       B83: "5/8/2020", C83: "4" , D83: '=WORKDAY.INTL(B83, C83, "1110111")',
     };
 
-    const gridResult = evaluateGrid(grid);
-    expect(gridResult.D2).toEqual(parseDateTime("5/8/2020")); // @compatibility on Google Sheets, return  #VALUE!
+    const gridResult = evaluateGridText(grid);
+    expect(gridResult.D2).toBe("5/8/2020"); // @compatibility on Google Sheets, return  #VALUE!
     expect(gridResult.D3).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D4).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D5).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
-    expect(gridResult.D6).toEqual(parseDateTime("5/8/2020"));
-    expect(gridResult.D7).toEqual(parseDateTime("5/8/2020"));
-    expect(gridResult.D8).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D9).toEqual(parseDateTime("5/12/2020"));
-    expect(gridResult.D10).toEqual(parseDateTime("5/28/2020"));
+    expect(gridResult.D6).toBe("5/8/2020");
+    expect(gridResult.D7).toBe("5/8/2020");
+    expect(gridResult.D8).toBe("5/11/2020");
+    expect(gridResult.D9).toBe("5/12/2020");
+    expect(gridResult.D10).toBe("5/28/2020");
     expect(gridResult.D11).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D12).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
-    expect(gridResult.D13).toEqual(parseDateTime("1/3/1900"));
-    expect(gridResult.D14).toEqual(parseDateTime("5/4/2020"));
+    expect(gridResult.D13).toBe("1/3/1900");
+    expect(gridResult.D14).toBe("5/4/2020");
 
-    expect(gridResult.D75).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D76).toEqual(parseDateTime("4/29/2020"));
-    expect(gridResult.D77).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D78).toEqual(parseDateTime("4/27/2020"));
-    expect(gridResult.D79).toEqual(parseDateTime("5/18/2020"));
-    expect(gridResult.D80).toEqual(parseDateTime("4/23/2020"));
-    expect(gridResult.D81).toEqual(parseDateTime("5/12/2020"));
-    expect(gridResult.D82).toEqual(parseDateTime("4/9/2020"));
-    expect(gridResult.D83).toEqual(parseDateTime("6/4/2020"));
+    expect(gridResult.D75).toBe("5/11/2020");
+    expect(gridResult.D76).toBe("4/29/2020");
+    expect(gridResult.D77).toBe("5/11/2020");
+    expect(gridResult.D78).toBe("4/27/2020");
+    expect(gridResult.D79).toBe("5/18/2020");
+    expect(gridResult.D80).toBe("4/23/2020");
+    expect(gridResult.D81).toBe("5/12/2020");
+    expect(gridResult.D82).toBe("4/9/2020");
+    expect(gridResult.D83).toBe("6/4/2020");
   });
 
   test("functional tests on cell arguments, number method", () => {
@@ -830,39 +817,39 @@ describe("WORKDAY.INTL formula", () => {
       B53: "5/16/2020", C53: "1", D53: '=WORKDAY.INTL(B53, C53, 17)',
       B54: "5/16/2020", C54: "1", D54: '=WORKDAY.INTL(B54, C54, 18)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = evaluateGridText(grid);
     expect(gridResult.D18).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
-    expect(gridResult.D19).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D20).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D21).toEqual(parseDateTime("5/12/2020"));
-    expect(gridResult.D22).toEqual(parseDateTime("5/12/2020"));
-    expect(gridResult.D23).toEqual(parseDateTime("5/13/2020"));
-    expect(gridResult.D24).toEqual(parseDateTime("5/13/2020"));
-    expect(gridResult.D25).toEqual(parseDateTime("5/14/2020"));
-    expect(gridResult.D26).toEqual(parseDateTime("5/14/2020"));
-    expect(gridResult.D27).toEqual(parseDateTime("5/15/2020"));
-    expect(gridResult.D28).toEqual(parseDateTime("5/15/2020"));
-    expect(gridResult.D29).toEqual(parseDateTime("5/16/2020"));
-    expect(gridResult.D30).toEqual(parseDateTime("5/16/2020"));
-    expect(gridResult.D31).toEqual(parseDateTime("5/17/2020"));
-    expect(gridResult.D32).toEqual(parseDateTime("5/17/2020"));
+    expect(gridResult.D19).toBe("5/11/2020");
+    expect(gridResult.D20).toBe("5/11/2020");
+    expect(gridResult.D21).toBe("5/12/2020");
+    expect(gridResult.D22).toBe("5/12/2020");
+    expect(gridResult.D23).toBe("5/13/2020");
+    expect(gridResult.D24).toBe("5/13/2020");
+    expect(gridResult.D25).toBe("5/14/2020");
+    expect(gridResult.D26).toBe("5/14/2020");
+    expect(gridResult.D27).toBe("5/15/2020");
+    expect(gridResult.D28).toBe("5/15/2020");
+    expect(gridResult.D29).toBe("5/16/2020");
+    expect(gridResult.D30).toBe("5/16/2020");
+    expect(gridResult.D31).toBe("5/17/2020");
+    expect(gridResult.D32).toBe("5/17/2020");
     expect(gridResult.D33).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
 
     expect(gridResult.D39).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
-    expect(gridResult.D40).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D41).toEqual(parseDateTime("5/11/2020"));
-    expect(gridResult.D42).toEqual(parseDateTime("5/12/2020"));
-    expect(gridResult.D43).toEqual(parseDateTime("5/12/2020"));
-    expect(gridResult.D44).toEqual(parseDateTime("5/13/2020"));
-    expect(gridResult.D45).toEqual(parseDateTime("5/13/2020"));
-    expect(gridResult.D46).toEqual(parseDateTime("5/14/2020"));
-    expect(gridResult.D47).toEqual(parseDateTime("5/14/2020"));
-    expect(gridResult.D48).toEqual(parseDateTime("5/15/2020"));
-    expect(gridResult.D49).toEqual(parseDateTime("5/15/2020"));
-    expect(gridResult.D50).toEqual(parseDateTime("5/16/2020"));
-    expect(gridResult.D51).toEqual(parseDateTime("5/16/2020"));
-    expect(gridResult.D52).toEqual(parseDateTime("5/17/2020"));
-    expect(gridResult.D53).toEqual(parseDateTime("5/17/2020"));
+    expect(gridResult.D40).toBe("5/11/2020");
+    expect(gridResult.D41).toBe("5/11/2020");
+    expect(gridResult.D42).toBe("5/12/2020");
+    expect(gridResult.D43).toBe("5/12/2020");
+    expect(gridResult.D44).toBe("5/13/2020");
+    expect(gridResult.D45).toBe("5/13/2020");
+    expect(gridResult.D46).toBe("5/14/2020");
+    expect(gridResult.D47).toBe("5/14/2020");
+    expect(gridResult.D48).toBe("5/15/2020");
+    expect(gridResult.D49).toBe("5/15/2020");
+    expect(gridResult.D50).toBe("5/16/2020");
+    expect(gridResult.D51).toBe("5/16/2020");
+    expect(gridResult.D52).toBe("5/17/2020");
+    expect(gridResult.D53).toBe("5/17/2020");
     expect(gridResult.D54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
 
@@ -875,12 +862,12 @@ describe("WORKDAY.INTL formula", () => {
       B71: "5/11/2020", C71: "1", D71: '=WORKDAY.INTL(B71, C71, A71)',
       B72: "5/11/2020", C72: "1", D72: '=WORKDAY.INTL(B72, C72)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = evaluateGridText(grid);
     expect(gridResult.D68).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D69).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D70).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D71).toBe("#ERROR"); // @compatibility on Google Sheets, return  #VALUE!
-    expect(gridResult.D72).toEqual(parseDateTime("5/12/2020"));
+    expect(gridResult.D72).toBe("5/12/2020");
   });
 });
 

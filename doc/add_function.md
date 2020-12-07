@@ -180,7 +180,7 @@ export const WORKDAY_INTL = {
       holidays (date, range<date>, optional) ${_lt("A range or array constant containing the dates to consider holidays.")} // <--
     `),
   returns: ["DATE"],
-  compute: function (startDate: any, numDays: any, weekend: any = 1, holidays: any = undefined): InternalDate {
+  compute: function (startDate: any, numDays: any, weekend: any = 1, holidays: any = undefined): number {
     // [...]
     let timesHoliday = new Set();
     if (holidays !== undefined) { // <--
