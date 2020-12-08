@@ -37,15 +37,6 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
         <option value="none" t-if="thresholdType==='midpoint'">
           <t t-esc="env._t('${colorScale.None}')"/>
         </option>
-        <option value="number">
-          <t t-esc="env._t('${colorScale.FixedNumber}')"/>
-        </option>
-        <option value="percentage">
-          <t t-esc="env._t('${colorScale.Percentage}')"/>
-        </option>
-        <option value="formula">
-          <t t-esc="env._t('${colorScale.Formula}')"/>
-        </option>
       </select>
       <input type="text" class="o-threshold-value"
         t-model="stateColorScale[thresholdType].value"
@@ -164,7 +155,7 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   stateColorScale = useState<ColorScaleRuleState>({
     minimum: this.rule.minimum,
     maximum: this.rule.maximum,
-    midpoint: { color: 0x444, type: "none" },
+    midpoint: this.rule.midpoint ? this.rule.midpoint : { color: 0x444, type: "none" },
     maximumColorTool: false,
     minimumColorTool: false,
     midpointColorTool: false,

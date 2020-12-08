@@ -19,6 +19,7 @@ import {
   Sheet,
   Border,
   BorderCommand,
+  ColorScaleMidPointThreshold,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/core/merge";
@@ -508,7 +509,7 @@ export function createColorScale(
   ranges: string[],
   min: ColorScaleThreshold,
   max: ColorScaleThreshold,
-  mid?: ColorScaleThreshold
+  mid?: ColorScaleMidPointThreshold
 ): ConditionalFormat {
   return {
     ranges,

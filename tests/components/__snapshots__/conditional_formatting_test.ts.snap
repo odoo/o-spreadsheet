@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`UI of conditional formats simple snapshot 1`] = `
+exports[`UI of conditional formats Conditional format list simple snapshot 1`] = `
 <div
   class="o-sidePanel"
 >
