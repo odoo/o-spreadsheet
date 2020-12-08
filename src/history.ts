@@ -20,19 +20,22 @@ import {
  * as expected.
  */
 
-interface Step {
+interface UndoStep {
   id: UID;
-  timestamp: number;
   commands: CoreCommand[];
   inverses: CoreCommand[];
   changes: HistoryChange[];
 }
 
+interface RedoStep {
+  id: UID;
+  commands: CoreCommand[];
+}
+
 interface HistoryChange {
   root: any;
   path: (string | number)[];
-  before: any;
-  after: any;
+  value: any;
 }
 
 /**
@@ -104,9 +107,9 @@ export interface WorkbookHistory<Plugin> {
 }
 
 export class WHistory implements CommandHandler<CoreCommand | UndoCommand | RedoCommand> {
-  private current: Step | null = null;
-  private undoStack: Step[] = [];
-  private redoStack: Step[] = [];
+  private current: UndoStep | null = null;
+  private undoStack: UndoStep[] = [];
+  private redoStack: RedoStep[] = [];
   private historize: boolean = false;
 
   constructor(private dispatch: CommandDispatcher["dispatch"]) {}
@@ -120,10 +123,18 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     return this.redoStack.length > 0;
   }
 
+  private canSelectiveUndo(id: UID) {
+    return this.undoStack.findIndex((step) => step.id === id) > -1;
+  }
+
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "UNDO":
         return this.canUndo()
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
+      case "SELECTIVE_UNDO":
+        return this.canSelectiveUndo(cmd.id)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
       case "REDO":
@@ -134,59 +145,34 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     return { status: "SUCCESS" };
   }
 
-  selectiveUndo(id: UID) {
-    /**
-     * 1) Revenir au state juste avant l'id
-     * 2) Prendre tous les redo, les transformer en fonction de la commande inverse de l'id
-     * 3) dispatcher tous les redo transformés
-     */
+  private revert(steps: UndoStep[]) {
+    for (const step of steps.slice().reverse()) {
+      this.undoStep(step);
+    }
+  }
 
-    //1 Revert to the state just before the id.
-    console.table(this.undoStack);
-    const index = this.undoStack.findIndex((step) => step.id === id);
-    if (index === -1) {
-      throw new Error(`No history step with id ${id}`);
+  private undoStep(step: UndoStep) {
+    for (let i = step.changes.length - 1; i >= 0; i--) {
+      this.applyChange(step.changes[i]);
     }
-    const toRedo: Step[] = this.undoStack.slice(index + 1);
-    console.table(toRedo);
-    for (let x of toRedo.reverse()) {
-      for (let i = x.changes.length - 1; i >= 0; i--) {
-        let change = x.changes[i];
-        this.applyChange(change, "before");
-      }
-    }
-    toRedo.reverse();
+  }
 
-    // 2) Undo the commandsUndoed
-    this.undoStack = this.undoStack.slice(0, index + 1);
-    const commandsUndoed = this.undoStack.pop();
-    if (!commandsUndoed) {
-      return;
-    }
-    const executed = commandsUndoed.inverses;
-    for (let i = commandsUndoed.changes.length - 1; i >= 0; i--) {
-      let change = commandsUndoed.changes[i];
-      this.applyChange(change, "before");
-    }
-
-    // 3) Take all the redos to do, transform them with the inverse of command id
-    for (let step of toRedo) {
+  private replay(deletedCommands: CoreCommand[], steps: UndoStep[]) {
+    for (const step of steps) {
       const commands: CoreCommand[] = [];
       for (let cmd of step.commands) {
-        for (let e of executed) {
-          commands.push(...transform(cmd, e, 1, 0));
+        for (let deletedCommand of deletedCommands) {
+          commands.push(...transform(cmd, deletedCommand, 1, 0)); //TODO Remove the numbers
         }
       }
-      if (commands) {
+      if (commands.length > 0) {
         this.current = {
           id: step.id,
-          timestamp: step.timestamp,
           commands,
           inverses: commands.map((cmd) => inverseCommand(cmd)),
           changes: [],
         };
         for (let cmd of commands) {
-          console.table(cmd);
           this.dispatch(cmd.type, cmd);
         }
 
@@ -196,7 +182,31 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
         this.current = null;
       }
     }
-    //TODO Redostack
+  }
+
+  /**
+   * Undo a step with the given ID.
+   *
+   * To do so, we have to:
+   * 1) Revert the state before the selected step
+   * 2) Replay the steps from selected step + 1 to the end, with transforming
+   *    the commands from the inverted commands of the selected step
+   * 3) Add the selected step to the redo stack
+   * @param id Id of the step to undo
+   */
+  private selectiveUndo(id: UID) {
+    const index = this.undoStack.findIndex((step) => step.id === id);
+    if (index === -1) {
+      throw new Error(`No history step with id ${id}`);
+    }
+    const stepsToRevert = this.undoStack.splice(index + 1);
+    const stepToUndo = this.undoStack.pop();
+    if (!stepToUndo) {
+      return;
+    }
+    this.revert([stepToUndo, ...stepsToRevert]);
+    this.replay(stepToUndo.inverses, stepsToRevert);
+    this.redoStack.push({ id: stepToUndo.id, commands: stepToUndo.commands });
   }
 
   // startStep(cmd: CoreCommand | UndoCommand | RedoCommand) {
@@ -204,7 +214,6 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     if (!this.current && this.historize && cmd.type !== "UNDO" && cmd.type !== "REDO") {
       this.current = {
         id: uuidv4(),
-        timestamp: 1,
         commands: [],
         inverses: [],
         changes: [],
@@ -227,10 +236,8 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
-        // this.undo();
         const id = this.undoStack[this.undoStack.length - 1].id;
         this.selectiveUndo(id);
-        // this.undo(id);
         break;
       case "SELECTIVE_UNDO":
         this.selectiveUndo(cmd.id);
@@ -254,27 +261,26 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     this.current = null;
   }
 
-  undo() {
-    const step = this.undoStack.pop();
-    if (!step) {
-      return;
-    }
-    this.redoStack.push(step);
-    for (let i = step.changes.length - 1; i >= 0; i--) {
-      let change = step.changes[i];
-      this.applyChange(change, "before");
-    }
-  }
-
   redo() {
     const step = this.redoStack.pop();
     if (!step) {
       return;
     }
-    this.undoStack.push(step);
-    for (let change of step.changes) {
-      this.applyChange(change, "after");
+    const commands = step.commands;
+    this.current = {
+      id: step.id,
+      commands,
+      inverses: commands.map((cmd) => inverseCommand(cmd)),
+      changes: [],
+    };
+    for (let cmd of commands) {
+      this.dispatch(cmd.type, cmd);
     }
+
+    if (this.current.changes.length) {
+      this.undoStack.push(this.current);
+    }
+    this.current = null;
   }
 
   /**
@@ -291,7 +297,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     throw new Error(`Cannot create new node`);
   }
 
-  private applyChange(change: HistoryChange, target: "before" | "after") {
+  private applyChange(change: HistoryChange) {
     let val = change.root as any;
     let key = change.path[change.path.length - 1];
     for (let pathIndex = 0; pathIndex < change.path.slice(0, -1).length; pathIndex++) {
@@ -302,10 +308,10 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       }
       val = val[p];
     }
-    if (change[target] === undefined) {
+    if (change.value === undefined) {
       delete val[key];
     } else {
-      val[key] = change[target];
+      val[key] = change.value;
     }
   }
 
@@ -329,8 +335,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       this.current.changes.push({
         root,
         path,
-        before: value[key],
-        after: val,
+        value: value[key],
       });
     }
     if (val === undefined) {

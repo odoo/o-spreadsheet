@@ -6,7 +6,7 @@ import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
 
-describe.only("Selective undo-redo", () => {
+describe("Selective undo-redo", () => {
   let model: Model;
   let history: WHistory;
 
@@ -15,18 +15,49 @@ describe.only("Selective undo-redo", () => {
     history = model["handlers"].find((p) => p instanceof WHistory)! as WHistory;
   });
 
-  test("Basic selective undo", () => {
+  test("Cannot dispatch a selective undo with non-existing id", () => {
+    expect(model.dispatch("SELECTIVE_UNDO", { id: "blabla" })).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.EmptyUndoStack,
+    });
+  });
+
+  test("Can do a selective undo and redo with two commands", () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
-    const steps = history["undoStack"];
-    expect(steps).toHaveLength(2);
-    const id = steps[0].id;
-    debugger;
+    const undoStack = history["undoStack"];
+    const redoStack = history["redoStack"];
+    expect(undoStack).toHaveLength(2);
+    const id = undoStack[0].id;
     model.dispatch("SELECTIVE_UNDO", { id });
-    expect(history["undoStack"]).toHaveLength(1);
+    expect(undoStack).toHaveLength(1);
+    expect(undoStack[0].commands).toEqual([
+      {
+        type: "UPDATE_CELL",
+        col: 0,
+        row: 1,
+        content: "A2",
+        sheetId: model.getters.getActiveSheetId(),
+      },
+    ]);
+    expect(redoStack).toHaveLength(1);
+    expect(redoStack[0].commands).toEqual([
+      {
+        type: "UPDATE_CELL",
+        col: 0,
+        row: 0,
+        content: "A1",
+        sheetId: model.getters.getActiveSheetId(),
+      },
+    ]);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A2")).toBeDefined();
     expect(getCellContent(model, "A2")).toBe("A2");
+    model.dispatch("REDO");
+    expect(getCellContent(model, "A1")).toBe("A1");
+    expect(getCellContent(model, "A2")).toBe("A2");
+    expect(undoStack).toHaveLength(2);
+    expect(redoStack).toHaveLength(0);
   });
 
   test("Selective undo with OT", () => {
@@ -37,8 +68,8 @@ describe.only("Selective undo-redo", () => {
     expect(steps).toHaveLength(2);
     const id = steps[0].id;
     model.dispatch("SELECTIVE_UNDO", { id });
-    expect(history["undoStack"]).toHaveLength(1);
-    expect(history["undoStack"][0].commands).toEqual([
+    expect(steps).toHaveLength(1);
+    expect(steps[0].commands).toEqual([
       {
         type: "UPDATE_CELL",
         col: 3,
@@ -46,173 +77,155 @@ describe.only("Selective undo-redo", () => {
         sheetId,
         content: "test",
       },
-      ,
     ]);
     expect(getCell(model, "E1")).toBeUndefined();
     expect(getCell(model, "D1")).toBeDefined();
     expect(getCellContent(model, "D1")).toBe("test");
   });
-
-  // test("delete array, then rebuild it on-the-fly, undo/redo", () => {
-  //   const history = new WHistory();
-  //   const state = { A: [[77]] };
-  //   history.beforeHandle({ type: "START" });
-  //   history.handle({ type: "START" });
-  //   history.beforeHandle({ type: "START_EDITION" });
-  //   history.handle({ type: "START_EDITION" });
-  //   history.updateStateFromRoot(state, "A", 0, undefined);
-  //   history.updateStateFromRoot(state, "A", 0, 0, 5);
-  //   expect(state).toEqual({ A: [[5]] });
-  //   history.finalize();
-
-  //   history.undo();
-  //   expect(state).toEqual({ A: [[77]] });
-  //   history.redo();
-  //   expect(state).toEqual({ A: [[5]] });
-  // });
 });
 
-// describe("history", () => {
-//   test("can update existing value", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: 4,
-//     };
-//     history.updateStateFromRoot(state, "A", 5);
-//     expect(state["A"]).toBe(5);
-//   });
+describe("history", () => {
+  const dispatch = new Model().dispatch;
+  test("can update existing value", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: 4,
+    };
+    history.updateStateFromRoot(state, "A", 5);
+    expect(state["A"]).toBe(5);
+  });
 
-//   test("can set new value", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: 4,
-//     };
-//     history.updateStateFromRoot(state, "B", 5);
-//     expect(state["A"]).toBe(4);
-//     expect(state["B"]).toBe(5);
-//   });
+  test("can set new value", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: 4,
+    };
+    history.updateStateFromRoot(state, "B", 5);
+    expect(state["A"]).toBe(4);
+    expect(state["B"]).toBe(5);
+  });
 
-//   test("can update existing nested value", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {
-//         B: 4,
-//       },
-//     };
-//     history.updateStateFromRoot(state, "A", "B", 5);
-//     expect(state["A"]["B"]).toBe(5);
-//   });
+  test("can update existing nested value", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {
+        B: 4,
+      },
+    };
+    history.updateStateFromRoot(state, "A", "B", 5);
+    expect(state["A"]["B"]).toBe(5);
+  });
 
-//   test("set new nested value", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {
-//         B: 4,
-//       },
-//     };
-//     history.updateStateFromRoot(state, "A", "C", 5);
-//     expect(state["A"]["B"]).toBe(4);
-//     expect(state["A"]["C"]).toBe(5);
-//   });
+  test("set new nested value", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {
+        B: 4,
+      },
+    };
+    history.updateStateFromRoot(state, "A", "C", 5);
+    expect(state["A"]["B"]).toBe(4);
+    expect(state["A"]["C"]).toBe(5);
+  });
 
-//   test("update existing value nested in array", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     history.updateStateFromRoot(state, "A", 0, "B", 5);
-//     expect(state["A"][0]["B"]).toBe(5);
-//   });
+  test("update existing value nested in array", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", 0, "B", 5);
+    expect(state["A"][0]["B"]).toBe(5);
+  });
 
-//   test("set new value nested in array", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: [
-//         {
-//           B: 4,
-//         },
-//       ],
-//     };
-//     history.updateStateFromRoot(state, "A", 0, "C", 5);
-//     expect(state["A"][0]["B"]).toBe(4);
-//     expect(state["A"][0]["C"]).toBe(5);
-//   });
+  test("set new value nested in array", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: [
+        {
+          B: 4,
+        },
+      ],
+    };
+    history.updateStateFromRoot(state, "A", 0, "C", 5);
+    expect(state["A"][0]["B"]).toBe(4);
+    expect(state["A"][0]["C"]).toBe(5);
+  });
 
-//   test("create new path on-the-fly", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     history.updateStateFromRoot(state, "A", "B", "C", 5);
-//     expect(state).toEqual({
-//       A: {
-//         B: {
-//           C: 5,
-//         },
-//       },
-//     });
-//   });
+  test("create new path on-the-fly", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", "C", 5);
+    expect(state).toEqual({
+      A: {
+        B: {
+          C: 5,
+        },
+      },
+    });
+  });
 
-//   test("create new path containing an array on-the-fly", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     history.updateStateFromRoot(state, "A", "B", 0, "C", 5);
-//     expect(state).toEqual({
-//       A: {
-//         B: [
-//           {
-//             C: 5,
-//           },
-//         ],
-//       },
-//     });
-//   });
+  test("create new path containing an array on-the-fly", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", 0, "C", 5);
+    expect(state).toEqual({
+      A: {
+        B: [
+          {
+            C: 5,
+          },
+        ],
+      },
+    });
+  });
 
-//   test("create new array on-the-fly", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     history.updateStateFromRoot(state, "A", "B", 0, 5);
-//     expect(state).toEqual({
-//       A: {
-//         B: [5],
-//       },
-//     });
-//   });
-//   test("create new sparse array on-the-fly", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     history.updateStateFromRoot(state, "A", "B", 99, 5);
-//     const sparseArray: any[] = [];
-//     sparseArray[99] = 5;
-//     expect(state["A"]["B"]).toEqual(sparseArray);
-//   });
+  test("create new array on-the-fly", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", 0, 5);
+    expect(state).toEqual({
+      A: {
+        B: [5],
+      },
+    });
+  });
+  test("create new sparse array on-the-fly", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    history.updateStateFromRoot(state, "A", "B", 99, 5);
+    const sparseArray: any[] = [];
+    sparseArray[99] = 5;
+    expect(state["A"]["B"]).toEqual(sparseArray);
+  });
 
-//   test("cannot update an invalid key value", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     expect(() => {
-//       history.updateStateFromRoot(state, "A", "B", true, 5);
-//     }).toThrow();
-//   });
+  test("cannot update an invalid key value", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    expect(() => {
+      history.updateStateFromRoot(state, "A", "B", true, 5);
+    }).toThrow();
+  });
 
-//   test("cannot update an invalid path", () => {
-//     const history = new WHistory();
-//     const state = {
-//       A: {},
-//     };
-//     expect(() => {
-//       history.updateStateFromRoot(state, "A", "B", true, "C", 5);
-//     }).toThrow();
-//   });
-// });
+  test("cannot update an invalid path", () => {
+    const history = new WHistory(dispatch);
+    const state = {
+      A: {},
+    };
+    expect(() => {
+      history.updateStateFromRoot(state, "A", "B", true, "C", 5);
+    }).toThrow();
+  });
+});
 
 describe("Model history", () => {
   test("can undo and redo two consecutive operations", () => {

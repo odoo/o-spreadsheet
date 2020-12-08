@@ -124,6 +124,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       network: config.network,
     };
     this.network = new NetworkPlugin(this.dispatch.bind(this), this.config.network);
+
+    setIsFastStrategy(true);
     this.handlers.push(this.network);
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
@@ -133,7 +135,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     for (let Plugin of uiPluginRegistry.getAll()) {
       this.setupUiPlugin(Plugin);
     }
-
+    // setIsFastStrategy(false);
     // starting plugins
     this.dispatch("START");
   }
@@ -167,8 +169,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const dispatch = this.dispatchCore.bind(this);
-
-    setIsFastStrategy(false); // TODO fine tune this
 
     if (Plugin.modes.includes(this.config.mode)) {
       const plugin = new Plugin(this.getters, this.history, dispatch, this.config);

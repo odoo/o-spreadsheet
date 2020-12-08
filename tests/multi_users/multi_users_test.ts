@@ -5,7 +5,7 @@ import { getCell, getCellContent, nextTick, setCellContent } from "../helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
 
-describe("Multi users synchronisation", () => {
+describe.skip("Multi users synchronisation", () => {
   let network: MockNetwork;
   let emptySheetData: WorkbookData;
   let alice: Model;
@@ -342,7 +342,7 @@ describe("Multi users synchronisation", () => {
   //   });
   // });
 
-  describe("Undo/Redo", () => {
+  describe.skip("Undo/Redo", () => {
     test("Undo/redo is propagated to other clients", () => {
       alice.dispatch("UPDATE_CELL", {
         col: 0,
@@ -427,7 +427,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  describe("Evaluation", () => {
+  describe.skip("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
       setCellContent(alice, "A1", "=5");
       expect(getCell(alice, "A1")!.value).toBe(5);
