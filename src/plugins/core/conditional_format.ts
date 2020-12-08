@@ -203,7 +203,7 @@ export class ConditionalFormatPlugin
     thresholdName: string
   ): CancelledReason | undefined {
     if (
-      ["number", "percentage"].includes(threshold.type) &&
+      ["number", "percentage", "percentile"].includes(threshold.type) &&
       (threshold.value === "" || isNaN(threshold.value as any))
     ) {
       switch (thresholdName) {
@@ -253,7 +253,7 @@ export class ConditionalFormatPlugin
     const midValue = rule.midpoint?.value;
     const maxValue = rule.maximum.value;
     if (
-      ["number", "percentage"].includes(rule.minimum.type) &&
+      ["number", "percentage", "percentile"].includes(rule.minimum.type) &&
       rule.minimum.type === rule.maximum.type &&
       Number(minValue) >= Number(maxValue)
     ) {
@@ -261,7 +261,7 @@ export class ConditionalFormatPlugin
     }
     if (
       rule.midpoint &&
-      ["number", "percentage"].includes(rule.midpoint.type) &&
+      ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
       rule.minimum.type === rule.midpoint.type &&
       Number(minValue) >= Number(midValue)
     ) {
@@ -269,7 +269,7 @@ export class ConditionalFormatPlugin
     }
     if (
       rule.midpoint &&
-      ["number", "percentage"].includes(rule.midpoint.type) &&
+      ["number", "percentage", "percentile"].includes(rule.midpoint.type) &&
       rule.midpoint.type === rule.maximum.type &&
       Number(midValue) >= Number(maxValue)
     ) {

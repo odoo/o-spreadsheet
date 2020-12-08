@@ -445,6 +445,58 @@ describe("UI of conditional formats", () => {
     });
   });
 
+  test("can create a new ColorScaleRule with percentile values", async () => {
+    mockUuidV4To("44");
+
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5", "change");
+
+    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerBlue, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.minType, "percentile", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10", "input");
+    triggerMouseEvent(selectors.colorScaleEditor.maxColor, "click");
+    await nextTick();
+    triggerMouseEvent(selectors.colorScaleEditor.colorPickerYellow, "click");
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "percentile", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90", "input");
+
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    //  click save
+    triggerMouseEvent(selectors.buttonSave, "click");
+    await nextTick();
+
+    expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "52",
+        ranges: ["B2:B5"],
+        rule: {
+          maximum: {
+            color: 0xffff00,
+            type: "percentile",
+            value: "90",
+          },
+          minimum: {
+            color: 0x0000ff,
+            type: "percentile",
+            value: "10",
+          },
+          type: "ColorScaleRule",
+        },
+      },
+      sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+
   test("can create a new ColorScaleRule with a midpoint", async () => {
     mockUuidV4To("44");
 
