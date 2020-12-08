@@ -15,7 +15,7 @@ export function inverseCommand(cmd: CoreCommand): CoreCommand {
     // case "REMOVE_COLUMNS":
     //   return inverseRemoveColumns(cmd);
     default:
-      console.warn(`No inverse implementation of ${cmd.type}`);
+      // console.warn(`No inverse implementation of ${cmd.type}`);
       return cmd;
   }
 }

@@ -278,6 +278,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
+          // commandHelpers.updateCell(sheetId, col, row, { style: undefined});
           this.dispatch("UPDATE_CELL", {
             sheetId,
             col,

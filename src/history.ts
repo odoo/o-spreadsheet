@@ -180,19 +180,29 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     // init this.current { id, timestamp, changes [] }
   }
 
-  beforeHandle(cmd: CoreCommand | UndoCommand | RedoCommand) {
-    if (true /* is core cmd */) {
-    }
-    if (!this.current && cmd.type !== "REDO" && cmd.type !== "UNDO" && this.historize) {
+  // startStep(cmd: CoreCommand | UndoCommand | RedoCommand) {
+  startStep(cmd: Command) {
+    // if (isCoreCommand(cmd) && !this.current && this.historize) {
+    if (!this.current && this.historize && cmd.type !== "UNDO" && cmd.type !== "REDO") {
       this.current = {
         id: uuidv4(),
         timestamp: 1,
-        command: cmd,
-        inverse: inverseCommand(cmd),
+        //TODO This is obviously false
+        command: cmd as CoreCommand,
+        //TODO This is obviously false
+        inverse: inverseCommand(cmd as CoreCommand),
         changes: [],
       };
     }
   }
+  addStep(command: Command) {
+    //TODO add a step to this.current
+  }
+
+  //TODO Fine tune this
+  beforeHandle() {}
+  //TODO Fine tune this
+  finalize() {}
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -212,7 +222,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     }
   }
 
-  finalize() {
+  finalizeStep() {
     if (this.current && this.current.changes.length) {
       this.undoStack.push(this.current);
       this.redoStack = [];

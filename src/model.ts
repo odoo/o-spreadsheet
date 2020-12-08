@@ -11,6 +11,7 @@ import {
   LAYERS,
   CommandSuccess,
   EvalContext,
+  isCoreCommand,
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG, setIsFastStrategy } from "./helpers/index";
@@ -18,6 +19,7 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { Network } from "./types/multi_users";
+import { NetworkPlugin } from "./plugins/core/network";
 
 /**
  * Model
@@ -69,6 +71,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   private handlers: CommandHandler<Command>[];
 
+  private history: WHistory;
+  private network: NetworkPlugin; //TODO Change the name of NetworkPlugin
+
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
    * so multiple times.  The order of the render calls will determine a list of
@@ -100,14 +105,14 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    const history = new WHistory(this.dispatch.bind(this));
+    this.history = new WHistory(this.dispatch.bind(this));
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
-      canUndo: history.canUndo.bind(history),
-      canRedo: history.canRedo.bind(history),
+      canUndo: this.history.canUndo.bind(this.history),
+      canRedo: this.history.canRedo.bind(this.history),
     } as Getters;
-    this.handlers = [history];
+    this.handlers = [this.history];
 
     this.config = {
       mode: config.mode || "normal",
@@ -118,7 +123,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       evalContext: config.evalContext || {},
       network: config.network,
     };
-
+    this.network = new NetworkPlugin(this.dispatch.bind(this), this.config.network);
+    this.handlers.push(this.network);
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupPlugin(Plugin, workbookData);
@@ -138,9 +144,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstuctor) {
     const dispatch = this.dispatch.bind(this);
-    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.history, dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
@@ -161,13 +166,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupPlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const dispatch = this.dispatch.bind(this);
-    const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
+    const dispatch = this.dispatchCore.bind(this);
 
     setIsFastStrategy(false); // TODO fine tune this
 
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.history, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -183,18 +187,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  /**
-   * The dispatch method is the only entry point to manipulate date in the model.
-   * This is through this method that commands are dispatched, most of the time
-   * recursively until no plugin want to react anymore.
-   *
-   * Small technical detail: it is defined as an arrow function.  There are two
-   * reasons for this:
-   * 1. this means that the dispatch method can be "detached" from the model,
-   *    which is done when it is put in the environment (see the Spreadsheet
-   *    component)
-   * 2. This allows us to define its type by using the interface CommandDispatcher
-   */
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
     let status: Status = command.interactive ? Status.Interactive : this.status;
@@ -206,19 +198,13 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
             return allowDispatch;
           }
         }
-        // if (!this.isMultiUser) {
-        //   if (
-        //     type === "UPDATE_CELL" ||
-        //     type === "CREATE_SHEET" ||
-        //     type === "MOVE_SHEET" ||
-        //     type === "DUPLICATE_SHEET"
-        //   ) {
-        //     // this.config.network.sendCommand(command.type, command);
-        //     this.trigger("command-dispatched", { command });
-        //     this.externalCommandHandler?.handle(command);
-        //   }
-        // }
         this.status = Status.Running;
+        this.history.startStep(command);
+        this.network.startTransaction(command);
+        if (isCoreCommand(command)) {
+          // this.history.addStep(command);
+          this.network.addStep(command);
+        }
         for (const h of this.handlers) {
           h.beforeHandle(command);
         }
@@ -229,6 +215,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         for (const h of this.handlers) {
           h.finalize(command);
         }
+        this.history.finalizeStep();
+        this.network.finalizeTransaction();
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");
@@ -236,17 +224,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         break;
       case Status.Running:
       case Status.Interactive:
-        // if (!this.isMultiUser) {
-        //   if (
-        //     type === "UPDATE_CELL" ||
-        //     type === "CREATE_SHEET" ||
-        //     type === "MOVE_SHEET" ||
-        //     type === "DUPLICATE_SHEET"
-        //   ) {
-        //     // this.config.network.sendCommand(command.type, command);
-        //     this.trigger("command-dispatched", { command });
-        //   }
-        // }
+        if (isCoreCommand(command)) {
+          // this.history.addStep(command);
+          this.network.addStep(command);
+        }
         for (const h of this.handlers) {
           h.beforeHandle(command);
         }
@@ -259,6 +240,74 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     }
     return { status: "SUCCESS" } as CommandSuccess;
   };
+
+  /**
+   * The dispatch method is the only entry point to manipulate date in the model.
+   * This is through this method that commands are dispatched, most of the time
+   * recursively until no plugin want to react anymore.
+   *
+   * Small technical detail: it is defined as an arrow function.  There are two
+   * reasons for this:
+   * 1. this means that the dispatch method can be "detached" from the model,
+   *    which is done when it is put in the environment (see the Spreadsheet
+   *    component)
+   * 2. This allows us to define its type by using the interface CommandDispatcher
+   */
+  dispatchCore: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+    const command: Command = Object.assign({ type }, payload);
+    for (const h of this.handlers) {
+      h.beforeHandle(command);
+    }
+    for (const h of this.handlers) {
+      h.handle(command);
+    }
+    return { status: "SUCCESS" } as CommandSuccess;
+  };
+  // dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  //   const command: Command = Object.assign({ type }, payload);
+  //   let status: Status = command.interactive ? Status.Interactive : this.status;
+  //   switch (status) {
+  //     case Status.Ready:
+  //       for (let handler of this.handlers) {
+  //         const allowDispatch = handler.allowDispatch(command);
+  //         if (allowDispatch.status === "CANCELLED") {
+  //           return allowDispatch;
+  //         }
+  //       }
+  //       this.status = Status.Running;
+  //       this.history.startStep(command);
+  //       this.network.startTransaction(command);
+  //       for (const h of this.handlers) {
+  //         h.beforeHandle(command);
+  //       }
+  //       for (const h of this.handlers) {
+  //         h.handle(command);
+  //       }
+  //       this.status = Status.Finalizing;
+  //       for (const h of this.handlers) {
+  //         h.finalize(command);
+  //       }
+  //       this.history.finalizeStep();
+  //       this.network.finalizeTransaction();
+  //       this.status = Status.Ready;
+  //       if (this.config.mode !== "headless") {
+  //         this.trigger("update");
+  //       }
+  //       break;
+  //     case Status.Running:
+  //     case Status.Interactive:
+  //       for (const h of this.handlers) {
+  //         h.beforeHandle(command);
+  //       }
+  //       for (const h of this.handlers) {
+  //         h.handle(command);
+  //       }
+  //       break;
+  //     case Status.Finalizing:
+  //       throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+  //   }
+  //   return { status: "SUCCESS" } as CommandSuccess;
+  // };
 
   // ---------------------------------------------------------------------------
   // Grid Rendering

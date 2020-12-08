@@ -12,9 +12,9 @@ import { Message, Network } from "./types/multi_users";
 export class SOCT4 {
   private readonly clientId = uuidv4();
   // private currentTimestamp: number = 0;
-  private lastDeliveredTimestamp: number = 0;
+  // private lastDeliveredTimestamp: number = 0;
   // private history: { [timestamp: number]: Message } = {};
-  private sequencialReceptionQueue: Required<Message>[] = [];
+  // private sequencialReceptionQueue: Required<Message>[] = [];
   private queue: Message[] = [];
 
   constructor(private dispatch: CommandDispatcher["dispatch"], private network: Network) {
@@ -28,16 +28,16 @@ export class SOCT4 {
    * When the command receives its timestamp it is checked to
    * determine whether it can be broadcast.
    */
-  async localExecution(command: CoreCommand) {
+  async localExecution(commands: CoreCommand[]) {
     // this.currentTimestamp++;
     const networkCommand: Message = {
       clientId: this.clientId,
-      commands: [command],
+      commands,
       timestamp: -1,
     };
     // this.history[this.currentTimestamp] = networkCommand;
     this.queue.push(networkCommand);
-    networkCommand.timestamp = await this.network.getTicket();
+    // networkCommand.timestamp = await this.network.getTicket();
     // console.table(this.history);
     this.deferredBroadcast();
   }
@@ -48,13 +48,15 @@ export class SOCT4 {
    */
   private deferredBroadcast() {
     // We should manage the case where the network is down
-    const nextTimestamp = this.lastDeliveredTimestamp + 1;
+    // const nextTimestamp = this.lastDeliveredTimestamp + 1;
     // const networkCommand = this.history[nextTimestamp];
     const networkCommand = this.queue[0];
-    if (networkCommand && networkCommand.timestamp === nextTimestamp) {
+    // if (networkCommand && networkCommand.timestamp === nextTimestamp) {
+    if (networkCommand) {
       this.network.sendMessage(networkCommand);
       this.queue.shift();
     }
+    // }
   }
 
   /**
@@ -143,23 +145,26 @@ export class SOCT4 {
    */
   private sequentialReception(networkCommand: Message) {
     // wait all previous commands before integrating the new command
-    this.sequencialReceptionQueue.push(networkCommand);
-    this.sequencialReceptionQueue.sort(
-      (command1, command2) => command1.timestamp - command2.timestamp
-    );
-    let i = 0;
-    while (i < this.sequencialReceptionQueue.length) {
-      const waitingCommand = this.sequencialReceptionQueue[i];
-      if (
-        waitingCommand.timestamp &&
-        this.lastDeliveredTimestamp === waitingCommand.timestamp - 1
-      ) {
-        this.sequencialReceptionQueue.splice(i, 1);
-        this.lastDeliveredTimestamp++;
-        this.integrateCommand(waitingCommand);
-      } else {
-        i++;
-      }
-    }
+
+    this.integrateCommand(networkCommand);
+
+    // this.sequencialReceptionQueue.push(networkCommand);
+    // this.sequencialReceptionQueue.sort(
+    //   (command1, command2) => command1.timestamp - command2.timestamp
+    // );
+    // let i = 0;
+    // while (i < this.sequencialReceptionQueue.length) {
+    //   const waitingCommand = this.sequencialReceptionQueue[i];
+    //   if (
+    //     waitingCommand.timestamp &&
+    //     this.lastDeliveredTimestamp === waitingCommand.timestamp - 1
+    //   ) {
+    //     this.sequencialReceptionQueue.splice(i, 1);
+    //     this.lastDeliveredTimestamp++;
+    //     this.integrateCommand(waitingCommand);
+    //   } else {
+    //     i++;
+    //   }
+    // }
   }
 }
