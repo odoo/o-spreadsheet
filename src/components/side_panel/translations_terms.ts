@@ -1,5 +1,5 @@
 import { _lt } from "../../translation";
-import { CancelledReason } from "../../types";
+import { CancelledReason } from "../../types/index";
 
 export const conditionalFormatingTerms = {
   CF_TITLE: _lt("Format rules"),
@@ -15,6 +15,13 @@ export const conditionalFormatingTerms = {
   PREVIEWTEXT: _lt("Preview text"),
   Errors: {
     [CancelledReason.InvalidNumberOfArgs]: _lt("Invalid number of arguments"),
+    [CancelledReason.NaN]: _lt("Must write a number"),
+    [CancelledReason.MinBiggerThanMax]: _lt("Minimum must be smaller then Maximum"),
+    [CancelledReason.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
+    [CancelledReason.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
+    [CancelledReason.InvalidFormula]: _lt("Invalid formula"),
+    [CancelledReason.AsyncFormulaNotSupported]: _lt("Some formulas are not supported"),
+    unexpected: _lt("The rule is invalid for an unknown reason"),
   },
 };
 export const colorScale = {
