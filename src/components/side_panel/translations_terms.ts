@@ -40,6 +40,7 @@ export const colorScale = {
   CellValues: _lt("Cell values"),
   FixedNumber: _lt("Fixed number"),
   Percentage: _lt("Percentage"),
+  Percentile: _lt("Percentile"),
   Formula: _lt("Formula"),
   FormatRules: _lt("Format rules"),
   None: _lt("None"),

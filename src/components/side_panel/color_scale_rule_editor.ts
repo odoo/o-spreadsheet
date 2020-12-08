@@ -43,6 +43,9 @@ const THRESHOLD_TEMPLATE = xml/* xml */ `
         <option value="percentage">
           <t t-esc="env._t('${colorScale.Percentage}')"/>
         </option>
+        <option value="percentile">
+          <t t-esc="env._t('${colorScale.Percentile}')"/>
+        </option>
         <option value="formula">
           <t t-esc="env._t('${colorScale.Formula}')"/>
         </option>
@@ -134,7 +137,7 @@ interface Props {
 
 type ComponentColorScaleMidPointThreshold = {
   color: number;
-  type: "none" | "number" | "percentage" | "formula";
+  type: "none" | "number" | "percentage" | "percentile" | "formula";
   value?: string;
 };
 interface ComponentColorScaleRule {
@@ -207,19 +210,13 @@ export class ColorScaleRuleEditor extends Component<Props, SpreadsheetEnv> {
   }
 
   private cleanRule(rule: ComponentColorScaleRule): ColorScaleRule {
-    switch (rule.type) {
-      case "ColorScaleRule":
-        if (rule.midpoint.type === "none") {
-          return {
-            ...rule,
-            midpoint: undefined,
-          };
-        }
-        return rule as ColorScaleRule;
-        break;
-      default:
-        return rule as ColorScaleRule;
+    if (rule.midpoint.type === "none") {
+      return {
+        ...rule,
+        midpoint: undefined,
+      };
     }
+    return rule as ColorScaleRule;
   }
   onSave() {
     const minimum = { ...this.stateColorScale.minimum };

@@ -50,13 +50,13 @@ export interface ExpressionRule extends SingleColorRule {
 
 export type ColorScaleThreshold = {
   color: number;
-  type: "value" | "number" | "percentage" | "formula";
+  type: "value" | "number" | "percentage" | "percentile" | "formula";
   value?: string;
 };
 
 export type ColorScaleMidPointThreshold = {
   color: number;
-  type: "number" | "percentage" | "formula";
+  type: "number" | "percentage" | "percentile" | "formula";
   value: string;
 };
 

@@ -807,12 +807,13 @@ describe("conditional formats types", () => {
     describe.each([
       ["number", "number", "number"],
       ["percentage", "percentage", "percentage"],
+      ["percentile", "percentile", "percentile"],
     ])(
       "dispatch is not allowed if points not ascending (min: %s , mid: %s, max: %s )",
       (
-        minType: "number" | "percentage",
-        midType: "number" | "percentage",
-        maxType: "number" | "percentage"
+        minType: "number" | "percentage" | "percentile",
+        midType: "number" | "percentage" | "percentile",
+        maxType: "number" | "percentage" | "percentile"
       ) => {
         test("min bigger than max", () => {
           const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
