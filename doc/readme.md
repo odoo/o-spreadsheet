@@ -1,46 +1,32 @@
 # o-spreadsheet
 
-## Integrating o-spreadsheet
-
 The `o-spreadsheet` library is designed to be standalone, but easy to integrate.
-Here is a list of all official extension points:
 
-1. Adding functions: the `o_spreadsheet` object exports an `addFunction` method:
 
-```js
-o_spreadsheet.addFunction("myfunc", {
-  description: "My custom Function",
-  compute: function (a, b) {
-    return 2 * (a + b);
-  },
-});
-```
 
-The `addFunction` method takes a name and a function descriptor (it should
-implement the `FunctionDescription` interface from the code `/functions/index.ts`).
+## Integrating o-spreadsheet in an existing application
 
-2. Confirmation dialog: sometimes, `o-spreadsheet` needs to ask confirmation to
-   the user. For example, merging cells which have some text content is considered
-   a destructive operation. In that case, we want to display a nice modal dialog
-   to ask the user if it is okay.
+1. [Providing a way for o-spreadsheet to interact with the user](integration.md)
+    1. for confirmation
+    1. for notification
+    1. for editing text
+1. Loading and saving data
+1. Customizing the layout
+1. Translating terms
 
-To do that, the `o-spreadsheet` library will trigger a `ask-confirmation` event.
+## Our Terminology
 
-```js
-class App extends Component {
-  static template = xml`<Spreadsheet data="data" t-on-ask-confirmation="askConfirmation"/>`;
-  static components = { Spreadsheet };
+[At a glance](o-spreadsheet_terminology.png)
 
-  data = ...;
 
-  askConfirmation(ev) {
-    // open here a nice model dialog
-    if (window.confirm(ev.detail.content)) {
-      ev.detail.confirm();
-    }
-  }
-```
+## Extending the functionalities of o-spreadsheet
 
-3. Notification dialog: sometimes, `o-spreadsheet` needs to notify the user that
-   some operation is not supported, or some other message. In that case, it will
-   trigger a `notify-user` event, with a `content` key with a message.
+1. [Adding new functions to use in formulas](add_function.md)
+1. [Adding a plugin](add_plugin.md)
+1. Adding/Removing menu items from the `menu bar`
+1. Adding buttons on the `top bar`
+1. [Adding menu on the right click menu of a `cell`](add_right_click_item.md#of-a-cell)
+1. Adding menu on the right click menu of a `column` or `row` header
+1. Adding menu on the `bottom bar`
+1. Adding `side panels`
+1. Changing the way cell `Auto Fill`
