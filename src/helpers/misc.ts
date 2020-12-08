@@ -60,4 +60,3 @@ export function isDefined<T>(argument: T | undefined): argument is T {
 }
 
 export const DEBUG: { [key: string]: any } = {};
-

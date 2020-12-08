@@ -164,7 +164,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const dispatch = this.dispatch.bind(this);
     const history = this.handlers.find((p) => p instanceof WHistory)! as WHistory;
 
-    setIsFastStrategy(true);
+    setIsFastStrategy(false); // TODO fine tune this
 
     if (Plugin.modes.includes(this.config.mode)) {
       const plugin = new Plugin(this.getters, history, dispatch, this.config);

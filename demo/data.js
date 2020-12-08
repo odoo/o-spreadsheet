@@ -9,6 +9,7 @@ export const demoData = {
   version: 5,
   sheets: [
     {
+      id: "sheetId1",  //TODO remote this
       name: "Sheet1",
       colNumber: 26,
       rowNumber: 120,
@@ -112,6 +113,7 @@ export const demoData = {
       ],
     },
     {
+      id: "sheetId2", //TODO remove this
       name: "Sheet2",
       cells: {
         B2: { content: "42" },
