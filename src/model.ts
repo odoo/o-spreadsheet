@@ -105,7 +105,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    this.history = new WHistory(this.dispatch.bind(this));
+    this.history = new WHistory(this.dispatchCore.bind(this));
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
@@ -202,7 +202,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.history.startStep(command);
         this.network.startTransaction(command);
         if (isCoreCommand(command)) {
-          // this.history.addStep(command);
+          this.history.addStep(command);
           this.network.addStep(command);
         }
         for (const h of this.handlers) {
@@ -225,7 +225,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       case Status.Running:
       case Status.Interactive:
         if (isCoreCommand(command)) {
-          // this.history.addStep(command);
+          this.history.addStep(command);
           this.network.addStep(command);
         }
         for (const h of this.handlers) {

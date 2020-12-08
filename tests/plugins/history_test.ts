@@ -21,6 +21,7 @@ describe.only("Selective undo-redo", () => {
     const steps = history["undoStack"];
     expect(steps).toHaveLength(2);
     const id = steps[0].id;
+    debugger;
     model.dispatch("SELECTIVE_UNDO", { id });
     expect(history["undoStack"]).toHaveLength(1);
     expect(getCell(model, "A1")).toBeUndefined();
@@ -37,13 +38,16 @@ describe.only("Selective undo-redo", () => {
     const id = steps[0].id;
     model.dispatch("SELECTIVE_UNDO", { id });
     expect(history["undoStack"]).toHaveLength(1);
-    expect(history["undoStack"][0].command).toEqual({
-      type: "UPDATE_CELL",
-      col: 3,
-      row: 0,
-      sheetId,
-      content: "test",
-    });
+    expect(history["undoStack"][0].commands).toEqual([
+      {
+        type: "UPDATE_CELL",
+        col: 3,
+        row: 0,
+        sheetId,
+        content: "test",
+      },
+      ,
+    ]);
     expect(getCell(model, "E1")).toBeUndefined();
     expect(getCell(model, "D1")).toBeDefined();
     expect(getCellContent(model, "D1")).toBe("test");
