@@ -32,4 +32,12 @@ it can be rendered on screen
 sometimes, its values are limited (data validation in excel)
 sometimes, the way the content is input is not using the composer (data list, pivot filter, column filter)
 
+
+
+Meeting 2020-12-09 (FLE, LAA, PRO, LUL, VSC)
+------------------
+probably a good idea to start with formula and one other simple new cell type (data-validated list type, read-only type) to start with
+using classes might not be a good idea: add or remove aspects (if they are implemented like a chain-of-responsability patterns (or other) might be hard once the class is created.
+probably a better idea to add flags to an object and if it has the flag, it has the aspect (at least at first)
+
  */
