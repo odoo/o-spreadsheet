@@ -162,7 +162,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       const commands: CoreCommand[] = [];
       for (let cmd of step.commands) {
         for (let deletedCommand of deletedCommands) {
-          commands.push(...transform(cmd, deletedCommand, 1, 0)); //TODO Remove the numbers
+          commands.push(...transform(cmd, deletedCommand)); //TODO Remove the numbers
         }
       }
       if (commands.length > 0) {
@@ -216,7 +216,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     }
   }
 
-  startStep(cmd: Command, transactionId: UID) {
+  startTransaction(cmd: Command, transactionId: UID) {
     if (!this.current && this.historize && cmd.type !== "UNDO" && cmd.type !== "REDO") {
       this.current = {
         id: transactionId,
@@ -258,7 +258,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     }
   }
 
-  finalizeStep(cmd: Command) {
+  finalizeTransaction(cmd: Command) {
     if (this.current && this.current.changes.length) {
       this.undoStack.push(this.current);
       this.redoStack = [];

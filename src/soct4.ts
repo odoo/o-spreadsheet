@@ -92,9 +92,7 @@ export class SOCT4 {
       this.queue[j].commands = commands
         .map((command) =>
           localCommandsAlreadyExecuted
-            .map((localCommand) =>
-              transform(localCommand, command, this.queue[j].timestamp, networkCommand.timestamp)
-            )
+            .map((localCommand) => transform(localCommand, command))
             .flat()
         )
         .flat();
@@ -106,10 +104,7 @@ export class SOCT4 {
       commands = commands
         .map((command) =>
           localCommandsAlreadyExecuted
-            .map(
-              (localCommand) =>
-                transform(command, localCommand, networkCommand.timestamp, this.queue[j].timestamp) // probably broken; this.queue[j].timestamp could be -1
-            )
+            .map((localCommand) => transform(command, localCommand))
             .flat()
         )
         .flat();

@@ -5,7 +5,7 @@ import { getCell, getCellContent, nextTick, setCellContent } from "../helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
 
-describe.skip("Multi users synchronisation", () => {
+describe("Multi users synchronisation", () => {
   let network: MockNetwork;
   let emptySheetData: WorkbookData;
   let alice: Model;
@@ -20,7 +20,7 @@ describe.skip("Multi users synchronisation", () => {
     charly = new Model(emptySheetData, { network });
   });
 
-  test("update two different cells concurrently", async () => {
+  test.skip("update two different cells concurrently", async () => {
     await network.concurrent(() => {
       alice.dispatch("UPDATE_CELL", {
         col: 0,
@@ -43,7 +43,7 @@ describe.skip("Multi users synchronisation", () => {
     expect(getCellContent(charly, "B2")).toBe("hello in B2");
   });
 
-  test("update the same cell concurrently", async () => {
+  test.skip("update the same cell concurrently", async () => {
     await network.concurrent(() => {
       alice.dispatch("UPDATE_CELL", {
         col: 0,
@@ -65,7 +65,7 @@ describe.skip("Multi users synchronisation", () => {
     expect(getCellContent(charly, "A1")).toBe("Hi Alice");
   });
 
-  test("update the same cell sequentially", async () => {
+  test.skip("update the same cell sequentially", async () => {
     alice.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
@@ -136,37 +136,37 @@ describe.skip("Multi users synchronisation", () => {
   //   expect(getCell(dave, "A1")).toBe("hello in A1");
   // });
 
-  test("update and delete the same cell concurrently", async () => {
-    // alice.dispatch("UPDATE_CELL", {
-    //   sheetId: alice.getters.getActiveSheetId(),
-    //   col: 0,
-    //   row: 0,
-    //   content: "Hi",
-    // });
-    // await nextTick();
+  test.skip("update and delete the same cell concurrently", async () => {
+    alice.dispatch("UPDATE_CELL", {
+      sheetId: alice.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      content: "Hi",
+    });
+    await nextTick();
     expect(getCellContent(alice, "A1")).toBe("Hi");
     expect(getCellContent(bob, "A1")).toBe("Hi");
-    // await network.concurrent(() => {
-    //   alice.dispatch("UPDATE_CELL", {
-    //     col: 0,
-    //     row: 0,
-    //     content: "hello",
-    //     sheetId: alice.getters.getActiveSheetId(),
-    //   });
-    //   expect(getCellContent(alice, "A1")).toBe("hello");
-    //   bob.dispatch("CLEAR_CELL", {
-    //     sheetId: bob.getters.getActiveSheetId(),
-    //     col: 0,
-    //     row: 0,
-    //   });
-    //   expect(getCell(bob, "A1")).toBeUndefined();
-    // });
+    await network.concurrent(() => {
+      alice.dispatch("UPDATE_CELL", {
+        col: 0,
+        row: 0,
+        content: "hello",
+        sheetId: alice.getters.getActiveSheetId(),
+      });
+      expect(getCellContent(alice, "A1")).toBe("hello");
+      bob.dispatch("CLEAR_CELL", {
+        sheetId: bob.getters.getActiveSheetId(),
+        col: 0,
+        row: 0,
+      });
+      expect(getCell(bob, "A1")).toBeUndefined();
+    });
     expect(getCell(alice, "A1")).toBeUndefined();
     expect(getCell(bob, "A1")).toBeUndefined();
     expect(getCell(charly, "A1")).toBeUndefined();
   });
 
-  test("delete and update the same cell concurrently", async () => {
+  test.skip("delete and update the same cell concurrently", async () => {
     await network.concurrent(() => {
       alice.dispatch("CLEAR_CELL", {
         sheetId: bob.getters.getActiveSheetId(),
@@ -185,7 +185,7 @@ describe.skip("Multi users synchronisation", () => {
     expect(getCellContent(charly, "A1")).toBe("hello");
   });
 
-  test("delete and update the same cell concurrently", async () => {
+  test.skip("delete and update the same cell concurrently", async () => {
     alice.dispatch("UPDATE_CELL", {
       sheetId: alice.getters.getActiveSheetId(),
       col: 0,
@@ -214,7 +214,7 @@ describe.skip("Multi users synchronisation", () => {
     expect(getCell(charly, "A1")).toBeUndefined();
   });
 
-  test("Update a cell and merge a cell concurrently", async () => {
+  test.skip("Update a cell and merge a cell concurrently", async () => {
     // The result is not logical but at least it's synchronized.
     await network.concurrent(() => {
       alice.dispatch("UPDATE_CELL", {
@@ -233,7 +233,7 @@ describe.skip("Multi users synchronisation", () => {
     expect(getCellContent(charly, "B2")).toBe("Hi Bob");
   });
 
-  test("Merge a cell and update a cell concurrently", async () => {
+  test.skip("Merge a cell and update a cell concurrently", async () => {
     await network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId: alice.getters.getActiveSheetId(),
@@ -253,7 +253,7 @@ describe.skip("Multi users synchronisation", () => {
     expect(alice.getters.getMerges(sheetId)).toEqual(charly.getters.getMerges(sheetId));
   });
 
-  test("Merge a cell and update a cell concurrently, then remove the merge", async () => {
+  test.skip("Merge a cell and update a cell concurrently, then remove the merge", async () => {
     await network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId: alice.getters.getActiveSheetId(),

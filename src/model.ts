@@ -12,6 +12,7 @@ import {
   CommandSuccess,
   EvalContext,
   isCoreCommand,
+  CommandResult,
 } from "./types/index";
 import { _lt } from "./translation";
 import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
@@ -188,41 +189,57 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  private checkDispatchAllowed(cmd: Command): CommandResult | undefined {
+    for (let handler of this.handlers) {
+      const allowDispatch = handler.allowDispatch(cmd);
+      if (allowDispatch.status === "CANCELLED") {
+        return allowDispatch;
+      }
+    }
+    return undefined;
+  }
+
+  private startTransaction(cmd: Command) {
+    const transactionId = cmd.type === "EXTERNAL" ? cmd.transactionId : uuidv4();
+    this.history.startTransaction(cmd, transactionId);
+    this.network.startTransaction(cmd, transactionId);
+  }
+
+  private dispatchToHandlers(command: Command) {
+    if (isCoreCommand(command)) {
+      this.history.addStep(command);
+      this.network.addStep(command);
+    }
+    for (const h of this.handlers) {
+      h.beforeHandle(command);
+    }
+    for (const h of this.handlers) {
+      h.handle(command);
+    }
+  }
+
+  private finalize(command: Command) {
+    this.status = Status.Finalizing;
+    for (const h of this.handlers) {
+      h.finalize(command);
+    }
+    this.history.finalizeTransaction(command);
+    this.network.finalizeTransaction();
+  }
+
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
     let status: Status = command.interactive ? Status.Interactive : this.status;
-    if (command.type === "EXTERNAL") {
-      console.table(command.commands);
-      console.log(status);
-    }
     switch (status) {
       case Status.Ready:
-        for (let handler of this.handlers) {
-          const allowDispatch = handler.allowDispatch(command);
-          if (allowDispatch.status === "CANCELLED") {
-            return allowDispatch;
-          }
+        const error = this.checkDispatchAllowed(command);
+        if (error) {
+          return error;
         }
         this.status = Status.Running;
-        const transactionId = command.type === "EXTERNAL" ? command.transactionId : uuidv4();
-        this.history.startStep(command, transactionId);
-        this.network.startTransaction(command, transactionId);
-        if (isCoreCommand(command)) {
-          this.history.addStep(command);
-          this.network.addStep(command);
-        }
-        for (const h of this.handlers) {
-          h.beforeHandle(command);
-        }
-        for (const h of this.handlers) {
-          h.handle(command);
-        }
-        this.status = Status.Finalizing;
-        for (const h of this.handlers) {
-          h.finalize(command);
-        }
-        this.history.finalizeStep(command);
-        this.network.finalizeTransaction();
+        this.startTransaction(command);
+        this.dispatchToHandlers(command);
+        this.finalize(command);
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");
@@ -230,16 +247,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         break;
       case Status.Running:
       case Status.Interactive:
-        if (isCoreCommand(command)) {
-          this.history.addStep(command);
-          this.network.addStep(command);
-        }
-        for (const h of this.handlers) {
-          h.beforeHandle(command);
-        }
-        for (const h of this.handlers) {
-          h.handle(command);
-        }
+        this.dispatchToHandlers(command);
         break;
       case Status.Finalizing:
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));

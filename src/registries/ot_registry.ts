@@ -7,9 +7,7 @@ import { CoreCommand, CommandTypes, CoreCommandTypes } from "../types";
 
 export type TransformationFunction = (
   toTransform: CoreCommand,
-  executed: CoreCommand,
-  toTransformTimestamp: number,
-  executedTimestamp: number
+  executed: CoreCommand
 ) => CoreCommand[];
 
 export class OTRegistry extends Registry<Registry<TransformationFunction>> {

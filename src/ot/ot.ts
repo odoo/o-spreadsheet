@@ -17,12 +17,7 @@ registry
   .addTransformation(
     "UPDATE_CELL",
     "UPDATE_CELL",
-    (
-      toTransform: UpdateCellCommand,
-      executed: UpdateCellCommand,
-      toTransformTimestamp: number,
-      executedTimestamp: number
-    ): UpdateCellCommand[] => {
+    (toTransform: UpdateCellCommand, executed: UpdateCellCommand): UpdateCellCommand[] => {
       // could be style and content => be "smart"
       if (
         toTransform.sheetId !== executed.sheetId ||
@@ -31,7 +26,7 @@ registry
       ) {
         return [toTransform];
       }
-      return toTransformTimestamp > executedTimestamp ? [toTransform] : [];
+      return [toTransform];
     }
   )
   .addTransformation(
@@ -147,12 +142,7 @@ registry
     }
   );
 
-export function transform(
-  toTransform: CoreCommand,
-  executed: CoreCommand,
-  toTransformTimestamp: number,
-  executedTimestamp: number
-): CoreCommand[] {
+export function transform(toTransform: CoreCommand, executed: CoreCommand): CoreCommand[] {
   const ot = registry.getTransformation(toTransform.type, executed.type);
-  return ot ? ot(toTransform, executed, toTransformTimestamp, executedTimestamp) : [toTransform];
+  return ot ? ot(toTransform, executed) : [toTransform];
 }
