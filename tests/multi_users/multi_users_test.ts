@@ -65,7 +65,7 @@ describe("Multi users synchronisation", () => {
     expect(getCellContent(charly, "A1")).toBe("Hi Alice");
   });
 
-  test.skip("update the same cell sequentially", async () => {
+  test("update the same cell sequentially", async () => {
     alice.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
