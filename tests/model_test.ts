@@ -14,7 +14,7 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { RangePlugin } from "../src/plugins/core/range";
-import { NetworkPlugin } from "../src/plugins/core/network";
+import { WNetwork } from "../src/network";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -32,7 +32,7 @@ describe("Model", () => {
     const model = new Model({}, { mode: "headless" });
     expect(model["handlers"]).toHaveLength(12);
     expect(model["handlers"][0]).toBeInstanceOf(WHistory);
-    expect(model["handlers"][1]).toBeInstanceOf(NetworkPlugin);
+    expect(model["handlers"][1]).toBeInstanceOf(WNetwork);
     expect(model["handlers"][2]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][3]).toBeInstanceOf(RangePlugin);
     expect(model["handlers"][4]).toBeInstanceOf(CellPlugin);

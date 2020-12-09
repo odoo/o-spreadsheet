@@ -1,8 +1,8 @@
-import { ModelConfig } from "../../model";
-import { SOCT4 } from "../../soct4";
-import { Command, CommandDispatcher, CommandResult, CoreCommand, UID } from "../../types";
+import { ModelConfig } from "./model";
+import { SOCT4 } from "./soct4";
+import { Command, CommandDispatcher, CommandResult, CoreCommand, UID } from "./types";
 
-export class NetworkPlugin {
+export class WNetwork {
   protected soct4?: SOCT4;
   private isMultiuser: boolean = false;
   private isUndo: boolean = false;

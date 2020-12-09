@@ -20,7 +20,7 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { Network } from "./types/multi_users";
-import { NetworkPlugin } from "./plugins/core/network";
+import { WNetwork } from "./network";
 
 /**
  * Model
@@ -73,7 +73,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private handlers: CommandHandler<Command>[];
 
   private history: WHistory;
-  private network: NetworkPlugin; //TODO Change the name of NetworkPlugin
+  private network: WNetwork;
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -125,7 +125,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       evalContext: config.evalContext || {},
       network: config.network,
     };
-    this.network = new NetworkPlugin(this.dispatch.bind(this), this.config.network);
+    this.network = new WNetwork(this.dispatch.bind(this), this.config.network);
 
     setIsFastStrategy(true);
     this.handlers.push(this.network);

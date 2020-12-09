@@ -162,7 +162,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       const commands: CoreCommand[] = [];
       for (let cmd of step.commands) {
         for (let deletedCommand of deletedCommands) {
-          commands.push(...transform(cmd, deletedCommand)); //TODO Remove the numbers
+          commands.push(...transform(cmd, deletedCommand));
         }
       }
       if (commands.length > 0) {
@@ -172,7 +172,6 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
           inverses: [],
           changes: [],
         };
-        Object.freeze(commands); //TODO remove it
         for (let cmd of commands.slice()) {
           this.dispatch(cmd.type, cmd);
         }
@@ -198,7 +197,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
   private selectiveUndo(id: UID) {
     const isLocal = this.localUndoStack.findIndex((stepId) => stepId === id) > -1;
     if (isLocal) {
-      this.localUndoStack.pop(); // TODO Not correct.
+      this.localUndoStack = this.localUndoStack.filter((stepId) => stepId !== id);
     }
     const index = this.undoStack.findIndex((step) => step.id === id);
     if (index === -1) {
@@ -234,16 +233,12 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     }
   }
 
-  //TODO Fine tune this
   beforeHandle() {}
-  //TODO Fine tune this
   finalize() {}
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
-        // const id = this.undoStack[this.undoStack.length - 1].id;
-        // this.selectiveUndo(id);
         const id = this.localUndoStack[this.localUndoStack.length - 1];
         this.dispatch("SELECTIVE_UNDO", { id });
         break;
