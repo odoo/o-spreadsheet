@@ -9,6 +9,7 @@ import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { WebsocketNetwork } from "../ot/network";
+import { Network } from "../types/multi_users";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -69,6 +70,7 @@ const CSS = css/* scss */ `
 interface Props {
   data?: any;
   getTicket?: () => Promise<number>;
+  network?: Network | "default";
 }
 
 const t = (s: string): string => s;
@@ -87,7 +89,7 @@ export class Spreadsheet extends Component<Props> {
       this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
-    network: new WebsocketNetwork(), // TODO this also works in tests !
+    network: this.props.network === "default" ? new WebsocketNetwork() : this.props.network,
   });
   grid = useRef("grid");
 

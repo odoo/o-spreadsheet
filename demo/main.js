@@ -41,23 +41,6 @@ class App extends Component {
     });
     this.queue = [];
     this.isConnected = false;
-    // this.socket = new WebSocket(`ws://localhost:9000`);
-    // this.socket.addEventListener("open", () => {
-    //   this.isConnected = true;
-    //   this.processQueue();
-    // });
-    // this.socket.addEventListener("error", (e) => {
-    //   console.log(e);
-    // });
-    // this.socket.addEventListener("message", (ev) => {
-    //   const msg = JSON.parse(ev.data);
-    //   if (msg.type === "multiuser_command") {
-    //     this.spread.comp.sequentialReception(msg.payload.command);
-    //     // const command = Object.assign(msg.payload.payload, { type: msg.payload.type });
-    //     // should not be broadcast directly
-    //     // this.spread.comp.model.dispatch("MULTIUSER", { command });
-    //   }
-    // });
     // this.data = makeLargeDataset(20, 10_000);
   }
 
@@ -135,7 +118,7 @@ class App extends Component {
   }
 }
 
-App.template = xml`
+App.template = xml/* xml */`
   <div>
     <Spreadsheet data="data" t-key="key"
       t-ref="spread"
@@ -146,7 +129,7 @@ App.template = xml`
       t-on-edit-text="editText"
       t-on-save-content="saveContent"/>
   </div>`;
-App.style = css`
+App.style = css/* css */`
   html {
     height: 100%;
     body {
