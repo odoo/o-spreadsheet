@@ -195,11 +195,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     return undefined;
   }
 
-  private startTransaction(cmd: Command) {
-    const transactionId = cmd.type === "EXTERNAL" ? cmd.transactionId : uuidv4();
-    this.stateReplicator2000.startTransaction(cmd, transactionId);
-  }
-
   private dispatchToHandlers(command: Command) {
     if (isCoreCommand(command)) {
       this.stateReplicator2000.addStep(command);
@@ -217,7 +212,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     for (const h of this.handlers) {
       h.finalize(command);
     }
-    this.stateReplicator2000.finalizeTransaction(command);
   }
 
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
@@ -230,9 +224,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           return error;
         }
         this.status = Status.Running;
-        this.startTransaction(command);
-        this.dispatchToHandlers(command);
-        this.finalize(command);
+        const transactionId = command.type === "EXTERNAL" ? command.transactionId : uuidv4();
+        this.stateReplicator2000.transact(command, transactionId, () => {
+          // this.startTransaction(command);
+          this.dispatchToHandlers(command);
+          this.finalize(command);
+        });
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");

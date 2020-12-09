@@ -32,7 +32,7 @@ export class StateReplicator2000
   private transaction: Transaction | null = null;
   private undoStack: Transaction[] = [];
   private redoStack: RedoStep[] = [];
-  private localUndoStack: UID[] = [];
+  private localTransactionIds: UID[] = [];
   private isMultiuser: boolean = false;
   private isUndo: boolean = false;
   private stack: CoreCommand[] = [];
@@ -46,6 +46,12 @@ export class StateReplicator2000
     if (network) {
       network.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
     }
+  }
+
+  transact(cmd: Command, transactionId: UID, callback: () => void) {
+    this.startTransaction(cmd, transactionId);
+    callback();
+    this.finalizeTransaction(cmd);
   }
 
   onMessageReceived(message: ReceivedMessage) {
@@ -79,7 +85,7 @@ export class StateReplicator2000
 
   // getters
   canUndo(): boolean {
-    return this.localUndoStack.length > 0;
+    return this.localTransactionIds.length > 0;
   }
 
   canRedo(): boolean {
@@ -129,25 +135,18 @@ export class StateReplicator2000
         }
       }
       if (commands.length > 0) {
-        console.log("This.current is correctly set");
         this.transaction = {
           id: step.id,
           commands: [],
           inverses: [],
           changes: [],
         };
-        console.log("Before dispatch");
-        console.log(this.transaction);
         for (let cmd of commands.slice()) {
-          console.log(cmd);
           this.dispatch(cmd.type, cmd);
         }
-        console.log("End of dispatch");
-        console.log(this.transaction);
         if (this.transaction.changes.length) {
           this.undoStack.push(this.transaction);
         }
-        console.log("End of replay");
         this.transaction = null;
       }
     }
@@ -164,9 +163,9 @@ export class StateReplicator2000
    * @param id Id of the step to undo
    */
   private selectiveUndo(id: UID) {
-    const isLocal = this.localUndoStack.findIndex((stepId) => stepId === id) > -1;
+    const isLocal = this.localTransactionIds.findIndex((stepId) => stepId === id) > -1;
     if (isLocal) {
-      this.localUndoStack = this.localUndoStack.filter((stepId) => stepId !== id);
+      this.localTransactionIds = this.localTransactionIds.filter((stepId) => stepId !== id);
     }
     const index = this.undoStack.findIndex((step) => step.id === id);
     if (index === -1) {
@@ -225,7 +224,7 @@ export class StateReplicator2000
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
-        const id = this.localUndoStack[this.localUndoStack.length - 1];
+        const id = this.localTransactionIds[this.localTransactionIds.length - 1];
         this.dispatch("SELECTIVE_UNDO", { id });
         break;
       case "SELECTIVE_UNDO":
@@ -250,7 +249,7 @@ export class StateReplicator2000
         this.undoStack.shift();
       }
       if (cmd.type !== "EXTERNAL") {
-        this.localUndoStack.push(this.transaction.id);
+        this.localTransactionIds.push(this.transaction.id);
       }
     }
     this.transaction = null;
@@ -291,10 +290,9 @@ export class StateReplicator2000
 
     if (this.transaction.changes.length) {
       this.undoStack.push(this.transaction);
-      this.localUndoStack.push(this.transaction.id);
+      this.localTransactionIds.push(this.transaction.id);
     }
 
-    console.log("Redo");
     this.transaction = null;
   }
 

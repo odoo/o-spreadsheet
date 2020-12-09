@@ -36,7 +36,7 @@ describe("Selective undo-redo", () => {
     setCellContent(model, "A1", "hello");
     const initialColumnLenght = model.getters.getActiveSheet().cols.length;
     addColumns(model, "before", "B", 1);
-    const id = history["localUndoStack"][0];
+    const id = history["localTransactionIds"][0];
     model.dispatch("SELECTIVE_UNDO", { id });
     expect(model.getters.getActiveSheet().cols.length).toBe(initialColumnLenght + 1);
   });
