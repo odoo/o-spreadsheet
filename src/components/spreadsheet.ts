@@ -69,7 +69,6 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
-  getTicket?: () => Promise<number>;
   network?: Network | "default";
 }
 
@@ -130,24 +129,6 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
   }
-
-  // sequentialReception(networkCommand: Required<NetworkCommand>) {
-  //   this.soct4.sequentialReception(networkCommand);
-  // }
-
-  // private broadcast(newtworkCommand: NetworkCommand) {
-  //   // if (this.props.sendCommand !== undefined) {
-  //   //   this.props.sendCommand(newtworkCommand);
-  //   // }
-  //   this.trigger("network-command", { command: newtworkCommand });
-  // }
-
-  // private async getTicket() {
-  //   if (this.props.getTicket !== undefined) {
-  //     return this.props.getTicket();
-  //   }
-  //   return -1;
-  // }
 
   get focusTopBarComposer(): boolean {
     return this.model.getters.getEditionMode() !== "inactive" && this.composer.topBar;
