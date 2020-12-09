@@ -4,6 +4,7 @@ import {
   ClientId,
   NewMessageCallback,
   NetworkListener,
+  ReceivedMessage,
 } from "../types/multi_users";
 
 export class WebsocketNetwork implements Network {
@@ -66,7 +67,7 @@ export class WebsocketNetwork implements Network {
     }
   }
 
-  private notifyListeners(message: Message) {
+  private notifyListeners(message: ReceivedMessage) {
     for (let { callback } of this.listeners) {
       callback(message);
     }

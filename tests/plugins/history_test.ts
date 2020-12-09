@@ -1,4 +1,4 @@
-import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
+import { StateReplicator2000 } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import {
@@ -10,16 +10,19 @@ import {
   addColumns,
 } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
+import { MAX_HISTORY_STEPS } from "../../src/constants";
 
 // we test here the undo/redo feature
 
 describe("Selective undo-redo", () => {
   let model: Model;
-  let history: WHistory;
+  let history: StateReplicator2000;
 
   beforeEach(() => {
     model = new Model();
-    history = model["handlers"].find((p) => p instanceof WHistory)! as WHistory;
+    history = model["handlers"].find(
+      (p) => p instanceof StateReplicator2000
+    )! as StateReplicator2000;
   });
 
   test("Cannot dispatch a selective undo with non-existing id", () => {
@@ -103,7 +106,7 @@ describe("Selective undo-redo", () => {
 describe("history", () => {
   const dispatch = new Model().dispatch;
   test("can update existing value", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: 4,
     };
@@ -112,7 +115,7 @@ describe("history", () => {
   });
 
   test("can set new value", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: 4,
     };
@@ -122,7 +125,7 @@ describe("history", () => {
   });
 
   test("can update existing nested value", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {
         B: 4,
@@ -133,7 +136,7 @@ describe("history", () => {
   });
 
   test("set new nested value", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {
         B: 4,
@@ -145,7 +148,7 @@ describe("history", () => {
   });
 
   test("update existing value nested in array", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };
@@ -154,7 +157,7 @@ describe("history", () => {
   });
 
   test("set new value nested in array", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: [
         {
@@ -168,7 +171,7 @@ describe("history", () => {
   });
 
   test("create new path on-the-fly", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };
@@ -183,7 +186,7 @@ describe("history", () => {
   });
 
   test("create new path containing an array on-the-fly", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };
@@ -200,7 +203,7 @@ describe("history", () => {
   });
 
   test("create new array on-the-fly", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };
@@ -212,7 +215,7 @@ describe("history", () => {
     });
   });
   test("create new sparse array on-the-fly", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };
@@ -223,7 +226,7 @@ describe("history", () => {
   });
 
   test("cannot update an invalid key value", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };
@@ -233,7 +236,7 @@ describe("history", () => {
   });
 
   test("cannot update an invalid path", () => {
-    const history = new WHistory(dispatch);
+    const history = new StateReplicator2000(dispatch);
     const state = {
       A: {},
     };

@@ -20,8 +20,8 @@ describe("Multi users synchronisation", () => {
     charly = new Model(emptySheetData, { network });
   });
 
-  test.skip("update two different cells concurrently", async () => {
-    await network.concurrent(() => {
+  test("update two different cells concurrently", () => {
+    network.concurrent(() => {
       alice.dispatch("UPDATE_CELL", {
         col: 0,
         row: 0,
@@ -65,14 +65,13 @@ describe("Multi users synchronisation", () => {
     expect(getCellContent(charly, "A1")).toBe("Hi Alice");
   });
 
-  test("update the same cell sequentially", async () => {
+  test("update the same cell sequentially", () => {
     alice.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
       content: "hello Bob",
       sheetId: alice.getters.getActiveSheetId(),
     });
-    await nextTick();
     expect(getCellContent(alice, "A1")).toBe("hello Bob");
     expect(getCellContent(bob, "A1")).toBe("hello Bob");
     expect(getCellContent(charly, "A1")).toBe("hello Bob");
@@ -82,7 +81,6 @@ describe("Multi users synchronisation", () => {
       content: "Hi Alice",
       sheetId: alice.getters.getActiveSheetId(),
     });
-    await nextTick();
     expect(getCellContent(alice, "A1")).toBe("Hi Alice");
     expect(getCellContent(bob, "A1")).toBe("Hi Alice");
     expect(getCellContent(charly, "A1")).toBe("Hi Alice");

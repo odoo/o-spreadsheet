@@ -1,6 +1,6 @@
 import { Model, Mode } from "../src/model";
 import "./canvas.mock";
-import { WHistory } from "../src/history";
+import { StateReplicator2000 } from "../src/history";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { BordersPlugin } from "../src/plugins/core/borders";
@@ -14,7 +14,6 @@ import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";
 import { UIPlugin } from "../src/plugins/ui_plugin";
 import { RangePlugin } from "../src/plugins/core/range";
-import { WNetwork } from "../src/network";
 
 function getNbrPlugin(mode: Mode): number {
   return (
@@ -30,37 +29,36 @@ function getNbrPlugin(mode: Mode): number {
 describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
-    expect(model["handlers"]).toHaveLength(12);
-    expect(model["handlers"][0]).toBeInstanceOf(WHistory);
-    expect(model["handlers"][1]).toBeInstanceOf(WNetwork);
-    expect(model["handlers"][2]).toBeInstanceOf(SheetPlugin);
-    expect(model["handlers"][3]).toBeInstanceOf(RangePlugin);
-    expect(model["handlers"][4]).toBeInstanceOf(CellPlugin);
-    expect(model["handlers"][5]).toBeInstanceOf(MergePlugin);
-    expect(model["handlers"][6]).toBeInstanceOf(BordersPlugin);
-    expect(model["handlers"][7]).toBeInstanceOf(ConditionalFormatPlugin);
-    expect(model["handlers"][8]).toBeInstanceOf(FigurePlugin);
-    expect(model["handlers"][9]).toBeInstanceOf(ChartPlugin);
-    expect(model["handlers"][10]).toBeInstanceOf(SheetUIPlugin);
-    expect(model["handlers"][11]).toBeInstanceOf(FindAndReplacePlugin);
+    expect(model["handlers"]).toHaveLength(11);
+    expect(model["handlers"][0]).toBeInstanceOf(StateReplicator2000);
+    expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
+    expect(model["handlers"][2]).toBeInstanceOf(RangePlugin);
+    expect(model["handlers"][3]).toBeInstanceOf(CellPlugin);
+    expect(model["handlers"][4]).toBeInstanceOf(MergePlugin);
+    expect(model["handlers"][5]).toBeInstanceOf(BordersPlugin);
+    expect(model["handlers"][6]).toBeInstanceOf(ConditionalFormatPlugin);
+    expect(model["handlers"][7]).toBeInstanceOf(FigurePlugin);
+    expect(model["handlers"][8]).toBeInstanceOf(ChartPlugin);
+    expect(model["handlers"][9]).toBeInstanceOf(SheetUIPlugin);
+    expect(model["handlers"][10]).toBeInstanceOf(FindAndReplacePlugin);
   });
 
   test("All plugin compatible with normal mode are loaded on normal mode", () => {
     const model = new Model();
     const nbr = getNbrPlugin("normal");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+2 for WHistory and NetworkPlugin
+    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for StateReplicator2000
   });
 
   test("All plugin compatible with headless mode are loaded on headless mode", () => {
     const model = new Model({}, { mode: "headless" });
     const nbr = getNbrPlugin("headless");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+2 for WHistory and NetworkPlugin
+    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for StateReplicator2000
   });
 
   test("All plugin compatible with readonly mode are loaded on readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
     const nbr = getNbrPlugin("readonly");
-    expect(model["handlers"]).toHaveLength(nbr + 2); //+2 for WHistory and NetworkPlugin
+    expect(model["handlers"]).toHaveLength(nbr + 1); //+1 for StateReplicator2000
   });
 
   test("Model in headless mode should not evaluate cells", () => {

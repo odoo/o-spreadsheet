@@ -1,4 +1,7 @@
+import { MAX_HISTORY_STEPS } from "./constants";
+import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
+import { ModelConfig } from "./model";
 import { transform } from "./ot/ot";
 import {
   Command,
@@ -10,7 +13,11 @@ import {
   UndoCommand,
   RedoCommand,
   UID,
+  HistoryChange,
+  RedoStep,
+  UndoStep,
 } from "./types/index";
+import { ReceivedMessage } from "./types/multi_users";
 
 /**
  * History Management System
@@ -19,100 +26,57 @@ import {
  * as expected.
  */
 
-interface UndoStep {
-  id: UID;
-  commands: CoreCommand[];
-  inverses: CoreCommand[];
-  changes: HistoryChange[];
-}
-
-interface RedoStep {
-  id: UID;
-  commands: CoreCommand[];
-}
-
-interface HistoryChange {
-  root: any;
-  path: (string | number)[];
-  value: any;
-}
-
-/**
- * Max Number of history steps kept in memory
- */
-export const MAX_HISTORY_STEPS = 99;
-
-export interface WorkbookHistory<Plugin> {
-  update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
-  update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
-    key1: T,
-    key2: U,
-    val: NonNullable<Plugin[T]>[U]
-  ): void;
-  update<
-    T extends keyof Plugin,
-    U extends keyof NonNullable<Plugin[T]>,
-    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>
-  >(
-    key1: T,
-    key2: U,
-    key3: K,
-    val: NonNullable<NonNullable<Plugin[T]>[U]>[K]
-  ): void;
-  update<
-    T extends keyof Plugin,
-    U extends keyof NonNullable<Plugin[T]>,
-    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
-    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>
-  >(
-    key1: T,
-    key2: U,
-    key3: K,
-    key4: V,
-    val: NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]
-  ): void;
-  update<
-    T extends keyof Plugin,
-    U extends keyof NonNullable<Plugin[T]>,
-    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
-    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>,
-    W extends keyof NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>
-  >(
-    key1: T,
-    key2: U,
-    key3: K,
-    key4: V,
-    key5: W,
-    val: NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>[W]
-  ): void;
-  update<
-    T extends keyof Plugin,
-    U extends keyof NonNullable<Plugin[T]>,
-    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
-    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>,
-    W extends keyof NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>,
-    Y extends keyof NonNullable<
-      NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>[W]
-    >
-  >(
-    key1: T,
-    key2: U,
-    key3: K,
-    key4: V,
-    key5: W,
-    key6: Y,
-    val: NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]>[W]>[Y]
-  ): void;
-}
-
-export class WHistory implements CommandHandler<CoreCommand | UndoCommand | RedoCommand> {
+export class StateReplicator2000
+  implements CommandHandler<CoreCommand | UndoCommand | RedoCommand> {
   private current: UndoStep | null = null;
   private undoStack: UndoStep[] = [];
   private redoStack: RedoStep[] = [];
   private localUndoStack: UID[] = [];
   private historize: boolean = false;
+  private readonly clientId = uuidv4();
+  private isMultiuser: boolean = false;
+  private isUndo: boolean = false;
+  private stack: CoreCommand[] = [];
+  private transactionId: UID | undefined;
+  private pendingMessages: ReceivedMessage[] = [];
 
-  constructor(private dispatch: CommandDispatcher["dispatch"]) {}
+  constructor(
+    protected dispatch: CommandDispatcher["dispatch"],
+    protected network?: ModelConfig["network"]
+  ) {
+    if (network) {
+      network.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+    }
+  }
+
+  onMessageReceived(message: ReceivedMessage) {
+    if (message.clientId === this.clientId) {
+      return;
+    }
+    this.pendingMessages.unshift(message);
+    this.processPending();
+  }
+
+  private processPending() {
+    const keys = this.undoStack.map((step) => step.id);
+    const index = this.pendingMessages.findIndex(
+      (m) => keys.includes(m.previousTransactionId) || m.previousTransactionId === "START_STATE"
+    );
+    if (index > -1) {
+      const message = this.pendingMessages.splice(index, 1)[0];
+      const stateIndex = this.undoStack.findIndex(
+        (step) => step.id === message.previousTransactionId
+      );
+      const stepsToRevert = this.undoStack.splice(stateIndex + 1);
+      this.revert(stepsToRevert);
+      this.dispatch("EXTERNAL", {
+        commands: message.commands,
+        transactionId: message.transactionId,
+      });
+      this.replay(message.commands, stepsToRevert);
+      this.processPending();
+    }
+  }
 
   // getters
   canUndo(): boolean {
@@ -166,19 +130,25 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
         }
       }
       if (commands.length > 0) {
+        console.log("This.current is correctly set");
         this.current = {
           id: step.id,
           commands: [],
           inverses: [],
           changes: [],
         };
+        console.log("Before dispatch");
+        console.log(this.current);
         for (let cmd of commands.slice()) {
+          console.log(cmd);
           this.dispatch(cmd.type, cmd);
         }
-
+        console.log("End of dispatch");
+        console.log(this.current);
         if (this.current.changes.length) {
           this.undoStack.push(this.current);
         }
+        console.log("End of replay");
         this.current = null;
       }
     }
@@ -224,12 +194,29 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
         changes: [],
       };
     }
+    this.transactionId = transactionId;
+    if (cmd.type === "EXTERNAL") {
+      this.isMultiuser = true;
+    } else if (cmd.type === "UNDO") {
+      this.isMultiuser = true;
+      this.isUndo = true;
+    } else {
+      this.stack = [];
+    }
   }
 
   addStep(command: CoreCommand) {
     if (this.current) {
       this.current.commands.push(command);
       this.current.inverses.push(inverseCommand(command));
+    }
+    if (!this.isMultiuser) {
+      this.stack.push(command);
+    }
+    if (this.isUndo) {
+      if (command.type === "SELECTIVE_UNDO") {
+        this.stack.push(command);
+      }
     }
   }
 
@@ -250,6 +237,12 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
         break;
       case "START":
         this.historize = true;
+        break;
+      case "EXTERNAL":
+        for (let command of cmd.commands) {
+          this.dispatch(command.type, command);
+        }
+        break;
     }
   }
 
@@ -264,7 +257,23 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
         this.localUndoStack.push(this.current.id);
       }
     }
+    console.log("Finalize transaction");
     this.current = null;
+    if (!this.transactionId) {
+      throw new Error("Cannot finalize transaction.");
+    }
+    if (this.network && (!this.isMultiuser || this.isUndo) && this.stack.length > 0) {
+      this.network.sendMessage({
+        clientId: this.clientId,
+        commands: this.stack,
+        timestamp: -1,
+        transactionId: this.transactionId,
+      });
+      this.stack = [];
+    }
+    this.isMultiuser = false;
+    this.isUndo = false;
+    this.transactionId = undefined;
   }
 
   redo() {
@@ -289,6 +298,8 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       this.undoStack.push(this.current);
       this.localUndoStack.push(this.current.id);
     }
+
+    console.log("Redo");
     this.current = null;
   }
 

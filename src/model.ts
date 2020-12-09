@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
-import { WHistory } from "./history";
+import { StateReplicator2000 } from "./history";
 import {
   CommandDispatcher,
   CommandHandler,
@@ -20,7 +20,6 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { Network } from "./types/multi_users";
-import { WNetwork } from "./network";
 
 /**
  * Model
@@ -72,8 +71,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   private handlers: CommandHandler<Command>[];
 
-  private history: WHistory;
-  private network: WNetwork;
+  private stateReplicator2000: StateReplicator2000;
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -107,14 +105,14 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     const workbookData = load(data);
     // this.history = new WHistory(this.dispatchCore.bind(this));
-    this.history = new WHistory(this.dispatch.bind(this));
+    this.stateReplicator2000 = new StateReplicator2000(this.dispatch.bind(this), config.network);
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
-      canUndo: this.history.canUndo.bind(this.history),
-      canRedo: this.history.canRedo.bind(this.history),
+      canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
+      canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
     } as Getters;
-    this.handlers = [this.history];
+    this.handlers = [this.stateReplicator2000];
 
     this.config = {
       mode: config.mode || "normal",
@@ -125,10 +123,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       evalContext: config.evalContext || {},
       network: config.network,
     };
-    this.network = new WNetwork(this.dispatch.bind(this), this.config.network);
 
     setIsFastStrategy(true);
-    this.handlers.push(this.network);
     // registering plugins
     for (let Plugin of corePluginRegistry.getAll()) {
       this.setupPlugin(Plugin, workbookData);
@@ -149,7 +145,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   private setupUiPlugin(Plugin: UIPluginConstuctor) {
     const dispatch = this.dispatch.bind(this);
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, this.history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.stateReplicator2000, dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
           throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
@@ -173,7 +169,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     const dispatch = this.dispatchCore.bind(this);
 
     if (Plugin.modes.includes(this.config.mode)) {
-      const plugin = new Plugin(this.getters, this.history, dispatch, this.config);
+      const plugin = new Plugin(this.getters, this.stateReplicator2000, dispatch, this.config);
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
@@ -201,14 +197,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
   private startTransaction(cmd: Command) {
     const transactionId = cmd.type === "EXTERNAL" ? cmd.transactionId : uuidv4();
-    this.history.startTransaction(cmd, transactionId);
-    this.network.startTransaction(cmd, transactionId);
+    this.stateReplicator2000.startTransaction(cmd, transactionId);
   }
 
   private dispatchToHandlers(command: Command) {
     if (isCoreCommand(command)) {
-      this.history.addStep(command);
-      this.network.addStep(command);
+      this.stateReplicator2000.addStep(command);
     }
     for (const h of this.handlers) {
       h.beforeHandle(command);
@@ -223,8 +217,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     for (const h of this.handlers) {
       h.finalize(command);
     }
-    this.history.finalizeTransaction(command);
-    this.network.finalizeTransaction();
+    this.stateReplicator2000.finalizeTransaction(command);
   }
 
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
