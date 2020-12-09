@@ -524,10 +524,14 @@ export class RendererPlugin extends UIPlugin {
         );
         const width = cols[merge.right].end - cols[merge.left].start;
         let text, textWidth, style, align, border;
+        style = refCell ? this.getters.getCellStyle(refCell) : null;
         if (refCell || borderBottomRight || borderTopLeft) {
           text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
-          style = refCell ? this.getters.getCellStyle(refCell) : null;
+          const conditionalStyle = this.getters.getConditionalStyle(merge.topLeft);
+          if (conditionalStyle) {
+            style = Object.assign({}, style, conditionalStyle);
+          }
           align = text ? (style && style.align) || computeAlign(refCell!, showFormula) : null;
           border = {
             bottom: borderBottomRight ? borderBottomRight.bottom : null,

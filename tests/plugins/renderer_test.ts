@@ -111,6 +111,199 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
+  test("fillstyle of cell will be rendered", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { fillColor: "#DC6CDF" },
+    });
+
+    let fillStyle: any[] = [];
+    let fillStyleColor1Called = false;
+    let fillStyleColor2Called = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && value === "#DC6CDF") {
+          fillStyleColor1Called = true;
+          fillStyleColor2Called = false;
+        }
+        if (key === "fillStyle" && value === "#DC6CDE") {
+          fillStyleColor2Called = true;
+          fillStyleColor1Called = false;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleColor1Called) {
+          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+          fillStyleColor2Called = false;
+        }
+        if (val === "fillRect" && fillStyleColor2Called) {
+          fillStyle.push({ color: "#DC6CDE", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+          fillStyleColor2Called = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
+
+    fillStyle = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { fillColor: "#DC6CDE" },
+    });
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 48, y: 26 }]);
+  });
+
+  test("fillstyle of merge will be rendered for all cells in merge", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: [toZone("A1")],
+      style: { fillColor: "#DC6CDF" },
+    });
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:A3") });
+
+    let fillStyle: any[] = [];
+    let fillStyleColor1Called = false;
+    let fillStyleColor2Called = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && value === "#DC6CDF") {
+          fillStyleColor1Called = true;
+          fillStyleColor2Called = false;
+        }
+        if (key === "fillStyle" && value === "#DC6CDE") {
+          fillStyleColor2Called = true;
+          fillStyleColor1Called = false;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleColor1Called) {
+          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+          fillStyleColor2Called = false;
+        }
+        if (val === "fillRect" && fillStyleColor2Called) {
+          fillStyle.push({ color: "#DC6CDE", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+          fillStyleColor2Called = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 48, y: 26 }]);
+
+    fillStyle = [];
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+      style: { fillColor: "#DC6CDE" },
+    });
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 48, y: 26 }]);
+  });
+
+  test("fillstyle of cell works with CF", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1"], "1", { fillColor: "#DC6CDF" }, "1"),
+      sheetId: model.getters.getActiveSheetId(),
+    });
+
+    let fillStyle: any[] = [];
+    let fillStyleColor1Called = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && value === "#DC6CDF") {
+          fillStyleColor1Called = true;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleColor1Called) {
+          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([]);
+
+    fillStyle = [];
+    setCellContent(model, "A1", "1");
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 48, y: 26 }]);
+  });
+
+  test("fillstyle of merge works with CF", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF(["A1"], "1", { fillColor: "#DC6CDF" }, "1"),
+      sheetId,
+    });
+    model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:A3") });
+    let fillStyle: any[] = [];
+    let fillStyleColor1Called = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && value === "#DC6CDF") {
+          fillStyleColor1Called = true;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleColor1Called) {
+          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleColor1Called = false;
+        }
+      },
+    });
+
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([]);
+
+    fillStyle = [];
+    setCellContent(model, "A1", "1");
+    model.drawGrid(ctx);
+    expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 48, y: 26 }]);
+  });
+
   test("formulas in a merge, evaluating to a string are properly aligned", () => {
     const model = new Model();
 
