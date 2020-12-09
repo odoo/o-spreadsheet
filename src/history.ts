@@ -15,7 +15,7 @@ import {
   UID,
   HistoryChange,
   RedoStep,
-  UndoStep,
+  UndoStep as Transaction,
 } from "./types/index";
 import { ReceivedMessage } from "./types/multi_users";
 
@@ -28,12 +28,11 @@ import { ReceivedMessage } from "./types/multi_users";
 
 export class StateReplicator2000
   implements CommandHandler<CoreCommand | UndoCommand | RedoCommand> {
-  private current: UndoStep | null = null;
-  private undoStack: UndoStep[] = [];
+  private readonly clientId = uuidv4();
+  private transaction: Transaction | null = null;
+  private undoStack: Transaction[] = [];
   private redoStack: RedoStep[] = [];
   private localUndoStack: UID[] = [];
-  private historize: boolean = false;
-  private readonly clientId = uuidv4();
   private isMultiuser: boolean = false;
   private isUndo: boolean = false;
   private stack: CoreCommand[] = [];
@@ -109,19 +108,19 @@ export class StateReplicator2000
     return { status: "SUCCESS" };
   }
 
-  private revert(steps: UndoStep[]) {
+  private revert(steps: Transaction[]) {
     for (const step of steps.slice().reverse()) {
       this.undoStep(step);
     }
   }
 
-  private undoStep(step: UndoStep) {
+  private undoStep(step: Transaction) {
     for (let i = step.changes.length - 1; i >= 0; i--) {
       this.applyChange(step.changes[i]);
     }
   }
 
-  private replay(deletedCommands: CoreCommand[], steps: UndoStep[]) {
+  private replay(deletedCommands: CoreCommand[], steps: Transaction[]) {
     for (const step of steps) {
       const commands: CoreCommand[] = [];
       for (let cmd of step.commands) {
@@ -131,25 +130,25 @@ export class StateReplicator2000
       }
       if (commands.length > 0) {
         console.log("This.current is correctly set");
-        this.current = {
+        this.transaction = {
           id: step.id,
           commands: [],
           inverses: [],
           changes: [],
         };
         console.log("Before dispatch");
-        console.log(this.current);
+        console.log(this.transaction);
         for (let cmd of commands.slice()) {
           console.log(cmd);
           this.dispatch(cmd.type, cmd);
         }
         console.log("End of dispatch");
-        console.log(this.current);
-        if (this.current.changes.length) {
-          this.undoStack.push(this.current);
+        console.log(this.transaction);
+        if (this.transaction.changes.length) {
+          this.undoStack.push(this.transaction);
         }
         console.log("End of replay");
-        this.current = null;
+        this.transaction = null;
       }
     }
   }
@@ -186,8 +185,8 @@ export class StateReplicator2000
   }
 
   startTransaction(cmd: Command, transactionId: UID) {
-    if (!this.current && this.historize && cmd.type !== "UNDO" && cmd.type !== "REDO") {
-      this.current = {
+    if (!this.transaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
+      this.transaction = {
         id: transactionId,
         commands: [],
         inverses: [],
@@ -206,9 +205,9 @@ export class StateReplicator2000
   }
 
   addStep(command: CoreCommand) {
-    if (this.current) {
-      this.current.commands.push(command);
-      this.current.inverses.push(inverseCommand(command));
+    if (this.transaction) {
+      this.transaction.commands.push(command);
+      this.transaction.inverses.push(inverseCommand(command));
     }
     if (!this.isMultiuser) {
       this.stack.push(command);
@@ -235,9 +234,6 @@ export class StateReplicator2000
       case "REDO":
         this.redo();
         break;
-      case "START":
-        this.historize = true;
-        break;
       case "EXTERNAL":
         for (let command of cmd.commands) {
           this.dispatch(command.type, command);
@@ -247,18 +243,17 @@ export class StateReplicator2000
   }
 
   finalizeTransaction(cmd: Command) {
-    if (this.current && this.current.changes.length) {
-      this.undoStack.push(this.current);
+    if (this.transaction && this.transaction.changes.length) {
+      this.undoStack.push(this.transaction);
       this.redoStack = [];
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
       }
       if (cmd.type !== "EXTERNAL") {
-        this.localUndoStack.push(this.current.id);
+        this.localUndoStack.push(this.transaction.id);
       }
     }
-    console.log("Finalize transaction");
-    this.current = null;
+    this.transaction = null;
     if (!this.transactionId) {
       throw new Error("Cannot finalize transaction.");
     }
@@ -284,7 +279,7 @@ export class StateReplicator2000
     const commands = step.commands;
     // TODO: Transformer la commande avec les commandes entre le moment où c'est ajouté
     // dans la redostack et mtn
-    this.current = {
+    this.transaction = {
       id: step.id,
       commands: [],
       inverses: [],
@@ -294,13 +289,13 @@ export class StateReplicator2000
       this.dispatch(cmd.type, cmd);
     }
 
-    if (this.current.changes.length) {
-      this.undoStack.push(this.current);
-      this.localUndoStack.push(this.current.id);
+    if (this.transaction.changes.length) {
+      this.undoStack.push(this.transaction);
+      this.localUndoStack.push(this.transaction.id);
     }
 
     console.log("Redo");
-    this.current = null;
+    this.transaction = null;
   }
 
   /**
@@ -351,8 +346,8 @@ export class StateReplicator2000
     if (value[key] === val) {
       return;
     }
-    if (this.current) {
-      this.current.changes.push({
+    if (this.transaction) {
+      this.transaction.changes.push({
         root,
         path,
         value: value[key],
