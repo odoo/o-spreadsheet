@@ -191,7 +191,6 @@ export class StateReplicator2000
       this.network.sendMessage({
         clientId: this.clientId,
         commands: this.stack,
-        timestamp: -1,
         transactionId: this.transactionId,
       });
       this.stack = [];

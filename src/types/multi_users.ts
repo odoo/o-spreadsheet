@@ -5,7 +5,6 @@ export type ClientId = string;
 
 export interface Message {
   clientId: ClientId;
-  timestamp: number;
   commands: CoreCommand[];
   transactionId: UID;
 }
