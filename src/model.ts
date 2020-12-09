@@ -15,7 +15,7 @@ import {
   CommandResult,
 } from "./types/index";
 import { _lt } from "./translation";
-import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
+import { DEBUG, setIsFastStrategy } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
@@ -224,8 +224,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           return error;
         }
         this.status = Status.Running;
-        const transactionId = command.type === "EXTERNAL" ? command.transactionId : uuidv4();
-        this.stateReplicator2000.transact(command, transactionId, () => {
+        this.stateReplicator2000.transact(command, () => {
           // this.startTransaction(command);
           this.dispatchToHandlers(command);
           this.finalize(command);

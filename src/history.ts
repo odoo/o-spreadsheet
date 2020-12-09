@@ -48,13 +48,102 @@ export class StateReplicator2000
     }
   }
 
-  transact(cmd: Command, transactionId: UID, callback: () => void) {
-    this.startTransaction(cmd, transactionId);
-    callback();
-    this.finalizeTransaction(cmd);
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
+
+  allowDispatch(cmd: Command): CommandResult {
+    switch (cmd.type) {
+      case "UNDO":
+        return this.canUndo()
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
+      case "SELECTIVE_UNDO":
+        return this.canSelectiveUndo(cmd.id)
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
+      case "REDO":
+        return this.canRedo()
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
+    }
+    return { status: "SUCCESS" };
   }
 
-  onMessageReceived(message: ReceivedMessage) {
+  beforeHandle() {}
+
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "UNDO":
+        const id = this.localTransactionIds[this.localTransactionIds.length - 1];
+        this.dispatch("SELECTIVE_UNDO", { id });
+        break;
+      case "SELECTIVE_UNDO":
+        this.selectiveUndo(cmd.id);
+        break;
+      case "REDO":
+        this.redo();
+        break;
+      case "EXTERNAL":
+        for (let command of cmd.commands) {
+          this.dispatch(command.type, command);
+        }
+        break;
+    }
+  }
+
+  finalize() {}
+
+  // ---------------------------------------------------------------------------
+  // Transaction Management
+  // ---------------------------------------------------------------------------
+
+  transact(cmd: Command, callback: () => void) {
+    this.begin(cmd);
+    callback();
+    this.commit(cmd);
+  }
+
+  private begin(cmd: Command) {
+    this.transactionId = cmd.type === "EXTERNAL" ? cmd.transactionId : uuidv4();
+    if (!this.transaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
+      this.transaction = {
+        id: this.transactionId,
+        commands: [],
+        inverses: [],
+        changes: [],
+      };
+    }
+    if (cmd.type === "EXTERNAL") {
+      this.isMultiuser = true;
+    } else if (cmd.type === "UNDO") {
+      this.isMultiuser = true;
+      this.isUndo = true;
+    } else {
+      this.stack = [];
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Getters
+  // ---------------------------------------------------------------------------
+
+  canUndo(): boolean {
+    return this.localTransactionIds.length > 0;
+  }
+
+  canRedo(): boolean {
+    return this.redoStack.length > 0;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Network
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Called whenever a message is received from the network
+   */
+  private onMessageReceived(message: ReceivedMessage) {
     if (message.clientId === this.clientId) {
       return;
     }
@@ -83,36 +172,46 @@ export class StateReplicator2000
     }
   }
 
-  // getters
-  canUndo(): boolean {
-    return this.localTransactionIds.length > 0;
+  private commit(cmd: Command) {
+    if (this.transaction && this.transaction.changes.length) {
+      this.undoStack.push(this.transaction);
+      this.redoStack = [];
+      if (this.undoStack.length > MAX_HISTORY_STEPS) {
+        this.undoStack.shift();
+      }
+      if (cmd.type !== "EXTERNAL") {
+        this.localTransactionIds.push(this.transaction.id);
+      }
+    }
+    this.transaction = null;
+    if (!this.transactionId) {
+      throw new Error("Cannot finalize transaction.");
+    }
+    if (this.network && (!this.isMultiuser || this.isUndo) && this.stack.length > 0) {
+      this.network.sendMessage({
+        clientId: this.clientId,
+        commands: this.stack,
+        timestamp: -1,
+        transactionId: this.transactionId,
+      });
+      this.stack = [];
+    }
+    this.isMultiuser = false;
+    this.isUndo = false;
+    this.transactionId = undefined;
   }
 
-  canRedo(): boolean {
-    return this.redoStack.length > 0;
-  }
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
 
   private canSelectiveUndo(id: UID) {
     return this.undoStack.findIndex((step) => step.id === id) > -1;
   }
 
-  allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "UNDO":
-        return this.canUndo()
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
-      case "SELECTIVE_UNDO":
-        return this.canSelectiveUndo(cmd.id)
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
-      case "REDO":
-        return this.canRedo()
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
-    }
-    return { status: "SUCCESS" };
-  }
+  // ---------------------------------------------------------------------------
+  // Undo/Redo management
+  // ---------------------------------------------------------------------------
 
   private revert(steps: Transaction[]) {
     for (const step of steps.slice().reverse()) {
@@ -183,26 +282,6 @@ export class StateReplicator2000
     }
   }
 
-  startTransaction(cmd: Command, transactionId: UID) {
-    if (!this.transaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
-      this.transaction = {
-        id: transactionId,
-        commands: [],
-        inverses: [],
-        changes: [],
-      };
-    }
-    this.transactionId = transactionId;
-    if (cmd.type === "EXTERNAL") {
-      this.isMultiuser = true;
-    } else if (cmd.type === "UNDO") {
-      this.isMultiuser = true;
-      this.isUndo = true;
-    } else {
-      this.stack = [];
-    }
-  }
-
   addStep(command: CoreCommand) {
     if (this.transaction) {
       this.transaction.commands.push(command);
@@ -216,58 +295,6 @@ export class StateReplicator2000
         this.stack.push(command);
       }
     }
-  }
-
-  beforeHandle() {}
-  finalize() {}
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "UNDO":
-        const id = this.localTransactionIds[this.localTransactionIds.length - 1];
-        this.dispatch("SELECTIVE_UNDO", { id });
-        break;
-      case "SELECTIVE_UNDO":
-        this.selectiveUndo(cmd.id);
-        break;
-      case "REDO":
-        this.redo();
-        break;
-      case "EXTERNAL":
-        for (let command of cmd.commands) {
-          this.dispatch(command.type, command);
-        }
-        break;
-    }
-  }
-
-  finalizeTransaction(cmd: Command) {
-    if (this.transaction && this.transaction.changes.length) {
-      this.undoStack.push(this.transaction);
-      this.redoStack = [];
-      if (this.undoStack.length > MAX_HISTORY_STEPS) {
-        this.undoStack.shift();
-      }
-      if (cmd.type !== "EXTERNAL") {
-        this.localTransactionIds.push(this.transaction.id);
-      }
-    }
-    this.transaction = null;
-    if (!this.transactionId) {
-      throw new Error("Cannot finalize transaction.");
-    }
-    if (this.network && (!this.isMultiuser || this.isUndo) && this.stack.length > 0) {
-      this.network.sendMessage({
-        clientId: this.clientId,
-        commands: this.stack,
-        timestamp: -1,
-        transactionId: this.transactionId,
-      });
-      this.stack = [];
-    }
-    this.isMultiuser = false;
-    this.isUndo = false;
-    this.transactionId = undefined;
   }
 
   redo() {
