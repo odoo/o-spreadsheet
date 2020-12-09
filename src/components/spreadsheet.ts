@@ -87,7 +87,7 @@ export class Spreadsheet extends Component<Props> {
       this.trigger("edit-text", { title, placeholder, callback }),
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
-    network: new WebsocketNetwork(),
+    network: new WebsocketNetwork(), // TODO this also works in tests !
   });
   grid = useRef("grid");
 

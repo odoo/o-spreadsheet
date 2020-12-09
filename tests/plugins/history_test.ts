@@ -1,7 +1,14 @@
 import { MAX_HISTORY_STEPS, WHistory } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
+import {
+  getBorder,
+  getCell,
+  setCellContent,
+  waitForRecompute,
+  getCellContent,
+  addColumns,
+} from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 
 // we test here the undo/redo feature
@@ -20,6 +27,15 @@ describe("Selective undo-redo", () => {
       status: "CANCELLED",
       reason: CancelledReason.EmptyUndoStack,
     });
+  });
+
+  test("Can selective undo a UPDATE_CELL after a ADD_COLUMN", () => {
+    setCellContent(model, "A1", "hello");
+    const initialColumnLenght = model.getters.getActiveSheet().cols.length;
+    addColumns(model, "before", "B", 1);
+    const id = history["localUndoStack"][0];
+    model.dispatch("SELECTIVE_UNDO", { id });
+    expect(model.getters.getActiveSheet().cols.length).toBe(initialColumnLenght + 1);
   });
 
   test("Can do a selective undo and redo with two commands", () => {

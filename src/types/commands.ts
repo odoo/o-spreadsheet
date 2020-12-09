@@ -38,7 +38,7 @@ export interface BaseCommand {
 
 const coreTypes = new Set([
   // ...
-  "EXTERNAL",
+  "SELECTIVE_UNDO",
 
   /** CELLS */
   "UPDATE_CELL",
@@ -94,6 +94,7 @@ export function isCoreCommand(cmd: Command): cmd is CoreCommand {
 export interface ExternalCommand extends BaseCommand {
   type: "EXTERNAL";
   commands: CoreCommand[];
+  transactionId: UID;
 }
 
 // Core Commands
@@ -736,7 +737,7 @@ export interface UndoSelectiveCommand extends BaseCommand {
 }
 
 export type CoreCommand =
-  | ExternalCommand
+  | UndoSelectiveCommand
 
   /** CELLS */
   | UpdateCellCommand
@@ -783,6 +784,7 @@ export type CoreCommand =
   | UpdateChartCommand;
 
 export type Command =
+  | ExternalCommand
   | CoreCommand
   | NewInputCommand
   | RemoveInputCommand
@@ -827,7 +829,6 @@ export type Command =
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand
   | UndoCommand
-  | UndoSelectiveCommand
   | RedoCommand
   | StartCommand
   | AutofillCommand

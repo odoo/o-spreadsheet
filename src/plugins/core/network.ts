@@ -1,11 +1,13 @@
 import { ModelConfig } from "../../model";
 import { SOCT4 } from "../../soct4";
-import { Command, CommandDispatcher, CommandResult, CoreCommand } from "../../types";
+import { Command, CommandDispatcher, CommandResult, CoreCommand, UID } from "../../types";
 
 export class NetworkPlugin {
   protected soct4?: SOCT4;
   private isMultiuser: boolean = false;
+  private isUndo: boolean = false;
   private stack: CoreCommand[] = [];
+  private transactionId: UID | undefined;
 
   constructor(protected dispatch: CommandDispatcher["dispatch"], network: ModelConfig["network"]) {
     if (network) {
@@ -13,9 +15,13 @@ export class NetworkPlugin {
     }
   }
 
-  startTransaction(command: Command) {
+  startTransaction(command: Command, transactionId: UID) {
+    this.transactionId = transactionId;
     if (command.type === "EXTERNAL") {
       this.isMultiuser = true;
+    } else if (command.type === "UNDO") {
+      this.isMultiuser = true;
+      this.isUndo = true;
     } else {
       this.stack = [];
     }
@@ -24,14 +30,24 @@ export class NetworkPlugin {
     if (!this.isMultiuser) {
       this.stack.push(command);
     }
+    if (this.isUndo) {
+      if (command.type === "SELECTIVE_UNDO") {
+        this.stack.push(command);
+      }
+    }
   }
 
   finalizeTransaction() {
-    if (this.soct4 && !this.isMultiuser && this.stack.length > 0) {
-      this.soct4.localExecution(this.stack);
+    if (!this.transactionId) {
+      throw new Error("Cannot finalize transaction.");
+    }
+    if (this.soct4 && (!this.isMultiuser || this.isUndo) && this.stack.length > 0) {
+      this.soct4.localExecution(this.stack, this.transactionId);
       this.stack = [];
     }
     this.isMultiuser = false;
+    this.isUndo = false;
+    this.transactionId = undefined;
   }
 
   allowDispatch(): CommandResult {

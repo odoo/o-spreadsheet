@@ -1,6 +1,6 @@
 import { uuidv4 } from "./helpers/uuid";
 import { transform } from "./ot/ot";
-import { CoreCommand, CommandDispatcher } from "./types";
+import { CoreCommand, CommandDispatcher, UID } from "./types";
 import { Message, Network } from "./types/multi_users";
 
 /**
@@ -28,12 +28,13 @@ export class SOCT4 {
    * When the command receives its timestamp it is checked to
    * determine whether it can be broadcast.
    */
-  async localExecution(commands: CoreCommand[]) {
+  async localExecution(commands: CoreCommand[], transactionId: UID) {
     // this.currentTimestamp++;
     const networkCommand: Message = {
       clientId: this.clientId,
       commands,
       timestamp: -1,
+      transactionId,
     };
     // this.history[this.currentTimestamp] = networkCommand;
     this.queue.push(networkCommand);
@@ -132,7 +133,7 @@ export class SOCT4 {
     //     )
     //     .flat();
     // }
-    this.dispatch("EXTERNAL", { commands });
+    this.dispatch("EXTERNAL", { commands, transactionId: networkCommand.transactionId });
     this.deferredBroadcast();
   }
 

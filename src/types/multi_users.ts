@@ -1,4 +1,5 @@
 import { CoreCommand } from "./commands";
+import { UID } from "./misc";
 
 export type ClientId = string;
 
@@ -6,6 +7,7 @@ export interface Message {
   clientId: ClientId;
   timestamp: number;
   commands: CoreCommand[];
+  transactionId: UID;
 }
 
 export type NewMessageCallback = (message: Required<Message>) => void;

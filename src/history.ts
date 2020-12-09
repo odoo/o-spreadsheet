@@ -1,4 +1,3 @@
-import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { transform } from "./ot/ot";
 import {
@@ -110,13 +109,14 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
   private current: UndoStep | null = null;
   private undoStack: UndoStep[] = [];
   private redoStack: RedoStep[] = [];
+  private localUndoStack: UID[] = [];
   private historize: boolean = false;
 
   constructor(private dispatch: CommandDispatcher["dispatch"]) {}
 
   // getters
   canUndo(): boolean {
-    return this.undoStack.length > 0;
+    return this.localUndoStack.length > 0;
   }
 
   canRedo(): boolean {
@@ -168,11 +168,12 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       if (commands.length > 0) {
         this.current = {
           id: step.id,
-          commands,
-          inverses: commands.map((cmd) => inverseCommand(cmd)),
+          commands: [],
+          inverses: [],
           changes: [],
         };
-        for (let cmd of commands) {
+        Object.freeze(commands); //TODO remove it
+        for (let cmd of commands.slice()) {
           this.dispatch(cmd.type, cmd);
         }
 
@@ -195,6 +196,10 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
    * @param id Id of the step to undo
    */
   private selectiveUndo(id: UID) {
+    const isLocal = this.localUndoStack.findIndex((stepId) => stepId === id) > -1;
+    if (isLocal) {
+      this.localUndoStack.pop(); // TODO Not correct.
+    }
     const index = this.undoStack.findIndex((step) => step.id === id);
     if (index === -1) {
       throw new Error(`No history step with id ${id}`);
@@ -206,14 +211,15 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     }
     this.revert([stepToUndo, ...stepsToRevert]);
     this.replay(stepToUndo.inverses, stepsToRevert);
-    this.redoStack.push({ id: stepToUndo.id, commands: stepToUndo.commands });
+    if (isLocal) {
+      this.redoStack.push({ id: stepToUndo.id, commands: stepToUndo.commands });
+    }
   }
 
-  // startStep(cmd: CoreCommand | UndoCommand | RedoCommand) {
-  startStep(cmd: Command) {
+  startStep(cmd: Command, transactionId: UID) {
     if (!this.current && this.historize && cmd.type !== "UNDO" && cmd.type !== "REDO") {
       this.current = {
-        id: uuidv4(),
+        id: transactionId,
         commands: [],
         inverses: [],
         changes: [],
@@ -236,8 +242,10 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
-        const id = this.undoStack[this.undoStack.length - 1].id;
-        this.selectiveUndo(id);
+        // const id = this.undoStack[this.undoStack.length - 1].id;
+        // this.selectiveUndo(id);
+        const id = this.localUndoStack[this.localUndoStack.length - 1];
+        this.dispatch("SELECTIVE_UNDO", { id });
         break;
       case "SELECTIVE_UNDO":
         this.selectiveUndo(cmd.id);
@@ -250,12 +258,15 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
     }
   }
 
-  finalizeStep() {
+  finalizeStep(cmd: Command) {
     if (this.current && this.current.changes.length) {
       this.undoStack.push(this.current);
       this.redoStack = [];
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
+      }
+      if (cmd.type !== "EXTERNAL") {
+        this.localUndoStack.push(this.current.id);
       }
     }
     this.current = null;
@@ -267,10 +278,12 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
       return;
     }
     const commands = step.commands;
+    // TODO: Transformer la commande avec les commandes entre le moment où c'est ajouté
+    // dans la redostack et mtn
     this.current = {
       id: step.id,
-      commands,
-      inverses: commands.map((cmd) => inverseCommand(cmd)),
+      commands: [],
+      inverses: [],
       changes: [],
     };
     for (let cmd of commands) {
@@ -279,6 +292,7 @@ export class WHistory implements CommandHandler<CoreCommand | UndoCommand | Redo
 
     if (this.current.changes.length) {
       this.undoStack.push(this.current);
+      this.localUndoStack.push(this.current.id);
     }
     this.current = null;
   }

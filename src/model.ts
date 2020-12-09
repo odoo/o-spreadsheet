@@ -14,7 +14,7 @@ import {
   isCoreCommand,
 } from "./types/index";
 import { _lt } from "./translation";
-import { DEBUG, setIsFastStrategy } from "./helpers/index";
+import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
@@ -105,7 +105,8 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    this.history = new WHistory(this.dispatchCore.bind(this));
+    // this.history = new WHistory(this.dispatchCore.bind(this));
+    this.history = new WHistory(this.dispatch.bind(this));
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
@@ -135,7 +136,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     for (let Plugin of uiPluginRegistry.getAll()) {
       this.setupUiPlugin(Plugin);
     }
-    // setIsFastStrategy(false);
+    setIsFastStrategy(false);
     // starting plugins
     this.dispatch("START");
   }
@@ -190,6 +191,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
     let status: Status = command.interactive ? Status.Interactive : this.status;
+    if (command.type === "EXTERNAL") {
+      console.table(command.commands);
+      console.log(status);
+    }
     switch (status) {
       case Status.Ready:
         for (let handler of this.handlers) {
@@ -199,8 +204,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           }
         }
         this.status = Status.Running;
-        this.history.startStep(command);
-        this.network.startTransaction(command);
+        const transactionId = command.type === "EXTERNAL" ? command.transactionId : uuidv4();
+        this.history.startStep(command, transactionId);
+        this.network.startTransaction(command, transactionId);
         if (isCoreCommand(command)) {
           this.history.addStep(command);
           this.network.addStep(command);
@@ -215,7 +221,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         for (const h of this.handlers) {
           h.finalize(command);
         }
-        this.history.finalizeStep();
+        this.history.finalizeStep(command);
         this.network.finalizeTransaction();
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {

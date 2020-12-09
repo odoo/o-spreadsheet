@@ -137,30 +137,30 @@ describe.skip("Multi users synchronisation", () => {
   // });
 
   test("update and delete the same cell concurrently", async () => {
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      content: "Hi",
-    });
-    await nextTick();
+    // alice.dispatch("UPDATE_CELL", {
+    //   sheetId: alice.getters.getActiveSheetId(),
+    //   col: 0,
+    //   row: 0,
+    //   content: "Hi",
+    // });
+    // await nextTick();
     expect(getCellContent(alice, "A1")).toBe("Hi");
     expect(getCellContent(bob, "A1")).toBe("Hi");
-    await network.concurrent(() => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
-      expect(getCellContent(alice, "A1")).toBe("hello");
-      bob.dispatch("CLEAR_CELL", {
-        sheetId: bob.getters.getActiveSheetId(),
-        col: 0,
-        row: 0,
-      });
-      expect(getCell(bob, "A1")).toBeUndefined();
-    });
+    // await network.concurrent(() => {
+    //   alice.dispatch("UPDATE_CELL", {
+    //     col: 0,
+    //     row: 0,
+    //     content: "hello",
+    //     sheetId: alice.getters.getActiveSheetId(),
+    //   });
+    //   expect(getCellContent(alice, "A1")).toBe("hello");
+    //   bob.dispatch("CLEAR_CELL", {
+    //     sheetId: bob.getters.getActiveSheetId(),
+    //     col: 0,
+    //     row: 0,
+    //   });
+    //   expect(getCell(bob, "A1")).toBeUndefined();
+    // });
     expect(getCell(alice, "A1")).toBeUndefined();
     expect(getCell(bob, "A1")).toBeUndefined();
     expect(getCell(charly, "A1")).toBeUndefined();
