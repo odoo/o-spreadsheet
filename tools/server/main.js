@@ -7,16 +7,11 @@ app.use(cors());
 app.use(express.json());
 
 const aWss = expressWS.getWss("/");
-const updates = [{ id: "START_STATE" }]; // { id: UID, message: NetworkMessage }
+const messages = []; // { id: UID, message: NetworkMessage }
 
 expressWS.getWss().on("connection", (ws) => {
-  let nbr = 0;
-  for (let i = 1; i < updates.length; i++) {
-    const msg = Object.assign({ previousTransactionId: updates[i - 1].id }, updates[i].message);
-    ws.send(JSON.stringify(msg));
-    nbr++;
-  }
-  log(`Connection: ${nbr} messages sent`);
+  ws.send(JSON.stringify({ type: "CONNECTION", messages }));
+  log(`Connection: ${messages.length} messages sent`);
 });
 
 function log(message) {
@@ -28,13 +23,9 @@ app.ws("/", function (ws, req) {
     const msg = JSON.parse(message);
     if (msg.type === "multiuser_command") {
       log(JSON.stringify(msg.payload.commands));
-      const previousTransactionId = updates[updates.length - 1].id;
-      updates.push({
-        id: msg.payload.transactionId,
-        message: msg.payload,
-      });
+      messages.push(msg.payload);
       aWss.clients.forEach(function each(client) {
-        client.send(JSON.stringify(Object.assign({ previousTransactionId }, msg.payload)));
+        client.send(JSON.stringify(msg.payload));
       });
     }
   });

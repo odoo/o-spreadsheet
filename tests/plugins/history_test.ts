@@ -1,107 +1,11 @@
 import { StateReplicator2000 } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import {
-  getBorder,
-  getCell,
-  setCellContent,
-  waitForRecompute,
-  getCellContent,
-  addColumns,
-} from "../helpers";
+import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 
 // we test here the undo/redo feature
-
-describe("Selective undo-redo", () => {
-  let model: Model;
-  let history: StateReplicator2000;
-
-  beforeEach(() => {
-    model = new Model();
-    history = model["handlers"].find(
-      (p) => p instanceof StateReplicator2000
-    )! as StateReplicator2000;
-  });
-
-  test("Cannot dispatch a selective undo with non-existing id", () => {
-    expect(model.dispatch("SELECTIVE_UNDO", { id: "blabla" })).toEqual({
-      status: "CANCELLED",
-      reason: CancelledReason.EmptyUndoStack,
-    });
-  });
-
-  test("Can selective undo a UPDATE_CELL after a ADD_COLUMN", () => {
-    setCellContent(model, "A1", "hello");
-    const initialColumnLenght = model.getters.getActiveSheet().cols.length;
-    addColumns(model, "before", "B", 1);
-    const id = history["localTransactionIds"][0];
-    model.dispatch("SELECTIVE_UNDO", { id });
-    expect(model.getters.getActiveSheet().cols.length).toBe(initialColumnLenght + 1);
-  });
-
-  test("Can do a selective undo and redo with two commands", () => {
-    setCellContent(model, "A1", "A1");
-    setCellContent(model, "A2", "A2");
-    const undoStack = history["undoStack"];
-    const redoStack = history["redoStack"];
-    expect(undoStack).toHaveLength(2);
-    const id = undoStack[0].id;
-    model.dispatch("SELECTIVE_UNDO", { id });
-    expect(undoStack).toHaveLength(1);
-    expect(undoStack[0].commands).toEqual([
-      {
-        type: "UPDATE_CELL",
-        col: 0,
-        row: 1,
-        content: "A2",
-        sheetId: model.getters.getActiveSheetId(),
-      },
-    ]);
-    expect(redoStack).toHaveLength(1);
-    expect(redoStack[0].commands).toEqual([
-      {
-        type: "UPDATE_CELL",
-        col: 0,
-        row: 0,
-        content: "A1",
-        sheetId: model.getters.getActiveSheetId(),
-      },
-    ]);
-    expect(getCell(model, "A1")).toBeUndefined();
-    expect(getCell(model, "A2")).toBeDefined();
-    expect(getCellContent(model, "A2")).toBe("A2");
-    model.dispatch("REDO");
-    expect(getCellContent(model, "A1")).toBe("A1");
-    expect(getCellContent(model, "A2")).toBe("A2");
-    expect(undoStack).toHaveLength(2);
-    expect(redoStack).toHaveLength(0);
-  });
-
-  test("Selective undo with OT", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_COLUMNS", { sheetId, column: 0, quantity: 1, position: "after" });
-    model.dispatch("UPDATE_CELL", { col: 4, row: 0, sheetId, content: "test" });
-    const steps = history["undoStack"];
-    expect(steps).toHaveLength(2);
-    const id = steps[0].id;
-    model.dispatch("SELECTIVE_UNDO", { id });
-    expect(steps).toHaveLength(1);
-    expect(steps[0].commands).toEqual([
-      {
-        type: "UPDATE_CELL",
-        col: 3,
-        row: 0,
-        sheetId,
-        content: "test",
-      },
-    ]);
-    expect(getCell(model, "E1")).toBeUndefined();
-    expect(getCell(model, "D1")).toBeDefined();
-    expect(getCellContent(model, "D1")).toBe("test");
-  });
-});
 
 describe("history", () => {
   const dispatch = new Model().dispatch;

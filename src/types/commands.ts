@@ -36,9 +36,8 @@ export interface BaseCommand {
   interactive?: boolean;
 }
 
-const coreTypes = new Set([
+const coreTypes = new Set<CoreCommandTypes>([
   // ...
-  "SELECTIVE_UNDO",
 
   /** CELLS */
   "UPDATE_CELL",
@@ -75,8 +74,6 @@ const coreTypes = new Set([
   "UPDATE_FIGURE",
 
   /** FORMATTING */
-  "CREATE_STYLE",
-  "CREATE_BORDERS",
   "SET_FORMATTING",
   "CLEAR_FORMATTING",
   "SET_BORDER",
@@ -88,13 +85,7 @@ const coreTypes = new Set([
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
-  return coreTypes.has(cmd.type);
-}
-
-export interface ExternalCommand extends BaseCommand {
-  type: "EXTERNAL";
-  commands: CoreCommand[];
-  transactionId: UID;
+  return coreTypes.has(cmd.type as any);
 }
 
 // Core Commands
@@ -731,14 +722,7 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
   replaceOptions: ReplaceOptions;
 }
 
-export interface UndoSelectiveCommand extends BaseCommand {
-  type: "SELECTIVE_UNDO";
-  id: UID;
-}
-
 export type CoreCommand =
-  | UndoSelectiveCommand
-
   /** CELLS */
   | UpdateCellCommand
   | UpdateCellPositionCommand
@@ -784,7 +768,6 @@ export type CoreCommand =
   | UpdateChartCommand;
 
 export type Command =
-  | ExternalCommand
   | CoreCommand
   | NewInputCommand
   | RemoveInputCommand

@@ -1,3 +1,4 @@
+import * as owl from "@odoo/owl";
 import { MAX_HISTORY_STEPS } from "./constants";
 import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
@@ -15,7 +16,7 @@ import {
   RedoStep,
   UndoStep,
 } from "./types/index";
-import { ReceivedMessage } from "./types/multi_users";
+import { ClientId, CommandMessage, Message, StateVector } from "./types/multi_users";
 
 /**
  * History Management System
@@ -28,33 +29,40 @@ class Transaction {
   public commands: CoreCommand[] = [];
   public inverses: CoreCommand[] = [];
   public changes: HistoryChange[] = [];
+  private stateVector: StateVector;
 
-  // Flags
-  public isUndo: boolean = false;
-  public isMultiuser: boolean = false;
+  constructor(public id: UID = uuidv4(), stateVector: StateVector, private clientId: ClientId) {
+    this.stateVector = { ...stateVector };
+  }
 
-  constructor(public id: UID = uuidv4()) {}
+  // public toUndoStep(): UndoStep {
+  //   return { id: this.id, commands: this.commands, inverses: this.inverses, changes: this.changes };
+  // }
 
-  public toUndoStep(): UndoStep {
-    return { id: this.id, commands: this.commands, inverses: this.inverses, changes: this.changes };
+  precedes(transaction: Transaction): boolean {
+    const sum1 = Object.values(this.stateVector);
+    const sum2 = Object.values(transaction.stateVector);
+    return sum1 < sum2 || this.clientId < transaction.clientId;
+  }
+
+  public hasChanges(): boolean {
+    return this.changes.length > 0;
   }
 }
 
-export class StateReplicator2000 implements CommandHandler<Command> {
+export class StateReplicator2000 extends owl.core.EventBus implements CommandHandler<Command> {
   private readonly clientId = uuidv4();
+  private readonly stateVector: StateVector = { [this.clientId]: 0 };
   private transaction: Transaction | null = null;
-  private undoStack: UndoStep[] = [];
-  private redoStack: RedoStep[] = [];
-  private isMultiuser: boolean = false;
+  private undoStack: Transaction[] = [];
+  private redoStack: RedoStep[] = []; //TODO Check if 'id' is needed
   private localTransactionIds: UID[] = [];
-  private stack: CoreCommand[] = [];
-  private transactionId: UID | undefined;
-  private pendingMessages: ReceivedMessage[] = [];
 
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
     protected network?: ModelConfig["network"]
   ) {
+    super();
     if (network) {
       network.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
     }
@@ -68,10 +76,6 @@ export class StateReplicator2000 implements CommandHandler<Command> {
     switch (cmd.type) {
       case "UNDO":
         return this.canUndo()
-          ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
-      case "SELECTIVE_UNDO":
-        return this.canSelectiveUndo(cmd.id)
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
       case "REDO":
@@ -88,10 +92,7 @@ export class StateReplicator2000 implements CommandHandler<Command> {
     switch (cmd.type) {
       case "UNDO":
         const id = this.localTransactionIds[this.localTransactionIds.length - 1];
-        this.dispatch("SELECTIVE_UNDO", { id });
-        break;
-      case "SELECTIVE_UNDO":
-        this.selectiveUndo(cmd.id);
+        this.selectiveUndo(id);
         break;
       case "REDO":
         this.redo();
@@ -105,64 +106,44 @@ export class StateReplicator2000 implements CommandHandler<Command> {
   // Transaction Management
   // ---------------------------------------------------------------------------
 
-  // createTransaction(id: UID = uuidv4()) {
-  //   return { id, commands: [], inverses: [], changes: [] };
-  // }
-
   createTransaction(id?: UID): Transaction {
-    return new Transaction(id);
+    return new Transaction(id, this.stateVector, this.clientId);
   }
 
-  transact(cmd: Command, callback: () => void) {
-    // const transaction: UndoStep | null = this.transaction ? { ...this.transaction } : null;
-    this.begin(cmd);
+  transact(cmd: Command, callback: () => void, id?: UID) {
+    const hasTransaction: boolean = this.transaction !== null;
+    if (!hasTransaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
+      this.transaction = this.createTransaction(id);
+    }
     callback();
-    this.commit(cmd);
-    // this.transaction = transaction;
-  }
-
-  private begin(cmd: Command) {
-    this.transactionId = cmd.type === "EXTERNAL" ? cmd.transactionId : uuidv4();
-    if (!this.transaction && cmd.type !== "REDO") {
-      this.transaction = this.createTransaction(this.transactionId);
-      if (cmd.type === "UNDO") {
-        this.transaction.isUndo = true;
-      }
-    }
-    if (cmd.type === "EXTERNAL") {
-      this.isMultiuser = true;
-    } else if (cmd.type === "UNDO") {
-      this.isMultiuser = true;
-    } else {
-      this.stack = [];
+    if (!hasTransaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
+      this.commit();
     }
   }
 
-  private commit(cmd: Command) {
-    if (this.transaction && this.transaction.changes.length) {
-      this.undoStack.push(this.transaction.toUndoStep());
+  private commit() {
+    if (!this.transaction) {
+      throw new Error("No transaction to commit!");
+    }
+    if (this.transaction.hasChanges()) {
+      this.stateVector[this.clientId]++;
+      this.undoStack.push(this.transaction);
       this.redoStack = [];
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
         this.undoStack.shift();
       }
-      if (cmd.type !== "EXTERNAL") {
-        this.localTransactionIds.push(this.transaction.id);
+      this.localTransactionIds.push(this.transaction.id);
+      if (this.network) {
+        this.network.sendMessage({
+          type: "COMMAND",
+          clientId: this.clientId,
+          commands: this.transaction.commands,
+          transactionId: this.transaction.id,
+          stateVector: this.stateVector,
+        });
       }
     }
-    if (!this.transactionId) {
-      throw new Error("Cannot finalize transaction.");
-    }
-    if (this.network && (!this.isMultiuser || this.transaction?.isUndo) && this.stack.length > 0) {
-      this.network.sendMessage({
-        clientId: this.clientId,
-        commands: this.stack,
-        transactionId: this.transactionId,
-      });
-      this.stack = [];
-    }
     this.transaction = null;
-    this.isMultiuser = false;
-    this.transactionId = undefined;
   }
 
   // ---------------------------------------------------------------------------
@@ -184,47 +165,58 @@ export class StateReplicator2000 implements CommandHandler<Command> {
   /**
    * Called whenever a message is received from the network
    */
-  private onMessageReceived(message: ReceivedMessage) {
+  private onMessageReceived(message: Message) {
     if (message.clientId === this.clientId) {
       return;
     }
-    this.pendingMessages.unshift(message);
-    this.processPending();
+    switch (message.type) {
+      case "CONNECTION":
+        for (let commandMessage of message.messages) {
+          this.handleRemoteMessage(commandMessage);
+        }
+        break;
+      case "COMMAND":
+        this.handleRemoteMessage(message);
+
+        break;
+      case "SELECTIVE_UNDO":
+        this.selectiveUndo(message.transactionId);
+        break;
+    }
+    this.trigger("update");
   }
 
-  private processPending() {
-    const keys = this.undoStack.map((step) => step.id);
-    const index = this.pendingMessages.findIndex(
-      (m) => keys.includes(m.previousTransactionId) || m.previousTransactionId === "START_STATE"
+  private handleRemoteMessage(message: CommandMessage) {
+    const remoteTransaction = new Transaction(
+      message.transactionId,
+      message.stateVector,
+      message.clientId
     );
-    if (index > -1) {
-      const message = this.pendingMessages.splice(index, 1)[0];
-      const stateIndex = this.undoStack.findIndex(
-        (step) => step.id === message.previousTransactionId
-      );
-      const stepsToRevert = this.undoStack.splice(stateIndex + 1);
-      this.revert(stepsToRevert);
-      this.transaction = this.createTransaction(message.transactionId);
-      for (let cmd of message.commands) {
-        this.dispatch(cmd.type, cmd);
-      }
-      if (this.transaction.changes.length) {
-        this.transaction.commands = message.commands;
-        this.undoStack.push(this.transaction);
-      }
-      this.transaction = null;
-      this.replay(message.commands, stepsToRevert);
-      this.processPending();
+    const orderedTransactions = this.undoStack
+      .filter((transaction) => !transaction.precedes(remoteTransaction))
+      .sort((tr1, tr2) => (tr1.precedes(tr2) ? -1 : 1));
+    this.undoStack = this.undoStack.filter((transaction) =>
+      transaction.precedes(remoteTransaction)
+    );
+    this.revert(orderedTransactions);
+    this.transaction = remoteTransaction;
+    for (let cmd of message.commands) {
+      this.dispatch(cmd.type, cmd);
     }
+    if (this.transaction.hasChanges()) {
+      this.transaction.commands = message.commands;
+      this.transaction.inverses = message.commands.map((cmd) => inverseCommand(cmd));
+      this.undoStack.push(this.transaction);
+    }
+    this.transaction = null;
+    this.replay(message.commands, orderedTransactions);
+    // this.processPending();
+    this.stateVector[message.clientId]++;
   }
 
   // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
-
-  private canSelectiveUndo(id: UID) {
-    return this.undoStack.findIndex((step) => step.id === id) > -1;
-  }
 
   // ---------------------------------------------------------------------------
   // Undo/Redo management
@@ -242,6 +234,7 @@ export class StateReplicator2000 implements CommandHandler<Command> {
     }
   }
 
+  // TODO rename deletedCommands
   private replay(deletedCommands: CoreCommand[], steps: UndoStep[]) {
     for (const step of steps) {
       const commands: CoreCommand[] = [];
@@ -292,20 +285,20 @@ export class StateReplicator2000 implements CommandHandler<Command> {
     this.replay(stepToUndo.inverses, stepsToRevert);
     if (isLocal) {
       this.redoStack.push({ id: stepToUndo.id, commands: stepToUndo.commands });
+      if (this.network) {
+        this.network.sendMessage({
+          type: "SELECTIVE_UNDO",
+          transactionId: id,
+          clientId: this.clientId,
+        });
+      }
     }
   }
 
   addStep(command: CoreCommand) {
     if (this.transaction) {
-      if (this.transaction.isUndo && command.type === "SELECTIVE_UNDO") {
-        this.transaction.commands.push(command);
-      } else {
-        this.transaction.commands.push(command);
-        this.transaction.inverses.push(inverseCommand(command));
-      }
-    }
-    if (!this.isMultiuser) {
-      this.stack.push(command);
+      this.transaction.commands.push(command);
+      this.transaction.inverses.push(inverseCommand(command));
     }
   }
 
@@ -325,6 +318,15 @@ export class StateReplicator2000 implements CommandHandler<Command> {
     if (this.transaction.changes.length) {
       this.undoStack.push(this.transaction);
       this.localTransactionIds.push(this.transaction.id);
+      if (this.network) {
+        this.network.sendMessage({
+          type: "COMMAND",
+          transactionId: this.transaction.id,
+          commands,
+          clientId: this.clientId,
+          stateVector: this.stateVector, // TODO check this
+        });
+      }
     }
 
     this.transaction = null;

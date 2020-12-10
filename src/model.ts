@@ -109,6 +109,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.dispatchCore.bind(this),
       config.network
     );
+    this.stateReplicator2000.on("update", this, () => this.trigger("update"));
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
