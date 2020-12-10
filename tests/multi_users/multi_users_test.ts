@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { WorkbookData } from "../../src/types";
-import { getCell, getCellContent, nextTick, setCellContent } from "../helpers";
+import { clearCell, getCell, getCellContent, setCellContent } from "../helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
 
@@ -11,6 +11,21 @@ describe("Multi users synchronisation", () => {
   let alice: Model;
   let bob: Model;
   let charly: Model;
+
+  // @ts-ignore
+  const startDebug = () => {
+    alice["stateReplicator2000"].printDebug = true;
+    bob["stateReplicator2000"].printDebug = true;
+    charly["stateReplicator2000"].printDebug = true;
+  };
+
+  // @ts-ignore
+  const endDebug = () => {
+    alice["stateReplicator2000"].printDebug = false;
+    bob["stateReplicator2000"].printDebug = false;
+    charly["stateReplicator2000"].printDebug = false;
+  };
+
   beforeEach(() => {
     network = new MockNetwork();
     emptySheetData = new Model().exportData();
@@ -18,22 +33,24 @@ describe("Multi users synchronisation", () => {
     alice = new Model(emptySheetData, { network });
     bob = new Model(emptySheetData, { network });
     charly = new Model(emptySheetData, { network });
+
+    // TODO find a better way to overwrite client ids
+    // @ts-ignore
+    alice["stateReplicator2000"]["clientId"] = "alice";
+    alice["stateReplicator2000"]["stateVector"] = { alice: 0 };
+    // @ts-ignore
+    bob["stateReplicator2000"]["clientId"] = "bob";
+    bob["stateReplicator2000"]["stateVector"] = { bob: 0 };
+    // @ts-ignore
+    charly["stateReplicator2000"]["clientId"] = "charly";
+    charly["stateReplicator2000"]["stateVector"] = { charly: 0 };
   });
 
   test("update two different cells concurrently", () => {
     network.concurrent(() => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello in A1",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
-      bob.dispatch("UPDATE_CELL", {
-        col: 1,
-        row: 1,
-        content: "hello in B2",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
+      setCellContent(alice, "A1", "hello in A1");
+
+      setCellContent(bob, "B2", "hello in B2");
     });
     expect(getCellContent(alice, "A1")).toBe("hello in A1");
     expect(getCellContent(alice, "B2")).toBe("hello in B2");
@@ -43,47 +60,28 @@ describe("Multi users synchronisation", () => {
     expect(getCellContent(charly, "B2")).toBe("hello in B2");
   });
 
-  test("update the same cell concurrently", async () => {
+  test("update the same cell concurrently", () => {
     network.concurrent(() => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello Bob",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
+      setCellContent(alice, "A1", "hello Bob");
       expect(getCellContent(alice, "A1")).toBe("hello Bob");
-      bob.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "Hi Alice",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
+
+      setCellContent(bob, "A1", "Hi Alice");
       expect(getCellContent(bob, "A1")).toBe("Hi Alice");
     });
-    const content = getCellContent(alice, "A1");
-    expect(getCellContent(bob, "A1")).toBe(content);
-    expect(getCellContent(charly, "A1")).toBe(content);
+    expect(getCellContent(alice, "A1")).toBe("Hi Alice");
+    expect(getCellContent(bob, "A1")).toBe("Hi Alice");
+    expect(getCellContent(charly, "A1")).toBe("Hi Alice");
   });
 
   test("update the same cell sequentially", () => {
-    alice.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      content: "hello Bob",
-      sheetId: alice.getters.getActiveSheetId(),
-    });
+    setCellContent(alice, "A1", "hello Bob");
     expect(getCellContent(alice, "A1")).toBe("hello Bob");
     expect(getCellContent(bob, "A1")).toBe("hello Bob");
     expect(getCellContent(charly, "A1")).toBe("hello Bob");
-    // bob.dispatch("UPDATE_CELL", {
-    //   col: 0,
-    //   row: 0,
-    //   content: "Hi Alice",
-    //   sheetId: alice.getters.getActiveSheetId(),
-    // });
-    // expect(getCellContent(alice, "A1")).toBe("Hi Alice");
-    // expect(getCellContent(bob, "A1")).toBe("Hi Alice");
-    // expect(getCellContent(charly, "A1")).toBe("Hi Alice");
+    setCellContent(bob, "A1", "Hi Alice");
+    expect(getCellContent(alice, "A1")).toBe("Hi Alice");
+    expect(getCellContent(bob, "A1")).toBe("Hi Alice");
+    expect(getCellContent(charly, "A1")).toBe("Hi Alice");
   });
 
   // test("three concurrent and conflicting updates while one client is disconnected", () => {
@@ -134,29 +132,15 @@ describe("Multi users synchronisation", () => {
   //   expect(getCell(dave, "A1")).toBe("hello in A1");
   // });
 
-  test.skip("update and delete the same cell concurrently", async () => {
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      content: "Hi",
-    });
-    await nextTick();
+  test("update and delete the same cell concurrently", () => {
+    setCellContent(alice, "A1", "Hi");
     expect(getCellContent(alice, "A1")).toBe("Hi");
     expect(getCellContent(bob, "A1")).toBe("Hi");
-    await network.concurrent(() => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
+    network.concurrent(() => {
+      setCellContent(alice, "A1", "hello");
       expect(getCellContent(alice, "A1")).toBe("hello");
-      bob.dispatch("CLEAR_CELL", {
-        sheetId: bob.getters.getActiveSheetId(),
-        col: 0,
-        row: 0,
-      });
+
+      clearCell(bob, "A1");
       expect(getCell(bob, "A1")).toBeUndefined();
     });
     expect(getCell(alice, "A1")).toBeUndefined();
@@ -164,105 +148,63 @@ describe("Multi users synchronisation", () => {
     expect(getCell(charly, "A1")).toBeUndefined();
   });
 
-  test.skip("delete and update the same cell concurrently", async () => {
-    await network.concurrent(() => {
-      alice.dispatch("CLEAR_CELL", {
-        sheetId: bob.getters.getActiveSheetId(),
-        col: 0,
-        row: 0,
-      });
-      bob.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
-    });
+  test("delete and update the same empty cell concurrently", () => {
+    setCellContent(alice, "A1", "hello");
     expect(getCellContent(alice, "A1")).toBe("hello");
     expect(getCellContent(bob, "A1")).toBe("hello");
     expect(getCellContent(charly, "A1")).toBe("hello");
+    network.concurrent(() => {
+      clearCell(alice, "A1");
+      setCellContent(bob, "A1", "Hi");
+    });
+    expect(getCellContent(alice, "A1")).toBe("Hi");
+    expect(getCellContent(bob, "A1")).toBe("Hi");
+    expect(getCellContent(charly, "A1")).toBe("Hi");
   });
 
-  test.skip("delete and update the same cell concurrently", async () => {
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      content: "hello",
-    });
-    await nextTick();
-    expect(getCellContent(alice, "A1")).toBe("hello");
-    expect(getCellContent(bob, "A1")).toBe("hello");
-    expect(getCellContent(charly, "A1")).toBe("hello");
-    await network.concurrent(() => {
-      alice.dispatch("CLEAR_CELL", {
-        sheetId: bob.getters.getActiveSheetId(),
-        col: 0,
-        row: 0,
-      });
-      bob.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "Hi",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
-    });
-    expect(getCell(alice, "A1")).toBeUndefined();
-    expect(getCell(bob, "A1")).toBeUndefined();
-    expect(getCell(charly, "A1")).toBeUndefined();
-  });
-
-  test.skip("Update a cell and merge a cell concurrently", async () => {
-    // The result is not logical but at least it's synchronized.
-    await network.concurrent(() => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 1,
-        row: 1,
-        content: "Hi Bob",
-        sheetId: bob.getters.getActiveSheetId(),
-      });
+  test("Update a cell and merge a cell concurrently", () => {
+    network.concurrent(() => {
+      setCellContent(alice, "B2", "Hi Bob");
       bob.dispatch("ADD_MERGE", {
         sheetId: alice.getters.getActiveSheetId(),
         zone: toZone("A1:B2"),
       });
     });
-    expect(getCellContent(alice, "B2")).toBe("Hi Bob");
-    expect(getCellContent(bob, "B2")).toBe("Hi Bob");
-    expect(getCellContent(charly, "B2")).toBe("Hi Bob");
+    expect(getCell(alice, "B2")).toBeUndefined();
+    expect(getCell(bob, "B2")).toBeUndefined();
+    expect(getCell(charly, "B2")).toBeUndefined();
   });
 
-  test.skip("Merge a cell and update a cell concurrently", async () => {
-    await network.concurrent(() => {
-      alice.dispatch("ADD_MERGE", {
-        sheetId: alice.getters.getActiveSheetId(),
-        zone: toZone("A1:B2"),
-      });
-      bob.dispatch("UPDATE_CELL", {
-        col: 1,
-        row: 1,
-        content: "Hi Alice",
-        sheetId: bob.getters.getActiveSheetId(),
-      });
-    });
+  test("Merge a cell and update a cell concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    expect(getCell(alice, "B2")).toEqual(getCell(bob, "B2"));
-    expect(alice.getters.getMerges(sheetId)).toEqual(bob.getters.getMerges(sheetId));
-    expect(getCell(alice, "B2")).toEqual(getCell(charly, "B2"));
-    expect(alice.getters.getMerges(sheetId)).toEqual(charly.getters.getMerges(sheetId));
+    network.concurrent(() => {
+      alice.dispatch("ADD_MERGE", {
+        sheetId,
+        zone: toZone("A1:B3"),
+      });
+      setCellContent(bob, "B3", "Hi Alice");
+    });
+    expect(getCell(alice, "B3")).toBeUndefined();
+    expect(getCell(bob, "B3")).toBeUndefined();
+    expect(getCell(charly, "B3")).toBeUndefined();
+    expect(alice.getters.getMerges(sheetId)).toMatchObject([
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
+    ]);
+    expect(bob.getters.getMerges(sheetId)).toMatchObject([
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
+    ]);
+    expect(charly.getters.getMerges(sheetId)).toMatchObject([
+      { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
+    ]);
   });
 
-  test.skip("Merge a cell and update a cell concurrently, then remove the merge", async () => {
-    await network.concurrent(() => {
+  test("2-Merge a cell and update a cell concurrently, then remove the merge", () => {
+    network.concurrent(() => {
       alice.dispatch("ADD_MERGE", {
         sheetId: alice.getters.getActiveSheetId(),
         zone: toZone("A1:B2"),
       });
-      bob.dispatch("UPDATE_CELL", {
-        col: 1,
-        row: 1,
-        content: "Hi Alice",
-        sheetId: bob.getters.getActiveSheetId(),
-      });
+      setCellContent(bob, "B2", "Hi Alice");
     });
     const sheetId = alice.getters.getActiveSheetId();
     expect(alice.getters.getMerges(sheetId)).toHaveLength(1);
@@ -363,18 +305,8 @@ describe("Multi users synchronisation", () => {
       expect(getCellContent(charly, "A1")).toBe("hello");
     });
     test("Undo/redo your own change only", () => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello in A1",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
-      bob.dispatch("UPDATE_CELL", {
-        col: 1,
-        row: 1,
-        content: "hello in B2",
-        sheetId: bob.getters.getActiveSheetId(),
-      });
+      setCellContent(alice, "A1", "hello in A1");
+      setCellContent(bob, "B2", "hello in B2");
       expect(getCellContent(alice, "A1")).toBe("hello in A1");
       expect(getCellContent(bob, "A1")).toBe("hello in A1");
       expect(getCellContent(charly, "A1")).toBe("hello in A1");
@@ -396,38 +328,9 @@ describe("Multi users synchronisation", () => {
       expect(getCellContent(bob, "B2")).toBe("hello in B2");
       expect(getCellContent(charly, "B2")).toBe("hello in B2");
     });
-    test.skip("Bob updates are not added to Alice's history after a command which does not change the state", () => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello in A1",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
-      // @ts-ignore
-      alice.dispatch("A_DUMMY_COMMAND"); // dispatch a command which does not update the history
-      bob.dispatch("UPDATE_CELL", {
-        col: 1,
-        row: 1,
-        content: "hello in B2",
-        sheetId: bob.getters.getActiveSheetId(),
-      });
-      expect(getCellContent(alice, "A1")).toBe("hello in A1");
-      expect(getCellContent(bob, "A1")).toBe("hello in A1");
-      expect(getCellContent(charly, "A1")).toBe("hello in A1");
-      expect(getCellContent(alice, "B2")).toBe("hello in B2");
-      expect(getCellContent(bob, "B2")).toBe("hello in B2");
-      expect(getCellContent(charly, "B2")).toBe("hello in B2");
-      alice.dispatch("UNDO");
-      expect(getCell(alice, "A1")).toBeUndefined();
-      expect(getCell(bob, "A1")).toBeUndefined();
-      expect(getCell(charly, "A1")).toBeUndefined();
-      expect(getCellContent(alice, "B2")).toBe("hello in B2");
-      expect(getCellContent(bob, "B2")).toBe("hello in B2");
-      expect(getCellContent(charly, "B2")).toBe("hello in B2");
-    });
   });
 
-  describe.skip("Evaluation", () => {
+  describe("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
       setCellContent(alice, "A1", "=5");
       expect(getCell(alice, "A1")!.value).toBe(5);

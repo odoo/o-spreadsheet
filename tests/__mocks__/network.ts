@@ -17,7 +17,7 @@ export class MockNetwork implements Network {
   }
 
   sendMessage(message: Message) {
-    this.updates.push(message);
+    this.updates.push(JSON.parse(JSON.stringify(message)));
     if (this.isConcurrent) {
       this.pendingMessages.push(message);
     } else {

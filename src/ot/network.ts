@@ -33,39 +33,6 @@ export class WebsocketNetwork implements Network {
     this.processQueue();
   }
 
-  // TODO clean this. Maybe make Network more generic
-  async getTicket(): Promise<number> {
-    // @ts-ignore
-    return (await jsonRPC(`http://localhost:9000/timestamp`, {})).timestamp;
-
-    function jsonRPC(url, data) {
-      return new Promise(function (resolve, reject) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", url);
-        xhr.setRequestHeader("Content-type", "application/json");
-        // const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-        // xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.onload = function () {
-          if (this.status >= 200 && this.status < 300) {
-            resolve(JSON.parse(xhr.response));
-          } else {
-            reject({
-              status: this.status,
-              statusText: xhr.statusText,
-            });
-          }
-        };
-        xhr.onerror = function () {
-          reject({
-            status: this.status,
-            statusText: xhr.statusText,
-          });
-        };
-        xhr.send(JSON.stringify(data));
-      });
-    }
-  }
-
   private notifyListeners(message: Message) {
     for (let { callback } of this.listeners) {
       callback(message);

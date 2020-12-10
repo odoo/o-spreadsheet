@@ -18,7 +18,7 @@ export interface CommandMessage extends BaseMessage {
 
 export interface ConnectionMessage extends BaseMessage {
   type: "CONNECTION";
-  messages: CommandMessage[]
+  messages: CommandMessage[];
 }
 
 export interface UndoMessage extends BaseMessage {

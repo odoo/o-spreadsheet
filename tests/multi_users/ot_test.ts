@@ -11,7 +11,7 @@ import {
 } from "../../src/types";
 import "../canvas.mock";
 
-describe("UPDATE_CELL transformations", () => {
+describe.skip("UPDATE_CELL transformations", () => {
   describe("UPDATE_CELL & UPDATE_CELL", () => {
     test("Update content of the same cell", () => {
       const toTransform: UpdateCellCommand = {
@@ -70,8 +70,7 @@ describe("UPDATE_CELL transformations", () => {
       expect(result).toEqual([toTransform]);
     });
 
-    // TODO Unskip
-    test.skip("Update the content and style of the same cell", () => {
+    test("Update the content and style of the same cell", () => {
       const toTransform: UpdateCellCommand = {
         type: "UPDATE_CELL",
         sheetId: "42",
@@ -91,8 +90,7 @@ describe("UPDATE_CELL transformations", () => {
     });
   });
 
-  // TODO Skip because the OT is not correct anymore without getters
-  describe.skip("UPDATE_CELL & ADD_MERGE", () => {
+  describe("UPDATE_CELL & ADD_MERGE", () => {
     test("Update top left merge cell", () => {
       const updateCell: UpdateCellCommand = {
         type: "UPDATE_CELL",

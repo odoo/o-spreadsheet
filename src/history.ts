@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { MAX_HISTORY_STEPS } from "./constants";
-import { uuidv4 } from "./helpers/index";
+import { isDefined, uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { ModelConfig } from "./model";
 import { transform } from "./ot/ot";
@@ -19,6 +19,29 @@ import {
 import { ClientId, CommandMessage, Message, StateVector } from "./types/multi_users";
 
 /**
+ * Let denote V1 and V2 the two argument state vectors.
+ * This method checks if V1 precedes V2 (meaning happened before): V1 < V2
+ * V1 < V2 if and only if:
+ * - V1[c] <= V2[c] for all c in ... TODO
+ */
+function precedes(stateVector1: StateVector, stateVector2: StateVector): boolean {
+  const clientIds = new Set(Object.keys(stateVector1).concat(Object.keys(stateVector2)));
+  let onePrecedes = false;
+  for (let clientId of clientIds) {
+    const state1 = stateVector1[clientId] || 0;
+    const state2 = stateVector2[clientId] || 0;
+    if (state1 > state2) return false;
+    if (state1 < state2) {
+      onePrecedes = true;
+    }
+  }
+  return onePrecedes;
+}
+
+function isConcurrent(stateVector1: StateVector, stateVector2: StateVector) {
+  return !precedes(stateVector2, stateVector1) && !precedes(stateVector1, stateVector2);
+}
+/**
  * History Management System
  *
  * This file contains the code necessary to make the undo/redo feature work
@@ -26,12 +49,13 @@ import { ClientId, CommandMessage, Message, StateVector } from "./types/multi_us
  */
 
 class Transaction {
+  // TODO make it private
   public commands: CoreCommand[] = [];
   public inverses: CoreCommand[] = [];
   public changes: HistoryChange[] = [];
-  private stateVector: StateVector;
+  public stateVector: StateVector;
 
-  constructor(public id: UID = uuidv4(), stateVector: StateVector, private clientId: ClientId) {
+  constructor(public id: UID = uuidv4(), stateVector: StateVector, public clientId: ClientId) {
     this.stateVector = { ...stateVector };
   }
 
@@ -39,10 +63,14 @@ class Transaction {
   //   return { id: this.id, commands: this.commands, inverses: this.inverses, changes: this.changes };
   // }
 
-  precedes(transaction: Transaction): boolean {
-    const sum1 = Object.values(this.stateVector);
-    const sum2 = Object.values(transaction.stateVector);
+  arbitraryPrecedes(transaction: Transaction): boolean {
+    const sum1 = Object.values(this.stateVector).reduce((a, b) => a + b, 0);
+    const sum2 = Object.values(transaction.stateVector).reduce((a, b) => a + b, 0);
     return sum1 < sum2 || this.clientId < transaction.clientId;
+  }
+
+  isConcurrentTo(transaction: Transaction): boolean {
+    return isConcurrent(this.stateVector, transaction.stateVector);
   }
 
   public hasChanges(): boolean {
@@ -50,13 +78,33 @@ class Transaction {
   }
 }
 
+class Debug {
+  private messages: string[] = [];
+
+  constructor(private clientId: UID) {}
+
+  public log(message: string) {
+    this.messages.push(message);
+  }
+
+  public print() {
+    console.log([this.clientId, ...this.messages].join("\n"));
+  }
+}
+
 export class StateReplicator2000 extends owl.core.EventBus implements CommandHandler<Command> {
   private readonly clientId = uuidv4();
-  private readonly stateVector: StateVector = { [this.clientId]: 0 };
+  private stateVector: StateVector = { [this.clientId]: 0 };
   private transaction: Transaction | null = null;
   private undoStack: Transaction[] = [];
   private redoStack: RedoStep[] = []; //TODO Check if 'id' is needed
   private localTransactionIds: UID[] = [];
+
+  /**
+   * TODO: Remove these
+   */
+  private debug: Debug = new Debug(this.clientId);
+  public printDebug: boolean = false;
 
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
@@ -107,6 +155,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   // ---------------------------------------------------------------------------
 
   createTransaction(id?: UID): Transaction {
+    this.stateVector[this.clientId]++;
     return new Transaction(id, this.stateVector, this.clientId);
   }
 
@@ -126,7 +175,6 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
       throw new Error("No transaction to commit!");
     }
     if (this.transaction.hasChanges()) {
-      this.stateVector[this.clientId]++;
       this.undoStack.push(this.transaction);
       this.redoStack = [];
       if (this.undoStack.length > MAX_HISTORY_STEPS) {
@@ -166,9 +214,12 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
    * Called whenever a message is received from the network
    */
   private onMessageReceived(message: Message) {
+    this.debug = new Debug(this.clientId);
+    this.debug.log(`Message received from ${message.clientId}`);
     if (message.clientId === this.clientId) {
       return;
     }
+    this.debug.log(`Message received: ${message.type}`);
     switch (message.type) {
       case "CONNECTION":
         for (let commandMessage of message.messages) {
@@ -176,6 +227,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
         }
         break;
       case "COMMAND":
+        this.debug.log(`Commands received: [${message.commands.map((cmd) => cmd.type).join(";")}]`);
         this.handleRemoteMessage(message);
 
         break;
@@ -183,7 +235,16 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
         this.selectiveUndo(message.transactionId);
         break;
     }
+    if (this.printDebug) {
+      this.debug.print();
+    }
     this.trigger("update");
+  }
+
+  private logStateVector(sv: StateVector): string {
+    return `[${Object.entries(sv)
+      .map(([k, v]) => `[${k}:${v}]`)
+      .join(";")}]`;
   }
 
   private handleRemoteMessage(message: CommandMessage) {
@@ -192,26 +253,136 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
       message.stateVector,
       message.clientId
     );
-    const orderedTransactions = this.undoStack
-      .filter((transaction) => !transaction.precedes(remoteTransaction))
-      .sort((tr1, tr2) => (tr1.precedes(tr2) ? -1 : 1));
-    this.undoStack = this.undoStack.filter((transaction) =>
-      transaction.precedes(remoteTransaction)
+    remoteTransaction.commands = message.commands;
+    this.debug.log(`Remote transaction ID: ${message.transactionId}`);
+
+    this.debug.log(
+      `UndoStack: ${this.undoStack.map((s) => s.commands.map((c) => c.type).join(";")).join(" - ")}`
     );
-    this.revert(orderedTransactions);
-    this.transaction = remoteTransaction;
-    for (let cmd of message.commands) {
-      this.dispatch(cmd.type, cmd);
+    const localTransactions = this.undoStack.filter((transaction) =>
+      transaction.isConcurrentTo(remoteTransaction)
+    );
+    this.debug.log(
+      `localTransactions: ${localTransactions
+        .map((s) => s.commands.map((c) => c.type).join(";"))
+        .join(" - ")}`
+    );
+    this.debug.log(`local state: ${this.logStateVector(this.stateVector)}`);
+    this.debug.log(`remote state: ${this.logStateVector(remoteTransaction.stateVector)}`);
+
+    // remote { alice: 2 }
+    // undoStack: { alice: 2, bob: 1 }
+    const transactionsToReplay = [...localTransactions, remoteTransaction].sort((tr1, tr2) =>
+      tr1.arbitraryPrecedes(tr2) ? -1 : 1
+    );
+    this.debug.log(
+      `transactionsToReplay: ${transactionsToReplay
+        .map((s) => s.commands.map((c) => c.type).join(";"))
+        .join(" - ")}`
+    );
+
+    this.undoStack = this.undoStack.filter(
+      (transaction) => !transaction.isConcurrentTo(remoteTransaction)
+    );
+    this.debug.log(
+      `Undostack after filtering: ${this.undoStack
+        .map((us) => us.commands.map((c) => c.type).join(";"))
+        .join(" - ")}`
+    );
+
+    this.revert(localTransactions);
+
+    this.doStuff(transactionsToReplay, remoteTransaction);
+
+    // this.replay(message.commands, localTransactions);
+    this.mergeStateVector(message.stateVector);
+    this.stateVector[this.clientId]++;
+    this.debug.log(
+      `Undostack after message handling: ${this.undoStack
+        .map((us) => us.commands.map((c) => c.type).join(";"))
+        .join(" - ")}`
+    );
+  }
+
+  // [ A1 A2 B1 A3 A4 ]
+  private doStuff(allTransactions: Transaction[], remoteTransaction: Transaction) {
+    const localBeforeRemoteCome: CoreCommand[] = [];
+    let alreadyFindRemote: boolean = false;
+    let remoteCommands: CoreCommand[] = remoteTransaction.commands;
+    this.debug.log(`DoStuff: remoteCommands: [${remoteCommands.map((c) => c.type).join(";")}]`);
+    for (const tr of allTransactions) {
+      this.transaction = new Transaction(tr.id, tr.stateVector, tr.clientId);
+      if (tr === remoteTransaction) {
+        this.debug.log(`Found remote command: ${tr.id}`);
+        alreadyFindRemote = true;
+        for (let localBefore of localBeforeRemoteCome) {
+          remoteCommands = remoteCommands
+            .map((tec) => {
+              const tmp = transform(tec, localBefore);
+              this.debug.log(`Transform ${tec.type} and ${localBefore.type} => [${tmp?.type}]`);
+              return tmp;
+            })
+            .filter(isDefined);
+        }
+        this.transaction.commands = remoteCommands;
+        for (let cmd of remoteCommands) {
+          this.debug.log(`Dispatch remote command: ${cmd.type}`);
+          this.dispatch(cmd.type, cmd);
+        }
+      } else if (!alreadyFindRemote) {
+        for (let cmd of tr.commands) {
+          this.debug.log(`Dispatch local command arrived BEFORE remote command: ${cmd.type}`);
+          this.dispatch(cmd.type, cmd);
+        }
+        this.transaction.commands = tr.commands;
+        localBeforeRemoteCome.push(...tr.commands);
+      } else {
+        const toExecute: CoreCommand[] = [];
+        for (let localCommand of tr.commands) {
+          let localCommands: CoreCommand[] = [localCommand];
+          for (let remoteCommand of remoteCommands) {
+            localCommands = localCommands
+              .map((lc) => {
+                const tmp = transform(lc, remoteCommand);
+                this.debug.log(`Transform ${lc.type} and ${remoteCommand.type} => [${tmp?.type}]`);
+                return tmp;
+              })
+              .filter(isDefined);
+          }
+          toExecute.push(...localCommands);
+        }
+        for (let c of toExecute) {
+          this.debug.log(`Dispatch local command arrived AFTER remote command: ${c.type}`);
+          this.dispatch(c.type, c);
+        }
+        this.transaction.commands = toExecute;
+      }
+      if (this.transaction.changes.length) {
+        this.transaction.inverses = this.transaction.commands.map((c) => inverseCommand(c));
+        this.undoStack.push(this.transaction);
+      }
+      this.transaction = null;
     }
-    if (this.transaction.hasChanges()) {
-      this.transaction.commands = message.commands;
-      this.transaction.inverses = message.commands.map((cmd) => inverseCommand(cmd));
-      this.undoStack.push(this.transaction);
+
+    // this.transaction = remoteTransaction;
+    // /* Here: do stuff */
+    // if (this.transaction.hasChanges()) {
+    //   this.transaction.commands = message.commands;
+    //   this.transaction.inverses = message.commands.map((cmd) => inverseCommand(cmd));
+    //   this.undoStack.push(this.transaction);
+    // }
+    // this.transaction = null;
+  }
+
+  private mergeStateVector(stateVector: StateVector) {
+    const newStateVector: StateVector = {};
+    const clientIds = new Set(Object.keys(stateVector).concat(Object.keys(this.stateVector)));
+    for (let clientId of clientIds) {
+      const state1 = stateVector[clientId] || 0;
+      const state2 = this.stateVector[clientId] || 0;
+      newStateVector[clientId] = Math.max(state1, state2);
     }
-    this.transaction = null;
-    this.replay(message.commands, orderedTransactions);
-    // this.processPending();
-    this.stateVector[message.clientId]++;
+    this.stateVector = newStateVector;
   }
 
   // ---------------------------------------------------------------------------
@@ -224,6 +395,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
 
   private revert(steps: UndoStep[]) {
     for (const step of steps.slice().reverse()) {
+      this.debug.log(`Revert commands: [${step.commands.map((cmd) => cmd.type).join(";")}]`);
       this.undoStep(step);
     }
   }
@@ -236,16 +408,29 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
 
   // TODO rename deletedCommands
   private replay(deletedCommands: CoreCommand[], steps: UndoStep[]) {
+    this.debug.log(
+      `[REPLAY] shoud replay ${steps
+        .map((s) => s.commands.map((c) => c.type).join(";"))
+        .join(" - ")}`
+    );
+    this.debug.log(`Deleted commands: [${deletedCommands.map((c) => c.type).join(";")}]`);
     for (const step of steps) {
       const commands: CoreCommand[] = [];
       for (let cmd of step.commands) {
         for (let deletedCommand of deletedCommands) {
-          commands.push(...transform(cmd, deletedCommand));
+          const tmp = transform(cmd, deletedCommand);
+          this.debug.log(
+            `[REPLAY] Transform [${cmd.type}] and [${deletedCommand.type}] => [${tmp?.type}]`
+          );
+          if (tmp) {
+            commands.push(tmp);
+          }
         }
       }
       if (commands.length > 0) {
         this.transaction = this.createTransaction(step.id);
         for (let cmd of commands.slice()) {
+          this.debug.log(`Replay [${cmd.type}]`);
           this.dispatch(cmd.type, cmd);
         }
         if (this.transaction.changes.length) {
@@ -274,7 +459,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
     }
     const index = this.undoStack.findIndex((step) => step.id === id);
     if (index === -1) {
-      throw new Error(`No history step with id ${id}`);
+      throw new Error(`No history step with id ${id} - ${this.clientId}`);
     }
     const stepsToRevert = this.undoStack.splice(index + 1);
     const stepToUndo = this.undoStack.pop();
