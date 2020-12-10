@@ -36,7 +36,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
         } catch (error) {
           return { status: "CANCELLED", reason: CancelledReason.InvalidSheetId };
         }
-        break;
     }
     return { status: "SUCCESS" };
   }

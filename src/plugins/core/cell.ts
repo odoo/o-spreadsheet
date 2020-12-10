@@ -145,7 +145,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // Depending on the step sign, increase or decrease the decimal representation
       // of the format
       const newFormat = this.changeDecimalFormat(numberFormat, step);
-      // Aply the new format on the whole zone
+      // Apply the new format on the whole zone
       this.setFormatter(sheetId, zones, newFormat!);
     }
   }
@@ -195,8 +195,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   /**
-   * This function take a cell format representation and return a new format representtion
-   * with more or lesse decimal places.
+   * This function take a cell format representation and return a new format representation
+   * with more or less decimal places.
    *
    * If the format doesn't look like a digital format (means that not contain '0')
    * or if this one cannot be increased or decreased, the returned format will be
