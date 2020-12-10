@@ -320,7 +320,7 @@ export class SelectionPlugin extends UIPlugin {
   }
 
   /**
-   * Change the anchor of the selection active cell to an absolute col and row inded.
+   * Change the anchor of the selection active cell to an absolute col and row index.
    *
    * This is a non trivial task. We need to stop the editing process and update
    * properly the current selection.  Also, this method can optionally create a new
