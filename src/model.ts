@@ -105,7 +105,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     const workbookData = load(data);
     // this.history = new WHistory(this.dispatchCore.bind(this));
-    this.stateReplicator2000 = new StateReplicator2000(this.dispatch.bind(this), config.network);
+    this.stateReplicator2000 = new StateReplicator2000(
+      this.dispatchCore.bind(this),
+      config.network
+    );
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
