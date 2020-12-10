@@ -11,7 +11,7 @@ import {
 } from "../../src/types";
 import "../canvas.mock";
 
-describe.skip("UPDATE_CELL transformations", () => {
+describe("UPDATE_CELL transformations", () => {
   describe("UPDATE_CELL & UPDATE_CELL", () => {
     test("Update content of the same cell", () => {
       const toTransform: UpdateCellCommand = {
@@ -29,7 +29,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "Hi",
       };
       const result = transform(toTransform, executed);
-      expect(result).toEqual([toTransform]);
+      expect(result).toEqual(toTransform);
     });
 
     test("Update two differents cells", () => {
@@ -48,7 +48,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "Hi",
       };
       const result = transform(toTransform, executed);
-      expect(result).toEqual([toTransform]);
+      expect(result).toEqual(toTransform);
     });
 
     test("Update the same XC on two different sheets", () => {
@@ -67,7 +67,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "Hi",
       };
       const result = transform(toTransform, executed);
-      expect(result).toEqual([toTransform]);
+      expect(result).toEqual(toTransform);
     });
 
     test("Update the content and style of the same cell", () => {
@@ -86,7 +86,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         style: { fillColor: "orange" },
       };
       const result = transform(toTransform, executed);
-      expect(result).toEqual([toTransform]);
+      expect(result).toEqual(toTransform);
     });
   });
 
@@ -110,7 +110,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         },
       };
       const result = transform(updateCell, addMerge);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("update cell outside merge", () => {
       const updateCell: UpdateCellCommand = {
@@ -131,7 +131,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         },
       };
       const result = transform(updateCell, addMerge);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("update cell inside the merge, but not top-left", () => {
       const updateCell: UpdateCellCommand = {
@@ -152,7 +152,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         },
       };
       const result = transform(updateCell, addMerge);
-      expect(result).toEqual([]);
+      expect(result).toBeUndefined();
     });
     test("update cell inside the merge, but not top-left, in another sheet", () => {
       const updateCell: UpdateCellCommand = {
@@ -173,7 +173,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         },
       };
       const result = transform(updateCell, addMerge);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
   describe("UPDATE_CELL & ADD_ROWS", () => {
@@ -193,7 +193,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addRows);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("update cell after added rows", () => {
       const addRows: AddRowsCommand = {
@@ -211,15 +211,13 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addRows);
-      expect(result).toEqual([
-        {
-          type: "UPDATE_CELL",
-          sheetId: "42",
-          col: 10,
-          row: 12,
-          content: "salut",
-        },
-      ]);
+      expect(result).toEqual({
+        type: "UPDATE_CELL",
+        sheetId: "42",
+        col: 10,
+        row: 12,
+        content: "salut",
+      });
     });
     test("update cell in pivot row with row added before", () => {
       const addRows: AddRowsCommand = {
@@ -237,15 +235,13 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addRows);
-      expect(result).toEqual([
-        {
-          type: "UPDATE_CELL",
-          sheetId: "42",
-          col: 10,
-          row: 12,
-          content: "salut",
-        },
-      ]);
+      expect(result).toEqual({
+        type: "UPDATE_CELL",
+        sheetId: "42",
+        col: 10,
+        row: 12,
+        content: "salut",
+      });
     });
     test("update cell in pivot row with row added after", () => {
       const addRows: AddRowsCommand = {
@@ -263,7 +259,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addRows);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("update cell after added rows, in another sheet", () => {
       const addRows: AddRowsCommand = {
@@ -281,7 +277,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addRows);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
 
@@ -302,7 +298,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addColumns);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("update cell after added columns", () => {
       const addColumns: AddColumnsCommand = {
@@ -320,15 +316,13 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addColumns);
-      expect(result).toEqual([
-        {
-          type: "UPDATE_CELL",
-          sheetId: "42",
-          col: 12,
-          row: 10,
-          content: "salut",
-        },
-      ]);
+      expect(result).toEqual({
+        type: "UPDATE_CELL",
+        sheetId: "42",
+        col: 12,
+        row: 10,
+        content: "salut",
+      });
     });
     test("update cell in pivot column with columns added before", () => {
       const addColumns: AddColumnsCommand = {
@@ -346,15 +340,13 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addColumns);
-      expect(result).toEqual([
-        {
-          type: "UPDATE_CELL",
-          sheetId: "42",
-          col: 12,
-          row: 10,
-          content: "salut",
-        },
-      ]);
+      expect(result).toEqual({
+        type: "UPDATE_CELL",
+        sheetId: "42",
+        col: 12,
+        row: 10,
+        content: "salut",
+      });
     });
     test("update cell in pivot column with columns added after", () => {
       const addColumns: AddColumnsCommand = {
@@ -372,7 +364,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addColumns);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("update cell after added columns, in another sheet", () => {
       const addColumns: AddColumnsCommand = {
@@ -390,7 +382,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, addColumns);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
 
@@ -409,7 +401,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeRows);
-      expect(result).toEqual([Object.assign({}, updateCell, { row: 7 })]);
+      expect(result).toEqual({ ...updateCell, row: 7 });
     });
     test("remove rows after updated cell", () => {
       const removeRows: RemoveRowsCommand = {
@@ -425,7 +417,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeRows);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("remove rows before and after updated cell", () => {
       const removeRows: RemoveRowsCommand = {
@@ -441,7 +433,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeRows);
-      expect(result).toEqual([Object.assign({}, updateCell, { row: 7 })]);
+      expect(result).toEqual({ ...updateCell, row: 7 });
     });
     test("update cell in removed row", () => {
       const removeRows: RemoveRowsCommand = {
@@ -457,7 +449,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeRows);
-      expect(result).toEqual([]);
+      expect(result).toBeUndefined();
     });
     test("remove rows before updated cell, in another sheet", () => {
       const removeRows: RemoveRowsCommand = {
@@ -473,7 +465,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeRows);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
 
@@ -492,7 +484,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeColumns);
-      expect(result).toEqual([Object.assign({}, updateCell, { col: 7 })]);
+      expect(result).toEqual({ ...updateCell, col: 7 });
     });
     test("remove rows after updated cell", () => {
       const removeColumns: RemoveColumnsCommand = {
@@ -508,7 +500,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeColumns);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
     test("remove rows before and after updated cell", () => {
       const removeColumns: RemoveColumnsCommand = {
@@ -524,7 +516,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeColumns);
-      expect(result).toEqual([Object.assign({}, updateCell, { col: 7 })]);
+      expect(result).toEqual({ ...updateCell, col: 7 });
     });
     test("update cell in removed row", () => {
       const removeColumns: RemoveColumnsCommand = {
@@ -540,7 +532,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeColumns);
-      expect(result).toEqual([]);
+      expect(result).toBeUndefined();
     });
     test("remove rows before updated cell", () => {
       const removeColumns: RemoveColumnsCommand = {
@@ -556,7 +548,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, removeColumns);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
 
@@ -577,7 +569,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, duplicateSheet);
-      expect(result).toEqual([updateCell, Object.assign({}, updateCell, { sheetId: "42" })]);
+      expect(result).toEqual(updateCell);
     });
     test("Duplicate another sheet", () => {
       const sheetId = "42";
@@ -595,7 +587,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, duplicateSheet);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
 
@@ -614,7 +606,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, deleteSheet);
-      expect(result).toEqual([]);
+      expect(result).toBeUndefined();
     });
     test("Delete another sheet", () => {
       const deleteSheet: DeleteSheetCommand = {
@@ -629,7 +621,7 @@ describe.skip("UPDATE_CELL transformations", () => {
         content: "salut",
       };
       const result = transform(updateCell, deleteSheet);
-      expect(result).toEqual([updateCell]);
+      expect(result).toEqual(updateCell);
     });
   });
 });
