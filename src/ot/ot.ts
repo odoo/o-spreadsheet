@@ -2,16 +2,16 @@ import { isDefined } from "../helpers/index";
 import { toXC } from "../helpers/coordinates";
 import { isInside } from "../helpers/zones";
 import { OTRegistry } from "../registries/ot_registry";
+import { AddMergeCommand, UpdateCellCommand, CoreCommand, RenameSheetCommand } from "../types";
 import {
-  AddMergeCommand,
-  AddRowsCommand,
-  UpdateCellCommand,
-  AddColumnsCommand,
-  RemoveRowsCommand,
-  RemoveColumnsCommand,
-  CoreCommand,
-} from "../types";
-import { sheetDeleted } from "./ot_helpers";
+  columnAdded,
+  columnRemoved,
+  columnRemovedTarget,
+  rowAdded,
+  rowRemoved,
+  rowRemovedTarget,
+  sheetDeleted,
+} from "./ot_helpers";
 
 export function transform(
   toTransform: CoreCommand,
@@ -28,6 +28,7 @@ export function transformAll(toTransform: CoreCommand[], executed: CoreCommand):
 export const otRegistry = new OTRegistry();
 
 otRegistry.addTransformation("UPDATE_CELL", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("CLEAR_CELL", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("DELETE_CONTENT", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("ADD_COLUMNS", "DELETE_SHEET", sheetDeleted);
@@ -45,6 +46,34 @@ otRegistry.addTransformation("CLEAR_FORMATTING", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("SET_BORDER", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("SET_DECIMAL", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("CREATE_CHART", "DELETE_SHEET", sheetDeleted);
+
+otRegistry.addTransformation("UPDATE_CELL", "ADD_COLUMNS", columnAdded);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_COLUMNS", columnAdded);
+otRegistry.addTransformation("CLEAR_CELL", "ADD_COLUMNS", columnAdded);
+otRegistry.addTransformation("SET_BORDER", "ADD_COLUMNS", columnAdded);
+
+otRegistry.addTransformation("UPDATE_CELL", "ADD_ROWS", rowAdded);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_ROWS", rowAdded);
+otRegistry.addTransformation("CLEAR_CELL", "ADD_ROWS", rowAdded);
+otRegistry.addTransformation("SET_BORDER", "ADD_ROWS", rowAdded);
+
+otRegistry.addTransformation("UPDATE_CELL", "REMOVE_COLUMNS", columnRemoved);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_COLUMNS", columnRemoved);
+otRegistry.addTransformation("CLEAR_CELL", "REMOVE_COLUMNS", columnRemoved);
+otRegistry.addTransformation("SET_BORDER", "REMOVE_COLUMNS", columnRemoved);
+otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_COLUMNS", columnRemovedTarget);
+otRegistry.addTransformation("SET_FORMATTING", "REMOVE_COLUMNS", columnRemovedTarget);
+otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_COLUMNS", columnRemovedTarget);
+otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", columnRemovedTarget);
+
+otRegistry.addTransformation("UPDATE_CELL", "REMOVE_ROWS", rowRemoved);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_ROWS", rowRemoved);
+otRegistry.addTransformation("CLEAR_CELL", "REMOVE_ROWS", rowRemoved);
+otRegistry.addTransformation("SET_BORDER", "REMOVE_ROWS", rowRemoved);
+otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_ROWS", rowRemovedTarget);
+otRegistry.addTransformation("SET_FORMATTING", "REMOVE_ROWS", rowRemovedTarget);
+otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_ROWS", rowRemovedTarget);
+otRegistry.addTransformation("SET_DECIMAL", "REMOVE_ROWS", rowRemovedTarget);
 
 otRegistry
   .addTransformation(
@@ -64,75 +93,9 @@ otRegistry
   )
   .addTransformation(
     "UPDATE_CELL",
-    "ADD_ROWS",
-    (toTransform: UpdateCellCommand, executed: AddRowsCommand): UpdateCellCommand => {
-      if (toTransform.sheetId !== executed.sheetId) {
-        return toTransform;
-      }
-      const updatedRow = toTransform.row;
-      const pivotRow = executed.row;
-      if (updatedRow > pivotRow || (updatedRow === pivotRow && executed.position === "before")) {
-        return { ...toTransform, row: updatedRow + executed.quantity };
-      }
-      return toTransform;
-    }
-  )
-  .addTransformation(
-    "UPDATE_CELL",
-    "REMOVE_ROWS",
-    (
-      toTransform: UpdateCellCommand,
-      executed: RemoveRowsCommand
-    ): UpdateCellCommand | undefined => {
-      if (toTransform.sheetId !== executed.sheetId) {
-        return toTransform;
-      }
-      let row = toTransform.row;
-      if (executed.rows.includes(row)) {
-        return undefined;
-      }
-      for (let removedRow of executed.rows) {
-        if (row >= removedRow) {
-          row--;
-        }
-      }
-      return { ...toTransform, row };
-    }
-  )
-  .addTransformation(
-    "UPDATE_CELL",
-    "REMOVE_COLUMNS",
-    (
-      toTransform: UpdateCellCommand,
-      executed: RemoveColumnsCommand
-    ): UpdateCellCommand | undefined => {
-      if (toTransform.sheetId !== executed.sheetId) {
-        return toTransform;
-      }
-      let col = toTransform.col;
-      if (executed.columns.includes(col)) {
-        return undefined;
-      }
-      for (let removedColumn of executed.columns) {
-        if (col >= removedColumn) {
-          col--;
-        }
-      }
-      return { ...toTransform, col };
-    }
-  )
-  .addTransformation(
-    "UPDATE_CELL",
-    "ADD_COLUMNS",
-    (toTransform: UpdateCellCommand, executed: AddColumnsCommand): UpdateCellCommand => {
-      if (toTransform.sheetId !== executed.sheetId) {
-        return toTransform;
-      }
-      const updatedCol = toTransform.col;
-      const pivotCol = executed.column;
-      if (updatedCol > pivotCol || (updatedCol === pivotCol && executed.position === "before")) {
-        return { ...toTransform, col: updatedCol + executed.quantity };
-      }
+    "RENAME_SHEET",
+    (toTransform: UpdateCellCommand, executed: RenameSheetCommand): UpdateCellCommand => {
+      //TODO Not sure what to do here, we do not have the old name in the renameSheetCommand :/
       return toTransform;
     }
   );

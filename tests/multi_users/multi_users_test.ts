@@ -74,20 +74,6 @@ describe("Multi users synchronisation", () => {
   let bob: Model;
   let charly: Model;
 
-  // @ts-ignore
-  const startDebug = () => {
-    alice["stateReplicator2000"].printDebug = true;
-    bob["stateReplicator2000"].printDebug = true;
-    charly["stateReplicator2000"].printDebug = true;
-  };
-
-  // @ts-ignore
-  const endDebug = () => {
-    alice["stateReplicator2000"].printDebug = false;
-    bob["stateReplicator2000"].printDebug = false;
-    charly["stateReplicator2000"].printDebug = false;
-  };
-
   beforeEach(() => {
     network = new MockNetwork();
     emptySheetData = new Model().exportData();
