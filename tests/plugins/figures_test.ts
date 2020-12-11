@@ -211,7 +211,12 @@ describe("figure plugin", () => {
     expect(x).toBe(10);
     expect(y).toBe(10);
 
-    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 100, y: 200 });
+    model.dispatch("UPDATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      x: 100,
+      y: 200,
+    });
     const { x: newx, y: newy } = model.getters.getFigures(
       model.getters.getActiveSheetId(),
       viewport
@@ -235,7 +240,13 @@ describe("figure plugin", () => {
       },
     });
 
-    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 100, y: 200, data: "Coucou" });
+    model.dispatch("UPDATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      x: 100,
+      y: 200,
+      data: "Coucou",
+    });
     const { x: x1, y: y1, data: data1 } = model.getters.getFigures(
       model.getters.getActiveSheetId(),
       viewport
@@ -269,7 +280,12 @@ describe("figure plugin", () => {
       },
     });
 
-    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: -10, y: 50 });
+    model.dispatch("UPDATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      id: "someuuid",
+      x: -10,
+      y: 50,
+    });
 
     const { x, y } = model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0];
     expect(x).toBe(0);
@@ -278,8 +294,9 @@ describe("figure plugin", () => {
 
   test("can delete a figure", () => {
     const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId,
       figure: {
         id: "someuuid",
         x: 10,
@@ -292,13 +309,13 @@ describe("figure plugin", () => {
     });
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(1);
-    model.dispatch("DELETE_FIGURE", { id: "someuuid" });
+    expect(model.getters.getFigures(sheetId, viewport)).toHaveLength(1);
+    model.dispatch("DELETE_FIGURE", { sheetId, id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(0);
+    expect(model.getters.getFigures(sheetId, viewport)).toHaveLength(0);
     model.dispatch("UNDO");
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(1);
+    expect(model.getters.getFigures(sheetId, viewport)).toHaveLength(1);
   });
 
   test("change sheet deselect figure", () => {

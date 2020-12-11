@@ -590,23 +590,26 @@ export interface SelectFigureCommand extends BaseCommand {
 export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
   type: "UPDATE_FIGURE";
   id: string;
+  sheetId: UID;
 }
 
 export interface DeleteFigureCommand extends BaseCommand {
   type: "DELETE_FIGURE";
+  sheetId: UID;
   id: string;
 }
 
 export interface CreateChartCommand extends BaseCommand {
   type: "CREATE_CHART";
   id: string;
-  sheetId: string;
+  sheetId: UID;
   definition: CreateChartDefinition;
 }
 
 export interface UpdateChartCommand extends BaseCommand {
   type: "UPDATE_CHART";
   id: string;
+  sheetId: UID;
   definition: CreateChartDefinition;
 }
 

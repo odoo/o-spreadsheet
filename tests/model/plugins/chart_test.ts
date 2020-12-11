@@ -76,7 +76,7 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
+    expect(model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toMatchSnapshot();
   });
 
   test("create chart with rectangle dataset", () => {
@@ -125,7 +125,8 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    const datasets = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!
+      .datasets!;
     expect(datasets[0].label!.toString()).toEqual("Series");
     expect(datasets[1].label!.toString()).toEqual("Series");
   });
@@ -197,7 +198,9 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime("1")!.data!.datasets!).toHaveLength(0);
+    expect(
+      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.datasets!
+    ).toHaveLength(0);
   });
 
   test("create chart with a dataset of one cell (no title)", () => {
@@ -223,7 +226,8 @@ describe("datasource tests", function () {
       title: "test 1",
       type: "line",
     });
-    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    const datasets = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!
+      .datasets!;
     expect(datasets).toHaveLength(1);
     expect(datasets[0].label!.toString()).toEqual("Series");
   });
@@ -242,7 +246,8 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    const datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    const datasets = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!
+      .datasets!;
     expect(datasets).toHaveLength(1);
     expect(datasets[0].label!.toString()).toEqual("Series");
   });
@@ -262,10 +267,10 @@ describe("datasource tests", function () {
     });
     const newModel = new Model(model.exportData());
     expect(newModel.getters.getFigures(sheetId, viewport)).toHaveLength(1);
-    expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", { id: "1" });
+    expect(newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toBeTruthy();
+    newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
     expect(newModel.getters.getFigures(sheetId, viewport)).toHaveLength(0);
-    expect(newModel.getters.getChartRuntime("1")).toBeUndefined();
+    expect(newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toBeUndefined();
   });
 
   test("update dataset of imported chart", () => {
@@ -282,7 +287,7 @@ describe("datasource tests", function () {
       },
     });
     const newModel = new Model(model.exportData());
-    let chart = newModel.getters.getChartRuntime("1")!;
+    let chart = newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     newModel.dispatch("UPDATE_CELL", {
       col: 1,
@@ -290,7 +295,7 @@ describe("datasource tests", function () {
       sheetId,
       content: "99",
     });
-    chart = newModel.getters.getChartRuntime("1")!;
+    chart = newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 
@@ -307,8 +312,12 @@ describe("datasource tests", function () {
       },
     });
     model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
-    expect(model.getters.getChartRuntime("1")!.data!.datasets).toHaveLength(1);
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0].data).toEqual([20, 19, 18]);
+    expect(
+      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.datasets
+    ).toHaveLength(1);
+    expect(
+      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.datasets![0].data
+    ).toEqual([20, 19, 18]);
   });
 
   test.skip("delete a data set labels column", () => {
@@ -325,7 +334,9 @@ describe("datasource tests", function () {
     });
     model.dispatch("REMOVE_COLUMNS", { columns: [0], sheetId: model.getters.getActiveSheetId() });
     // dataset in col B becomes labels in col A
-    expect(model.getters.getChartRuntime("1")!.data!.labels).toBeUndefined();
+    expect(
+      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.labels
+    ).toBeUndefined();
   });
 
   test("update dataset cell updates chart runtime", () => {
@@ -341,7 +352,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    let chart = model.getters.getChartRuntime("1")!;
+    let chart = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
     model.dispatch("UPDATE_CELL", {
@@ -356,7 +367,7 @@ describe("datasource tests", function () {
       sheetId: sheetId,
       content: "new dataset label",
     });
-    chart = model.getters.getChartRuntime("1")!;
+    chart = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");
   });
@@ -392,6 +403,7 @@ describe("datasource tests", function () {
   });
   test("update chart with invalid dataset", () => {
     const result = model.dispatch("UPDATE_CHART", {
+      sheetId: model.getters.getActiveSheetId(),
       id: "1",
       definition: {
         title: "test 1",
@@ -406,6 +418,7 @@ describe("datasource tests", function () {
 
   test("update chart with invalid labels", () => {
     const result = model.dispatch("UPDATE_CHART", {
+      sheetId: model.getters.getActiveSheetId(),
       id: "1",
       definition: {
         title: "test 1",
