@@ -15,7 +15,7 @@ import {
   CommandResult,
 } from "./types/index";
 import { _lt } from "./translation";
-import { DEBUG, setIsFastStrategy } from "./helpers/index";
+import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
@@ -54,6 +54,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
+  userId: string;
   network?: Network;
 }
 
@@ -104,19 +105,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     DEBUG.model = this;
 
     const workbookData = load(data);
-    // this.history = new WHistory(this.dispatchCore.bind(this));
-    this.stateReplicator2000 = new StateReplicator2000(
-      this.dispatchCore.bind(this),
-      config.network
-    );
-    this.stateReplicator2000.on("update", this, () => this.trigger("update"));
-
-    // this.externalCommandHandler = config.externalCommandHandler;
-    this.getters = {
-      canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
-      canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
-    } as Getters;
-    this.handlers = [this.stateReplicator2000];
 
     this.config = {
       mode: config.mode || "normal",
@@ -126,7 +114,24 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
       network: config.network,
+      userId: config.userId || uuidv4(),
     };
+
+    // this.history = new WHistory(this.dispatchCore.bind(this));
+    this.stateReplicator2000 = new StateReplicator2000(
+      this.dispatchCore.bind(this),
+      this.config.userId,
+      this.config.network
+    );
+    this.stateReplicator2000.on("update", this, () => this.trigger("update"));
+
+    // this.externalCommandHandler = config.externalCommandHandler;
+    this.getters = {
+      canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
+      canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
+      getUserId: this.stateReplicator2000.getUserId.bind(this.stateReplicator2000),
+    } as Getters;
+    this.handlers = [this.stateReplicator2000];
 
     setIsFastStrategy(true);
     // registering plugins

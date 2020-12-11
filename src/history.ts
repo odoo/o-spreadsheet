@@ -1,9 +1,9 @@
 import * as owl from "@odoo/owl";
 import { MAX_HISTORY_STEPS } from "./constants";
-import { isDefined, uuidv4 } from "./helpers/index";
+import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { ModelConfig } from "./model";
-import { transform } from "./ot/ot";
+import { transformAll } from "./ot/ot";
 import {
   Command,
   CommandHandler,
@@ -59,10 +59,6 @@ class Transaction {
     this.stateVector = { ...stateVector };
   }
 
-  // public toUndoStep(): UndoStep {
-  //   return { id: this.id, commands: this.commands, inverses: this.inverses, changes: this.changes };
-  // }
-
   arbitraryPrecedes(transaction: Transaction): boolean {
     const sum1 = Object.values(this.stateVector).reduce((a, b) => a + b, 0);
     const sum2 = Object.values(transaction.stateVector).reduce((a, b) => a + b, 0);
@@ -87,14 +83,21 @@ class Debug {
     this.messages.push(message);
   }
 
+  public logStateVector(sv: StateVector) {
+    this.messages.push(
+      `[${Object.entries(sv)
+        .map(([k, v]) => `[${k}:${v}]`)
+        .join(";")}]`
+    );
+  }
+
   public print() {
     console.log([this.clientId, ...this.messages].join("\n"));
   }
 }
 
 export class StateReplicator2000 extends owl.core.EventBus implements CommandHandler<Command> {
-  private readonly clientId = uuidv4();
-  private stateVector: StateVector = { [this.clientId]: 0 };
+  private stateVector: StateVector = { [this.userId]: 0 };
   private transaction: Transaction | null = null;
   private undoStack: Transaction[] = [];
   private redoStack: RedoStep[] = []; //TODO Check if 'id' is needed
@@ -103,16 +106,17 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   /**
    * TODO: Remove these
    */
-  private debug: Debug = new Debug(this.clientId);
+  private debug: Debug = new Debug(this.userId);
   public printDebug: boolean = false;
 
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
+    protected readonly userId: UID,
     protected network?: ModelConfig["network"]
   ) {
     super();
     if (network) {
-      network.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+      network.onNewMessage(this.userId, this.onMessageReceived.bind(this));
     }
   }
 
@@ -155,8 +159,8 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   // ---------------------------------------------------------------------------
 
   createTransaction(id?: UID): Transaction {
-    this.stateVector[this.clientId]++;
-    return new Transaction(id, this.stateVector, this.clientId);
+    this.stateVector[this.userId]++;
+    return new Transaction(id, this.stateVector, this.userId);
   }
 
   transact(cmd: Command, callback: () => void, id?: UID) {
@@ -184,7 +188,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
       if (this.network) {
         this.network.sendMessage({
           type: "COMMAND",
-          clientId: this.clientId,
+          clientId: this.userId,
           commands: this.transaction.commands,
           transactionId: this.transaction.id,
           stateVector: this.stateVector,
@@ -206,6 +210,10 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
     return this.redoStack.length > 0;
   }
 
+  getUserId(): UID {
+    return this.userId;
+  }
+
   // ---------------------------------------------------------------------------
   // Network
   // ---------------------------------------------------------------------------
@@ -214,12 +222,10 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
    * Called whenever a message is received from the network
    */
   private onMessageReceived(message: Message) {
-    this.debug = new Debug(this.clientId);
-    this.debug.log(`Message received from ${message.clientId}`);
-    if (message.clientId === this.clientId) {
+    this.debug = new Debug(this.userId);
+    if (message.clientId === this.userId) {
       return;
     }
-    this.debug.log(`Message received: ${message.type}`);
     switch (message.type) {
       case "CONNECTION":
         for (let commandMessage of message.messages) {
@@ -227,7 +233,6 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
         }
         break;
       case "COMMAND":
-        this.debug.log(`Commands received: [${message.commands.map((cmd) => cmd.type).join(";")}]`);
         this.handleRemoteMessage(message);
 
         break;
@@ -241,12 +246,6 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
     this.trigger("update");
   }
 
-  private logStateVector(sv: StateVector): string {
-    return `[${Object.entries(sv)
-      .map(([k, v]) => `[${k}:${v}]`)
-      .join(";")}]`;
-  }
-
   private handleRemoteMessage(message: CommandMessage) {
     const remoteTransaction = new Transaction(
       message.transactionId,
@@ -254,54 +253,19 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
       message.clientId
     );
     remoteTransaction.commands = message.commands;
-    this.debug.log(`Remote transaction ID: ${message.transactionId}`);
-
-    this.debug.log(
-      `UndoStack: ${this.undoStack.map((s) => s.commands.map((c) => c.type).join(";")).join(" - ")}`
-    );
     const localTransactions = this.undoStack.filter((transaction) =>
       transaction.isConcurrentTo(remoteTransaction)
     );
-    this.debug.log(
-      `localTransactions: ${localTransactions
-        .map((s) => s.commands.map((c) => c.type).join(";"))
-        .join(" - ")}`
-    );
-    this.debug.log(`local state: ${this.logStateVector(this.stateVector)}`);
-    this.debug.log(`remote state: ${this.logStateVector(remoteTransaction.stateVector)}`);
-
-    // remote { alice: 2 }
-    // undoStack: { alice: 2, bob: 1 }
     const transactionsToReplay = [...localTransactions, remoteTransaction].sort((tr1, tr2) =>
       tr1.arbitraryPrecedes(tr2) ? -1 : 1
     );
-    this.debug.log(
-      `transactionsToReplay: ${transactionsToReplay
-        .map((s) => s.commands.map((c) => c.type).join(";"))
-        .join(" - ")}`
-    );
-
     this.undoStack = this.undoStack.filter(
       (transaction) => !transaction.isConcurrentTo(remoteTransaction)
     );
-    this.debug.log(
-      `Undostack after filtering: ${this.undoStack
-        .map((us) => us.commands.map((c) => c.type).join(";"))
-        .join(" - ")}`
-    );
-
     this.revert(localTransactions);
-
     this.doStuff(transactionsToReplay, remoteTransaction);
-
-    // this.replay(message.commands, localTransactions);
     this.mergeStateVector(message.stateVector);
-    this.stateVector[this.clientId]++;
-    this.debug.log(
-      `Undostack after message handling: ${this.undoStack
-        .map((us) => us.commands.map((c) => c.type).join(";"))
-        .join(" - ")}`
-    );
+    this.stateVector[this.userId]++;
   }
 
   // [ A1 A2 B1 A3 A4 ]
@@ -309,29 +273,19 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
     const localBeforeRemoteCome: CoreCommand[] = [];
     let alreadyFindRemote: boolean = false;
     let remoteCommands: CoreCommand[] = remoteTransaction.commands;
-    this.debug.log(`DoStuff: remoteCommands: [${remoteCommands.map((c) => c.type).join(";")}]`);
     for (const tr of allTransactions) {
       this.transaction = new Transaction(tr.id, tr.stateVector, tr.clientId);
       if (tr === remoteTransaction) {
-        this.debug.log(`Found remote command: ${tr.id}`);
         alreadyFindRemote = true;
         for (let localBefore of localBeforeRemoteCome) {
-          remoteCommands = remoteCommands
-            .map((tec) => {
-              const tmp = transform(tec, localBefore);
-              this.debug.log(`Transform ${tec.type} and ${localBefore.type} => [${tmp?.type}]`);
-              return tmp;
-            })
-            .filter(isDefined);
+          remoteCommands = transformAll(remoteCommands, localBefore);
         }
         this.transaction.commands = remoteCommands;
         for (let cmd of remoteCommands) {
-          this.debug.log(`Dispatch remote command: ${cmd.type}`);
           this.dispatch(cmd.type, cmd);
         }
       } else if (!alreadyFindRemote) {
         for (let cmd of tr.commands) {
-          this.debug.log(`Dispatch local command arrived BEFORE remote command: ${cmd.type}`);
           this.dispatch(cmd.type, cmd);
         }
         this.transaction.commands = tr.commands;
@@ -341,18 +295,11 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
         for (let localCommand of tr.commands) {
           let localCommands: CoreCommand[] = [localCommand];
           for (let remoteCommand of remoteCommands) {
-            localCommands = localCommands
-              .map((lc) => {
-                const tmp = transform(lc, remoteCommand);
-                this.debug.log(`Transform ${lc.type} and ${remoteCommand.type} => [${tmp?.type}]`);
-                return tmp;
-              })
-              .filter(isDefined);
+            localCommands = transformAll(localCommands, remoteCommand);
           }
           toExecute.push(...localCommands);
         }
         for (let c of toExecute) {
-          this.debug.log(`Dispatch local command arrived AFTER remote command: ${c.type}`);
           this.dispatch(c.type, c);
         }
         this.transaction.commands = toExecute;
@@ -363,15 +310,6 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
       }
       this.transaction = null;
     }
-
-    // this.transaction = remoteTransaction;
-    // /* Here: do stuff */
-    // if (this.transaction.hasChanges()) {
-    //   this.transaction.commands = message.commands;
-    //   this.transaction.inverses = message.commands.map((cmd) => inverseCommand(cmd));
-    //   this.undoStack.push(this.transaction);
-    // }
-    // this.transaction = null;
   }
 
   private mergeStateVector(stateVector: StateVector) {
@@ -395,7 +333,6 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
 
   private revert(steps: UndoStep[]) {
     for (const step of steps.slice().reverse()) {
-      this.debug.log(`Revert commands: [${step.commands.map((cmd) => cmd.type).join(";")}]`);
       this.undoStep(step);
     }
   }
@@ -408,33 +345,19 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
 
   // TODO rename deletedCommands
   private replay(deletedCommands: CoreCommand[], steps: UndoStep[]) {
-    this.debug.log(
-      `[REPLAY] shoud replay ${steps
-        .map((s) => s.commands.map((c) => c.type).join(";"))
-        .join(" - ")}`
-    );
-    this.debug.log(`Deleted commands: [${deletedCommands.map((c) => c.type).join(";")}]`);
     for (const step of steps) {
       const commands: CoreCommand[] = [];
-      for (let cmd of step.commands) {
-        for (let deletedCommand of deletedCommands) {
-          const tmp = transform(cmd, deletedCommand);
-          this.debug.log(
-            `[REPLAY] Transform [${cmd.type}] and [${deletedCommand.type}] => [${tmp?.type}]`
-          );
-          if (tmp) {
-            commands.push(tmp);
-          }
-        }
+      for (let deletedCommand of deletedCommands) {
+        commands.push(...transformAll(step.commands, deletedCommand));
       }
       if (commands.length > 0) {
         this.transaction = this.createTransaction(step.id);
         for (let cmd of commands.slice()) {
-          this.debug.log(`Replay [${cmd.type}]`);
           this.dispatch(cmd.type, cmd);
         }
         if (this.transaction.changes.length) {
           this.transaction.commands = commands;
+          this.transaction.inverses = commands.map((c) => inverseCommand(c));
           this.undoStack.push(this.transaction);
         }
         this.transaction = null;
@@ -459,7 +382,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
     }
     const index = this.undoStack.findIndex((step) => step.id === id);
     if (index === -1) {
-      throw new Error(`No history step with id ${id} - ${this.clientId}`);
+      throw new Error(`No history step with id ${id} - ${this.userId}`);
     }
     const stepsToRevert = this.undoStack.splice(index + 1);
     const stepToUndo = this.undoStack.pop();
@@ -474,7 +397,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
         this.network.sendMessage({
           type: "SELECTIVE_UNDO",
           transactionId: id,
-          clientId: this.clientId,
+          clientId: this.userId,
         });
       }
     }
@@ -508,7 +431,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
           type: "COMMAND",
           transactionId: this.transaction.id,
           commands,
-          clientId: this.clientId,
+          clientId: this.userId,
           stateVector: this.stateVector, // TODO check this
         });
       }

@@ -28,6 +28,7 @@ import { ChartPlugin } from "../plugins/core/chart";
 export interface CoreGetters {
   canUndo: StateReplicator2000["canUndo"];
   canRedo: StateReplicator2000["canRedo"];
+  getUserId: StateReplicator2000["getUserId"];
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];

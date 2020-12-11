@@ -1,9 +1,71 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { WorkbookData } from "../../src/types";
-import { clearCell, getCell, getCellContent, setCellContent } from "../helpers";
+import { addColumns, clearCell, getCell, getCellContent, setCellContent } from "../helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
+
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      /**
+       * Check that the given models are synchronized, i.e. they have the same
+       * exportData
+       */
+      toHaveSynchronizedExportedData(): R;
+      /**
+       * Check that the same callback on each users give the same expected value
+       */
+      toHaveSynchronizedValue<T>(callback: (model: Model) => T, expected: T): R;
+    }
+  }
+}
+
+expect.extend({
+  toHaveSynchronizedValue(users: Model[], callback: (model: Model) => any, expected: any) {
+    for (let user of users) {
+      const result = callback(user);
+      if (!this.equals(result, expected)) {
+        const userId = user.getters.getUserId();
+        return {
+          pass: this.isNot,
+          message: () =>
+            `${userId} does not have the expected value: \nReceived: ${this.utils.printReceived(
+              result
+            )}\nExpected: ${this.utils.printExpected(expected)}`,
+        };
+      }
+    }
+    return { pass: !this.isNot, message: () => "" };
+  },
+  toHaveSynchronizedExportedData(users: Model[]) {
+    for (let a of users) {
+      for (let b of users) {
+        if (a === b) {
+          continue;
+        }
+        const exportA = a.exportData();
+        const exportB = b.exportData();
+        if (!this.equals(exportA, exportB)) {
+          const clientA = a.getters.getUserId();
+          const clientB = b.getters.getUserId();
+          return {
+            pass: this.isNot,
+            message: () =>
+              `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
+                exportA,
+                exportB,
+                clientA,
+                clientB,
+                false
+              )}`,
+          };
+        }
+      }
+    }
+    return { pass: !this.isNot, message: () => "" };
+  },
+});
 
 describe("Multi users synchronisation", () => {
   let network: MockNetwork;
@@ -30,20 +92,9 @@ describe("Multi users synchronisation", () => {
     network = new MockNetwork();
     emptySheetData = new Model().exportData();
 
-    alice = new Model(emptySheetData, { network });
-    bob = new Model(emptySheetData, { network });
-    charly = new Model(emptySheetData, { network });
-
-    // TODO find a better way to overwrite client ids
-    // @ts-ignore
-    alice["stateReplicator2000"]["clientId"] = "alice";
-    alice["stateReplicator2000"]["stateVector"] = { alice: 0 };
-    // @ts-ignore
-    bob["stateReplicator2000"]["clientId"] = "bob";
-    bob["stateReplicator2000"]["stateVector"] = { bob: 0 };
-    // @ts-ignore
-    charly["stateReplicator2000"]["clientId"] = "charly";
-    charly["stateReplicator2000"]["stateVector"] = { charly: 0 };
+    alice = new Model(emptySheetData, { network, userId: "alice" });
+    bob = new Model(emptySheetData, { network, userId: "bob" });
+    charly = new Model(emptySheetData, { network, userId: "charly" });
   });
 
   test("update two different cells concurrently", () => {
@@ -52,12 +103,14 @@ describe("Multi users synchronisation", () => {
 
       setCellContent(bob, "B2", "hello in B2");
     });
-    expect(getCellContent(alice, "A1")).toBe("hello in A1");
-    expect(getCellContent(alice, "B2")).toBe("hello in B2");
-    expect(getCellContent(bob, "A1")).toBe("hello in A1");
-    expect(getCellContent(bob, "B2")).toBe("hello in B2");
-    expect(getCellContent(charly, "A1")).toBe("hello in A1");
-    expect(getCellContent(charly, "B2")).toBe("hello in B2");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "hello in A1"
+    );
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "B2"),
+      "hello in B2"
+    );
   });
 
   test("update the same cell concurrently", () => {
@@ -300,9 +353,10 @@ describe("Multi users synchronisation", () => {
       expect(getCell(bob, "A1")).toBeUndefined();
       expect(getCell(charly, "A1")).toBeUndefined();
       alice.dispatch("REDO");
-      expect(getCellContent(alice, "A1")).toBe("hello");
       expect(getCellContent(bob, "A1")).toBe("hello");
       expect(getCellContent(charly, "A1")).toBe("hello");
+      expect(getCellContent(alice, "A1")).toBe("hello");
+      // expect([alice, bob, charly]).toBeSynchronized()
     });
     test("Undo/redo your own change only", () => {
       setCellContent(alice, "A1", "hello in A1");
@@ -327,6 +381,22 @@ describe("Multi users synchronisation", () => {
       expect(getCellContent(alice, "B2")).toBe("hello in B2");
       expect(getCellContent(bob, "B2")).toBe("hello in B2");
       expect(getCellContent(charly, "B2")).toBe("hello in B2");
+    });
+    test("Undo two commands from differents users", () => {
+      addColumns(alice, "before", "B", 1);
+      addColumns(bob, "after", "A", 1);
+      setCellContent(charly, "D1", "hello in D1");
+      expect(getCellContent(alice, "D1")).toBe("hello in D1");
+      expect(getCellContent(bob, "D1")).toBe("hello in D1");
+      expect(getCellContent(charly, "D1")).toBe("hello in D1");
+      alice.dispatch("UNDO");
+      expect(getCellContent(alice, "C1")).toBe("hello in D1");
+      expect(getCellContent(bob, "C1")).toBe("hello in D1");
+      expect(getCellContent(charly, "C1")).toBe("hello in D1");
+      bob.dispatch("UNDO");
+      expect(getCellContent(alice, "B1")).toBe("hello in D1");
+      expect(getCellContent(bob, "B1")).toBe("hello in D1");
+      expect(getCellContent(charly, "B1")).toBe("hello in D1");
     });
   });
 

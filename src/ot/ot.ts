@@ -1,3 +1,4 @@
+import { isDefined } from "../helpers/index";
 import { toXC } from "../helpers/coordinates";
 import { isInside } from "../helpers/zones";
 import { OTRegistry } from "../registries/ot_registry";
@@ -18,6 +19,10 @@ export function transform(
 ): CoreCommand | undefined {
   const ot = otRegistry.getTransformation(toTransform.type, executed.type);
   return ot ? ot(toTransform, executed) : toTransform;
+}
+
+export function transformAll(toTransform: CoreCommand[], executed: CoreCommand): CoreCommand[] {
+  return toTransform.map((cmd) => transform(cmd, executed)).filter(isDefined);
 }
 
 export const otRegistry = new OTRegistry();
