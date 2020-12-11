@@ -1,4 +1,3 @@
-import { tokenize } from "../formulas";
 import { toXC } from "../helpers/coordinates";
 import { isInside } from "../helpers/zones";
 import { OTRegistry } from "../registries/ot_registry";
@@ -10,7 +9,6 @@ import {
   RemoveRowsCommand,
   RemoveColumnsCommand,
   CoreCommand,
-  RenameSheetCommand,
 } from "../types";
 import { sheetDeleted } from "./ot_helpers";
 
