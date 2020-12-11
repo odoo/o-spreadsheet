@@ -6,9 +6,11 @@ import { AddMergeCommand, UpdateCellCommand, CoreCommand, RenameSheetCommand } f
 import {
   columnAdded,
   columnRemoved,
+  columnRemovedcolumnRemoved as columnRemovedcolumnRemove,
   columnRemovedTarget,
   rowAdded,
   rowRemoved,
+  rowRemovedRowRemove,
   rowRemovedTarget,
   sheetDeleted,
 } from "./ot_helpers";
@@ -65,6 +67,7 @@ otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_COLUMNS", columnRemovedTa
 otRegistry.addTransformation("SET_FORMATTING", "REMOVE_COLUMNS", columnRemovedTarget);
 otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_COLUMNS", columnRemovedTarget);
 otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", columnRemovedTarget);
+otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnRemovedcolumnRemove);
 
 otRegistry.addTransformation("UPDATE_CELL", "REMOVE_ROWS", rowRemoved);
 otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_ROWS", rowRemoved);
@@ -74,6 +77,7 @@ otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_ROWS", rowRemovedTarget);
 otRegistry.addTransformation("SET_FORMATTING", "REMOVE_ROWS", rowRemovedTarget);
 otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_ROWS", rowRemovedTarget);
 otRegistry.addTransformation("SET_DECIMAL", "REMOVE_ROWS", rowRemovedTarget);
+otRegistry.addTransformation("REMOVE_ROWS", "REMOVE_ROWS", rowRemovedRowRemove);
 
 otRegistry
   .addTransformation(

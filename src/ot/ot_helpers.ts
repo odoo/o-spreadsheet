@@ -102,6 +102,32 @@ export function columnRemovedTarget(
   return { ...toTransform, target: adaptedTarget };
 }
 
+export function columnRemovedcolumnRemoved(
+  toTransform: RemoveColumnsCommand,
+  executed: RemoveColumnsCommand
+): RemoveColumnsCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const columnsToRemove = toTransform.columns
+    .map((col) => {
+      if (executed.columns.includes(col)) {
+        return undefined;
+      }
+      for (let removedCol of executed.columns) {
+        if (col > removedCol) {
+          col--;
+        }
+      }
+      return col;
+    })
+    .filter(isDefined);
+  if (!columnsToRemove.length) {
+    return undefined;
+  }
+  return { ...toTransform, columns: columnsToRemove };
+}
+
 export function rowRemovedTarget(
   toTransform: TargetCommand,
   executed: RemoveRowsCommand
@@ -151,4 +177,30 @@ export function rowRemoved(
     }
   }
   return { ...toTransform, row };
+}
+
+export function rowRemovedRowRemove(
+  toTransform: RemoveRowsCommand,
+  executed: RemoveRowsCommand
+): RemoveRowsCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const rowsToRemove = toTransform.rows
+    .map((row) => {
+      if (executed.rows.includes(row)) {
+        return undefined;
+      }
+      for (let removedCol of executed.rows) {
+        if (row > removedCol) {
+          row--;
+        }
+      }
+      return row;
+    })
+    .filter(isDefined);
+  if (!rowsToRemove.length) {
+    return undefined;
+  }
+  return { ...toTransform, rows: rowsToRemove };
 }

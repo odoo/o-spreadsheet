@@ -137,4 +137,46 @@ describe("OT with REMOVE_COLUMN", () => {
       });
     }
   );
+  describe("OT with two remove columns", () => {
+    const toTransform: Omit<RemoveColumnsCommand, "columns"> = {
+      type: "REMOVE_COLUMNS",
+      sheetId,
+    };
+
+    test("Remove a column which is in the removed columns", () => {
+      const command = { ...toTransform, columns: [2] };
+      const result = transform(command, removeColumns);
+      expect(result).toBeUndefined();
+    });
+
+    test("Remove columns with one in the removed columns", () => {
+      const command = { ...toTransform, columns: [0, 2] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, columns: [0] });
+    });
+
+    test("Remove a column before removed columns", () => {
+      const command = { ...toTransform, columns: [0] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+
+    test("Remove a column after removed columns", () => {
+      const command = { ...toTransform, columns: [8] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, columns: [5] });
+    });
+
+    test("Remove a column inside removed columns", () => {
+      const command = { ...toTransform, columns: [4] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, columns: [2] });
+    });
+
+    test("Remove a column on another sheet", () => {
+      const command = { ...toTransform, columns: [4], sheetId: "42" };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+  });
 });
