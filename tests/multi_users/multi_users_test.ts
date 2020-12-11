@@ -107,20 +107,24 @@ describe("Multi users synchronisation", () => {
       setCellContent(bob, "A1", "Hi Alice");
       expect(getCellContent(bob, "A1")).toBe("Hi Alice");
     });
-    expect(getCellContent(alice, "A1")).toBe("Hi Alice");
-    expect(getCellContent(bob, "A1")).toBe("Hi Alice");
-    expect(getCellContent(charly, "A1")).toBe("Hi Alice");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "Hi Alice"
+    );
   });
 
   test("update the same cell sequentially", () => {
     setCellContent(alice, "A1", "hello Bob");
-    expect(getCellContent(alice, "A1")).toBe("hello Bob");
-    expect(getCellContent(bob, "A1")).toBe("hello Bob");
-    expect(getCellContent(charly, "A1")).toBe("hello Bob");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "hello Bob"
+    );
+
     setCellContent(bob, "A1", "Hi Alice");
-    expect(getCellContent(alice, "A1")).toBe("Hi Alice");
-    expect(getCellContent(bob, "A1")).toBe("Hi Alice");
-    expect(getCellContent(charly, "A1")).toBe("Hi Alice");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "Hi Alice"
+    );
   });
 
   // test("three concurrent and conflicting updates while one client is disconnected", () => {
@@ -173,8 +177,11 @@ describe("Multi users synchronisation", () => {
 
   test("update and delete the same cell concurrently", () => {
     setCellContent(alice, "A1", "Hi");
-    expect(getCellContent(alice, "A1")).toBe("Hi");
-    expect(getCellContent(bob, "A1")).toBe("Hi");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "Hi"
+    );
+
     network.concurrent(() => {
       setCellContent(alice, "A1", "hello");
       expect(getCellContent(alice, "A1")).toBe("hello");
@@ -182,23 +189,26 @@ describe("Multi users synchronisation", () => {
       clearCell(bob, "A1");
       expect(getCell(bob, "A1")).toBeUndefined();
     });
-    expect(getCell(alice, "A1")).toBeUndefined();
-    expect(getCell(bob, "A1")).toBeUndefined();
-    expect(getCell(charly, "A1")).toBeUndefined();
+
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
   });
 
   test("delete and update the same empty cell concurrently", () => {
     setCellContent(alice, "A1", "hello");
-    expect(getCellContent(alice, "A1")).toBe("hello");
-    expect(getCellContent(bob, "A1")).toBe("hello");
-    expect(getCellContent(charly, "A1")).toBe("hello");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "hello"
+    );
+
     network.concurrent(() => {
       clearCell(alice, "A1");
       setCellContent(bob, "A1", "Hi");
     });
-    expect(getCellContent(alice, "A1")).toBe("Hi");
-    expect(getCellContent(bob, "A1")).toBe("Hi");
-    expect(getCellContent(charly, "A1")).toBe("Hi");
+
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "Hi"
+    );
   });
 
   test("Update a cell and merge a cell concurrently", () => {
@@ -209,9 +219,8 @@ describe("Multi users synchronisation", () => {
         zone: toZone("A1:B2"),
       });
     });
-    expect(getCell(alice, "B2")).toBeUndefined();
-    expect(getCell(bob, "B2")).toBeUndefined();
-    expect(getCell(charly, "B2")).toBeUndefined();
+
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B2"), undefined);
   });
 
   test("Merge a cell and update a cell concurrently", () => {
@@ -223,9 +232,8 @@ describe("Multi users synchronisation", () => {
       });
       setCellContent(bob, "B3", "Hi Alice");
     });
-    expect(getCell(alice, "B3")).toBeUndefined();
-    expect(getCell(bob, "B3")).toBeUndefined();
-    expect(getCell(charly, "B3")).toBeUndefined();
+
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect(alice.getters.getMerges(sheetId)).toMatchObject([
       { bottom: 2, left: 0, top: 0, right: 1, topLeft: "A1" },
     ]);
@@ -329,9 +337,11 @@ describe("Multi users synchronisation", () => {
         content: "hello",
         sheetId: alice.getters.getActiveSheetId(),
       });
-      expect(getCellContent(alice, "A1")).toBe("hello");
-      expect(getCellContent(bob, "A1")).toBe("hello");
-      expect(getCellContent(charly, "A1")).toBe("hello");
+
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "hello"
+      );
       const spy = jest.spyOn(network, "sendMessage");
       alice.dispatch("UNDO");
       expect(spy).toHaveBeenCalledTimes(1);
@@ -339,50 +349,62 @@ describe("Multi users synchronisation", () => {
       expect(getCell(bob, "A1")).toBeUndefined();
       expect(getCell(charly, "A1")).toBeUndefined();
       alice.dispatch("REDO");
-      expect(getCellContent(bob, "A1")).toBe("hello");
-      expect(getCellContent(charly, "A1")).toBe("hello");
-      expect(getCellContent(alice, "A1")).toBe("hello");
+
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "hello"
+      );
       // expect([alice, bob, charly]).toBeSynchronized()
     });
     test("Undo/redo your own change only", () => {
       setCellContent(alice, "A1", "hello in A1");
       setCellContent(bob, "B2", "hello in B2");
-      expect(getCellContent(alice, "A1")).toBe("hello in A1");
-      expect(getCellContent(bob, "A1")).toBe("hello in A1");
-      expect(getCellContent(charly, "A1")).toBe("hello in A1");
-      expect(getCellContent(alice, "B2")).toBe("hello in B2");
-      expect(getCellContent(bob, "B2")).toBe("hello in B2");
-      expect(getCellContent(charly, "B2")).toBe("hello in B2");
+
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "hello in A1"
+      );
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "B2"),
+        "hello in B2"
+      );
       alice.dispatch("UNDO");
-      expect(getCell(alice, "A1")).toBeUndefined();
-      expect(getCell(bob, "A1")).toBeUndefined();
-      expect(getCell(charly, "A1")).toBeUndefined();
-      expect(getCellContent(alice, "B2")).toBe("hello in B2");
-      expect(getCellContent(bob, "B2")).toBe("hello in B2");
-      expect(getCellContent(charly, "B2")).toBe("hello in B2");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCell(user, "A1"),
+        undefined
+      );
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "B2"),
+        "hello in B2"
+      );
       alice.dispatch("REDO");
-      expect(getCellContent(alice, "A1")).toBe("hello in A1");
-      expect(getCellContent(bob, "A1")).toBe("hello in A1");
-      expect(getCellContent(charly, "A1")).toBe("hello in A1");
-      expect(getCellContent(alice, "B2")).toBe("hello in B2");
-      expect(getCellContent(bob, "B2")).toBe("hello in B2");
-      expect(getCellContent(charly, "B2")).toBe("hello in B2");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "hello in A1"
+      );
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "B2"),
+        "hello in B2"
+      );
     });
     test("Undo two commands from differents users", () => {
       addColumns(alice, "before", "B", 1);
       addColumns(bob, "after", "A", 1);
       setCellContent(charly, "D1", "hello in D1");
-      expect(getCellContent(alice, "D1")).toBe("hello in D1");
-      expect(getCellContent(bob, "D1")).toBe("hello in D1");
-      expect(getCellContent(charly, "D1")).toBe("hello in D1");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "D1"),
+        "hello in D1"
+      );
       alice.dispatch("UNDO");
-      expect(getCellContent(alice, "C1")).toBe("hello in D1");
-      expect(getCellContent(bob, "C1")).toBe("hello in D1");
-      expect(getCellContent(charly, "C1")).toBe("hello in D1");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "C1"),
+        "hello in D1"
+      );
       bob.dispatch("UNDO");
-      expect(getCellContent(alice, "B1")).toBe("hello in D1");
-      expect(getCellContent(bob, "B1")).toBe("hello in D1");
-      expect(getCellContent(charly, "B1")).toBe("hello in D1");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "B1"),
+        "hello in D1"
+      );
     });
   });
 

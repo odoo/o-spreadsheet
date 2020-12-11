@@ -2,22 +2,70 @@ import {
   AddColumnsCommand,
   AddRowsCommand,
   CoreCommand,
+  CoreCommandTypes,
   RemoveColumnsCommand,
   RemoveRowsCommand,
 } from "../types";
 
+type InverseMap = Record<CoreCommandTypes, (cmd: CoreCommand) => CoreCommand>;
+
+const map: InverseMap = {
+  /** CELLS */
+  UPDATE_CELL: identity,
+  UPDATE_CELL_POSITION: identity,
+  CLEAR_CELL: identity,
+  DELETE_CONTENT: identity,
+
+  /** GRID SHAPE */
+  ADD_COLUMNS: inverseAddColumns,
+  ADD_ROWS: inverseAddRows,
+  REMOVE_COLUMNS: todo,
+  REMOVE_ROWS: todo,
+  RESIZE_COLUMNS: todo,
+  RESIZE_ROWS: todo,
+
+  /** MERGE */
+  ADD_MERGE: todo,
+  REMOVE_MERGE: todo,
+
+  /** SHEETS MANIPULATION */
+  CREATE_SHEET: todo,
+  DELETE_SHEET: todo,
+  DUPLICATE_SHEET: todo,
+  MOVE_SHEET: todo,
+  RENAME_SHEET: todo,
+
+  /** CONDITIONAL FORMAT */
+  ADD_CONDITIONAL_FORMAT: todo,
+  REMOVE_CONDITIONAL_FORMAT: todo,
+
+  /** FIGURES */
+  CREATE_FIGURE: todo,
+  DELETE_FIGURE: todo,
+  UPDATE_FIGURE: todo,
+
+  /** FORMATTING */
+  SET_FORMATTING: todo,
+  CLEAR_FORMATTING: todo,
+  SET_BORDER: todo,
+  SET_DECIMAL: todo,
+
+  /** CHART */
+  CREATE_CHART: todo,
+  UPDATE_CHART: todo,
+};
+
+function identity(cmd: CoreCommand): CoreCommand {
+  return cmd;
+}
+
+function todo(cmd: CoreCommand): CoreCommand {
+  // console.warn(`Not implemented: ${cmd.type}`);
+  return identity(cmd);
+}
+
 export function inverseCommand(cmd: CoreCommand): CoreCommand {
-  switch (cmd.type) {
-    case "ADD_COLUMNS":
-      return inverseAddColumns(cmd);
-    case "ADD_ROWS":
-      return inverseAddRows(cmd);
-    // case "REMOVE_COLUMNS":
-    //   return inverseRemoveColumns(cmd);
-    default:
-      // console.warn(`No inverse implementation of ${cmd.type}`);
-      return cmd;
-  }
+  return map[cmd.type](cmd);
 }
 
 function inverseAddColumns(cmd: AddColumnsCommand): RemoveColumnsCommand {

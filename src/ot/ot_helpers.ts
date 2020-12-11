@@ -13,10 +13,6 @@ import {
 } from "../types/commands";
 
 type SheetyCommand = Extract<CoreCommand, { sheetId: UID }>;
-// interface PositionalCommand {
-//   col: number;
-//   row: number;
-// }
 
 type CellCommand = UpdateCellPositionCommand | UpdateCellCommand | ClearCellCommand;
 type TargetCommand = Extract<CoreCommand, { target: Zone[] }>;
