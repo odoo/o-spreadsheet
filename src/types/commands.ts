@@ -36,7 +36,8 @@ export interface BaseCommand {
   interactive?: boolean;
 }
 
-const coreTypes = new Set<CoreCommandTypes>([
+// Exported to be used in ot_completude_test.ts
+export const coreTypes = new Set<CoreCommandTypes>([
   // ...
 
   /** CELLS */
@@ -232,7 +233,7 @@ export interface AddConditionalFormatCommand extends BaseCommand {
 export interface RemoveConditionalFormatCommand extends BaseCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
-  sheetId: UID;
+  sheetId: UID; //TODO PRO Not needed I think
 }
 
 //------------------------------------------------------------------------------

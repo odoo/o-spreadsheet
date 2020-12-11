@@ -1,3 +1,4 @@
+import { tokenize } from "../formulas";
 import { toXC } from "../helpers/coordinates";
 import { isInside } from "../helpers/zones";
 import { OTRegistry } from "../registries/ot_registry";
@@ -8,28 +9,41 @@ import {
   AddColumnsCommand,
   RemoveRowsCommand,
   RemoveColumnsCommand,
-  DeleteSheetCommand,
   CoreCommand,
+  RenameSheetCommand,
 } from "../types";
+import { sheetDeleted } from "./ot_helpers";
 
-export const registry = new OTRegistry();
+export function transform(
+  toTransform: CoreCommand,
+  executed: CoreCommand
+): CoreCommand | undefined {
+  const ot = otRegistry.getTransformation(toTransform.type, executed.type);
+  return ot ? ot(toTransform, executed) : toTransform;
+}
 
-registry
-  .addTransformation(
-    "UPDATE_CELL",
-    "UPDATE_CELL",
-    (toTransform: UpdateCellCommand, executed: UpdateCellCommand): UpdateCellCommand => {
-      // could be style and content => be "smart"
-      if (
-        toTransform.sheetId !== executed.sheetId ||
-        toTransform.col !== executed.col ||
-        toTransform.row !== executed.row
-      ) {
-        return toTransform;
-      }
-      return toTransform;
-    }
-  )
+export const otRegistry = new OTRegistry();
+
+otRegistry.addTransformation("UPDATE_CELL", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("CLEAR_CELL", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("DELETE_CONTENT", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("ADD_COLUMNS", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("ADD_ROWS", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("REMOVE_COLUMNS", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("REMOVE_ROWS", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("ADD_MERGE", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("REMOVE_MERGE", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("MOVE_SHEET", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("RENAME_SHEET", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("ADD_CONDITIONAL_FORMAT", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("CREATE_FIGURE", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("SET_FORMATTING", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("CLEAR_FORMATTING", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("SET_BORDER", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("SET_DECIMAL", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("CREATE_CHART", "DELETE_SHEET", sheetDeleted);
+
+otRegistry
   .addTransformation(
     "UPDATE_CELL",
     "ADD_MERGE",
@@ -118,35 +132,4 @@ registry
       }
       return toTransform;
     }
-  )
-  // .addTransformation(
-  //   "UPDATE_CELL",
-  //   "DUPLICATE_SHEET",
-  //   (toTransform: UpdateCellCommand, executed: DuplicateSheetCommand): UpdateCellCommand => {
-  //     // if (toTransform.sheetId !== executed.sheetIdFrom) {
-  //       // return toTransform;
-  //     // }
-  //     // return [toTransform, Object.assign({}, toTransform, { sheetId: executed.sheetIdTo })];
-  //   }
-  // )
-  .addTransformation(
-    "UPDATE_CELL",
-    "DELETE_SHEET",
-    (
-      toTransform: UpdateCellCommand,
-      executed: DeleteSheetCommand
-    ): UpdateCellCommand | undefined => {
-      if (toTransform.sheetId !== executed.sheetId) {
-        return toTransform;
-      }
-      return undefined;
-    }
   );
-
-export function transform(
-  toTransform: CoreCommand,
-  executed: CoreCommand
-): CoreCommand | undefined {
-  const ot = registry.getTransformation(toTransform.type, executed.type);
-  return ot ? ot(toTransform, executed) : toTransform;
-}
