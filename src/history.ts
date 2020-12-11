@@ -245,8 +245,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
       if (!alreadyFindRemote && tr !== remoteTransaction) {
         this.banane(tr, tr.commands);
         localBeforeRemoteCome.push(...tr.commands);
-      }
-      else if (tr === remoteTransaction) {
+      } else if (tr === remoteTransaction) {
         alreadyFindRemote = true;
         for (let localBefore of localBeforeRemoteCome) {
           remoteCommands = transformAll(remoteCommands, localBefore);
@@ -290,7 +289,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   }
 
   /**
-   * 
+   *
    */
   private banane(historyStep: HistoryStep, commands: CoreCommand[]) {
     this.historyStep = historyStep;

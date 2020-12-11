@@ -97,7 +97,7 @@ describe("OT with REMOVE_COLUMN", () => {
     step: 1,
   };
 
-  describe.each([deleteContent , setFormatting, clearFormatting, setDecimal])(
+  describe.each([deleteContent, setFormatting, clearFormatting, setDecimal])(
     "target commands",
     (cmd) => {
       test(`remove columns before ${cmd.type}`, () => {

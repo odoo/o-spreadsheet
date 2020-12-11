@@ -1,9 +1,5 @@
 import { transform } from "../../src/ot/ot";
-import {
-  AddMergeCommand,
-  UpdateCellCommand,
-  DuplicateSheetCommand,
-} from "../../src/types";
+import { AddMergeCommand, UpdateCellCommand, DuplicateSheetCommand } from "../../src/types";
 import "../canvas.mock";
 
 describe("UPDATE_CELL transformations", () => {
@@ -171,8 +167,6 @@ describe("UPDATE_CELL transformations", () => {
       expect(result).toEqual(updateCell);
     });
   });
-
-  
 
   describe("UPDATE_CELL & DUPLICATE_SHEET", () => {
     test("Duplicate the sheet on which the update cell is triggered", () => {
