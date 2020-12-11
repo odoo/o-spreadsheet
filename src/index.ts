@@ -1,6 +1,14 @@
 import { toBoolean, toNumber, toString } from "./functions/helpers";
 import { args, functionRegistry } from "./functions/index";
-import { numberToLetters, toXC, toZone, toCartesian, uuidv4, formatDecimal } from "./helpers/index";
+import {
+  numberToLetters,
+  toXC,
+  toZone,
+  toCartesian,
+  uuidv4,
+  formatDecimal,
+  computeTextWidth,
+} from "./helpers/index";
 import { uiPluginRegistry, corePluginRegistry } from "./plugins/index";
 import {
   autofillModifiersRegistry,
@@ -35,10 +43,12 @@ import {
  */
 
 export const __info__ = {};
-export { BasePlugin } from "./plugins/base_plugin";
+export { CorePlugin } from "./plugins/core_plugin";
+export { UIPlugin } from "./plugins/ui_plugin";
 export { Spreadsheet } from "./components/index";
 export { Model } from "./model";
 export { parse, astToFormula } from "./formulas/parser";
+export { normalize } from "./formulas/index";
 export { setTranslationMethod } from "./translation";
 export { DEBUG as __DEBUG__ } from "./helpers/index";
 export { functionCache } from "./formulas/compiler";
@@ -81,4 +91,5 @@ export const helpers = {
   createFullMenuItem,
   uuidv4,
   formatDecimal,
+  computeTextWidth,
 };

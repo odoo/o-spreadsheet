@@ -1,13 +1,9 @@
 import { CancelledReason, Command, CommandResult, Sheet, UID, Cell, Zone } from "../../types";
 import { UIPlugin } from "../ui_plugin";
-import {
-  DEFAULT_FONT_WEIGHT,
-  DEFAULT_FONT_SIZE,
-  DEFAULT_FONT,
-  PADDING_AUTORESIZE,
-} from "../../constants";
+import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE } from "../../constants";
 import { fontSizeMap } from "../../fonts";
 import { _lt } from "../../translation";
+import { computeTextWidth } from "../../helpers/index";
 
 interface UIState {
   activeSheet: Sheet;
@@ -153,13 +149,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
       this.getters.getActiveSheetId(),
       this.getters.shouldShowFormulas()
     );
-    const style = this.getters.getCellStyle(cell);
-    const italic = style.italic ? "italic " : "";
-    const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-    const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
-    const size = fontSizeMap[sizeInPt];
-    this.ctx.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
-    return this.ctx.measureText(text).width;
+    return computeTextWidth(this.ctx, text, this.getters.getCellStyle(cell));
   }
 
   getCellHeight(cell: Cell): number {

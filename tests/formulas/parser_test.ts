@@ -1,4 +1,4 @@
-import { parse } from "../../src/formulas";
+import { normalize, parse } from "../../src/formulas";
 import { astToFormula } from "../../src";
 
 describe("parser", () => {
@@ -171,10 +171,10 @@ describe("Converting AST to string", () => {
   test("Convert binary operator", () => {
     expect(astToFormula(parse("89-45"))).toBe("89-45");
   });
-  test.skip("Convert reference", () => {
-    expect(astToFormula(parse("A10"))).toBe("A10");
-    expect(astToFormula(parse("$A$10"))).toBe("A10");
-    expect(astToFormula(parse("Sheet1!A10"))).toBe("Sheet1!A10");
+  test("Convert reference", () => {
+    expect(astToFormula(parse(normalize("A10").text))).toBe("|0|");
+    expect(astToFormula(parse(normalize("$A$10").text))).toBe("|0|");
+    expect(astToFormula(parse(normalize("Sheet1!A10").text))).toBe("|0|");
   });
   test("Convert function", () => {
     expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");
