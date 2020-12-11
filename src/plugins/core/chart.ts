@@ -7,6 +7,7 @@ import {
   CommandResult,
   CreateChartDefinition,
   DataSet,
+  UID,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -63,7 +64,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.history.update("chartFigures", new Set(this.chartFigures).add(cmd.id));
         break;
       case "UPDATE_CHART": {
-        const chartDefinition = this.getChartDefinition(cmd.id);
+        const chartDefinition = this.getChartDefinition(cmd.sheetId, cmd.id);
         if (chartDefinition === undefined) {
           break;
         }
@@ -72,6 +73,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           chartDefinition.sheetId
         );
         this.dispatch("UPDATE_FIGURE", {
+          sheetId: cmd.sheetId,
           id: cmd.id,
           data: newChartDefinition,
         });
@@ -91,8 +93,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartDefinition(figureId: string): ChartDefinition | undefined {
-    const figure = this.getters.getFigure<ChartDefinition>(figureId);
+  getChartDefinition(sheetId: UID, figureId: UID): ChartDefinition | undefined {
+    const figure = this.getters.getFigure<ChartDefinition>(sheetId, figureId);
     return figure ? figure.data : undefined;
   }
 

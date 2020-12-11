@@ -1,5 +1,5 @@
 import { ConditionalFormat } from "./conditional_formatting";
-import { Border, Style } from "./misc";
+import { Border, Style, UID } from "./misc";
 
 export type NormalizedFormula = {
   // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as
@@ -21,7 +21,7 @@ export interface HeaderData {
 }
 
 export interface Figure<T> {
-  id: string;
+  id: UID;
   x: number;
   y: number;
   width: number;

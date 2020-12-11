@@ -627,7 +627,11 @@ describe("sheets", () => {
       },
     });
     model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: "42", name: "dup" });
-    model.dispatch("UPDATE_FIGURE", { id: "someuuid", x: 40 });
+    model.dispatch("UPDATE_FIGURE", {
+      sheetId: sheet,
+      id: "someuuid",
+      x: 40,
+    });
     const data = model.exportData();
 
     const sheet1 = data.sheets.find((s) => s.id === sheet)!;

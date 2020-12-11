@@ -14,6 +14,11 @@ interface FigureInfo {
   figure: Figure<any>;
 }
 
+interface Update extends Partial<Figure<any>> {
+  sheetId: string;
+  id: string;
+}
+
 const TEMPLATE = xml/* xml */ `<div>
     <t t-foreach="getFigures()" t-as="info" t-key="info.id">
         <div class="o-figure-wrapper"
@@ -221,14 +226,19 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
-      const update: Partial<Figure<any>> = { id: figure.id, x: this.dnd.x, y: this.dnd.y };
+      const update: Update = {
+        sheetId: this.getters.getActiveSheetId(),
+        id: figure.id,
+        x: this.dnd.x,
+        y: this.dnd.y,
+      };
       if (dirX) {
         update.width = this.dnd.width;
       }
       if (dirY) {
         update.height = this.dnd.height;
       }
-      this.dispatch("UPDATE_FIGURE", update as any);
+      this.dispatch("UPDATE_FIGURE", update);
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -253,7 +263,12 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
-      this.dispatch("UPDATE_FIGURE", { id: figure.id, x: this.dnd.x, y: this.dnd.y });
+      this.dispatch("UPDATE_FIGURE", {
+        sheetId: this.getters.getActiveSheetId(),
+        id: figure.id,
+        x: this.dnd.x,
+        y: this.dnd.y,
+      });
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -262,7 +277,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     switch (ev.key) {
       case "Delete":
         ev.preventDefault();
-        this.dispatch("DELETE_FIGURE", { id: figure.id });
+        this.dispatch("DELETE_FIGURE", { sheetId: this.getters.getActiveSheetId(), id: figure.id });
         this.trigger("figure-deleted");
         break;
     }

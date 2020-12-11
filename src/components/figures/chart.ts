@@ -7,7 +7,7 @@ const { useRef } = hooks;
 
 const TEMPLATE = xml/* xml */ `
 <div class="o-chart-container">
-    <canvas t-ref="graphContainer" />
+  <canvas t-ref="graphContainer"/>
 </div>`;
 
 // -----------------------------------------------------------------------------
@@ -18,7 +18,6 @@ const CSS = css/* scss */ `
     width: 100%;
     height: 100%;
     position: relative;
-
     > canvas {
       background-color: white;
     }
@@ -43,7 +42,10 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
   patched() {
     const figure = this.props.figure;
-    const chartData = this.env.getters.getChartRuntime(figure.id);
+    const chartData = this.env.getters.getChartRuntime(
+      this.env.getters.getActiveSheetId(),
+      figure.id
+    );
     if (chartData) {
       if (chartData.data && chartData.data.datasets) {
         Object.assign(this.chart!.data!.datasets, chartData.data.datasets);
@@ -60,7 +62,10 @@ export class ChartFigure extends Component<Props, SpreadsheetEnv> {
 
   private createChart() {
     const figure = this.props.figure;
-    const charData = this.env.getters.getChartRuntime(figure.id);
+    const charData = this.env.getters.getChartRuntime(
+      this.env.getters.getActiveSheetId(),
+      figure.id
+    );
     if (charData) {
       const canvas = this.canvas.el as HTMLCanvasElement;
       const ctx = canvas.getContext("2d")!;
