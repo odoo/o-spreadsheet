@@ -2,6 +2,10 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
+import { fontSizeMap } from "../fonts";
+import { Style } from "../types";
+
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.
@@ -34,6 +38,15 @@ export function getComposerSheetName(sheetName: string): string {
 
 export function clip(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
+}
+
+export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
+  const italic = style.italic ? "italic " : "";
+  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+  const sizeInPt = style.fontSize || DEFAULT_FONT_SIZE;
+  const size = fontSizeMap[sizeInPt];
+  context.font = `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+  return context.measureText(text).width;
 }
 
 /**
