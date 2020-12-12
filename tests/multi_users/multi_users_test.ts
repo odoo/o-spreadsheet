@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import { WorkbookData } from "../../src/types";
+import { CancelledReason, WorkbookData } from "../../src/types";
 import { addColumns, clearCell, getCell, getCellContent, setCellContent } from "../helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
@@ -405,6 +405,20 @@ describe("Multi users synchronisation", () => {
         (user) => getCellContent(user, "B1"),
         "hello in D1"
       );
+    });
+    test("Undo a create sheet command", () => {
+      const sheetId = "42";
+      alice.dispatch("CREATE_SHEET", { sheetId, position: 0 });
+      setCellContent(bob, "A1", "Hello in A1", sheetId);
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1", sheetId),
+        "Hello in A1"
+      );
+      alice.dispatch("UNDO");
+      expect(bob.dispatch("UNDO")).toEqual({
+        status: "CANCELLED",
+        reason: CancelledReason.EmptyUndoStack,
+      });
     });
   });
 

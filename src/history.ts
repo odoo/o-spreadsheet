@@ -293,6 +293,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
    */
   private banane(historyStep: HistoryStep, commands: CoreCommand[]) {
     this.historyStep = historyStep;
+    this.historyStep.changes = [];
     for (let cmd of commands) {
       this.dispatch(cmd.type, cmd);
     }
