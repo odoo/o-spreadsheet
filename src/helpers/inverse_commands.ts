@@ -1,9 +1,17 @@
 import {
   AddColumnsCommand,
+  AddMergeCommand,
   AddRowsCommand,
   CoreCommand,
   CoreCommandTypes,
+  CreateFigureCommand,
+  CreateSheetCommand,
+  DeleteContentCommand,
+  DeleteFigureCommand,
+  DeleteSheetCommand,
+  DuplicateSheetCommand,
   RemoveColumnsCommand,
+  RemoveMergeCommand,
   RemoveRowsCommand,
 } from "../types";
 
@@ -21,17 +29,17 @@ const map: InverseMap = {
   ADD_ROWS: inverseAddRows,
   REMOVE_COLUMNS: todo,
   REMOVE_ROWS: todo,
-  RESIZE_COLUMNS: todo,
-  RESIZE_ROWS: todo,
+  RESIZE_COLUMNS: identity,
+  RESIZE_ROWS: identity,
 
   /** MERGE */
-  ADD_MERGE: todo,
-  REMOVE_MERGE: todo,
+  ADD_MERGE: inverseAddMerge,
+  REMOVE_MERGE: inverseRemoveMerge,
 
   /** SHEETS MANIPULATION */
-  CREATE_SHEET: todo,
+  CREATE_SHEET: inverseCreateSheet,
   DELETE_SHEET: todo,
-  DUPLICATE_SHEET: todo,
+  DUPLICATE_SHEET: inverseDuplicateSheet,
   MOVE_SHEET: todo,
   RENAME_SHEET: todo,
 
@@ -42,17 +50,17 @@ const map: InverseMap = {
   /** FIGURES */
   CREATE_FIGURE: todo,
   DELETE_FIGURE: todo,
-  UPDATE_FIGURE: todo,
+  UPDATE_FIGURE: identity,
 
   /** FORMATTING */
-  SET_FORMATTING: todo,
-  CLEAR_FORMATTING: todo,
-  SET_BORDER: todo,
-  SET_DECIMAL: todo,
+  SET_FORMATTING: identity,
+  CLEAR_FORMATTING: identity,
+  SET_BORDER: identity,
+  SET_DECIMAL: identity,
 
   /** CHART */
   CREATE_CHART: todo,
-  UPDATE_CHART: todo,
+  UPDATE_CHART: identity,
 };
 
 function identity(cmd: CoreCommand): CoreCommand {
@@ -99,6 +107,32 @@ function inverseAddRows(cmd: AddRowsCommand): RemoveRowsCommand {
     sheetId: cmd.sheetId,
   };
 }
+
+function inverseAddMerge(cmd: AddMergeCommand): RemoveMergeCommand {
+  return { type: "REMOVE_MERGE", sheetId: cmd.sheetId, zone: cmd.zone };
+}
+
+function inverseRemoveMerge(cmd: RemoveMergeCommand): AddMergeCommand {
+  return { type: "ADD_MERGE", sheetId: cmd.sheetId, zone: cmd.zone };
+}
+
+function inverseCreateSheet(cmd: CreateSheetCommand): DeleteSheetCommand {
+  return { type: "DELETE_SHEET", sheetId: cmd.sheetId };
+}
+
+function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand {
+  return { type: "DELETE_SHEET", sheetId: cmd.sheetIdTo };
+}
+
+// function inverseCreateFigure(cmd: CreateFigureCommand):DeleteFigureCommand{
+//   //TODO ID
+//   return{type:"DELETE_FIGURE",id:cmd.}
+// }
+
+// function inverseDeleteSheet(cmd:DeleteSheetCommand):CreateSheetCommand{
+//   //TODO Position ?
+//   return{type:"CREATE_SHEET",sheetId:cmd.sheetId}
+// }
 
 // function inverseRemoveColumns(cmd: RemoveColumnsCommand): AddColumnsCommand {
 
