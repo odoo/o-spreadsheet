@@ -21,6 +21,14 @@ export interface Arg {
   defaultValue?: any;
 }
 
+export enum ReturnFormatType {
+  FormatFromArgument = "FormatFromArgument",
+}
+
+export interface ReturnSpecificFormat {
+  specificFormat: string;
+}
+
 export interface AddFunctionDescription {
   description: string;
   compute: (this: EvalContext, ...args: any[]) => any;
@@ -28,6 +36,7 @@ export interface AddFunctionDescription {
   category?: string;
   args: Arg[];
   returns: [ArgType];
+  returnFormat?: ReturnFormatType.FormatFromArgument | ReturnSpecificFormat;
 }
 
 export interface FunctionDescription extends AddFunctionDescription {

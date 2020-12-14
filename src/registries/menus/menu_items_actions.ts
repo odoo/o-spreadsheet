@@ -394,7 +394,7 @@ export const CREATE_CHART = (env: SpreadsheetEnv) => {
 // Style/Format
 //------------------------------------------------------------------------------
 
-export const FORMAT_AUTO_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "");
+export const FORMAT_GENERAL_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "");
 
 export const FORMAT_NUMBER_ACTION = (env: SpreadsheetEnv) => setFormatter(env, "#,##0.00");
 

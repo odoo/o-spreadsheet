@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/index";
-import { CompiledFormula, NormalizedFormula } from "../types/index";
+import { CompiledFormula, NormalizedFormula, FunctionDescription } from "../types/index";
 import { AST, ASTAsyncFuncall, ASTFuncall, parse } from "./parser";
 import { _lt } from "../translation";
 
@@ -50,6 +50,22 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     if (ast.type === "UNKNOWN") {
       throw new Error(_lt("Invalid formula"));
     }
+
+    code.push(`return ${compileAST(ast)};`);
+
+    const Constructor = isAsync ? AsyncFunction : Function;
+    let baseFunction = new Constructor(
+      "deps", // the dependencies in the current formula
+      "sheetId", // the sheet the formula is currently evaluating
+      "ref", // a function to access a certain dependency at a given index
+      "range", // same as above, but guarantee that the result is in the form of a range
+      "ctx",
+      code.join("\n")
+    );
+
+    functionCache[str.text] = baseFunction;
+    functionCache[str.text].async = isAsync;
+    functionCache[str.text].dependenciesFormat = formatAST(ast);
 
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -169,8 +185,8 @@ export function compile(str: NormalizedFormula): CompiledFormula {
           statement = `${ast.value}`;
           break;
         case "REFERENCE":
-          const referenceText = str.dependencies[ast.value];
-          if (!referenceText) {
+          const referenceIndex = str.dependencies[ast.value];
+          if (!referenceIndex) {
             id = nextId++;
             statement = `null`;
             break;
@@ -224,20 +240,66 @@ export function compile(str: NormalizedFormula): CompiledFormula {
       return `_${id}`;
     }
 
-    code.push(`return ${compileAST(ast)};`);
-
-    const Constructor = isAsync ? AsyncFunction : Function;
-    let baseFunction = new Constructor(
-      "deps", // the dependencies in the current formula
-      "sheetId", // the sheet the formula is currently evaluating
-      "ref", // a function to access a certain dependency at a given index
-      "range", // same as above, but guarantee that the result is in the form of a range
-      "ctx",
-      code.join("\n")
-    );
-    functionCache[str.text] = baseFunction;
-    functionCache[str.text].async = isAsync;
+    /** Return a stack of formats corresponding to the priorities in which
+     * formats should be tested.
+     *
+     * If the value of the stack is a number it corresponds to a dependency from
+     * which the format can be inferred.
+     *
+     * If the value is a string it corresponds to a literal format which can be
+     * applied directly.
+     * */
+    function formatAST(ast: AST): (string | number)[] {
+      let fnDef: FunctionDescription;
+      switch (ast.type) {
+        case "REFERENCE":
+          const referenceIndex = str.dependencies[ast.value];
+          if (referenceIndex) {
+            return [ast.value];
+          }
+          break;
+        case "FUNCALL":
+        case "ASYNC_FUNCALL":
+          fnDef = functions[ast.value.toUpperCase()];
+          if (fnDef.returnFormat) {
+            if (fnDef.returnFormat === "FormatFromArgument") {
+              if (ast.args.length > 0) {
+                const argPosition = 0;
+                const argType = fnDef.args[argPosition].type;
+                if (!argType.includes("META")) {
+                  return formatAST(ast.args[argPosition]);
+                }
+              }
+            } else {
+              return [fnDef.returnFormat.specificFormat];
+            }
+          }
+          break;
+        case "UNARY_OPERATION":
+          return formatAST(ast.right);
+        case "BIN_OPERATION":
+          // the BIN_OPERATION ast is the only function case where we will look
+          // at the following argument when the current argument has't format.
+          // So this is the only place where the stack can grow.
+          fnDef = functions[OPERATOR_MAP[ast.value]];
+          if (fnDef.returnFormat) {
+            if (fnDef.returnFormat === "FormatFromArgument") {
+              const left = formatAST(ast.left);
+              // as a string represents a safe format, we don't need to know the
+              // format of the following arguments.
+              if (typeof left[left.length - 1] === "string") {
+                return left;
+              }
+              const right = formatAST(ast.right);
+              return left.concat(right);
+            } else {
+              return [fnDef.returnFormat.specificFormat];
+            }
+          }
+          break;
+      }
+      return [];
+    }
   }
-
   return functionCache[str.text];
 }

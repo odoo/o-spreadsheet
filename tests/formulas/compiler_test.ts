@@ -2,15 +2,15 @@ import { compile, normalize } from "../../src/formulas/index";
 import { functionCache } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
 import { evaluateCell } from "../helpers";
-import { NormalizedFormula, Range } from "../../src/types";
+import { NormalizedFormula, Range, CompiledFormula, ReturnFormatType } from "../../src/types";
 import { toZone } from "../../src/helpers";
 
-function compiledBaseFunction(formula: string): string {
+function compiledBaseFunction(formula: string): CompiledFormula {
   for (let f in functionCache) {
     delete functionCache[f];
   }
   compileFromCompleteFormula(formula);
-  return Object.values(functionCache)[0].toString();
+  return Object.values(functionCache)[0];
 }
 
 function compileFromCompleteFormula(formula: string) {
@@ -19,55 +19,188 @@ function compileFromCompleteFormula(formula: string) {
 }
 
 describe("expression compiler", () => {
-  test("simple values", () => {
-    expect(compiledBaseFunction("=1")).toMatchSnapshot();
-    expect(compiledBaseFunction("=true")).toMatchSnapshot();
-    expect(compiledBaseFunction(`="abc"`)).toMatchSnapshot();
+  test.each(["=1", "=true", `="abc"`])("some arithmetic expressions", (formula) => {
+    const compiledFormula = compiledBaseFunction(formula);
+    expect(compiledFormula.toString()).toMatchSnapshot();
+  });
 
+  test("simple values that throw error", () => {
     expect(() => compiledBaseFunction(`='abc'`)).toThrowError();
   });
 
-  test("some arithmetic expressions", () => {
-    expect(compiledBaseFunction("=1 + 3")).toMatchSnapshot();
-    expect(compiledBaseFunction("=2 * 3")).toMatchSnapshot();
-    expect(compiledBaseFunction("=2 - 3")).toMatchSnapshot();
-    expect(compiledBaseFunction("=2 / 3")).toMatchSnapshot();
-    expect(compiledBaseFunction("=-3")).toMatchSnapshot();
-    expect(compiledBaseFunction("=(3 + 1) * (-1 + 4)")).toMatchSnapshot();
-  });
+  test.each(["=1 + 3", "=2 * 3", "=2 - 3", "=2 / 3", "=-3", "=(3 + 1) * (-1 + 4)"])(
+    "some arithmetic expressions",
+    (formula) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.toString()).toMatchSnapshot();
+    }
+  );
 
-  test("function call", () => {
-    expect(compiledBaseFunction("=sum(1,2)")).toMatchSnapshot();
-    expect(compiledBaseFunction('=sum(true, "")')).toMatchSnapshot();
-    expect(compiledBaseFunction("=sum(1,,2)")).toMatchSnapshot();
-  });
+  test.each(["=sum(1,2)", '=sum(true, "")', "=sum(1,,2)"])(
+    "some arithmetic expressions",
+    (formula) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.toString()).toMatchSnapshot();
+    }
+  );
 
   test("read some values and functions", () => {
-    expect(compiledBaseFunction("=A1 + sum(A2:C3)")).toMatchSnapshot();
+    const compiledFormula = compiledBaseFunction("=A1 + sum(A2:C3)");
+    expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
   test("expression with $ref", () => {
-    expect(compiledBaseFunction("=$A1+$A$2+A$3")).toMatchSnapshot();
+    const compiledFormula = compiledBaseFunction("=$A1+$A$2+A$3");
+    expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
   test("expression with references with a sheet", () => {
-    expect(compiledBaseFunction("=Sheet34!B3")).toMatchSnapshot();
+    const compiledFormula = compiledBaseFunction("=Sheet34!B3");
+    expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
   test("expressions with a debugger", () => {
-    expect(compiledBaseFunction("=? A1 / 2")).toMatchSnapshot();
+    const compiledFormula = compiledBaseFunction("=? A1 / 2");
+    expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
   test("async functions", () => {
-    expect(compiledBaseFunction("=WAIT(5)")).toMatchSnapshot();
+    const compiledFormula = compiledBaseFunction("=WAIT(5)");
+    expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
   test("cells are converted to ranges if function require a range", () => {
-    expect(compiledBaseFunction("=sum(A1)")).toMatchSnapshot();
+    const compiledFormula = compiledBaseFunction("=sum(A1)");
+    expect(compiledFormula.toString()).toMatchSnapshot();
   });
 
   test("cannot compile some invalid formulas", () => {
     expect(() => compiledBaseFunction("=qsdf")).toThrow();
+  });
+});
+
+describe("compile dependencies format", () => {
+  functionRegistry.add("ANYFUNCTION", {
+    description: "any function",
+    compute: () => 42,
+    args: [{ name: "arg", description: "", type: ["ANY"], optional: true }],
+    returns: ["NUMBER"],
+  });
+
+  const format = { specificFormat: "dd/mm/yy" };
+  functionRegistry.add("RETURNFORMAT", {
+    description: "a function with a specific return format",
+    compute: () => 42,
+    args: [
+      { name: "arg1", description: "", type: ["ANY"], optional: true },
+      { name: "arg2", description: "", type: ["ANY"], optional: true },
+    ],
+    returns: ["NUMBER"],
+    returnFormat: format,
+  });
+
+  functionRegistry.add("RETURNARGSFORMAT", {
+    description: "a function that returns a value in the format of the first argument",
+    compute: () => 42,
+    args: [
+      { name: "arg1", description: "", type: ["ANY"], optional: true },
+      { name: "arg2", description: "", type: ["ANY"], optional: true },
+    ],
+    returns: ["NUMBER"],
+    returnFormat: ReturnFormatType.FormatFromArgument,
+  });
+
+  test.each(["=1", "=true", `="abc"`])("simple expressions don't return formats", (formula) => {
+    const compiledFormula = compiledBaseFunction(formula);
+    expect(compiledFormula.dependenciesFormat.length).toEqual(0);
+  });
+
+  test.each(["=A1", "=A1:B9", "=Sheet34!B3"])(
+    "expression with ref return ref dependency",
+    (formula) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.dependenciesFormat).toEqual([0]);
+    }
+  );
+
+  describe("expression with function", () => {
+    test.each(["=ANYFUNCTION()", "=ANYFUNCTION(21)", "=ANYFUNCTION(TRUE)", "=ANYFUNCTION(B1)"])(
+      "doesn't return formats, whatever args",
+      (formula) => {
+        const compiledFormula = compiledBaseFunction(formula);
+        expect(compiledFormula.dependenciesFormat.length).toEqual(0);
+      }
+    );
+
+    test.each(["=RETURNFORMAT()", "=RETURNFORMAT(21)", "=RETURNFORMAT(TRUE)", "=RETURNFORMAT(B1)"])(
+      "that has a specific return format return this specific return format, whatever args",
+      (formula) => {
+        const compiledFormula = compiledBaseFunction(formula);
+        expect(compiledFormula.dependenciesFormat).toEqual([format.specificFormat]);
+      }
+    );
+
+    test.each([
+      ["=RETURNARGSFORMAT()", []],
+      ["=RETURNARGSFORMAT(21)", []],
+      ["=RETURNARGSFORMAT(TRUE)", []],
+      ["=RETURNARGSFORMAT(B1)", [0]],
+      ["=RETURNARGSFORMAT(RETURNFORMAT(B1))", [format.specificFormat]],
+      ["=RETURNARGSFORMAT(21,B1)", []],
+    ])("that has 'ANY' as return format return the format of the first arg", (formula, result) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.dependenciesFormat).toEqual(result);
+    });
+  });
+
+  test.each([
+    ["=+1", []],
+    ["=+TRUE", []],
+    ["=+B1", [0]],
+    ["=+ANYFUNCTION(21)", []],
+    ["=+RETURNFORMAT()", [format.specificFormat]],
+    ["=+RETURNARGSFORMAT(B1)", [0]],
+    ["=-1", []],
+    ["=-TRUE", []],
+    ["=-B1", [0]],
+    ["=-ANYFUNCTION(21)", []],
+    ["=-RETURNFORMAT()", [format.specificFormat]],
+    ["=-RETURNARGSFORMAT(B1)", [0]],
+  ])(
+    "expression with unary operator returns dependency format of the right part",
+    (formula, result) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.dependenciesFormat).toEqual(result);
+    }
+  );
+
+  describe("expression with bin operator that has 'ANY' as return format", () => {
+    test.each([
+      ["=1+B1", [0]],
+      ["=B1+B2", [0, 1]],
+      ["=B1+B2+B3", [0, 1, 2]],
+      ["=B4+RETURNFORMAT()", [0, format.specificFormat]],
+      ["=RETURNARGSFORMAT(B1,B2)+B3", [0, 2]],
+      ["=ANYFUNCTION(B1)+B2", [1]],
+      ["=RETURNARGSFORMAT(21,B1)+B2", [1]],
+      ["=RETURNARGSFORMAT(B1+B2,B3)+B4", [0, 1, 3]],
+      ["=RETURNARGSFORMAT(RETURNARGSFORMAT(B1,B2),B3)+B4", [0, 3]],
+    ])("return dependencies format of the left and right part", (formula, result) => {
+      const compiledFormula = compiledBaseFunction(formula);
+      expect(compiledFormula.dependenciesFormat).toEqual(result);
+    });
+
+    test.each([
+      ["=RETURNFORMAT()+B4", [format.specificFormat]],
+      ["=B1+RETURNFORMAT()+B3", [0, format.specificFormat]],
+      ["=RETURNARGSFORMAT(RETURNFORMAT(B1,B2),B3)+B4", [format.specificFormat]],
+    ])(
+      "return dependencies format of the left part if the left par is a string",
+      (formula, result) => {
+        const compiledFormula = compiledBaseFunction(formula);
+        expect(compiledFormula.dependenciesFormat).toEqual(result);
+      }
+    );
   });
 });
 
@@ -193,10 +326,13 @@ describe("compile functions", () => {
       expect(count).toBe(42);
     });
 
-    test("functions call requesting lazy parameters", () => {
-      expect(compiledBaseFunction("=USELAZYARG(24)")).toMatchSnapshot();
-      expect(compiledBaseFunction("=USELAZYARG(1/0)")).toMatchSnapshot();
-    });
+    test.each(["=USELAZYARG(24)", "=USELAZYARG(1/0)"])(
+      "functions call requesting lazy parameters",
+      (formula) => {
+        const compiledFormula = compiledBaseFunction(formula);
+        expect(compiledFormula.toString()).toMatchSnapshot();
+      }
+    );
   });
 
   describe("with meta arguments", () => {
@@ -215,10 +351,13 @@ describe("compile functions", () => {
       });
     });
 
-    test("function call requesting meta parameter", () => {
-      expect(compiledBaseFunction("=USEMETAARG(A1)")).toMatchSnapshot();
-      expect(compiledBaseFunction("=USEMETAARG(B2)")).toMatchSnapshot();
-    });
+    test.each(["=USEMETAARG(A1)", "=USEMETAARG(B2)"])(
+      "function call requesting meta parameter",
+      (formula) => {
+        const compiledFormula = compiledBaseFunction(formula);
+        expect(compiledFormula.toString()).toMatchSnapshot();
+      }
+    );
 
     test("throw error if parameter isn't cell/range reference", () => {
       expect(() => compiledBaseFunction("=USEMETAARG(X8)")).not.toThrow();

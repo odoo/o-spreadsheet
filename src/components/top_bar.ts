@@ -32,7 +32,7 @@ interface State {
 }
 
 const FORMATS = [
-  { name: "auto", text: "Automatic" },
+  { name: "general", text: "General (no specific format)" },
   { name: "number", text: "Number (1,000.12)", value: "#,##0.00" },
   { name: "percent", text: "Percent (10.12%)", value: "0.00%" },
   { name: "date", text: "Date (9/26/2008)", value: "m/d/yyyy" },
@@ -322,7 +322,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
   `;
   static components = { ColorPicker, Menu, Composer };
   formats = FORMATS;
-  currentFormat = "auto";
+  currentFormat = "general";
   fontSizes = fontSizes;
   dispatch = this.env.dispatch;
   getters = this.env.getters;
@@ -453,7 +453,7 @@ export class TopBar extends Component<any, SpreadsheetEnv> {
       const format = this.formats.find((f) => f.value === cell.format);
       this.currentFormat = format ? format.name : "";
     } else {
-      this.currentFormat = "auto";
+      this.currentFormat = "general";
     }
     this.menus = topbarMenuRegistry
       .getAll()

@@ -1,4 +1,4 @@
-import { demoData, makeLargeDataset } from "./data.js";
+import { demoData } from "./data.js";
 owl.config.mode = "dev";
 
 const { whenReady } = owl.utils;

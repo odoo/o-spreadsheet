@@ -79,6 +79,7 @@ export type _CompiledFormula = (
 
 export interface CompiledFormula extends _CompiledFormula {
   async: boolean;
+  dependenciesFormat: (string | number)[];
 }
 
 export enum CellType {
@@ -109,6 +110,7 @@ export interface FormulaCell extends CellBase {
   formula: {
     text: string;
     compiledFormula: CompiledFormula;
+    format?: string;
   };
   dependencies: Range[];
 }

@@ -37,7 +37,7 @@ The properties of a function are:
   - `lazy` (boolean, default=false): this parameter will not be evaluated until it is accessed
   - `default` (boolean): defines that a parameter has a default value, specified in `defaultValue`
   - `defaultValue` (any): the default value of a parameter if it is not defined
-  Note that you can use a short version of these parameters by using the function `args` that takes a string as parameter:
+    Note that you can use a short version of these parameters by using the function `args` that takes a string as parameter:
   ```javascript
   {
       ...,
@@ -63,12 +63,16 @@ The properties of a function are:
     }]
   }
   ```
-- `returns` Array of strings, with possible values as
-  - `ANY` for any value
-  - `BOOLEAN`
-  - `NUMBER`
-  - `STRING`
-  - `DATE`
+- `returns` (string[]): with possible values as
+  - `"ANY"` for any value
+  - `"BOOLEAN"`
+  - `"NUMBER"`
+  - `"STRING"`
+  - `"DATE"`
+- `returnFormat`(string | object): when you want your formula return a result with a format. This is especially useful when the formula returns a number.
+  - `"FormatFromArgument"` --> if the first argument of the formula is a reference to a cell or range, the format of the reference will be returned. Ex: in `=SUM(A2, A3, A4)` where the parameter `returowrnFormat` is defined as `"FormatFromArgument"`, the final formula format will be the format of the `A2` reference.
+  - `specificFormat` (string): a string that can be interpreted by spreadsheet. Ex: in `=TIME(A2, A3, A4)`
+    where the parameter `returowrnFormat` is defined as `{specificFormat: "hh:mm:ss"}`, the final formula format will be `"hh:mm:ss"`.
 
 ## Example
 

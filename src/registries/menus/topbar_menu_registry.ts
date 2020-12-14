@@ -136,11 +136,11 @@ topbarMenuRegistry
     sequence: 10,
     separator: true,
   })
-  .addChild("format_number_auto", ["format", "format_number"], {
-    name: _lt("Automatic"),
+  .addChild("format_number_general", ["format", "format_number"], {
+    name: _lt("General"),
     sequence: 10,
     separator: true,
-    action: ACTIONS.FORMAT_AUTO_ACTION,
+    action: ACTIONS.FORMAT_GENERAL_ACTION,
   })
   .addChild("format_number_number", ["format", "format_number"], {
     name: _lt("Number (1,000.12)"),

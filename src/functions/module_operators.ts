@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, ReturnFormatType } from "../types";
 import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 import { InternalDate } from "./dates";
@@ -15,6 +15,7 @@ export const ADD: AddFunctionDescription = {
       value2 (number) ${_lt("The second addend.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value1: any, value2: any): number | InternalDate {
     if (value1 && value1.value) {
       if (value2 && value2.value) {
@@ -54,6 +55,7 @@ export const DIVIDE: AddFunctionDescription = {
       divisor (number) ${_lt("The number to divide by.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
     if (_divisor === 0) {
@@ -190,6 +192,7 @@ export const MINUS: AddFunctionDescription = {
       value2 (number) ${_lt("The subtrahend, or number to subtract from value1.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value1: any, value2: any): number {
     return toNumber(value1) - toNumber(value2);
   },
@@ -205,6 +208,7 @@ export const MULTIPLY: AddFunctionDescription = {
       factor2 (number) ${_lt("The second multiplicand.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (factor1: any, factor2: any): number {
     return toNumber(factor1) * toNumber(factor2);
   },
@@ -250,6 +254,7 @@ export const UMINUS: AddFunctionDescription = {
         "The number to have its sign reversed. Equivalently, the number to multiply by -1."
       )}
     `),
+  returnFormat: ReturnFormatType.FormatFromArgument,
   returns: ["NUMBER"],
   compute: function (value: any): number {
     return -toNumber(value);
@@ -278,6 +283,7 @@ export const UPLUS: AddFunctionDescription = {
   args: args(`
       value (any) ${_lt("The number to return.")}
     `),
+  returnFormat: ReturnFormatType.FormatFromArgument,
   returns: ["ANY"],
   compute: function (value: any): any {
     return value;
