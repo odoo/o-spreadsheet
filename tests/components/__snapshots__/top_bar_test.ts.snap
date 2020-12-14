@@ -154,9 +154,9 @@ exports[`TopBar component can set cell format 1`] = `
         >
           <div
             class="active"
-            data-format="auto"
+            data-format="general"
           >
-            Automatic
+            General (no specific format)
           </div>
           <div
             data-format="number"

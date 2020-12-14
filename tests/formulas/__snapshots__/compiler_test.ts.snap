@@ -102,36 +102,6 @@ return _1;
 }"
 `;
 
-exports[`expression compiler function call 1`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
-) {
-// =sum(1,2)
-ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM'](1,2)
-return _1;
-}"
-`;
-
-exports[`expression compiler function call 2`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
-) {
-// =sum(true, \\"\\")
-ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM'](true,\\"\\")
-return _1;
-}"
-`;
-
-exports[`expression compiler function call 3`] = `
-"function anonymous(deps,sheetId,ref,range,ctx
-) {
-// =sum(1,,2)
-ctx.__lastFnCalled = 'SUM'
-let _1 = ctx['SUM'](1,null,2)
-return _1;
-}"
-`;
-
 exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
@@ -146,7 +116,7 @@ return _1;
 }"
 `;
 
-exports[`expression compiler simple values 1`] = `
+exports[`expression compiler some arithmetic expressions 1`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =1
@@ -154,7 +124,7 @@ return 1;
 }"
 `;
 
-exports[`expression compiler simple values 2`] = `
+exports[`expression compiler some arithmetic expressions 2`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =true
@@ -162,7 +132,7 @@ return true;
 }"
 `;
 
-exports[`expression compiler simple values 3`] = `
+exports[`expression compiler some arithmetic expressions 3`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =\\"abc\\"
@@ -170,7 +140,7 @@ return \\"abc\\";
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 1`] = `
+exports[`expression compiler some arithmetic expressions 4`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =1 + 3
@@ -180,7 +150,7 @@ return _1;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 2`] = `
+exports[`expression compiler some arithmetic expressions 5`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =2 * 3
@@ -190,7 +160,7 @@ return _1;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 3`] = `
+exports[`expression compiler some arithmetic expressions 6`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =2 - 3
@@ -200,7 +170,7 @@ return _1;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 4`] = `
+exports[`expression compiler some arithmetic expressions 7`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =2 / 3
@@ -210,7 +180,7 @@ return _1;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 5`] = `
+exports[`expression compiler some arithmetic expressions 8`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =-3
@@ -220,7 +190,7 @@ return _1;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 6`] = `
+exports[`expression compiler some arithmetic expressions 9`] = `
 "function anonymous(deps,sheetId,ref,range,ctx
 ) {
 // =(3 + 1) * (-1 + 4)
@@ -232,6 +202,36 @@ ctx.__lastFnCalled = 'ADD'
 let _3 = ctx['ADD'](_4, 4)
 ctx.__lastFnCalled = 'MULTIPLY'
 let _1 = ctx['MULTIPLY'](_2, _3)
+return _1;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions 10`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =sum(1,2)
+ctx.__lastFnCalled = 'SUM'
+let _1 = ctx['SUM'](1,2)
+return _1;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions 11`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =sum(true, \\"\\")
+ctx.__lastFnCalled = 'SUM'
+let _1 = ctx['SUM'](true,\\"\\")
+return _1;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions 12`] = `
+"function anonymous(deps,sheetId,ref,range,ctx
+) {
+// =sum(1,,2)
+ctx.__lastFnCalled = 'SUM'
+let _1 = ctx['SUM'](1,null,2)
 return _1;
 }"
 `;

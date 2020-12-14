@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, ReturnFormatType } from "../types";
 import {
   toNumber,
   strictToNumber,
@@ -211,6 +211,7 @@ export const CEILING: AddFunctionDescription = {
     factor (number, default=1) ${_lt("The number to whose multiples value will be rounded.")}
   `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
@@ -241,6 +242,7 @@ export const CEILING_MATH: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (number: any, significance: any = 1, mode: any = 0): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
@@ -272,6 +274,7 @@ export const CEILING_PRECISE: AddFunctionDescription = {
     significance (number, default=1) ${_lt("The number to whose multiples number will be rounded.")}
   `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
   },
@@ -591,6 +594,7 @@ export const FLOOR: AddFunctionDescription = {
     factor (number, default=1) ${_lt("The number to whose multiples value will be rounded.")}
   `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any, factor: any = 1): number {
     const _value = toNumber(value);
     const _factor = toNumber(factor);
@@ -623,6 +627,7 @@ export const FLOOR_MATH: AddFunctionDescription = {
     )}
   `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (number: any, significance: any = 1, mode: any = 0): number {
     let _significance = toNumber(significance);
     if (_significance === 0) {
@@ -655,6 +660,7 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
     significance (number, default=1) ${_lt("The number to whose multiples number will be rounded.")}
   `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (number: number, significance: number = 1): number {
     return FLOOR_MATH.compute(number, significance, 0);
   },
@@ -690,6 +696,7 @@ export const ISO_CEILING: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (number: any, significance: any): number {
     return CEILING_MATH.compute(number, significance, 0);
   },
@@ -743,6 +750,7 @@ export const MOD: AddFunctionDescription = {
       divisor (number) ${_lt("The number to divide by.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (dividend: any, divisor: any): number {
     const _divisor = toNumber(divisor);
 
@@ -772,6 +780,7 @@ export const ODD: AddFunctionDescription = {
       value (number) ${_lt("The value to round to the next greatest odd number.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any): number {
     const _value = toNumber(value);
 
@@ -803,6 +812,7 @@ export const POWER: AddFunctionDescription = {
       exponent (number) ${_lt("The exponent to raise base to.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (base: any, exponent: any): number {
     const _base = toNumber(base);
     const _exponent = toNumber(exponent);
@@ -835,6 +845,7 @@ export const PRODUCT: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let count = 0;
     let acc = 1;
@@ -882,6 +893,7 @@ export const RANDBETWEEN: AddFunctionDescription = {
       high (number) ${_lt("The high end of the random range.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (low: any, high: any): number {
     let _low = toNumber(low);
     if (!Number.isInteger(_low)) {
@@ -914,6 +926,7 @@ export const ROUND: AddFunctionDescription = {
       places (number, default=0) ${_lt("The number of decimal places to which to round.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
@@ -942,6 +955,7 @@ export const ROUNDDOWN: AddFunctionDescription = {
       places (number, default=0) ${_lt("The number of decimal places to which to round.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
@@ -970,6 +984,7 @@ export const ROUNDUP: AddFunctionDescription = {
       places (number, default=0) ${_lt("The number of decimal places to which to round.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any, places: any): number {
     const _value = toNumber(value);
     let _places = toNumber(places);
@@ -1053,6 +1068,7 @@ export const SQRT: AddFunctionDescription = {
       value (number) ${_lt("The number for which to calculate the positive square root.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any): number {
     const _value = toNumber(value);
 
@@ -1079,6 +1095,7 @@ export const SUM: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     return reduceNumbers(arguments, (acc, a) => acc + a, 0);
   },
@@ -1177,6 +1194,7 @@ export const TRUNC: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (value: any, places: any = 0): number {
     const _value = toNumber(value);
     let _places = toNumber(places);

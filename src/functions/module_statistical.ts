@@ -1,5 +1,5 @@
 import { args } from "./arguments";
-import { AddFunctionDescription } from "../types";
+import { AddFunctionDescription, ReturnFormatType } from "../types";
 import {
   toNumber,
   reduceNumbers,
@@ -173,6 +173,7 @@ export const AVERAGE: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let count = 0;
     const sum = reduceNumbers(
@@ -209,6 +210,7 @@ export const AVERAGE_WEIGHTED: AddFunctionDescription = {
       additional_weights (number, range<number>, repeating) ${_lt("Additional weights.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let sum = 0;
     let count = 0;
@@ -284,6 +286,7 @@ export const AVERAGEA: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let count = 0;
     const sum = reduceNumbersTextAs0(
@@ -477,6 +480,7 @@ export const LARGE: AddFunctionDescription = {
       n (number) ${_lt("The rank from largest to smallest of the element to return.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, n: any): number {
     n = Math.trunc(toNumber(n));
     let largests: number[] = [];
@@ -518,6 +522,7 @@ export const MAX: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     const result = reduceNumbers(arguments, (acc, a) => (acc < a ? a : acc), -Infinity);
     return result === -Infinity ? 0 : result;
@@ -538,6 +543,7 @@ export const MAXA: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let maxa = -Infinity;
     for (let n of arguments) {
@@ -606,6 +612,7 @@ export const MEDIAN: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let data: any[] = [];
     visitNumbers(arguments, (arg) => {
@@ -629,6 +636,7 @@ export const MIN: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     const result = reduceNumbers(arguments, (acc, a) => (a < acc ? a : acc), Infinity);
     return result === Infinity ? 0 : result;
@@ -649,6 +657,7 @@ export const MINA: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (): number {
     let mina = Infinity;
     for (let n of arguments) {
@@ -715,6 +724,7 @@ export const PERCENTILE: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, percentile: any): number {
     return PERCENTILE_INC.compute(data, percentile);
   },
@@ -732,6 +742,7 @@ export const PERCENTILE_EXC: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, percentile: any): number {
     return centile(data, percentile, false);
   },
@@ -749,6 +760,7 @@ export const PERCENTILE_INC: AddFunctionDescription = {
       )}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, percentile: any): number {
     return centile(data, percentile, true);
   },
@@ -764,6 +776,7 @@ export const QUARTILE: AddFunctionDescription = {
       quartile_number (number) ${_lt("Which quartile value to return.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, quartileNumber: any): number {
     return QUARTILE_INC.compute(data, quartileNumber);
   },
@@ -779,6 +792,7 @@ export const QUARTILE_EXC: AddFunctionDescription = {
       quartile_number (number) ${_lt("Which quartile value, exclusive of 0 and 4, to return.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, quartileNumber: any): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
     return centile(data, 0.25 * _quartileNumber, false);
@@ -795,6 +809,7 @@ export const QUARTILE_INC: AddFunctionDescription = {
       quartile_number (number) ${_lt("Which quartile value to return.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, quartileNumber: any): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber));
     return centile(data, 0.25 * _quartileNumber, true);
@@ -811,6 +826,7 @@ export const SMALL: AddFunctionDescription = {
       n (number) ${_lt("The rank from smallest to largest of the element to return.")}
     `),
   returns: ["NUMBER"],
+  returnFormat: ReturnFormatType.FormatFromArgument,
   compute: function (data: any, n: any): number {
     n = Math.trunc(toNumber(n));
     let largests: number[] = [];

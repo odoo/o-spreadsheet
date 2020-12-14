@@ -138,6 +138,37 @@ describe("core", () => {
       expect(getCellContent(model, "A2")).toBe("3.40%");
       expect(getCell(model, "A2")!.format).toBe("0.00%");
     });
+
+    describe("detect format formula automatically", () => {
+      test("from formula without return format", () => {
+        const model = new Model();
+        setCellContent(model, "A1", "=CONCAT(4,2)");
+        setCellContent(model, "A2", "=COS(42)");
+
+        expect(getCell(model, "A1")!.format).toBe(undefined);
+        expect(getCell(model, "A2")!.format).toBe(undefined);
+      });
+
+      describe("from formula depending on the reference", () => {
+        test("with the reference declared before the formula", () => {
+          const model = new Model();
+          setCellContent(model, "A1", "3%");
+          setCellContent(model, "A2", "=1+A1");
+
+          expect(getCell(model, "A1")!.format).toBe("0%");
+          expect(getCell(model, "A2")!.format).toBe("0%");
+        });
+
+        test("with the formula declared before the reference ", () => {
+          const model = new Model();
+          setCellContent(model, "A1", "=1+A2");
+          setCellContent(model, "A2", "3%");
+
+          expect(getCell(model, "A1")!.format).toBe(undefined);
+          expect(getCell(model, "A2")!.format).toBe("0%");
+        });
+      });
+    });
   });
 
   test("does not reevaluate cells if edition does not change content", () => {

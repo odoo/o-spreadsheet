@@ -1,4 +1,4 @@
-import { evaluateCell } from "../helpers";
+import { evaluateCell, evaluateCellText } from "../helpers";
 
 describe("ADD formula", () => {
   test("functional tests on simple arguments", () => {
@@ -37,6 +37,12 @@ describe("ADD formula", () => {
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=""' })).toBe(42);
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=ADD(A2, A3)", A2: "42", A3: '="42"' })).toBe(84);
+  });
+
+  test("format tests on linked operator", () => {
+    expect(evaluateCellText("A3", { A1: "0.42", A2: "1", A3: "=A1+A2" })).toBe("1.42");
+    expect(evaluateCellText("A3", { A1: "42%", A2: "1", A3: "=A1+A2" })).toBe("142%");
+    expect(evaluateCellText("A3", { A1: "1", A2: "42%", A3: "=A1+A2" })).toBe("142%");
   });
 });
 
@@ -112,6 +118,12 @@ describe("DIVIDE formula", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: '=""', A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: '=" "', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "42", A3: '="42"' })).toBe(1);
+  });
+
+  test("format tests on linked operator", () => {
+    expect(evaluateCellText("A3", { A1: "1", A2: "0.25", A3: "=A1/A2" })).toBe("4");
+    expect(evaluateCellText("A3", { A1: "1", A2: "25%", A3: "=A1/A2" })).toBe("400%");
+    expect(evaluateCellText("A3", { A1: "25%", A2: "1", A3: "=A1/A2" })).toBe("25%");
   });
 });
 
@@ -530,6 +542,12 @@ describe("MINUS formula", () => {
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MINUS(A2, A3)", A2: "42", A3: '="42"' })).toBe(0);
   });
+
+  test("format tests on linked operator", () => {
+    expect(evaluateCellText("A3", { A1: "1", A2: "0.25", A3: "=A1-A2" })).toBe("0.75");
+    expect(evaluateCellText("A3", { A1: "1", A2: "25%", A3: "=A1-A2" })).toBe("75%");
+    expect(evaluateCellText("A3", { A1: "25%", A2: "1", A3: "=A1-A2" })).toBe("-75%");
+  });
 });
 
 describe("MULTIPLY formula", () => {
@@ -568,6 +586,12 @@ describe("MULTIPLY formula", () => {
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: '=""', A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: '=" "', A3: "42" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=MULTIPLY(A2, A3)", A2: "42", A3: '="42"' })).toBe(1764);
+  });
+
+  test("format tests on linked operator", () => {
+    expect(evaluateCellText("A3", { A1: "1", A2: "0.25", A3: "=A1*A2" })).toBe("0.25");
+    expect(evaluateCellText("A3", { A1: "1", A2: "25%", A3: "=A1*A2" })).toBe("25%");
+    expect(evaluateCellText("A3", { A1: "25%", A2: "1", A3: "=A1*A2" })).toBe("25%");
   });
 });
 
@@ -702,6 +726,11 @@ describe("UMINUS formula", () => {
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '=""' })).toBe(-0);
     expect(evaluateCell("A1", { A1: "=UMINUS(A2)", A2: '="42"' })).toBe(-42);
   });
+
+  test("format tests on linked operator", () => {
+    expect(evaluateCellText("A3", { A1: "0.25", A3: "=-A1" })).toBe("-0.25");
+    expect(evaluateCellText("A3", { A1: "25%", A3: "=-A1" })).toBe("-25%");
+  });
 });
 
 describe("UNARY.PERCENT formula", () => {
@@ -739,5 +768,40 @@ describe("UNARY.PERCENT formula", () => {
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: '=""' })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UNARY.PERCENT(A2)", A2: '="42"' })).toBe(0.42);
+  });
+});
+
+describe("UPLUS formula", () => {
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=UPLUS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=UPLUS(0)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=UPLUS(2)" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=UPLUS(-3)" })).toBe(-3);
+    expect(evaluateCell("A1", { A1: '=UPLUS("")' })).toBe("");
+    expect(evaluateCell("A1", { A1: '=UPLUS(" ")' })).toBe(" ");
+    expect(evaluateCell("A1", { A1: '=UPLUS("4")' })).toBe("4");
+    expect(evaluateCell("A1", { A1: '=UPLUS("-3")' })).toBe("-3");
+    expect(evaluateCell("A1", { A1: "=UPLUS(TRUE)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=UPLUS(FALSE)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=UPLUS("test")' })).toBe("test");
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)" })).toBe(null);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "0" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "-2" })).toBe(-2);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "3" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "TRUE" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "FALSE" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: '""' })).toBe('""');
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: '" "' })).toBe('" "');
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: '"42"' })).toBe('"42"');
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: '=""' })).toBe("");
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: '="42"' })).toBe("42");
+  });
+
+  test("format tests on linked operator", () => {
+    expect(evaluateCellText("A3", { A1: "0.25", A3: "=+A1" })).toBe("0.25");
+    expect(evaluateCellText("A3", { A1: "25%", A3: "=+A1" })).toBe("25%");
   });
 });

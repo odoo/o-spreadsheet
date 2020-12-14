@@ -1,4 +1,4 @@
-import { evaluateCell, evaluateGrid } from "../helpers";
+import { evaluateCell, evaluateCellText, evaluateGrid } from "../helpers";
 import { toNumber } from "../../src/functions/helpers";
 
 describe("ACOS formula", () => {
@@ -2215,6 +2215,11 @@ describe("SUM formula", () => {
     expect(gridResult.C1).toBe(3);
     expect(gridResult.D1).toBe(0);
     expect(gridResult.E1).toBe(0);
+  });
+
+  test("formula format linked to the first ref", () => {
+    expect(evaluateCellText("A3", { A1: "42%", A2: "1", A3: "=SUM(A1:A2)" })).toBe("142%");
+    expect(evaluateCellText("A3", { A1: "1", A2: "42%", A3: "=SUM(A1:A2)" })).toBe("1.42");
   });
 });
 

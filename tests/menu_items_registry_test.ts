@@ -446,8 +446,8 @@ describe("Menu Item actions", () => {
   });
 
   describe("Format -> numbers", () => {
-    test("Automatic", () => {
-      doAction(["format", "format_number", "format_number_auto"], env);
+    test("General", () => {
+      doAction(["format", "format_number", "format_number_general"], env);
       expect(env.dispatch).toHaveBeenCalledWith("SET_FORMATTER", {
         sheetId: env.getters.getActiveSheetId(),
         target: env.getters.getSelectedZones(),
