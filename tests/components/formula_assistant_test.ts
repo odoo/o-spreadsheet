@@ -192,6 +192,12 @@ describe("formula assistant", () => {
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
     });
 
+    test("=FUNC1('a, do not show formula assistant (A2 is a ref)", async () => {
+      await typeInComposer("=FUNC1('a,");
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
+    });
+
     test("simple snapshot with =FUNC1(", async () => {
       await typeInComposer("=FUNC1(");
       expect(fixture.querySelector(".o-formula-assistant")).toMatchSnapshot();

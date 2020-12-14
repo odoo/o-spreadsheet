@@ -440,7 +440,7 @@ export class Composer extends Component<Props, SpreadsheetEnv> {
           // initialize Autocomplete Dropdown
           this.autoCompleteState.search = tokenAtCursor.value;
           this.autoCompleteState.showProvider = true;
-        } else if (tokenAtCursor.functionContext) {
+        } else if (tokenAtCursor.functionContext && tokenAtCursor.type !== "UNKNOWN") {
           // initialize Formula Assistant
           const tokenContext = tokenAtCursor.functionContext;
           const parentFunction = tokenContext.parent.toUpperCase();
