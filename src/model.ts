@@ -19,7 +19,7 @@ import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
-import { Network } from "./types/multi_users";
+import { Message, Network } from "./types/multi_users";
 
 /**
  * Model
@@ -100,7 +100,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   getters: Getters;
 
-  constructor(data: any = {}, config: Partial<ModelConfig> = {}) {
+  constructor(data: any = {}, config: Partial<ModelConfig> = {}, messages: Message[] = []) {
     super();
     DEBUG.model = this;
 
@@ -145,6 +145,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     setIsFastStrategy(false);
     // starting plugins
     this.dispatch("START");
+    // TODO find a better way please :)
+    for (let msg of messages) {
+      console.log(msg);
+      this.stateReplicator2000.onMessageReceived({...msg, clientId: "undefined"}); // LOL
+    }
+    this.trigger("update");
   }
 
   destroy() {

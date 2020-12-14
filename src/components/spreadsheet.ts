@@ -9,7 +9,7 @@ import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { WebsocketNetwork } from "../ot/network";
-import { Network } from "../types/multi_users";
+import { Message, Network } from "../types/multi_users";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -70,6 +70,7 @@ const CSS = css/* scss */ `
 interface Props {
   data?: any;
   network?: Network | "default";
+  messages?: Message[];
 }
 
 const t = (s: string): string => s;
@@ -89,7 +90,7 @@ export class Spreadsheet extends Component<Props> {
     openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
     evalContext: { env: this.env },
     network: this.props.network === "default" ? new WebsocketNetwork() : this.props.network,
-  });
+  }, this.props.messages);
   grid = useRef("grid");
 
   sidePanel = useState({ isOpen: false, panelProps: {} } as {

@@ -193,7 +193,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   /**
    * Called whenever a message is received from the network
    */
-  private onMessageReceived(message: Message) {
+  onMessageReceived(message: Message) {
     if (message.clientId === this.userId) {
       return;
     }

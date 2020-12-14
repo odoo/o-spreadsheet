@@ -1,5 +1,4 @@
 import { SheetData, WorkbookData } from "./types/index";
-import { uuidv4 } from "./helpers/index";
 import { normalize } from "./formulas/index";
 
 /**
@@ -129,7 +128,7 @@ const MIGRATIONS: Migration[] = [
 // -----------------------------------------------------------------------------
 function createEmptySheet(name: string = "Sheet1"): SheetData {
   return {
-    id: uuidv4(),
+    id: name,
     name,
     colNumber: 26,
     rowNumber: 100,
