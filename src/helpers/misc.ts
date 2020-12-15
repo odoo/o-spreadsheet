@@ -65,6 +65,23 @@ export function range(start: number, end: number) {
 }
 
 /**
+ * Groups consecutive numbers.
+ * The input array is assumed to be sorted
+ * @param numbers
+ */
+export function groupConsecutive(numbers: number[]): number[][] {
+  return numbers.reduce((groups, currentRow, index, rows) => {
+    if (Math.abs(currentRow - rows[index - 1]) === 1) {
+      const lastGroup = groups[groups.length - 1];
+      lastGroup.push(currentRow);
+    } else {
+      groups.push([currentRow]);
+    }
+    return groups;
+  }, [] as number[][]);
+}
+
+/**
  * This helper function can be used as a type guard when filtering arrays.
  * const foo: number[] = [1, 2, undefined, 4].filter(isDefined)
  */

@@ -17,7 +17,13 @@ import {
   Zone,
 } from "../../types/index";
 import { _lt } from "../../translation";
-import { getComposerSheetName, isDefined, numberToLetters, toCartesian } from "../../helpers/index";
+import {
+  getComposerSheetName,
+  groupConsecutive,
+  isDefined,
+  numberToLetters,
+  toCartesian,
+} from "../../helpers/index";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { cellReference, rangeTokenize } from "../../formulas/index";
 import { INCORRECT_RANGE_STRING } from "./range";
@@ -549,17 +555,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // begin with the end.
     rows.sort((a, b) => b - a);
 
-    const consecutiveRows = rows.reduce((groups, currentRow, index, rows) => {
-      if (currentRow - rows[index - 1] === -1) {
-        const lastGroup = groups[groups.length - 1];
-        lastGroup.push(currentRow);
-      } else {
-        groups.push([currentRow]);
-      }
-      return groups;
-    }, [] as number[][]);
-
-    for (let group of consecutiveRows) {
+    for (let group of groupConsecutive(rows)) {
       // Move the cells.
       this.moveCellOnRowsDeletion(sheet, group[group.length - 1], group[0]);
 

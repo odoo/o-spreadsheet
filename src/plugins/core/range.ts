@@ -5,6 +5,7 @@ import {
   numberToLetters,
   toZone,
   uuidv4,
+  groupConsecutive,
 } from "../../helpers/index";
 import { CorePlugin } from "../core_plugin";
 
@@ -38,17 +39,31 @@ export class RangePlugin extends CorePlugin<RangeState> {
         this.notifyChangeSheetId = cmd.sheetId;
 
         cmd[dimension].sort((a, b) => b - a);
-
-        for (let colIndexToRemove of cmd[dimension]) {
+        for (let group of groupConsecutive(cmd[dimension])) {
           for (let range of Object.values(this.ranges)
             .filter(isDefined)
             .filter((r) => r.sheetId === cmd.sheetId)) {
-            if (range.zone[start] <= colIndexToRemove && colIndexToRemove <= range.zone[end]) {
-              this.history.update("ranges", range.id, "zone", end, range.zone[end] - 1);
+            const min = Math.min(...group);
+            const max = Math.max(...group);
+            if (range.zone[start] <= min && min <= range.zone[end]) {
+              const toRemove = Math.min(range.zone[end], max) - min + 1;
+              this.history.update("ranges", range.id, "zone", end, range.zone[end] - toRemove);
               this.notifyResize.add(range.id);
-            } else if (colIndexToRemove < range.zone[start]) {
-              this.history.update("ranges", range.id, "zone", end, range.zone[end] - 1);
-              this.history.update("ranges", range.id, "zone", start, range.zone[start] - 1);
+            } else if (min < range.zone[start]) {
+              this.history.update(
+                "ranges",
+                range.id,
+                "zone",
+                end,
+                range.zone[end] - (max - min + 1)
+              );
+              this.history.update(
+                "ranges",
+                range.id,
+                "zone",
+                start,
+                range.zone[start] - (max - min + 1)
+              );
               this.notifyMove.add(range.id);
             }
           }
