@@ -1,6 +1,6 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import Chart from "chart.js";
-import { ChartDefinition, Figure, SpreadsheetEnv } from "../../types";
+import { Figure, SpreadsheetEnv } from "../../types";
 
 const { xml, css } = tags;
 const { useRef } = hooks;
@@ -25,7 +25,7 @@ const CSS = css/* scss */ `
 `;
 
 interface Props {
-  figure: Figure<ChartDefinition>;
+  figure: Figure;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetEnv> {

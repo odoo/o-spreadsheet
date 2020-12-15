@@ -42,7 +42,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        const chartDefinition = this.getters.getChartDefinition(cmd.sheetId, cmd.id)!;
+        const chartDefinition = this.getters.getChartDefinition(cmd.id)!;
         this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
         break;
       case "DELETE_FIGURE":
@@ -81,7 +81,7 @@ export class EvaluationChartPlugin extends UIPlugin {
 
   getChartRuntime(sheetId: UID, figureId: string): ChartConfiguration | undefined {
     if (this.outOfDate.has(figureId) || !(figureId in this.chartRuntime)) {
-      const chartDefinition = this.getters.getChartDefinition(sheetId, figureId);
+      const chartDefinition = this.getters.getChartDefinition(figureId);
       if (chartDefinition === undefined) return;
       this.chartRuntime[figureId] = this.mapDefinitionToRuntime(chartDefinition);
       this.outOfDate.delete(figureId);
@@ -156,7 +156,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   private isCellUsedInChart(sheetId: UID, chartId: UID, col: number, row: number): boolean {
-    const chart = this.getters.getChartDefinition(sheetId, chartId);
+    const chart = this.getters.getChartDefinition(chartId);
     if (chart === undefined) {
       return false;
     }

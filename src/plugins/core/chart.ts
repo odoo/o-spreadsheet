@@ -7,6 +7,7 @@ import {
   CommandResult,
   CreateChartDefinition,
   DataSet,
+  FigureData,
   UID,
   WorkbookData,
   Zone,
@@ -20,13 +21,12 @@ import { CorePlugin } from "../core_plugin";
  * */
 
 interface ChartState {
-  readonly chartFigures: Set<string>;
+  readonly chartFigures: Record<UID, ChartDefinition>;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   static getters = ["getChartDefinition"];
-
-  readonly chartFigures = new Set<string>();
+  readonly chartFigures = {};
 
   allowDispatch(cmd: Command): CommandResult {
     const success: CommandResult = { status: "SUCCESS" };
@@ -53,7 +53,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           sheetId: cmd.sheetId,
           figure: {
             id: cmd.id,
-            data: chartDefinition,
             x: 0,
             y: 0,
             height: 500,
@@ -61,30 +60,17 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             tag: "chart",
           },
         });
-        this.history.update("chartFigures", new Set(this.chartFigures).add(cmd.id));
+        this.history.update("chartFigures", cmd.id, chartDefinition);
         break;
       case "UPDATE_CHART": {
-        const chartDefinition = this.getChartDefinition(cmd.sheetId, cmd.id);
-        if (chartDefinition === undefined) {
-          break;
-        }
-        const newChartDefinition = this.createChartDefinition(
-          cmd.definition,
-          chartDefinition.sheetId
-        );
-        this.dispatch("UPDATE_FIGURE", {
-          sheetId: cmd.sheetId,
-          id: cmd.id,
-          data: newChartDefinition,
-        });
+        const newChartDefinition = this.createChartDefinition(cmd.definition, cmd.sheetId);
+        this.history.update("chartFigures", cmd.id, newChartDefinition);
         break;
       }
       case "DELETE_FIGURE":
-        if (this.chartFigures.has(cmd.id)) {
-          const figures = new Set(this.chartFigures);
-          figures.delete(cmd.id);
-          this.history.update("chartFigures", figures);
-        }
+        const figures = Object.assign({}, this.chartFigures);
+        delete figures[cmd.id];
+        this.history.update("chartFigures", figures);
         break;
     }
   }
@@ -93,9 +79,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartDefinition(sheetId: UID, figureId: UID): ChartDefinition | undefined {
-    const figure = this.getters.getFigure<ChartDefinition>(sheetId, figureId);
-    return figure ? figure.data : undefined;
+  getChartDefinition(figureId: UID): ChartDefinition | undefined {
+    return this.chartFigures[figureId];
   }
 
   // ---------------------------------------------------------------------------
@@ -104,10 +89,31 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      for (let f of sheet.figures) {
-        if (f.tag === "chart") {
-          this.chartFigures.add(f.id);
+      if (sheet.figures) {
+        for (let figure of sheet.figures) {
+          if (figure.tag === "chart") {
+            this.chartFigures[figure.id] = figure.data;
+          }
         }
+      }
+    }
+  }
+
+  export(data: WorkbookData) {
+    if (data.sheets) {
+      for (let sheet of data.sheets) {
+        const figures = this.getters.getFigures(sheet.id) as FigureData<
+          ChartDefinition | undefined
+        >[];
+        if (figures) {
+          for (let figure of figures) {
+            const data = this.getChartDefinition(figure.id);
+            if (data) {
+              figure.data = data;
+            }
+          }
+        }
+        sheet.figures = figures;
       }
     }
   }

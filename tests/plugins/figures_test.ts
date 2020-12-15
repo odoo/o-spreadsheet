@@ -25,7 +25,6 @@ describe("figure plugin", () => {
         height: 100,
         x: 100,
         y: 100,
-        data: undefined,
       },
     });
     const data = model.exportData();
@@ -35,7 +34,7 @@ describe("figure plugin", () => {
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
     ]);
 
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toEqual([
+    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport)).toEqual([
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
     ]);
   });
@@ -51,13 +50,16 @@ describe("figure plugin", () => {
         height: 100,
         x: 100,
         y: 100,
-        data: undefined,
       },
     });
 
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(1);
+    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport).length).toBe(
+      1
+    );
     model.dispatch("UNDO");
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(0);
+    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport).length).toBe(
+      0
+    );
   });
 
   test("can create a figure in a different sheet", () => {
@@ -76,7 +78,6 @@ describe("figure plugin", () => {
         height: 100,
         x: 100,
         y: 100,
-        data: undefined,
       },
     });
     const data = model.exportData();
@@ -86,32 +87,10 @@ describe("figure plugin", () => {
       { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100 },
     ]);
 
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toEqual([]); // empty because active sheet is sheet1
+    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport)).toEqual([]); // empty because active sheet is sheet1
   });
 
-  test("can create a figure with some data", () => {
-    const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        x: 100,
-        y: 100,
-        tag: "hey",
-        width: 100,
-        height: 100,
-        data: 123,
-      },
-    });
-    const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
-
-    expect(sheet.figures).toEqual([
-      { id: "someuuid", height: 100, tag: "hey", width: 100, x: 100, y: 100, data: 123 },
-    ]);
-  });
-
-  test("getFigures only returns visible figures", () => {
+  test("getVisibleFigures only returns visible figures", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
@@ -122,11 +101,12 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
-        data: undefined,
       },
     });
 
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(1);
+    expect(model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport).length).toBe(
+      1
+    );
     const viewport2: Viewport = {
       left: 3,
       top: 3,
@@ -137,11 +117,15 @@ describe("figure plugin", () => {
       offsetX: 200,
       offsetY: 200,
     };
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport2).length).toBe(0);
+    expect(
+      model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport2).length
+    ).toBe(0);
 
     viewport2.offsetX = 10;
     viewport2.offsetY = 10;
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport2).length).toBe(1);
+    expect(
+      model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport2).length
+    ).toBe(1);
   });
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {
@@ -155,7 +139,6 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
-        data: undefined,
       },
     });
 
@@ -179,7 +162,6 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
-        data: undefined,
       },
     });
 
@@ -203,11 +185,10 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
-        data: undefined,
       },
     });
 
-    const { x, y } = model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0];
+    const { x, y } = model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport)[0];
     expect(x).toBe(10);
     expect(y).toBe(10);
 
@@ -217,7 +198,7 @@ describe("figure plugin", () => {
       x: 100,
       y: 200,
     });
-    const { x: newx, y: newy } = model.getters.getFigures(
+    const { x: newx, y: newy } = model.getters.getVisibleFigures(
       model.getters.getActiveSheetId(),
       viewport
     )[0];
@@ -236,7 +217,6 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 10,
         height: 10,
-        data: "hello",
       },
     });
 
@@ -245,24 +225,21 @@ describe("figure plugin", () => {
       id: "someuuid",
       x: 100,
       y: 200,
-      data: "Coucou",
     });
-    const { x: x1, y: y1, data: data1 } = model.getters.getFigures(
+    const { x: x1, y: y1 } = model.getters.getVisibleFigures(
       model.getters.getActiveSheetId(),
       viewport
     )[0];
     expect(x1).toBe(100);
     expect(y1).toBe(200);
-    expect(data1).toBe("Coucou");
 
     model.dispatch("UNDO");
-    const { x: x2, y: y2, data: data2 } = model.getters.getFigures(
+    const { x: x2, y: y2 } = model.getters.getVisibleFigures(
       model.getters.getActiveSheetId(),
       viewport
     )[0];
     expect(x2).toBe(10);
     expect(y2).toBe(10);
-    expect(data2).toBe("hello");
   });
 
   test("prevent moving a figure left or above of the sheet", () => {
@@ -276,7 +253,6 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 100,
         height: 100,
-        data: undefined,
       },
     });
 
@@ -287,7 +263,7 @@ describe("figure plugin", () => {
       y: 50,
     });
 
-    const { x, y } = model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0];
+    const { x, y } = model.getters.getVisibleFigures(model.getters.getActiveSheetId(), viewport)[0];
     expect(x).toBe(0);
     expect(y).toBe(50);
   });
@@ -304,18 +280,17 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 10,
         height: 10,
-        data: "hello",
       },
     });
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    expect(model.getters.getFigures(sheetId, viewport)).toHaveLength(1);
+    expect(model.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(1);
     model.dispatch("DELETE_FIGURE", { sheetId, id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    expect(model.getters.getFigures(sheetId, viewport)).toHaveLength(0);
+    expect(model.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(0);
     model.dispatch("UNDO");
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    expect(model.getters.getFigures(sheetId, viewport)).toHaveLength(1);
+    expect(model.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(1);
   });
 
   test("change sheet deselect figure", () => {
@@ -342,7 +317,6 @@ describe("figure plugin", () => {
         tag: "hey",
         width: 10,
         height: 10,
-        data: "hello",
       },
     });
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
