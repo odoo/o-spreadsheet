@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { uuidv4 } from "../../helpers/index";
-import { ChartFigure, ChartTypes, CreateChartDefinition, SpreadsheetEnv } from "../../types/index";
+import { ChartTypes, CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
@@ -38,7 +38,7 @@ const TEMPLATE = xml/* xml */ `
 `;
 
 interface Props {
-  figure?: ChartFigure;
+  figure?: Figure;
 }
 
 interface ChartPanelState {
@@ -73,7 +73,7 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
     this.trigger("close-side-panel");
   }
 
-  updateChart(chart: ChartFigure) {
+  updateChart(chart: Figure) {
     this.env.dispatch("UPDATE_CHART", {
       sheetId: this.getters.getActiveSheetId(),
       id: chart.id,
@@ -93,7 +93,9 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   }
 
   private initialState(): ChartPanelState {
-    const data = this.props.figure ? this.props.figure.data : undefined;
+    const data = this.props.figure
+      ? this.env.getters.getChartDefinition(this.props.figure.id)
+      : undefined;
     return {
       title: data && data.title ? data.title : "",
       ranges: data ? data.dataSets.map((ds) => ds.dataRange) : [],

@@ -1,5 +1,3 @@
-import { Figure } from "./workbook_data";
-
 export interface DataSet {
   labelCell?: string;
   dataRange: string;
@@ -22,5 +20,3 @@ export interface CreateChartDefinition {
   dataSets: string[];
   seriesHasTitle: boolean;
 }
-
-export type ChartFigure = Figure<ChartDefinition>;

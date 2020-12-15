@@ -20,7 +20,7 @@ export interface HeaderData {
   size?: number;
 }
 
-export interface Figure<T> {
+export interface FigureData<T> {
   id: UID;
   x: number;
   y: number;
@@ -37,7 +37,7 @@ export interface SheetData {
   rowNumber: number;
   cells: { [key: string]: CellData | undefined };
   merges: string[];
-  figures: Figure<any>[];
+  figures: FigureData<any>[];
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];

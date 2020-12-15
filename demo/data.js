@@ -118,30 +118,12 @@ export const demoData = {
       },
       figures: [
         {
-          id: "someId",
-          tag: "text",
-          width: 300,
-          height: 200,
-          x: 300,
-          y: 100,
-          data: "blablabla",
-        },
-        {
-          id: "someId2",
-          tag: "text",
-          width: 210,
-          height: 180,
-          x: 900,
-          y: 200,
-          data: "yip yip",
-        },
-        {
           id: "1",
           tag: "chart",
           width: 400,
           height: 300,
-          x: 450,
-          y: 550,
+          x: 300,
+          y: 100,
           data: {
             type: "line",
             title: "demo chart",

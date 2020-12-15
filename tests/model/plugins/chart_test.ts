@@ -66,7 +66,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [
         { dataRange: "B2:B4", labelCell: "B1" },
         { dataRange: "C2:C4", labelCell: "C1" },
@@ -91,7 +91,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [
         { dataRange: "B2:B4", labelCell: "B1" },
         { dataRange: "C2:C4", labelCell: "C1" },
@@ -115,7 +115,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [
         { dataRange: "B2:B4", labelCell: undefined },
         { dataRange: "C2:C4", labelCell: undefined },
@@ -143,7 +143,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [
         { dataRange: "B8:D8", labelCell: "A8" },
         { dataRange: "B9:D9", labelCell: "A9" },
@@ -167,7 +167,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [
         { dataRange: "B8:D8", labelCell: undefined },
         { dataRange: "B9:D9", labelCell: undefined },
@@ -191,7 +191,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [],
       labelRange: "Sheet1!B7:D7",
       sheetId: model.getters.getActiveSheetId(),
@@ -215,7 +215,7 @@ describe("datasource tests", function () {
         type: "line",
       },
     });
-    expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)[0].data).toEqual({
+    expect(model.getters.getChartDefinition("1")).toEqual({
       dataSets: [
         {
           dataRange: "B8",
@@ -266,10 +266,10 @@ describe("datasource tests", function () {
       },
     });
     const newModel = new Model(model.exportData());
-    expect(newModel.getters.getFigures(sheetId, viewport)).toHaveLength(1);
+    expect(newModel.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(1);
     expect(newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
-    expect(newModel.getters.getFigures(sheetId, viewport)).toHaveLength(0);
+    expect(newModel.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(0);
     expect(newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toBeUndefined();
   });
 

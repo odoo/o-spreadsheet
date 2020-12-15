@@ -1,8 +1,8 @@
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ReplaceOptions, SearchOptions } from "../plugins/ui/find_and_replace";
+import { Figure } from "./figure";
 import { BorderCommand, ConditionalFormat, CreateChartDefinition, Style, Zone } from "./index";
 import { Border, Cell, UID } from "./misc";
-import { Figure } from "./workbook_data";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -578,7 +578,7 @@ export interface ChangeRangeCommand extends BaseCommand {
 
 export interface CreateFigureCommand extends BaseCommand {
   type: "CREATE_FIGURE";
-  figure: Figure<any>;
+  figure: Figure;
   sheetId: UID;
 }
 
@@ -587,7 +587,7 @@ export interface SelectFigureCommand extends BaseCommand {
   id: string;
 }
 
-export interface UpdateFigureCommand extends BaseCommand, Partial<Figure<any>> {
+export interface UpdateFigureCommand extends BaseCommand, Partial<Figure> {
   type: "UPDATE_FIGURE";
   id: string;
   sheetId: UID;

@@ -623,7 +623,6 @@ describe("sheets", () => {
         height: 100,
         x: 100,
         y: 100,
-        data: undefined,
       },
     });
     model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: "42", name: "dup" });

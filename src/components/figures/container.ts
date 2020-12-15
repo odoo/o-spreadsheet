@@ -11,16 +11,16 @@ const { useState } = owl;
 interface FigureInfo {
   id: string;
   isSelected: boolean;
-  figure: Figure<any>;
+  figure: Figure;
 }
 
-interface Update extends Partial<Figure<any>> {
+interface Update extends Partial<Figure> {
   sheetId: string;
   id: string;
 }
 
 const TEMPLATE = xml/* xml */ `<div>
-    <t t-foreach="getFigures()" t-as="info" t-key="info.id">
+    <t t-foreach="getVisibleFigures()" t-as="info" t-key="info.id">
         <div class="o-figure-wrapper"
              t-att-style="getStyle(info)"
              t-on-mousedown="onMouseDown(info.figure)"
@@ -149,10 +149,10 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
   getters = this.env.getters;
   dispatch = this.env.dispatch;
 
-  getFigures(): FigureInfo[] {
+  getVisibleFigures(): FigureInfo[] {
     const selectedId = this.getters.getSelectedFigureId();
     return this.getters
-      .getFigures(this.getters.getActiveSheetId(), this.props.viewport)
+      .getVisibleFigures(this.getters.getActiveSheetId(), this.props.viewport)
       .map((f) => ({
         id: f.id,
         isSelected: f.id === selectedId,
@@ -202,7 +202,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     this.render();
   }
 
-  resize(figure: Figure<any>, dirX: number, dirY: number, ev: MouseEvent) {
+  resize(figure: Figure, dirX: number, dirY: number, ev: MouseEvent) {
     ev.stopPropagation();
     const initialX = ev.clientX;
     const initialY = ev.clientY;
@@ -243,7 +243,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     startDnd(onMouseMove, onMouseUp);
   }
 
-  onMouseDown(figure: Figure<any>, ev: MouseEvent) {
+  onMouseDown(figure: Figure, ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
@@ -273,7 +273,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     startDnd(onMouseMove, onMouseUp);
   }
 
-  onKeyDown(figure: Figure<any>, ev: KeyboardEvent) {
+  onKeyDown(figure: Figure, ev: KeyboardEvent) {
     switch (ev.key) {
       case "Delete":
         ev.preventDefault();

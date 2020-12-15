@@ -1,5 +1,4 @@
 import { ChartFigure } from "../components/figures/chart";
-import { TextFigure } from "../components/figures/text_figure";
 import { Registry } from "../registry";
 
 //------------------------------------------------------------------------------
@@ -26,5 +25,4 @@ export const figureRegistry = new Registry<FigureContent>();
 // });
 //
 
-figureRegistry.add("text", { Component: TextFigure });
 figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

@@ -398,6 +398,15 @@ describe("Grid component", () => {
       );
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
     });
+    test("Can scroll horizontally using shift key", async () => {
+      const baseVertical = getVerticalScroll();
+      const baseHorizontal = getHorizontalScroll();
+      fixture
+        .querySelector(".o-grid")!
+        .dispatchEvent(new WheelEvent("wheel", { deltaY: 1500, shiftKey: true }));
+      expect(getVerticalScroll()).toBe(baseVertical);
+      expect(getHorizontalScroll()).toBe(baseHorizontal + 1500);
+    });
   });
 });
 
@@ -536,118 +545,5 @@ describe("multi sheet with different sizes", function () {
       right: 0,
     });
     expect(model.getters.getActiveCell()).toBeUndefined();
-  });
-});
-
-describe("figures", () => {
-  beforeEach(async () => {
-    model = new Model();
-    parent = new GridParent(model);
-    await parent.mount(fixture);
-  });
-
-  afterEach(() => {
-    parent.unmount();
-  });
-
-  test("focus a figure", async () => {
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        tag: "text",
-        width: 100,
-        height: 100,
-        x: 100,
-        y: 100,
-        data: undefined,
-      },
-    });
-    await nextTick();
-    expect(fixture.querySelector(".o-figure")).toBeDefined();
-    await simulateClick(".o-figure");
-    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-  });
-
-  test("deleting a figure focuses the canvas", async () => {
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        tag: "text",
-        width: 100,
-        height: 100,
-        x: 100,
-        y: 100,
-        data: undefined,
-      },
-    });
-    await nextTick();
-    const figure = fixture.querySelector(".o-figure")!;
-    await simulateClick(".o-figure");
-    expect(document.activeElement).toBe(figure);
-    figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete" }));
-    await nextTick();
-    expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(document.activeElement).toBe(fixture.querySelector("canvas"));
-  });
-
-  test("deleting a figure doesn't delete selection", async () => {
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        tag: "text",
-        width: 100,
-        height: 100,
-        x: 100,
-        y: 100,
-        data: undefined,
-      },
-    });
-    setCellContent(model, "A1", "content");
-    model.dispatch("SELECT_CELL", { col: 0, row: 0 });
-    await nextTick();
-    const figure = fixture.querySelector(".o-figure")!;
-    await simulateClick(".o-figure");
-    figure.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
-    await nextTick();
-    expect(fixture.querySelector(".o-figure")).toBeNull();
-    expect(getCellContent(model, "A1")).toBe("content");
-  });
-
-  test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: "42",
-      figure: {
-        id: "someuuid",
-        tag: "text",
-        width: 100,
-        height: 100,
-        x: 1,
-        y: 1,
-        data: undefined,
-      },
-    });
-    fixture.querySelector(".o-grid")!.dispatchEvent(new WheelEvent("wheel", { deltaX: 1500 }));
-    fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
-    await nextTick();
-    model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
-    });
-    await nextTick();
-    expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
-  });
-
-  test("Can scroll horizontally using shift key", async () => {
-    const baseVertical = getVerticalScroll();
-    const baseHorizontal = getHorizontalScroll();
-    fixture
-      .querySelector(".o-grid")!
-      .dispatchEvent(new WheelEvent("wheel", { deltaY: 1500, shiftKey: true }));
-    expect(getVerticalScroll()).toBe(baseVertical);
-    expect(getHorizontalScroll()).toBe(baseHorizontal + 1500);
   });
 });

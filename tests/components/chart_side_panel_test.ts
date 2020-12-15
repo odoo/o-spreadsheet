@@ -1,7 +1,7 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Model } from "../../src";
 import { ChartPanel } from "../../src/components/side_panel/chart_panel";
-import { ChartFigure, SpreadsheetEnv, Viewport } from "../../src/types";
+import { Figure, SpreadsheetEnv, Viewport } from "../../src/types";
 import "../canvas.mock";
 import { setInputValueAndTrigger, simulateClick } from "../dom_helper";
 import { makeTestFixture, mockUuidV4To, nextTick } from "../helpers";
@@ -14,7 +14,7 @@ class Parent extends Component<any, SpreadsheetEnv> {
   static template = xml`<ChartPanel figure="figure"/>`;
   static components = { ChartPanel };
 
-  constructor(model: Model, public figure?: ChartFigure) {
+  constructor(model: Model, public figure?: Figure) {
     super();
     useSubEnv({
       dispatch: model.dispatch,
@@ -37,7 +37,7 @@ const viewport: Viewport = {
 let fixture: HTMLElement;
 
 async function createChartPanel(
-  { model, figure }: { model: Model; figure?: ChartFigure } = { model: new Model() }
+  { model, figure }: { model: Model; figure?: Figure } = { model: new Model() }
 ) {
   const parent = new Parent(model, figure);
   fixture = makeTestFixture();
@@ -88,10 +88,10 @@ describe("Chart sidepanel component", () => {
         type: "line",
       },
     });
-    const [figure] = model.getters.getFigures(
+    const [figure] = model.getters.getVisibleFigures(
       model.getters.getActiveSheetId(),
       viewport
-    ) as ChartFigure[];
+    ) as Figure[];
     const { parent } = await createChartPanel({ model, figure });
     parent.env.dispatch = jest.fn(() => ({ status: "SUCCESS" }));
     await simulateClick(".o-sidePanelButton");

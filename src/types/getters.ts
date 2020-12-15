@@ -70,8 +70,9 @@ export interface CoreGetters {
   getRulesByCell: ConditionalFormatPlugin["getRulesByCell"];
 
   getFigures: FigurePlugin["getFigures"];
-  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
   getFigure: FigurePlugin["getFigure"];
+  getVisibleFigures: FigurePlugin["getVisibleFigures"];
+  getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
 
   getCellBorder: BordersPlugin["getCellBorder"];
   getChartDefinition: ChartPlugin["getChartDefinition"];

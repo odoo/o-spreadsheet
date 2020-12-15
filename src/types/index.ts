@@ -13,6 +13,7 @@ export * from "./chart";
 export * from "./commands";
 export * from "./conditional_formatting";
 export * from "./env";
+export * from "./figure";
 export * from "./functions";
 export * from "./getters";
 export * from "./misc";
