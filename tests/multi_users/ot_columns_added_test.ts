@@ -138,7 +138,7 @@ describe("OT with ADD_COLUMNS", () => {
     }
   );
 
-  const resizeColumnsCommand: Omit<ResizeColumnsCommand, "cols"> = {
+  const resizeColumnsCommand: Omit<ResizeColumnsCommand, "columns"> = {
     type: "RESIZE_COLUMNS",
     sheetId,
     size: 10,
@@ -146,25 +146,25 @@ describe("OT with ADD_COLUMNS", () => {
 
   describe("Columns added - Resize columns", () => {
     test("Resize columns which are positionned before the added columns", () => {
-      const command = { ...resizeColumnsCommand, cols: [1, 2] };
+      const command = { ...resizeColumnsCommand, columns: [1, 2] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });
 
     test("Resize columns which are positionned before AND after the added columns", () => {
-      const command = { ...resizeColumnsCommand, cols: [1, 10] };
+      const command = { ...resizeColumnsCommand, columns: [1, 10] };
       const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...command, cols: [1, 12] });
+      expect(result).toEqual({ ...command, columns: [1, 12] });
     });
 
     test("Resize a column which is the column on which the added command is triggered, with before position", () => {
-      const command = { ...resizeColumnsCommand, cols: [10] };
+      const command = { ...resizeColumnsCommand, columns: [10] };
       const result = transform(command, addColumnsBefore);
-      expect(result).toEqual({ ...command, cols: [12] });
+      expect(result).toEqual({ ...command, columns: [12] });
     });
 
     test("Resize a column which is the column on which the added command is triggered, with after position", () => {
-      const command = { ...resizeColumnsCommand, cols: [5] };
+      const command = { ...resizeColumnsCommand, columns: [5] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });

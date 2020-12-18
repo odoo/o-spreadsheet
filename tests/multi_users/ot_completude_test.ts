@@ -29,8 +29,8 @@ describe("OT Completude", () => {
       msg.push(`Done: ${done}/${nbr + done} (${((done / (nbr + done)) * 100).toFixed(2)}%)`);
       msg.push(`Missing: ${nbr}`);
     }
-    const message: string | undefined = msg && msg.join("\n");
-    expect(message).toBeUndefined();
+    const missingTransformations: string | undefined = msg && msg.join("\n");
+    expect(missingTransformations).toBeUndefined();
   });
 });
 
