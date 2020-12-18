@@ -102,7 +102,7 @@ describe("OT with DELETE_SHEET", () => {
   };
   const resizeColumns: Omit<ResizeColumnsCommand, "sheetId"> = {
     type: "RESIZE_COLUMNS",
-    cols: [1],
+    columns: [1],
     size: 10,
   };
   const resizeRows: Omit<ResizeRowsCommand, "sheetId"> = {
