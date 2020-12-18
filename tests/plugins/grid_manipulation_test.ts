@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import {
+  createSheet,
   getBorder,
   getCell,
   getCellContent,
@@ -1112,7 +1113,7 @@ describe("Rows", () => {
       let dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
-      model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+      createSheet(model, { activate: true, sheetId: "42" });
       const from = model.getters.getActiveSheetId();
       model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
       dimensions = model.getters.getGridSize(model.getters.getActiveSheet());

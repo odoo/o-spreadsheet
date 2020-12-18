@@ -188,7 +188,6 @@ export interface CreateSheetCommand extends BaseCommand {
   name?: string;
   cols?: number;
   rows?: number;
-  activate?: boolean;
 }
 
 export interface DeleteSheetCommand extends BaseCommand {

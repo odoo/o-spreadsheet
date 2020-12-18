@@ -375,11 +375,12 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_SHEET_ACTION = (env: SpreadsheetEnv) => {
+  const activeSheetId = env.getters.getActiveSheetId();
   const position =
-    env.getters
-      .getVisibleSheets()
-      .findIndex((sheetId) => sheetId === env.getters.getActiveSheetId()) + 1;
-  env.dispatch("CREATE_SHEET", { activate: true, sheetId: uuidv4(), position });
+    env.getters.getVisibleSheets().findIndex((sheetId) => sheetId === activeSheetId) + 1;
+  const sheetId = uuidv4();
+  env.dispatch("CREATE_SHEET", { sheetId, position });
+  env.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
 };
 
 //------------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import { CancelledReason, WorkbookData } from "../../src/types";
 import {
   addColumns,
   clearCell,
+  createSheet,
   getBorder,
   getCell,
   getCellContent,
@@ -743,16 +744,8 @@ describe("Multi users synchronisation", () => {
     test("create two sheets concurrently", () => {
       const sheetId = alice.getters.getActiveSheetId();
       network.concurrent(() => {
-        alice.dispatch("CREATE_SHEET", {
-          sheetId: "alice1",
-          activate: true,
-          position: 1,
-        });
-        bob.dispatch("CREATE_SHEET", {
-          sheetId: "bob1",
-          activate: true,
-          position: 1,
-        });
+        createSheet(alice, { sheetId: "alice1", activate: true });
+        createSheet(bob, { sheetId: "bob1", activate: true });
       });
       const aliceSheets = alice.getters.getSheets();
       const bobSheets = bob.getters.getSheets();

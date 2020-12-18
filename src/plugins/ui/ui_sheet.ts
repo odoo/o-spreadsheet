@@ -59,10 +59,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           } else {
             sheetIdTo = currentSheets[Math.max(0, currentIndex - 1)];
           }
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo,
-          });
+          this.activeSheet = this.getters.getSheet(sheetIdTo);
         }
         break;
     }
@@ -70,14 +67,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        if (cmd.activate) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo: cmd.sheetId,
-          });
-        }
-        break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
           this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));

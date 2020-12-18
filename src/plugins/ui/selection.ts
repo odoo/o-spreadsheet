@@ -468,7 +468,7 @@ export class SelectionPlugin extends UIPlugin {
     }));
     const anchorCol = zones[zones.length - 1].left;
     const anchorRow = zones[zones.length - 1].top;
-    this.dispatch("SET_SELECTION", { zones, anchor: [anchorCol, anchorRow] });
+    this.setSelection([anchorCol, anchorRow], zones);
   }
 
   private onAddColumns(quantity: number) {
@@ -479,7 +479,7 @@ export class SelectionPlugin extends UIPlugin {
       top: selection.top,
       bottom: selection.bottom,
     };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+    this.setSelection([zone.left, zone.top], [zone], true);
   }
 
   private onAddRows(quantity: number) {
@@ -490,7 +490,7 @@ export class SelectionPlugin extends UIPlugin {
       top: selection.top + quantity,
       bottom: selection.bottom + quantity,
     };
-    this.dispatch("SET_SELECTION", { zones: [zone], anchor: [zone.left, zone.top], strict: true });
+    this.setSelection([zone.left, zone.top], [zone], true);
   }
 
   // ---------------------------------------------------------------------------
