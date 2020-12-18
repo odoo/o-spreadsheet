@@ -1,5 +1,5 @@
 import { isDefined } from "../helpers/index";
-import { AddColumnsCommand, RemoveColumnsCommand, ResizeColumnsCommand } from "../types";
+import { AddColumnsCommand, RemoveColumnsCommand } from "../types";
 import { CellCommand, TargetCommand } from "./ot_helpers";
 
 export function columnsRemovedCellCommand(
@@ -72,7 +72,7 @@ export function columnsRemovedAddColumns(
   return { ...toTransform, column };
 }
 
-export function columnsRemovedRemoveColumns(
+export function columnsRemovedResizeOrRemoveColumns(
   toTransform: RemoveColumnsCommand,
   executed: RemoveColumnsCommand
 ): RemoveColumnsCommand | undefined {
@@ -96,31 +96,4 @@ export function columnsRemovedRemoveColumns(
     return undefined;
   }
   return { ...toTransform, columns: columnsToRemove };
-}
-
-//TODO If we change the ResizeColumnsCommands "cols" to "columns", we can use columnsRemovedRemoveColumns
-export function columnsRemovedResizeColumns(
-  toTransform: ResizeColumnsCommand,
-  executed: RemoveColumnsCommand
-): ResizeColumnsCommand | undefined {
-  if (toTransform.sheetId !== executed.sheetId) {
-    return toTransform;
-  }
-  const columnsToResize = toTransform.cols
-    .map((col) => {
-      if (executed.columns.includes(col)) {
-        return undefined;
-      }
-      for (let removedCol of executed.columns) {
-        if (col > removedCol) {
-          col--;
-        }
-      }
-      return col;
-    })
-    .filter(isDefined);
-  if (!columnsToResize.length) {
-    return undefined;
-  }
-  return { ...toTransform, cols: columnsToResize };
 }

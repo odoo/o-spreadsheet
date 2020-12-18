@@ -216,7 +216,7 @@ describe("OT with REMOVE_COLUMN", () => {
     });
   });
 
-  const resizeColumnsCommand: Omit<ResizeColumnsCommand, "cols"> = {
+  const resizeColumnsCommand: Omit<ResizeColumnsCommand, "columns"> = {
     type: "RESIZE_COLUMNS",
     sheetId,
     size: 10,
@@ -224,27 +224,27 @@ describe("OT with REMOVE_COLUMN", () => {
 
   describe("Columns removed - Resize columns", () => {
     test("Resize columns which are positionned before the removed columns", () => {
-      const command = { ...resizeColumnsCommand, cols: [0, 1] };
+      const command = { ...resizeColumnsCommand, columns: [0, 1] };
       const result = transform(command, removeColumns);
       expect(result).toEqual(command);
     });
 
     test("Resize columns which are positionned before AND after the removed columns", () => {
-      const command = { ...resizeColumnsCommand, cols: [0, 10] };
+      const command = { ...resizeColumnsCommand, columns: [0, 10] };
       const result = transform(command, removeColumns);
-      expect(result).toEqual({ ...command, cols: [0, 7] });
+      expect(result).toEqual({ ...command, columns: [0, 7] });
     });
 
     test("Resize a column which is a deleted column", () => {
-      const command = { ...resizeColumnsCommand, cols: [5] };
+      const command = { ...resizeColumnsCommand, columns: [5] };
       const result = transform(command, removeColumns);
       expect(result).toBeUndefined();
     });
 
     test("Resize columns one of which is a deleted column", () => {
-      const command = { ...resizeColumnsCommand, cols: [0, 5] };
+      const command = { ...resizeColumnsCommand, columns: [0, 5] };
       const result = transform(command, removeColumns);
-      expect(result).toEqual({ ...command, cols: [0] });
+      expect(result).toEqual({ ...command, columns: [0] });
     });
   });
 });

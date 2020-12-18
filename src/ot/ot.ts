@@ -4,15 +4,13 @@ import { UpdateCellCommand, CoreCommand, RenameSheetCommand } from "../types";
 import {
   columnsAddedAddColumns,
   columnsAddedCellCommand,
-  columnsAddedRemoveColumns,
-  columnsAddedResizeColumns,
+  columnsAddedResizeOrRemoveColumns,
   columnsAddedTargetCommand,
 } from "./ot_columns_added";
 import {
   columnsRemovedAddColumns,
   columnsRemovedCellCommand,
-  columnsRemovedRemoveColumns,
-  columnsRemovedResizeColumns,
+  columnsRemovedResizeOrRemoveColumns,
   columnsRemovedTargetCommand,
 } from "./ot_columns_removed";
 import { sheetDeleted } from "./ot_helpers";
@@ -89,9 +87,9 @@ otRegistry.addTransformation("SET_FORMATTING", "ADD_COLUMNS", columnsAddedTarget
 otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_COLUMNS", columnsAddedTargetCommand);
 otRegistry.addTransformation("SET_DECIMAL", "ADD_COLUMNS", columnsAddedTargetCommand);
 /** Resize Columns */
-otRegistry.addTransformation("RESIZE_COLUMNS", "ADD_COLUMNS", columnsAddedResizeColumns);
+otRegistry.addTransformation("RESIZE_COLUMNS", "ADD_COLUMNS", columnsAddedResizeOrRemoveColumns);
 /** Remove Columns */
-otRegistry.addTransformation("REMOVE_COLUMNS", "ADD_COLUMNS", columnsAddedRemoveColumns);
+otRegistry.addTransformation("REMOVE_COLUMNS", "ADD_COLUMNS", columnsAddedResizeOrRemoveColumns);
 /** Add Columns */
 otRegistry.addTransformation("ADD_COLUMNS", "ADD_COLUMNS", columnsAddedAddColumns);
 
@@ -131,9 +129,9 @@ otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", columnsRemovedTarg
 /** Add Columns */
 otRegistry.addTransformation("ADD_COLUMNS", "REMOVE_COLUMNS", columnsRemovedAddColumns);
 /** Remove Columns */
-otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedRemoveColumns);
+otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedResizeOrRemoveColumns);
 /** Resize Columns */
-otRegistry.addTransformation("RESIZE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedResizeColumns);
+otRegistry.addTransformation("RESIZE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedResizeOrRemoveColumns);
 
 // -----------------------------------------------------------------------------
 // Rows Removed
