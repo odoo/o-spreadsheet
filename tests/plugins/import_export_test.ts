@@ -109,7 +109,7 @@ describe("Export", () => {
     });
     model.dispatch("RESIZE_COLUMNS", {
       sheetId: model.getters.getActiveSheetId(),
-      cols: [1],
+      columns: [1],
       size: 150,
     });
     const exp = model.exportData();

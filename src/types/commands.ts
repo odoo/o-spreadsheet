@@ -59,7 +59,7 @@ export interface UpdateCellPositionCommand extends BaseCommand {
 export interface ResizeColumnsCommand extends BaseCommand {
   type: "RESIZE_COLUMNS";
   sheetId: UID;
-  cols: number[];
+  columns: number[];
   size: number;
 }
 

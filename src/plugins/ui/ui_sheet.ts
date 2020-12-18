@@ -98,7 +98,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           const size = this.getColMaxWidth(cmd.sheetId, col);
           if (size !== 0) {
             this.dispatch("RESIZE_COLUMNS", {
-              cols: [col],
+              columns: [col],
               size: size + 2 * PADDING_AUTORESIZE,
               sheetId: cmd.sheetId,
             });

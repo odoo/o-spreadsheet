@@ -639,7 +639,7 @@ describe("sheets", () => {
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: uuidv4(), name: "dup" });
     expect(model.getters.getSheets()).toHaveLength(2);
-    model.dispatch("RESIZE_COLUMNS", { cols: [0], size: 1, sheetId: sheet });
+    model.dispatch("RESIZE_COLUMNS", { columns: [0], size: 1, sheetId: sheet });
     model.dispatch("RESIZE_ROWS", { rows: [0], size: 1, sheetId: sheet });
     const newSheet = model.getters.getSheets()[1].id;
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: newSheet });
