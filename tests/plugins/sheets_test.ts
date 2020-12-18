@@ -488,11 +488,11 @@ describe("sheets", () => {
     expect(model.getters.getSheets()).toHaveLength(2);
   });
 
-  test("Duplicate a sheet make the newly created active", () => {
+  test("Duplicate a sheet does not make the newly created active", () => {
     const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
-    model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: "42", name: "dup" });
-    expect(model.getters.getActiveSheetId()).toBe("42");
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42", name: "dup" });
+    expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 
   test("Cannot duplicate a sheet with the same name", () => {

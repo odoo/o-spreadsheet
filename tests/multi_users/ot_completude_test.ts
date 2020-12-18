@@ -2,7 +2,7 @@ import { otRegistry } from "../../src/ot/ot";
 import { CoreCommandTypes, coreTypes } from "../../src/types";
 
 // Not sure it should be merged, but will help us at least
-describe("OT Completude", () => {
+describe.skip("OT Completude", () => {
   test("All transformations are written", () => {
     const commandList = coreTypes;
     let msg: string[] | undefined = undefined;
