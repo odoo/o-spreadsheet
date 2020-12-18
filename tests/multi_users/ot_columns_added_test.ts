@@ -5,6 +5,7 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  RemoveColumnsCommand,
   ResizeColumnsCommand,
   SetBorderCommand,
   SetDecimalCommand,
@@ -164,6 +165,37 @@ describe("OT with ADD_COLUMNS", () => {
 
     test("Resize a column which is the column on which the added command is triggered, with after position", () => {
       const command = { ...resizeColumnsCommand, cols: [5] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+  });
+
+  describe("OT with AddColumns - RemoveColumns", () => {
+    const toTransform: Omit<RemoveColumnsCommand, "columns"> = {
+      type: "REMOVE_COLUMNS",
+      sheetId,
+    };
+
+    test("remove base column and add after", () => {
+      const command = { ...toTransform, columns: [5] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...toTransform, columns: [5] });
+    });
+
+    test("remove base column and add before", () => {
+      const command = { ...toTransform, columns: [10] };
+      const result = transform(command, addColumnsBefore);
+      expect(result).toEqual({ ...toTransform, columns: [12] });
+    });
+
+    test("remove column before and after", () => {
+      const command = { ...toTransform, columns: [1, 10] };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...toTransform, columns: [1, 12] });
+    });
+
+    test("remove column in another sheet", () => {
+      const command = { ...toTransform, columns: [1, 10], sheetId: "coucou" };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });

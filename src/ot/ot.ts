@@ -4,6 +4,7 @@ import { UpdateCellCommand, CoreCommand, RenameSheetCommand } from "../types";
 import {
   columnsAddedAddColumns,
   columnsAddedCellCommand,
+  columnsAddedRemoveColumns,
   columnsAddedResizeColumns,
   columnsAddedTargetCommand,
 } from "./ot_columns_added";
@@ -18,7 +19,7 @@ import { sheetDeleted } from "./ot_helpers";
 import { mergedCellCommand } from "./ot_merged";
 import {
   rowsAddedCellCommand,
-  rowsAddedResizeRows,
+  rowsAddedResizeOrRemoveRows,
   rowsAddedTargetCommand,
   rowsAddedAddRows,
 } from "./ot_rows_added";
@@ -89,6 +90,8 @@ otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_COLUMNS", columnsAddedTarg
 otRegistry.addTransformation("SET_DECIMAL", "ADD_COLUMNS", columnsAddedTargetCommand);
 /** Resize Columns */
 otRegistry.addTransformation("RESIZE_COLUMNS", "ADD_COLUMNS", columnsAddedResizeColumns);
+/** Remove Columns */
+otRegistry.addTransformation("REMOVE_COLUMNS", "ADD_COLUMNS", columnsAddedRemoveColumns);
 /** Add Columns */
 otRegistry.addTransformation("ADD_COLUMNS", "ADD_COLUMNS", columnsAddedAddColumns);
 
@@ -106,7 +109,9 @@ otRegistry.addTransformation("SET_FORMATTING", "ADD_ROWS", rowsAddedTargetComman
 otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_ROWS", rowsAddedTargetCommand);
 otRegistry.addTransformation("SET_DECIMAL", "ADD_ROWS", rowsAddedTargetCommand);
 /** Resize Rows */
-otRegistry.addTransformation("RESIZE_ROWS", "ADD_ROWS", rowsAddedResizeRows);
+otRegistry.addTransformation("RESIZE_ROWS", "ADD_ROWS", rowsAddedResizeOrRemoveRows);
+/** Remove Rows */
+otRegistry.addTransformation("REMOVE_ROWS", "ADD_ROWS", rowsAddedResizeOrRemoveRows);
 /** Add Rows */
 otRegistry.addTransformation("ADD_ROWS", "ADD_ROWS", rowsAddedAddRows);
 

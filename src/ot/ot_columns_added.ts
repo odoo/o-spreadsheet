@@ -1,4 +1,4 @@
-import { AddColumnsCommand, ResizeColumnsCommand } from "../types";
+import { AddColumnsCommand, RemoveColumnsCommand, ResizeColumnsCommand } from "../types";
 import { CellCommand, TargetCommand } from "./ot_helpers";
 
 export function columnsAddedCellCommand(
@@ -46,6 +46,21 @@ export function columnsAddedResizeColumns(
   const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
   const cols = toTransform.cols.map((col) => (col > baseColumn ? col + executed.quantity : col));
   return { ...toTransform, cols };
+}
+
+// TODO this is the same as columnsAddedResizeColumns but with cols => columns
+export function columnsAddedRemoveColumns(
+  toTransform: RemoveColumnsCommand,
+  executed: AddColumnsCommand
+): RemoveColumnsCommand {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
+  const columns = toTransform.columns.map((col) =>
+    col > baseColumn ? col + executed.quantity : col
+  );
+  return { ...toTransform, columns };
 }
 
 export function columnsAddedAddColumns(

@@ -36,7 +36,7 @@ export function rowsAddedTargetCommand(
   return { ...toTransform, target: adaptedTarget };
 }
 
-export function rowsAddedResizeRows(
+export function rowsAddedResizeOrRemoveRows(
   toTransform: ResizeRowsCommand,
   executed: AddRowsCommand
 ): ResizeRowsCommand {

@@ -5,6 +5,7 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  RemoveRowsCommand,
   ResizeRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
@@ -164,6 +165,37 @@ describe("OT with ADD_ROWS", () => {
 
     test("Resize a row which is the row on which the added command is triggered, with after position", () => {
       const command = { ...resizeRowsCommand, rows: [5] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+  });
+
+  describe("OT with AddRows - RemoveRows", () => {
+    const toTransform: Omit<RemoveRowsCommand, "rows"> = {
+      type: "REMOVE_ROWS",
+      sheetId,
+    };
+
+    test("remove base column and add after", () => {
+      const command = { ...toTransform, rows: [5] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...toTransform, rows: [5] });
+    });
+
+    test("remove base column and add before", () => {
+      const command = { ...toTransform, rows: [10] };
+      const result = transform(command, addRowsBefore);
+      expect(result).toEqual({ ...toTransform, rows: [12] });
+    });
+
+    test("remove column before and after", () => {
+      const command = { ...toTransform, rows: [1, 10] };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual({ ...toTransform, rows: [1, 12] });
+    });
+
+    test("remove column in another sheet", () => {
+      const command = { ...toTransform, rows: [1, 10], sheetId: "coucou" };
       const result = transform(command, addRowsAfter);
       expect(result).toEqual(command);
     });
