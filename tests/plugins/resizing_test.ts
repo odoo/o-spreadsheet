@@ -13,7 +13,7 @@ describe("Model resizer", () => {
 
     model.dispatch("RESIZE_COLUMNS", {
       sheetId: sheetId,
-      cols: [1],
+      columns: [1],
       size: model.getters.getCol(sheetId, 1)!.size + 100,
     });
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(196);
@@ -36,7 +36,7 @@ describe("Model resizer", () => {
     expect(
       model.dispatch("RESIZE_COLUMNS", {
         sheetId: "invalid",
-        cols: [1],
+        columns: [1],
         size: 100,
       })
     ).toEqual({
@@ -124,7 +124,7 @@ describe("Model resizer", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     const [, sheet2] = model.getters.getSheets();
-    model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, size: 42, cols: [0] });
+    model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, size: 42, columns: [0] });
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);
     expect(model.getters.getCol(sheet2.id, 0)).toEqual({ end: 42, size: 42, name: "A", start: 0 });
   });
@@ -139,7 +139,7 @@ describe("Model resizer", () => {
 
     model.dispatch("RESIZE_COLUMNS", {
       sheetId: sheet2,
-      cols: [1],
+      columns: [1],
       size: model.getters.getCol(sheet2, 1)!.size + 100,
     });
 
@@ -156,7 +156,7 @@ describe("Model resizer", () => {
 
     model.dispatch("RESIZE_COLUMNS", {
       sheetId: model.getters.getActiveSheetId(),
-      cols: [1, 3, 4],
+      columns: [1, 3, 4],
       size: 100,
     });
     expect(model.getters.getCol(sheet, 1)!.size).toBe(100);
@@ -191,7 +191,7 @@ describe("Model resizer", () => {
     const [initialWidth, initialHeight] = model.getters.getGridSize(sheet);
     model.dispatch("RESIZE_COLUMNS", {
       sheetId: model.getters.getActiveSheetId(),
-      cols: [1],
+      columns: [1],
       size: model.getters.getCol(sheetId, 1)!.size + 100,
     });
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);

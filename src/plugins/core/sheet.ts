@@ -149,7 +149,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.sheetIds[sheet.name] = sheet.id;
         break;
       case "RESIZE_COLUMNS":
-        for (let col of cmd.cols) {
+        for (let col of cmd.columns) {
           this.setColSize(this.sheets[cmd.sheetId]!, col, cmd.size);
         }
         break;

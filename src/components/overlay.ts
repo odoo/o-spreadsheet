@@ -267,7 +267,7 @@ export class ColResizer extends AbstractResizer {
     const cols = this.getters.getActiveCols();
     this.dispatch("RESIZE_COLUMNS", {
       sheetId: this.getters.getActiveSheetId(),
-      cols: cols.has(index) ? [...cols] : [index],
+      columns: cols.has(index) ? [...cols] : [index],
       size,
     });
   }
