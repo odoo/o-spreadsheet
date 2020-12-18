@@ -8,7 +8,7 @@ import {
   UpdateCellPositionCommand,
 } from "../../src/types";
 
-describe("OT with REMOVE_ROWS", () => {
+describe("OT with ADD_MERGE", () => {
   const sheetId = "Sheet1";
   const addMerge: AddMergeCommand = {
     type: "ADD_MERGE",

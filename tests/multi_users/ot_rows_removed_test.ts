@@ -1,10 +1,12 @@
 import { toZone } from "../../src/helpers";
 import { transform } from "../../src/ot/ot";
 import {
+  AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
   RemoveRowsCommand,
+  ResizeRowsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -138,13 +140,46 @@ describe("OT with REMOVE_ROWS", () => {
     }
   );
 
+  describe("OT with RemoveRows - Addrows", () => {
+    const toTransform: Omit<AddRowsCommand, "row"> = {
+      type: "ADD_ROWS",
+      position: "after",
+      quantity: 10,
+      sheetId,
+    };
+
+    test("Add a removed rows", () => {
+      const command = { ...toTransform, row: 2 };
+      const result = transform(command, removeRows);
+      expect(result).toBeUndefined();
+    });
+
+    test("Add a row after the removed ones", () => {
+      const command = { ...toTransform, row: 10 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, row: 7 });
+    });
+
+    test("Add a row before the removed ones", () => {
+      const command = { ...toTransform, row: 0 };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+
+    test("Add on another sheet", () => {
+      const command = { ...toTransform, row: 2, sheetId: "42" };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+  });
+
   describe("OT with two remove rows", () => {
     const toTransform: Omit<RemoveRowsCommand, "rows"> = {
       type: "REMOVE_ROWS",
       sheetId,
     };
 
-    test("Remove a column which is in the removed rows", () => {
+    test("Remove a row which is in the removed rows", () => {
       const command = { ...toTransform, rows: [2] };
       const result = transform(command, removeRows);
       expect(result).toBeUndefined();
@@ -178,6 +213,38 @@ describe("OT with REMOVE_ROWS", () => {
       const command = { ...toTransform, rows: [4], sheetId: "42" };
       const result = transform(command, removeRows);
       expect(result).toEqual(command);
+    });
+  });
+
+  const resizeRowsCommand: Omit<ResizeRowsCommand, "rows"> = {
+    type: "RESIZE_ROWS",
+    sheetId,
+    size: 10,
+  };
+
+  describe("Rows removed - Resize rows", () => {
+    test("Resize rows which are positionned before the removed rows", () => {
+      const command = { ...resizeRowsCommand, rows: [0, 1] };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+
+    test("Resize rows which are positionned before AND after the removed rows", () => {
+      const command = { ...resizeRowsCommand, rows: [0, 10] };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, rows: [0, 7] });
+    });
+
+    test("Resize a row which is a deleted row", () => {
+      const command = { ...resizeRowsCommand, rows: [5] };
+      const result = transform(command, removeRows);
+      expect(result).toBeUndefined();
+    });
+
+    test("Resize rows one of which is a deleted row", () => {
+      const command = { ...resizeRowsCommand, rows: [0, 5] };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, rows: [0] });
     });
   });
 });

@@ -361,7 +361,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   exportData(): WorkbookData {
     const data = createEmptyWorkbookData();
-    this.stateReplicator2000.revertToSharedRevision()
+    this.stateReplicator2000.revertToSharedRevision();
     for (let handler of this.handlers) {
       if (handler instanceof CorePlugin) {
         handler.export(data);

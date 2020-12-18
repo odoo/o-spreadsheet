@@ -346,8 +346,8 @@ describe("Multi users synchronisation", () => {
         expect(exportedData.sheets[0].cells.A1?.content).toBe("salut");
         expect([alice, bob, charly]).toHaveSynchronizedExportedData();
       });
-    })
-  })
+    });
+  });
 
   describe("Undo/Redo", () => {
     test("Undo/redo is propagated to other clients", () => {
@@ -524,7 +524,7 @@ describe("Multi users synchronisation", () => {
         "hello"
       );
       expect(spy).toHaveBeenCalledTimes(1);
-    })
+    });
 
     test.skip("Undo a create sheet command", () => {
       const sheetId = "42";
