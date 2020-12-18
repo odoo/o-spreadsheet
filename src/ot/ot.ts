@@ -16,7 +16,12 @@ import {
 } from "./ot_columns_removed";
 import { sheetDeleted } from "./ot_helpers";
 import { mergedCellCommand } from "./ot_merged";
-import { rowsAddedCellCommand, rowsAddedResizeRows, rowsAddedTargetCommand, rowsAddedAddRows } from "./ot_rows_added";
+import {
+  rowsAddedCellCommand,
+  rowsAddedResizeRows,
+  rowsAddedTargetCommand,
+  rowsAddedAddRows,
+} from "./ot_rows_added";
 import {
   rowsRemovedCellCommand,
   rowsRemovedTargetCommand,

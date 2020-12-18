@@ -119,6 +119,15 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           }
         }
         break;
+      case "UNDO":
+        // TODO factorize this behavior with DELETE_SHEET
+        const activeSheetId = this.getters
+          .getVisibleSheets()
+          .find((sheetId) => sheetId === this.getActiveSheetId());
+        if (!activeSheetId) {
+          this.activeSheet = this.getters.getSheet(this.getters.getVisibleSheets()[0]);
+        }
+        break;
     }
   }
 

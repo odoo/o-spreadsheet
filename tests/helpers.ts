@@ -36,7 +36,10 @@ const { useRef, useSubEnv } = hooks;
 // Helpers
 //------------------------------------------------------------------------------
 
-export function createSheet(model: Model, data: Partial<CreateSheetCommand & { activate: boolean }>) {
+export function createSheet(
+  model: Model,
+  data: Partial<CreateSheetCommand & { activate: boolean }>
+) {
   const activeSheetId = model.getters.getActiveSheetId();
   const sheetId = data.sheetId || uuidv4();
   model.dispatch("CREATE_SHEET", {
@@ -44,7 +47,7 @@ export function createSheet(model: Model, data: Partial<CreateSheetCommand & { a
     sheetId,
     name: data.name,
     cols: data.cols,
-    rows: data.rows
+    rows: data.rows,
   });
   if (data.activate) {
     model.dispatch("ACTIVATE_SHEET", {

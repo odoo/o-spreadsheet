@@ -265,7 +265,7 @@ describe("Model history", () => {
     expect(getCell(model, "A1")!.value).toBe(10);
   });
 
-  test("ACTIVATE_SHEET standalone is not saved", () => {
+  test.skip("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     setCellContent(model, "A1", "this will be undone");

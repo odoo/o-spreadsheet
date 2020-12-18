@@ -878,7 +878,7 @@ export interface CommandHandler<T> {
   allowDispatch(command: T): CommandResult;
   beforeHandle(command: T): void;
   handle(command: T): void;
-  finalize(command: T): void;
+  finalize(): void;
 }
 
 export interface CommandDispatcher {

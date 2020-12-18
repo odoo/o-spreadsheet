@@ -67,7 +67,6 @@ describe("OT with ADD_MERGE", () => {
     }
   );
 
-
   const deleteContent: Omit<DeleteContentCommand, "target"> = {
     type: "DELETE_CONTENT",
     sheetId,

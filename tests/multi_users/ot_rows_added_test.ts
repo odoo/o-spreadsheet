@@ -169,7 +169,6 @@ describe("OT with ADD_ROWS", () => {
     });
   });
 
-
   describe("ADD_ROWS & ADD_ROWS", () => {
     test("same base row, one after, one before", () => {
       const addRowsAfter: AddRowsCommand = {

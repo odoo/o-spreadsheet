@@ -124,7 +124,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.config.userId,
       this.config.network
     );
-    this.stateReplicator2000.on("update", this, () => this.trigger("update"));
+    this.stateReplicator2000.on("remote-command-processed", this, () => {
+      this.finalize();
+      this.trigger("update");
+    });
     this.stateReplicator2000.import(workbookData);
 
     // this.externalCommandHandler = config.externalCommandHandler;
@@ -223,11 +226,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     }
   }
 
-  private finalize(command: Command) {
+  private finalize() {
     this.status = Status.Finalizing;
     for (const h of this.handlers) {
-      h.finalize(command);
+      h.finalize();
     }
+    this.status = Status.Ready;
   }
 
   dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
@@ -243,7 +247,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.stateReplicator2000.transact(command, () => {
           // this.startTransaction(command);
           this.dispatchToHandlers(command);
-          this.finalize(command);
+          this.finalize();
         });
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
@@ -255,6 +259,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.dispatchToHandlers(command);
         break;
       case Status.Finalizing:
+        debugger;
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));
       case Status.RunningCore:
         throw new Error("A UI plugin cannot dispatch while handling a core command");
