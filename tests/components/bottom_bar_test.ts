@@ -57,10 +57,14 @@ describe("BottomBar component", () => {
 
     mockUuidV4To(42);
     triggerMouseEvent(".o-add-sheet", "click");
-    expect(parent.env.dispatch).toHaveBeenCalledWith("CREATE_SHEET", {
-      activate: true,
+    const activeSheetId = parent.env.getters.getActiveSheetId();
+    expect(parent.env.dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: "42",
       position: 1,
+    });
+    expect(parent.env.dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
+      sheetIdTo: "42",
+      sheetIdFrom: activeSheetId,
     });
   });
 
@@ -122,7 +126,9 @@ describe("BottomBar component", () => {
 
   test("Can move left a sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    const sheetIdFrom = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo: "42" });
     const parent = new Parent(model);
     await parent.mount(fixture);
 

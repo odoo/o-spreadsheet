@@ -1,7 +1,14 @@
 import { StateReplicator2000 } from "../../src/history";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
+import {
+  getBorder,
+  getCell,
+  setCellContent,
+  waitForRecompute,
+  getCellContent,
+  createSheet,
+} from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 
@@ -288,7 +295,7 @@ describe("Model history", () => {
   test("ACTIVATE_SHEET with another command is saved", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("UNDO");
     expect(model.getters.getActiveSheetId()).toBe(sheet);
   });

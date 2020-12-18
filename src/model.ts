@@ -257,7 +257,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       case Status.Finalizing:
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));
       case Status.RunningCore:
-        break;
         throw new Error("A UI plugin cannot dispatch while handling a core command");
     }
     return { status: "SUCCESS" } as CommandSuccess;
@@ -277,15 +276,15 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   dispatchCore: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     const command: Command = Object.assign({ type }, payload);
-    // const previousStatus = this.status;
-    // this.status = Status.RunningCore;
+    const previousStatus = this.status;
+    this.status = Status.RunningCore;
     for (const h of this.handlers) {
       h.beforeHandle(command);
     }
     for (const h of this.handlers) {
       h.handle(command);
     }
-    // this.status = previousStatus;
+    this.status = previousStatus;
     return { status: "SUCCESS" } as CommandSuccess;
   };
   // dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {

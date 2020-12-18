@@ -3,7 +3,7 @@ import { Grid } from "../src/components/grid";
 import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import { toCartesian, toXC, toZone, lettersToNumber } from "../src/helpers/index";
+import { toCartesian, toXC, toZone, lettersToNumber, uuidv4 } from "../src/helpers/index";
 import { Model } from "../src/model";
 import {
   Cell,
@@ -20,6 +20,7 @@ import {
   Border,
   BorderCommand,
   ColorScaleMidPointThreshold,
+  CreateSheetCommand,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/core/merge";
@@ -34,6 +35,24 @@ const { useRef, useSubEnv } = hooks;
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+
+export function createSheet(model: Model, data: Partial<CreateSheetCommand & { activate: boolean }>) {
+  const activeSheetId = model.getters.getActiveSheetId();
+  const sheetId = data.sheetId || uuidv4();
+  model.dispatch("CREATE_SHEET", {
+    position: data.position !== undefined ? data.position : 1,
+    sheetId,
+    name: data.name,
+    cols: data.cols,
+    rows: data.rows
+  });
+  if (data.activate) {
+    model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: activeSheetId,
+      sheetIdTo: sheetId,
+    });
+  }
+}
 
 export function addColumns(
   model: Model,

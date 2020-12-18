@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import "../canvas.mock";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import { toZone } from "../../src/helpers";
+import { createSheet } from "../helpers";
 
 let model: Model;
 
@@ -115,7 +116,7 @@ describe("highlight", () => {
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     model.dispatch("ADD_HIGHLIGHTS", {
       ranges: { B2: "#888" },
     });

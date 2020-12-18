@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { CancelledReason } from "../../src/types";
+import { createSheet } from "../helpers";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
@@ -131,7 +132,7 @@ describe("Model resizer", () => {
 
   test("changing sheets update the sizes", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { activate: true, sheetId: "42"});
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
 
