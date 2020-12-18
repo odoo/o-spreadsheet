@@ -78,9 +78,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           });
         }
         break;
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetIdTo);
-        break;
       case "RENAME_SHEET":
         if (cmd.interactive) {
           this.interactiveRenameSheet(cmd.sheetId, _lt("Rename Sheet"));
@@ -134,13 +131,6 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
         }
         break;
     }
-  }
-
-  duplicateSheet(sheetId: UID) {
-    this.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.getActiveSheetId(),
-      sheetIdTo: sheetId,
-    });
   }
 
   finalize() {

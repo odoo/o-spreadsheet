@@ -314,6 +314,33 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charly]).toHaveSynchronizedExportedData();
   });
 
+  test("Updatecell & composer", () => {
+    alice.dispatch("START_EDITION");
+    setCellContent(bob, "A2", "A2");
+    expect(alice.getters.getEditionMode()).toBe("editing");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A2"),
+      "A2"
+    );
+  });
+
+  test("duplicate sheet does not activate sheet", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    alice.dispatch("DUPLICATE_SHEET", {
+      name: "Duplicated Sheet",
+      sheetIdFrom: firstSheetId,
+      sheetIdTo: "42",
+    });
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => user.getters.getActiveSheetId(),
+      firstSheetId
+    );
+    alice.dispatch("ACTIVATE_SHEET", { sheetIdFrom: firstSheetId, sheetIdTo: "42" });
+    expect(alice.getters.getActiveSheetId()).toBe("42");
+    expect(bob.getters.getActiveSheetId()).toBe(firstSheetId);
+    expect(charly.getters.getActiveSheetId()).toBe(firstSheetId);
+  });
+
   // test.skip("active cell is transfered to other users", () => {
   //   alice.dispatch("SELECT_CELL", {
   //     col: 2,
@@ -600,14 +627,14 @@ describe("Multi users synchronisation", () => {
     });
     test("Cell value is correctly re-evaluated after undo", () => {
       setCellContent(alice, "A1", "=5");
-      expect(getCell(alice, "A1")!.value).toBe(5);
-      expect(getCell(bob, "A1")!.value).toBe(5);
+      expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.value, 5);
       setCellContent(alice, "A1", "=10");
-      expect(getCell(alice, "A1")!.value).toBe(10);
-      expect(getCell(bob, "A1")!.value).toBe(10);
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCell(user, "A1")!.value,
+        10
+      );
       alice.dispatch("UNDO");
-      expect(getCell(alice, "A1")!.value).toBe(5);
-      expect(getCell(bob, "A1")!.value).toBe(5);
+      expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.value, 5);
     });
   });
 
