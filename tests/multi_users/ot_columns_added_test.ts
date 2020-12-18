@@ -168,4 +168,70 @@ describe("OT with ADD_COLUMNS", () => {
       expect(result).toEqual(command);
     });
   });
+
+  describe("ADD_COLUMNS & ADD_COLUMNS", () => {
+    test("same base col, one after, one before", () => {
+      const addColumnsAfter: AddColumnsCommand = {
+        type: "ADD_COLUMNS",
+        position: "after",
+        column: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const addColumnsBefore: AddColumnsCommand = {
+        type: "ADD_COLUMNS",
+        position: "before",
+        column: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform(addColumnsBefore, addColumnsAfter);
+      expect(result).toEqual(addColumnsBefore);
+    });
+    test("same base col, one before, one after", () => {
+      const addColumnsAfter: AddColumnsCommand = {
+        type: "ADD_COLUMNS",
+        position: "after",
+        column: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const addColumnsBefore: AddColumnsCommand = {
+        type: "ADD_COLUMNS",
+        position: "before",
+        column: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform(addColumnsAfter, addColumnsBefore);
+      expect(result).toEqual({ ...addColumnsAfter, column: 7 });
+    });
+    test("Base col before the one already added", () => {
+      const addColumnsAfter: AddColumnsCommand = {
+        type: "ADD_COLUMNS",
+        position: "after",
+        column: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform({ ...addColumnsAfter, column: 0 }, addColumnsAfter);
+      expect(result).toEqual({ ...addColumnsAfter, column: 0 });
+    });
+    test("Base col after the one already added", () => {
+      const addColumnsAfter: AddColumnsCommand = {
+        type: "ADD_COLUMNS",
+        position: "after",
+        column: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform({ ...addColumnsAfter, column: 10 }, addColumnsAfter);
+      expect(result).toEqual({ ...addColumnsAfter, column: 12 });
+    });
+    test("add a column On another sheet", () => {
+      const command = { ...addColumnsAfter, sheetId: "other" };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+  });
 });

@@ -6,6 +6,10 @@ import {
   AddMergeCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
+  DeleteContentCommand,
+  SetFormattingCommand,
+  ClearFormattingCommand,
+  SetDecimalCommand,
 } from "../../src/types";
 
 describe("OT with ADD_MERGE", () => {
@@ -57,6 +61,40 @@ describe("OT with ADD_MERGE", () => {
 
       test(`${cmd.type} in another sheet`, () => {
         const command = { ...cmd, col: 2, row: 1, sheetId: "42" };
+        const result = transform(command, addMerge);
+        expect(result).toEqual(command);
+      });
+    }
+  );
+
+
+  const deleteContent: Omit<DeleteContentCommand, "target"> = {
+    type: "DELETE_CONTENT",
+    sheetId,
+  };
+
+  const setFormatting: Omit<SetFormattingCommand, "target"> = {
+    type: "SET_FORMATTING",
+    sheetId,
+    style: { fillColor: "#000000" },
+  };
+
+  const clearFormatting: Omit<ClearFormattingCommand, "target"> = {
+    type: "CLEAR_FORMATTING",
+    sheetId,
+  };
+
+  const setDecimal: Omit<SetDecimalCommand, "target"> = {
+    type: "SET_DECIMAL",
+    sheetId,
+    step: 1,
+  };
+
+  describe.each([deleteContent, setFormatting, clearFormatting, setDecimal])(
+    "target commands",
+    (cmd) => {
+      test(`${cmd.type} outside merge`, () => {
+        const command = { ...cmd, target: [toZone("E1:F2")] };
         const result = transform(command, addMerge);
         expect(result).toEqual(command);
       });

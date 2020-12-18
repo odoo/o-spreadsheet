@@ -168,4 +168,71 @@ describe("OT with ADD_ROWS", () => {
       expect(result).toEqual(command);
     });
   });
+
+
+  describe("ADD_ROWS & ADD_ROWS", () => {
+    test("same base row, one after, one before", () => {
+      const addRowsAfter: AddRowsCommand = {
+        type: "ADD_ROWS",
+        position: "after",
+        row: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const addRowsBefore: AddRowsCommand = {
+        type: "ADD_ROWS",
+        position: "before",
+        row: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform(addRowsBefore, addRowsAfter);
+      expect(result).toEqual(addRowsBefore);
+    });
+    test("same base row, one before, one after", () => {
+      const addRowsAfter: AddRowsCommand = {
+        type: "ADD_ROWS",
+        position: "after",
+        row: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const addRowsBefore: AddRowsCommand = {
+        type: "ADD_ROWS",
+        position: "before",
+        row: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform(addRowsAfter, addRowsBefore);
+      expect(result).toEqual({ ...addRowsAfter, row: 7 });
+    });
+    test("Base row before the one already added", () => {
+      const addRowsAfter: AddRowsCommand = {
+        type: "ADD_ROWS",
+        position: "after",
+        row: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform({ ...addRowsAfter, row: 0 }, addRowsAfter);
+      expect(result).toEqual({ ...addRowsAfter, row: 0 });
+    });
+    test("Base row after the one already added", () => {
+      const addRowsAfter: AddRowsCommand = {
+        type: "ADD_ROWS",
+        position: "after",
+        row: 5,
+        quantity: 2,
+        sheetId,
+      };
+      const result = transform({ ...addRowsAfter, row: 10 }, addRowsAfter);
+      expect(result).toEqual({ ...addRowsAfter, row: 12 });
+    });
+    test("add a row on another sheet", () => {
+      const command = { ...addRowsAfter, sheetId: "other" };
+      const result = transform(command, addRowsAfter);
+      expect(result).toEqual(command);
+    });
+  });
 });

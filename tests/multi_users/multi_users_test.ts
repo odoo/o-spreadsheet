@@ -1,7 +1,14 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { CancelledReason, WorkbookData } from "../../src/types";
-import { addColumns, clearCell, getCell, getCellContent, setCellContent } from "../helpers";
+import {
+  addColumns,
+  clearCell,
+  getBorder,
+  getCell,
+  getCellContent,
+  setCellContent,
+} from "../helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
 
@@ -262,6 +269,49 @@ describe("Multi users synchronisation", () => {
     expect(alice.getters.getMerges(sheetId)).toHaveLength(0);
     expect(bob.getters.getMerges(sheetId)).toHaveLength(0);
     expect(charly.getters.getMerges(sheetId)).toHaveLength(0);
+  });
+
+  test("delete content & merge concurrently", () => {
+    setCellContent(alice, "B2", "hello");
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      alice.dispatch("ADD_MERGE", {
+        sheetId,
+        zone: toZone("B2:C3"),
+      });
+      bob.dispatch("DELETE_CONTENT", {
+        sheetId,
+        target: [toZone("A1:B2")],
+      });
+    });
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
+    expect([alice, bob, charly]).toHaveSynchronizedExportedData();
+  });
+
+  test("Set formatting & merge concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      alice.dispatch("ADD_MERGE", {
+        sheetId,
+        zone: toZone("A1:B2"),
+      });
+      bob.dispatch("SET_FORMATTING", {
+        sheetId,
+        target: [toZone("B2:C3")],
+        border: "external",
+      });
+    });
+    expect([alice, bob, charly]).toHaveSynchronizedExportedData();
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getBorder(user, "B2"), null);
+  });
+
+  test("Command not allowed is not dispatched to others users", () => {
+    const spy = jest.spyOn(network, "sendMessage");
+    setCellContent(alice, "A1", "hello", "invalidSheetId");
+    expect(spy).toHaveBeenCalledTimes(0);
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
+    expect([alice, bob, charly]).toHaveSynchronizedExportedData();
   });
 
   // test.skip("active cell is transfered to other users", () => {
