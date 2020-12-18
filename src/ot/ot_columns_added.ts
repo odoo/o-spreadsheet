@@ -1,4 +1,4 @@
-import { AddColumnsCommand, ResizeColumnsCommand } from "../types";
+import { AddColumnsCommand, AddMergeCommand, ResizeColumnsCommand } from "../types";
 import { CellCommand, TargetCommand } from "./ot_helpers";
 
 export function columnsAddedCellCommand(
@@ -16,6 +16,17 @@ export function columnsAddedCellCommand(
   return toTransform;
 }
 
+function transformZone(zone, executed: AddColumnsCommand) {
+  const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
+  if (zone.left <= baseColumn && zone.right >= baseColumn) {
+    zone.right += executed.quantity;
+  } else if (baseColumn < zone.left) {
+    zone.left += executed.quantity;
+    zone.right += executed.quantity;
+  }
+  return zone;
+}
+
 export function columnsAddedTargetCommand(
   toTransform: TargetCommand,
   executed: AddColumnsCommand
@@ -23,17 +34,20 @@ export function columnsAddedTargetCommand(
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
-  const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
-  const adaptedTarget = toTransform.target.map((zone) => {
-    if (zone.left <= baseColumn && zone.right >= baseColumn) {
-      zone.right += executed.quantity;
-    } else if (baseColumn < zone.left) {
-      zone.left += executed.quantity;
-      zone.right += executed.quantity;
-    }
-    return zone;
-  });
+  // const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
+  const adaptedTarget = toTransform.target.map((zone) => transformZone(zone, executed));
   return { ...toTransform, target: adaptedTarget };
+}
+
+// TODO write test
+export function columnsAddedMergeCommand(
+  toTransform: AddMergeCommand,
+  executed: AddColumnsCommand
+): AddMergeCommand {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  return { ...toTransform, zone: transformZone(toTransform.zone, executed) };
 }
 
 export function columnsAddedResizeOrRemoveColumns(
