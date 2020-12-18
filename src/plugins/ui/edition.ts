@@ -142,6 +142,11 @@ export class EditionPlugin extends UIPlugin {
   }
 
   getCurrentContent(): string {
+    if (this.mode === "inactive") {
+      const cell = this.getters.getActiveCell();
+      const activeSheetId = this.getters.getActiveSheetId();
+      return cell ? this.getters.getCellText(cell, activeSheetId, true) : "";
+    }
     return this.currentContent;
   }
 

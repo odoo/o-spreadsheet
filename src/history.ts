@@ -326,7 +326,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
         break;
     }
     this.revisionId = message.newRevisionId;
-    this.trigger("update");
+    this.trigger("remote-command-processed");
     if (this.pendingRevisions.length > 0) {
       this.sendPendingRevision();
     }

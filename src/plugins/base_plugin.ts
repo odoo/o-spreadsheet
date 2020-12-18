@@ -67,5 +67,5 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
    * subcommands) has been completely handled.  For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
-  finalize(command: C): void {}
+  finalize(): void {}
 }

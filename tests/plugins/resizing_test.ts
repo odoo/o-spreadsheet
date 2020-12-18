@@ -132,7 +132,7 @@ describe("Model resizer", () => {
 
   test("changing sheets update the sizes", async () => {
     const model = new Model();
-    createSheet(model, { activate: true, sheetId: "42"});
+    createSheet(model, { activate: true, sheetId: "42" });
     const sheet1 = model.getters.getVisibleSheets()[0];
     const sheet2 = model.getters.getVisibleSheets()[1];
 
