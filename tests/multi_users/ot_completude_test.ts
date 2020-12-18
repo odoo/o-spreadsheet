@@ -5,7 +5,7 @@ import { CoreCommandTypes, coreTypes } from "../../src/types";
 describe("OT Completude", () => {
   test("All transformations are written", () => {
     const commandList = coreTypes;
-    let msg: string | undefined = undefined;
+    let msg: string[] | undefined = undefined;
     let nbr = 0;
     let done = 0;
     for (let toTransform of commandList.values()) {
@@ -16,16 +16,21 @@ describe("OT Completude", () => {
         const fn = otRegistry.getTransformation(toTransform, executed);
         if (!fn) {
           if (!msg) {
-            msg = `Missing transformation: ${toTransform} - ${executed}`;
+            msg = ["Missing transformations:"];
           }
+          msg.push(`${toTransform} - ${executed}`);
           nbr++;
         } else {
           done++;
         }
       }
     }
-    console.log(nbr, "/", nbr + done, "(", ((done / (nbr + done)) * 100).toFixed(2), "%)");
-    expect(msg).toBeUndefined();
+    if (msg) {
+      msg.push(`Done: ${done}/${nbr + done} (${((done / (nbr + done)) * 100).toFixed(2)}%)`);
+      msg.push(`Missing: ${nbr}`);
+    }
+    const message: string | undefined = msg && msg.join("\n");
+    expect(message).toBeUndefined();
   });
 });
 
@@ -50,7 +55,6 @@ function only(types: CoreCommandTypes[]): Set<CoreCommandTypes> {
 }
 
 const STYLE_COMMANDS = ["SET_FORMATTING", "CLEAR_FORMATTING", "SET_BORDER", "SET_DECIMAL"] as const;
-const RESIZE_COMMANDS = ["RESIZE_COLUMNS", "RESIZE_ROWS"] as const;
 // Record<Executed, ToTransform[]>
 const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
   /** CELLS */
@@ -67,8 +71,8 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_COLUMNS",
     "REMOVE_COLUMNS",
     "ADD_MERGE",
+    "RESIZE_COLUMNS",
     ...STYLE_COMMANDS,
-    ...RESIZE_COMMANDS,
   ]),
   ADD_ROWS: only([
     "UPDATE_CELL",
@@ -77,8 +81,8 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_ROWS",
     "REMOVE_ROWS",
     "ADD_MERGE",
+    "RESIZE_ROWS",
     ...STYLE_COMMANDS,
-    ...RESIZE_COMMANDS,
   ]),
   REMOVE_COLUMNS: only([
     "UPDATE_CELL",
@@ -87,8 +91,8 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_COLUMNS",
     "REMOVE_COLUMNS",
     "ADD_MERGE",
+    "RESIZE_COLUMNS",
     ...STYLE_COMMANDS,
-    ...RESIZE_COMMANDS,
   ]),
   REMOVE_ROWS: only([
     "UPDATE_CELL",
@@ -97,8 +101,8 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_ROWS",
     "REMOVE_ROWS",
     "ADD_MERGE",
+    "RESIZE_ROWS",
     ...STYLE_COMMANDS,
-    ...RESIZE_COMMANDS,
   ]),
   RESIZE_COLUMNS: none(),
   RESIZE_ROWS: none(),

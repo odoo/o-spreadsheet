@@ -1,10 +1,12 @@
 import { toZone } from "../../src/helpers";
 import { transform } from "../../src/ot/ot";
 import {
+  AddColumnsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
   RemoveColumnsCommand,
+  ResizeColumnsCommand,
   SetBorderCommand,
   SetDecimalCommand,
   SetFormattingCommand,
@@ -137,6 +139,40 @@ describe("OT with REMOVE_COLUMN", () => {
       });
     }
   );
+
+  describe("OT with RemoveColumns - AddColumns", () => {
+    const toTransform: Omit<AddColumnsCommand, "column"> = {
+      type: "ADD_COLUMNS",
+      position: "after",
+      quantity: 10,
+      sheetId,
+    };
+
+    test("Add a removed columns", () => {
+      const command = { ...toTransform, column: 2 };
+      const result = transform(command, removeColumns);
+      expect(result).toBeUndefined();
+    });
+
+    test("Add a column after the removed ones", () => {
+      const command = { ...toTransform, column: 10 };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, column: 7 });
+    });
+
+    test("Add a column before the removed ones", () => {
+      const command = { ...toTransform, column: 0 };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+
+    test("Add on another sheet", () => {
+      const command = { ...toTransform, column: 2, sheetId: "42" };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+  });
+
   describe("OT with two remove columns", () => {
     const toTransform: Omit<RemoveColumnsCommand, "columns"> = {
       type: "REMOVE_COLUMNS",
@@ -177,6 +213,38 @@ describe("OT with REMOVE_COLUMN", () => {
       const command = { ...toTransform, columns: [4], sheetId: "42" };
       const result = transform(command, removeColumns);
       expect(result).toEqual(command);
+    });
+  });
+
+  const resizeColumnsCommand: Omit<ResizeColumnsCommand, "cols"> = {
+    type: "RESIZE_COLUMNS",
+    sheetId,
+    size: 10,
+  };
+
+  describe("Columns removed - Resize columns", () => {
+    test("Resize columns which are positionned before the removed columns", () => {
+      const command = { ...resizeColumnsCommand, cols: [0, 1] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+
+    test("Resize columns which are positionned before AND after the removed columns", () => {
+      const command = { ...resizeColumnsCommand, cols: [0, 10] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, cols: [0, 7] });
+    });
+
+    test("Resize a column which is a deleted column", () => {
+      const command = { ...resizeColumnsCommand, cols: [5] };
+      const result = transform(command, removeColumns);
+      expect(result).toBeUndefined();
+    });
+
+    test("Resize columns one of which is a deleted column", () => {
+      const command = { ...resizeColumnsCommand, cols: [0, 5] };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, cols: [0] });
     });
   });
 });

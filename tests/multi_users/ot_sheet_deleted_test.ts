@@ -22,6 +22,8 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   CreateChartCommand,
+  ResizeRowsCommand,
+  ResizeColumnsCommand,
 } from "../../src/types";
 import { createEqualCF } from "../helpers";
 
@@ -98,6 +100,16 @@ describe("OT with DELETE_SHEET", () => {
     id: "1",
     definition: {} as any,
   };
+  const resizeColumns: Omit<ResizeColumnsCommand, "sheetId"> = {
+    type: "RESIZE_COLUMNS",
+    cols: [1],
+    size: 10,
+  };
+  const resizeRows: Omit<ResizeRowsCommand, "sheetId"> = {
+    type: "RESIZE_ROWS",
+    rows: [1],
+    size: 10,
+  };
 
   test.each([
     updateCell,
@@ -119,6 +131,8 @@ describe("OT with DELETE_SHEET", () => {
     setBorder,
     setDecimal,
     createChart,
+    resizeColumns,
+    resizeRows,
   ])("Delete the sheet on which the command is triggered", (cmd) => {
     const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
     expect(result).toBeUndefined();
@@ -143,6 +157,8 @@ describe("OT with DELETE_SHEET", () => {
     setBorder,
     setDecimal,
     createChart,
+    resizeColumns,
+    resizeRows,
   ])("Delete the sheet on which the command is triggered", (cmd) => {
     const command = { ...updateCell, sheetId };
     const result = transform(command, deleteSheet);

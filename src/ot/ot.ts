@@ -2,19 +2,26 @@ import { isDefined } from "../helpers/index";
 import { OTRegistry } from "../registries/ot_registry";
 import { UpdateCellCommand, CoreCommand, RenameSheetCommand } from "../types";
 import {
-  addColumnsTarget,
-  addMergeCellCommand,
-  addRowsTarget,
-  columnAdded,
-  columnRemoved,
-  columnRemovedcolumnRemoved as columnRemovedColumnRemove,
-  columnRemovedTarget,
-  rowAdded,
-  rowRemoved,
-  rowRemovedRowRemove,
-  rowRemovedTarget,
-  sheetDeleted,
-} from "./ot_helpers";
+  columnsAddedCellCommand,
+  columnsAddedResizeColumns,
+  columnsAddedTargetCommand,
+} from "./ot_columns_added";
+import {
+  columnsRemovedAddColumns,
+  columnsRemovedCellCommand,
+  columnsRemovedRemoveColumns,
+  columnsRemovedResizeColumns,
+  columnsRemovedTargetCommand,
+} from "./ot_columns_removed";
+import { sheetDeleted } from "./ot_helpers";
+import { mergedCellCommand } from "./ot_merged";
+import { rowsAddedCellCommand, rowsAddedResizeRows, rowsAddedTargetCommand } from "./ot_rows_added";
+import {
+  rowsRemovedCellCommand,
+  rowsRemovedTargetCommand,
+  rowsRemovedRemoveOrResizeRows,
+  rowsRemovedAddRows,
+} from "./ot_rows_removed";
 
 /**
  * TODO
@@ -58,56 +65,94 @@ otRegistry.addTransformation("CLEAR_FORMATTING", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("SET_BORDER", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("SET_DECIMAL", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("CREATE_CHART", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("RESIZE_COLUMNS", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("RESIZE_ROWS", "DELETE_SHEET", sheetDeleted);
 
-otRegistry.addTransformation("UPDATE_CELL", "ADD_COLUMNS", columnAdded);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_COLUMNS", columnAdded);
-otRegistry.addTransformation("CLEAR_CELL", "ADD_COLUMNS", columnAdded);
-otRegistry.addTransformation("SET_BORDER", "ADD_COLUMNS", columnAdded);
-otRegistry.addTransformation("DELETE_CONTENT", "ADD_COLUMNS", addColumnsTarget);
-otRegistry.addTransformation("SET_FORMATTING", "ADD_COLUMNS", addColumnsTarget);
-otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_COLUMNS", addColumnsTarget);
-otRegistry.addTransformation("SET_DECIMAL", "ADD_COLUMNS", addColumnsTarget);
+// -----------------------------------------------------------------------------
+// Columns Added
+// -----------------------------------------------------------------------------
+/** Cell Commands */
+otRegistry.addTransformation("UPDATE_CELL", "ADD_COLUMNS", columnsAddedCellCommand);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_COLUMNS", columnsAddedCellCommand);
+otRegistry.addTransformation("CLEAR_CELL", "ADD_COLUMNS", columnsAddedCellCommand);
+otRegistry.addTransformation("SET_BORDER", "ADD_COLUMNS", columnsAddedCellCommand);
+/** Target Commands */
+otRegistry.addTransformation("DELETE_CONTENT", "ADD_COLUMNS", columnsAddedTargetCommand);
+otRegistry.addTransformation("SET_FORMATTING", "ADD_COLUMNS", columnsAddedTargetCommand);
+otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_COLUMNS", columnsAddedTargetCommand);
+otRegistry.addTransformation("SET_DECIMAL", "ADD_COLUMNS", columnsAddedTargetCommand);
+/** Resize Columns */
+otRegistry.addTransformation("RESIZE_COLUMNS", "ADD_COLUMNS", columnsAddedResizeColumns);
 
-otRegistry.addTransformation("UPDATE_CELL", "ADD_ROWS", rowAdded);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_ROWS", rowAdded);
-otRegistry.addTransformation("CLEAR_CELL", "ADD_ROWS", rowAdded);
-otRegistry.addTransformation("SET_BORDER", "ADD_ROWS", rowAdded);
-otRegistry.addTransformation("DELETE_CONTENT", "ADD_ROWS", addRowsTarget);
-otRegistry.addTransformation("SET_FORMATTING", "ADD_ROWS", addRowsTarget);
-otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_ROWS", addRowsTarget);
-otRegistry.addTransformation("SET_DECIMAL", "ADD_ROWS", addRowsTarget);
+// -----------------------------------------------------------------------------
+// Rows Added
+// -----------------------------------------------------------------------------
+/** Cell Commands */
+otRegistry.addTransformation("UPDATE_CELL", "ADD_ROWS", rowsAddedCellCommand);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_ROWS", rowsAddedCellCommand);
+otRegistry.addTransformation("CLEAR_CELL", "ADD_ROWS", rowsAddedCellCommand);
+otRegistry.addTransformation("SET_BORDER", "ADD_ROWS", rowsAddedCellCommand);
+/** Target Commands */
+otRegistry.addTransformation("DELETE_CONTENT", "ADD_ROWS", rowsAddedTargetCommand);
+otRegistry.addTransformation("SET_FORMATTING", "ADD_ROWS", rowsAddedTargetCommand);
+otRegistry.addTransformation("CLEAR_FORMATTING", "ADD_ROWS", rowsAddedTargetCommand);
+otRegistry.addTransformation("SET_DECIMAL", "ADD_ROWS", rowsAddedTargetCommand);
+/** Resize Rows */
+otRegistry.addTransformation("RESIZE_ROWS", "ADD_ROWS", rowsAddedResizeRows);
 
-otRegistry.addTransformation("UPDATE_CELL", "REMOVE_COLUMNS", columnRemoved);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_COLUMNS", columnRemoved);
-otRegistry.addTransformation("CLEAR_CELL", "REMOVE_COLUMNS", columnRemoved);
-otRegistry.addTransformation("SET_BORDER", "REMOVE_COLUMNS", columnRemoved);
-otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_COLUMNS", columnRemovedTarget);
-otRegistry.addTransformation("SET_FORMATTING", "REMOVE_COLUMNS", columnRemovedTarget);
-otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_COLUMNS", columnRemovedTarget);
-otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", columnRemovedTarget);
-otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnRemovedColumnRemove);
+// -----------------------------------------------------------------------------
+// Columns Removed
+// -----------------------------------------------------------------------------
+/** Cell Commands */
+otRegistry.addTransformation("UPDATE_CELL", "REMOVE_COLUMNS", columnsRemovedCellCommand);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_COLUMNS", columnsRemovedCellCommand);
+otRegistry.addTransformation("CLEAR_CELL", "REMOVE_COLUMNS", columnsRemovedCellCommand);
+otRegistry.addTransformation("SET_BORDER", "REMOVE_COLUMNS", columnsRemovedCellCommand);
+/** Target Commands */
+otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_COLUMNS", columnsRemovedTargetCommand);
+otRegistry.addTransformation("SET_FORMATTING", "REMOVE_COLUMNS", columnsRemovedTargetCommand);
+otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_COLUMNS", columnsRemovedTargetCommand);
+otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", columnsRemovedTargetCommand);
+/** Add Columns */
+otRegistry.addTransformation("ADD_COLUMNS", "REMOVE_COLUMNS", columnsRemovedAddColumns);
+/** Remove Columns */
+otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedRemoveColumns);
+/** Resize Columns */
+otRegistry.addTransformation("RESIZE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedResizeColumns);
 
-otRegistry.addTransformation("UPDATE_CELL", "REMOVE_ROWS", rowRemoved);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_ROWS", rowRemoved);
-otRegistry.addTransformation("CLEAR_CELL", "REMOVE_ROWS", rowRemoved);
-otRegistry.addTransformation("SET_BORDER", "REMOVE_ROWS", rowRemoved);
-otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_ROWS", rowRemovedTarget);
-otRegistry.addTransformation("SET_FORMATTING", "REMOVE_ROWS", rowRemovedTarget);
-otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_ROWS", rowRemovedTarget);
-otRegistry.addTransformation("SET_DECIMAL", "REMOVE_ROWS", rowRemovedTarget);
-otRegistry.addTransformation("REMOVE_ROWS", "REMOVE_ROWS", rowRemovedRowRemove);
+// -----------------------------------------------------------------------------
+// Rows Removed
+// -----------------------------------------------------------------------------
+/** Cell Commands */
+otRegistry.addTransformation("UPDATE_CELL", "REMOVE_ROWS", rowsRemovedCellCommand);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "REMOVE_ROWS", rowsRemovedCellCommand);
+otRegistry.addTransformation("CLEAR_CELL", "REMOVE_ROWS", rowsRemovedCellCommand);
+otRegistry.addTransformation("SET_BORDER", "REMOVE_ROWS", rowsRemovedCellCommand);
+/** Target Commands */
+otRegistry.addTransformation("DELETE_CONTENT", "REMOVE_ROWS", rowsRemovedTargetCommand);
+otRegistry.addTransformation("SET_FORMATTING", "REMOVE_ROWS", rowsRemovedTargetCommand);
+otRegistry.addTransformation("CLEAR_FORMATTING", "REMOVE_ROWS", rowsRemovedTargetCommand);
+otRegistry.addTransformation("SET_DECIMAL", "REMOVE_ROWS", rowsRemovedTargetCommand);
+/** Add Rows */
+otRegistry.addTransformation("ADD_ROWS", "REMOVE_ROWS", rowsRemovedAddRows);
+/** Remove - Resize Rows */
+otRegistry.addTransformation("REMOVE_ROWS", "REMOVE_ROWS", rowsRemovedRemoveOrResizeRows);
+otRegistry.addTransformation("RESIZE_ROWS", "REMOVE_ROWS", rowsRemovedRemoveOrResizeRows);
 
-otRegistry.addTransformation("UPDATE_CELL", "ADD_MERGE", addMergeCellCommand);
-otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_MERGE", addMergeCellCommand);
-otRegistry.addTransformation("CLEAR_CELL", "ADD_MERGE", addMergeCellCommand);
-otRegistry.addTransformation("SET_BORDER", "ADD_MERGE", addMergeCellCommand);
+// -----------------------------------------------------------------------------
+// Merged
+// -----------------------------------------------------------------------------
+/** Cell Commands */
+otRegistry.addTransformation("UPDATE_CELL", "ADD_MERGE", mergedCellCommand);
+otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_MERGE", mergedCellCommand);
+otRegistry.addTransformation("CLEAR_CELL", "ADD_MERGE", mergedCellCommand);
+otRegistry.addTransformation("SET_BORDER", "ADD_MERGE", mergedCellCommand);
 
-otRegistry
-  .addTransformation(
-    "UPDATE_CELL",
-    "RENAME_SHEET",
-    (toTransform: UpdateCellCommand, executed: RenameSheetCommand): UpdateCellCommand => {
-      //TODO Not sure what to do here, we do not have the old name in the renameSheetCommand :/
-      return toTransform;
-    }
-  );
+otRegistry.addTransformation(
+  "UPDATE_CELL",
+  "RENAME_SHEET",
+  (toTransform: UpdateCellCommand, executed: RenameSheetCommand): UpdateCellCommand => {
+    //TODO Not sure what to do here, we do not have the old name in the renameSheetCommand :/
+    return toTransform;
+  }
+);
