@@ -144,58 +144,38 @@ describe("OT with ADD_COLUMNS", () => {
     size: 10,
   };
 
-  describe("Columns added - Resize columns", () => {
-    test("Resize columns which are positionned before the added columns", () => {
-      const command = { ...resizeColumnsCommand, columns: [1, 2] };
+  const removeColumnsCommand: Omit<RemoveColumnsCommand, "columns"> = {
+    type: "REMOVE_COLUMNS",
+    sheetId,
+  };
+
+  describe.each([resizeColumnsCommand, removeColumnsCommand])("delete or resize columns", (cmd) => {
+    test(`${cmd.type} which are positionned before the added columns`, () => {
+      const command = { ...cmd, columns: [1, 2] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });
 
-    test("Resize columns which are positionned before AND after the added columns", () => {
-      const command = { ...resizeColumnsCommand, columns: [1, 10] };
+    test(`${cmd.type} which are positionned before AND after the add columns`, () => {
+      const command = { ...cmd, columns: [1, 10] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual({ ...command, columns: [1, 12] });
     });
 
-    test("Resize a column which is the column on which the added command is triggered, with before position", () => {
-      const command = { ...resizeColumnsCommand, columns: [10] };
+    test(`${cmd.type} which is the column on which the added command is triggered, with before position`, () => {
+      const command = { ...cmd, columns: [10] };
       const result = transform(command, addColumnsBefore);
       expect(result).toEqual({ ...command, columns: [12] });
     });
 
-    test("Resize a column which is the column on which the added command is triggered, with after position", () => {
-      const command = { ...resizeColumnsCommand, columns: [5] };
+    test(`${cmd.type} which is the column on which the added command is triggered, with after position`, () => {
+      const command = { ...cmd, columns: [5] };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });
-  });
 
-  describe("OT with AddColumns - RemoveColumns", () => {
-    const toTransform: Omit<RemoveColumnsCommand, "columns"> = {
-      type: "REMOVE_COLUMNS",
-      sheetId,
-    };
-
-    test("remove base column and add after", () => {
-      const command = { ...toTransform, columns: [5] };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...toTransform, columns: [5] });
-    });
-
-    test("remove base column and add before", () => {
-      const command = { ...toTransform, columns: [10] };
-      const result = transform(command, addColumnsBefore);
-      expect(result).toEqual({ ...toTransform, columns: [12] });
-    });
-
-    test("remove column before and after", () => {
-      const command = { ...toTransform, columns: [1, 10] };
-      const result = transform(command, addColumnsAfter);
-      expect(result).toEqual({ ...toTransform, columns: [1, 12] });
-    });
-
-    test("remove column in another sheet", () => {
-      const command = { ...toTransform, columns: [1, 10], sheetId: "coucou" };
+    test(`${cmd.type} in another sheet`, () => {
+      const command = { ...cmd, columns: [1, 10], sheetId: "coucou" };
       const result = transform(command, addColumnsAfter);
       expect(result).toEqual(command);
     });

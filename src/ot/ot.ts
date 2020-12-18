@@ -129,9 +129,17 @@ otRegistry.addTransformation("SET_DECIMAL", "REMOVE_COLUMNS", columnsRemovedTarg
 /** Add Columns */
 otRegistry.addTransformation("ADD_COLUMNS", "REMOVE_COLUMNS", columnsRemovedAddColumns);
 /** Remove Columns */
-otRegistry.addTransformation("REMOVE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedResizeOrRemoveColumns);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS",
+  "REMOVE_COLUMNS",
+  columnsRemovedResizeOrRemoveColumns
+);
 /** Resize Columns */
-otRegistry.addTransformation("RESIZE_COLUMNS", "REMOVE_COLUMNS", columnsRemovedResizeOrRemoveColumns);
+otRegistry.addTransformation(
+  "RESIZE_COLUMNS",
+  "REMOVE_COLUMNS",
+  columnsRemovedResizeOrRemoveColumns
+);
 
 // -----------------------------------------------------------------------------
 // Rows Removed

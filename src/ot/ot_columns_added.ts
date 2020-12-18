@@ -44,7 +44,9 @@ export function columnsAddedResizeOrRemoveColumns(
     return toTransform;
   }
   const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
-  const columns = toTransform.columns.map((col) => (col > baseColumn ? col + executed.quantity : col));
+  const columns = toTransform.columns.map((col) =>
+    col > baseColumn ? col + executed.quantity : col
+  );
   return { ...toTransform, columns };
 }
 
