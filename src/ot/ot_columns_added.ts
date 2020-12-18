@@ -47,3 +47,17 @@ export function columnsAddedResizeColumns(
   const cols = toTransform.cols.map((col) => (col > baseColumn ? col + executed.quantity : col));
   return { ...toTransform, cols };
 }
+
+export function columnsAddedAddColumns(
+  toTransform: AddColumnsCommand,
+  executed: AddColumnsCommand
+): AddColumnsCommand {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
+  if (baseColumn < toTransform.column) {
+    return { ...toTransform, column: toTransform.column + executed.quantity };
+  }
+  return toTransform;
+}

@@ -47,3 +47,17 @@ export function rowsAddedResizeRows(
   const rows = toTransform.rows.map((row) => (row > baseRow ? row + executed.quantity : row));
   return { ...toTransform, rows };
 }
+
+export function rowsAddedAddRows(
+  toTransform: AddRowsCommand,
+  executed: AddRowsCommand
+): AddRowsCommand {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const baseRow = executed.position === "before" ? executed.row - 1 : executed.row;
+  if (baseRow < toTransform.row) {
+    return { ...toTransform, row: toTransform.row + executed.quantity };
+  }
+  return toTransform;
+}

@@ -108,7 +108,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
   RESIZE_ROWS: none(),
 
   /** MERGE */
-  ADD_MERGE: only(["UPDATE_CELL", "CLEAR_CELL", "DELETE_CONTENT", "ADD_MERGE", ...STYLE_COMMANDS]),
+  ADD_MERGE: only(["UPDATE_CELL", "CLEAR_CELL", "ADD_MERGE"]),
   REMOVE_MERGE: none(),
 
   /** SHEETS MANIPULATION */
