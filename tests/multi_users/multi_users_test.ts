@@ -315,13 +315,45 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charly]).toHaveSynchronizedExportedData();
   });
 
-  test("Updatecell & composer", () => {
+  test("Updatecell & composer on different cells", () => {
     alice.dispatch("START_EDITION");
     setCellContent(bob, "A2", "A2");
     expect(alice.getters.getEditionMode()).toBe("editing");
     expect([alice, bob, charly]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A2"),
       "A2"
+    );
+  });
+
+  test("Updatecell & composer on the same cell", () => {
+    alice.dispatch("START_EDITION");
+    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla"});
+    setCellContent(bob, "A1", "A1");
+    expect(alice.getters.getEditionMode()).toBe("editing");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "A1"
+    );
+    alice.dispatch("STOP_EDITION");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "bla"
+    );
+  });
+
+  test("Updatecell & composer on the same cell when cancelling edition", () => {
+    alice.dispatch("START_EDITION");
+    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla"});
+    setCellContent(bob, "A1", "A1");
+    expect(alice.getters.getEditionMode()).toBe("editing");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "A1"
+    );
+    alice.dispatch("STOP_EDITION", { cancel: true });
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "A1"
     );
   });
 
