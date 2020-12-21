@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { message } = require("git-rev-sync");
 const expressWS = require("express-ws")(express());
 const app = expressWS.app;
 
@@ -12,7 +13,7 @@ const messages = []; // { id: UID, message: NetworkMessage }
 let revision = "START_REVISION";
 
 expressWS.getWss().on("connection", (ws) => {
-  ws.send(JSON.stringify({ type: "CONNECTION", messages }));
+  ws.send(JSON.stringify({ type: "CONNECTION", messages, newRevisionId: revision }));
   log(`Connection: ${messages.length} messages sent`);
 });
 
@@ -29,14 +30,14 @@ app.ws("/", function (ws, req) {
       } else {
         log(JSON.stringify(msg.payload.toReplay));
       }
-      const revisionId = msg.payload.revision;
+      const revisionId = msg.payload.revisionId;
       log(`Serveur revision: ${revision}, Client revision: ${revisionId}`);
       if (revision === revisionId) {
         messages.push(msg.payload);
         aWss.clients.forEach(function each(client) {
           client.send(JSON.stringify(msg.payload));
         });
-        revision = msg.payload.newRevision;
+        revision = msg.payload.newRevisionId;
         log(`New revision: ${revision}`);
       }
     }
