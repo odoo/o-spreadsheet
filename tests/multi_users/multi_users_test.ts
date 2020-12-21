@@ -327,7 +327,7 @@ describe("Multi users synchronisation", () => {
 
   test("Updatecell & composer on the same cell", () => {
     alice.dispatch("START_EDITION");
-    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla"});
+    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla" });
     setCellContent(bob, "A1", "A1");
     expect(alice.getters.getEditionMode()).toBe("editing");
     expect([alice, bob, charly]).toHaveSynchronizedValue(
@@ -343,7 +343,7 @@ describe("Multi users synchronisation", () => {
 
   test("Updatecell & composer on the same cell when cancelling edition", () => {
     alice.dispatch("START_EDITION");
-    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla"});
+    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla" });
     setCellContent(bob, "A1", "A1");
     expect(alice.getters.getEditionMode()).toBe("editing");
     expect([alice, bob, charly]).toHaveSynchronizedValue(
