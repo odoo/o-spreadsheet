@@ -690,6 +690,27 @@ describe("Multi users synchronisation", () => {
         undefined
       );
     });
+
+    test("rename sheet and update cell with sheet ref concurrently", () => {
+      const sheetId = alice.getters.getActiveSheetId()
+      const sheetName = bob.getters.getSheet(sheetId).name
+      network.concurrent(() => {
+        alice.dispatch("RENAME_SHEET", {
+          sheetId,
+          name: "NewName"
+        });
+        bob.dispatch("UPDATE_CELL", {
+          col: 0,
+          row: 0,
+          content: `=${sheetName}!A2`,
+          sheetId
+        })
+      });
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCell(user, "A1")!.error,
+        `Invalid sheet name: ${sheetName}`
+      );
+    })
   })
 
   describe("Evaluation", () => {
