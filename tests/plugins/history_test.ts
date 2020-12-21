@@ -1,4 +1,4 @@
-import { StateReplicator2000 } from "../../src/state_manager";
+import { StateManager } from "../../src/state_manager";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import {
@@ -17,7 +17,7 @@ import { MAX_HISTORY_STEPS } from "../../src/constants";
 describe("history", () => {
   const dispatch = new Model().dispatch;
   test("can update existing value", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: 4,
     };
@@ -26,7 +26,7 @@ describe("history", () => {
   });
 
   test("can set new value", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: 4,
     };
@@ -36,7 +36,7 @@ describe("history", () => {
   });
 
   test("can update existing nested value", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {
         B: 4,
@@ -47,7 +47,7 @@ describe("history", () => {
   });
 
   test("set new nested value", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {
         B: 4,
@@ -59,7 +59,7 @@ describe("history", () => {
   });
 
   test("update existing value nested in array", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -68,7 +68,7 @@ describe("history", () => {
   });
 
   test("set new value nested in array", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: [
         {
@@ -82,7 +82,7 @@ describe("history", () => {
   });
 
   test("create new path on-the-fly", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -97,7 +97,7 @@ describe("history", () => {
   });
 
   test("create new path containing an array on-the-fly", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -114,7 +114,7 @@ describe("history", () => {
   });
 
   test("create new array on-the-fly", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -126,7 +126,7 @@ describe("history", () => {
     });
   });
   test("create new sparse array on-the-fly", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -137,7 +137,7 @@ describe("history", () => {
   });
 
   test("cannot update an invalid key value", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };
@@ -147,7 +147,7 @@ describe("history", () => {
   });
 
   test("cannot update an invalid path", () => {
-    const history = new StateReplicator2000(dispatch, "userId");
+    const history = new StateManager(dispatch, "userId");
     const state = {
       A: {},
     };

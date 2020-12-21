@@ -131,7 +131,7 @@ class DraftRevision extends CommandRevision {
   }
 }
 
-export class StateReplicator2000 extends owl.core.EventBus implements CommandHandler<Command> {
+export class StateManager extends owl.core.EventBus implements CommandHandler<Command> {
   /**
    * Revision that are not yet adopted by the server
    */

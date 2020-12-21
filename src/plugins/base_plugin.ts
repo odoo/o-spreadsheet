@@ -1,4 +1,4 @@
-import { StateReplicator2000 } from "../state_manager";
+import { StateManager } from "../state_manager";
 import { Mode, ModelConfig } from "../model";
 import { CommandDispatcher, CommandHandler, CommandResult, WorkbookHistory } from "../types/index";
 
@@ -23,7 +23,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected currentMode: Mode;
 
   constructor(
-    history: StateReplicator2000,
+    history: StateManager,
     dispatch: CommandDispatcher["dispatch"],
     config: ModelConfig
   ) {
