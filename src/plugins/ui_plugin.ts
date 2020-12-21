@@ -1,4 +1,4 @@
-import { StateReplicator2000 } from "../history";
+import { StateReplicator2000 } from "../state_manager";
 import { Mode, ModelConfig } from "../model";
 import { CommandDispatcher, Command, Getters, GridRenderingContext, LAYERS } from "../types/index";
 import { BasePlugin } from "./base_plugin";

@@ -1,6 +1,6 @@
 import { Model, Mode } from "../src/model";
 import "./canvas.mock";
-import { StateReplicator2000 } from "../src/history";
+import { StateReplicator2000 } from "../src/state_manager";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { BordersPlugin } from "../src/plugins/core/borders";

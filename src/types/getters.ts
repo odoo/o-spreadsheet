@@ -5,7 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { BordersPlugin } from "../plugins/core/borders";
-import { StateReplicator2000 } from "../history";
+import { StateReplicator2000 } from "../state_manager";
 import { RangePlugin } from "../plugins/core/range";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EditionPlugin } from "../plugins/ui/edition";
