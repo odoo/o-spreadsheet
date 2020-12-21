@@ -20,6 +20,7 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { Message, Network } from "./types/multi_users";
+import { getDebugManager } from "./debug";
 
 /**
  * Model
@@ -122,6 +123,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.stateReplicator2000 = new StateManager(
       this.dispatchCore.bind(this),
       this.config.userId,
+      this.exportData.bind(this),
       this.config.network
     );
     this.stateReplicator2000.on("remote-command-processed", this, () => {
@@ -239,6 +241,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     let status: Status = command.interactive ? Status.Interactive : this.status;
     switch (status) {
       case Status.Ready:
+        getDebugManager().addLocalCommand(command, this.getters.getUserId()); //TODO Remove
         const error = this.checkDispatchAllowed(command);
         if (error) {
           return error;

@@ -12,6 +12,7 @@ export interface RevisionData {
 export interface BaseMessage {
   clientId: ClientId;
   newRevisionId: UID;
+  hash?: number; // TODO Remove Debug informations
 }
 
 export interface RemoteRevision extends BaseMessage {

@@ -10,8 +10,11 @@ import {
   CreateChartDefinition,
   CreateSheetCommand,
   DeleteContentCommand,
+  DeleteSheetCommand,
   DuplicateSheetCommand,
+  RemoveColumnsCommand,
   RemoveMergeCommand,
+  RemoveRowsCommand,
   ResizeColumnsCommand,
   ResizeRowsCommand,
   SetBorderCommand,
@@ -34,19 +37,23 @@ describe("Inverses commands", () => {
     };
 
     test("Inverse with position = after", () => {
-      expect(inverseCommand(addColumns)).toEqual([{
-        type: "REMOVE_COLUMNS",
-        sheetId: "1",
-        columns: [2, 3],
-      }]);
+      expect(inverseCommand(addColumns)).toEqual([
+        {
+          type: "REMOVE_COLUMNS",
+          sheetId: "1",
+          columns: [2, 3],
+        },
+      ]);
     });
 
     test("Inverse with position = before", () => {
-      expect(inverseCommand({ ...addColumns, position: "before" })).toEqual([{
-        type: "REMOVE_COLUMNS",
-        sheetId: "1",
-        columns: [1, 2],
-      }]);
+      expect(inverseCommand({ ...addColumns, position: "before" })).toEqual([
+        {
+          type: "REMOVE_COLUMNS",
+          sheetId: "1",
+          columns: [1, 2],
+        },
+      ]);
     });
   });
   describe("Add Rows", () => {
@@ -59,15 +66,19 @@ describe("Inverses commands", () => {
     };
 
     test("Inverse with position = after", () => {
-      expect(inverseCommand(addRows)).toEqual([{ type: "REMOVE_ROWS", sheetId: "1", rows: [2, 3] }]);
+      expect(inverseCommand(addRows)).toEqual([
+        { type: "REMOVE_ROWS", sheetId: "1", rows: [2, 3] },
+      ]);
     });
 
     test("Inverse with position = before", () => {
-      expect(inverseCommand({ ...addRows, position: "before" })).toEqual([{
-        type: "REMOVE_ROWS",
-        sheetId: "1",
-        rows: [1, 2],
-      }]);
+      expect(inverseCommand({ ...addRows, position: "before" })).toEqual([
+        {
+          type: "REMOVE_ROWS",
+          sheetId: "1",
+          rows: [1, 2],
+        },
+      ]);
     });
   });
 
@@ -107,6 +118,53 @@ describe("Inverses commands", () => {
     };
     expect(inverseCommand(duplicateSheet)).toEqual([{ type: "DELETE_SHEET", sheetId: "2" }]);
   });
+
+  describe("Remove columns", () => {
+    const removeColumns: RemoveColumnsCommand = {
+      type: "REMOVE_COLUMNS",
+      columns: [0],
+      sheetId: "42",
+    };
+    test("Inverse with column = 0", () => {
+      expect(inverseCommand(removeColumns)).toEqual([
+        { type: "ADD_COLUMNS", position: "before", quantity: 1, column: 0, sheetId: "42" },
+      ]);
+    });
+    test("Inverse with column > 0", () => {
+      expect(inverseCommand({ ...removeColumns, columns: [1, 2, 4, 5, 9] })).toEqual([
+        { type: "ADD_COLUMNS", position: "after", quantity: 2, column: 0, sheetId: "42" },
+        { type: "ADD_COLUMNS", position: "after", quantity: 2, column: 3, sheetId: "42" },
+        { type: "ADD_COLUMNS", position: "after", quantity: 1, column: 8, sheetId: "42" },
+      ]);
+    });
+  });
+
+  describe("Remove rows", () => {
+    const removeRows: RemoveRowsCommand = {
+      type: "REMOVE_ROWS",
+      rows: [0],
+      sheetId: "42",
+    };
+    test("Inverse with row = 0", () => {
+      expect(inverseCommand(removeRows)).toEqual([
+        { type: "ADD_ROWS", position: "before", quantity: 1, row: 0, sheetId: "42" },
+      ]);
+    });
+    test("Inverse with row > 0", () => {
+      expect(inverseCommand({ ...removeRows, rows: [1, 2, 4, 5, 9] })).toEqual([
+        { type: "ADD_ROWS", position: "after", quantity: 2, row: 0, sheetId: "42" },
+        { type: "ADD_ROWS", position: "after", quantity: 2, row: 3, sheetId: "42" },
+        { type: "ADD_ROWS", position: "after", quantity: 1, row: 8, sheetId: "42" },
+      ]);
+    });
+  });
+
+  test("Delete sheet", () => {
+    const deleteSheet: DeleteSheetCommand = {
+      type: "DELETE_SHEET", sheetId: "42"
+    }
+    expect(inverseCommand(deleteSheet)).toEqual([{ type: "CREATE_SHEET", position: 1, sheetId: "42"}]);
+  })
 
   describe("Identity", () => {
     const updateCell: UpdateCellCommand = {
