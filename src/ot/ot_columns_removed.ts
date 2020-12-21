@@ -2,7 +2,6 @@ import { isDefined } from "../helpers/index";
 import { AddColumnsCommand, AddMergeCommand, RemoveColumnsCommand, Zone } from "../types";
 import { CellCommand, TargetCommand } from "./ot_types";
 
-
 function transformZone(zone: Zone, executed: RemoveColumnsCommand): Zone | undefined {
   let left = zone.left;
   let right = zone.right;
@@ -101,7 +100,10 @@ export function columnsRemovedResizeOrRemoveColumns(
   return { ...toTransform, columns: columnsToRemove };
 }
 
-export function columnsRemovedAddOrRemoveMerge(toTransform: AddMergeCommand, executed: RemoveColumnsCommand):AddMergeCommand | undefined {
+export function columnsRemovedAddOrRemoveMerge(
+  toTransform: AddMergeCommand,
+  executed: RemoveColumnsCommand
+): AddMergeCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
@@ -109,5 +111,5 @@ export function columnsRemovedAddOrRemoveMerge(toTransform: AddMergeCommand, exe
   if (!zone) {
     return undefined;
   }
-  return {...toTransform, zone};
+  return { ...toTransform, zone };
 }

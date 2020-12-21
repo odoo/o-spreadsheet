@@ -103,8 +103,8 @@ describe("OT with ADD_MERGE", () => {
 
   const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
     type: "REMOVE_MERGE",
-    sheetId
-  }
+    sheetId,
+  };
 
   describe.each([addMerge, removeMerge])(`ADD_MERGE & AddMerge | RemoveMerge`, (cmd) => {
     test("two distinct merges", () => {
@@ -122,5 +122,5 @@ describe("OT with ADD_MERGE", () => {
       const result = transform(command, addMerge);
       expect(result).toEqual(command);
     });
-  })
+  });
 });

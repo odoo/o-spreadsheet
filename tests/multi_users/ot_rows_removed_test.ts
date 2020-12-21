@@ -289,5 +289,5 @@ describe("OT with REMOVE_ROWS", () => {
       const result = transform(command, removeRows);
       expect(result).toBeUndefined();
     });
-  })
+  });
 });

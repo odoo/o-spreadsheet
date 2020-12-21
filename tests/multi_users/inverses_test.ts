@@ -161,10 +161,13 @@ describe("Inverses commands", () => {
 
   test("Delete sheet", () => {
     const deleteSheet: DeleteSheetCommand = {
-      type: "DELETE_SHEET", sheetId: "42"
-    }
-    expect(inverseCommand(deleteSheet)).toEqual([{ type: "CREATE_SHEET", position: 1, sheetId: "42"}]);
-  })
+      type: "DELETE_SHEET",
+      sheetId: "42",
+    };
+    expect(inverseCommand(deleteSheet)).toEqual([
+      { type: "CREATE_SHEET", position: 1, sheetId: "42" },
+    ]);
+  });
 
   describe("Identity", () => {
     const updateCell: UpdateCellCommand = {

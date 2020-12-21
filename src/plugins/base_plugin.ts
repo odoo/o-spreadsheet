@@ -22,11 +22,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   protected dispatch: CommandDispatcher["dispatch"];
   protected currentMode: Mode;
 
-  constructor(
-    history: StateManager,
-    dispatch: CommandDispatcher["dispatch"],
-    config: ModelConfig
-  ) {
+  constructor(history: StateManager, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
     });

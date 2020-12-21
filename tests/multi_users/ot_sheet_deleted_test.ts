@@ -162,7 +162,7 @@ describe("OT with DELETE_SHEET", () => {
       type: "DUPLICATE_SHEET",
       sheetIdTo: "sheetIdTo",
       name: "sheetIdTo",
-    }
+    };
 
     test("Delete the sheet on which the command is triggered", () => {
       const result = transform({ ...cmd, sheetIdFrom: deletedSheetId }, deleteSheet);
@@ -174,5 +174,5 @@ describe("OT with DELETE_SHEET", () => {
       const result = transform(command, deleteSheet);
       expect(result).toEqual(command);
     });
-  })
+  });
 });

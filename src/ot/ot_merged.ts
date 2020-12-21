@@ -17,11 +17,14 @@ export function mergedCellCommand(
   return undefined;
 }
 
-export function mergedCellAddMerge(toTransform: AddMergeCommand, executed: AddMergeCommand): AddMergeCommand | undefined {
+export function mergedCellAddMerge(
+  toTransform: AddMergeCommand,
+  executed: AddMergeCommand
+): AddMergeCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
-  if (overlap(toTransform.zone, executed.zone)){
+  if (overlap(toTransform.zone, executed.zone)) {
     return undefined;
   }
   return toTransform;
