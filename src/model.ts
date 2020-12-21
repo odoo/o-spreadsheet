@@ -244,8 +244,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
           return error;
         }
         this.status = Status.Running;
-        this.stateReplicator2000.transact(command, () => {
-          // this.startTransaction(command);
+        this.stateReplicator2000.recordChanges(() => {
           this.dispatchToHandlers(command);
           this.finalize();
         });
@@ -259,7 +258,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.dispatchToHandlers(command);
         break;
       case Status.Finalizing:
-        debugger;
         throw new Error(_lt("Cannot dispatch commands in the finalize state"));
       case Status.RunningCore:
         throw new Error("A UI plugin cannot dispatch while handling a core command");
@@ -292,51 +290,6 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.status = previousStatus;
     return { status: "SUCCESS" } as CommandSuccess;
   };
-  // dispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-  //   const command: Command = Object.assign({ type }, payload);
-  //   let status: Status = command.interactive ? Status.Interactive : this.status;
-  //   switch (status) {
-  //     case Status.Ready:
-  //       for (let handler of this.handlers) {
-  //         const allowDispatch = handler.allowDispatch(command);
-  //         if (allowDispatch.status === "CANCELLED") {
-  //           return allowDispatch;
-  //         }
-  //       }
-  //       this.status = Status.Running;
-  //       this.history.startStep(command);
-  //       this.network.startTransaction(command);
-  //       for (const h of this.handlers) {
-  //         h.beforeHandle(command);
-  //       }
-  //       for (const h of this.handlers) {
-  //         h.handle(command);
-  //       }
-  //       this.status = Status.Finalizing;
-  //       for (const h of this.handlers) {
-  //         h.finalize(command);
-  //       }
-  //       this.history.finalizeStep();
-  //       this.network.finalizeTransaction();
-  //       this.status = Status.Ready;
-  //       if (this.config.mode !== "headless") {
-  //         this.trigger("update");
-  //       }
-  //       break;
-  //     case Status.Running:
-  //     case Status.Interactive:
-  //       for (const h of this.handlers) {
-  //         h.beforeHandle(command);
-  //       }
-  //       for (const h of this.handlers) {
-  //         h.handle(command);
-  //       }
-  //       break;
-  //     case Status.Finalizing:
-  //       throw new Error(_lt("Cannot dispatch commands in the finalize state"));
-  //   }
-  //   return { status: "SUCCESS" } as CommandSuccess;
-  // };
 
   // ---------------------------------------------------------------------------
   // Grid Rendering

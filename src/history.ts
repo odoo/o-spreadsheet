@@ -17,21 +17,24 @@ import {
   CreateRevisionOptions,
   WorkbookData,
 } from "./types/index";
-import { ClientId, RemoteRevision, Message, RemoteUndo } from "./types/multi_users";
+import { ClientId, RemoteRevision, Message, RemoteUndo, RevisionData } from "./types/multi_users";
 
 /**
- * History Management System
+ * Revision Management System
  *
- * This file contains the code necessary to make the undo/redo feature work
- * as expected.
+ * The Revision Management System is the responsible of the state changes.
+ * It has two main goals: support the history (undo/redo) and manage state
+ * replication
+ *
+ * This system works with Revisions.
+ * Each revision represents a whole client action (Create a sheet, merge a Zone, Undo, ...).
+ *
+ *
  */
 
-export interface RevisionData {
-  readonly id: UID;
-  readonly clientId: ClientId;
-  readonly commands: readonly CoreCommand[];
-}
-
+/**
+ *
+ */
 abstract class Revision implements RevisionData {
   public readonly id: UID;
   public readonly clientId: ClientId;
@@ -49,10 +52,6 @@ abstract class Revision implements RevisionData {
   abstract getMessage(revisionId: UID): Message;
 }
 
-/**
- * Here, Local doesn't mean created by the local user, but rather
- * that's it's stored locally.
- */
 class CommandRevision extends Revision {
   protected _inverses: CoreCommand[] = [];
   protected _changes: HistoryChange[] = [];
@@ -210,65 +209,6 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   finalize() {}
 
   // ---------------------------------------------------------------------------
-  // Import - Export
-  // ---------------------------------------------------------------------------
-
-  import(data: WorkbookData) {
-    this.revisionId = data.revisionId;
-  }
-
-  revertToSharedRevision() {
-    this.revert(this.pendingRevisions);
-  }
-
-  recoverLocalRevisions() {
-    this.transformAndReplayPendingRevisions([]);
-  }
-
-  export(data: WorkbookData) {
-    data.revisionId = this.revisionId;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Revision Management
-  // ---------------------------------------------------------------------------
-
-  createLocalRevision(revisionId?: UID): DraftRevision {
-    return new DraftRevision(revisionId, this.userId);
-  }
-
-  transact(cmd: Command, callback: () => void, id?: UID) {
-    const hasTransaction: boolean = this.currentDraftRevision !== null;
-    if (!hasTransaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
-      this.currentDraftRevision = this.createLocalRevision(id);
-    }
-    callback();
-    if (!hasTransaction && cmd.type !== "UNDO" && cmd.type !== "REDO") {
-      this.commit();
-    }
-  }
-
-  private commit() {
-    if (!this.currentDraftRevision) {
-      throw new Error("No transaction to commit!");
-    }
-    if (this.currentDraftRevision.hasChanges()) {
-      if (this.network) {
-        this.pendingRevisions.push(this.currentDraftRevision);
-        this.sendPendingRevision();
-      } else {
-        this.revisionLogs.push(this.currentDraftRevision);
-        this.redoStack = [];
-        //TODO Write tests with MAX_HISTORY_STEPS & MULTIUSER
-        if (this.revisionLogs.length > MAX_HISTORY_STEPS) {
-          this.revisionLogs.shift();
-        }
-      }
-    }
-    this.currentDraftRevision = null;
-  }
-
-  // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
 
@@ -289,9 +229,79 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   }
 
   // ---------------------------------------------------------------------------
-  // Network
+  // Import - Export
   // ---------------------------------------------------------------------------
 
+  import(data: WorkbookData) {
+    this.revisionId = data.revisionId;
+  }
+
+  /**
+   * Revert the local state to the last shared revision.
+   */
+  revertToSharedRevision() {
+    this.revert(this.pendingRevisions);
+  }
+
+  /**
+   * Apply the local changes
+   */
+  recoverLocalRevisions() {
+    this.transformAndReplayPendingRevisions([]);
+  }
+
+  export(data: WorkbookData) {
+    data.revisionId = this.revisionId;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Revision Management
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Record the changes which could happen in the given callback and save them
+   * in a revision.
+   */
+  recordChanges(callback: () => void) {
+    this.currentDraftRevision = new DraftRevision(uuidv4(), this.userId);
+    callback();
+    // In case of Undo or Redo, the currentDraftRevision is entirely managed
+    // in the undo-redo functions, and so could be null.
+    if (this.currentDraftRevision) {
+      this.saveDraftRevision();
+    }
+  }
+
+  /**
+   * Save the currentDraftRevision.
+   */
+  private saveDraftRevision() {
+    if (!this.currentDraftRevision) {
+      throw new Error("The currentDraftRevision is null !");
+    }
+    if (this.currentDraftRevision.hasChanges()) {
+      if (this.network) {
+        this.pendingRevisions.push(this.currentDraftRevision);
+        this.sendPendingRevision();
+      } else {
+        this.revisionLogs.push(this.currentDraftRevision);
+        this.redoStack = [];
+        //TODO Write tests with MAX_HISTORY_STEPS & MULTIUSER
+        if (this.revisionLogs.length > MAX_HISTORY_STEPS) {
+          this.revisionLogs.shift();
+        }
+      }
+    }
+    this.currentDraftRevision = null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // State Replication Management
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Send the first pending revision
+   */
   private sendPendingRevision() {
     const revision = this.pendingRevisions[0];
     if (this.network && revision) {
@@ -349,6 +359,9 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
     }
   }
 
+  /**
+   * Dispatch the given CoreCommands
+   */
   private dispatchCommands(commands: CoreCommand[], options: CreateRevisionOptions = {}) {
     const draft = new DraftRevision(
       options.revisionId || uuidv4(),
@@ -471,7 +484,7 @@ export class StateReplicator2000 extends owl.core.EventBus implements CommandHan
   }
 
   // ---------------------------------------------------------------------------
-  // Undo-Redo management
+  // History management
   // ---------------------------------------------------------------------------
 
   /**
