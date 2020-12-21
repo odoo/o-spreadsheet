@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
-import { StateReplicator2000 } from "./history";
+import { StateReplicator2000 } from "./state_manager";
 import {
   CommandDispatcher,
   CommandHandler,

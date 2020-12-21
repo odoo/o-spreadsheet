@@ -1,4 +1,4 @@
-import { StateReplicator2000 } from "../../src/history";
+import { StateReplicator2000 } from "../../src/state_manager";
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import {

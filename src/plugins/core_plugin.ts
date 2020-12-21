@@ -1,4 +1,4 @@
-import { StateReplicator2000 } from "../history";
+import { StateReplicator2000 } from "../state_manager";
 import { ModelConfig, Mode } from "../model";
 import { CoreCommand, CoreCommandDispatcher, WorkbookData } from "../types";
 import { CoreGetters } from "../types/getters";
