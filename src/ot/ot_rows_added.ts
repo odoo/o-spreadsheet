@@ -1,5 +1,5 @@
 import { AddMergeCommand, AddRowsCommand, ResizeRowsCommand, Zone } from "../types";
-import { CellCommand, TargetCommand } from "./ot_helpers";
+import { CellCommand, TargetCommand } from "./ot_types";
 
 export function rowsAddedCellCommand(
   toTransform: CellCommand,

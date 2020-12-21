@@ -6,6 +6,7 @@ import {
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  RemoveMergeCommand,
   RemoveRowsCommand,
   ResizeRowsCommand,
   SetBorderCommand,
@@ -182,12 +183,16 @@ describe("OT with ADD_ROWS", () => {
     });
   });
 
-  describe("merge",
-    () => {
-      const cmd: Omit<AddMergeCommand, "zone"> = {
-        type: "ADD_MERGE",
-        sheetId,
-      };
+  const addMerge: Omit<AddMergeCommand, "zone"> = {
+    type: "ADD_MERGE",
+    sheetId,
+  };
+  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+    type: "REMOVE_MERGE",
+    sheetId,
+  };
+  describe.each([addMerge, removeMerge])("merge",
+    (cmd) => {
       test(`add rows before merge`, () => {
         const command = { ...cmd, zone: toZone("A1:C1") };
         const result = transform(command, addRowsAfter);

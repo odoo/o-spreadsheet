@@ -1,6 +1,6 @@
-import { toXC, isInside } from "../helpers/index";
+import { toXC, isInside, overlap } from "../helpers/index";
 import { AddMergeCommand } from "../types";
-import { CellCommand } from "./ot_helpers";
+import { CellCommand } from "./ot_types";
 
 export function mergedCellCommand(
   toTransform: CellCommand,
@@ -15,4 +15,14 @@ export function mergedCellCommand(
     return toTransform;
   }
   return undefined;
+}
+
+export function mergedCellAddMerge(toTransform: AddMergeCommand, executed: AddMergeCommand): AddMergeCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  if (overlap(toTransform.zone, executed.zone)){
+    return undefined;
+  }
+  return toTransform;
 }

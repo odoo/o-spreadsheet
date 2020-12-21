@@ -1,6 +1,24 @@
 import { isDefined } from "../helpers/index";
-import { AddRowsCommand, RemoveRowsCommand, ResizeRowsCommand } from "../types";
-import { CellCommand, TargetCommand } from "./ot_helpers";
+import { AddMergeCommand, AddRowsCommand, RemoveRowsCommand, ResizeRowsCommand, Zone } from "../types";
+import { CellCommand, TargetCommand } from "./ot_types";
+
+function transformZone(zone: Zone, executed: RemoveRowsCommand): Zone | undefined {
+  let top = zone.top;
+  let bottom = zone.bottom;
+  for (let removedColumn of executed.rows.sort((a, b) => b - a)) {
+    if (zone.top > removedColumn) {
+      top--;
+      bottom--;
+    }
+    if (zone.top <= removedColumn && zone.bottom >= removedColumn) {
+      bottom--;
+    }
+  }
+  if (top > bottom) {
+    return undefined;
+  }
+  return { ...zone, top, bottom };
+}
 
 export function rowsRemovedCellCommand(
   toTransform: CellCommand,
@@ -29,23 +47,7 @@ export function rowsRemovedTargetCommand(
     return toTransform;
   }
   const adaptedTarget = toTransform.target
-    .map((zone) => {
-      let top = zone.top;
-      let bottom = zone.bottom;
-      for (let removedColumn of executed.rows.sort((a, b) => b - a)) {
-        if (zone.top > removedColumn) {
-          top--;
-          bottom--;
-        }
-        if (zone.top <= removedColumn && zone.bottom >= removedColumn) {
-          bottom--;
-        }
-      }
-      if (top > bottom) {
-        return undefined;
-      }
-      return { ...zone, top, bottom };
-    })
+    .map((zone) => transformZone(zone, executed))
     .filter(isDefined);
   if (!adaptedTarget.length) {
     return undefined;
@@ -96,4 +98,15 @@ export function rowsRemovedRemoveOrResizeRows(
     return undefined;
   }
   return { ...toTransform, rows: rowsToRemove };
+}
+
+export function rowsRemovedAddOrRemoveMerge(toTransform: AddMergeCommand, executed: RemoveRowsCommand): AddMergeCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const zone = transformZone(toTransform.zone, executed);
+  if (!zone) {
+    return undefined;
+  }
+  return {...toTransform, zone};
 }

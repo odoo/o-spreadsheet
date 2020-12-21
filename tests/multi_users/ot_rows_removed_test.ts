@@ -1,10 +1,12 @@
 import { toZone } from "../../src/helpers";
 import { transform } from "../../src/ot/ot";
 import {
+  AddMergeCommand,
   AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
+  RemoveMergeCommand,
   RemoveRowsCommand,
   ResizeRowsCommand,
   SetBorderCommand,
@@ -247,4 +249,45 @@ describe("OT with REMOVE_ROWS", () => {
       expect(result).toEqual({ ...command, rows: [0] });
     });
   });
+
+  const addMerge: Omit<AddMergeCommand, "zone"> = {
+    type: "ADD_MERGE",
+    sheetId,
+  };
+  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+    type: "REMOVE_MERGE",
+    sheetId,
+  };
+  describe.each([addMerge, removeMerge])("Remove Columns - Merge", (cmd) => {
+    test(`remove rows before Merge`, () => {
+      const command = { ...cmd, zone: toZone("A1:C1") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+    test(`remove rows after Merge`, () => {
+      const command = { ...cmd, zone: toZone("A12:B14") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A9:B11") });
+    });
+    test(`remove rows before and after Merge`, () => {
+      const command = { ...cmd, zone: toZone("A5:B5") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A3:B3") });
+    });
+    test(`Merge in removed rows`, () => {
+      const command = { ...cmd, zone: toZone("A6:B7") };
+      const result = transform(command, removeRows);
+      expect(result).toEqual({ ...command, zone: toZone("A4:B4") });
+    });
+    test(`Merge and rows removed in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:C6"), sheetId: "42" };
+      const result = transform(command, removeRows);
+      expect(result).toEqual(command);
+    });
+    test(`Merge with a zone removed`, () => {
+      const command = { ...cmd, zone: toZone("A3:B4") };
+      const result = transform(command, removeRows);
+      expect(result).toBeUndefined();
+    });
+  })
 });

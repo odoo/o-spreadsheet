@@ -2,10 +2,12 @@ import { toZone } from "../../src/helpers";
 import { transform } from "../../src/ot/ot";
 import {
   AddColumnsCommand,
+  AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
   RemoveColumnsCommand,
+  RemoveMergeCommand,
   ResizeColumnsCommand,
   SetBorderCommand,
   SetDecimalCommand,
@@ -247,4 +249,45 @@ describe("OT with REMOVE_COLUMN", () => {
       expect(result).toEqual({ ...command, columns: [0] });
     });
   });
+
+  const addMerge: Omit<AddMergeCommand, "zone"> = {
+    type: "ADD_MERGE",
+    sheetId,
+  };
+  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+    type: "REMOVE_MERGE",
+    sheetId
+  }
+  describe.each([addMerge, removeMerge])("Remove Columns - Merge", (cmd) => {
+    test(`remove columns before merge`, () => {
+      const command = { ...cmd, zone: toZone("A1:A3") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+    test(`remove columns after merge`, () => {
+      const command = { ...cmd, zone: toZone("M1:O2") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, zone: toZone("J1:L2") });
+    });
+    test(`remove columns before and after merge`, () => {
+      const command = { ...cmd, zone: toZone("E1:E2") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, zone: toZone("C1:C2") });
+    });
+    test(`merge in removed columns`, () => {
+      const command = { ...cmd, zone: toZone("F1:G2") };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual({ ...command, zone: toZone("D1:D2") });
+    });
+    test(`merge and columns removed in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+      const result = transform(command, removeColumns);
+      expect(result).toEqual(command);
+    });
+    test(`merge with a zone removed`, () => {
+      const command = { ...cmd, zone: toZone("C1:D2") };
+      const result = transform(command, removeColumns);
+      expect(result).toBeUndefined();
+    });
+  })
 });
