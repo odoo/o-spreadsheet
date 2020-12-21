@@ -23,16 +23,7 @@ export function rowsAddedTargetCommand(
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
-  const baseRow = executed.position === "before" ? executed.row - 1 : executed.row;
-  const adaptedTarget = toTransform.target.map((zone) => {
-    if (zone.top <= baseRow && zone.bottom >= baseRow) {
-      zone.bottom += executed.quantity;
-    } else if (baseRow < zone.top) {
-      zone.top += executed.quantity;
-      zone.bottom += executed.quantity;
-    }
-    return zone;
-  });
+  const adaptedTarget = toTransform.target.map((zone) => transformZone(zone, executed));
   return { ...toTransform, target: adaptedTarget };
 }
 
