@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { createEmptyWorkbookData, load } from "./data";
-import { StateReplicator2000 } from "./state_manager";
+import { StateManager } from "./state_manager";
 import {
   CommandDispatcher,
   CommandHandler,
@@ -73,7 +73,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   private handlers: CommandHandler<Command>[];
 
-  private stateReplicator2000: StateReplicator2000;
+  private stateReplicator2000: StateManager;
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -119,7 +119,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     };
 
     // this.history = new WHistory(this.dispatchCore.bind(this));
-    this.stateReplicator2000 = new StateReplicator2000(
+    this.stateReplicator2000 = new StateManager(
       this.dispatchCore.bind(this),
       this.config.userId,
       this.config.network

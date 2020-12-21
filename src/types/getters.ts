@@ -5,7 +5,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { RendererPlugin } from "../plugins/ui/renderer";
 import { BordersPlugin } from "../plugins/core/borders";
-import { StateReplicator2000 } from "../state_manager";
+import { StateManager } from "../state_manager";
 import { RangePlugin } from "../plugins/core/range";
 import { EvaluationPlugin } from "../plugins/ui/evaluation";
 import { EditionPlugin } from "../plugins/ui/edition";
@@ -26,9 +26,9 @@ import { ChartPlugin } from "../plugins/core/chart";
 // -----------------------------------------------------------------------------
 
 export interface CoreGetters {
-  canUndo: StateReplicator2000["canUndo"];
-  canRedo: StateReplicator2000["canRedo"];
-  getUserId: StateReplicator2000["getUserId"];
+  canUndo: StateManager["canUndo"];
+  canRedo: StateManager["canRedo"];
+  getUserId: StateManager["getUserId"];
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];

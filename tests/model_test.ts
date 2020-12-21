@@ -1,6 +1,6 @@
 import { Model, Mode } from "../src/model";
 import "./canvas.mock";
-import { StateReplicator2000 } from "../src/state_manager";
+import { StateManager } from "../src/state_manager";
 import { CellPlugin } from "../src/plugins/core/cell";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { BordersPlugin } from "../src/plugins/core/borders";
@@ -30,7 +30,7 @@ describe("Model", () => {
   test("can create model in headless mode", () => {
     const model = new Model({}, { mode: "headless" });
     expect(model["handlers"]).toHaveLength(11);
-    expect(model["handlers"][0]).toBeInstanceOf(StateReplicator2000);
+    expect(model["handlers"][0]).toBeInstanceOf(StateManager);
     expect(model["handlers"][1]).toBeInstanceOf(SheetPlugin);
     expect(model["handlers"][2]).toBeInstanceOf(RangePlugin);
     expect(model["handlers"][3]).toBeInstanceOf(CellPlugin);
