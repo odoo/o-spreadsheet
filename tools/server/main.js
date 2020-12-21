@@ -38,7 +38,7 @@ app.ws("/", function (ws, req) {
         });
         revision = msg.payload.newRevision;
         log(`New revision: ${revision}`);
-      }        
+      }
     }
   });
 });
