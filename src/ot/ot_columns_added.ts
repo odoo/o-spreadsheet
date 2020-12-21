@@ -1,4 +1,4 @@
-import { AddColumnsCommand, AddMergeCommand, ResizeColumnsCommand } from "../types";
+import { AddColumnsCommand, AddMergeCommand, ResizeColumnsCommand, Zone } from "../types";
 import { CellCommand, TargetCommand } from "./ot_helpers";
 
 export function columnsAddedCellCommand(
@@ -16,7 +16,7 @@ export function columnsAddedCellCommand(
   return toTransform;
 }
 
-function transformZone(zone, executed: AddColumnsCommand) {
+function transformZone(zone: Zone, executed: AddColumnsCommand) {
   const baseColumn = executed.position === "before" ? executed.column - 1 : executed.column;
   if (zone.left <= baseColumn && zone.right >= baseColumn) {
     zone.right += executed.quantity;
@@ -39,7 +39,6 @@ export function columnsAddedTargetCommand(
   return { ...toTransform, target: adaptedTarget };
 }
 
-// TODO write test
 export function columnsAddedMergeCommand(
   toTransform: AddMergeCommand,
   executed: AddColumnsCommand

@@ -4,6 +4,7 @@ import { UpdateCellCommand, CoreCommand, RenameSheetCommand } from "../types";
 import {
   columnsAddedAddColumns,
   columnsAddedCellCommand,
+  columnsAddedMergeCommand,
   columnsAddedResizeOrRemoveColumns,
   columnsAddedTargetCommand,
 } from "./ot_columns_added";
@@ -17,6 +18,7 @@ import { sheetDeleted } from "./ot_helpers";
 import { mergedCellCommand } from "./ot_merged";
 import {
   rowsAddedCellCommand,
+  rowsAddedMergeCommand,
   rowsAddedResizeOrRemoveRows,
   rowsAddedTargetCommand,
   rowsAddedAddRows,
@@ -92,6 +94,8 @@ otRegistry.addTransformation("RESIZE_COLUMNS", "ADD_COLUMNS", columnsAddedResize
 otRegistry.addTransformation("REMOVE_COLUMNS", "ADD_COLUMNS", columnsAddedResizeOrRemoveColumns);
 /** Add Columns */
 otRegistry.addTransformation("ADD_COLUMNS", "ADD_COLUMNS", columnsAddedAddColumns);
+/** Merge */
+otRegistry.addTransformation("ADD_MERGE", "ADD_COLUMNS", columnsAddedMergeCommand);
 
 // -----------------------------------------------------------------------------
 // Rows Added
@@ -112,6 +116,8 @@ otRegistry.addTransformation("RESIZE_ROWS", "ADD_ROWS", rowsAddedResizeOrRemoveR
 otRegistry.addTransformation("REMOVE_ROWS", "ADD_ROWS", rowsAddedResizeOrRemoveRows);
 /** Add Rows */
 otRegistry.addTransformation("ADD_ROWS", "ADD_ROWS", rowsAddedAddRows);
+/** Merge */
+otRegistry.addTransformation("ADD_MERGE", "ADD_ROWS", rowsAddedMergeCommand);
 
 // -----------------------------------------------------------------------------
 // Columns Removed

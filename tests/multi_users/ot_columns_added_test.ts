@@ -2,6 +2,7 @@ import { toZone } from "../../src/helpers/zones";
 import { transform } from "../../src/ot/ot";
 import {
   AddColumnsCommand,
+  AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
   DeleteContentCommand,
@@ -134,6 +135,35 @@ describe("OT with ADD_COLUMNS", () => {
         const command = { ...cmd, target: [toZone("A1:A3"), toZone("M1:O2")] };
         const result = transform(command, addColumnsAfter);
         expect(result).toEqual({ ...command, target: [toZone("A1:A3"), toZone("O1:Q2")] });
+      });
+    }
+  );
+
+  describe("merge",
+    () => {
+      const cmd: Omit<AddMergeCommand, "zone"> = {
+        type: "ADD_MERGE",
+        sheetId,
+      };
+      test(`add columns before merge`, () => {
+        const command = { ...cmd, zone: toZone("A1:A3") };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual(command);
+      });
+      test(`add columns after merge`, () => {
+        const command = { ...cmd, zone: toZone("M1:O2") };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual({ ...command, zone: toZone("O1:Q2") });
+      });
+      test(`add columns in merge`, () => {
+        const command = { ...cmd, zone: toZone("F1:G2") };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual({ ...command, zone: toZone("F1:I2") });
+      });
+      test(`merge and columns added in different sheets`, () => {
+        const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+        const result = transform(command, addColumnsAfter);
+        expect(result).toEqual(command);
       });
     }
   );
