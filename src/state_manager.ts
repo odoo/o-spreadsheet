@@ -114,12 +114,12 @@ class SelectiveUndoRevision extends Revision {
 class DraftRevision extends CommandRevision {
   addCommand(command: CoreCommand) {
     this._commands.push(command);
-    this._inverses.push(inverseCommand(command));
+    this._inverses.push(...inverseCommand(command));
   }
 
   setCommands(commands: CoreCommand[]) {
     this._commands = commands;
-    this._inverses = commands.map((c) => inverseCommand(c));
+    this._inverses = commands.map((c) => inverseCommand(c)).flat();
   }
 
   addChange(change: HistoryChange) {
