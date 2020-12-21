@@ -34,19 +34,19 @@ describe("Inverses commands", () => {
     };
 
     test("Inverse with position = after", () => {
-      expect(inverseCommand(addColumns)).toEqual({
+      expect(inverseCommand(addColumns)).toEqual([{
         type: "REMOVE_COLUMNS",
         sheetId: "1",
         columns: [2, 3],
-      });
+      }]);
     });
 
     test("Inverse with position = before", () => {
-      expect(inverseCommand({ ...addColumns, position: "before" })).toEqual({
+      expect(inverseCommand({ ...addColumns, position: "before" })).toEqual([{
         type: "REMOVE_COLUMNS",
         sheetId: "1",
         columns: [1, 2],
-      });
+      }]);
     });
   });
   describe("Add Rows", () => {
@@ -59,15 +59,15 @@ describe("Inverses commands", () => {
     };
 
     test("Inverse with position = after", () => {
-      expect(inverseCommand(addRows)).toEqual({ type: "REMOVE_ROWS", sheetId: "1", rows: [2, 3] });
+      expect(inverseCommand(addRows)).toEqual([{ type: "REMOVE_ROWS", sheetId: "1", rows: [2, 3] }]);
     });
 
     test("Inverse with position = before", () => {
-      expect(inverseCommand({ ...addRows, position: "before" })).toEqual({
+      expect(inverseCommand({ ...addRows, position: "before" })).toEqual([{
         type: "REMOVE_ROWS",
         sheetId: "1",
         rows: [1, 2],
-      });
+      }]);
     });
   });
 
@@ -77,7 +77,7 @@ describe("Inverses commands", () => {
       sheetId: "1",
       zone: toZone("A1:B1"),
     };
-    expect(inverseCommand(addMerge)).toEqual({ ...addMerge, type: "REMOVE_MERGE" });
+    expect(inverseCommand(addMerge)).toEqual([{ ...addMerge, type: "REMOVE_MERGE" }]);
   });
 
   test("Remove Merge", () => {
@@ -86,7 +86,7 @@ describe("Inverses commands", () => {
       sheetId: "1",
       zone: toZone("A1:B1"),
     };
-    expect(inverseCommand(removeMerge)).toEqual({ ...removeMerge, type: "ADD_MERGE" });
+    expect(inverseCommand(removeMerge)).toEqual([{ ...removeMerge, type: "ADD_MERGE" }]);
   });
 
   test("Create sheet", () => {
@@ -95,7 +95,7 @@ describe("Inverses commands", () => {
       position: 1,
       sheetId: "1",
     };
-    expect(inverseCommand(createSheet)).toEqual({ type: "DELETE_SHEET", sheetId: "1" });
+    expect(inverseCommand(createSheet)).toEqual([{ type: "DELETE_SHEET", sheetId: "1" }]);
   });
 
   test("Duplicate Sheet", () => {
@@ -105,7 +105,7 @@ describe("Inverses commands", () => {
       sheetIdTo: "2",
       name: "bla",
     };
-    expect(inverseCommand(duplicateSheet)).toEqual({ type: "DELETE_SHEET", sheetId: "2" });
+    expect(inverseCommand(duplicateSheet)).toEqual([{ type: "DELETE_SHEET", sheetId: "2" }]);
   });
 
   describe("Identity", () => {
@@ -193,7 +193,7 @@ describe("Inverses commands", () => {
       setDecimal,
       updateChart,
     ])("The inverse is the identity", (cmd: CoreCommand) => {
-      expect(inverseCommand(cmd)).toEqual(cmd);
+      expect(inverseCommand(cmd)).toEqual([cmd]);
     });
   });
 });

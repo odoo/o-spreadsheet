@@ -1,8 +1,32 @@
+import { inverseCommandsRegistry } from "../../src/helpers/inverse_commands";
 import { otRegistry } from "../../src/ot/ot";
 import { CoreCommandTypes, coreTypes } from "../../src/types";
 
 // Not sure it should be merged, but will help us at least
-describe("OT Completude", () => {
+describe("Completude", () => {
+  test("All inverses are written", () => {
+    let msg: string[] | undefined = undefined;
+    let nbr = coreTypes.size;
+    let done = 0;
+    for (let cmd of coreTypes) {
+      try {
+        inverseCommandsRegistry.get(cmd);
+        done++;
+      } catch (e) {
+        if (!msg) {
+          msg = ["Missing inverse:"];
+        }
+        msg.push(cmd);
+      }
+    }
+    if (msg) {
+      msg.push(`Done: ${done}/${nbr} (${((done / (nbr)) * 100).toFixed(2)}%)`);
+      msg.push(`Missing: ${nbr-done}`);
+    }
+    const missingInverses: string | undefined = msg && msg.join("\n");
+    expect(missingInverses).toBeUndefined();
+  });
+
   test("All transformations are written", () => {
     const commandList = coreTypes;
     let msg: string[] | undefined = undefined;
