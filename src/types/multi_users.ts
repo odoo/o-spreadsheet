@@ -1,8 +1,13 @@
-import { RevisionData } from "../history";
 import { CoreCommand } from "./commands";
 import { UID } from "./misc";
 
 export type ClientId = string;
+
+export interface RevisionData {
+  readonly id: UID;
+  readonly clientId: ClientId;
+  readonly commands: readonly CoreCommand[];
+}
 
 export interface BaseMessage {
   clientId: ClientId;
