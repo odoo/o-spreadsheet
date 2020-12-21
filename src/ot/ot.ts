@@ -15,7 +15,11 @@ import {
   columnsRemovedResizeOrRemoveColumns,
   columnsRemovedTargetCommand,
 } from "./ot_columns_removed";
-import { figureDeletedUpdateChartFigure, sheetDeleted, sheetDeletedAndDuplicate } from "./ot_helpers";
+import {
+  figureDeletedUpdateChartFigure,
+  sheetDeleted,
+  sheetDeletedAndDuplicate,
+} from "./ot_helpers";
 import { mergedCellAddMerge, mergedCellCommand } from "./ot_merged";
 import {
   rowsAddedCellCommand,

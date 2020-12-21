@@ -147,30 +147,28 @@ describe("OT with ADD_COLUMNS", () => {
     type: "REMOVE_MERGE",
     sheetId,
   };
-  describe.each([addMerge, removeMerge])("merge",
-    (cmd) => {
-      test(`add columns before merge`, () => {
-        const command = { ...cmd, zone: toZone("A1:A3") };
-        const result = transform(command, addColumnsAfter);
-        expect(result).toEqual(command);
-      });
-      test(`add columns after merge`, () => {
-        const command = { ...cmd, zone: toZone("M1:O2") };
-        const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, zone: toZone("O1:Q2") });
-      });
-      test(`add columns in merge`, () => {
-        const command = { ...cmd, zone: toZone("F1:G2") };
-        const result = transform(command, addColumnsAfter);
-        expect(result).toEqual({ ...command, zone: toZone("F1:I2") });
-      });
-      test(`merge and columns added in different sheets`, () => {
-        const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
-        const result = transform(command, addColumnsAfter);
-        expect(result).toEqual(command);
-      });
-    }
-  );
+  describe.each([addMerge, removeMerge])("merge", (cmd) => {
+    test(`add columns before merge`, () => {
+      const command = { ...cmd, zone: toZone("A1:A3") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+    test(`add columns after merge`, () => {
+      const command = { ...cmd, zone: toZone("M1:O2") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, zone: toZone("O1:Q2") });
+    });
+    test(`add columns in merge`, () => {
+      const command = { ...cmd, zone: toZone("F1:G2") };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual({ ...command, zone: toZone("F1:I2") });
+    });
+    test(`merge and columns added in different sheets`, () => {
+      const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+      const result = transform(command, addColumnsAfter);
+      expect(result).toEqual(command);
+    });
+  });
 
   const resizeColumnsCommand: Omit<ResizeColumnsCommand, "columns"> = {
     type: "RESIZE_COLUMNS",

@@ -33,20 +33,22 @@ import { ClientId, RemoteRevision, Message, RemoteUndo, RevisionData } from "./t
  *
  */
 
- /**
-  * For debug purposes only. Remove before merge
-  * https://stackoverflow.com/a/7616484
-  */
- //@ts-ignore
- function hash(str: string): number {
-  let hash = 0, i, chr;
+/**
+ * For debug purposes only. Remove before merge
+ * https://stackoverflow.com/a/7616484
+ */
+//@ts-ignore
+function hash(str: string): number {
+  let hash = 0,
+    i,
+    chr;
   for (i = 0; i < str.length; i++) {
-    chr   = str.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
+    chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
     hash |= 0; // Convert to 32bit integer
   }
   return hash;
- }
+}
 
 /**
  *
@@ -327,7 +329,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
       const hashed = hash(JSON.stringify(this.exportData())); //TODO Remove it
       // console.log(this.pendingRevisions);
       // const hashed = undefined;
-      this.network.sendMessage({...revision.getMessage(this.revisionId), hash: hashed});
+      this.network.sendMessage({ ...revision.getMessage(this.revisionId), hash: hashed });
     }
   }
 

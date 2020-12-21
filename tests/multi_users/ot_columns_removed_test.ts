@@ -256,8 +256,8 @@ describe("OT with REMOVE_COLUMN", () => {
   };
   const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
     type: "REMOVE_MERGE",
-    sheetId
-  }
+    sheetId,
+  };
   describe.each([addMerge, removeMerge])("Remove Columns - Merge", (cmd) => {
     test(`remove columns before merge`, () => {
       const command = { ...cmd, zone: toZone("A1:A3") };
@@ -289,5 +289,5 @@ describe("OT with REMOVE_COLUMN", () => {
       const result = transform(command, removeColumns);
       expect(result).toBeUndefined();
     });
-  })
+  });
 });

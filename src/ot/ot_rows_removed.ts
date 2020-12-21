@@ -1,5 +1,11 @@
 import { isDefined } from "../helpers/index";
-import { AddMergeCommand, AddRowsCommand, RemoveRowsCommand, ResizeRowsCommand, Zone } from "../types";
+import {
+  AddMergeCommand,
+  AddRowsCommand,
+  RemoveRowsCommand,
+  ResizeRowsCommand,
+  Zone,
+} from "../types";
 import { CellCommand, TargetCommand } from "./ot_types";
 
 function transformZone(zone: Zone, executed: RemoveRowsCommand): Zone | undefined {
@@ -100,7 +106,10 @@ export function rowsRemovedRemoveOrResizeRows(
   return { ...toTransform, rows: rowsToRemove };
 }
 
-export function rowsRemovedAddOrRemoveMerge(toTransform: AddMergeCommand, executed: RemoveRowsCommand): AddMergeCommand | undefined {
+export function rowsRemovedAddOrRemoveMerge(
+  toTransform: AddMergeCommand,
+  executed: RemoveRowsCommand
+): AddMergeCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
@@ -108,5 +117,5 @@ export function rowsRemovedAddOrRemoveMerge(toTransform: AddMergeCommand, execut
   if (!zone) {
     return undefined;
   }
-  return {...toTransform, zone};
+  return { ...toTransform, zone };
 }

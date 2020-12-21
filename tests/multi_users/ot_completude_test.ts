@@ -20,8 +20,8 @@ describe("Completude", () => {
       }
     }
     if (msg) {
-      msg.push(`Done: ${done}/${nbr} (${((done / (nbr)) * 100).toFixed(2)}%)`);
-      msg.push(`Missing: ${nbr-done}`);
+      msg.push(`Done: ${done}/${nbr} (${((done / nbr) * 100).toFixed(2)}%)`);
+      msg.push(`Missing: ${nbr - done}`);
     }
     const missingInverses: string | undefined = msg && msg.join("\n");
     expect(missingInverses).toBeUndefined();
