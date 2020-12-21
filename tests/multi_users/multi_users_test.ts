@@ -392,7 +392,7 @@ describe("Multi users synchronisation", () => {
         expect([alice, bob, charly]).toHaveSynchronizedExportedData();
       });
       expect([alice, bob, charly]).toHaveSynchronizedValue(
-        (user) => getCellContent(user,"A1"),
+        (user) => getCellContent(user, "A1"),
         "Hi"
       );
     });
@@ -576,45 +576,45 @@ describe("Multi users synchronisation", () => {
     });
 
     test("Remove columns and undo/redo the change", () => {
-      const sheetId = alice.getters.getActiveSheetId()
+      const sheetId = alice.getters.getActiveSheetId();
       alice.dispatch("REMOVE_COLUMNS", {
         sheetId,
-        columns: [0,1, 5],
-      })
+        columns: [0, 1, 5],
+      });
       setCellContent(bob, "A1", "hello");
       alice.dispatch("UNDO");
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCellContent(user, "C1"),
-        "hello",
+        "hello"
       );
       alice.dispatch("REDO");
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCellContent(user, "A1"),
-        "hello",
+        "hello"
       );
     });
 
     test("Remove rows and undo/redo the change", () => {
-      const sheetId = alice.getters.getActiveSheetId()
+      const sheetId = alice.getters.getActiveSheetId();
       alice.dispatch("REMOVE_ROWS", {
         sheetId,
-        rows: [0,1, 5],
-      })
+        rows: [0, 1, 5],
+      });
       setCellContent(bob, "A1", "hello");
       alice.dispatch("UNDO");
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCellContent(user, "A3"),
-        "hello",
+        "hello"
       );
       alice.dispatch("REDO");
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCellContent(user, "A1"),
-        "hello",
+        "hello"
       );
     });
 
     test("Undo a create sheet command", () => {
-      const sheet1Id = alice.getters.getActiveSheetId()
+      const sheet1Id = alice.getters.getActiveSheetId();
       const sheetId = "42";
       alice.dispatch("CREATE_SHEET", { sheetId, position: 0 });
       setCellContent(bob, "A1", "Hello in A1", sheetId);
@@ -629,7 +629,45 @@ describe("Multi users synchronisation", () => {
       });
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => user.getters.getVisibleSheets(),
-        [sheet1Id],
+        [sheet1Id]
+      );
+    });
+
+    test("Invalid state detected 😱", () => {
+      const sheetId = alice.getters.getActiveSheetId();
+      setCellContent(bob, "F9", "hello");
+      alice.dispatch("ADD_ROWS", {
+        sheetId,
+        position: "after",
+        quantity: 1,
+        row: 5,
+      });
+      bob.dispatch("UNDO");
+      expect([alice, bob, charly]).toHaveSynchronizedExportedData();
+    });
+
+    test("undo twice, redo twice", () => {
+      setCellContent(bob, "F9", "hello");
+      setCellContent(bob, "F9", "hello world");
+      bob.dispatch("UNDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "F9"),
+        "hello"
+      );
+      bob.dispatch("UNDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "F9"),
+        ""
+      );
+      bob.dispatch("REDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "F9"),
+        "hello"
+      );
+      bob.dispatch("REDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "F9"),
+        "hello world"
       );
     });
   });
@@ -637,50 +675,62 @@ describe("Multi users synchronisation", () => {
   describe("Sheet manipulation", () => {
     test("create and delete sheet concurrently", () => {
       const sheet1 = alice.getters.getActiveSheetId();
-      createSheet(alice, { sheetId: "42"})
+      createSheet(alice, { sheetId: "42" });
       network.concurrent(() => {
-        createSheet(alice, { sheetId: "2"});
-        bob.dispatch("DELETE_SHEET", { sheetId: "42"});
+        createSheet(alice, { sheetId: "2" });
+        bob.dispatch("DELETE_SHEET", { sheetId: "42" });
       });
-      expect([alice, bob, charly]).toHaveSynchronizedValue(user => user.getters.getVisibleSheets(), [sheet1, "2"])
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => user.getters.getVisibleSheets(),
+        [sheet1, "2"]
+      );
       expect([alice, bob, charly]).toHaveSynchronizedExportedData();
     });
 
     test("Create two sheets concurrently", () => {
       const sheet1 = alice.getters.getActiveSheetId();
       network.concurrent(() => {
-        createSheet(alice, { sheetId: "2"});
-        createSheet(bob, { sheetId: "3"});
+        createSheet(alice, { sheetId: "2" });
+        createSheet(bob, { sheetId: "3" });
       });
-      expect([alice, bob, charly]).toHaveSynchronizedValue(user => user.getters.getVisibleSheets(), [sheet1, "3", "2"])
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => user.getters.getVisibleSheets(),
+        [sheet1, "3", "2"]
+      );
       expect([alice, bob, charly]).toHaveSynchronizedExportedData();
-    })
+    });
 
     test("create sheet and move sheet concurrently", () => {
       const sheet1 = alice.getters.getActiveSheetId();
-      createSheet(bob, { sheetId: "42", activate: true});
+      createSheet(bob, { sheetId: "42", activate: true });
       network.concurrent(() => {
-        createSheet(alice, { sheetId: "2", position: 1});
-        bob.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right"});
+        createSheet(alice, { sheetId: "2", position: 1 });
+        bob.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
       });
-      expect([alice, bob, charly]).toHaveSynchronizedValue(user => user.getters.getVisibleSheets(), ["2", sheet1, "42"]);
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => user.getters.getVisibleSheets(),
+        ["2", sheet1, "42"]
+      );
       expect([alice, bob, charly]).toHaveSynchronizedExportedData();
-    })
+    });
 
     test("Move two sheets concurrently", () => {
       const sheet1 = alice.getters.getActiveSheetId();
-      createSheet(bob, { sheetId: "1", activate: true, position: 1});
-      createSheet(bob, { sheetId: "2", activate: true, position: 2});
+      createSheet(bob, { sheetId: "1", activate: true, position: 1 });
+      createSheet(bob, { sheetId: "2", activate: true, position: 2 });
       network.concurrent(() => {
-        alice.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right"});
-        bob.dispatch("MOVE_SHEET", { sheetId: "2", direction: "left"});
+        alice.dispatch("MOVE_SHEET", { sheetId: sheet1, direction: "right" });
+        bob.dispatch("MOVE_SHEET", { sheetId: "2", direction: "left" });
       });
-      expect([alice, bob, charly]).toHaveSynchronizedValue(user => user.getters.getVisibleSheets(), ["1", "2", sheet1]);
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => user.getters.getVisibleSheets(),
+        ["1", "2", sheet1]
+      );
       expect([alice, bob, charly]).toHaveSynchronizedExportedData();
-    })
+    });
 
     test("delete sheet and udpate figure concurrently", () => {
-      createSheet(bob, { sheetId: "1", activate: true});
+      createSheet(bob, { sheetId: "1", activate: true });
       bob.dispatch("CREATE_FIGURE", {
         sheetId: "1",
         figure: {
@@ -690,15 +740,15 @@ describe("Multi users synchronisation", () => {
           id: "456",
           tag: "test",
           x: 0,
-          y: 0
-        }
-      })
+          y: 0,
+        },
+      });
       network.concurrent(() => {
         alice.dispatch("DELETE_SHEET", { sheetId: "1" });
         bob.dispatch("UPDATE_FIGURE", {
           id: "456",
           data: "coucou",
-        })
+        });
       });
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => user.getters.getFigure<string>("456"),
@@ -707,7 +757,7 @@ describe("Multi users synchronisation", () => {
     });
 
     test("delete sheet and udpate chart concurrently", () => {
-      createSheet(bob, { sheetId: "1", activate: true});
+      createSheet(bob, { sheetId: "1", activate: true });
       bob.dispatch("CREATE_CHART", {
         sheetId: "1",
         id: "456",
@@ -717,8 +767,8 @@ describe("Multi users synchronisation", () => {
           seriesHasTitle: false,
           title: "test chart",
           type: "bar",
-        }
-      })
+        },
+      });
       network.concurrent(() => {
         alice.dispatch("DELETE_SHEET", { sheetId: "1" });
         bob.dispatch("UPDATE_CHART", {
@@ -729,7 +779,7 @@ describe("Multi users synchronisation", () => {
             seriesHasTitle: false,
             title: "test chart",
             type: "bar",
-          }
+          },
         });
       });
       expect([alice, bob, charly]).toHaveSynchronizedValue(
@@ -739,26 +789,26 @@ describe("Multi users synchronisation", () => {
     });
 
     test("rename sheet and update cell with sheet ref concurrently", () => {
-      const sheetId = alice.getters.getActiveSheetId()
-      const sheetName = bob.getters.getSheet(sheetId).name
+      const sheetId = alice.getters.getActiveSheetId();
+      const sheetName = bob.getters.getSheet(sheetId).name;
       network.concurrent(() => {
         alice.dispatch("RENAME_SHEET", {
           sheetId,
-          name: "NewName"
+          name: "NewName",
         });
         bob.dispatch("UPDATE_CELL", {
           col: 0,
           row: 0,
           content: `=${sheetName}!A2`,
-          sheetId
-        })
+          sheetId,
+        });
       });
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCell(user, "A1")!.error,
         `Invalid sheet name: ${sheetName}`
       );
-    })
-  })
+    });
+  });
 
   describe("Evaluation", () => {
     test("Evaluation is correctly triggered after cell updated", () => {
