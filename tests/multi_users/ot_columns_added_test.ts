@@ -7,6 +7,7 @@ import {
   ClearFormattingCommand,
   DeleteContentCommand,
   RemoveColumnsCommand,
+  RemoveMergeCommand,
   ResizeColumnsCommand,
   SetBorderCommand,
   SetDecimalCommand,
@@ -138,13 +139,16 @@ describe("OT with ADD_COLUMNS", () => {
       });
     }
   );
-
-  describe("merge",
-    () => {
-      const cmd: Omit<AddMergeCommand, "zone"> = {
-        type: "ADD_MERGE",
-        sheetId,
-      };
+  const addMerge: Omit<AddMergeCommand, "zone"> = {
+    type: "ADD_MERGE",
+    sheetId,
+  };
+  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+    type: "REMOVE_MERGE",
+    sheetId,
+  };
+  describe.each([addMerge, removeMerge])("merge",
+    (cmd) => {
       test(`add columns before merge`, () => {
         const command = { ...cmd, zone: toZone("A1:A3") };
         const result = transform(command, addColumnsAfter);

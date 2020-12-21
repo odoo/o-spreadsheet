@@ -232,7 +232,7 @@ export interface AddConditionalFormatCommand extends BaseCommand {
 export interface RemoveConditionalFormatCommand extends BaseCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
-  sheetId: UID; //TODO PRO Not needed I think
+  sheetId: UID;
 }
 
 //------------------------------------------------------------------------------

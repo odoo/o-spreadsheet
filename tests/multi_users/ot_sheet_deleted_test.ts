@@ -24,6 +24,8 @@ import {
   CreateChartCommand,
   ResizeRowsCommand,
   ResizeColumnsCommand,
+  DuplicateSheetCommand,
+  RemoveConditionalFormatCommand,
 } from "../../src/types";
 import { createEqualCF } from "../helpers";
 
@@ -110,8 +112,15 @@ describe("OT with DELETE_SHEET", () => {
     rows: [1],
     size: 10,
   };
+  const removeConditionalFormatting: Omit<RemoveConditionalFormatCommand, "sheetId"> = {
+    type: "REMOVE_CONDITIONAL_FORMAT",
+    id: "789",
+  };
+  const otherDeleteSheet: Omit<DeleteSheetCommand, "sheetId"> = {
+    type: "DELETE_SHEET",
+  };
 
-  test.each([
+  describe.each([
     updateCell,
     updateCellPosition,
     clearCell,
@@ -133,35 +142,37 @@ describe("OT with DELETE_SHEET", () => {
     createChart,
     resizeColumns,
     resizeRows,
-  ])("Delete the sheet on which the command is triggered", (cmd) => {
-    const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
-    expect(result).toBeUndefined();
+    removeConditionalFormatting,
+    otherDeleteSheet,
+  ])("Delete sheet", (cmd) => {
+    test("Delete the sheet on which the command is triggered", () => {
+      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete the sheet on which the command is triggered", () => {
+      const command = { ...cmd, sheetId };
+      const result = transform(command, deleteSheet);
+      expect(result).toEqual(command);
+    });
   });
-  test.each([
-    updateCell,
-    updateCellPosition,
-    clearCell,
-    deleteContent,
-    addColumns,
-    addRows,
-    removeColumn,
-    removeRows,
-    addMerge,
-    removeMerge,
-    moveSheet,
-    renameSheet,
-    addCF,
-    createFigure,
-    setFormatting,
-    clearFormatting,
-    setBorder,
-    setDecimal,
-    createChart,
-    resizeColumns,
-    resizeRows,
-  ])("Delete the sheet on which the command is triggered", (cmd) => {
-    const command = { ...updateCell, sheetId };
-    const result = transform(command, deleteSheet);
-    expect(result).toEqual(command);
-  });
+
+  describe("Delete sheet with duplicate sheet", () => {
+    const cmd: Omit<DuplicateSheetCommand, "sheetIdFrom"> = {
+      type: "DUPLICATE_SHEET",
+      sheetIdTo: "sheetIdTo",
+      name: "sheetIdTo",
+    }
+
+    test("Delete the sheet on which the command is triggered", () => {
+      const result = transform({ ...cmd, sheetIdFrom: deletedSheetId }, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete the sheet on which the command is triggered", () => {
+      const command = { ...cmd, sheetIdFrom: sheetId };
+      const result = transform(command, deleteSheet);
+      expect(result).toEqual(command);
+    });
+  })
 });

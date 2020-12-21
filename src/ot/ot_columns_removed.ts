@@ -1,6 +1,25 @@
 import { isDefined } from "../helpers/index";
-import { AddColumnsCommand, RemoveColumnsCommand } from "../types";
-import { CellCommand, TargetCommand } from "./ot_helpers";
+import { AddColumnsCommand, AddMergeCommand, RemoveColumnsCommand, Zone } from "../types";
+import { CellCommand, TargetCommand } from "./ot_types";
+
+
+function transformZone(zone: Zone, executed: RemoveColumnsCommand): Zone | undefined {
+  let left = zone.left;
+  let right = zone.right;
+  for (let removedColumn of executed.columns.sort((a, b) => b - a)) {
+    if (zone.left > removedColumn) {
+      left--;
+      right--;
+    }
+    if (zone.left <= removedColumn && zone.right >= removedColumn) {
+      right--;
+    }
+  }
+  if (left > right) {
+    return undefined;
+  }
+  return { ...zone, left, right };
+}
 
 export function columnsRemovedCellCommand(
   toTransform: CellCommand,
@@ -29,23 +48,7 @@ export function columnsRemovedTargetCommand(
     return toTransform;
   }
   const adaptedTarget = toTransform.target
-    .map((zone) => {
-      let left = zone.left;
-      let right = zone.right;
-      for (let removedColumn of executed.columns.sort((a, b) => b - a)) {
-        if (zone.left > removedColumn) {
-          left--;
-          right--;
-        }
-        if (zone.left <= removedColumn && zone.right >= removedColumn) {
-          right--;
-        }
-      }
-      if (left > right) {
-        return undefined;
-      }
-      return { ...zone, left, right };
-    })
+    .map((zone) => transformZone(zone, executed))
     .filter(isDefined);
   if (!adaptedTarget.length) {
     return undefined;
@@ -96,4 +99,15 @@ export function columnsRemovedResizeOrRemoveColumns(
     return undefined;
   }
   return { ...toTransform, columns: columnsToRemove };
+}
+
+export function columnsRemovedAddOrRemoveMerge(toTransform: AddMergeCommand, executed: RemoveColumnsCommand):AddMergeCommand | undefined {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const zone = transformZone(toTransform.zone, executed);
+  if (!zone) {
+    return undefined;
+  }
+  return {...toTransform, zone};
 }

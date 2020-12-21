@@ -10,6 +10,7 @@ import {
   SetFormattingCommand,
   ClearFormattingCommand,
   SetDecimalCommand,
+  RemoveMergeCommand,
 } from "../../src/types";
 
 describe("OT with ADD_MERGE", () => {
@@ -99,4 +100,27 @@ describe("OT with ADD_MERGE", () => {
       });
     }
   );
+
+  const removeMerge: Omit<RemoveMergeCommand, "zone"> = {
+    type: "REMOVE_MERGE",
+    sheetId
+  }
+
+  describe.each([addMerge, removeMerge])(`ADD_MERGE & AddMerge | RemoveMerge`, (cmd) => {
+    test("two distinct merges", () => {
+      const command = { ...cmd, zone: toZone("E1:F2") };
+      const result = transform(command, addMerge);
+      expect(result).toEqual(command);
+    });
+    test("two overlapping merges", () => {
+      const command = { ...cmd, zone: toZone("C3:D5") };
+      const result = transform(command, addMerge);
+      expect(result).toBeUndefined();
+    });
+    test("two overlapping merges in different sheets", () => {
+      const command = { ...cmd, zone: toZone("C3:D5"), sheetId: "another sheet" };
+      const result = transform(command, addMerge);
+      expect(result).toEqual(command);
+    });
+  })
 });

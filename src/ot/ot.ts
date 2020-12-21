@@ -1,6 +1,6 @@
 import { isDefined } from "../helpers/index";
 import { OTRegistry } from "../registries/ot_registry";
-import { UpdateCellCommand, CoreCommand, RenameSheetCommand } from "../types";
+import { CoreCommand } from "../types";
 import {
   columnsAddedAddColumns,
   columnsAddedCellCommand,
@@ -10,12 +10,13 @@ import {
 } from "./ot_columns_added";
 import {
   columnsRemovedAddColumns,
+  columnsRemovedAddOrRemoveMerge,
   columnsRemovedCellCommand,
   columnsRemovedResizeOrRemoveColumns,
   columnsRemovedTargetCommand,
 } from "./ot_columns_removed";
-import { sheetDeleted } from "./ot_helpers";
-import { mergedCellCommand } from "./ot_merged";
+import { figureDeletedUpdateChartFigure, sheetDeleted, sheetDeletedAndDuplicate } from "./ot_helpers";
+import { mergedCellAddMerge, mergedCellCommand } from "./ot_merged";
 import {
   rowsAddedCellCommand,
   rowsAddedMergeCommand,
@@ -28,6 +29,7 @@ import {
   rowsRemovedTargetCommand,
   rowsRemovedRemoveOrResizeRows,
   rowsRemovedAddRows,
+  rowsRemovedAddOrRemoveMerge,
 } from "./ot_rows_removed";
 
 /**
@@ -74,6 +76,9 @@ otRegistry.addTransformation("SET_DECIMAL", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("CREATE_CHART", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("RESIZE_COLUMNS", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("RESIZE_ROWS", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("REMOVE_CONDITIONAL_FORMAT", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("DELETE_SHEET", "DELETE_SHEET", sheetDeleted);
+otRegistry.addTransformation("DUPLICATE_SHEET", "DELETE_SHEET", sheetDeletedAndDuplicate);
 
 // -----------------------------------------------------------------------------
 // Columns Added
@@ -96,6 +101,7 @@ otRegistry.addTransformation("REMOVE_COLUMNS", "ADD_COLUMNS", columnsAddedResize
 otRegistry.addTransformation("ADD_COLUMNS", "ADD_COLUMNS", columnsAddedAddColumns);
 /** Merge */
 otRegistry.addTransformation("ADD_MERGE", "ADD_COLUMNS", columnsAddedMergeCommand);
+otRegistry.addTransformation("REMOVE_MERGE", "ADD_COLUMNS", columnsAddedMergeCommand);
 
 // -----------------------------------------------------------------------------
 // Rows Added
@@ -118,6 +124,7 @@ otRegistry.addTransformation("REMOVE_ROWS", "ADD_ROWS", rowsAddedResizeOrRemoveR
 otRegistry.addTransformation("ADD_ROWS", "ADD_ROWS", rowsAddedAddRows);
 /** Merge */
 otRegistry.addTransformation("ADD_MERGE", "ADD_ROWS", rowsAddedMergeCommand);
+otRegistry.addTransformation("REMOVE_MERGE", "ADD_ROWS", rowsAddedMergeCommand);
 
 // -----------------------------------------------------------------------------
 // Columns Removed
@@ -146,6 +153,9 @@ otRegistry.addTransformation(
   "REMOVE_COLUMNS",
   columnsRemovedResizeOrRemoveColumns
 );
+/** Merge */
+otRegistry.addTransformation("ADD_MERGE", "REMOVE_COLUMNS", columnsRemovedAddOrRemoveMerge);
+otRegistry.addTransformation("REMOVE_MERGE", "REMOVE_COLUMNS", columnsRemovedAddOrRemoveMerge);
 
 // -----------------------------------------------------------------------------
 // Rows Removed
@@ -165,6 +175,9 @@ otRegistry.addTransformation("ADD_ROWS", "REMOVE_ROWS", rowsRemovedAddRows);
 /** Remove - Resize Rows */
 otRegistry.addTransformation("REMOVE_ROWS", "REMOVE_ROWS", rowsRemovedRemoveOrResizeRows);
 otRegistry.addTransformation("RESIZE_ROWS", "REMOVE_ROWS", rowsRemovedRemoveOrResizeRows);
+/** Merge */
+otRegistry.addTransformation("ADD_MERGE", "REMOVE_ROWS", rowsRemovedAddOrRemoveMerge);
+otRegistry.addTransformation("REMOVE_MERGE", "REMOVE_ROWS", rowsRemovedAddOrRemoveMerge);
 
 // -----------------------------------------------------------------------------
 // Merged
@@ -174,12 +187,9 @@ otRegistry.addTransformation("UPDATE_CELL", "ADD_MERGE", mergedCellCommand);
 otRegistry.addTransformation("UPDATE_CELL_POSITION", "ADD_MERGE", mergedCellCommand);
 otRegistry.addTransformation("CLEAR_CELL", "ADD_MERGE", mergedCellCommand);
 otRegistry.addTransformation("SET_BORDER", "ADD_MERGE", mergedCellCommand);
+/** Merge */
+otRegistry.addTransformation("ADD_MERGE", "ADD_MERGE", mergedCellAddMerge);
+otRegistry.addTransformation("REMOVE_MERGE", "ADD_MERGE", mergedCellAddMerge);
 
-otRegistry.addTransformation(
-  "UPDATE_CELL",
-  "RENAME_SHEET",
-  (toTransform: UpdateCellCommand, executed: RenameSheetCommand): UpdateCellCommand => {
-    //TODO Not sure what to do here, we do not have the old name in the renameSheetCommand :/
-    return toTransform;
-  }
-);
+otRegistry.addTransformation("UPDATE_FIGURE", "DELETE_FIGURE", figureDeletedUpdateChartFigure);
+otRegistry.addTransformation("UPDATE_CHART", "DELETE_FIGURE", figureDeletedUpdateChartFigure);

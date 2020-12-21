@@ -34,21 +34,21 @@ describe("OT Completude", () => {
   });
 });
 
-function all(): Set<CoreCommandTypes> {
-  return coreTypes;
-}
+// function all(): Set<CoreCommandTypes> {
+//   return coreTypes;
+// }
 
 function none(): Set<CoreCommandTypes> {
   return new Set();
 }
 
-// function allExcept(types: CoreCommandTypes[]) {
-//   const set = new Set(coreTypes);
-//   for (let type of types) {
-//     set.delete(type);
-//   }
-//   return set;
-// }
+function allExcept(types: CoreCommandTypes[]) {
+  const set = new Set(coreTypes);
+  for (let type of types) {
+    set.delete(type);
+  }
+  return set;
+}
 
 function only(types: CoreCommandTypes[]): Set<CoreCommandTypes> {
   return new Set(types);
@@ -71,6 +71,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_COLUMNS",
     "REMOVE_COLUMNS",
     "ADD_MERGE",
+    "REMOVE_MERGE",
     "RESIZE_COLUMNS",
     ...STYLE_COMMANDS,
   ]),
@@ -81,6 +82,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_ROWS",
     "REMOVE_ROWS",
     "ADD_MERGE",
+    "REMOVE_MERGE",
     "RESIZE_ROWS",
     ...STYLE_COMMANDS,
   ]),
@@ -91,6 +93,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_COLUMNS",
     "REMOVE_COLUMNS",
     "ADD_MERGE",
+    "REMOVE_MERGE",
     "RESIZE_COLUMNS",
     ...STYLE_COMMANDS,
   ]),
@@ -101,6 +104,7 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
     "ADD_ROWS",
     "REMOVE_ROWS",
     "ADD_MERGE",
+    "REMOVE_MERGE",
     "RESIZE_ROWS",
     ...STYLE_COMMANDS,
   ]),
@@ -108,15 +112,15 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
   RESIZE_ROWS: none(),
 
   /** MERGE */
-  ADD_MERGE: only(["UPDATE_CELL", "CLEAR_CELL", "ADD_MERGE"]),
+  ADD_MERGE: only(["UPDATE_CELL", "CLEAR_CELL", "ADD_MERGE", "REMOVE_MERGE"]),
   REMOVE_MERGE: none(),
 
   /** SHEETS MANIPULATION */
   CREATE_SHEET: none(),
-  DELETE_SHEET: all(),
-  DUPLICATE_SHEET: only(["CREATE_SHEET", "DUPLICATE_SHEET", "MOVE_SHEET"]),
-  MOVE_SHEET: only(["CREATE_SHEET", "DUPLICATE_SHEET", "MOVE_SHEET"]),
-  RENAME_SHEET: only(["UPDATE_CELL"]),
+  DELETE_SHEET: allExcept(["CREATE_SHEET", "DELETE_FIGURE", "UPDATE_FIGURE", "UPDATE_CHART"]),
+  DUPLICATE_SHEET: none(),
+  MOVE_SHEET: none(),
+  RENAME_SHEET: none(),
 
   /** CONDITIONAL FORMAT */
   ADD_CONDITIONAL_FORMAT: none(),
@@ -135,5 +139,5 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
 
   /** CHART */
   CREATE_CHART: none(),
-  UPDATE_CHART: only(["DELETE_FIGURE"]),
+  UPDATE_CHART: none(),
 };
