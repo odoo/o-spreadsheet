@@ -1,6 +1,7 @@
 import { toZone } from "../../src/helpers/zones";
 import { transform } from "../../src/ot/ot";
 import {
+  AddMergeCommand,
   AddRowsCommand,
   ClearCellCommand,
   ClearFormattingCommand,
@@ -180,6 +181,35 @@ describe("OT with ADD_ROWS", () => {
       expect(result).toEqual(command);
     });
   });
+
+  describe("merge",
+    () => {
+      const cmd: Omit<AddMergeCommand, "zone"> = {
+        type: "ADD_MERGE",
+        sheetId,
+      };
+      test(`add rows before merge`, () => {
+        const command = { ...cmd, zone: toZone("A1:C1") };
+        const result = transform(command, addRowsAfter);
+        expect(result).toEqual(command);
+      });
+      test(`add rows after merge`, () => {
+        const command = { ...cmd, zone: toZone("A10:B11") };
+        const result = transform(command, addRowsAfter);
+        expect(result).toEqual({ ...command, zone: toZone("A12:B13") });
+      });
+      test(`add rows in merge`, () => {
+        const command = { ...cmd, zone: toZone("A5:B6") };
+        const result = transform(command, addRowsAfter);
+        expect(result).toEqual({ ...command, zone: toZone("A5:B8") });
+      });
+      test(`merge and rows added in different sheets`, () => {
+        const command = { ...cmd, zone: toZone("A1:F3"), sheetId: "42" };
+        const result = transform(command, addRowsAfter);
+        expect(result).toEqual(command);
+      });
+    }
+  );
 
   describe("ADD_ROWS & ADD_ROWS", () => {
     test("same base row, one after, one before", () => {

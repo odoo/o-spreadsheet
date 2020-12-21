@@ -1,4 +1,4 @@
-import { AddRowsCommand, ResizeRowsCommand } from "../types";
+import { AddMergeCommand, AddRowsCommand, ResizeRowsCommand, Zone } from "../types";
 import { CellCommand, TargetCommand } from "./ot_helpers";
 
 export function rowsAddedCellCommand(
@@ -60,4 +60,25 @@ export function rowsAddedAddRows(
     return { ...toTransform, row: toTransform.row + executed.quantity };
   }
   return toTransform;
+}
+
+function transformZone(zone: Zone, executed: AddRowsCommand): Zone {
+  const baseRow = executed.position === "before" ? executed.row - 1 : executed.row;
+  if (zone.top <= baseRow && zone.bottom >= baseRow) {
+    zone.bottom += executed.quantity;
+  } else if (baseRow < zone.top) {
+    zone.top += executed.quantity;
+    zone.bottom += executed.quantity;
+  }
+  return zone;
+}
+
+export function rowsAddedMergeCommand(
+  toTransform: AddMergeCommand,
+  executed: AddRowsCommand
+): AddMergeCommand {
+  if (toTransform.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  return { ...toTransform, zone: transformZone(toTransform.zone, executed) };
 }
