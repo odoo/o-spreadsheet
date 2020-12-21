@@ -391,6 +391,10 @@ describe("Multi users synchronisation", () => {
         expect(exportedData.sheets[0].cells.A1?.content).toBe("salut");
         expect([alice, bob, charly]).toHaveSynchronizedExportedData();
       });
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user,"A1"),
+        "Hi"
+      );
     });
   });
 
@@ -571,7 +575,46 @@ describe("Multi users synchronisation", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    test.skip("Undo a create sheet command", () => {
+    test("Remove columns and undo/redo the change", () => {
+      const sheetId = alice.getters.getActiveSheetId()
+      alice.dispatch("REMOVE_COLUMNS", {
+        sheetId,
+        columns: [0,1, 5],
+      })
+      setCellContent(bob, "A1", "hello");
+      alice.dispatch("UNDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "C1"),
+        "hello",
+      );
+      alice.dispatch("REDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "hello",
+      );
+    });
+
+    test("Remove rows and undo/redo the change", () => {
+      const sheetId = alice.getters.getActiveSheetId()
+      alice.dispatch("REMOVE_ROWS", {
+        sheetId,
+        rows: [0,1, 5],
+      })
+      setCellContent(bob, "A1", "hello");
+      alice.dispatch("UNDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A3"),
+        "hello",
+      );
+      alice.dispatch("REDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "hello",
+      );
+    });
+
+    test("Undo a create sheet command", () => {
+      const sheet1Id = alice.getters.getActiveSheetId()
       const sheetId = "42";
       alice.dispatch("CREATE_SHEET", { sheetId, position: 0 });
       setCellContent(bob, "A1", "Hello in A1", sheetId);
@@ -584,6 +627,10 @@ describe("Multi users synchronisation", () => {
         status: "CANCELLED",
         reason: CancelledReason.EmptyUndoStack,
       });
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => user.getters.getVisibleSheets(),
+        [sheet1Id],
+      );
     });
   });
 

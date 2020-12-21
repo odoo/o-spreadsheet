@@ -1,5 +1,6 @@
 import * as owl from "@odoo/owl";
 import { DEFAULT_REVISION_ID, MAX_HISTORY_STEPS } from "./constants";
+import { getDebugManager } from "./debug";
 import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { ModelConfig } from "./model";
@@ -31,6 +32,21 @@ import { ClientId, RemoteRevision, Message, RemoteUndo, RevisionData } from "./t
  *
  *
  */
+
+ /**
+  * For debug purposes only. Remove before merge
+  * https://stackoverflow.com/a/7616484
+  */
+ //@ts-ignore
+ function hash(str: string): number {
+  let hash = 0, i, chr;
+  for (i = 0; i < str.length; i++) {
+    chr   = str.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+ }
 
 /**
  *
@@ -157,6 +173,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
     protected readonly userId: UID,
+    public exportData: () => WorkbookData,
     protected network?: ModelConfig["network"]
   ) {
     super();
@@ -193,6 +210,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           .find((step) => step.clientId === this.userId)?.id;
         if (revisionId) {
           this.localSelectiveUndo(revisionId);
+          this.sendPendingRevision();
         } else {
           const pending = this.pendingRevisions.pop();
           if (pending) {
@@ -303,9 +321,13 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Send the first pending revision
    */
   private sendPendingRevision() {
-    const revision = this.pendingRevisions[0];
+    let revision = this.pendingRevisions[0];
     if (this.network && revision) {
-      this.network.sendMessage(revision.getMessage(this.revisionId));
+      // console.log(this.pendingRevisions);
+      const hashed = hash(JSON.stringify(this.exportData())); //TODO Remove it
+      // console.log(this.pendingRevisions);
+      // const hashed = undefined;
+      this.network.sendMessage({...revision.getMessage(this.revisionId), hash: hashed});
     }
   }
 
@@ -314,6 +336,13 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   onMessageReceived(message: Message) {
     //TODO we should perhaps check that this.revisionId === message.revisionId to apply it
+    if (message.hash) {
+      const current = hash(JSON.stringify(this.exportData()));
+      if (current !== message.hash) {
+        console.error("Invalid state detected 😱");
+      }
+    }
+
     switch (message.type) {
       case "CONNECTION":
         for (let commandMessage of message.messages) {
@@ -322,15 +351,19 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
         break;
       case "REMOTE_REVISION":
         if (message.clientId === this.userId) {
+          getDebugManager().addAcknowledge(message.commands, this.userId);
           this.acknowledgeRevision(message.newRevisionId);
         } else {
+          getDebugManager().addRemoteCommands(message.commands, message.clientId);
           this.applyRemoteRevision(message);
         }
         break;
       case "REMOTE_UNDO":
         if (message.clientId === this.userId) {
+          getDebugManager().addAcknowledgeUndo(message.toReplay, this.userId);
           this.acknowledgeRevision(message.newRevisionId);
         } else {
+          getDebugManager().addRemoteSelectiveUndo(message.toReplay, message.clientId);
           this.remoteSelectiveUndo(message.revisionToRollback, message.toReplay);
         }
         break;
@@ -469,8 +502,12 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     for (const revision of revisions) {
       if (revision instanceof CommandRevision) {
         const commands: CoreCommand[] = [];
-        for (let command of incorporatedCommands) {
-          commands.push(...transformAll(revision.commands, command));
+        if (incorporatedCommands.length) {
+          for (let command of incorporatedCommands) {
+            commands.push(...transformAll(revision.commands, command));
+          }
+        } else {
+          commands.push(...revision.commands);
         }
         this.dispatchCommands(commands, {
           revisionId: revision.id,
@@ -478,7 +515,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           pending: true,
         });
       } else if (revision instanceof SelectiveUndoRevision) {
-        this.localSelectiveUndo(revision.revertedRevisionId);
+        this.localSelectiveUndo(revision.revertedRevisionId, revision.id);
       }
     }
   }
@@ -494,24 +531,21 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * 3) Replay these transformed revisions
    * 4) If the network is active, send it.
    *
-   * @param revisionToUndo Revision to undo
-   * @param revisionsToRevertAndReplay
    */
-  private localSelectiveUndo(id: UID) {
-    const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(id);
+  private localSelectiveUndo(revisionId: UID, undoRevisionId: UID = uuidv4()) {
+    const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(revisionId);
     this.revert([toUndo, ...toRevertAndReplay, ...this.pendingRevisions]);
     const transformedCommands = this.transformAndReplay(toUndo.inverses, toRevertAndReplay);
     this.transformAndReplayPendingRevisions(toUndo.inverses);
     this.redoStack.push({ commands: toUndo.commands } as RedoStep);
     if (this.network) {
       const undoRevision = new SelectiveUndoRevision(
-        uuidv4(),
+        undoRevisionId,
         this.userId,
         toUndo,
         transformedCommands
       );
       this.pendingRevisions.push(undoRevision);
-      this.sendPendingRevision();
     }
   }
 

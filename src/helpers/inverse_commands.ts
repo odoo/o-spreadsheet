@@ -4,13 +4,17 @@ import {
   AddMergeCommand,
   AddRowsCommand,
   CoreCommand,
+  CreateChartCommand,
+  CreateFigureCommand,
   CreateSheetCommand,
+  DeleteFigureCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
   RemoveColumnsCommand,
   RemoveMergeCommand,
   RemoveRowsCommand,
 } from "../types";
+import { groupConsecutive } from "./misc";
 
 type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
 
@@ -21,27 +25,29 @@ export const inverseCommandsRegistry = new Registry<InverseFunction>()
   .add("DELETE_CONTENT", identity)
   .add("ADD_COLUMNS", inverseAddColumns)
   .add("ADD_ROWS", inverseAddRows)
-  // .add("REMOVE_COLUMNS", todo)
-  // .add("REMOVE_ROWS", todo)
+  .add("REMOVE_COLUMNS", inverseRemoveColumns)
+  .add("REMOVE_ROWS", inverseRemoveRows)
   .add("RESIZE_COLUMNS", identity)
   .add("RESIZE_ROWS", identity)
   .add("ADD_MERGE", inverseAddMerge)
   .add("REMOVE_MERGE", inverseRemoveMerge)
   .add("CREATE_SHEET", inverseCreateSheet)
-  // .add("DELETE_SHEET", todo)
+  .add("DELETE_SHEET", inverseDeleteSheet)
   .add("DUPLICATE_SHEET", inverseDuplicateSheet)
   .add("MOVE_SHEET", identity)
   .add("RENAME_SHEET", identity)
-  // .add("ADD_CONDITIONAL_FORMAT", todo)
-  // .add("REMOVE_CONDITIONAL_FORMAT", todo)
-  // .add("CREATE_FIGURE", todo)
-  // .add("DELETE_FIGURE", todo)
+
+  // Conditional_format is not used in the transformations, we can let them
+  .add("ADD_CONDITIONAL_FORMAT", identity)
+  .add("REMOVE_CONDITIONAL_FORMAT", identity)
+  .add("DELETE_FIGURE", identity)
+  .add("CREATE_FIGURE", inverseCreateFigure)
   .add("UPDATE_FIGURE", identity)
   .add("SET_FORMATTING", identity)
   .add("CLEAR_FORMATTING", identity)
   .add("SET_BORDER", identity)
   .add("SET_DECIMAL", identity)
-  // .add("CREATE_CHART", todo)
+  .add("CREATE_CHART", inverseCreateChart)
   .add("UPDATE_CHART", identity);
 
 function identity(cmd: CoreCommand): CoreCommand[] {
@@ -61,11 +67,13 @@ function inverseAddColumns(cmd: AddColumnsCommand): RemoveColumnsCommand[] {
   for (let i = 0; i < cmd.quantity; i++) {
     columns.push(i + start);
   }
-  return [{
-    type: "REMOVE_COLUMNS",
-    columns,
-    sheetId: cmd.sheetId,
-  }];
+  return [
+    {
+      type: "REMOVE_COLUMNS",
+      columns,
+      sheetId: cmd.sheetId,
+    },
+  ];
 }
 
 function inverseAddRows(cmd: AddRowsCommand): RemoveRowsCommand[] {
@@ -77,11 +85,13 @@ function inverseAddRows(cmd: AddRowsCommand): RemoveRowsCommand[] {
   for (let i = 0; i < cmd.quantity; i++) {
     rows.push(i + start);
   }
-  return [{
-    type: "REMOVE_ROWS",
-    rows,
-    sheetId: cmd.sheetId,
-  }];
+  return [
+    {
+      type: "REMOVE_ROWS",
+      rows,
+      sheetId: cmd.sheetId,
+    },
+  ];
 }
 
 function inverseAddMerge(cmd: AddMergeCommand): RemoveMergeCommand[] {
@@ -100,15 +110,49 @@ function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand[]
   return [{ type: "DELETE_SHEET", sheetId: cmd.sheetIdTo }];
 }
 
-// function inverseCreateFigure(cmd: CreateFigureCommand):DeleteFigureCommand{
-//   //TODO ID
-//   return{type:"DELETE_FIGURE",id:cmd.}
-// }
+function inverseRemoveColumns(cmd: RemoveColumnsCommand): AddColumnsCommand[] {
+  const commands: AddColumnsCommand[] = [];
+  for (let group of groupConsecutive(cmd.columns.sort((a, b) => a - b))) {
+    const column = group[0] === 0 ? 0 : group[0] - 1;
+    const position = group[0] === 0 ? "before" : "after";
+    commands.push({
+      type: "ADD_COLUMNS",
+      quantity: group.length,
+      column,
+      sheetId: cmd.sheetId,
+      position,
+    });
+  }
+  return commands;
+}
 
-// function inverseDeleteSheet(cmd:DeleteSheetCommand):CreateSheetCommand{
-//   //TODO Position ?
-//   return{type:"CREATE_SHEET",sheetId:cmd.sheetId}
-// }
+function inverseRemoveRows(cmd: RemoveRowsCommand): AddRowsCommand[] {
+  const commands: AddRowsCommand[] = [];
+  for (let group of groupConsecutive(cmd.rows.sort((a, b) => a - b))) {
+    const row = group[0] === 0 ? 0 : group[0] - 1;
+    const position = group[0] === 0 ? "before" : "after";
+    commands.push({
+      type: "ADD_ROWS",
+      quantity: group.length,
+      row,
+      sheetId: cmd.sheetId,
+      position,
+    });
+  }
+  return commands;
+}
+
+function inverseDeleteSheet(cmd: DeleteSheetCommand): CreateSheetCommand[] {
+  return [{ type: "CREATE_SHEET", sheetId: cmd.sheetId, position: 1 }];
+}
+
+function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {
+  return [{ type: "DELETE_FIGURE", id: cmd.figure.id }];
+}
+
+function inverseCreateChart(cmd: CreateChartCommand): DeleteFigureCommand[] {
+  return [{ type: "DELETE_FIGURE", id: cmd.id }];
+}
 
 // function inverseRemoveColumns(cmd: RemoveColumnsCommand): AddColumnsCommand {
 
