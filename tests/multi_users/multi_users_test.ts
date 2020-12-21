@@ -643,6 +643,8 @@ describe("Multi users synchronisation", () => {
         row: 5,
       });
       bob.dispatch("UNDO");
+      // C'est normal que le state soit différent, dans le cas du Undo on a pas
+      // encore revert jusqu'au state commun
       expect([alice, bob, charly]).toHaveSynchronizedExportedData();
     });
 
