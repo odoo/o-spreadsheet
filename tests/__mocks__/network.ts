@@ -43,8 +43,8 @@ export class MockNetwork implements Network {
   }
 
   notifyListeners(listeners: NetworkListener[], message: Message) {
-    for (let { callback } of listeners) {
-      // console.log(`${message.type} from ${message.clientId} to ${clientId}`);
+    for (let { clientId, callback } of listeners) {
+      console.log(`${message.type} from ${message.clientId} to ${clientId}`);
       callback(JSON.parse(JSON.stringify(message)));
     }
   }

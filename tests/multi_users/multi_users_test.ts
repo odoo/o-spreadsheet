@@ -400,30 +400,28 @@ describe("Multi users synchronisation", () => {
 
   describe("Undo/Redo", () => {
     test("Undo/redo is propagated to other clients", () => {
-      alice.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        content: "hello",
-        sheetId: alice.getters.getActiveSheetId(),
-      });
+      setCellContent(alice, "A1", "hello");
 
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCellContent(user, "A1"),
         "hello"
       );
       const spy = jest.spyOn(network, "sendMessage");
-      alice.dispatch("UNDO");
+      network.concurrent(() => {
+        alice.dispatch("UNDO");
+        expect(getCell(alice, "A1"));
+      })
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(getCell(alice, "A1")).toBeUndefined();
-      expect(getCell(bob, "A1")).toBeUndefined();
-      expect(getCell(charly, "A1")).toBeUndefined();
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCell(user, "A1"),
+        undefined
+      );
       alice.dispatch("REDO");
 
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCellContent(user, "A1"),
         "hello"
       );
-      // expect([alice, bob, charly]).toBeSynchronized()
     });
     test("Undo/redo your own change only", () => {
       setCellContent(alice, "A1", "hello in A1");
@@ -561,7 +559,7 @@ describe("Multi users synchronisation", () => {
         "salut"
       );
     });
-    test("Undo during a pending phase", () => {
+    test("Undo during a pending phase. This test is false", () => {
       const spy = jest.spyOn(network, "notifyListeners");
       network.concurrent(() => {
         setCellContent(bob, "A1", "hello");
@@ -573,6 +571,19 @@ describe("Multi users synchronisation", () => {
         "hello"
       );
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    test("Undo and redo concurrently", () => {
+      network.concurrent(() => {
+        setCellContent(bob, "A1", "hello");
+        setCellContent(alice, "A1", "salut");
+        alice.dispatch("UNDO");
+        alice.dispatch("REDO");
+      });
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "A1"),
+        "salut"
+      );
     });
 
     test("Remove columns and undo/redo the change", () => {

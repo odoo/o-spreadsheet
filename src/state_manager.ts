@@ -18,7 +18,7 @@ import {
   CreateRevisionOptions,
   WorkbookData,
 } from "./types/index";
-import { ClientId, RemoteRevision, Message, RemoteUndo, RevisionData } from "./types/multi_users";
+import { ClientId, RemoteRevision, Message, RevisionData } from "./types/multi_users";
 
 /**
  * Revision Management System
@@ -71,8 +71,9 @@ abstract class Revision implements RevisionData {
 }
 
 class CommandRevision extends Revision {
-  public isUndo: boolean = false;//TODO make it better
-  public isCancelled: boolean = false;//TODO make it better
+  public isUndo: boolean = false; //TODO make it better
+  public isRedo: boolean = false; //TODO make it better
+  public isCancelled: boolean = false; //TODO make it better
   public toRevert: UID | undefined; //TODO make it better
   protected _inverses: CoreCommand[] = [];
   protected _changes: HistoryChange[] = [];
@@ -96,44 +97,43 @@ class CommandRevision extends Revision {
   }
 }
 
-class SelectiveUndoRevision extends Revision {
-  protected revertedRevision: CommandRevision;
-  // We have to compute them here to avoid keeping the entire history everywhere
-  protected adaptedRevisions: RevisionData[];
+// class SelectiveUndoRevision extends Revision {
+//   protected revertedRevision: CommandRevision;
+//   // We have to compute them here to avoid keeping the entire history everywhere
+//   protected adaptedRevisions: RevisionData[];
 
-  constructor(
-    id: UID,
-    clientId: ClientId,
-    revertedRevision: CommandRevision,
-    adaptedRevisions: RevisionData[]
-  ) {
-    super(id, clientId);
-    this.revertedRevision = revertedRevision;
-    this.adaptedRevisions = adaptedRevisions;
-  }
+//   constructor(
+//     id: UID,
+//     clientId: ClientId,
+//     revertedRevision: CommandRevision,
+//     adaptedRevisions: RevisionData[]
+//   ) {
+//     super(id, clientId);
+//     this.revertedRevision = revertedRevision;
+//     this.adaptedRevisions = adaptedRevisions;
+//   }
 
-  get revertedRevisionId() {
-    return this.revertedRevision.id;
-  }
+//   get revertedRevisionId() {
+//     return this.revertedRevision.id;
+//   }
 
-  get commands(): readonly CoreCommand[] {
-    return this.revertedRevision.commands;
-  }
+//   get commands(): readonly CoreCommand[] {
+//     return this.revertedRevision.commands;
+//   }
 
-  getMessage(revisionId: UID): RemoteUndo {
-    return {
-      type: "REMOTE_UNDO",
-      clientId: this.clientId,
-      revisionId,
-      newRevisionId: this.id,
-      revisionToRollback: this.revertedRevision.id,
-      toReplay: this.adaptedRevisions,
-    };
-  }
-}
+//   getMessage(revisionId: UID): RemoteUndo {
+//     return {
+//       type: "REMOTE_UNDO",
+//       clientId: this.clientId,
+//       revisionId,
+//       newRevisionId: this.id,
+//       revisionToRollback: this.revertedRevision.id,
+//       toReplay: this.adaptedRevisions,
+//     };
+//   }
+// }
 
 class DraftRevision extends CommandRevision {
-
   addCommand(command: CoreCommand) {
     this._commands.push(command);
     this._inverses.push(...inverseCommand(command));
@@ -179,7 +179,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
     protected readonly userId: UID,
-    public exportData: () => WorkbookData,
+    public exportData: () => WorkbookData = () => ({} as WorkbookData),
     protected network?: ModelConfig["network"]
   ) {
     super();
@@ -211,21 +211,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   handle(cmd: Command) {
     switch (cmd.type) {
       case "UNDO":
-        const revision = [...this.revisionLogs]
-          .reverse()
-          .filter((revision) => !revision.isUndo && !revision.isCancelled)
-          .find((step) => step.clientId === this.userId);
-        if (revision) {
-          this.currentDraftRevision!.toRevert = revision.id; //TODO Make it better
-          revision.isCancelled = true;
-          this.localSelectiveUndo(revision.id);
-          this.sendPendingRevision();
-        } else {
-          const pending = this.pendingRevisions.pop();
-          if (pending) {
-            this.revert([pending]);
-          }
-        }
+        this.undo();
         break;
       case "REDO":
         this.redo();
@@ -240,20 +226,11 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   // ---------------------------------------------------------------------------
 
   canUndo(): boolean {
-    const revision = [...this.revisionLogs]
-          .reverse()
-          .filter((revision) => !revision.isUndo && !revision.isCancelled)
-          .find((step) => step.clientId === this.userId);
-    return !!revision;
+    return !!this.getLastLocalRevision();
   }
 
   canRedo(): boolean {
-    //TODO check dans l'ordre
-    const lastUndoRevision = [...this.revisionLogs]
-          .reverse()
-          .filter((revision) => revision.isUndo && !revision.isCancelled)
-          .find((step) => step.clientId === this.userId);
-    return !!lastUndoRevision;
+    return !!this.getLastUndoRevision();
   }
 
   getUserId(): UID {
@@ -323,7 +300,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
         this.revisionLogs.push(this.currentDraftRevision);
         this.redoStack = [];
         if (this.currentDraftRevision.isUndo) {
-          this.redoStack.push({revisionId: this.currentDraftRevision.id});
+          this.redoStack.push({ revisionId: this.currentDraftRevision.id });
         }
         //TODO Write tests with MAX_HISTORY_STEPS & MULTIUSER
         if (this.revisionLogs.length > MAX_HISTORY_STEPS) {
@@ -344,10 +321,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   private sendPendingRevision() {
     let revision = this.pendingRevisions[0];
     if (this.network && revision) {
-      // console.log(this.pendingRevisions);
       const hashed = hash(JSON.stringify(this.exportData())); //TODO Remove it
-      // console.log(this.pendingRevisions);
-      // const hashed = undefined;
       this.network.sendMessage({ ...revision.getMessage(this.revisionId), hash: hashed });
     }
   }
@@ -465,15 +439,15 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
       if (revision instanceof CommandRevision) {
         for (let i = revision.changes.length - 1; i >= 0; i--) {
           this.applyChange(revision.changes[i], "before");
-          //TODO Check if we have to revert the isUndo and isUndone revisions
           if (this.currentDraftRevision) {
             const changes = revision.changes[i];
-            this.currentDraftRevision.addChange({...changes, before: changes.after, after: changes.before});
+            this.currentDraftRevision.addChange({
+              ...changes,
+              before: changes.after,
+              after: changes.before,
+            });
           }
         }
-      } else if (revision instanceof SelectiveUndoRevision) {
-        console.log("passe");
-        this.redoPendingUndo(revision);
       }
     }
   }
@@ -497,27 +471,24 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   }
 
   // TODO rename deletedCommands
-  private transformAndReplay(
-    deletedCommands: CoreCommand[],
-    revisions: CommandRevision[]
-  ) {
+  private transformAndReplay(deletedCommands: CoreCommand[], revisions: CommandRevision[]) {
     const executedCommands = [...deletedCommands]; //TODO Check spread
     const commands: CoreCommand[] = [];
     for (const revision of revisions) {
       if (revision.isUndo) {
         // this.localSelectiveUndo(revision.toRevert!, revision.id); //TODO make it better
       } else {
-        const transformed: CoreCommand[] = []
+        const transformed: CoreCommand[] = [];
         for (let executed of executedCommands) {
           transformed.push(...transformAll(revision.commands, executed));
         }
         if (!revision.isCancelled) {
-          commands.concat(transformed)
+          commands.concat(transformed);
         }
-        executedCommands.concat(transformed)
+        executedCommands.concat(transformed);
       }
     }
-    commands.map(cmd => this.dispatch(cmd.type, cmd));
+    commands.map((cmd) => this.dispatch(cmd.type, cmd));
   }
 
   /**
@@ -544,8 +515,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           clientId: revision.clientId,
           pending: true,
         });
-      } else if (revision instanceof SelectiveUndoRevision) {
-        this.localSelectiveUndo(revision.revertedRevisionId);
       }
     }
   }
@@ -553,6 +522,52 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   // ---------------------------------------------------------------------------
   // History management
   // ---------------------------------------------------------------------------
+
+  private undo() {
+    const revision = this.getLastLocalRevision();
+    if (revision) {
+      this.currentDraftRevision!.toRevert = revision.id; //TODO Make it better
+      revision.isCancelled = true;
+      this.localSelectiveUndo(revision.id);
+      this.sendPendingRevision();
+    } else {
+      // This is false, we have to send it, in case of a redo...
+      const pending = this.pendingRevisions.pop();
+      if (pending) {
+        this.revert([pending]);
+      }
+    }
+  }
+
+  private redo() {
+    const lastUndoRevision = this.getLastUndoRevision();
+    if (!lastUndoRevision) {
+      return;
+    }
+    lastUndoRevision.isCancelled = true;
+    this.currentDraftRevision!.isRedo = true; //TODO Make it better
+    this.localSelectiveUndo(lastUndoRevision.id);
+  }
+
+  private getLastUndoRevision(): CommandRevision | undefined {
+    for (let i = this.revisionLogs.length - 1; i >= 0; i--) {
+      const log = this.revisionLogs[i];
+      if (!log.isUndo && !log.isRedo) {
+        return undefined;
+      }
+      if (log.isUndo && !log.isCancelled) {
+        return log;
+      }
+    }
+    return undefined;
+  }
+
+  private getLastLocalRevision(): CommandRevision | undefined {
+    return [...this.revisionLogs]
+    .reverse()
+    .filter((revision) => !revision.isUndo && !revision.isCancelled)
+    .find((step) => step.clientId === this.userId);
+  }
 
   /**
    * Undo a local revision.
@@ -562,12 +577,10 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * 4) If the network is active, send it.
    *
    */
-  private localSelectiveUndo(
-    revertedRevisionId: UID,
-    revertedToRevisionId?: UID
-  ) {
+  private localSelectiveUndo(revertedRevisionId: UID, revertedToRevisionId?: UID) {
     const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(
-      revertedRevisionId, revertedToRevisionId
+      revertedRevisionId,
+      revertedToRevisionId
     );
     this.revert([toUndo, ...toRevertAndReplay, ...this.pendingRevisions]); // Attention, revert un selectiveUndo refait une revision
     this.transformAndReplay(toUndo.inverses, toRevertAndReplay);
@@ -619,7 +632,9 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     if (indexTo === -1) {
       throw new Error(`No history step with id ${id} - ${this.userId}`);
     }
-    const toRevert = indexTo ? this.revisionLogs.slice(index, indexTo) : this.revisionLogs.slice(index);
+    const toRevert = indexTo
+      ? this.revisionLogs.slice(index, indexTo)
+      : this.revisionLogs.slice(index);
     const toUndo = toRevert.shift()!;
     if (!toUndo) {
       throw new Error("No revision to undo !");
@@ -632,25 +647,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   addStep(command: CoreCommand) {
     this.currentDraftRevision?.addCommand(command);
-  }
-
-  private redoPendingUndo(pendingUndo: SelectiveUndoRevision) {
-    this.dispatchCommands([...pendingUndo.commands], {
-      clientId: pendingUndo.clientId,
-      revisionId: pendingUndo.revertedRevisionId,
-    });
-  }
-
-  private redo() {
-    const lastUndoRevision = [...this.revisionLogs]
-          .reverse()
-          .filter((revision) => revision.isUndo && !revision.isCancelled)
-          .find((step) => step.clientId === this.userId);
-    if (!lastUndoRevision) {
-      return;
-    }
-    lastUndoRevision.isCancelled = true;
-    this.localSelectiveUndo(lastUndoRevision.id);
   }
 
   // ---------------------------------------------------------------------------
