@@ -237,13 +237,17 @@ describe("Multi users synchronisation", () => {
       sheetId: alice.getters.getActiveSheetId(),
       col: 0,
       row: 0,
-      style: { fillColor: "#fefefe" }
-    })
-    alice.dispatch("COPY", { target: [toZone("A1")] })
-    alice.dispatch("PASTE", { target: [toZone("A2")] })
-    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {fillColor: "#fefefe"});
-    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A2")!.style, {fillColor: "#fefefe"});
-  })
+      style: { fillColor: "#fefefe" },
+    });
+    alice.dispatch("COPY", { target: [toZone("A1")] });
+    alice.dispatch("PASTE", { target: [toZone("A2")] });
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
+      fillColor: "#fefefe",
+    });
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A2")!.style, {
+      fillColor: "#fefefe",
+    });
+  });
 
   test("copy/paste on styled cell", () => {
     setCellContent(alice, "A1", "hello");
@@ -252,11 +256,14 @@ describe("Multi users synchronisation", () => {
       col: 1,
       row: 1,
       style: { fillColor: "#fefefe" },
-    })
-    alice.dispatch("COPY", { target: [toZone("A1")] })
-    alice.dispatch("PASTE", { target: [toZone("B2")] })
-    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B2")!.style, undefined);
-  })
+    });
+    alice.dispatch("COPY", { target: [toZone("A1")] });
+    alice.dispatch("PASTE", { target: [toZone("B2")] });
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B2")!.style,
+      undefined
+    );
+  });
 
   test("Merge a cell and update a cell concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
@@ -726,7 +733,7 @@ describe("Multi users synchronisation", () => {
         (user) => getCellContent(user, "B1"),
         "hello"
       );
-    })
+    });
   });
 
   describe("Sheet manipulation", () => {

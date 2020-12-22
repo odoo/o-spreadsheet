@@ -73,7 +73,7 @@ class CommandRevision extends Revision {
   public isUndo: boolean = false; //TODO make it better
   public isRedo: boolean = false; //TODO make it better
   public isCancelled: boolean = false; //TODO make it better
-  public toRevert: UID | undefined; //TODO make it better
+  public revertedRevisionId: UID | undefined; //TODO make it better
   protected _inverses: CoreCommand[] = [];
   protected _changes: HistoryChange[] = [];
 
@@ -85,6 +85,10 @@ class CommandRevision extends Revision {
     return [...this._changes];
   }
 
+  isCancelledBy(revisions: CommandRevision[]) {
+    return revisions.some((revision) => revision.isUndo && revision.revertedRevisionId === this.id);
+  }
+
   getMessage(revisionId: UID): RemoteRevision {
     return {
       type: "REMOTE_REVISION",
@@ -94,7 +98,7 @@ class CommandRevision extends Revision {
       newRevisionId: this.id,
       isUndo: this.isUndo,
       isRedo: this.isRedo,
-      toRevert: this.toRevert,
+      toRevert: this.revertedRevisionId,
     };
   }
 }
@@ -544,7 +548,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   private undo() {
     const revision = this.getLastLocalRevision();
     if (revision) {
-      this.currentDraftRevision!.toRevert = revision.id; //TODO Make it better
+      this.currentDraftRevision!.revertedRevisionId = revision.id; //TODO Make it better
       revision.isCancelled = true;
       this.localSelectiveUndo(revision.id);
       this.sendPendingRevision();
@@ -564,7 +568,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
     lastUndoRevision.isCancelled = true;
     this.currentDraftRevision!.isRedo = true; //TODO Make it better
-    this.currentDraftRevision!.toRevert = lastUndoRevision.id; //TODO Make it better
+    this.currentDraftRevision!.revertedRevisionId = lastUndoRevision.id; //TODO Make it better
     this.localSelectiveUndo(lastUndoRevision.id);
   }
 
@@ -599,12 +603,14 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * 4) If the network is active, send it.
    *
    */
-  private localSelectiveUndo(revertedRevisionId: UID, revertedToRevisionId?: UID) {
-    const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(
-      revertedRevisionId,
-      revertedToRevisionId
-    );
+  private localSelectiveUndo(revertedRevisionId: UID) {
+    const {
+      cancelledRevisions,
+      toUndo,
+      toRevert: toRevertAndReplay,
+    } = this.getSelectiveUndoRevisions(revertedRevisionId);
     this.revert([toUndo, ...toRevertAndReplay]); // Attention, revert un selectiveUndo refait une revision
+    this.replay();
     this.transformAndReplay(toUndo.inverses, toRevertAndReplay);
   }
 
@@ -612,24 +618,33 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Get the revision to undo and the revisions to revert.
    */
   private getSelectiveUndoRevisions(
-    id: UID,
-    toId?: UID
+    revisionId: UID
   ): { toUndo: CommandRevision; toRevert: CommandRevision[] } {
     const revisions = [...this.revisionLogs, ...this.pendingRevisions];
-    const index = revisions.findIndex((step) => step.id === id);
+    const index = revisions.findIndex((step) => step.id === revisionId);
     if (index === -1) {
-      throw new Error(`No history step with id ${id} - ${this.userId}`);
+      throw new Error(`No history step with id ${revisionId} - ${this.userId}`);
     }
-    const indexTo = toId ? revisions.findIndex((step) => step.id === toId) : undefined;
-    if (indexTo === -1) {
-      throw new Error(`No history step with id ${id} - ${this.userId}`);
-    }
-    const toRevert = indexTo ? revisions.slice(index, indexTo) : revisions.slice(index);
+    const toRevert = revisions.slice(index);
     const toUndo = toRevert.shift()!;
     if (!toUndo) {
       throw new Error("No revision to undo !");
     }
     return { toUndo, toRevert };
+  }
+
+  /**
+   * TODO
+   * "expand" the list of revisions to include the cancelled revisions
+   * i.e. all revisions cancelled by any undo in the given revisions
+   */
+  private getFullUndoHistory(revisions: CommandRevision[]) {
+    const cancelledRevisionIds = new Set(
+      revisions.filter((r) => r.isUndo).map((undoRevision) => undoRevision.revertedRevisionId)
+    );
+    const history = [...this.revisionLogs, ...this.pendingRevisions];
+    let index = history.findIndex((revision) => cancelledRevisionIds.has(revision.id));
+    return history.slice(index);
   }
 
   /**
