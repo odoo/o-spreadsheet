@@ -195,10 +195,12 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "UNDO":
+        return { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
         return this.canUndo()
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
       case "REDO":
+        return { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
         return this.canRedo()
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
