@@ -231,6 +231,33 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B2"), undefined);
   });
 
+  test("copy/paste style", () => {
+    setCellContent(alice, "A1", "hello");
+    alice.dispatch("UPDATE_CELL", {
+      sheetId: alice.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      style: { fillColor: "#fefefe" }
+    })
+    alice.dispatch("COPY", { target: [toZone("A1")] })
+    alice.dispatch("PASTE", { target: [toZone("A2")] })
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {fillColor: "#fefefe"});
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A2")!.style, {fillColor: "#fefefe"});
+  })
+
+  test("copy/paste on styled cell", () => {
+    setCellContent(alice, "A1", "hello");
+    alice.dispatch("UPDATE_CELL", {
+      sheetId: alice.getters.getActiveSheetId(),
+      col: 1,
+      row: 1,
+      style: { fillColor: "#fefefe" },
+    })
+    alice.dispatch("COPY", { target: [toZone("A1")] })
+    alice.dispatch("PASTE", { target: [toZone("B2")] })
+    expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "B2")!.style, undefined);
+  })
+
   test("Merge a cell and update a cell concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
@@ -398,7 +425,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  describe.skip("Undo/Redo", () => {
+  describe("Undo/Redo", () => {
     test("Undo/redo is propagated to other clients", () => {
       setCellContent(alice, "A1", "hello");
 
@@ -407,10 +434,7 @@ describe("Multi users synchronisation", () => {
         "hello"
       );
       const spy = jest.spyOn(network, "sendMessage");
-      network.concurrent(() => {
-        alice.dispatch("UNDO");
-        expect(getCell(alice, "A1"));
-      })
+      alice.dispatch("UNDO");
       expect(spy).toHaveBeenCalledTimes(1);
       expect([alice, bob, charly]).toHaveSynchronizedValue(
         (user) => getCell(user, "A1"),

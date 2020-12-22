@@ -18,6 +18,9 @@ export interface BaseMessage {
 export interface RemoteRevision extends BaseMessage {
   type: "REMOTE_REVISION";
   readonly commands: CoreCommand[];
+  isUndo: boolean;
+  isRedo: boolean;
+  toRevert?: UID;
   revisionId: UID;
 }
 

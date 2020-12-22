@@ -14,7 +14,6 @@ import {
   CommandDispatcher,
   UID,
   HistoryChange,
-  RedoStep,
   CreateRevisionOptions,
   WorkbookData,
 } from "./types/index";
@@ -93,6 +92,9 @@ class CommandRevision extends Revision {
       revisionId,
       commands: this._commands,
       newRevisionId: this.id,
+      isUndo: this.isUndo,
+      isRedo: this.isRedo,
+      toRevert: this.toRevert,
     };
   }
 }
@@ -157,7 +159,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   /**
    * Revision that are not yet adopted by the server
    */
-  private pendingRevisions: Revision[] = [];
+  private pendingRevisions: CommandRevision[] = [];
 
   /**
    * Draft revision on which the current commands and changes are added
@@ -173,8 +175,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Id of the server revision
    */
   private revisionId: UID = DEFAULT_REVISION_ID;
-
-  private redoStack: RedoStep[] = [];
 
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
@@ -195,12 +195,10 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   allowDispatch(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "UNDO":
-        return { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
         return this.canUndo()
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.EmptyUndoStack };
       case "REDO":
-        return { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
         return this.canRedo()
           ? { status: "SUCCESS" }
           : { status: "CANCELLED", reason: CancelledReason.EmptyRedoStack };
@@ -283,27 +281,34 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     // In case of Undo or Redo, the currentDraftRevision is entirely managed
     // in the undo-redo functions, and so could be null.
     if (this.currentDraftRevision) {
-      this.saveDraftRevision();
+      this.saveDraftRevision({ pending: !!this.network });
+    }
+  }
+
+  private recordRemoteChanges(callback: () => void, id: UID, userId: UID) {
+    // TODO refactor duplicated code
+    this.currentDraftRevision = new DraftRevision(id, userId); //
+    callback();
+    // In case of Undo or Redo, the currentDraftRevision is entirely managed
+    // in the undo-redo functions, and so could be null.
+    if (this.currentDraftRevision) {
+      this.saveDraftRevision({ pending: false });
     }
   }
 
   /**
    * Save the currentDraftRevision.
    */
-  private saveDraftRevision() {
+  private saveDraftRevision({ pending }: { pending: boolean }) {
     if (!this.currentDraftRevision) {
       throw new Error("The currentDraftRevision is null !");
     }
     if (this.currentDraftRevision.hasChanges()) {
-      if (this.network) {
+      if (pending) {
         this.pendingRevisions.push(this.currentDraftRevision);
         this.sendPendingRevision();
       } else {
         this.revisionLogs.push(this.currentDraftRevision);
-        this.redoStack = [];
-        if (this.currentDraftRevision.isUndo) {
-          this.redoStack.push({ revisionId: this.currentDraftRevision.id });
-        }
         //TODO Write tests with MAX_HISTORY_STEPS & MULTIUSER
         if (this.revisionLogs.length > MAX_HISTORY_STEPS) {
           this.revisionLogs.shift();
@@ -323,8 +328,8 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   private sendPendingRevision() {
     let revision = this.pendingRevisions[0];
     if (this.network && revision) {
-      const hashed = hash(JSON.stringify(this.exportData())); //TODO Remove it
-      this.network.sendMessage({ ...revision.getMessage(this.revisionId), hash: hashed });
+      // const hashed = hash(JSON.stringify(this.exportData())); //TODO Remove it
+      this.network.sendMessage({ ...revision.getMessage(this.revisionId), hash: undefined });
     }
   }
 
@@ -333,12 +338,12 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   onMessageReceived(message: Message) {
     //TODO we should perhaps check that this.revisionId === message.revisionId to apply it
-    if (message.hash) {
-      const current = hash(JSON.stringify(this.exportData()));
-      if (current !== message.hash) {
-        console.error("Invalid state detected 😱");
-      }
-    }
+    // if (message.hash) {
+    //   const current = hash(JSON.stringify(this.exportData()));
+    //   if (current !== message.hash) {
+    //     console.error("Invalid state detected 😱");
+    //   }
+    // }
 
     switch (message.type) {
       case "CONNECTION":
@@ -351,22 +356,33 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           getDebugManager().addAcknowledge(message.commands, this.userId);
           this.acknowledgeRevision(message.newRevisionId);
         } else {
-          getDebugManager().addRemoteCommands(message.commands, message.clientId);
-          this.applyRemoteRevision(message);
+          if (message.isUndo || message.isRedo) {
+            this.recordRemoteChanges(
+              () => this.localSelectiveUndo(message.toRevert!),
+              message.newRevisionId,
+              message.clientId
+            ); //TODO remove "!"
+          } else {
+            this.applyRemoteRevision(message);
+          }
+
+          // getDebugManager().addRemoteCommands(message.commands, message.clientId);
         }
         break;
       case "REMOTE_UNDO":
-        if (message.clientId === this.userId) {
-          getDebugManager().addAcknowledgeUndo(message.toReplay, this.userId);
-          this.acknowledgeRevision(message.newRevisionId);
-        } else {
-          getDebugManager().addRemoteSelectiveUndo(message.toReplay, message.clientId);
-          this.remoteSelectiveUndo(message.revisionToRollback, message.toReplay);
-        }
+        // if (message.clientId === this.userId) {
+        //   getDebugManager().addAcknowledgeUndo(message.toReplay, this.userId);
+        //   this.acknowledgeRevision(message.newRevisionId);
+        // } else {
+        //   getDebugManager().addRemoteSelectiveUndo(message.toReplay, message.clientId);
+        //   this.remoteSelectiveUndo(message.revisionToRollback, message.toReplay);
+        // }
         break;
     }
     this.revisionId = message.newRevisionId;
-    this.trigger("remote-command-processed");
+    if (message.clientId !== this.userId) {
+      this.trigger("remote-command-processed");
+    }
     if (this.pendingRevisions.length > 0) {
       this.sendPendingRevision();
     }
@@ -485,9 +501,9 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           transformed.push(...transformAll(revision.commands, executed));
         }
         if (!revision.isCancelled) {
-          commands.concat(transformed);
+          commands.push(...transformed);
         }
-        executedCommands.concat(transformed);
+        executedCommands.push(...transformed);
       }
     }
     commands.map((cmd) => this.dispatch(cmd.type, cmd));
@@ -548,12 +564,16 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
     lastUndoRevision.isCancelled = true;
     this.currentDraftRevision!.isRedo = true; //TODO Make it better
+    this.currentDraftRevision!.toRevert = lastUndoRevision.id; //TODO Make it better
     this.localSelectiveUndo(lastUndoRevision.id);
   }
 
   private getLastUndoRevision(): CommandRevision | undefined {
     for (let i = this.revisionLogs.length - 1; i >= 0; i--) {
       const log = this.revisionLogs[i];
+      if (log.clientId !== this.userId) {
+        continue;
+      }
       if (!log.isUndo && !log.isRedo) {
         return undefined;
       }
@@ -566,9 +586,9 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
 
   private getLastLocalRevision(): CommandRevision | undefined {
     return [...this.revisionLogs]
-    .reverse()
-    .filter((revision) => !revision.isUndo && !revision.isCancelled)
-    .find((step) => step.clientId === this.userId);
+      .reverse()
+      .filter((revision) => !revision.isUndo && !revision.isCancelled)
+      .find((step) => step.clientId === this.userId);
   }
 
   /**
@@ -584,39 +604,8 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
       revertedRevisionId,
       revertedToRevisionId
     );
-    this.revert([toUndo, ...toRevertAndReplay, ...this.pendingRevisions]); // Attention, revert un selectiveUndo refait une revision
+    this.revert([toUndo, ...toRevertAndReplay]); // Attention, revert un selectiveUndo refait une revision
     this.transformAndReplay(toUndo.inverses, toRevertAndReplay);
-    // this.transformAndReplayPendingRevisions(toUndo.inverses);
-    // if (!options.isReplay) {
-    //   this.redoStack.push({ revisionId: this.currentDraftRevision?.id } as RedoStep);
-    // }
-    // if (this.network) {
-    //   const undoRevision = new SelectiveUndoRevision(
-    //     options.revisionId || uuidv4(),
-    //     this.userId,
-    //     toUndo,
-    //     transformedCommands
-    //   );
-    //   this.pendingRevisions.push(undoRevision);
-    // }
-  }
-
-  /**
-   * Undo a remote revision.
-   * 1) Revert the state to the revisionToUndo
-   * 2) Replay the revisionsToReplay received from the remote
-   * 3) Transform and replay the pending revisions
-   */
-  private remoteSelectiveUndo(id: UID, revisionsToReplay: RevisionData[]) {
-    const { toUndo, toRevert } = this.getSelectiveUndoRevisions(id);
-    this.revert([toUndo, ...toRevert, ...this.pendingRevisions]);
-    for (let revisionData of revisionsToReplay) {
-      this.dispatchCommands([...revisionData.commands], {
-        revisionId: revisionData.id,
-        clientId: revisionData.clientId,
-      });
-    }
-    this.transformAndReplayPendingRevisions(toUndo.inverses);
   }
 
   /**
@@ -626,17 +615,16 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     id: UID,
     toId?: UID
   ): { toUndo: CommandRevision; toRevert: CommandRevision[] } {
-    const index = this.revisionLogs.findIndex((step) => step.id === id);
+    const revisions = [...this.revisionLogs, ...this.pendingRevisions];
+    const index = revisions.findIndex((step) => step.id === id);
     if (index === -1) {
       throw new Error(`No history step with id ${id} - ${this.userId}`);
     }
-    const indexTo = toId ? this.revisionLogs.findIndex((step) => step.id === toId) : undefined;
+    const indexTo = toId ? revisions.findIndex((step) => step.id === toId) : undefined;
     if (indexTo === -1) {
       throw new Error(`No history step with id ${id} - ${this.userId}`);
     }
-    const toRevert = indexTo
-      ? this.revisionLogs.slice(index, indexTo)
-      : this.revisionLogs.slice(index);
+    const toRevert = indexTo ? revisions.slice(index, indexTo) : revisions.slice(index);
     const toUndo = toRevert.shift()!;
     if (!toUndo) {
       throw new Error("No revision to undo !");
