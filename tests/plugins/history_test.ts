@@ -157,6 +157,15 @@ import { MAX_HISTORY_STEPS } from "../../src/constants";
 // });
 
 describe("Model history", () => {
+  test("Can undo a basic operation", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    model.dispatch("UNDO");
+    expect(getCell(model, "A1")).toBeUndefined();
+    model.dispatch("REDO");
+    expect(getCellContent(model, "A1")).toBe("hello");
+  })
+
   test("can undo and redo two consecutive operations", () => {
     const model = new Model();
     setCellContent(model, "A2", "3");

@@ -8,13 +8,15 @@ export interface CreateRevisionOptions {
 }
 
 export interface RedoStep {
-  readonly commands: CoreCommand[];
+  readonly commands?: CoreCommand[]; //TODO Remove
+  readonly revisionId: UID;
 }
 
 export interface HistoryChange {
   root: any;
   path: (string | number)[];
-  value: any;
+  before: any;
+  after: any;
 }
 
 export interface WorkbookHistory<Plugin> {

@@ -120,9 +120,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
 
     // this.history = new WHistory(this.dispatchCore.bind(this));
     this.stateReplicator2000 = new StateManager(
-      this.dispatchCore.bind(this),
+      this.dispatchStateManager.bind(this),
       this.config.userId,
-      this.exportData.bind(this),
+      this.exportData.bind(this),//TODO remove
       this.config.network
     );
     this.stateReplicator2000.on("remote-command-processed", this, () => {
@@ -213,6 +213,12 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       }
     }
     return undefined;
+  }
+
+  private dispatchStateManager: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+    const command: Command = Object.assign({ type }, payload);
+    this.dispatchToHandlers(command);
+    return { status: "SUCCESS" } as CommandSuccess;
   }
 
   private dispatchToHandlers(command: Command) {
