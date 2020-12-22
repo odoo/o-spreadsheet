@@ -672,6 +672,26 @@ describe("Multi users synchronisation", () => {
         "hello world"
       );
     });
+
+    test("Undo a add column, and redo", () => {
+      addColumns(alice, "after", "A", 1);
+      setCellContent(bob, "B1", "hello");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "B1"),
+        "hello"
+      );
+      alice.dispatch("UNDO");
+
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCell(user, "B1"),
+        undefined
+      );
+      alice.dispatch("REDO");
+      expect([alice, bob, charly]).toHaveSynchronizedValue(
+        (user) => getCellContent(user, "B1"),
+        "hello"
+      );
+    })
   });
 
   describe("Sheet manipulation", () => {

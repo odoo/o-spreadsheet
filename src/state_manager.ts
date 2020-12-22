@@ -282,7 +282,8 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Record the changes which could happen in the given callback and save them
    * in a revision.
    */
-  recordChanges(callback: () => void) {
+  recordChanges(callback: () => void, cmd: Command) {
+    getDebugManager().addLocalCommand(cmd, this.getUserId()); //TODO Remove
     this.currentDraftRevision = new DraftRevision(uuidv4(), this.userId);
     callback();
     // In case of Undo or Redo, the currentDraftRevision is entirely managed
