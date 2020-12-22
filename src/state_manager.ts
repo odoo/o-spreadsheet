@@ -517,7 +517,10 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           pending: true,
         });
       } else if (revision instanceof SelectiveUndoRevision) {
-        this.localSelectiveUndo(revision.revertedRevisionId, revision.id);
+        this.localSelectiveUndo(revision.revertedRevisionId, {
+          revisionId: revision.id,
+          isReplay: true,
+        });
       }
     }
   }
@@ -534,15 +537,22 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * 4) If the network is active, send it.
    *
    */
-  private localSelectiveUndo(revisionId: UID, undoRevisionId: UID = uuidv4()) {
-    const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(revisionId);
+  private localSelectiveUndo(
+    revertedRevisionId: UID,
+    options: { revisionId?: UID; isReplay?: boolean } = {}
+  ) {
+    const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(
+      revertedRevisionId
+    );
     this.revert([toUndo, ...toRevertAndReplay, ...this.pendingRevisions]);
     const transformedCommands = this.transformAndReplay(toUndo.inverses, toRevertAndReplay);
     this.transformAndReplayPendingRevisions(toUndo.inverses);
-    this.redoStack.push({ commands: toUndo.commands } as RedoStep);
+    if (!options.isReplay) {
+      this.redoStack.push({ commands: toUndo.commands } as RedoStep);
+    }
     if (this.network) {
       const undoRevision = new SelectiveUndoRevision(
-        undoRevisionId,
+        options.revisionId || uuidv4(),
         this.userId,
         toUndo,
         transformedCommands
