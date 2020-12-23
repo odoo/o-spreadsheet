@@ -29,14 +29,7 @@ export interface ConnectionMessage extends BaseMessage {
   messages: RemoteRevision[];
 }
 
-export interface RemoteUndo extends BaseMessage {
-  type: "REMOTE_UNDO";
-  revisionToRollback: UID;
-  toReplay: RevisionData[];
-  revisionId: UID;
-}
-
-export type Message = RemoteRevision | RemoteUndo | ConnectionMessage;
+export type Message = RemoteRevision | ConnectionMessage;
 
 export type NewMessageCallback = (message: Message) => void;
 

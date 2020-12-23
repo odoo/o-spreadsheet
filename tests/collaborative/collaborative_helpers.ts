@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { MockNetwork } from "../__mocks__/network";
-
+import "../jest_extend";
 interface CollaborativeEnv {
   network: MockNetwork;
   alice: Model;
