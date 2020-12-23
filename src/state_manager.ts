@@ -16,7 +16,7 @@ import {
   HistoryChange,
   WorkbookData,
 } from "./types/index";
-import { ClientId, RemoteRevisionData, Message } from "./types/multi_users";
+import { ClientId, RemoteRevisionData, Message, SelectCellMessage } from "./types/multi_users";
 
 /**
  * Revision Management System
@@ -128,6 +128,20 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   private revisionId: UID = DEFAULT_REVISION_ID;
 
+  private clientName: string = this.randomChoice([
+    "Florent",
+    "Lucas",
+    "Vincent",
+    "Rémi",
+    "Alexis",
+    "Nathan",
+    "Pierre",
+  ]);
+
+  randomChoice(arr: string[]): string {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
     protected readonly userId: UID,
@@ -191,6 +205,10 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
 
   getUserId(): UID {
     return this.userId;
+  }
+
+  getUserName(): string {
+    return this.clientName;
   }
 
   // ---------------------------------------------------------------------------
@@ -266,10 +284,41 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
   }
 
+  selectCell(sheetId: UID, col: number, row: number) {
+    if (this.network) {
+      this.network.sendMessage({
+        type: "SELECT_CELL",
+        col,
+        row,
+        sheetId,
+        clientId: this.userId,
+        clientName: this.clientName,
+      });
+    }
+  }
+
+  onSelectCell(message: SelectCellMessage) {
+    if (message.clientId !== this.userId) {
+      this.dispatch("SELECT_CELL_MULTIUSER", {
+        col: message.col,
+        row: message.row,
+        sheetId: message.sheetId,
+        clientId: message.clientId,
+        clientName: message.clientName,
+      });
+      this.trigger("selected-cell");
+    }
+  }
+
   /**
    * Called whenever a message is received from the network
    */
   onMessageReceived(message: Message) {
+    if (message.type === "SELECT_CELL") {
+      this.onSelectCell(message);
+      return;
+    }
+
     //TODO we should perhaps check that this.revisionId === message.revisionId to apply it
     // if (message.hash) {
     //   const current = hash(JSON.stringify(this.exportData()));

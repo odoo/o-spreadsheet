@@ -29,6 +29,8 @@ export interface CoreGetters {
   canUndo: StateManager["canUndo"];
   canRedo: StateManager["canRedo"];
   getUserId: StateManager["getUserId"];
+  getUserName: StateManager["getUserName"];
+
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];
   getSheet: SheetPlugin["getSheet"];

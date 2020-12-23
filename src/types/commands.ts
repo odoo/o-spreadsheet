@@ -403,6 +403,15 @@ export interface SelectCellCommand extends BaseCommand {
   row: number;
 }
 
+export interface SelectCellMultiuserCommand extends BaseCommand {
+  type: "SELECT_CELL_MULTIUSER";
+  col: number;
+  row: number;
+  sheetId: UID;
+  clientId: UID;
+  clientName: string;
+}
+
 export interface SetSelectionCommand extends BaseCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
@@ -792,6 +801,7 @@ export type Command =
   | PrepareExpansionCommand
   | StopSelectionCommand
   | SelectCellCommand
+  | SelectCellMultiuserCommand
   | SetSelectionCommand
   | SelectColumnCommand
   | SelectRowCommand

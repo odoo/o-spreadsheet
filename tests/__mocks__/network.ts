@@ -30,6 +30,13 @@ export class MockNetwork implements Network {
         }
       }
     }
+    if (message.type === "SELECT_CELL") {
+      if (this.isConcurrent) {
+        this.pendingMessages.push(message);
+      } else {
+        this.notifyListeners(this.listeners, message);
+      }
+    }
   }
 
   concurrent(concurrentExecutionCallback: () => void) {

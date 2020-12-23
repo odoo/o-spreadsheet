@@ -27,18 +27,24 @@ app.ws("/", function (ws, req) {
     if (msg.type === "multiuser_command") {
       if (msg.payload.type === "REMOTE_REVISION") {
         log(JSON.stringify(msg.payload.commands));
+      } else if (msg.payload.type === "SELECT_CELL") {
+        log(JSON.stringify(msg.payload));
       } else {
         log(JSON.stringify(msg.payload.toReplay));
       }
       const revisionId = msg.payload.revisionId;
-      log(`Serveur revision: ${revision}, Client revision: ${revisionId}`);
-      if (revision === revisionId) {
-        messages.push(msg.payload);
+      if (msg.payload.type !== "SELECT_CELL") {
+        log(`Serveur revision: ${revision}, Client revision: ${revisionId}`);
+      }
+      if (revision === revisionId || msg.payload.type === "SELECT_CELL") {
         aWss.clients.forEach(function each(client) {
           client.send(JSON.stringify(msg.payload));
         });
-        revision = msg.payload.newRevisionId;
-        log(`New revision: ${revision}`);
+        if (msg.payload.type !== "SELECT_CELL") {
+          messages.push(msg.payload);
+          revision = msg.payload.newRevisionId;
+          log(`New revision: ${revision}`);
+        }
       }
     }
   });

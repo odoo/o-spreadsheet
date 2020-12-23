@@ -129,6 +129,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       this.finalize();
       this.trigger("update");
     });
+    this.stateReplicator2000.on("selected-cell", this, () => this.trigger("update"));
     this.stateReplicator2000.import(workbookData);
 
     // this.externalCommandHandler = config.externalCommandHandler;
@@ -136,6 +137,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
       canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
       getUserId: this.stateReplicator2000.getUserId.bind(this.stateReplicator2000),
+      getUserName: this.stateReplicator2000.getUserName.bind(this.stateReplicator2000),
     } as Getters;
     this.handlers = [this.stateReplicator2000];
 

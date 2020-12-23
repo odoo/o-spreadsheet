@@ -20,6 +20,7 @@ export interface HistoryChange {
 }
 
 export interface WorkbookHistory<Plugin> {
+  selectCell(sheetId: UID, col: number, row: number): void;
   update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
   update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
     key1: T,

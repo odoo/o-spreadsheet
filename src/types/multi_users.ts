@@ -29,7 +29,16 @@ export interface ConnectionMessage extends BaseMessage {
   messages: RemoteRevisionData[];
 }
 
-export type Message = RemoteRevisionData | ConnectionMessage;
+export interface SelectCellMessage {
+  type: "SELECT_CELL";
+  col: number;
+  row: number;
+  sheetId: UID;
+  clientId: UID;
+  clientName: string;
+}
+
+export type Message = RemoteRevisionData | ConnectionMessage | SelectCellMessage;
 
 export type NewMessageCallback = (message: Message) => void;
 
