@@ -17,6 +17,7 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
   // the main command.
   private historizeActiveSheet: boolean = true;
   private ctx = document.createElement("canvas").getContext("2d")!;
+  private nextActiveSheetId: UID | undefined;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -39,14 +40,16 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "DELETE_SHEET":
-        if (this.getActiveSheetId() === cmd.sheetId) {
+        const sheetIdFrom = this.getActiveSheetId();
+        if (sheetIdFrom === cmd.sheetId) {
           const currentIndex = this.getters
             .getVisibleSheets()
-            .findIndex((sheetId) => sheetId === this.getActiveSheetId());
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo: this.getters.getVisibleSheets()[Math.max(0, currentIndex - 1)],
-          });
+            .findIndex((sheetId) => sheetId === sheetIdFrom);
+          if (currentIndex === 0) {
+            this.nextActiveSheetId = this.getters.getVisibleSheets()[1];
+          } else {
+            this.nextActiveSheetId = this.getters.getVisibleSheets()[currentIndex - 1];
+          }
         }
         break;
     }
@@ -129,6 +132,10 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
 
   finalize() {
     this.historizeActiveSheet = true;
+    if (this.nextActiveSheetId) {
+      this.history.update("activeSheet", this.getters.getSheet(this.nextActiveSheetId));
+      this.nextActiveSheetId = undefined;
+    }
   }
 
   // ---------------------------------------------------------------------------

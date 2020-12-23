@@ -77,6 +77,7 @@ describe("sheets", () => {
 
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
+    const name = model.getters.getSheetName(model.getters.getActiveSheetId());
     expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: 54 })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetPosition,
@@ -85,6 +86,7 @@ describe("sheets", () => {
 
   test("Cannot create a sheet with a negative position", () => {
     const model = new Model();
+    const name = model.getters.getSheetName(model.getters.getActiveSheetId());
     expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: -1 })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetPosition,
@@ -682,6 +684,16 @@ describe("sheets", () => {
     model.dispatch("REDO");
     expect(model.getters.getSheets()).toHaveLength(1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
+  });
+
+  test("Can delete the first sheet (active)", () => {
+    const model = new Model();
+    const sheet1 = model.getters.getActiveSheetId();
+    const sheet2 = "Sheet2";
+    model.dispatch("CREATE_SHEET", { sheetId: sheet2, position: 1 });
+    setCellContent(model, "A1", "Hello in Sheet2", sheet2);
+    model.dispatch("DELETE_SHEET", { sheetId: sheet1 });
+    expect(getCellContent(model, "A1")).toBe("Hello in Sheet2");
   });
 
   test("Can delete a non-active sheet", () => {
