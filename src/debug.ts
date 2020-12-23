@@ -7,7 +7,7 @@ interface LocalStep {
   type: "LOCAL";
   userId: UID;
   command: Command;
-  hasCore?: boolean
+  hasCore?: boolean;
 }
 
 interface RemoteStep {

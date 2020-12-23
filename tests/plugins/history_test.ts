@@ -165,7 +165,7 @@ describe("Model history", () => {
     expect(getCell(model, "A1")).toBeUndefined();
     model.dispatch("REDO");
     expect(getCellContent(model, "A1")).toBe("hello");
-  })
+  });
 
   test("can undo and redo two consecutive operations", () => {
     const model = new Model();

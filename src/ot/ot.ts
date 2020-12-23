@@ -56,7 +56,9 @@ export function transformAll(
 ): CoreCommand[] {
   let transformedCommands = [...toTransform];
   for (const executedCommand of executed) {
-    transformedCommands = transformedCommands.map((cmd) => transform(cmd, executedCommand)).filter(isDefined)
+    transformedCommands = transformedCommands
+      .map((cmd) => transform(cmd, executedCommand))
+      .filter(isDefined);
   }
   return transformedCommands;
 }
