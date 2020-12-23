@@ -443,7 +443,7 @@ describe("Multi users synchronisation", () => {
         bob.dispatch("UPDATE_CELL", {
           col: 0,
           row: 0,
-          style: undefined,
+          style: null,
           sheetId: bob.getters.getActiveSheetId(),
         });
       });
@@ -466,7 +466,7 @@ describe("Multi users synchronisation", () => {
         alice.dispatch("UPDATE_CELL", {
           col: 0,
           row: 0,
-          style: undefined,
+          style: null,
           sheetId: bob.getters.getActiveSheetId(),
         });
         bob.dispatch("UPDATE_CELL", {

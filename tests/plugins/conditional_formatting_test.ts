@@ -207,7 +207,7 @@ describe("conditional format", () => {
     const workbookData = model.exportData();
     const newModel = new Model(workbookData);
     const sheetId = model.getters.getActiveSheetId();
-    expect(newModel.getters.getConditionalFormats(sheetId)).toBe(
+    expect(newModel.getters.getConditionalFormats(sheetId)).toEqual(
       model.getters.getConditionalFormats(sheetId)
     );
   });

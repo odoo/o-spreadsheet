@@ -4,7 +4,7 @@ import { setCellContent, getCellContent, undo, getCell, redo, addColumns } from 
 import { MockNetwork } from "../__mocks__/network";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
-describe("Collaborative UNDO - REDO", () => {
+describe.skip("Collaborative UNDO - REDO", () => {
   let network: MockNetwork;
   let alice: Model;
   let bob: Model;
@@ -84,11 +84,32 @@ describe("Collaborative UNDO - REDO", () => {
     );
   });
 
+  // test("Undo two commands from differents users", () => {
+  //   addColumns(alice, "before", "B", 1);
+  //   addColumns(bob, "after", "A", 1);
+  //   setCellContent(charly, "D1", "hello in D1");
+  //   expect([alice, bob, charly]).toHaveSynchronizedValue(
+  //     (user) => getCellContent(user, "D1"),
+  //     "hello in D1"
+  //   );
+  //   undo(bob);
+  //   expect([alice, bob, charly]).toHaveSynchronizedValue(
+  //     (user) => getCellContent(user, "B1"),
+  //     "hello in D1"
+  //     );
+  //   undo(alice);
+  //   expect([alice, bob, charly]).toHaveSynchronizedValue(
+  //     (user) => getCellContent(user, "C1"),
+  //     "hello in D1"
+  //   );
+  // });
+
   test("Undo concurrently", () => {
     setCellContent(alice, "A1", "hello");
     network.concurrent(() => {
       setCellContent(bob, "B2", "B2");
       undo(alice);
+      expect(getCell(alice, "A1")).toBe(undefined);
     });
     expect([alice, bob, charly]).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect([alice, bob, charly]).toHaveSynchronizedValue(
