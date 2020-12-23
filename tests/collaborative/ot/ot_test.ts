@@ -1,10 +1,10 @@
-import { transform } from "../../src/ot/ot";
+import { transform } from "../../../src/ot/ot";
 import {
-  CreateChartDefinition,
   DeleteFigureCommand,
   UpdateChartCommand,
+  CreateChartDefinition,
   UpdateFigureCommand,
-} from "../../src/types";
+} from "../../../src/types";
 
 describe("OT with DELETE_FIGURE", () => {
   const deleteFigure: DeleteFigureCommand = {

@@ -1,5 +1,5 @@
-import { toZone } from "../../src/helpers/zones";
-import { transform } from "../../src/ot/ot";
+import { toZone } from "../../../src/helpers/zones";
+import { transform } from "../../../src/ot/ot";
 import {
   AddColumnsCommand,
   AddMergeCommand,
@@ -14,7 +14,7 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
-} from "../../src/types";
+} from "../../../src/types";
 
 describe("OT with ADD_COLUMNS", () => {
   const sheetId = "Sheet1";

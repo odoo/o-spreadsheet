@@ -1,5 +1,5 @@
-import { toZone } from "../../src/helpers";
-import { transform } from "../../src/ot/ot";
+import { toZone } from "../../../src/helpers";
+import { transform } from "../../../src/ot/ot";
 import {
   DeleteSheetCommand,
   UpdateCellCommand,
@@ -22,12 +22,12 @@ import {
   SetBorderCommand,
   SetDecimalCommand,
   CreateChartCommand,
-  ResizeRowsCommand,
   ResizeColumnsCommand,
-  DuplicateSheetCommand,
+  ResizeRowsCommand,
   RemoveConditionalFormatCommand,
-} from "../../src/types";
-import { createEqualCF } from "../helpers";
+  DuplicateSheetCommand,
+} from "../../../src/types";
+import { createEqualCF } from "../../helpers";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";

@@ -21,6 +21,7 @@ import {
   BorderCommand,
   ColorScaleMidPointThreshold,
   CreateSheetCommand,
+  CommandResult,
 } from "../src/types";
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/core/merge";
@@ -35,6 +36,14 @@ const { useRef, useSubEnv } = hooks;
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+
+export function undo(model: Model): CommandResult {
+  return model.dispatch("UNDO");
+}
+
+export function redo(model: Model): CommandResult {
+  return model.dispatch("REDO");
+}
 
 export function createSheet(
   model: Model,

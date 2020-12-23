@@ -1,6 +1,7 @@
-import { inverseCommandsRegistry } from "../../src/helpers/inverse_commands";
-import { otRegistry } from "../../src/ot/ot";
-import { CoreCommandTypes, coreTypes } from "../../src/types";
+import { coreTypes } from "../../../src";
+import { inverseCommandsRegistry } from "../../../src/helpers/inverse_commands";
+import { otRegistry } from "../../../src/ot/ot";
+import { CoreCommandTypes } from "../../../src/types";
 
 // Not sure it should be merged, but will help us at least
 describe("Completude", () => {

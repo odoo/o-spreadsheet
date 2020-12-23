@@ -1,20 +1,20 @@
-import { toZone } from "../../src/helpers";
-import { transform } from "../../src/ot/ot";
+import { toZone } from "../../../src/helpers";
+import { transform } from "../../../src/ot/ot";
 import {
-  AddMergeCommand,
-  AddRowsCommand,
-  ClearCellCommand,
-  ClearFormattingCommand,
-  DeleteContentCommand,
-  RemoveMergeCommand,
   RemoveRowsCommand,
-  ResizeRowsCommand,
-  SetBorderCommand,
-  SetDecimalCommand,
-  SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
-} from "../../src/types";
+  ClearCellCommand,
+  SetBorderCommand,
+  DeleteContentCommand,
+  SetFormattingCommand,
+  ClearFormattingCommand,
+  SetDecimalCommand,
+  AddRowsCommand,
+  ResizeRowsCommand,
+  AddMergeCommand,
+  RemoveMergeCommand,
+} from "../../../src/types";
 
 describe("OT with REMOVE_ROWS", () => {
   const sheetId = "Sheet1";

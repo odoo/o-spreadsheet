@@ -1,5 +1,5 @@
-import { toZone } from "../../src/helpers";
-import { transform } from "../../src/ot/ot";
+import { toZone } from "../../../src/helpers";
+import { transform } from "../../../src/ot/ot";
 import {
   AddColumnsCommand,
   AddMergeCommand,
@@ -14,7 +14,7 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
-} from "../../src/types";
+} from "../../../src/types";
 
 describe("OT with REMOVE_COLUMN", () => {
   const sheetId = "Sheet1";

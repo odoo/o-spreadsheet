@@ -1,17 +1,17 @@
-import { toZone } from "../../src/helpers/zones";
-import { transform } from "../../src/ot/ot";
+import { toZone } from "../../../src/helpers";
+import { transform } from "../../../src/ot/ot";
 import {
-  ClearCellCommand,
-  SetBorderCommand,
   AddMergeCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
+  ClearCellCommand,
+  SetBorderCommand,
   DeleteContentCommand,
   SetFormattingCommand,
   ClearFormattingCommand,
   SetDecimalCommand,
   RemoveMergeCommand,
-} from "../../src/types";
+} from "../../../src/types";
 
 describe("OT with ADD_MERGE", () => {
   const sheetId = "Sheet1";
