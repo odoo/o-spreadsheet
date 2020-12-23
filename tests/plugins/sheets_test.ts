@@ -684,6 +684,17 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
   });
 
+  test("Can delete the first sheet (active)", () => {
+    const model = new Model();
+    const sheet1 = model.getters.getActiveSheetId();
+    const sheet2 = "Sheet2";
+    model.dispatch("CREATE_SHEET", { sheetId: sheet2, position: 1 });
+    setCellContent(model, "A1", "Hello in Sheet2", sheet2);
+    model.dispatch("DELETE_SHEET", { sheetId: sheet1 });
+    expect(model.getters.getActiveSheetId()).toBe(sheet2);
+    expect(getCellContent(model, "A1")).toBe("Hello in Sheet2");
+  });
+
   test("Can delete a non-active sheet", () => {
     const model = new Model();
     const sheet1 = model.getters.getActiveSheetId();

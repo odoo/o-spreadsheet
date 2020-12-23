@@ -43,9 +43,16 @@ export class SheetUIPlugin extends UIPlugin<UIState> {
           const currentIndex = this.getters
             .getVisibleSheets()
             .findIndex((sheetId) => sheetId === this.getActiveSheetId());
+          let sheetIdTo: UID;
+          const currentSheets = this.getters.getVisibleSheets();
+          if (currentIndex === 0) {
+            sheetIdTo = currentSheets[1];
+          } else {
+            sheetIdTo = currentSheets[Math.max(0, currentIndex - 1)];
+          }
           this.dispatch("ACTIVATE_SHEET", {
             sheetIdFrom: this.getActiveSheetId(),
-            sheetIdTo: this.getters.getVisibleSheets()[Math.max(0, currentIndex - 1)],
+            sheetIdTo,
           });
         }
         break;
