@@ -1,6 +1,6 @@
 import * as owl from "@odoo/owl";
 import { uuidv4 } from "../../helpers/index";
-import { ChartTypes, CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
+import { CreateChartDefinition, Figure, SpreadsheetEnv } from "../../types/index";
 import { SelectionInput } from "../selection_input";
 import { chartTerms } from "./translations_terms";
 
@@ -23,16 +23,28 @@ const TEMPLATE = xml/* xml */ `
     </div>
     <div class="o-section o-data-series">
       <div class="o-section-title" t-esc="env._t('${chartTerms.DataSeries}')"/>
-      <SelectionInput ranges="state.ranges" t-on-selection-changed="onSeriesChanged"/>
-      <input type="checkbox" t-model="state.seriesHasTitle"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
+      <SelectionInput
+        t-key="getKey('dataSets')"
+        ranges="state.dataSets"
+        t-on-selection-changed="onSeriesChanged"
+      />
+      <input type="checkbox" t-model="state.dataSetsHaveTitle"/><t t-esc="env._t('${chartTerms.MyDataHasTitle}')"/>
     </div>
     <div class="o-section o-data-labels">
         <div class="o-section-title" t-esc="env._t('${chartTerms.DataCategories}')"/>
-        <SelectionInput ranges="[state.labelRange]" t-on-selection-changed="onLabelRangeChanged" maximumRanges="1"/>
+        <SelectionInput
+          t-key="getKey('label')"
+          ranges="[state.labelRange]"
+          t-on-selection-changed="onLabelRangeChanged"
+          maximumRanges="1"
+        />
     </div>
     <div class="o-sidePanelButtons">
       <button t-if="props.figure" t-on-click="updateChart(props.figure)" class="o-sidePanelButton" t-esc="env._t('${chartTerms.UpdateChart}')"/>
       <button t-else="" t-on-click="createChart" class="o-sidePanelButton" t-esc="env._t('${chartTerms.CreateChart}')"/>
+    </div>
+    <div class="o-section o-sidepanel-error" t-if="state.error">
+        <t t-esc="state.error"/>
     </div>
   </div>
 `;
@@ -41,12 +53,8 @@ interface Props {
   figure?: Figure;
 }
 
-interface ChartPanelState {
-  type: ChartTypes;
-  title: string;
-  ranges: string[];
-  labelRange: string;
-  seriesHasTitle: boolean;
+interface ChartPanelState extends CreateChartDefinition {
+  error?: string;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetEnv> {
@@ -54,54 +62,76 @@ export class ChartPanel extends Component<Props, SpreadsheetEnv> {
   static components = { SelectionInput };
   private getters = this.env.getters;
 
-  private state: ChartPanelState = useState(this.initialState());
+  private state: ChartPanelState = useState(this.initialState(this.props.figure));
+
+  async willUpdateProps(nextProps) {
+    if (nextProps.figure?.id !== this.props.figure?.id) {
+      this.state = this.initialState(nextProps.figure);
+    }
+  }
 
   onSeriesChanged(ev: CustomEvent) {
-    this.state.ranges = ev.detail.ranges;
+    this.state.dataSets = ev.detail.ranges;
   }
 
   onLabelRangeChanged(ev: CustomEvent) {
     this.state.labelRange = ev.detail.ranges[0];
   }
 
+  getKey(label: string) {
+    return this.props.figure ? label + this.props.figure.id : label;
+  }
   createChart() {
-    this.env.dispatch("CREATE_CHART", {
+    const result = this.env.dispatch("CREATE_CHART", {
       sheetId: this.getters.getActiveSheetId(),
       id: uuidv4(),
       definition: this.getChartDefinition(),
     });
-    this.trigger("close-side-panel");
+    if (result.status === "CANCELLED") {
+      this.state.error = this.env._t(
+        chartTerms.Errors[result.reason] || chartTerms.Errors.unexpected
+      );
+    } else {
+      this.trigger("close-side-panel");
+    }
   }
 
   updateChart(chart: Figure) {
-    this.env.dispatch("UPDATE_CHART", {
+    const result = this.env.dispatch("UPDATE_CHART", {
       sheetId: this.getters.getActiveSheetId(),
       id: chart.id,
       definition: this.getChartDefinition(),
     });
-    this.trigger("close-side-panel");
+    if (result.status === "CANCELLED") {
+      this.state.error = this.env._t(
+        chartTerms.Errors[result.reason] || chartTerms.Errors.unexpected
+      );
+    } else {
+      this.trigger("close-side-panel");
+    }
   }
 
   private getChartDefinition(): CreateChartDefinition {
     return {
       type: this.state.type,
       title: this.state.title,
-      labelRange: this.state.labelRange.trim() || "",
-      dataSets: this.state.ranges.slice(),
-      seriesHasTitle: this.state.seriesHasTitle,
+      labelRange: this.state.labelRange ? this.state.labelRange.trim() : "",
+      dataSets: this.state.dataSets.slice(),
+      dataSetsHaveTitle: this.state.dataSetsHaveTitle,
     };
   }
 
-  private initialState(): ChartPanelState {
-    const data = this.props.figure
-      ? this.env.getters.getChartDefinition(this.props.figure.id)
-      : undefined;
-    return {
-      title: data && data.title ? data.title : "",
-      ranges: data ? data.dataSets.map((ds) => ds.dataRange) : [],
-      labelRange: data ? data.labelRange : "",
-      type: data ? data.type : "bar",
-      seriesHasTitle: data ? data.title !== undefined : false,
-    };
+  private initialState(figure: Figure | undefined): ChartPanelState {
+    if (figure) {
+      return this.env.getters.getChartDefinitionUI(this.env.getters.getActiveSheetId(), figure.id);
+    } else {
+      return {
+        title: "",
+        dataSets: [],
+        labelRange: "",
+        type: "bar",
+        dataSetsHaveTitle: false,
+      };
+    }
   }
 }

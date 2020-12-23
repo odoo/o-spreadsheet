@@ -37,12 +37,126 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(6);
+    expect(data.version).toBe(7);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula!.text).toBeDefined();
     expect(data.sheets[0].cells.A1!.formula!.dependencies).toBeDefined();
+  });
+  test("migration 6 to 7: charts", () => {
+    mockUuidV4To(333);
+    const model = new Model({
+      version: 6,
+      sheets: [
+        {
+          colNumber: 2,
+          rowNumber: 2,
+          cols: {
+            0: { size: 42 },
+          },
+          rows: {
+            0: { size: 12 },
+          },
+          cells: { A1: { content: "=a1" } },
+          name: "My sheet",
+          conditionalFormats: [],
+          figures: [
+            {
+              id: "1",
+              tag: "chart",
+              width: 400,
+              height: 300,
+              x: 100,
+              y: 100,
+              data: {
+                type: "line",
+                title: "demo chart",
+                labelRange: "My sheet!A27:A35",
+                dataSets: [
+                  { labelCell: "My sheet!B26", dataRange: "My sheet!B27:B35" },
+                  { labelCell: "My sheet!C26", dataRange: "My sheet!C27:C35" },
+                ],
+              },
+            },
+            {
+              id: "2",
+              tag: "chart",
+              width: 400,
+              height: 300,
+              x: 600,
+              y: 100,
+              data: {
+                type: "bar",
+                title: "demo chart 2",
+                labelRange: "My sheet!A27:A35",
+                dataSets: [
+                  { labelCell: undefined, dataRange: "My sheet!B27:B35" },
+                  { dataRange: "My sheet!C27:C35" },
+                ],
+              },
+            },
+            {
+              id: "3",
+              tag: "chart",
+              width: 400,
+              height: 300,
+              x: 100,
+              y: 500,
+              data: {
+                type: "bar",
+                title: "demo chart 3",
+                labelRange: "My sheet!A27",
+                dataSets: [{ labelCell: "My sheet!B26", dataRange: "My sheet!B27" }],
+              },
+            },
+            {
+              id: "4",
+              tag: "chart",
+              width: 400,
+              height: 300,
+              x: 600,
+              y: 500,
+              data: {
+                type: "bar",
+                title: "demo chart 4",
+                labelRange: "My sheet!A27",
+                dataSets: [{ dataRange: "My sheet!B27" }],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].figures[0].data).toEqual({
+      type: "line",
+      title: "demo chart",
+      labelRange: "'My sheet'!A27:A35",
+      dataSets: ["B26:B35", "C26:C35"],
+      dataSetsHaveTitle: true,
+    });
+    expect(data.sheets[0].figures[1].data).toEqual({
+      type: "bar",
+      title: "demo chart 2",
+      labelRange: "'My sheet'!A27:A35",
+      dataSets: ["B27:B35", "C27:C35"],
+      dataSetsHaveTitle: false,
+    });
+    expect(data.sheets[0].figures[2].data).toEqual({
+      type: "bar",
+      title: "demo chart 3",
+      labelRange: "'My sheet'!A27",
+      dataSets: ["B26:B27"],
+      dataSetsHaveTitle: true,
+    });
+    expect(data.sheets[0].figures[3].data).toEqual({
+      type: "bar",
+      title: "demo chart 4",
+      labelRange: "'My sheet'!A27",
+      dataSets: ["B27"],
+      dataSetsHaveTitle: false,
+    });
   });
 });
 

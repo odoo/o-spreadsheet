@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 5,
+  version: 7,
   sheets: [
     {
       name: "Sheet1",
@@ -122,16 +122,29 @@ export const demoData = {
           tag: "chart",
           width: 400,
           height: 300,
-          x: 300,
+          x: 100,
           y: 100,
           data: {
             type: "line",
             title: "demo chart",
             labelRange: "Sheet1!A27:A35",
-            dataSets: [
-              { labelCell: "Sheet1!B26", dataRange: "Sheet1!B27:B35" },
-              { labelCell: "Sheet1!C26", dataRange: "Sheet1!C27:C35" },
-            ],
+            dataSets: ["Sheet1!B26:B35","Sheet1!C26:C35"],
+            dataSetsHaveTitle: true,
+          },
+        },
+        {
+          id: "2",
+          tag: "chart",
+          width: 400,
+          height: 300,
+          x: 600,
+          y: 100,
+          data: {
+            type: "bar",
+            title: "demo chart 2",
+            labelRange: "Sheet1!A27:A35",
+            dataSets: ["Sheet1!B27:B35","Sheet1!C27:C35"],
+            dataSetsHaveTitle: false,
           },
         },
       ],

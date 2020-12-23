@@ -262,7 +262,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
       expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "47",
+          id: "50",
           ranges: ["A1:A3"],
           rule: {
             operator: "BeginsWith",
@@ -323,7 +323,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "51",
+        id: "57",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -373,7 +373,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "58",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -425,7 +425,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "58",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -477,7 +477,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "58",
         ranges: ["B2:B5"],
         rule: {
           maximum: {
@@ -537,7 +537,7 @@ describe("UI of conditional formats", () => {
 
     expect(parent.env.dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "52",
+        id: "58",
         ranges: ["B2:B5"],
         rule: {
           maximum: {

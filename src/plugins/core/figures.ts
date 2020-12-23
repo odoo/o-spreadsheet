@@ -1,16 +1,16 @@
-import { uuidv4 } from "../../helpers/index";
+import { isDefined } from "../../helpers/index";
 import { Command, Figure, UID, Viewport, WorkbookData } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
-  readonly figures: { [sheet: string]: Record<UID, Figure> };
+  readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
   static getters = ["getVisibleFigures", "getFigures", "getSelectedFigureId", "getFigure"];
   private selectedFigureId: string | null = null;
   readonly figures: {
-    [sheet: string]: Record<UID, Figure>;
+    [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -20,16 +20,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "CREATE_SHEET":
         this.figures[cmd.sheetId] = {};
         break;
-      case "DUPLICATE_SHEET":
-        this.figures[cmd.sheetIdTo] = {};
-        for (let fig of Object.values(this.figures[cmd.sheetIdFrom] || [])) {
-          const figure = Object.assign({}, fig, { id: uuidv4() });
-          this.dispatch("CREATE_FIGURE", {
-            sheetId: cmd.sheetIdTo,
-            figure,
-          });
-        }
-        break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheetId);
         break;
@@ -37,7 +27,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         this.addFigure(cmd.figure, cmd.sheetId);
         break;
       case "UPDATE_FIGURE":
-        this.updateFigure(cmd.sheetId, cmd);
+        const { type, sheetId, ...update } = cmd;
+        const figure: Partial<Figure> = update;
+        this.updateFigure(sheetId, figure);
         break;
       case "SELECT_FIGURE":
         this.selectedFigureId = cmd.id;
@@ -47,6 +39,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         break;
       // some commands should not remove the current selection
       case "EVALUATE_CELLS":
+      case "DISABLE_SELECTION_INPUT":
+      case "HIGHLIGHT_SELECTION":
+      case "RESET_PENDING_HIGHLIGHT":
+      case "REMOVE_ALL_HIGHLIGHTS":
+      case "ENABLE_NEW_SELECTION_INPUT":
         break;
       default:
         this.selectedFigureId = null;
@@ -54,46 +51,40 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   private updateFigure(sheetId: string, figure: Partial<Figure>) {
-    if (!figure.id) {
+    if (!("id" in figure)) {
       return;
     }
-    const currentFigures = Object.assign({}, this.figures[sheetId]);
-    const newFigure = { ...currentFigures[figure.id] };
-    if (figure.x !== undefined) {
-      newFigure.x = Math.max(figure.x, 0);
+    for (const [key, value] of Object.entries(figure)) {
+      switch (key) {
+        case "x":
+        case "y":
+          if (value !== undefined) {
+            this.history.update("figures", sheetId, figure.id!, key, Math.max(value as number, 0));
+          }
+          break;
+        case "width":
+        case "height":
+          if (value !== undefined) {
+            this.history.update("figures", sheetId, figure.id!, key, value as number);
+          }
+          break;
+      }
     }
-    if (figure.y !== undefined) {
-      newFigure.y = Math.max(figure.y, 0);
-    }
-    if (figure.width !== undefined) {
-      newFigure.width = figure.width;
-    }
-    if (figure.height !== undefined) {
-      newFigure.height = figure.height;
-    }
-    currentFigures[figure.id] = newFigure;
-    this.history.update("figures", sheetId, currentFigures);
   }
 
   private addFigure(figure: Figure, sheetId: UID) {
-    const currentFigures = Object.assign({}, this.figures[sheetId]);
-    currentFigures[figure.id] = figure;
-    this.history.update("figures", sheetId, currentFigures);
+    this.history.update("figures", sheetId, figure.id, figure);
   }
 
-  private deleteSheet(sheet: string) {
-    const figures = Object.assign({}, this.figures);
-    delete figures[sheet];
-    this.history.update("figures", figures);
+  private deleteSheet(sheetId: UID) {
+    this.history.update("figures", sheetId, undefined);
   }
 
   private removeFigure(id: string, sheetId: UID) {
-    const currentFigures = Object.assign({}, this.figures[sheetId]);
     if (this.selectedFigureId === id) {
       this.selectedFigureId = null;
     }
-    delete currentFigures[id];
-    this.history.update("figures", sheetId, currentFigures);
+    this.history.update("figures", sheetId, id, undefined);
   }
 
   // ---------------------------------------------------------------------------
@@ -102,9 +93,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
     const result: Figure[] = [];
-    const figures = Object.values(this.figures[sheetId]) || [];
+    const figures = Object.values(this.figures[sheetId]!) || [];
     const { offsetX, offsetY, width, height } = viewport;
     for (let figure of figures) {
+      if (!figure) {
+        continue;
+      }
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
         continue;
       }
@@ -119,13 +113,13 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     return this.figures[sheetId] || [];
   }
 
-  getSelectedFigureId(): string | null {
+  getSelectedFigureId(): UID | null {
     return this.selectedFigureId;
   }
 
   getFigure(sheetId: string, figureId: string): Figure | undefined {
     const sheetFigures = this.figures[sheetId];
-    return sheetFigures[figureId];
+    return sheetFigures ? sheetFigures[figureId] : undefined;
   }
 
   // ---------------------------------------------------------------------------
@@ -146,9 +140,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       for (let sheet of data.sheets) {
         if (this.figures[sheet.id]) {
           const figures = this.figures[sheet.id];
-          for (let figure of Object.values(figures)) {
-            const data = undefined;
-            sheet.figures.push({ ...figure, data });
+          if (figures) {
+            for (let figure of Object.values(figures).filter(isDefined)) {
+              const data = undefined;
+              sheet.figures.push({ ...figure, data });
+            }
           }
         }
       }

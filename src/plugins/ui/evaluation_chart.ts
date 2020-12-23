@@ -1,10 +1,10 @@
 import { ChartConfiguration, ChartType } from "chart.js";
 import { chartTerms } from "../../components/side_panel/translations_terms";
-import { isInside, toZone } from "../../helpers/index";
+import { isInside, recomputeZones, zoneToXc } from "../../helpers/index";
 import { Mode } from "../../model";
-import { ChartDefinition } from "../../types/chart";
+import { ChartDefinition, DataSet } from "../../types/chart";
 import { Command } from "../../types/commands";
-import { UID } from "../../types/misc";
+import { Cell, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 const GraphColors = [
@@ -41,9 +41,11 @@ export class EvaluationChartPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "UPDATE_CHART":
       case "CREATE_CHART":
         const chartDefinition = this.getters.getChartDefinition(cmd.id)!;
         this.chartRuntime[cmd.id] = this.mapDefinitionToRuntime(chartDefinition);
+        this.dispatch("SELECT_FIGURE", { id: cmd.id });
         break;
       case "DELETE_FIGURE":
         delete this.chartRuntime[cmd.id];
@@ -79,7 +81,7 @@ export class EvaluationChartPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getChartRuntime(sheetId: UID, figureId: string): ChartConfiguration | undefined {
+  getChartRuntime(figureId: string): ChartConfiguration | undefined {
     if (this.outOfDate.has(figureId) || !(figureId in this.chartRuntime)) {
       const chartDefinition = this.getters.getChartDefinition(figureId);
       if (chartDefinition === undefined) return;
@@ -160,14 +162,12 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (chart === undefined) {
       return false;
     }
-    if (isInside(col, row, toZone(chart.labelRange))) {
+    if (chart.labelRange && isInside(col, row, chart.labelRange.zone)) {
       return true;
     }
-    for (let db of chart.dataSets) {
-      if (db.dataRange && db.dataRange.length > 0 && isInside(col, row, toZone(db.dataRange))) {
-        return true;
-      }
-      if (db.labelCell && db.labelCell.length > 0 && isInside(col, row, toZone(db.labelCell))) {
+    for (let ds of chart.dataSets) {
+      const dataRange = ds.dataRange;
+      if (dataRange && dataRange.zone && isInside(col, row, dataRange.zone)) {
         return true;
       }
     }
@@ -175,30 +175,34 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
-    const labels =
-      definition.labelRange !== ""
-        ? this.getters.getRangeFormattedValues(definition.labelRange, definition.sheetId).flat(1)
-        : [];
+    const labels = definition.labelRange
+      ? this.getters
+          .getRangeFormattedValues(
+            this.getters.getRangeString(definition.labelRange, definition.sheetId),
+            definition.sheetId
+          )
+          .flat(1)
+      : [];
     const runtime = this.getDefaultConfiguration(definition.type, definition.title, labels);
 
     let graphColorIndex = 0;
     for (const ds of definition.dataSets) {
       let label;
       if (ds.labelCell) {
-        try {
-          label = this.getters.evaluateFormula(ds.labelCell, definition.sheetId);
-        } catch (e) {
-          // We want here to catch issue linked to async formula
-          label = chartTerms.Series;
-        }
+        const labelRange = ds.labelCell;
+        const cell: Cell | undefined = labelRange
+          ? this.getters.getCell(labelRange.sheetId, labelRange.zone.left, labelRange.zone.top)
+          : undefined;
+        label =
+          cell && labelRange
+            ? this.getters.getCellText(cell, labelRange.sheetId)
+            : chartTerms.Series;
       } else {
         label = chartTerms.Series;
       }
       const dataset = {
         label,
-        data: ds.dataRange
-          ? this.getters.getRangeValues(ds.dataRange, definition.sheetId).flat(1)
-          : [],
+        data: ds.dataRange ? this.getData(ds, definition.sheetId) : [],
         lineTension: 0, // 0 -> render straight lines, which is much faster
         borderColor: definition.type !== "pie" ? GraphColors[graphColorIndex] : "#FFFFFF", // white border for pie chart
         backgroundColor: GraphColors[graphColorIndex],
@@ -217,5 +221,16 @@ export class EvaluationChartPlugin extends UIPlugin {
       runtime.data!.datasets!.push(dataset);
     }
     return runtime;
+  }
+
+  private getData(ds: DataSet, sheetId: UID) {
+    if (ds.dataRange) {
+      const labelCellZone = ds.labelCell ? [zoneToXc(ds.labelCell.zone)] : [];
+      const dataXC = recomputeZones([zoneToXc(ds.dataRange.zone)], labelCellZone)[0];
+      const dataRange = this.getters.getRangeFromSheetXC(sheetId, dataXC, undefined, false);
+      const dataRangeXc = this.getters.getRangeString(dataRange, sheetId);
+      return this.getters.getRangeValues(dataRangeXc, ds.dataRange.sheetId).flat(1);
+    }
+    return [];
   }
 }

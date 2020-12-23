@@ -117,7 +117,6 @@ describe("figures", () => {
       text: "Hello",
     });
     await nextTick();
-    debugger;
     const figure = fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     expect(document.activeElement).toBe(figure);

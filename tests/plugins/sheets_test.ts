@@ -7,11 +7,17 @@ import {
   getCell,
   getCellContent,
   getCellText,
+  mockUuidV4To,
   setCellContent,
   testUndoRedo,
 } from "../helpers";
 
+jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+
 describe("sheets", () => {
+  beforeEach(() => {
+    mockUuidV4To(1);
+  });
   test("can create a new sheet, then undo, then redo", () => {
     const model = new Model();
     expect(model.getters.getVisibleSheets().length).toBe(1);
@@ -77,7 +83,7 @@ describe("sheets", () => {
 
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
-    expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: 54 })).toEqual({
+    expect(model.dispatch("CREATE_SHEET", { name: "hello", sheetId: "42", position: 54 })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetPosition,
     });
@@ -85,7 +91,7 @@ describe("sheets", () => {
 
   test("Cannot create a sheet with a negative position", () => {
     const model = new Model();
-    expect(model.dispatch("CREATE_SHEET", { name, sheetId: "42", position: -1 })).toEqual({
+    expect(model.dispatch("CREATE_SHEET", { name: "hello", sheetId: "42", position: -1 })).toEqual({
       status: "CANCELLED",
       reason: CancelledReason.WrongSheetPosition,
     });
@@ -611,36 +617,111 @@ describe("sheets", () => {
     expect(getCellContent(model, "A1")).toBe("42");
   });
 
-  test("Figures are correctly duplicated", () => {
+  test("Figures of Charts are correctly duplicated", () => {
     const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: sheet,
-      figure: {
-        id: "someuuid",
-        tag: "hey",
-        width: 100,
-        height: 100,
-        x: 100,
-        y: 100,
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "someuuid",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
       },
     });
-    model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheet, sheetIdTo: "42", name: "dup" });
+    model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42", name: "dup" });
     model.dispatch("UPDATE_FIGURE", {
-      sheetId: sheet,
+      sheetId: sheetId,
       id: "someuuid",
       x: 40,
     });
-    const data = model.exportData();
 
-    const sheet1 = data.sheets.find((s) => s.id === sheet)!;
-    const sheet2 = data.sheets.find((s) => s.id === "42")!;
+    const figure1 = model.getters.getFigures(sheetId);
+    const figure2 = model.getters.getFigures("42");
+    expect(figure1).toEqual({
+      someuuid: { height: 500, id: "someuuid", tag: "chart", width: 800, x: 40, y: 0 },
+    });
+    expect(figure2).toEqual({
+      "8": { height: 500, id: "8", tag: "chart", width: 800, x: 0, y: 0 },
+    });
+  });
 
-    expect(sheet1.figures).toEqual([
-      { id: "someuuid", height: 100, tag: "hey", width: 100, x: 40, y: 100 },
-    ]);
-    const id = sheet2.figures[0].id;
-    expect(sheet2.figures).toEqual([{ id, height: 100, tag: "hey", width: 100, x: 100, y: 100 }]);
+  test("Charts are correctly duplicated", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "someuuid",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    model.dispatch("DUPLICATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42", name: "dup" });
+    model.dispatch("UPDATE_CHART", {
+      id: "someuuid",
+      sheetId,
+      definition: {
+        title: "hello1",
+        dataSets: ["Sheet1!B1:B3"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A3",
+        type: "bar",
+      },
+    });
+    expect(model.getters.getChartDefinition("someuuid")).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "1",
+            zone: toZone("B1:B3"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "1",
+            zone: toZone("B1"),
+          },
+        },
+      ],
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "1",
+        zone: toZone("A2:A3"),
+      },
+      sheetId: "1",
+      title: "hello1",
+      type: "bar",
+    });
+    expect(model.getters.getChartDefinition("8")).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "1",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "1",
+            zone: toZone("B1"),
+          },
+        },
+      ],
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "1",
+        zone: toZone("A2:A4"),
+      },
+      sheetId: "1",
+      title: "test 1",
+      type: "line",
+    });
   });
 
   test("Cols and Rows are correctly duplicated", () => {

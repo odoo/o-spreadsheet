@@ -1,4 +1,3 @@
-import { ChartFigure } from "../components/figures/chart";
 import { Registry } from "../registry";
 
 //------------------------------------------------------------------------------
@@ -18,11 +17,3 @@ export interface FigureContent {
 }
 
 export const figureRegistry = new Registry<FigureContent>();
-
-// figureRegistry.add("ConditionalFormatting", {
-//   title: "Conditional formatting",
-//   Body: ConditionalFormattingPanel,
-// });
-//
-
-figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

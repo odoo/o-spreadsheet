@@ -56,6 +56,11 @@ const CSS = css/* scss */ `
       height: 100%;
     }
 
+    .o-sidepanel-error {
+      color: red;
+      margin-top: 10px;
+    }
+
     .o-sidePanelButtons {
       padding: 5px 16px;
       text-align: right;

@@ -17,7 +17,7 @@ interface RangeState {
 export const INCORRECT_RANGE_STRING = "#REF";
 
 export class RangePlugin extends CorePlugin<RangeState> {
-  static getters = ["getRangeString", "getRangeFromSheetXC"];
+  static getters = ["getRangeString", "getRangeFromSheetXC", "getRangeById"];
 
   public readonly ranges: Record<UID, Range | undefined> = {};
 
@@ -176,6 +176,9 @@ export class RangePlugin extends CorePlugin<RangeState> {
   // Getters
   // ---------------------------------------------------------------------------
 
+  getRangeById(rangeId: UID): Range | undefined {
+    return this.ranges[rangeId];
+  }
   /**
    * Creates a range from a XC reference that can contain a sheet reference
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)

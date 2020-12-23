@@ -1,7 +1,12 @@
 import { nextTick } from "./helpers";
 
-export async function simulateClick(selector: string, x: number = 10, y: number = 10) {
-  const target = document.querySelector(selector)! as HTMLElement;
+export async function simulateClick(selector: string | any, x: number = 10, y: number = 10) {
+  let target;
+  if (typeof selector === "string") {
+    target = document.querySelector(selector)! as HTMLElement;
+  } else {
+    target = selector;
+  }
   triggerMouseEvent(selector, "mousedown", x, y);
   target.focus();
   triggerMouseEvent(selector, "mouseup", x, y);

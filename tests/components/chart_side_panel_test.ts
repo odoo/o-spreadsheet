@@ -64,7 +64,7 @@ describe("Chart sidepanel component", () => {
       definition: {
         title: "My title",
         type: "bar",
-        seriesHasTitle: false,
+        dataSetsHaveTitle: false,
         dataSets: ["B1:B10"],
         labelRange: "A2:A10",
       },
@@ -83,7 +83,7 @@ describe("Chart sidepanel component", () => {
       definition: {
         title: "test 1",
         dataSets: ["B1:B4", "C1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "A2:A4",
         type: "line",
       },
@@ -99,7 +99,7 @@ describe("Chart sidepanel component", () => {
       definition: {
         title: "test 1",
         type: "line",
-        seriesHasTitle: false,
+        dataSetsHaveTitle: false,
         dataSets: ["B2:B4", "C2:C4"],
         labelRange: "A2:A4",
       },
@@ -115,7 +115,7 @@ describe("Chart sidepanel component", () => {
       definition: {
         title: "My new title",
         type: "line",
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         dataSets: ["B1:B10", "C2:C4"],
         labelRange: "A2:A10",
       },

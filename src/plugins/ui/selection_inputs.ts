@@ -5,7 +5,7 @@ import { CancelledReason, Command, CommandResult, Highlight, LAYERS } from "../.
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
 
-interface RangeInputValue {
+export interface RangeInputValue {
   id: string;
   xc: string;
   color?: string | null;
