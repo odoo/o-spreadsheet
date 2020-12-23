@@ -1,6 +1,5 @@
 import * as owl from "@odoo/owl";
 import { DEFAULT_REVISION_ID, MAX_HISTORY_STEPS } from "./constants";
-import { getDebugManager } from "./debug";
 import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { applyChange, createEmptyStructure } from "./helpers/state_manager_helpers";
@@ -15,10 +14,9 @@ import {
   CommandDispatcher,
   UID,
   HistoryChange,
-  CreateRevisionOptions,
   WorkbookData,
 } from "./types/index";
-import { ClientId, RemoteRevision, Message } from "./types/multi_users";
+import { ClientId, RemoteRevisionData, Message } from "./types/multi_users";
 
 /**
  * Revision Management System
@@ -80,7 +78,7 @@ class Revision {
     return [...this._changes];
   }
 
-  getMessage(revisionId: UID): RemoteRevision {
+  getMessage(revisionId: UID): RemoteRevisionData {
     return {
       type: "REMOTE_REVISION",
       clientId: this.clientId,
@@ -205,6 +203,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   recordChanges(callback: () => void, cmd: Command) {
     this.currentDraftRevision = new DraftRevision(uuidv4(), this.userId);
+    this.currentDraftRevision.isSync = !this.network
     if (cmd.type === "UNDO") {
       this.currentDraftRevision.isUndo = true;
     } else if (cmd.type === "REDO") {
@@ -212,23 +211,28 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
     callback();
     if (this.currentDraftRevision) {
-      this.saveDraftRevision({ pending: !!this.network });
+      this.saveDraftRevision();
     }
+    this.sendPendingRevision();
   }
 
-  private recordRemoteChanges(callback: () => void, id: UID, userId: UID) {
+  private _recordChanges(id: UID, userId: UID, {isSynced}: {isSynced: boolean}, callback: () => void) {
+    if (this.currentDraftRevision !== null) {
+      throw new Error("Changes are already being recorded!")
+    }
     // TODO refactor duplicated code
     this.currentDraftRevision = new DraftRevision(id, userId); //
+    this.currentDraftRevision.isSync = isSynced || !this.network;
     callback();
     if (this.currentDraftRevision) {
-      this.saveDraftRevision({ pending: false });
+      this.saveDraftRevision();
     }
   }
 
   /**
    * Save the currentDraftRevision.
    */
-  private saveDraftRevision({ pending }: { pending: boolean }) {
+  private saveDraftRevision() {
     if (!this.currentDraftRevision) {
       throw new Error("The currentDraftRevision is null !");
     }
@@ -237,9 +241,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
       //TODO Write tests with MAX_HISTORY_STEPS & MULTIUSER
       if (this.revisionLogs.length > MAX_HISTORY_STEPS) {
         this.revisionLogs.shift();
-      }
-      if (pending) {
-        this.sendPendingRevision();
       }
     }
     this.currentDraftRevision = null;
@@ -271,7 +272,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     //     console.error("Invalid state detected 😱");
     //   }
     // }
-
     switch (message.type) {
       case "CONNECTION":
         for (let commandMessage of message.messages) {
@@ -283,10 +283,11 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
           this.acknowledgeRevision(message.newRevisionId);
         } else {
           if (message.isUndo || message.isRedo) {
-            this.recordRemoteChanges(
-              () => this.selectiveUndo(message.toRevert!),
+            this._recordChanges(
               message.newRevisionId,
-              message.clientId
+              message.clientId,
+              { isSynced: true },
+              () => this.selectiveUndo(message.toRevert!),
             ); //TODO remove "!"
           } else {
             this.applyRemoteRevision(message);
@@ -316,16 +317,34 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   /**
    * Dispatch the given CoreCommands
    */
-  private dispatchCommands(commands: CoreCommand[], options: CreateRevisionOptions = {}) {
-    const draft = new DraftRevision(
-      options.revisionId || uuidv4(),
-      options.clientId || this.userId
-    );
-    const revision = this.applyCommandsOnRevision(draft, commands);
-    if (revision) {
-      this.revisionLogs.push(revision);
-    }
-  }
+  // private dispatchCommands(commands: CoreCommand[], options: CreateRevisionOptions = {}) {
+  //   const draft = new DraftRevision(
+  //     options.revisionId || uuidv4(),
+  //     options.clientId || this.userId
+  //   );
+  //   const revision = this.applyCommandsOnRevision(draft, commands);
+  //   if (revision) {
+  //     this.revisionLogs.push(revision);
+  //   }
+  // }
+
+  // /**
+  //  * 🍌
+  //  */
+  // private applyCommandsOnRevision(
+  //   revision: DraftRevision,
+  //   commands: CoreCommand[]
+  // ): Revision | undefined {
+  //   this.currentDraftRevision = revision;
+  //   for (let cmd of commands) {
+  //     this.dispatch(cmd.type, cmd);
+  //   }
+  //   if (this.currentDraftRevision.hasChanges()) {
+  //     this.currentDraftRevision.setCommands(commands);
+  //   }
+  //   this.currentDraftRevision = null;
+  //   return revision.hasChanges() ? revision : undefined;
+  // }
 
   /**
    * Apply the given revision on top of the undo stack
@@ -333,30 +352,40 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * effectively apply the remote revision and replay the pending revision
    * after transforming them through the applied revision
    */
-  private applyRemoteRevision(revision: RemoteRevision) {
-    this.revert(this.pendingRevisions);
-    this.dispatchCommands(revision.commands, {
-      clientId: revision.clientId,
-      revisionId: revision.newRevisionId,
+  private applyRemoteRevision({commands: remoteCommands, newRevisionId, clientId}: RemoteRevisionData) {
+
+    this.withoutPendingRevisions(() => {
+      this.dispatchInNewRevision(remoteCommands, newRevisionId, clientId, {isSynced: true});
+      return remoteCommands;
     });
-    this.transformAndReplayPendingRevisions(revision.commands);
-    // this.transformRedoStack(revision.commands);
   }
 
-  // private transformRedoStack(commands: CoreCommand[]) {
-  //   this.redoStack = this.redoStack.map((step) => {
-  //     let transformedCommands = step.commands;
-  //     for (let cmd of commands) {
-  //       transformedCommands = transformAll(transformedCommands, cmd);
-  //     }
-  //     return { ...step, commands: transformedCommands };
-  //   });
-  // }
+  private dispatchInNewRevision(commands: readonly CoreCommand[], revisionId: UID, userId: UID, { isSynced } : { isSynced: boolean }) {
+    this._recordChanges(
+      revisionId, userId,
+      { isSynced },
+      () => {
+      for (let cmd of commands) {
+        this.dispatch(cmd.type, cmd);
+      }
+    })
+  }
 
   /**
-   * Revert the given revisions
+   * Revert changes from pending revisions.
+   * Remove them from the revision log and return them.
    */
-  private revert(revisions: readonly Revision[]) {
+  private popPendingRevisions(): readonly Revision[] {
+    const pendingRevisions = this.pendingRevisions;
+    this.revertChanges(pendingRevisions);
+    this.revisionLogs = this.revisionLogs.filter(revision => revision.isSync);
+    return pendingRevisions
+  }
+
+  /**
+   * Revert changes from the given revisions
+   */
+  private revertChanges(revisions: readonly Revision[]) {
     for (const revision of revisions.slice().reverse()) {
       if (revision instanceof Revision) {
         for (let i = revision.changes.length - 1; i >= 0; i--) {
@@ -374,53 +403,19 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
   }
 
-  /**
-   * 🍌
-   */
-  private applyCommandsOnRevision(
-    revision: DraftRevision,
-    commands: CoreCommand[]
-  ): Revision | undefined {
-    this.currentDraftRevision = revision;
-    for (let cmd of commands) {
-      this.dispatch(cmd.type, cmd);
-    }
-    if (this.currentDraftRevision.hasChanges()) {
-      this.currentDraftRevision.setCommands(commands);
-    }
-    this.currentDraftRevision = null;
-    return revision.hasChanges() ? revision : undefined;
-  }
 
   // TODO rename deletedCommands
-  private transformAndReplay(deletedCommands: CoreCommand[], revisions: Revision[]) {
+  private transformAndApply(deletedCommands: CoreCommand[], revisions: Revision[]) {
     const executedCommands = [...deletedCommands]; //TODO Check spread
     const commands: CoreCommand[] = [];
     for (const revision of revisions) {
       if (revision.isUndo) {
         // this.localSelectiveUndo(revision.toRevert!, revision.id); //TODO make it better
-      } else {
-        const transformed: CoreCommand[] = [];
-        for (let executed of executedCommands) {
-          transformed.push(...transformAll(revision.commands, executed));
-        }
-        if (!revision.isCancelled) {
-          commands.push(...transformed);
-        }
-        executedCommands.push(...transformed);
+      } else if (!revision.isCancelled) {
+        commands.push(...transformAll(revision.commands, executedCommands));
       }
     }
     commands.map((cmd) => this.dispatch(cmd.type, cmd));
-  }
-
-  /**
-   * Replay the pending revisions after having having transform them through the
-   * incorporated commands.
-   *
-   * @param incorporatedCommands Commands which have been included before the revisions to play
-   */
-  private transformAndReplayPendingRevisions(incorporatedCommands: CoreCommand[]) {
-    
   }
 
   // ---------------------------------------------------------------------------
@@ -436,10 +431,10 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
       this.sendPendingRevision();
     } else {
       // This is false, we have to send it, in case of a redo...
-      const pending = this.pendingRevisions.pop();
-      if (pending) {
-        this.revert([pending]);
-      }
+      // const pending = this.pendingRevisions.pop();
+      // if (pending) {
+      //   this.revert([pending]);
+      // }
     }
   }
 
@@ -490,8 +485,8 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
       revertedRevisionId,
       revertedToRevisionId
     );
-    this.revert([toUndo, ...toRevertAndReplay]); // Attention, revert un selectiveUndo refait une revision
-    this.transformAndReplay(toUndo.inverses, toRevertAndReplay);
+    this.revertChanges([toUndo, ...toRevertAndReplay]); // Attention, revert un selectiveUndo refait une revision
+    this.transformAndApply(toUndo.inverses, toRevertAndReplay);
   }
 
   /**
@@ -501,7 +496,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     id: UID,
     toId?: UID
   ): { toUndo: Revision; toRevert: Revision[] } {
-    const revisions = [...this.revisionLogs, ...this.pendingRevisions];
+    const revisions = [...this.revisionLogs];
     const index = revisions.findIndex((step) => step.id === id);
     if (index === -1) {
       throw new Error(`No history step with id ${id} - ${this.userId}`);
@@ -534,18 +529,40 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   }
 
   /**
-   * Revert the local state to the last shared revision.
+   * TODO
+   * If any command was dispatched in the callback execution,
+   * it must return them to ensure pending revisions are correcly
+   * re-applied.
    */
-  revertToSharedRevision() {
-    this.revert(this.pendingRevisions);
-  }
+  withoutPendingRevisions(callback: () => CoreCommand[] | void) {
+    const pendingRevisions = this.popPendingRevisions();
 
-  /**
-   * Apply the local changes
-   */
-  recoverLocalRevisions() {
-    this.transformAndReplayPendingRevisions([]);
+    /*****TODO remove this****** */
+    if (pendingRevisions.some(revision => revision.clientId !== this.userId)) {
+      throw new Error("this is not normal: pending revisions should all be from the local user")
+    }
+    /*************************** */
+
+
+    const executedCommands = callback();
+    for (const revision of pendingRevisions) {
+      const transformedCommands = executedCommands ? transformAll(revision.commands, executedCommands) : revision.commands;
+      this.dispatchInNewRevision(transformedCommands, revision.id, revision.clientId, { isSynced: false });
+    }
   }
+  // /**
+  //  * Revert the local state to the last shared revision.
+  //  */
+  // revertToSharedRevision() {
+  //   this.revertChanges(this.pendingRevisions);
+  // }
+
+  // /**
+  //  * Apply the local changes
+  //  */
+  // recoverLocalRevisions() {
+  //   // this.transformAndReplayPendingRevisions([]);
+  // }
 
   export(data: WorkbookData) {
     data.revisionId = this.revisionId;

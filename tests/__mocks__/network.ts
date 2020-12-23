@@ -19,7 +19,7 @@ export class MockNetwork implements Network {
   }
 
   sendMessage(message: Message) {
-    if (message.type === "REMOTE_REVISION" || message.type === "REMOTE_UNDO") {
+    if (message.type === "REMOTE_REVISION") {
       if (this.revision === message.revisionId) {
         this.revision = message.newRevisionId;
         this.updates.push(JSON.parse(JSON.stringify(message)));

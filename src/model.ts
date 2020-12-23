@@ -330,15 +330,16 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    * export date out of the model.
    */
   exportData(): WorkbookData {
-    const data = createEmptyWorkbookData();
-    this.stateReplicator2000.revertToSharedRevision();
-    for (let handler of this.handlers) {
-      if (handler instanceof CorePlugin) {
-        handler.export(data);
+    let data = createEmptyWorkbookData();
+    this.stateReplicator2000.withoutPendingRevisions(() => {
+      for (let handler of this.handlers) {
+        if (handler instanceof CorePlugin) {
+          handler.export(data);
+        }
       }
-    }
-    this.stateReplicator2000.export(data);
-    this.stateReplicator2000.recoverLocalRevisions();
+      this.stateReplicator2000.export(data);
+      data = JSON.parse(JSON.stringify(data));
+    })
     return data;
   }
 }

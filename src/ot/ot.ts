@@ -52,9 +52,13 @@ export function transform(
  */
 export function transformAll(
   toTransform: readonly CoreCommand[],
-  executed: CoreCommand
+  executed: readonly CoreCommand[]
 ): CoreCommand[] {
-  return toTransform.map((cmd) => transform(cmd, executed)).filter(isDefined);
+  let transformedCommands = [...toTransform];
+  for (const executedCommand of executed) {
+    transformedCommands = transformedCommands.map((cmd) => transform(cmd, executedCommand)).filter(isDefined)
+  }
+  return transformedCommands;
 }
 
 export const otRegistry = new OTRegistry();

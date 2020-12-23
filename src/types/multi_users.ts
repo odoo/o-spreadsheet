@@ -15,7 +15,7 @@ export interface BaseMessage {
   hash?: number; // TODO Remove Debug informations
 }
 
-export interface RemoteRevision extends BaseMessage {
+export interface RemoteRevisionData extends BaseMessage {
   type: "REMOTE_REVISION";
   readonly commands: CoreCommand[];
   isUndo: boolean;
@@ -26,10 +26,10 @@ export interface RemoteRevision extends BaseMessage {
 
 export interface ConnectionMessage extends BaseMessage {
   type: "CONNECTION";
-  messages: RemoteRevision[];
+  messages: RemoteRevisionData[];
 }
 
-export type Message = RemoteRevision | ConnectionMessage;
+export type Message = RemoteRevisionData | ConnectionMessage;
 
 export type NewMessageCallback = (message: Message) => void;
 
