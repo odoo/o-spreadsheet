@@ -149,7 +149,12 @@ export class GridParent extends Component<any, SpreadsheetEnv> {
         t-on-ask-confirmation="askConfirmation"
         focusComposer="focusTopBarComposer"
         t-on-composer-focused="onTopBarComposerFocused"/>
-      <Grid model="model" t-ref="grid" t-on-composer-focused="onGridComposerFocused" focusComposer="focusGridComposer"/>
+      <Grid
+        model="model"
+        sidePanelIsOpen="sidePanel.isOpen"
+        t-ref="grid"
+        t-on-composer-focused="onGridComposerFocused"
+        focusComposer="focusGridComposer"/>
       <SidePanel t-if="sidePanel.isOpen"
              t-on-close-side-panel="sidePanel.isOpen = false"
              model="model"

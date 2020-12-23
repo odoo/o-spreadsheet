@@ -584,31 +584,31 @@ export interface CreateFigureCommand extends BaseCommand {
 
 export interface SelectFigureCommand extends BaseCommand {
   type: "SELECT_FIGURE";
-  id: string;
+  id: UID;
 }
 
 export interface UpdateFigureCommand extends BaseCommand, Partial<Figure> {
   type: "UPDATE_FIGURE";
-  id: string;
+  id: UID;
   sheetId: UID;
 }
 
 export interface DeleteFigureCommand extends BaseCommand {
   type: "DELETE_FIGURE";
   sheetId: UID;
-  id: string;
+  id: UID;
 }
 
 export interface CreateChartCommand extends BaseCommand {
   type: "CREATE_CHART";
-  id: string;
+  id: UID;
   sheetId: UID;
   definition: CreateChartDefinition;
 }
 
 export interface UpdateChartCommand extends BaseCommand {
   type: "UPDATE_CHART";
-  id: string;
+  id: UID;
   sheetId: UID;
   definition: CreateChartDefinition;
 }
@@ -771,6 +771,10 @@ export const enum CancelledReason {
   InputAlreadyFocused,
   MaximumRangesReached,
   InvalidChartDefinition,
+  EmptyDataSet,
+  EmptyLabelRange,
+  InvalidDataSet,
+  InvalidLabelRange,
   InvalidAutofillSelection,
   WrongComposerSelection,
   MinBiggerThanMax,

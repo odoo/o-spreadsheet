@@ -1,7 +1,9 @@
 import { Model } from "../../../src";
+import { toZone } from "../../../src/helpers/zones";
 import { CancelledReason, Viewport } from "../../../src/types";
 import "../../canvas.mock";
-import { setCellContent, testUndoRedo } from "../../helpers";
+import { mockUuidV4To, setCellContent, testUndoRedo, waitForRecompute } from "../../helpers";
+jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
 const viewport: Viewport = {
@@ -16,6 +18,8 @@ const viewport: Viewport = {
 };
 
 beforeEach(() => {
+  mockUuidV4To(1);
+
   model = new Model({
     sheets: [
       {
@@ -61,22 +65,49 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [
-        { dataRange: "B2:B4", labelCell: "B1" },
-        { dataRange: "C2:C4", labelCell: "C1" },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            invalidSheetName: undefined,
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1:C4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1"),
+          },
+        },
       ],
-      labelRange: "Sheet1!A2:A4",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "2",
+        zone: toZone("A2:A4"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
-    expect(model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toMatchSnapshot();
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with rectangle dataset", () => {
@@ -86,49 +117,93 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [
-        { dataRange: "B2:B4", labelCell: "B1" },
-        { dataRange: "C2:C4", labelCell: "C1" },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            invalidSheetName: undefined,
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1:C4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C1"),
+          },
+        },
       ],
-      labelRange: "Sheet1!A2:A4",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "2",
+        zone: toZone("A2:A4"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with column datasets without series title", () => {
+    const activeSheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: activeSheetId,
       definition: {
         title: "test 1",
-        dataSets: ["Sheet1!B2:B4", "Sheet1!C2:C4"],
-        seriesHasTitle: false,
-        labelRange: "Sheet1!A2:A4",
+        dataSets: ["B2:B4", "C2:C4"],
+        dataSetsHaveTitle: false,
+        labelRange: "A2:A4",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [
-        { dataRange: "B2:B4", labelCell: undefined },
-        { dataRange: "C2:C4", labelCell: undefined },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B2:B4"),
+          },
+          labelCell: undefined,
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("C2:C4"),
+          },
+          labelCell: undefined,
+        },
       ],
-      labelRange: "Sheet1!A2:A4",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: false,
+        sheetId: "2",
+        zone: toZone("A2:A4"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
-    const datasets = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!
-      .datasets!;
-    expect(datasets[0].label!.toString()).toEqual("Series");
-    expect(datasets[1].label!.toString()).toEqual("Series");
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with row datasets", () => {
@@ -137,70 +212,120 @@ describe("datasource tests", function () {
       sheetId: model.getters.getActiveSheetId(),
       definition: {
         title: "test 1",
-        dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
-        seriesHasTitle: true,
-        labelRange: "Sheet1!B7:D7",
+        dataSets: ["A8:D8", "A9:D9"],
+        dataSetsHaveTitle: true,
+        labelRange: "B7:D7",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [
-        { dataRange: "B8:D8", labelCell: "A8" },
-        { dataRange: "B9:D9", labelCell: "A9" },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A8:D8"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A8"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A9:D9"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A9"),
+          },
+        },
       ],
-      labelRange: "Sheet1!B7:D7",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: false,
+        sheetId: "2",
+        zone: toZone("B7:D7"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with row datasets without series title", () => {
+    const activeSheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: activeSheetId,
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B8:D8", "Sheet1!B9:D9"],
-        seriesHasTitle: false,
-        labelRange: "Sheet1!B7:D7",
+        dataSetsHaveTitle: false,
+        labelRange: "B7:D7",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [
-        { dataRange: "B8:D8", labelCell: undefined },
-        { dataRange: "B9:D9", labelCell: undefined },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B8:D8"),
+          },
+          labelCell: undefined,
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B9:D9"),
+          },
+          labelCell: undefined,
+        },
       ],
-      labelRange: "Sheet1!B7:D7",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: false,
+        sheetId: "2",
+        zone: toZone("B7:D7"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with only the dataset title (no data)", () => {
+    const activeSheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
       id: "1",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: activeSheetId,
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B8"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!B7:D7",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [],
-      labelRange: "Sheet1!B7:D7",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "2",
+        zone: toZone("B7:D7"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
-    expect(
-      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.datasets!
-    ).toHaveLength(0);
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
   test("create chart with a dataset of one cell (no title)", () => {
@@ -210,29 +335,35 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["B8"],
-        seriesHasTitle: false,
+        dataSetsHaveTitle: false,
         labelRange: "B7",
         type: "line",
       },
     });
-    expect(model.getters.getChartDefinition("1")).toEqual({
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [
         {
-          dataRange: "B8",
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B8"),
+          },
+          labelCell: undefined,
         },
       ],
-      labelRange: "B7",
-      sheetId: model.getters.getActiveSheetId(),
+      labelRange: {
+        prefixSheet: false,
+        sheetId: "2",
+        zone: toZone("B7"),
+      },
+      sheetId: "2",
       title: "test 1",
       type: "line",
     });
-    const datasets = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!
-      .datasets!;
-    expect(datasets).toHaveLength(1);
-    expect(datasets[0].label!.toString()).toEqual("Series");
+    expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
-  test("create chart with async as label", () => {
+  test("create chart with async as label", async () => {
     setCellContent(model, "B7", "=WAIT(1000)");
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_CHART", {
@@ -241,15 +372,18 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["B7:B8"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "B7",
         type: "line",
       },
     });
-    const datasets = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!
-      .datasets!;
+    let datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
     expect(datasets).toHaveLength(1);
-    expect(datasets[0].label!.toString()).toEqual("Series");
+    expect(datasets[0].label!.toString()).toEqual("Loading...");
+    await waitForRecompute();
+    datasets = model.getters.getChartRuntime("1")!.data!.datasets!;
+    expect(datasets).toHaveLength(1);
+    expect(datasets[0].label!.toString()).toEqual("1000");
   });
 
   test("can delete an imported chart", () => {
@@ -260,17 +394,18 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["B7:B8"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "B7",
         type: "line",
       },
     });
-    const newModel = new Model(model.exportData());
+    const exportedData = model.exportData();
+    const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(1);
-    expect(newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toBeTruthy();
+    expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
     expect(newModel.getters.getVisibleFigures(sheetId, viewport)).toHaveLength(0);
-    expect(newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")).toBeUndefined();
+    expect(newModel.getters.getChartRuntime("1")).toBeUndefined();
   });
 
   test("update dataset of imported chart", () => {
@@ -281,13 +416,13 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
     const newModel = new Model(model.exportData());
-    let chart = newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
+    let chart = newModel.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     newModel.dispatch("UPDATE_CELL", {
       col: 1,
@@ -295,8 +430,78 @@ describe("datasource tests", function () {
       sheetId,
       content: "99",
     });
-    chart = newModel.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
+    chart = newModel.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
+  });
+
+  test("update existing chart", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.type).toEqual("line");
+    model.dispatch("UPDATE_CHART", {
+      id: "1",
+      sheetId,
+      definition: {
+        title: "hello1",
+        dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!C7:D7",
+        type: "bar",
+      },
+    });
+    chart = model.getters.getChartRuntime("1")!;
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A8:D8"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A8"),
+          },
+        },
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A9:D9"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("A9"),
+          },
+        },
+      ],
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "2",
+        zone: toZone("C7:D7"),
+      },
+      sheetId: "2",
+      title: "hello1",
+      type: "bar",
+    });
+    expect(chart.data!.datasets![0].data).toEqual([30, 31, 32]);
+    expect(chart.data!.datasets![1].data).toEqual([40, 41, 42]);
+    expect(chart.type).toEqual("bar");
   });
 
   test.skip("delete a data source column", () => {
@@ -306,18 +511,14 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
     model.dispatch("REMOVE_COLUMNS", { columns: [1], sheetId: model.getters.getActiveSheetId() });
-    expect(
-      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.datasets
-    ).toHaveLength(1);
-    expect(
-      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.datasets![0].data
-    ).toEqual([20, 19, 18]);
+    expect(model.getters.getChartRuntime("1")!.data!.datasets).toHaveLength(1);
+    expect(model.getters.getChartRuntime("1")!.data!.datasets![0].data).toEqual([20, 19, 18]);
   });
 
   test.skip("delete a data set labels column", () => {
@@ -327,16 +528,14 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
     model.dispatch("REMOVE_COLUMNS", { columns: [0], sheetId: model.getters.getActiveSheetId() });
     // dataset in col B becomes labels in col A
-    expect(
-      model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!.data!.labels
-    ).toBeUndefined();
+    expect(model.getters.getChartRuntime("1")!.data!.labels).toBeUndefined();
   });
 
   test("update dataset cell updates chart runtime", () => {
@@ -347,12 +546,12 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
-    let chart = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
+    let chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("first column dataset");
     model.dispatch("UPDATE_CELL", {
@@ -367,7 +566,7 @@ describe("datasource tests", function () {
       sheetId: sheetId,
       content: "new dataset label",
     });
-    chart = model.getters.getChartRuntime(model.getters.getActiveSheetId(), "1")!;
+    chart = model.getters.getChartRuntime("1")!;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
     expect(chart.data!.datasets![0].label).toEqual("new dataset label");
   });
@@ -379,12 +578,12 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "This is invalid"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidChartDefinition });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidDataSet });
   });
 
   test("create chart with invalid labels", () => {
@@ -394,12 +593,83 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "This is invalid",
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidChartDefinition });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidLabelRange });
+  });
+
+  test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
+    model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["Coucou!B1:B4", "Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(model.getters.getChartDefinition("1")).toMatchObject({
+      dataSets: [
+        {
+          dataRange: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1:B4"),
+          },
+          labelCell: {
+            prefixSheet: false,
+            sheetId: "2",
+            zone: toZone("B1"),
+          },
+        },
+      ],
+      labelRange: {
+        prefixSheet: true,
+        sheetId: "2",
+        zone: toZone("A2:A4"),
+      },
+      sheetId: "2",
+      title: "test 1",
+      type: "line",
+    });
+    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
+    expect(chart.type).toEqual("line");
+  });
+
+  test("create chart with empty dataset", () => {
+    const result = model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: [],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+    });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.EmptyDataSet });
+  });
+
+  test("create chart with empty labels", () => {
+    const result = model.dispatch("CREATE_CHART", {
+      id: "1",
+      sheetId: model.getters.getActiveSheetId(),
+      definition: {
+        title: "test 1",
+        dataSets: ["Sheet1!B1:B4"],
+        dataSetsHaveTitle: true,
+        labelRange: "",
+        type: "line",
+      },
+    });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.EmptyLabelRange });
   });
   test("update chart with invalid dataset", () => {
     const result = model.dispatch("UPDATE_CHART", {
@@ -408,12 +678,12 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "This is invalid"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidChartDefinition });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidDataSet });
   });
 
   test("update chart with invalid labels", () => {
@@ -423,12 +693,12 @@ describe("datasource tests", function () {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "This is invalid",
         type: "line",
       },
     });
-    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidChartDefinition });
+    expect(result).toEqual({ status: "CANCELLED", reason: CancelledReason.InvalidLabelRange });
   });
   test.skip("extend data source to new values manually", () => {});
   test.skip("extend data set labels to new values manually", () => {});
@@ -468,7 +738,7 @@ describe("undo/redo", () => {
       definition: {
         title: "test 1",
         dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
-        seriesHasTitle: true,
+        dataSetsHaveTitle: true,
         labelRange: "Sheet1!A2:A4",
         type: "line",
       },

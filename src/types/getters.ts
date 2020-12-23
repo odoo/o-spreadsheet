@@ -75,8 +75,11 @@ export interface CoreGetters {
   getSelectedFigureId: FigurePlugin["getSelectedFigureId"];
 
   getCellBorder: BordersPlugin["getCellBorder"];
-  getChartDefinition: ChartPlugin["getChartDefinition"];
 
+  getChartDefinition: ChartPlugin["getChartDefinition"];
+  getChartDefinitionUI: ChartPlugin["getChartDefinitionUI"];
+
+  getRangeById: RangePlugin["getRangeById"];
   getRangeString: RangePlugin["getRangeString"];
   getRangeFromSheetXC: RangePlugin["getRangeFromSheetXC"];
 }

@@ -4,6 +4,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH, SELECTION_BORDER_COLOR } from "../../const
 import { figureRegistry } from "../../registries/index";
 import { Figure, SpreadsheetEnv, Viewport } from "../../types/index";
 import { startDnd } from "../helpers/drag_and_drop";
+import { ChartFigure } from "./chart";
 
 const { xml, css } = owl.tags;
 const { useState } = owl;
@@ -12,11 +13,6 @@ interface FigureInfo {
   id: string;
   isSelected: boolean;
   figure: Figure;
-}
-
-interface Update extends Partial<Figure> {
-  sheetId: string;
-  id: string;
 }
 
 const TEMPLATE = xml/* xml */ `<div>
@@ -32,6 +28,7 @@ const TEMPLATE = xml/* xml */ `<div>
                  t-on-keydown.stop="onKeyDown(info.figure)">
                 <t t-component="figureRegistry.get(info.figure.tag).Component"
                    t-key="info.id"
+                   sidePanelIsOpen="props.sidePanelIsOpen"
                    figure="info.figure"/>
                 <t t-if="info.isSelected">
                     <div class="o-anchor o-top" t-on-mousedown.stop="resize(info.figure, 0,-1)"/>
@@ -132,7 +129,10 @@ const CSS = css/*SCSS*/ `
   }
 `;
 
-export class FiguresContainer extends Component<{ viewport: Viewport }, SpreadsheetEnv> {
+export class FiguresContainer extends Component<
+  { viewport: Viewport; sidePanelIsOpen: Boolean },
+  SpreadsheetEnv
+> {
   static template = TEMPLATE;
   static style = CSS;
   static components = {};
@@ -226,9 +226,7 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
     };
     const onMouseUp = (ev: MouseEvent) => {
       this.dnd.figureId = "";
-      const update: Update = {
-        sheetId: this.getters.getActiveSheetId(),
-        id: figure.id,
+      const update: Partial<Figure> = {
         x: this.dnd.x,
         y: this.dnd.y,
       };
@@ -238,7 +236,11 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
       if (dirY) {
         update.height = this.dnd.height;
       }
-      this.dispatch("UPDATE_FIGURE", update);
+      this.dispatch("UPDATE_FIGURE", {
+        sheetId: this.getters.getActiveSheetId(),
+        id: figure.id,
+        ...update,
+      });
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -249,6 +251,9 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
       return;
     }
     this.dispatch("SELECT_FIGURE", { id: figure.id });
+    if (this.props.sidePanelIsOpen) {
+      this.env.openSidePanel("ChartPanel", { figure });
+    }
     const initialX = ev.clientX;
     const initialY = ev.clientY;
     this.dnd.figureId = figure.id;
@@ -279,7 +284,12 @@ export class FiguresContainer extends Component<{ viewport: Viewport }, Spreadsh
         ev.preventDefault();
         this.dispatch("DELETE_FIGURE", { sheetId: this.getters.getActiveSheetId(), id: figure.id });
         this.trigger("figure-deleted");
+        if (this.props.sidePanelIsOpen) {
+          this.env.toggleSidePanel("ChartPanel", { figure });
+        }
         break;
     }
   }
 }
+
+figureRegistry.add("chart", { Component: ChartFigure, SidePanelComponent: "ChartPanel" });

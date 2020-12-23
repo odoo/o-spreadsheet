@@ -108,7 +108,7 @@ function bindingPower(token: Token): number {
 
 export const cellReference = new RegExp(/\$?[A-Z]+\$?[0-9]+/, "i");
 export const rangeReference = new RegExp(
-  /^\s*\$?[A-Z]+\$?[0-9]+\s*(\s*:\s*\$?[A-Z]+\$?[0-9]+\s*)?$/,
+  /^\s*(.*!)?\$?[A-Z]+\$?[0-9]+\s*(\s*:\s*\$?[A-Z]+\$?[0-9]+\s*)?$/,
   "i"
 );
 

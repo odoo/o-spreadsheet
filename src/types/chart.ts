@@ -1,6 +1,8 @@
+import { UID, Range } from ".";
+
 export interface DataSet {
-  labelCell?: string;
-  dataRange: string;
+  labelCell?: Range; // range of the label
+  dataRange: Range; // range of the data
 }
 
 export type ChartTypes = "line" | "bar" | "pie";
@@ -9,14 +11,14 @@ export interface ChartDefinition {
   title?: string;
   type: ChartTypes;
   dataSets: DataSet[];
-  labelRange: string;
-  sheetId: string;
+  labelRange: Range;
+  sheetId: UID;
 }
 
 export interface CreateChartDefinition {
-  type: ChartTypes;
   title: string;
-  labelRange: string;
+  type: ChartTypes;
   dataSets: string[];
-  seriesHasTitle: boolean;
+  labelRange: string;
+  dataSetsHaveTitle: boolean;
 }

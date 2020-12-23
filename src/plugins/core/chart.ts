@@ -1,5 +1,5 @@
 import { rangeReference } from "../../formulas/parser";
-import { toXC, toZone, zoneToXc } from "../../helpers/index";
+import { uuidv4, zoneToXc } from "../../helpers/index";
 import {
   CancelledReason,
   ChartDefinition,
@@ -21,11 +21,11 @@ import { CorePlugin } from "../core_plugin";
  * */
 
 interface ChartState {
-  readonly chartFigures: Record<UID, ChartDefinition>;
+  readonly chartFigures: Record<UID, ChartDefinition | undefined>;
 }
 
 export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
-  static getters = ["getChartDefinition"];
+  static getters = ["getChartDefinition", "getChartDefinitionUI"];
   readonly chartFigures = {};
 
   allowDispatch(cmd: Command): CommandResult {
@@ -33,13 +33,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        const invalidRanges =
-          cmd.definition.dataSets.find((range) => !rangeReference.test(range.split("!").pop()!)) !==
-          undefined;
-        const invalidLabels = !rangeReference.test(cmd.definition.labelRange.split("!").pop()!);
-        return invalidRanges || invalidLabels
-          ? { status: "CANCELLED", reason: CancelledReason.InvalidChartDefinition }
-          : success;
+        const error = this.checkChartDefinition(cmd.definition);
+        return error
+          ? { status: "CANCELLED", reason: error }
+          : {
+              status: "SUCCESS",
+            };
       default:
         return success;
     }
@@ -67,10 +66,30 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.history.update("chartFigures", cmd.id, newChartDefinition);
         break;
       }
+      case "DUPLICATE_SHEET": {
+        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetIdFrom);
+        for (let fig of Object.values(sheetFiguresFrom)) {
+          if (fig?.tag === "chart") {
+            const id = uuidv4();
+            const chartDefinition = { ...this.chartFigures[fig.id], id };
+            this.dispatch("CREATE_FIGURE", {
+              sheetId: cmd.sheetIdTo,
+              figure: {
+                id: id,
+                x: fig.x,
+                y: fig.y,
+                height: fig.height,
+                width: fig.width,
+                tag: "chart",
+              },
+            });
+            this.history.update("chartFigures", id, chartDefinition);
+          }
+        }
+        break;
+      }
       case "DELETE_FIGURE":
-        const figures = Object.assign({}, this.chartFigures);
-        delete figures[cmd.id];
-        this.history.update("chartFigures", figures);
+        this.history.update("chartFigures", cmd.id, undefined);
         break;
     }
   }
@@ -83,6 +102,22 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.chartFigures[figureId];
   }
 
+  getChartDefinitionUI(sheetId: UID, figureId: UID): CreateChartDefinition {
+    const data: ChartDefinition = this.chartFigures[figureId];
+    const dataSets: string[] = data.dataSets
+      .map((ds: DataSet) => (ds ? this.getters.getRangeString(ds.dataRange, sheetId) : ""))
+      .filter((ds) => {
+        return ds !== ""; // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
+      });
+    return {
+      title: data && data.title ? data.title : "",
+      dataSets,
+      labelRange: data.labelRange ? this.getters.getRangeString(data.labelRange, sheetId) : "",
+      type: data ? data.type : "bar",
+      dataSetsHaveTitle: data ? Boolean(data.dataSets[0].labelCell) : false,
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
@@ -92,7 +127,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (sheet.figures) {
         for (let figure of sheet.figures) {
           if (figure.tag === "chart") {
-            this.chartFigures[figure.id] = figure.data;
+            const figureData: CreateChartDefinition = {
+              ...figure.data,
+            };
+            this.chartFigures[figure.id] = this.createChartDefinition(figureData, sheet.id);
+            delete figure.data;
           }
         }
       }
@@ -102,15 +141,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   export(data: WorkbookData) {
     if (data.sheets) {
       for (let sheet of data.sheets) {
-        const figures = this.getters.getFigures(sheet.id) as FigureData<
-          ChartDefinition | undefined
-        >[];
-        if (figures) {
-          for (let figure of figures) {
-            const data = this.getChartDefinition(figure.id);
-            if (data) {
-              figure.data = data;
-            }
+        const sheetFigures = this.getters.getFigures(sheet.id);
+        const figures = Object.values(sheetFigures) as FigureData<any>[];
+        for (let figure of figures) {
+          if (figure && figure.tag === "chart") {
+            figure.data = this.getChartDefinitionUI(sheet.id, figure.id);
           }
         }
         sheet.figures = figures;
@@ -127,9 +162,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     sheetId: string
   ): ChartDefinition {
     let dataSets: DataSet[] = [];
-
-    for (let range of createCommand.dataSets) {
-      let zone = toZone(range);
+    for (let sheetXC of createCommand.dataSets) {
+      const dataRange = this.getters.getRangeFromSheetXC(sheetId, sheetXC, undefined, true);
+      const { zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
+      if (invalidSheetName) {
+        continue;
+      }
       if (zone.left !== zone.right && zone.top !== zone.bottom) {
         // It's a rectangle. We treat all columns (arbitrary) as different data series.
         for (let column = zone.left; column <= zone.right; column++) {
@@ -139,44 +177,91 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             top: zone.top,
             bottom: zone.bottom,
           };
-          dataSets.push(this.createDataset(columnZone, createCommand.seriesHasTitle));
+          dataSets.push(
+            this.createDataSet(
+              dataSetSheetId,
+              columnZone,
+              createCommand.dataSetsHaveTitle
+                ? {
+                    top: columnZone.top,
+                    bottom: columnZone.top,
+                    left: columnZone.left,
+                    right: columnZone.left,
+                  }
+                : undefined
+            )
+          );
         }
       } else if (zone.left === zone.right && zone.top === zone.bottom) {
         // A single cell. If it's only the title, the dataset is not added.
-        if (!createCommand.seriesHasTitle) {
-          dataSets.push({ dataRange: zoneToXc(zone) });
+        if (!createCommand.dataSetsHaveTitle) {
+          dataSets.push(this.createDataSet(dataSetSheetId, zone, undefined));
         }
       } else {
-        dataSets.push(this.createDataset(zone, createCommand.seriesHasTitle));
+        /* 1 row or 1 column */
+        dataSets.push(
+          this.createDataSet(
+            dataSetSheetId,
+            zone,
+            createCommand.dataSetsHaveTitle
+              ? {
+                  top: zone.top,
+                  bottom: zone.top,
+                  left: zone.left,
+                  right: zone.left,
+                }
+              : undefined
+          )
+        );
       }
     }
-
+    const labelRange = this.getters.getRangeFromSheetXC(sheetId, createCommand.labelRange);
     return {
       title: createCommand.title,
       type: createCommand.type,
       dataSets: dataSets,
-      labelRange: createCommand.labelRange,
+      labelRange,
       sheetId: sheetId,
     };
   }
 
-  /**
-   * Create a chart dataset from a Zone.
-   * The zone should be a single column or a single row
-   */
-  private createDataset(zone: Zone, withTitle: boolean): DataSet {
-    if (zone.left !== zone.right && zone.top !== zone.bottom) {
-      throw new Error(`Zone should be a single column or row: ${zoneToXc(zone)}`);
+  private createDataSet(sheetId: UID, fullZone: Zone, titleZone: Zone | undefined): DataSet {
+    if (fullZone.left !== fullZone.right && fullZone.top !== fullZone.bottom) {
+      throw new Error(`Zone should be a single column or row: ${zoneToXc(fullZone)}`);
     }
-    const labelCell = withTitle ? toXC(zone.left, zone.top) : undefined;
-    const offset = withTitle ? 1 : 0;
-    const isColumn = zone.top !== zone.bottom && zone.left === zone.right;
-    const dataRange = zoneToXc({
-      top: isColumn ? zone.top + offset : zone.top,
-      bottom: zone.bottom,
-      left: isColumn ? zone.left : zone.left + offset,
-      right: zone.right,
-    });
-    return { labelCell, dataRange };
+    if (titleZone) {
+      const dataXC = zoneToXc(fullZone);
+      const labelCellXC = zoneToXc(titleZone);
+      return {
+        labelCell: this.getters.getRangeFromSheetXC(sheetId, labelCellXC),
+        dataRange: this.getters.getRangeFromSheetXC(sheetId, dataXC),
+      };
+    } else {
+      return {
+        labelCell: undefined,
+        dataRange: this.getters.getRangeFromSheetXC(sheetId, zoneToXc(fullZone)),
+      };
+    }
+  }
+
+  private checkChartDefinition(createCommand: CreateChartDefinition): CancelledReason | null {
+    if (createCommand.dataSets.length) {
+      const invalidRanges =
+        createCommand.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
+      if (invalidRanges) {
+        return CancelledReason.InvalidDataSet;
+      }
+    } else {
+      return CancelledReason.EmptyDataSet;
+    }
+    if (createCommand.labelRange) {
+      const invalidLabels = !rangeReference.test(createCommand.labelRange);
+      if (invalidLabels) {
+        return CancelledReason.InvalidLabelRange;
+      }
+    } else {
+      return CancelledReason.EmptyLabelRange;
+    }
+    return null;
   }
 }

@@ -1,5 +1,5 @@
 import { normalize } from "./formulas/index";
-import { uuidv4 } from "./helpers/index";
+import { toXC, toZone, uuidv4 } from "./helpers/index";
 import { SheetData, WorkbookData } from "./types/index";
 
 /**
@@ -7,7 +7,7 @@ import { SheetData, WorkbookData } from "./types/index";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 6;
+export const CURRENT_VERSION = 7;
 
 /**
  * This function tries to load anything that could look like a valid
@@ -117,6 +117,32 @@ const MIGRATIONS: Migration[] = [
           if (cell.content && cell.content.startsWith("=")) {
             cell.formula = normalize(cell.content);
           }
+        }
+      }
+      return data;
+    },
+  },
+  {
+    description: "transform chart data structure",
+    from: 6,
+    to: 7,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets) {
+        for (let f in sheet.figures) {
+          const { dataSets, ...newData } = sheet.figures[f].data;
+          const newDataSets: string[] = [];
+          for (let ds of dataSets) {
+            if (ds.labelCell) {
+              const dataRange = toZone(ds.dataRange);
+              const newRange = ds.labelCell + ":" + toXC(dataRange.right, dataRange.bottom);
+              newDataSets.push(newRange);
+            } else {
+              newDataSets.push(ds.dataRange);
+            }
+          }
+          newData.dataSetsHaveTitle = Boolean(dataSets[0].labelCell);
+          newData.dataSets = newDataSets;
+          sheet.figures[f].data = newData;
         }
       }
       return data;

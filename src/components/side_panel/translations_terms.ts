@@ -78,6 +78,13 @@ export const chartTerms = {
   UpdateChart: _lt("Update chart"),
   CreateChart: _lt("Create chart"),
   TitlePlaceholder: _lt("New Chart"),
+  Errors: {
+    [CancelledReason.EmptyDataSet]: _lt("Invalid or no Dataset given"),
+    [CancelledReason.EmptyLabelRange]: _lt("No Labels given"),
+    [CancelledReason.InvalidDataSet]: _lt("Invalid dataSet"),
+    [CancelledReason.InvalidLabelRange]: _lt("Invalid Labels"),
+    unexpected: _lt("The chartdefinition is invalid for an unknown reason"),
+  },
 };
 
 export const FindAndReplaceTerms = {

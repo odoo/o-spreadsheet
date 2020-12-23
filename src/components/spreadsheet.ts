@@ -27,6 +27,7 @@ const TEMPLATE = xml/* xml */ `
       class="o-two-columns"/>
     <Grid
       model="model"
+      sidePanelIsOpen="sidePanel.isOpen"
       t-ref="grid"
       focusComposer="focusGridComposer"
       t-on-composer-focused="onGridComposerFocused"

@@ -105,16 +105,18 @@ export function recomputeZones(zones: string[], toRemoveZones: string[]): string
   } = {};
   //separate the existing zones per column
   for (let z of zones) {
-    const zone = toZone(z);
-    for (let col = zone.left; col <= zone.right; col++) {
-      if (zonesPerColumn[col] === undefined) {
-        zonesPerColumn[col] = [];
+    if (z) {
+      const zone = toZone(z);
+      for (let col = zone.left; col <= zone.right; col++) {
+        if (zonesPerColumn[col] === undefined) {
+          zonesPerColumn[col] = [];
+        }
+        zonesPerColumn[col].push({
+          top: zone.top,
+          bottom: zone.bottom,
+          remove: false,
+        });
       }
-      zonesPerColumn[col].push({
-        top: zone.top,
-        bottom: zone.bottom,
-        remove: false,
-      });
     }
   }
 

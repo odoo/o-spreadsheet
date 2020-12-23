@@ -1,5 +1,6 @@
 import * as owl from "@odoo/owl";
 import { uuidv4 } from "../helpers/index";
+import { RangeInputValue } from "../plugins/ui/selection_inputs";
 import { SpreadsheetEnv } from "../types";
 
 const { Component } = owl;
@@ -94,8 +95,17 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
 
-  get ranges() {
-    return this.getters.getSelectionInput(this.id);
+  get ranges(): (RangeInputValue & { isFocused: boolean })[] {
+    const ranges = this.getters.getSelectionInput(this.id);
+    return ranges.length
+      ? ranges
+      : this.props.ranges
+      ? this.props.ranges.map((xc) => ({
+          xc,
+          id: uuidv4(),
+          isFocused: false,
+        }))
+      : [];
   }
 
   get hasFocus(): boolean {
