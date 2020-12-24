@@ -1,4 +1,5 @@
 import * as owl from "@odoo/owl";
+import { isDefined } from "../helpers/misc";
 import {
   Client,
   ClientId,
@@ -6,6 +7,7 @@ import {
   ClientLeftMessage,
   ClientMovedMessage,
   ClientPosition,
+  CollaborativeSession,
   Message,
   Network,
   RemoteRevisionData,
@@ -23,8 +25,10 @@ import {
 //   }
 // }
 
-export class CollaborativeSession extends owl.core.EventBus {
-  private positions: Record<ClientId, (ClientPosition & { name: string }) | undefined> = {};
+export class DistributedCollaborativeSession
+  extends owl.core.EventBus
+  implements CollaborativeSession {
+  private positions: Record<ClientId, Client | undefined> = {};
 
   constructor(private network: Network, private client: Client) {
     super();
@@ -37,7 +41,7 @@ export class CollaborativeSession extends owl.core.EventBus {
 
   move(position: ClientPosition) {
     const type = this.positions[this.client.id] ? "CLIENT_MOVED" : "CLIENT_JOINED";
-    this.positions[this.client.id] = { ...position, name: this.client.name };
+    this.positions[this.client.id] = { id: this.client.id, name: this.client.name, position };
     this.network.sendMessage({ type, client: this.client, position });
   }
 
@@ -48,6 +52,10 @@ export class CollaborativeSession extends owl.core.EventBus {
 
   getClient(): Client {
     return this.client;
+  }
+
+  getConnectedClients(): Set<Client> {
+    return new Set(Object.values(this.positions).filter(isDefined));
   }
 
   private onMessageReceived(message: Message) {
@@ -75,8 +83,9 @@ export class CollaborativeSession extends owl.core.EventBus {
   private onClientMoved(message: ClientMovedMessage) {
     if (message.client.id !== this.client.id) {
       this.positions[message.client.id] = {
-        ...message.position,
+        id: message.client.id,
         name: message.client.name,
+        position: message.position,
       };
     }
   }
@@ -84,12 +93,13 @@ export class CollaborativeSession extends owl.core.EventBus {
   private onClientJoined(message: ClientJoinedMessage) {
     if (message.client.id !== this.client.id) {
       this.positions[message.client.id] = {
-        ...message.position,
+        id: message.client.id,
         name: message.client.name,
+        position: message.position,
       };
-      const currentPosition = this.positions[this.client.id];
-      if (currentPosition) {
-        this.move(currentPosition);
+      const client = this.positions[this.client.id];
+      if (client && client.position) {
+        this.move(client.position);
       }
     }
   }

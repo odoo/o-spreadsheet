@@ -2,6 +2,7 @@
 
 exports[`renderer snapshot for a simple grid rendering 1`] = `
 Array [
+  "context.save()",
   "context.fillStyle=\\"white\\";",
   "context.fillRect(0, 0, 1000, 1000)",
   "context.lineWidth=0.8;",
@@ -126,7 +127,19 @@ Array [
   "context.clip()",
   "context.fillText(\\"1\\", 141, 39)",
   "context.restore()",
+  "context.restore()",
+  "context.save()",
+  "context.restore()",
+  "context.save()",
   "context.lineWidth=1.2000000000000002;",
+  "context.restore()",
+  "context.save()",
+  "context.restore()",
+  "context.save()",
+  "context.restore()",
+  "context.save()",
+  "context.restore()",
+  "context.save()",
   "context.fillStyle=\\"#f3f7fe\\";",
   "context.fillStyle=\\"#f3f7fe\\";",
   "context.strokeStyle=\\"#3266ca\\";",
@@ -138,6 +151,12 @@ Array [
   "context.strokeStyle=\\"#3266ca\\";",
   "context.lineWidth=1.2000000000000002;",
   "context.strokeRect(48, 26, 96, 23)",
+  "context.restore()",
+  "context.save()",
+  "context.restore()",
+  "context.save()",
+  "context.restore()",
+  "context.save()",
   "context.fillStyle=\\"#F8F9FA\\";",
   "context.font=\\"400 11px 'Roboto', arial\\";",
   "context.textAlign=\\"center\\";",
@@ -372,5 +391,6 @@ Array [
   "context.moveTo(0, 1015)",
   "context.lineTo(48, 1015)",
   "context.stroke()",
+  "context.restore()",
 ]
 `;

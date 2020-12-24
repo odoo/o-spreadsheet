@@ -4,6 +4,7 @@ import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { applyChange, createEmptyStructure } from "./helpers/state_manager_helpers";
 import { ModelConfig } from "./model";
+import { LocalSession } from "./ot/local_session";
 import { transformAll } from "./ot/ot";
 import {
   Command,
@@ -16,12 +17,7 @@ import {
   HistoryChange,
   WorkbookData,
 } from "./types/index";
-import {
-  ClientId,
-  RemoteRevisionData,
-  ClientMovedMessage,
-  ClientPosition,
-} from "./types/multi_users";
+import { ClientId, RemoteRevisionData, CollaborativeSession, Client } from "./types/multi_users";
 
 /**
  * Revision Management System
@@ -133,24 +129,21 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   private revisionId: UID = DEFAULT_REVISION_ID;
 
-  private position: ClientPosition | undefined; //TODO move it into network
-
+  private collaborativeSession: CollaborativeSession;
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
-    protected collaborativeSession?: ModelConfig["collaborativeSession"] //TODO Change this to collaborativeSession and add client in it.
+    collaborativeSession?: ModelConfig["collaborativeSession"] //TODO Change this to collaborativeSession and add client in it.
   ) {
     super();
-    if (collaborativeSession) {
-      collaborativeSession.on(
-        "remote-revision-received",
-        this,
-        this.onRemoteRevisionReceived.bind(this)
-      );
-      collaborativeSession.on("revision-acknowledged", this, (revision: RemoteRevisionData) => {
-        this.acknowledgeRevision(revision.newRevisionId);
-      });
-      // collaborativeSession.onNewMessage(this.getUserId(), this.onMessageReceived.bind(this));
-    }
+    this.collaborativeSession = collaborativeSession || new LocalSession();
+    this.collaborativeSession.on(
+      "remote-revision-received",
+      this,
+      this.onRemoteRevisionReceived.bind(this)
+    );
+    this.collaborativeSession.on("revision-acknowledged", this, (revision: RemoteRevisionData) => {
+      this.acknowledgeRevision(revision.newRevisionId);
+    });
   }
 
   get pendingRevisions(): readonly Revision[] {
@@ -203,7 +196,11 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   }
 
   getUserId(): ClientId {
-    return this.collaborativeSession?.getClient().id || "local";
+    return this.collaborativeSession.getClient().id || "local";
+  }
+
+  getConnectedClients(): Set<Client> {
+    return this.collaborativeSession.getConnectedClients();
   }
 
   // ---------------------------------------------------------------------------
@@ -272,27 +269,14 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Send the first pending revision
    */
   private sendPendingRevision() {
-    let revision = this.pendingRevisions[0];
-    if (this.collaborativeSession && revision) {
+    const revision = this.pendingRevisions[0];
+    if (revision) {
       this.collaborativeSession.addRevision(revision.getMessage(this.revisionId));
     }
   }
 
   selectCell(sheetId: UID, col: number, row: number) {
-    if (this.collaborativeSession) {
-      this.position = { sheetId, col, row };
-      this.collaborativeSession.move(this.position);
-    }
-  }
-
-  onClientMoved(message: ClientMovedMessage) {
-    if (message.client.id !== this.getUserId()) {
-      this.dispatch("CLIENT_MOVED", {
-        client: message.client,
-        position: message.position,
-      });
-      this.trigger("selected-cell");
-    }
+    this.collaborativeSession.move({ sheetId, col, row });
   }
 
   /**
@@ -319,6 +303,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Acknowledge the given revision ID
    */
   private acknowledgeRevision(revisionId: UID) {
+    this.revisionId = revisionId;
     const revision = this.revisionLogs.find((rev) => rev.id === revisionId);
     if (revision) {
       revision.isSync = true;

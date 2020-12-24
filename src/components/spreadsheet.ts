@@ -10,9 +10,9 @@ import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { WebsocketNetwork } from "../ot/network";
 import { Client, RemoteRevisionData } from "../types/multi_users";
-import { CollaborativeSession } from "../ot/collaborative_session";
+import { DistributedCollaborativeSession } from "../ot/collaborative_session";
 import { _lt } from "../translation";
-import { uuidv4 } from "../helpers";
+import { uuidv4 } from "../helpers/index";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -72,7 +72,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
-  network?: CollaborativeSession | "default"; // rename prop
+  network?: DistributedCollaborativeSession | "default"; // rename prop
   messages?: RemoteRevisionData[]; // TODO rename messages
   client?: Client;
 }
@@ -85,9 +85,9 @@ export class Spreadsheet extends Component<Props> {
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
 
-  collaborativeSession?: CollaborativeSession =
+  collaborativeSession?: DistributedCollaborativeSession =
     this.props.network === "default"
-      ? new CollaborativeSession(
+      ? new DistributedCollaborativeSession(
           new WebsocketNetwork(),
           this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
         )

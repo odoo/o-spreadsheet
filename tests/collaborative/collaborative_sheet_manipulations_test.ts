@@ -3,6 +3,7 @@ import { getCell } from "../getters_helpers";
 import { createSheet } from "../commands_helpers";
 import { MockNetwork } from "../__mocks__/network";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
+import "../canvas.mock";
 
 describe("Collaborative Sheet manipulation", () => {
   let network: MockNetwork;

@@ -20,7 +20,7 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { RemoteRevisionData } from "./types/multi_users";
-import { CollaborativeSession } from "./ot/collaborative_session";
+import { DistributedCollaborativeSession } from "./ot/collaborative_session";
 
 /**
  * Model
@@ -55,7 +55,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
-  collaborativeSession?: CollaborativeSession;
+  collaborativeSession?: DistributedCollaborativeSession;
 }
 
 const enum Status {
@@ -138,6 +138,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
       canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
       getUserId: this.stateReplicator2000.getUserId.bind(this.stateReplicator2000),
+      getConnectedClients: this.stateReplicator2000.getConnectedClients.bind(
+        this.stateReplicator2000
+      ),
     } as Getters;
     this.handlers = [this.stateReplicator2000];
 

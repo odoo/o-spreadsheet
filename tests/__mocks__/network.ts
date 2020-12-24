@@ -1,13 +1,13 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import {
-  CollaborativeSession,
   NetworkListener,
   Message,
   ClientId,
   NewMessageCallback,
+  Network,
 } from "../../src/types/multi_users";
 
-export class MockNetwork implements CollaborativeSession {
+export class MockNetwork implements Network {
   private listeners: NetworkListener[] = [];
   private pendingMessages: Message[] = [];
   private isConcurrent: boolean = false;

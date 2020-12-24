@@ -5,6 +5,7 @@ export type ClientId = string;
 export interface Client {
   id: ClientId;
   name: string;
+  position?: ClientPosition;
 }
 
 export interface ClientPosition {
@@ -77,9 +78,12 @@ export interface Network {
   onNewMessage: (clientId: ClientId, callback: NewMessageCallback) => void;
 }
 
-export interface CollaborativeSessionInterface {
-  move: (client: Client, position: ClientPosition) => void;
-  leave: (clientId: ClientId) => void;
+export interface CollaborativeSession extends CollaborativeEventBus {
+  addRevision: (revision: RemoteRevisionData) => void;
+  move: (position: ClientPosition) => void;
+  leave: () => void;
+  getClient: () => Client;
+  getConnectedClients: () => Set<Client>;
 }
 
 export interface RemoteRevisionReceivedEvent {
@@ -101,7 +105,7 @@ export type CollaborativeEvent =
   | RevisionAcknowledgedEvent
   | MessageReceivedEvent;
 export type CollaborativeEventTypes = CollaborativeEvent["type"];
-export interface CollaborativeEventDispatcher {
+export interface CollaborativeEventBus {
   on<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
     type: T,
     owner: any,

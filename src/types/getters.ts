@@ -29,7 +29,7 @@ export interface CoreGetters {
   canUndo: StateManager["canUndo"];
   canRedo: StateManager["canRedo"];
   getUserId: StateManager["getUserId"];
-  getUserName: StateManager["getUserName"];
+  getConnectedClients: StateManager["getConnectedClients"];
 
   applyOffset: SheetPlugin["applyOffset"];
   getEvaluationSheets: SheetPlugin["getEvaluationSheets"];

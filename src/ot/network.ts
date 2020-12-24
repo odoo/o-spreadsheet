@@ -4,8 +4,6 @@ import {
   ClientId,
   NewMessageCallback,
   NetworkListener,
-  ClientPosition,
-  Client,
 } from "../types/multi_users";
 
 export class WebsocketNetwork implements Network {
