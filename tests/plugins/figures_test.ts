@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { Viewport } from "../../src/types";
-import { createSheet } from "../helpers";
+import { createSheet, undo } from "../helpers";
 
 const viewport: Viewport = {
   left: 0,
@@ -57,7 +57,7 @@ describe("figure plugin", () => {
     });
 
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(1);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport).length).toBe(0);
   });
 
@@ -243,7 +243,7 @@ describe("figure plugin", () => {
     expect(y1).toBe(200);
     expect(data1).toBe("Coucou");
 
-    model.dispatch("UNDO");
+    undo(model);
     const { x: x2, y: y2, data: data2 } = model.getters.getFigures(
       model.getters.getActiveSheetId(),
       viewport
@@ -295,7 +295,7 @@ describe("figure plugin", () => {
     model.dispatch("DELETE_FIGURE", { id: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(0);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getFigures(model.getters.getActiveSheetId(), viewport)).toHaveLength(1);
   });

@@ -12,6 +12,7 @@ import {
   target,
   zone,
   createSheet,
+  undo,
 } from "../helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
@@ -665,7 +666,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
     expect(getCell(model, "D2")).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "D2")).toBeUndefined();
   });
 
@@ -737,7 +738,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
   });
 
@@ -914,7 +915,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
   });
 
@@ -1155,7 +1156,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "B2", "=Sheet2!B2");
 
     model.dispatch("COPY", { target: target("B2") });
@@ -1165,13 +1166,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", {
-      sheetId: "42",
-      name: "Sheet2",
-      rows: 2,
-      cols: 2,
-      position: 1,
-    });
+    createSheet(model, { sheetId: "42", name: "Sheet2", rows: 2, cols: 2 });
     setCellContent(model, "A1", "=Sheet2!A1:A2");
 
     model.dispatch("COPY", { target: target("A1") });
@@ -1181,7 +1176,7 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
 
     model.dispatch("COPY", { target: target("A1") });

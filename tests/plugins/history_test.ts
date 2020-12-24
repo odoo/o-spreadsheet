@@ -7,6 +7,8 @@ import {
   waitForRecompute,
   getCellContent,
   createSheet,
+  redo,
+  undo,
 } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
@@ -161,9 +163,9 @@ describe("Model history", () => {
   test("Can undo a basic operation", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("hello");
   });
 
@@ -174,15 +176,15 @@ describe("Model history", () => {
 
     expect(getCellContent(model, "A2")).toBe("5");
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A2")).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A2")).toBe("3");
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A2")).toBe("5");
   });
 
@@ -192,7 +194,7 @@ describe("Model history", () => {
 
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A2")).toBeUndefined();
 
     expect(model.getters.canUndo()).toBe(false);
@@ -218,7 +220,7 @@ describe("Model history", () => {
     });
 
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
@@ -233,7 +235,7 @@ describe("Model history", () => {
     model.dispatch("START_EDITION", { text: "abc" });
     model.dispatch("STOP_EDITION");
     expect(getCellContent(model, "A1")).toBe("abc");
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A1")).toBe(String(MAX_HISTORY_STEPS - 1));
   });
 
@@ -242,9 +244,9 @@ describe("Model history", () => {
     setCellContent(model, "A1", "=A2");
     setCellContent(model, "A2", "11");
     expect(getCell(model, "A1")!.value).toBe(11);
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A1")!.value).toBe(null);
-    model.dispatch("REDO");
+    redo(model);
     expect(getCell(model, "A1")!.value).toBe(11);
   });
 
@@ -254,7 +256,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(model.dispatch("UNDO")).toEqual({
+    expect(undo(model)).toEqual({
       reason: CancelledReason.EmptyUndoStack,
       status: "CANCELLED",
     });
@@ -267,7 +269,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(model.dispatch("REDO")).toEqual({
+    expect(redo(model)).toEqual({
       reason: CancelledReason.EmptyRedoStack,
       status: "CANCELLED",
     });
@@ -276,13 +278,13 @@ describe("Model history", () => {
 
   test.skip("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "this will be undone");
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",
     });
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
 
@@ -291,13 +293,13 @@ describe("Model history", () => {
     // creation is undone
     const model = new Model();
     const originActiveSheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: originActiveSheetId,
       sheetIdTo: "42",
     });
     expect(model.getters.getActiveSheetId()).toBe("42");
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
@@ -305,7 +307,7 @@ describe("Model history", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet);
   });
 });

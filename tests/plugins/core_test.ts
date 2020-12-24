@@ -1,5 +1,13 @@
 import { Model } from "../../src/model";
-import { waitForRecompute, getCell, setCellContent, getCellContent } from "../helpers";
+import {
+  waitForRecompute,
+  getCell,
+  setCellContent,
+  getCellContent,
+  createSheet,
+  redo,
+  undo,
+} from "../helpers";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
 
@@ -216,7 +224,7 @@ describe("core", () => {
 
   test("can get row/col of inactive sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, rows: [0], size: 24 });
     model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, columns: [0], size: 42 });
@@ -258,12 +266,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -284,12 +292,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -307,10 +315,10 @@ describe("history", () => {
     });
     expect(getCell(model, "A2")).toBeUndefined();
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCell(model, "A2")).toBeUndefined();
   });
 

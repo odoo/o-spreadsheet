@@ -91,7 +91,7 @@ describe("edition", () => {
     const model = new Model();
     const name = "NEW_NAME";
     const sheet2 = "42";
-    model.dispatch("CREATE_SHEET", { name, sheetId: sheet2, position: 1 });
+    createSheet(model, { sheetId: sheet2, name });
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";

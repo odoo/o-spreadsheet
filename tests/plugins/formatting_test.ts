@@ -1,5 +1,5 @@
 import { Model } from "../../src/model";
-import { getCell, getCellContent } from "../helpers";
+import { createSheet, getCell, getCellContent } from "../helpers";
 
 import "../canvas.mock";
 import { setCellContent } from "../helpers";
@@ -462,7 +462,7 @@ describe("Autoresize", () => {
   test("Can autoresize a column in another sheet", () => {
     const initialSize = model.getters.getCol(sheetId, 0)?.size;
     const newSheetId = "42";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 1 });
+    createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "size0", newSheetId);
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getCol(sheetId, 0)?.size).toBe(initialSize);
@@ -472,7 +472,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row in another sheet", () => {
     const initialSize = model.getters.getRow(sheetId, 0)?.size;
     const newSheetId = "42";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 1 });
+    createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "test", newSheetId);
     model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRow(sheetId, 0)?.size).toBe(initialSize);

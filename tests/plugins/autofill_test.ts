@@ -5,6 +5,7 @@ import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import {
+  createSheet,
   getCell,
   getCellContent,
   getCellText,
@@ -418,7 +419,7 @@ describe("Autofill", () => {
   });
 
   test("Autofill cross-sheet references", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "A1", "=Sheet2!A1");
     autofill("A1", "A3");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2");

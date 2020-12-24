@@ -11,6 +11,7 @@ import {
   addColumns,
   addRows,
   getCellContent,
+  undo,
 } from "../helpers";
 
 describe("borders", () => {
@@ -251,7 +252,7 @@ describe("borders", () => {
 
     expect(getCellContent(model, "B2")).toBe("some content");
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "B2")).toBe("some content");
     expect(getBorder(model, "B2")).toBeNull();
   });

@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { CancelledReason } from "../../src/types";
-import { createSheet } from "../helpers";
+import { createSheet, redo, undo } from "../helpers";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
@@ -21,12 +21,12 @@ describe("Model resizer", () => {
     expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop);
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize + 100);
     expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
@@ -100,7 +100,7 @@ describe("Model resizer", () => {
     expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight + 100);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getRow(sheetId, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop);
     expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight);
@@ -108,7 +108,7 @@ describe("Model resizer", () => {
 
   test("Can resize row of inactive sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, size: 42, rows: [0] });
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);
@@ -123,7 +123,7 @@ describe("Model resizer", () => {
 
   test("Can resize column of inactive sheet", async () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, size: 42, columns: [0] });
     expect(model.getters.getActiveSheetId()).not.toBe(sheet2.id);

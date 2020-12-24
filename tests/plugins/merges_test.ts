@@ -11,6 +11,8 @@ import {
   getMerges,
   setCellContent,
   target,
+  redo,
+  undo,
 } from "../helpers";
 
 function getCellsXC(model: Model): string[] {
@@ -476,12 +478,12 @@ describe("merges", () => {
     });
 
     // undo
-    model.dispatch("UNDO");
+    undo(model);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
     expect(Object.keys(getMerges(model))).toEqual([]);
 
     // redo
-    model.dispatch("REDO");
+    redo(model);
     expect(Object.keys(getMergeCellMap(model))).toEqual(["B2", "B3"]);
     const id = getMergeCellMap(model).B2;
     expect(Object.values(getMerges(model))).toEqual([
@@ -503,12 +505,12 @@ describe("merges", () => {
     model.dispatch("ADD_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
 
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
   });
 
@@ -520,7 +522,7 @@ describe("merges", () => {
     model.dispatch("REMOVE_MERGE", { sheetId: sheet1, zone: toZone("B2:B3") });
     model.dispatch("SELECT_CELL", { col: 1, row: 1 }); // B2
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
   });
 

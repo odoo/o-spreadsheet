@@ -720,7 +720,7 @@ describe("composer highlights color", () => {
   });
 
   test("highlight cross-sheet ranges", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     setCellContent(model, "A1", "=B1+Sheet2!A1");
     await startComposition();
     const highlights = getHighlights(model);

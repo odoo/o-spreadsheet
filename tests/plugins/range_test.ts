@@ -5,6 +5,7 @@ import { BaseCommand, Command, Range } from "../../src/types";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { INCORRECT_RANGE_STRING } from "../../src/plugins/core/range";
 import { toZone } from "../../src/helpers";
+import { undo } from "../helpers";
 
 let m;
 let notificationSpy;
@@ -463,7 +464,7 @@ describe("range plugin", () => {
       expect(m.getters.getFormulaCellContent("s1", m.getters.getCell("s1", 0, 2))).toBe(
         "=sum(A1:A2)"
       );
-      m.dispatch("UNDO");
+      undo(m);
       expect(m.getters.getCell("s1", 0, 3)!.value).toBe(8);
       expect(m.getters.getFormulaCellContent("s1", m.getters.getCell("s1", 0, 3))).toBe(
         "=sum(A1:A3)"
