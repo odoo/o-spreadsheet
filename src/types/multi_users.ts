@@ -78,7 +78,7 @@ export interface Network {
   onNewMessage: (clientId: ClientId, callback: NewMessageCallback) => void;
 }
 
-export interface CollaborativeSession extends CollaborativeEventBus {
+export interface Session extends CollaborativeEventBus {
   addRevision: (revision: RemoteRevisionData) => void;
   move: (position: ClientPosition) => void;
   leave: () => void;

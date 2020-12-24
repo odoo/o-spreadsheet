@@ -20,7 +20,7 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { RemoteRevisionData } from "./types/multi_users";
-import { DistributedCollaborativeSession } from "./ot/collaborative_session";
+import { CollaborativeSession } from "./ot/collaborative_session";
 
 /**
  * Model
@@ -55,7 +55,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
-  collaborativeSession?: DistributedCollaborativeSession;
+  collaborativeSession?: CollaborativeSession;
 }
 
 const enum Status {

@@ -7,7 +7,7 @@ import {
   ClientLeftMessage,
   ClientMovedMessage,
   ClientPosition,
-  CollaborativeSession,
+  Session,
   Message,
   Network,
   RemoteRevisionData,
@@ -25,9 +25,7 @@ import {
 //   }
 // }
 
-export class DistributedCollaborativeSession
-  extends owl.core.EventBus
-  implements CollaborativeSession {
+export class CollaborativeSession extends owl.core.EventBus implements Session {
   private positions: Record<ClientId, Client | undefined> = {};
 
   constructor(private network: Network, private client: Client) {

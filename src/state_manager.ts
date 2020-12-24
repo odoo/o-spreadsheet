@@ -17,7 +17,7 @@ import {
   HistoryChange,
   WorkbookData,
 } from "./types/index";
-import { ClientId, RemoteRevisionData, CollaborativeSession, Client } from "./types/multi_users";
+import { ClientId, RemoteRevisionData, Session, Client } from "./types/multi_users";
 
 /**
  * Revision Management System
@@ -129,19 +129,15 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   private revisionId: UID = DEFAULT_REVISION_ID;
 
-  private collaborativeSession: CollaborativeSession;
+  private session: Session;
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
     collaborativeSession?: ModelConfig["collaborativeSession"] //TODO Change this to collaborativeSession and add client in it.
   ) {
     super();
-    this.collaborativeSession = collaborativeSession || new LocalSession();
-    this.collaborativeSession.on(
-      "remote-revision-received",
-      this,
-      this.onRemoteRevisionReceived.bind(this)
-    );
-    this.collaborativeSession.on("revision-acknowledged", this, (revision: RemoteRevisionData) => {
+    this.session = collaborativeSession || new LocalSession();
+    this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived.bind(this));
+    this.session.on("revision-acknowledged", this, (revision: RemoteRevisionData) => {
       this.acknowledgeRevision(revision.newRevisionId);
     });
   }
@@ -196,11 +192,11 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   }
 
   getUserId(): ClientId {
-    return this.collaborativeSession.getClient().id || "local";
+    return this.session.getClient().id || "local";
   }
 
   getConnectedClients(): Set<Client> {
-    return this.collaborativeSession.getConnectedClients();
+    return this.session.getConnectedClients();
   }
 
   // ---------------------------------------------------------------------------
@@ -213,7 +209,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   recordChanges(callback: () => void, cmd: Command) {
     this.currentDraftRevision = new DraftRevision(uuidv4(), this.getUserId());
-    this.currentDraftRevision.isSync = !this.collaborativeSession;
+    this.currentDraftRevision.isSync = !this.session;
     if (cmd.type === "UNDO") {
       this.currentDraftRevision.isUndo = true;
     } else if (cmd.type === "REDO") {
@@ -237,7 +233,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
     // TODO refactor duplicated code
     this.currentDraftRevision = new DraftRevision(id, userId); //
-    this.currentDraftRevision.isSync = isSynced || !this.collaborativeSession;
+    this.currentDraftRevision.isSync = isSynced || !this.session;
     callback();
     if (this.currentDraftRevision) {
       this.saveDraftRevision();
@@ -271,12 +267,12 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   private sendPendingRevision() {
     const revision = this.pendingRevisions[0];
     if (revision) {
-      this.collaborativeSession.addRevision(revision.getMessage(this.revisionId));
+      this.session.addRevision(revision.getMessage(this.revisionId));
     }
   }
 
   selectCell(sheetId: UID, col: number, row: number) {
-    this.collaborativeSession.move({ sheetId, col, row });
+    this.session.move({ sheetId, col, row });
   }
 
   /**

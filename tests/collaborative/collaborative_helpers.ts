@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import { MockNetwork } from "../__mocks__/network";
 import "../jest_extend";
-import { DistributedCollaborativeSession } from "../../src/ot/collaborative_session";
+import { CollaborativeSession } from "../../src/ot/collaborative_session";
 interface CollaborativeEnv {
   network: MockNetwork;
   alice: Model;
@@ -13,16 +13,16 @@ export function setupCollaborativeEnv(): CollaborativeEnv {
   const network = new MockNetwork();
   const emptySheetData = new Model().exportData();
   const alice = new Model(emptySheetData, {
-    collaborativeSession: new DistributedCollaborativeSession(network, {
+    collaborativeSession: new CollaborativeSession(network, {
       id: "alice",
       name: "Alice",
     }),
   });
   const bob = new Model(emptySheetData, {
-    collaborativeSession: new DistributedCollaborativeSession(network, { id: "bob", name: "Bob" }),
+    collaborativeSession: new CollaborativeSession(network, { id: "bob", name: "Bob" }),
   });
   const charly = new Model(emptySheetData, {
-    collaborativeSession: new DistributedCollaborativeSession(network, {
+    collaborativeSession: new CollaborativeSession(network, {
       id: "charly",
       name: "Charly",
     }),
