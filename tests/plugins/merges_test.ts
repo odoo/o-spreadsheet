@@ -2,7 +2,6 @@ import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
-import { toTarget } from "../helpers";
 import {
   getActiveXc,
   getCellContent,
@@ -375,7 +374,7 @@ describe("merges", () => {
     model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
     model.dispatch("SET_FORMATTING", {
       sheetId,
-      target: toTarget("A1"),
+      target: [toZone("A1")],
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -411,7 +410,7 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
       sheetId,
-      target: toTarget("A1"),
+      target: [toZone("A1")],
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -428,7 +427,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: toTarget("A1"),
+      target: [toZone("A1")],
       border: "external",
       style: { fillColor: "red" },
     });

@@ -3,12 +3,11 @@ import { Grid } from "../src/components/grid";
 import { TopBar } from "../src/components/top_bar";
 import { SidePanel } from "../src/components/side_panel/side_panel";
 import { functionRegistry } from "../src/functions/index";
-import { toXC, toZone } from "../src/helpers/index";
+import { toXC } from "../src/helpers/index";
 import { Model } from "../src/model";
 import {
   GridRenderingContext,
   SpreadsheetEnv,
-  Zone,
   Style,
   ConditionalFormat,
   ColorScaleThreshold,
@@ -335,10 +334,6 @@ export function resetFunctions() {
   Object.keys(functions).forEach((k) => {
     delete functions[k];
   });
-}
-
-export function toTarget(str: string): Zone[] {
-  return str.split(",").map((s) => toZone(s));
 }
 
 export function createEqualCF(

@@ -6,11 +6,11 @@ import {
   createEqualCF,
   createColorScale,
   mockUuidV4To,
-  toTarget,
   nextTick,
 } from "../helpers";
 import "../canvas.mock";
 import { Model } from "../../src";
+import { toZone } from "../../src/helpers/zones";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -278,8 +278,8 @@ describe("UI of conditional formats", () => {
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
-      model.dispatch("COPY", { target: toTarget("A1:A2") });
-      model.dispatch("PASTE", { target: toTarget("C1") });
+      model.dispatch("COPY", { target: [toZone("A1:A2")] });
+      model.dispatch("PASTE", { target: [toZone("C1")] });
       await nextTick();
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe(
         "A1:A2,C1:C2"
