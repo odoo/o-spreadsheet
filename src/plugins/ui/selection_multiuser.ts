@@ -1,4 +1,4 @@
-import { toCartesian, toXC, colors } from "../../helpers";
+import { toCartesian, toXC, colors } from "../../helpers/index";
 import { Mode } from "../../model";
 import { UID, LAYERS, Command, GridRenderingContext } from "../../types";
 import { UIPlugin } from "../ui_plugin";

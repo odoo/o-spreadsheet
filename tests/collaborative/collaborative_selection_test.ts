@@ -61,4 +61,27 @@ describe("Collaborative selection", () => {
       displayName: alice.getters.getUserName(),
     });
   });
+
+  test("Cell selected of remote client is updated after insert column", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    bob.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    addColumns(alice, "before", "B", 2);
+    expect(aliceSelectionPlugin.selections.bob).toEqual({
+      col: 3,
+      row: 0,
+      sheetId,
+      displayName: bob.getters.getUserName(),
+    });
+  });
+
+  test("Cell selected is updated select an entire column", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    bob.dispatch("SELECT_COLUMN", { index: 1 });
+    expect(aliceSelectionPlugin.selections.bob).toEqual({
+      col: 1,
+      row: 0,
+      sheetId,
+      displayName: bob.getters.getUserName(),
+    });
+  });
 });
