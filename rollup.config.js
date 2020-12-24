@@ -1,9 +1,11 @@
 import { version } from "./package.json";
 import git from "git-rev-sync";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 export default {
   input: "dist/js/src/index.js",
   external: ["@odoo/owl"],
+  plugins: [nodeResolve()],
   output: {
     file: "dist/o_spreadsheet.js",
     format: "iife",
