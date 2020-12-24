@@ -16,7 +16,12 @@ import {
   HistoryChange,
   WorkbookData,
 } from "./types/index";
-import { ClientId, RemoteRevisionData, Message, SelectCellMessage } from "./types/multi_users";
+import {
+  ClientId,
+  RemoteRevisionData,
+  ClientMovedMessage,
+  ClientPosition,
+} from "./types/multi_users";
 
 /**
  * Revision Management System
@@ -128,29 +133,23 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   private revisionId: UID = DEFAULT_REVISION_ID;
 
-  private clientName: string = this.randomChoice([
-    "Florent",
-    "Lucas",
-    "Vincent",
-    "Rémi",
-    "Alexis",
-    "Nathan",
-    "Pierre",
-  ]);
-
-  randomChoice(arr: string[]): string {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
+  private position: ClientPosition | undefined; //TODO move it into network
 
   constructor(
     protected dispatch: CommandDispatcher["dispatch"],
-    protected readonly userId: UID,
-    public exportData: () => WorkbookData = () => ({} as WorkbookData),
-    protected network?: ModelConfig["network"]
+    protected collaborativeSession?: ModelConfig["collaborativeSession"] //TODO Change this to collaborativeSession and add client in it.
   ) {
     super();
-    if (network) {
-      network.onNewMessage(this.userId, this.onMessageReceived.bind(this));
+    if (collaborativeSession) {
+      collaborativeSession.on(
+        "remote-revision-received",
+        this,
+        this.onRemoteRevisionReceived.bind(this)
+      );
+      collaborativeSession.on("revision-acknowledged", this, (revision: RemoteRevisionData) => {
+        this.acknowledgeRevision(revision.newRevisionId);
+      });
+      // collaborativeSession.onNewMessage(this.getUserId(), this.onMessageReceived.bind(this));
     }
   }
 
@@ -203,12 +202,8 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     return !!this.getLastUndoRevision();
   }
 
-  getUserId(): UID {
-    return this.userId;
-  }
-
-  getUserName(): string {
-    return this.clientName;
+  getUserId(): ClientId {
+    return this.collaborativeSession?.getClient().id || "local";
   }
 
   // ---------------------------------------------------------------------------
@@ -220,8 +215,8 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * in a revision.
    */
   recordChanges(callback: () => void, cmd: Command) {
-    this.currentDraftRevision = new DraftRevision(uuidv4(), this.userId);
-    this.currentDraftRevision.isSync = !this.network;
+    this.currentDraftRevision = new DraftRevision(uuidv4(), this.getUserId());
+    this.currentDraftRevision.isSync = !this.collaborativeSession;
     if (cmd.type === "UNDO") {
       this.currentDraftRevision.isUndo = true;
     } else if (cmd.type === "REDO") {
@@ -245,7 +240,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
     // TODO refactor duplicated code
     this.currentDraftRevision = new DraftRevision(id, userId); //
-    this.currentDraftRevision.isSync = isSynced || !this.network;
+    this.currentDraftRevision.isSync = isSynced || !this.collaborativeSession;
     callback();
     if (this.currentDraftRevision) {
       this.saveDraftRevision();
@@ -278,33 +273,23 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    */
   private sendPendingRevision() {
     let revision = this.pendingRevisions[0];
-    if (this.network && revision) {
-      // const hashed = hash(JSON.stringify(this.exportData())); //TODO Remove it
-      this.network.sendMessage({ ...revision.getMessage(this.revisionId), hash: undefined });
+    if (this.collaborativeSession && revision) {
+      this.collaborativeSession.addRevision(revision.getMessage(this.revisionId));
     }
   }
 
   selectCell(sheetId: UID, col: number, row: number) {
-    if (this.network) {
-      this.network.sendMessage({
-        type: "SELECT_CELL",
-        col,
-        row,
-        sheetId,
-        clientId: this.userId,
-        clientName: this.clientName,
-      });
+    if (this.collaborativeSession) {
+      this.position = { sheetId, col, row };
+      this.collaborativeSession.move(this.position);
     }
   }
 
-  onSelectCell(message: SelectCellMessage) {
-    if (message.clientId !== this.userId) {
-      this.dispatch("SELECT_CELL_MULTIUSER", {
-        col: message.col,
-        row: message.row,
-        sheetId: message.sheetId,
-        clientId: message.clientId,
-        clientName: message.clientName,
+  onClientMoved(message: ClientMovedMessage) {
+    if (message.client.id !== this.getUserId()) {
+      this.dispatch("CLIENT_MOVED", {
+        client: message.client,
+        position: message.position,
       });
       this.trigger("selected-cell");
     }
@@ -313,49 +298,18 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   /**
    * Called whenever a message is received from the network
    */
-  onMessageReceived(message: Message) {
-    if (message.type === "SELECT_CELL") {
-      this.onSelectCell(message);
-      return;
+  onRemoteRevisionReceived(revisionData: RemoteRevisionData) {
+    if (revisionData.isUndo || revisionData.isRedo) {
+      this._recordChanges(
+        revisionData.newRevisionId,
+        revisionData.clientId,
+        { isSynced: true },
+        () => this.selectiveUndo(revisionData.toRevert!)
+      ); //TODO remove "!"
+    } else {
+      this.applyRemoteRevision(revisionData);
     }
-
-    //TODO we should perhaps check that this.revisionId === message.revisionId to apply it
-    // if (message.hash) {
-    //   const current = hash(JSON.stringify(this.exportData()));
-    //   if (current !== message.hash) {
-    //     console.error("Invalid state detected 😱");
-    //   }
-    // }
-    switch (message.type) {
-      case "CONNECTION":
-        for (let commandMessage of message.messages) {
-          this.applyRemoteRevision(commandMessage);
-        }
-        break;
-      case "REMOTE_REVISION":
-        if (message.clientId === this.userId) {
-          this.acknowledgeRevision(message.newRevisionId);
-        } else {
-          if (message.isUndo || message.isRedo) {
-            /*
-            Col A     UPdate
-             => Undo
-            Expected: Col A Undo UPdate
-            Received: Col A UPdate UNDO + Replay
-            */
-            this._recordChanges(message.newRevisionId, message.clientId, { isSynced: true }, () =>
-              this.selectiveUndo(message.toRevert!)
-            ); //TODO remove "!"
-          } else {
-            this.applyRemoteRevision(message);
-          }
-        }
-        break;
-    }
-    this.revisionId = message.newRevisionId;
-    if (message.clientId !== this.userId) {
-      this.trigger("remote-command-processed");
-    }
+    this.revisionId = revisionData.newRevisionId;
     if (this.pendingRevisions.length > 0) {
       this.sendPendingRevision();
     }
@@ -481,7 +435,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   private getLastUndoRevision(): Revision | undefined {
     for (let i = this.revisionLogs.length - 1; i >= 0; i--) {
       const log = this.revisionLogs[i];
-      if (log.clientId !== this.userId) {
+      if (log.clientId !== this.getUserId()) {
         continue;
       }
       if (!log.isUndo && !log.isRedo) {
@@ -498,7 +452,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     return [...this.revisionLogs]
       .reverse()
       .filter((revision) => !revision.isUndo && !revision.isCancelled)
-      .find((step) => step.clientId === this.userId);
+      .find((step) => step.clientId === this.getUserId());
   }
 
   /**
@@ -528,11 +482,11 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     const revisions = [...this.revisionLogs];
     const index = revisions.findIndex((step) => step.id === id);
     if (index === -1) {
-      throw new Error(`No history step with id ${id} - ${this.userId}`);
+      throw new Error(`No history step with id ${id} - ${this.getUserId()}`);
     }
     const indexTo = toId ? revisions.findIndex((step) => step.id === toId) : undefined;
     if (indexTo === -1) {
-      throw new Error(`No history step with id ${id} - ${this.userId}`);
+      throw new Error(`No history step with id ${id} - ${this.getUserId()}`);
     }
     const toRevert = indexTo ? revisions.slice(index, indexTo) : revisions.slice(index);
     const toUndo = toRevert.shift()!;
@@ -567,7 +521,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     const pendingRevisions = this.popPendingRevisions();
 
     /*****TODO remove this****** */
-    if (pendingRevisions.some((revision) => revision.clientId !== this.userId)) {
+    if (pendingRevisions.some((revision) => revision.clientId !== this.getUserId())) {
       throw new Error("this is not normal: pending revisions should all be from the local user");
     }
     /*************************** */
@@ -603,7 +557,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   }
 
   private playUndoInNewRevision(revision: Revision) {
-    this._recordChanges(revision.id, this.userId, { isSynced: false }, () => {
+    this._recordChanges(revision.id, this.getUserId(), { isSynced: false }, () => {
       for (const change of revision.changes) {
         applyChange(change, "after");
         this.currentDraftRevision?.addChange(change);

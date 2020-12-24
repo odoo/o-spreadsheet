@@ -25,6 +25,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C> {
   constructor(history: StateManager, dispatch: CommandDispatcher["dispatch"], config: ModelConfig) {
     this.history = Object.assign(Object.create(history), {
       update: history.updateStateFromRoot.bind(history, this),
+      selectCell: history.selectCell.bind(history),
     });
     this.dispatch = dispatch;
     this.currentMode = config.mode;

@@ -11,8 +11,17 @@ interface CollaborativeEnv {
 export function setupCollaborativeEnv(): CollaborativeEnv {
   const network = new MockNetwork();
   const emptySheetData = new Model().exportData();
-  const alice = new Model(emptySheetData, { network, userId: "alice" });
-  const bob = new Model(emptySheetData, { network, userId: "bob" });
-  const charly = new Model(emptySheetData, { network, userId: "charly" });
+  const alice = new Model(emptySheetData, {
+    collaborativeSession: network,
+    client: { id: "alice", name: "Alice" },
+  });
+  const bob = new Model(emptySheetData, {
+    collaborativeSession: network,
+    client: { id: "bob", name: "Bob" },
+  });
+  const charly = new Model(emptySheetData, {
+    collaborativeSession: network,
+    client: { id: "charly", name: "Charly" },
+  });
   return { network, alice, bob, charly };
 }

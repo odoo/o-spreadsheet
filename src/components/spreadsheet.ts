@@ -9,7 +9,10 @@ import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { WebsocketNetwork } from "../ot/network";
-import { Message, Network } from "../types/multi_users";
+import { Client, RemoteRevisionData } from "../types/multi_users";
+import { CollaborativeSession } from "../ot/collaborative_session";
+import { _lt } from "../translation";
+import { uuidv4 } from "../helpers";
 
 const { Component, useState } = owl;
 const { useRef, useExternalListener } = owl.hooks;
@@ -69,8 +72,9 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
-  network?: Network | "default";
-  messages?: Message[];
+  network?: CollaborativeSession | "default"; // rename prop
+  messages?: RemoteRevisionData[]; // TODO rename messages
+  client?: Client;
 }
 
 const t = (s: string): string => s;
@@ -80,6 +84,14 @@ export class Spreadsheet extends Component<Props> {
   static style = CSS;
   static components = { TopBar, Grid, BottomBar, SidePanel };
   static _t = t;
+
+  collaborativeSession?: CollaborativeSession =
+    this.props.network === "default"
+      ? new CollaborativeSession(
+          new WebsocketNetwork(),
+          this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
+        )
+      : this.props.network;
 
   model = new Model(
     this.props.data,
@@ -91,7 +103,7 @@ export class Spreadsheet extends Component<Props> {
         this.trigger("edit-text", { title, placeholder, callback }),
       openSidePanel: (panel: string, panelProps: any = {}) => this.openSidePanel(panel, panelProps),
       evalContext: { env: this.env },
-      network: this.props.network === "default" ? new WebsocketNetwork() : this.props.network,
+      collaborativeSession: this.collaborativeSession,
     },
     this.props.messages
   );
@@ -133,6 +145,7 @@ export class Spreadsheet extends Component<Props> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
+    useExternalListener(window, "beforeunload", this.notifyLeft.bind(this));
   }
 
   get focusTopBarComposer(): boolean {
@@ -148,7 +161,15 @@ export class Spreadsheet extends Component<Props> {
   }
 
   willUnmount() {
+    this.notifyLeft();
     this.model.off("update", this);
+  }
+
+  private notifyLeft() {
+    // TODO rename
+    if (this.collaborativeSession) {
+      this.collaborativeSession.leave();
+    }
   }
 
   destroy() {

@@ -15,11 +15,12 @@ import {
   CommandResult,
 } from "./types/index";
 import { _lt } from "./translation";
-import { DEBUG, setIsFastStrategy, uuidv4 } from "./helpers/index";
+import { DEBUG, setIsFastStrategy } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
-import { Message, Network } from "./types/multi_users";
+import { RemoteRevisionData } from "./types/multi_users";
+import { CollaborativeSession } from "./ot/collaborative_session";
 
 /**
  * Model
@@ -54,8 +55,7 @@ export interface ModelConfig {
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
   editText: (title: string, placeholder: string, callback: (text: string | null) => any) => any;
   evalContext: EvalContext;
-  userId: string;
-  network?: Network;
+  collaborativeSession?: CollaborativeSession;
 }
 
 const enum Status {
@@ -101,7 +101,11 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   getters: Getters;
 
-  constructor(data: any = {}, config: Partial<ModelConfig> = {}, messages: Message[] = []) {
+  constructor(
+    data: any = {},
+    config: Partial<ModelConfig> = {},
+    messages: RemoteRevisionData[] = []
+  ) {
     super();
     DEBUG.model = this;
 
@@ -114,30 +118,26 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       askConfirmation: config.askConfirmation || (() => {}),
       editText: config.editText || (() => {}),
       evalContext: config.evalContext || {},
-      network: config.network,
-      userId: config.userId || uuidv4(),
+      collaborativeSession: config.collaborativeSession,
     };
 
     // this.history = new WHistory(this.dispatchCore.bind(this));
     this.stateReplicator2000 = new StateManager(
       this.dispatchStateManager.bind(this),
-      this.config.userId,
-      this.exportData.bind(this), //TODO remove
-      this.config.network
+      this.config.collaborativeSession
     );
-    this.stateReplicator2000.on("remote-command-processed", this, () => {
-      this.finalize();
-      this.trigger("update");
-    });
-    this.stateReplicator2000.on("selected-cell", this, () => this.trigger("update"));
     this.stateReplicator2000.import(workbookData);
+
+    if (this.config.collaborativeSession) {
+      this.config.collaborativeSession.on("remote-revision-received", this, () => this.finalize());
+      this.config.collaborativeSession.on("message-received", this, () => this.trigger("update"));
+    }
 
     // this.externalCommandHandler = config.externalCommandHandler;
     this.getters = {
       canUndo: this.stateReplicator2000.canUndo.bind(this.stateReplicator2000),
       canRedo: this.stateReplicator2000.canRedo.bind(this.stateReplicator2000),
       getUserId: this.stateReplicator2000.getUserId.bind(this.stateReplicator2000),
-      getUserName: this.stateReplicator2000.getUserName.bind(this.stateReplicator2000),
     } as Getters;
     this.handlers = [this.stateReplicator2000];
 
@@ -155,7 +155,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     this.dispatch("START");
     // TODO find a better way please :)
     for (let msg of messages) {
-      this.stateReplicator2000.onMessageReceived({ ...msg, clientId: "undefined" }); // LOL
+      this.stateReplicator2000.onRemoteRevisionReceived({ ...msg, clientId: "undefined" }); // LOL
     }
     this.trigger("update");
   }
@@ -319,7 +319,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     // correspond exactly to a cell
     context.viewport = this.getters.snapViewportToCell(context.viewport);
     for (let [renderer, layer] of this.renderers) {
+      context.ctx.save();
       renderer.drawGrid(context, layer);
+      context.ctx.restore();
     }
   }
 

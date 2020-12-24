@@ -3,6 +3,7 @@ import { Border, Cell, UID } from "./misc";
 import { Figure } from "./workbook_data";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { SearchOptions, ReplaceOptions } from "../plugins/ui/find_and_replace";
+import { Client, ClientId, ClientPosition } from "./multi_users";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -403,15 +404,6 @@ export interface SelectCellCommand extends BaseCommand {
   row: number;
 }
 
-export interface SelectCellMultiuserCommand extends BaseCommand {
-  type: "SELECT_CELL_MULTIUSER";
-  col: number;
-  row: number;
-  sheetId: UID;
-  clientId: UID;
-  clientName: string;
-}
-
 export interface SetSelectionCommand extends BaseCommand {
   type: "SET_SELECTION";
   anchor: [number, number];
@@ -731,6 +723,23 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
   replaceOptions: ReplaceOptions;
 }
 
+export interface MoveClientCommand extends BaseCommand {
+  type: "CLIENT_MOVED";
+  client: Client;
+  position: ClientPosition;
+}
+
+export interface ClientJoinedCommand extends BaseCommand {
+  type: "CLIENT_JOINED";
+  client: Client;
+  position: ClientPosition;
+}
+
+export interface ClientLeftCommand extends BaseCommand {
+  type: "CLIENT_LEFT";
+  clientId: ClientId;
+}
+
 export type CoreCommand =
   /** CELLS */
   | UpdateCellCommand
@@ -801,7 +810,6 @@ export type Command =
   | PrepareExpansionCommand
   | StopSelectionCommand
   | SelectCellCommand
-  | SelectCellMultiuserCommand
   | SetSelectionCommand
   | SelectColumnCommand
   | SelectRowCommand
@@ -835,7 +843,10 @@ export type Command =
   | SelectSearchPreviousCommand
   | SelectSearchNextCommand
   | ReplaceSearchCommand
-  | ReplaceAllSearchCommand;
+  | ReplaceAllSearchCommand
+  | ClientJoinedCommand
+  | ClientLeftCommand
+  | MoveClientCommand;
 
 export interface CommandSuccess {
   status: "SUCCESS";

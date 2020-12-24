@@ -1,13 +1,13 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import {
-  Network,
+  CollaborativeSession,
   NetworkListener,
   Message,
   ClientId,
   NewMessageCallback,
 } from "../../src/types/multi_users";
 
-export class MockNetwork implements Network {
+export class MockNetwork implements CollaborativeSession {
   private listeners: NetworkListener[] = [];
   private pendingMessages: Message[] = [];
   private isConcurrent: boolean = false;
@@ -29,8 +29,7 @@ export class MockNetwork implements Network {
           this.notifyListeners(this.listeners, message);
         }
       }
-    }
-    if (message.type === "SELECT_CELL") {
+    } else {
       if (this.isConcurrent) {
         this.pendingMessages.push(message);
       } else {

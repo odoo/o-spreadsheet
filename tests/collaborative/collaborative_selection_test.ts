@@ -36,17 +36,17 @@ describe("Collaborative selection", () => {
       deltaY: 1,
     });
     const sheetId = alice.getters.getActiveSheetId();
-    expect(aliceSelectionPlugin.selections).toEqual({
-      bob: { col: 1, row: 1, sheetId, displayName: bob.getters.getUserName() },
-      charly: { col: 0, row: 0, sheetId, displayName: charly.getters.getUserName() },
+    expect(aliceSelectionPlugin.positions).toEqual({
+      bob: { col: 1, row: 1, sheetId, displayName: "Bob" },
+      charly: { col: 0, row: 0, sheetId, displayName: "Charly" },
     });
-    expect(bobSelectionPlugin.selections).toEqual({
-      alice: { col: 2, row: 2, sheetId, displayName: alice.getters.getUserName() },
-      charly: { col: 0, row: 0, sheetId, displayName: charly.getters.getUserName() },
+    expect(bobSelectionPlugin.positions).toEqual({
+      alice: { col: 2, row: 2, sheetId, displayName: "Alice" },
+      charly: { col: 0, row: 0, sheetId, displayName: "Charly" },
     });
-    expect(CharlySelectionPlugin.selections).toEqual({
-      alice: { col: 2, row: 2, sheetId, displayName: alice.getters.getUserName() },
-      bob: { col: 1, row: 1, sheetId, displayName: bob.getters.getUserName() },
+    expect(CharlySelectionPlugin.positions).toEqual({
+      alice: { col: 2, row: 2, sheetId, displayName: "Alice" },
+      bob: { col: 1, row: 1, sheetId, displayName: "Bob" },
     });
   });
 
@@ -54,11 +54,11 @@ describe("Collaborative selection", () => {
     const sheetId = alice.getters.getActiveSheetId();
     alice.dispatch("SELECT_CELL", { col: 1, row: 0 });
     addColumns(bob, "before", "B", 2);
-    expect(bobSelectionPlugin.selections.alice).toEqual({
+    expect(bobSelectionPlugin.positions.alice).toEqual({
       col: 3,
       row: 0,
       sheetId,
-      displayName: alice.getters.getUserName(),
+      displayName: "Alice",
     });
   });
 
@@ -66,22 +66,22 @@ describe("Collaborative selection", () => {
     const sheetId = alice.getters.getActiveSheetId();
     bob.dispatch("SELECT_CELL", { col: 1, row: 0 });
     addColumns(alice, "before", "B", 2);
-    expect(aliceSelectionPlugin.selections.bob).toEqual({
+    expect(aliceSelectionPlugin.positions.bob).toEqual({
       col: 3,
       row: 0,
       sheetId,
-      displayName: bob.getters.getUserName(),
+      displayName: "Bob",
     });
   });
 
   test("Cell selected is updated select an entire column", () => {
     const sheetId = alice.getters.getActiveSheetId();
     bob.dispatch("SELECT_COLUMN", { index: 1 });
-    expect(aliceSelectionPlugin.selections.bob).toEqual({
+    expect(aliceSelectionPlugin.positions.bob).toEqual({
       col: 1,
       row: 0,
       sheetId,
-      displayName: bob.getters.getUserName(),
+      displayName: "Bob",
     });
   });
 });

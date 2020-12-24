@@ -21,26 +21,28 @@ function log(message) {
   console.log(`[${new Date().toLocaleTimeString()}]: ${message}`);
 }
 
+function logMessage(msg) {
+  if (msg.payload.type === "REMOTE_REVISION") {
+    log(JSON.stringify(msg.payload.commands));
+  } else {
+    log(JSON.stringify(msg.payload));
+  }
+}
+
 app.ws("/", function (ws, req) {
   ws.on("message", function (message) {
     const msg = JSON.parse(message);
     if (msg.type === "multiuser_command") {
-      if (msg.payload.type === "REMOTE_REVISION") {
-        log(JSON.stringify(msg.payload.commands));
-      } else if (msg.payload.type === "SELECT_CELL") {
-        log(JSON.stringify(msg.payload));
-      } else {
-        log(JSON.stringify(msg.payload.toReplay));
-      }
+      logMessage(msg);
       const revisionId = msg.payload.revisionId;
-      if (msg.payload.type !== "SELECT_CELL") {
+      if (msg.payload.type === "REMOTE_REVISION") {
         log(`Serveur revision: ${revision}, Client revision: ${revisionId}`);
       }
-      if (revision === revisionId || msg.payload.type === "SELECT_CELL") {
+      if (revision === revisionId || msg.payload.type !== "REMOTE_REVISION") {
         aWss.clients.forEach(function each(client) {
           client.send(JSON.stringify(msg.payload));
         });
-        if (msg.payload.type !== "SELECT_CELL") {
+        if (msg.payload.type === "REMOTE_REVISION") {
           messages.push(msg.payload);
           revision = msg.payload.newRevisionId;
           log(`New revision: ${revision}`);
