@@ -1,6 +1,5 @@
-# Add an item  on the right click
-
-
+# Add an item on the right click
 
 ## Of a cell
+
 TODO
