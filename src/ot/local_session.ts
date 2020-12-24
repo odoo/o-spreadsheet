@@ -1,7 +1,6 @@
-import * as owl from "@odoo/owl";
-import { Client, Session, RemoteRevisionData } from "../types/multi_users";
+import { Client, Session, RemoteRevisionData, CollaborativeEventBus } from "../types/multi_users";
 
-export class LocalSession extends owl.core.EventBus implements Session {
+export class LocalSession extends CollaborativeEventBus implements Session {
   private client: Client = { id: "local", name: "Local" };
   addRevision(revision: RemoteRevisionData) {
     this.trigger("revision-acknowledged", revision);

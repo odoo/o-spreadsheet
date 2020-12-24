@@ -1,4 +1,3 @@
-import * as owl from "@odoo/owl";
 import { isDefined } from "../helpers/misc";
 import {
   Client,
@@ -11,21 +10,10 @@ import {
   Message,
   Network,
   RemoteRevisionData,
+  CollaborativeEventBus,
 } from "../types/multi_users";
 
-// class CollaborativeBus implements CollaborativeEventDispatcher{
-//   bus = new owl.core.EventBus()
-
-//   on: CollaborativeEventDispatcher["on"] = (eventType, owner, callback) => {
-//     this.bus.on(eventType, owner, callback)
-//   }
-
-//   trigger: CollaborativeEventDispatcher["trigger"] = (eventType, data?) => {
-//     this.bus.trigger(eventType, data);
-//   }
-// }
-
-export class CollaborativeSession extends owl.core.EventBus implements Session {
+export class CollaborativeSession extends CollaborativeEventBus implements Session {
   private positions: Record<ClientId, Client | undefined> = {};
 
   constructor(private network: Network, private client: Client) {

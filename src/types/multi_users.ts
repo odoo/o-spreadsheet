@@ -1,3 +1,4 @@
+import * as owl from "@odoo/owl";
 import { CoreCommand } from "./commands";
 import { UID } from "./misc";
 
@@ -78,6 +79,26 @@ export interface Network {
   onNewMessage: (clientId: ClientId, callback: NewMessageCallback) => void;
 }
 
+// TODO move it else where ?
+export class CollaborativeEventBus {
+  private bus = new owl.core.EventBus();
+
+  on<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
+    type: T,
+    owner: any,
+    callback: (r: Omit<E, "type">) => void
+  ) {
+    this.bus.on(type, owner, callback);
+  }
+
+  trigger<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
+    type: T,
+    payload?: Omit<E, "type">
+  ) {
+    this.bus.trigger(type, payload);
+  }
+}
+
 export interface Session extends CollaborativeEventBus {
   addRevision: (revision: RemoteRevisionData) => void;
   move: (position: ClientPosition) => void;
@@ -86,9 +107,8 @@ export interface Session extends CollaborativeEventBus {
   getConnectedClients: () => Set<Client>;
 }
 
-export interface RemoteRevisionReceivedEvent {
+export interface RemoteRevisionReceivedEvent extends Omit<RemoteRevisionData, "type"> {
   type: "remote-revision-received";
-  revision: RemoteRevisionData;
 }
 
 export interface RevisionAcknowledgedEvent {
@@ -104,18 +124,5 @@ export type CollaborativeEvent =
   | RemoteRevisionReceivedEvent
   | RevisionAcknowledgedEvent
   | MessageReceivedEvent;
+
 export type CollaborativeEventTypes = CollaborativeEvent["type"];
-export interface CollaborativeEventBus {
-  on<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
-    type: T,
-    owner: any,
-    callback: (r: Omit<E, "type">) => void
-  ): void;
-  trigger<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
-    type: T
-  ): void;
-  trigger<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
-    type: T,
-    r: Omit<E, "type">
-  ): void;
-}
