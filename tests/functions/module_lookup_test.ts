@@ -1,4 +1,5 @@
-import { evaluateGrid, evaluateCell, setCellContent } from "../helpers";
+import { evaluateGrid, evaluateCell } from "../helpers";
+import { setCellContent } from "../commands_helpers";
 import { Model } from "../../src/model";
 
 describe("COLUMN formula", () => {

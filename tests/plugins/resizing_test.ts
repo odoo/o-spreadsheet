@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { CancelledReason } from "../../src/types";
-import { createSheet, redo, undo } from "../helpers";
+import { createSheet, redo, undo } from "../commands_helpers";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {

@@ -1,7 +1,9 @@
 import { functionRegistry, args } from "../../src/functions";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { createSheet, evaluateCell, evaluateGrid, getCell, setCellContent } from "../helpers";
+import { evaluateCell, evaluateGrid } from "../helpers";
+import { getCell } from "../getters_helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {

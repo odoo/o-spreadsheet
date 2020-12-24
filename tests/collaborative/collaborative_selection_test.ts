@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import { SelectionMultiuserPlugin } from "../../src/plugins/ui/selection_multiuser";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 import "../canvas.mock";
-import { addColumns } from "../helpers";
+import { addColumns } from "../commands_helpers";
 
 describe("Collaborative selection", () => {
   let alice: Model;

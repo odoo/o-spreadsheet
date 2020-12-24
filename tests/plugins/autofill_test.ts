@@ -5,14 +5,13 @@ import { toZone, toCartesian } from "../../src/helpers";
 import { DIRECTION } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import {
-  createSheet,
   getCell,
   getCellContent,
   getCellText,
   getMergeCellMap,
   getMerges,
-  setCellContent,
-} from "../helpers";
+} from "../getters_helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
 
 let autoFill: AutofillPlugin;
 let model: Model;

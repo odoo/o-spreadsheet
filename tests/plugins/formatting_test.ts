@@ -1,8 +1,9 @@
 import { Model } from "../../src/model";
-import { createSheet, getCell, getCellContent } from "../helpers";
+import { getCell, getCellContent } from "../getters_helpers";
+import { createSheet } from "../commands_helpers";
 
 import "../canvas.mock";
-import { setCellContent } from "../helpers";
+import { setCellContent } from "../commands_helpers";
 import { PADDING_AUTORESIZE, DEFAULT_FONT_SIZE } from "../../src/constants";
 import { fontSizeMap } from "../../src/fonts";
 import { toZone } from "../../src/helpers";

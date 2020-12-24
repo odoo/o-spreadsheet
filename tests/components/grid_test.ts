@@ -1,15 +1,7 @@
 import { Model } from "../../src/model";
-import {
-  makeTestFixture,
-  GridParent,
-  nextTick,
-  getActiveXc,
-  getCell,
-  Touch,
-  setCellContent,
-  getCellContent,
-  createSheet,
-} from "../helpers";
+import { makeTestFixture, GridParent, nextTick, Touch } from "../helpers";
+import { getActiveXc, getCell, getCellContent } from "../getters_helpers";
+import { setCellContent, createSheet } from "../commands_helpers";
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";

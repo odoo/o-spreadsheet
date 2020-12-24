@@ -1,13 +1,7 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import {
-  createEqualCF,
-  createColorScale,
-  setCellContent,
-  createSheet,
-  redo,
-  undo,
-} from "../helpers";
+import { createEqualCF, createColorScale } from "../helpers";
+import { setCellContent, createSheet, redo, undo } from "../commands_helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;

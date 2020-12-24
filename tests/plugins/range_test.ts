@@ -5,7 +5,7 @@ import { BaseCommand, Command, Range } from "../../src/types";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { INCORRECT_RANGE_STRING } from "../../src/plugins/core/range";
 import { toZone } from "../../src/helpers";
-import { undo } from "../helpers";
+import { undo } from "../commands_helpers";
 
 let m;
 let notificationSpy;

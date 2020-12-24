@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import "../canvas.mock";
 import { HighlightPlugin } from "../../src/plugins/ui/highlight";
 import { toZone } from "../../src/helpers";
-import { createSheet } from "../helpers";
+import { createSheet } from "../commands_helpers";
 
 let model: Model;
 

@@ -1,5 +1,6 @@
 import { Model } from "../../src";
-import { createSheet, getCell } from "../helpers";
+import { getCell } from "../getters_helpers";
+import { createSheet } from "../commands_helpers";
 import { MockNetwork } from "../__mocks__/network";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 

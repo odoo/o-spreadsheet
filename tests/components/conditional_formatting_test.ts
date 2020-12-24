@@ -6,7 +6,7 @@ import {
   createEqualCF,
   createColorScale,
   mockUuidV4To,
-  target,
+  toTarget,
   nextTick,
 } from "../helpers";
 import "../canvas.mock";
@@ -278,8 +278,8 @@ describe("UI of conditional formats", () => {
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
-      model.dispatch("COPY", { target: target("A1:A2") });
-      model.dispatch("PASTE", { target: target("C1") });
+      model.dispatch("COPY", { target: toTarget("A1:A2") });
+      model.dispatch("PASTE", { target: toTarget("C1") });
       await nextTick();
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe(
         "A1:A2,C1:C2"

@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { CancelledReason } from "../../src/types";
-import { setCellContent, getCellContent, undo, getCell, redo, addColumns } from "../helpers";
+import { getCellContent, getCell } from "../getters_helpers";
+import { setCellContent, undo, redo, addColumns } from "../commands_helpers";
 import { MockNetwork } from "../__mocks__/network";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 

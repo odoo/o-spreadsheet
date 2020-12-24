@@ -3,7 +3,8 @@ import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
 import { CURRENT_VERSION } from "../../src/data";
-import { getMerges, mockUuidV4To } from "../helpers";
+import { mockUuidV4To } from "../helpers";
+import { getMerges } from "../getters_helpers";
 
 describe("data", () => {
   test("give default col size if not specified", () => {

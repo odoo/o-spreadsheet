@@ -1,16 +1,8 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import {
-  getCell,
-  createEqualCF,
-  testUndoRedo,
-  setCellContent,
-  getCellContent,
-  getCellText,
-  createSheet,
-  redo,
-  undo,
-} from "../helpers";
+import { createEqualCF, testUndoRedo } from "../helpers";
+import { getCell, getCellContent, getCellText } from "../getters_helpers";
+import { setCellContent, createSheet, redo, undo } from "../commands_helpers";
 import { uuidv4, toZone } from "../../src/helpers";
 import { CancelledReason } from "../../src/types";
 

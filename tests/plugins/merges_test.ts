@@ -2,6 +2,7 @@ import { toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Style, CancelledReason } from "../../src/types/index";
 import "../canvas.mock";
+import { toTarget } from "../helpers";
 import {
   getActiveXc,
   getCellContent,
@@ -9,11 +10,8 @@ import {
   getCell,
   getMergeCellMap,
   getMerges,
-  setCellContent,
-  target,
-  redo,
-  undo,
-} from "../helpers";
+} from "../getters_helpers";
+import { setCellContent, redo, undo } from "../commands_helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -377,7 +375,7 @@ describe("merges", () => {
     model.dispatch("ADD_MERGE", { sheetId, zone: toZone("A1:B1") });
     model.dispatch("SET_FORMATTING", {
       sheetId,
-      target: target("A1"),
+      target: toTarget("A1"),
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -413,7 +411,7 @@ describe("merges", () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("SET_FORMATTING", {
       sheetId,
-      target: target("A1"),
+      target: toTarget("A1"),
       border: "external",
     });
     const line = ["thin", "#000"];
@@ -430,7 +428,7 @@ describe("merges", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("SET_FORMATTING", {
       sheetId: sheet1,
-      target: target("A1"),
+      target: toTarget("A1"),
       border: "external",
       style: { fillColor: "red" },
     });

@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import { createSheet, getCell, getCellContent, getCellText, setCellContent } from "../helpers";
+import { getCell, getCellContent, getCellText } from "../getters_helpers";
+import { createSheet, setCellContent } from "../commands_helpers";
 import { CancelledReason } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
 

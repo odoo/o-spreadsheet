@@ -3,16 +3,8 @@ import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr } from "../../src/types/index";
 import "../helpers"; // to have getcontext mocks
-import {
-  setBorder,
-  getBorder,
-  getCell,
-  setCellContent,
-  addColumns,
-  addRows,
-  getCellContent,
-  undo,
-} from "../helpers";
+import { getBorder, getCell, getCellContent } from "../getters_helpers";
+import { setBorder, setCellContent, addColumns, addRows, undo } from "../commands_helpers";
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {

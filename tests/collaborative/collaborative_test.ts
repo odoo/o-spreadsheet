@@ -1,14 +1,7 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import {
-  clearCell,
-  createSheet,
-  getBorder,
-  getCell,
-  getCellContent,
-  setCellContent,
-  undo,
-} from "../helpers";
+import { getBorder, getCell, getCellContent } from "../getters_helpers";
+import { clearCell, createSheet, setCellContent, undo } from "../commands_helpers";
 import { MockNetwork } from "../__mocks__/network";
 import "../canvas.mock";
 import { setupCollaborativeEnv } from "./collaborative_helpers";

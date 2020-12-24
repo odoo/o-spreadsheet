@@ -2,7 +2,8 @@ import { Model } from "../../src";
 import { toCartesian } from "../../src/helpers";
 import { SearchOptions, ReplaceOptions } from "../../src/plugins/ui/find_and_replace";
 import "../canvas.mock";
-import { createSheet, getCellContent, getCellText } from "../helpers";
+import { getCellContent, getCellText } from "../getters_helpers";
+import { createSheet } from "../commands_helpers";
 
 let model: Model;
 let searchOptions: SearchOptions;

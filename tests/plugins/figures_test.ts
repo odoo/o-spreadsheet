@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { Viewport } from "../../src/types";
-import { createSheet, undo } from "../helpers";
+import { createSheet, undo } from "../commands_helpers";
 
 const viewport: Viewport = {
   left: 0,

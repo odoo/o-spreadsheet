@@ -1,15 +1,8 @@
 import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
-import {
-  getBorder,
-  getCell,
-  setCellContent,
-  waitForRecompute,
-  getCellContent,
-  createSheet,
-  redo,
-  undo,
-} from "../helpers";
+import { waitForRecompute } from "../helpers";
+import { getBorder, getCell, getCellContent } from "../getters_helpers";
+import { setCellContent, createSheet, redo, undo } from "../commands_helpers";
 import { CancelledReason } from "../../src/types/commands";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { StateManager } from "../../src/state_manager";

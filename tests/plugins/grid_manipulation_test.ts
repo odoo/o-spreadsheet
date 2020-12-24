@@ -1,18 +1,15 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
+import { makeTestFixture, mockUuidV4To } from "../helpers";
 import {
-  createSheet,
   getBorder,
   getCell,
   getCellContent,
   getCellText,
   getMergeCellMap,
   getMerges,
-  makeTestFixture,
-  mockUuidV4To,
-  redo,
-  undo,
-} from "../helpers";
+} from "../getters_helpers";
+import { createSheet, redo, undo } from "../commands_helpers";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 let model: Model;

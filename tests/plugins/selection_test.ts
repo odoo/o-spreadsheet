@@ -1,7 +1,8 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { createSheet, getActiveXc } from "../helpers";
+import { getActiveXc } from "../getters_helpers";
+import { createSheet } from "../commands_helpers";
 import { CancelledReason } from "../../src/types";
 
 describe("selection", () => {

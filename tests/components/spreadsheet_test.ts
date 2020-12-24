@@ -1,13 +1,8 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { Spreadsheet } from "../../src/components";
 import { args, functionRegistry } from "../../src/functions";
-import {
-  makeTestFixture,
-  nextTick,
-  MockClipboard,
-  typeInComposer,
-  setCellContent,
-} from "../helpers";
+import { makeTestFixture, nextTick, MockClipboard, typeInComposer } from "../helpers";
+import { setCellContent } from "../commands_helpers";
 import { Model } from "../../src";
 import { SelectionMode } from "../../src/plugins/ui/selection";
 import { triggerMouseEvent } from "../dom_helper";

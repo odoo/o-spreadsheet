@@ -1,13 +1,7 @@
 import { Model } from "../../src/model";
-import {
-  waitForRecompute,
-  getCell,
-  setCellContent,
-  getCellContent,
-  createSheet,
-  redo,
-  undo,
-} from "../helpers";
+import { waitForRecompute } from "../helpers";
+import { getCell, getCellContent } from "../getters_helpers";
+import { setCellContent, createSheet, redo, undo } from "../commands_helpers";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
 

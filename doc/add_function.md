@@ -37,7 +37,7 @@ The properties of a function are:
   - `lazy` (boolean, default=false): this parameter will not be evaluated until it is accessed
   - `default` (boolean): defines that a parameter has a default value, specified in `defaultValue`
   - `defaultValue` (any): the default value of a parameter if it is not defined
-  Note that you can use a short version of these parameters by using the function `args` that takes a string as parameter:
+    Note that you can use a short version of these parameters by using the function `args` that takes a string as parameter:
   ```javascript
   {
       ...,

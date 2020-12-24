@@ -3,15 +3,11 @@ import {
   nextTick,
   makeTestFixture,
   GridParent,
-  getActiveXc,
-  getCell,
   startGridComposition as startComposition,
   typeInComposer as typeInComposerHelper,
-  setCellContent,
-  getCellText,
-  getCellContent,
-  createSheet,
 } from "../helpers";
+import { getActiveXc, getCell, getCellText, getCellContent } from "../getters_helpers";
+import { setCellContent, createSheet } from "../commands_helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
 import { toZone, colors } from "../../src/helpers/index";
 import { triggerMouseEvent } from "../dom_helper";

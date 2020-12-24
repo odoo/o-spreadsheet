@@ -1,7 +1,8 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { createSheet, getCell, getCellContent, setCellContent, undo } from "../helpers";
+import { getCell, getCellContent } from "../getters_helpers";
+import { createSheet, setCellContent, undo } from "../commands_helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {

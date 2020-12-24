@@ -1,7 +1,8 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar";
 import { Model } from "../../src/model";
-import { makeTestFixture, nextTick, mockUuidV4To, createSheet } from "../helpers";
+import { makeTestFixture, nextTick, mockUuidV4To } from "../helpers";
+import { createSheet } from "../commands_helpers";
 import { triggerMouseEvent } from "../dom_helper";
 import { CommandResult } from "../../src/types";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));

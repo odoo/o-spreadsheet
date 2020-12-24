@@ -8,7 +8,8 @@ import { ConditionalFormatPlugin } from "../src/plugins/core/conditional_format"
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
 import { FigurePlugin } from "../src/plugins/core/figures";
 import { ChartPlugin } from "../src/plugins/core/chart";
-import { getCell, setCellContent } from "./helpers";
+import { getCell } from "./getters_helpers";
+import { setCellContent } from "./commands_helpers";
 import { SheetPlugin } from "../src/plugins/core/sheet";
 import { FindAndReplacePlugin } from "../src/plugins/ui/find_and_replace";
 import { SheetUIPlugin } from "../src/plugins/ui/ui_sheet";

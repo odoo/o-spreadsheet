@@ -1,13 +1,7 @@
 import { Model } from "../../src/model";
-import {
-  makeTestFixture,
-  GridParent,
-  nextTick,
-  getActiveXc,
-  setCellContent,
-  redo,
-  undo,
-} from "../helpers";
+import { makeTestFixture, GridParent, nextTick } from "../helpers";
+import { getActiveXc } from "../getters_helpers";
+import { setCellContent, redo, undo } from "../commands_helpers";
 import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,

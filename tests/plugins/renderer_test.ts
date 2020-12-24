@@ -2,7 +2,8 @@ import { Model } from "../../src/model";
 import { MockCanvasRenderingContext2D } from "../canvas.mock";
 import { Viewport, GridRenderingContext } from "../../src/types";
 import { toZone } from "../../src/helpers";
-import { setCellContent, mockUuidV4To, createEqualCF } from "../helpers";
+import { mockUuidV4To, createEqualCF } from "../helpers";
+import { setCellContent } from "../commands_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100 };

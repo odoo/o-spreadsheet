@@ -1,14 +1,9 @@
 import { Component, hooks, tags } from "@odoo/owl";
 import { TopBar } from "../../src/components/top_bar";
 import { Model } from "../../src/model";
-import {
-  getCell,
-  makeTestFixture,
-  nextTick,
-  GridParent,
-  setCellContent,
-  getBorder,
-} from "../helpers";
+import { makeTestFixture, nextTick, GridParent } from "../helpers";
+import { getCell, getBorder } from "../getters_helpers";
+import { setCellContent } from "../commands_helpers";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { triggerMouseEvent } from "../dom_helper";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
