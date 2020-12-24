@@ -2,14 +2,12 @@
 
 The `o-spreadsheet` library is designed to be standalone, but easy to integrate.
 
-
-
 ## Integrating o-spreadsheet in an existing application
 
 1. [Providing a way for o-spreadsheet to interact with the user](integration.md)
-    1. for confirmation
-    1. for notification
-    1. for editing text
+   1. for confirmation
+   1. for notification
+   1. for editing text
 1. Loading and saving data
 1. Customizing the layout
 1. Translating terms
@@ -17,7 +15,6 @@ The `o-spreadsheet` library is designed to be standalone, but easy to integrate.
 ## Our Terminology
 
 [At a glance](o-spreadsheet_terminology.png)
-
 
 ## Extending the functionalities of o-spreadsheet
 
