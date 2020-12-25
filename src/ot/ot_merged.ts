@@ -1,11 +1,11 @@
 import { toXC, isInside, overlap } from "../helpers/index";
 import { AddMergeCommand } from "../types";
-import { CellCommand } from "./ot_types";
+import { PositionalCommand } from "./ot_types";
 
 export function mergedCellCommand(
-  toTransform: CellCommand,
+  toTransform: PositionalCommand,
   executed: AddMergeCommand
-): CellCommand | undefined {
+): PositionalCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }

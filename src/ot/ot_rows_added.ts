@@ -1,10 +1,10 @@
 import { AddMergeCommand, AddRowsCommand, ResizeRowsCommand, Zone } from "../types";
-import { CellCommand, TargetCommand } from "./ot_types";
+import { PositionalCommand, TargetCommand } from "./ot_types";
 
 export function rowsAddedCellCommand(
-  toTransform: CellCommand,
+  toTransform: PositionalCommand,
   executed: AddRowsCommand
-): CellCommand {
+): PositionalCommand {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }

@@ -6,7 +6,7 @@ import {
   ResizeRowsCommand,
   Zone,
 } from "../types";
-import { CellCommand, TargetCommand } from "./ot_types";
+import { PositionalCommand, TargetCommand } from "./ot_types";
 
 function transformZone(zone: Zone, executed: RemoveRowsCommand): Zone | undefined {
   let top = zone.top;
@@ -27,9 +27,9 @@ function transformZone(zone: Zone, executed: RemoveRowsCommand): Zone | undefine
 }
 
 export function rowsRemovedCellCommand(
-  toTransform: CellCommand,
+  toTransform: PositionalCommand,
   executed: RemoveRowsCommand
-): CellCommand | undefined {
+): PositionalCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }

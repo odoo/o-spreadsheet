@@ -1,6 +1,6 @@
 import { isDefined } from "../helpers/index";
 import { AddColumnsCommand, AddMergeCommand, RemoveColumnsCommand, Zone } from "../types";
-import { CellCommand, TargetCommand } from "./ot_types";
+import { PositionalCommand, TargetCommand } from "./ot_types";
 
 function transformZone(zone: Zone, executed: RemoveColumnsCommand): Zone | undefined {
   let left = zone.left;
@@ -21,9 +21,9 @@ function transformZone(zone: Zone, executed: RemoveColumnsCommand): Zone | undef
 }
 
 export function columnsRemovedCellCommand(
-  toTransform: CellCommand,
+  toTransform: PositionalCommand,
   executed: RemoveColumnsCommand
-): CellCommand | undefined {
+): PositionalCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
