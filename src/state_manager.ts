@@ -136,6 +136,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   ) {
     super();
     this.session = collaborativeSession || new LocalSession();
+    // TODO probably not needed to "bind". this is handled by the event bus.
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived.bind(this));
     this.session.on("revision-acknowledged", this, (revision: RemoteRevisionData) => {
       this.acknowledgeRevision(revision.newRevisionId);

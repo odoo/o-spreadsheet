@@ -1,3 +1,4 @@
+import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import {
   Client,
@@ -10,10 +11,10 @@ import {
   Message,
   Network,
   RemoteRevisionData,
-  CollaborativeEventBus,
+  CollaborativeEvent,
 } from "../types/multi_users";
 
-export class CollaborativeSession extends CollaborativeEventBus implements Session {
+export class CollaborativeSession extends EventBus<CollaborativeEvent> implements Session {
   private positions: Record<ClientId, Client | undefined> = {};
 
   constructor(private network: Network, private client: Client) {

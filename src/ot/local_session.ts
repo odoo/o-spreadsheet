@@ -1,6 +1,7 @@
-import { Client, Session, RemoteRevisionData, CollaborativeEventBus } from "../types/multi_users";
+import { EventBus } from "../helpers/event_bus";
+import { Client, Session, RemoteRevisionData, CollaborativeEvent } from "../types/multi_users";
 
-export class LocalSession extends CollaborativeEventBus implements Session {
+export class LocalSession extends EventBus<CollaborativeEvent> implements Session {
   private client: Client = { id: "local", name: "Local" };
   addRevision(revision: RemoteRevisionData) {
     this.trigger("revision-acknowledged", revision);

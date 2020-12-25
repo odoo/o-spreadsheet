@@ -1,4 +1,4 @@
-import * as owl from "@odoo/owl";
+import { EventBus } from "../helpers/event_bus";
 import { CoreCommand } from "./commands";
 import { UID } from "./misc";
 
@@ -79,27 +79,7 @@ export interface Network {
   onNewMessage: (clientId: ClientId, callback: NewMessageCallback) => void;
 }
 
-// TODO move it else where ?
-export class CollaborativeEventBus {
-  private bus = new owl.core.EventBus();
-
-  on<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
-    type: T,
-    owner: any,
-    callback: (r: Omit<E, "type">) => void
-  ) {
-    this.bus.on(type, owner, callback);
-  }
-
-  trigger<T extends CollaborativeEventTypes, E extends Extract<CollaborativeEvent, { type: T }>>(
-    type: T,
-    payload?: Omit<E, "type">
-  ) {
-    this.bus.trigger(type, payload);
-  }
-}
-
-export interface Session extends CollaborativeEventBus {
+export interface Session extends EventBus<CollaborativeEvent> {
   addRevision: (revision: RemoteRevisionData) => void;
   move: (position: ClientPosition) => void;
   leave: () => void;
