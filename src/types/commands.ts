@@ -219,7 +219,6 @@ export interface RenameSheetCommand extends BaseCommand {
 //------------------------------------------------------------------------------
 
 /**
- * todo: add sheet argument...
  * todo: use id instead of a list. this is not safe to serialize and send to
  * another user
  */

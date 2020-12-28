@@ -37,7 +37,8 @@ import {
 } from "./ot_rows_removed";
 
 /**
- * TODO
+ * Get the result of applying the operation transformations on the given command
+ * to transform based on the executed command.
  */
 export function transform(
   toTransform: CoreCommand,
@@ -48,7 +49,8 @@ export function transform(
 }
 
 /**
- * TODO
+ * Get the result of applying the operation transformations on all the given
+ * commands to transform for each executed commands.
  */
 export function transformAll(
   toTransform: readonly CoreCommand[],
