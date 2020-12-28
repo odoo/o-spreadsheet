@@ -36,12 +36,6 @@ export interface RemoteRevisionData extends BaseMessage {
   revisionId: UID;
 }
 
-// TODO only used in o-spreadsheet for test => remote it
-export interface ConnectionMessage extends BaseMessage {
-  type: "CONNECTION";
-  messages: RemoteRevisionData[];
-}
-
 export interface ClientJoinedMessage {
   type: "CLIENT_JOINED";
   position: ClientPosition;
@@ -61,7 +55,6 @@ export interface ClientMovedMessage {
 
 export type Message =
   | RemoteRevisionData
-  | ConnectionMessage
   | ClientMovedMessage
   | ClientJoinedMessage
   | ClientLeftMessage;

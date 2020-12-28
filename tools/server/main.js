@@ -13,7 +13,7 @@ const messages = []; // { id: UID, message: NetworkMessage }
 let revision = "START_REVISION";
 
 expressWS.getWss().on("connection", (ws) => {
-  ws.send(JSON.stringify({ type: "CONNECTION", messages, newRevisionId: revision }));
+  ws.send(JSON.stringify(messages));
   log(`Connection: ${messages.length} messages sent`);
 });
 

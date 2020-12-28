@@ -39,6 +39,7 @@ export interface BaseCommand {
 // Exported to be used in ot_completude_test.ts
 export const coreTypes = new Set<CoreCommandTypes>([
   // ...
+  "SELECTIVE_UNDO",
 
   /** CELLS */
   "UPDATE_CELL",
@@ -579,6 +580,11 @@ export interface ClearCellCommand extends BaseCommand {
   row: number;
 }
 
+export interface SelectiveUndoCommand extends BaseCommand {
+  type: "SELECTIVE_UNDO";
+  revisionId: UID;
+}
+
 export interface UndoCommand extends BaseCommand {
   type: "UNDO";
 }
@@ -722,6 +728,7 @@ export interface ReplaceAllSearchCommand extends BaseCommand {
 }
 
 export type CoreCommand =
+  | SelectiveUndoCommand
   /** CELLS */
   | UpdateCellCommand
   | UpdateCellPositionCommand

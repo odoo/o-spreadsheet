@@ -21,6 +21,8 @@ import {
   sidePanelRegistry,
   sheetMenuRegistry,
   topbarComponentRegistry,
+  otRegistry,
+  inverseCommandRegistry,
 } from "./registries/index";
 
 import {
@@ -78,6 +80,8 @@ export const registries = {
   sheetMenuRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
+  otRegistry,
+  inverseCommandRegistry,
 };
 
 export const helpers = {

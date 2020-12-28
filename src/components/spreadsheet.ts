@@ -9,7 +9,7 @@ import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
 import { WebsocketNetwork } from "../ot/network";
-import { Client, RemoteRevisionData } from "../types/multi_users";
+import { Client, Network, RemoteRevisionData } from "../types/multi_users";
 import { CollaborativeSession } from "../ot/collaborative_session";
 import { _lt } from "../translation";
 import { uuidv4 } from "../helpers/index";
@@ -72,7 +72,7 @@ const CSS = css/* scss */ `
 
 interface Props {
   data?: any;
-  network?: CollaborativeSession | "default"; // rename prop
+  network?: Network | "default"; // rename prop
   messages?: RemoteRevisionData[]; // TODO rename messages
   client?: Client;
 }
@@ -91,7 +91,12 @@ export class Spreadsheet extends Component<Props> {
           new WebsocketNetwork(),
           this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
         )
-      : this.props.network;
+      : this.props.network
+      ? new CollaborativeSession(
+          this.props.network,
+          this.props.client || { id: uuidv4(), name: _lt("Anonymous").toString() }
+        )
+      : undefined;
 
   model = new Model(
     this.props.data,

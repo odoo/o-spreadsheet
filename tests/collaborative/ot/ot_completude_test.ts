@@ -1,6 +1,6 @@
 import { coreTypes } from "../../../src";
-import { inverseCommandsRegistry } from "../../../src/helpers/inverse_commands";
-import { otRegistry } from "../../../src/ot/ot";
+import { inverseCommandRegistry } from "../../../src/registries/inverse_command_registry";
+import { otRegistry } from "../../../src/registries/ot_registry";
 import { CoreCommandTypes } from "../../../src/types";
 
 // Not sure it should be merged, but will help us at least
@@ -11,7 +11,7 @@ describe("Completude", () => {
     let done = 0;
     for (let cmd of coreTypes) {
       try {
-        inverseCommandsRegistry.get(cmd);
+        inverseCommandRegistry.get(cmd);
         done++;
       } catch (e) {
         if (!msg) {
@@ -82,6 +82,7 @@ function only(types: CoreCommandTypes[]): Set<CoreCommandTypes> {
 const STYLE_COMMANDS = ["SET_FORMATTING", "CLEAR_FORMATTING", "SET_BORDER", "SET_DECIMAL"] as const;
 // Record<Executed, ToTransform[]>
 const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
+  SELECTIVE_UNDO: none(),
   /** CELLS */
   UPDATE_CELL: none(),
   UPDATE_CELL_POSITION: none(),

@@ -1,5 +1,5 @@
 import { isDefined } from "../helpers/index";
-import { OTRegistry } from "../registries/ot_registry";
+import { otRegistry } from "../registries/ot_registry";
 import { CoreCommand } from "../types";
 import {
   columnsAddedAddColumns,
@@ -64,8 +64,6 @@ export function transformAll(
   }
   return transformedCommands;
 }
-
-export const otRegistry = new OTRegistry();
 
 otRegistry.addTransformation("UPDATE_CELL", "DELETE_SHEET", sheetDeleted);
 otRegistry.addTransformation("UPDATE_CELL_POSITION", "DELETE_SHEET", sheetDeleted);

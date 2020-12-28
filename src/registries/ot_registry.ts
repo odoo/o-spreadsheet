@@ -36,3 +36,5 @@ export class OTRegistry extends Registry<
     return this.content[toTransform] && this.content[toTransform].get(executed);
   }
 }
+
+export const otRegistry = new OTRegistry();
