@@ -384,18 +384,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     }
   }
 
-  // TODO rename deletedCommands
-  private transformAndApply(deletedCommands: CoreCommand[], revisions: Revision[]) {
-    const executedCommands = [...deletedCommands]; //TODO Check if spread is needed
-    const commands: CoreCommand[] = [];
-    for (const revision of revisions) {
-      if (!revision.isUndo && !revision.isCancelledBy(this.revisionLogs)) {
-        commands.push(...transformAll(revision.commands, executedCommands));
-      }
-    }
-    commands.forEach((cmd) => this.dispatch(cmd.type, cmd));
-  }
-
   // ---------------------------------------------------------------------------
   // History management
   // ---------------------------------------------------------------------------
@@ -453,32 +441,41 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * 3) Replay these transformed revisions
    *
    */
-  private selectiveUndo(revertedRevisionId: UID, revertedToRevisionId?: UID) {
+  private selectiveUndo(revertedRevisionId: UID) {
     const { toUndo, toRevert: toRevertAndReplay } = this.getSelectiveUndoRevisions(
-      revertedRevisionId,
-      revertedToRevisionId
+      revertedRevisionId
     );
     this.revertChanges([toUndo, ...toRevertAndReplay]);
     this.transformAndApply(toUndo.inverses, toRevertAndReplay);
   }
 
+  // TODO rename deletedCommands
+  private transformAndApply(deletedCommands: CoreCommand[], revisions: Revision[]) {
+    const executedCommands = [...deletedCommands]; //TODO Check if spread is needed
+    const commands: CoreCommand[] = [];
+    for (const revision of revisions) {
+      if (revision.isUndo) {
+        if (revisions.findIndex((rev) => rev.id === revision.toRevert) === -1) {
+          commands.push(...revision.commands);
+        }
+      }
+      if (!revision.isCancelledBy(revisions)) {
+        commands.push(...transformAll(revision.commands, executedCommands));
+      }
+    }
+    commands.forEach((cmd) => this.dispatch(cmd.type, cmd));
+  }
+
   /**
    * Get the revision to undo and the revisions to revert.
    */
-  private getSelectiveUndoRevisions(
-    id: UID,
-    toId?: UID
-  ): { toUndo: Revision; toRevert: Revision[] } {
+  private getSelectiveUndoRevisions(id: UID): { toUndo: Revision; toRevert: Revision[] } {
     const revisions = [...this.revisionLogs];
     const index = revisions.findIndex((step) => step.id === id);
     if (index === -1) {
       throw new Error(`No history step with id ${id} - ${this.getUserId()}`);
     }
-    const indexTo = toId ? revisions.findIndex((step) => step.id === toId) : undefined;
-    if (indexTo === -1) {
-      throw new Error(`No history step with id ${id} - ${this.getUserId()}`);
-    }
-    const toRevert = indexTo ? revisions.slice(index, indexTo) : revisions.slice(index);
+    const toRevert = revisions.slice(index);
     const toUndo = toRevert.shift()!;
     if (!toUndo) {
       throw new Error("No revision to undo !");

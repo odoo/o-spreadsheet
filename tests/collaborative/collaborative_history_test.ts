@@ -80,7 +80,80 @@ describe("Collaborative UNDO - REDO", () => {
     );
   });
 
-  test("Undo two commands from differents users", () => {
+  test("Undo two commands from differents users, Alice first", () => {
+    /**
+     * START ....... A ....... B ....... Undo A ....... Undo B
+     *
+     * START .. A .. B .. C .. D .. E .. F .. G .. H .. I
+     * UNDO G:
+     *  Checkout F
+     *  Cherry pick H // G-1
+     *  Cherry pick I // G-1
+     * START .. A .. B .. C .. D .. E .. F .. UNDOG
+     *  UNDOG: commit de merge avec H' et I'
+     *  [id: UNDOG]: G .. H .. I
+     *
+     *
+     * START .. A .. B .. C .. D .. E .. F .. UNDOG .. M .. N
+     *  REDOG:
+     *  Checkout F
+     *  rebase [id:UNDOG] G .. H .. I
+     *  Cherry pick M // G
+     *  Cherry pick N // G
+     * START .. A .. B .. C .. D .. E .. F .. G .. H .. I .. M .. N
+     *
+     * -------------------------------------------------------------------------
+     * START .. A .. B .. C .. D
+     * [Undo A] *************************:
+     *  Checkout START
+     *  UNDOA: B' C' D'
+     *  [id: UNDOA]: A .. B .. C .. D
+     * MASTER : START
+     * START: 0 .. A .. B
+     *        0 .. UNDOA ..
+     *
+     * [Update cell E] ******************:
+     * START .. UNDOA .. E
+     *
+     * [Undo C] *************************:
+     *  Checkout START:
+     *  - In UNDOA:
+     *    Checkout C'
+     *    UNDOC: D''
+     *    [id: UNDOC]: C' D'
+     *    UNDOA: B' UNDOC
+     *  - Cherry pick E // C-1
+     *  START .. UNDOA ........... E'
+     *             |          |
+     *             --> B' D'' |
+     *
+     * [REDO A] *************************:
+     *  Checkout START:
+     *  Cherry-pick A
+     *  ( START .. A .. Rebase en cours)
+     *  UNDOA: (foreach(commit => commit // A))
+     *  E': (foreach(commit => commit // A))
+     *
+     * START .. A .. UNDOC' .......... E''
+     *                 |            |
+     *                 --> B'' D''' |
+     *
+     *
+     *
+     * Undo A:
+     *  Revert juste avant A (A et B)
+     *  Marqué A comme cancelled
+     *  Apply B ot// inverseA
+     *  Ajouter Undo A sur la stack
+     * START ........ A (cancelled) ....... B ....... Undo A  (B')
+     *
+     * Undo B':
+     *  Revert juste avant B':
+     *  Marqué B' comme cancelled
+     *  Apply Undo A:
+     *    Revert juste avant A'
+     *
+     */
     addColumns(alice, "before", "B", 1);
     addColumns(bob, "after", "A", 1);
     setCellContent(charly, "D1", "hello in D1");
@@ -100,25 +173,25 @@ describe("Collaborative UNDO - REDO", () => {
     );
   });
 
-  // test("Undo two commands from differents users", () => {
-  //   addColumns(alice, "before", "B", 1);
-  //   addColumns(bob, "after", "A", 1);
-  //   setCellContent(charly, "D1", "hello in D1");
-  //   expect([alice, bob, charly]).toHaveSynchronizedValue(
-  //     (user) => getCellContent(user, "D1"),
-  //     "hello in D1"
-  //   );
-  //   undo(bob);
-  //   expect([alice, bob, charly]).toHaveSynchronizedValue(
-  //     (user) => getCellContent(user, "B1"),
-  //     "hello in D1"
-  //     );
-  //   undo(alice);
-  //   expect([alice, bob, charly]).toHaveSynchronizedValue(
-  //     (user) => getCellContent(user, "C1"),
-  //     "hello in D1"
-  //   );
-  // });
+  test("Undo two commands from differents users, Bob first", () => {
+    addColumns(alice, "before", "B", 1);
+    addColumns(bob, "after", "A", 1);
+    setCellContent(charly, "D1", "hello in D1");
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "D1"),
+      "hello in D1"
+    );
+    undo(bob);
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "B1"),
+      "hello in D1"
+    );
+    undo(alice);
+    expect([alice, bob, charly]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "C1"),
+      "hello in D1"
+    );
+  });
 
   test("pending undo is correctly re-applied", () => {
     setCellContent(alice, "A1", "hello");
