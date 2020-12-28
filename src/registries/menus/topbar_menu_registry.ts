@@ -13,6 +13,7 @@ topbarMenuRegistry
   .add("insert", { name: _lt("Insert"), sequence: 40 })
   .add("format", { name: _lt("Format"), sequence: 50 })
   .add("data", { name: _lt("Data"), sequence: 60 })
+  .add("debug", { name: "DEBUG", sequence: 70 })
   .addChild("save", ["file"], {
     name: _lt("Save"),
     shortCut: "Ctrl+S",
@@ -207,6 +208,11 @@ topbarMenuRegistry
     sequence: 70,
     action: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
     separator: true,
+  })
+  .addChild("debug_collaborative", ["debug"], {
+    name: "Collaborative",
+    sequence: 10,
+    action: ACTIONS.OPEN_COLLABORATIVE_DEBUG_ACTION,
   });
 
 // Font-sizes

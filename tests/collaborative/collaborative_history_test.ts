@@ -80,7 +80,7 @@ describe("Collaborative UNDO - REDO", () => {
     );
   });
 
-  test.skip("Undo two commands from differents users", () => {
+  test("Undo two commands from differents users", () => {
     addColumns(alice, "before", "B", 1);
     addColumns(bob, "after", "A", 1);
     setCellContent(charly, "D1", "hello in D1");

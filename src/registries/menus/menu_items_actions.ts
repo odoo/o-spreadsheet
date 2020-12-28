@@ -430,3 +430,7 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
 export const OPEN_FAR_SIDEPANEL_ACTION = (env: SpreadsheetEnv) => {
   env.openSidePanel("FindAndReplace", {});
 };
+
+export const OPEN_COLLABORATIVE_DEBUG_ACTION = (env: SpreadsheetEnv) => {
+  env.openSidePanel("CollaborativeDebug", {});
+};

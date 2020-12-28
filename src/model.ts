@@ -141,6 +141,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       getConnectedClients: this.stateReplicator2000.getConnectedClients.bind(
         this.stateReplicator2000
       ),
+      getRevisionLogs: this.stateReplicator2000.getRevisionLogs.bind(this.stateReplicator2000),
     } as Getters;
     this.handlers = [this.stateReplicator2000];
 
