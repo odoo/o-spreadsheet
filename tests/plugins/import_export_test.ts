@@ -5,6 +5,7 @@ import "../helpers"; // to have getcontext mocks
 import { CURRENT_VERSION } from "../../src/data";
 import { mockUuidV4To } from "../helpers";
 import { getMerges } from "../getters_helpers";
+import "../jest_extend";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
@@ -222,7 +223,7 @@ test("complete import, then export", () => {
     },
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(modelData);
+  expect(model).toExport(modelData);
   // We test here a that two import with the same data give the same result.
   const model2 = new Model(modelData);
   expect(model2.exportData()).toEqual(modelData);
@@ -251,5 +252,5 @@ test("import then export (figures)", () => {
     borders: {},
   };
   const model = new Model(modelData);
-  expect(model.exportData()).toEqual(modelData);
+  expect(model).toExport(modelData);
 });

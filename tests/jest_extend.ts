@@ -12,11 +12,30 @@ declare global {
        * Check that the same callback on each users give the same expected value
        */
       toHaveSynchronizedValue<T>(callback: (model: Model) => T, expected: T): R;
+      /**
+       * Check that the export data of the model is the same as the expected.
+       * Note that it ignore the revisionId, as it's intended that it should be
+       * different
+       */
+      toExport<T>(expected: T): R;
     }
   }
 }
 
 expect.extend({
+  toExport(model: Model, expected: any) {
+    const exportData = model.exportData();
+    if (!this.equals(exportData, { ...expected, revisionId: expect.any(String) })) {
+      return {
+        pass: this.isNot,
+        message: () =>
+          `Received: ${this.utils.printReceived(exportData)}\nExpected: ${this.utils.printExpected(
+            expected
+          )}`,
+      };
+    }
+    return { pass: !this.isNot, message: () => "" };
+  },
   toHaveSynchronizedValue(users: Model[], callback: (model: Model) => any, expected: any) {
     for (let user of users) {
       const result = callback(user);

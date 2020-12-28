@@ -49,7 +49,8 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
   .add("SET_BORDER", identity)
   .add("SET_DECIMAL", identity)
   .add("CREATE_CHART", inverseCreateChart)
-  .add("UPDATE_CHART", identity);
+  .add("UPDATE_CHART", identity)
+  .add("SELECTIVE_UNDO", identity);
 
 function identity(cmd: CoreCommand): CoreCommand[] {
   return [cmd];

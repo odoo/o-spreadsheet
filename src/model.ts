@@ -259,7 +259,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         this.stateReplicator2000.recordChanges(() => {
           this.dispatchToHandlers(command);
           this.finalize();
-        }, command);
+        });
         this.status = Status.Ready;
         if (this.config.mode !== "headless") {
           this.trigger("update");

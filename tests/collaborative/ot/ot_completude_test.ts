@@ -143,7 +143,13 @@ const whitelist: Record<CoreCommandTypes, Set<CoreCommandTypes>> = {
 
   /** SHEETS MANIPULATION */
   CREATE_SHEET: none(),
-  DELETE_SHEET: allExcept(["CREATE_SHEET", "DELETE_FIGURE", "UPDATE_FIGURE", "UPDATE_CHART"]),
+  DELETE_SHEET: allExcept([
+    "CREATE_SHEET",
+    "DELETE_FIGURE",
+    "UPDATE_FIGURE",
+    "UPDATE_CHART",
+    "SELECTIVE_UNDO",
+  ]),
   DUPLICATE_SHEET: none(),
   MOVE_SHEET: none(),
   RENAME_SHEET: none(),

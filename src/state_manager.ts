@@ -54,9 +54,7 @@ class Revision {
   public readonly clientId: ClientId;
   protected _commands: CoreCommand[] = [];
 
-  public isUndo: boolean = false; //TODO make it better
   public isRedo: boolean = false; //TODO make it better
-  public isCancelled: boolean = false; //TODO make it better
   public toRevert: UID | undefined; //TODO make it better
   public isSync: boolean = false; //TODO Make it better
   protected _inverses: CoreCommand[] = [];
@@ -65,6 +63,10 @@ class Revision {
   constructor(id: UID = uuidv4(), clientId: ClientId) {
     this.id = id;
     this.clientId = clientId;
+  }
+
+  get isUndo(): boolean {
+    return !!this.toRevert;
   }
 
   get commands(): readonly CoreCommand[] {
@@ -77,6 +79,10 @@ class Revision {
 
   get changes() {
     return [...this._changes];
+  }
+
+  isCancelledBy(revisions: Revision[]): boolean {
+    return revisions.some((revision) => revision.toRevert === this.id);
   }
 
   getMessage(revisionId: UID): RemoteRevisionData {
@@ -178,8 +184,6 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
         this.currentDraftRevision!.toRevert = cmd.revisionId; //TODO Make it better
         const revision = this.revisionLogs.find((revision) => revision.id === cmd.revisionId);
         if (revision) {
-          revision.isCancelled = true;
-          this.currentDraftRevision!.isUndo = true;
           this.selectiveUndo(revision.id);
           this.sendPendingRevision();
         } else {
@@ -226,14 +230,9 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
    * Record the changes which could happen in the given callback and save them
    * in a revision.
    */
-  recordChanges(callback: () => void, cmd: Command) {
+  recordChanges(callback: () => void) {
     this.currentDraftRevision = new DraftRevision(uuidv4(), this.getUserId());
     this.currentDraftRevision.isSync = !this.session;
-    if (cmd.type === "UNDO") {
-      this.currentDraftRevision.isUndo = true;
-    } else if (cmd.type === "REDO") {
-      this.currentDraftRevision.isRedo = true;
-    }
     callback();
     if (this.currentDraftRevision) {
       this.saveDraftRevision();
@@ -329,6 +328,9 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     if (revision) {
       revision.isSync = true;
     }
+    if (this.pendingRevisions.length) {
+      this.sendPendingRevision();
+    }
   }
 
   /**
@@ -400,7 +402,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
     for (const revision of revisions) {
       if (revision.isUndo) {
         // this.localSelectiveUndo(revision.toRevert!, revision.id); //TODO make it better
-      } else if (!revision.isCancelled) {
+      } else if (!revision.isCancelledBy(this.revisionLogs)) {
         commands.push(...transformAll(revision.commands, executedCommands));
       }
     }
@@ -463,7 +465,7 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
         return undefined;
       }
 
-      if (log.isUndo && !log.isRedo && !log.isCancelled) {
+      if (log.isUndo && !log.isRedo && !log.isCancelledBy(this.revisionLogs)) {
         return log;
       }
     }
@@ -473,7 +475,10 @@ export class StateManager extends owl.core.EventBus implements CommandHandler<Co
   private getLastLocalRevision(): Revision | undefined {
     return [...this.revisionLogs]
       .reverse()
-      .filter((revision) => !revision.isUndo && !revision.isCancelled)
+      .filter(
+        (revision) =>
+          (revision.isRedo || !revision.isUndo) && !revision.isCancelledBy(this.revisionLogs)
+      )
       .find((step) => step.clientId === this.getUserId());
   }
 

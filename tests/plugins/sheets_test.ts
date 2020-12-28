@@ -317,7 +317,7 @@ describe("sheets", () => {
     undo(model);
     expect(model.getters.getVisibleSheets()[0]).toEqual(sheet1);
     expect(model.getters.getVisibleSheets()[1]).toEqual(sheet2);
-    expect(beforeMoveSheet).toEqual(model.exportData());
+    expect(model).toExport(beforeMoveSheet);
   });
 
   test("cannot move the first sheet to left and the last to right", () => {

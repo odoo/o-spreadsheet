@@ -253,10 +253,7 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("START_EDITION", { text: "abc" });
-    model.dispatch("STOP_EDITION");
-
-    expect(getCellContent(model, "A1")).toBe("abc");
+    setCellContent(model, "A1", "abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 

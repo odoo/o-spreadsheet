@@ -9,6 +9,7 @@ import {
   getMergeCellMap,
   getMerges,
 } from "../getters_helpers";
+  import "../jest_extend";
 import { createSheet, redo, undo } from "../commands_helpers";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
@@ -842,9 +843,9 @@ describe("Columns", () => {
       removeColumns([0, 2]);
       const afterRemove = model.exportData();
       undo(model);
-      expect(model.exportData()).toEqual(beforeRemove);
+      expect(model).toExport(beforeRemove);
       redo(model);
-      expect(model.exportData()).toEqual(afterRemove);
+      expect(model).toExport(afterRemove);
     });
     test("On addition", () => {
       model = new Model(fullData);
@@ -854,12 +855,12 @@ describe("Columns", () => {
       addColumns(4, "after", 4);
       const afterAdd2 = model.exportData();
       undo(model);
-      expect(model.exportData()).toEqual(afterAdd1);
+      expect(model).toExport(afterAdd1);
       redo(model);
-      expect(model.exportData()).toEqual(afterAdd2);
+      expect(model).toExport(afterAdd2);
       undo(model);
       undo(model);
-      expect(model.exportData()).toEqual(beforeAdd);
+      expect(model).toExport(beforeAdd);
     });
   });
 
@@ -1581,9 +1582,9 @@ describe("Rows", () => {
       removeRows([0, 2]);
       const afterRemove = model.exportData();
       undo(model);
-      expect(model.exportData()).toEqual(beforeRemove);
+      expect(model).toExport(beforeRemove);
       redo(model);
-      expect(model.exportData()).toEqual(afterRemove);
+      expect(model).toExport(afterRemove);
     });
 
     test("On addition", () => {
@@ -1594,12 +1595,12 @@ describe("Rows", () => {
       addRows(4, "after", 4);
       const afterAdd2 = model.exportData();
       undo(model);
-      expect(model.exportData()).toEqual(afterAdd1);
+      expect(model).toExport(afterAdd1);
       redo(model);
-      expect(model.exportData()).toEqual(afterAdd2);
+      expect(model).toExport(afterAdd2);
       undo(model);
       undo(model);
-      expect(model.exportData()).toEqual(beforeAdd);
+      expect(model).toExport(beforeAdd);
     });
   });
 

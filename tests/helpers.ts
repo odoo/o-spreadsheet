@@ -15,6 +15,7 @@ import {
   ColorScaleMidPointThreshold,
 } from "../src/types";
 import "./canvas.mock";
+import "./jest_extend";
 import { ComposerSelection } from "../src/plugins/ui/edition";
 import { undo, redo, setCellContent } from "./commands_helpers";
 import { getCell, getCellContent } from "./getters_helpers";
@@ -68,9 +69,9 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   model.dispatch(command, args);
   const after = model.exportData();
   undo(model);
-  expect(model.exportData()).toEqual(before);
+  expect(model).toExport(before);
   redo(model);
-  expect(model.exportData()).toEqual(after);
+  expect(model).toExport(after);
 }
 
 export class GridParent extends Component<any, SpreadsheetEnv> {
