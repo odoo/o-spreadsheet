@@ -647,13 +647,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             },
             dependencies: ranges,
           } as FormulaCell;
-        } catch (_) {
+        } catch (e) {
           cell = {
             id: cellId,
             type: CellType.invalidFormula,
             content: afterContent,
             value: "#BAD_EXPR",
-            error: _lt("Invalid Expression"),
+            error: e.message,
+            // error: _lt("Invalid Expression"),
           };
         }
       } else if (afterContent[0] === "=") {
@@ -677,13 +678,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             // todo: remove the actual range from the cell and only keep the range Id
             ranges.push(this.getters.getRangeFromSheetXC(sheet.id, xc));
           }
-        } catch (_) {
+        } catch (e) {
           cell = {
             id: cellId,
             type: CellType.invalidFormula,
             content: afterContent,
             value: "#BAD_EXPR",
-            error: _lt("Invalid Expression"),
+            error: e.message,
+            // error: _lt("Invalid Expression"),
           };
         }
       } else if (afterContent === "") {

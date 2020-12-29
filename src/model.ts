@@ -12,7 +12,6 @@ import {
   CommandSuccess,
   EvalContext,
 } from "./types/index";
-import { _lt } from "./translation";
 import { DEBUG, setIsFastStrategy } from "./helpers/index";
 import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
@@ -139,7 +138,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       const plugin = new Plugin(this.getters, history, dispatch, this.config);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
-          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
+          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
@@ -167,7 +166,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
       plugin.import(data);
       for (let name of Plugin.getters) {
         if (!(name in plugin)) {
-          throw new Error(_lt(`Invalid getter name: ${name} for plugin ${plugin.constructor}`));
+          throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
         }
         this.getters[name] = plugin[name].bind(plugin);
       }
@@ -228,7 +227,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
         }
         break;
       case Status.Finalizing:
-        throw new Error(_lt("Cannot dispatch commands in the finalize state"));
+        throw new Error("Cannot dispatch commands in the finalize state");
     }
     return { status: "SUCCESS" } as CommandSuccess;
   };

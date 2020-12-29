@@ -44,13 +44,6 @@ export function compile(str: NormalizedFormula): CompiledFormula {
     let nextId = 1;
     const code = [`// ${str.text}`];
 
-    if (ast.type === "BIN_OPERATION" && ast.value === ":") {
-      throw new Error(_lt("Invalid formula"));
-    }
-    if (ast.type === "UNKNOWN") {
-      throw new Error(_lt("Invalid formula"));
-    }
-
     /**
      * This function compile the function arguments. It is mostly straightforward,
      * except that there is a non trivial transformation in one situation:

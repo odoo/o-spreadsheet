@@ -103,7 +103,7 @@ function bindingPower(token: Token): number {
     case "OPERATOR":
       return OP_PRIORITY[token.value] || 15;
   }
-  throw new Error(_lt("?"));
+  throw new Error(`${token.type} has no binding power`);
 }
 
 export const cellReference = new RegExp(/\$?[A-Z]+\$?[0-9]+/, "i");
@@ -124,7 +124,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
       return { type: current.type, value: current.value };
     case "FUNCTION":
       if (tokens.shift()!.type !== "LEFT_PAREN") {
-        throw new Error(_lt("wrong function call"));
+        throw new Error(_lt('"(" expected'));
       } else {
         const args: AST[] = [];
         if (tokens[0].type !== "RIGHT_PAREN") {
@@ -147,7 +147,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           }
         }
         if (tokens.shift()!.type !== "RIGHT_PAREN") {
-          throw new Error(_lt("wrong function call"));
+          throw new Error(_lt("')' expected"));
         }
         const isAsync = functions[current.value.toUpperCase()].async;
         const type = isAsync ? "ASYNC_FUNCALL" : "FUNCALL";
@@ -163,7 +163,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         return { type: "BOOLEAN", value: current.value.toUpperCase() === "TRUE" } as AST;
       } else {
         if (current.value) {
-          throw new Error(_lt("Invalid formula"));
+          throw new Error(_lt(`'${current && current.value}' is not a correct value`));
         }
         return { type: "UNKNOWN", value: current.value };
       }
@@ -182,7 +182,7 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
           right: parseExpression(tokens, 15),
         };
       }
-      throw new Error(_lt("nope")); //todo: provide explicit error
+      throw new Error(_lt("Invalid formula"));
   }
 }
 
@@ -198,7 +198,7 @@ function parseInfix(left: AST, current: Token, tokens: Token[]): AST {
       right,
     };
   }
-  throw new Error(_lt("nope")); //todo: provide explicit error
+  throw new Error(_lt(`Invalid formula`));
 }
 
 function parseExpression(tokens: Token[], bp: number): AST {
