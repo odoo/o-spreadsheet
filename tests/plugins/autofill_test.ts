@@ -102,7 +102,7 @@ describe("Autofill", () => {
     ["1", "1", "number"],
     ["test", "test", "string"],
     ["=B1", "=B2", "formula"],
-    ["01/01/2020", "01/01/2020", "date"],
+    ["01/01/2020", "01/02/2020", "date"],
   ])("Autofill %s DOWN should give %s", (text, expected, expectedType) => {
     setCellContent(model, "A1", text);
     autofill("A1", "A2");
@@ -176,6 +176,36 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A4")).toBe("4");
       expect(getCellContent(model, "A5")).toBe("5");
       expect(getCellContent(model, "A6")).toBe("6");
+    });
+
+    test("Autofill dates", () => {
+      setCellContent(model, "A1", "3/3/2003");
+      setCellContent(model, "A2", "3/4/2003");
+      autofill("A1:A2", "A6");
+      expect(getCellText(model, "A3")).toBe("3/5/2003");
+      expect(getCellText(model, "A4")).toBe("3/6/2003");
+      expect(getCellText(model, "A5")).toBe("3/7/2003");
+      expect(getCellText(model, "A6")).toBe("3/8/2003");
+    });
+
+    test("Autofill hours", () => {
+      setCellContent(model, "A1", "10:26:04");
+      setCellContent(model, "A2", "10:28:08");
+      autofill("A1:A2", "A6");
+      expect(getCellText(model, "A3")).toBe("10:30:12");
+      expect(getCellText(model, "A4")).toBe("10:32:16");
+      expect(getCellText(model, "A5")).toBe("10:34:20");
+      expect(getCellText(model, "A6")).toBe("10:36:24");
+    });
+
+    test("Autofill percent", () => {
+      setCellContent(model, "A1", "1%");
+      setCellContent(model, "A2", "2%");
+      autofill("A1:A2", "A6");
+      expect(getCellText(model, "A3")).toBe("3%");
+      expect(getCellText(model, "A4")).toBe("4%");
+      expect(getCellText(model, "A5")).toBe("5%");
+      expect(getCellText(model, "A6")).toBe("6%");
     });
 
     test("Autofill 2 non-consecutive numbers", () => {

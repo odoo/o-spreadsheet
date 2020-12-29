@@ -29,7 +29,7 @@ autofillModifiersRegistry
   .add("INCREMENT_MODIFIER", {
     apply: (rule: IncrementModifier, data: AutofillCellData) => {
       rule.current += rule.increment;
-      const content = (parseFloat(data.content!) + rule.current).toString();
+      const content = rule.current.toString();
       return {
         cellData: Object.assign({}, data, { content }),
         tooltip: content ? { props: { content } } : undefined,
