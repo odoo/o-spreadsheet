@@ -1,6 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
+import { undo } from "../commands_helpers";
 import { getCell, getCellContent, setCellContent } from "../helpers";
 
 describe("styles", () => {
@@ -15,7 +16,7 @@ describe("styles", () => {
 
     expect(getCellContent(model, "B1")).toBe("");
     expect(getCell(model, "B1")!.style).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
@@ -30,7 +31,7 @@ describe("styles", () => {
     });
     expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
@@ -85,7 +86,7 @@ describe("styles", () => {
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "B1")!.style).not.toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "B1")!.style).toBeDefined();
   });
 

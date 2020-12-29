@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
+import { redo, undo } from "../commands_helpers";
 import { createEqualCF, createColorScale, setCellContent } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -159,12 +160,12 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
 
-    model.dispatch("UNDO");
+    undo(model);
 
     expect(model.getters.getConditionalStyle("A1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("A2")).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
 
     expect(model.getters.getConditionalStyle("A1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("A2")).toEqual({ fillColor: "#FF0000" });
@@ -186,13 +187,13 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("C2")).toEqual({ fillColor: "#FF0000" });
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getConditionalStyle("B1")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("B2")).toEqual({ fillColor: "#FF0000" });
     expect(model.getters.getConditionalStyle("C1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("C2")).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getConditionalStyle("B1")).toBeUndefined();
     expect(model.getters.getConditionalStyle("B2")).toBeUndefined();
     expect(model.getters.getConditionalStyle("C1")).toEqual({ fillColor: "#FF0000" });

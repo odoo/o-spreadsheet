@@ -2,6 +2,7 @@ import { Model } from "../../src/model";
 import { waitForRecompute, getCell, setCellContent, getCellContent } from "../helpers";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
+import { undo, redo } from "../commands_helpers";
 
 describe("core", () => {
   describe("aggregate", () => {
@@ -258,12 +259,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -284,12 +285,12 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
     expect(model.getters.canRedo()).toBe(true);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
     expect(model.getters.canRedo()).toBe(false);
@@ -307,10 +308,10 @@ describe("history", () => {
     });
     expect(getCell(model, "A2")).toBeUndefined();
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCell(model, "A2")).toBeUndefined();
   });
 

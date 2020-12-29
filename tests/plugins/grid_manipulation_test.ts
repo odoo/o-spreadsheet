@@ -12,16 +12,10 @@ import {
 } from "../helpers";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
+import { undo, redo } from "../commands_helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
-function undo() {
-  model.dispatch("UNDO");
-}
-
-function redo() {
-  model.dispatch("REDO");
-}
 
 function clearColumns(indexes: string[]) {
   const sheetId = model.getters.getActiveSheetId();
@@ -849,9 +843,9 @@ describe("Columns", () => {
       const beforeRemove = model.exportData();
       removeColumns([0, 2]);
       const afterRemove = model.exportData();
-      undo();
+      undo(model);
       expect(model.exportData()).toEqual(beforeRemove);
-      redo();
+      redo(model);
       expect(model.exportData()).toEqual(afterRemove);
     });
     test("On addition", () => {
@@ -861,12 +855,12 @@ describe("Columns", () => {
       const afterAdd1 = model.exportData();
       addColumns(4, "after", 4);
       const afterAdd2 = model.exportData();
-      undo();
+      undo(model);
       expect(model.exportData()).toEqual(afterAdd1);
-      redo();
+      redo(model);
       expect(model.exportData()).toEqual(afterAdd2);
-      undo();
-      undo();
+      undo(model);
+      undo(model);
       expect(model.exportData()).toEqual(beforeAdd);
     });
   });
@@ -1588,9 +1582,9 @@ describe("Rows", () => {
       const beforeRemove = model.exportData();
       removeRows([0, 2]);
       const afterRemove = model.exportData();
-      undo();
+      undo(model);
       expect(model.exportData()).toEqual(beforeRemove);
-      redo();
+      redo(model);
       expect(model.exportData()).toEqual(afterRemove);
     });
 
@@ -1601,12 +1595,12 @@ describe("Rows", () => {
       const afterAdd1 = model.exportData();
       addRows(4, "after", 4);
       const afterAdd2 = model.exportData();
-      undo();
+      undo(model);
       expect(model.exportData()).toEqual(afterAdd1);
-      redo();
+      redo(model);
       expect(model.exportData()).toEqual(afterAdd2);
-      undo();
-      undo();
+      undo(model);
+      undo(model);
       expect(model.exportData()).toEqual(beforeAdd);
     });
   });

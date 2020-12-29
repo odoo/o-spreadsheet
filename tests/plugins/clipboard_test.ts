@@ -12,6 +12,7 @@ import {
   target,
   zone,
 } from "../helpers";
+import { undo } from "../commands_helpers";
 
 function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = (model as any).handlers.find((h) => h instanceof ClipboardPlugin);
@@ -664,7 +665,7 @@ describe("clipboard", () => {
     model.dispatch("COPY", { target: target("B2") });
     model.dispatch("PASTE", { target: target("D2") });
     expect(getCell(model, "D2")).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "D2")).toBeUndefined();
   });
 
@@ -736,7 +737,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
   });
 
@@ -913,7 +914,7 @@ describe("clipboard", () => {
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
   });
 

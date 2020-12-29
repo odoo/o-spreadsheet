@@ -3,6 +3,7 @@ import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
+import { undo, redo } from "../commands_helpers";
 
 // we test here the undo/redo feature
 
@@ -174,15 +175,15 @@ describe("Model history", () => {
 
     expect(getCellContent(model, "A2")).toBe("5");
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A2")).toBeUndefined();
 
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A2")).toBe("3");
-    model.dispatch("REDO");
+    redo(model);
     expect(getCellContent(model, "A2")).toBe("5");
   });
 
@@ -192,7 +193,7 @@ describe("Model history", () => {
 
     expect(getCellContent(model, "A2")).toBe("3");
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A2")).toBeUndefined();
 
     expect(model.getters.canUndo()).toBe(false);
@@ -218,7 +219,7 @@ describe("Model history", () => {
     });
 
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
@@ -233,7 +234,7 @@ describe("Model history", () => {
     model.dispatch("START_EDITION", { text: "abc" });
     model.dispatch("STOP_EDITION");
     expect(getCellContent(model, "A1")).toBe("abc");
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCellContent(model, "A1")).toBe(String(MAX_HISTORY_STEPS - 1));
   });
 
@@ -242,9 +243,9 @@ describe("Model history", () => {
     setCellContent(model, "A1", "=A2");
     setCellContent(model, "A2", "11");
     expect(getCell(model, "A1")!.value).toBe(11);
-    model.dispatch("UNDO");
+    undo(model);
     expect(getCell(model, "A1")!.value).toBe(null);
-    model.dispatch("REDO");
+    redo(model);
     expect(getCell(model, "A1")!.value).toBe(11);
   });
 
@@ -254,7 +255,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(model.dispatch("UNDO")).toEqual({
+    expect(undo(model)).toEqual({
       reason: CancelledReason.EmptyUndoStack,
       status: "CANCELLED",
     });
@@ -267,7 +268,7 @@ describe("Model history", () => {
 
     expect(getCell(model, "A1")!.value).toBe(10);
 
-    expect(model.dispatch("REDO")).toEqual({
+    expect(redo(model)).toEqual({
       reason: CancelledReason.EmptyRedoStack,
       status: "CANCELLED",
     });
@@ -282,7 +283,7 @@ describe("Model history", () => {
       sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: "42",
     });
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
 
@@ -297,7 +298,7 @@ describe("Model history", () => {
       sheetIdTo: "42",
     });
     expect(model.getters.getActiveSheetId()).toBe("42");
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
@@ -305,7 +306,7 @@ describe("Model history", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet);
   });
 });

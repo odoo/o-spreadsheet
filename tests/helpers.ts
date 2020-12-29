@@ -24,6 +24,7 @@ import {
 import "./canvas.mock";
 import { MergePlugin } from "../src/plugins/core/merge";
 import { ComposerSelection } from "../src/plugins/ui/edition";
+import { redo, undo } from "./commands_helpers";
 export { setNextId as mockUuidV4To } from "./__mocks__/uuid";
 
 const functions = functionRegistry.content;
@@ -134,9 +135,9 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   const before = model.exportData();
   model.dispatch(command, args);
   const after = model.exportData();
-  model.dispatch("UNDO");
+  undo(model);
   expect(model.exportData()).toEqual(before);
-  model.dispatch("REDO");
+  redo(model);
   expect(model.exportData()).toEqual(after);
 }
 

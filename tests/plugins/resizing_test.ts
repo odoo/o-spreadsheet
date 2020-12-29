@@ -1,6 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { CancelledReason } from "../../src/types";
+import { undo, redo } from "../commands_helpers";
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
@@ -20,12 +21,12 @@ describe("Model resizer", () => {
     expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize);
     expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop);
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth);
 
-    model.dispatch("REDO");
+    redo(model);
     expect(model.getters.getCol(sheetId, 1)!.size).toBe(initialSize + 100);
     expect(model.getters.getCol(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getGridSize(sheet)[0]).toBe(initialWidth + 100);
@@ -99,7 +100,7 @@ describe("Model resizer", () => {
     expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop + 100);
     expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight + 100);
 
-    model.dispatch("UNDO");
+    undo(model);
     expect(model.getters.getRow(sheetId, 1)!.size).toBe(initialSize);
     expect(model.getters.getRow(sheetId, 2)!.start).toBe(initialTop);
     expect(model.getters.getGridSize(sheet)[1]).toBe(initialHeight);
