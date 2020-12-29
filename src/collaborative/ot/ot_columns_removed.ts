@@ -1,5 +1,5 @@
-import { isDefined } from "../helpers/index";
-import { AddColumnsCommand, AddMergeCommand, RemoveColumnsCommand, Zone } from "../types";
+import { isDefined } from "../../helpers/index";
+import { Zone, RemoveColumnsCommand, AddColumnsCommand, AddMergeCommand } from "../../types";
 import { PositionalCommand, TargetCommand } from "./ot_types";
 
 function transformZone(zone: Zone, executed: RemoveColumnsCommand): Zone | undefined {

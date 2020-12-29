@@ -20,7 +20,7 @@ import { corePluginRegistry, uiPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConstuctor } from "./plugins/ui_plugin";
 import { CorePlugin, CorePluginConstructor } from "./plugins/core_plugin";
 import { RemoteRevisionData } from "./types/multi_users";
-import { CollaborativeSession } from "./ot/collaborative_session";
+import { CollaborativeSession } from "./collaborative/collaborative_session";
 
 /**
  * Model

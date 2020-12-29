@@ -1,10 +1,4 @@
-import {
-  DeleteFigureCommand,
-  DeleteSheetCommand,
-  DuplicateSheetCommand,
-  UpdateChartCommand,
-  UpdateFigureCommand,
-} from "../types/commands";
+import { DeleteSheetCommand, DuplicateSheetCommand, UpdateFigureCommand, UpdateChartCommand, DeleteFigureCommand } from "../../types";
 import { SheetyCommand } from "./ot_types";
 
 export function sheetDeleted(

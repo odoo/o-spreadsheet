@@ -1,6 +1,6 @@
-import { isDefined } from "../helpers/index";
-import { otRegistry } from "../registries/ot_registry";
-import { CoreCommand } from "../types";
+import { isDefined } from "../../helpers/index";
+import { otRegistry } from "../../registries/ot_registry";
+import { CoreCommand } from "../../types";
 import {
   columnsAddedAddColumns,
   columnsAddedCellCommand,

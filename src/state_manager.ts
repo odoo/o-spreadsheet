@@ -4,8 +4,8 @@ import { uuidv4 } from "./helpers/index";
 import { inverseCommand } from "./helpers/inverse_commands";
 import { applyChange, createEmptyStructure } from "./helpers/state_manager_helpers";
 import { ModelConfig } from "./model";
-import { LocalSession } from "./ot/local_session";
-import { transformAll } from "./ot/ot";
+import { LocalSession } from "./collaborative/local_session";
+import { transformAll } from "./collaborative/ot/ot";
 import {
   Command,
   CommandHandler,

@@ -1,5 +1,5 @@
-import { toXC, isInside, overlap } from "../helpers/index";
-import { AddMergeCommand } from "../types";
+import { toXC, isInside, overlap } from "../../helpers/index";
+import { AddMergeCommand } from "../../types";
 import { PositionalCommand } from "./ot_types";
 
 export function mergedCellCommand(

@@ -8,9 +8,9 @@ import { TopBar } from "./top_bar";
 import { SelectionMode } from "../plugins/ui/selection";
 import { ComposerSelection } from "../plugins/ui/edition";
 import { ComposerFocusedEvent } from "./composer/composer";
-import { WebsocketNetwork } from "../ot/network";
+import { WebsocketNetwork } from "../collaborative/network";
 import { Client, Network, RemoteRevisionData } from "../types/multi_users";
-import { CollaborativeSession } from "../ot/collaborative_session";
+import { CollaborativeSession } from "../collaborative/collaborative_session";
 import { _lt } from "../translation";
 import { uuidv4 } from "../helpers/index";
 

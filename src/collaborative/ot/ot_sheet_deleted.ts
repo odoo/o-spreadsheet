@@ -1,4 +1,4 @@
-import { DeleteSheetCommand } from "../types/commands";
+import { DeleteSheetCommand } from "../../types";
 import { SheetyCommand } from "./ot_types";
 
 export function sheetDeleted(

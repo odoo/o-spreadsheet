@@ -1,11 +1,5 @@
-import { isDefined } from "../helpers/index";
-import {
-  AddMergeCommand,
-  AddRowsCommand,
-  RemoveRowsCommand,
-  ResizeRowsCommand,
-  Zone,
-} from "../types";
+import { isDefined } from "../../helpers/index";
+import { Zone, RemoveRowsCommand, AddRowsCommand, ResizeRowsCommand, AddMergeCommand } from "../../types";
 import { PositionalCommand, TargetCommand } from "./ot_types";
 
 function transformZone(zone: Zone, executed: RemoveRowsCommand): Zone | undefined {

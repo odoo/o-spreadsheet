@@ -1,4 +1,4 @@
-import { AddMergeCommand, AddRowsCommand, ResizeRowsCommand, Zone } from "../types";
+import { AddRowsCommand, ResizeRowsCommand, Zone, AddMergeCommand } from "../../types";
 import { PositionalCommand, TargetCommand } from "./ot_types";
 
 export function rowsAddedCellCommand(

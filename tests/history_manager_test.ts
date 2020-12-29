@@ -1,7 +1,7 @@
 import { HistoryManager } from "../src/history_manager";
 
 describe("History Manager test", () => {
-  let git: HistoryManager<string>;
+  let historyManager: HistoryManager<string>;
   let state: string[] = [];
   const apply = (data: string) => {
     state.push(data);
@@ -12,28 +12,28 @@ describe("History Manager test", () => {
   };
 
   beforeEach(() => {
-    git = new HistoryManager(apply, revert);
+    historyManager = new HistoryManager(apply, revert);
   });
 
   test("commit new change", () => {
-    git.commit("hello");
-    git.commit("plop");
+    historyManager.commit("hello");
+    historyManager.commit("plop");
     // @ts-ignore
-    expect(git.HEAD.data).toBe("plop");
+    expect(historyManager.HEAD.data).toBe("plop");
     // @ts-ignore
-    expect(git.HEAD.previous?.data).toBe("hello");
+    expect(historyManager.HEAD.previous?.data).toBe("hello");
     // @ts-ignore
-    expect(git.HEAD.previous?.next?.data).toBe("plop");
+    expect(historyManager.HEAD.previous?.next?.data).toBe("plop");
     // @ts-ignore
-    expect(git.HEAD.previous?.previous?.data).toBeUndefined();
+    expect(historyManager.HEAD.previous?.previous?.data).toBeUndefined();
   });
 
   test("Undo a change", () => {
-    git.commit("hello");
-    const head = git.HEAD;
-    git.commit("plop");
+    historyManager.commit("hello");
+    const head = historyManager.HEAD;
+    historyManager.commit("plop");
     state = ["hello", "plop"];
-    git.undo(head.id!);
+    historyManager.undo(head.id!);
     expect(state).toEqual(["plop"]);
   });
 });

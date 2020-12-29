@@ -1,5 +1,5 @@
 import { toZone } from "../../../src/helpers/zones";
-import { transform } from "../../../src/ot/ot";
+import { transform } from "../../../src/collaborative/ot/ot";
 import {
   AddColumnsCommand,
   AddMergeCommand,

@@ -1,4 +1,4 @@
-import { transform } from "../../../src/ot/ot";
+import { transform } from "../../../src/collaborative/ot/ot";
 import {
   DeleteFigureCommand,
   UpdateChartCommand,
