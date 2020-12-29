@@ -57,16 +57,16 @@ export class HistoryManager<T> {
   }
 /**
  * Each undo adds a "layer" in the "undo stack"
- * Each commit keep are reference to the previous and next commit
+ * Each commit keeps a reference to the previous and next commit
  * and to the "same" commit in the upper and lower layers
 
-0:        A .... B .... C .... D .... E
+0:        A .... B .... C ..H' D" --- E"---- F"'
                  ^      ^      ^      ^
                  ^      ^      ^      ^
-1: UNDO B        BX.... C'.... D'.... E'
-                               ^      ^
-                               ^      ^
-2: UNDO D                      D'X... E''
+1: UNDO B        BX.... C'..H. D'---- E'---- F'
+                               |      |
+                               |      |
+2: UNDO D                      D'X--- E''--- F
 
 
 NOW REDO B  => remonter jusqu'à B (left and up)
@@ -92,7 +92,7 @@ Same with 3 UNDOes
 1: UNDO B          BX...... C'...... D'...... E' ..... F'...... G'
                                      ^        ^        ^        ^
                                      ^        ^        ^        ^
-2: UNDO D                            D'X..... E" ..... F" ...... G"
+2: UNDO D                            D'X..... E" ..... F" ..... G"
                                               ^        ^        ^
                                               ^        ^        ^
 3: UNDO E                                     E"X .... F"'..... G"'
