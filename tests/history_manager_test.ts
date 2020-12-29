@@ -1,7 +1,7 @@
-import { Git } from "../src/git";
+import { HistoryManager } from "../src/history_manager";
 
-describe("Git test", () => {
-  let git: Git<string>;
+describe("History Manager test", () => {
+  let git: HistoryManager<string>;
   let state: string[] = [];
   const apply = (data: string) => {
     state.push(data);
@@ -12,15 +12,19 @@ describe("Git test", () => {
   };
 
   beforeEach(() => {
-    git = new Git(apply, revert);
+    git = new HistoryManager(apply, revert);
   });
 
   test("commit new change", () => {
     git.commit("hello");
     git.commit("plop");
+    // @ts-ignore
     expect(git.HEAD.data).toBe("plop");
+    // @ts-ignore
     expect(git.HEAD.previous?.data).toBe("hello");
+    // @ts-ignore
     expect(git.HEAD.previous?.next?.data).toBe("plop");
+    // @ts-ignore
     expect(git.HEAD.previous?.previous?.data).toBeUndefined();
   });
 

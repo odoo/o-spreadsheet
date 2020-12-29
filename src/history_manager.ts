@@ -1,5 +1,6 @@
 import { UID } from "./types/misc";
 
+//@ts-ignore
 class CommittedData<T> {
   id?: UID;
   data?: T;
@@ -31,7 +32,7 @@ type Commit<T> = StandaloneCommit<T> | GroupedCommit<T>
 
 
 // Is GroupedCommit actually the same as Git? i.e. list of commits
-export class Git<T> {
+export class HistoryManager<T> {
   private _HEAD: Commit<T> = {};
 
   constructor(protected apply: (data: T) => void, protected revert: (data: T) => void) {}
