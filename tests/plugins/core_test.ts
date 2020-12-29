@@ -2,7 +2,7 @@ import { Model } from "../../src/model";
 import { waitForRecompute, getCell, setCellContent, getCellContent } from "../helpers";
 import { LOADING } from "../../src/plugins/ui/evaluation";
 import { CancelledReason } from "../../src/types";
-import { undo, redo } from "../commands_helpers";
+import { undo, redo, createSheet } from "../commands_helpers";
 
 describe("core", () => {
   describe("aggregate", () => {
@@ -217,7 +217,7 @@ describe("core", () => {
 
   test("can get row/col of inactive sheet", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [, sheet2] = model.getters.getSheets();
     model.dispatch("RESIZE_ROWS", { sheetId: sheet2.id, rows: [0], size: 24 });
     model.dispatch("RESIZE_COLUMNS", { sheetId: sheet2.id, columns: [0], size: 42 });

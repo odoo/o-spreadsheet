@@ -1,7 +1,7 @@
 import { Model } from "../../src/model";
 import "../canvas.mock";
 import { Viewport } from "../../src/types";
-import { undo } from "../commands_helpers";
+import { createSheet, undo } from "../commands_helpers";
 
 const viewport: Viewport = {
   left: 0,
@@ -64,7 +64,7 @@ describe("figure plugin", () => {
   test("can create a figure in a different sheet", () => {
     const model = new Model();
     const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "sheet2", position: 1 });
+    createSheet(model, { sheetId: "sheet2", activate: true });
     const sheet2 = model.getters.getActiveSheetId();
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet2, sheetIdTo: sheet1 });
 

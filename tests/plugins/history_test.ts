@@ -3,7 +3,7 @@ import { Model } from "../../src/model";
 import "../helpers"; // to have getcontext mocks
 import { getBorder, getCell, setCellContent, waitForRecompute, getCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types/commands";
-import { undo, redo } from "../commands_helpers";
+import { undo, redo, createSheet } from "../commands_helpers";
 
 // we test here the undo/redo feature
 
@@ -277,7 +277,7 @@ describe("Model history", () => {
 
   test("ACTIVATE_SHEET standalone is not saved", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "this will be undone");
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
@@ -292,7 +292,7 @@ describe("Model history", () => {
     // creation is undone
     const model = new Model();
     const originActiveSheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: originActiveSheetId,
       sheetIdTo: "42",
@@ -305,7 +305,7 @@ describe("Model history", () => {
   test("ACTIVATE_SHEET with another command is saved", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: true, position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheet);
   });

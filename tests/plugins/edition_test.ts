@@ -3,6 +3,7 @@ import "../helpers"; // to have getcontext mocks
 import { getCell, getCellContent, getCellText, setCellContent } from "../helpers";
 import { CancelledReason } from "../../src/types";
 import { toZone, toCartesian } from "../../src/helpers";
+import { createSheet } from "../commands_helpers";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
@@ -51,7 +52,7 @@ describe("edition", () => {
     const sheet1 = model.getters.getVisibleSheets()[0];
     model.dispatch("START_EDITION", { text: "a" });
     expect(model.getters.getEditionMode()).toBe("editing");
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCell(model, "A1")).toBeUndefined();
     model.dispatch("ACTIVATE_SHEET", {
@@ -67,7 +68,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", { text: "=" });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2", activate: true });
     expect(model.getters.getEditionMode()).toBe("selecting");
     expect(model.getters.getEditionSheet()).toBe(sheet1);
     model.dispatch("STOP_EDITION");
@@ -91,7 +92,7 @@ describe("edition", () => {
     const model = new Model();
     const name = "NEW_NAME";
     const sheet2 = "42";
-    model.dispatch("CREATE_SHEET", { name, sheetId: sheet2, position: 1 });
+    createSheet(model, { sheetId: "42", name });
     setCellContent(model, "A1", "=NEW_NAME!A1");
     setCellContent(model, "A1", "24", sheet2);
     const nextName = "NEXT NAME";
@@ -369,11 +370,7 @@ describe("edition", () => {
     const model = new Model();
     const sheet1Id = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "Hello from sheet1");
-    model.dispatch("CREATE_SHEET", {
-      sheetId: "42",
-      activate: true,
-      position: 1,
-    });
+    createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getCurrentContent()).toBe("");
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: sheet1Id });
     expect(model.getters.getCurrentContent()).toBe("Hello from sheet1");

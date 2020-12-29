@@ -12,7 +12,7 @@ import {
 } from "../helpers";
 import { Border, CancelledReason, CellType, UID } from "../../src/types";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
-import { undo, redo } from "../commands_helpers";
+import { undo, redo, createSheet } from "../commands_helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -1106,7 +1106,7 @@ describe("Rows", () => {
       let dimensions = model.getters.getGridSize(model.getters.getActiveSheet());
       expect(dimensions).toEqual([192, 124]);
       const to = model.getters.getActiveSheetId();
-      model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+      createSheet(model, { sheetId: "42", activate: true });
       const from = model.getters.getActiveSheetId();
       model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: to });
       dimensions = model.getters.getGridSize(model.getters.getActiveSheet());

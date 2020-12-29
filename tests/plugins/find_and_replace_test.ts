@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import { toCartesian } from "../../src/helpers";
 import { SearchOptions, ReplaceOptions } from "../../src/plugins/ui/find_and_replace";
 import "../canvas.mock";
+import { createSheet } from "../commands_helpers";
 import { getCellContent, getCellText } from "../helpers";
 
 let model: Model;
@@ -114,7 +115,7 @@ describe("basic search", () => {
 
   test("new search when changing sheet", () => {
     const sheet1 = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     const sheet2 = model.getters.getActiveSheetId();
     updateCell("B1", "hello");
     updateCell("B2", "Hello");

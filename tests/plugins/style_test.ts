@@ -1,7 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import "../canvas.mock";
-import { undo } from "../commands_helpers";
+import { createSheet, undo } from "../commands_helpers";
 import { getCell, getCellContent, setCellContent } from "../helpers";
 
 describe("styles", () => {
@@ -92,7 +92,7 @@ describe("styles", () => {
 
   test("Can set a format in another than the active one", () => {
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", name: "Sheet2", position: 1 });
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
     model.dispatch("SET_FORMATTING", {
       sheetId: "42",
       target: [toZone("A1")],

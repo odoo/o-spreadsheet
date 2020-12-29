@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { CancelledReason } from "../../src/types";
-import { redo, undo } from "../commands_helpers";
+import { createSheet, redo, undo } from "../commands_helpers";
 import { createEqualCF, createColorScale, setCellContent } from "../helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -58,7 +58,7 @@ describe("conditional format", () => {
 
   test("Add conditional formating on inactive sheet", () => {
     model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42" });
     const [activeSheet, sheet] = model.getters.getSheets();
     expect(sheet.id).not.toBe(model.getters.getActiveSheetId());
     model.dispatch("ADD_CONDITIONAL_FORMAT", {

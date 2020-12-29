@@ -3,6 +3,7 @@ import { Model } from "../../src/model";
 import "../canvas.mock";
 import { getActiveXc } from "../helpers";
 import { CancelledReason } from "../../src/types";
+import { createSheet } from "../commands_helpers";
 
 describe("selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
@@ -371,7 +372,7 @@ describe("multiple sheets", () => {
     model.dispatch("SELECT_CELL", { col: 2, row: 2 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    model.dispatch("CREATE_SHEET", { activate: true, sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     model.dispatch("SELECT_CELL", { col: 1, row: 1 });
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);

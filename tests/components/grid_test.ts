@@ -12,6 +12,7 @@ import {
 import { toZone } from "../../src/helpers/index";
 import { triggerMouseEvent, simulateClick } from "../dom_helper";
 import { Grid } from "../../src/components/grid";
+import { createSheet } from "../commands_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
@@ -617,9 +618,10 @@ describe("figures", () => {
   });
 
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    const sheetId = "42";
+    createSheet(model, { sheetId });
     model.dispatch("CREATE_FIGURE", {
-      sheetId: "42",
+      sheetId,
       figure: {
         id: "someuuid",
         tag: "text",
@@ -635,7 +637,7 @@ describe("figures", () => {
     await nextTick();
     model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: model.getters.getActiveSheetId(),
-      sheetIdTo: "42",
+      sheetIdTo: sheetId,
     });
     await nextTick();
     expect(fixture.querySelectorAll(".o-figure")).toHaveLength(1);
