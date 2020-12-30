@@ -11,8 +11,10 @@ import {
   DeleteFigureCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
+  HideColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
+  UnhideColumnsRowsCommand,
 } from "../types/commands";
 
 type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
@@ -27,7 +29,9 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
   .add("DELETE_SHEET", inverseDeleteSheet)
   .add("DUPLICATE_SHEET", inverseDuplicateSheet)
   .add("CREATE_FIGURE", inverseCreateFigure)
-  .add("CREATE_CHART", inverseCreateChart);
+  .add("CREATE_CHART", inverseCreateChart)
+  .add("HIDE_COLUMNS_ROWS", inverseHideColumnsRows)
+  .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows);
 
 for (const cmd of coreTypes.values()) {
   try {
@@ -103,4 +107,26 @@ function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {
 
 function inverseCreateChart(cmd: CreateChartCommand): DeleteFigureCommand[] {
   return [{ type: "DELETE_FIGURE", id: cmd.id, sheetId: cmd.sheetId }];
+}
+
+function inverseHideColumnsRows(cmd: HideColumnsRowsCommand): UnhideColumnsRowsCommand[] {
+  return [
+    {
+      type: "UNHIDE_COLUMNS_ROWS",
+      sheetId: cmd.sheetId,
+      dimension: cmd.dimension,
+      elements: cmd.elements,
+    },
+  ];
+}
+
+function inverseUnhideColumnsRows(cmd: UnhideColumnsRowsCommand): HideColumnsRowsCommand[] {
+  return [
+    {
+      type: "HIDE_COLUMNS_ROWS",
+      sheetId: cmd.sheetId,
+      dimension: cmd.dimension,
+      elements: cmd.elements,
+    },
+  ];
 }

@@ -18,6 +18,7 @@ export interface CellData {
 
 export interface HeaderData {
   size?: number;
+  isHidden?: boolean;
 }
 
 export interface FigureData<T> {

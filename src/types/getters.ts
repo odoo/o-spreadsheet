@@ -46,6 +46,8 @@ export interface CoreGetters {
   getColCells: SheetPlugin["getColCells"];
   getColsZone: SheetPlugin["getColsZone"];
   getRowsZone: SheetPlugin["getRowsZone"];
+  getHiddenColsGroups: SheetPlugin["getHiddenColsGroups"];
+  getHiddenRowsGroups: SheetPlugin["getHiddenColsGroups"];
 
   zoneToXC: CellPlugin["zoneToXC"];
   getCells: CellPlugin["getCells"];
@@ -66,6 +68,7 @@ export interface CoreGetters {
   isInSameMerge: MergePlugin["isInSameMerge"];
   getMerges: MergePlugin["getMerges"];
   getMerge: MergePlugin["getMerge"];
+  isMergeHidden: MergePlugin["isMergeHidden"];
 
   getConditionalFormats: ConditionalFormatPlugin["getConditionalFormats"];
   getRulesSelection: ConditionalFormatPlugin["getRulesSelection"];
@@ -101,6 +104,7 @@ export type Getters = CoreGetters & {
   getAggregate: SelectionPlugin["getAggregate"];
   getSelectionMode: SelectionPlugin["getSelectionMode"];
   isSelected: SelectionPlugin["isSelected"];
+  getElementsFromSelection: SelectionPlugin["getElementsFromSelection"];
 
   getClient: Session["getClient"];
   getConnectedClients: Session["getConnectedClients"];

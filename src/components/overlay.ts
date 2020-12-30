@@ -1,8 +1,16 @@
 import * as owl from "@odoo/owl";
-import { HEADER_HEIGHT, HEADER_WIDTH, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../constants";
+import {
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  ICON_EDGE_LENGTH,
+  MIN_COL_WIDTH,
+  MIN_ROW_HEIGHT,
+  UNHIDE_ICON_EDGE_LENGTH,
+} from "../constants";
 import { Col, Row, SpreadsheetEnv } from "../types/index";
 import { ContextMenuType } from "./grid";
 import { startDnd } from "./helpers/drag_and_drop";
+import * as icons from "./icons";
 
 const { Component } = owl;
 const { xml, css } = owl.tags;
@@ -22,10 +30,10 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   dispatch = this.env.dispatch;
 
   state = useState({
-    isActive: <boolean>false,
+    resizerIsActive: <boolean>false,
     isResizing: <boolean>false,
     activeElement: <number>0,
-    styleValue: <number>0,
+    resizerStyleValue: <number>0,
     delta: <number>0,
   });
 
@@ -59,27 +67,31 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
 
   abstract _getXY(ev: MouseEvent): { x: number; y: number };
 
+  abstract _getPreviousVisibleElement(index: number): number;
+
   _computeHandleDisplay(ev: MouseEvent) {
     const index = this._getEvOffset(ev);
+
     const elementIndex = this._getElementIndex(index);
     if (elementIndex < 0) {
       return;
     }
     const element = this._getElement(elementIndex);
     const offset = this._getStateOffset();
+
     if (
       index - (element.start - offset) < this.PADDING &&
       elementIndex !== this._getViewportOffset()
     ) {
-      this.state.isActive = true;
-      this.state.styleValue = element.start - offset - this._getHeaderSize();
-      this.state.activeElement = elementIndex - 1;
+      this.state.resizerIsActive = true;
+      this.state.resizerStyleValue = element.start - offset - this._getHeaderSize();
+      this.state.activeElement = this._getPreviousVisibleElement(elementIndex);
     } else if (element.end - offset - index < this.PADDING) {
-      this.state.isActive = true;
-      this.state.styleValue = element.end - offset - this._getHeaderSize();
+      this.state.resizerIsActive = true;
+      this.state.resizerStyleValue = element.end - offset - this._getHeaderSize();
       this.state.activeElement = elementIndex;
     } else {
-      this.state.isActive = false;
+      this.state.resizerIsActive = false;
     }
   }
 
@@ -91,7 +103,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
   }
 
   onMouseLeave() {
-    this.state.isActive = this.state.isResizing;
+    this.state.resizerIsActive = this.state.isResizing;
   }
 
   onDblClick() {
@@ -104,7 +116,7 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     this.state.delta = 0;
 
     const initialIndex = this._getClientPosition(ev);
-    const styleValue = this.state.styleValue;
+    const styleValue = this.state.resizerStyleValue;
     const size = this._getElement(this.state.activeElement).size;
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
     const maxSize = this._getMaxSize();
@@ -116,13 +128,13 @@ abstract class AbstractResizer extends Component<any, SpreadsheetEnv> {
     };
     const onMouseMove = (ev: MouseEvent) => {
       this.state.delta = this._getClientPosition(ev) - initialIndex;
-      this.state.styleValue = styleValue + this.state.delta;
-      if (this.state.styleValue < minSize) {
-        this.state.styleValue = minSize;
+      this.state.resizerStyleValue = styleValue + this.state.delta;
+      if (this.state.resizerStyleValue < minSize) {
+        this.state.resizerStyleValue = minSize;
         this.state.delta = this.MIN_ELEMENT_SIZE - size;
       }
-      if (this.state.styleValue > maxSize) {
-        this.state.styleValue = maxSize;
+      if (this.state.resizerStyleValue > maxSize) {
+        this.state.resizerStyleValue = maxSize;
         this.state.delta = maxSize - styleValue;
       }
     };
@@ -185,11 +197,23 @@ export class ColResizer extends AbstractResizer {
   static template = xml/* xml */ `
     <div class="o-col-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
       t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
-      <t t-if="state.isActive">
+      <t t-if="state.resizerIsActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
-          t-attf-style="left:{{state.styleValue - 2}}px;">
-          <div class="dragging" t-if="state.isResizing"/>
+        t-attf-style="left:{{state.resizerStyleValue - 2}}px;">
+        <div class="dragging" t-if="state.isResizing"/>
         </div>
+      </t>
+      <t t-foreach="getters.getHiddenColsGroups(getters.getActiveSheetId())" t-as="hiddenItem" t-key="hiddenItem_index">
+        <t t-if="!hiddenItem.includes(0)">
+          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) - 17}}px; margin-right:6px;" t-on-click="unhide(hiddenItem)">
+          ${icons.TRIANGLE_LEFT_ICON}
+          </div>
+        </t>
+        <t t-if="!hiddenItem.includes(getters.getActiveSheet().cols.length-1)">
+          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="left:{{unhideStyleValue(hiddenItem[0]) + 3}}px;" t-on-click="unhide(hiddenItem)">
+          ${icons.TRIANGLE_RIGHT_ICON}
+          </div>
+        </t>
       </t>
     </div>`;
 
@@ -200,6 +224,7 @@ export class ColResizer extends AbstractResizer {
       left: ${HEADER_WIDTH}px;
       right: 0;
       height: ${HEADER_HEIGHT}px;
+      overflow: hidden;
       .o-handle {
         position: absolute;
         height: ${HEADER_HEIGHT}px;
@@ -214,6 +239,18 @@ export class ColResizer extends AbstractResizer {
         width: 1px;
         height: 10000px;
         background-color: #3266ca;
+      }
+      .o-unhide {
+        width: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        height: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        position: absolute;
+        overflow: hidden;
+        border-radius: 2px;
+        top: calc(${HEADER_HEIGHT}px / 2 - ${UNHIDE_ICON_EDGE_LENGTH}px / 2);
+      }
+      .o-unhide:hover {
+        z-index: 1;
+        background-color: lightgrey;
       }
     }
   `;
@@ -303,17 +340,48 @@ export class ColResizer extends AbstractResizer {
       y: ev.offsetY,
     };
   }
+  _getPreviousVisibleElement(index: number): number {
+    const cols = this.getters.getActiveSheet().cols.slice(0, index);
+    const step = cols.reverse().findIndex((col) => !col.isHidden);
+    return index - 1 - step;
+  }
+
+  unhide(hiddenElements: number[]) {
+    this.dispatch("UNHIDE_COLUMNS_ROWS", {
+      sheetId: this.getters.getActiveSheetId(),
+      elements: hiddenElements,
+      dimension: "COL",
+    });
+  }
+
+  unhideStyleValue(hiddenIndex: number): number {
+    const col = this.getters.getCol(this.getters.getActiveSheetId(), hiddenIndex);
+    const offset = this._getStateOffset();
+    return col!.start - offset - this._getHeaderSize();
+  }
 }
 
 export class RowResizer extends AbstractResizer {
   static template = xml/* xml */ `
-    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove"  t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
+    <div class="o-row-resizer" t-on-mousemove.self="onMouseMove" t-on-mouseleave="onMouseLeave" t-on-mousedown.self.prevent="select"
     t-on-mouseup.self="onMouseUp" t-on-contextmenu.self="onContextMenu">
-      <t t-if="state.isActive">
+      <t t-if="state.resizerIsActive">
         <div class="o-handle" t-on-mousedown="onMouseDown" t-on-dblclick="onDblClick" t-on-contextmenu.prevent=""
-          t-attf-style="top:{{state.styleValue - 2}}px;">
+          t-attf-style="top:{{state.resizerStyleValue - 2}}px;">
           <div class="dragging" t-if="state.isResizing"/>
         </div>
+      </t>
+      <t t-foreach="getters.getHiddenRowsGroups(getters.getActiveSheetId())" t-as="hiddenItem" t-key="hiddenItem_index">
+        <t t-if="!hiddenItem.includes(0)">
+          <div class="o-unhide" t-att-data-index="hiddenItem_index" t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) - 17}}px;" t-on-click="unhide(hiddenItem)">
+          ${icons.TRIANGLE_UP_ICON}
+          </div>
+        </t>
+        <t t-if="!hiddenItem.includes(getters.getActiveSheet().rows.length-1)">
+         <div class="o-unhide" t-att-data-index="hiddenItem_index"  t-attf-style="top:{{unhideStyleValue(hiddenItem[0]) + 3}}px;" t-on-click="unhide(hiddenItem)">
+         ${icons.TRIANGLE_DOWN_ICON}
+         </div>
+        </t>
       </t>
     </div>`;
 
@@ -325,6 +393,7 @@ export class RowResizer extends AbstractResizer {
       right: 0;
       width: ${HEADER_WIDTH}px;
       height: 100%;
+      overflow: hidden;
       .o-handle {
         position: absolute;
         height: 4px;
@@ -339,6 +408,23 @@ export class RowResizer extends AbstractResizer {
         width: 10000px;
         height: 1px;
         background-color: #3266ca;
+      }
+      .o-unhide {
+        width: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        height: ${UNHIDE_ICON_EDGE_LENGTH}px;
+        position: absolute;
+        overflow: hidden;
+        border-radius: 2px;
+        left: calc(${HEADER_WIDTH}px - ${UNHIDE_ICON_EDGE_LENGTH}px - 2px);
+      }
+      .o-unhide > svg {
+        position: relative;
+        left: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+        top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+      }
+      .o-unhide:hover {
+        z-index: 1;
+        background-color: lightgrey;
       }
     }
   `;
@@ -423,6 +509,25 @@ export class RowResizer extends AbstractResizer {
       x: ev.offsetX,
       y: ev.offsetY + HEADER_HEIGHT,
     };
+  }
+  _getPreviousVisibleElement(index: number): number {
+    const rows = this.getters.getActiveSheet().rows.slice(0, index);
+    const step = rows.reverse().findIndex((row) => !row.isHidden);
+    return index - 1 - step;
+  }
+
+  unhide(hiddenElements: number[]) {
+    this.dispatch("UNHIDE_COLUMNS_ROWS", {
+      sheetId: this.getters.getActiveSheetId(),
+      dimension: "ROW",
+      elements: hiddenElements,
+    });
+  }
+
+  unhideStyleValue(hiddenIndex: number): number {
+    const row = this.getters.getRow(this.getters.getActiveSheetId(), hiddenIndex);
+    const offset = this._getStateOffset();
+    return row!.start - offset - this._getHeaderSize();
   }
 }
 

@@ -1,4 +1,5 @@
 import { _lt } from "../../translation";
+import { SpreadsheetEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -57,6 +58,29 @@ rowMenuRegistry
     name: ACTIONS.DELETE_CONTENT_ROWS_NAME,
     sequence: 80,
     action: ACTIONS.DELETE_CONTENT_ROWS_ACTION,
+  })
+  .add("hide_rows", {
+    name: ACTIONS.HIDE_ROWS_NAME,
+    sequence: 85,
+    action: ACTIONS.HIDE_ROWS_ACTION,
+    isVisible: (env: SpreadsheetEnv) => {
+      const sheet = env.getters.getActiveSheet();
+      const hiddenRows = env.getters.getHiddenRowsGroups(sheet.id).flat();
+      return (
+        sheet.rows.length > hiddenRows.length + env.getters.getElementsFromSelection("ROW").length
+      );
+    },
+    separator: true,
+  })
+  .add("unhide_rows", {
+    name: "Unhide rows",
+    sequence: 86,
+    action: ACTIONS.UNHIDE_ROWS_ACTION,
+    isVisible: (env: SpreadsheetEnv) => {
+      const hiddenRows = env.getters.getHiddenRowsGroups(env.getters.getActiveSheetId()).flat();
+      const currentRows = env.getters.getElementsFromSelection("ROW");
+      return currentRows.some((col) => hiddenRows.includes(col));
+    },
     separator: true,
   })
   .add("conditional_formatting", {

@@ -4,6 +4,8 @@ import { CancelledReason } from "../../src/types";
 import {
   activateSheet,
   createSheet,
+  deleteRows,
+  hideRows,
   redo,
   resizeColumns,
   resizeRows,
@@ -846,5 +848,29 @@ describe("sheets", () => {
       row: 1,
       sheetId: model.getters.getActiveSheetId(),
     });
+  });
+
+  test("Cannot remove more columns/rows than there are inside the sheet", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 3,
+        },
+      ],
+    });
+    expect(deleteRows(model, [1, 2, 3, 4])).toBeCancelled(CancelledReason.NotEnoughElements);
+  });
+  test("Cannot have all rows/columns hidden at once", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 4,
+          rows: { 2: { isHidden: true } },
+        },
+      ],
+    });
+    expect(hideRows(model, [0, 1, 3])).toBeCancelled(CancelledReason.TooManyHiddenElements);
   });
 });

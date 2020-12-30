@@ -1,10 +1,7 @@
 import { lettersToNumber, toCartesian, toZone, uuidv4 } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { BorderCommand, CommandResult, CreateSheetCommand, UID } from "../../src/types";
-<<<<<<< HEAD
 import { target } from "./helpers";
-=======
->>>>>>> [IMP] ViewportPlugin: add default dimensions
 
 /**
  * Dispatch an UNDO to the model
@@ -185,6 +182,66 @@ export function resizeRows(
     elements: rows,
     sheetId,
     size,
+  });
+}
+
+/**
+ * Hide Columns
+ */
+export function hideColumns(
+  model: Model,
+  columns: string[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("HIDE_COLUMNS_ROWS", {
+    sheetId,
+    dimension: "COL",
+    elements: columns.map(lettersToNumber),
+  });
+}
+
+/**
+ * Unhide Columns
+ */
+export function unhideColumns(
+  model: Model,
+  columns: string[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    sheetId,
+    dimension: "COL",
+    elements: columns.map(lettersToNumber),
+  });
+}
+
+/**
+ * Hide Rows
+ */
+export function hideRows(
+  model: Model,
+  rows: number[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("HIDE_COLUMNS_ROWS", {
+    sheetId,
+    dimension: "ROW",
+    elements: rows,
+  });
+}
+
+/**
+ * Unhide Rows
+ */
+export function unhideRows(
+  model: Model,
+  rows: number[],
+  sheetId: UID = model.getters.getActiveSheetId()
+): CommandResult {
+  return model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    sheetId,
+    dimension: "ROW",
+    elements: rows,
   });
 }
 

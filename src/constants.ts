@@ -23,6 +23,7 @@ export const SCROLLBAR_WIDTH = 15;
 export const PADDING_AUTORESIZE = 3;
 export const AUTOFILL_EDGE_LENGTH = 8;
 export const ICON_EDGE_LENGTH = 18;
+export const UNHIDE_ICON_EDGE_LENGTH = 14;
 
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";

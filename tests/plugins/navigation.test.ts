@@ -1,4 +1,4 @@
-import { toXC } from "../../src/helpers";
+import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Viewport } from "../../src/types";
 import { merge, selectCell } from "../test_helpers/commands_helpers";
@@ -227,5 +227,65 @@ describe("navigation", () => {
     viewport = model.getters.getActiveViewport();
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(11);
+  });
+
+  test("move through hidden column", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 1,
+          cols: { 2: { isHidden: true } },
+        },
+      ],
+    });
+    //from the right
+    model.dispatch("SELECT_CELL", { col: 3, row: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    //from the left
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
+  });
+
+  test("don't move through hidden col if out of grid", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 1,
+          cols: { 0: { isHidden: true }, 4: { isHidden: true } },
+        },
+      ],
+    });
+    // move left from the first visible column
+    model.dispatch("SELECT_CELL", { col: 1, row: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: -1, deltaY: 0 });
+    expect(model.getters.getPosition()).toEqual(toCartesian("B1"));
+    // move right from last visible column
+    model.dispatch("SELECT_CELL", { col: 3, row: 0 });
+    model.dispatch("MOVE_POSITION", { deltaX: 1, deltaY: 0 });
+    expect(model.getters.getPosition()).toEqual(toCartesian("D1"));
+  });
+  test("move through hidden row", () => {
+    const model = new Model({
+      sheets: [
+        {
+          colNumber: 1,
+          rowNumber: 5,
+          rows: { 2: { isHidden: true } },
+        },
+      ],
+    });
+    //from the bottom
+    model.dispatch("SELECT_CELL", {
+      col: 0,
+      row: 3,
+    });
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: -1 });
+    expect(model.getters.getPosition()).toEqual(toCartesian("A2"));
+    //from the top
+    model.dispatch("MOVE_POSITION", { deltaX: 0, deltaY: 1 });
+    expect(model.getters.getPosition()).toEqual(toCartesian("A4"));
   });
 });

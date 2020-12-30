@@ -380,6 +380,90 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetEnv) => {
   });
 };
 
+export const HIDE_COLUMNS_NAME = (env: SpreadsheetEnv) => {
+  const cols = env.getters.getElementsFromSelection("COL");
+  let first = cols[0];
+  let last = cols[cols.length - 1];
+  if (cols.length === 1) {
+    return _lt("Hide column %s", numberToLetters(first).toString());
+  } else if (last - first + 1 === cols.length) {
+    return _lt(
+      "Hide columns %s - %s",
+      numberToLetters(first).toString(),
+      numberToLetters(last).toString()
+    );
+  } else {
+    return _lt("Hide columns");
+  }
+};
+
+export const HIDE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
+  const columns = env.getters.getElementsFromSelection("COL");
+  env.dispatch("HIDE_COLUMNS_ROWS", {
+    sheetId: env.getters.getActiveSheetId(),
+    dimension: "COL",
+    elements: columns,
+  });
+};
+
+export const UNHIDE_ALL_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
+  const sheet = env.getters.getActiveSheet();
+  env.dispatch("UNHIDE_COLUMNS_ROWS", {
+    sheetId: sheet.id,
+    dimension: "COL",
+    elements: Array.from(Array(sheet.cols.length).keys()),
+  });
+};
+
+export const UNHIDE_COLUMNS_ACTION = (env: SpreadsheetEnv) => {
+  const columns = env.getters.getElementsFromSelection("COL");
+  env.dispatch("UNHIDE_COLUMNS_ROWS", {
+    sheetId: env.getters.getActiveSheetId(),
+    dimension: "COL",
+    elements: columns,
+  });
+};
+
+export const HIDE_ROWS_NAME = (env: SpreadsheetEnv) => {
+  const rows = env.getters.getElementsFromSelection("ROW");
+  let first = rows[0];
+  let last = rows[rows.length - 1];
+  if (rows.length === 1) {
+    return _lt("Hide row %s", (first + 1).toString());
+  } else if (last - first + 1 === rows.length) {
+    return _lt("Hide rows %s - %s", (first + 1).toString(), (last + 1).toString());
+  } else {
+    return _lt("Hide rows");
+  }
+};
+
+export const HIDE_ROWS_ACTION = (env: SpreadsheetEnv) => {
+  const rows = env.getters.getElementsFromSelection("ROW");
+  env.dispatch("HIDE_COLUMNS_ROWS", {
+    sheetId: env.getters.getActiveSheetId(),
+    dimension: "ROW",
+    elements: rows,
+  });
+};
+
+export const UNHIDE_ALL_ROWS_ACTION = (env: SpreadsheetEnv) => {
+  const sheet = env.getters.getActiveSheet();
+  env.dispatch("UNHIDE_COLUMNS_ROWS", {
+    sheetId: sheet.id,
+    dimension: "ROW",
+    elements: Array.from(Array(sheet.rows.length).keys()),
+  });
+};
+
+export const UNHIDE_ROWS_ACTION = (env: SpreadsheetEnv) => {
+  const columns = env.getters.getElementsFromSelection("ROW");
+  env.dispatch("UNHIDE_COLUMNS_ROWS", {
+    sheetId: env.getters.getActiveSheetId(),
+    dimension: "ROW",
+    elements: columns,
+  });
+};
+
 //------------------------------------------------------------------------------
 // Sheets
 //------------------------------------------------------------------------------

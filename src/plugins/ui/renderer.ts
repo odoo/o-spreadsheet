@@ -60,6 +60,8 @@ function searchIndex(headers: Header[], offset: number): number {
       right = index - 1;
     } else if (offset > header.end) {
       left = index + 1;
+    } else if (header.isHidden) {
+      left += 1;
     } else {
       return index;
     }
@@ -152,6 +154,9 @@ export class RendererPlugin extends UIPlugin {
     // vertical lines
     const lineHeight = Math.min(height, rows[bottom].end - offsetY);
     for (let i = left; i <= right; i++) {
+      if (cols[i].isHidden) {
+        continue;
+      }
       const x = cols[i].end - offsetX;
       ctx.moveTo(x, 0);
       ctx.lineTo(x, lineHeight);
@@ -160,6 +165,9 @@ export class RendererPlugin extends UIPlugin {
     // horizontal lines
     const lineWidth = Math.min(width, cols[right].end - offsetX);
     for (let i = top; i <= bottom; i++) {
+      if (rows[i].isHidden) {
+        continue;
+      }
       const y = rows[i].end - offsetY;
       ctx.moveTo(0, y);
       ctx.lineTo(lineWidth, y);
@@ -320,9 +328,13 @@ export class RendererPlugin extends UIPlugin {
     ctx.stroke();
 
     ctx.beginPath();
+
     // column text + separator
     for (let i = left; i <= right; i++) {
       const col = cols[i];
+      if (col.isHidden) {
+        continue;
+      }
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
       ctx.fillText(col.name, (col.start + col.end) / 2 - offsetX, HEADER_HEIGHT / 2);
       ctx.moveTo(col.end - offsetX, 0);
@@ -331,6 +343,9 @@ export class RendererPlugin extends UIPlugin {
     // row text + separator
     for (let i = top; i <= bottom; i++) {
       const row = rows[i];
+      if (row.isHidden) {
+        continue;
+      }
       ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
       ctx.fillText(row.name, HEADER_WIDTH / 2, (row.start + row.end) / 2 - offsetY);
@@ -359,10 +374,16 @@ export class RendererPlugin extends UIPlugin {
     // process all visible cells
     for (let rowNumber = top; rowNumber <= bottom; rowNumber++) {
       const row = rows[rowNumber];
+      if (row.isHidden) {
+        continue;
+      }
       for (let colNumber = left; colNumber <= right; colNumber++) {
+        const col = cols[colNumber];
+        if (col.isHidden) {
+          continue;
+        }
         let cell = row.cells[colNumber];
         const border = this.getters.getCellBorder(sheetId, colNumber, rowNumber);
-        const col = cols[colNumber];
         const conditionalStyle = this.getters.getConditionalStyle(colNumber, rowNumber);
         if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
           if (cell) {
@@ -433,6 +454,9 @@ export class RendererPlugin extends UIPlugin {
     const activeSheetId = this.getters.getActiveSheetId();
     // process all visible merges
     for (let merge of this.getters.getMerges(activeSheetId)) {
+      if (this.getters.isMergeHidden(activeSheetId, merge)) {
+        continue;
+      }
       if (overlap(merge, viewport)) {
         const refCell = this.getters.getCell(activeSheetId, merge.left, merge.top);
         const borderTopLeft = this.getters.getCellBorder(activeSheetId, merge.left, merge.top);

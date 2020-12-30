@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { numberToLetters, range, toZone } from "../../src/helpers";
+import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import {
   activateSheet,
   addColumns,
@@ -7,14 +7,21 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  hideColumns,
+  hideRows,
   selectCell,
   setCellContent,
+  unhideColumns,
+  unhideRows,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { createEqualCF } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
+function toNumbers(letters: string[][]): number[][] {
+  return letters.map((el) => el.map(lettersToNumber));
+}
 describe("Collaborative Sheet manipulation", () => {
   let network: MockTransportService;
   let alice: Model;
@@ -290,6 +297,127 @@ describe("Collaborative Sheet manipulation", () => {
     deleteRows(alice, [0]);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H8"));
+  });
+
+  test("Hide and add columns concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      addColumns(alice, "before", "A", 10, sheetId);
+      hideColumns(bob, ["C"], sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenColsGroups(sheetId),
+      toNumbers([["M"]])
+    );
+  });
+
+  test("Hide and remove rows concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      deleteRows(alice, [2], sheetId);
+      hideRows(bob, [4], sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenRowsGroups(sheetId),
+      [[3]]
+    );
+  });
+
+  test("Hide and add rows concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      addRows(alice, "after", 5, 10, sheetId);
+      hideRows(bob, [2], sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenRowsGroups(sheetId),
+      [[2]]
+    );
+  });
+
+  test("Unhide and add rows concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    hideRows(alice, [2], sheetId);
+    network.concurrent(() => {
+      addRows(alice, "before", 0, 10, sheetId);
+      unhideRows(bob, [2], sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenRowsGroups(sheetId),
+      []
+    );
+  });
+
+  test("Unhide and remove columns concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    hideColumns(alice, ["F", "H"], sheetId);
+    network.concurrent(() => {
+      deleteColumns(alice, ["F"], sheetId);
+      unhideColumns(bob, ["F"], sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenColsGroups(sheetId),
+      toNumbers([["G"]])
+    );
+  });
+
+  test("Unhide and add columns concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    hideColumns(alice, ["C", "D"], sheetId);
+    network.concurrent(() => {
+      addColumns(alice, "after", "F", 10, sheetId);
+      unhideColumns(bob, ["C"], sheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenColsGroups(sheetId),
+      toNumbers([["D"]])
+    );
+  });
+
+  test("Hide different rows concurrent", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      hideRows(alice, [1], sheetId);
+      expect(alice.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
+      hideRows(bob, [2, 3], sheetId);
+      expect(bob.getters.getHiddenRowsGroups(sheetId)).toEqual([[2, 3]]);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenRowsGroups(sheetId),
+      [[1, 2, 3]]
+    );
+  });
+
+  test("Unhide different rows concurrent", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    hideRows(alice, [5, 6, 8], sheetId);
+    network.concurrent(() => {
+      unhideRows(alice, [5], sheetId);
+      expect(alice.getters.getHiddenRowsGroups(sheetId)).toEqual([[6], [8]]);
+      unhideRows(bob, [6], sheetId);
+      expect(bob.getters.getHiddenRowsGroups(sheetId)).toEqual([[5], [8]]);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenRowsGroups(sheetId),
+      [[8]]
+    );
+  });
+
+  test("Hide and unhide columns concurrently", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    hideColumns(alice, ["C"], sheetId);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenColsGroups(sheetId),
+      [[2]]
+    );
+    network.concurrent(() => {
+      hideColumns(alice, ["B", "C", "D"], sheetId);
+      unhideColumns(bob, ["C"]);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getHiddenColsGroups(sheetId),
+      toNumbers([["B"], ["D"]])
+    );
   });
 
   describe("conditional formatting", () => {

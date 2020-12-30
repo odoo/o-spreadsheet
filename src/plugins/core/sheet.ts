@@ -16,6 +16,7 @@ import {
   CellPosition,
   Col,
   CommandResult,
+  ConsecutiveIndexes,
   CoreCommand,
   RenameSheetCommand,
   Row,
@@ -50,6 +51,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getColCells",
     "getColsZone",
     "getRowsZone",
+    "getHiddenColsGroups",
+    "getHiddenRowsGroups",
   ];
 
   readonly sheetIds: Record<string, UID | undefined> = {};
@@ -104,7 +107,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         const length = cmd.dimension === "COL" ? sheet.cols.length : sheet.rows.length;
         return length > cmd.elements.length
           ? { status: "SUCCESS" }
-          : { status: "CANCELLED", reason: CancelledReason.NotEnoughColumns };
+          : { status: "CANCELLED", reason: CancelledReason.NotEnoughElements };
+      case "HIDE_COLUMNS_ROWS": {
+        const sheet = this.sheets[cmd.sheetId]!;
+        const hiddenGroup =
+          cmd.dimension === "COL" ? sheet.hiddenColsGroups : sheet.hiddenRowsGroups;
+        const elements = cmd.dimension === "COL" ? sheet.cols : sheet.rows;
+        return (hiddenGroup || []).flat().concat(cmd.elements).length < elements.length
+          ? { status: "SUCCESS" }
+          : { status: "CANCELLED", reason: CancelledReason.TooManyHiddenElements };
+      }
       default:
         return { status: "SUCCESS" };
     }
@@ -160,6 +172,22 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
         }
         break;
+      case "HIDE_COLUMNS_ROWS": {
+        if (cmd.dimension === "COL") {
+          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "cols", "hide");
+        } else {
+          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "rows", "hide");
+        }
+        break;
+      }
+      case "UNHIDE_COLUMNS_ROWS": {
+        if (cmd.dimension === "COL") {
+          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "cols", "show");
+        } else {
+          this.setElementsVisibility(this.sheets[cmd.sheetId]!, cmd.elements, "rows", "show");
+        }
+        break;
+      }
       case "UPDATE_CELL_POSITION":
         this.updateCellPosition(cmd);
         break;
@@ -181,9 +209,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         name: name,
         cols: createCols(sheetData.cols || {}, sheetData.colNumber),
         rows: createRows(sheetData.rows || {}, sheetData.rowNumber),
+        hiddenColsGroups: [],
+        hiddenRowsGroups: [],
       };
       this.visibleSheets.push(sheet.id);
       this.sheets[sheet.id] = sheet;
+      this.updateHiddenElementsGroups(sheet.id, "cols");
+      this.updateHiddenElementsGroups(sheet.id, "rows");
     }
   }
 
@@ -291,16 +323,29 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return cell;
   }
 
+  getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
+    return this.sheets[sheetId]?.hiddenColsGroups || [];
+  }
+
+  getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
+    return this.sheets[sheetId]?.hiddenRowsGroups || [];
+  }
+
   private setHeaderSize(sheet: Sheet, dimension: "cols" | "rows", index: number, size: number) {
+    let start: number, end: number;
     const elements = sheet[dimension];
     const base = elements[index];
     const delta = size - base.size;
     this.history.update("sheets", sheet.id, dimension, index, "size", size);
-    this.history.update("sheets", sheet.id, dimension, index, "end", base.end + delta);
+    if (!base.isHidden)
+      this.history.update("sheets", sheet.id, dimension, index, "end", base.end + delta);
+    start = base.end;
     for (let i = index + 1; i < elements.length; i++) {
-      const col = elements[i];
-      this.history.update("sheets", sheet.id, dimension, i, "start", col.start + delta);
-      this.history.update("sheets", sheet.id, dimension, i, "end", col.end + delta);
+      const element = elements[i];
+      end = element.isHidden ? start : start + element.size;
+      this.history.update("sheets", sheet.id, dimension, i, "start", start);
+      this.history.update("sheets", sheet.id, dimension, i, "end", end);
+      start = end;
     }
   }
 
@@ -373,6 +418,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       name,
       cols: createDefaultCols(colNumber),
       rows: createDefaultRows(rowNumber),
+      hiddenColsGroups: [],
+      hiddenRowsGroups: [],
     };
     const visibleSheets = this.visibleSheets.slice();
     visibleSheets.splice(position, 0, sheet.id);
@@ -487,7 +534,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       this.moveCellOnRowsDeletion(sheet, group[group.length - 1], group[0]);
 
       // Effectively delete the element and recompute the left-right/top-bottom.
-      group.map((row) => this.processRowsHeaderDelete(row, sheet));
+      group.map((row) => this.updateRowsStructureOnDeletion(row, sheet));
     }
   }
 
@@ -637,17 +684,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       if (deletedColumns.includes(parseInt(index, 10))) {
         continue;
       }
-      const { size } = sheet.cols[index];
+      const { size, isHidden } = sheet.cols[index];
+      const end = isHidden ? start : start + size;
       cols.push({
         name: numberToLetters(colSizeIndex),
         size,
         start,
-        end: start + size,
+        end,
+        isHidden,
       });
-      start += size;
+      start = end;
       colSizeIndex++;
     }
     this.history.update("sheets", sheet.id, "cols", cols);
+    this.updateHiddenElementsGroups(sheet.id, "cols");
   }
 
   /**
@@ -681,41 +731,47 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           colIndex++;
         }
       }
-      const { size } = sheet.cols[i];
+      const { size, isHidden } = sheet.cols[i];
+      const end = isHidden ? start : start + size;
       cols.push({
         name: numberToLetters(colIndex),
         size,
         start,
-        end: start + size,
+        end,
+        isHidden,
       });
-      start += size;
+      start = end;
       colIndex++;
     }
     this.history.update("sheets", sheet.id, "cols", cols);
+    this.updateHiddenElementsGroups(sheet.id, "cols");
   }
 
-  private processRowsHeaderDelete(index: number, sheet: Sheet) {
+  private updateRowsStructureOnDeletion(index: number, sheet: Sheet) {
     const rows: Row[] = [];
     let start = 0;
     let rowIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
       const row = sheet.rows[i];
-      const { size } = row;
+      const { size, isHidden } = row;
+      const end = isHidden ? start : start + size;
       if (parseInt(i, 10) === index) {
         continue;
       }
       rowIndex++;
       rows.push({
         start,
-        end: start + size,
+        end,
         size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex),
+        isHidden,
       });
-      start += size;
+      start = end;
     }
     this.history.update("sheets", sheet.id, "rows", rows);
+    this.updateHiddenElementsGroups(sheet.id, "rows");
   }
 
   /**
@@ -734,21 +790,24 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     let sizeIndex = 0;
     const cellsQueue = sheet.rows.map((row) => row.cells);
     for (let i in sheet.rows) {
-      const { size } = sheet.rows[sizeIndex];
+      const { size, isHidden } = sheet.rows[sizeIndex];
+      const end = isHidden ? start : start + size;
       if (parseInt(i, 10) < addedRow || parseInt(i, 10) >= addedRow + rowsToAdd) {
         sizeIndex++;
       }
       rowIndex++;
       rows.push({
         start,
-        end: start + size,
+        end,
         size,
         cells: cellsQueue.shift()!,
         name: String(rowIndex),
+        isHidden,
       });
-      start += size;
+      start = end;
     }
     this.history.update("sheets", sheet.id, "rows", rows);
+    this.updateHiddenElementsGroups(sheet.id, "rows");
   }
 
   /**
@@ -770,5 +829,46 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       });
     }
     this.history.update("sheets", sheet.id, "rows", rows);
+  }
+
+  // ----------------------------------------------------
+  //  HIDE / SHOW
+  // ----------------------------------------------------
+
+  private setElementsVisibility(
+    sheet: Sheet,
+    elements: number[],
+    direction: "cols" | "rows",
+    visibility: "hide" | "show"
+  ) {
+    let start = 0;
+    const hide = visibility === "hide";
+    for (let index = 0; index < sheet[direction].length; index++) {
+      const { size, isHidden } = sheet[direction][index];
+      const newIsHidden: boolean = elements.includes(index) ? hide : isHidden || false;
+      const end = newIsHidden ? start : start + size;
+      this.history.update("sheets", sheet.id, direction, index, "start", start);
+      this.history.update("sheets", sheet.id, direction, index, "end", end);
+      this.history.update("sheets", sheet.id, direction, index, "isHidden", newIsHidden);
+      start = end;
+    }
+    this.updateHiddenElementsGroups(sheet.id, direction);
+  }
+
+  private updateHiddenElementsGroups(sheetId: UID, dimension: "cols" | "rows") {
+    const elements = this.sheets[sheetId]?.[dimension] || [];
+    const elementsRef = dimension === "cols" ? "hiddenColsGroups" : "hiddenRowsGroups";
+    const hiddenEltsGroups = elements.reduce((acc, currentElt, index) => {
+      if (!currentElt.isHidden) {
+        return acc;
+      }
+      const currentGroup = acc[acc.length - 1];
+      if (!currentGroup || currentGroup[currentGroup.length - 1] != index - 1) {
+        acc.push([]);
+      }
+      acc[acc.length - 1].push(index);
+      return acc;
+    }, [] as ConsecutiveIndexes[]);
+    this.history.update("sheets", sheetId, elementsRef, hiddenEltsGroups);
   }
 }

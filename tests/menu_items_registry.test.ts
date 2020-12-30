@@ -1,16 +1,25 @@
 import { Model } from "../src";
 import { fontSizes } from "../src/fonts";
 import { toZone } from "../src/helpers";
-import { FullMenuItem, topbarMenuRegistry } from "../src/registries/index";
+import {
+  colMenuRegistry,
+  FullMenuItem,
+  MenuItemRegistry,
+  rowMenuRegistry,
+  topbarMenuRegistry,
+} from "../src/registries/index";
 import { CommandResult, SpreadsheetEnv } from "../src/types";
-import { selectCell } from "./test_helpers/commands_helpers";
+import { hideColumns, hideRows, selectCell } from "./test_helpers/commands_helpers";
 import { GridParent, makeTestFixture, mockUuidV4To, nextTick } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
-function getNode(_path: string[]): FullMenuItem {
+function getNode(
+  _path: string[],
+  menuRegistry: MenuItemRegistry = topbarMenuRegistry
+): FullMenuItem {
   const path = [..._path];
   const root = path.splice(0, 1)[0];
-  let node = topbarMenuRegistry.get(root);
+  let node = menuRegistry.get(root);
   for (let p of path) {
     if (typeof node.children !== "function") {
       node = node.children.find((child) => child.id === p)!;
@@ -19,13 +28,21 @@ function getNode(_path: string[]): FullMenuItem {
   return node;
 }
 
-function doAction(path: string[], env: SpreadsheetEnv): void {
-  const node = getNode(path);
+function doAction(
+  path: string[],
+  env: SpreadsheetEnv,
+  menuRegistry: MenuItemRegistry = topbarMenuRegistry
+): void {
+  const node = getNode(path, menuRegistry);
   node.action(env);
 }
 
-function getName(path: string[], env: SpreadsheetEnv): string {
-  const node = getNode(path);
+function getName(
+  path: string[],
+  env: SpreadsheetEnv,
+  menuRegistry: MenuItemRegistry = topbarMenuRegistry
+): string {
+  const node = getNode(path, menuRegistry);
   return typeof node.name === "function" ? node.name(env).toString() : node.name.toString();
 }
 
@@ -610,6 +627,179 @@ describe("Menu Item actions", () => {
       });
       expect(getNode(path_ascending).isVisible(env)).toBeFalsy();
       expect(getNode(path_descending).isVisible(env)).toBeFalsy();
+    });
+  });
+  describe("Hide/Unhide Columns", () => {
+    const hidePath = ["hide_columns"];
+    const unhidePath = ["unhide_columns"];
+    test("Action on single column selection", () => {
+      model.dispatch("SELECT_COLUMN", { index: 1 });
+      expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide column B");
+      expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(hidePath, env, colMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [1],
+        dimension: "COL",
+      });
+    });
+    test("Action with at least one active column", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [1, 0],
+        zones: [toZone("B1:B100"), toZone("C5")],
+      });
+      expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns B - C");
+      expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(hidePath, env, colMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [1, 2],
+        dimension: "COL",
+      });
+    });
+    test("Action without any active column", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [1, 0],
+        zones: [toZone("B1")],
+      });
+      expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns");
+      expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(hidePath, env, colMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [],
+        dimension: "COL",
+      });
+    });
+
+    test("Inactive menu item on invalid selection", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:A100"), toZone("A4:Z4")],
+      });
+      expect(getNode(hidePath, colMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Unhide cols from Col menu", () => {
+      hideColumns(model, ["C"]);
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("B1:E100")],
+      });
+      expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(unhidePath, env, colMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [1, 2, 3, 4],
+        dimension: "COL",
+      });
+    });
+    test("Unhide rows from Col menu without hidden cols", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("B1:E100")],
+      });
+      expect(getNode(unhidePath, colMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+    test("Unhide all cols from top menu", () => {
+      // no hidden rows
+      expect(getNode(["edit", "edit_unhide_columns"]).isVisible(env)).toBeFalsy();
+      hideColumns(model, ["C"]);
+      expect(getNode(["edit", "edit_unhide_columns"]).isVisible(env)).toBeTruthy();
+      doAction(["edit", "edit_unhide_columns"], env);
+      const sheet = env.getters.getActiveSheet();
+      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+        sheetId: sheet.id,
+        dimension: "COL",
+        elements: Array.from(Array(sheet.cols.length).keys()),
+      });
+    });
+  });
+  describe("Hide/Unhide Rows", () => {
+    const hidePath = ["hide_rows"];
+    const unhidePath = ["unhide_rows"];
+    test("Action on single row selection", () => {
+      model.dispatch("SELECT_ROW", { index: 1 });
+      expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide row 2");
+      expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(hidePath, env, rowMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [1],
+        dimension: "ROW",
+      });
+    });
+    test("Action with at least one active row", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 1],
+        zones: [toZone("A2:Z2"), toZone("C3")],
+      });
+      expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows 2 - 3");
+      expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(hidePath, env, rowMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [1, 2],
+        dimension: "ROW",
+      });
+    });
+    test("Action without any active column", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [1, 0],
+        zones: [toZone("B1")],
+      });
+      expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows");
+      expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(hidePath, env, rowMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [],
+        dimension: "ROW",
+      });
+    });
+
+    test("Inactive menu item on invalid selection", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:A100"), toZone("A4:Z4")],
+      });
+      expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Unhide rows from Row menu with hidden rows", () => {
+      hideRows(model, [2]);
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:Z4")],
+      });
+      expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+      doAction(unhidePath, env, rowMenuRegistry);
+      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+        sheetId: env.getters.getActiveSheetId(),
+        elements: [0, 1, 2, 3],
+        dimension: "ROW",
+      });
+    });
+    test("Unhide rows from Row menu without hidden rows", () => {
+      model.dispatch("SET_SELECTION", {
+        anchor: [0, 0],
+        zones: [toZone("A1:Z4")],
+      });
+      expect(getNode(unhidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Unhide all rows from top menu", () => {
+      // no hidden rows
+      expect(getNode(["edit", "edit_unhide_rows"]).isVisible(env)).toBeFalsy();
+      hideRows(model, [2]);
+      expect(getNode(["edit", "edit_unhide_rows"]).isVisible(env)).toBeTruthy();
+      doAction(["edit", "edit_unhide_rows"], env);
+      const sheet = env.getters.getActiveSheet();
+      expect(env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+        sheetId: sheet.id,
+        elements: Array.from(Array(sheet.rows.length).keys()),
+        dimension: "ROW",
+      });
     });
   });
 });

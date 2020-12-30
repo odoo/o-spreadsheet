@@ -4,7 +4,7 @@
 
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE, DEFAULT_FONT_WEIGHT } from "../constants";
 import { fontSizeMap } from "../fonts";
-import { Style } from "../types";
+import { ConsecutiveIndexes, Style } from "../types";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
  * is ordered.
@@ -68,7 +68,7 @@ export function range(start: number, end: number) {
  * The input array is assumed to be sorted
  * @param numbers
  */
-export function groupConsecutive(numbers: number[]): number[][] {
+export function groupConsecutive(numbers: number[]): ConsecutiveIndexes[] {
   return numbers.reduce((groups, currentRow, index, rows) => {
     if (Math.abs(currentRow - rows[index - 1]) === 1) {
       const lastGroup = groups[groups.length - 1];
@@ -77,7 +77,7 @@ export function groupConsecutive(numbers: number[]): number[][] {
       groups.push([currentRow]);
     }
     return groups;
-  }, [] as number[][]);
+  }, [] as ConsecutiveIndexes[]);
 }
 
 /**
