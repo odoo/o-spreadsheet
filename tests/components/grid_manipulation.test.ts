@@ -1,3 +1,4 @@
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/commands";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -11,6 +12,9 @@ const OUTSIDE_CM = { x: 50, y: 50 };
 let fixture: HTMLElement;
 let model: Model;
 let parent: GridParent;
+
+jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 1000);
+jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 1000);
 
 beforeEach(async () => {
   fixture = makeTestFixture();
@@ -165,6 +169,69 @@ describe("Context Menu add/remove row/col", () => {
       dimension: "ROW",
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
+    });
+  });
+});
+
+describe("Context Menu hide col/row", () => {
+  test("can hide column", async () => {
+    simulateContextMenu(".o-col-resizer", COLUMN_D);
+    await nextTick();
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    simulateClick(".o-menu div[data-name='hide_columns']");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      elements: [3],
+      sheetId: model.getters.getActiveSheetId(),
+      dimension: "COL",
+    });
+  });
+  test("can unhide column", async () => {
+    parent.env.dispatch("HIDE_COLUMNS_ROWS", {
+      sheetId: parent.env.getters.getActiveSheetId(),
+      elements: [2], // COL_C
+      dimension: "COL",
+    });
+    parent.env.dispatch("SELECT_COLUMN", { index: 1 });
+    parent.env.dispatch("SELECT_COLUMN", { index: 3, updateRange: true });
+    const NEW_COL_D = { x: COLUMN_D.x - DEFAULT_CELL_WIDTH, y: COLUMN_D.y };
+    simulateContextMenu(".o-col-resizer", NEW_COL_D);
+    await nextTick();
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    simulateClick(".o-menu div[data-name='unhide_columns']");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+      elements: [1, 2, 3],
+      sheetId: model.getters.getActiveSheetId(),
+      dimension: "COL",
+    });
+  });
+  test("can hide row", async () => {
+    simulateContextMenu(".o-row-resizer", ROW_5);
+    await nextTick();
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    simulateClick(".o-menu div[data-name='hide_rows']");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
+      elements: [4],
+      sheetId: model.getters.getActiveSheetId(),
+      dimension: "ROW",
+    });
+  });
+  test("can unhide row", async () => {
+    parent.env.dispatch("HIDE_COLUMNS_ROWS", {
+      sheetId: parent.env.getters.getActiveSheetId(),
+      elements: [3], // ROW_4
+      dimension: "ROW",
+    });
+    parent.env.dispatch("SELECT_ROW", { index: 2 });
+    parent.env.dispatch("SELECT_ROW", { index: 4, updateRange: true });
+    const NEW_ROW_5 = { x: ROW_5.x, y: ROW_5.y - DEFAULT_CELL_HEIGHT };
+    simulateContextMenu(".o-row-resizer", NEW_ROW_5);
+    await nextTick();
+    parent.env.dispatch = jest.fn((command) => ({ status: "SUCCESS" } as CommandResult));
+    simulateClick(".o-menu div[data-name='unhide_rows']");
+    expect(parent.env.dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
+      elements: [2, 3, 4],
+      sheetId: model.getters.getActiveSheetId(),
+      dimension: "ROW",
     });
   });
 });

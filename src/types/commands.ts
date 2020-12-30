@@ -84,6 +84,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "ADD_COLUMNS_ROWS",
   "REMOVE_COLUMNS_ROWS",
   "RESIZE_COLUMNS_ROWS",
+  "HIDE_COLUMNS_ROWS",
+  "UNHIDE_COLUMNS_ROWS",
 
   /** MERGE */
   "ADD_MERGE",
@@ -174,6 +176,21 @@ export interface ResizeColumnsRowsCommand
   type: "RESIZE_COLUMNS_ROWS";
   elements: number[];
   size: number;
+}
+
+export interface HideColumnsRowsCommand
+  extends BaseCommand,
+    SheetDependentCommand,
+    GridDependentCommand {
+  type: "HIDE_COLUMNS_ROWS";
+  elements: number[];
+}
+export interface UnhideColumnsRowsCommand
+  extends BaseCommand,
+    SheetDependentCommand,
+    GridDependentCommand {
+  type: "UNHIDE_COLUMNS_ROWS";
+  elements: number[];
 }
 
 //------------------------------------------------------------------------------
@@ -765,6 +782,8 @@ export type CoreCommand =
   | AddColumnsRowsCommand
   | RemoveColumnsRowsCommand
   | ResizeColumnsRowsCommand
+  | HideColumnsRowsCommand
+  | UnhideColumnsRowsCommand
 
   /** MERGE */
   | AddMergeCommand
@@ -872,8 +891,7 @@ export const enum CancelledReason {
   MergeIsDestructive,
   EmptyUndoStack,
   EmptyRedoStack,
-  NotEnoughColumns,
-  NotEnoughRows,
+  NotEnoughElements,
   NotEnoughSheets,
   WrongSheetName,
   WrongSheetMove,
@@ -908,6 +926,7 @@ export const enum CancelledReason {
   InvalidSortZone,
   WaitingSessionConfirmation,
   MergeOverlap,
+  TooManyHiddenElements,
 }
 
 export type CommandResult = CommandSuccess | CommandCancelled;

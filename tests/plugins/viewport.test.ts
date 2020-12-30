@@ -12,6 +12,8 @@ import {
   addRows,
   deleteColumns,
   deleteRows,
+  hideColumns,
+  hideRows,
   redo,
   resizeColumns,
   resizeRows,
@@ -34,7 +36,6 @@ afterEach(() => {
 describe("Viewport of Simple sheet", () => {
   beforeEach(async () => {
     model = new Model();
-    model.dispatch("RESIZE_VIEWPORT", { width: 1000, height: 1000 }); // normally called by the grid component on mounted()
   });
 
   test("Select cell correctly affects offset", () => {
@@ -346,6 +347,57 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  test("Hide/unhide Columns from leftest column", () => {
+    hideColumns(model, [0, 1, 2, 4, 5].map(numberToLetters)); // keep 3
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      top: 0,
+      bottom: 42,
+      left: 3,
+      right: 14,
+      offsetX: 0,
+      offsetY: 0,
+    });
+  });
+
+  test("Hide/unhide Columns from rightest column", () => {
+    selectCell(model, "Z1");
+    const viewport = model.getters.getActiveViewport();
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+    hideColumns(model, [...Array(26).keys()].slice(13).map(numberToLetters));
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      top: viewport.top,
+      bottom: viewport.bottom,
+      left: 4,
+      right: viewport.right,
+      offsetX: DEFAULT_CELL_WIDTH * 4,
+      offsetY: 0,
+    });
+  });
+  test("Hide/unhide Row from top row", () => {
+    hideRows(model, [0, 1, 2, 4, 5]); // keep 3
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      top: 3,
+      bottom: 47,
+      left: 0,
+      right: 9,
+      offsetX: 0,
+      offsetY: 0,
+    });
+  });
+  test("Hide/unhide Rows from bottom row", () => {
+    selectCell(model, "A100");
+    const viewport = model.getters.getActiveViewport();
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject(viewport);
+    hideRows(model, [...Array(100).keys()].slice(60));
+    expect(model.getters.getActiveSnappedViewport()).toMatchObject({
+      top: 18,
+      bottom: 99,
+      left: viewport.left,
+      right: viewport.right,
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 18,
+    });
+  });
   test("Horizontally move position to top right then back to top left correctly affects offset", () => {
     const { cols } = model.getters.getActiveSheet();
     const { right } = model.getters.getActiveViewport();

@@ -2,6 +2,7 @@ import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
   clip,
   formatStandardNumber,
+  getNextVisibleCellCoords,
   isEqual,
   union,
   uniqueZones,
@@ -18,6 +19,7 @@ import {
   Command,
   CommandDispatcher,
   CommandResult,
+  Dimension,
   Figure,
   Getters,
   GridRenderingContext,
@@ -75,6 +77,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     "getSheetPosition",
     "getSelectionMode",
     "isSelected",
+    "getElementsFromSelection",
   ];
 
   private selection: Selection = {
@@ -202,11 +205,15 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     switch (cmd.type) {
       case "START":
         this.historizeActiveSheet = false;
+        const firstSheet = this.getters.getSheets()[0];
+        const firstVisiblePosition = getNextVisibleCellCoords(firstSheet, 0, 0);
+        this.activeCol = firstVisiblePosition[0];
+        this.activeRow = firstVisiblePosition[1];
         this.dispatch("ACTIVATE_SHEET", {
           sheetIdTo: this.getters.getSheets()[0].id,
           sheetIdFrom: this.getters.getSheets()[0].id,
         });
-        this.selectCell(0, 0);
+        this.selectCell(...firstVisiblePosition);
         break;
       case "ACTIVATE_SHEET":
         //TODO Change the way selectCell work, perhaps take the sheet as argument ?
@@ -219,7 +226,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
         if (cmd.sheetIdTo in this.sheetsData) {
           Object.assign(this, this.sheetsData[cmd.sheetIdTo]);
         } else {
-          this.selectCell(0, 0);
+          this.selectCell(...getNextVisibleCellCoords(this.getters.getSheets()[0], 0, 0));
         }
         break;
       case "SET_SELECTION":
@@ -371,7 +378,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       return this.getPosition();
     } else {
       const sheetData = this.sheetsData[sheetId];
-      return sheetData ? [sheetData.activeCol, sheetData.activeRow] : [0, 0];
+      return sheetData
+        ? [sheetData.activeCol, sheetData.activeRow]
+        : getNextVisibleCellCoords(this.getters.getSheet(sheetId), 0, 0);
     }
   }
 
@@ -421,6 +430,37 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     return result;
   }
 
+  /**
+   * Returns a sorted array of indexes of all columns (respectively rows depending
+   * on the dimension parameter) intersected by the currently selected zones.
+   *
+   * example:
+   * assume selectedZones: [{left:0, right: 2, top :2, bottom: 4}, {left:5, right: 6, top :3, bottom: 5}]
+   *
+   * if dimension === "COL" => [0,1,2,5,6]
+   * if dimension === "ROW" => [2,3,4,5]
+   */
+  getElementsFromSelection(dimension: Dimension): number[] {
+    if (dimension === "COL" && this.getters.getActiveCols().size === 0) {
+      return [];
+    }
+    if (dimension === "ROW" && this.getters.getActiveRows().size === 0) {
+      return [];
+    }
+    const zones = this.getters.getSelectedZones();
+    let elements: number[] = [];
+    const start: "left" | "top" = dimension === "COL" ? "left" : "top";
+    const end: "right" | "bottom" = dimension === "COL" ? "right" : "bottom";
+    for (const zone of zones) {
+      const zoneRows = Array.from(
+        { length: zone[end] - zone[start] + 1 },
+        (_, i) => zone[start] + i
+      );
+      elements = elements.concat(zoneRows);
+    }
+    return [...new Set(elements)].sort();
+  }
+
   // ---------------------------------------------------------------------------
   // Other
   // ---------------------------------------------------------------------------
@@ -438,14 +478,15 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     const zone = { left: index, right: index, top: 0, bottom };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
+    const top = this.getters.getActiveSheet().rows.findIndex((row) => !row.isHidden);
     if (updateRange) {
       const [col, row] = this.selection.anchor;
-      const updatedZone = union(zone, { left: col, right: col, top: 0, bottom });
+      const updatedZone = union(zone, { left: col, right: col, top, bottom });
       zones = current.slice(0, -1).concat(updatedZone);
       anchor = [col, row];
     } else {
       zones = createRange ? current.concat(zone) : [zone];
-      anchor = [index, 0];
+      anchor = [index, top];
     }
     this.dispatch("SET_SELECTION", { zones, anchor, strict: true });
   }
@@ -455,14 +496,15 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
     const zone = { top: index, bottom: index, left: 0, right };
     const current = this.selection.zones;
     let zones: Zone[], anchor: [number, number];
+    const left = this.getters.getActiveSheet().cols.findIndex((col) => !col.isHidden);
     if (updateRange) {
       const [col, row] = this.selection.anchor;
-      const updatedZone = union(zone, { left: 0, right, top: row, bottom: row });
+      const updatedZone = union(zone, { left, right, top: row, bottom: row });
       zones = current.slice(0, -1).concat(updatedZone);
       anchor = [col, row];
     } else {
       zones = createRange ? current.concat(zone) : [zone];
-      anchor = [0, index];
+      anchor = [left, index];
     }
     this.dispatch("SET_SELECTION", { zones, anchor, strict: true });
   }
@@ -482,9 +524,9 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
    * range in the selection.
    */
   private selectCell(col: number, row: number) {
-    const sheetId = this.getters.getActiveSheetId();
-    this.moveClient({ sheetId, col, row });
-    let zone = this.getters.expandZone(sheetId, { left: col, right: col, top: row, bottom: row });
+    const sheet = this.getters.getActiveSheet();
+    this.moveClient({ sheetId: sheet.id, col, row });
+    let zone = this.getters.expandZone(sheet.id, { left: col, right: col, top: row, bottom: row });
 
     if (this.mode === SelectionMode.expanding) {
       this.selection.zones.push(zone);
@@ -492,6 +534,7 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
       this.selection.zones = [zone];
     }
     this.selection.zones = uniqueZones(this.selection.zones);
+
     this.selection.anchor = [col, row];
     if (!this.getters.isSelectingForComposer()) {
       this.activeCol = col;
@@ -513,15 +556,32 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
    */
   movePosition(deltaX: number, deltaY: number) {
     const [refCol, refRow] = this.getReferenceCoords();
-    const sheetId = this.getters.getActiveSheetId();
-    if (this.getters.isInMerge(sheetId, refCol, refRow)) {
+    const sheet = this.getters.getActiveSheet();
+    if (this.getters.isInMerge(sheet.id, refCol, refRow)) {
       let targetCol = refCol;
       let targetRow = refRow;
-      while (this.getters.isInSameMerge(sheetId, refCol, refRow, targetCol, targetRow)) {
+      while (this.getters.isInSameMerge(sheet.id, refCol, refRow, targetCol, targetRow)) {
         targetCol += deltaX;
         targetRow += deltaY;
       }
       if (targetCol >= 0 && targetRow >= 0) {
+        this.selectCell(targetCol, targetRow);
+      }
+    } else if (sheet.cols[refCol + deltaX]?.isHidden || sheet.rows[refRow + deltaY]?.isHidden) {
+      let targetCol = refCol + deltaX;
+      let targetRow = refRow + deltaY;
+      while (sheet.cols[targetCol]?.isHidden) {
+        targetCol += deltaX;
+      }
+      while (sheet.rows[targetRow]?.isHidden) {
+        targetRow += deltaY;
+      }
+      if (
+        targetCol >= 0 &&
+        targetCol < sheet.cols.length &&
+        targetRow >= 0 &&
+        targetRow < sheet.rows.length
+      ) {
         this.selectCell(targetCol, targetRow);
       }
     } else {
@@ -653,7 +713,6 @@ export class SelectionPlugin extends UIPlugin<SelectionPluginState> {
 
   drawGrid(renderingContext: GridRenderingContext) {
     const { viewport, ctx, thinLineWidth } = renderingContext;
-
     // selection
     const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";

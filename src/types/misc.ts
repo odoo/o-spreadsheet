@@ -41,6 +41,8 @@ export interface Sheet {
   name: string;
   cols: Col[];
   rows: Row[];
+  hiddenColsGroups: ConsecutiveIndexes[];
+  hiddenRowsGroups: ConsecutiveIndexes[];
 }
 
 export interface CellPosition {
@@ -136,6 +138,7 @@ export interface Header {
   end: number;
   name: string;
   size: number;
+  isHidden?: boolean;
 }
 
 export interface Row extends Header {
@@ -187,6 +190,8 @@ export type ApplyRangeChangeResult =
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 
 export type Dimension = "COL" | "ROW";
+
+export type ConsecutiveIndexes = number[];
 
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;

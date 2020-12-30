@@ -1,4 +1,5 @@
 import { _lt } from "../../translation";
+import { SpreadsheetEnv } from "../../types";
 import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -70,6 +71,29 @@ colMenuRegistry
     name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
     sequence: 100,
     action: ACTIONS.DELETE_CONTENT_COLUMNS_ACTION,
+  })
+  .add("hide_columns", {
+    name: ACTIONS.HIDE_COLUMNS_NAME,
+    sequence: 85,
+    action: ACTIONS.HIDE_COLUMNS_ACTION,
+    isVisible: (env: SpreadsheetEnv) => {
+      const sheet = env.getters.getActiveSheet();
+      const hiddenCols = env.getters.getHiddenColsGroups(sheet.id).flat();
+      return (
+        sheet.cols.length > hiddenCols.length + env.getters.getElementsFromSelection("COL").length
+      );
+    },
+    separator: true,
+  })
+  .add("unhide_columns", {
+    name: "Unhide columns",
+    sequence: 86,
+    action: ACTIONS.UNHIDE_COLUMNS_ACTION,
+    isVisible: (env: SpreadsheetEnv) => {
+      const hiddenCols = env.getters.getHiddenColsGroups(env.getters.getActiveSheetId()).flat();
+      const currentCols = env.getters.getElementsFromSelection("COL");
+      return currentCols.some((col) => hiddenCols.includes(col));
+    },
     separator: true,
   })
   .add("conditional_formatting", {

@@ -402,7 +402,7 @@ export function createAdaptedZone(
   return newZone;
 }
 
-// returns an Zone array with unique occurence of eah zone
+// returns an Zone array with unique occurrence of each zone
 export function uniqueZones(zones: Zone[]): Zone[] {
   return zones.filter(
     (zone, index, self) =>

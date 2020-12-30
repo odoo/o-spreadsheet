@@ -100,6 +100,20 @@ topbarMenuRegistry
     sequence: 90,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
   })
+  .addChild("edit_unhide_columns", ["edit"], {
+    name: _lt("Unhide all columns"),
+    sequence: 100,
+    action: ACTIONS.UNHIDE_ALL_COLUMNS_ACTION,
+    isVisible: (env: SpreadsheetEnv) =>
+      env.getters.getHiddenColsGroups(env.getters.getActiveSheetId()).length > 0,
+  })
+  .addChild("edit_unhide_rows", ["edit"], {
+    name: _lt("Unhide all rows"),
+    sequence: 100,
+    action: ACTIONS.UNHIDE_ALL_ROWS_ACTION,
+    isVisible: (env: SpreadsheetEnv) =>
+      env.getters.getHiddenRowsGroups(env.getters.getActiveSheetId()).length > 0,
+  })
   .addChild("insert_row_before", ["insert"], {
     name: ACTIONS.MENU_INSERT_ROWS_BEFORE_NAME,
     sequence: 10,

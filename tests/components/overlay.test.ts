@@ -3,6 +3,7 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_FONT_SIZE,
+  HEADER_WIDTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   PADDING_AUTORESIZE,
@@ -11,7 +12,13 @@ import { fontSizeMap } from "../../src/fonts";
 import { lettersToNumber, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { SelectionMode } from "../../src/plugins/ui/selection";
-import { redo, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  hideColumns,
+  hideRows,
+  redo,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 import { GridParent, makeTestFixture, nextTick } from "../test_helpers/helpers";
@@ -260,6 +267,46 @@ describe("Resizer component", () => {
     );
   });
 
+  test("Can resize columns with some hidden", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const col_A = model.getters.getCol(sheetId, 0)!;
+    hideColumns(model, ["D", "E"]);
+    selectColumn("C");
+    selectColumn("F", { shiftKey: true });
+    await resizeColumn("D", 50);
+    expect(model.getters.getCol(sheetId, 2)!.size).toBe(col_A.size + 50);
+
+    expect(model.getters.getCol(sheetId, 3)!.size).toBe(col_A.size + 50);
+    expect(model.getters.getCol(sheetId, 3)!.start).toBe(model.getters.getCol(sheetId, 3)!.end);
+    expect(model.getters.getCol(sheetId, 3)!.start).toBe(model.getters.getCol(sheetId, 2)!.end);
+
+    expect(model.getters.getCol(sheetId, 4)!.size).toBe(col_A.size + 50);
+    expect(model.getters.getCol(sheetId, 4)!.start).toBe(model.getters.getCol(sheetId, 4)!.end);
+    expect(model.getters.getCol(sheetId, 4)!.start).toBe(model.getters.getCol(sheetId, 2)!.end);
+
+    expect(model.getters.getCol(sheetId, 5)!.size).toBe(col_A.size + 50);
+    expect(model.getters.getCol(sheetId, 5)!.start).toBe(model.getters.getCol(sheetId, 2)!.end);
+  });
+  test("Can resize rows with some hidden", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const row_1 = model.getters.getRow(sheetId, 0)!;
+    hideRows(model, [3, 4]);
+    selectRow(2);
+    selectRow(5, { shiftKey: true });
+    await resizeRow(3, 50);
+    expect(model.getters.getRow(sheetId, 2)!.size).toBe(row_1.size + 50);
+
+    expect(model.getters.getRow(sheetId, 3)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRow(sheetId, 3)!.start).toBe(model.getters.getRow(sheetId, 3)!.end);
+    expect(model.getters.getRow(sheetId, 3)!.start).toBe(model.getters.getRow(sheetId, 2)!.end);
+
+    expect(model.getters.getRow(sheetId, 4)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRow(sheetId, 4)!.start).toBe(model.getters.getRow(sheetId, 4)!.end);
+    expect(model.getters.getRow(sheetId, 4)!.start).toBe(model.getters.getRow(sheetId, 2)!.end);
+
+    expect(model.getters.getRow(sheetId, 5)!.size).toBe(row_1.size + 50);
+    expect(model.getters.getRow(sheetId, 5)!.start).toBe(model.getters.getRow(sheetId, 2)!.end);
+  });
   test("can select the entire sheet", async () => {
     triggerMouseEvent(".o-overlay .all", "mousedown", 5, 5);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
@@ -574,5 +621,125 @@ describe("Resizer component", () => {
     triggerMouseEvent(".o-overlay .o-row-resizer", "contextmenu", 10, y);
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
+  });
+
+  test("Hide A unhide it", async () => {
+    hideColumns(model, ["A"]);
+    await nextTick();
+    const x = model.getters.getCol(model.getters.getActiveSheetId(), 0)!.end + 10;
+    triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
+    expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
+  });
+
+  test("hide BCD, unhide it", async () => {
+    hideColumns(model, ["B", "C", "D"]);
+    // from the left
+    await nextTick();
+    let x = model.getters.getCol(model.getters.getActiveSheetId(), 1)!.start - 10;
+    triggerMouseEvent(
+      ".o-overlay .o-col-resizer .o-unhide[data-index='0']:nth-child(1)",
+      "click",
+      x,
+      10
+    );
+    expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
+    // from the right
+    model.dispatch("UNDO");
+    expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([
+      [1, 2, 3],
+    ]);
+    await nextTick();
+    x = model.getters.getCol(model.getters.getActiveSheetId(), 1)!.end + 10;
+    triggerMouseEvent(
+      ".o-overlay .o-col-resizer .o-unhide[data-index='0']:nth-child(2)",
+      "click",
+      x,
+      10
+    );
+    expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
+  });
+  test("hide  A, B, D:E and unhide A-B", async () => {
+    hideColumns(model, ["A", "B", "D", "E"]);
+    await nextTick();
+    let x = model.getters.getCol(model.getters.getActiveSheetId(), 1)!.end + 10;
+    triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
+    expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([[3, 4]]);
+  });
+  test("hide A, C, E:F and unhide C", async () => {
+    hideColumns(model, ["A", "C", "E", "F"]);
+    await nextTick();
+    let x = model.getters.getCol(model.getters.getActiveSheetId(), 2)!.end + 10;
+    triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='1']", "click", x, 10);
+    expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([
+      [0],
+      [4, 5],
+    ]);
+  });
+
+  test("hide 1, unhide it", async () => {
+    hideRows(model, [0]);
+    await nextTick();
+    const y = model.getters.getRow(model.getters.getActiveSheetId(), 0)!.end + 10;
+    triggerMouseEvent(
+      ".o-overlay .o-row-resizer .o-unhide[data-index='0']",
+      "click",
+      HEADER_WIDTH - 5,
+      y
+    );
+    expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
+  });
+  test("hide 2:4, unhide it", async () => {
+    hideRows(model, [1, 2, 3]);
+    // from the left
+    await nextTick();
+    let y = model.getters.getRow(model.getters.getActiveSheetId(), 1)!.start - 10;
+    triggerMouseEvent(
+      ".o-overlay .o-row-resizer .o-unhide[data-index='0']:nth-child(1)",
+      "click",
+      HEADER_WIDTH - 5,
+      y
+    );
+    expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
+    // from the right
+    model.dispatch("UNDO");
+    expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([
+      [1, 2, 3],
+    ]);
+    await nextTick();
+    y = model.getters.getRow(model.getters.getActiveSheetId(), 1)!.end + 10;
+    triggerMouseEvent(
+      ".o-overlay .o-row-resizer .o-unhide[data-index='0']:nth-child(2)",
+      "click",
+      HEADER_WIDTH - 5,
+      y
+    );
+    expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
+  });
+  test("hide  0,1,3,4  and unhide 0", async () => {
+    hideRows(model, [0, 1, 3, 4]);
+    await nextTick();
+    let y = model.getters.getRow(model.getters.getActiveSheetId(), 1)!.end + 10;
+    triggerMouseEvent(
+      ".o-overlay .o-row-resizer .o-unhide[data-index='0']",
+      "click",
+      HEADER_WIDTH - 5,
+      y
+    );
+    expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([[3, 4]]);
+  });
+  test("hide 0, 2, 4,5 and unhide 2", async () => {
+    hideRows(model, [0, 2, 4, 5]);
+    await nextTick();
+    let y = model.getters.getRow(model.getters.getActiveSheetId(), 2)!.end + 10;
+    triggerMouseEvent(
+      ".o-overlay .o-row-resizer .o-unhide[data-index='1']",
+      "click",
+      HEADER_WIDTH - 5,
+      y
+    );
+    expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([
+      [0],
+      [4, 5],
+    ]);
   });
 });

@@ -13,8 +13,12 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  hideColumns,
+  hideRows,
   redo,
   undo,
+  unhideColumns,
+  unhideRows,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -182,6 +186,77 @@ describe("Clear rows", () => {
 });
 
 //------------------------------------------------------------------------------
+// Hide/unhide
+//------------------------------------------------------------------------------
+describe("Hide Columns", () => {
+  const sheetId = "1";
+  beforeEach(() => {
+    model = new Model({
+      sheets: [
+        {
+          id: sheetId,
+          colNumber: 6,
+          rowNumber: 2,
+        },
+      ],
+    });
+  });
+  test("hide single column", () => {
+    hideColumns(model, ["B"]);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
+  });
+  test("hide multiple columns", () => {
+    hideColumns(model, ["B", "E", "F"]);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1], [4, 5]]);
+  });
+  test("unhide columns", () => {
+    hideColumns(model, ["B", "E", "F"]);
+    unhideColumns(model, ["F"]);
+    expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1], [4]]);
+  });
+  test("Cannot hide columns on invalid sheetId", () => {
+    expect(hideColumns(model, ["A"], "INVALID")).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
+  });
+});
+
+describe("Hide Rows", () => {
+  const sheetId = "2";
+  beforeEach(() => {
+    model = new Model({
+      sheets: [
+        {
+          id: sheetId,
+          colNumber: 2,
+          rowNumber: 6,
+        },
+      ],
+    });
+  });
+  test("hide single row", () => {
+    hideRows(model, [1]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
+  });
+  test("hide multiple rows", () => {
+    hideRows(model, [1, 4, 5]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1], [4, 5]]);
+  });
+  test("unhide rows", () => {
+    hideRows(model, [1, 4, 5]);
+    unhideRows(model, [5]);
+    expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1], [4]]);
+  });
+  test("Cannot hide rows on invalid sheetId", () => {
+    expect(hideRows(model, [0], "INVALID")).toEqual({
+      status: "CANCELLED",
+      reason: CancelledReason.InvalidSheetId,
+    });
+  });
+});
+
+//------------------------------------------------------------------------------
 // Columns
 //------------------------------------------------------------------------------
 
@@ -270,11 +345,43 @@ describe("Columns", () => {
       ]);
       expect(model.getters.getActiveSheet().cols.length).toBe(6);
     });
+
     test("On addition in invalid sheet", () => {
       const sheetId = "invalid";
       expect(addColumns(model, "after", "A", 1, sheetId)).toBeCancelled(
         CancelledReason.InvalidSheetId
       );
+    });
+
+    test("On hide/unhide Column on small sheet", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 5,
+            rowNumber: 1,
+          },
+        ],
+      });
+      const sheet = model.getters.getActiveSheet();
+      const dimensions = model.getters.getGridDimension(sheet);
+      hideColumns(model, ["B", "C", "D"], sheet.id);
+      let dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.width).toEqual(dimensions.width - 3 * DEFAULT_CELL_WIDTH);
+      unhideColumns(model, ["D"], sheet.id);
+      dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.width).toEqual(dimensions.width - 2 * DEFAULT_CELL_WIDTH);
+    });
+
+    test("On Hide/ unhide Column on big sheet", () => {
+      model = new Model();
+      const sheet = model.getters.getActiveSheet();
+      const dimensions = model.getters.getGridDimension(sheet);
+      hideColumns(model, ["B", "C", "D"], sheet.id);
+      let dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.width).toEqual(dimensions.width - 3 * DEFAULT_CELL_WIDTH);
+      unhideColumns(model, ["D"], sheet.id);
+      dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.width).toEqual(dimensions.width - 2 * DEFAULT_CELL_WIDTH);
     });
   });
 
@@ -768,6 +875,43 @@ describe("Columns", () => {
     });
   });
 
+  describe("Correctly update hidden elements", () => {
+    const sheetId = "sheet1";
+
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            id: sheetId,
+            colNumber: 5,
+            rowNumber: 1,
+            cols: { 2: { isHidden: true } },
+          },
+        ],
+      });
+    });
+    test("On addition before hidden col", () => {
+      addColumns(model, "before", "B", 2);
+      const hiddenColsGroups = model.getters.getHiddenColsGroups(sheetId);
+      expect(hiddenColsGroups).toEqual([[4]]);
+    });
+    test("On addition after hidden col", () => {
+      addColumns(model, "before", "E", 2);
+      const hiddenColsGroups = model.getters.getHiddenColsGroups(sheetId);
+      expect(hiddenColsGroups).toEqual([[2]]);
+    });
+    test("On deletion before hidden col", () => {
+      deleteColumns(model, ["A"]);
+      const hiddenColsGroups = model.getters.getHiddenColsGroups(sheetId);
+      expect(hiddenColsGroups).toEqual([[1]]);
+    });
+    test("On deletion after hidden col", () => {
+      deleteColumns(model, ["D"]);
+      const hiddenColsGroups = model.getters.getHiddenColsGroups(sheetId);
+      expect(hiddenColsGroups).toEqual([[2]]);
+    });
+  });
+
   describe("Correctly handle undo/redo", () => {
     test("On deletion", () => {
       model = new Model(fullData);
@@ -793,6 +937,25 @@ describe("Columns", () => {
       undo(model);
       undo(model);
       expect(model).toExport(beforeAdd);
+    });
+    test("On hiding", () => {
+      model = new Model(fullData);
+      const beforeHidden = model.exportData();
+      hideColumns(model, ["B"]);
+      const afterHidden1 = model.exportData();
+      unhideColumns(model, ["B"]);
+      const afterUnhidden1 = model.exportData();
+      hideColumns(model, ["D"]);
+      const afterHidden2 = model.exportData();
+      undo(model);
+      expect(model).toExport(afterUnhidden1);
+      redo(model);
+      expect(model).toExport(afterHidden2);
+      undo(model);
+      undo(model);
+      expect(model).toExport(afterHidden1);
+      undo(model);
+      expect(model).toExport(beforeHidden);
     });
   });
 
@@ -844,6 +1007,29 @@ describe("Columns", () => {
       expect(model.getters.getSelectedZone()).toEqual(zone);
       addColumns(model, "after", "B", 3);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:G3"));
+    });
+    test("On hide 1", () => {
+      model = new Model(fullData);
+      const zone = toZone("C1:C4");
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      hideColumns(model, ["C"]);
+      expect(model.getters.getSelectedZones()).toEqual([zone]);
+    });
+    test("On hide multiple", () => {
+      model = new Model(fullData);
+      const zone1 = toZone("A1:A4");
+      const zone2 = toZone("C1:C4");
+      model.dispatch("SET_SELECTION", {
+        zones: [zone1, zone2],
+        anchor: [zone1.left, zone1.top],
+        strict: true,
+      });
+      hideColumns(model, ["A", "C"]);
+      expect(model.getters.getSelectedZones()).toEqual([zone1, zone2]);
     });
   });
 });
@@ -1028,6 +1214,37 @@ describe("Rows", () => {
       activateSheet(model, to);
       dimensions = model.getters.getGridDimension(model.getters.getActiveSheet());
       expect(dimensions).toMatchObject({ width: 192, height: 124 });
+    });
+
+    test("On hide/unhide Row on small sheet", () => {
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 1,
+            rowNumber: 5,
+          },
+        ],
+      });
+      const sheet = model.getters.getActiveSheet();
+      const dimensions = model.getters.getGridDimension(sheet);
+      hideRows(model, [1, 2, 3], sheet.id);
+      let dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.height).toEqual(dimensions.height - 3 * DEFAULT_CELL_HEIGHT);
+      unhideRows(model, [3], sheet.id);
+      dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.height).toEqual(dimensions.height - 2 * DEFAULT_CELL_HEIGHT);
+    });
+
+    test("On Hide/ unhide Row on big sheet", () => {
+      model = new Model();
+      const sheet = model.getters.getActiveSheet();
+      const dimensions = model.getters.getGridDimension(sheet);
+      hideRows(model, [1, 2, 3], sheet.id);
+      let dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.height).toEqual(dimensions.height - 3 * DEFAULT_CELL_HEIGHT);
+      unhideRows(model, [3], sheet.id);
+      dimensions2 = model.getters.getGridDimension(sheet);
+      expect(dimensions2.height).toEqual(dimensions.height - 2 * DEFAULT_CELL_HEIGHT);
     });
   });
 
@@ -1464,6 +1681,43 @@ describe("Rows", () => {
     });
   });
 
+  describe("Correctly update hidden elements", () => {
+    const sheetId = "sheet1";
+
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            id: sheetId,
+            colNumber: 1,
+            rowNumber: 5,
+            rows: { 2: { isHidden: true } },
+          },
+        ],
+      });
+    });
+    test("On addition before hidden row", () => {
+      addRows(model, "before", 1, 2);
+      const HiddenRowsGroups = model.getters.getHiddenRowsGroups(sheetId);
+      expect(HiddenRowsGroups).toEqual([[4]]);
+    });
+    test("On addition after hidden row", () => {
+      addRows(model, "before", 4, 2);
+      const HiddenRowsGroups = model.getters.getHiddenRowsGroups(sheetId);
+      expect(HiddenRowsGroups).toEqual([[2]]);
+    });
+    test("On deletion before hidden row", () => {
+      deleteRows(model, [0]);
+      const HiddenRowsGroups = model.getters.getHiddenRowsGroups(sheetId);
+      expect(HiddenRowsGroups).toEqual([[1]]);
+    });
+    test("On deletion after hidden row", () => {
+      deleteRows(model, [3]);
+      const HiddenRowsGroups = model.getters.getHiddenRowsGroups(sheetId);
+      expect(HiddenRowsGroups).toEqual([[2]]);
+    });
+  });
+
   describe("Correctly handle undo/redo", () => {
     test("On deletion", () => {
       model = new Model(fullData);
@@ -1490,6 +1744,25 @@ describe("Rows", () => {
       undo(model);
       undo(model);
       expect(model).toExport(beforeAdd);
+    });
+    test("On hiding", () => {
+      model = new Model(fullData);
+      const beforeHidden = model.exportData();
+      hideRows(model, [1]);
+      const afterHidden1 = model.exportData();
+      unhideRows(model, [1]);
+      const afterUnhidden1 = model.exportData();
+      hideRows(model, [3]);
+      const afterHidden2 = model.exportData();
+      undo(model);
+      expect(model).toExport(afterUnhidden1);
+      redo(model);
+      expect(model).toExport(afterHidden2);
+      undo(model);
+      undo(model);
+      expect(model).toExport(afterHidden1);
+      undo(model);
+      expect(model).toExport(beforeHidden);
     });
   });
 
@@ -1542,10 +1815,33 @@ describe("Rows", () => {
       addRows(model, "after", 0, 3);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D5"));
     });
+    test("On hide 1", () => {
+      model = new Model(fullData);
+      const zone = toZone("A3:D3");
+      model.dispatch("SET_SELECTION", {
+        zones: [zone],
+        anchor: [zone.left, zone.top],
+        strict: true,
+      });
+      hideRows(model, [2]);
+      expect(model.getters.getSelectedZones()).toEqual([zone]);
+    });
+    test("On hide multiple", () => {
+      model = new Model(fullData);
+      const zone1 = toZone("A1:D1");
+      const zone2 = toZone("A3:D3");
+      model.dispatch("SET_SELECTION", {
+        zones: [zone1, zone2],
+        anchor: [zone1.left, zone1.top],
+        strict: true,
+      });
+      hideRows(model, [0, 2]);
+      expect(model.getters.getSelectedZones()).toEqual([zone1, zone2]);
+    });
   });
 
   describe("Multi-sheet", () => {
-    test("Cann add a row in another sheet", () => {
+    test("Can add a row in another sheet", () => {
       const model = new Model({
         sheets: [
           { id: "1", colNumber: 3, rowNumber: 3 },
