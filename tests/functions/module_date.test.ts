@@ -888,3 +888,393 @@ describe("YEAR formula", () => {
     expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "TRUE" })).toBe(1899);
   });
 });
+
+describe("YEARFRAC formula", () => {
+  test("take at 2 or 3 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=YEARFRAC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: "=YEARFRAC(1, 365)" })).toBeCloseTo(1, 6);
+    expect(evaluateCell("A1", { A1: "=YEARFRAC(1, 365, 0)" })).toBeCloseTo(1, 6);
+    expect(evaluateCell("A1", { A1: "=YEARFRAC(1, 365, 0, 42)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  describe("business logic", () => {
+    describe("return the YEARFRAC with convention 0", () => {
+      const conv = "0";
+
+      test.each([
+        ["3/31/2003", "12/12/2012", 9.7],
+        ["3/30/2003", "12/12/2012", 9.7],
+        ["3/29/2003", "12/12/2012", 9.70278],
+      ])("start dates in 31 are replaced by 30", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+
+      test.each([
+        ["5/29/2007", "12/30/2012", 5.58611],
+        ["5/29/2007", "12/31/2012", 5.58889],
+        ["5/30/2007", "12/30/2012", 5.58333],
+        ["5/30/2007", "12/31/2012", 5.58333],
+        ["5/31/2007", "12/30/2012", 5.58333],
+        ["5/31/2007", "12/31/2012", 5.58333],
+      ])("end dates in 31 are replaced by 30 if start dates are 30 or 31", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+
+      describe("if start dates are the last day of february", () => {
+        test.each([
+          ["1/28/2003", "10/12/2012", 9.70556],
+          ["2/28/2003", "11/12/2012", 9.7],
+          ["3/30/2003", "12/12/2012", 9.7],
+        ])("start dates are replaced by 30", (d1, d2, result) => {
+          const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        });
+
+        test.each([
+          ["1/28/2004", "10/12/2013", 9.70556],
+          ["2/28/2004", "11/12/2013", 9.70556],
+          ["2/29/2004", "11/12/2013", 9.7],
+          ["3/30/2004", "12/12/2013", 9.7],
+        ])("start dates are replaced by 30 (leap year)", (d1, d2, result) => {
+          const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        });
+
+        test.each([
+          ["2/27/2003", "2/27/2013", 10.0],
+          ["2/27/2003", "2/28/2013", 10.00278],
+          ["2/28/2003", "2/27/2013", 9.99167],
+          ["2/28/2003", "2/28/2013", 10.0],
+        ])(
+          "end dates in last days of february are replaced by 30 (no leap year / no leap year)",
+          (d1, d2, result) => {
+            const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          }
+        );
+
+        test.each([
+          ["2/27/2003", "2/28/2012", 9.00278],
+          ["2/27/2003", "2/29/2012", 9.00556],
+          ["2/28/2003", "2/28/2012", 8.99444],
+          ["2/28/2003", "2/29/2012", 9.0],
+        ])(
+          "end dates in last days of february are replaced by 30 (no leap year / leap year)",
+          (d1, d2, result) => {
+            const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          }
+        );
+
+        test.each([
+          ["2/28/2004", "2/27/2013", 8.99722],
+          ["2/28/2004", "2/28/2013", 9.0],
+          ["2/29/2004", "2/27/2013", 8.99167],
+          ["2/29/2004", "2/28/2013", 9.0],
+        ])(
+          "end dates in last days of february are replaced by 30 (leap year / no leap year)",
+          (d1, d2, result) => {
+            const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          }
+        );
+
+        test.each([
+          ["2/28/2004", "2/28/2012", 8.0],
+          ["2/28/2004", "2/29/2012", 8.00278],
+          ["2/29/2004", "2/28/2012", 7.99444],
+          ["2/29/2004", "2/29/2012", 8.0],
+        ])(
+          "end dates in last days of february are replaced by 30 (leap year / leap year)",
+          (d1, d2, result) => {
+            const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          }
+        );
+      });
+    });
+
+    describe("return the YEARFRAC with convention 1", () => {
+      const conv = "1";
+
+      // note that for convention 1, Excel and googleSheet haven't same results
+
+      test.each([
+        // normal year / normal year
+        ["3/9/2005", "2/9/2006", 0.92329], // 0.92329 on googleSheet
+        // normal year / leap year (29 Feb include)
+        ["3/29/2007", "2/29/2008", 0.92077], // 0.92285 on googleSheet
+        // normal year / leap year (29 Feb on limit)
+        ["3/29/2007", "2/29/2008", 0.92077], // 0.92285 on googleSheet
+        // normal year / leap year (29 Feb not include)
+        ["3/9/2007", "2/9/2008", 0.92329], // 0.92300 on googleSheet
+        // leap year / normal year (29 Feb include)
+        ["2/9/2008", "1/9/2009", 0.9153], // 0.91536 on googleSheet
+        // leap year / normal year (29 Feb on limit)
+        ["2/29/2008", "1/29/2009", 0.9153], // 0.91551 on googleSheet
+        // leap year / normal year (29 Feb not include)
+        ["4/9/2008", "3/9/2009", 0.91507], // 0.91307 on googleSheet
+      ])(
+        "case: dates are different by less than a year (sitting on different years)",
+        (d1, d2, result) => {
+          const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        }
+      );
+
+      test.each([
+        // normal year / normal year
+        ["1/9/2005", "12/9/2005", 0.91507],
+        // leap year / leap year (29 Feb not include - at left)
+        ["3/9/2008", "12/9/2008", 0.75137],
+        // leap year / leap year (29 Feb on left limit)
+        ["2/29/2008", "11/29/2008", 0.74863],
+        // leap year / leap year (29 Feb include)
+        ["1/9/2008", "10/9/2008", 0.74863],
+        // leap year / leap year (29 Feb on right limit)
+        ["1/29/2008", "2/29/2008", 0.0847],
+        // leap year / leap year (29 Feb not include - at right)
+        ["1/9/2008", "2/9/2008", 0.0847],
+      ])(
+        "case: dates are different by less than a year (sitting on same years)",
+        (d1, d2, result) => {
+          const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        }
+      );
+
+      test.each([
+        // normal year / normal year
+        ["3/9/2005", "2/9/2007", 1.92329], // 1.92329 on googleSheet
+        // normal year / leap year (29 Feb include)
+        ["4/9/2005", "3/9/2008", 2.91581], // 2.91730 on googleSheet
+        // normal year / leap year (29 Feb on limit)
+        ["3/29/2005", "2/29/2008", 2.92129], // 2.92285 on googleSheet
+        // normal year / leap year (29 Feb not include)
+        ["3/9/2005", "2/9/2008", 2.92129], // 2.92300 on googleSheet
+        // leap year / normal year (29 Feb include)
+        ["2/9/2004", "1/9/2007", 2.91581], // 2.91536 on googleSheet
+        // leap year / normal year (29 Feb on limit)
+        ["2/29/2004", "1/29/2007", 2.91581], // 2.91551 on googleSheet
+        // leap year / normal year (29 Feb not include)
+        ["3/9/2004", "2/9/2007", 2.92129], // 2.92106 on googleSheet
+        // leap year / leap year (29 Feb include)
+        ["2/9/2004", "3/9/2008", 4.07772], // 4.07923 on googleSheet
+        ["3/9/2004", "3/9/2008", 3.99836], // 4.00000 on googleSheet
+        ["2/9/2004", "2/9/2008", 3.99836], // 4.00000 on googleSheet
+        // leap year / leap year (29 Feb on limit)
+        ["1/29/2004", "2/29/2008", 4.0832], // 4.08470 on googleSheet
+        ["2/29/2004", "2/29/2008", 3.99836], // 4.00000 on googleSheet
+        ["3/29/2004", "2/29/2008", 3.91899], // 3.92077 on googleSheet
+        ["2/29/2004", "1/29/2008", 3.91352], // 3.91530 on googleSheet
+        ["2/29/2004", "3/29/2008", 4.07772], // 4.07923 on googleSheet
+        // leap year / leap year (29 Feb not include)
+        ["3/9/2004", "2/9/2008", 3.91899], // 3.92077 on googleSheet
+      ])("case: dates are different by more than a year", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+    });
+
+    describe("return the YEARFRAC with convention 2", () => {
+      const conv = "2";
+
+      test.each([
+        ["12/31/2001", "12/30/2003", 2.025],
+        ["2/28/2003", "2/27/2013", 10.14444],
+        ["2/29/2004", "2/28/2012", 8.11389],
+        ["5/31/2007", "12/31/2012", 5.66944],
+      ])("some random cases", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+    });
+
+    describe("return the YEARFRAC with convention 3", () => {
+      const conv = "3";
+
+      test.each([
+        ["12/31/2001", "12/30/2003", 1.99726],
+        ["2/28/2003", "2/27/2013", 10.00548],
+        ["2/29/2004", "2/28/2012", 8.00274],
+        ["5/31/2007", "12/31/2012", 5.59178],
+      ])("some random cases", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+    });
+
+    describe("return the YEARFRAC with convention 4", () => {
+      const conv = "4";
+
+      test.each([
+        ["12/31/2001", "12/30/2003", 2.0],
+        ["2/28/2003", "2/27/2013", 9.99722],
+        ["2/29/2004", "2/28/2012", 7.99722],
+        ["5/31/2007", "12/31/2012", 5.58333],
+      ])("some random cases", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+
+      test.each([
+        ["3/31/2003", "12/12/2012", 9.7],
+        ["3/30/2003", "12/12/2012", 9.7],
+        ["3/29/2003", "12/12/2012", 9.70278],
+      ])("start dates in 31 are replaced by 30", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+
+      test.each([
+        ["5/29/2007", "12/29/2012", 5.58333],
+        ["5/29/2007", "12/30/2012", 5.58611],
+        ["5/29/2007", "12/31/2012", 5.58611],
+      ])("end dates in 31 are replaced by 30", (d1, d2, result) => {
+        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+      });
+    });
+
+    test("parameter 1 must be greater than or equal to 0", () => {
+      expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365)" })).toBeCloseTo(1, 5);
+      expect(evaluateCell("A1", { A1: "=YEARFRAC(-1, 365)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "12/30/1899", A3: "12/30/1900" })
+      ).toBeCloseTo(1, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "12/29/1899", A3: "12/29/1900" })
+      ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    });
+
+    test("parameter 1 is truncated", () => {
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBeCloseTo(1, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006 23:00", A3: "6/6/2007" })
+      ).toBeCloseTo(1, 5);
+    });
+
+    test("parameter 2 must be greater than or equal to 0", () => {
+      expect(evaluateCell("A1", { A1: "=YEARFRAC(365, 0)" })).toBeCloseTo(1, 5);
+      expect(evaluateCell("A1", { A1: "=YEARFRAC(364, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    });
+
+    test("parameter 2 is truncated", () => {
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBeCloseTo(1, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007 23:00" })
+      ).toBeCloseTo(1, 5);
+    });
+
+    test("inverting parameters 1 and 2 gives the same result", () => {
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "2/29/2004", A3: "11/12/2013" })
+      ).toBeCloseTo(9.7, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "11/12/2013", A3: "2/29/2004" })
+      ).toBeCloseTo(9.7, 5);
+    });
+
+    test("parameter 3 must be between 0 and 4 inclusive", () => {
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, -1)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 0)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBeCloseTo(1, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 4)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBeCloseTo(1, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 5)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    });
+
+    test("parameter 3 is truncated", () => {
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 2)", A2: "6/6/2006", A3: "3/6/2007" })
+      ).toBeCloseTo(0.75833, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 2.9)", A2: "6/6/2006", A3: "3/6/2007" })
+      ).toBeCloseTo(0.75833, 5);
+    });
+
+    test("parameter 3 default value is 0", () => {
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "12/12/2012" })
+      ).toBeCloseTo(6.51667, 5);
+      expect(
+        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 0)", A2: "6/6/2006", A3: "12/12/2012" })
+      ).toBeCloseTo(6.51667, 5);
+    });
+  });
+
+  describe("casting", () => {
+    describe("on 1st argument", () => {
+      test("empty argument/cell are considered as 0", () => {
+        expect(evaluateCell("A1", { A1: "=YEARFRAC( , 365)" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)" })).toBeCloseTo(1, 5);
+      });
+      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: '=YEARFRAC("0", 365)' })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)", A2: '="0"' })).toBeCloseTo(1, 5);
+      });
+      test("string/string in cell which cannot be cast in number return an error", () => {
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(" ", 365)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: '=YEARFRAC("kikou", 365)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+      test("boolean/boolean in cell are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(TRUE, 365)" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(FALSE, 365)" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 366)", A2: "TRUE" })).toBeCloseTo(1, 5);
+      });
+    });
+    describe("on 2nd argument", () => {
+      test("empty argument/cell are considered as 0", () => {
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(365,  )" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, A2)" })).toBeCloseTo(1, 5);
+      });
+      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(365, "0")' })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, A2)", A2: '="0"' })).toBeCloseTo(1, 5);
+      });
+      test("string/string in cell which cannot be cast in number return an error", () => {
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(365, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(365, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+      test("boolean/boolean in cell are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, TRUE)" })).toBeCloseTo(1, 6);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, FALSE)" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(366, A2)", A2: "TRUE" })).toBeCloseTo(1, 6);
+      });
+    });
+    describe("on 3th argument", () => {
+      test("empty argument/cell are considered as 0", () => {
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365,  )" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)" })).toBeCloseTo(1, 5);
+      });
+      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(0, 365, "0")' })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: '="0"' })).toBeCloseTo(1, 5);
+      });
+      test("string/string in cell which cannot be cast in number return an error", () => {
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(0, 365, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: '=YEARFRAC(0, 365, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      });
+      test("boolean/boolean in cell are interpreted as numbers", () => {
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, TRUE)" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, FALSE)" })).toBeCloseTo(1, 5);
+        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: "TRUE" })).toBeCloseTo(1, 5);
+      });
+    });
+  });
+});
