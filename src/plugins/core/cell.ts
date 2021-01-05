@@ -501,10 +501,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     zone = this.getters.expandZone(sheetId, zone);
     const topLeft = toXC(zone.left, zone.top);
     const botRight = toXC(zone.right, zone.bottom);
-    if (
-      topLeft != botRight &&
-      this.getters.getMainCell(sheetId, topLeft) !== this.getters.getMainCell(sheetId, botRight)
-    ) {
+    const cellTopLeft = this.getters.getMainCell(sheetId, zone.left, zone.top);
+    const cellBotRight = this.getters.getMainCell(sheetId, zone.right, zone.bottom);
+    const sameCell = cellTopLeft[0] == cellBotRight[0] && cellTopLeft[1] == cellBotRight[1];
+    if (topLeft != botRight && !sameCell) {
       return topLeft + ":" + botRight;
     }
 
@@ -532,7 +532,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private copyColumnStyle(sheet: Sheet, refColumn: number, targetCols: number[]) {
     for (let row = 0; row < sheet.rows.length; row++) {
-      const format = this.getFormat(sheet.id, toXC(refColumn, row));
+      const format = this.getFormat(sheet.id, refColumn, row);
       if (format.style || format.format) {
         for (let col of targetCols) {
           this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
@@ -546,7 +546,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private copyRowStyle(sheet: Sheet, refRow: number, targetRows: number[]) {
     for (let col = 0; col < sheet.cols.length; col++) {
-      const format = this.getFormat(sheet.id, toXC(col, refRow));
+      const format = this.getFormat(sheet.id, col, refRow);
       if (format.style || format.format) {
         for (let row of targetRows) {
           this.dispatch("UPDATE_CELL", { sheetId: sheet.id, col, row, ...format });
@@ -558,10 +558,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    */
-  private getFormat(sheetId: UID, xc: string): { style?: Style; format?: string } {
+  private getFormat(sheetId: UID, col: number, row: number): { style?: Style; format?: string } {
     const format: { style?: Style; format?: string } = {};
-    xc = this.getters.getMainCell(sheetId, xc);
-    const cell = this.getters.getCellByXc(sheetId, xc);
+    const [mainCol, mainRow] = this.getters.getMainCell(sheetId, col, row);
+    const cell = this.getters.getCell(sheetId, mainCol, mainRow);
     if (cell) {
       if (cell.style) {
         format["style"] = cell.style;

@@ -1,4 +1,3 @@
-import { toXC } from "../../helpers/coordinates";
 import {
   Cell,
   CellType,
@@ -299,7 +298,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     const { ctx, viewport } = renderingContext;
     const sheetId = this.getters.getActiveSheetId();
     for (const match of this.searchMatches) {
-      const merge = this.getters.getMerge(sheetId, toXC(match.col, match.row));
+      const merge = this.getters.getMerge(sheetId, match.col, match.row);
       const left = merge ? merge.left : match.col;
       const right = merge ? merge.right : match.col;
       const top = merge ? merge.top : match.row;

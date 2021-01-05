@@ -403,14 +403,12 @@ export class AutofillPlugin extends UIPlugin {
   }
 
   private autoFillMerge(originCol: number, originRow: number, col: number, row: number) {
-    const xcOrigin = toXC(originCol, originRow);
-    const xcTarget = toXC(col, row);
     const activeSheet = this.getters.getActiveSheet();
     if (
-      this.getters.isInMerge(activeSheet.id, xcTarget) &&
-      !this.getters.isInMerge(activeSheet.id, xcOrigin)
+      this.getters.isInMerge(activeSheet.id, col, row) &&
+      !this.getters.isInMerge(activeSheet.id, originCol, originRow)
     ) {
-      const zone = this.getters.getMerge(activeSheet.id, xcTarget);
+      const zone = this.getters.getMerge(activeSheet.id, col, row);
       if (zone) {
         this.dispatch("REMOVE_MERGE", {
           sheetId: activeSheet.id,
@@ -418,8 +416,8 @@ export class AutofillPlugin extends UIPlugin {
         });
       }
     }
-    const originMerge = this.getters.getMerge(activeSheet.id, xcOrigin);
-    if (originMerge?.topLeft === xcOrigin) {
+    const originMerge = this.getters.getMerge(activeSheet.id, originCol, originRow);
+    if (originMerge?.topLeft.col === originCol && originMerge?.topLeft.row === originRow) {
       this.dispatch("ADD_MERGE", {
         sheetId: activeSheet.id,
         zone: {

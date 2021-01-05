@@ -423,8 +423,7 @@ export class RendererPlugin extends UIPlugin {
   private hasContent(col: number, row: number): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const cell = this.getters.getCell(sheetId, col, row);
-    const xc = toXC(col, row);
-    return (cell && cell.type !== "empty") || (this.getters.isInMerge(sheetId, xc) as any);
+    return (cell && cell.type !== "empty") || (this.getters.isInMerge(sheetId, col, row) as any);
   }
 
   private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
@@ -445,7 +444,7 @@ export class RendererPlugin extends UIPlugin {
         const col = cols[colNumber];
         let xc = toXC(colNumber, rowNumber);
         const conditionalStyle = this.getters.getConditionalStyle(xc);
-        if (!this.getters.isInMerge(sheetId, xc)) {
+        if (!this.getters.isInMerge(sheetId, colNumber, rowNumber)) {
           if (cell) {
             const text = this.getters.getCellText(cell, sheetId, showFormula);
             const textWidth = this.getters.getCellWidth(cell);
@@ -528,7 +527,9 @@ export class RendererPlugin extends UIPlugin {
         if (refCell || borderBottomRight || borderTopLeft) {
           text = refCell ? this.getters.getCellText(refCell, activeSheetId, showFormula) : "";
           textWidth = refCell ? this.getters.getCellWidth(refCell) : null;
-          const conditionalStyle = this.getters.getConditionalStyle(merge.topLeft);
+          const conditionalStyle = this.getters.getConditionalStyle(
+            toXC(merge.topLeft.col, merge.topLeft.row)
+          );
           if (conditionalStyle) {
             style = Object.assign({}, style, conditionalStyle);
           }
