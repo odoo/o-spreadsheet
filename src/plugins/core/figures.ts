@@ -3,24 +3,26 @@ import { Command, Figure, UID, Viewport, WorkbookData } from "../../types/index"
 import { CorePlugin } from "../core_plugin";
 
 interface FigureState {
-  readonly figures: { [sheet: string]: Figure[] };
+  readonly figures: { [sheet: string]: Record<UID, Figure> };
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
   static getters = ["getVisibleFigures", "getFigures", "getSelectedFigureId", "getFigure"];
   private selectedFigureId: string | null = null;
-  readonly figures: { [sheet: string]: Figure[] } = {};
+  readonly figures: {
+    [sheet: string]: Record<UID, Figure>;
+  } = {};
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET":
-        this.figures[cmd.sheetId] = [];
+        this.figures[cmd.sheetId] = {};
         break;
       case "DUPLICATE_SHEET":
-        this.figures[cmd.sheetIdTo] = [];
-        for (let fig of this.figures[cmd.sheetIdFrom] || []) {
+        this.figures[cmd.sheetIdTo] = {};
+        for (let fig of Object.values(this.figures[cmd.sheetIdFrom] || [])) {
           const figure = Object.assign({}, fig, { id: uuidv4() });
           this.dispatch("CREATE_FIGURE", {
             sheetId: cmd.sheetIdTo,
@@ -52,12 +54,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   private updateFigure(sheetId: string, figure: Partial<Figure>) {
-    const currentFigures = this.figures[sheetId].slice();
-    const updateIndex = currentFigures.findIndex((c) => c.id === figure.id);
-    if (updateIndex === -1) {
+    if (!figure.id) {
       return;
     }
-    const newFigure = { ...currentFigures[updateIndex] };
+    const currentFigures = Object.assign({}, this.figures[sheetId]);
+    const newFigure = { ...currentFigures[figure.id] };
     if (figure.x !== undefined) {
       newFigure.x = Math.max(figure.x, 0);
     }
@@ -70,19 +71,13 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     if (figure.height !== undefined) {
       newFigure.height = figure.height;
     }
-    currentFigures.splice(updateIndex, 1, newFigure);
+    currentFigures[figure.id] = newFigure;
     this.history.update("figures", sheetId, currentFigures);
   }
 
-  private addFigure(figure: Figure, sheetId: string) {
-    const currentFigures = this.figures[sheetId].slice();
-    const replaceIndex = currentFigures.findIndex((c) => c.id === figure.id);
-
-    if (replaceIndex > -1) {
-      currentFigures.splice(replaceIndex, 1, figure);
-    } else {
-      currentFigures.push(figure);
-    }
+  private addFigure(figure: Figure, sheetId: UID) {
+    const currentFigures = Object.assign({}, this.figures[sheetId]);
+    currentFigures[figure.id] = figure;
     this.history.update("figures", sheetId, currentFigures);
   }
 
@@ -92,16 +87,13 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     this.history.update("figures", figures);
   }
 
-  private removeFigure(id: string, sheet: string) {
-    const figureIndex = this.figures[sheet].findIndex((s) => s.id === id);
-    if (figureIndex !== -1) {
-      const figures = this.figures[sheet].slice();
-      if (figures[figureIndex].id === this.selectedFigureId) {
-        this.selectedFigureId = null;
-      }
-      figures.splice(figureIndex, 1);
-      this.history.update("figures", sheet, figures);
+  private removeFigure(id: string, sheetId: UID) {
+    const currentFigures = Object.assign({}, this.figures[sheetId]);
+    if (this.selectedFigureId === id) {
+      this.selectedFigureId = null;
     }
+    delete currentFigures[id];
+    this.history.update("figures", sheetId, currentFigures);
   }
 
   // ---------------------------------------------------------------------------
@@ -110,7 +102,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   getVisibleFigures(sheetId: UID, viewport: Viewport): Figure[] {
     const result: Figure[] = [];
-    const figures = this.figures[sheetId] || [];
+    const figures = Object.values(this.figures[sheetId]) || [];
     const { offsetX, offsetY, width, height } = viewport;
     for (let figure of figures) {
       if (figure.x >= offsetX + width || figure.x + figure.width <= offsetX) {
@@ -132,9 +124,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   getFigure(sheetId: string, figureId: string): Figure | undefined {
-    const currentFigures = this.figures[sheetId].slice();
-    const index = currentFigures.findIndex((c) => c.id === figureId);
-    return index !== -1 ? currentFigures[index] : undefined;
+    const sheetFigures = this.figures[sheetId];
+    return sheetFigures[figureId];
   }
 
   // ---------------------------------------------------------------------------
@@ -142,7 +133,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      this.figures[sheet.id] = sheet.figures;
+      var figures = {};
+      sheet.figures.forEach((figure) => {
+        figures[figure.id] = figure;
+      });
+      this.figures[sheet.id] = figures;
     }
   }
 
@@ -151,7 +146,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       for (let sheet of data.sheets) {
         if (this.figures[sheet.id]) {
           const figures = this.figures[sheet.id];
-          for (let figure of figures) {
+          for (let figure of Object.values(figures)) {
             const data = undefined;
             sheet.figures.push({ ...figure, data });
           }
