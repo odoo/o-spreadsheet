@@ -94,6 +94,7 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
   private previousRanges: string[] = this.props.ranges || [];
   private getters = this.env.getters;
   private dispatch = this.env.dispatch;
+  private originSheet = this.env.getters.getActiveSheetId();
 
   get ranges(): (RangeInputValue & { isFocused: boolean })[] {
     const ranges = this.getters.getSelectionInput(this.id);
@@ -173,5 +174,12 @@ export class SelectionInput extends Component<Props, SpreadsheetEnv> {
       id: this.id,
       rangeId: null,
     });
+    const activeSheetId = this.getters.getActiveSheetId();
+    if (this.originSheet !== activeSheetId) {
+      this.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: activeSheetId,
+        sheetIdTo: this.originSheet,
+      });
+    }
   }
 }

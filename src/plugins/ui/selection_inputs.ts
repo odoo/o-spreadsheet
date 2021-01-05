@@ -1,12 +1,12 @@
 import { rangeReference } from "../../formulas/index";
 import { getNextColor, uuidv4 } from "../../helpers/index";
 import { Mode } from "../../model";
-import { CancelledReason, Command, CommandResult, Highlight, LAYERS } from "../../types/index";
+import { CancelledReason, Command, CommandResult, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { SelectionMode } from "./selection";
 
 export interface RangeInputValue {
-  id: string;
+  id: UID;
   xc: string;
   color?: string | null;
 }
@@ -23,11 +23,10 @@ export class SelectionInputPlugin extends UIPlugin {
   static layers = [LAYERS.Highlights];
   static getters = ["getSelectionInput", "getSelectionInputValue"];
 
-  private inputs: {
-    [id: string]: RangeInputValue[];
-  } = {};
-  private inputMaximums: { [id: string]: number } = {};
-  private focusedInput: string | null = null;
+  private inputs: Record<UID, RangeInputValue[]> = {};
+  private activeSheets: Record<UID, UID> = {};
+  private inputMaximums: Record<UID, number> = {};
+  private focusedInputId: UID | null = null;
   private focusedRange: number | null = null;
   private willAddNewRange: boolean = false;
 
@@ -39,7 +38,7 @@ export class SelectionInputPlugin extends UIPlugin {
     switch (cmd.type) {
       case "FOCUS_RANGE":
         const index = this.getIndex(cmd.id, cmd.rangeId);
-        if (this.focusedInput === cmd.id && this.focusedRange === index) {
+        if (this.focusedInputId === cmd.id && this.focusedRange === index) {
           return { status: "CANCELLED", reason: CancelledReason.InputAlreadyFocused };
         }
         break;
@@ -58,13 +57,14 @@ export class SelectionInputPlugin extends UIPlugin {
         this.initInput(cmd.id, cmd.initialRanges || [], cmd.maximumRanges);
         break;
       case "DISABLE_SELECTION_INPUT":
-        if (this.focusedInput === cmd.id) {
+        if (this.focusedInputId === cmd.id) {
           this.dispatch("HIGHLIGHT_SELECTION", { enabled: false });
           this.dispatch("REMOVE_ALL_HIGHLIGHTS");
           this.focusedRange = null;
-          this.focusedInput = null;
+          this.focusedInputId = null;
         }
         delete this.inputs[cmd.id];
+        delete this.activeSheets[cmd.id];
         delete this.inputMaximums[cmd.id];
         break;
       case "FOCUS_RANGE":
@@ -97,32 +97,40 @@ export class SelectionInputPlugin extends UIPlugin {
         }
         break;
       case "PREPARE_SELECTION_EXPANSION": {
-        const [id, index] = [this.focusedInput, this.focusedRange];
+        const [id, index] = [this.focusedInputId, this.focusedRange];
         if (id !== null && index !== null) {
           this.willAddNewRange = this.inputs[id][index].xc.trim() !== "";
         }
         break;
       }
+      case "ACTIVATE_SHEET":
+        if (this.focusedInputId !== null && this.focusedRange !== null) {
+          this.highlightAllRanges(this.focusedInputId);
+        }
+        break;
     }
   }
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  getSelectionInput(id: string): (RangeInputValue & { isFocused: boolean })[] {
+  /**
+   * Return a list of all valid XCs.
+   * e.g. ["A1", "Sheet2!B3", "E12"]
+   */
+  getSelectionInput(id: UID): (RangeInputValue & { isFocused: boolean })[] {
     if (!this.inputs[id]) {
       return [];
     }
     return this.inputs[id].map((input, index) =>
       Object.assign({}, input, {
-        color: this.focusedInput === id && this.focusedRange !== null ? input.color : null,
-        isFocused: this.focusedInput === id && this.focusedRange === index,
+        color: this.focusedInputId === id && this.focusedRange !== null ? input.color : null,
+        isFocused: this.focusedInputId === id && this.focusedRange === index,
       })
     );
   }
 
-  getSelectionInputValue(id: string): string[] {
+  getSelectionInputValue(id: UID): string[] {
     return this.cleanInputs(this.inputs[id].map((range) => range.xc));
   }
 
@@ -130,13 +138,14 @@ export class SelectionInputPlugin extends UIPlugin {
   // Other
   // ---------------------------------------------------------------------------
 
-  private initInput(id: string, initialRanges: string[], maximumRanges?: number) {
+  private initInput(id: UID, initialRanges: string[], maximumRanges?: number) {
     this.inputs[id] = initialRanges.map((r) =>
       Object.freeze({
         xc: r,
         id: uuidv4(),
       })
     ) as RangeInputValue[];
+    this.activeSheets[id] = this.getters.getActiveSheetId();
     if (maximumRanges !== undefined) {
       this.inputMaximums[id] = maximumRanges;
     }
@@ -148,11 +157,10 @@ export class SelectionInputPlugin extends UIPlugin {
   /**
    * Focus a given range or remove the focus.
    */
-  private focus(id: string, index: number | null) {
-    const currentFocusedInput = this.focusedInput;
-    const currentFocusedRange = this.focusedInput && this.focusedRange;
-    this.focusedInput = id;
-
+  private focus(id: UID, index: number | null) {
+    const currentFocusedInput = this.focusedInputId;
+    const currentFocusedRange = this.focusedInputId && this.focusedRange;
+    this.focusedInputId = id;
     if (currentFocusedRange !== null && index == null) {
       this.dispatch("HIGHLIGHT_SELECTION", { enabled: false });
       this.removeAllHighlights();
@@ -164,7 +172,6 @@ export class SelectionInputPlugin extends UIPlugin {
       this.dispatch("HIGHLIGHT_SELECTION", { enabled: true });
       this.highlightAllRanges(id);
     }
-
     this.setPendingRange(id, index);
     if (index !== null) {
       const color = this.inputs[id][index].color || getNextColor();
@@ -173,7 +180,7 @@ export class SelectionInputPlugin extends UIPlugin {
     this.focusedRange = index;
   }
 
-  private focusLast(id: string) {
+  private focusLast(id: UID) {
     this.focus(id, this.inputs[id].length - 1);
   }
 
@@ -182,13 +189,13 @@ export class SelectionInputPlugin extends UIPlugin {
   }
 
   /**
-   * Highlight all valid ranges.
+   * Highlight all valid ranges of the current sheet.
    */
-  private highlightAllRanges(id: string) {
+  private highlightAllRanges(id: UID) {
     const inputs = this.inputs[id];
     for (const [index, input] of inputs.entries()) {
       this.focusedRange = index;
-      const ranges = this.inputToHighlights(input);
+      const ranges = this.inputToHighlights(id, input);
       if (Object.keys(ranges).length > 0) {
         this.dispatch("ADD_HIGHLIGHTS", { ranges });
       }
@@ -197,7 +204,7 @@ export class SelectionInputPlugin extends UIPlugin {
 
   private add(newHighlights: Highlight[]) {
     if (
-      this.focusedInput === null ||
+      this.focusedInputId === null ||
       this.focusedRange === null ||
       this.getters.isSelectingForComposer() ||
       newHighlights.length === 0
@@ -205,27 +212,39 @@ export class SelectionInputPlugin extends UIPlugin {
       return;
     }
     const mode = this.getters.getSelectionMode();
+    const sheet = this.activeSheets[this.focusedInputId];
     if (mode === SelectionMode.expanding && this.willAddNewRange) {
-      this.addNewRange(this.focusedInput, newHighlights);
+      this.addNewRange(this.focusedInputId, this.highlightsToInput(newHighlights, sheet));
+      this.focusLast(this.focusedInputId);
       this.willAddNewRange = false;
     } else {
-      this.setRange(this.focusedInput, this.focusedRange, newHighlights);
+      this.setRange(
+        this.focusedInputId,
+        this.focusedRange,
+        this.highlightsToInput(newHighlights, sheet)
+      );
     }
   }
 
   /**
-   * Add a new input at the end and focus it.
+   * Add a new input at the end.
    */
-  private addNewRange(id: string, highlights: Highlight[]) {
-    if (this.inputMaximums[id] < this.inputs[id].length + highlights.length) {
-      return;
-    }
-    this.inputs[id] = this.inputs[id].concat(this.highlightsToInput(highlights));
-    this.focusLast(id);
+  private addNewRange(id: UID, values: RangeInputValue[]) {
+    this.insertNewRange(id, this.inputs[id].length, values);
   }
 
-  private setRange(id: string, index: number, highlights: Highlight[]) {
-    let [existingRange, ...newRanges] = this.highlightsToInput(highlights);
+  /**
+   * Insert new inputs after the given index.
+   */
+  private insertNewRange(id: string, index: number, values: RangeInputValue[]) {
+    if (this.inputMaximums[id] < this.inputs[id].length + values.length) {
+      return;
+    }
+    this.inputs[id].splice(index, 0, ...values);
+  }
+
+  private setRange(id: UID, index: number, values: RangeInputValue[]) {
+    let [existingRange, ...newRanges] = values;
     const additionalRanges = this.inputs[id].length + newRanges.length - this.inputMaximums[id];
     if (additionalRanges) {
       newRanges = newRanges.slice(0, newRanges.length - additionalRanges);
@@ -237,35 +256,50 @@ export class SelectionInputPlugin extends UIPlugin {
     }
   }
 
-  private changeRange(id: string, index: number, value: string) {
-    if (this.focusedInput !== id || this.focusedRange !== index) {
+  private changeRange(id: UID, index: number, value: string) {
+    if (this.focusedInputId !== id || this.focusedRange !== index) {
       this.dispatch("FOCUS_RANGE", { id, rangeId: this.inputs[id][index].id });
     }
     const input = this.inputs[id][index];
-    this.dispatch("REMOVE_HIGHLIGHTS", { ranges: this.inputToHighlights(input) });
-    this.dispatch("ADD_HIGHLIGHTS", {
-      ranges: this.inputToHighlights({
-        color: input.color,
-        xc: value,
-      }),
+    const valuesNotHighlighted = value
+      .split(",")
+      .map((reference) => reference.trim())
+      .filter((reference) => !this.shouldBeHighlighted(this.activeSheets[id], reference));
+    const highlightRanges = this.inputToHighlights(id, {
+      color: input.color,
+      xc: value,
     });
+    this.dispatch("REMOVE_HIGHLIGHTS", { ranges: this.inputToHighlights(id, input) });
+    this.dispatch("ADD_HIGHLIGHTS", {
+      ranges: highlightRanges,
+    });
+    const highlightNumber = Object.keys(highlightRanges).length;
+    const setRange = highlightNumber ? this.insertNewRange.bind(this) : this.setRange.bind(this);
+    setRange(
+      id,
+      index + highlightNumber,
+      valuesNotHighlighted.map((value) => ({
+        id: uuidv4(),
+        xc: value,
+      }))
+    );
   }
 
-  private removeRange(id: string, index: number) {
+  private removeRange(id: UID, index: number) {
     const [removedRange] = this.inputs[id].splice(index, 1);
-    if (this.focusedInput === id && this.focusedRange !== null) {
+    if (this.focusedInputId === id && this.focusedRange !== null) {
       this.dispatch("REMOVE_HIGHLIGHTS", {
-        ranges: this.inputToHighlights(removedRange),
+        ranges: this.inputToHighlights(id, removedRange),
       });
       this.focusLast(id);
     }
   }
 
-  private setPendingRange(id: string, index: number | null) {
+  private setPendingRange(id: UID, index: number | null) {
     this.dispatch("RESET_PENDING_HIGHLIGHT");
     if (index !== null && this.inputs[id][index].xc) {
       this.dispatch("ADD_PENDING_HIGHLIGHTS", {
-        ranges: this.inputToHighlights(this.inputs[id][index]),
+        ranges: this.inputToHighlights(id, this.inputs[id][index]),
       });
     }
   }
@@ -273,11 +307,15 @@ export class SelectionInputPlugin extends UIPlugin {
   /**
    * Convert highlights to the input format
    */
-  private highlightsToInput(highlights: Highlight[]): RangeInputValue[] {
+  private highlightsToInput(highlights: Highlight[], activeSheetId: UID): RangeInputValue[] {
+    const toXC = this.getters.zoneToXC;
     const sheetId = this.getters.getActiveSheetId();
     return highlights.map((h) =>
       Object.freeze({
-        xc: this.getters.zoneToXC(sheetId, h.zone),
+        xc:
+          h.sheet !== activeSheetId
+            ? `${this.getters.getSheetName(h.sheet)}!${toXC(sheetId, h.zone)}`
+            : toXC(sheetId, h.zone),
         id: uuidv4(),
         color: h.color,
       })
@@ -287,12 +325,16 @@ export class SelectionInputPlugin extends UIPlugin {
   /**
    * Convert highlights input format to the command format.
    * The first xc in the input range will keep its color.
+   * Invalid ranges and ranges from other sheets than the active sheets
+   * are ignored.
    */
-  private inputToHighlights({
-    xc,
-    color,
-  }: Pick<RangeInputValue, "xc" | "color">): { [range: string]: string } {
-    const ranges = this.cleanInputs([xc]);
+  private inputToHighlights(
+    id: UID,
+    { xc, color }: Pick<RangeInputValue, "xc" | "color">
+  ): { [range: string]: string } {
+    const ranges = this.cleanInputs([xc]).filter((reference) =>
+      this.shouldBeHighlighted(this.activeSheets[id], reference)
+    );
     if (ranges.length === 0) return {};
     const [fromInput, ...otherRanges] = ranges;
     const highlights: { [range: string]: string } = {
@@ -305,7 +347,11 @@ export class SelectionInputPlugin extends UIPlugin {
   }
 
   private isRangeValid(xc: string): boolean {
-    return xc.match(rangeReference) !== null;
+    const [rangeXc, sheetName] = xc.split("!").reverse();
+    return (
+      rangeXc.match(rangeReference) !== null &&
+      (sheetName === undefined || this.getters.getSheetIdByName(sheetName) !== undefined)
+    );
   }
 
   private cleanInputs(ranges: string[]): string[] {
@@ -314,14 +360,31 @@ export class SelectionInputPlugin extends UIPlugin {
       .flat()
       .map((xc) => xc.trim())
       .filter((xc) => xc !== "")
-      .filter(this.isRangeValid);
+      .filter((range) => this.isRangeValid(range));
   }
 
+  /**
+   * Check if a cell or range reference should be highlighted.
+   * It should be highlighted if it references the current active sheet.
+   * Note that if no sheet name is given in the reference ("A1"), it refers to the
+   * active sheet when the selection input was enabled which might be different from
+   * the current active sheet.
+   */
+  private shouldBeHighlighted(inputSheetId: UID, reference: string): boolean {
+    const sheetName = reference.split("!").reverse()[1];
+    const sheetId = this.getters.getSheetIdByName(sheetName);
+    const activeSheetId = this.getters.getActiveSheet().id;
+    const valid = this.cleanInputs([reference]).length === 1;
+    return (
+      valid &&
+      (sheetId === activeSheetId || (sheetId === undefined && activeSheetId === inputSheetId))
+    );
+  }
   /**
    * Return the index of a range given its id
    * or `null` if the range is not found.
    */
-  private getIndex(id: string, rangeId: string | null): number | null {
+  private getIndex(id: UID, rangeId: string | null): number | null {
     const index = this.inputs[id].findIndex((range) => range.id === rangeId);
     return index >= 0 ? index : null;
   }

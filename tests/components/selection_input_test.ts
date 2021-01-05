@@ -256,4 +256,39 @@ describe("Selection Input", () => {
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeTruthy();
   });
+
+  test("go back to initial sheet when selection is finished", async () => {
+    const { model } = await createSelectionInput();
+    const sheet1Id = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: false, position: 1 });
+    await createSelectionInput();
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: "42" });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: {
+        B4: "#454545",
+      },
+    });
+    await nextTick();
+    expect(fixture.querySelector("input")!.value).toBe("Sheet2!B4");
+    await simulateClick(".o-selection-ok");
+    expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
+  });
+
+  test("undo after selection won't change active sheet", async () => {
+    const { model } = await createSelectionInput();
+    const sheet1Id = model.getters.getActiveSheetId();
+    model.dispatch("CREATE_SHEET", { sheetId: "42", activate: false, position: 1 });
+    await createSelectionInput();
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheet1Id, sheetIdTo: "42" });
+    model.dispatch("ADD_HIGHLIGHTS", {
+      ranges: {
+        B4: "#454545",
+      },
+    });
+    await nextTick();
+    await simulateClick(".o-selection-ok");
+    expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
+    model.dispatch("UNDO");
+    expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
+  });
 });
